@@ -1,0 +1,28 @@
+﻿services:
+  lexBoxApi:
+    image: lexBoxApi
+    container_name: lexBoxApi
+    build:
+      context: .
+      dockerfile: LexBoxApi/Dockerfile
+  
+  db:
+    image: postgres
+    container_name: db
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${LEXBOX_POSTGRES_PW:?postgres password required}
+  redmine-db:
+    image: mysql:5.7.41
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: the_password
+    volumes:
+      - redmine_db_data:/var/lib/mysql
+volumes:
+    db_data:
+    redmine_db_data:
