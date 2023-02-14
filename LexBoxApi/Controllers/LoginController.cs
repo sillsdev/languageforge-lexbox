@@ -1,17 +1,26 @@
-﻿using System.Security.Cryptography;
-using System.Text;
-using LexCore;
+﻿using LexCore;
+using LexData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Controllers;
 
 [ApiController]
 public class LoginController: ControllerBase
 {
-    [HttpPost("login")]
-    public async Task<ActionResult<bool>> Login(string user, string pw)
+    private readonly LexBoxDbContext _lexBoxDbContext;
+
+    public LoginController(LexBoxDbContext lexBoxDbContext)
     {
-        return false;
+        _lexBoxDbContext = lexBoxDbContext;
+    }
+
+    [HttpPost("login")]
+    public async Task<ActionResult<bool>> Login(string usernameOrEmail, string pw)
+    {
+        var user = await _lexBoxDbContext.Users.FirstOrDefaultAsync(user => user.Email == usernameOrEmail || user.Username == usernameOrEmail);
+        if (user is null) return NotFound();
+        return PasswordHashing.RedminePasswordHash(pw, user.Salt) == user.PasswordHash;
     }
 
     [HttpGet("hashPassword")]

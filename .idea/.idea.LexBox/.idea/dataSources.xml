@@ -4,7 +4,6 @@
     <data-source source="LOCAL" name="postgres@localhost" uuid="e1df6452-5da0-4710-b684-6e181630acd5">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
-      <rewrite-bounds>false</rewrite-bounds>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5433/postgres</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
