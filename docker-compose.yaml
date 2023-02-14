@@ -5,7 +5,28 @@
     build:
       context: .
       dockerfile: LexBoxApi/Dockerfile
-  
+  hasura:
+    image: hasura/graphql-engine:v2.18.0.cli-migrations-v3
+    ports:
+      - "8081:8080"
+    depends_on:
+      - "db"
+    volumes:
+      - ./hasura/metadata:/hasura-metadata
+    environment:
+      HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/LexBox
+      PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/LexBox
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+      ## enable the console served by server
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false" # set to "false" to disable console
+      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
+      HASURA_GRAPHQL_ADMIN_SECRET: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
+      HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "naming_convention"
+      HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION: graphql-default
   db:
     image: postgres
     container_name: db
