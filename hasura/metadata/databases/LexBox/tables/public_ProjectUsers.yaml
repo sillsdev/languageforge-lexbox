@@ -2,7 +2,7 @@ table:
   name: ProjectUsers
   schema: public
 object_relationships:
-  - name: Project
+  - name: Projects
     using:
       foreign_key_constraint_on: ProjectId
   - name: User
