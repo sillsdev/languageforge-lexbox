@@ -2,38 +2,33 @@
 using System.Text;
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
 namespace WebApi.Auth;
-
-public class RequiresLexBoxBasicAuth : IAuthorizationRequirement
-{
-}
-
-public class BasicAuthHandler : AuthorizationHandler<RequiresLexBoxBasicAuth>
+public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     private readonly ProxyAuthService _proxyAuthService;
-    private readonly IHttpContextAccessor _contextAccessor;
 
-    public BasicAuthHandler(ProxyAuthService proxyAuthService, IHttpContextAccessor contextAccessor)
+    public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+        ILoggerFactory logger,
+        UrlEncoder encoder,
+        ISystemClock clock,
+        ProxyAuthService proxyAuthService) : base(options, logger, encoder, clock)
     {
         _proxyAuthService = proxyAuthService;
-        _contextAccessor = contextAccessor;
     }
 
-    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
-        RequiresLexBoxBasicAuth requirement)
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        if (_contextAccessor.HttpContext is null)
+        //the Basic realm part is required by the HG client, otherwise it won't request again with a basic auth header
+        Response.Headers.WWWAuthenticate = "Basic,Basic realm=\"SyncProxy\"";
+        var authHeader = Request.Headers.Authorization.ToString();
+        if (string.IsNullOrEmpty(authHeader))
         {
-            context.Fail(new AuthorizationFailureReason(this, "not in a request context"));
-            return;
+            return AuthenticateResult.Fail("No authorization header");
         }
 
-        var headersAuthorization =
-            _contextAccessor.HttpContext.Request.Headers.Authorization.ToString()["Basic ".Length..];
-        var basicAuthValue = Encoding.ASCII.GetString(Convert.FromBase64String(headersAuthorization))?.Split(":");
+        var basicAuthValue = Encoding.ASCII.GetString(Convert.FromBase64String(authHeader["Basic ".Length..])).Split(":");
         var (username, password) = basicAuthValue switch
         {
             ["", ""] => (null, null),
@@ -42,28 +37,18 @@ public class BasicAuthHandler : AuthorizationHandler<RequiresLexBoxBasicAuth>
         };
         if (username is null || password is null)
         {
-            context.Fail(new AuthorizationFailureReason(this, "Invalid request"));
-            return;
+            return AuthenticateResult.Fail("Invalid Request");
         }
 
-        if (await _proxyAuthService.IsAuthorized(username, password))
+        if (!await _proxyAuthService.IsAuthorized(username, password))
+            return AuthenticateResult.Fail("Invalid username or password");
+        
+        var claimsIdentity = new ClaimsIdentity(new []
         {
-            context.Succeed(requirement);
-            return;
-        }
-
-        context.Fail(new AuthorizationFailureReason(this, "Invalid username or password"));
-    }
-}
-
-public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
-{
-    public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
-    {
-    }
-
-    protected override Task<AuthenticateResult> HandleAuthenticateAsync()
-    {
-        return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(), Scheme.Name)));
+            new Claim(ClaimTypes.Name, username)
+        }, "Basic");
+        return AuthenticateResult.Success(
+            new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), Scheme.Name)
+        );
     }
 }

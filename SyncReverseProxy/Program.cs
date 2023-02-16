@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Net.Http.Headers;
 using WebApi;
 using WebApi.Auth;
 using WebApi.Config;
@@ -15,8 +17,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
+                            HttpLoggingFields.ResponsePropertiesAndHeaders | 
+                            HttpLoggingFields.RequestBody |
+                            HttpLoggingFields.ResponseBody;
+    options.MediaTypeOptions.AddText("text/html");
+    options.RequestHeaders.Add(HeaderNames.Authorization);
+    options.ResponseHeaders.Add(HeaderNames.Authorization);
+    options.RequestHeaders.Add(HeaderNames.WWWAuthenticate);
+    options.ResponseHeaders.Add(HeaderNames.WWWAuthenticate);
+});
 builder.Services.AddScoped<ProxyAuthService>();
-builder.Services.AddScoped<IAuthorizationHandler, BasicAuthHandler>();
 builder.Services.AddOptions<LexBoxApiConfig>()
     .BindConfiguration("LexBoxApi")
     .ValidateDataAnnotations()
@@ -27,7 +40,7 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("HgAuth",
         policyBuilder =>
         {
-            policyBuilder.AddRequirements(new RequiresLexBoxBasicAuth());
+            policyBuilder.RequireAuthenticatedUser();
         });
 
 var app = builder.Build();
@@ -40,7 +53,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthorization();
 
