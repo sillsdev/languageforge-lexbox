@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using LexBoxApi;
 using LexData;
 using LexData.EntityIds;
-using WebApi;
+using LexSyncReverseProxy;
 
 var builder = WebApplication.CreateBuilder(args);
 

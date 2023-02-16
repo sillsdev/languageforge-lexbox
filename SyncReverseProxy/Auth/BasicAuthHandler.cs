@@ -5,7 +5,7 @@ using LexCore.ServiceInterfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
-namespace WebApi.Auth;
+namespace LexSyncReverseProxy.Auth;
 public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     public const string AuthScheme = "HgAuthScheme";

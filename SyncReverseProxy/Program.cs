@@ -1,11 +1,11 @@
 using LexCore.ServiceInterfaces;
+using LexSyncReverseProxy;
+using LexSyncReverseProxy.Auth;
+using LexSyncReverseProxy.Config;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Net.Http.Headers;
-using WebApi;
-using WebApi.Auth;
-using WebApi.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 

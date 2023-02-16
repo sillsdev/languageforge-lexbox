@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using LexSyncReverseProxy.Auth;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using WebApi.Auth;
 
-namespace WebApi;
+namespace LexSyncReverseProxy;
 
 public static class ProxyKernel
 {

@@ -1,7 +1,6 @@
 ﻿using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
-using WebApi;
-using WebApi.Auth;
+using LexSyncReverseProxy;
 
 namespace LexBoxApi;
 

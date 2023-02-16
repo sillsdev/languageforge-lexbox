@@ -1,8 +1,8 @@
 ﻿using LexCore.ServiceInterfaces;
+using LexSyncReverseProxy.Config;
 using Microsoft.Extensions.Options;
-using WebApi.Config;
 
-namespace WebApi.Auth;
+namespace LexSyncReverseProxy.Auth;
 
 public class RestProxyAuthService: IProxyAuthService
 {

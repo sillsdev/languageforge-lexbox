@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApi.Config;
+namespace LexSyncReverseProxy.Config;
 
 public class LexBoxApiConfig
 {
