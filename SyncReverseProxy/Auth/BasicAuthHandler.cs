@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 namespace WebApi.Auth;
 public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
+    public const string AuthScheme = "HgAuthScheme";
     private readonly IProxyAuthService _proxyAuthService;
 
     public BasicAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,

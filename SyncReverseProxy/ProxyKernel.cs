@@ -12,17 +12,18 @@ public static class ProxyKernel
             .LoadFromConfig(configuration.GetSection("ReverseProxy"));
         services.AddHttpClient();
         services.AddAuthentication()
-            .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>("HgAuthScheme", null);
+            .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
         services.AddAuthorizationBuilder()
-            .AddPolicy("HgAuth",
+            .AddPolicy("HgAuthPolicy",
                 policyBuilder =>
                 {
                     policyBuilder.RequireAuthenticatedUser();
                 });
     }
 
-    public static void MapSyncProxy(this IEndpointRouteBuilder app)
+    public static ReverseProxyConventionBuilder MapSyncProxy(this IEndpointRouteBuilder app)
     {
-        app.MapReverseProxy().RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = "HgAuthScheme" });
+        return app.MapReverseProxy()
+            .RequireAuthorization(new AuthorizeAttribute { AuthenticationSchemes = BasicAuthHandler.AuthScheme });
     }
 }
