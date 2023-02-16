@@ -10,7 +10,6 @@ public static class ProxyKernel
     {
         services.AddReverseProxy()
             .LoadFromConfig(configuration.GetSection("ReverseProxy"));
-        services.AddHttpClient();
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
         services.AddAuthorizationBuilder()

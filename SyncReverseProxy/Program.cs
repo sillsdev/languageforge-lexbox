@@ -15,6 +15,7 @@ builder.Services.AddOptions<LexBoxApiConfig>()
     .ValidateDataAnnotations()
     .ValidateOnStart();
 builder.Services.AddScoped<IProxyAuthService, RestProxyAuthService>();
+builder.Services.AddHttpClient();
 
 builder.Services.AddSyncProxy(builder.Configuration);
 builder.Services.AddHttpLogging(options =>
