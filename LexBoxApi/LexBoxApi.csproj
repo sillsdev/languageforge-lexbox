@@ -26,6 +26,7 @@
     <ItemGroup>
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
       <ProjectReference Include="..\LexData\LexData.csproj" />
+      <ProjectReference Include="..\SyncReverseProxy\SyncReverseProxy.csproj" />
     </ItemGroup>
 
 </Project>

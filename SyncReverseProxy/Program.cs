@@ -1,3 +1,4 @@
+using LexCore.ServiceInterfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpLogging;
@@ -9,14 +10,13 @@ using WebApi.Config;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddHttpClient();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddOptions<LexBoxApiConfig>()
+    .BindConfiguration("LexBoxApi")
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddScoped<IProxyAuthService, RestProxyAuthService>();
+
+builder.Services.AddSyncProxy(builder.Configuration);
 builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
@@ -29,34 +29,16 @@ builder.Services.AddHttpLogging(options =>
     options.RequestHeaders.Add(HeaderNames.WWWAuthenticate);
     options.ResponseHeaders.Add(HeaderNames.WWWAuthenticate);
 });
-builder.Services.AddScoped<ProxyAuthService>();
-builder.Services.AddOptions<LexBoxApiConfig>()
-    .BindConfiguration("LexBoxApi")
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-builder.Services.AddAuthentication("Default")
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Default", null);
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("HgAuth",
-        policyBuilder =>
-        {
-            policyBuilder.RequireAuthenticatedUser();
-        });
+
 
 var app = builder.Build();
 
 app.UseHttpLogging();
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
 // app.UseHttpsRedirection();
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
-app.MapReverseProxy();
+app.MapSyncProxy();
 app.Run();

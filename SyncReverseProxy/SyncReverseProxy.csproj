@@ -28,4 +28,8 @@
       <Compile Remove="Controllers\WeatherForecastController.cs" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\LexCore\LexCore.csproj" />
+    </ItemGroup>
+
 </Project>

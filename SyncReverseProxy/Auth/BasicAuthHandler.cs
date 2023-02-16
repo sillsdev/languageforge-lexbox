@@ -1,19 +1,20 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using LexCore.ServiceInterfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 
 namespace WebApi.Auth;
-public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
+public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-    private readonly ProxyAuthService _proxyAuthService;
+    private readonly IProxyAuthService _proxyAuthService;
 
-    public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
+    public BasicAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
         ISystemClock clock,
-        ProxyAuthService proxyAuthService) : base(options, logger, encoder, clock)
+        IProxyAuthService proxyAuthService) : base(options, logger, encoder, clock)
     {
         _proxyAuthService = proxyAuthService;
     }

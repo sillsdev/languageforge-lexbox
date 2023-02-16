@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using LexCore;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +12,12 @@ namespace LexBoxApi.Controllers;
 public class ProxyAccessController : ControllerBase
 {
     private readonly LexBoxDbContext _lexBoxDbContext;
+    private readonly IProxyAuthService _proxyAuthService;
 
-    public ProxyAccessController(LexBoxDbContext lexBoxDbContext)
+    public ProxyAccessController(LexBoxDbContext lexBoxDbContext, IProxyAuthService proxyAuthService)
     {
         _lexBoxDbContext = lexBoxDbContext;
+        _proxyAuthService = proxyAuthService;
     }
 
     [AllowAnonymous]
@@ -53,13 +56,7 @@ public class ProxyAccessController : ControllerBase
     [HttpPost("/api/user/{userName}/password")]
     public async Task<ActionResult> IsValidPassword(string userName, [FromForm] string password)
     {
-        var user = await _lexBoxDbContext.Users.SingleOrDefaultAsync(u => u.Username == userName);
-        if (user == null)
-        {
-            return Forbid();
-        }
-        var valid = PasswordHashing.RedminePasswordHash(password, user.Salt) == user.PasswordHash;
-        return valid ? Ok() : Forbid();
+        return await _proxyAuthService.IsAuthorized(userName, password) ? Ok() : Forbid();
     }
 }
 

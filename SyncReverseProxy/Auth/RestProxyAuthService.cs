@@ -1,14 +1,15 @@
-﻿using Microsoft.Extensions.Options;
+﻿using LexCore.ServiceInterfaces;
+using Microsoft.Extensions.Options;
 using WebApi.Config;
 
 namespace WebApi.Auth;
 
-public class ProxyAuthService
+public class RestProxyAuthService: IProxyAuthService
 {
     private readonly IHttpClientFactory _clientFactory;
     private readonly LexBoxApiConfig _lexBoxApiConfig;
 
-    public ProxyAuthService(IHttpClientFactory clientFactory, IOptionsSnapshot<LexBoxApiConfig> optionsSnapshot)
+    public RestProxyAuthService(IHttpClientFactory clientFactory, IOptionsSnapshot<LexBoxApiConfig> optionsSnapshot)
     {
         _clientFactory = clientFactory;
         _lexBoxApiConfig = optionsSnapshot.Value;

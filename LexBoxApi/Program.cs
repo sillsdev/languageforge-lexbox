@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
+using LexBoxApi;
 using LexData;
 using LexData.EntityIds;
+using WebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,8 +18,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
-
 builder.Services.AddLexData();
+builder.Services.AddLexBoxApi(builder.Configuration);
 
 var app = builder.Build();
 
@@ -30,9 +32,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/healthz");
 app.MapControllers();
+app.MapSyncProxy();
 
 app.Run();
