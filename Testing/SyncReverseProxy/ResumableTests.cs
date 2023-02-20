@@ -15,7 +15,7 @@ public class ResumableTests
     public async Task IsAvailable(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"https://{host}/api/v03/isAvailable?repoId=en-counselling-flex")
+            $"https://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
         {
             Headers =
             {
