@@ -75,7 +75,6 @@ public class LexAuthUser
     public required string Email { get; set; }
 
     [JsonPropertyName(LexAuthConstants.RoleClaimType)]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
     public required UserRole Role { get; set; }
 
     [JsonPropertyName("proj")]
@@ -109,6 +108,7 @@ public class LexAuthUser
 
 public record AuthUserProject(string Code, ProjectRole Role);
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {
     admin,
