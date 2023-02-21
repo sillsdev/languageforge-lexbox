@@ -44,6 +44,8 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/healthz");
 app.MapControllers();
-// app.MapSyncProxy();
+//disabled in dev because it'll make it hard to trace routing errors
+if (app.Environment.IsProduction())
+    app.MapSyncProxy();
 
 app.Run();
