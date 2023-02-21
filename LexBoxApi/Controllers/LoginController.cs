@@ -1,26 +1,33 @@
-﻿using LexCore;
+﻿using LexBoxApi.Auth;
+using LexCore;
 using LexData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace LexBoxApi.Controllers;
 
 [ApiController]
-public class LoginController: ControllerBase
+[Route("/api/login")]
+public class LoginController : ControllerBase
 {
-    private readonly LexBoxDbContext _lexBoxDbContext;
+    private readonly LexAuthService _lexAuthService;
 
-    public LoginController(LexBoxDbContext lexBoxDbContext)
+    public LoginController(LexAuthService lexAuthService)
     {
-        _lexBoxDbContext = lexBoxDbContext;
+        _lexAuthService = lexAuthService;
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<bool>> Login(string usernameOrEmail, string pw)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [AllowAnonymous]
+    public async Task<ActionResult<string>> Login(string usernameOrEmail, [FromForm] string pw)
     {
-        var user = await _lexBoxDbContext.Users.FirstOrDefaultAsync(user => user.Email == usernameOrEmail || user.Username == usernameOrEmail);
-        if (user is null) return NotFound();
-        return PasswordHashing.RedminePasswordHash(pw, user.Salt) == user.PasswordHash;
+        var user = await _lexAuthService.Login(usernameOrEmail, pw);
+        if (user == null) return Unauthorized();
+        return _lexAuthService.GenerateJwt(user);
     }
 
     [HttpGet("hashPassword")]
