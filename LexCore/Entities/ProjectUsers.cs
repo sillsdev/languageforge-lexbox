@@ -1,8 +1,4 @@
-﻿using LexData.Configuration;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace LexData.Entities;
+﻿namespace LexCore.Entities;
 
 public class ProjectUsers : EntityBase
 {
@@ -11,8 +7,4 @@ public class ProjectUsers : EntityBase
     public required ProjectRole Role { get; set; }
     public required User User { get; set; }
     public required Project Project { get; set; }
-}
-
-public class ProjectUsersEntityConfiguration : EntityBaseConfiguration<ProjectUsers>
-{
 }

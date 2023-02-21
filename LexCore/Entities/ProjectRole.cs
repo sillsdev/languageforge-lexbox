@@ -1,4 +1,4 @@
-﻿namespace LexData.Entities;
+﻿namespace LexCore.Entities;
 
 public enum ProjectRole
 {

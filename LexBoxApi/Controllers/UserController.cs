@@ -1,4 +1,5 @@
-﻿using LexData;
+﻿using LexCore.Entities;
+using LexData;
 using LexData.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
