@@ -1,0 +1,57 @@
+# This is the default hgkeeper access policy.  If you have not yet read
+# README.md in this directory, please read it first.
+#
+# This file contains the access policies as well as groups for all access
+# control via hgkeeper.
+#
+# The format of each policy is:
+#
+#   p, user/group, pathspec, permission, effect
+#
+# * p is required to define that this is a policy.
+# * user/group is the name of the user or group that this policy is affecting.
+# * pathspec is glob like pattern of repositories to affect.
+# * permission is one of read, write, or init.  If a user has write access, they
+#   also have read access.  Likewise, init access grants read and write access
+#   as well.
+# * effect is one of allow or deny.
+#
+# The first policy that matches will be honored, so you'll want your
+# restrictive policies first and your permissive policies last.
+# More than one policy can match, but if any of the matching policies is a deny,
+# then the deny is honored and the user is denied permission.
+
+# give users in the admins group the ability to create repositories everywhere.
+# p, admins, /*, init, allow
+
+# deny authenticated, but not explicitly defined users read access to the
+# /hgkeeper repo
+# p, public, /hgkeeper, read, deny
+
+# finally allow all authenticated users to do anything
+p, public, /*, init, allow
+
+###############################################################################
+# Groups
+###############################################################################
+# The format of a group is as follows:
+#
+#   g, user, group
+#
+# * g is required to define that this is a group.
+# * user is the username that is being added to the group.
+# * group is the name of the group.
+#
+# This value was adding during when the setup command was run to add
+# admin to the admins group.
+g, admin, admins
+
+###############################################################################
+# Action Groups
+###############################################################################
+
+# give the write action read permission
+g2, read, write
+
+# give the init action write permission (which has read)
+g2, write, init

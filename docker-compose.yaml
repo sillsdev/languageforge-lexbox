@@ -57,6 +57,20 @@
       MYSQL_ROOT_PASSWORD: the_password
     volumes:
       - redmine_db_data:/var/lib/mysql
+  hg:
+    image: rwgrim/hgkeeper:latest
+    container_name: hg
+    ports:
+      - 8088:8080
+    volumes:
+      - ./hg-web/repos:/repos
+      - ./hg-web/dev-key.pub:/admin-pubkey:ro
+    environment:
+      HGK_REPOS_PATH: /repos
+      HGK_ADMIN_USERNAME: admin
+      HGK_DISABLE_SSH: true
+      HGK_ADMIN_PUBKEY: /admin-pubkey
+    command: hgkeeper serve
 volumes:
     db_data:
     redmine_db_data:
