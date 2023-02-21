@@ -4,4 +4,4 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 *.DotSettings.user
-Testing/SyncReverseProxy/TestData.cs
+backend/Testing/SyncReverseProxy/TestData.cs
