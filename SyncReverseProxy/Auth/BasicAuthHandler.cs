@@ -20,10 +20,22 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
         _proxyAuthService = proxyAuthService;
     }
 
-    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
     {
         //the Basic realm part is required by the HG client, otherwise it won't request again with a basic auth header
         Response.Headers.WWWAuthenticate = "Basic,Basic realm=\"SyncProxy\"";
+        await base.HandleForbiddenAsync(properties);
+    }
+
+    protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
+    {
+        //the Basic realm part is required by the HG client, otherwise it won't request again with a basic auth header
+        Response.Headers.WWWAuthenticate = "Basic,Basic realm=\"SyncProxy\"";
+        await base.HandleChallengeAsync(properties);
+    }
+
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
         var authHeader = Request.Headers.Authorization.ToString();
         if (string.IsNullOrEmpty(authHeader))
         {
