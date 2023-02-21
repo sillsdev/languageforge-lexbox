@@ -6,8 +6,12 @@ namespace LexSyncReverseProxy;
 
 public static class ProxyKernel
 {
-    public static void AddSyncProxy(this IServiceCollection services, IConfigurationRoot configuration)
+    public static void AddSyncProxy(this IServiceCollection services,
+        ConfigurationManager configuration,
+        IWebHostEnvironment env)
     {
+        configuration.AddJsonFile("proxy.appsettings.json", optional: true)
+            .AddJsonFile($"proxy.appsettings.{env.EnvironmentName}.json", optional: true);
         services.AddHttpContextAccessor();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         services.AddReverseProxy()

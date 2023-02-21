@@ -19,12 +19,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
       <ProjectReference Include="..\LexData\LexData.csproj" />
       <ProjectReference Include="..\SyncReverseProxy\SyncReverseProxy.csproj" />

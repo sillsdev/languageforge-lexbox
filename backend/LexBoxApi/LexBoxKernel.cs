@@ -8,7 +8,7 @@ namespace LexBoxApi;
 public static class LexBoxKernel
 {
     public static void AddLexBoxApi(this IServiceCollection services,
-        IConfigurationRoot configuration,
+        ConfigurationManager configuration,
         IWebHostEnvironment environment)
     {
         //todo config
@@ -16,7 +16,7 @@ public static class LexBoxKernel
         services.AddAuthorization();
         
         services.AddScoped<IProxyAuthService, ProxyAuthService>();
-        services.AddSyncProxy(configuration);
+        services.AddSyncProxy(configuration, environment);
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
     }
 }
