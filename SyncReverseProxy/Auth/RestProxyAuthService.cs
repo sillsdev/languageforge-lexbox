@@ -1,4 +1,7 @@
-﻿using LexCore.ServiceInterfaces;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
+using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy.Config;
 using Microsoft.Extensions.Options;
 
@@ -14,16 +17,21 @@ public class RestProxyAuthService: IProxyAuthService
         _clientFactory = clientFactory;
         _lexBoxApiConfig = optionsSnapshot.Value;
     }
-    
-    public async Task<bool> IsAuthorized(string userName, string password)
+
+    public async Task<ClaimsPrincipal?> Login(string userName, string password)
     {
         var client = _clientFactory.CreateClient("admin");
-        var response = await client.PostAsync($"{_lexBoxApiConfig.Url}/api/user/{userName}/password",
-            new FormUrlEncodedContent(
-                new[]
-                {
-                    new KeyValuePair<string, string>("password", password)
-                }));
-        return response.IsSuccessStatusCode;
+        var response = await client.PostAsync($"{_lexBoxApiConfig.Url}/api/login/login?usernameOrEmail={userName}",
+            new FormUrlEncodedContent(new []
+            {
+                new KeyValuePair<string, string>("pw", password)
+            }));
+        if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized)
+            return null;
+        response.EnsureSuccessStatusCode();
+        var jwt = await response.Content.ReadAsStringAsync();
+        var jwtSecurityToken = new JwtSecurityTokenHandler().ReadJwtToken(jwt);
+
+        return new ClaimsPrincipal(new ClaimsIdentity(jwtSecurityToken.Claims, "Basic"));
     }
 }

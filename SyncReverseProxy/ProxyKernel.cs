@@ -8,15 +8,18 @@ public static class ProxyKernel
 {
     public static void AddSyncProxy(this IServiceCollection services, IConfigurationRoot configuration)
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         services.AddReverseProxy()
             .LoadFromConfig(configuration.GetSection("ReverseProxy"));
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
         services.AddAuthorizationBuilder()
-            .AddPolicy("HgAuthPolicy",
+            .AddPolicy("UserHasAccessToProject",
                 policyBuilder =>
                 {
-                    policyBuilder.RequireAuthenticatedUser();
+                    policyBuilder.RequireAuthenticatedUser()
+                        .AddRequirements(new UserHasAccessToProjectRequirement());
                 });
     }
 

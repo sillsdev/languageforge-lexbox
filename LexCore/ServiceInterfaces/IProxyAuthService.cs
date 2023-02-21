@@ -1,6 +1,8 @@
-﻿namespace LexCore.ServiceInterfaces;
+﻿using System.Security.Claims;
+
+namespace LexCore.ServiceInterfaces;
 
 public interface IProxyAuthService
 {
-    Task<bool> IsAuthorized(string userName, string password);
+    Task<ClaimsPrincipal?> Login(string userName, string password);
 }

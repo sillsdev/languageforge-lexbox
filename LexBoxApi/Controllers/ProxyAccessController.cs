@@ -51,13 +51,6 @@ public class ProxyAccessController : ControllerBase
 
         return user.projects.ToArray();
     }
-
-    [AllowAnonymous]
-    [HttpPost("/api/user/{userName}/password")]
-    public async Task<ActionResult> IsValidPassword(string userName, [FromForm] string password)
-    {
-        return await _proxyAuthService.IsAuthorized(userName, password) ? Ok() : Forbid();
-    }
 }
 
 public record LegacyApiProject(string Identifier, string Name, string Repository, string Role);

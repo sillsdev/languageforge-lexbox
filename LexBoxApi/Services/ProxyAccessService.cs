@@ -1,4 +1,7 @@
-﻿using LexCore;
+﻿using System.Security.Claims;
+using LexBoxApi.Auth;
+using LexCore;
+using LexCore.Auth;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
@@ -7,21 +10,16 @@ namespace LexBoxApi.Services;
 
 public class ProxyAuthService : IProxyAuthService
 {
-    private readonly LexBoxDbContext _lexBoxDbContext;
-
-    public ProxyAuthService(LexBoxDbContext lexBoxDbContext)
+    private readonly LexAuthService _lexAuthService;
+    public ProxyAuthService( LexAuthService lexAuthService)
     {
-        _lexBoxDbContext = lexBoxDbContext;
+        _lexAuthService = lexAuthService;
     }
 
-    public async Task<bool> IsAuthorized(string userName, string password)
+    public async Task<ClaimsPrincipal?> Login(string userName, string password)
     {
-        var user = await _lexBoxDbContext.Users.SingleOrDefaultAsync(u => u.Username == userName);
-        if (user == null)
-        {
-            return false;
-        }
-
-        return PasswordHashing.RedminePasswordHash(password, user.Salt) == user.PasswordHash;
+        var user = await _lexAuthService.Login(userName, password);
+        if (user is null) return null;
+        return new ClaimsPrincipal(new ClaimsIdentity(user.GetClaims()));
     }
 }

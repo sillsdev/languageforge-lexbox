@@ -54,15 +54,10 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
             return AuthenticateResult.Fail("Invalid Request");
         }
 
-        if (!await _proxyAuthService.IsAuthorized(username, password))
+        var principal = await _proxyAuthService.Login(username, password);
+        if (principal is null)
             return AuthenticateResult.Fail("Invalid username or password");
-        
-        var claimsIdentity = new ClaimsIdentity(new []
-        {
-            new Claim(ClaimTypes.Name, username)
-        }, "Basic");
-        return AuthenticateResult.Success(
-            new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), Scheme.Name)
+        return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name)
         );
     }
 }
