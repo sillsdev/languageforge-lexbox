@@ -5,10 +5,13 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["LexBoxApi/LexBoxApi.csproj", "LexBoxApi/"]
-RUN dotnet restore "LexBoxApi/LexBoxApi.csproj"
+# Copy the main source project files
+COPY backend/*/*.csproj ./
+# move them into the proper sub folders, based on the name of the project
+RUN for file in $(ls *.csproj); do mkdir -p backend/${file%.*}/ && mv $file backend/${file%.*}/; done
+RUN dotnet restore "backend/LexBoxApi/LexBoxApi.csproj"
 COPY . .
-WORKDIR "/src/LexBoxApi"
+WORKDIR "/src/backend/LexBoxApi"
 RUN dotnet build "LexBoxApi.csproj" -c Release -o /app/build
 
 FROM build AS publish

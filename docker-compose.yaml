@@ -1,10 +1,18 @@
 ﻿services:
-  lexBoxApi:
-    image: lexBoxApi
+  lex-box-api:
     container_name: lexBoxApi
     build:
       context: .
-      dockerfile: LexBoxApi/Dockerfile
+      dockerfile: backend/LexBoxApi/dev.Dockerfile
+    ports:
+      - 7075:80
+    depends_on:
+      - "db"
+    volumes:
+      - ./:/src
+    environment:
+      DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=LexBox
+      ASPNETCORE_ENVIRONMENT: Development
   hasura:
     image: hasura/graphql-engine:v2.18.0.cli-migrations-v3
     ports:
@@ -19,7 +27,7 @@
       PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/LexBox
       HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
       ## enable the console served by server
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "false" # set to "false" to disable console
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
       ## enable debugging mode. It is recommended to disable this in production
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
