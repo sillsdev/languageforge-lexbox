@@ -19,7 +19,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 
 builder.Services.AddLexData();
-builder.Services.AddLexBoxApi(builder.Configuration);
+builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
