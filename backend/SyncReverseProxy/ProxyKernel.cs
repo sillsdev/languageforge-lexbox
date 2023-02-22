@@ -10,8 +10,12 @@ public static class ProxyKernel
         ConfigurationManager configuration,
         IWebHostEnvironment env)
     {
-        configuration.AddJsonFile("proxy.appsettings.json", optional: true)
-            .AddJsonFile($"proxy.appsettings.{env.EnvironmentName}.json", optional: true);
+        configuration.AddJsonFile("proxy.appsettings.json",
+                optional: true,
+                reloadOnChange: env.IsDevelopment())
+            .AddJsonFile($"proxy.appsettings.{env.EnvironmentName}.json",
+                optional: true,
+                reloadOnChange: env.IsDevelopment());
         services.AddHttpContextAccessor();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         services.AddReverseProxy()
