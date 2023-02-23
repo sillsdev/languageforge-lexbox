@@ -8,3 +8,10 @@ push_ssl=False
 bundle1=True
 bundle1.push=True
 bundle1.pull=True
+
+# we must add this here otherwise new repos wont show up unless we restart hgkeeper
+# this is because hgkeeper hardcodes the list of repos at startup and only
+# refreshes it when an ssh init is executed
+# this should be able to be configured with an environment variable, but I couldn't get it to work
+[paths]
+/ = /repos/*
