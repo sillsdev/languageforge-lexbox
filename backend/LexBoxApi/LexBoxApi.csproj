@@ -24,4 +24,7 @@
       <ProjectReference Include="..\SyncReverseProxy\SyncReverseProxy.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="Services\HgEmptyRepo\**" CopyToOutputDirectory="Always" />
+    </ItemGroup>
 </Project>

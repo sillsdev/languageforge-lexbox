@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Config;
 using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
@@ -11,10 +12,14 @@ public static class LexBoxKernel
         ConfigurationManager configuration,
         IWebHostEnvironment environment)
     {
-        //todo config
-        services.AddAuthentication();
-        services.AddAuthorization();
+        services.AddOptions<HgConfig>()
+            .BindConfiguration("HgConfig")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         
+        services.AddScoped<LoggedInContext>();
+        services.AddScoped<ProjectService>();
+        services.AddScoped<HgService>();
         services.AddScoped<IProxyAuthService, ProxyAuthService>();
         services.AddSyncProxy(configuration, environment);
         AuthKernel.AddLexBoxAuth(services, configuration, environment);

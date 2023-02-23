@@ -2,7 +2,7 @@
 
 public class EntityBase
 {
-    public required Guid Id { get; init; }
-    public required DateTimeOffset CreatedDate { get; init; }
-    public required DateTimeOffset UpdatedDate { get; init; }
+    public Guid Id { get; init; }
+    public DateTimeOffset CreatedDate { get; init; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedDate { get; init; } = DateTimeOffset.UtcNow;
 }

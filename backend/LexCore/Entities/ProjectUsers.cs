@@ -3,8 +3,8 @@
 public class ProjectUsers : EntityBase
 {
     public required Guid UserId { get; set; }
-    public required Guid ProjectId { get; set; }
+    public Guid ProjectId { get; set; }
     public required ProjectRole Role { get; set; }
-    public required User User { get; set; }
-    public required Project Project { get; set; }
+    public User User { get; set; }
+    public Project Project { get; set; }
 }
