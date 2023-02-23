@@ -1,4 +1,5 @@
 ﻿using LexCore.Entities;
+using LexData.Configuration;
 using LexData.Entities;
 using LexData.EntityIds;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +15,7 @@ public class LexBoxDbContext: DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(EntityBase).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(EntityBaseConfiguration<>).Assembly);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

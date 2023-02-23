@@ -7,8 +7,9 @@ namespace LexData.Entities;
 
 public class UserEntityConfiguration : EntityBaseConfiguration<User>
 {
-    public void Configure(EntityTypeBuilder<User> builder)
+    public override void Configure(EntityTypeBuilder<User> builder)
     {
+        base.Configure(builder);
         builder.HasMany(user => user.Projects)
             .WithOne(projectUser => projectUser.User)
             .HasForeignKey(projectUser => projectUser.UserId)

@@ -7,8 +7,10 @@ namespace LexData.Entities;
 
 public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>
 {
-    public void Configure(EntityTypeBuilder<Project> builder)
+    public override void Configure(EntityTypeBuilder<Project> builder)
     {
+        base.Configure(builder);
+        builder.HasIndex(p => p.Code).IsUnique();
         builder.HasMany(project => project.Users)
             .WithOne(projectUser => projectUser.Project)
             .HasForeignKey(projectUser => projectUser.ProjectId)

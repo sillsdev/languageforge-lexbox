@@ -9,6 +9,7 @@ public class EntityBaseConfiguration<T>: IEntityTypeConfiguration<T> where T :  
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
+        builder.HasKey(e => e.Id);
         builder.Property(e => e.CreatedDate).HasDefaultValueSql("now()");
         builder.Property(e => e.UpdatedDate).HasDefaultValueSql("now()");
     }
