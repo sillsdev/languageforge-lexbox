@@ -74,7 +74,8 @@
       HGK_ADMIN_USERNAME: admin
       HGK_DISABLE_SSH: true
       HGK_ADMIN_PUBKEY: /admin-pubkey
-    command: hgkeeper serve
+#      setup is only required the first time, it'll error if it's already been run but that's fine.
+    command: bash -c "hgkeeper setup ; hgkeeper serve"
 volumes:
     db_data:
     redmine_db_data:
