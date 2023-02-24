@@ -15,6 +15,8 @@
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=LexBox
       ASPNETCORE_ENVIRONMENT: Development
       HgConfig__RepoPath: /hg-repos
+      Clusters__hg-web__Destinations__hg-web-server__Address: http://hg:8080
+      Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
   hasura:
     image: hasura/graphql-engine:v2.18.0.cli-migrations-v3
     ports:
@@ -76,6 +78,16 @@
       HGK_ADMIN_PUBKEY: /admin-pubkey
 #      setup is only required the first time, it'll error if it's already been run but that's fine.
     command: bash -c "hgkeeper setup ; hgkeeper serve"
+  hg-resumable:
+    image: ghcr.io/sillsdev/hgresume:v2023-02-24
+    container_name: hg-resumable
+    ports:
+      - 8034:80
+    volumes:
+      - ./hg-web/repos:/var/vcs/public
+#    this is here so if the container is restarted during an upload they don't have to start over 
+      - resumable-cache:/var/cache/hgresume
 volumes:
     db_data:
     redmine_db_data:
+    resumable-cache:

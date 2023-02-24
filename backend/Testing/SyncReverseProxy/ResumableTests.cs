@@ -26,6 +26,9 @@ public class ResumableTests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
             }
         });
+        var responseString = await responseMessage.Content.ReadAsStringAsync();
+        responseString.ShouldBeNullOrEmpty();
+        responseMessage.Headers.GetValues("X-HgR-Version").ShouldHaveSingleItem().ShouldBe("3");
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
     

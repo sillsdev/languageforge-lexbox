@@ -28,14 +28,14 @@
       "hg-web": {
         "Destinations": {
           "hg-web-server": {
-            "Address": "https://hg-public.languageforge.org/"
+            "Address": "http://localhost:8088/"
           }
         }
       },
       "resumable-web": {
         "Destinations": {
           "resumable-web-server": {
-            "Address": "https://resumable.languageforge.org/"
+            "Address": "http://localhost:8034/"
           }
         }
       }
