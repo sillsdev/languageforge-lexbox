@@ -20,14 +20,11 @@ builder.Services.AddSyncProxy(builder.Configuration, builder.Environment);
 builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
-                            HttpLoggingFields.ResponsePropertiesAndHeaders | 
-                            HttpLoggingFields.RequestBody |
-                            HttpLoggingFields.ResponseBody;
-    options.MediaTypeOptions.AddText("text/html");
+                             HttpLoggingFields.ResponsePropertiesAndHeaders;
     options.RequestHeaders.Add(HeaderNames.Authorization);
-    options.ResponseHeaders.Add(HeaderNames.Authorization);
-    options.RequestHeaders.Add(HeaderNames.WWWAuthenticate);
     options.ResponseHeaders.Add(HeaderNames.WWWAuthenticate);
+    options.ResponseHeaders.Add("X-HgR-Version");
+    options.ResponseHeaders.Add("X-HgR-Status");
 });
 
 
