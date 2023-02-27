@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using HotChocolate.AspNetCore;
 using LexBoxApi;
 using LexData;
 using LexSyncReverseProxy;
@@ -19,9 +20,7 @@ builder.Services.AddHealthChecks();
 builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
-                            HttpLoggingFields.ResponsePropertiesAndHeaders |
-                            HttpLoggingFields.RequestBody |
-                            HttpLoggingFields.ResponseBody;
+                            HttpLoggingFields.ResponsePropertiesAndHeaders;
 });
 
 builder.Services.AddLexData();
@@ -42,7 +41,10 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/healthz");
 app.MapControllers();
-app.MapGraphQL();
+app.MapBananaCakePop("/graphql/ui").AllowAnonymous();
+app.MapGraphQLHttp("/graphql");
+
+
 //disabled in dev because it'll make it hard to trace routing errors
 if (app.Environment.IsProduction())
     app.MapSyncProxy();
