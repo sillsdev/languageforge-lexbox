@@ -43,6 +43,43 @@ cd backend/LexBoxApi
 dotnet watch
 ```
 
+### Proxy Diagram
+
+Development:
+```mermaid
+graph TD
+    Chorus --> Proxy
+    
+    Proxy[Proxy] --> Api
+    Proxy --> hg-keeper
+    Proxy --> hgresumable
+    hg-keeper --> hg[hg file system]
+    hgresumable --> hg
+    Api --> hg
+    
+    Frontend --> Api
+    Api --> Hasura[hasura]
+    Api --> db
+    Hasura --> db[postgres]
+```
+
+Production:
+```mermaid
+graph TD
+    Chorus --> Api
+    
+    Api --> hg-keeper
+    Api --> hgresumable
+    hg-keeper --> hg[hg file system]
+    hgresumable --> hg
+    Api[API & Proxy] --> hg
+    
+    Frontend --> Api
+    Api --> Hasura[hasura]
+    Api --> db
+    Hasura --> db[postgres]
+```
+
 More info on the frontend and backend can be found in their respective READMEs:
 * [frontend](frontend/README.md)
 * [backend](backend/README.md)
