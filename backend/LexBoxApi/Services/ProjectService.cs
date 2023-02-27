@@ -33,7 +33,7 @@ public class ProjectService
                     new()
                     {
                         UserId = userId,
-                        Role = ProjectRole.Admin
+                        Role = ProjectRole.Manager
                     }
                 }
             });

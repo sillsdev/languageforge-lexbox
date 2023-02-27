@@ -56,12 +56,6 @@ public class UserHasAccessToProjectRequirementHandler : AuthorizationHandler<Use
             return Task.CompletedTask;
         }
 
-        if (userProject.Role == ProjectRole.Observer)
-        {
-            context.Fail(new AuthorizationFailureReason(this, $"User is just an observer of project {projectCode}"));
-            return Task.CompletedTask;
-        }
-
         context.Succeed(requirement);
         return Task.CompletedTask;
     }

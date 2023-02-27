@@ -16,7 +16,7 @@ public class LexAuthUserTests
         Role = UserRole.user,
         Projects = new[]
         {
-            new AuthUserProject("test-flex", ProjectRole.Admin)
+            new AuthUserProject("test-flex", ProjectRole.Manager)
         }
     };
 
