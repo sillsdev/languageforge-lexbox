@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using LexBoxApi;
 using LexData;
-using LexData.EntityIds;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.HttpLogging;
 
@@ -12,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    options.JsonSerializerOptions.Converters.Add(LfIdSerializerProvider.Instance);
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -44,6 +42,7 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/healthz");
 app.MapControllers();
+app.MapGraphQL();
 //disabled in dev because it'll make it hard to trace routing errors
 if (app.Environment.IsProduction())
     app.MapSyncProxy();

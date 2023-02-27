@@ -1,5 +1,4 @@
 ﻿using LexData.Configuration;
-using LexData.EntityIds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -15,7 +14,6 @@ public static class DataKernel
         {
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
-            options.UseLfIdConverters();
         });
         services.AddHostedService<DbStartupService>();
         services.AddOptions<DbConfig>()
