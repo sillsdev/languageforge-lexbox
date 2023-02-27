@@ -14,6 +14,14 @@ Other files, like docker-compose, should be at the root of the repo, because the
 
 ## Development
 
+this project contains some seed data. The database will have that data loaded automatically.
+The following users are available, password for them all is just `pass`:
+* KindLion@test.com: super admin
+* InnocentMoth@test.com: project manager
+* PlayfulFish@test.com: project editor
+
+There will also be a single project, Sena 3. But the repo needs to be setup, to do that execute `setup.sh` or `setup.bat`.
+
 ### Docker workflow
 ```bash
 docker-compose up -d
@@ -34,7 +42,6 @@ backend
 cd backend/LexBoxApi
 dotnet watch
 ```
-
 
 More info on the frontend and backend can be found in their respective READMEs:
 * [frontend](frontend/README.md)

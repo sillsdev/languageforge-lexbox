@@ -10,6 +10,7 @@ public static class DataKernel
 {
     public static void AddLexData(this IServiceCollection services)
     {
+        services.AddScoped<SeedingData>();
         services.AddDbContext<LexBoxDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();

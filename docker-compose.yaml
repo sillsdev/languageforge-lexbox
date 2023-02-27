@@ -41,6 +41,7 @@
       HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION: graphql-default
   db:
     image: postgres
+    restart: unless-stopped
     container_name: db
     ports:
       - "5433:5432"

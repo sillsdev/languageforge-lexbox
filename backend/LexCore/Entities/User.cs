@@ -12,6 +12,6 @@ public class User : EntityBase
     /// Used for legacy users
     /// </summary>
     public string? Username { get; set; }
-    
-    public required List<ProjectUsers> Projects { get; set; }
+
+    public List<ProjectUsers> Projects { get; set; } = new();
 }

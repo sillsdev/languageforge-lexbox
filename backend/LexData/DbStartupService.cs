@@ -15,9 +15,16 @@ public class DbStartupService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        // prevents code from running when using the ef tools migrations.
+        if (EF.IsDesignTime) return;
         await using var serviceScope = _serviceProvider.CreateAsyncScope();
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<LexBoxDbContext>();
+        var environment = serviceScope.ServiceProvider.GetRequiredService<IHostEnvironment>();
         await dbContext.Database.MigrateAsync(cancellationToken);
+        if (environment.IsDevelopment())
+        {
+            await serviceScope.ServiceProvider.GetRequiredService<SeedingData>().SeedIfNoUsers();
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

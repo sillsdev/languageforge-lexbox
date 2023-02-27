@@ -5,6 +5,11 @@ namespace LexCore;
 
 public static class PasswordHashing
 {
+    public static string HashPassword(string password, string salt)
+    {
+        return RedminePasswordHash(password, salt);
+    }
+    
     public static string RedminePasswordHash(string password, string salt)
     {
         return RubySha1Hash(salt + RubySha1Hash(password));
