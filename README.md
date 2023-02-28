@@ -30,7 +30,7 @@ docker-compose up -d
 ```bash
 docker-compose up -d db hasura
 ```
-then you will want to execute in 2 seperate consoles:
+then you will want to execute in 2 separate consoles:
 
 frontend
 ```bash
