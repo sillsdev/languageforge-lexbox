@@ -4,6 +4,7 @@ using LexBoxApi;
 using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,11 +40,10 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHealthChecks("/healthz");
+app.MapHealthChecks("/api/healthz").AllowAnonymous();
+app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();
+app.MapGraphQLHttp("/api/graphql");
 app.MapControllers();
-app.MapBananaCakePop("/graphql/ui").AllowAnonymous();
-app.MapGraphQLHttp("/graphql");
-
 
 //disabled in dev because it'll make it hard to trace routing errors
 if (app.Environment.IsProduction())

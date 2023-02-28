@@ -11,6 +11,7 @@ namespace LexBoxApi.Controllers;
 
 #if DEBUG
 [ApiController]
+[Route("/api/[controller]")]
 public class TestingController : ControllerBase
 {
     private readonly LexAuthService _lexAuthService;

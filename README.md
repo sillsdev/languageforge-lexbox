@@ -43,6 +43,12 @@ cd backend/LexBoxApi
 dotnet watch
 ```
 
+Some helpful urls:
+* localhost:7075/swagger - swagger docs for the api
+* localhost:7075/api/graphiql/ui - graphiql UI
+* localhost:7075/api/graphiql - graphiql endpoint
+* localhost:8088 - hgkeeper UI add the project code and use the url in FLEx to clone
+
 ### Proxy Diagram
 
 Development:

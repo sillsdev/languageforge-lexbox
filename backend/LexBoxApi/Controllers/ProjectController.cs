@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LexBoxApi.Controllers;
 
 [ApiController]
-[Route("[controller]/api")]
+[Route("/api/[controller]")]
 public class ProjectController: ControllerBase
 {
     private readonly LoggedInContext _loggedInContext;

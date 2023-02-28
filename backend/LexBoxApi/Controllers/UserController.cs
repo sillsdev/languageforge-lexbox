@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LexBoxApi.Controllers;
 
 [ApiController]
+[Route("/api/[controller]")]
 public class UserController: ControllerBase
 {
     private readonly LexBoxDbContext _lexBoxDbContext;

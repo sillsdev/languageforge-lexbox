@@ -23,7 +23,7 @@ public static class AuthKernel
             //default policy is when there's no parameters specified on the auth attribute
             //this will make sure that all endpoints require auth unless they have the AllowAnonymous attribute
             options.FallbackPolicy = options.DefaultPolicy;
-            options.AddPolicy(AdminRequiredAttribute.PolicyName, 
+            options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireAssertion(context => context.User.IsInRole(UserRole.admin.ToString())));
         });
         services.AddOptions<JwtOptions>()
