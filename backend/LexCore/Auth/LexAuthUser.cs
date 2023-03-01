@@ -104,6 +104,14 @@ public class LexAuthUser
             }
         }
     }
+
+    public ClaimsPrincipal GetPrincipal(string authenticationType)
+    {
+        return new ClaimsPrincipal(new ClaimsIdentity(GetClaims(),
+            authenticationType,
+            LexAuthConstants.EmailClaimType,
+            LexAuthConstants.RoleClaimType));
+    }
 }
 
 public record AuthUserProject(string Code, ProjectRole Role);

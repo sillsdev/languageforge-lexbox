@@ -1,10 +1,10 @@
-﻿using LexBoxApi.Auth;
+﻿using System.Security.Claims;
+using LexBoxApi.Auth;
 using LexCore;
-using LexData;
+using LexCore.Auth;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 
 namespace LexBoxApi.Controllers;
 
@@ -19,15 +19,19 @@ public class LoginController : ControllerBase
         _lexAuthService = lexAuthService;
     }
 
-    [HttpPost("login")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [AllowAnonymous]
-    public async Task<ActionResult<string>> Login(string usernameOrEmail, [FromForm] string pw)
+    public async Task<ActionResult<LexAuthUser>> Login(string usernameOrEmail, [FromForm] string pw)
     {
         var user = await _lexAuthService.Login(usernameOrEmail, pw);
         if (user == null) return Unauthorized();
-        return _lexAuthService.GenerateJwt(user);
+        await HttpContext.SignInAsync(user.GetPrincipal("Password"), new AuthenticationProperties
+        {
+            IsPersistent = true
+        });
+        return user;
     }
 
     [HttpGet("hashPassword")]

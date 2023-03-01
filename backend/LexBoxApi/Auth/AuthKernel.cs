@@ -1,4 +1,5 @@
 ﻿using LexCore.Auth;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
@@ -11,11 +12,11 @@ public static class AuthKernel
         IConfigurationRoot configuration,
         IWebHostEnvironment environment)
     {
-
         if (environment.IsDevelopment())
         {
             IdentityModelEventSource.ShowPII = true;
         }
+
         services.AddScoped<LexAuthService>();
         services.AddAuthorization(options =>
         {
@@ -32,8 +33,33 @@ public static class AuthKernel
                 "Jwt:Secret should have been changed from it's default value")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        const string defaultScheme = "JwtOrCookie";
+        services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = defaultScheme;
+                options.DefaultChallengeScheme = defaultScheme;
+            })
+            .AddPolicyScheme(defaultScheme,
+                "Jwt or cookie",
+                options =>
+                {
+                    options.ForwardDefaultSelector = context =>
+                    {
+                        if (context.Request.Headers.ContainsKey("Authorization"))
+                        {
+                            return JwtBearerDefaults.AuthenticationScheme;
+                        }
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                        return CookieAuthenticationDefaults.AuthenticationScheme;
+                    };
+                })
+            .AddCookie(options =>
+            {
+                configuration.Bind("Authentication:Cookie", options);
+                options.LoginPath = "/api/login";
+                options.Cookie.Name = ".LexBoxAuth";
+                options.ForwardForbid = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(options =>
             {
                 var jwtOptions = configuration.GetSection("Authentication:Jwt").Get<JwtOptions>();
@@ -68,11 +94,7 @@ public static class AuthKernel
                     {
                         Name = "Bearer",
                         In = ParameterLocation.Header,
-                        Reference = new OpenApiReference
-                        {
-                            Id = "Bearer",
-                            Type = ReferenceType.SecurityScheme
-                        }
+                        Reference = new OpenApiReference { Id = "Bearer", Type = ReferenceType.SecurityScheme }
                     },
                     new List<string>()
                 }

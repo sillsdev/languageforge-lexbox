@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -6,6 +7,7 @@ using System.Text.Json.Nodes;
 using LexCore;
 using LexCore.Auth;
 using LexData;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -58,25 +60,30 @@ public class LexAuthService
         return validPassword ? new LexAuthUser(user) : null;
     }
 
-    public string GenerateJwt(LexAuthUser user)
+    public (string token, TimeSpan tokenLifetime) GenerateJwt(LexAuthUser user)
     {
         var options = _userOptions.Value;
         return GenerateToken(user, options.Audience, options.Lifetime);
     }
 
-    public string GenerateRefreshToken(LexAuthUser user)
+    public (string token, TimeSpan tokenLifetime) GenerateRefreshToken(LexAuthUser user)
     {
         return GenerateToken(user, _userOptions.Value.RefreshAudience, _userOptions.Value.RefreshLifetime);
     }
 
-    private string GenerateToken(LexAuthUser user, string audience, TimeSpan tokenLifetime)
+    private (string token, TimeSpan tokenLifetime) GenerateToken(LexAuthUser user, string audience, TimeSpan tokenLifetime)
     {
         var jwtDate = DateTime.UtcNow;
         var options = _userOptions.Value;
-        var jwt = new JwtSecurityToken(
+        var identity = new ClaimsIdentity(JwtBearerDefaults.AuthenticationScheme);
+        var id = Guid.NewGuid().ToString().GetHashCode().ToString("x", CultureInfo.InvariantCulture);
+        identity.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, id));
+        identity.AddClaims(user.GetClaims());
+        var handler = new JwtSecurityTokenHandler();
+        var jwt = handler.CreateJwtSecurityToken(
             audience: audience,
             issuer: options.Issuer,
-            claims: user.GetClaims(),
+            subject: identity,
             notBefore: jwtDate,
             expires: jwtDate + tokenLifetime,
             signingCredentials: new SigningCredentials(
@@ -84,7 +91,7 @@ public class LexAuthService
                 SecurityAlgorithms.HmacSha256
             )
         );
-        var token = new JwtSecurityTokenHandler().WriteToken(jwt);
-        return token;
+        var token = handler.WriteToken(jwt);
+        return (token, tokenLifetime);
     }
 }

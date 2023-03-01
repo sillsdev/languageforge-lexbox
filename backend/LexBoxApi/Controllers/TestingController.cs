@@ -48,7 +48,8 @@ public class TestingController : ControllerBase
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FirstOrDefaultAsync(user => user.Email == usernameOrEmail || user.Username == usernameOrEmail);
         if (user is null) return NotFound();
-        return _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole });
+        var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole });
+        return token;
     }
 
     [HttpPost("seedDatabase")]
@@ -63,7 +64,8 @@ public class TestingController : ControllerBase
         return new TestingControllerProject(project.Id,
             project.Name,
             project.Code,
-            project.Users.Select(u => new TestingControllerProjectUser(u.User.Username, u.Role.ToString(), u.User.Email, u.UserId))
+            project.Users.Select(u =>
+                    new TestingControllerProjectUser(u.User.Username, u.Role.ToString(), u.User.Email, u.UserId))
                 .ToList());
     }
 

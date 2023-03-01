@@ -5,6 +5,7 @@ using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,21 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "LexBoxApi",
+        // Description = " Hello ",
+        Description = """
+            This is the open api for LexBox, most of api is in the [graphql endpoint](/api/graphql/ui).
+            However there are some test users for login here, with the default password of `pass`:
+            * KindLion@test.com
+            * InnocentMoth@test.com
+            * PlayfulFish@test.com
+            """,
+    });
+});
 builder.Services.AddHealthChecks();
 builder.Services.AddHttpLogging(options =>
 {
