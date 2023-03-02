@@ -13,20 +13,20 @@ public class SeedingData
         _lexBoxDbContext = lexBoxDbContext;
     }
 
-    public async Task SeedIfNoUsers()
+    public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
-        if (await _lexBoxDbContext.Users.CountAsync() > 0)
+        if (await _lexBoxDbContext.Users.CountAsync(cancellationToken) > 0)
         {
             return;
         }
 
-        await SeedDatabase();
+        await SeedDatabase(cancellationToken);
     }
 
     private const string PwSalt = "password-salt";
     private readonly string _passwordHash = PasswordHashing.HashPassword("pass", PwSalt);
 
-    public async Task SeedDatabase()
+    public async Task SeedDatabase(CancellationToken cancellationToken = default)
     {
         //NOTE: When seeding make sure you provide a constant Id like I have done here,
         // this will allow us to call seed multiple times without creating new entities each time.
@@ -83,14 +83,14 @@ public class SeedingData
                 },
             }
         });
-        
+
         foreach (var entry in _lexBoxDbContext.ChangeTracker.Entries())
         {
-            var exists = await entry.GetDatabaseValuesAsync() is not null;
+            var exists = await entry.GetDatabaseValuesAsync(cancellationToken) is not null;
             entry.State = exists ? EntityState.Modified : EntityState.Added;
         }
 
-        await _lexBoxDbContext.SaveChangesAsync();
+        await _lexBoxDbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task CleanUpSeedData()

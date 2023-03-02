@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace LexData;
 
-public class DbStartupService : IHostedService
+public class DbStartupService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
 
@@ -13,22 +13,16 @@ public class DbStartupService : IHostedService
         _serviceProvider = serviceProvider;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
-    {
-        // prevents code from running when using the ef tools migrations.
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    { // prevents code from running when using the ef tools migrations.
         if (EF.IsDesignTime) return;
         await using var serviceScope = _serviceProvider.CreateAsyncScope();
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<LexBoxDbContext>();
         var environment = serviceScope.ServiceProvider.GetRequiredService<IHostEnvironment>();
-        await dbContext.Database.MigrateAsync(cancellationToken);
+        await dbContext.Database.MigrateAsync(stoppingToken);
         if (environment.IsDevelopment())
         {
-            await serviceScope.ServiceProvider.GetRequiredService<SeedingData>().SeedIfNoUsers();
+            await serviceScope.ServiceProvider.GetRequiredService<SeedingData>().SeedIfNoUsers(stoppingToken);
         }
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
     }
 }
