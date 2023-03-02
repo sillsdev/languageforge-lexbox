@@ -39,8 +39,8 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripClaimsThroughAPrincipal()
     {
-        var claims = _user.GetClaims().ToArray();
-        var newUser = LexAuthUser.FromClaimsPrincipal(new ClaimsPrincipal(new ClaimsIdentity(claims)));
+        var claims = _user.GetPrincipal("Testing");
+        var newUser = LexAuthUser.FromClaimsPrincipal(claims);
         _user.ShouldBeEquivalentTo(newUser);
     }
 
@@ -51,7 +51,7 @@ public class LexAuthUserTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var encodedJwt = tokenHandler.WriteToken(originalJwt);
         var outputJwt = tokenHandler.ReadJwtToken(encodedJwt);
-        var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims));
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         _user.ShouldBeEquivalentTo(newUser);
     }
