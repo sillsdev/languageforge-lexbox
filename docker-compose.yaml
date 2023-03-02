@@ -5,7 +5,7 @@
       context: .
       dockerfile: backend/LexBoxApi/dev.Dockerfile
     ports:
-      - 7075:80
+      - 7075:5158
     depends_on:
       - db
       - hasura
@@ -17,6 +17,8 @@
     environment:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=LexBox
       ASPNETCORE_ENVIRONMENT: Development
+      HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
+      HasuraConfig__HasuraSecret: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
       HgConfig__RepoPath: /hg-repos
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hg:8080
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
