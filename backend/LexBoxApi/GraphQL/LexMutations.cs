@@ -18,9 +18,9 @@ public class LexMutations
 
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IExecutable<Project>> CreateProject(CreateProjectModel model, [Service] ProjectService projectService)
+    public async Task<IExecutable<Project>> CreateProject(CreateProjectInput input, [Service] ProjectService projectService)
     {
-        var projectId = await projectService.CreateProject(model, _loggedInContext.User.Id);
+        var projectId = await projectService.CreateProject(input, _loggedInContext.User.Id);
         return _lexBoxDbContext.Projects.Where(p => p.Id == projectId).AsExecutable();
     }
 }

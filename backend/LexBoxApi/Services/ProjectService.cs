@@ -15,7 +15,7 @@ public class ProjectService
         _hgService = hgService;
     }
 
-    public async Task<Guid> CreateProject(CreateProjectModel model, Guid userId)
+    public async Task<Guid> CreateProject(CreateProjectInput input, Guid userId)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         var projectId = Guid.NewGuid();
@@ -23,11 +23,11 @@ public class ProjectService
             new Project
             {
                 Id = projectId,
-                Code = model.Code,
-                Name = model.Name,
-                Description = model.Description,
-                Type = model.Type,
-                RetentionPolicy = model.RetentionPolicy,
+                Code = input.Code,
+                Name = input.Name,
+                Description = input.Description,
+                Type = input.Type,
+                RetentionPolicy = input.RetentionPolicy,
                 Users = new List<ProjectUsers>
                 {
                     new()
@@ -38,7 +38,7 @@ public class ProjectService
                 }
             });
         await _dbContext.SaveChangesAsync();
-        await _hgService.InitRepo(model.Code);
+        await _hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
         return projectId;
     }
