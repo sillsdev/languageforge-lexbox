@@ -11,14 +11,14 @@ namespace LexBoxApi.Services;
 public class ProxyAuthService : IProxyAuthService
 {
     private readonly LexAuthService _lexAuthService;
-    public ProxyAuthService( LexAuthService lexAuthService)
+    public ProxyAuthService(LexAuthService lexAuthService)
     {
         _lexAuthService = lexAuthService;
     }
 
-    public async Task<ClaimsPrincipal?> Login(string userName, string password)
+    public async Task<ClaimsPrincipal?> Login(LoginRequest loginRequest)
     {
-        var user = await _lexAuthService.Login(userName, password);
+        var user = await _lexAuthService.Login(loginRequest);
         if (user is null) return null;
         return new ClaimsPrincipal(new ClaimsIdentity(user.GetClaims()));
     }

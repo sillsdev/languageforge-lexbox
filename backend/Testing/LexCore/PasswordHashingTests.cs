@@ -10,6 +10,6 @@ public class PasswordHashingTests
     [Theory]
     public void CanHashPassword(string pw, string salt, string hash)
     {
-        PasswordHashing.RedminePasswordHash(pw, salt).ShouldBe(hash);
+        PasswordHashing.RedminePasswordHash(pw, salt, false).ShouldBe(hash);
     }
 }

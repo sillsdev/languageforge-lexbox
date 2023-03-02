@@ -43,7 +43,7 @@ public class ProxyAccessController : ControllerBase
             return NotFound(new LegacyApiError("Unknown user"));
         }
 
-        var validPassword = PasswordHashing.RedminePasswordHash(password, user.Salt) == user.PasswordHash;
+        var validPassword = PasswordHashing.IsValidPassword(password, user.Salt, user.PasswordHash, false);
         if (!validPassword)
         {
             return StatusCode(StatusCodes.Status403Forbidden, new LegacyApiError("Bad password"));

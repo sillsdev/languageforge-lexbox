@@ -5,14 +5,20 @@ namespace LexCore;
 
 public static class PasswordHashing
 {
-    public static string HashPassword(string password, string salt)
+    public static bool IsValidPassword(string password, string salt, string hash, bool preHashedPassword)
     {
-        return RedminePasswordHash(password, salt);
+        return HashPassword(password, salt, preHashedPassword) == hash;
     }
-    
-    public static string RedminePasswordHash(string password, string salt)
+
+    public static string HashPassword(string password, string salt, bool preHashedPassword)
     {
-        return RubySha1Hash(salt + RubySha1Hash(password));
+        return RedminePasswordHash(password, salt, preHashedPassword);
+    }
+
+    public static string RedminePasswordHash(string password, string salt, bool preHashedPassword)
+    {
+        var passwordHash = preHashedPassword ? password : RubySha1Hash(password);
+        return RubySha1Hash(salt + passwordHash);
     }
 
     //this is a re-implementation of the sha1 hexdigest method in ruby

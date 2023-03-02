@@ -24,7 +24,7 @@ public class SeedingData
     }
 
     private const string PwSalt = "password-salt";
-    private readonly string _passwordHash = PasswordHashing.HashPassword("pass", PwSalt);
+    private readonly string _passwordHash = PasswordHashing.HashPassword("pass", PwSalt, false);
 
     public async Task SeedDatabase(CancellationToken cancellationToken = default)
     {

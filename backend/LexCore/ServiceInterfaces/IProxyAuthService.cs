@@ -4,5 +4,5 @@ namespace LexCore.ServiceInterfaces;
 
 public interface IProxyAuthService
 {
-    Task<ClaimsPrincipal?> Login(string userName, string password);
+    Task<ClaimsPrincipal?> Login(LoginRequest loginRequest);
 }

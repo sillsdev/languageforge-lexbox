@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using LexCore;
 using LexCore.ServiceInterfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
@@ -54,7 +55,7 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
             return AuthenticateResult.Fail("Invalid Request");
         }
 
-        var principal = await _proxyAuthService.Login(username, password);
+        var principal = await _proxyAuthService.Login(new LoginRequest(password, username));
         if (principal is null)
             return AuthenticateResult.Fail("Invalid username or password");
         return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name)

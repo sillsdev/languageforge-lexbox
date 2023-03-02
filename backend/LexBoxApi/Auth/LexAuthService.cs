@@ -2,8 +2,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using LexCore;
 using LexCore.Auth;
 using LexData;
@@ -50,13 +48,13 @@ public class LexAuthService
         return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret));
     }
 
-    public async Task<LexAuthUser?> Login(string usernameOrEmail, string password)
+    public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
-            .FirstOrDefaultAsync(user => user.Email == usernameOrEmail || user.Username == usernameOrEmail);
+            .FirstOrDefaultAsync(user => user.Email == loginRequest.EmailOrUsername || user.Username == loginRequest.EmailOrUsername);
         if (user == null) return null;
 
-        var validPassword = PasswordHashing.RedminePasswordHash(password, user.Salt) == user.PasswordHash;
+        var validPassword = PasswordHashing.IsValidPassword(loginRequest.Password, user.Salt, user.PasswordHash, loginRequest.PreHashedPassword);
         return validPassword ? new LexAuthUser(user) : null;
     }
 
