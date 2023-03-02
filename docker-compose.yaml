@@ -7,7 +7,10 @@
     ports:
       - 7075:80
     depends_on:
-      - "db"
+      - db
+      - hasura
+      - hg
+      - hg-resumable
     volumes:
       - ./:/src
       - ./hg-web/repos:/hg-repos
@@ -18,7 +21,7 @@
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hg:8080
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
   hasura:
-    image: hasura/graphql-engine:v2.18.0.cli-migrations-v3
+    image: hasura/graphql-engine:v2.20.0-ce.cli-migrations-v3
     ports:
       - "8081:8080"
     depends_on:
@@ -47,6 +50,7 @@
       - "5433:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./hasura/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
