@@ -87,7 +87,7 @@
 #      the path must be hardcoded in local.hgrc, check the note there for more info
       HGK_REPOS_PATH: /repos
       HGK_ADMIN_USERNAME: admin
-      HGK_DISABLE_SSH: true
+      HGK_DISABLE_SSH: "true"
       HGK_ADMIN_PUBKEY: /admin-pubkey
 #      setup is only required the first time, it'll error if it's already been run but that's fine.
     command: bash -c "hgkeeper setup ; hgkeeper serve"
