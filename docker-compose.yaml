@@ -5,7 +5,7 @@
     stdin_open: true
     build:
       context: backend
-      dockerfile: backend/LexBoxApi/dev.Dockerfile
+      dockerfile: LexBoxApi/dev.Dockerfile
     ports:
       - 5158:5158
     depends_on:

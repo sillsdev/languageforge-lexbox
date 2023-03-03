@@ -32,18 +32,6 @@ docker-compose up -d
 #### Mac
 
 ```bash
-docker-compose up -d db
-```
-
-(watch logs until db is ready)
-
-```bash
-docker-compose up -d hasura
-```
-
-(watch logs until hasura is ready)
-
-```bash
 docker-compose up -d lex-box-api
 ```
 
@@ -67,9 +55,9 @@ dotnet watch
 ```
 
 Some helpful urls:
-* localhost:7075/swagger - swagger docs for the api
-* localhost:7075/api/graphiql/ui - graphiql UI
-* localhost:7075/api/graphiql - graphiql endpoint
+* localhost:5158/swagger - swagger docs for the api
+* localhost:5158/api/graphiql/ui - graphiql UI
+* localhost:5158/api/graphiql - graphiql endpoint
 * localhost:8088 - hgkeeper UI add the project code and use the url in FLEx to clone
 
 ### Proxy Diagram
