@@ -1,19 +1,22 @@
 ﻿services:
   lex-box-api:
     container_name: lexBoxApi
+    tty: true
+    stdin_open: true
     build:
-      context: .
+      context: backend
       dockerfile: backend/LexBoxApi/dev.Dockerfile
     ports:
-      - 7075:5158
+      - 5158:5158
     depends_on:
       - db
       - hasura
-      - hg
-      - hg-resumable
+#      - hg
+#      - hg-resumable
     volumes:
-      - ./:/src
+      - ./backend:/src/backend
       - ./hg-web/repos:/hg-repos
+      - nuget-cache:/root/.nuget/packages
     environment:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=LexBox
       ASPNETCORE_ENVIRONMENT: Development
@@ -98,3 +101,4 @@ volumes:
     db_data:
     redmine_db_data:
     resumable-cache:
+    nuget-cache:
