@@ -9,8 +9,10 @@
     ports:
       - 5158:5158
     depends_on:
-      - db
-      - hasura
+      db:
+        condition: service_healthy
+      hasura:
+        condition: service_healthy
 #      - hg
 #      - hg-resumable
     volumes:
@@ -30,7 +32,8 @@
     ports:
       - "8081:8080"
     depends_on:
-      - "db"
+      db:
+        condition: service_healthy
     volumes:
       - ./hasura/metadata:/hasura-metadata
     environment:
