@@ -18,7 +18,7 @@
       - ./hg-web/repos:/hg-repos
       - nuget-cache:/root/.nuget/packages
     environment:
-      DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=LexBox
+      DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=lexbox
       ASPNETCORE_ENVIRONMENT: Development
       HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
       HasuraConfig__HasuraSecret: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
@@ -35,8 +35,8 @@
       - ./hasura/metadata:/hasura-metadata
     environment:
       HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/LexBox
-      PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/LexBox
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
+      PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
       HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
       ## enable the console served by server
       HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
@@ -95,7 +95,7 @@
       - 8034:80
     volumes:
       - ./hg-web/repos:/var/vcs/public
-#    this is here so if the container is restarted during an upload they don't have to start over 
+#    this is here so if the container is restarted during an upload they don't have to start over
       - resumable-cache:/var/cache/hgresume
 volumes:
     db_data:

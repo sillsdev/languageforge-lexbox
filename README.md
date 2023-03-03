@@ -23,9 +23,32 @@ The following users are available, password for them all is just `pass`:
 There will also be a single project, Sena 3. But the repo needs to be setup, to do that execute `setup.sh` or `setup.bat`.
 
 ### Docker workflow
+
+#### Windows
+
 ```bash
 docker-compose up -d
 ```
+#### Mac
+
+```bash
+docker-compose up -d db
+```
+
+(watch logs until db is ready)
+
+```bash
+docker-compose up -d hasura
+```
+
+(watch logs until hasura is ready)
+
+```bash
+docker-compose up -d lex-box-api
+```
+
+Try some of the helpful urls below to determine whether api is responding or not.
+
 ### Local workflow
 ```bash
 docker-compose up -d db hasura
@@ -55,14 +78,14 @@ Development:
 ```mermaid
 graph TD
     Chorus --> Proxy
-    
+
     Proxy[Proxy] --> Api
     Proxy --> hg-keeper
     Proxy --> hgresumable
     hg-keeper --> hg[hg file system]
     hgresumable --> hg
     Api --> hg
-    
+
     Frontend --> Api
     Api --> Hasura[hasura]
     Api --> db
@@ -73,13 +96,13 @@ Production:
 ```mermaid
 graph TD
     Chorus --> Api
-    
+
     Api --> hg-keeper
     Api --> hgresumable
     hg-keeper --> hg[hg file system]
     hgresumable --> hg
     Api[API & Proxy] --> hg
-    
+
     Frontend --> Api
     Api --> Hasura[hasura]
     Api --> db
