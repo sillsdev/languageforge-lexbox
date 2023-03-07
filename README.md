@@ -26,6 +26,9 @@ There will also be a single project, Sena 3. But the repo needs to be setup, to 
 
 #### Windows
 
+
+#### Windows
+
 ```bash
 docker-compose up -d
 ```
@@ -67,12 +70,14 @@ Development:
 graph TD
     Chorus --> Proxy
 
+
     Proxy[Proxy] --> Api
     Proxy --> hg-keeper
     Proxy --> hgresumable
     hg-keeper --> hg[hg file system]
     hgresumable --> hg
     Api --> hg
+
 
     Frontend --> Api
     Api --> Hasura[hasura]
@@ -85,11 +90,13 @@ Production:
 graph TD
     Chorus --> Api
 
+
     Api --> hg-keeper
     Api --> hgresumable
     hg-keeper --> hg[hg file system]
     hgresumable --> hg
     Api[API & Proxy] --> hg
+
 
     Frontend --> Api
     Api --> Hasura[hasura]

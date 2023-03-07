@@ -1,6 +1,6 @@
 ## Frontend
 
-[Sveltekit](https://kit.svelte.dev) app stack with a [Skeleton](https://www.skeleton.dev/) UI library
+[Sveltekit](https://kit.svelte.dev) app stack with a [Skeleton](https://www.skeleton.dev/) UI library and [Iconify](https://iconify.design/) for icons.
 
 Requests come into a node app managed by Sveltekit and those end up making the appropriate calls to the dotnet backend via Docker networking.  Authn will be handled by a JWT cookie (http-only).
 

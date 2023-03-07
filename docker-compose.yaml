@@ -21,6 +21,7 @@
       - nuget-cache:/root/.nuget/packages
     environment:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=lexbox
+      DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=lexbox
       ASPNETCORE_ENVIRONMENT: Development
       HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
       HasuraConfig__HasuraSecret: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
@@ -38,6 +39,8 @@
       - ./hasura/metadata:/hasura-metadata
     environment:
       HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
+      PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
       PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
       HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
@@ -104,4 +107,5 @@ volumes:
     db_data:
     redmine_db_data:
     resumable-cache:
+
     nuget-cache:

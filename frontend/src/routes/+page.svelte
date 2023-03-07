@@ -1,12 +1,11 @@
 <script>
-	import Page from '$lib/Page.svelte';
-
+	import { user } from '$lib/user';
+	import AdminDashboard from './(dashboards)/AdminDashboard.svelte';
+	import UserDashboard from './(dashboards)/UserDashboard.svelte';
 </script>
 
-<Page>
-	<svelte:fragment slot="header">
-		Root
-	</svelte:fragment>
-
-	temporary landing page for <code>/</code>
-</Page>
+{#if $user.role === 'user'}
+	<UserDashboard />
+{:else}
+	<AdminDashboard />
+{/if}

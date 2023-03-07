@@ -3,8 +3,10 @@
 	import '@skeletonlabs/skeleton/styles/all.css';
 	import '../app.postcss';
 	import { AppShell } from '@skeletonlabs/skeleton';
-	import AppBar from '$lib/AppBar.svelte';
+	import { AppBar, AppMenu } from '$lib/layout';
 </script>
+
+<AppMenu />
 
 <AppShell>
 	<svelte:fragment slot="header">
