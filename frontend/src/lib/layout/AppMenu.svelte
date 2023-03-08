@@ -1,7 +1,6 @@
 <script>
 	import { LogoutIcon } from '$lib/icons'
 	import { user } from '$lib/user'
-
 </script>
 
 <div class=drawer-side on:click on:keydown>
