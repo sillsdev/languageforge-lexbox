@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using LexBoxApi;
+using LexBoxApi.Auth;
 using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.HttpLogging;
@@ -64,6 +65,6 @@ app.MapControllers();
 
 //disabled in dev because it'll make it hard to trace routing errors
 if (app.Environment.IsProduction())
-    app.MapSyncProxy();
+    app.MapSyncProxy(AuthKernel.DefaultScheme);
 
 app.Run();

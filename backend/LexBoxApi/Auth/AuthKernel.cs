@@ -8,6 +8,8 @@ namespace LexBoxApi.Auth;
 
 public static class AuthKernel
 {
+    public const string DefaultScheme = "JwtOrCookie";
+
     public static void AddLexBoxAuth(IServiceCollection services,
         IConfigurationRoot configuration,
         IWebHostEnvironment environment)
@@ -33,19 +35,18 @@ public static class AuthKernel
                 "Jwt:Secret should have been changed from it's default value")
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        const string defaultScheme = "JwtOrCookie";
         services.AddAuthentication(options =>
             {
-                options.DefaultScheme = defaultScheme;
-                options.DefaultChallengeScheme = defaultScheme;
+                options.DefaultScheme = DefaultScheme;
+                options.DefaultChallengeScheme = DefaultScheme;
             })
-            .AddPolicyScheme(defaultScheme,
+            .AddPolicyScheme(DefaultScheme,
                 "Jwt or cookie",
                 options =>
                 {
                     options.ForwardDefaultSelector = context =>
                     {
-                        if (context.Request.Headers.ContainsKey("Authorization"))
+                        if (context.Request.Headers.ContainsKey("Authorization") && context.Request.Headers.Authorization.ToString().StartsWith("Bearer"))
                         {
                             return JwtBearerDefaults.AuthenticationScheme;
                         }

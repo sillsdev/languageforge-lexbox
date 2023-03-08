@@ -27,6 +27,7 @@ public class LexAuthUser
 
             foreach (var claim in principal.FindAll(property.Name))
             {
+                if (claim.Subject?.IsAuthenticated is not true) continue;
                 if (array is null)
                 {
                     jsonObject.Add(claim.Type, JsonValue.Create(claim.Value));
