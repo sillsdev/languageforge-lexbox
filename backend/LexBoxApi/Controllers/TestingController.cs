@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
@@ -74,6 +75,12 @@ public class TestingController : ControllerBase
     {
         await _seedingData.CleanUpSeedData();
         return Ok();
+    }
+
+    [HttpGet("testTurnstile")]
+    public async Task<ActionResult<bool>> testTurnstile(string code)
+    {
+        return await HttpContext.RequestServices.GetRequiredService<TurnstileService>().IsTokenValid(code);
     }
 
     public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);

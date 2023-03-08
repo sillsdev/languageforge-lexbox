@@ -58,6 +58,7 @@ public static class AuthKernel
                 configuration.Bind("Authentication:Cookie", options);
                 options.LoginPath = "/api/login";
                 options.Cookie.Name = ".LexBoxAuth";
+                options.ForwardChallenge = JwtBearerDefaults.AuthenticationScheme;
                 options.ForwardForbid = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>

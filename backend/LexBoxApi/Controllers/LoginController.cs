@@ -28,10 +28,8 @@ public class LoginController : ControllerBase
     {
         var user = await _lexAuthService.Login(loginRequest);
         if (user == null) return Unauthorized();
-        await HttpContext.SignInAsync(user.GetPrincipal("Password"), new AuthenticationProperties
-        {
-            IsPersistent = true
-        });
+        await HttpContext.SignInAsync(user.GetPrincipal("Password"),
+            new AuthenticationProperties { IsPersistent = true });
         return user;
     }
 

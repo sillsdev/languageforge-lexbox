@@ -21,9 +21,14 @@ public static class LexBoxKernel
             .BindConfiguration("HasuraConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<CloudFlareConfig>()
+            .BindConfiguration("CloudFlare")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         services.AddScoped<LoggedInContext>();
         services.AddScoped<ProjectService>();
+        services.AddScoped<TurnstileService>();
         services.AddScoped<HgService>();
         services.AddScoped<IProxyAuthService, ProxyAuthService>();
         services.AddSyncProxy(configuration, environment);
