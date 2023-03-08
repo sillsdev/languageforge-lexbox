@@ -1,19 +1,23 @@
-<script lang="ts">
-	import { onMount } from 'svelte';
+<script lang=ts>
+	import { onMount } from 'svelte'
 
-	export let label: string;
-	export let name: string;
-	export let value: string = '';
-	export let type: string = 'text';
-	export let required: boolean = false;
-	export let autofocus: boolean = false;
-	export let error: string = '';
+	export let label: string
+	export let name: string
+	export let value: string = ''
+	export let type: string = 'text'
+	export let required: boolean = false
+	export let autofocus: boolean = false
+	export let error: string = ''
 
+	let id = randomId()
 	let input: HTMLInputElement
 
 	onMount(autofocus_if_requested)
 
-	function autofocus_if_requested() {
+	function randomId() {
+		return Math.random().toString(36).substring(2, 7)
+	}
+		function autofocus_if_requested() {
 		autofocus && input?.focus()
 	}
 
@@ -23,11 +27,17 @@
 	}
 </script>
 
-<label class="label">
-	<span>{label}</span>
-
-	<input {name} bind:value class="input p-4" class:input-error={error} bind:this={input} use:type_workaround {required}>
-	{#if error}
-		<span class="text-sm text-error-500 ml-4">{error}</span>
-	{/if}
+<!-- https://daisyui.com/components/input -->
+<label for={ id } class=label>
+	<span class=label-text>
+		{ label }
+	</span>
 </label>
+
+<input { id } use:type_workaround { name } bind:value { required } class:input-error={error} bind:this={ input } class='input input-bordered' />
+
+{#if error}
+	<label for={ id } class=label>
+		<span class='label-text-alt text-error mb-2'>{error}</span>
+	</label>
+{/if}

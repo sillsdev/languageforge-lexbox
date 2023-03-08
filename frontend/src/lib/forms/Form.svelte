@@ -1,8 +1,9 @@
 <script>
-	import { enhance } from '$app/forms';
+	import { enhance } from '$app/forms'
 </script>
 
-<form method=POST novalidate use:enhance>
+<!-- https://daisyui.com/components/input/#with-form-control-and-labels -->
+<form method=post novalidate use:enhance class=form-control>
 	<slot />
 </form>
 

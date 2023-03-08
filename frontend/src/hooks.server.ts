@@ -1,4 +1,4 @@
-import { redirect, type Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit'
 
 const public_routes = [
 	'/login',
@@ -19,4 +19,4 @@ export const handle = (async ({ event, resolve }) => {
 	locals.user = JSON.parse(await event.cookies.get('user') ?? '')
 
 	return await resolve(event)
-}) satisfies Handle;
+}) satisfies Handle

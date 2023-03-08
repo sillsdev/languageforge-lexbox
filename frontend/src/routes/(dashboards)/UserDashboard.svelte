@@ -1,9 +1,9 @@
 <script>
-	import { Page } from '$lib/layout';
+	import { Page } from '$lib/layout'
 </script>
 
 <Page>
-	<svelte:fragment slot="header">
+	<svelte:fragment slot=header>
 		My projects
 	</svelte:fragment>
 </Page>

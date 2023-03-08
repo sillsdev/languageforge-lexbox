@@ -1,5 +1,5 @@
 <script>
-	import { Page } from '$lib/layout';
+	import { Page } from '$lib/layout'
 </script>
 
 <Page>

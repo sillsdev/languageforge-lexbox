@@ -1,26 +1,28 @@
-<script>
-	import { AppBar } from '@skeletonlabs/skeleton';
-	import Icon from '$lib/Icon.svelte';
-	import { user } from '$lib/user';
-	import Tooltip from '../Tooltip.svelte';
-	import { open_menu } from '.';
-	import { ButtonIcon } from '$lib/forms';
+<script lang=ts>
+	import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons'
+	import { user } from '$lib/user'
+	import { createEventDispatcher } from 'svelte'
+
+	const dispatch = createEventDispatcher()
 </script>
 
-<AppBar background="bg-primary-500 text-on-primary-token">
-	<svelte:fragment slot="lead">
-		<strong class="text-lg">Language Depot</strong>
-	</svelte:fragment>
+<!-- https://daisyui.com/components/navbar -->
+<header class='navbar bg-primary text-primary-content'>
+	<span class='navbar-start ml-4 text-lg md:text-3xl tracking-wider'>
+		Language Depot
+	</span>
 
-	<svelte:fragment slot="trail">
+	<div class=navbar-end>
 		{#if $user}
-			<ButtonIcon on:click={open_menu} name="healthicons:ui-user-profile" />
+			<button on:click={ () => dispatch('menuopen') } class='btn btn-primary btn-circle'>
+				<AuthenticatedUserIcon />
+			</button>
 		{:else}
-			<Tooltip text="Create a new account">
-				<a href="/account/create">
-					<Icon name="mdi:user-add-outline" />
+			<div class='tooltip tooltip-left' data-tip='Create a new account'>
+				<a href=/account/create class='btn btn-primary btn-circle'>
+					<UserAddOutline />
 				</a>
-			</Tooltip>
+			</div>
 		{/if}
-	</svelte:fragment>
-</AppBar>
+	</div>
+</header>

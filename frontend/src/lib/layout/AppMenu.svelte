@@ -1,25 +1,30 @@
 <script>
-	import { user } from '$lib/user';
-	import { Drawer } from '@skeletonlabs/skeleton';
+	import { LogoutIcon } from '$lib/icons'
+	import { user } from '$lib/user'
+
 </script>
 
-<Drawer position="right">
-	<div class="p-4 flex flex-col items-end">
-		<h2 class="pb-2">{$user.name}</h2>
-		<span class="text-sm opacity-50">{$user.email}</span>
+<div class=drawer-side on:click on:keydown>
+	<div class=drawer-overlay></div>
 
-		<hr>
 
-		<nav class="list-nav">
-			<ul>
-				<li>
-					<a href="/">
-						<span class="flex-auto">
-							Nav Item
-						</span>
-					</a>
-				</li>
-			</ul>
-		</nav>
-	</div>
-</Drawer>
+	<!-- https://daisyui.com/components/menu  -->
+	<ul class='menu bg-base-100 min-w-[33%]'>
+		<header class='prose flex flex-col items-end p-4 mb-4'>
+			<h2 class=mb-0>{$user.name}</h2>
+			<span class=font-light>{$user.email}</span>
+		</header>
+
+		<li class=hover-bordered>
+			<a href=/logout>Log out <LogoutIcon /></a>
+		</li>
+
+		<hr class=divider>
+	</ul>
+</div>
+
+<style>
+	a {
+		justify-content: flex-end;
+	}
+</style>
