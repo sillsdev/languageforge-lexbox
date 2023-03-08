@@ -34,7 +34,32 @@ public static class ProxyKernel
         }
 
         services.AddReverseProxy()
-            .LoadFromConfig(configuration.GetSection("ReverseProxy"));
+            .LoadFromConfig(reverseProxyConfig)
+            .AddTransforms(context =>
+            {
+                if (context.Route.RouteId == "hg-web-view")
+                {
+                    context.AddResponseTransform(async transformContext =>
+                    {
+                        if (transformContext.ProxyResponse is null) return;
+                        string? projectCode = null;
+                        //this is used for hg requests. the key we're using is defined in app settings hg.path.match
+                        if (transformContext.HttpContext.Request.RouteValues.TryGetValue("project-code",
+                                out var projectCodeObj))
+                        {
+                            projectCode = projectCodeObj?.ToString() ?? null;
+                        }
+                        if (projectCode is null) return;
+                        var responseString = await transformContext.ProxyResponse.Content.ReadAsStringAsync();
+                        if (string.IsNullOrEmpty(responseString)) return;
+                        var newResponse = responseString.Replace($"""href="/{projectCode}""", $"""href="/api/hg-view/{projectCode}""");
+                        transformContext.SuppressResponseBody = true;
+                        var bytes = Encoding.UTF8.GetBytes(newResponse);
+                        transformContext.HttpContext.Response.ContentLength = bytes.Length;
+                        await transformContext.HttpContext.Response.Body.WriteAsync(bytes);
+                    });
+                }
+            });
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
         services.AddAuthorizationBuilder()

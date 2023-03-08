@@ -1,15 +1,9 @@
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning",
-      "Microsoft.Hosting.Lifetime": "Information"
-    }
-  },
   "ReverseProxy": {
     "//config reference": "https://microsoft.github.io/reverse-proxy/articles/config-files.html#configuration-structure",
     "Routes": {
       "resumable": {
+        "Order": 10,
         "ClusterId": "resumable-web",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
@@ -17,10 +11,41 @@
         }
       },
       "hg": {
+        "Order": 20,
         "ClusterId": "hg-web",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
           "Path": "/{project-code}"
+        }
+      },
+      "hg-web-view": {
+        "Order": 11,
+        "ClusterId": "hg-web",
+        "AuthorizationPolicy": "UserHasAccessToProject",
+        "Match": {
+          "Path": "/api/hg-view/{project-code}/{**catch-all}"
+        },
+        "Transforms": [
+          {
+            "PathRemovePrefix": "/api/hg-view"
+          }
+        ]
+      },
+      "hg-web-view-static-rewrite": {
+        "Order": 10,
+        "ClusterId": "hg-web",
+        "Match": {
+          "Path": "/static/{**catch-all}",
+          "Headers":[
+            {
+              "Name": "Referer",
+              "Values": [
+                "/api/hg-view/",
+                "/static/hgk/css/icofont.min.css"
+              ],
+              "Mode": "Contains"
+            }
+          ]
         }
       }
     },
