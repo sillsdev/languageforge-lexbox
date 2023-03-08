@@ -35,6 +35,10 @@ public static class GraphQlSetupKernel
         graphqlBuilder.AddLocalSchema("LexBox")
             .RegisterDbContext<LexBoxDbContext>()
             .AddGraphQL("LexBox")
+            .ModifyRequestOptions(options =>
+            {
+                options.IncludeExceptionDetails = true;
+            })
             .AddType(new DateTimeType("DateTime"))
             .AddType(new UuidType("UUID"))
             .AddType<LexAuthUserType>()
