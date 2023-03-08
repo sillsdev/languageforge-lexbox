@@ -26,9 +26,6 @@ There will also be a single project, Sena 3. But the repo needs to be setup, to 
 
 #### Windows
 
-
-#### Windows
-
 ```bash
 docker-compose up -d
 ```
