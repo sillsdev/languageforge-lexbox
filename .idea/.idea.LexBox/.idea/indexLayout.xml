@@ -3,6 +3,8 @@
   <component name="UserContentModel">
     <attachedFolders>
       <Path>frontend</Path>
+      <Path>hasura</Path>
+      <Path>hg-web</Path>
     </attachedFolders>
     <explicitIncludes>
       <Path>hg-web</Path>

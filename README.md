@@ -53,12 +53,23 @@ backend
 cd backend/LexBoxApi
 dotnet watch
 ```
-
+---
 Some helpful urls:
 * localhost:5158/swagger - swagger docs for the api
 * localhost:5158/api/graphiql/ui - graphiql UI
 * localhost:5158/api/graphiql - graphiql endpoint
 * localhost:8088 - hgkeeper UI add the project code and use the url in FLEx to clone
+
+#### Hasura workflow
+In order to modify Hasura table relations and permissions in hasura we need to use the hasura console.
+We first will need to install the hasura cli from [here](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) and add it to your path.
+
+Next we need to run the following command from the root of the repo:
+```bash
+hasura console --project hasura
+```
+This should open a window in the browser. You will need hasura running in docker for this to work.
+Once you make some changes in the console you should notice some metadata under `hasura/metadata` has been updated, you will want to check that in to git.
 
 ### Proxy Diagram
 
