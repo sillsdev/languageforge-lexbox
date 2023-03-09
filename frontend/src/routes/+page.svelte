@@ -4,8 +4,8 @@
 	import UserDashboard from './(dashboards)/UserDashboard.svelte'
 </script>
 
-{#if $user.role === 'user'}
-	<UserDashboard />
-{:else}
+{#if $user?.role === 'admin'}
 	<AdminDashboard />
+{:else}
+	<UserDashboard />
 {/if}

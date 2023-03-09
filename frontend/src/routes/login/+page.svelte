@@ -1,26 +1,54 @@
 <script lang=ts>
+	import { goto } from '$app/navigation'
 	import { Button, Form, Input } from '$lib/forms'
 	import { Page } from '$lib/layout'
-	import type { ActionData } from './$types'
+	import { clear, login, user } from '$lib/user'
+	import { onMount } from 'svelte'
 
-	export let form: ActionData;
+	onMount(clear)
+
+	let email_or_username = ''
+	let password = ''
+	let missing_user_info = ''
+	let missing_password = ''
+	let short_password = ''
+	let bad_credentials = false
+
+	async function log_in() {
+		missing_user_info = missing_password = short_password = ''
+
+		if (! email_or_username) {
+			missing_user_info = 'User info missing'
+			return
+		}
+		if (! password) {
+			missing_password = 'Password missing'
+			return
+		}
+		// if (password.length < 7) {
+		// 	short_password = 'Your password is pretty short, it should be at least 7 characters long'
+		// 	return
+		// }
+
+		if (await login(email_or_username, password)) {
+			return goto('/')
+		}
+
+		bad_credentials = true
+	}
 </script>
 
 <Page>
 	<svelte:fragment slot=header>Log in</svelte:fragment>
 
-	<Form>
-		<Input label='Email (or Send/Receive username)' type=email name=user_id value={form?.user_id} error={form?.error?.user_id} autofocus required />
+	<Form on:submit={log_in}>
+		<Input label='Email (or Send/Receive username)' type=email bind:value={email_or_username} error={missing_user_info} autofocus required />
 
-		<Input label='Password' type=password name=password error={form?.error?.password} required />
+		<Input label='Password' type=password bind:value={password} error={missing_password || short_password} required />
 
-		{#if form?.error?.bad_credentials}
-			<aside class='alert variant-ghost-error'>
-				<div class=alert-message>
-					<p>
-						Something went wrong, please make sure you have used the correct account information.
-					</p>
-				</div>
+		{#if bad_credentials}
+			<aside class='alert alert-error'>
+				Something went wrong, please make sure you have used the correct account information.
 			</aside>
 
 			<Button>Try to log in again?</Button>

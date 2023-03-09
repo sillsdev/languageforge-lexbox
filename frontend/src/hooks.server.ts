@@ -1,3 +1,4 @@
+import { get_authn_token } from '$lib/user'
 import { redirect, type Handle } from '@sveltejs/kit'
 
 const public_routes = [
@@ -11,12 +12,10 @@ export const handle = (async ({ event, resolve }) => {
 		return await resolve(event)
 	}
 
-	const user_cookie = cookies.get('user')
-	if (! user_cookie) {
+	const authn_cookie = get_authn_token(cookies)
+	if (! authn_cookie) {
 		throw redirect(307, '/login')
 	}
-
-	locals.user = JSON.parse(await event.cookies.get('user') ?? '')
 
 	return await resolve(event)
 }) satisfies Handle

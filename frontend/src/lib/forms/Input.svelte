@@ -2,7 +2,6 @@
 	import { onMount } from 'svelte'
 
 	export let label: string
-	export let name: string
 	export let value: string = ''
 	export let type: string = 'text'
 	export let required: boolean = false
@@ -34,7 +33,7 @@
 	</span>
 </label>
 
-<input { id } use:type_workaround { name } bind:value { required } class:input-error={error} bind:this={ input } class='input input-bordered' />
+<input { id } use:type_workaround bind:value { required } class:input-error={error} bind:this={ input } class='input input-bordered' />
 
 {#if error}
 	<label for={ id } class=label>

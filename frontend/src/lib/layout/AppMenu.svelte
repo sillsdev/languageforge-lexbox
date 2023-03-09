@@ -15,7 +15,9 @@
 		</header>
 
 		<li class=hover-bordered>
-			<a href=/logout>Log out <LogoutIcon /></a>
+			<a href=/logout data-sveltekit-preload-data=tap>
+				Log out <LogoutIcon />
+			</a>
 		</li>
 
 		<hr class=divider>
