@@ -8,15 +8,12 @@
 	export let autofocus: boolean = false
 	export let error: string = ''
 
-	let id = randomId()
+	let id = crypto.randomUUID().split('-').at(-1)
 	let input: HTMLInputElement
 
 	onMount(autofocus_if_requested)
 
-	function randomId() {
-		return Math.random().toString(36).substring(2, 7)
-	}
-		function autofocus_if_requested() {
+	function autofocus_if_requested() {
 		autofocus && input?.focus()
 	}
 
