@@ -1,11 +1,10 @@
 <script lang=ts>
-	import { goto } from '$app/navigation'
 	import { Button, Form, Input } from '$lib/forms'
 	import { Page } from '$lib/layout'
-	import { clear, login, user } from '$lib/user'
+	import { login, logout } from '$lib/user'
 	import { onMount } from 'svelte'
 
-	onMount(clear)
+	onMount(logout)
 
 	let email_or_username = ''
 	let password = ''
@@ -31,7 +30,7 @@
 		// }
 
 		if (await login(email_or_username, password)) {
-			return goto('/')
+			return window.location.pathname = '/' // force server hit for httpOnly cookies
 		}
 
 		bad_credentials = true
