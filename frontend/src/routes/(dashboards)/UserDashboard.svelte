@@ -7,6 +7,6 @@
 <Page>
 	<svelte:fragment slot=header>
 		My projects
-		<ProjectList projects={projects}/>
 	</svelte:fragment>
+	<ProjectList projects={projects}/>
 </Page>

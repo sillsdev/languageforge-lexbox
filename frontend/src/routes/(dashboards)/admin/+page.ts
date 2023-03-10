@@ -5,12 +5,11 @@ import {getClient} from "$lib/graphQLClient";
 
 export const ssr = false;
 export async function load(event: PageLoadEvent): Promise<{ projects: Project[] }> {
-    //todo figure out how to share this.
     const client = getClient(event);
     //language=GraphQL
     const results = await client.query(`
         query loadProjects {
-            myProjects {
+            projects {
                 code
                 id
                 name
@@ -19,6 +18,6 @@ export async function load(event: PageLoadEvent): Promise<{ projects: Project[] 
     `, {}).toPromise();
     if (results.error) throw new Error(results.error.message);
     return {
-        projects: results.data.myProjects
+        projects: results.data.projects
     }
 }
