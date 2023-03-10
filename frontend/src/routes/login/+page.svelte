@@ -3,7 +3,6 @@
 	import { Page } from '$lib/layout'
 	import { login, logout } from '$lib/user'
 	import { onMount } from 'svelte'
-    import { Turnstile } from 'svelte-turnstile'
 
 	onMount(logout)
 
@@ -13,9 +12,7 @@
 	let missing_password = ''
 	let short_password = ''
 	let bad_credentials = false
-	let turnstile_token = ''
-
-	$: console.log(turnstile_token)
+	let robo_token = ''
 
 	async function log_in() {
 		missing_user_info = missing_password = short_password = ''
@@ -33,7 +30,7 @@
 		// 	return
 		// }
 
-		if (await login(email_or_username, password)) {
+		if (await login(email_or_username, password, robo_token)) {
 			return window.location.pathname = '/' // force server hit for httpOnly cookies
 		}
 
@@ -44,7 +41,7 @@
 <Page>
 	<svelte:fragment slot=header>Log in</svelte:fragment>
 
-	<Form on:submit={log_in}>
+	<Form on:submit={log_in} protect on:token={({ detail }) => robo_token = detail}>
 		<Input label='Email (or Send/Receive username)' type=email bind:value={email_or_username} error={missing_user_info} autofocus required />
 
 		<Input label='Password' type=password bind:value={password} error={missing_password || short_password} required />
@@ -58,7 +55,5 @@
 		{:else}
 			<Button>Log in</Button>
 		{/if}
-
-		<Turnstile siteKey=1x00000000000000000000AA on:turnstile-callback={ ({ detail: { token } }) => turnstile_token = token } />
 	</Form>
 </Page>

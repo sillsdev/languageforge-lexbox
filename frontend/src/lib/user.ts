@@ -18,7 +18,7 @@ type UserProjects = {
 
 export const user = writable<LexAuthUser | null>()
 
-export async function login(user_id: string, password: string) {
+export async function login(user_id: string, password: string, protection_token: string = '') {
 	clear()
 
 	const response = await fetch('/api/login', {
@@ -30,6 +30,7 @@ export async function login(user_id: string, password: string) {
 			emailOrUsername: user_id,
 			password: await hash(password),
 			preHashedPassword: true,
+			turnstileToken: protection_token,
 		}),
 	})
 
