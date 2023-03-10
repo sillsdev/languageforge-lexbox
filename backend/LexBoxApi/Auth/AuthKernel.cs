@@ -1,6 +1,7 @@
 ﻿using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
 
@@ -46,7 +47,8 @@ public static class AuthKernel
                 {
                     options.ForwardDefaultSelector = context =>
                     {
-                        if (context.Request.Headers.ContainsKey("Authorization") && context.Request.Headers.Authorization.ToString().StartsWith("Bearer"))
+                        if (context.Request.Headers.ContainsKey("Authorization") &&
+                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer"))
                         {
                             return JwtBearerDefaults.AuthenticationScheme;
                         }
@@ -77,6 +79,10 @@ public static class AuthKernel
                 options.TokenValidationParameters = LexAuthService.TokenValidationParameters(jwtOptions);
                 options.MapInboundClaims = false;
             });
+        services.AddSingleton<JwtTicketDataFormat>();
+        //configure cooke auth to use jwt as the ticket format, aka the cookie will be a jwt
+        new OptionsBuilder<CookieAuthenticationOptions>(services, CookieAuthenticationDefaults.AuthenticationScheme)
+            .Configure<JwtTicketDataFormat>((options, format) => options.TicketDataFormat = format);
 
         services.ConfigureSwaggerGen(options =>
         {
