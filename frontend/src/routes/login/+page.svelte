@@ -3,6 +3,7 @@
 	import { Page } from '$lib/layout'
 	import { login, logout } from '$lib/user'
 	import { onMount } from 'svelte'
+    import { Turnstile } from 'svelte-turnstile'
 
 	onMount(logout)
 
@@ -12,6 +13,9 @@
 	let missing_password = ''
 	let short_password = ''
 	let bad_credentials = false
+	let turnstile_token = ''
+
+	$: console.log(turnstile_token)
 
 	async function log_in() {
 		missing_user_info = missing_password = short_password = ''
@@ -54,5 +58,7 @@
 		{:else}
 			<Button>Log in</Button>
 		{/if}
+
+		<Turnstile siteKey=1x00000000000000000000AA on:turnstile-callback={ ({ detail: { token } }) => turnstile_token = token } />
 	</Form>
 </Page>
