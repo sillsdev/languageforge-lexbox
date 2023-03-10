@@ -2,9 +2,12 @@
 	import '$lib/app.postcss'
 	import { AppBar, AppMenu } from '$lib/layout'
 	import { user } from '$lib/user'
+	import type { LayoutData } from "./$types";
 
 	let menu_toggle = false
-
+	export let data: LayoutData;
+	//doing it this way means that the page will be ssr with the user logged in. If we do this on mount then it will not work correctly
+	user.set(data.user);
 
 	function open() {
 		menu_toggle = true

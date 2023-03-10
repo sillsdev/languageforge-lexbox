@@ -14,6 +14,7 @@ public class LexAuthUserTests
         Id = Guid.NewGuid(),
         Email = "test@test.com",
         Role = UserRole.user,
+        Name = "test",
         Projects = new[]
         {
             new AuthUserProject("test-flex", ProjectRole.Manager)

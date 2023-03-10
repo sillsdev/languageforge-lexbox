@@ -66,6 +66,7 @@ public class LexAuthUser
         Id = user.Id;
         Email = user.Email;
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
+        Name = user.Name;
         Projects = user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role)).ToArray();
     }
 
@@ -74,6 +75,9 @@ public class LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.EmailClaimType)]
     public required string Email { get; set; }
+
+    [JsonPropertyName(LexAuthConstants.NameClaimType)]
+    public required string Name { get; set; }
 
     [JsonPropertyName(LexAuthConstants.RoleClaimType)]
     public required UserRole Role { get; set; }
