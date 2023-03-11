@@ -1,5 +1,5 @@
 <script lang=ts>
-	import { Button, Form, Input, type Token } from '$lib/forms'
+	import { Button, ProtectedForm, Input, type Token } from '$lib/forms'
 	import { Page } from '$lib/layout'
 	import { login, logout } from '$lib/user'
 	import { onMount } from 'svelte'
@@ -45,7 +45,7 @@
 <Page>
 	<svelte:fragment slot=header>Log in</svelte:fragment>
 
-	<Form on:submit={log_in} protect on:token={store_token}>
+	<ProtectedForm on:submit={log_in} on:token={store_token}>
 		<Input label='Email (or Send/Receive username)' type=email bind:value={email_or_username} error={missing_user_info} autofocus required />
 
 		<Input label='Password' type=password bind:value={password} error={missing_password || short_password} required />
@@ -59,5 +59,5 @@
 		{:else}
 			<Button>Log in</Button>
 		{/if}
-	</Form>
+	</ProtectedForm>
 </Page>
