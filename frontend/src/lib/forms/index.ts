@@ -1,5 +1,5 @@
 import Button from './Button.svelte'
-import Form from './Form.svelte'
+import Form, { type Token } from './Form.svelte'
 import Input from './Input.svelte'
 
 function validate_email(email: string) {
@@ -10,6 +10,7 @@ function validate_email(email: string) {
 export {
 	Button,
 	Form,
+	type Token,
 	Input,
 	validate_email,
 }
