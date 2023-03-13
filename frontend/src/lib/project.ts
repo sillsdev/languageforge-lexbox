@@ -3,5 +3,5 @@
     name: string;
     code: string;
     userCount: number;
-    lastCommit: Date;
+    lastCommit: Date | string | null;
 }

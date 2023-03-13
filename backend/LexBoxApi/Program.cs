@@ -60,6 +60,9 @@ app.UseAuthorization();
 
 app.MapHealthChecks("/api/healthz").AllowAnonymous();
 app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();
+if (app.Environment.IsDevelopment())
+    //required for vite to generate types
+    app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
 app.MapControllers();
 
