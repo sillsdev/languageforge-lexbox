@@ -83,6 +83,13 @@ public class TestingController : ControllerBase
         return await HttpContext.RequestServices.GetRequiredService<TurnstileService>().IsTokenValid(code);
     }
 
+    [HttpGet("lastCommitForRepo")]
+    public async Task<ActionResult<DateTimeOffset?>> LastCommitForRepo(string code)
+    {
+        return await HttpContext.RequestServices.GetRequiredService<HgService>()
+            .GetLastCommitTimeFromHg(code);
+    }
+
     public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);
 
     public record TestingControllerProjectUser(string? Username, string Role, string Email, Guid Id);

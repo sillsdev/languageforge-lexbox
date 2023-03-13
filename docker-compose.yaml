@@ -25,6 +25,7 @@
       HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
       HasuraConfig__HasuraSecret: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
       HgConfig__RepoPath: /hg-repos
+      HgConfig__HgWebUrl: http://hg:8080
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hg:8080
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
   hasura:

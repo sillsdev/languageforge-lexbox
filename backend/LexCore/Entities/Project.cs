@@ -8,6 +8,7 @@ public class Project : EntityBase
     public required RetentionPolicy RetentionPolicy { get; set; }
     public required ProjectType Type { get; set; }
     public required List<ProjectUsers> Users { get; set; }
+    public required DateTimeOffset? LastCommit { get; set; }
 }
 
 public enum ProjectType

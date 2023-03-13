@@ -48,6 +48,7 @@ public class SeedingData
             Name = "Sena 3",
             Code = "sena-3",
             Type = ProjectType.FLEx,
+            LastCommit = DateTimeOffset.Now,
             RetentionPolicy = RetentionPolicy.Dev,
             Users = new()
             {

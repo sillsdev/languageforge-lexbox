@@ -1,5 +1,8 @@
-﻿namespace LexCore.Entities;
+﻿using System.Text.Json.Serialization;
 
+namespace LexCore.Entities;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum ProjectRole
 {
     Unknown = 0,

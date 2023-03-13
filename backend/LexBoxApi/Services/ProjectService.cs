@@ -1,6 +1,7 @@
 ﻿using LexBoxApi.Models.Project;
 using LexCore.Entities;
 using LexData;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Services;
 
@@ -27,19 +28,23 @@ public class ProjectService
                 Name = input.Name,
                 Description = input.Description,
                 Type = input.Type,
+                LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
-                Users = new List<ProjectUsers>
-                {
-                    new()
-                    {
-                        UserId = userId,
-                        Role = ProjectRole.Manager
-                    }
-                }
+                Users = new List<ProjectUsers> { new() { UserId = userId, Role = ProjectRole.Manager } }
             });
         await _dbContext.SaveChangesAsync();
         await _hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
         return projectId;
+    }
+
+    public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)
+    {
+        var lastCommitFromHg = await _hgService.GetLastCommitTimeFromHg(projectCode);
+        await _dbContext.Projects.Where(p => p.Code == projectCode)
+            .ExecuteUpdateAsync(calls =>
+                calls.SetProperty(project => project.LastCommit, lastCommitFromHg)
+            );
+        return lastCommitFromHg;
     }
 }
