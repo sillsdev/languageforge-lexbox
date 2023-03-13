@@ -1,24 +1,37 @@
-﻿import type {PageLoadEvent} from "./$types";
-import type {Project} from "$lib/project";
-import {Client, createClient} from "@urql/svelte";
-import {getClient} from "$lib/graphQLClient";
+﻿import type { PageLoadEvent } from "./$types";
+import type { Project } from "$lib/project";
+import { getClient } from "$lib/graphQLClient";
+import { user } from "$lib/user";
+import { get } from "svelte/store";
 
-export const ssr = false;
 export async function load(event: PageLoadEvent): Promise<{ projects: Project[] }> {
-    //todo figure out how to share this.
+    const userId = get(user)?.id;
+    if (!userId) return {projects: []};
     const client = getClient(event);
     //language=GraphQL
     const results = await client.query(`
-        query loadProjects {
-            myProjects {
+        query loadProjects($userId: uuid) {
+            projects(where: {ProjectUsers: {userId: {_eq: $userId}}}){
                 code
                 id
                 name
+                lastCommit
+                projectUsersAggregate {
+                    aggregate {
+                        count
+                    }
+                }
             }
         }
-    `, {}).toPromise();
+    `, {userId}).toPromise();
     if (results.error) throw new Error(results.error.message);
     return {
-        projects: results.data.myProjects
+        projects: results.data.projects.map(p => ({
+            id: p.id,
+            name: p.name,
+            code: p.code,
+            userCount: p.projectUsersAggregate.aggregate.count,
+            lastCommit: p.lastCommit
+        }))
     }
 }
