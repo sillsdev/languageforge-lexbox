@@ -1,6 +1,8 @@
 import { user } from '$lib/user'
-import type { LayoutLoad } from './$types'
+import type {LayoutLoadEvent} from './$types'
+import {initClient} from "$lib/graphQLClient";
 
-export const load = (async ({ data }) => {
-	user.set(data.user)
-}) satisfies LayoutLoad
+export function load(event: LayoutLoadEvent)  {
+    initClient(event);
+    user.set(event.data.user);
+}

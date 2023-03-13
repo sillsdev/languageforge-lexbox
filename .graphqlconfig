@@ -1,0 +1,19 @@
+﻿{
+  "name": "Lexbox graphql schema",
+  "schemaPath": "schema.graphql",
+  "includes": [
+    "**/*.ts",
+    "**/*.graphql"
+  ],
+  "extensions": {
+    "endpoints": {
+      "Default GraphQL Endpoint": {
+        "url": "http://localhost:8080/graphql",
+        "headers": {
+          "user-agent": "JS GraphQL"
+        },
+        "introspect": false
+      }
+    }
+  }
+}
