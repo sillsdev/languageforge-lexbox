@@ -1,11 +1,8 @@
-<script>
-	import { user } from '$lib/user'
-	import AdminDashboard from './(dashboards)/AdminDashboard.svelte'
-	import UserDashboard from './(dashboards)/UserDashboard.svelte'
+<script lang="ts">
+    import type { PageData } from './$types';
+    import UserDashboard from "./(dashboards)/UserDashboard.svelte";
+
+    export let data: PageData;
 </script>
 
-{#if $user?.role === 'admin'}
-	<AdminDashboard />
-{:else}
-	<UserDashboard />
-{/if}
+<UserDashboard projects={data.projects}/>
