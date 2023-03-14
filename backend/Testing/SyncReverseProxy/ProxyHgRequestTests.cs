@@ -17,7 +17,7 @@ public class ProxyHgRequests
 
     //cli "C:\Program Files (x86)\SIL\FLExBridge3\Mercurial\hg" clone -U  "https://{userName}:{password}@hg-public.languageforge.org/{projectCode}" "C:\ProgramData\SIL\FieldWorks\Projects\lkj"
     [Theory]
-    [InlineData("hg-public.languageforge.org")]
+    // [InlineData("hg-public.languageforge.org")]
     [InlineData("localhost:7000")]
     public async Task TestGet(string host)
     {
@@ -34,7 +34,7 @@ public class ProxyHgRequests
     }
 
     [Theory]
-    [InlineData("hg-public.languageforge.org")]
+    // [InlineData("hg-public.languageforge.org")]
     [InlineData("localhost:7000")]
     public async Task TestGetBadPassword(string host)
     {
@@ -53,7 +53,7 @@ public class ProxyHgRequests
     }
 
     [Theory]
-    [InlineData("hg-public.languageforge.org")]
+    // [InlineData("hg-public.languageforge.org")]
     [InlineData("localhost:7000")]
     public async Task TestNoAuthResponse(string host)
     {

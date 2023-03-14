@@ -10,15 +10,15 @@ namespace LexSyncReverseProxy.Auth;
 public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     public const string AuthScheme = "HgAuthScheme";
-    private readonly IProxyAuthService _proxyAuthService;
+    private readonly ILexProxyService _lexProxyService;
 
     public BasicAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
         ISystemClock clock,
-        IProxyAuthService proxyAuthService) : base(options, logger, encoder, clock)
+        ILexProxyService lexProxyService) : base(options, logger, encoder, clock)
     {
-        _proxyAuthService = proxyAuthService;
+        _lexProxyService = lexProxyService;
     }
 
     protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
@@ -55,7 +55,7 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
             return AuthenticateResult.Fail("Invalid Request");
         }
 
-        var principal = await _proxyAuthService.Login(new LoginRequest(password, username));
+        var principal = await _lexProxyService.Login(new LoginRequest(password, username));
         if (principal is null)
             return AuthenticateResult.Fail("Invalid username or password");
         return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name)

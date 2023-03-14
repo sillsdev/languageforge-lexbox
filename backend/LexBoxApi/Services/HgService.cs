@@ -41,7 +41,7 @@ public class HgService
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         //format is this: [1678687688, offset] offset is 
-        var dateArray = json?["changesets"]?[0]?["date"].Deserialize<decimal[]>();
+        var dateArray = json?["entries"]?[0]?["date"].Deserialize<decimal[]>();
         if (dateArray is null || dateArray.Length != 2)
             return null;
         //offsets are weird. The format we get the offset in is opposite of how we typically represent offsets, eg normally the US has negative
@@ -49,6 +49,6 @@ public class HgService
         //the offset we get here is the latter but dotnet expects the former so we need to invert it.
         var offset = (double)dateArray[1] * -1;
         var date = DateTimeOffset.FromUnixTimeSeconds((long)dateArray[0]).ToOffset(TimeSpan.FromSeconds(offset));
-        return date;
+        return date.ToUniversalTime();
     }
 }

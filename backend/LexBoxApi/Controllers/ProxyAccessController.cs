@@ -12,12 +12,12 @@ namespace LexBoxApi.Controllers;
 public class ProxyAccessController : ControllerBase
 {
     private readonly LexBoxDbContext _lexBoxDbContext;
-    private readonly IProxyAuthService _proxyAuthService;
+    private readonly ILexProxyService _lexProxyService;
 
-    public ProxyAccessController(LexBoxDbContext lexBoxDbContext, IProxyAuthService proxyAuthService)
+    public ProxyAccessController(LexBoxDbContext lexBoxDbContext, ILexProxyService lexProxyService)
     {
         _lexBoxDbContext = lexBoxDbContext;
-        _proxyAuthService = proxyAuthService;
+        _lexProxyService = lexProxyService;
     }
 
     [AllowAnonymous]

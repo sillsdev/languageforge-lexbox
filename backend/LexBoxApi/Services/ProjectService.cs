@@ -42,8 +42,8 @@ public class ProjectService
     {
         var lastCommitFromHg = await _hgService.GetLastCommitTimeFromHg(projectCode);
         await _dbContext.Projects.Where(p => p.Code == projectCode)
-            .ExecuteUpdateAsync(calls =>
-                calls.SetProperty(project => project.LastCommit, lastCommitFromHg)
+            .ExecuteUpdateAsync(_ =>
+                _.SetProperty(project => project.LastCommit, lastCommitFromHg)
             );
         return lastCommitFromHg;
     }

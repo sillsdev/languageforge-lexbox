@@ -2,7 +2,8 @@
 
 namespace LexCore.ServiceInterfaces;
 
-public interface IProxyAuthService
+public interface ILexProxyService
 {
     Task<ClaimsPrincipal?> Login(LoginRequest loginRequest);
+    Task RefreshProjectLastChange(string projectCode);
 }

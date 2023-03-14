@@ -1,8 +1,10 @@
 ﻿using System.Text;
 using LexSyncReverseProxy.Auth;
+using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
+using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Transforms;
 
 namespace LexSyncReverseProxy;
@@ -24,6 +26,7 @@ public static class ProxyKernel
                 optional: true,
                 reloadOnChange: env.IsDevelopment());
         services.AddHttpContextAccessor();
+        services.AddScoped<ProxyEventsService>();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         var reverseProxyConfig = configuration.GetSection("ReverseProxy");
         if (!reverseProxyConfig.Exists())
@@ -74,7 +77,14 @@ public static class ProxyKernel
     public static ReverseProxyConventionBuilder MapSyncProxy(this IEndpointRouteBuilder app,
         string? extraAuthScheme = null)
     {
-        return app.MapReverseProxy()
+        return app.MapReverseProxy(builder => builder.Use(async (context, next) =>
+            {
+                var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
+                var proxyFeature = context.Features.Get<IReverseProxyFeature>();
+                await next(context);
+                ArgumentNullException.ThrowIfNull(proxyFeature);
+                await eventsService.AfterRequest(context, proxyFeature);
+            }))
             .RequireAuthorization(new AuthorizeAttribute
             {
                 AuthenticationSchemes = string.Join(',', BasicAuthHandler.AuthScheme, extraAuthScheme ?? "")

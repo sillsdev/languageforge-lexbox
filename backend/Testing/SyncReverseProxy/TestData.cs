@@ -3,7 +3,7 @@
 public class TestData
 {
     // data removed from public repo
-    public const string User = "hahn-kevin";
-    public const string Password = "6rA6BEjcPmWeTGb";
-    public const string ProjectCode = "en-counselling-flex";
+    public const string User = "KindLion";
+    public const string Password = "pass";
+    public const string ProjectCode = "sena-3";
 }
