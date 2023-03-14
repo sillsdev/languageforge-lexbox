@@ -40,8 +40,8 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         {
             Issuer = jwtBearerOptions.TokenValidationParameters.ValidIssuer,
             Audience = Audience(purpose, jwtBearerOptions.TokenValidationParameters.ValidAudience),
-            NotBefore = jwtDate,
-            Expires = jwtDate + _userOptions.Value.Lifetime,
+            NotBefore = data.Properties.IssuedUtc?.UtcDateTime ?? jwtDate,
+            Expires = data.Properties.ExpiresUtc?.UtcDateTime ?? jwtDate + _userOptions.Value.Lifetime,
             SigningCredentials = new SigningCredentials(jwtBearerOptions.TokenValidationParameters.IssuerSigningKey,
                 SecurityAlgorithms.HmacSha256),
             Subject = new ClaimsIdentity(data.Principal.Claims, data.Principal.Identity?.AuthenticationType),
