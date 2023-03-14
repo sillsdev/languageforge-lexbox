@@ -15,7 +15,6 @@ public class LexQueries
     }
 
     [UseProjection]
-    [UseFiltering]
     public IQueryable<Project> MyProjects(LexBoxDbContext context)
     {
         var projectCodes = _loggedInContext.User.Projects.Select(p => p.Code);

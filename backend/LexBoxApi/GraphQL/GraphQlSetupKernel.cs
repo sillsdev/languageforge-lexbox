@@ -7,7 +7,7 @@ namespace LexBoxApi.GraphQL;
 
 public static class GraphQlSetupKernel
 {
-    public static void AddLexGraphQL(this IServiceCollection services)
+    public static void AddLexGraphQL(this IServiceCollection services, IWebHostEnvironment env)
     {
         services.AddHttpClient("hasura",
             (provider, client) =>
@@ -21,17 +21,16 @@ public static class GraphQlSetupKernel
             {
                 options.IncludeExceptionDetails = true;
             })
-            .InitializeOnStartup()
             .AddType(new DateTimeType("DateTime"))
             .AddType(new UuidType("UUID"))
             .AddType(new DateTimeType("timestamptz"))
             .AddType(new UuidType("uuid"));
+        if (!env.IsDevelopment()) graphqlBuilder.InitializeOnStartup();
         graphqlBuilder
             .AddRemoteSchema("hasura")
             .AddGraphQL("hasura")
             .AddType(new DateTimeType("timestamptz"))
-            .AddType(new UuidType("uuid"))
-            .RenameType("ProjectUsers", "ProjectUsersHasura");
+            .AddType(new UuidType("uuid"));
         graphqlBuilder.AddLocalSchema("LexBox")
             .RegisterDbContext<LexBoxDbContext>()
             .AddGraphQL("LexBox")

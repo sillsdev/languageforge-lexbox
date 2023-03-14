@@ -1829,8 +1829,6 @@ input UuidComparisonExp {
   _nin: [uuid!]
 }
 
-scalar jsonb
-
 scalar timestamptz @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
 
 scalar uuid
