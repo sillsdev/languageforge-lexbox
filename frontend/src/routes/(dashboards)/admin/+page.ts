@@ -4,9 +4,10 @@ import { graphql } from "$lib/gql";
 
 export async function load(event: PageLoadEvent) {
     const client = getClient(event);
+
     //language=GraphQL
     const results = await client.query(graphql(`
-        query loadAdminProjects {
+        query loadAdminDashboard {
             projects(orderBy: [
                 {lastCommit: ASC_NULLS_FIRST},
                 {name: ASC}
@@ -21,10 +22,18 @@ export async function load(event: PageLoadEvent) {
                     }
                 }
             }
+            users(orderBy: {name: ASC}) {
+                id
+                name
+                email
+                isAdmin
+                createdDate
+            }
         }
     `), {}).toPromise();
     if (results.error) throw new Error(results.error.message);
     return {
-        projects: results.data?.projects ?? []
+        projects: results.data?.projects ?? [],
+        users: results.data?.users ?? []
     }
 }
