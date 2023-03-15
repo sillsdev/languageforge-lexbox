@@ -1,5 +1,6 @@
 <script lang=ts>
 	import { Button, Form, Input } from '$lib/forms'
+	import t from '$lib/i18n'
 	import { Page } from '$lib/layout'
 	import { login, logout } from '$lib/user'
 	import { onMount } from 'svelte'
@@ -17,11 +18,11 @@
 		missing_user_info = missing_password = short_password = ''
 
 		if (! email_or_username) {
-			missing_user_info = 'User info missing'
+			missing_user_info = t('login.missing_user_info')
 			return
 		}
 		if (! password) {
-			missing_password = 'Password missing'
+			missing_password = t('login.password_missing')
 			return
 		}
 		// TODO: update test users with longer passwords
@@ -39,21 +40,21 @@
 </script>
 
 <Page>
-	<svelte:fragment slot=header>Log in</svelte:fragment>
+	<svelte:fragment slot=header>{ t('login.page_header') }</svelte:fragment>
 
 	<Form on:submit={log_in}>
-		<Input label='Email (or Send/Receive username)' type=email bind:value={email_or_username} error={missing_user_info} autofocus required />
+		<Input label={t('login.label_email')} type=email bind:value={email_or_username} error={missing_user_info} autofocus required />
 
-		<Input label='Password' type=password bind:value={password} error={missing_password || short_password} required />
+		<Input label={t('login.label_password')} type=password bind:value={password} error={missing_password || short_password} required />
 
 		{#if bad_credentials}
 			<aside class='alert alert-error'>
-				Something went wrong, please make sure you have used the correct account information.
+				{ t('login.bad_credentials') }
 			</aside>
 
-			<Button>Try to log in again?</Button>
+			<Button>{ t('login.button_login_again') }</Button>
 		{:else}
-			<Button>Log in</Button>
+			<Button>{ t('login.button_login') }</Button>
 		{/if}
 	</Form>
 </Page>

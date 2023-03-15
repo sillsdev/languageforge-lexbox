@@ -1,0 +1,113 @@
+{
+	"appbar.app_name": {
+	  "en": "Language Depot"
+	},
+	"appmenu.log_out": {
+	  "en": "Log out"
+	},
+	"login.missing_user_info": {
+	  "en": "User info missing"
+	},
+	"login.password_missing": {
+	  "en": "Password missing"
+	},
+	"login.page_header": {
+	  "en": "Log in"
+	},
+	"login.label_email": {
+	  "en": "Email (or Send/Receive username)"
+	},
+	"login.label_password": {
+	  "en": "Password"
+	},
+	"login.bad_credentials": {
+	  "en": "Something went wrong, please make sure you have used the correct account information."
+	},
+	"login.button_login": {
+	  "en": "Log in"
+	},
+	"login.button_login_again": {
+	  "en": "Try to log in again?"
+	},
+	"user_dashboard.page_header": {
+	  "en": "My projects"
+	},
+	"projectlist.shared_with": {
+	  "en": "Shared with %1 other people"
+	},
+	"projectlist.last_change": {
+	  "en": "Last Change: "
+	},
+	"project_role.manager": {
+	  "en": "Manager"
+	},
+	"project_type.flex": {
+	  "en": "FLEx"
+	},
+	"project_role.editor": {
+	  "en": "Editor"
+	},
+	"unknown": {
+	  "en": "Unknown"
+	},
+	"retention_policy.verified": {
+	  "en": "Verified"
+	},
+	"retention_policy.test": {
+	  "en": "Test"
+	},
+	"retention_policy.dev": {
+	  "en": "Dev"
+	},
+	"project_page.missing_description": {
+	  "en": "No Description"
+	},
+	"project_page.last_commit": {
+	  "en": "Last Commit "
+	},
+	"project_page.members": {
+	  "en": "Project Members"
+	},
+	"project_page.history": {
+	  "en": "History"
+	},
+	"project_page.not_found": {
+	  "en": "Project %1 not found!"
+	},
+	"admin_dashboard.page_header": {
+	  "en": "Projects"
+	},
+	"admin_dashboard.filter_label": {
+	  "en": "Filter"
+	},
+	"admin_dashboard.filter_placeholder": {
+	  "en": "search..."
+	},
+	"admin_dashboard.column_name": {
+	  "en": "Name"
+	},
+	"admin_dashboard.column_code": {
+	  "en": "Code"
+	},
+	"admin_dashboard.column_users": {
+	  "en": "Users"
+	},
+	"admin_dashboard.column_last_change": {
+	  "en": "Last Change"
+	},
+	"admin_dashboard.column_email": {
+	  "en": "Email"
+	},
+	"admin_dashboard.column_role": {
+	  "en": "Role"
+	},
+	"admin_dashboard.column_created": {
+	  "en": "Created"
+	},
+	"user_types.admin": {
+	  "en": "Admin"
+	},
+	"user_types.user": {
+	  "en": "User"
+	}
+}

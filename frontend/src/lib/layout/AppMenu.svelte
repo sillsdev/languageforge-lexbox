@@ -1,4 +1,5 @@
 <script>
+	import t from '$lib/i18n'
 	import { LogoutIcon } from '$lib/icons'
 	import { user } from '$lib/user'
 </script>
@@ -16,7 +17,7 @@
 
 		<li class=hover-bordered>
 			<a href=/logout data-sveltekit-preload-data=tap>
-				Log out <LogoutIcon />
+				{ t('appmenu.log_out') } <LogoutIcon />
 			</a>
 		</li>
 

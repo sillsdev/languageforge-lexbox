@@ -1,9 +1,12 @@
 <script lang="ts">
-	export let type: number;
+	import t from '$lib/i18n';
+
+
+	export let type: number
+
+	const types = {
+		1: t('project_type.flex'),
+	}
 </script>
 
-{#if type === 1}
-	FLEx
-{:else}
-	Unknown
-{/if}
+{ types[type] || t('unknown') }

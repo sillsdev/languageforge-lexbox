@@ -1,8 +1,8 @@
 ﻿<script lang="ts">
+	import t from '$lib/i18n';
+    import type { Project } from "$lib/project"
 
-    import type { Project } from "$lib/project";
-
-    export let projects: Project[] = [];
+    export let projects: Project[] = []
 </script>
 
 <div class="grid grid-cols-3 gap-4">
@@ -10,11 +10,14 @@
         <div class="card bg-base-200">
             <div class="card-body">
                 <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>{project.name}</h2>
-                <p>{project.code}</p>
-                {#if project.userCount > 1}
-                    <p>Shared with {project.userCount} people</p>
+
+				<p>{project.code}</p>
+
+				{#if project.userCount > 1}
+                    <p>{ t('projectlist.shared_with', project.userCount) }</p>
                 {/if}
-                <p>Last Change: {project.lastCommit ?? 'unknown'}</p>
+
+				<p>{ t('projectlist.last_change') + project.lastCommit ?? 'unknown' }</p>
             </div>
         </div>
     {/each}

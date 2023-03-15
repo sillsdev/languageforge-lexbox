@@ -1,11 +1,12 @@
 <script lang="ts">
-	export let projectRole: number;
+	import t from '$lib/i18n'
+
+	export let projectRole: number
+
+	const roles = {
+		2: t('project_role.manager'),
+		3: t('project_role.editor'),
+	}
 </script>
 
-{#if projectRole === 2}
-	Manager
-{:else if projectRole === 3}
-	Editor
-{:else}
-	Unknown
-{/if}
+{ roles[projectRole] || t('unknown') }

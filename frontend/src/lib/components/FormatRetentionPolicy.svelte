@@ -1,13 +1,13 @@
 <script lang="ts">
-	export let policy: number;
+	import t from '$lib/i18n'
+
+	export let policy: number
+
+	const policies = {
+		1: t('retention_policy.verified'),
+		2: t('retention_policy.test'),
+		3: t('retention_policy.dev'),
+	}
 </script>
 
-{#if policy === 1}
-	Verified
-{:else if policy === 2}
-	Test
-{:else if policy === 3}
-	Dev
-{:else}
-	Unknown
-{/if}
+{ policies[policy] || t('unknown') }

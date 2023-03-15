@@ -1,4 +1,5 @@
 <script lang=ts>
+	import t from '$lib/i18n'
 	import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons'
 	import { user } from '$lib/user'
 	import { createEventDispatcher } from 'svelte'
@@ -9,7 +10,7 @@
 <!-- https://daisyui.com/components/navbar -->
 <header class='navbar bg-primary text-primary-content'>
 	<span class='navbar-start ml-4 text-lg md:text-3xl tracking-wider'>
-		Language Depot
+		{ t('appbar.app_name') }
 	</span>
 
 	<div class=navbar-end>
