@@ -8,13 +8,16 @@
       dockerfile: LexBoxApi/dev.Dockerfile
     ports:
       - 5158:5158
+    # https://docs.docker.com/compose/compose-file/#depends_on
     depends_on:
       db:
         condition: service_healthy
       hasura:
         condition: service_healthy
-#      - hg
-#      - hg-resumable
+      hg:
+        condition: service_started # TODO: do we want/need a "healthy" check here?
+      hg-resumable:
+        condition: service_started # TODO: do we want/need a "healthy" check here?
     volumes:
       - ./backend:/src/backend
       - ./hg-web/repos:/hg-repos
@@ -28,6 +31,7 @@
       HgConfig__HgWebUrl: http://hg:8080
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hg:8080
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
+
   hasura:
     image: hasura/graphql-engine:v2.20.0-ce.cli-migrations-v3
     ports:
@@ -51,6 +55,7 @@
       HASURA_GRAPHQL_ADMIN_SECRET: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
       HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "naming_convention"
       HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION: graphql-default
+
   db:
     image: postgres
     restart: unless-stopped
@@ -67,16 +72,20 @@
       retries: 5
     environment:
       POSTGRES_PASSWORD: ${LEXBOX_POSTGRES_PW:?postgres password required}
+
   redmine-db:
     image: mysql:5.7.41
+    platform:  linux/amd64
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: the_password
     volumes:
       - redmine_db_data:/var/lib/mysql
+
   hg:
     image: rwgrim/hgkeeper:latest
+    platform:  linux/amd64
     container_name: hg
     ports:
       - 8088:8080
@@ -92,8 +101,10 @@
       HGK_ADMIN_PUBKEY: /admin-pubkey
 #      setup is only required the first time, it'll error if it's already been run but that's fine.
     command: bash -c "hgkeeper setup ; hgkeeper serve"
+
   hg-resumable:
     image: ghcr.io/sillsdev/hgresume:v2023-02-24
+    platform:  linux/amd64
     container_name: hg-resumable
     ports:
       - 8034:80

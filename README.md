@@ -78,14 +78,12 @@ Development:
 graph TD
     Chorus --> Proxy
 
-
     Proxy[Proxy] --> Api
     Proxy --> hg-keeper
     Proxy --> hgresumable
     hg-keeper --> hg[hg file system]
     hgresumable --> hg
     Api --> hg
-
 
     Frontend --> Api
     Api --> Hasura[hasura]
@@ -98,13 +96,11 @@ Production:
 graph TD
     Chorus --> Api
 
-
     Api --> hg-keeper
     Api --> hgresumable
     hg-keeper --> hg[hg file system]
     hgresumable --> hg
     Api[API & Proxy] --> hg
-
 
     Frontend --> Api
     Api --> Hasura[hasura]
