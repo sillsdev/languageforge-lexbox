@@ -30,7 +30,6 @@ export async function login(user_id: string, password: string, protection_token:
 			emailOrUsername: user_id,
 			password: await hash(password),
 			preHashedPassword: true,
-			turnstileToken: protection_token,
 		}),
 	})
 
