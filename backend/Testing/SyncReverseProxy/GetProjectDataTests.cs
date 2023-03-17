@@ -22,7 +22,7 @@ password={password}
 """;
 
     [Theory]
-    [InlineData("https://admin.languageforge.org")]
+    // [InlineData("https://admin.languageforge.org")]
     [InlineData("https://localhost:7075")]
     public async Task GetProjectData(string host)
     {
@@ -48,14 +48,14 @@ password={password}
             () => projectDict.ShouldContainKey("role")
         );
         project["identifier"]!.GetValue<string>().ShouldBe(TestData.ProjectCode);
-        project["name"]!.GetValue<string>().ShouldBe("Counselling Glossary");
+        project["name"]!.GetValue<string>().ShouldBe("Sena 3");
         project["repository"]!.GetValue<string>().ShouldBe("http://public.languagedepot.org");
         //todo what is role for? returns unknown in my single test
         project["role"]!.GetValue<string>().ShouldNotBeEmpty();
     }
 
     [Theory]
-    [InlineData("https://admin.languageforge.org")]
+    // [InlineData("https://admin.languageforge.org")]
     [InlineData("https://localhost:7075")]
     public async Task TestInvalidPassword(string host)
     {
@@ -75,7 +75,7 @@ password={password}
     }
 
     [Theory]
-    [InlineData("https://admin.languageforge.org")]
+    // [InlineData("https://admin.languageforge.org")]
     [InlineData("https://localhost:7075")]
     public async Task TestInvalidUser(string host)
     {

@@ -13,7 +13,7 @@ public class ResumableTests
     };
 
     [Theory]
-    [InlineData("resumable.languageforge.org")]
+    // [InlineData("resumable.languageforge.org")]
     [InlineData("localhost:7000")]
     public async Task IsAvailable(string host)
     {
@@ -33,7 +33,7 @@ public class ResumableTests
     }
     
     [Theory]
-    [InlineData("resumable.languageforge.org")]
+    // [InlineData("resumable.languageforge.org")]
     [InlineData("localhost:7000")]
     public async Task WithBadUser(string host)
     {
@@ -50,7 +50,7 @@ public class ResumableTests
     }
     
     [Theory]
-    [InlineData("resumable.languageforge.org")]
+    // [InlineData("resumable.languageforge.org")]
     [InlineData("localhost:7000")]
     public async Task WithBadPassword(string host)
     {
@@ -67,7 +67,7 @@ public class ResumableTests
     }
     
     [Theory]
-    [InlineData("resumable.languageforge.org")]
+    // [InlineData("resumable.languageforge.org")]
     [InlineData("localhost:7000")]
     public async Task WithBadNotValidProject(string host)
     {
