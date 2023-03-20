@@ -1,6 +1,7 @@
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
 using LexSyncReverseProxy.Config;
+using LexSyncReverseProxy.Otel;
 using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.Net.Http.Headers;
@@ -26,7 +27,7 @@ builder.Services.AddHttpLogging(options =>
     options.ResponseHeaders.Add("X-HgR-Version");
     options.ResponseHeaders.Add("X-HgR-Status");
 });
-
+builder.Services.AddOpenTelemetryInstrumentation();
 
 var app = builder.Build();
 

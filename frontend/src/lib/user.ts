@@ -54,6 +54,10 @@ export function get_user(cookies: Cookies): LexAuthUser | null {
 	}
 }
 
+export function get_user_id(cookies: Cookies): string | undefined {
+	return get_user(cookies)?.id
+}
+
 export function logout(cookies?: Cookies) {
 	browser && clear()
 	cookies && cookies.delete('.LexBoxAuth')

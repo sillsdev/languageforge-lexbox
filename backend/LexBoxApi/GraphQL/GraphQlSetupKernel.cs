@@ -30,7 +30,8 @@ public static class GraphQlSetupKernel
             .AddRemoteSchema("hasura")
             .AddGraphQL("hasura")
             .AddType(new DateTimeType("timestamptz"))
-            .AddType(new UuidType("uuid"));
+            .AddType(new UuidType("uuid"))
+            .AddInstrumentation();
         graphqlBuilder.AddLocalSchema("LexBox")
             .RegisterDbContext<LexBoxDbContext>()
             .AddGraphQL("LexBox")
@@ -45,6 +46,7 @@ public static class GraphQlSetupKernel
             .AddQueryType<LexQueries>()
             .AddSorting()
             .AddFiltering()
-            .AddProjections();
+            .AddProjections()
+            .AddInstrumentation();
     }
 }
