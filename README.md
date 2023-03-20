@@ -111,3 +111,30 @@ graph TD
 More info on the frontend and backend can be found in their respective READMEs:
 * [frontend](frontend/README.md)
 * [backend](backend/README.md)
+
+## Operational environment
+
+### Staging
+
+```mermaid
+
+flowchart LR
+    Web -- https --- Proxy([ingress])
+    FLEx -- https? --- Proxy
+
+    Proxy -- http:5158 --- api([lexbox-api])
+
+    api -- postgres:5432 --- db([postgres])
+    api -- http:8080 --- hasura([hasura])
+    api -- http:8080 --- hg([hg keeper])
+    api -- http:8080 --- hg-resumable([hg resuamble])
+
+    hasura -- postgres:5432 --- db([postgres])
+
+    api -- volume-map:./hg-web/repos --- hg-repos[//hg-repos/]
+    hg -- volume-map:./hg-web/repos --- repos[//repos/]
+    hasura -- volume-map --- metadata[//hasura-metadata/]
+    hg-resumable -- volume-map:resumable-cache --- cache[//var/cache/hgresume/]
+    db -- volume-map:db_data --- data[//var/lib/postgresql/data/]
+
+```
