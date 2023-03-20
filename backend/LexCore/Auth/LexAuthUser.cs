@@ -124,6 +124,6 @@ public record AuthUserProject(string Code, ProjectRole Role);
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
 {
-    admin,
-    user
+    admin = 0,
+    user = 1
 }

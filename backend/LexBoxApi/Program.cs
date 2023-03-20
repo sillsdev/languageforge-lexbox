@@ -32,9 +32,9 @@ builder.Services.AddSwaggerGen(options =>
         Description = """
             This is the open api for LexBox, most of api is in the [graphql endpoint](/api/graphql/ui).
             However there are some test users for login here, with the default password of `pass`:
-            * KindLion@test.com
-            * InnocentMoth@test.com
-            * PlayfulFish@test.com
+            * KindLion@test.com (site admin)
+            * InnocentMoth@test.com (Sena 3 manager)
+            * PlayfulFish@test.com (Sena 3 editor)
             """,
     });
 });
