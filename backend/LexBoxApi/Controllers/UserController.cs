@@ -1,5 +1,7 @@
-﻿using System.Security.Cryptography;
+﻿using System.Diagnostics;
+using System.Security.Cryptography;
 using LexBoxApi.Models;
+using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexCore;
 using LexCore.Auth;
@@ -31,7 +33,10 @@ public class UserController : ControllerBase
     [ProducesDefaultResponseType]
     public async Task<ActionResult<LexAuthUser>> RegisterAccount(RegisterAccountInput accountInput)
     {
+        using var registerActivity = new ActivitySource(OtelKernel.ServiceName).StartActivity("Register");
+        Console.WriteLine("RegisterAccount" + registerActivity?.DisplayName);
         var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken);
+        registerActivity?.AddTag("app.turnstile_token_valid", validToken);
         if (!validToken)
         {
             ModelState.AddModelError<RegisterAccountInput>(r => r.TurnstileToken, "token invalid");
@@ -39,6 +44,7 @@ public class UserController : ControllerBase
         }
 
         var hasExistingUser = await _lexBoxDbContext.Users.AnyAsync(u => u.Email == accountInput.Email);
+        registerActivity?.AddTag("app.email_available", !hasExistingUser);
         if (hasExistingUser)
         {
             ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email already in use");
@@ -55,6 +61,7 @@ public class UserController : ControllerBase
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false
         };
+        registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
 

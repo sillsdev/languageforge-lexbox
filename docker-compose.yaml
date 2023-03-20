@@ -18,6 +18,8 @@
         condition: service_started # TODO: do we want/need a "healthy" check here?
       hg-resumable:
         condition: service_started # TODO: do we want/need a "healthy" check here?
+      otel-collector:
+        condition: service_started
     volumes:
       - ./backend:/src/backend
       - ./hg-web/repos:/hg-repos
@@ -112,6 +114,17 @@
       - ./hg-web/repos:/var/vcs/public
 #    this is here so if the container is restarted during an upload they don't have to start over
       - resumable-cache:/var/cache/hgresume
+  otel-collector:
+    image: otel/opentelemetry-collector:0.73.0
+    command: [--config=/etc/otel-collector-config.yaml]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - 4317:4317 # OTLP gRPC receiver
+      - 4318:4318 # OTLP http receiver
+      - 13133:13133 # health_check extension
+    environment:
+      - LEXBOX_HONEYCOMB_API_KEY=${LEXBOX_HONEYCOMB_API_KEY}
 volumes:
     db_data:
     redmine_db_data:

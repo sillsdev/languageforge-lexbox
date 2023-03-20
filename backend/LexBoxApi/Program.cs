@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using LexBoxApi;
 using LexBoxApi.Auth;
+using LexBoxApi.Otel;
 using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.HttpLogging;
@@ -10,6 +11,8 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddOpenTelemetryInstrumentation();
 
 builder.Services.AddControllers(options =>
 {
