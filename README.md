@@ -119,22 +119,28 @@ More info on the frontend and backend can be found in their respective READMEs:
 ```mermaid
 
 flowchart LR
+    FLEx -- https --- Proxy
     Web -- https --- Proxy([ingress])
-    FLEx -- https? --- Proxy
 
-    Proxy -- http:5158 --- api([lexbox-api])
+    Proxy -- http:5158/api --- api([lexbox-api])
+    Proxy -- http:80 --- node([sveltekit])
 
     api -- postgres:5432 --- db([postgres])
-    api -- http:8080 --- hasura([hasura])
-    api -- http:8080 --- hg([hg keeper])
-    api -- http:8080 --- hg-resumable([hg resuamble])
-
-    hasura -- postgres:5432 --- db([postgres])
-
-    api -- volume-map:./hg-web/repos --- hg-repos[//hg-repos/]
-    hg -- volume-map:./hg-web/repos --- repos[//repos/]
-    hasura -- volume-map --- metadata[//hasura-metadata/]
-    hg-resumable -- volume-map:resumable-cache --- cache[//var/cache/hgresume/]
     db -- volume-map:db_data --- data[//var/lib/postgresql/data/]
+
+    api -- http:8080 --- hasura([hasura])
+    hasura -- postgres:5432 --- db([postgres])
+    hasura -- volume-map --- metadata[//hasura-metadata/]
+
+    api -- http:8080 --- hg([hg keeper])
+    hg -- volume-map:./hg-web/repos --- repos[//repos/]
+    api -- volume-map:./hg-web/repos --- hg-repos[//hg-repos/]
+
+    api -- http:8080 --- hg-resumable([hg resuamble])
+    hg-resumable -- volume-map:resumable-cache --- cache[//var/cache/hgresume/]
+
+    api -- gRPC:4317 --- otel-collector([otel-collector])
+    Proxy -- http:4318/traces --- otel-collector
+    node -- gRPC:4317 --- otel-collector
 
 ```
