@@ -7,6 +7,7 @@ import { NodeSDK } from '@opentelemetry/sdk-node'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { trace_error_event, trace_response, trace_request } from '$lib/otel'
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node'
+import {loadI18n} from "$lib/i18n";
 
 const public_routes = [
 	'/login',
@@ -14,8 +15,9 @@ const public_routes = [
 const service_name = 'LexBox-SvelteKit'
 
 export const handle = (async ({ event, resolve }) => {
-	return trace_request(service_name, event, () => {
-		const { cookies, url: { pathname } } = event
+	return trace_request(service_name, event, async () => {
+		await loadI18n();
+		const {cookies, url: {pathname}} = event
 		const options: ResolveOptions = {
 			filterSerializedResponseHeaders: () => true
 		}
@@ -26,11 +28,11 @@ export const handle = (async ({ event, resolve }) => {
 			if (public_routes.includes(pathname)) {
 				return resolve(event, options)
 			}
-	
+
 			if (!is_authn(cookies)) {
 				throw redirect(307, '/login')
 			}
-	
+
 			return resolve(event, options)
 		})
 	})

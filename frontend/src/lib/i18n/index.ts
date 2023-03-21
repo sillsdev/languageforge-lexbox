@@ -1,13 +1,22 @@
-import { browser } from '$app/environment'
-import phrases from './phrases.json'
+// import enType from './en.json';
+import en from '$locales/en';
+import {get} from "svelte/store";
+import {init, addMessages, waitLocale, getLocaleFromNavigator, t as translate} from 'svelte-intl-precompile';
 
-export default function t(key: string, arg?: any): string {
-  const phrase = phrases[key]
-  if (phrase === undefined) {
-    return '⤂ translation key not found! ⤃'
-  }
+export async function loadI18n() {
+    addMessages('en', en);
+    init({
+        fallbackLocale: 'en',
+        initialLocale: getLocaleFromNavigator() || 'en',
+    });
+    await waitLocale();
+}
 
-  const langOnlyNoVariant = browser && navigator.language.substring(0,2) || 'en' // TODO: determine arch for these, right now just default to client-side only.
-
-  return phrase[langOnlyNoVariant].replace('%1', arg)
+// type InterpolationValues = Record<string, string | number | Date>;
+export default function t(key: string, defaultText: string, values?: any): string {
+    return get(translate).call(null, {
+        id: key,
+        default: defaultText,
+        values
+    });
 }

@@ -8,6 +8,7 @@ import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { trace_error_event } from '$lib/otel'
+import {loadI18n} from "$lib/i18n";
 
 export const handleError: HandleClientError = ({ error, event }) => {
 	trace_error_event(service_name, error, event)
@@ -47,3 +48,4 @@ provider.register({
 	// E.g.: https://github.com/open-telemetry/opentelemetry-js/issues/3171
 	contextManager: new ZoneContextManager(),
 })
+await loadI18n();
