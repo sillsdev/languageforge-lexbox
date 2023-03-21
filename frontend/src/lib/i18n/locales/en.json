@@ -1,0 +1,61 @@
+{
+	"appbar": {
+		"app_name": "Language Depot"
+	},
+	"appmenu": {
+		"log_out": "Log out"
+	},
+	"login": {
+		"missing_user_info": "User info missing",
+		"password_missing": "Password missing",
+		"page_header": "Log in",
+		"label_email": "Email (or Send/Receive username)",
+		"label_password": "Password",
+		"bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
+		"button_login": "Log in",
+		"button_login_again": "Try to log in again?"
+	},
+	"user_dashboard": {
+		"page_header": "My projects"
+	},
+	"projectlist": {
+		"shared_with": "Shared with %1 other people",
+		"last_change": "Last Change: "
+	},
+	"project_role": {
+		"manager": "Manager",
+		"editor": "Editor"
+	},
+	"project_type": {
+		"flex": "FLEx"
+	},
+	"unknown": "Unknown",
+	"retention_policy": {
+		"verified": "Verified",
+		"test": "Test",
+		"dev": "Dev"
+	},
+	"project_page": {
+		"missing_description": "No Description",
+		"last_commit": "Last Commit ",
+		"members": "Project Members",
+		"history": "History",
+		"not_found": "Project %1 not found!"
+	},
+	"admin_dashboard": {
+		"page_header": "Projects",
+		"filter_label": "Filter",
+		"filter_placeholder": "search...",
+		"column_name": "Name",
+		"column_code": "Code",
+		"column_users": "Users",
+		"column_last_change": "Last Change",
+		"column_email": "Email",
+		"column_role": "Role",
+		"column_created": "Created"
+	},
+	"user_types": {
+		"admin": "Admin",
+		"user": "User"
+	}
+}
