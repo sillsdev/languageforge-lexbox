@@ -53,8 +53,11 @@
 
 	<div class="divider" />
 
-	<div class="grid grid-cols-1">
-		<p class="text-xl">{ t('project_page.history') }</p>
+	<div>
+		<a class="text-xl link" href="/api/hg-view/{project.code}" target="_blank" rel="noreferrer">
+			{ t('project_page.history') }
+			<span class="i-mdi-open-in-new align-middle"/>
+		</a>
 
 		<HgWeb code={project.code} />
 	</div>
