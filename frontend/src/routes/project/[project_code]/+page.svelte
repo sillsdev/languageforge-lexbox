@@ -59,5 +59,5 @@
 		<HgWeb code={project.code} />
 	</div>
 {:else}
-	{ t('project_page.not_found', data.code) }
+	{ t('project_page.not_found', {code: data.code}) }
 {/if}

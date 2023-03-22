@@ -19,7 +19,7 @@
 				<p>{project.code}</p>
 
 				{#if project.userCount > 1}
-					<p>{t('projectlist.shared_with', project.userCount)}</p>
+					<p>{t('projectlist.shared_with', {memberCount: project.userCount})}</p>
 				{/if}
 
 				<p>

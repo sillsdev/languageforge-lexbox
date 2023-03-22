@@ -21,11 +21,13 @@
 <main>
 	<div class="grid grid-cols-2">
 		<div class="overflow-x-auto">
-			<span class="text-xl">{ t('admin_dashboard.page_header') }</span>
+			<span class="text-xl">
+				{ t('admin_dashboard.page_header') }
+			</span>
 
 			<Input
 				type="text"
-				label={ t('admin_dashboard.filter_label') }
+				label={ t('admin_dashboard.filter_label', {val: (123)}) }
 				placeholder={ t('admin_dashboard.filter_placeholder') }
 				autofocus
 				bind:value={projectSearch}
