@@ -19,7 +19,7 @@
 		"page_header": "My projects"
 	},
 	"projectlist": {
-		"shared_with": "Shared with %1 other people",
+		"shared_with": "Shared with {memeberCount, plural, one {no one} other {# people} }",
 		"last_change": "Last Change: "
 	},
 	"project_role": {
@@ -40,7 +40,7 @@
 		"last_commit": "Last Commit ",
 		"members": "Project Members",
 		"history": "History",
-		"not_found": "Project %1 not found!"
+		"not_found": "Project {code} not found!"
 	},
 	"admin_dashboard": {
 		"page_header": "Projects",
