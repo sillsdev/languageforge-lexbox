@@ -119,10 +119,10 @@ More info on the frontend and backend can be found in their respective READMEs:
 ```mermaid
 
 flowchart LR
-    FLEx -- https --- Proxy
+    FLEx -- "https:(hg-public-qa|hg-private-qa|admin-qa|resumable-qa)" --- Proxy
     Web -- https --- Proxy([ingress])
 
-    Proxy -- http:5158/api --- api([lexbox-api])
+    Proxy -- http:80/api --- api([lexbox-api])
     Proxy -- http:80 --- node([sveltekit])
 
     api -- postgres:5432 --- db([postgres])
@@ -139,8 +139,10 @@ flowchart LR
     api -- http:8080 --- hg-resumable([hg resuamble])
     hg-resumable -- volume-map:resumable-cache --- cache[//var/cache/hgresume/]
 
+    node -.- http:80/api -.- api
+
     api -- gRPC:4317 --- otel-collector([otel-collector])
-    Proxy -- http:4318/v1/traces --- otel-collector
+    Proxy -- http:4318/traces --- otel-collector
     node -- gRPC:4317 --- otel-collector
 
 ```
