@@ -140,7 +140,7 @@ flowchart LR
     hg-resumable -- volume-map:resumable-cache --- cache[//var/cache/hgresume/]
 
     api -- gRPC:4317 --- otel-collector([otel-collector])
-    Proxy -- http:4318/traces --- otel-collector
+    Proxy -- http:4318/v1/traces --- otel-collector
     node -- gRPC:4317 --- otel-collector
 
 ```
