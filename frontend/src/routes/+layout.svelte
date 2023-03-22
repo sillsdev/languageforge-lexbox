@@ -1,8 +1,8 @@
 <script lang=ts>
 	import '$lib/app.postcss'
 	import { AppBar, AppMenu } from '$lib/layout'
-	import { get_trace_parent } from '$lib/otel';
 	import { user } from '$lib/user'
+	import type { LayoutData } from './$types';
 
 	let menu_toggle = false
 
@@ -17,17 +17,17 @@
 	function closeOnEscape(event: KeyboardEvent) {
 		event.key === 'Escape' && close()
 	}
-
+	
 	// https://www.w3.org/TR/trace-context/#traceparent-header
 	// so the page-load instrumentation can be correlated with the server load
-	const traceParent = get_trace_parent()
+	export let data: LayoutData;
 </script>
 
 <svelte:window on:keydown={ closeOnEscape } />
 
 <svelte:head>
-	{#if traceParent}
-		<meta name="traceparent" content={traceParent} />
+	{#if data.traceParent}
+		<meta name="traceparent" content={data.traceParent} />
 	{/if}
 </svelte:head>
 

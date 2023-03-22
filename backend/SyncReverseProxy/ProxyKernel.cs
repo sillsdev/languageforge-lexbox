@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using LexSyncReverseProxy.Auth;
 using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -40,6 +41,15 @@ public static class ProxyKernel
             .LoadFromConfig(reverseProxyConfig)
             .AddTransforms(context =>
             {
+                context.AddRequestTransform(async transformContext =>
+                {
+                    var projectCode = transformContext.HttpContext.GetRouteValue("project-code")?.ToString();
+                    if (projectCode is not null)
+                    {
+                        Activity.Current?.AddTag("app.project_code", projectCode);
+                    }
+                });
+
                 if (context.Route.RouteId == "hg-web-view")
                 {
                     context.AddResponseTransform(async transformContext =>

@@ -120,9 +120,9 @@
     volumes:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     ports:
-      - 4317:4317 # OTLP gRPC receiver
+      - 4317:4317 # OTLP gRPC receiver - only required when running backend locally
       - 4318:4318 # OTLP http receiver
-      - 13133:13133 # health_check extension
+      #- 13133:13133 # health_check extension - only required when running backend locally
     environment:
       - LEXBOX_HONEYCOMB_API_KEY=${LEXBOX_HONEYCOMB_API_KEY}
 volumes:

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
@@ -33,7 +32,7 @@ public class UserController : ControllerBase
     [ProducesDefaultResponseType]
     public async Task<ActionResult<LexAuthUser>> RegisterAccount(RegisterAccountInput accountInput)
     {
-        using var registerActivity = new ActivitySource(OtelKernel.ServiceName).StartActivity("Register");
+        using var registerActivity = LexBoxActivitySource.Get().StartActivity("Register");
         Console.WriteLine("RegisterAccount" + registerActivity?.DisplayName);
         var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken);
         registerActivity?.AddTag("app.turnstile_token_valid", validToken);
