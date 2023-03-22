@@ -27,7 +27,7 @@
 
 			<Input
 				type="text"
-				label={ t('admin_dashboard.filter_label', {val: (123)}) }
+				label={ t('admin_dashboard.filter_label') }
 				placeholder={ t('admin_dashboard.filter_placeholder') }
 				autofocus
 				bind:value={projectSearch}
