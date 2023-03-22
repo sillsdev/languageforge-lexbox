@@ -20,7 +20,8 @@
 	},
 	"projectlist": {
 		"shared_with": "Shared with {memeberCount, plural, one {no one} other {# people} }",
-		"last_change": "Last Change: "
+		"last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
+		"no_changes": "Project Empty",
 	},
 	"project_role": {
 		"manager": "Manager",
