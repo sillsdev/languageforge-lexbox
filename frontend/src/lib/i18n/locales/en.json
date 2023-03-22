@@ -44,8 +44,10 @@
 	},
 	"admin_dashboard": {
 		"page_header": "Projects",
+		"user_table_title": "Users",
 		"filter_label": "Filter",
 		"filter_placeholder": "search...",
+		"column_type": "Type",
 		"column_name": "Name",
 		"column_code": "Code",
 		"column_users": "Users",

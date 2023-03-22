@@ -3,6 +3,7 @@
     import FormatDate from "$lib/components/FormatDate.svelte"
     import Input from "$lib/forms/Input.svelte"
 	import t from '$lib/i18n'
+	import FormatProjectType from '$lib/components/FormatProjectType.svelte';
 
     export let data: PageData
 
@@ -23,6 +24,7 @@
 		<div class="overflow-x-auto">
 			<span class="text-xl">
 				{ t('admin_dashboard.page_header') }
+				<div class="badge">{projectSearch ? projects.length : data.projects.length}</div>
 			</span>
 
 			<Input
@@ -41,7 +43,8 @@
 						<th>{ t('admin_dashboard.column_name') }</th>
 						<th>{ t('admin_dashboard.column_code') }</th>
 						<th>{ t('admin_dashboard.column_users') }</th>
-						<th>⬇️ { t('admin_dashboard.column_last_change') }</th>
+						<th>{ t('admin_dashboard.column_last_change') }<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-1"/></th>
+						<th>{ t('admin_dashboard.column_type') }</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -57,6 +60,9 @@
 							<td>
 								<FormatDate date={project.lastCommit} nullLabel="–" />
 							</td>
+							<td>
+								<FormatProjectType type={project.type} />
+							</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -64,7 +70,10 @@
 		</div>
 
 		<div class="overflow-x-auto">
-			<span class="text-xl">Users</span>
+			<span class="text-xl">
+				{ t('admin_dashboard.user_table_title') }
+				<div class="badge">{userSearch ? users.length : data.users.length}</div>
+			</span>
 
 			<Input type="text" label={ t('admin_dashboard.filter_label') } placeholder={ t('admin_dashboard.filter_placeholder') } bind:value={userSearch} />
 
@@ -73,7 +82,7 @@
 			<table class="table">
 				<thead>
 					<tr>
-						<th>⬇️ { t('admin_dashboard.column_name') }</th>
+						<th>{ t('admin_dashboard.column_name') }<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-1"/></th>
 						<th>{ t('admin_dashboard.column_email') }</th>
 						<th>{ t('admin_dashboard.column_role') }</th>
 						<th>{ t('admin_dashboard.column_created') }</th>

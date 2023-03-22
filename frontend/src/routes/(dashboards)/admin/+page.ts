@@ -16,6 +16,7 @@ export async function load(event: PageLoadEvent) {
                 id
                 name
                 lastCommit
+                type
                 projectUsersAggregate {
                     aggregate {
                         count
