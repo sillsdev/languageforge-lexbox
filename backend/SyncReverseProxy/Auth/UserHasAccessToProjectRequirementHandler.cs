@@ -1,5 +1,4 @@
 ﻿using LexCore.Auth;
-using LexCore.Entities;
 using Microsoft.AspNetCore.Authorization;
 
 namespace LexSyncReverseProxy.Auth;

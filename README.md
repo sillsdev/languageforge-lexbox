@@ -144,3 +144,7 @@ flowchart LR
     node -- gRPC:4317 --- otel-collector
 
 ```
+
+## Analytics
+
+This project is instrumented with OpenTelemetry (OTEL). The exported telemetry data can be viewed in [Honeycomb](https://ui.honeycomb.io/sil-language-forge/).

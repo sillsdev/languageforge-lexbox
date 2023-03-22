@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using System.Text;
+﻿using System.Text;
 using System.Text.Encodings.Web;
 using LexCore;
 using LexCore.ServiceInterfaces;
@@ -58,7 +57,6 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
         var principal = await _lexProxyService.Login(new LoginRequest(password, username));
         if (principal is null)
             return AuthenticateResult.Fail("Invalid username or password");
-        return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name)
-        );
+        return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name));
     }
 }

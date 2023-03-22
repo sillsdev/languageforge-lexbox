@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using LexBoxApi.Auth;
-using LexBoxApi.Models;
+﻿using LexBoxApi.Auth;
 using LexCore;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication;
