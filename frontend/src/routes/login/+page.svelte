@@ -18,11 +18,11 @@
 		missing_user_info = missing_password = short_password = ''
 
 		if (! email_or_username) {
-			missing_user_info = t('login.missing_user_info')
+			missing_user_info = $t('login.missing_user_info')
 			return
 		}
 		if (! password) {
-			missing_password = t('login.password_missing')
+			missing_password = $t('login.password_missing')
 			return
 		}
 		// TODO: update test users with longer passwords
@@ -40,21 +40,21 @@
 </script>
 
 <Page>
-	<svelte:fragment slot=header>{ t('login.page_header') }</svelte:fragment>
+	<svelte:fragment slot=header>{ $t('login.page_header') }</svelte:fragment>
 
 	<Form on:submit={log_in}>
-		<Input label={t('login.label_email')} type=email bind:value={email_or_username} error={missing_user_info} autofocus required />
+		<Input label={$t('login.label_email')} type=email bind:value={email_or_username} error={missing_user_info} autofocus required />
 
-		<Input label={t('login.label_password')} type=password bind:value={password} error={missing_password || short_password} required />
+		<Input label={$t('login.label_password')} type=password bind:value={password} error={missing_password || short_password} required />
 
 		{#if bad_credentials}
 			<aside class='alert alert-error'>
-				{ t('login.bad_credentials') }
+				{ $t('login.bad_credentials') }
 			</aside>
 
-			<Button>{ t('login.button_login_again') }</Button>
+			<Button>{ $t('login.button_login_again') }</Button>
 		{:else}
-			<Button>{ t('login.button_login') }</Button>
+			<Button>{ $t('login.button_login') }</Button>
 		{/if}
 	</Form>
 </Page>

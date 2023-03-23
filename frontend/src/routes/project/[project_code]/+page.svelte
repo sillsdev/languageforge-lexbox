@@ -1,5 +1,6 @@
 <script lang="ts">
-	import FormatDate from '$lib/components/FormatDate.svelte'
+	import AddProjectUser from '$lib/components/modals/AddProjectUser.svelte';
+import FormatDate from '$lib/components/FormatDate.svelte'
 	import FormatProjectType from '$lib/components/FormatProjectType.svelte'
 	import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte'
 	import FormatUserProjectRole from '$lib/components/FormatUserProjectRole.svelte'
@@ -24,17 +25,17 @@
 			<div class="badge badge-lg"><FormatProjectType type={project.type} /></div>
 			<div class="badge badge-lg"><FormatRetentionPolicy policy={project.retentionPolicy} /></div>
 
-			<span>{ t('project_page.last_commit') } <FormatDate date={project.lastCommit} /></span>
+			<span>{ $t('project_page.last_commit') } <FormatDate date={project.lastCommit} /></span>
 		</div>
 
-		<p>{project.description || t('project_page.missing_description') }</p>
+		<p>{project.description || $t('project_page.missing_description') }</p>
 	</div>
 
 	<div class="divider" />
 
 	<div>
 		<p class="text-xl">
-			<span class="i-mdi-account-group"/> { t('project_page.members') }
+			<span class="i-mdi-account-group"/> { $t('project_page.members') }
 		</p>
 
 		<div class="flex flex-wrap gap-3">
@@ -48,6 +49,7 @@
 					</div>
 				</div>
 			{/each}
+			<AddProjectUser projectId={project.id}/>
 		</div>
 	</div>
 
@@ -55,12 +57,12 @@
 
 	<div>
 		<a class="text-xl link" href="/api/hg-view/{project.code}" target="_blank" rel="noreferrer">
-			{ t('project_page.history') }
+			{ $t('project_page.history') }
 			<span class="i-mdi-open-in-new align-middle"/>
 		</a>
 
 		<HgWeb code={project.code} />
 	</div>
 {:else}
-	{ t('project_page.not_found', {code: data.code}) }
+	{ $t('project_page.not_found', {code: data.code}) }
 {/if}

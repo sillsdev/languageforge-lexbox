@@ -4,10 +4,10 @@
 	export let policy: number
 
 	const policies = {
-		1: t('retention_policy.verified'),
-		2: t('retention_policy.test'),
-		3: t('retention_policy.dev'),
+		1: $t('retention_policy.verified'),
+		2: $t('retention_policy.test'),
+		3: $t('retention_policy.dev'),
 	}
 </script>
 
-{ policies[policy] || t('unknown') }
+{ policies[policy] || $t('unknown') }

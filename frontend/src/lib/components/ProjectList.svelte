@@ -18,15 +18,15 @@
                 <p>{project.code}</p>
 
                 {#if project.userCount > 1}
-                    <p>{t('projectlist.shared_with', {memberCount: project.userCount})}</p>
+                    <p>{$t('projectlist.shared_with', {memberCount: project.userCount})}</p>
                 {/if}
 
                 <p>
                     {#if project.lastCommit}
-                        {t('projectlist.last_change', {lastChange: new Date(project.lastCommit)})}
+                        {$t('projectlist.last_change', {lastChange: new Date(project.lastCommit)})}
                     {:else}
                         <div class="badge badge-info">
-                            {t('projectlist.no_changes')}
+                            {$t('projectlist.no_changes')}
                         </div>
                     {/if}
                 </p>

@@ -23,14 +23,14 @@
 	<div class="grid grid-cols-2">
 		<div class="overflow-x-auto">
 			<span class="text-xl">
-				{ t('admin_dashboard.page_header') }
+				{ $t('admin_dashboard.page_header') }
 				<div class="badge">{projectSearch ? projects.length : data.projects.length}</div>
 			</span>
 
 			<Input
 				type="text"
-				label={ t('admin_dashboard.filter_label') }
-				placeholder={ t('admin_dashboard.filter_placeholder') }
+				label={ $t('admin_dashboard.filter_label') }
+				placeholder={ $t('admin_dashboard.filter_placeholder') }
 				autofocus
 				bind:value={projectSearch}
 			/>
@@ -40,11 +40,11 @@
 			<table class="table">
 				<thead>
 					<tr>
-						<th>{ t('admin_dashboard.column_name') }</th>
-						<th>{ t('admin_dashboard.column_code') }</th>
-						<th>{ t('admin_dashboard.column_users') }</th>
-						<th>{ t('admin_dashboard.column_last_change') }<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-1"/></th>
-						<th>{ t('admin_dashboard.column_type') }</th>
+						<th>{ $t('admin_dashboard.column_name') }</th>
+						<th>{ $t('admin_dashboard.column_code') }</th>
+						<th>{ $t('admin_dashboard.column_users') }</th>
+						<th>{ $t('admin_dashboard.column_last_change') }<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-1"/></th>
+						<th>{ $t('admin_dashboard.column_type') }</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -71,21 +71,21 @@
 
 		<div class="overflow-x-auto">
 			<span class="text-xl">
-				{ t('admin_dashboard.user_table_title') }
+				{ $t('admin_dashboard.user_table_title') }
 				<div class="badge">{userSearch ? users.length : data.users.length}</div>
 			</span>
 
-			<Input type="text" label={ t('admin_dashboard.filter_label') } placeholder={ t('admin_dashboard.filter_placeholder') } bind:value={userSearch} />
+			<Input type="text" label={ $t('admin_dashboard.filter_label') } placeholder={ $t('admin_dashboard.filter_placeholder') } bind:value={userSearch} />
 
 			<div class="divider" />
 
 			<table class="table">
 				<thead>
 					<tr>
-						<th>{ t('admin_dashboard.column_name') }<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-1"/></th>
-						<th>{ t('admin_dashboard.column_email') }</th>
-						<th>{ t('admin_dashboard.column_role') }</th>
-						<th>{ t('admin_dashboard.column_created') }</th>
+						<th>{ $t('admin_dashboard.column_name') }<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-1"/></th>
+						<th>{ $t('admin_dashboard.column_email') }</th>
+						<th>{ $t('admin_dashboard.column_role') }</th>
+						<th>{ $t('admin_dashboard.column_created') }</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -93,7 +93,7 @@
 						<tr>
 							<td>{user.name}</td>
 							<td>{user.email}</td>
-							<td>{user.isAdmin ? t('user_types.admin') : t('user_types.user')}</td>
+							<td>{user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}</td>
 							<td>
 								<FormatDate date={user.createdDate} nullLabel="–" />
 							</td>

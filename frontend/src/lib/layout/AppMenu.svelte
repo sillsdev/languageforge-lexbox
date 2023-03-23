@@ -17,7 +17,7 @@
 
 		<li class=hover-bordered>
 			<a href=/logout data-sveltekit-preload-data=tap>
-				{ t('appmenu.log_out') } <LogoutIcon />
+				{ $t('appmenu.log_out') } <LogoutIcon />
 			</a>
 		</li>
 

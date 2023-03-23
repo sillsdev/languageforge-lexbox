@@ -5,8 +5,8 @@
 	export let type: number
 
 	const types = {
-		1: t('project_type.flex'),
+		1: $t('project_type.flex'),
 	}
 </script>
 
-{ types[type] || t('unknown') }
+{ types[type] || $t('unknown') }

@@ -9,7 +9,7 @@
 
 <Page>
 	<svelte:fragment slot=header>
-		{ t('user_dashboard.page_header') }
+		{ $t('user_dashboard.page_header') }
 	</svelte:fragment>
 
 	<ProjectList {projects}/>

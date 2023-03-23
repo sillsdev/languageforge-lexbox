@@ -1,4 +1,18 @@
 {
+	"admin_dashboard": {
+		"column_code": "Code",
+		"column_created": "Created",
+		"column_email": "Email",
+		"column_last_change": "Last Change",
+		"column_name": "Name",
+		"column_role": "Role",
+		"column_type": "Type",
+		"column_users": "Users",
+		"filter_label": "Filter",
+		"filter_placeholder": "search...",
+		"page_header": "Projects",
+		"user_table_title": "Users"
+	},
 	"appbar": {
 		"app_name": "Language Depot"
 	},
@@ -6,56 +20,48 @@
 		"log_out": "Log out"
 	},
 	"login": {
-		"missing_user_info": "User info missing",
-		"password_missing": "Password missing",
-		"page_header": "Log in",
-		"label_email": "Email (or Send/Receive username)",
-		"label_password": "Password",
 		"bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
 		"button_login": "Log in",
-		"button_login_again": "Try to log in again?"
+		"button_login_again": "Try to log in again?",
+		"label_email": "Email (or Send/Receive username)",
+		"label_password": "Password",
+		"missing_user_info": "User info missing",
+		"page_header": "Log in",
+		"password_missing": "Password missing"
 	},
-	"user_dashboard": {
-		"page_header": "My projects"
-	},
-	"projectlist": {
-		"shared_with": "Shared with {memeberCount, plural, one {no one} other {# people} }",
-		"last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
-		"no_changes": "Project Empty",
+	"project_page": {
+		"add_user": {
+			"add_button": "Add Member",
+			"email_required": "Email Required!",
+			"modal_title": "Add a user to this project",
+			"submit_button": "Add Member"
+		},
+		"history": "History",
+		"last_commit": "Last Commit ",
+		"members": "Project Members",
+		"missing_description": "No Description",
+		"not_found": "Project {code} not found!"
 	},
 	"project_role": {
-		"manager": "Manager",
-		"editor": "Editor"
+		"editor": "Editor",
+		"manager": "Manager"
 	},
 	"project_type": {
 		"flex": "FLEx"
 	},
-	"unknown": "Unknown",
+	"projectlist": {
+		"last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
+		"no_changes": "Project Empty",
+		"shared_with": "Shared with {memeberCount, plural, one {no one} other {# people} }"
+	},
 	"retention_policy": {
-		"verified": "Verified",
+		"dev": "Dev",
 		"test": "Test",
-		"dev": "Dev"
+		"verified": "Verified"
 	},
-	"project_page": {
-		"missing_description": "No Description",
-		"last_commit": "Last Commit ",
-		"members": "Project Members",
-		"history": "History",
-		"not_found": "Project {code} not found!"
-	},
-	"admin_dashboard": {
-		"page_header": "Projects",
-		"user_table_title": "Users",
-		"filter_label": "Filter",
-		"filter_placeholder": "search...",
-		"column_type": "Type",
-		"column_name": "Name",
-		"column_code": "Code",
-		"column_users": "Users",
-		"column_last_change": "Last Change",
-		"column_email": "Email",
-		"column_role": "Role",
-		"column_created": "Created"
+	"unknown": "Unknown",
+	"user_dashboard": {
+		"page_header": "My projects"
 	},
 	"user_types": {
 		"admin": "Admin",
