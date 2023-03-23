@@ -1,32 +1,32 @@
 ﻿services:
-  lex-box-api:
-    container_name: lexBoxApi
-    tty: true
-    stdin_open: true
+  lexbox-api:
+    tty: true # for dev tools
+    stdin_open: true # for dev tools
     build:
       context: backend
       dockerfile: LexBoxApi/dev.Dockerfile
     ports:
-      - 5158:5158
+      - "5158:5158" # 5158 exposed here for dev tools, and the runtime should only expose 80
     # https://docs.docker.com/compose/compose-file/#depends_on
     depends_on:
       db:
         condition: service_healthy
       hasura:
         condition: service_healthy
-      hg:
-        condition: service_started # TODO: do we want/need a "healthy" check here?
-      hg-resumable:
-        condition: service_started # TODO: do we want/need a "healthy" check here?
+      hgkeeper:
+        condition: service_started
+      hgresume:
+        condition: service_started
       otel-collector:
         condition: service_started
     volumes:
+      - hg-repos:/hg-repos
+
+      # for dev convenience
       - ./backend:/src/backend
-      - ./hg-web/repos:/hg-repos
       - nuget-cache:/root/.nuget/packages
     environment:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=lexbox
-      ASPNETCORE_ENVIRONMENT: Development
       HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
       HasuraConfig__HasuraSecret: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
       HgConfig__RepoPath: /hg-repos
@@ -34,45 +34,46 @@
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hg:8080
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
 
+      # for dev convenience
+      ASPNETCORE_ENVIRONMENT: Development
+
   hasura:
     image: hasura/graphql-engine:v2.20.0-ce.cli-migrations-v3
     ports:
-      - "8081:8080"
+      - "8081:8080" # 8081 exposed here for dev tools
     depends_on:
       db:
         condition: service_healthy
     volumes:
+      # TODO: named vol needed here shared b/t api and this one.
       - ./hasura/metadata:/hasura-metadata
     environment:
-      HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
       PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
-      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
-      ## enable the console served by server
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "false"
-      ## enable debugging mode. It is recommended to disable this in production
-      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: false
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
-      HASURA_GRAPHQL_ADMIN_SECRET: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
-      HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: "naming_convention"
+      HASURA_GRAPHQL_ADMIN_SECRET: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required} # need this one, it's also utilized in the api
+      HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: naming_convention
       HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION: graphql-default
 
+      # for dev convenience
+      HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
+      HASURA_GRAPHQL_DEV_MODE: "true"
+
   db:
-    image: postgres
+    image: postgres:15-alpine
     restart: unless-stopped
-    container_name: db
     ports:
-      - "5433:5432"
+      - "5433:5432" # 5433 exposed here for dev tools
     volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./hasura/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    healthcheck:
+      - db-data:/var/lib/postgresql
+    healthcheck: # TODO: do we need this in k8s?
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
     environment:
+      POSTGRES_DB: lexbox
       POSTGRES_PASSWORD: ${LEXBOX_POSTGRES_PW:?postgres password required}
 
   redmine-db:
@@ -85,35 +86,33 @@
     volumes:
       - redmine_db_data:/var/lib/mysql
 
-  hg:
-    image: rwgrim/hgkeeper:latest
+  # TODO: add manual instructions for getting files into place the first time.
+  hgkeeper:
+    image: rwgrim/hgkeeper # https://docs.imfreedom.org/hgkeeper/standalonecontainer/
     platform:  linux/amd64
-    container_name: hg
     ports:
-      - 8088:8080
+      - "8088:8080" # 8088 exposed here for dev tools
     volumes:
-      - ./hg-web/repos:/repos
+      - hg-repos:/repos
+
+      # for dev convenience
       - ./hg-web/dev-key.pub:/admin-pubkey:ro
     environment:
-#      repos path must be here but it is not configurable with an env var
-#      the path must be hardcoded in local.hgrc, check the note there for more info
       HGK_REPOS_PATH: /repos
       HGK_ADMIN_USERNAME: admin
-      HGK_DISABLE_SSH: "true"
+      HGK_DISABLE_SSH: true
       HGK_ADMIN_PUBKEY: /admin-pubkey
-#      setup is only required the first time, it'll error if it's already been run but that's fine.
     command: bash -c "hgkeeper setup ; hgkeeper serve"
 
-  hg-resumable:
+  hgresume:
     image: ghcr.io/sillsdev/hgresume:v2023-02-24
     platform:  linux/amd64
-    container_name: hg-resumable
     ports:
-      - 8034:80
+      - "8034:80" # 8034 exposed here for dev tools
     volumes:
-      - ./hg-web/repos:/var/vcs/public
-#    this is here so if the container is restarted during an upload they don't have to start over
-      - resumable-cache:/var/cache/hgresume
+      - hg-repos:/var/vcs/public
+      - hgresume-cache:/var/cache/hgresume
+
   otel-collector:
     image: otel/opentelemetry-collector:0.73.0
     command: [--config=/etc/otel-collector-config.yaml]
@@ -125,9 +124,10 @@
       #- 13133:13133 # health_check extension - only required when running backend locally
     environment:
       - LEXBOX_HONEYCOMB_API_KEY=${LEXBOX_HONEYCOMB_API_KEY}
-volumes:
-    db_data:
-    redmine_db_data:
-    resumable-cache:
 
+volumes:
+    db-data:
+    hg-repos:
+    redmine_db_data:
+    hgresume-cache:
     nuget-cache:
