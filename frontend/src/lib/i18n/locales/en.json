@@ -52,7 +52,7 @@
 	"projectlist": {
 		"last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
 		"no_changes": "Project Empty",
-		"shared_with": "Shared with {memeberCount, plural, one {no one} other {# people} }"
+		"shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
 	},
 	"retention_policy": {
 		"dev": "Dev",

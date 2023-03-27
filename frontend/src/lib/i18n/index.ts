@@ -1,11 +1,13 @@
 import type enType from './locales/en.json';
 import en from '$locales/en';
+import es from '$locales/es';
 import { derived } from "svelte/store";
 import { init, addMessages, waitLocale, getLocaleFromNavigator, t as translate } from 'svelte-intl-precompile';
 import type { NestedKeyOf } from "$lib/type.utils";
 
 export async function loadI18n() {
     addMessages('en', en);
+    addMessages('es', es);
     init({
         fallbackLocale: 'en',
         initialLocale: getLocaleFromNavigator() || 'en',
