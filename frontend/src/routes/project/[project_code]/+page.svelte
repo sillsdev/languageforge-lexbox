@@ -40,11 +40,11 @@ import FormatDate from '$lib/components/FormatDate.svelte'
 
 		<div class="flex flex-wrap gap-3">
 			{#each project.ProjectUsers as member}
-				<div class="badge badge-xl badge-primary pr-0">
+				<div class="badge badge-lg badge-primary pr-0">
 					{member.User.name}
 
 					<!-- -1px is to cover the border on the right side -->
-					<div class="badge badge-xl ml-2" style="margin-right: -1px;">
+					<div class="badge badge-lg ml-2" style="margin-right: -1px;">
 						<FormatUserProjectRole projectRole={member.role} />
 					</div>
 				</div>

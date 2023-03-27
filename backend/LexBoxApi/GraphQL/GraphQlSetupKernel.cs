@@ -47,6 +47,7 @@ public static class GraphQlSetupKernel
             .AddSorting()
             .AddFiltering()
             .AddProjections()
+            .AddMutationConventions(false)
             .AddInstrumentation();
     }
 }

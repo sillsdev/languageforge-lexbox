@@ -41,8 +41,9 @@ const clientGeneration: Record<string, ConfiguredOutput> = {
 
 export const gqlOptions: Options = {
     config: {
-        documents: ["src/**/*.{svelte,ts}", "!src/lib/gql/**/*"],
+        documents: ["src/**/*.{ts,graphql}", "!src/lib/gql/**/*"],
         ignoreNoDocuments: true, // for better experience with the watcher
+        // verbose: true,
         generates: {
             ...schemaGeneration,
             ...clientGeneration
