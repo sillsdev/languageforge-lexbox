@@ -19,6 +19,7 @@
 	"appmenu": {
 		"log_out": "Log out"
 	},
+	"close": "Close",
 	"login": {
 		"bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
 		"button_login": "Log in",

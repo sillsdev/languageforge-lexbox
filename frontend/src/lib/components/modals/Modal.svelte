@@ -7,6 +7,7 @@
 
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import t from '$lib/i18n';
 	import { writable, type Unsubscriber } from 'svelte/store';
 	const dispatch = createEventDispatcher<{
 		close: CloseReason;
@@ -57,20 +58,34 @@
 	$: if (!open && $closeReason !== null) {
 		dispatch('close', $closeReason);
 	}
+	let dialog: HTMLDialogElement | undefined;
+	//dialog will still work if the browser doesn't support it, but this enables focus trapping and other features
+	$: if (dialog) {
+		if (open) {
+			//showModal might be undefined if the browser doesn't support dialog
+			dialog.showModal?.call(dialog);
+		} else {
+			dialog.close?.call(dialog);
+		}
+	}
 </script>
 <svelte:options accessors={true}/>
 {#if open}
-<div class="modal" class:modal-bottom={onBottom} class:modal-open={open}>
-	<div class="modal-box max-w-3xl relative">
-		{#if showCloseButton}
-			<button class="btn btn-sm btn-circle absolute right-2 top-2" on:click={cancelModal}>✕</button>
-		{/if}
-		<slot />
-		{#if $$slots.actions}
-			<div class="modal-action">
-				<slot name="actions" {closing} />
-			</div>
-		{/if}
+	<div class="modal" class:modal-bottom={onBottom} class:modal-open={open}>
+		<dialog bind:this={dialog} class="modal-box max-w-3xl relative" class:mb-0={onBottom}>
+			{#if showCloseButton}
+				<button
+					class="btn btn-sm btn-circle absolute right-2 top-2"
+					aria-label={$t('close')}
+					on:click={cancelModal}>✕</button
+				>
+			{/if}
+			<slot />
+			{#if $$slots.actions}
+				<div class="modal-action">
+					<slot name="actions" {closing} />
+				</div>
+			{/if}
+		</dialog>
 	</div>
-</div>
 {/if}
