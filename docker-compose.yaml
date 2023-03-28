@@ -128,6 +128,12 @@
 volumes:
     db-data:
     hg-repos:
+      # wanted this shared volume to get loaded for local filesystem during dev only
+      driver: local
+      driver_opts:
+        device: ./hg-web/repos
+        o: bind
+        type: none
     redmine_db_data:
     hgresume-cache:
     nuget-cache:
