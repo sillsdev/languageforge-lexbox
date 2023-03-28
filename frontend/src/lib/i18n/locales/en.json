@@ -40,7 +40,7 @@
 		"add_user": {
 			"add_button": "Add Member",
 			"email_required": "Email Required!",
-			"modal_title": "Add a user to this project",
+			"modal_title": "Add a Member to this project",
 			"submit_button": "Add Member"
 		},
 		"confirm-remove": "Would you like to remove {userName} from this project?",
@@ -49,13 +49,15 @@
 		"members": "Project Members",
 		"missing_description": "No Description",
 		"not_found": "Project {code} not found!",
-		"remove-project-user-title": "Project user",
+		"remove-project-user-title": "Member",
 		"remove-user": "Remove",
 		"set-role": "Role"
 	},
 	"project_role": {
 		"editor": "Editor",
-		"manager": "Manager"
+		"manager": "Manager",
+		"editor_description": "Editor (can sync)",
+		"manager_description": "Manager (can sync & share)"
 	},
 	"project_type": {
 		"flex": "FLEx"

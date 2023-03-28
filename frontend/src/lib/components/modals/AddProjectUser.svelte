@@ -49,8 +49,8 @@
 			<span class="label-text"> Role </span>
 		</label>
 		<select id="select-role" bind:value={role} class="select select-bordered">
-			<option value={ProjectRole.Editor}>Editor</option>
-			<option value={ProjectRole.Manager}>Manager</option>
+			<option value={ProjectRole.Editor}>{$t('project_role.editor_description')}</option>
+			<option value={ProjectRole.Manager}>{$t('project_role.manager_description')}</option>
 		</select>
 
 		{#if error}

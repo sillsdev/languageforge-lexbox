@@ -37,7 +37,7 @@ public class LexMutations
     {
         var user = await dbContext.Users.FirstOrDefaultAsync(u =>
             u.Username == input.UserEmail || u.Email == input.UserEmail);
-        if (user is null) throw new NotFoundException("User not found");
+        if (user is null) throw new NotFoundException("Member not found");
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
         await dbContext.SaveChangesAsync();

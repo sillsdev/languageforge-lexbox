@@ -45,8 +45,8 @@
 	<div class="divider" />
 
 	<div>
-		<p class="text-xl">
-			<span class="i-mdi-account-group" />
+		<p class="text-xl mb-2">
+			<span class="i-mdi-account-group align-[-3px]" />
 			{$t('project_page.members')}
 		</p>
 
@@ -80,7 +80,7 @@
 			<AddProjectUser projectId={project.id} />
 
 			<DeleteModal bind:this={deleteUserModal} entityName={$t('project_page.remove-project-user-title')} isRemoveDialog>
-				{ $t('project_page.confirm-remove', {userName: userToDelete?.User.name}) }
+				{ $t('project_page.confirm-remove', {userName: userToDelete?.User.name ?? ''}) }
 			</DeleteModal>
 		</div>
 	</div>

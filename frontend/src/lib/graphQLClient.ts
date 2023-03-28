@@ -10,6 +10,13 @@ function hasError(value: unknown): value is { errors: { message: string }[] } {
     return 'errors' in value;
 }
 
+class LexGqlError extends CombinedError {
+    constructor(readonly errors: string[]) {
+        super({});
+        this.message = errors.join(', ');
+    }
+}
+
 function createGqlClient(event: LoadEvent | RequestEvent) {
     return createClient({
         url: "/api/graphql",
@@ -26,9 +33,7 @@ function createGqlClient(event: LoadEvent | RequestEvent) {
                             }
                         }
                         if (errors.length > 0) {
-                            result.error = new CombinedError({
-                                graphQLErrors: errors
-                            })
+                            result.error = new LexGqlError(errors);
                         }
                     }
                     return result;
