@@ -32,7 +32,7 @@ export async function load(event: PageLoadEvent) {
         }
 `), { projectCode: project_code }).toPromise();
     if (result.error) throw new Error(result.error.message);
-    event.depends(`project:${result.data?.projects[0].id}`);
+    event.depends(`project:${result.data?.projects[0]?.id}`);
     return {
         project: result.data?.projects[0],
         code: project_code
