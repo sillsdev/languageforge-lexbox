@@ -1,6 +1,7 @@
 ﻿import type {AddProjectMemberInput} from "$lib/gql/graphql";
 import {getClient} from "$lib/graphQLClient";
 import {graphql} from "$lib/gql";
+import { invalidate } from "$app/navigation";
 
 export async function addProjectUser(input: AddProjectMemberInput) {
     //language=GraphQL
@@ -10,14 +11,6 @@ export async function addProjectUser(input: AddProjectMemberInput) {
                 addProjectMember(input: $input) {
                     project {
                         id
-                        users {
-                            id
-                            role
-                            user {
-                                id
-                                name 
-                            }
-                        }
                     }
                     errors {
                         ... on Error {
@@ -27,7 +20,11 @@ export async function addProjectUser(input: AddProjectMemberInput) {
                 }
             }
         `),
-        {input: input}
+        {input: input}, 
+        //invalidates the graphql project cache
+        {additionalTypenames: ['Projects']}
     ).toPromise();
+    if (!result.error)
+        invalidate(`project:${input.projectId}`);
     return result;
 }

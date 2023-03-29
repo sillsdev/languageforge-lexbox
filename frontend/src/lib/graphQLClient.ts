@@ -7,7 +7,7 @@ const clientStore = writable<Client | null>(null);
 
 function hasError(value: unknown): value is { errors: { message: string }[] } {
     if (typeof value !== 'object' || value === null) return false;
-    return 'errors' in value;
+    return 'errors' in value && Array.isArray(value.errors);
 }
 
 class LexGqlError extends CombinedError {

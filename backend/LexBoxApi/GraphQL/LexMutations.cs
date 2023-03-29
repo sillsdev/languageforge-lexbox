@@ -27,12 +27,10 @@ public class LexMutations
         return dbContext.Projects.Where(p => p.Id == projectId).AsExecutable();
     }
 
-    [UseFirstOrDefault]
-    [UseProjection]
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<IExecutable<Project>> AddProjectMember(AddProjectMemberInput input,
+    public async Task<Project> AddProjectMember(AddProjectMemberInput input,
         LexBoxDbContext dbContext)
     {
         var user = await dbContext.Users.FirstOrDefaultAsync(u =>
@@ -41,7 +39,7 @@ public class LexMutations
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
         await dbContext.SaveChangesAsync();
-        return dbContext.Projects.Where(p => p.Id == input.ProjectId).AsExecutable();
+        return await dbContext.Projects.Where(p => p.Id == input.ProjectId).FirstAsync();
     }
 
     [UseFirstOrDefault]
