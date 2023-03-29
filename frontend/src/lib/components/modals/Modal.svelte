@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-	export const enum CloseReason {
+	export const enum DialogResponse {
 		Cancel = 'cancel',
 		Submit = 'submit',
 	}
@@ -10,53 +10,53 @@
 	import t from '$lib/i18n';
 	import { writable, type Unsubscriber } from 'svelte/store';
 	const dispatch = createEventDispatcher<{
-		close: CloseReason;
+		close: DialogResponse;
 		open: void;
 		submit: void;
 	}>();
 
-	let closeReason = writable<CloseReason | null>(null);
+	let dialogResponse = writable<DialogResponse | null>(null);
 	let open = false;
-	$: closing = $closeReason !== null && open;
+	$: closing = $dialogResponse !== null && open;
 	export let onBottom = false;
 	export let showCloseButton = true;
 	export async function openModal(autoCloseOnCanel = true, autoCloseOnSubmit = false) {
-		$closeReason = null;
+		$dialogResponse = null;
 		open = true;
 		dispatch('open');
-		const result = await new Promise<CloseReason>((resolve) => {
+		const response = await new Promise<DialogResponse>((resolve) => {
 			let unsub: Unsubscriber;
-			unsub = closeReason.subscribe((reason) => {
+			unsub = dialogResponse.subscribe((reason) => {
 				if (reason) {
 					unsub();
 					resolve(reason);
 				}
 			});
 		});
-		if (autoCloseOnCanel && result === CloseReason.Cancel) {
+		if (autoCloseOnCanel && response === DialogResponse.Cancel) {
 			close();
 		}
-		if (autoCloseOnSubmit && result === CloseReason.Submit) {
+		if (autoCloseOnSubmit && response === DialogResponse.Submit) {
 			close();
 		}
-		return result;
+		return response;
 	}
 	export function cancelModal() {
-		$closeReason = CloseReason.Cancel;
+		$dialogResponse = DialogResponse.Cancel;
 	}
 	export function submitModal() {
-		$closeReason = CloseReason.Submit;
+		$dialogResponse = DialogResponse.Submit;
 	}
 
 	export function close() {
 		open = false;
 	}
 
-	$: if ($closeReason === CloseReason.Submit) {
+	$: if ($dialogResponse === DialogResponse.Submit) {
 		dispatch('submit');
 	}
-	$: if (!open && $closeReason !== null) {
-		dispatch('close', $closeReason);
+	$: if (!open && $dialogResponse !== null) {
+		dispatch('close', $dialogResponse);
 	}
 	let dialog: HTMLDialogElement | undefined;
 	//dialog will still work if the browser doesn't support it, but this enables focus trapping and other features

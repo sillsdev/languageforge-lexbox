@@ -54,6 +54,7 @@
 		"set-role": "Role"
 	},
 	"project_role": {
+		"label": "Role",
 		"editor": "Editor",
 		"manager": "Manager",
 		"editor_description": "Editor (can sync)",

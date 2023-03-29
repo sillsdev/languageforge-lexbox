@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Modal, {CloseReason} from './Modal.svelte';
+    import Modal, {DialogResponse} from './Modal.svelte';
     import t from '$lib/i18n';
 
     export let entityName: string;
@@ -7,7 +7,7 @@
     let modal: Modal;
 
     export async function prompt(deleteCallback?: () => Promise<void>) {
-        if ((await modal.openModal()) === CloseReason.Cancel) return false;
+        if ((await modal.openModal()) === DialogResponse.Cancel) return false;
         if (deleteCallback) await deleteCallback();
         modal.close();
         return true;

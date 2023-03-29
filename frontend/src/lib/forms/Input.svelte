@@ -6,10 +6,10 @@
 	export let type: string = 'text'
 	export let required: boolean = false
 	export let autofocus: boolean = false
-	export let error: string = ''
+	export let error: string | string[] = ''
 	export let placeholder: string = '';
 
-	let id = crypto.randomUUID().split('-').at(-1)
+	export let id = crypto.randomUUID().split('-').at(-1)
 	let input: HTMLInputElement
 
 	onMount(autofocus_if_requested)
@@ -35,6 +35,6 @@
 
 {#if error}
 	<label for={ id } class=label>
-		<span class='label-text-alt text-error mb-2'>{error}</span>
+		<span class='label-text-alt text-error mb-2'>{typeof error === 'string' ? error : error.join(', ')}</span>
 	</label>
 {/if}
