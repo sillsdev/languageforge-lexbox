@@ -1,4 +1,6 @@
-﻿# disable auth
+﻿# docs: https://www.mercurial-scm.org/doc/hgrc.5.html
+
+# disable auth
 [web]
 allow_push=*
 push_ssl=False

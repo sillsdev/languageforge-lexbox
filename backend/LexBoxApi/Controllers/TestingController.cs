@@ -1,12 +1,11 @@
 ﻿using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore.Auth;
-using LexCore.Entities;
 using LexData;
+using LexData.Redmine;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 
 namespace LexBoxApi.Controllers;
 
@@ -18,12 +17,17 @@ public class TestingController : ControllerBase
     private readonly LexAuthService _lexAuthService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly SeedingData _seedingData;
+    private readonly RedmineDbContext _redmineDbContext;
 
-    public TestingController(LexAuthService lexAuthService, LexBoxDbContext lexBoxDbContext, SeedingData seedingData)
+    public TestingController(LexAuthService lexAuthService,
+        LexBoxDbContext lexBoxDbContext,
+        SeedingData seedingData,
+        RedmineDbContext redmineDbContext)
     {
         _lexAuthService = lexAuthService;
         _lexBoxDbContext = lexBoxDbContext;
         _seedingData = seedingData;
+        _redmineDbContext = redmineDbContext;
     }
 
     [HttpGet("requires-auth")]
@@ -83,11 +87,10 @@ public class TestingController : ControllerBase
         return await HttpContext.RequestServices.GetRequiredService<TurnstileService>().IsTokenValid(code);
     }
 
-    [HttpGet("lastCommitForRepo")]
-    public async Task<ActionResult<DateTimeOffset?>> LastCommitForRepo(string code)
+    [HttpGet("listRedmineUsernames")]
+    public async Task<ActionResult<RmUser[]>> ListRedmineUsernames()
     {
-        return await HttpContext.RequestServices.GetRequiredService<HgService>()
-            .GetLastCommitTimeFromHg(code);
+        return await _redmineDbContext.Users.Take(100).ToArrayAsync();
     }
 
     public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);

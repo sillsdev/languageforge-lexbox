@@ -32,6 +32,7 @@ public class LoginController : ControllerBase
     }
 
     [HttpGet("hashPassword")]
+    [AdminRequired]
     public ActionResult<string> HashPassword(string pw, string salt)
     {
         return PasswordHashing.RedminePasswordHash(pw, salt, false);
