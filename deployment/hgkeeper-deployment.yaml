@@ -1,0 +1,96 @@
+# https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: hgkeeper
+  labels:
+    app: hgkeeper
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: hgkeeper
+
+---
+
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hgkeeper
+  labels:
+    app: hgkeeper
+spec:
+  selector:
+    matchLabels:
+      app: hgkeeper
+  strategy:
+      type: Recreate
+  template:
+    # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
+    metadata:
+      labels:
+        app: hgkeeper
+    spec:
+      initContainers:
+        - name: setup
+          image: rwgrim/hgkeeper # https://keep.imfreedom.org/imfreedom/k8s-cluster/file/default/50-keep.imfreedom.org
+          resources:
+            requests:
+              memory: 25Mi
+            limits:
+              memory: 50Mi
+
+          command:
+            - 'sh'
+            - '-c'
+            - |-
+              test -f /admin-pubkey || echo $PUBKEY > /admin-pubkey
+              test -d /repos/hgkeeper || hgkeeper setup
+
+          env:
+            - name: PUBKEY
+              valueFrom:
+                secretKeyRef:
+                    key: PUBKEY
+                    name: hgkeeper
+            - name: HGK_ADMIN_USERNAME
+              value: admin
+            - name: HGK_ADMIN_PUBKEY
+              value: /admin-pubkey
+            - name: HGK_REPOS_PATH
+              value: /repos
+
+          volumeMounts:
+            - name: repos
+              mountPath: /repos
+
+      containers:
+      - name: hgkeeper
+        image: rwgrim/hgkeeper
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+
+        env:
+          - name: HGK_REPOS_PATH
+            value: /repos
+          - name: HGK_ADMIN_USERNAME
+            value: admin
+          - name: HGK_ADMIN_PUBKEY
+            value: /admin-pubkey
+          - name: HGK_DISABLE_SSH
+            value: true
+
+        volumeMounts:
+        - name: repos
+          mountPath: /repos
+
+      volumes:
+      - name: repos
+        persistentVolumeClaim:
+          claimName: hg-repos # established in hg-repos-pvc.yaml

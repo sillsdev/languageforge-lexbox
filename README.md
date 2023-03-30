@@ -32,7 +32,7 @@ docker-compose up -d
 #### Mac
 
 ```bash
-docker-compose up -d lex-box-api
+docker-compose up -d lexbox-api
 ```
 
 Try some of the helpful urls below to determine whether api is responding or not.
@@ -125,21 +125,21 @@ flowchart LR
     Proxy -- http:80/api --- api([lexbox-api])
     Proxy -- http:80 --- node([sveltekit])
 
-    api -- postgres:5432 --- db([postgres])
-    db -- volume-map:db_data --- data[//var/lib/postgresql/data/]
+    api -- postgres:5432 --- db([db])
+    db -- volume-map:db-data --- data[//var/lib/postgresql/]
 
     api -- http:8080 --- hasura([hasura])
-    hasura -- postgres:5432 --- db([postgres])
+    hasura -- postgres:5432 --- db
     hasura -- volume-map --- metadata[//hasura-metadata/]
 
-    api -- http:8080 --- hg([hg keeper])
-    hg -- volume-map:./hg-web/repos --- repos[//repos/]
-    api -- volume-map:./hg-web/repos --- hg-repos[//hg-repos/]
+    api -- http:8080 --- hgkeeper([hgkeeper])
+    hgkeeper -- volume-map:hg-repos --- repos[//repos/]
+    api -- volume-map:hg-repos --- hg-repos[//hg-repos/]
 
-    api -- http:8080 --- hg-resumable([hg resuamble])
-    hg-resumable -- volume-map:resumable-cache --- cache[//var/cache/hgresume/]
+    api -- http:8080 --- hgresume([hgresume])
+    hgresume -- volume-map:hgresume-cache --- cache[//var/cache/hgresume/]
 
-    node -.- http:80/api -.- api
+    node -- http:80/api --- api
 
     api -- gRPC:4317 --- otel-collector([otel-collector])
     Proxy -- http:4318/traces --- otel-collector
