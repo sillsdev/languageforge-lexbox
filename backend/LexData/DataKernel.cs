@@ -1,4 +1,5 @@
 ﻿using LexData.Configuration;
+using LexData.Redmine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,11 @@ public static class DataKernel
         {
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
+        });
+        services.AddDbContext<RedmineDbContext>((serviceProvider, options) =>
+        {
+            options.EnableDetailedErrors();
+            options.UseMySQL(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.RedmineConnectionString ?? throw new ArgumentNullException("RedmineConnectionString"));
         });
         services.AddHostedService<DbStartupService>();
         services.AddOptions<DbConfig>()

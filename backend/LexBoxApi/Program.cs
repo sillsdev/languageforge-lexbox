@@ -55,7 +55,11 @@ if (app.Environment.IsDevelopment())
 {
     app.UseHttpLogging();
     app.UseSwagger();
-    app.UseSwaggerUI(options => options.EnableTryItOutByDefault());
+    app.UseSwaggerUI(options =>
+    {
+        options.ConfigObject.DisplayRequestDuration = true;
+        options.EnableTryItOutByDefault();
+    });
 }
 
 app.UseAuthentication();
