@@ -1,3 +1,4 @@
 repos
+repos-prod
 !repos/hgkeeper/policy.csv
 !repos/hgkeeper/config/local.hgrc

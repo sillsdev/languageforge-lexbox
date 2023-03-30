@@ -1,4 +1,5 @@
-﻿using LexBoxApi.Services;
+﻿using LexBoxApi.Auth;
+using LexBoxApi.Services;
 using LexCore.Entities;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost("updateAllRepoCommitDates")]
+    [AdminRequired]
     public async Task<ActionResult> UpdateAllRepoCommitDates(bool onlyUnknown)
     {
         var projectCodes = await _lexBoxDbContext.Projects.Where(p => !onlyUnknown || p.LastCommit == null).Select(p => p.Code).ToArrayAsync();
@@ -48,6 +50,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost("autoUpdateUnknownProjectTypes")]
+    [AdminRequired]
     public async Task<ActionResult<int>> AutoUpdateUnknownProjectTypes()
     {
         var updatedCount = await _lexBoxDbContext.Projects.Where(p => p.Code.EndsWith("-flex"))
@@ -56,6 +59,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost("addLexboxPostfix")]
+    [AdminRequired]
     public async Task<ActionResult<int>> AddLexboxSuffix()
     {
         return await _lexBoxDbContext.Projects.Where(p => !p.Code.EndsWith("-lexbox"))
