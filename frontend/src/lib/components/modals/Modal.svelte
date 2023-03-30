@@ -18,9 +18,9 @@
 	let dialogResponse = writable<DialogResponse | null>(null);
 	let open = false;
 	$: closing = $dialogResponse !== null && open;
-	export let onBottom = false;
+	export let bottom = false;
 	export let showCloseButton = true;
-	export async function openModal(autoCloseOnCanel = true, autoCloseOnSubmit = false) {
+	export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false) {
 		$dialogResponse = null;
 		open = true;
 		dispatch('open');
@@ -33,7 +33,7 @@
 				}
 			});
 		});
-		if (autoCloseOnCanel && response === DialogResponse.Cancel) {
+		if (autoCloseOnCancel && response === DialogResponse.Cancel) {
 			close();
 		}
 		if (autoCloseOnSubmit && response === DialogResponse.Submit) {
@@ -69,10 +69,10 @@
 		}
 	}
 </script>
-<svelte:options accessors={true}/>
 {#if open}
-	<div class="modal" class:modal-bottom={onBottom} class:modal-open={open}>
-		<dialog bind:this={dialog} class="modal-box max-w-3xl relative" class:mb-0={onBottom}>
+<!-- using DaisyUI modal https://daisyui.com/components/modal/ -->
+	<div class="modal" class:modal-bottom={bottom} class:modal-open={open}>
+		<dialog bind:this={dialog} class="modal-box max-w-3xl relative" class:mb-0={bottom}>
 			{#if showCloseButton}
 				<button
 					class="btn btn-sm btn-circle absolute right-2 top-2"

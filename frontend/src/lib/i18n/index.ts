@@ -1,13 +1,16 @@
 import type enType from './locales/en.json';
+
+// @ts-ignore there's an error here because this is a synthetic path
 import en from '$locales/en';
-import es from '$locales/es';
 import { derived } from "svelte/store";
-import { init, addMessages, waitLocale, getLocaleFromNavigator, t as translate } from 'svelte-intl-precompile';
+import { init, addMessages, waitLocale, getLocaleFromNavigator, t as translate, register } from 'svelte-intl-precompile';
 import type { NestedKeyOf } from "$lib/type.utils";
 
 export async function loadI18n() {
     addMessages('en', en);
-    addMessages('es', es);
+//dynamically load the es translation at runtime if the user's browser is set to spanish
+// @ts-ignore there's an error here because this is a synthetic path
+    register('es', () => import('$locales/es'));
     init({
         fallbackLocale: 'en',
         initialLocale: getLocaleFromNavigator() || 'en',

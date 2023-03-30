@@ -1,5 +1,5 @@
 <script lang="ts">
-	import AddProjectUser from '$lib/components/modals/AddProjectUser.svelte';
+	import AddProjectUser from './AddProjectUser.svelte';
 	import FormatDate from '$lib/components/FormatDate.svelte';
 	import FormatProjectType from '$lib/components/FormatProjectType.svelte';
 	import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
