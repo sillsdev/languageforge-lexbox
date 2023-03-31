@@ -30,6 +30,19 @@ directive @source(
   schema: String!
 ) repeatable on ARGUMENT_DEFINITION | ENUM | ENUM_VALUE | FIELD_DEFINITION | INPUT_FIELD_DEFINITION | INPUT_OBJECT | INTERFACE | OBJECT | UNION
 
+union AddProjectMemberError = DbError | NotFoundError
+
+input AddProjectMemberInput {
+  projectId: UUID!
+  role: ProjectRole!
+  userEmail: String!
+}
+
+type AddProjectMemberPayload {
+  errors: [AddProjectMemberError!]
+  project: Project
+}
+
 type AuthUserProject {
   code: String!
   role: ProjectRole!
@@ -69,6 +82,14 @@ enum CursorOrdering {
 
 scalar DateTime @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
 
+type DbError implements Error {
+  message: String!
+}
+
+interface Error {
+  message: String!
+}
+
 """
 Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
 """
@@ -104,6 +125,7 @@ type LexBox_ProjectUsers {
 }
 
 type Mutation {
+  addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   createProject(input: CreateProjectInput!): Project
 
   """
@@ -210,6 +232,7 @@ type Mutation {
     """upsert condition"""
     onConflict: UsersOnConflict
   ): Users
+  removeProjectMember(input: RemoveProjectMemberInput!): Project
 
   """
   update data of the table: "ProjectUsers"
@@ -306,6 +329,10 @@ type Mutation {
     """updates to execute, in order"""
     updates: [UsersUpdates!]!
   ): [UsersMutationResponse]
+}
+
+type NotFoundError implements Error {
+  message: String!
 }
 
 """column ordering options"""
@@ -1249,6 +1276,11 @@ type Query {
 
   """fetch data from the table: "Users" using primary key columns"""
   usersByPk(id: uuid!): Users
+}
+
+input RemoveProjectMemberInput {
+  projectId: UUID!
+  userId: UUID!
 }
 
 enum RetentionPolicy {

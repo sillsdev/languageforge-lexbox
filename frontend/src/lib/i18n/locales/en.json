@@ -19,6 +19,13 @@
 	"appmenu": {
 		"log_out": "Log out"
 	},
+	"close": "Close",
+	"delete_modal": {
+		"delete": "Delete {entityName}",
+		"dont-delete": "Don't delete",
+		"dont-remove": "Don't remove",
+		"remove": "Remove {entityName}"
+	},
 	"login": {
 		"bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
 		"button_login": "Log in",
@@ -33,18 +40,25 @@
 		"add_user": {
 			"add_button": "Add Member",
 			"email_required": "Email Required!",
-			"modal_title": "Add a user to this project",
+			"modal_title": "Add a Member to this project",
 			"submit_button": "Add Member"
 		},
+		"confirm-remove": "Would you like to remove {userName} from this project?",
 		"history": "History",
 		"last_commit": "Last Commit ",
 		"members": "Project Members",
 		"missing_description": "No Description",
-		"not_found": "Project {code} not found!"
+		"not_found": "Project {code} not found!",
+		"remove-project-user-title": "Member",
+		"remove-user": "Remove",
+		"set-role": "Role"
 	},
 	"project_role": {
+		"label": "Role",
 		"editor": "Editor",
-		"manager": "Manager"
+		"manager": "Manager",
+		"editor_description": "Editor (can sync)",
+		"manager_description": "Manager (can sync & share)"
 	},
 	"project_type": {
 		"flex": "FLEx"
@@ -52,7 +66,7 @@
 	"projectlist": {
 		"last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
 		"no_changes": "Project Empty",
-		"shared_with": "Shared with {memeberCount, plural, one {no one} other {# people} }"
+		"shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
 	},
 	"retention_policy": {
 		"dev": "Dev",

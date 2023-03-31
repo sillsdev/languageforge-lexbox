@@ -22,4 +22,5 @@ public class LexBoxDbContext: DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<ProjectUsers> ProjectUsers => Set<ProjectUsers>();
 }
