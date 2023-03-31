@@ -26,7 +26,7 @@ public class RestLexProxyService : ILexProxyService
         return client;
     }
 
-    public async Task<ClaimsPrincipal?> Login(LoginRequest loginRequest)
+    public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
         var client = GetClient();
         var response = await client.PostAsJsonAsync("/api/login", loginRequest);
@@ -35,7 +35,7 @@ public class RestLexProxyService : ILexProxyService
         response.EnsureSuccessStatusCode();
         var user = await response.Content.ReadFromJsonAsync<LexAuthUser>();
 
-        return user?.GetPrincipal("LexApi");
+        return user;
     }
 
     public async Task RefreshProjectLastChange(string projectCode)

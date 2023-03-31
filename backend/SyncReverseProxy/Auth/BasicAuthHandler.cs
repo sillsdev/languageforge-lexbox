@@ -18,6 +18,7 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
         ILexProxyService lexProxyService) : base(options, logger, encoder, clock)
     {
         _lexProxyService = lexProxyService;
+
     }
 
     protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
@@ -54,9 +55,9 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
             return AuthenticateResult.Fail("Invalid Request");
         }
 
-        var principal = await _lexProxyService.Login(new LoginRequest(password, username));
-        if (principal is null)
+        var user = await _lexProxyService.Login(new LoginRequest(password, username));
+        if (user is null)
             return AuthenticateResult.Fail("Invalid username or password");
-        return AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name));
+        return AuthenticateResult.Success(new AuthenticationTicket(user.GetPrincipal(Scheme.Name), Scheme.Name));
     }
 }

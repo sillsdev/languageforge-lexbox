@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using LexBoxApi.Auth;
 using LexCore;
+using LexCore.Auth;
 using LexCore.ServiceInterfaces;
 
 namespace LexBoxApi.Services;
@@ -15,11 +16,10 @@ public class LexProxyService : ILexProxyService
         _projectService = projectService;
     }
 
-    public async Task<ClaimsPrincipal?> Login(LoginRequest loginRequest)
+    public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
         var user = await _lexAuthService.Login(loginRequest);
-        if (user is null) return null;
-        return new ClaimsPrincipal(new ClaimsIdentity(user.GetClaims()));
+        return user;
     }
 
     public async Task RefreshProjectLastChange(string projectCode)

@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
+﻿using LexCore.Auth;
 
 namespace LexCore.ServiceInterfaces;
 
 public interface ILexProxyService
 {
-    Task<ClaimsPrincipal?> Login(LoginRequest loginRequest);
+    Task<LexAuthUser?> Login(LoginRequest loginRequest);
     Task RefreshProjectLastChange(string projectCode);
 }
