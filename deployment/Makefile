@@ -26,8 +26,8 @@ deploy-pvc-hg-repos:
 	kubectl apply -f hg-repos-pvc.yaml
 deploy-hgresume: deploy-pvc-hg-repos
 	kubectl apply -f hgresume-deployment.yaml
-deploy-hgkeeper: deploy-pvc-hg-repos
-	kubectl apply -f hgkeeper-deployment.yaml
+deploy-hgweb: deploy-pvc-hg-repos
+	kubectl apply -f hgweb-deployment.yaml
 
 
 delete-db: # does NOT delete the volume, i.e., the data in the database
@@ -40,8 +40,8 @@ delete-pvc-hgresume-cache:
 	kubectl delete pvc hgresume-cache
 delete-pvc-hg-repos:
 	kubectl delete pvc hg-repos
-delete-hgkeeper:
-	kubectl delete deployment,service hgkeeper
+delete-hgweb:
+	kubectl delete deployment,service hgweb
 
 
 scale-down-db:
@@ -52,7 +52,7 @@ scale-down-hgresume:
 	kubectl scale deploy/hgresume --replicas 0
 scale-up-hgresume:
 	kubectl scale deploy/hgresume --replicas 1
-scale-down-hgkeeper:
-	kubectl scale deploy/hgkeeper --replicas 0
-scale-up-hgkeeper:
-	kubectl scale deploy/hgkeeper --replicas 1
+scale-down-hgweb:
+	kubectl scale deploy/hgweb --replicas 0
+scale-up-hgweb:
+	kubectl scale deploy/hgweb --replicas 1

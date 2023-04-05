@@ -1,0 +1,54 @@
+# https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: hgweb
+  labels:
+    app: hgweb
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: hgweb
+
+---
+
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hgweb
+  labels:
+    app: hgweb
+spec:
+  selector:
+    matchLabels:
+      app: hgweb
+  strategy:
+      type: Recreate
+  template:
+    # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
+    metadata:
+      labels:
+        app: hgweb
+    spec:
+      containers:
+      - name: hgweb
+        image: anteru/hgweb-docker:5.6
+        command:  ["apache2ctl", "-DFOREGROUND"]
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+
+        volumeMounts:
+        - name: repos
+          mountPath: /repos
+
+      volumes:
+      - name: repos
+        persistentVolumeClaim:
+          claimName: hg-repos # established in hg-repos-pvc.yaml

@@ -13,7 +13,7 @@
         condition: service_healthy
       hasura:
         condition: service_healthy
-      hgkeeper:
+      hgweb:
         condition: service_started
       hgresume:
         condition: service_started
@@ -30,8 +30,8 @@
       HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
       HasuraConfig__HasuraSecret: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
       HgConfig__RepoPath: /hg-repos
-      HgConfig__HgWebUrl: http://hg:8080
-      Clusters__hg-web__Destinations__hg-web-server__Address: http://hg:8080
+      HgConfig__HgWebUrl: http://hgweb:8080
+      Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:8080
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
 
       # for dev convenience
@@ -86,23 +86,14 @@
     volumes:
       - redmine_db_data:/var/lib/mysql
 
-  # TODO: add manual instructions for getting files into place the first time.
-  hgkeeper:
-    image: rwgrim/hgkeeper # https://docs.imfreedom.org/hgkeeper/standalonecontainer/
-    platform:  linux/amd64
+  hgweb:
+    image: anteru/hgweb-docker:5.6 # TODO: need to find appropriate image, this one is only temporary
+    platform: linux/amd64
     ports:
-      - "8088:8080" # 8088 exposed here for dev tools
+      - "8080:80" # 8080 exposed here for dev tools
+    command: ["apache2ctl", "-DFOREGROUND"]
     volumes:
-      - hg-repos:/repos
-
-      # for dev convenience
-      - ./hg-web/dev-key.pub:/admin-pubkey:ro
-    environment:
-      HGK_REPOS_PATH: /repos
-      HGK_ADMIN_USERNAME: admin
-      HGK_DISABLE_SSH: true
-      HGK_ADMIN_PUBKEY: /admin-pubkey
-    command: bash -c "hgkeeper setup ; hgkeeper serve"
+      - hg-repos:/var/hg/repos
 
   hgresume:
     image: ghcr.io/sillsdev/hgresume:v2023-02-24
@@ -131,7 +122,7 @@ volumes:
       # wanted this shared volume to get loaded from local filesystem during dev only
       driver: local
       driver_opts:
-        device: ./hg-web/repos
+        device: ./hgweb/repos
         o: bind
         type: none
     redmine_db_data:
