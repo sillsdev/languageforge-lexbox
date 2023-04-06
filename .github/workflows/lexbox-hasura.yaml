@@ -5,8 +5,8 @@ on:
   push:
     branches:
       - hasura-deployment
-    paths:
-      - 'hasura/**'
+    # paths:
+    #   - 'hasura/**'
 
 jobs:
   build-n-publish:
