@@ -9,6 +9,9 @@ on:
 jobs:
   build-n-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
