@@ -1,4 +1,6 @@
-﻿services:
+﻿name: lexbox
+
+services:
   lexbox-api:
     tty: true # for dev tools
     stdin_open: true # for dev tools
@@ -25,36 +27,30 @@
       # for dev convenience
       - ./backend:/src/backend
       - nuget-cache:/root/.nuget/packages
+    env_file: .env
     environment:
-      DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${LEXBOX_POSTGRES_PW};Database=lexbox
+      DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
       HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
-      HasuraConfig__HasuraSecret: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required}
+      HasuraConfig__HasuraSecret: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HgConfig__RepoPath: /hg-repos
-      HgConfig__HgWebUrl: http://hgweb:8080
-      Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:8080
+      HgConfig__HgWebUrl: http://hgweb:80
+      Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:80
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
 
       # for dev convenience
       ASPNETCORE_ENVIRONMENT: Development
 
   hasura:
-    image: hasura/graphql-engine:v2.20.0-ce.cli-migrations-v3
+    build: ./hasura
     ports:
       - "8081:8080" # 8081 exposed here for dev tools
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      # TODO: named vol needed here shared b/t api and this one.
-      - ./hasura/metadata:/hasura-metadata
+    env_file: .env
     environment:
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
-      PG_DATABASE_URL: postgres://postgres:${LEXBOX_POSTGRES_PW}@db:5432/lexbox
-      HASURA_GRAPHQL_ENABLE_TELEMETRY: false
-      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
-      HASURA_GRAPHQL_ADMIN_SECRET: ${LEXBOX_HASURA_SECRET_KEY:?hasura secret required} # need this one, it's also utilized in the api
-      HASURA_GRAPHQL_EXPERIMENTAL_FEATURES: naming_convention
-      HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION: graphql-default
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      PG_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
       # for dev convenience
       HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
@@ -72,9 +68,7 @@
       interval: 5s
       timeout: 5s
       retries: 5
-    environment:
-      POSTGRES_DB: lexbox
-      POSTGRES_PASSWORD: ${LEXBOX_POSTGRES_PW:?postgres password required}
+    env_file: .env
 
   redmine-db:
     image: mysql:5.7.41

@@ -2,29 +2,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: db
+  name: hasura
   labels:
-    app: db
+    app: hasura
 spec:
   type: ClusterIP
   clusterIP: None
   selector:
-    app: db
-
----
-
-# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: db-data
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: weekly-snapshots-retain-4 # provided by LTOps
+    app: hasura
 
 ---
 
@@ -32,24 +17,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: db
+  name: hasura
   labels:
-    app: db
+    app: hasura
 spec:
   selector:
     matchLabels:
-      app: db
+      app: hasura
   strategy:
       type: Recreate
   template:
     # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
     metadata:
       labels:
-        app: db
+        app: hasura
     spec:
       containers:
-      - name: db
-        image: postgres:15-alpine
+      - name: hasura
+        image: ghcr.io/sillsdev/lexbox-hasura
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -69,12 +54,12 @@ spec:
               secretKeyRef:
                   key: POSTGRES_PASSWORD
                   name: db
-
-        volumeMounts:
-        - name: data
-          mountPath: /var/lib/postgresql
-
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: db-data
+          - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
+            value: postgres://postgres:$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
+          - name: PG_DATABASE_URL
+            value: $(HASURA_GRAPHQL_METADATA_DATABASE_URL)
+          - name: HASURA_GRAPHQL_ADMIN_SECRET
+            valueFrom:
+              secretKeyRef:
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+                  name: hasura
