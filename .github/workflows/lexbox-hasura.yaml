@@ -3,10 +3,9 @@ name: Build and publish a lexbox configured hasura image
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
 on:
   push:
-    branches:
-      - hasura-deployment
-    # paths:
-    #   - 'hasura/**'
+    paths:
+      - 'hasura/**'
+      - '.github/workflows//lexbox-hasura.yaml'
 
 jobs:
   build-n-publish:
