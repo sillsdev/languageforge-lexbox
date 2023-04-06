@@ -22,4 +22,4 @@ jobs:
 
 
       - name: Build
-        run: docker buildx build --platform linux/amd64,linux/arm64 -f hasura/Dockerfile
+        run: docker buildx build --platform linux/amd64,linux/arm64 hasura
