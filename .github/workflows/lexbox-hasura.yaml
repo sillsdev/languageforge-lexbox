@@ -21,5 +21,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
 
 
-      # - name: Build, tag and push image
-      #   run: docker buildx build --push --platform linux/amd64,linux/arm64 -t ${{ env.IMAGE }} -f docker/base-php/Dockerfile .
+      - name: Build
+        run: docker buildx build --platform linux/amd64,linux/arm64 -f hasura/Dockerfile
