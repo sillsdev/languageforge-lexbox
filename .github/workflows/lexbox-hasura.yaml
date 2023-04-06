@@ -20,6 +20,8 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
 
-
       - name: Build
         run: docker buildx build --platform linux/amd64,linux/arm64 hasura
+
+      - name: look around
+        run: docker images
