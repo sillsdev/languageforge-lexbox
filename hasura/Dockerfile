@@ -1,3 +1,4 @@
+# https://github.com/hasura/graphql-engine
 FROM hasura/graphql-engine:v2.20.0-ce.cli-migrations-v3
 
 ENV HASURA_GRAPHQL_ENABLE_TELEMETRY=${HASURA_GRAPHQL_ENABLE_TELEMETRY:-false}
