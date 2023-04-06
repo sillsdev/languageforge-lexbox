@@ -13,21 +13,6 @@ spec:
 
 ---
 
-# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
-# apiVersion: v1
-# kind: PersistentVolumeClaim
-# metadata:
-#   name: db-data
-# spec:
-#   accessModes:
-#     - ReadWriteOnce
-#   resources:
-#     requests:
-#       storage: 10Gi
-#   storageClassName: weekly-snapshots-retain-4 # provided by LTOps
-
-# ---
-
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
 apiVersion: apps/v1
 kind: Deployment
@@ -49,7 +34,7 @@ spec:
     spec:
       containers:
       - name: hasura
-        image: hasura/graphql-engine:v2.20.0-ce.cli-migrations-v3
+        image: ghcr.io/sillsdev/lexbox-hasura
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -59,25 +44,22 @@ spec:
             memory: 400Mi
 
         env:
-          - name: HASURA_GRAPHQL_ENABLE_TELEMETRY
-            value: false
-          - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
-            value: startup, http-log, webhook-log, websocket-log, query-log
-          - name: HASURA_GRAPHQL_EXPERIMENTAL_FEATURES
-            value: naming_convention
-          - name: HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION
-            value: graphql-default
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_DB
+                  name: db
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: db
+          - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
+            value: postgres://postgres:$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
+          - name: PG_DATABASE_URL
+            value: $(HASURA_GRAPHQL_METADATA_DATABASE_URL)
           - name: HASURA_GRAPHQL_ADMIN_SECRET
             valueFrom:
               secretKeyRef:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
                   name: hasura
-
-        # volumeMounts:
-        # - name: data
-        #   mountPath: /var/lib/postgresql
-
-      # volumes:
-      # - name: data
-      #   persistentVolumeClaim:
-      #     claimName: db-data

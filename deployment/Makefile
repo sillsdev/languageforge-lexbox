@@ -28,6 +28,8 @@ deploy-hgresume: deploy-pvc-hg-repos
 	kubectl apply -f hgresume-deployment.yaml
 deploy-hgweb: deploy-pvc-hg-repos
 	kubectl apply -f hgweb-deployment.yaml
+deploy-hasura: deploy-db
+	kubectl apply -f hasura-deployment.yaml
 
 
 delete-db: # does NOT delete the volume, i.e., the data in the database
@@ -42,6 +44,8 @@ delete-pvc-hg-repos:
 	kubectl delete pvc hg-repos
 delete-hgweb:
 	kubectl delete deployment,service hgweb
+delete-hasura:
+	kubectl delete deployment,service hasura
 
 
 scale-down-db:
@@ -56,3 +60,7 @@ scale-down-hgweb:
 	kubectl scale deploy/hgweb --replicas 0
 scale-up-hgweb:
 	kubectl scale deploy/hgweb --replicas 1
+scale-down-hasura:
+	kubectl scale deploy/hasura --replicas 0
+scale-up-hasura:
+	kubectl scale deploy/hasura --replicas 1

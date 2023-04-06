@@ -60,7 +60,10 @@ spec:
 
         env:
           - name: POSTGRES_DB
-            value: lexbox
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_DB
+                  name: db
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
