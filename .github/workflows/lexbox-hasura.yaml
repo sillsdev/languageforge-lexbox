@@ -39,7 +39,7 @@ jobs:
 
       - name: publish the image
         # run: docker buildx build --platform linux/amd64,linux/arm64 -t lexbox-hasura hasura
-        run: docker push -t ghcr.io/longrunningprocess/lexbox-hasura
+        run: docker push ghcr.io/longrunningprocess/lexbox-hasura
 
       # -
         # name: Build and push
