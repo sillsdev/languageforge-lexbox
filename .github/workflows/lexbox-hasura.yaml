@@ -3,47 +3,29 @@ name: Build and publish a lexbox configured hasura image
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
 on:
   push:
-    branches:
-      - hasura-deployment
+    paths:
+      - 'hasura/**'
 
 jobs:
   build-n-publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
 
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
       DOCKER_BUILDKIT: 1
 
     steps:
-      - name: Log in to the Container registry
+      -
+        uses: actions/checkout@v3
+      -
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions/checkout@v3
-
-      # - uses: docker/setup-qemu-action@v2
-
-      # - uses: docker/setup-buildx-action@v2
-        # with:
-        #   platforms: linux/amd64,linux/arm64
-
-      # - name: Build and tag the image
-        # run: docker buildx build --platform linux/amd64,linux/arm64 -t lexbox-hasura hasura
-        # run: docker build -t lexbox-hasura hasura
-
       -
-        name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: hasura
-          # platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/sillsdev/lexbox-hasura
-        # - name: look around
-        # run: docker images
