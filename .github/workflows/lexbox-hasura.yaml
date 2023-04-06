@@ -26,7 +26,7 @@ jobs:
 
       # - uses: docker/setup-qemu-action@v2
 
-      # - uses: docker/setup-buildx-action@v2
+      - uses: docker/setup-buildx-action@v2
         # with:
         #   platforms: linux/amd64,linux/arm64
 
@@ -34,5 +34,13 @@ jobs:
         # run: docker buildx build --platform linux/amd64,linux/arm64 -t lexbox-hasura hasura
         # run: docker build -t lexbox-hasura hasura
 
-      - name: look around
-        run: docker images
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: hasura
+          # platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/languageforge-lexbox/lexbox-hasura:latest
+        # - name: look around
+        # run: docker images
