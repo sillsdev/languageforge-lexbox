@@ -20,8 +20,8 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
 
-      - name: Build
-        run: docker buildx build --platform linux/amd64,linux/arm64 hasura
+      - name: Build and tag the image
+        run: docker buildx build --platform linux/amd64,linux/arm64 -t lexbox-hasura hasura
 
       - name: look around
         run: docker images
