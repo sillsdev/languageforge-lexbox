@@ -1,0 +1,25 @@
+name: Build and publish a lexbox configured hasura image
+
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
+on:
+  push:
+    branches:
+      - hasura-deployment
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build-n-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: docker/setup-qemu-action@v2
+
+      - uses: docker/setup-buildx-action@v2
+        with:
+          platforms: linux/amd64,linux/arm64
+
+
+      # - name: Build, tag and push image
+      #   run: docker buildx build --push --platform linux/amd64,linux/arm64 -t ${{ env.IMAGE }} -f docker/base-php/Dockerfile .
