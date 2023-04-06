@@ -15,18 +15,13 @@ jobs:
       DOCKER_BUILDKIT: 1
 
     steps:
-      # - name: Log in to the Container registry
-      #     uses: docker/login-action@v2
-      #     with:
-      #       registry: ghcr.io
-      #       username: ${{ github.actor }}
-      #       password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to the Container registry
+          uses: docker/login-action@v2
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: view env
-        run: -|
-          echo ${{ github.actor }}
-          echo ${{ secrets.GITHUB_TOKEN }}
-          echo ${{ github.repository_owner }}
       # - uses: actions/checkout@v3
 
       # - uses: docker/setup-qemu-action@v2
