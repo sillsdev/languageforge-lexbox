@@ -33,21 +33,17 @@ jobs:
         # with:
         #   platforms: linux/amd64,linux/arm64
 
-      - name: Build and tag the image
+      # - name: Build and tag the image
         # run: docker buildx build --platform linux/amd64,linux/arm64 -t lexbox-hasura hasura
-        run: docker build -t ghcr.io/longrunningprocess/lexbox-hasura hasura
+        # run: docker build -t lexbox-hasura hasura
 
-      - name: publish the image
-        # run: docker buildx build --platform linux/amd64,linux/arm64 -t lexbox-hasura hasura
-        run: docker push ghcr.io/longrunningprocess/lexbox-hasura
-
-      # -
-        # name: Build and push
-        # uses: docker/build-push-action@v4
-        # with:
-        #   context: hasura
-        #   # platforms: linux/amd64,linux/arm64
-        #   push: true
-        #   tags: ghcr.io/languageforge-lexbox/lexbox-hasura:latest
-        # # - name: look around
-        # # run: docker images
+      -
+        name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: hasura
+          # platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ghcr.io/sillsdev/lexbox-hasura
+        # - name: look around
+        # run: docker images
