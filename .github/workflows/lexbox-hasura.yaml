@@ -11,6 +11,10 @@ jobs:
   build-n-publish:
     runs-on: ubuntu-latest
 
+    env:
+      # https://docs.docker.com/develop/develop-images/build_enhancements/
+      DOCKER_BUILDKIT: 1
+
     steps:
       - uses: actions/checkout@v3
 
