@@ -30,6 +30,8 @@ deploy-hgweb: deploy-pvc-hg-repos
 	kubectl apply -f hgweb-deployment.yaml
 deploy-hasura: deploy-db
 	kubectl apply -f hasura-deployment.yaml
+deploy-api: deploy-db deploy-hgresume deploy-hgweb deploy-hasura
+	kubectl apply -f lexbox-api-deployment.yaml
 
 
 delete-db: # does NOT delete the volume, i.e., the data in the database
@@ -46,6 +48,8 @@ delete-hgweb:
 	kubectl delete deployment,service hgweb
 delete-hasura:
 	kubectl delete deployment,service hasura
+delete-api:
+	kubectl delete deployment,service lexbox-api
 
 
 scale-down-db:
@@ -64,3 +68,7 @@ scale-down-hasura:
 	kubectl scale deploy/hasura --replicas 0
 scale-up-hasura:
 	kubectl scale deploy/hasura --replicas 1
+scale-down-api:
+	kubectl scale deploy/lexbox-api --replicas 0
+scale-up-api:
+	kubectl scale deploy/lexbox-api --replicas 1
