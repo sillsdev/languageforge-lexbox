@@ -38,7 +38,7 @@ delete-db: # does NOT delete the volume, i.e., the data in the database
 	kubectl delete deployment,service db
 delete-pvc-db:
 	kubectl delete pvc db-data
-delete-hgresume: # does NOT delete the volume, i.e., the data in the database
+delete-hgresume:
 	kubectl delete deployment,service hgresume
 delete-pvc-hgresume-cache:
 	kubectl delete pvc hgresume-cache
