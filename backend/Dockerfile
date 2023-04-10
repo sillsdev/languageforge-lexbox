@@ -24,4 +24,4 @@ RUN dotnet publish "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-# ENTRYPOINT ["dotnet", "LexBoxApi.dll"]
+ENTRYPOINT ["dotnet", "LexBoxApi.dll"]
