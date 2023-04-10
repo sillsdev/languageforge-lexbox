@@ -5,7 +5,7 @@ on:
   push:
     paths:
       - 'hasura/**'
-      - '.github/workflows//lexbox-hasura.yaml'
+      - '.github/workflows/lexbox-hasura.yaml'
 
 jobs:
   build-n-publish:
