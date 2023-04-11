@@ -30,6 +30,8 @@ deploy-hgweb: deploy-pvc-hg-repos
 	kubectl apply -f hgweb-deployment.yaml
 deploy-hasura: deploy-db
 	kubectl apply -f hasura-deployment.yaml
+deploy-otel-collector:
+	kubectl apply -f otel-collector-deployment.yaml
 deploy-api: deploy-db deploy-hgresume deploy-hgweb deploy-hasura
 	kubectl apply -f lexbox-api-deployment.yaml
 
@@ -48,6 +50,8 @@ delete-hgweb:
 	kubectl delete deployment,service hgweb
 delete-hasura:
 	kubectl delete deployment,service hasura
+delete-otel-collector:
+	kubectl delete deployment,service otel-collector
 delete-api:
 	kubectl delete deployment,service lexbox-api
 
@@ -68,6 +72,10 @@ scale-down-hasura:
 	kubectl scale deploy/hasura --replicas 0
 scale-up-hasura:
 	kubectl scale deploy/hasura --replicas 1
+scale-down-otel-collector:
+	kubectl scale deploy/otel-collector --replicas 0
+scale-up-otel-collector:
+	kubectl scale deploy/otel-collector --replicas 1
 scale-down-api:
 	kubectl scale deploy/lexbox-api --replicas 0
 scale-up-api:

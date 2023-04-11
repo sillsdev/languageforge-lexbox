@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
       - name: otel-collector
-        image: postgres:15-alpine
+        image: ghcr.io/sillsdev/lexbox-otel-collector
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -44,22 +44,8 @@ spec:
             memory: 400Mi
 
         env:
-          - name: POSTGRES_DB
+          - name: HONEYCOMB_API_KEY
             valueFrom:
               secretKeyRef:
-                  key: POSTGRES_DB
-                  name: db
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                  key: POSTGRES_PASSWORD
-                  name: db
-
-        volumeMounts:
-        - name: data
-          mountPath: /var/lib/postgresql
-
-      volumes:
-      - name: data
-        persistentVolumeClaim:
-          claimName: db-data
+                  key: HONEYCOMB_API_KEY
+                  name: otel
