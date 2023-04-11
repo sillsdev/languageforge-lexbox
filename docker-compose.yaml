@@ -99,16 +99,16 @@ services:
       - hgresume-cache:/var/cache/hgresume
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.73.0
-    command: [--config=/etc/otel-collector-config.yaml]
+    build: ./otel
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+      # for dev convenience
+      - ./otel/config.yaml:/etc/config.yaml
     ports:
+      # TODO: determine why these are exsposed to the host.
       - 4317:4317 # OTLP gRPC receiver - only required when running backend locally
       - 4318:4318 # OTLP http receiver
       #- 13133:13133 # health_check extension - only required when running backend locally
-    environment:
-      - LEXBOX_HONEYCOMB_API_KEY=${LEXBOX_HONEYCOMB_API_KEY}
+    env_file: .env
 
 volumes:
     db-data:
