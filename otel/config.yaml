@@ -26,11 +26,11 @@ exporters:
   otlp:
     endpoint: api.honeycomb.io:443
     headers:
-      "x-honeycomb-team": ${LEXBOX_HONEYCOMB_API_KEY}
+      "x-honeycomb-team": ${HONEYCOMB_API_KEY}
   otlp/metrics:
     endpoint: api.honeycomb.io:443
     headers:
-      "x-honeycomb-team": ${LEXBOX_HONEYCOMB_API_KEY}
+      "x-honeycomb-team": ${HONEYCOMB_API_KEY}
       # https://docs.honeycomb.io/getting-data-in/otel-collector/#metrics-and-logs-signals
       # "Metrics require a dataset in the exporter."
       "x-honeycomb-dataset": LexBox-Metrics
