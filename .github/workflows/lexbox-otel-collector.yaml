@@ -28,5 +28,5 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: otel
-          # push: true
+          push: true
           tags: ghcr.io/sillsdev/lexbox-otel-collector
