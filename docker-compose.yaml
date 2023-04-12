@@ -112,6 +112,8 @@ services:
 
   ui:
     build: ./frontend
+    ports:
+      - "3000:3000" # 3000 exposed here for development
     env_file: ./frontend/.env
 
 volumes:
