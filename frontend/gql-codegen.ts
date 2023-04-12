@@ -5,7 +5,7 @@ import type { Options } from "vite-plugin-graphql-codegen";
 
 const devSchema: NonNullable<Options["config"]>["schema"] = {
     "http://localhost:5158/api/graphql/schema.graphql": {
-        
+
     }
 };
 
@@ -25,7 +25,7 @@ const generationConfig: TypeScriptPluginConfig = {
     }
 };
 type ConfiguredOutput = NonNullable<Options["config"]>["generates"][string];
-const schemaPath = "../schema.graphql";
+const schemaPath = "schema.graphql";
 const schemaGeneration: Record<string, ConfiguredOutput> = {
     [schemaPath]: {
         plugins: ["schema-ast"]
