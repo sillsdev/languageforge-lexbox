@@ -5,7 +5,10 @@ import { gqlOptions } from "./gql-codegen";
 import precompileIntl from "svelte-intl-precompile/sveltekit-plugin";
 
 export default defineConfig({
-    plugins: [
+    build: {
+		target: 'esnext',
+	},
+	plugins: [
         codegen(gqlOptions),
         precompileIntl('src/lib/i18n/locales'),
         sveltekit(),
