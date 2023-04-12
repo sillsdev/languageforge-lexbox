@@ -1,0 +1,9 @@
+.env*
+.*ignore
+Dockerfile
+playwright.config.js
+.svelte-kit
+.vscode
+build
+node_modules
+tests

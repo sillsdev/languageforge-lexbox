@@ -1,0 +1,32 @@
+name: Build and publish a lexbox ui image
+
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
+on:
+  push:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/lexbox-ui.yaml'
+
+jobs:
+  build-n-publish:
+    runs-on: ubuntu-latest
+
+    env:
+      # https://docs.docker.com/develop/develop-images/build_enhancements/
+      DOCKER_BUILDKIT: 1
+
+    steps:
+      -
+        uses: actions/checkout@v3
+      -
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        uses: docker/build-push-action@v4
+        with:
+          context: frontend
+          push: true
+          tags: ghcr.io/sillsdev/lexbox-ui

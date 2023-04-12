@@ -3,16 +3,7 @@ FROM node AS builder
 
 WORKDIR /app
 
-COPY .eslintrc.cjs \
-	 .prettierrc \
-	 gql-codegen.ts schema.graphql \
-	 package-lock.json package.json \
-	 postcss.config.cjs \
-	 svelte.config.js \
-	 tailwind.config.cjs \
-	 tsconfig.json \
-	 vite.config.ts \
-	 /app/
+COPY . /app/
 COPY src /app/src
 COPY static /app/static
 
