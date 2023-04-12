@@ -123,7 +123,7 @@ flowchart LR
     Web -- https --- Proxy([ingress])
 
     Proxy -- http:80/api --- api([lexbox-api])
-    Proxy -- http:80 --- node([sveltekit])
+    Proxy -- http:3000 --- node([sveltekit])
 
     api -- postgres:5432 --- db([db])
     db -- volume-map:db-data --- data[//var/lib/postgresql/]
