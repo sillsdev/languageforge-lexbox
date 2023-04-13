@@ -19,22 +19,4 @@ export default defineConfig({
     test: {
         include: ['src/**/*.{test,spec}.{js,ts}'],
     },
-    server: {
-        proxy: {
-            '/api': {
-                target: 'http://localhost:5158'
-            },
-            //hg web will try to load static files from /static, but they need to be routed to the backend so it can proxy to hg web
-            '/static': {
-                target: 'http://localhost:5158',
-                bypass: (req, res) => {
-                    const referer = req.headers.referer ?? '';
-                    if (referer.includes('/api/hg-view/') || referer.includes('/static/hgk/css/icofont.min.css')) {
-                        return undefined;
-                    }
-                    return req.url;
-                }
-            }
-        }
-    },
 });

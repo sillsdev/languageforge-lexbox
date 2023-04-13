@@ -104,17 +104,32 @@ services:
       # for dev convenience
       - ./otel/collector-config.yaml:/etc/collector-config.yaml
     ports:
-      # TODO: determine why these are exsposed to the host.
+      # TODO: determine why these are exposed to the host.
       - 4317:4317 # OTLP gRPC receiver - only required when running backend locally
       - 4318:4318 # OTLP http receiver
       #- 13133:13133 # health_check extension - only required when running backend locally
     env_file: .env
+    # TODO: need to figure out how to keep otel from making fully qualified requests to the 4318:, it's generating CORS issues.
+    # environment:
+    #   - HTTPS_PROXY='proxy:80'
+
 
   ui:
     build: ./frontend
     ports:
       - "3000:3000" # 3000 exposed here for development
     env_file: ./frontend/.env
+
+  proxy:
+    image: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./proxy/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - ui
+      - lexbox-api
+      - otel-collector
 
 volumes:
     db-data:

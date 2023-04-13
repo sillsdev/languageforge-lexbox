@@ -7,10 +7,11 @@ receivers:
     protocols:
       grpc:
       http:
-        cors:
-          allowed_origins:
-            - "https://languagedepot.org"
-            - "http://127.0.0.1:5173"
+        # TODO: are these needed?
+        # cors:
+        #   allowed_origins:
+        #     - "https://languagedepot.org"
+        #     - "http://127.0.0.1:5173"
 
 # https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/README.md#recommended-processors
 # The recommended core processors. The memory limiter probably won't do much, but it certainly doesn't hurt.
