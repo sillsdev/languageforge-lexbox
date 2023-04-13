@@ -34,6 +34,8 @@ deploy-otel-collector:
 	kubectl apply -f otel-collector-deployment.yaml
 deploy-api: deploy-db deploy-hgresume deploy-hgweb deploy-hasura
 	kubectl apply -f lexbox-api-deployment.yaml
+deploy-ui: deploy-api
+	kubectl apply -f ui-deployment.yaml
 
 
 delete-db: # does NOT delete the volume, i.e., the data in the database
@@ -54,6 +56,8 @@ delete-otel-collector:
 	kubectl delete deployment,service otel-collector
 delete-api:
 	kubectl delete deployment,service lexbox-api
+delete-ui:
+	kubectl delete deployment,service ui
 
 
 scale-down-db:
@@ -80,3 +84,7 @@ scale-down-api:
 	kubectl scale deploy/lexbox-api --replicas 0
 scale-up-api:
 	kubectl scale deploy/lexbox-api --replicas 1
+scale-down-ui:
+	kubectl scale deploy/ui --replicas 0
+scale-up-ui:
+	kubectl scale deploy/ui --replicas 1
