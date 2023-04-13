@@ -119,11 +119,11 @@ More info on the frontend and backend can be found in their respective READMEs:
 ```mermaid
 
 flowchart LR
-    FLEx -- "https:(hg-public-qa|hg-private-qa|admin-qa|resumable-qa)" --- Proxy
-    Web -- https --- Proxy([ingress])
+    FLEx -- "https:(hg-public-qa|hg-private-qa|admin-qa|resumable-qa)" --- proxy
+    Web -- https://staging.languagedepot.org --- proxy([ingress])
 
-    Proxy -- http:80/api --- api([lexbox-api])
-    Proxy -- http:3000 --- node([sveltekit])
+    proxy -- http:80/api --- api([lexbox-api])
+    proxy -- http:3000 --- node([sveltekit])
 
     api -- postgres:5432 --- db([db])
     db -- volume-map:db-data --- data[//var/lib/postgresql/]
@@ -142,7 +142,7 @@ flowchart LR
     node -- http:80/api --- api
 
     api -- gRPC:4317 --- otel-collector([otel-collector])
-    Proxy -- http:4318/traces --- otel-collector
+    proxy -- http:4318/traces --- otel-collector
     node -- gRPC:4317 --- otel-collector
 
 ```

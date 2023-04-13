@@ -10,6 +10,11 @@ spec:
   clusterIP: None
   selector:
     app: otel-collector
+  ports:
+  - name: http
+    protocol: TCP
+    port: 4318
+    targetPort: 4318
 
 ---
 
