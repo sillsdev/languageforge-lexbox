@@ -12,6 +12,8 @@ list-pods:
 	kubectl get pods
 list-pvc:
 	kubectl get pvc
+list-ingress:
+	kubectl get ingress
 list-config:
 	cat ~/.kube/config
 
@@ -36,6 +38,8 @@ deploy-api: deploy-db deploy-hgresume deploy-hgweb deploy-hasura
 	kubectl apply -f lexbox-api-deployment.yaml
 deploy-ui: deploy-api
 	kubectl apply -f ui-deployment.yaml
+deploy-proxy: deploy-api deploy-ui
+	kubectl apply -f proxy-deployment.yaml
 
 
 delete-db: # does NOT delete the volume, i.e., the data in the database
@@ -58,6 +62,8 @@ delete-api:
 	kubectl delete deployment,service lexbox-api
 delete-ui:
 	kubectl delete deployment,service ui
+delete-proxy:
+	kubectl delete ingress proxy
 
 
 scale-down-db:
