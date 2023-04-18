@@ -32,8 +32,6 @@ public static class AuthKernel
         });
         services.AddOptions<JwtOptions>()
             .BindConfiguration("Authentication:Jwt")
-            .Validate(options => options.Secret != "==== replace ====",
-                "Jwt:Secret should have been changed from it's default value")
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddAuthentication(options =>
