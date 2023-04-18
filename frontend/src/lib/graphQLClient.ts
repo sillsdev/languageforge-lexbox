@@ -1,4 +1,7 @@
-﻿import type {LoadEvent, RequestEvent} from "@sveltejs/kit";
+﻿import {browser} from "$app/environment";
+import {env} from "$env/dynamic/public";
+
+import type {LoadEvent, RequestEvent} from "@sveltejs/kit";
 import {CombinedError, mapExchange, type Client, defaultExchanges} from "@urql/svelte";
 import {get, writable} from "svelte/store";
 import {createClient} from "@urql/svelte";
@@ -18,8 +21,9 @@ class LexGqlError extends CombinedError {
 }
 
 function createGqlClient(event: LoadEvent | RequestEvent) {
+    const url = `${browser ? '' : env.PUBLIC_BACKEND_HOST}/api/graphql`;
     return createClient({
-        url: "/api/graphql",
+        url,
         fetch: event.fetch,
         exchanges: [
             mapExchange({

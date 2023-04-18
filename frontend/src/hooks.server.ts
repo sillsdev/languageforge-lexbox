@@ -1,8 +1,9 @@
 import { is_authn } from '$lib/user'
-import { redirect, type Handle, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
+import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { initClient } from '$lib/graphQLClient'
 import {loadI18n} from "$lib/i18n";
 import { traceErrorEvent, traceResponse, traceRequest } from '$lib/otel/server'
+import {env} from "$env/dynamic/public";
 
 const public_routes = [
 	'/login',
@@ -31,6 +32,13 @@ export const handle = (async ({ event, resolve }) => {
 		})
 	})
 }) satisfies Handle
+export const handleFetch = (async ({event, request, fetch}) => {
+	if (env.PUBLIC_BACKEND_HOST && request.url.startsWith(env.PUBLIC_BACKEND_HOST)) {
+		request.headers.set('cookie', event.request.headers.get('cookie')!);
+	}
+
+	return fetch(request);
+}) satisfies HandleFetch;
 
 export const handleError: HandleServerError = ({ error, event }) => {
 	traceErrorEvent(error, event);

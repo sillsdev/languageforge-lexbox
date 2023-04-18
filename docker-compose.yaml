@@ -119,6 +119,8 @@ services:
     ports:
       - "3000:3000" # 3000 exposed here for development
     env_file: ./frontend/.env
+    environment:
+      PUBLIC_BACKEND_HOST: http://lexbox-api:5158
 
   proxy:
     image: nginx
