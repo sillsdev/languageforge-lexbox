@@ -1,4 +1,4 @@
-# TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.  Could consider installing just python if the image size of node is too big
+# TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
 FROM node AS builder
 
 WORKDIR /app
@@ -13,11 +13,11 @@ COPY static /app/static
 
 RUN npm run build
 
-FROM node
+FROM node:alpine
 # container would not receive SIGTERM from docker when shutting down so Docker would force kill
 # the container after 10s.  This will make shutdown faster because the SIGTERM will be handled appropriately.
 # https://maximorlov.com/process-signals-inside-docker-containers/
-RUN apt-get update && apt-get install tini
+RUN apk update && apk add tini
 
 COPY --from=builder /app/build /app/
 COPY --from=builder /app/node_modules /app/node_modules
