@@ -3,8 +3,11 @@ import { vitePreprocess } from '@sveltejs/kit/vite';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+	compilerOptions: {
+		enableSourcemap: true
+	},
 	kit: {
-		adapter: adapter()
+		adapter: adapter(),
 	},
 	preprocess: [
 		vitePreprocess({

@@ -7,6 +7,7 @@ import precompileIntl from "svelte-intl-precompile/sveltekit-plugin";
 export default defineConfig({
     build: {
 		target: 'esnext',
+        sourcemap: true
 	},
 	plugins: [
         codegen(gqlOptions),
