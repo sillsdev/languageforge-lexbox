@@ -84,11 +84,9 @@ services:
       - redmine_db_data:/var/lib/mysql
 
   hgweb:
-    image: anteru/hgweb-docker:5.6 # TODO: need to find appropriate image, this one is only temporary
-    platform: linux/amd64
+    build: ./hgweb
     ports:
-      - "8080:80" # 8080 exposed here for dev tools
-    command: ["apache2ctl", "-DFOREGROUND"]
+      - "8088:80" # 8080 exposed here for dev tools
     volumes:
       - hg-repos:/var/hg/repos
 
