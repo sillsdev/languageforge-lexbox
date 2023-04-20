@@ -51,12 +51,17 @@ builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//for now allow this to run in prod, maybe later we want to disable it.
+// if (app.Environment.IsDevelopment())
 {
     app.UseHttpLogging();
-    app.UseSwagger();
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "api/swagger/{documentName}/swagger.{json|yaml}";
+    });
     app.UseSwaggerUI(options =>
     {
+        options.RoutePrefix = "api/swagger";
         options.ConfigObject.DisplayRequestDuration = true;
         options.EnableTryItOutByDefault();
     });
