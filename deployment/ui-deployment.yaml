@@ -49,8 +49,13 @@ spec:
             memory: 400Mi
 
         env:
-          - name: VITE_TURNSTILE_SITE_KEY
+          - name: PUBLIC_TURNSTILE_SITE_KEY
             valueFrom:
               secretKeyRef:
-                  key: VITE_TURNSTILE_SITE_KEY
+                  key: PUBLIC_TURNSTILE_SITE_KEY
                   name: ui
+          - name: PUBLIC_BACKEND_HOST
+            value: http://lexbox-api:80
+          - name: OTEL_ENDPOINT
+            value: http://otel-collector:4318
+
