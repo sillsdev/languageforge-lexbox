@@ -8,9 +8,10 @@
 	import { createEventDispatcher } from 'svelte'
     import { Turnstile } from 'svelte-turnstile'
 	import Form from './Form.svelte'
+	import {env} from "$env/dynamic/public";
 
 	const dispatch = createEventDispatcher<Token>()
-	const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY as string
+	const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY
 
 	function deliver_token({ detail: { token } }: CustomEvent<Token>) {
 		dispatch('token', token)
