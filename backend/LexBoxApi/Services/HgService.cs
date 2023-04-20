@@ -37,7 +37,7 @@ public class HgService
     public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode)
     {
         var client = _clientFactory.CreateClient("hgWeg");
-        var response = await client.GetAsync($"{_options.Value.HgWebUrl}/{projectCode}/log?style=json&rev=tip");
+        var response = await client.GetAsync($"{_options.Value.HgWebUrl}/hg/{projectCode}/log?style=json&rev=tip");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         //format is this: [1678687688, offset] offset is 

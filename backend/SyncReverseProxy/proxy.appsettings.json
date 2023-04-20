@@ -15,7 +15,7 @@
         "ClusterId": "hg-web",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
-          "Path": "/{project-code}"
+          "Path": "/hg/{project-code}"
         }
       },
       "hg-web-view": {
@@ -28,6 +28,9 @@
         "Transforms": [
           {
             "PathRemovePrefix": "/api/hg-view"
+          },
+          {
+            "PathPrefix": "/hg"
           }
         ]
       },
@@ -35,7 +38,7 @@
         "Order": 10,
         "ClusterId": "hg-web",
         "Match": {
-          "Path": "/static/{**catch-all}",
+          "Path": "/hg/static/{**catch-all}",
           "Headers":[
             {
               "Name": "Referer",
