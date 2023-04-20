@@ -20,7 +20,7 @@ spec:
             name: lexbox-api
             port:
               number: 80
-      - path: /traces
+      - path: /v1/traces
         pathType: Prefix
         backend:
           service:

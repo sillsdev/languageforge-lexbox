@@ -19,6 +19,7 @@ import {
 	traceHeaders,
 } from './shared';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { env } from '$env/dynamic/private';
 
 // Span and attribute names and values are based primarily on the OpenTelemetry semantic conventions for HTTP
 // https://opentelemetry.io/docs/reference/specification/trace/semantic_conventions/http/
@@ -125,7 +126,9 @@ const isRedirect = (error: any): error is Redirect => {
 // Debugging:
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.ALL)
 // const traceExporter = new ConsoleSpanExporter()
-const traceExporter = new OTLPTraceExporter();
+const traceExporter = new OTLPTraceExporter({
+	url: env.OTEL_ENDPOINT + "/v1/traces",
+});
 const sdk = new NodeSDK({
 	resource: new Resource({
 		[SemanticResourceAttributes.SERVICE_NAME]: serviceName,

@@ -12,7 +12,8 @@ namespace LexBoxApi.Otel;
 public static class OtelKernel
 {
     public const string ServiceName = "LexBox-Api";
-    public static void AddOpenTelemetryInstrumentation(this IServiceCollection services)
+    public static void AddOpenTelemetryInstrumentation(this IServiceCollection services,
+        ConfigurationManager configuration)
     {
         var appResourceBuilder = ResourceBuilder.CreateDefault()
             .AddEnvironmentVariableDetector()
@@ -21,7 +22,10 @@ public static class OtelKernel
             tracerProviderBuilder
                 // Debugging
                 // .AddConsoleExporter()
-                .AddOtlpExporter()
+                .AddOtlpExporter(options =>
+                {
+                    configuration.Bind("Otel", options);
+                })
                 .AddSource(ServiceName)
                 .SetResourceBuilder(appResourceBuilder)
                 // could potentially add baggage to the trace as done in

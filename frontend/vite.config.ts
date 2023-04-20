@@ -22,6 +22,9 @@ export default defineConfig({
     },
     server: {
         proxy: {
+            '/v1/traces': {
+                target: 'http://localhost:4318'
+            },
             '/api': {
                 target: 'http://localhost:5158'
             },

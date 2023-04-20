@@ -28,7 +28,9 @@ const resource = Resource.default().merge(
 const provider = new WebTracerProvider({
 	resource: resource,
 })
-const exporter = new OTLPTraceExporter()
+const exporter = new OTLPTraceExporter({
+	url: '/v1/traces'
+});
 provider.addSpanProcessor(
 	new BatchSpanProcessor(exporter, {
 		// max number of spans pulled from the qeuue and exported in a single batch

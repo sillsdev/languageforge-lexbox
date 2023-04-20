@@ -32,6 +32,7 @@ services:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
       HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
       HasuraConfig__HasuraSecret: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      Otel__Endpoint: http://otel-collector:4317
       HgConfig__RepoPath: /hg-repos
       HgConfig__HgWebUrl: http://hgweb:80
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:80
@@ -122,6 +123,7 @@ services:
     env_file: ./frontend/.env
     environment:
       PUBLIC_BACKEND_HOST: http://lexbox-api:5158
+      OTEL_ENDPOINT: http://otel-collector:4318
 
   proxy:
     image: nginx

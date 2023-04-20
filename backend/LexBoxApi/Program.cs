@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddOpenTelemetryInstrumentation();
+builder.Services.AddOpenTelemetryInstrumentation(builder.Configuration);
 
 builder.Services.AddControllers(options =>
 {
