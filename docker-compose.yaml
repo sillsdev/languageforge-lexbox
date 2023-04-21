@@ -1,4 +1,4 @@
-﻿name: lexbox
+name: lexbox
 
 services:
   lexbox-api:
@@ -12,8 +12,6 @@ services:
     # https://docs.docker.com/compose/compose-file/#depends_on
     depends_on:
       db:
-        condition: service_healthy
-      hasura:
         condition: service_healthy
       hgweb:
         condition: service_started
@@ -44,6 +42,12 @@ services:
       # for dev convenience
       ASPNETCORE_ENVIRONMENT: Development
 
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5158/api/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   hasura:
     build: ./hasura
     ports:
@@ -51,8 +55,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      lexbox-api:
+        condition: service_healthy
     env_file: .env
     environment:
+      HASURA_GRAPHQL_ENABLE_CONSOLE: true
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       PG_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
@@ -135,6 +142,7 @@ services:
       - ui
       - lexbox-api
       - otel-collector
+      - hasura
 
 volumes:
     db-data:
