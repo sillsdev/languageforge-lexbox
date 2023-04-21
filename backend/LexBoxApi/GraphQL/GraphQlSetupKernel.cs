@@ -1,4 +1,5 @@
-﻿using LexBoxApi.Config;
+﻿using HotChocolate.Diagnostics;
+using LexBoxApi.Config;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexData;
 using Microsoft.Extensions.Options;
@@ -31,7 +32,11 @@ public static class GraphQlSetupKernel
             .AddGraphQL("hasura")
             .AddType(new DateTimeType("timestamptz"))
             .AddType(new UuidType("uuid"))
-            .AddInstrumentation(options => options.IncludeDocument = true);
+            .AddInstrumentation(options =>
+            {
+                options.IncludeDocument = true;
+                options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
+            });
         graphqlBuilder.AddLocalSchema("LexBox")
             .RegisterDbContext<LexBoxDbContext>()
             .AddGraphQL("LexBox")
