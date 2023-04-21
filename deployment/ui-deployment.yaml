@@ -54,7 +54,7 @@ spec:
               secretKeyRef:
                   key: PUBLIC_TURNSTILE_SITE_KEY
                   name: ui
-          - name: PUBLIC_BACKEND_HOST
+          - name: BACKEND_HOST
             value: http://lexbox-api:80
           - name: OTEL_ENDPOINT
             value: http://otel-collector:4318

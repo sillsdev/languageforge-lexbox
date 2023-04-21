@@ -20,8 +20,8 @@ class LexGqlError extends CombinedError {
     }
 }
 
-function createGqlClient(event: LoadEvent | RequestEvent) {
-    const url = `${browser ? '' : env.PUBLIC_BACKEND_HOST}/api/graphql`;
+function createGqlClient(event: LoadEvent | RequestEvent, gqlEndpoint?: string) {
+    const url = `${gqlEndpoint ?? ''}/api/graphql`;
     return createClient({
         url,
         fetch: event.fetch,
@@ -61,8 +61,9 @@ export function getClient(event?: LoadEvent): Client {
     throw new Error("Client not set");
 }
 
-export function initClient(event: LoadEvent | RequestEvent) {
-    setClient(createGqlClient(event));
+//gqlEndpoint is only required on the server side.
+export function initClient(event: LoadEvent | RequestEvent, gqlEndpoint?: string) {
+    setClient(createGqlClient(event, gqlEndpoint));
 }
 
 export function setClient(newClient: Client) {

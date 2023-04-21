@@ -3,7 +3,7 @@ import { redirect, type Handle, type HandleFetch, type HandleServerError, type R
 import { initClient } from '$lib/graphQLClient'
 import {loadI18n} from "$lib/i18n";
 import { traceErrorEvent, traceResponse, traceRequest } from '$lib/otel/server'
-import {env} from "$env/dynamic/public";
+import {env} from "$env/dynamic/private";
 
 const public_routes = [
 	'/login',
@@ -17,7 +17,7 @@ export const handle = (async ({ event, resolve }) => {
 			filterSerializedResponseHeaders: () => true,
 		}
 
-		initClient(event)
+		initClient(event, env.BACKEND_HOST)
 
 		return traceResponse(event, () => {
 			if (public_routes.includes(pathname)) {
@@ -33,7 +33,7 @@ export const handle = (async ({ event, resolve }) => {
 	})
 }) satisfies Handle
 export const handleFetch = (async ({event, request, fetch}) => {
-	if (env.PUBLIC_BACKEND_HOST && request.url.startsWith(env.PUBLIC_BACKEND_HOST)) {
+	if (env.BACKEND_HOST && request.url.startsWith(env.BACKEND_HOST)) {
 		request.headers.set('cookie', event.request.headers.get('cookie')!);
 	}
 

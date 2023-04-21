@@ -129,7 +129,7 @@ services:
       - "3000:3000" # 3000 exposed here for development
     env_file: ./frontend/.env
     environment:
-      PUBLIC_BACKEND_HOST: http://lexbox-api:5158
+      BACKEND_HOST: http://lexbox-api:5158
       OTEL_ENDPOINT: http://otel-collector:4318
 
   proxy:
