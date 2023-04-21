@@ -20,7 +20,7 @@ public class DbStartupService : BackgroundService
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<LexBoxDbContext>();
         var environment = serviceScope.ServiceProvider.GetRequiredService<IHostEnvironment>();
         await dbContext.Database.MigrateAsync(stoppingToken);
-        if (environment.IsDevelopment())
+        if (environment.IsDevelopment() || environment.IsStaging())
         {
             await serviceScope.ServiceProvider.GetRequiredService<SeedingData>().SeedIfNoUsers(stoppingToken);
         }
