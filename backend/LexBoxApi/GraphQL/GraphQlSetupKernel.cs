@@ -31,7 +31,7 @@ public static class GraphQlSetupKernel
             .AddGraphQL("hasura")
             .AddType(new DateTimeType("timestamptz"))
             .AddType(new UuidType("uuid"))
-            .AddInstrumentation();
+            .AddInstrumentation(options => options.IncludeDocument = true);
         graphqlBuilder.AddLocalSchema("LexBox")
             .RegisterDbContext<LexBoxDbContext>()
             .AddGraphQL("LexBox")
