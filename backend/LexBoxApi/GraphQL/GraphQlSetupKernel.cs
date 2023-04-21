@@ -26,7 +26,6 @@ public static class GraphQlSetupKernel
             .AddType(new UuidType("UUID"))
             .AddType(new DateTimeType("timestamptz"))
             .AddType(new UuidType("uuid"));
-        if (!env.IsDevelopment()) graphqlBuilder.InitializeOnStartup();
         graphqlBuilder
             .AddRemoteSchema("hasura")
             .AddGraphQL("hasura")
