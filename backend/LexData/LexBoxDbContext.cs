@@ -23,4 +23,11 @@ public class LexBoxDbContext: DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<ProjectUsers> ProjectUsers => Set<ProjectUsers>();
+
+    public async Task<bool> HeathCheck(CancellationToken cancellationToken)
+    {
+        //this will throw if we can't connect which is a valid health check response.
+        await Users.CountAsync(cancellationToken);
+        return true;
+    }
 }

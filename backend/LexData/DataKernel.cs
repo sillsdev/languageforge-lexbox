@@ -16,6 +16,7 @@ public static class DataKernel
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
         });
+        services.AddHealthChecks().AddDbContextCheck<LexBoxDbContext>(customTestQuery: (context, token) => context.HeathCheck(token));
         services.AddDbContext<RedmineDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
