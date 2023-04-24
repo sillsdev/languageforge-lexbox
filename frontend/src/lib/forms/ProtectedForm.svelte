@@ -1,7 +1,7 @@
 <script context=module lang=ts>
 	export type Token = {
 		token: string,
-	}
+	};
 </script>
 
 <script lang=ts>
@@ -9,16 +9,20 @@
     import { Turnstile } from 'svelte-turnstile'
 	import Form from './Form.svelte'
 	import {env} from "$env/dynamic/public";
+	import type { EnhancedForm } from "sveltekit-superforms/client";
 
-	const dispatch = createEventDispatcher<Token>()
-	const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY
+
+	export let enhance: EnhancedForm<any>["enhance"] | undefined = undefined;
+
+	const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY;
+	export let turnstileToken: string = '';
 
 	function deliver_token({ detail: { token } }: CustomEvent<Token>) {
-		dispatch('token', token)
+		turnstileToken = token;
 	}
 </script>
 
-<Form on:submit>
+<Form {enhance} on:submit>
 	<slot />
 </Form>
 

@@ -7,6 +7,7 @@ using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
@@ -27,13 +28,13 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("registerAccount")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
     [ProducesDefaultResponseType]
     public async Task<ActionResult<LexAuthUser>> RegisterAccount(RegisterAccountInput accountInput)
     {
         using var registerActivity = LexBoxActivitySource.Get().StartActivity("Register");
-        Console.WriteLine("RegisterAccount" + registerActivity?.DisplayName);
         var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken);
         registerActivity?.AddTag("app.turnstile_token_valid", validToken);
         if (!validToken)
