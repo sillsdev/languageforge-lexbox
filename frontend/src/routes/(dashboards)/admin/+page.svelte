@@ -21,7 +21,7 @@
 </script>
 <main>
 	<div class="grid grid-cols-2">
-		<div class="overflow-x-auto">
+		<div class="pl-1 overflow-x-auto">
 			<span class="text-xl">
 				{ $t('admin_dashboard.page_header') }
 				<div class="badge">{projectSearch ? projects.length : data.projects.length}</div>
@@ -69,7 +69,7 @@
 			</table>
 		</div>
 
-		<div class="overflow-x-auto">
+		<div class="pl-1 overflow-x-auto">
 			<span class="text-xl">
 				{ $t('admin_dashboard.user_table_title') }
 				<div class="badge">{userSearch ? users.length : data.users.length}</div>
