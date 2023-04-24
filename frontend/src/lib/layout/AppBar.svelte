@@ -20,7 +20,7 @@
 			</button>
 		{:else}
 			<div class='tooltip tooltip-left' data-tip='Create a new account'>
-				<a href=/account/create class='btn btn-primary btn-circle'>
+				<a href=/register class='btn btn-primary btn-circle'>
 					<UserAddOutline />
 				</a>
 			</div>
