@@ -1,4 +1,4 @@
-<h1 class="pt-8 text-center">
+<h1 class="pt-8 text-center text-xl">
 	<slot name="header"/>
 </h1>
 
