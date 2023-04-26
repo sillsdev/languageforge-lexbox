@@ -38,6 +38,9 @@ services:
       Authentication__Jwt__Secret: dev-secret_but-it-must-be-32-characters-long
 # always passes key, more info here: https://developers.cloudflare.com/turnstile/frequently-asked-questions/#are-there-sitekeys-and-secret-keys-that-can-be-used-for-testing
       CloudFlare__TurnstileKey: 1x0000000000000000000000000000000AA
+      # additional email settings are required for prod, but the dev defaults will work for dev, see appsettings.Development.json
+      Email__SmtpHost: maildev
+      Email__EmailRenderHost: ui:3000
 
       # for dev convenience
       ASPNETCORE_ENVIRONMENT: Development
@@ -47,6 +50,17 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  maildev: 
+    image: maildev/maildev
+#    config: https://github.com/maildev/maildev/blob/master/README.md#usage
+    ports:
+#      ui port
+      - "1080:1080"
+#      smtp port
+      - "1025:1025"
+    environment:
+      MAILDEV_INCOMING_USER: maildev
+      MAILDEV_INCOMING_PASS: maildev_pass
 
   hasura:
     build: ./hasura
@@ -63,6 +77,7 @@ services:
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       PG_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
+# supported variables for hasura https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/
       # for dev convenience
       HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
       HASURA_GRAPHQL_DEV_MODE: "true"

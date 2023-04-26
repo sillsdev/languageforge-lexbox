@@ -8,6 +8,7 @@ import {env} from "$env/dynamic/private";
 const public_routes = [
 	'/login',
 	'/register',
+	'/email'
 ]
 
 export const handle = (async ({ event, resolve }) => {

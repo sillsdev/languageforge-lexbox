@@ -23,7 +23,7 @@ function getSubject(head: string): string {
 export function render(emailComponent: any, props: Record<string, any>): { subject: string; html: string } {
     const result: RenderResult = emailComponent.render(props);
     return {
-        html: mjml2html(result.html).html,
+        html: mjml2html(result.html, {validationLevel: 'strict'}).html,
         subject: getSubject(result.head)
     };
 }
