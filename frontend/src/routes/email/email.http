@@ -1,0 +1,11 @@
+﻿###
+# @name Email Renderer
+
+POST http://localhost:5173/email
+Content-Type: application/json
+
+{
+  "template": "ForgotPassword",
+  "name": "http test",
+  "resetUrl": "http://localhost:5173/reset-password?token=1234567890"
+}

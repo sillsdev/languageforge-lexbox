@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Services;
 using LexCore;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication;
@@ -12,10 +13,12 @@ namespace LexBoxApi.Controllers;
 public class LoginController : ControllerBase
 {
     private readonly LexAuthService _lexAuthService;
+    private readonly EmailService _emailService;
 
-    public LoginController(LexAuthService lexAuthService)
+    public LoginController(LexAuthService lexAuthService, EmailService emailService)
     {
         _lexAuthService = lexAuthService;
+        _emailService = emailService;
     }
 
     [HttpPost]
@@ -36,5 +39,12 @@ public class LoginController : ControllerBase
     public ActionResult<string> HashPassword(string pw, string salt)
     {
         return PasswordHashing.RedminePasswordHash(pw, salt, false);
+    }
+
+    [HttpPost("forgotPassword")]
+    public async Task<ActionResult> ForgotPassword(string email)
+    {
+        await _emailService.SendForgotPasswordEmail(email);
+        return Ok();
     }
 }

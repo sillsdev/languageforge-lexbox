@@ -25,9 +25,14 @@ public static class LexBoxKernel
             .BindConfiguration("CloudFlare")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<EmailConfig>()
+            .BindConfiguration("Email")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         services.AddScoped<LoggedInContext>();
         services.AddScoped<ProjectService>();
+        services.AddScoped<EmailService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();
