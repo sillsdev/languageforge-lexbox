@@ -14,6 +14,17 @@ Other files, like docker-compose, should be at the root of the repo, because the
 
 ## Development
 
+### Prerequisites
+ * docker and docker-compose
+#### for local dev also:
+ * node version 18+
+ * dotnet 7 sdk
+
+#### Setup
+Some environment secrets need to be setup. The .env file in the root needs to be setup.
+As of writing the honeycomb api key needs to be provided, details are in the env file.
+In `/frontend` copy `.env.example` to `.env`.
+
 this project contains some seed data. The database will have that data loaded automatically.
 The following users are available, password for them all is just `pass`:
 * KindLion@test.com: super admin
@@ -24,22 +35,15 @@ There will also be a single project, Sena 3. But the repo needs to be setup, to 
 
 ### Docker workflow
 
-#### Windows
-
 ```bash
-docker-compose up -d
-```
-#### Mac
-
-```bash
-docker-compose up -d lexbox-api
+docker-compose up -d proxy
 ```
 
 Try some of the helpful urls below to determine whether api is responding or not.
 
 ### Local workflow
 ```bash
-docker-compose up -d db hasura
+docker-compose up -d db hasura otel-collector maildev
 ```
 then you will want to execute in 2 separate consoles:
 
@@ -55,10 +59,12 @@ dotnet watch
 ```
 ---
 Some helpful urls:
-* localhost:5158/swagger - swagger docs for the api
-* localhost:5158/api/graphiql/ui - graphiql UI
-* localhost:5158/api/graphiql - graphiql endpoint
-* localhost:8088 - hgkeeper UI add the project code and use the url in FLEx to clone
+* http://localhost:5173 - sveltekit frontend
+* http://localhost:5158/api/swagger - swagger docs for the api
+* http://localhost:5158/api/graphiql/ui - graphiql UI
+* http://localhost:5158/api/graphiql - graphiql endpoint
+* http://localhost:8088/hg - hg web UI add the project code and use the url in FLEx to clone
+* http://localhost:1080 - maildev UI
 
 #### Hasura workflow
 In order to modify Hasura table relations and permissions in hasura we need to use the hasura console.
@@ -70,6 +76,15 @@ hasura console --project hasura
 ```
 This should open a window in the browser. You will need hasura running in docker for this to work.
 Once you make some changes in the console you should notice some metadata under `hasura/metadata` has been updated, you will want to check that in to git.
+
+##### Hasura troubleshooting
+
+Sometimes Hasura can get out of sync with the database.
+To troubleshoot this you should open the hasura console at `localhost:8081` and navigate to settings > metadata status.
+If you see some errors there try reloading your metadata on the Metadata Actions tab.
+It may be that dotnet did not apply migrations yet, 
+so you might try restarting dotnet and wait for it to update the database schema.
+Then come back and reload the metadata again.
 
 ### Proxy Diagram
 
