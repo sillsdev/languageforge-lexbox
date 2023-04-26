@@ -73,12 +73,12 @@ services:
         condition: service_healthy
     env_file: .env
     environment:
-      HASURA_GRAPHQL_ENABLE_CONSOLE: true
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       PG_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
 # supported variables for hasura https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/
       # for dev convenience
+      HASURA_GRAPHQL_ENABLE_CONSOLE: true
       HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
       HASURA_GRAPHQL_DEV_MODE: "true"
 

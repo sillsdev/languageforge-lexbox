@@ -21,6 +21,8 @@ export default defineConfig({
         include: ['src/**/*.{test,spec}.{js,ts}'],
     },
     server: {
+        port: 5173,
+        strictPort: true,
         proxy: {
             '/v1/traces': {
                 target: 'http://localhost:4318'
