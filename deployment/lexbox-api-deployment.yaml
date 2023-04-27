@@ -65,6 +65,11 @@ spec:
                   name: db
           - name: DbConfig__LexBoxConnectionString
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
+          - name: Authentication__Jwt__Secret
+            valueFrom:
+              secretKeyRef:
+                  key: Authentication__Jwt__Secret
+                  name: lexbox-api
           - name: HasuraConfig__HasuraUrl
             value: http://hasura:8080/v1/graphql
           - name: HasuraConfig__HasuraSecret
@@ -80,6 +85,11 @@ spec:
             value: http://hgweb:80
           - name: Clusters__resumable-web__Destinations__resumable-web-server__Address
             value: http://hg-resumable:80
+          - name: CloudFlare__TurnstileKey
+            valueFrom:
+              secretKeyRef:
+                  key: CloudFlare__TurnstileKey
+                  name: lexbox-api
 
       volumes:
       - name: repos
