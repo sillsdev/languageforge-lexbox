@@ -13,12 +13,12 @@ files related to a specific service should be in a folder named after the servic
 There are some exceptions:
 * `LexBox.sln` visual studio expects the sln to be at the root of the repo and can make things difficult otherwise
 
-Other files, like docker-compose, should be at the root of the repo, because they're related to all services.
+Other files, like `docker-compose.yaml`, should be at the root of the repo, because they're related to all services.
 
 ## Development
 
 ### Prerequisites
- * docker and docker-compose
+ * docker and compose
 #### for local dev also:
  * node version 18+
  * dotnet 7 sdk
@@ -26,14 +26,14 @@ Other files, like docker-compose, should be at the root of the repo, because the
 ### Docker workflow
 
 ```bash
-docker-compose up -d proxy
+docker compose up -d proxy
 ```
-You might run into some issues with ports already being used, you can change the ports in the docker-compose file if you need to.
+You might run into some issues with ports already being used, you can change the ports in the `docker-compose.yaml` file if you need to.
 Try some of the helpful urls below to determine whether api is responding or not.
 
 ### Local workflow
 ```bash
-docker-compose up -d db hasura otel-collector maildev
+docker compose up -d db hasura otel-collector maildev
 ```
 then you will want to execute in 2 separate consoles:
 
