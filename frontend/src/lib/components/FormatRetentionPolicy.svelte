@@ -1,14 +1,20 @@
 <script lang="ts">
-	import t from '$lib/i18n'
+	import { RetentionPolicy } from '$lib/gql/graphql';
+	import t from '$lib/i18n';
 
-	export let policy: number
+	export let policy: number | RetentionPolicy;
 
-	const policies = {
+	const policies: Record<number | RetentionPolicy, string | undefined> = {
 		1: $t('retention_policy.language-project'),
 		2: $t('retention_policy.test'),
 		3: $t('retention_policy.dev'),
 		4: $t('retention_policy.training'),
-	}
+		[RetentionPolicy.Verified]: $t('retention_policy.language-project'),
+		[RetentionPolicy.Test]: $t('retention_policy.test'),
+		[RetentionPolicy.Dev]: $t('retention_policy.dev'),
+		[RetentionPolicy.Training]: $t('retention_policy.training'),
+		[RetentionPolicy.Unknown]: $t('unknown'),
+	};
 </script>
 
-{ policies[policy] || $t('unknown') }
+{policies[policy] || $t('unknown')}

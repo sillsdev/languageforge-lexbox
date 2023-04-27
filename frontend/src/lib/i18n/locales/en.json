@@ -39,6 +39,7 @@
 	"project": {
 		"create": {
 			"code": "Project Code",
+			"code_exists": "Project code already used",
 			"code_too_short": "Project code must be at least 4 characters",
 			"custom-code": "Custom Code",
 			"language-code": "Language Code",

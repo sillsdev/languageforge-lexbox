@@ -63,12 +63,20 @@ input BooleanComparisonExp {
   _nin: [Boolean!]
 }
 
+union CreateProjectError = DbError
+
 input CreateProjectInput {
   code: String!
   description: String!
+  id: UUID
   name: String!
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
+}
+
+type CreateProjectPayload {
+  errors: [CreateProjectError!]
+  project: Project
 }
 
 """ordering argument of a cursor"""
@@ -83,7 +91,13 @@ enum CursorOrdering {
 scalar DateTime @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
 
 type DbError implements Error {
+  code: DbErrorCode!
   message: String!
+}
+
+enum DbErrorCode {
+  DUPLICATE
+  UNKNOWN
 }
 
 interface Error {
@@ -126,7 +140,7 @@ type LexBox_ProjectUsers {
 
 type Mutation {
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
-  createProject(input: CreateProjectInput!): Project
+  createProject(input: CreateProjectInput!): CreateProjectPayload!
 
   """
   delete data from the table: "ProjectUsers"
@@ -377,7 +391,10 @@ enum ProjectRole {
 
 enum ProjectType {
   FL_EX
+  ONE_STORY_EDITOR
+  OUR_WORD
   UNKNOWN
+  WE_SAY
 }
 
 """
@@ -475,6 +492,11 @@ input ProjectUsersBoolExp {
 unique or primary key constraints on table "ProjectUsers"
 """
 enum ProjectUsersConstraint {
+  """
+  unique or primary key constraint on columns "ProjectId", "UserId"
+  """
+  IX_ProjectUsers_UserId_ProjectId
+
   """
   unique or primary key constraint on columns "Id"
   """
@@ -1286,6 +1308,7 @@ input RemoveProjectMemberInput {
 enum RetentionPolicy {
   DEV
   TEST
+  TRAINING
   UNKNOWN
   VERIFIED
 }

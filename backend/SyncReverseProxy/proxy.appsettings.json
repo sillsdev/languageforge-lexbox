@@ -15,8 +15,13 @@
         "ClusterId": "hg-web",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
-          "Path": "/hg/{project-code}"
-        }
+          "Path": "/{project-code}"
+        },
+        "Transforms": [
+          {
+            "PathPrefix": "/hg"
+          }
+        ]
       },
       "hg-web-view": {
         "Order": 11,
