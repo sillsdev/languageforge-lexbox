@@ -39,7 +39,7 @@ There will also be a single project, Sena 3. But the repo needs to be setup, to 
 docker-compose up -d proxy
 ```
 
-Try some of the helpful urls below to determine whether api is responding or not.
+The full app will be running on http://localhost after everything starts.
 
 ### Local workflow
 ```bash
