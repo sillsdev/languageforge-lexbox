@@ -5,8 +5,15 @@
       <map>
         <entry key="Common:buildConfiguration" value="Debug" />
         <entry key="Common:c39b887d-5551-4903-9398-4093426f42f2:dbContext" value="LexData.LexBoxDbContext" />
+        <entry key="Common:dbContextFolder" value="Redmine" />
+        <entry key="Common:dbContextName" value="RedmineDbContext" />
+        <entry key="Common:generateOnConfiguring" value="true" />
         <entry key="Common:noBuild" value="false" />
         <entry key="Common:outputFolder" value="Migrations" />
+        <entry key="Common:provider" value="MySql.EntityFrameworkCore" />
+        <entry key="Common:useAttributes" value="false" />
+        <entry key="Common:useDatabaseNames" value="false" />
+        <entry key="Common:usePluralizer" value="true" />
       </map>
     </option>
   </component>
