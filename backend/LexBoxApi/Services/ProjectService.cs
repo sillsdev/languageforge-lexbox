@@ -8,9 +8,9 @@ namespace LexBoxApi.Services;
 public class ProjectService
 {
     private readonly LexBoxDbContext _dbContext;
-    private readonly HgService _hgService;
+    private readonly IHgService _hgService;
 
-    public ProjectService(LexBoxDbContext dbContext, HgService hgService)
+    public ProjectService(LexBoxDbContext dbContext, IHgService hgService)
     {
         _dbContext = dbContext;
         _hgService = hgService;
