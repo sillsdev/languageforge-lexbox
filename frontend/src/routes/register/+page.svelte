@@ -19,12 +19,12 @@
         if (!$valid) return;
         const {user, error} = await register($form.password, $form.name, $form.email, turnstileToken);
         if (error) {
-			if (error.turnstile) {
-				$message = $t('register.turnstile_error');
-			}
-			if (error.accountExists) {
-				$message = $t('register.account_exists');
-			}
+            if (error.turnstile) {
+                $message = $t('register.turnstile_error');
+            }
+            if (error.accountExists) {
+                $message = $t('register.account_exists');
+            }
             return;
         }
         if (user) {
