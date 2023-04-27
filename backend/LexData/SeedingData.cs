@@ -6,6 +6,7 @@ namespace LexData;
 
 public class SeedingData
 {
+    public static readonly Guid KindLionId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     private readonly LexBoxDbContext _lexBoxDbContext;
 
     public SeedingData(LexBoxDbContext lexBoxDbContext)
@@ -33,7 +34,7 @@ public class SeedingData
 
         _lexBoxDbContext.Attach(new User
         {
-            Id = new Guid("cf430ec9-e721-450a-b6a1-9a853212590b"),
+            Id = KindLionId,
             Email = "KindLion@test.com",
             Name = "Kind Lion",
             Username = "KindLion",

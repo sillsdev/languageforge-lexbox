@@ -5,6 +5,6 @@ namespace LexData.Configuration;
 public class DbConfig
 {
     [Required]
-    public required string LexBoxConnectionString { get; init; }
+    public required string LexBoxConnectionString { get; set; }
     public string? RedmineConnectionString { get; init; }
 }

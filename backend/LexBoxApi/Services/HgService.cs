@@ -6,7 +6,13 @@ using Path = System.IO.Path;
 
 namespace LexBoxApi.Services;
 
-public class HgService
+public interface IHgService
+{
+    Task InitRepo(string code);
+    Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode);
+}
+
+public class HgService : IHgService
 {
     private readonly IOptions<HgConfig> _options;
     private readonly IHttpClientFactory _clientFactory;
