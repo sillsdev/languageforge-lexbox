@@ -8,7 +8,6 @@ public class LexBoxDbContext: DbContext
 {
     public LexBoxDbContext(DbContextOptions<LexBoxDbContext> options): base(options)
     {
-        
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

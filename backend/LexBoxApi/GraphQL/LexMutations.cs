@@ -17,14 +17,14 @@ public class LexMutations
         _loggedInContext = loggedInContext;
     }
 
-    [UseFirstOrDefault]
-    [UseProjection]
-    public async Task<IExecutable<Project>> CreateProject(CreateProjectInput input,
+    [Error<DbError>]
+    [UseMutationConvention]
+    public async Task<Project?> CreateProject(CreateProjectInput input,
         [Service] ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.CreateProject(input, _loggedInContext.User.Id);
-        return dbContext.Projects.Where(p => p.Id == projectId).AsExecutable();
+        return await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
     }
 
     [Error<NotFoundException>]

@@ -19,7 +19,7 @@ public class ProjectService
     public async Task<Guid> CreateProject(CreateProjectInput input, Guid userId)
     {
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-        var projectId = Guid.NewGuid();
+        var projectId = input.Id ?? Guid.NewGuid();
         _dbContext.Projects.Add(
             new Project
             {

@@ -4,6 +4,12 @@ using Npgsql;
 
 namespace LexData;
 
+public enum DbErrorCode
+{
+    Unknown,
+    Duplicate,
+}
+
 public class DbError
 {
     public static DbError CreateErrorFrom(NpgsqlException exception)
@@ -15,7 +21,7 @@ public class DbError
     {
         return exception.SqlState switch
         {
-            PostgresErrorCodes.UniqueViolation => new DbError($"{exception.TableName.Humanize().Singularize(false)} already exists"),
+            PostgresErrorCodes.UniqueViolation => new DbError($"{exception.TableName.Humanize().Singularize(false)} already exists", DbErrorCode.Duplicate),
             _ => new DbError(exception.Message)
         };
     }
@@ -30,10 +36,12 @@ public class DbError
         };
     }
 
-    public DbError(string message)
+    public DbError(string message, DbErrorCode code = DbErrorCode.Unknown)
     {
         Message = message;
+        Code = code;
     }
 
     public string Message { get; }
+    public DbErrorCode Code { get; }
 }
