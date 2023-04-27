@@ -36,6 +36,20 @@
 		"page_header": "Log in",
 		"password_missing": "Password missing"
 	},
+	"project": {
+		"create": {
+			"code": "Project Code",
+			"code_too_short": "Project code must be at least 4 characters",
+			"custom-code": "Custom Code",
+			"language-code": "Language Code",
+			"language_code_too_short": "Language code must be at least 3 characters",
+			"name": "Name",
+			"name_missing": "Project name required",
+			"retention-policy": "Retention Policy",
+			"submit": "Create Project",
+			"type": "Type"
+		}
+	},
 	"project_page": {
 		"add_user": {
 			"add_button": "Add Member",
@@ -61,7 +75,11 @@
 		"manager_description": "Manager (can sync & share)"
 	},
 	"project_type": {
-		"flex": "FLEx"
+		"flex": "FLEx",
+		"oneStoryEditor": "OneStory Editor",
+		"other": "Other",
+		"ourWord": "OurWord",
+		"weSay": "WeSay"
 	},
 	"projectlist": {
 		"last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
@@ -81,8 +99,10 @@
 		"turnstile_error": "Captcha Error, try again"
 	},
 	"retention_policy": {
-		"dev": "Dev",
-		"test": "Test",
+		"dev": "Software Developer",
+		"language-project": "Language Project",
+		"test": "Testing",
+		"training": "Training",
 		"verified": "Verified"
 	},
 	"unknown": "Unknown",

@@ -15,4 +15,7 @@ public enum ProjectType
 {
     Unknown = 0,
     FLEx = 1,
+    WeSay = 2,
+    OneStoryEditor = 3,
+    OurWord = 4
 }

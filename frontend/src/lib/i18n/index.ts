@@ -20,7 +20,7 @@ export async function loadI18n() {
 
 type InterpolationValues = Record<string, string | number | Date>;
 const t = derived(translate, tFunc => {
-    return (key: NestedKeyOf<typeof enType>, values?: InterpolationValues) => tFunc({
+    return (key: string, values?: InterpolationValues) => tFunc({
         id: key,
         values
     });

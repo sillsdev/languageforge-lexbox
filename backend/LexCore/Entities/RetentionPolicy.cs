@@ -8,5 +8,6 @@ public enum RetentionPolicy
     Unknown = 0,
     Verified = 1,
     Test = 2,
-    Dev = 3
+    Dev = 3,
+    Training = 4,
 }
