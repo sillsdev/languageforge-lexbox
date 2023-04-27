@@ -92,7 +92,6 @@
 			<option value={ProjectType.WeSay}>{$t('project_type.weSay')}</option>
 			<option value={ProjectType.OneStoryEditor}>{$t('project_type.oneStoryEditor')}</option>
 			<option value={ProjectType.OurWord}>{$t('project_type.ourWord')}</option>
-			<option value={ProjectType.Unknown}>{$t('project_type.other')}</option>
 		</Select>
 
 		<Select
