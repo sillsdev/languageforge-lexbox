@@ -1,9 +1,8 @@
 <script lang="ts">
     import {Page} from '$lib/layout';
     import t from '$lib/i18n';
-    import {Input, ProtectedForm, lexSuperForm, lexSuperValidate} from '$lib/forms';
+    import {Input, ProtectedForm, lexSuperForm, lexSuperValidate, Button} from '$lib/forms';
     import {z} from 'zod';
-    import Button from '$lib/forms/Button.svelte';
     import {register} from '$lib/user';
     import {goto} from '$app/navigation';
 
