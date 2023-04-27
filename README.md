@@ -51,8 +51,8 @@ dotnet watch
 ### Helpful urls
 * http://localhost:5173 - sveltekit frontend
 * http://localhost:5158/api/swagger - swagger docs for the api
-* http://localhost:5158/api/graphiql/ui - graphiql UI
-* http://localhost:5158/api/graphiql - graphiql endpoint
+* http://localhost:5158/api/graphql/ui - graphiql UI
+* http://localhost:5158/api/graphql - graphiql endpoint
 * http://localhost:8088/hg - hg web UI add the project code and use the url in FLEx to clone
 * http://localhost:1080 - maildev UI
 
