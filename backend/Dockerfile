@@ -16,10 +16,13 @@ RUN dotnet restore "LexBoxApi/LexBoxApi.csproj"
 # COPY . .
 # WORKDIR "/LexBoxApi"
 
-RUN dotnet build "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/build
+ARG APP_VERSION
+LABEL version=$APP_VERSION
+
+RUN dotnet build /p:InformationalVersion=$APP_VERSION "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/publish
+RUN dotnet publish /p:InformationalVersion=$APP_VERSION "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

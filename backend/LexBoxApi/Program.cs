@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using LexBoxApi;
 using LexBoxApi.Auth;
 using LexBoxApi.Otel;
+using LexBoxApi.Services;
 using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.HttpLogging;
@@ -49,6 +50,12 @@ builder.Services.AddLexData();
 builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
+    await next();
+});
 
 // Configure the HTTP request pipeline.
 //for now allow this to run in prod, maybe later we want to disable it.

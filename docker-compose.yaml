@@ -7,6 +7,8 @@ services:
     build:
       context: backend
       dockerfile: LexBoxApi/dev.Dockerfile
+      args:
+        AppVersion: docker-dev
     ports:
       - "5158:5158" # 5158 exposed here for dev tools, and the runtime should only expose 80
     # https://docs.docker.com/compose/compose-file/#depends_on

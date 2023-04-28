@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Security.Claims;
+using LexBoxApi.Services;
 using LexCore.Auth;
 using Npgsql;
 using OpenTelemetry.Metrics;
@@ -17,7 +18,7 @@ public static class OtelKernel
     {
         var appResourceBuilder = ResourceBuilder.CreateDefault()
             .AddEnvironmentVariableDetector()
-            .AddService(ServiceName);
+            .AddService(ServiceName, serviceVersion: AppVersionService.Version);
         services.AddOpenTelemetry().WithTracing(tracerProviderBuilder =>
             tracerProviderBuilder
                 // Debugging
