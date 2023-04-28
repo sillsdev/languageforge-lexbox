@@ -79,7 +79,7 @@ app.MapGraphQLHttp("/api/graphql");
 app.MapControllers();
 
 //disabled in dev because it'll make it hard to trace routing errors
-if (app.Environment.IsProduction())
+if (!app.Environment.IsDevelopment())
     app.MapSyncProxy(AuthKernel.DefaultScheme);
 
 app.Run();
