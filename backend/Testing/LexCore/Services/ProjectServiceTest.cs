@@ -25,7 +25,7 @@ public class ProjectServiceTest : IClassFixture<TestingServicesFixture>
     public async Task CanCreateProject()
     {
         var projectId = await _projectService.CreateProject(
-            new("TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test),
+            new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test),
             SeedingData.KindLionId
         );
         projectId.ShouldNotBe(default);
@@ -36,12 +36,12 @@ public class ProjectServiceTest : IClassFixture<TestingServicesFixture>
     {
         //first project should be created
         await _projectService.CreateProject(
-            new("TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test),
+            new(null, "TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test),
             SeedingData.KindLionId
         );
 
         var exception = await _projectService.CreateProject(
-            new("Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev),
+            new(null, "Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev),
             SeedingData.KindLionId
         ).ShouldThrowAsync<DbUpdateException>();
 
