@@ -39,7 +39,8 @@ spec:
     spec:
       containers:
       - name: lexbox-api
-        image: ghcr.io/sillsdev/lexbox-api
+        # TODO: need to parameterize this tag
+        image: ghcr.io/sillsdev/lexbox-api:develop
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -90,6 +91,25 @@ spec:
               secretKeyRef:
                   key: CloudFlare__TurnstileKey
                   name: lexbox-api
+          - name: Email__SmtpHost
+            value: smtp.example.org
+          - name: Email__SmtpPort
+            value: '25'
+          - name: Email__SmtpUser
+            valueFrom:
+              secretKeyRef:
+                  key: SMTP_USER
+                  name: email
+          - name: Email__SmtpPassword
+            valueFrom:
+              secretKeyRef:
+                  key: SMTP_PASSWORD
+                  name: email
+          - name: Email__From
+            # TODO: need to parameterize this
+            value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
+          - name: Email__EmailRenderHost
+            value: ui:3000
 
       volumes:
       - name: repos
