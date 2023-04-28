@@ -1,4 +1,4 @@
-name: Build and publish a lexbox api image
+name: Build and publish a hgweb image
 
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
 on:
@@ -29,4 +29,4 @@ jobs:
         with:
           context: hgweb
           push: true
-          tags: ghcr.io/sillsdev/lexbox-api
+          tags: ghcr.io/sillsdev/lexbox-hgweb
