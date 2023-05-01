@@ -50,6 +50,17 @@ spec:
       containers:
       - name: db
         image: postgres:15-alpine
+        # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+        readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - '-U'
+                - postgres
+            failureThreshold: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 5
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing

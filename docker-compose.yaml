@@ -91,7 +91,7 @@ services:
       - "5433:5432" # 5433 exposed here for dev tools
     volumes:
       - db-data:/var/lib/postgresql
-    healthcheck: # TODO: do we need this in k8s?
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
