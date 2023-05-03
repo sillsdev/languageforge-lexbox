@@ -7,12 +7,12 @@
 {#if projects.length > 1}
     <div class="grid grid-cols-3 gap-4">
         {#each projects as project}
-            <div class="card bg-base-200">
+            <a class="card bg-neutral hover:bg-neutral-focus" href={`/project/${project.code}`}>
                 <div class="card-body">
                     <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
-                        <a class="link" href={`/project/${project.code}`}>
+                        <span class="link">
                             {project.name}
-                        </a>
+                        </span>
                     </h2>
 
                     <p>{project.code}</p>
@@ -31,8 +31,14 @@
                         {/if}
                     </p>
                 </div>
-            </div>
+            </a>
         {/each}
+        <a class="card hover:bg-neutral-focus bg-neutral relative" href="/project/create">
+            <div class="card-body mx-auto justify-center items-center">
+                <span class="i-mdi-plus text-4xl"/>
+                <span class="link text-xl">Create Project</span>
+            </div>
+        </a>
     </div>
 {:else}
     <span>You don't have any projects</span>
