@@ -28,7 +28,7 @@
             return;
         }
         if (user) {
-            goto('/');
+            await goto('/');
             return;
         }
         throw new Error('Unknown error, no error from server, but also no user.');

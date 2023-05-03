@@ -1,10 +1,11 @@
-<script lang ts>
+<script lang="ts">
 	import { Button, Form, Input, lexSuperForm, lexSuperValidate } from '$lib/forms';
 	import t from '$lib/i18n';
 	import { Page } from '$lib/layout';
-	import { login, logout } from '$lib/user';
+	import {login, logout, user} from '$lib/user';
 	import { onMount } from 'svelte';
 	import { z } from 'zod';
+	import {goto} from "$app/navigation";
 
 	const formSchema = z.object({
 		email: z.string().min(1, $t('login.missing_user_info')),
@@ -20,7 +21,8 @@
 		if (!$valid) return;
 
 		if (await login($form.email, $form.password)) {
-			return (window.location.pathname = '/'); // force server hit for httpOnly cookies
+			await goto($user?.role == 'admin' ? '/admin' : '/')
+			return;
 		}
 
 		$message = $t('login.bad_credentials');

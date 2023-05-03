@@ -32,7 +32,7 @@ export async function login(user_id: string, password: string, protection_token:
             preHashedPassword: true,
         }),
     })
-
+    user.set(jwtToUser(await response.json()));
     return response.ok
 }
 type RegisterResponse = {error?: {turnstile: boolean, accountExists: boolean}, user?: LexAuthUser};
@@ -54,7 +54,7 @@ export async function register(password: string, name: string, email: string, tu
         const error = responseJson.errors;
         return {error: {turnstile: 'TurnstileToken' in error, accountExists: 'Email' in error}};
     }
-    const userJson: LexAuthUser = responseJson as LexAuthUser;
+    const userJson: LexAuthUser = jwtToUser(responseJson);
     user.set(userJson);
     return {user: userJson};
 }
@@ -66,7 +66,11 @@ export function get_user(cookies: Cookies): LexAuthUser | null {
         return null
     }
 
-    const {sub: id, name, email, proj: projects, role} = jwtDecode<any>(token)
+    return jwtToUser(jwtDecode<any>(token));
+}
+
+function jwtToUser(user: any): LexAuthUser {
+    const {sub: id, name, email, proj: projects, role} = user;
 
     return {
         id,
