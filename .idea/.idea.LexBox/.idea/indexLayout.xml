@@ -9,6 +9,8 @@
     <explicitIncludes>
       <Path>hg-web</Path>
     </explicitIncludes>
-    <explicitExcludes />
+    <explicitExcludes>
+      <Path>frontend/.svelte-kit/output</Path>
+    </explicitExcludes>
   </component>
 </project>

@@ -5,45 +5,36 @@
 * backend - contains dotnet api
 * frontend - contains svelte
 * hasura - contains hasura metadata
+* hgweb - contains hgweb Dockerfile and config
+* otel - contains open telemitry collector config
+* deployment - contains k8s config for staging and prod
 
 files related to a specific service should be in a folder named after the service.
 There are some exceptions:
 * `LexBox.sln` visual studio expects the sln to be at the root of the repo and can make things difficult otherwise
 
-Other files, like docker-compose, should be at the root of the repo, because they're related to all services.
+Other files, like `docker-compose.yaml`, should be at the root of the repo, because they're related to all services.
 
 ## Development
 
 ### Prerequisites
- * docker and docker-compose
+ * docker and compose
 #### for local dev also:
  * node version 18+
  * dotnet 7 sdk
 
-#### Setup
-Some environment secrets need to be setup. The .env file in the root needs to be setup.
-As of writing the honeycomb api key needs to be provided, details are in the env file.
-In `/frontend` copy `.env.example` to `.env`.
-
-this project contains some seed data. The database will have that data loaded automatically.
-The following users are available, password for them all is just `pass`:
-* KindLion@test.com: super admin
-* InnocentMoth@test.com: project manager
-* PlayfulFish@test.com: project editor
-
-There will also be a single project, Sena 3. But the repo needs to be setup, to do that execute `setup.sh` or `setup.bat`.
-
 ### Docker workflow
 
 ```bash
-docker-compose up -d proxy
+docker compose up -d proxy
 ```
-
+You might run into some issues with ports already being used, you can change the ports in the `docker-compose.yaml` file if you need to.
 The full app will be running on http://localhost after everything starts.
+There are some additional urls below to access specific parts of the system.
 
 ### Local workflow
 ```bash
-docker-compose up -d db hasura otel-collector maildev
+docker compose up -d db hasura otel-collector maildev
 ```
 then you will want to execute in 2 separate consoles:
 
@@ -58,15 +49,37 @@ cd backend/LexBoxApi
 dotnet watch
 ```
 ---
-Some helpful urls:
+### Helpful urls
 * http://localhost:5173 - sveltekit frontend
 * http://localhost:5158/api/swagger - swagger docs for the api
-* http://localhost:5158/api/graphiql/ui - graphiql UI
-* http://localhost:5158/api/graphiql - graphiql endpoint
+* http://localhost:5158/api/graphql/ui - graphiql UI
+* http://localhost:5158/api/graphql - graphiql endpoint
 * http://localhost:8088/hg - hg web UI add the project code and use the url in FLEx to clone
 * http://localhost:1080 - maildev UI
 
-#### Hasura workflow
+### Seeded data
+
+Once the database is created by the dotnet backend, it will also seed some data in the database.
+The following users are available, password for them all is just `pass`:
+
+* KindLion@test.com: super admin
+* InnocentMoth@test.com: project manager
+* PlayfulFish@test.com: project editor
+
+There will also be a single project, Sena 3.
+There will not be an hg repository however, see optional setup below if this is desired.
+
+### Optional setup
+
+If you want to test Send & Recieve execute `setup.sh` or `setup.bat`,
+to create the Sena 3 repo for the seed project.
+
+If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
+the `.env` file.
+You can get the key from [here](https://ui.honeycomb.io/sil-language-forge/environments/test/api_keys)
+
+---
+### Hasura workflow
 In order to modify Hasura table relations and permissions in hasura we need to use the hasura console.
 We first will need to install the hasura cli from [here](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) and add it to your path.
 
