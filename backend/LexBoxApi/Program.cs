@@ -50,7 +50,7 @@ builder.Services.AddLexData();
 builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
-
+app.Logger.LogInformation("LexBox-api version: {version}", AppVersionService.Version);
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
