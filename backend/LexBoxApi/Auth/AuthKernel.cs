@@ -38,6 +38,7 @@ public static class AuthKernel
             {
                 options.DefaultScheme = DefaultScheme;
                 options.DefaultChallengeScheme = DefaultScheme;
+                options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddPolicyScheme(DefaultScheme,
                 "Jwt or cookie",
@@ -45,8 +46,9 @@ public static class AuthKernel
                 {
                     options.ForwardDefaultSelector = context =>
                     {
-                        if (context.Request.Headers.ContainsKey("Authorization") &&
-                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer"))
+                        if ((context.Request.Headers.ContainsKey("Authorization") &&
+                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer")) ||
+                            context.Request.Query.ContainsKey("jwt"))
                         {
                             return JwtBearerDefaults.AuthenticationScheme;
                         }
@@ -76,6 +78,18 @@ public static class AuthKernel
                 options.IncludeErrorDetails = true;
                 options.TokenValidationParameters = LexAuthService.TokenValidationParameters(jwtOptions);
                 options.MapInboundClaims = false;
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        if (context.Request.Query.TryGetValue("jwt", out var jwt))
+                        {
+                            context.Token = jwt;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
         services.AddSingleton<JwtTicketDataFormat>();
         //configure cooke auth to use jwt as the ticket format, aka the cookie will be a jwt

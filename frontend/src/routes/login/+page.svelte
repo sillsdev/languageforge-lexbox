@@ -43,6 +43,7 @@
 			autofocus
 			required
 		/>
+		
 
 		<Input
 			id="password"
@@ -52,6 +53,9 @@
 			error={$errors.password}
 			required
 		/>
+		<a class="link mt-0" href="/forgotPassword">
+			{ $t('login.forgot-password') }
+		</a>
 
 		{#if bad_credentials}
 			<aside class="alert alert-error">

@@ -2,8 +2,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using LexBoxApi.Services;
 using LexCore;
 using LexCore.Auth;
+using LexCore.Entities;
 using LexData;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +18,13 @@ public class LexAuthService
 {
     private readonly IOptions<JwtOptions> _userOptions;
     private readonly LexBoxDbContext _lexBoxDbContext;
+    private readonly EmailService _emailService;
 
-    public LexAuthService(IOptions<JwtOptions> userOptions, LexBoxDbContext lexBoxDbContext)
+    public LexAuthService(IOptions<JwtOptions> userOptions, LexBoxDbContext lexBoxDbContext, EmailService emailService)
     {
         _userOptions = userOptions;
         _lexBoxDbContext = lexBoxDbContext;
+        _emailService = emailService;
     }
 
     public static TokenValidationParameters TokenValidationParameters(JwtOptions jwtOptions, bool forRefresh = false)
@@ -33,10 +37,8 @@ public class LexAuthService
             IssuerSigningKey = GetSigningKey(jwtOptions),
             ValidAudience = forRefresh ? jwtOptions.RefreshAudience : jwtOptions.Audience,
             ValidIssuer = jwtOptions.Issuer,
-
             RequireSignedTokens = true,
             RequireExpirationTime = true,
-
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -48,14 +50,32 @@ public class LexAuthService
         return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret));
     }
 
+    public async Task ForgotPassword(string email)
+    {
+        var (lexAuthUser, user) = await GetUser(email);
+        // we want to silently return if the user doesn't exist, so we don't leak information.
+        if (lexAuthUser is null) return;
+        var (jwt, _) = GenerateJwt(lexAuthUser);
+        await _emailService.SendForgotPasswordEmail(jwt, user);
+    }
+
     public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
-        var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
-            .FirstOrDefaultAsync(user => user.Email == loginRequest.EmailOrUsername || user.Username == loginRequest.EmailOrUsername);
+        var (lexAuthUser, user) = await GetUser(loginRequest.EmailOrUsername);
         if (user == null) return null;
 
-        var validPassword = PasswordHashing.IsValidPassword(loginRequest.Password, user.Salt, user.PasswordHash, loginRequest.PreHashedPassword);
-        return validPassword ? new LexAuthUser(user) : null;
+        var validPassword = PasswordHashing.IsValidPassword(loginRequest.Password,
+            user.Salt,
+            user.PasswordHash,
+            loginRequest.PreHashedPassword);
+        return validPassword ? lexAuthUser : null;
+    }
+
+    private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
+    {
+        var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
+            .FirstOrDefaultAsync(user => user.Email == emailOrUsername || user.Username == emailOrUsername);
+        return (user == null ? null : new LexAuthUser(user), user);
     }
 
     public (string token, TimeSpan tokenLifetime) GenerateJwt(LexAuthUser user)
@@ -69,7 +89,9 @@ public class LexAuthService
         return GenerateToken(user, _userOptions.Value.RefreshAudience, _userOptions.Value.RefreshLifetime);
     }
 
-    private (string token, TimeSpan tokenLifetime) GenerateToken(LexAuthUser user, string audience, TimeSpan tokenLifetime)
+    private (string token, TimeSpan tokenLifetime) GenerateToken(LexAuthUser user,
+        string audience,
+        TimeSpan tokenLifetime)
     {
         var jwtDate = DateTime.UtcNow;
         var options = _userOptions.Value;

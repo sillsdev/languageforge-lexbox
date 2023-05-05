@@ -2,9 +2,8 @@
 using LexBoxApi.Config;
 using LexBoxApi.Otel;
 using LexBoxApi.Services.Email;
-using LexData;
+using LexCore.Entities;
 using MailKit.Net.Smtp;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
@@ -15,27 +14,32 @@ namespace LexBoxApi.Services;
 public class EmailService
 {
     private readonly EmailConfig _emailConfig;
-    private readonly LexBoxDbContext _dbContext;
     private readonly IHttpClientFactory _clientFactory;
+    private readonly LinkGenerator _linkGenerator;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public EmailService(IOptions<EmailConfig> emailConfig, LexBoxDbContext dbContext, IHttpClientFactory clientFactory)
+    public EmailService(IOptions<EmailConfig> emailConfig,
+        IHttpClientFactory clientFactory,
+        LinkGenerator linkGenerator,
+        IHttpContextAccessor httpContextAccessor)
     {
-        _dbContext = dbContext;
         _clientFactory = clientFactory;
+        _linkGenerator = linkGenerator;
+        _httpContextAccessor = httpContextAccessor;
         _emailConfig = emailConfig.Value;
     }
 
-    public async Task<bool> SendForgotPasswordEmail(string email)
+    public async Task SendForgotPasswordEmail(string jwt, User user)
     {
-        var user = await _dbContext.Users.SingleOrDefaultAsync(u => u.Email == email);
-        // we want to silently return if the user doesn't exist, so we don't leak information.
-        if (user is null) return false;
         var message = new MimeMessage();
         message.To.Add(new MailboxAddress(user.Name, user.Email));
-        // todo generate jwt for password reset.
-        await RenderEmail(message, new ForgotPasswordEmail(user.Name, "https://lexbox.org"));
+        var httpContext = _httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+        // returnTo is a svelte app url
+        var forgotLink = _linkGenerator.GetUriByAction(httpContext, "Login", "Login", new { jwt, returnTo = "/resetPassword" });
+        ArgumentException.ThrowIfNullOrEmpty(forgotLink);
+        await RenderEmail(message, new ForgotPasswordEmail(user.Name, forgotLink));
         await SendEmailAsync(message);
-        return true;
     }
 
     private async Task SendEmailAsync(MimeMessage message)

@@ -21,6 +21,17 @@ public class LoginController : ControllerBase
         _emailService = emailService;
     }
 
+    [HttpGet("loginRedirect")]
+    [Authorize]
+    public async Task<ActionResult> LoginRedirect(
+        string jwt, // This is required because auth looks for a jwt in the query string
+        string returnTo)
+    {
+        await HttpContext.SignInAsync(User,
+            new AuthenticationProperties { IsPersistent = true });
+        return Redirect(returnTo);
+    }
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -34,6 +45,13 @@ public class LoginController : ControllerBase
         return user;
     }
 
+    [HttpPost("logout")]
+    public async Task<ActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync();
+        return Ok();
+    }
+
     [HttpGet("hashPassword")]
     [AdminRequired]
     public ActionResult<string> HashPassword(string pw, string salt)
@@ -44,7 +62,13 @@ public class LoginController : ControllerBase
     [HttpPost("forgotPassword")]
     public async Task<ActionResult> ForgotPassword(string email)
     {
-        await _emailService.SendForgotPasswordEmail(email);
+        await _lexAuthService.ForgotPassword(email);
+        return Ok();
+    }
+
+    [HttpPost("resetPassword")]
+    public async Task<ActionResult> ResetPassword(string email, string token, string newPassword)
+    {
         return Ok();
     }
 }

@@ -32,8 +32,11 @@ export async function login(user_id: string, password: string, protection_token:
             preHashedPassword: true,
         }),
     })
+    if (!response.ok) {
+        return false;
+    }
     user.set(jwtToUser(await response.json()));
-    return response.ok
+    return true;
 }
 type RegisterResponse = {error?: {turnstile: boolean, accountExists: boolean}, user?: LexAuthUser};
 export async function register(password: string, name: string, email: string, turnstileToken: string): Promise<RegisterResponse> {

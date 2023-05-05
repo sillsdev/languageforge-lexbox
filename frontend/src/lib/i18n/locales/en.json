@@ -27,10 +27,14 @@
 		"remove": "Remove {entityName}"
 	},
 	"environment-warning": "This is the {environmentName} environment. Please confirm you are in the right place.",
+	"forgot_password": {
+		"send_email": "Send reset email"
+	},
 	"login": {
 		"bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
 		"button_login": "Log in",
 		"button_login_again": "Try to log in again?",
+		"forgot-password": "Forgot password?",
 		"label_email": "Email (or Send/Receive username)",
 		"label_password": "Password",
 		"missing_user_info": "User info missing",
