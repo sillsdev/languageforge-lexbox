@@ -6,6 +6,7 @@ using LexBoxApi.Services;
 using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.OpenApi.Models;
 
@@ -51,6 +52,17 @@ builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 app.Logger.LogInformation("LexBox-api version: {version}", AppVersionService.Version);
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.All,
+    AllowedHosts =
+    {
+        "localhost",
+        "languagedepot.org",
+        "*.languagedepot.org",
+        "*.languageforge.org"
+    }
+});
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
@@ -73,7 +85,6 @@ app.Use(async (context, next) =>
         options.EnableTryItOutByDefault();
     });
 }
-
 app.UseAuthentication();
 app.UseAuthorization();
 
