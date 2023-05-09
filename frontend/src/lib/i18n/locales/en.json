@@ -104,6 +104,10 @@
 		"title": "Register",
 		"turnstile_error": "Captcha Error, try again"
 	},
+	"reset-password": {
+		"new-password": "New Password",
+		"submit": "Reset Password"
+	},
 	"retention_policy": {
 		"dev": "Software Developer",
 		"language-project": "Language Project",

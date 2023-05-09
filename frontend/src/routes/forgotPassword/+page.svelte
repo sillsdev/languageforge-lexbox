@@ -16,7 +16,7 @@
         await lexSuperValidate($form, formSchema, update);
         if (!$valid) return;
         await fetch(`api/login/forgotPassword?email=${$form.email}`, {method: 'POST'});
-        goto('emailSent');
+        goto('/forgotPassword/emailSent');
     }
 </script>
 

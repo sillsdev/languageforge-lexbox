@@ -97,7 +97,7 @@ function clear() {
     user.set(null)
 }
 
-async function hash(password: string) {
+export async function hash(password: string): Promise<string> {
     const msgUint8 = new TextEncoder().encode(password) // encode as (utf-8) Uint8Array
     const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
     const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array

@@ -22,7 +22,7 @@ public static class PasswordHashing
     }
 
     //this is a re-implementation of the sha1 hexdigest method in ruby
-    //https: //ruby-doc.org/stdlib-2.4.0/libdoc/digest/rdoc/Digest/SHA1.html
+    // https://ruby-doc.org/stdlib-2.4.0/libdoc/digest/rdoc/Digest/SHA1.html
     private static string RubySha1Hash(string text)
     {
         return Convert.ToHexString(

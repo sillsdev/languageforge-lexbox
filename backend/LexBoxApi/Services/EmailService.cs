@@ -36,7 +36,7 @@ public class EmailService
         var httpContext = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         // returnTo is a svelte app url
-        var forgotLink = _linkGenerator.GetUriByAction(httpContext, "Login", "Login", new { jwt, returnTo = "/resetPassword" });
+        var forgotLink = _linkGenerator.GetUriByAction(httpContext, "LoginRedirect", "Login", new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
         await RenderEmail(message, new ForgotPasswordEmail(user.Name, forgotLink));
         await SendEmailAsync(message);
