@@ -16,13 +16,13 @@
 	}>();
 
 	let dialogResponse = writable<DialogResponse | null>(null);
-	let open = false;
+	let open = writable(false);
 	$: closing = $dialogResponse !== null && open;
 	export let bottom = false;
 	export let showCloseButton = true;
 	export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false) {
 		$dialogResponse = null;
-		open = true;
+		$open = true;
 		dispatch('open');
 		const response = await new Promise<DialogResponse>((resolve) => {
 			let unsub: Unsubscriber;
@@ -46,22 +46,39 @@
 	}
 	export function submitModal() {
 		$dialogResponse = DialogResponse.Submit;
+		//a promise that will resolve when the modal is closed, or openModal is called again
+		return new Promise<void>(resolve => {
+			let unsubOpen: Unsubscriber;
+			unsubOpen = open.subscribe(open => {
+				if (!open) {
+					unsubOpen();
+					resolve();
+				}
+			});
+			let unsubResponse: Unsubscriber;
+			unsubResponse = dialogResponse.subscribe((reason) => {
+				if (reason === null) {
+					unsubResponse();
+					resolve();
+				}
+			});
+		});
 	}
 
 	export function close() {
-		open = false;
+		$open = false;
 	}
 
 	$: if ($dialogResponse === DialogResponse.Submit) {
 		dispatch('submit');
 	}
-	$: if (!open && $dialogResponse !== null) {
+	$: if (!$open && $dialogResponse !== null) {
 		dispatch('close', $dialogResponse);
 	}
 	let dialog: HTMLDialogElement | undefined;
 	//dialog will still work if the browser doesn't support it, but this enables focus trapping and other features
 	$: if (dialog) {
-		if (open) {
+		if ($open) {
 			//showModal might be undefined if the browser doesn't support dialog
 			dialog.showModal?.call(dialog);
 		} else {
@@ -69,9 +86,9 @@
 		}
 	}
 </script>
-{#if open}
+{#if $open}
 <!-- using DaisyUI modal https://daisyui.com/components/modal/ -->
-	<div class="modal" class:modal-bottom={bottom} class:modal-open={open}>
+	<div class="modal" class:modal-bottom={bottom} class:modal-open={$open}>
 		<dialog bind:this={dialog} class="modal-box max-w-3xl relative" class:mb-0={bottom}>
 			{#if showCloseButton}
 				<button
@@ -80,7 +97,7 @@
 					on:click={cancelModal}>✕</button
 				>
 			{/if}
-			<slot />
+			<slot {closing} />
 			{#if $$slots.actions}
 				<div class="modal-action">
 					<slot name="actions" {closing} />
