@@ -11,19 +11,14 @@
         email: z.string().email($t('register.email')),
         password: z.string().min(1, $t('register.password_missing')),
     });
-    let {form, errors, valid, update, reset, message} = lexSuperForm(formSchema);
-    let turnstileToken = '';
-
-    async function submit() {
-        await lexSuperValidate($form, formSchema, update);
-        if (!$valid) return;
+    let {form, errors, message, enhance, submitting} = lexSuperForm(formSchema, async ({form}) => {
         const {user, error} = await register($form.password, $form.name, $form.email, turnstileToken);
         if (error) {
             if (error.turnstile) {
                 $message = $t('register.turnstile_error');
             }
             if (error.accountExists) {
-                $message = $t('register.account_exists');
+                form.errors.email = [$t('register.account_exists')];
             }
             return;
         }
@@ -32,13 +27,14 @@
             return;
         }
         throw new Error('Unknown error, no error from server, but also no user.');
-    }
+    });
+    let turnstileToken = '';
 </script>
 
 <Page>
     <svelte:fragment slot="header">{$t('register.title')}</svelte:fragment>
 
-    <ProtectedForm bind:turnstileToken={turnstileToken} on:submit={submit}>
+    <ProtectedForm {enhance} bind:turnstileToken={turnstileToken}>
         <Input
                 id="name"
                 label={$t('register.label_name')}
@@ -67,6 +63,6 @@
                 {$message}
             </aside>
         {/if}
-        <Button>{$t('register.button_register')}</Button>
+        <Button loading={$submitting}>{$t('register.button_register')}</Button>
     </ProtectedForm>
 </Page>

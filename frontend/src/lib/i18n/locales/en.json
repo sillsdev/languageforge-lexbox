@@ -47,6 +47,7 @@
 			"code_exists": "Project code already used",
 			"code_too_short": "Project code must be at least 4 characters",
 			"custom-code": "Custom Code",
+			"description_missing": "Description required",
 			"language-code": "Language Code",
 			"language_code_too_short": "Language code must be at least 3 characters",
 			"name": "Name",

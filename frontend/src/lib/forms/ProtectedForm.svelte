@@ -9,10 +9,10 @@
     import { Turnstile } from 'svelte-turnstile'
 	import Form from './Form.svelte'
 	import {env} from "$env/dynamic/public";
-	import type { EnhancedForm } from "sveltekit-superforms/client";
+	import type { SuperForm } from "sveltekit-superforms/client";
 
 
-	export let enhance: EnhancedForm<any>["enhance"] | undefined = undefined;
+	export let enhance: SuperForm<any>["enhance"] | undefined = undefined;
 
 	const siteKey = env.PUBLIC_TURNSTILE_SITE_KEY;
 	export let turnstileToken: string = '';
