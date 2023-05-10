@@ -4,5 +4,5 @@ import type { PageServerLoad } from './$types'
 export const load = (async ({ cookies }) => {
 	logout(cookies)
 
-	return {}
+	return;
 }) satisfies PageServerLoad
