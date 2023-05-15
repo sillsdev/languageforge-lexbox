@@ -39,7 +39,7 @@
 		<AppBar on:menuopen={ open } />
 
 		<!-- https://tailwindcss.com/docs/typography-plugin -->
-		<main class='max-w-none px-6'>
+		<main class='max-w-none px-2 md:px-6'>
 			<slot />
 		</main>
 	</div>

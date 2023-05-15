@@ -28,6 +28,7 @@
 	<div>
 		<p>
 			<span class="text-2xl">{project.name}</span>
+			<span class="i-mdi-edit cursor-pointer"/>
 		</p>
 
 		<div>
@@ -89,8 +90,7 @@
 
 	<div>
 		<a class="text-xl link" href="/api/hg-view/{project.code}" target="_blank" rel="noreferrer">
-			{$t('project_page.history')}
-			<span class="i-mdi-open-in-new align-middle" />
+			{$t('project_page.history')}<span class="i-mdi-open-in-new align-middle" />
 		</a>
 
 		<HgWeb code={project.code} />

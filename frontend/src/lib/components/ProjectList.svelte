@@ -4,7 +4,7 @@
 
 	export let projects: Project[] = [];
 </script>
-<div class="grid grid-cols-3 gap-4">
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-4">
 	{#each projects as project}
 		<a class="card bg-neutral hover:bg-neutral-focus transition duration-200" href={`/project/${project.code}`}>
 			<div class="card-body">
@@ -35,7 +35,7 @@
 	<a class="card hover:bg-neutral-focus bg-neutral transition duration-200" href="/project/create">
 		<div class="card-body mx-auto justify-center items-center">
 			<span class="i-mdi-plus text-4xl" />
-			<span class="link text-xl">Create Project</span>
+			<span class="link text-xl text-center">Create Project</span>
 		</div>
 	</a>
 </div>
