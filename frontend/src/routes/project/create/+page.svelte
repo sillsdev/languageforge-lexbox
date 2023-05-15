@@ -118,7 +118,7 @@
 				<span class="label-text-alt text-lg text-error mb-2">{$message}</span>
 			</label>
 		{/if}
-		<button type="submit" class="btn btn-primary" class:loading={$submitting}>
+		<button type="submit" class="btn btn-primary mb-2" class:loading={$submitting}>
 			{$t('project.create.submit')}
 		</button>
 	</Form>

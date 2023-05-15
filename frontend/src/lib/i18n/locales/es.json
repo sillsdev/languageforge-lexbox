@@ -1,70 +1,71 @@
 {
-	"admin_dashboard": {
-		"column_code": "Código",
-		"column_created": "Creado",
-		"column_email": "Correo electrónico",
-		"column_last_change": "Ultimo cambio",
-		"column_name": "Nombre",
-		"column_role": "Role",
-		"column_type": "Tipo",
-		"column_users": "Usuarios",
-		"filter_label": "Filtrar",
-		"filter_placeholder": "buscar...",
-		"page_header": "Proyectos",
-		"user_table_title": "Usuarios"
-	},
-	"appbar": {
-		"app_name": "Depósito de idiomas"
-	},
-	"appmenu": {
-		"log_out": "Cerrar sesión"
-	},
-	"login": {
-		"bad_credentials": "Algo salió mal, asegúrese de haber utilizado la información de cuenta correcta.",
-		"button_login": "Acceso",
-		"button_login_again": "¿Intentar iniciar sesión de nuevo?",
-		"label_email": "Correo electrónico (o Enviar/Recibir nombre de usuario)",
-		"label_password": "Contraseña",
-		"missing_user_info": "Falta la información del usuario",
-		"page_header": "Acceso",
-		"password_missing": "Falta la contraseña"
-	},
-	"project_page": {
-		"add_user": {
-			"add_button": "Añadir miembro",
-			"email_required": "¡Email requerido!",
-			"modal_title": "Agregar un usuario a este proyecto",
-			"submit_button": "Añadir miembro"
-		},
-		"history": "Historia",
-		"last_commit": "Última confirmación",
-		"members": "Miembros del proyecto",
-		"missing_description": "Sin descripción",
-		"not_found": "¡Proyecto {code} no encontrado!"
-	},
-	"project_role": {
-		"editor": "Editor",
-		"manager": "Gerente"
-	},
-	"project_type": {
-		"flex": "FLEx"
-	},
-	"projectlist": {
-		"last_change": "Último cambio: {lastChange, date, short} {lastChange, time, short}",
-		"no_changes": "Proyecto Vacío",
-		"shared_with": "Compartido con {memberCount, plural, one {nadie} other {# personas}}"
-	},
-	"retention_policy": {
-		"dev": "desarrollador",
-		"test": "Prueba",
-		"verified": "Verificado"
-	},
-	"unknown": "Desconocido",
-	"user_dashboard": {
-		"page_header": "Mis proyectos"
-	},
-	"user_types": {
-		"admin": "Administración",
-		"user": "Usuario"
-	}
+  "admin_dashboard": {
+    "column_code": "Código",
+    "column_created": "Creado",
+    "column_email": "Correo electrónico",
+    "column_last_change": "Ultimo cambio",
+    "column_name": "Nombre",
+    "column_role": "Role",
+    "column_type": "Tipo",
+    "column_users": "Usuarios",
+    "filter_label": "Filtrar",
+    "filter_placeholder": "buscar...",
+    "page_header": "Proyectos",
+    "user_table_title": "Usuarios"
+  },
+  "appbar": {
+    "app_name": "Depósito de idiomas"
+  },
+  "appmenu": {
+    "log_out": "Cerrar sesión"
+  },
+  "environment-warning": "",
+  "login": {
+    "bad_credentials": "Algo salió mal, asegúrese de haber utilizado la información de cuenta correcta.",
+    "button_login": "Acceso",
+    "button_login_again": "¿Intentar iniciar sesión de nuevo?",
+    "label_email": "Correo electrónico (o Enviar/Recibir nombre de usuario)",
+    "label_password": "Contraseña",
+    "missing_user_info": "Falta la información del usuario",
+    "page_header": "Acceso",
+    "password_missing": "Falta la contraseña"
+  },
+  "project_page": {
+    "add_user": {
+      "add_button": "Añadir miembro",
+      "email_required": "¡Email requerido!",
+      "modal_title": "Agregar un usuario a este proyecto",
+      "submit_button": "Añadir miembro"
+    },
+    "history": "Historia",
+    "last_commit": "Última confirmación",
+    "members": "Miembros del proyecto",
+    "missing_description": "Sin descripción",
+    "not_found": "¡Proyecto {code} no encontrado!"
+  },
+  "project_role": {
+    "editor": "Editor",
+    "manager": "Gerente"
+  },
+  "project_type": {
+    "flex": "FLEx"
+  },
+  "projectlist": {
+    "last_change": "Último cambio: {lastChange, date, short} {lastChange, time, short}",
+    "no_changes": "Proyecto Vacío",
+    "shared_with": "Compartido con {memberCount, plural, one {nadie} other {# personas}}"
+  },
+  "retention_policy": {
+    "dev": "desarrollador",
+    "test": "Prueba",
+    "verified": "Verificado"
+  },
+  "unknown": "Desconocido",
+  "user_dashboard": {
+    "page_header": "Mis proyectos"
+  },
+  "user_types": {
+    "admin": "Administración",
+    "user": "Usuario"
+  }
 }

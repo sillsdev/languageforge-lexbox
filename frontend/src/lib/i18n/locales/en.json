@@ -1,127 +1,127 @@
 {
-	"admin_dashboard": {
-		"column_code": "Code",
-		"column_created": "Created",
-		"column_email": "Email",
-		"column_last_change": "Last Change",
-		"column_name": "Name",
-		"column_role": "Role",
-		"column_type": "Type",
-		"column_users": "Users",
-		"filter_label": "Filter",
-		"filter_placeholder": "search...",
-		"page_header": "Projects",
-		"user_table_title": "Users"
-	},
-	"appbar": {
-		"app_name": "Language Depot"
-	},
-	"appmenu": {
-		"log_out": "Log out"
-	},
-	"close": "Close",
-	"delete_modal": {
-		"delete": "Delete {entityName}",
-		"dont-delete": "Don't delete",
-		"dont-remove": "Don't remove",
-		"remove": "Remove {entityName}"
-	},
-	"environment-warning": "This is the {environmentName} environment. Please confirm you are in the right place.",
-	"forgot_password": {
-		"send_email": "Send reset email"
-	},
-	"login": {
-		"bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
-		"button_login": "Log in",
-		"button_login_again": "Try to log in again?",
-		"forgot-password": "Forgot password?",
-		"label_email": "Email (or Send/Receive username)",
-		"label_password": "Password",
-		"missing_user_info": "User info missing",
-		"page_header": "Log in",
-		"password_missing": "Password missing"
-	},
-	"project": {
-		"create": {
-			"code": "Project Code",
-			"code_exists": "Project code already used",
-			"code_too_short": "Project code must be at least 4 characters",
-			"custom-code": "Custom Code",
-			"description_missing": "Description required",
-			"language-code": "Language Code",
-			"language_code_too_short": "Language code must be at least 3 characters",
-			"name": "Name",
-			"name_missing": "Project name required",
-			"retention-policy": "Retention Policy",
-			"submit": "Create Project",
-			"type": "Type"
-		}
-	},
-	"project_page": {
-		"add_user": {
-			"add_button": "Add Member",
-			"email_required": "Email Required!",
-			"modal_title": "Add a Member to this project",
-			"submit_button": "Add Member"
-		},
-		"confirm-remove": "Would you like to remove {userName} from this project?",
-		"history": "History",
-		"last_commit": "Last Commit ",
-		"members": "Project Members",
-		"missing_description": "No Description",
-		"not_found": "Project {code} not found!",
-		"remove-project-user-title": "Member",
-		"remove-user": "Remove",
-		"set-role": "Role"
-	},
-	"project_role": {
-		"editor": "Editor",
-		"editor_description": "Editor (can sync)",
-		"label": "Role",
-		"manager": "Manager",
-		"manager_description": "Manager (can sync & share)"
-	},
-	"project_type": {
-		"flex": "FLEx",
-		"oneStoryEditor": "OneStory Editor",
-		"other": "Other",
-		"ourWord": "OurWord",
-		"weSay": "WeSay"
-	},
-	"projectlist": {
-		"last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
-		"no_changes": "Project Empty",
-		"shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
-	},
-	"register": {
-		"account_exists": "An account with this email already exists",
-		"button_register": "Register",
-		"email": "Email required",
-		"label_email": "Email",
-		"label_name": "Name",
-		"label_password": "Password",
-		"name_missing": "Name missing",
-		"password_missing": "Password missing",
-		"title": "Register",
-		"turnstile_error": "Captcha Error, try again"
-	},
-	"reset-password": {
-		"new-password": "New Password",
-		"submit": "Reset Password"
-	},
-	"retention_policy": {
-		"dev": "Software Developer",
-		"language-project": "Language Project",
-		"test": "Testing",
-		"training": "Training",
-		"verified": "Verified"
-	},
-	"unknown": "Unknown",
-	"user_dashboard": {
-		"page_header": "My projects"
-	},
-	"user_types": {
-		"admin": "Admin",
-		"user": "User"
-	}
+  "admin_dashboard": {
+    "column_code": "Code",
+    "column_created": "Created",
+    "column_email": "Email",
+    "column_last_change": "Last Change",
+    "column_name": "Name",
+    "column_role": "Role",
+    "column_type": "Type",
+    "column_users": "Users",
+    "filter_label": "Filter",
+    "filter_placeholder": "search...",
+    "page_header": "Projects",
+    "user_table_title": "Users"
+  },
+  "appbar": {
+    "app_name": "Language Depot"
+  },
+  "appmenu": {
+    "log_out": "Log out"
+  },
+  "close": "Close",
+  "delete_modal": {
+    "delete": "Delete {entityName}",
+    "dont-delete": "Don't delete",
+    "dont-remove": "Don't remove",
+    "remove": "Remove {entityName}"
+  },
+  "environment-warning": "This is the {environmentName} environment. Click here to go to the public site.",
+  "forgot_password": {
+    "send_email": "Send reset email"
+  },
+  "login": {
+    "bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
+    "button_login": "Log in",
+    "button_login_again": "Try to log in again?",
+    "forgot-password": "Forgot password?",
+    "label_email": "Email (or Send/Receive username)",
+    "label_password": "Password",
+    "missing_user_info": "User info missing",
+    "page_header": "Log in",
+    "password_missing": "Password missing"
+  },
+  "project": {
+    "create": {
+      "code": "Project Code",
+      "code_exists": "Project code already used",
+      "code_too_short": "Project code must be at least 4 characters",
+      "custom-code": "Custom Code",
+      "description_missing": "Description required",
+      "language-code": "Language Code",
+      "language_code_too_short": "Language code must be at least 3 characters",
+      "name": "Name",
+      "name_missing": "Project name required",
+      "retention-policy": "Retention Policy",
+      "submit": "Create Project",
+      "type": "Type"
+    }
+  },
+  "project_page": {
+    "add_user": {
+      "add_button": "Add Member",
+      "email_required": "Email Required!",
+      "modal_title": "Add a Member to this project",
+      "submit_button": "Add Member"
+    },
+    "confirm-remove": "Would you like to remove {userName} from this project?",
+    "history": "History",
+    "last_commit": "Last Commit ",
+    "members": "Project Members",
+    "missing_description": "No Description",
+    "not_found": "Project {code} not found!",
+    "remove-project-user-title": "Member",
+    "remove-user": "Remove",
+    "set-role": "Role"
+  },
+  "project_role": {
+    "editor": "Editor",
+    "editor_description": "Editor (can sync)",
+    "label": "Role",
+    "manager": "Manager",
+    "manager_description": "Manager (can sync & share)"
+  },
+  "project_type": {
+    "flex": "FLEx",
+    "oneStoryEditor": "OneStory Editor",
+    "other": "Other",
+    "ourWord": "OurWord",
+    "weSay": "WeSay"
+  },
+  "projectlist": {
+    "last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
+    "no_changes": "Project Empty",
+    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
+  },
+  "register": {
+    "account_exists": "An account with this email already exists",
+    "button_register": "Register",
+    "email": "Email required",
+    "label_email": "Email",
+    "label_name": "Name",
+    "label_password": "Password",
+    "name_missing": "Name missing",
+    "password_missing": "Password missing",
+    "title": "Register",
+    "turnstile_error": "Captcha Error, try again"
+  },
+  "reset-password": {
+    "new-password": "New Password",
+    "submit": "Reset Password"
+  },
+  "retention_policy": {
+    "dev": "Software Developer",
+    "language-project": "Language Project",
+    "test": "Testing",
+    "training": "Training",
+    "verified": "Verified"
+  },
+  "unknown": "Unknown",
+  "user_dashboard": {
+    "page_header": "My projects"
+  },
+  "user_types": {
+    "admin": "Admin",
+    "user": "User"
+  }
 }
