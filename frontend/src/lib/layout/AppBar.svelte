@@ -15,12 +15,10 @@
 		{$t('appbar.app_name')}
 	</span>
 	{#if environmentName !== 'production'}
-		<div class="alert alert-warning">
-			<div class="items-center">
-				<span>
-					{ $t('environment-warning', {environmentName}) }
-				</span>
-			</div>
+		<div class="alert alert-warning justify-center">
+			<span>
+				{ $t('environment-warning', {environmentName}) }
+			</span>
 		</div>
 	{/if}
 	<div class="navbar-end">
