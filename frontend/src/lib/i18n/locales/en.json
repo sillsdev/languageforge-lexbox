@@ -26,7 +26,7 @@
 		"dont-remove": "Don't remove",
 		"remove": "Remove {entityName}"
 	},
-	"environment-warning": "This is the {environmentName} environment. Please confirm you are in the right place.",
+	"environment-warning": "This is a {environmentName} environment. Are you looking for public.languagedepot.org?",
 	"forgot_password": {
 		"send_email": "Send reset email"
 	},
