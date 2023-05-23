@@ -13,11 +13,11 @@
         user: string,
         desc: string
     };
-    type ExpandedLogEntry = {
+    type ExpandedLogEntry = LogEntry & {
         trimmedLog: string,
         row: number,
         col: number
-    } extends LogEntry;
+    };
 
     export let json: LogEntry[];  // JSON-format hg log
 
@@ -74,7 +74,7 @@
 
     function assignPaths(entries: ExpandedLogEntry[]) {
         let indices = {} as { [node: string]: number };
-        let paths = [];
+        let paths: [number, number][] = [];
         for (const entry of entries) {
             const { node, row } = entry;
             indices[node] = row;
@@ -91,18 +91,22 @@
         return paths;
     }
 
-    $: assignRowsAndColumns(json);
+    let expandedLog:  ExpandedLogEntry[];
+    $: {
+        expandedLog = json as ExpandedLogEntry[];
+        assignRowsAndColumns(expandedLog);
+        expandedLog = expandedLog.map(e => ({...e, trimmedLog: trimEntry(e.desc)}))
+    };
 
     function trimEntry(orig: string) {
         // The [program: version string] part of log entries can get quite long, so let's trim it for the graph
         return orig.replace(logEntryRe, "");
     }
 
-    let logs: ExpandedLogEntry;
-    $: logs = json.map(e => ({...e, trimmedLog: trimEntry(e.desc)}))
+    $: logs = json.map
 
-    $: circles = json.map((entry, idx) => ({ row: idx, col: entry.col }));
-    $: paths = assignPaths(json);
+    $: circles = expandedLog.map((entry, idx) => ({ row: idx, col: entry.col }));
+    $: paths = assignPaths(expandedLog);
 
     let heights: number[] = [];
 </script>
@@ -111,7 +115,7 @@
 <div class="horiz">
 <TrainTracks {circles} {paths} rowHeights={heights} />
 <table>
-    {#each logs as log, idx}
+    {#each expandedLog as log, idx}
         <tr bind:clientHeight={heights[idx]}><td>{log.desc}</td></tr>
     {/each}
 </table>
