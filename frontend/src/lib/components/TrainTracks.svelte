@@ -1,9 +1,14 @@
-<script>
+<script lang="ts" context="module">
+    type Circle = {row:number, col:number};
+    type SVGDot = {x:number, y:number, color?:string};
+    type SVGStroke = {color?:string, d:string}
+</script>
+<script lang="ts">
     // We need a list of dots and lines, i.e. which dots go to which parents
     // Each dot has one or two parents, and needs a Bezier curve to the parent
-    export let paths = [];  // Format is [0,1],[1,2],[2,3],[2,4]. Dot 0 connects to dot 1. Dot 1 connects to dot 2. Dot 2 connects to both both 3 and 4, but they are separate paths.
-    export let circles = [];  // Format is [{row:0,col:0},{row:1,col:0},{row:2,col:0},{row:2,col:1}]. Each dot has a row and column, which are auto-translated to x and y
-    export let rowHeights = [];
+    export let paths: [number, number][] = [];  // Format is [0,1],[1,2],[2,3],[2,4]. Dot 0 connects to dot 1. Dot 1 connects to dot 2. Dot 2 connects to both both 3 and 4, but they are separate paths.
+    export let circles: Circle[] = [];  // Format is [{row:0,col:0},{row:1,col:0},{row:2,col:0},{row:2,col:1}]. Each dot has a row and column, which are auto-translated to x and y
+    export let rowHeights: number[] = [];
 
     export let firstRowOffset = 10;
     export let firstColOffset = 10;
@@ -24,11 +29,11 @@
         "#bab0ab",
     ];
     $: colorLength = colors.length;
-    function color(colIdx) {
+    function color(colIdx: number) {
         return colors[colIdx % colorLength];
     }
 
-    function calculateCumulativeHeights(simpleHeights) {
+    function calculateCumulativeHeights(simpleHeights: number[]) {
         // let firstRow = (simpleHeights && simpleHeights.length > 0) ? (simpleHeights[0] / 2) : firstRowOffset;
         let total = firstRowOffset;
         let result = [firstRowOffset];
@@ -40,15 +45,15 @@
     }
     $: cumulativeHeights = calculateCumulativeHeights(rowHeights);
     
-    function rowHeight(rowIdx) {
+    function rowHeight(rowIdx: number) {
         return cumulativeHeights[rowIdx] ? cumulativeHeights[rowIdx] : rowHeightDefault * rowIdx + firstRowOffset;
     }
 
-    function colWidth(colIdx) {
+    function colWidth(colIdx: number) {
         return colWidthDefault * colIdx + firstColOffset;
     }
 
-    function bezier(from, to) {
+    function bezier(from: Circle, to: Circle) {
         /* 
         - If parent was in same column, M (child X,Y) and then V (parent Y)
         - If no parent, vertical line to bottom of graph (same as above but V (bottom-of-graph Y) instead of parent Y)
@@ -81,8 +86,8 @@
     } else return { color: '#000000', d: ''}
     }
 
-    let curves = [];
-    let svgCircles = [];
+    let curves: SVGStroke[] = [];
+    let svgCircles: SVGDot[] = [];
 
     $: {
         cumulativeHeights;

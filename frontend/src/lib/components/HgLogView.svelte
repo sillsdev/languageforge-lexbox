@@ -1,15 +1,28 @@
-<script context="module">
+<script lang="ts" context="module">
     // Define regex here so browsers can compile it *once* and reuse it
     const logEntryRe = /\[[^\]]+\]/;
 </script>
 
-<script>
+<script lang="ts">
     import TrainTracks from './TrainTracks.svelte';
 
-    export let json;  // JSON-format hg log
+    type LogEntry = {
+        node: string,
+        parents: string[],
+        date: [number, number],
+        user: string,
+        desc: string
+    };
+    type ExpandedLogEntry = {
+        trimmedLog: string,
+        row: number,
+        col: number
+    } extends LogEntry;
 
-    function assignRowsAndColumns(entries) {
-        const cols = {}; // Also keyed by node ID
+    export let json: LogEntry[];  // JSON-format hg log
+
+    function assignRowsAndColumns(entries: ExpandedLogEntry[]) {
+        const cols = {} as { [node: string]: number };
         let curCol = 0;
         let curRow = 0;
 
@@ -59,16 +72,16 @@
         }
     }
 
-    function assignPaths(entries) {
-        let indices = {};
+    function assignPaths(entries: ExpandedLogEntry[]) {
+        let indices = {} as { [node: string]: number };
         let paths = [];
         for (const entry of entries) {
-            const { node, parents, row } = entry;
+            const { node, row } = entry;
             indices[node] = row;
         }
         let curIdx = 0;
         for (const entry of entries) {
-            const { node, parents, row } = entry;
+            const { parents } = entry;
             for (const parent of parents) {
                 const parentIdx = indices[parent];
                 paths.push([curIdx, parentIdx]);
@@ -80,17 +93,18 @@
 
     $: assignRowsAndColumns(json);
 
-    function trimEntry(orig) {
+    function trimEntry(orig: string) {
         // The [program: version string] part of log entries can get quite long, so let's trim it for the graph
         return orig.replace(logEntryRe, "");
     }
 
+    let logs: ExpandedLogEntry;
     $: logs = json.map(e => ({...e, trimmedLog: trimEntry(e.desc)}))
 
     $: circles = json.map((entry, idx) => ({ row: idx, col: entry.col }));
     $: paths = assignPaths(json);
 
-    let heights = [];
+    let heights: number[] = [];
 </script>
 
 <!-- TODO: Create table with log entries, then capture row heights -->
