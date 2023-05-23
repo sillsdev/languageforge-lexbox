@@ -41,7 +41,7 @@
 <div class="space-y-4">
 	{#if project}
 		<div class="text-3xl flex items-center gap-3 flex-wrap">
-			<span>Project:</span>
+			<span>{$t('project_page.project')}:</span>
 			<EditableText
 				disabled={!canManage}
 				value={project.name}
