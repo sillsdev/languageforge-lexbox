@@ -57,6 +57,7 @@
 		}
 	},
 	"project_page": {
+		"project": "Project",
 		"add_user": {
 			"add_button": "Add Member",
 			"email_required": "Email Required!",
