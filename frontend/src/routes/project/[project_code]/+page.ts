@@ -4,6 +4,8 @@ import { graphql } from "$lib/gql";
 import type { AddProjectMemberInput, ProjectPageQuery } from "$lib/gql/graphql";
 import { invalidate } from "$app/navigation";
 
+import logsample from './logsample.json';
+
 export type ProjectUser = ProjectPageQuery["projects"][0]["ProjectUsers"][number];
 
 export async function load(event: PageLoadEvent) {
@@ -35,6 +37,7 @@ export async function load(event: PageLoadEvent) {
     event.depends(`project:${result.data?.projects[0]?.id}`);
     return {
         project: result.data?.projects[0],
+        log: logsample,
         code: projectCode
     };
 }

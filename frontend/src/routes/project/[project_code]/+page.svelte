@@ -9,6 +9,7 @@
 	import type { PageData } from './$types';
 	import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
 	import { _deleteProjectUser, type ProjectUser } from './+page';
+	import HgLogView from '$lib/components/HgLogView.svelte';
 
 	export let data: PageData;
 
@@ -93,7 +94,8 @@
 			<span class="i-mdi-open-in-new align-middle" />
 		</a>
 
-		<HgWeb code={project.code} />
+		<!-- <HgWeb code={project.code} /> -->
+		<HgLogView json={data.log.changesets}></HgLogView>
 	</div>
 {:else}
 	{$t('project_page.not_found', { code: data.code })}
