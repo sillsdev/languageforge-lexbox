@@ -42,6 +42,34 @@ public class LexMutations
         return await dbContext.Projects.Where(p => p.Id == input.ProjectId).FirstAsync();
     }
 
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    public async Task<Project> ChangeProjectName(ChangeProjectNameInput input,
+        LexBoxDbContext dbContext)
+    {
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        if (project is null) throw new NotFoundException("Project not found");
+
+        project.Name = input.Name;
+        await dbContext.SaveChangesAsync();
+        return project;
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    public async Task<Project> ChangeProjectDescription(ChangeProjectDescriptionInput input,
+        LexBoxDbContext dbContext)
+    {
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        if (project is null) throw new NotFoundException("Project not found");
+
+        project.Description = input.Description;
+        await dbContext.SaveChangesAsync();
+        return project;
+    }
+
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IExecutable<Project>> RemoveProjectMember(RemoveProjectMemberInput input,
