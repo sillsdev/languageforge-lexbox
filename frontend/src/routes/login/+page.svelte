@@ -43,7 +43,6 @@
 			autofocus
 			required
 		/>
-		
 
 		<Input
 			id="password"

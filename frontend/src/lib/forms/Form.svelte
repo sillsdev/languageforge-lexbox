@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { EnhancedForm } from "sveltekit-superforms/client";
 
-
 	export let enhance: EnhancedForm<any>["enhance"] | undefined = undefined;
 	function enhance_if_requested(node: HTMLFormElement) {
 		enhance && enhance(node);
