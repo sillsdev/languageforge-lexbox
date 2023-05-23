@@ -34,11 +34,11 @@
     }
 
     function calculateCumulativeHeights(simpleHeights: number[]) {
-        // let firstRow = (simpleHeights && simpleHeights.length > 0) ? (simpleHeights[0] / 2) : firstRowOffset;
-        let total = firstRowOffset;
-        let result = [firstRowOffset];
+        let firstRow = (simpleHeights && simpleHeights.length > 0) ? (simpleHeights[0] / 2) : firstRowOffset;
+        let total = firstRow;
+        let result = [firstRow];
         for (const height of simpleHeights) {
-            total += height + 2; //  Fudge factor to account for borders not being counted in clientHeight
+            total += height;
             result.push(total);
         }
         return result;
@@ -90,16 +90,15 @@
     let svgCircles: SVGDot[] = [];
 
     $: {
-        cumulativeHeights;
+        cumulativeHeights;  // Lets Svelte know about the hidden dependency on this array in bezier()
         curves = paths.map(([f,t]) => bezier(circles[f], circles[t]));
-    };
-    $: {
-        cumulativeHeights
         svgCircles = circles.map(({ row, col }) => ({ y: rowHeight(row), x: colWidth(col), color: color(col) }))
-    }
+    };
+
+    $: maxWidth = Math.max(...svgCircles.map(c => c.x)) + colWidthDefault;
 </script>
 
-<svg>
+<svg width={maxWidth}>
     {#each curves as curve}
         <path fill="none" stroke="{curve.color}" stroke-width="1.5" d="{curve.d}"></path>
     {/each}

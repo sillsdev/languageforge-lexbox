@@ -113,9 +113,10 @@
 <!-- TODO: Create table with log entries, then capture row heights -->
 <div class="horiz">
 <TrainTracks {circles} {paths} rowHeights={heights} />
+
 <table class="table table-compact table-zebra">
     {#each expandedLog as log, idx}
-        <tr bind:clientHeight={heights[idx]}>
+        <tr bind:offsetHeight={heights[idx]}>
             <td><FormatDate date={log.date[0] * 1000}/></td>
             <td>{log.user}</td>
             <td>{log.trimmedLog}</td>
