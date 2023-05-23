@@ -4,12 +4,13 @@
 </script>
 
 <script lang="ts">
+    import FormatDate from './FormatDate.svelte';
     import TrainTracks from './TrainTracks.svelte';
 
     type LogEntry = {
         node: string,
         parents: string[],
-        date: [number, number],
+        date: number[],
         user: string,
         desc: string
     };
@@ -103,8 +104,6 @@
         return orig.replace(logEntryRe, "");
     }
 
-    $: logs = json.map
-
     $: circles = expandedLog.map((entry, idx) => ({ row: idx, col: entry.col }));
     $: paths = assignPaths(expandedLog);
 
@@ -114,9 +113,13 @@
 <!-- TODO: Create table with log entries, then capture row heights -->
 <div class="horiz">
 <TrainTracks {circles} {paths} rowHeights={heights} />
-<table>
+<table class="table table-compact table-zebra">
     {#each expandedLog as log, idx}
-        <tr bind:clientHeight={heights[idx]}><td>{log.desc}</td></tr>
+        <tr bind:clientHeight={heights[idx]}>
+            <td><FormatDate date={log.date[0] * 1000}/></td>
+            <td>{log.user}</td>
+            <td>{log.trimmedLog}</td>
+        </tr>
     {/each}
 </table>
 </div>
