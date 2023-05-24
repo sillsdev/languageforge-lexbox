@@ -4,6 +4,7 @@ services:
   lexbox-api:
     tty: true # for dev tools
     stdin_open: true # for dev tools
+    init: true
     build:
       context: backend
       dockerfile: LexBoxApi/dev.Dockerfile
@@ -68,6 +69,7 @@ services:
 
   hasura:
     build: ./hasura
+    init: true
     ports:
       - "8081:8080" # 8081 exposed here for dev tools
     depends_on:
