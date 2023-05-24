@@ -1,4 +1,4 @@
-﻿using HotChocolate.Stitching;
+using HotChocolate.Stitching;
 
 namespace LexBoxApi.GraphQL;
 
