@@ -8,7 +8,7 @@ on:
       - '.github/workflows/lexbox-api.yaml'
 
 jobs:
-  build-n-publish:
+  publish-api:
     runs-on: ubuntu-latest
 
     env:
@@ -28,6 +28,7 @@ jobs:
       -
         name: Docker meta
         id: meta
+        if: ${{ !env.ACT }}
         uses: docker/metadata-action@v4
         with:
           images: ghcr.io/sillsdev/lexbox-api
@@ -37,7 +38,9 @@ jobs:
             type=raw,enabled=${{ github.ref == env.LATEST_TAG_BRANCH }},value=latest
             ${{ env.VERSION }}
       -
+        name: ghcr.io login
         uses: docker/login-action@v2
+        if: ${{ !env.ACT }}
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -48,6 +51,6 @@ jobs:
           context: backend
           build-args: |
             APP_VERSION=${{ env.VERSION }}
-          push: true
+          push: ${{ !env.ACT }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

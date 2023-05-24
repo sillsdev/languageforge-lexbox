@@ -8,7 +8,7 @@ on:
       - '.github/workflows/lexbox-otel-collector.yaml'
 
 jobs:
-  build-n-publish:
+  publish-otel:
     runs-on: ubuntu-latest
 
     env:
