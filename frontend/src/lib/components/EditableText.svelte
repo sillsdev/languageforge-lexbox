@@ -18,10 +18,15 @@
 	const fieldId = 'id' + new Date().getTime();
 
 	let inputElem: HTMLInputElement | HTMLTextAreaElement;
+	let formElem: Form;
 
 	const formSchema = z.object(validation ? { [fieldId]: validation } : {});
-	let { form, errors, valid, update, reset } = lexSuperForm(
+	let { form, errors, reset, enhance } = lexSuperForm(
 		formSchema,
+		async ({ form }) => {
+			//callback only called when validation is successful
+			await save();
+		},
 		{ taintedMessage: false },
 	);
 	$: error = $errors[fieldId]?.join(', ');
@@ -72,9 +77,8 @@
 	}
 
 	async function submit() {
-		await lexSuperValidate($form, formSchema, update);
-		if (!$valid) return;
-		save();
+		//triggers callback in superForm with validation
+		formElem.requestSubmit();
 	}
 </script>
 
@@ -82,7 +86,7 @@
 	{#if editing || saving}
 		<!-- svelte-ignore a11y-autofocus -->
 		<span class:grow={multiline}>
-			<Form on:submit={submit}>
+			<Form bind:this={formElem} {enhance}>
 				{#if multiline}
 					<textarea
 						id={fieldId}
