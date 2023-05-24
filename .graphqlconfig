@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "Lexbox graphql schema",
   "schemaPath": "frontend/schema.graphql",
   "includes": [

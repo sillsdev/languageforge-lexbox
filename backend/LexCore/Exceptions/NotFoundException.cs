@@ -1,4 +1,4 @@
-﻿namespace LexCore.Exceptions;
+namespace LexCore.Exceptions;
 
 public class NotFoundException: Exception
 {

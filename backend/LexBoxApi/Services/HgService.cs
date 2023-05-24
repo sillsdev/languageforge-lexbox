@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;

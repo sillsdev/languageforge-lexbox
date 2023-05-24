@@ -1,4 +1,4 @@
-﻿<script lang="ts" context="module">
+<script lang="ts" context="module">
 	type formatStyle = "full" | "long" | "medium" | "short" | "none"
 </script>
 

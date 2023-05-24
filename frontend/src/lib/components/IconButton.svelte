@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	export let icon: string;
     export let disabled = false;
 </script>

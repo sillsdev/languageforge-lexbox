@@ -1,4 +1,4 @@
-﻿using LexBoxApi.Auth;
+using LexBoxApi.Auth;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;

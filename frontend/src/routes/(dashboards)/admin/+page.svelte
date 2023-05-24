@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import type {PageData} from './$types'
     import FormatDate from "$lib/components/FormatDate.svelte"
     import Input from "$lib/forms/Input.svelte"

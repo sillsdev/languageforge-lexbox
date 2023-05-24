@@ -1,4 +1,4 @@
-﻿namespace LexCore.Entities;
+namespace LexCore.Entities;
 
 public class ProjectUsers : EntityBase
 {

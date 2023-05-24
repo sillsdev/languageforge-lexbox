@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import { LoadingIcon } from '$lib/icons';
 	import { ZodString, z } from 'zod';
 	import { _changeProjectName } from '../../routes/project/[project_code]/+page';

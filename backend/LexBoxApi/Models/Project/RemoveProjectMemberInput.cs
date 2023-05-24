@@ -1,3 +1,3 @@
-﻿namespace LexBoxApi.Models.Project;
+namespace LexBoxApi.Models.Project;
 
 public record RemoveProjectMemberInput(Guid ProjectId, Guid UserId);

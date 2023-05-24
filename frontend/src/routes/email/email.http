@@ -1,4 +1,4 @@
-﻿###
+###
 # @name Email Renderer
 
 POST http://localhost:5173/email

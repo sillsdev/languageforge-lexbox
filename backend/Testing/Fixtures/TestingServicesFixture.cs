@@ -1,4 +1,4 @@
-﻿using LexData;
+using LexData;
 using LexData.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

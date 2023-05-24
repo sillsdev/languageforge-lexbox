@@ -1,4 +1,4 @@
-﻿using LexBoxApi.Services;
+using LexBoxApi.Services;
 using LexCore.Entities;
 using LexData;
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using LexBoxApi.Config;
 using Microsoft.Extensions.Options;

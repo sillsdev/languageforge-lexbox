@@ -1,4 +1,4 @@
-﻿import { graphql } from "$lib/gql";
+import { graphql } from "$lib/gql";
 import {getClient} from "$lib/graphQLClient";
 import type {CreateProjectInput} from "$lib/gql/graphql";
 

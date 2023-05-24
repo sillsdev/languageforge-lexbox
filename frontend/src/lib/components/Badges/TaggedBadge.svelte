@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import { TaggedBadge } from '.';
     
 	import Badge from './Badge.svelte';

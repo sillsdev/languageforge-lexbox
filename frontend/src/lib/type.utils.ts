@@ -1,4 +1,4 @@
-﻿/**
+/**
  * creates a union of all possible nested keys of an object
  */
 export type NestedKeyOf<ObjectType extends object> =

@@ -1,4 +1,4 @@
-﻿//https://the-guild.dev/graphql/codegen/docs/guides/svelte
+//https://the-guild.dev/graphql/codegen/docs/guides/svelte
 //config passed into vite instead of via codegen file, works the same though
 import type { TypeScriptPluginConfig } from "@graphql-codegen/typescript/typings/config";
 import type { Options } from "vite-plugin-graphql-codegen";

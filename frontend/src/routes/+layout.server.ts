@@ -1,4 +1,4 @@
-﻿import type { LayoutServerLoadEvent } from './$types'
+import type { LayoutServerLoadEvent } from './$types'
 import { getTraceParent } from '$lib/otel/server'
 import { get_user } from '$lib/user'
 

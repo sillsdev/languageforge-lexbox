@@ -1,4 +1,4 @@
-﻿namespace Testing.SyncReverseProxy;
+namespace Testing.SyncReverseProxy;
 
 public class TestData
 {
