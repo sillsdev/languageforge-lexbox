@@ -6,15 +6,15 @@ Requests come into a node app managed by Sveltekit for static, CSR, or SSR.  Dat
 
 ### Development
 
-Node needs to be installed locally.
+Node needs to be installed locally. The `pnpm` package manager should be installed globally: run `pnpm --version` and if it isn't found, run `npm install -g pnpm`.
 
-Once you've installed dependencies with `npm install`, start a development server:
+Once you've installed dependencies with `pnpm install`, start a development server:
 
 ```bash
-npm run dev
+pnpm run dev
 
 # or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm run dev -- --open
 ```
 
 The app will be running at [http://localhost:5173](http://localhost:5173) by default.
@@ -26,9 +26,9 @@ The app will be running at [http://localhost:5173](http://localhost:5173) by def
 To create a production version of the app:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
-You can preview the production build with `npm run preview`.
+You can preview the production build with `pnpm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.

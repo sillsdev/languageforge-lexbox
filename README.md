@@ -41,13 +41,16 @@ then you will want to execute in 2 separate consoles:
 frontend
 ```bash
 cd frontend
-npm run dev
+pnpm run dev
 ```
 backend
 ```bash
 cd backend/LexBoxApi
 dotnet watch
 ```
+
+If you don't have pnpm installed, run `npm install -g pnpm`.
+
 ---
 ### Helpful urls
 * http://localhost:5173 - sveltekit frontend
