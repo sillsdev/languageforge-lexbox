@@ -1,10 +1,9 @@
 import type { AddProjectMemberInput, ChangeProjectDescriptionInput, ChangeProjectNameInput, ProjectPageQuery } from "$lib/gql/graphql";
 
-import type { PageLoadEvent } from "./$types";
-import { getClient } from "$lib/graphQLClient";
-import { graphql } from "$lib/gql";
 import { invalidate } from "$app/navigation";
-
+import { graphql } from "$lib/gql";
+import { getClient } from "$lib/graphQLClient";
+import type { PageLoadEvent } from "./$types";
 import logsample from './logsample.json';
 
 export type ProjectUser = ProjectPageQuery["projects"][0]["ProjectUsers"][number];
@@ -67,7 +66,7 @@ export async function _addProjectUser(input: AddProjectMemberInput) {
                 }
             }
         `),
-        {input: input}, 
+        {input: input},
         //invalidates the graphql project cache
         {additionalTypenames: ['Projects']}
     ).toPromise();
@@ -83,7 +82,8 @@ export async function _changeProjectName(input: ChangeProjectNameInput) {
             mutation ChangeProjectName($input: ChangeProjectNameInput!) {
                 changeProjectName(input: $input) {
                     project {
-                        id
+                        id,
+                        name
                     }
                     errors {
                         ... on Error {
@@ -93,7 +93,7 @@ export async function _changeProjectName(input: ChangeProjectNameInput) {
                 }
             }
         `),
-        {input: input}, 
+        {input: input},
         //invalidates the graphql project cache
         {additionalTypenames: ['Projects']}
     ).toPromise();
@@ -109,7 +109,8 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
             mutation ChangeProjectDescription($input: ChangeProjectDescriptionInput!) {
                 changeProjectDescription(input: $input) {
                     project {
-                        id
+                        id,
+                        description
                     }
                     errors {
                         ... on Error {
@@ -119,7 +120,7 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
                 }
             }
         `),
-        {input: input}, 
+        {input: input},
         //invalidates the graphql project cache
         {additionalTypenames: ['Projects']}
     ).toPromise();

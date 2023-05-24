@@ -1,6 +1,7 @@
 <script lang="ts">
 	import t from '$lib/i18n';
 	import type { Project } from '$lib/project';
+	import { Badge } from './Badges';
 
 	export let projects: Project[] = [];
 </script>
@@ -24,9 +25,9 @@
 					{#if project.lastCommit}
 						{$t('projectlist.last_change', { lastChange: new Date(project.lastCommit) })}
 					{:else}
-						<div class="badge badge-info">
+						<Badge type="badge-info">
 							{$t('projectlist.no_changes')}
-						</div>
+						</Badge>
 					{/if}
 				</p>
 			</div>

@@ -1,9 +1,11 @@
 import Badge from "./Badge.svelte";
+import BadgeButton from "./BadgeButton.svelte";
 import BadgeList from "./BadgeList.svelte";
-import TaggedBadge from "./TaggedBadge.svelte";
+import MemberBadge from "./MemberBadge.svelte";
 
 export {
-	Badge,
-	TaggedBadge,
-	BadgeList,
+  Badge,
+  BadgeButton,
+  BadgeList,
+  MemberBadge,
 };

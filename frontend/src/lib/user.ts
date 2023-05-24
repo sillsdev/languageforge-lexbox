@@ -1,7 +1,7 @@
 import type {Cookies} from '@sveltejs/kit'
-import {writable} from 'svelte/store'
-import jwtDecode from 'jwt-decode'
 import {browser} from '$app/environment'
+import jwtDecode from 'jwt-decode'
+import {writable} from 'svelte/store'
 
 type LexAuthUser = {
     id: string

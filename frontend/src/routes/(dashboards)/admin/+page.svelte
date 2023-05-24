@@ -4,6 +4,7 @@
     import Input from "$lib/forms/Input.svelte"
 	import t from '$lib/i18n'
 	import FormatProjectType from '$lib/components/FormatProjectType.svelte';
+	import { Badge } from '$lib/components/Badges';
 
     export let data: PageData
 
@@ -24,7 +25,7 @@
 		<div class="pl-1 overflow-x-auto">
 			<span class="text-xl">
 				{ $t('admin_dashboard.page_header') }
-				<div class="badge">{projectSearch ? projects.length : data.projects.length}</div>
+				<Badge>{projectSearch ? projects.length : data.projects.length}</Badge>
 			</span>
 
 			<Input
@@ -72,7 +73,7 @@
 		<div class="pl-1 overflow-x-auto">
 			<span class="text-xl">
 				{ $t('admin_dashboard.user_table_title') }
-				<div class="badge">{userSearch ? users.length : data.users.length}</div>
+				<Badge>{userSearch ? users.length : data.users.length}</Badge>
 			</span>
 
 			<Input type="text" label={ $t('admin_dashboard.filter_label') } placeholder={ $t('admin_dashboard.filter_placeholder') } bind:value={userSearch} />
