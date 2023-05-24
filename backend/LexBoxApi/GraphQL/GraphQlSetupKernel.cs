@@ -8,6 +8,7 @@ namespace LexBoxApi.GraphQL;
 
 public static class GraphQlSetupKernel
 {
+    public const string LexBoxSchemaName = "LexBox";
     public static void AddLexGraphQL(this IServiceCollection services, IWebHostEnvironment env)
     {
         services.AddHttpClient("hasura",
@@ -22,6 +23,7 @@ public static class GraphQlSetupKernel
             {
                 options.IncludeExceptionDetails = true;
             })
+            .AddTypeExtension<ProjectExtensions>()
             .AddType(new DateTimeType("DateTime"))
             .AddType(new UuidType("UUID"))
             .AddType(new DateTimeType("timestamptz"))
@@ -36,7 +38,7 @@ public static class GraphQlSetupKernel
                 options.IncludeDocument = true;
                 options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
             });
-        graphqlBuilder.AddLocalSchema("LexBox")
+        graphqlBuilder.AddLocalSchema(LexBoxSchemaName)
             .RegisterDbContext<LexBoxDbContext>()
             .AddGraphQL("LexBox")
             .ModifyRequestOptions(options =>

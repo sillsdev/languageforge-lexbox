@@ -87,11 +87,22 @@ type ChangeProjectNamePayload {
   project: Project
 }
 
+type Changeset {
+  branch: String!
+  date: [Float!]!
+  desc: String!
+  node: String!
+  parents: [String!]!
+  phase: String!
+  tags: [String!]!
+  user: String!
+}
+
 union CreateProjectError = DbError
 
 input CreateProjectInput {
   code: String!
-  description: String!
+  description: String
   id: UUID
   name: String!
   retentionPolicy: RetentionPolicy!
@@ -844,6 +855,7 @@ type Projects {
     """filter the rows returned"""
     where: ProjectUsersBoolExp
   ): [ProjectUsers!]!
+  changesets: [Changeset!]!
   code: String!
   createdDate: timestamptz!
   description: String
@@ -1195,6 +1207,7 @@ type ProjectsVarianceFields {
 }
 
 type Query {
+  changesets(projectCode: String!): [Changeset!]!
   me: LexAuthUser!
   myProjects: [Project!]!
 
