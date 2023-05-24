@@ -3,15 +3,16 @@ FROM node AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json /app/
+COPY package.json pnpm-lock.yaml /app/
 
-RUN npm install
+RUN npm install -g pnpm
+RUN pnpm install
 
 COPY . /app/
 COPY src /app/src
 COPY static /app/static
 
-RUN npm run build
+RUN pnpm run build
 
 FROM node:alpine
 # container would not receive SIGTERM from docker when shutting down so Docker would force kill
