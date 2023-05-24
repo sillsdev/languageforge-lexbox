@@ -4,7 +4,7 @@
 	import { Page } from '$lib/layout';
 	import t from '$lib/i18n';
 	import { z } from 'zod';
-	import { lexSuperForm, lexSuperValidate } from '$lib/forms';
+	import { lexSuperForm } from '$lib/forms';
 	import Select from '$lib/forms/Select.svelte';
 	import Checkbox from '$lib/forms/Checkbox.svelte';
 	import { _createProject } from './+page';
@@ -12,20 +12,16 @@
 	import { goto } from '$app/navigation';
 	const formSchema = z.object({
 		name: z.string().min(1, $t('project.create.name_missing')),
-		description: z.string().default(''),
+		description: z.string().min(1, $t('project.create.description_missing')),
 		type: z.nativeEnum(ProjectType).default(ProjectType.FlEx),
 		retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
 		languageCode: z.string().toLowerCase().min(3, $t('project.create.language_code_too_short')),
 		code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
-		customCode: z.boolean(),
+		customCode: z.boolean().default(false),
 	});
 	//random guid
 	const projectId = crypto.randomUUID();
-	let { form, errors, valid, update, reset, message, enhance } = lexSuperForm(formSchema);
-	let loading = false;
-	async function submit() {
-		await lexSuperValidate($form, formSchema, update);
-		if (!$valid) return;
+	let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async ({form}) => {
 		const result = await _createProject({
 			id: projectId,
 			name: $form.name,
@@ -36,15 +32,15 @@
 		});
 		if (result.error) {
 			if (result.data?.createProject.errors?.some((e) => e.code === DbErrorCode.Duplicate)) {
-				$errors.code = [$t('project.create.code_exists')];
+				form.errors.code = [$t('project.create.code_exists')];
 			} else {
-				$message = result.error.message;
+				form.message = result.error.message;
 			}
 
 			return;
 		}
-		goto(`/project/${$form.code}`);
-	}
+		await goto(`/project/${$form.code}`);
+	});
 	const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
 		[ProjectType.FlEx]: 'flex',
 		[ProjectType.WeSay]: 'wesay',
@@ -69,7 +65,7 @@
 <Page>
 	<h1 class="text-lg">Create Project</h1>
 
-	<Form {enhance} on:submit={submit}>
+	<Form {enhance}>
 		<Input
 			label={$t('project.create.name')}
 			bind:value={$form.name}
@@ -87,7 +83,7 @@
 				bind:value={$form.description}
 			/>
 		</div>
-		<Select id="type" label={$t('project.create.type')} bind:value={$form.type}>
+		<Select id="type" label={$t('project.create.type')} bind:value={$form.type} error={$errors.type}>
 			<option value={ProjectType.FlEx}>{$t('project_type.flex')}</option>
 			<option value={ProjectType.WeSay}>{$t('project_type.weSay')}</option>
 			<option value={ProjectType.OneStoryEditor}>{$t('project_type.oneStoryEditor')}</option>
@@ -97,7 +93,8 @@
 		<Select
 			id="policy"
 			label={$t('project.create.retention-policy')}
-			bind:value={$form.retentionPolicy}>
+			bind:value={$form.retentionPolicy}
+			error={$errors.retentionPolicy}>
 			<option value={RetentionPolicy.Verified}>{$t('retention_policy.language-project')}</option>
 			<option value={RetentionPolicy.Training}>{$t('retention_policy.training')}</option>
 			<option value={RetentionPolicy.Test}>{$t('retention_policy.test')}</option>
@@ -121,7 +118,7 @@
 				<span class="label-text-alt text-lg text-error mb-2">{$message}</span>
 			</label>
 		{/if}
-		<button on:click={submit} class="btn btn-primary" class:loading>
+		<button type="submit" class="btn btn-primary mb-2" class:loading={$submitting}>
 			{$t('project.create.submit')}
 		</button>
 	</Form>

@@ -15,13 +15,13 @@
 		{$t('appbar.app_name')}
 	</span>
 	{#if environmentName !== 'production'}
-		<div class="alert alert-warning">
+		<a href="https://public.languagedepot.org" class="alert alert-warning">
 			<div class="items-center">
 				<span>
 					{ $t('environment-warning', {environmentName}) }
 				</span>
 			</div>
-		</div>
+		</a>
 	{/if}
 	<div class="navbar-end">
 		{#if $user}

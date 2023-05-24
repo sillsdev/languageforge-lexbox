@@ -18,5 +18,8 @@ public class LoggedInContext
         });
     }
 
+    /// <summary>
+    /// get the logged in user, will throw an exception if the user is not logged in
+    /// </summary>
     public LexAuthUser User => _user.Value;
 }

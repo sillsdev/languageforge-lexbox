@@ -1,7 +1,8 @@
-import { getClient } from "$lib/graphQLClient";
+import type { AddProjectMemberInput, ChangeProjectDescriptionInput, ChangeProjectNameInput, ProjectPageQuery } from "$lib/gql/graphql";
+
 import type { PageLoadEvent } from "./$types";
+import { getClient } from "$lib/graphQLClient";
 import { graphql } from "$lib/gql";
-import type { AddProjectMemberInput, ProjectPageQuery } from "$lib/gql/graphql";
 import { invalidate } from "$app/navigation";
 
 import logsample from './logsample.json';
@@ -48,6 +49,58 @@ export async function _addProjectUser(input: AddProjectMemberInput) {
         graphql(`
             mutation AddProjectUser($input: AddProjectMemberInput!) {
                 addProjectMember(input: $input) {
+                    project {
+                        id
+                    }
+                    errors {
+                        ... on Error {
+                            message
+                        }
+                    }
+                }
+            }
+        `),
+        {input: input}, 
+        //invalidates the graphql project cache
+        {additionalTypenames: ['Projects']}
+    ).toPromise();
+    if (!result.error)
+        invalidate(`project:${input.projectId}`);
+    return result;
+}
+
+export async function _changeProjectName(input: ChangeProjectNameInput) {
+    //language=GraphQL
+    const result = await getClient().mutation(
+        graphql(`
+            mutation ChangeProjectName($input: ChangeProjectNameInput!) {
+                changeProjectName(input: $input) {
+                    project {
+                        id
+                    }
+                    errors {
+                        ... on Error {
+                            message
+                        }
+                    }
+                }
+            }
+        `),
+        {input: input}, 
+        //invalidates the graphql project cache
+        {additionalTypenames: ['Projects']}
+    ).toPromise();
+    if (!result.error)
+        invalidate(`project:${input.projectId}`);
+    return result;
+}
+
+export async function _changeProjectDescription(input: ChangeProjectDescriptionInput) {
+    //language=GraphQL
+    const result = await getClient().mutation(
+        graphql(`
+            mutation ChangeProjectDescription($input: ChangeProjectDescriptionInput!) {
+                changeProjectDescription(input: $input) {
                     project {
                         id
                     }

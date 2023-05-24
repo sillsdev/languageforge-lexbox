@@ -6,7 +6,7 @@ namespace LexData;
 
 public class SeedingData
 {
-    public static readonly Guid KindLionId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
+    public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     private readonly LexBoxDbContext _lexBoxDbContext;
 
     public SeedingData(LexBoxDbContext lexBoxDbContext)
@@ -34,10 +34,10 @@ public class SeedingData
 
         _lexBoxDbContext.Attach(new User
         {
-            Id = KindLionId,
-            Email = "KindLion@test.com",
-            Name = "Kind Lion",
-            Username = "KindLion",
+            Id = TestAdminId,
+            Email = "admin@test.com",
+            Name = "Test Admin",
+            Username = "admin",
             Salt = PwSalt,
             PasswordHash = _passwordHash,
             IsAdmin = true
@@ -60,9 +60,9 @@ public class SeedingData
                     User = new()
                     {
                         Id = new Guid("703701a8-005c-4747-91f2-ac7650455118"),
-                        Email = "InnocentMoth@test.com",
-                        Name = "Innocent Moth",
-                        Username = "InnocentMoth",
+                        Email = "manager@test.com",
+                        Name = "Test Manager",
+                        Username = "manager",
                         IsAdmin = false,
                         Salt = PwSalt,
                         PasswordHash = _passwordHash
@@ -75,9 +75,9 @@ public class SeedingData
                     User = new()
                     {
                         Id = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb"),
-                        Email = "PlayfulFish@test.com",
-                        Name = "Playful Fish",
-                        Username = "PlayfulFish",
+                        Email = "editor@test.com",
+                        Name = "Test Editor",
+                        Username = "editor",
                         IsAdmin = false,
                         Salt = PwSalt,
                         PasswordHash = _passwordHash

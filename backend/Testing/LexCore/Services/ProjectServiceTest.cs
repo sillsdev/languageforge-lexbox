@@ -26,7 +26,7 @@ public class ProjectServiceTest : IClassFixture<TestingServicesFixture>
     {
         var projectId = await _projectService.CreateProject(
             new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test),
-            SeedingData.KindLionId
+            SeedingData.TestAdminId
         );
         projectId.ShouldNotBe(default);
     }
@@ -37,12 +37,12 @@ public class ProjectServiceTest : IClassFixture<TestingServicesFixture>
         //first project should be created
         await _projectService.CreateProject(
             new(null, "TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test),
-            SeedingData.KindLionId
+            SeedingData.TestAdminId
         );
 
         var exception = await _projectService.CreateProject(
             new(null, "Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev),
-            SeedingData.KindLionId
+            SeedingData.TestAdminId
         ).ShouldThrowAsync<DbUpdateException>();
 
         exception.InnerException.ShouldBeOfType<PostgresException>()
