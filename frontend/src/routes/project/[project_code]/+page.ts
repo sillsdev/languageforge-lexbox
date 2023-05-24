@@ -31,6 +31,13 @@ export async function load(event: PageLoadEvent) {
                         name
                     }
                 }
+                changesets {
+                    node
+                    parents
+                    date
+                    user
+                    desc
+                }
             }
         }
 `), { projectCode }).toPromise();

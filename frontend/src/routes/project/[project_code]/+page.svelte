@@ -142,7 +142,7 @@
 			</p>
 
 			<!-- <HgWeb code={project.code} /> -->
-			<HgLogView json={data.log.changesets}></HgLogView>
+			<HgLogView json={project.changesets}></HgLogView>
 		</div>
 	{:else}
 		{$t('project_page.not_found', { code: data.code })}
