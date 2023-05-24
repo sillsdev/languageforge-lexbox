@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
@@ -25,4 +26,10 @@ public class LexQueries
     {
         return _loggedInContext.User;
     }
+    
+    public Task<Changeset[]> Changesets([Service] IHgService hgService, string projectCode)
+    {
+        return hgService.GetChangesets(projectCode);
+    }
 }
+

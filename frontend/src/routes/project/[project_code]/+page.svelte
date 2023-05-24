@@ -14,6 +14,7 @@
 		_deleteProjectUser,
 		type ProjectUser,
 	} from './+page';
+  import HgLogView from '$lib/components/HgLogView.svelte';
 	import EditableText from '$lib/components/EditableText.svelte';
 	import { Badge, BadgeList, TaggedBadge } from '$lib/components/Badges';
 	import { z } from 'zod';
@@ -140,7 +141,8 @@
 				</a>
 			</p>
 
-			<HgWeb code={project.code} />
+			<!-- <HgWeb code={project.code} /> -->
+			<HgLogView json={project.changesets}></HgLogView>
 		</div>
 	{:else}
 		{$t('project_page.not_found', { code: data.code })}
