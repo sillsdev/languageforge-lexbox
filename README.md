@@ -62,9 +62,9 @@ dotnet watch
 Once the database is created by the dotnet backend, it will also seed some data in the database.
 The following users are available, password for them all is just `pass`:
 
-* KindLion@test.com: super admin
-* InnocentMoth@test.com: project manager
-* PlayfulFish@test.com: project editor
+* admin@test.com: super admin
+* manager@test.com: project manager
+* editor@test.com: project editor
 
 There will also be a single project, Sena 3.
 There will not be an hg repository however, see optional setup below if this is desired.

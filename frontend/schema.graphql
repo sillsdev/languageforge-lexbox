@@ -63,6 +63,30 @@ input BooleanComparisonExp {
   _nin: [Boolean!]
 }
 
+union ChangeProjectDescriptionError = DbError | NotFoundError
+
+input ChangeProjectDescriptionInput {
+  description: String!
+  projectId: UUID!
+}
+
+type ChangeProjectDescriptionPayload {
+  errors: [ChangeProjectDescriptionError!]
+  project: Project
+}
+
+union ChangeProjectNameError = DbError | NotFoundError
+
+input ChangeProjectNameInput {
+  name: String!
+  projectId: UUID!
+}
+
+type ChangeProjectNamePayload {
+  errors: [ChangeProjectNameError!]
+  project: Project
+}
+
 union CreateProjectError = DbError
 
 input CreateProjectInput {
@@ -140,6 +164,8 @@ type LexBox_ProjectUsers {
 
 type Mutation {
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
+  changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
+  changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
 
   """

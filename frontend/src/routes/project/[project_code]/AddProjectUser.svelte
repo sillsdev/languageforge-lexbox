@@ -7,6 +7,7 @@
 	import { ProjectRole } from '$lib/gql/graphql';
 	import { lexSuperForm, Select } from '$lib/forms';
 	import { z } from 'zod';
+	import { Badge } from '$lib/components/Badges';
 
 	const formSchema = z.object({
 		email: z.string().email($t('project_page.add_user.email_required')),
@@ -29,9 +30,10 @@
 	}
 </script>
 
-<button class="badge badge-lg badge-success cursor-pointer" on:click={openModal}>
-	<span class="i-mdi-plus"/> {$t('project_page.add_user.add_button')}
-</button>
+<Badge button icon="i-mdi-account-plus-outline" type="badge-success" on:click={openModal}>
+	{$t('project_page.add_user.add_button')}
+</Badge>
+
 <Modal bind:this={modal} on:close={() => reset()} bottom>
 	<Form id="addProjectUser" {enhance}>
 		<p>{$t('project_page.add_user.modal_title')}</p>

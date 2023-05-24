@@ -43,7 +43,7 @@ services:
       # always passes key, more info here: https://developers.cloudflare.com/turnstile/reference/testing
       CloudFlare__TurnstileKey: 1x0000000000000000000000000000000AA
       Email__SmtpHost: maildev
-      Email__SmtpPort: maildev
+      Email__SmtpPort: 1025
       Email__SmtpUser: ${SMTP_USER}
       Email__SmtpPassword: ${SMTP_PASSWORD}
       Email__From: "Language Depot <no-reply@test.org>"
