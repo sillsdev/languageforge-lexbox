@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using LexBoxApi.Config;
 using LexBoxApi.Otel;
 using LexBoxApi.Services.Email;

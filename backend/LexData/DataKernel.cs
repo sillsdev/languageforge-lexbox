@@ -1,4 +1,4 @@
-﻿using LexData.Configuration;
+using LexData.Configuration;
 using LexData.Redmine;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import Page from '$lib/layout/Page.svelte';
 	import { z } from 'zod';
 	import t from '$lib/i18n';

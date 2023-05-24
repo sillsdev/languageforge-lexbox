@@ -1,4 +1,4 @@
-﻿import type {PageLoadEvent} from "./$types";
+import type {PageLoadEvent} from "./$types";
 import {getClient} from "$lib/graphQLClient";
 import { graphql } from "$lib/gql";
 

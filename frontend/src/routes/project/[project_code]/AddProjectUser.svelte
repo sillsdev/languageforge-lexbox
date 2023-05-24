@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
 	import { _addProjectUser } from './+page';
 	import Form from '$lib/forms/Form.svelte';
 	import Input from '$lib/forms/Input.svelte';

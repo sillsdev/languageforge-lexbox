@@ -1,4 +1,4 @@
-﻿import type {LoadEvent, RequestEvent} from "@sveltejs/kit";
+import type {LoadEvent, RequestEvent} from "@sveltejs/kit";
 import {CombinedError, mapExchange, type Client, defaultExchanges} from "@urql/svelte";
 import {get, writable} from "svelte/store";
 import {createClient} from "@urql/svelte";

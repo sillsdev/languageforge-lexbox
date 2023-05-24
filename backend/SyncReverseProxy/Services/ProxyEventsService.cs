@@ -1,4 +1,4 @@
-﻿using LexCore.ServiceInterfaces;
+using LexCore.ServiceInterfaces;
 using Yarp.ReverseProxy.Model;
 
 namespace LexSyncReverseProxy.Services;

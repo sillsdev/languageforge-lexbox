@@ -1,4 +1,4 @@
-﻿# docs: https://www.mercurial-scm.org/doc/hgrc.5.html
+# docs: https://www.mercurial-scm.org/doc/hgrc.5.html
 
 # disable auth
 [web]

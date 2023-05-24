@@ -1,4 +1,4 @@
-﻿import {parse, walk} from "svelte/compiler";
+import {parse, walk} from "svelte/compiler";
 import mjml2html from 'mjml';
 import type {TemplateNode} from "svelte/types/compiler/interfaces";
 

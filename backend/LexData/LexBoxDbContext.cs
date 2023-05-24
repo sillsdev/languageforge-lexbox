@@ -1,4 +1,4 @@
-﻿using LexCore.Entities;
+using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
 

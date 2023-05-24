@@ -1,4 +1,4 @@
-﻿using LexCore;
+using LexCore;
 using Shouldly;
 
 namespace Testing.LexCore;

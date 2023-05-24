@@ -1,4 +1,4 @@
-﻿# https://wiki.mercurial-scm.org/modwsgi
+# https://wiki.mercurial-scm.org/modwsgi
 
 FROM httpd:2.4-alpine
 

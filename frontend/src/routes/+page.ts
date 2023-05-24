@@ -1,4 +1,4 @@
-﻿import type { PageLoadEvent } from "./$types";
+import type { PageLoadEvent } from "./$types";
 import type { Project } from "$lib/project";
 import { getClient } from "$lib/graphQLClient";
 import { user } from "$lib/user";

@@ -1,4 +1,4 @@
-﻿using HotChocolate.Diagnostics;
+using HotChocolate.Diagnostics;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexData;

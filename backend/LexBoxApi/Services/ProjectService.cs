@@ -1,4 +1,4 @@
-﻿using LexBoxApi.Models.Project;
+using LexBoxApi.Models.Project;
 using LexCore.Entities;
 using LexData;
 using Microsoft.EntityFrameworkCore;

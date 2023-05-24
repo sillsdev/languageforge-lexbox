@@ -1,4 +1,4 @@
-﻿namespace LexBoxApi.Models.Project;
+namespace LexBoxApi.Models.Project;
 
 public record ChangeProjectNameInput(Guid ProjectId, string Name);
 

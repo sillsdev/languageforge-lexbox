@@ -1,4 +1,4 @@
-﻿using LexCore.Entities;
+using LexCore.Entities;
 
 namespace LexBoxApi.Models.Project;
 

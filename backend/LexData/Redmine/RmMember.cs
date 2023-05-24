@@ -1,4 +1,4 @@
-﻿namespace LexData.Redmine;
+namespace LexData.Redmine;
 
 public partial class RmMember
 {

@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
     import Page from "$lib/layout/Page.svelte";
 </script>
 
