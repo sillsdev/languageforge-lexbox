@@ -41,7 +41,7 @@ There are some additional urls below to access specific parts of the system.
 
 ### Local workflow
 ```bash
-docker compose up -d db hasura otel-collector maildev
+docker compose up -d db hasura otel-collector maildev hgweb
 ```
 then you will want to execute in 2 separate consoles:
 
