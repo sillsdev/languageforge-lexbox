@@ -38,6 +38,7 @@ services:
       Otel__Endpoint: http://otel-collector:4317
       HgConfig__RepoPath: /hg-repos
       HgConfig__HgWebUrl: http://hgweb:8088
+      SendReceiveConfig__FdoDataModelVersion: "7500002.7000072"
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:8088
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
       Authentication__Jwt__Secret: dev-secret_but-it-must-be-32-characters-long
