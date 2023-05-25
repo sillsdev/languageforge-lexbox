@@ -60,14 +60,10 @@
         - If no parent, vertical line to bottom of graph (same as above but V (bottom-of-graph Y) instead of parent Y)
         - If parent was in different column, Bezier curve as follows:
             - Calculate halfway-point between parent and child. Call it Hx, Hy. Cx, Cy is child, and Px, Py is parent.
-            - M child X,Y
-            - C Cx,Cy to Cx,Hy to Hx,Hy
-            - C Hx,Hy to Px,Hy to Px,Py
-            - Note that parents are *below* children in this graph, so Hy is below Cy and above Py
-            - If I understand that correctly, that could become:
             - M Cx, Cy
-            - S Cx,Hy Hx,Hy
-            - S Px,Hy Px,Py
+            - S Cx,Hy Hx,Hy (starting point of Cx, Cy is implied in SVG S command)
+            - S Px,Hy Px,Py (starting point of Hx, Hy is implied in SVG S command)
+            - Note that parents are *below* children in this graph, so Hy is below Cy and above Py
         */
         if (from && to) {  // TODO: Fix this hack once I figure out why the "to" is sometimes undefined
         let { row: fromRow, col: fromCol } = from;
