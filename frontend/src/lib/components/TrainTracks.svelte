@@ -46,18 +46,10 @@
     }
     $: cumulativeHeights = calculateCumulativeHeights(rowHeights);
 
-    function rowHeight(rowIdx: number) {
-        return cumulativeHeights[rowIdx] ? cumulativeHeights[rowIdx] : rowHeightDefault * rowIdx + firstRowOffset;
-    }
-
-    function colWidth(colIdx: number) {
-        return colWidthDefault * colIdx + firstColOffset;
-    }
-
-    function bezier(from: Circle, to: Circle) {
+    function bezier(from: SVGDot, to: SVGDot) {
         /*
         - If parent was in same column, M (child X,Y) and then V (parent Y)
-        - If no parent, vertical line to bottom of graph (same as above but V (bottom-of-graph Y) instead of parent Y)
+        - If no parent, vertical line to bottom of graph (same as above but V (bottom-of-graph Y) instead of parent Y) - TODO
         - If parent was in different column, Bezier curve as follows:
             - Calculate halfway-point between parent and child. Call it Hx, Hy. Cx, Cy is child, and Px, Py is parent.
             - M Cx, Cy
@@ -65,41 +57,44 @@
             - S Px,Hy Px,Py (starting point of Hx, Hy is implied in SVG S command)
             - Note that parents are *below* children in this graph, so Hy is below Cy and above Py
         */
-        if (from && to) {  // TODO: Fix this hack once I figure out why the "to" is sometimes undefined
-        let { row: fromRow, col: fromCol } = from;
-        let { row: toRow, col: toCol } = to;
-        let strokeColor = color(fromCol);  // Consider making it toCol instead
-        let fromX = colWidth(fromCol);
-        let toX = colWidth(toCol);
-        let fromY = rowHeight(fromRow);
-        let toY = rowHeight(toRow);
-        if (fromX == toX) {
-            return { color: strokeColor, d: `M${fromX} ${fromY}V${toY}` };
-        } else {
-            let halfX = (fromX + toX) / 2;
-            let halfY = (fromY + toY) / 2;
-            return { color: strokeColor, d: `M${fromX} ${fromY}S${fromX} ${halfY},${halfX} ${halfY}S${toX} ${halfY},${toX} ${toY}` };
-        }
-    } else return { color: '#000000', d: ''}
+        let { x: fromX, y: fromY, color: fromColor } = from;
+        if (to) {
+            let { x: toX, y: toY, color: toColor } = to;
+            let strokeColor = fromColor;  // Consider using toColor instead
+            if (fromX == toX) {
+                return { color: strokeColor, d: `M${fromX} ${fromY}V${toY}` };
+            } else {
+                let halfX = (fromX + toX) / 2;
+                let halfY = (fromY + toY) / 2;
+                return { color: strokeColor, d: `M${fromX} ${fromY}S${fromX} ${halfY},${halfX} ${halfY}S${toX} ${halfY},${toX} ${toY}` };
+            }
+        } else return { color: fromColor, d: ''}  // TODO: Path should be V${bottomY} to draw a line to the bottom of the graph, but how can we know bottomY?
     }
 
     let curves: SVGStroke[] = [];
-    let svgCircles: SVGDot[] = [];
+    let svgDots: SVGDot[] = [];
 
     $: {
-        cumulativeHeights;  // Lets Svelte know about the hidden dependency on this array in bezier()
-        curves = paths.map(({ fromIdx:f, toIdx:t }) => bezier(circles[f], circles[t]));
-        svgCircles = circles.map(({ row, col }) => ({ y: rowHeight(row), x: colWidth(col), color: color(col) }))
+        function rowHeight(rowIdx: number) {
+            return cumulativeHeights[rowIdx] ? cumulativeHeights[rowIdx] : rowHeightDefault * rowIdx + firstRowOffset;
+        }
+
+        function colWidth(colIdx: number) {
+            return colWidthDefault * colIdx + firstColOffset;
+        }
+
+        svgDots = circles.map(({ row, col }) => ({ y: rowHeight(row), x: colWidth(col), color: color(col) }))
+        curves = paths.map(({ fromIdx:f, toIdx:t }) => bezier(svgDots[f], svgDots[t]));
     };
 
-    $: maxWidth = Math.max(...svgCircles.map(c => c.x)) + colWidthDefault;
+    $: maxWidth = Math.max(...svgDots.map(c => c.x)) + colWidthDefault;
 </script>
 
 <svg width={maxWidth}>
     {#each curves as curve}
         <path fill="none" stroke="{curve.color}" stroke-width="1.5" d="{curve.d}"></path>
     {/each}
-    {#each svgCircles as c}
+    {#each svgDots as c}
         <circle cx={c.x} cy={c.y} r={circleSize} fill={c.color} stroke="none" style=""></circle>
     {/each}
 </svg>
