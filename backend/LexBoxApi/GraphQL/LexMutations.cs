@@ -5,6 +5,7 @@ using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.GraphQL;
 
@@ -45,9 +46,24 @@ public class LexMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
+    public async Task<ProjectUsers> ChangeProjectMemberRole(ChangeProjectMemberRoleInput input,
+        LexBoxDbContext dbContext)
+    {
+        var projectUser = await dbContext.ProjectUsers.FirstOrDefaultAsync(u => u.ProjectId == input.ProjectId && u.UserId == input.UserId);
+        if (projectUser is null) throw new NotFoundException("Project member not found");
+        projectUser.Role = input.Role;
+        await dbContext.SaveChangesAsync();
+        return projectUser;
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
     public async Task<Project> ChangeProjectName(ChangeProjectNameInput input,
         LexBoxDbContext dbContext)
     {
+        if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
+
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
 

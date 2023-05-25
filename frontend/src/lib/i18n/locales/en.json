@@ -65,6 +65,9 @@
       "modal_title": "Add a Member to this project",
       "submit_button": "Add Member"
     },
+    "change_role_modal": {
+      "title": "Choose role for {name}"
+    },
 		"project_name_empty_error": "Project name cannot be empty",
     "confirm-remove": "Would you like to remove {userName} from this project?",
     "history": "History",
@@ -77,7 +80,7 @@
     "not_found": "Project {code} not found!",
     "remove-project-user-title": "Member",
     "remove-user": "Remove",
-		"set-role": "Change Role"
+		"change_role": "Change Role"
   },
   "project_role": {
     "editor": "Editor",

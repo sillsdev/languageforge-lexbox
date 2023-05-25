@@ -16,12 +16,18 @@
 		_deleteProjectUser,
 		type ProjectUser,
 	} from './+page';
-	import AddProjectUser from './AddProjectUser.svelte';
+	import AddProjectMember from './AddProjectMember.svelte';
+	import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
 
 	export let data: PageData;
 
 	$: project = data.project;
 	$: _project = project as NonNullable<typeof project>;
+
+	let changeMemberRoleModal: ChangeMemberRoleModal;
+	async function changeMemberRole(projectUser: ProjectUser) {
+		await changeMemberRoleModal.open({ userId: projectUser.User.id, name: projectUser.User.name });
+	}
 
 	let deleteUserModal: DeleteModal;
 	let userToDelete: ProjectUser | undefined;
@@ -40,11 +46,10 @@
 		return _changeProjectDescription({ projectId: _project.id, description: newDescription });
 	}
 
-    $: userId = $user?.id;
-    $: isAdmin = $user?.role == 'admin';
+	$: userId = $user?.id;
+	$: isAdmin = $user?.role == 'admin';
 	$: canManage =
-		isAdmin ||
-		$user?.projects.find((project) => project.code == project.code)?.role == 'Manager';
+		isAdmin || $user?.projects.find((project) => project.code == project.code)?.role == 'Manager';
 
 	const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 </script>
@@ -108,9 +113,9 @@
 						/>
 						<ul class="dropdown-content menu bg-base-200 p-2 shadow rounded-box">
 							<li>
-								<button>
+								<button on:click={() => changeMemberRole(member)}>
 									<span class="i-mdi-account-lock text-2xl" />
-									{$t('project_page.set-role')}
+									{$t('project_page.change_role')}
 								</button>
 							</li>
 							<li>
@@ -126,8 +131,10 @@
 					</div>
 				{/each}
 				{#if canManage}
-					<AddProjectUser projectId={project.id} />
+					<AddProjectMember projectId={project.id} />
 				{/if}
+
+				<ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
 
 				<DeleteModal
 					bind:this={deleteUserModal}
