@@ -6,7 +6,7 @@ Requests come into a node app managed by Sveltekit for static, CSR, or SSR.  Dat
 
 ### Development
 
-Node needs to be installed locally. The `pnpm` package manager should be installed globally: run `pnpm --version` and if it isn't found, run `npm install -g pnpm`.
+Node needs to be installed locally. The `pnpm` package manager should be installed: if you don't already have it, run `corepack enable` and it will be set up.
 
 Once you've installed dependencies with `pnpm install`, start a development server:
 
