@@ -34,7 +34,7 @@
         return colors[colIdx % colorLength];
     }
 
-    function calculateCumulativeHeights(simpleHeights: number[]) {
+    function calculateCumulativeHeights(simpleHeights: number[]): number[] {
         let firstRow = (simpleHeights && simpleHeights.length > 0) ? (simpleHeights[0] / 2) : firstRowOffset;
         let total = firstRow;
         let result = [firstRow];
