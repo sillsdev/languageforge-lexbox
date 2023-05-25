@@ -15,7 +15,7 @@
     export let firstColOffset = 10;
     export let colWidthDefault = 20; // May be auto-calculated in the future
     export let rowHeightDefault = 20;
-    export let circleSize = 4;
+    export let circleSize = 5;
 
     export let colors = [ // Default set of colors works nicely, but allow overriding if needed
         "#4e79a7",
