@@ -15,6 +15,13 @@ There are some exceptions:
 
 Other files, like `docker-compose.yaml`, should be at the root of the repo, because they're related to all services.
 
+#### git note
+
+this repo uses a ignore revs file. To configure this repo to use it run this command
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ## Development
 
 ### Prerequisites
@@ -102,6 +109,7 @@ It may be that dotnet did not apply migrations yet,
 so you might try restarting dotnet and wait for it to update the database schema.
 Then come back and reload the metadata again.
 
+---
 ### Proxy Diagram
 
 Development:
