@@ -6,6 +6,7 @@
 <script lang="ts">
     import FormatDate from './FormatDate.svelte';
     import TrainTracks from './TrainTracks.svelte';
+    import type { Path, Circle } from './TrainTracks.svelte';
 
     type LogEntry = {
         node: string,
@@ -80,7 +81,7 @@
 
     function assignPaths(entries: ExpandedLogEntry[]) {
         let indices = {} as { [node: string]: number };
-        let paths: [number, number][] = [];
+        let paths: Path[] = [];
         for (const entry of entries) {
             const { node, row } = entry;
             indices[node] = row;
@@ -90,7 +91,7 @@
             const { parents } = entry;
             for (const parent of parents) {
                 const parentIdx = indices[parent];
-                paths.push([curIdx, parentIdx]);
+                paths.push({fromIdx: curIdx, toIdx: parentIdx});
             }
             curIdx++;
         }
@@ -109,7 +110,7 @@
         return orig.replace(logEntryRe, "");
     }
 
-    $: circles = expandedLog.map((entry, idx) => ({ row: idx, col: entry.col }));
+    $: circles = expandedLog.map((entry, idx) => ({ row: idx, col: entry.col } as Circle));
     $: paths = assignPaths(expandedLog);
 
     let heights: number[] = [];

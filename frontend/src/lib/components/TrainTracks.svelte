@@ -1,12 +1,13 @@
 <script lang="ts" context="module">
-    type Circle = {row:number, col:number};
+    export type Circle = {row:number, col:number};
+    export type Path = {fromIdx:number, toIdx:number};  // Indices into array of circles
     type SVGDot = {x:number, y:number, color?:string};
     type SVGStroke = {color?:string, d:string}
 </script>
 <script lang="ts">
     // We need a list of dots and lines, i.e. which dots go to which parents
     // Each dot has one or two parents, and needs a Bezier curve to the parent
-    export let paths: [number, number][] = [];  // Format is [0,1],[1,2],[2,3],[2,4]. Dot 0 connects to dot 1. Dot 1 connects to dot 2. Dot 2 connects to both both 3 and 4, but they are separate paths.
+    export let paths: Path[] = [];  // Format is [{fromIdx:0,toIdx:1},{fromIdx:1,toIdx:2},{fromIdx:1,toIdx:3}], and so on. Dot 0 connects to dot 1. Dot 1 connects to both dots 2 and 3, because it was a fork or a merge.
     export let circles: Circle[] = [];  // Format is [{row:0,col:0},{row:1,col:0},{row:2,col:0},{row:2,col:1}]. Each dot has a row and column, which are auto-translated to x and y
     export let rowHeights: number[] = [];
 
@@ -91,7 +92,7 @@
 
     $: {
         cumulativeHeights;  // Lets Svelte know about the hidden dependency on this array in bezier()
-        curves = paths.map(([f,t]) => bezier(circles[f], circles[t]));
+        curves = paths.map(({ fromIdx:f, toIdx:t }) => bezier(circles[f], circles[t]));
         svgCircles = circles.map(({ row, col }) => ({ y: rowHeight(row), x: colWidth(col), color: color(col) }))
     };
 
