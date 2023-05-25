@@ -44,7 +44,7 @@
         return result;
     }
     $: cumulativeHeights = calculateCumulativeHeights(rowHeights);
-    
+
     function rowHeight(rowIdx: number) {
         return cumulativeHeights[rowIdx] ? cumulativeHeights[rowIdx] : rowHeightDefault * rowIdx + firstRowOffset;
     }
@@ -54,7 +54,7 @@
     }
 
     function bezier(from: Circle, to: Circle) {
-        /* 
+        /*
         - If parent was in same column, M (child X,Y) and then V (parent Y)
         - If no parent, vertical line to bottom of graph (same as above but V (bottom-of-graph Y) instead of parent Y)
         - If parent was in different column, Bezier curve as follows:
