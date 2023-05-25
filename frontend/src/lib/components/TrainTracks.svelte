@@ -57,10 +57,9 @@
             - S Px,Hy Px,Py (starting point of Hx, Hy is implied in SVG S command)
             - Note that parents are *below* children in this graph, so Hy is below Cy and above Py
         */
-        let { x: fromX, y: fromY, color: fromColor } = from;
+        let { x: fromX, y: fromY, color: strokeColor } = from;
         if (to) {
-            let { x: toX, y: toY, color: toColor } = to;
-            let strokeColor = fromColor;  // Consider using toColor instead
+            let { x: toX, y: toY } = to;
             if (fromX == toX) {
                 return { color: strokeColor, d: `M${fromX} ${fromY}V${toY}` };
             } else {
@@ -68,7 +67,7 @@
                 let halfY = (fromY + toY) / 2;
                 return { color: strokeColor, d: `M${fromX} ${fromY}S${fromX} ${halfY},${halfX} ${halfY}S${toX} ${halfY},${toX} ${toY}` };
             }
-        } else return { color: fromColor, d: ''}  // TODO: Path should be V${bottomY} to draw a line to the bottom of the graph, but how can we know bottomY?
+        } else return { color: strokeColor, d: ''}  // TODO: Path should be V${bottomY} to draw a line to the bottom of the graph, but how can we know bottomY?
     }
 
     let curves: SVGStroke[] = [];
