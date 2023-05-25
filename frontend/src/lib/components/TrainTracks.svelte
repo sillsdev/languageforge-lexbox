@@ -46,7 +46,7 @@
     }
     $: cumulativeHeights = calculateCumulativeHeights(rowHeights);
 
-    function bezier(from: SVGDot, to: SVGDot) {
+    function bezier(from: SVGDot, to: SVGDot): SVGStroke {
         /*
         - If parent was in same column, M (child X,Y) and then V (parent Y)
         - If no parent, vertical line to bottom of graph (same as above but V (bottom-of-graph Y) instead of parent Y) - TODO
