@@ -90,10 +90,12 @@
 </script>
 
 <svg width={maxWidth}>
+{#if rowHeights?.length > 0}
     {#each curves as curve}
         <path fill="none" stroke="{curve.color}" stroke-width="1.5" d="{curve.d}"></path>
     {/each}
     {#each svgDots as c}
         <circle cx={c.x} cy={c.y} r={circleSize} fill={c.color} stroke="none" style=""></circle>
     {/each}
+{/if}
 </svg>
