@@ -20,6 +20,9 @@ spec:
   - name: sveltekit
     protocol: TCP
     port: 3000
+  - name: github-deploy
+    protocol: TCP
+    port: 9000
 
 ---
 
@@ -45,11 +48,12 @@ spec:
       labels:
         app: lexbox
     spec:
+      serviceAccountName: lexbox-deployer
       containers:
       - name: lexbox-api
         # TODO: need to parameterize this tag
         image: ghcr.io/sillsdev/lexbox-api:develop
-
+        imagePullPolicy: Always
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -126,6 +130,7 @@ spec:
 
       - name: ui
         image: ghcr.io/sillsdev/lexbox-ui:latest
+        imagePullPolicy: Always
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -151,6 +156,7 @@ spec:
 
       - name: hasura
         image: ghcr.io/sillsdev/lexbox-hasura
+        imagePullPolicy: Always
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -201,6 +207,43 @@ spec:
               secretKeyRef:
                 key: HONEYCOMB_API_KEY
                 name: otel
+      # receives a webhook and redeploys the application, from https://github.com/silnrsi/langfontfinder/blob/183fcd348ebdbffaf5560b3b816223ebd5b98c5a/kubernetes/service-deploy.yaml
+      - name: deployer
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+        env:
+          - name: DEPLOY_KEY
+            valueFrom:
+              secretKeyRef:
+                name: deploy-key
+                key: deploy-key
+          - name: SITE_GIT_BRANCH
+            valueFrom:
+              configMapKeyRef:
+                name: deploy-config
+                key: site-branch
+        command: [ "sh", "-c" ]
+        args:
+          - |
+            set -e
+            apk add curl git webhook
+            exec webhook -verbose \
+              -urlprefix=api \
+              -template \
+              -hooks=/webhooks/hooks.yaml
+        ports:
+          - containerPort: 9000
+        volumeMounts:
+          - name: webhooks
+            mountPath: /webhooks
+            readOnly: true
+
       volumes:
       - name: repos
         persistentVolumeClaim:
@@ -211,3 +254,96 @@ spec:
           items:
             - key: collector-config.yaml
               path: config.yaml
+      - name: webhooks
+        configMap:
+          name: deploy-config
+          items:
+            - key: deployer
+              path: deploy.sh
+              mode: 365
+            - key: webhooks
+              path: hooks.yaml
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: deploy-config
+data:
+#  branch to allow deployments from
+  site-branch: develop
+#  script to execute when the webhook gets called
+  deployer: |
+    #!/bin/sh
+    SERVICEACCOUNT=/run/secrets/kubernetes.io/serviceaccount
+    NAMESPACE=$(cat $SERVICEACCOUNT/namespace)
+    DEPLOYMENTS="https://kubernetes.default.svc/apis/apps/v1/namespaces/$NAMESPACE/deployments"
+    TOKEN=$(cat $SERVICEACCOUNT/token)
+    NOW=$(date -Is)
+    curl --location --request PATCH "$DEPLOYMENTS/lexbox?fieldManager=kubectl-rollout" \
+    --cacert $SERVICEACCOUNT/ca.crt \
+    --header 'Content-Type: application/strategic-merge-patch+json' \
+    --header "Authorization: Bearer $TOKEN" \
+    --data-raw "{\"spec\": {\"template\": {\"metadata\": {\"annotations\": {\"kubectl.kubernetes.io/restartedAt\": \"$NOW\"}}}}}"
+
+#    documentation https://github.com/adnanh/webhook/blob/master/docs/Hook-Definition.md
+  webhooks: |
+    - id: github-deploy
+      execute-command: /webhooks/deploy.sh
+      command-working-directory: /mnt
+      http-methods: [POST]
+      trigger-rule:
+        and:
+        - or:
+          - match:
+              type: payload-hmac-sha256
+              secret: '{{ getenv "DEPLOY_KEY" }}'
+              parameter:
+                source: header
+                name: X-Hub-Signature-256
+          - match:
+              type: payload-hmac-sha1
+              secret: '{{ getenv "DEPLOY_KEY" }}'
+              parameter:
+                source: header
+                name: X-Hub-Signature
+        - match:
+            type: value
+            value: push
+            parameter:
+              source: payload
+              name: action
+        - match:
+            type: value
+            value: 'refs/heads/{{getenv "SITE_GIT_BRANCH"}}'
+            parameter:
+              source: payload
+              name: ref
+
+# setup role based access control for the deployer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lexbox-deployer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployer
+rules:
+  - apiGroups: [ "apps" ]
+    resources: [ "deployments" ]
+    verbs: [ "patch" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: redepoly
+subjects:
+  - kind: ServiceAccount
+    name: lexbox-deployer
+roleRef:
+  kind: Role
+  name: deployer
+  apiGroup: rbac.authorization.k8s.io
