@@ -37,6 +37,7 @@ public static class LexBoxKernel
         services.AddScoped<LoggedInContext>();
         services.AddScoped<ProjectService>();
         services.AddScoped<EmailService>();
+        services.AddScoped<SendReceiveService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();

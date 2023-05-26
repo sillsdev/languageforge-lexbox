@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using LexBoxApi.Config;
 // using LexCore.Entities;
 using LexData;
@@ -19,6 +20,21 @@ public class SendReceiveService
         _hgService = hgService;
         _hgOptions = hgOptions;
         _sendReceiveOptions = sendReceiveOptions;
+    }
+
+    public async Task<string> VerifyHgVersion()
+    {
+        string output = "";
+        using (Process hg = new()) {
+            hg.StartInfo.FileName = "Mercurial/hg"; // TODO: Find out how to add the .exe extension iff on Windows
+            hg.StartInfo.Arguments = "version";
+            hg.StartInfo.RedirectStandardOutput = true;
+
+            hg.Start();
+            output = hg.StandardOutput.ReadToEnd();
+            await hg.WaitForExitAsync();
+        }
+        return output;
     }
 
     public async Task<bool> CloneProject(string projectCode, string destDir)
