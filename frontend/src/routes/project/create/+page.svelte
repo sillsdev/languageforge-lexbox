@@ -1,15 +1,15 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { FormError, lexSuperForm } from '$lib/forms';
+	import Checkbox from '$lib/forms/Checkbox.svelte';
 	import Form from '$lib/forms/Form.svelte';
 	import Input from '$lib/forms/Input.svelte';
-	import { Page } from '$lib/layout';
-	import t from '$lib/i18n';
-	import { z } from 'zod';
-	import { lexSuperForm } from '$lib/forms';
 	import Select from '$lib/forms/Select.svelte';
-	import Checkbox from '$lib/forms/Checkbox.svelte';
-	import { _createProject } from './+page';
 	import { DbErrorCode, ProjectType, RetentionPolicy } from '$lib/gql/graphql';
-	import { goto } from '$app/navigation';
+	import t from '$lib/i18n';
+	import { Page } from '$lib/layout';
+	import { z } from 'zod';
+	import { _createProject } from './+page';
 	const formSchema = z.object({
 		name: z.string().min(1, $t('project.create.name_missing')),
 		description: z.string().min(1, $t('project.create.description_missing')),
@@ -114,9 +114,7 @@
 			readonly={!$form.customCode}
 		/>
 		{#if $message}
-			<label class="label">
-				<span class="label-text-alt text-lg text-error mb-2">{$message}</span>
-			</label>
+			<FormError>{$message}</FormError>
 		{/if}
 		<button type="submit" class="btn btn-primary mb-2" class:loading={$submitting}>
 			{$t('project.create.submit')}

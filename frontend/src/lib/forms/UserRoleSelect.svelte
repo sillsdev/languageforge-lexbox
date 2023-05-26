@@ -4,7 +4,7 @@
 
 	import { Select } from '.';
 
-    export let id = 'role';
+	export let id = 'role';
 	export let value: ProjectRole;
 	export let error: string[] | undefined;
 </script>

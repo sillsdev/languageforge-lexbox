@@ -58,6 +58,7 @@ public class LexMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<RequiredException>]
     [UseMutationConvention]
     public async Task<Project> ChangeProjectName(ChangeProjectNameInput input,
         LexBoxDbContext dbContext)
