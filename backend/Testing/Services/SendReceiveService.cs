@@ -51,10 +51,10 @@ public class SendReceiveService
         };
         LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", _progress, flexBridgeOptions, out string cloneResult);
 
-        if (_progress is StringBuilderProgress)
+        if (_progress is StringBuilderProgress sbProgress)
         {
-            cloneResult = cloneResult + ((StringBuilderProgress)_progress).Text;
-            ((StringBuilderProgress)_progress).Clear();
+            cloneResult = cloneResult + sbProgress.Text;
+            sbProgress.Clear();
         }
         return cloneResult;
     }
@@ -75,10 +75,10 @@ public class SendReceiveService
         };
 
         LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Send_Receive", _progress, flexBridgeOptions, out string cloneResult);
-        if (_progress is StringBuilderProgress)
+        if (_progress is StringBuilderProgress sbProgress)
         {
-            cloneResult = cloneResult + ((StringBuilderProgress)_progress).Text;
-            ((StringBuilderProgress)_progress).Clear();
+            cloneResult = cloneResult + sbProgress.Text;
+            sbProgress.Clear();
         }
         return cloneResult;
     }
