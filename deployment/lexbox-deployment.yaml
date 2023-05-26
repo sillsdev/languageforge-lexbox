@@ -48,7 +48,7 @@ spec:
       containers:
       - name: lexbox-api
         # TODO: need to parameterize this tag
-        image: ghcr.io/sillsdev/lexbox-api:latest
+        image: ghcr.io/sillsdev/lexbox-api:develop
 
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
@@ -125,7 +125,7 @@ spec:
             value: localhost:3000
 
       - name: ui
-        image: ghcr.io/sillsdev/lexbox-ui
+        image: ghcr.io/sillsdev/lexbox-ui:latest
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
