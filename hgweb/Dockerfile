@@ -2,6 +2,8 @@
 
 FROM httpd:2.4-alpine
 
+ENV CUSTOM_PORT=8088
+
 #install both mod_wsgi and mercurial
 #we need to install mercurial via pip otherwise we get a really old version
 RUN set -ex && \

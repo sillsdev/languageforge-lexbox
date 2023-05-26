@@ -113,7 +113,9 @@ services:
   hgweb:
     build: ./hgweb
     ports:
-      - "8088:80" # 8080 exposed here for dev tools
+      - "8088:8088" # 8080 exposed here for dev tools
+    environment:
+      CUSTOM_PORT: 8088
     volumes:
       - hg-repos:/var/hg/repos
 
