@@ -6,6 +6,7 @@
 <script lang="ts">
     import FormatDate from './FormatDate.svelte';
     import TrainTracks from './TrainTracks.svelte';
+    import type { Path, Circle } from './TrainTracks.svelte';
 
     type LogEntry = {
         node: string,
@@ -23,6 +24,9 @@
     export let json: LogEntry[];  // JSON-format hg log
 
     function assignRowsAndColumns(entries: ExpandedLogEntry[]) {
+        // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
+        // Basic idea is to keep them as far left as possible, only assigning extra columns when a node had multiple parents (a merge)
+        // Nodes with multiple children usually represent forks in the original repo, and those are placed under their leftmost child
         const cols = {} as { [node: string]: number };
         let curCol = 0;
         let curRow = 0;
@@ -47,6 +51,8 @@
                 if (parent in cols) {
                     // Parent has already been assigned a column, but maybe it can move to the left.
                     // Therefore, use either its column or the current column, *whichever is lower* (important)
+                    // This typically happens when a node had multiple children, i.e. it was a fork point, and by
+                    // moving as far left as possible we usually end up under the leftmost child, often in column 0
                     curCol = Math.min(cols[parent], curCol);
                     cols[parent] = curCol;
                 } else {
@@ -75,7 +81,7 @@
 
     function assignPaths(entries: ExpandedLogEntry[]) {
         let indices = {} as { [node: string]: number };
-        let paths: [number, number][] = [];
+        let paths: Path[] = [];
         for (const entry of entries) {
             const { node, row } = entry;
             indices[node] = row;
@@ -85,7 +91,7 @@
             const { parents } = entry;
             for (const parent of parents) {
                 const parentIdx = indices[parent];
-                paths.push([curIdx, parentIdx]);
+                paths.push({fromIdx: curIdx, toIdx: parentIdx});
             }
             curIdx++;
         }
@@ -104,7 +110,7 @@
         return orig.replace(logEntryRe, "");
     }
 
-    $: circles = expandedLog.map((entry, idx) => ({ row: idx, col: entry.col }));
+    $: circles = expandedLog.map((entry, idx) => ({ row: idx, col: entry.col } as Circle));
     $: paths = assignPaths(expandedLog);
 
     let heights: number[] = [];
