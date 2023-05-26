@@ -6,8 +6,8 @@
 </script>
 
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import t from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 	import { writable, type Unsubscriber } from 'svelte/store';
 	const dispatch = createEventDispatcher<{
 		close: DialogResponse;
@@ -17,7 +17,7 @@
 
 	let dialogResponse = writable<DialogResponse | null>(null);
 	let open = writable(false);
-	$: closing = $dialogResponse !== null && open;
+	$: closing = $dialogResponse !== null && $open;
 	export let bottom = false;
 	export let showCloseButton = true;
 	export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false) {

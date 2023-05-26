@@ -8,7 +8,8 @@ form {
 		@apply mb-4;
 	}
 
-	button, a {
+	button,
+	a {
 		@apply mt-4;
 	}
 
@@ -18,6 +19,10 @@ form {
 }
 
 .overflow-wrap {
-    overflow-wrap: break-word;
-    overflow: hidden;
+	overflow-wrap: break-word;
+	overflow: hidden;
+}
+
+button.button-badge:not([disabled]) {
+	@apply hover:drop-shadow-xl hover:brightness-90;
 }

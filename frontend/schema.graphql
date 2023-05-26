@@ -75,6 +75,19 @@ type ChangeProjectDescriptionPayload {
   project: Project
 }
 
+union ChangeProjectMemberRoleError = DbError | NotFoundError
+
+input ChangeProjectMemberRoleInput {
+  projectId: UUID!
+  role: ProjectRole!
+  userId: UUID!
+}
+
+type ChangeProjectMemberRolePayload {
+  errors: [ChangeProjectMemberRoleError!]
+  projectUsers: LexBox_ProjectUsers
+}
+
 union ChangeProjectNameError = DbError | NotFoundError
 
 input ChangeProjectNameInput {
@@ -176,6 +189,7 @@ type LexBox_ProjectUsers {
 type Mutation {
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
+  changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
 
