@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using LexBoxApi.Config;
 // using LexCore.Entities;
 using LexData;
@@ -26,7 +27,8 @@ public class SendReceiveService
     {
         string output = "";
         using (Process hg = new()) {
-            hg.StartInfo.FileName = "Mercurial/hg"; // TODO: Find out how to add the .exe extension iff on Windows
+            string hgFilename = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "hg.exe" : "hg";
+            hg.StartInfo.FileName = $"Mercurial/{hgFilename}";
             hg.StartInfo.Arguments = "version";
             hg.StartInfo.RedirectStandardOutput = true;
 
