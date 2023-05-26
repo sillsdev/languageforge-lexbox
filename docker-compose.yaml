@@ -29,7 +29,7 @@ services:
 
       # for dev convenience
       - ./backend:/src/backend
-      - nuget-cache:/root/.nuget/packages
+      - nuget-cache:/home/builder/.nuget/packages
     env_file: .env
     environment:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
