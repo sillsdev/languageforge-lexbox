@@ -4,6 +4,7 @@ using LexBoxApi.GraphQL;
 using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
+using SIL.Progress;
 
 namespace LexBoxApi;
 
@@ -39,6 +40,7 @@ public static class LexBoxKernel
         services.AddScoped<EmailService>();
         services.AddScoped<SendReceiveService>();
         services.AddScoped<TurnstileService>();
+        services.AddScoped<IProgress, StringBuilderProgress>();
         services.AddScoped<IHgService, HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSyncProxy(configuration, environment);

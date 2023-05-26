@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
+using Testing.Logging;
 
 namespace Testing.Fixtures;
 
@@ -28,6 +29,7 @@ public class TestingServicesFixture : IAsyncLifetime
         });
         Services.AddSingleton<IHostEnvironment>(new HostingEnvironment { EnvironmentName = Environments.Development });
         Services.AddSingleton<IConfiguration>(new ConfigurationManager());
+        Services.AddScoped<SIL.Progress.IProgress, XunitStringBuilderProgress>();
         Services.AddLexData();
         _lazyServiceProvider = new(Services.BuildServiceProvider);
     }
