@@ -2,14 +2,21 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hgresume
+  name: hg
   labels:
-    app: hgresume
+    app: hg
 spec:
   type: ClusterIP
   clusterIP: None
   selector:
-    app: hgresume
+    app: hg
+  ports:
+    - name: hg-resumable
+      protocol: TCP
+      port: 80
+    - name: hgweb
+      protocol: TCP
+      port: 8088
 
 ---
 
@@ -31,22 +38,41 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hgresume
+  name: hg
   labels:
-    app: hgresume
+    app: hg
 spec:
   selector:
     matchLabels:
-      app: hgresume
+      app: hg
   strategy:
       type: Recreate
   template:
     # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
     metadata:
       labels:
-        app: hgresume
+        app: hg
     spec:
       containers:
+      - name: hgweb
+        image: ghcr.io/sillsdev/lexbox-hgweb:latest
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+        env:
+          - name: CUSTOM_PORT
+            value: "8088"
+        ports:
+          - containerPort: 8088
+
+        volumeMounts:
+          - name: repos
+            mountPath: /var/hg/repos
+
       - name: hgresume
         image: ghcr.io/sillsdev/hgresume:v2023-02-24
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
@@ -56,6 +82,8 @@ spec:
             cpu: 0.1
           limits:
             memory: 400Mi
+        ports:
+          - containerPort: 80
 
         volumeMounts:
         - name: cache
