@@ -129,10 +129,10 @@ services:
       - hgresume-cache:/var/cache/hgresume
 
   otel-collector:
-    build: ./otel
+    image: otel/opentelemetry-collector:0.73.0
     volumes:
       # for dev convenience
-      - ./otel/collector-config.yaml:/etc/collector-config.yaml
+      - ./otel/collector-config.yaml:/etc/otelcol/config.yaml
     ports:
       # TODO: determine why these are exposed to the host.
       - 4317:4317 # OTLP gRPC receiver - only required when running backend locally
