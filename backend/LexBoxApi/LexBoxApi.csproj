@@ -8,7 +8,6 @@
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <InformationalVersion>dev</InformationalVersion>
-        <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,9 +30,6 @@
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.0.0-rc9.14" />
         <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.6" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
-        <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.3.6" />
-        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.0.0-beta*" />
-        <PackageReference Include="SIL.Core" Version="11.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     </ItemGroup>
 
@@ -45,7 +41,5 @@
 
     <ItemGroup>
       <Content Include="Services\HgEmptyRepo\**" CopyToOutputDirectory="Always" />
-      <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
-      <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
     </ItemGroup>
 </Project>

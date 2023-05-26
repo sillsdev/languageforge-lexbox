@@ -7,20 +7,16 @@ using LexData;
 using Microsoft.Extensions.Options;
 using SIL.Progress;
 
-namespace LexBoxApi.Services;
+namespace Testing.Services;
 
 public class SendReceiveService
 {
-    private readonly LexBoxDbContext _dbContext;
-    private readonly IHgService _hgService;
     private readonly IOptions<HgConfig> _hgOptions;
     private readonly IOptions<SendReceiveConfig> _sendReceiveOptions;
     private readonly IProgress _progress;
 
-    public SendReceiveService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgOptions, IOptions<SendReceiveConfig> sendReceiveOptions, IProgress progress)
+    public SendReceiveService(IOptions<HgConfig> hgOptions, IOptions<SendReceiveConfig> sendReceiveOptions, IProgress progress)
     {
-        _dbContext = dbContext;
-        _hgService = hgService;
         _hgOptions = hgOptions;
         _sendReceiveOptions = sendReceiveOptions;
         _progress = progress;

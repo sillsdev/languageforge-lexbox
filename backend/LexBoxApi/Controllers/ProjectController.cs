@@ -14,14 +14,12 @@ public class ProjectController : ControllerBase
     private readonly ProjectService _projectService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHgService _hgService;
-    private readonly SendReceiveService _srService;
 
 
-    public ProjectController(ProjectService projectService, IHgService hgService, SendReceiveService srService, LexBoxDbContext lexBoxDbContext)
+    public ProjectController(ProjectService projectService, IHgService hgService, LexBoxDbContext lexBoxDbContext)
     {
         _projectService = projectService;
         _hgService = hgService;
-        _srService = srService;
         _lexBoxDbContext = lexBoxDbContext;
     }
 
@@ -37,12 +35,6 @@ public class ProjectController : ControllerBase
     public async Task<ActionResult<DateTimeOffset?>> LastCommitForRepo(string code)
     {
         return await _hgService.GetLastCommitTimeFromHg(code);
-    }
-
-    [HttpGet("hgVersion")]
-    public async Task<string> HgVersion()
-    {
-        return await _srService.VerifyHgVersion();
     }
 
     [HttpPost("updateAllRepoCommitDates")]
