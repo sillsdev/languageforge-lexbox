@@ -29,6 +29,11 @@ public class TestingServicesFixture : IAsyncLifetime
                 "Password=972b722e63f549938d07bd8c4ee5086c",
                 "Include Error Detail=true");
         });
+        // Services.AddOptions<HgConfig>().Configure(config =>  // This doesn't work because RepoPath is an `init` property
+        // {
+        //     config.RepoPath = "../../hgweb/repos"'
+        //     config.HgWebUrl = "http://localhost:8088";
+        // });
         Services.AddSingleton<IHostEnvironment>(new HostingEnvironment { EnvironmentName = Environments.Development });
         Services.AddSingleton<IConfiguration>(new ConfigurationManager());
         Services.AddScoped<SendReceiveService>();

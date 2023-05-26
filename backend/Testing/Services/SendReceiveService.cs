@@ -12,13 +12,13 @@ namespace Testing.Services;
 public class SendReceiveService
 {
     private readonly IOptions<HgConfig> _hgOptions;
-    private readonly IOptions<SendReceiveConfig> _sendReceiveOptions;
+    // private readonly IOptions<SendReceiveConfig> _sendReceiveOptions;
+    private const string fdoDataModelVersion = "7500002.7000072";
     private readonly IProgress _progress;
 
-    public SendReceiveService(IOptions<HgConfig> hgOptions, IOptions<SendReceiveConfig> sendReceiveOptions, IProgress progress)
+    public SendReceiveService(IProgress progress)
     {
-        _hgOptions = hgOptions;
-        _sendReceiveOptions = sendReceiveOptions;
+        // _sendReceiveOptions = sendReceiveOptions;
         _progress = progress;
     }
 
@@ -40,11 +40,12 @@ public class SendReceiveService
 
     public async Task<string> CloneProject(string projectCode, string destDir)
     {
-        var repoUrl = $"{_hgOptions.Value.HgWebUrl}/hg/{projectCode}";
+        var repoUrl = $"http://localhost:8088/hg/{projectCode}";
+        // var repoUrl = $"{_hgOptions.Value.HgWebUrl}/hg/{projectCode}";
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
-            { "fdoDataModelVersion", _sendReceiveOptions.Value.FdoDataModelVersion },
+            { "fdoDataModelVersion", fdoDataModelVersion },
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl },
             { "deleteRepoIfNoSuchBranch", "false" },
@@ -67,7 +68,7 @@ public class SendReceiveService
         {
             { "fullPathToProject", projectDir },
             { "fwdataFilename", fwdataFilename },
-            { "fdoDataModelVersion", _sendReceiveOptions.Value.FdoDataModelVersion },
+            { "fdoDataModelVersion", fdoDataModelVersion },
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl },
             { "user", "LexBox" },
