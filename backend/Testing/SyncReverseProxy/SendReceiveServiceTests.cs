@@ -1,14 +1,17 @@
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
+using Testing.Fixtures;
 
 namespace Testing.Services;
 
-public class SendReceiveServiceTests
+public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 {
     private SendReceiveService _srService;
 
-    public SendReceiveServiceTests(SendReceiveService srService)
+    public SendReceiveServiceTests(TestingServicesFixture testing)
     {
-        _srService = srService;
+        testing.Services.AddScoped<SendReceiveService>();
+        _srService = testing.ServiceProvider.GetRequiredService<SendReceiveService>();
     }
 
     [Theory]

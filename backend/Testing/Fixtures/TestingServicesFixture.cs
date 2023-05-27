@@ -37,7 +37,8 @@ public class TestingServicesFixture : IAsyncLifetime
         Services.AddSingleton<IHostEnvironment>(new HostingEnvironment { EnvironmentName = Environments.Development });
         Services.AddSingleton<IConfiguration>(new ConfigurationManager());
         Services.AddScoped<SendReceiveService>();
-        Services.AddScoped<IProgress, XunitStringBuilderProgress>();
+        // Services.AddScoped<IProgress, XunitStringBuilderProgress>();
+        Services.AddScoped<IProgress, StringBuilderProgress>();
         Services.AddLexData();
         _lazyServiceProvider = new(Services.BuildServiceProvider);
     }
