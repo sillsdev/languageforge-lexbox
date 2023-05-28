@@ -1,17 +1,23 @@
-using Microsoft.Extensions.DependencyInjection;
+using LexBoxApi.Config;
 using Shouldly;
+using SIL.Progress;
 using Testing.Fixtures;
 
 namespace Testing.Services;
 
 public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 {
+    private HgConfig mockHgConfig = new HgConfig {  // For when we put an IOptions<HgConfig> back into SendReceiveService
+        RepoPath = "../../hgweb/repos",
+        HgWebUrl = "http://localhost:8088"
+    };
     private SendReceiveService _srService;
+    private IProgress _progress;
 
-    public SendReceiveServiceTests(TestingServicesFixture testing)
+    public SendReceiveServiceTests()
     {
-        testing.Services.AddScoped<SendReceiveService>();
-        _srService = testing.ServiceProvider.GetRequiredService<SendReceiveService>();
+        _progress = new StringBuilderProgress();
+        _srService = new SendReceiveService(_progress);
     }
 
     [Theory]
