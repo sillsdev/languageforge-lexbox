@@ -12,7 +12,7 @@ namespace Testing.Services;
 public class SendReceiveService
 {
     private readonly IOptions<HgConfig> _hgOptions;
-    private const string fdoDataModelVersion = "7500002.7000072";
+    private const string fdoDataModelVersion = "7000072";
     private readonly IProgress _progress;
 
     public SendReceiveService(IProgress progress, IOptions<HgConfig> hgOptions)
