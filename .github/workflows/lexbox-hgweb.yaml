@@ -7,8 +7,10 @@ on:
       - 'hgweb/**'
       - '.github/workflows/lexbox-hgweb.yaml'
 
+env:
+  PROD_RELEASE: ${{github.ref == 'refs/heads/develop'}}
 jobs:
-  build-n-publish:
+  publish-hgweb:
     runs-on: ubuntu-latest
 
     env:
@@ -18,6 +20,23 @@ jobs:
     steps:
       -
         uses: actions/checkout@v3
+      - name: Set Version
+        id: setVersion
+        # set version to date in vYYYY-MM-DD format
+        run: |
+          echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_ENV}
+
+      - name: Docker meta
+        id: meta
+        if: ${{ !env.ACT }}
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/sillsdev/lexbox-hgweb
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=raw,enabled=${{ env.PROD_RELEASE }},value=latest
+            type=raw,enabled=${{ env.PROD_RELEASE }},value=${{ env.VERSION }}
       -
         uses: docker/login-action@v2
         with:
@@ -28,5 +47,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: hgweb
-          push: true
-          tags: ghcr.io/sillsdev/lexbox-hgweb
+          push: ${{ !env.ACT }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

@@ -6,9 +6,9 @@ metadata:
 spec:
   defaultBackend:
     service:
-      name: ui
+      name: lexbox
       port:
-        number: 3000
+        name: sveltekit
   rules:
   - host: staging.languagedepot.org
     http:
@@ -17,16 +17,23 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: lexbox-api
+            name: lexbox
             port:
-              number: 80
+              name: http
       - path: /v1/traces
         pathType: Prefix
         backend:
           service:
-            name: otel-collector
+            name: lexbox
             port:
-              number: 4318
+              name: otel
+      - path: /api/github-deploy
+        pathType: Exact
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: github-deploy
 
   tls:
   - hosts:

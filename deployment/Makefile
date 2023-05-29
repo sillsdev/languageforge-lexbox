@@ -21,24 +21,19 @@ list-config:
 init-secrets:
 	kubectl apply -f secrets.yaml
 
+create-otel-config:
+    kubectl create configmap otel-config --from-file=../otel/collector-config.yaml
+
 
 deploy-db:
 	kubectl apply -f db-deployment.yaml
 deploy-pvc-hg-repos:
 	kubectl apply -f hg-repos-pvc.yaml
-deploy-hgresume: deploy-pvc-hg-repos
-	kubectl apply -f hgresume-deployment.yaml
-deploy-hgweb: deploy-pvc-hg-repos
-	kubectl apply -f hgweb-deployment.yaml
-deploy-hasura: deploy-db
-	kubectl apply -f hasura-deployment.yaml
-deploy-otel-collector:
-	kubectl apply -f otel-collector-deployment.yaml
-deploy-api: deploy-db deploy-hgresume deploy-hgweb deploy-hasura
-	kubectl apply -f lexbox-api-deployment.yaml
-deploy-ui: deploy-api
-	kubectl apply -f ui-deployment.yaml
-deploy-proxy: deploy-api deploy-ui
+deploy-app: deploy-db
+	kubectl apply -f lexbox-deployment.yaml
+deploy-hg:
+	kubectl apply -f hg-deployment.yaml
+deploy-proxy: deploy-app deploy-hg
 	kubectl apply -f proxy-deployment.yaml
 
 

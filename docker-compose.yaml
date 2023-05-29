@@ -37,8 +37,8 @@ services:
       HasuraConfig__HasuraSecret: ${HASURA_GRAPHQL_ADMIN_SECRET}
       Otel__Endpoint: http://otel-collector:4317
       HgConfig__RepoPath: /hg-repos
-      HgConfig__HgWebUrl: http://hgweb:80
-      Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:80
+      HgConfig__HgWebUrl: http://hgweb:8088
+      Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:8088
       Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
       Authentication__Jwt__Secret: dev-secret_but-it-must-be-32-characters-long
       # always passes key, more info here: https://developers.cloudflare.com/turnstile/reference/testing
@@ -115,7 +115,9 @@ services:
   hgweb:
     build: ./hgweb
     ports:
-      - "8088:80" # 8080 exposed here for dev tools
+      - "8088:8088" # 8080 exposed here for dev tools
+    environment:
+      CUSTOM_PORT: 8088
     volumes:
       - hg-repos:/var/hg/repos
 
@@ -129,10 +131,10 @@ services:
       - hgresume-cache:/var/cache/hgresume
 
   otel-collector:
-    build: ./otel
+    image: otel/opentelemetry-collector:0.73.0
     volumes:
       # for dev convenience
-      - ./otel/collector-config.yaml:/etc/collector-config.yaml
+      - ./otel/collector-config.yaml:/etc/otelcol/config.yaml
     ports:
       # TODO: determine why these are exposed to the host.
       - 4317:4317 # OTLP gRPC receiver - only required when running backend locally

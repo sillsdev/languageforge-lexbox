@@ -1,0 +1,349 @@
+# https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: lexbox
+  labels:
+    app: lexbox
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: lexbox
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+  - name: otel
+    protocol: TCP
+    port: 4318
+  - name: sveltekit
+    protocol: TCP
+    port: 3000
+  - name: github-deploy
+    protocol: TCP
+    port: 9000
+
+---
+
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexbox
+  labels:
+    app: lexbox
+spec:
+  selector:
+    matchLabels:
+      app: lexbox
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
+    metadata:
+      labels:
+        app: lexbox
+    spec:
+      serviceAccountName: lexbox-deployer
+      containers:
+      - name: lexbox-api
+        # TODO: need to parameterize this tag
+        image: ghcr.io/sillsdev/lexbox-api:develop
+        imagePullPolicy: Always
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+        ports:
+          - containerPort: 80
+
+        volumeMounts:
+        - name: repos
+          mountPath: /hg-repos
+
+        env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: Staging
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_DB
+                  name: db
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: db
+          - name: DbConfig__LexBoxConnectionString
+            value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
+          - name: Authentication__Jwt__Secret
+            valueFrom:
+              secretKeyRef:
+                  key: Authentication__Jwt__Secret
+                  name: lexbox-api
+          - name: HasuraConfig__HasuraUrl
+            value: http://localhost:8080/v1/graphql
+          - name: HasuraConfig__HasuraSecret
+            valueFrom:
+              secretKeyRef:
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+                  name: hasura
+          - name: HgConfig__RepoPath
+            value: /hg-repos
+          - name: HgConfig__HgWebUrl
+            value: http://hg:8088
+          - name: Clusters__hg-web__Destinations__hg-web-server__Address
+            value: http://hg:8088
+          - name: Clusters__resumable-web__Destinations__resumable-web-server__Address
+            value: http://hg:80
+          - name: CloudFlare__TurnstileKey
+            valueFrom:
+              secretKeyRef:
+                  key: CloudFlare__TurnstileKey
+                  name: lexbox-api
+          - name: Email__SmtpHost
+            value: smtp.example.org
+          - name: Email__SmtpPort
+            value: '25'
+          - name: Email__SmtpUser
+            valueFrom:
+              secretKeyRef:
+                  key: SMTP_USER
+                  name: email
+          - name: Email__SmtpPassword
+            valueFrom:
+              secretKeyRef:
+                  key: SMTP_PASSWORD
+                  name: email
+          - name: Email__From
+            # TODO: need to parameterize this
+            value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
+          - name: Email__EmailRenderHost
+            value: localhost:3000
+
+      - name: ui
+        image: ghcr.io/sillsdev/lexbox-ui:latest
+        imagePullPolicy: Always
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+        ports:
+          - containerPort: 3000
+
+        env:
+          - name: PUBLIC_TURNSTILE_SITE_KEY
+            valueFrom:
+              secretKeyRef:
+                key: PUBLIC_TURNSTILE_SITE_KEY
+                name: ui
+          - name: PUBLIC_ENV_NAME
+            value: staging
+          - name: BACKEND_HOST
+            value: http://localhost:80
+          - name: OTEL_ENDPOINT
+            value: http://localhost:4318
+
+      - name: hasura
+        image: ghcr.io/sillsdev/lexbox-hasura
+        imagePullPolicy: Always
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+        env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_DB
+                name: db
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: db
+          - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
+            value: postgres://postgres:$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
+          - name: PG_DATABASE_URL
+            value: $(HASURA_GRAPHQL_METADATA_DATABASE_URL)
+          - name: HASURA_GRAPHQL_ADMIN_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: HASURA_GRAPHQL_ADMIN_SECRET
+                name: hasura
+
+      - name: otel-collector
+        image: otel/opentelemetry-collector:0.73.0
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+        ports:
+          - containerPort: 4318
+        volumeMounts:
+          - mountPath: /etc/otelcol
+            name: otel-config
+            readOnly: true
+
+        env:
+          - name: HONEYCOMB_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: HONEYCOMB_API_KEY
+                name: otel
+      # receives a webhook and redeploys the application, from https://github.com/silnrsi/langfontfinder/blob/183fcd348ebdbffaf5560b3b816223ebd5b98c5a/kubernetes/service-deploy.yaml
+      - name: deployer
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 260Mi
+            cpu: 0.1
+          limits:
+            memory: 400Mi
+        env:
+          - name: DEPLOY_KEY
+            valueFrom:
+              secretKeyRef:
+                name: deploy-key
+                key: deploy-key
+          - name: PUBLISH_BRANCH
+            valueFrom:
+              configMapKeyRef:
+                name: deploy-config
+                key: publish-branch
+        command: [ "sh", "-c" ]
+        args:
+          - |
+            set -e
+            apk add curl webhook
+            exec webhook -verbose \
+              -urlprefix=api \
+              -template \
+              -hooks=/webhooks/hooks.yaml
+        ports:
+          - containerPort: 9000
+        volumeMounts:
+          - name: webhooks
+            mountPath: /webhooks
+            readOnly: true
+
+      volumes:
+      - name: repos
+        persistentVolumeClaim:
+          claimName: hg-repos # established in hg-repos-pvc.yaml
+      - name: otel-config
+        configMap:
+          name: otel-config
+          items:
+            - key: collector-config.yaml
+              path: config.yaml
+      - name: webhooks
+        configMap:
+          name: deploy-config
+          items:
+            - key: deployer
+              path: deploy.sh
+              mode: 365
+            - key: webhooks
+              path: hooks.yaml
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: deploy-config
+data:
+#  branch to allow deployments from
+  publish-branch: develop
+#  script to execute when the webhook gets called
+  deployer: |
+    #!/bin/sh
+    SERVICEACCOUNT=/run/secrets/kubernetes.io/serviceaccount
+    NAMESPACE=$(cat $SERVICEACCOUNT/namespace)
+    DEPLOYMENTS="https://kubernetes.default.svc/apis/apps/v1/namespaces/$NAMESPACE/deployments"
+    TOKEN=$(cat $SERVICEACCOUNT/token)
+    NOW=$(date -Is)
+    curl --location --request PATCH "$DEPLOYMENTS/lexbox?fieldManager=kubectl-rollout" \
+    --cacert $SERVICEACCOUNT/ca.crt \
+    --header 'Content-Type: application/strategic-merge-patch+json' \
+    --header "Authorization: Bearer $TOKEN" \
+    --data-raw "{\"spec\": {\"template\": {\"metadata\": {\"annotations\": {\"kubectl.kubernetes.io/restartedAt\": \"$NOW\"}}}}}"
+
+#    documentation https://github.com/adnanh/webhook/blob/master/docs/Hook-Definition.md
+  webhooks: |
+    - id: github-deploy
+      execute-command: /webhooks/deploy.sh
+      command-working-directory: /mnt
+      http-methods: [POST]
+      trigger-rule:
+        and:
+        - or:
+          - match:
+              type: payload-hmac-sha256
+              secret: '{{ getenv "DEPLOY_KEY" }}'
+              parameter:
+                source: header
+                name: X-Hub-Signature-256
+          - match:
+              type: payload-hmac-sha1
+              secret: '{{ getenv "DEPLOY_KEY" }}'
+              parameter:
+                source: header
+                name: X-Hub-Signature
+        - match:
+            type: value
+            value: push
+            parameter:
+              source: payload
+              name: action
+        - match:
+            type: value
+            value: 'refs/heads/{{getenv "PUBLISH_BRANCH"}}'
+            parameter:
+              source: payload
+              name: ref
+
+# setup role based access control for the deployer
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lexbox-deployer
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployer
+rules:
+  - apiGroups: [ "apps" ]
+    resources: [ "deployments" ]
+    verbs: [ "patch" ]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: redepoly
+subjects:
+  - kind: ServiceAccount
+    name: lexbox-deployer
+roleRef:
+  kind: Role
+  name: deployer
+  apiGroup: rbac.authorization.k8s.io
