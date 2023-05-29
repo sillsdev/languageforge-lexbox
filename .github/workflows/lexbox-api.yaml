@@ -7,7 +7,7 @@ on:
       - 'backend/**'
       - '.github/workflows/lexbox-api.yaml'
 env:
-  PROD_RELEASE: ${{github.ref == "refs/heads/develop"}}
+  PROD_RELEASE: ${{github.ref == 'refs/heads/develop'}}
 
 jobs:
   publish-api:
