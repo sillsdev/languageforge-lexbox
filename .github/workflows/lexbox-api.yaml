@@ -6,15 +6,18 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/lexbox-api.yaml'
+env:
+  PROD_RELEASE: ${{github.ref == "refs/heads/develop"}}
 
 jobs:
   publish-api:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.setVersion.outputs.VERSION }}
 
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
       DOCKER_BUILDKIT: 1
-      LATEST_TAG_BRANCH: refs/heads/develop
 
     steps:
       -
@@ -25,6 +28,7 @@ jobs:
         # set version to date in vYYYY-MM-DD format
         run: |
           echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_ENV}
+          echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_OUTPUT}
       -
         name: Docker meta
         id: meta
@@ -35,8 +39,8 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=raw,enabled=${{ github.ref == env.LATEST_TAG_BRANCH }},value=latest
-            type=raw,enabled=${{ github.ref == env.LATEST_TAG_BRANCH }},value=${{ env.VERSION }}
+            type=raw,enabled=${{ env.PROD_RELEASE }},value=latest
+            type=raw,enabled=${{ env.PROD_RELEASE }},value=${{ env.VERSION }}
       -
         name: ghcr.io login
         uses: docker/login-action@v2
@@ -54,3 +58,23 @@ jobs:
           push: ${{ !env.ACT }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-api:
+    runs-on: ubuntu-latest
+    needs: publish-api
+    if: ${{ env.PROD_RELEASE }}
+    environment: 
+        name: staging
+        url: https://staging.languagedepot.org
+    steps:
+      - name: Deploy
+        uses: drlove2002/secure-github-webhook@0.3.0
+        with:
+          url: ${{ vars.DEPLOY_WEBHOOK_URL }}
+          hmacSecret: ${{ secrets.DEPLOY_KEY }}
+          data: >-
+            {
+              "action" : "push",
+              "ref" : "${{ github.ref }}",
+              "version": "${{ needs.build.outputs.version }}"
+            }

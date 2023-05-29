@@ -223,16 +223,16 @@ spec:
               secretKeyRef:
                 name: deploy-key
                 key: deploy-key
-          - name: SITE_GIT_BRANCH
+          - name: PUBLISH_BRANCH
             valueFrom:
               configMapKeyRef:
                 name: deploy-config
-                key: site-branch
+                key: publish-branch
         command: [ "sh", "-c" ]
         args:
           - |
             set -e
-            apk add curl git webhook
+            apk add curl webhook
             exec webhook -verbose \
               -urlprefix=api \
               -template \
@@ -271,7 +271,7 @@ metadata:
   name: deploy-config
 data:
 #  branch to allow deployments from
-  site-branch: develop
+  publish-branch: develop
 #  script to execute when the webhook gets called
   deployer: |
     #!/bin/sh
@@ -315,7 +315,7 @@ data:
               name: action
         - match:
             type: value
-            value: 'refs/heads/{{getenv "SITE_GIT_BRANCH"}}'
+            value: 'refs/heads/{{getenv "PUBLISH_BRANCH"}}'
             parameter:
               source: payload
               name: ref
