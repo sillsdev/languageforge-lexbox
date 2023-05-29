@@ -7,7 +7,7 @@ on:
       - 'frontend/**'
       - '.github/workflows/lexbox-ui.yaml'
 env:
-  PROD_RELEASE: ${{github.ref == 'refs/heads/develop'}}
+  PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
 
 jobs:
   publish-ui:

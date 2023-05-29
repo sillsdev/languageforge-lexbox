@@ -8,7 +8,7 @@ on:
       - '.github/workflows/lexbox-hasura.yaml'
 
 env:
-  PROD_RELEASE: ${{github.ref == 'refs/heads/develop'}}
+  PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
 jobs:
   publish-hasura:
     runs-on: ubuntu-latest

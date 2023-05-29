@@ -7,7 +7,8 @@ on:
       - 'backend/**'
       - '.github/workflows/lexbox-api.yaml'
 env:
-  PROD_RELEASE: ${{github.ref == 'refs/heads/develop'}}
+  PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
+
 
 jobs:
   publish-api:
@@ -62,7 +63,7 @@ jobs:
   deploy-api:
     runs-on: ubuntu-latest
     needs: publish-api
-    if: ${{ env.PROD_RELEASE }}
+    if: ${{ github.ref ==  vars.PROD_BRANCH }}
     environment: 
         name: staging
         url: https://staging.languagedepot.org
