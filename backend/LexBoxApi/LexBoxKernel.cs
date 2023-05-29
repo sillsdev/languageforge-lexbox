@@ -17,10 +17,6 @@ public static class LexBoxKernel
             .BindConfiguration("HgConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        services.AddOptions<SendReceiveConfig>()
-            .BindConfiguration("SendReceiveConfig")
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
         services.AddOptions<HasuraConfig>()
             .BindConfiguration("HasuraConfig")
             .ValidateDataAnnotations()
