@@ -57,4 +57,18 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
             () => new FileInfo(fwdataFile).Length.ShouldBeGreaterThan(0)
         );
     }
+
+    [Theory]
+    [InlineData("sena-3")]
+    public async Task SendReceive(string projectCode)
+    {
+        string projectDir = Path.Join(_basePath, projectCode);
+        string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
+        string result = await _srService.SendReceiveProject(projectCode, projectDir);
+        Console.WriteLine(result);
+        fwdataFile.ShouldSatisfyAllConditions(
+            () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
+            () => new FileInfo(fwdataFile).Length.ShouldBeGreaterThan(0)
+        );
+    }
 }
