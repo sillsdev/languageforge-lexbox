@@ -16,6 +16,9 @@ RUN set -ex && \
 COPY httpd.conf /usr/local/apache2/conf/httpd.conf
 COPY hg.conf /usr/local/apache2/conf/sites/hg.conf
 
+# Ensure /var/hg and /var/hg/repos are owned by www-data user
+RUN install -d /var/hg/repos -o www-data -g www-data
+
 # Configure hgweb
 COPY hgweb.hgrc /var/hg/
 COPY hgweb.wsgi /usr/local/www/wsgi-scripts/
