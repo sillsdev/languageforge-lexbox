@@ -4,9 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
-using SIL.Progress;
-using Testing.Logging;
-using Testing.Services;
 
 namespace Testing.Fixtures;
 
@@ -29,16 +26,8 @@ public class TestingServicesFixture : IAsyncLifetime
                 "Password=972b722e63f549938d07bd8c4ee5086c",
                 "Include Error Detail=true");
         });
-        // Services.AddOptions<HgConfig>().Configure(config =>  // This doesn't work because RepoPath is an `init` property
-        // {
-        //     config.RepoPath = "../../hgweb/repos"'
-        //     config.HgWebUrl = "http://localhost:8088";
-        // });
         Services.AddSingleton<IHostEnvironment>(new HostingEnvironment { EnvironmentName = Environments.Development });
         Services.AddSingleton<IConfiguration>(new ConfigurationManager());
-        Services.AddScoped<SendReceiveService>();
-        // Services.AddScoped<IProgress, XunitStringBuilderProgress>();
-        Services.AddScoped<IProgress, StringBuilderProgress>();
         Services.AddLexData();
         _lazyServiceProvider = new(Services.BuildServiceProvider);
     }

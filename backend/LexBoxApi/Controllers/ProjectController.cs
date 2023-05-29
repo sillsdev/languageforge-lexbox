@@ -15,7 +15,6 @@ public class ProjectController : ControllerBase
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHgService _hgService;
 
-
     public ProjectController(ProjectService projectService, IHgService hgService, LexBoxDbContext lexBoxDbContext)
     {
         _projectService = projectService;
