@@ -65,7 +65,6 @@ spec:
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
             memory: 260Mi
-            cpu: 0.1
           limits:
             memory: 400Mi
 
