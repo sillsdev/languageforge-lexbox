@@ -51,7 +51,6 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
         string projectDir = Path.Join(_basePath, projectCode);
         string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
         string result = await _srService.CloneProject(projectCode, projectDir);
-        // Console.WriteLine(result);
         result.ShouldNotContain("abort");
         result.ShouldNotContain("error");
         fwdataFile.ShouldSatisfyAllConditions(
@@ -62,7 +61,6 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
         // Now do a Send/Receive which should get no changes
         // Running in same test because it's dependent on CloneProject happening first
         string result2 = await _srService.SendReceiveProject(projectCode, projectDir);
-        Console.WriteLine(result2);
         result.ShouldNotContain("abort");
         result.ShouldNotContain("error");
         fwdataFile.ShouldSatisfyAllConditions(
