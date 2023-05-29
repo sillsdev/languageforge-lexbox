@@ -16,9 +16,10 @@ public class SendReceiveService
     private const string fdoDataModelVersion = "7500002.7000072";
     private readonly IProgress _progress;
 
-    public SendReceiveService(IProgress progress)
+    public SendReceiveService(IProgress progress, IOptions<HgConfig> hgOptions)
     {
         // _sendReceiveOptions = sendReceiveOptions;
+        _hgOptions = hgOptions;
         _progress = progress;
     }
 
@@ -40,8 +41,7 @@ public class SendReceiveService
 
     public async Task<string> CloneProject(string projectCode, string destDir)
     {
-        var repoUrl = $"http://localhost:8088/hg/{projectCode}";
-        // var repoUrl = $"{_hgOptions.Value.HgWebUrl}/hg/{projectCode}";
+        var repoUrl = $"{_hgOptions.Value.HgWebUrl}/hg/{projectCode}";
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
