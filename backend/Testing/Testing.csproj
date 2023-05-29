@@ -36,10 +36,17 @@
       <ProjectReference Include="..\LexBoxApi\LexBoxApi.csproj" />
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
       <ProjectReference Include="..\LexData\LexData.csproj" />
+      <ProjectReference Include="..\FixFwData\FixFwData.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
       <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
     </ItemGroup>
+
+  <Target Name="CreateFixFwDataExe" AfterTargets="Build" Condition="Exists('$(OutputPath)/FixFwData') And !Exists('$(OutputPath)/FixFwData.exe')">
+    <Message Text="Creating FixFwData.exe in $(OutputPath) on Linux since FLExBridge requires the .exe extension" />
+    <Exec Command="ln FixFwData FixFwData.exe"
+          WorkingDirectory="$(OutputPath)" />
+  </Target>
 </Project>

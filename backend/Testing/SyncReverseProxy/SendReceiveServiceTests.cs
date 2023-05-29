@@ -46,29 +46,28 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 
     [Theory]
     [InlineData("sena-3")]
-    public async Task CloneProject(string projectCode)
+    public async Task CloneProjectAndSendReceive(string projectCode)
     {
         string projectDir = Path.Join(_basePath, projectCode);
         string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
         string result = await _srService.CloneProject(projectCode, projectDir);
         // Console.WriteLine(result);
+        result.ShouldNotContain("abort");
+        result.ShouldNotContain("error");
         fwdataFile.ShouldSatisfyAllConditions(
             () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
             () => new FileInfo(fwdataFile).Length.ShouldBeGreaterThan(0)
         );
-    }
-
-    [Theory]
-    [InlineData("sena-3")]
-    public async Task SendReceive(string projectCode)
-    {
-        string projectDir = Path.Join(_basePath, projectCode);
-        string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
-        string result = await _srService.SendReceiveProject(projectCode, projectDir);
-        Console.WriteLine(result);
+        long oldLength = new FileInfo(fwdataFile).Length;
+        // Now do a Send/Receive which should get no changes
+        // Running in same test because it's dependent on CloneProject happening first
+        string result2 = await _srService.SendReceiveProject(projectCode, projectDir);
+        Console.WriteLine(result2);
+        result.ShouldNotContain("abort");
+        result.ShouldNotContain("error");
         fwdataFile.ShouldSatisfyAllConditions(
             () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
-            () => new FileInfo(fwdataFile).Length.ShouldBeGreaterThan(0)
+            () => new FileInfo(fwdataFile).Length.ShouldBe(oldLength)
         );
     }
 }
