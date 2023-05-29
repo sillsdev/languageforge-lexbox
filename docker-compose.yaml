@@ -52,6 +52,7 @@ services:
 
       # for dev convenience
       ASPNETCORE_ENVIRONMENT: Development
+      DOTNET_URLS: http://0.0.0.0:5158
 
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5158/api/healthz"]
