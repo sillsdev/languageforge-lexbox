@@ -10,10 +10,10 @@
 
 	export let projectId: string;
 
-	const schema = {
+	const schema = z.object({
 		email: z.string().email($t('project_page.add_user.email_required')),
 		role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
-	};
+	});
 	let formModal: FormModal<typeof schema>;
 	$: form = formModal?.form();
 
