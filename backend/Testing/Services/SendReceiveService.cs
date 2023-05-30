@@ -22,7 +22,7 @@ public class SendReceiveService
         _progress = progress;
     }
 
-    public async Task<string> VerifyHgVersion()
+    public async Task<string> GetHgVersion()
     {
         string output = "";
         using (Process hg = new()) {
