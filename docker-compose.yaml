@@ -18,7 +18,7 @@ services:
         condition: service_healthy
       hgweb:
         condition: service_started
-      hgresume:
+      hgresumable:
         condition: service_started
       otel-collector:
         condition: service_started
@@ -59,7 +59,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  maildev: 
+  maildev:
     image: maildev/maildev # https://github.com/maildev/maildev/blob/master/README.md#usage
     ports:
       - "1080:1080" # ui port
@@ -122,14 +122,14 @@ services:
     volumes:
       - hg-repos:/var/hg/repos
 
-  hgresume:
+  hgresumable:
     image: ghcr.io/sillsdev/hgresume:v2023-02-24
     platform:  linux/amd64
     ports:
       - "8034:80" # 8034 exposed here for dev tools
     volumes:
       - hg-repos:/var/vcs/public
-      - hgresume-cache:/var/cache/hgresume
+      - hgresumable-cache:/var/cache/hgresume
 
   otel-collector:
     image: otel/opentelemetry-collector:0.73.0
@@ -178,5 +178,5 @@ volumes:
         o: bind
         type: none
     redmine_db_data:
-    hgresume-cache:
+    hgresumable-cache:
     nuget-cache:

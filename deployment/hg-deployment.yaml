@@ -24,7 +24,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: hgresume-cache
+  name: hgresumable-cache
 spec:
   accessModes:
     - ReadWriteOnce
@@ -72,7 +72,7 @@ spec:
           - name: repos
             mountPath: /var/hg/repos
 
-      - name: hgresume
+      - name: hgresumable
         image: ghcr.io/sillsdev/hgresume:v2023-02-24
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
@@ -92,7 +92,7 @@ spec:
       volumes:
       - name: cache
         persistentVolumeClaim:
-          claimName: hgresume-cache
+          claimName: hgresumable-cache
       - name: repos
         persistentVolumeClaim:
           claimName: hg-repos # established in hg-repos-pvc.yaml
