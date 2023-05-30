@@ -88,7 +88,7 @@ type ChangeProjectMemberRolePayload {
   projectUsers: LexBox_ProjectUsers
 }
 
-union ChangeProjectNameError = DbError | NotFoundError
+union ChangeProjectNameError = DbError | NotFoundError | RequiredError
 
 input ChangeProjectNameInput {
   name: String!
@@ -1356,6 +1356,10 @@ type Query {
 input RemoveProjectMemberInput {
   projectId: UUID!
   userId: UUID!
+}
+
+type RequiredError implements Error {
+  message: String!
 }
 
 enum RetentionPolicy {

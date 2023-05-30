@@ -1,5 +1,8 @@
 <script lang="ts">
-	export let type = '';
+
+    // Add more as necessary. Should be as limited as possible to maximize consistency. https://daisyui.com/components/badge/
+    type BadgeType = undefined |  'badge-info';
+	export let type: BadgeType = undefined;
 	export let icon = '';
 </script>
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { randomFieldId } from './utils';
 
 	export let label: string;
 	export let value: string = '';
@@ -10,7 +11,7 @@
 	export let error: string | string[] = '';
 	export let placeholder: string = '';
 
-	export let id = crypto.randomUUID().split('-').at(-1);
+	export let id = randomFieldId();
 	let input: HTMLInputElement;
 
 	onMount(autofocus_if_requested);

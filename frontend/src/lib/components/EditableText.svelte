@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Form, lexSuperForm } from '$lib/forms';
+	import { Form, lexSuperForm, randomFieldId } from '$lib/forms';
 	import { ZodString, z } from 'zod';
 	import IconButton from './IconButton.svelte';
 
@@ -9,7 +9,7 @@
 	export let placeholder: string | undefined = undefined;
 	export let multiline = false;
 	export let validation: ZodString | undefined = undefined;
-	export const id = crypto.randomUUID().split('-').at(-1) as string;
+	export const id = randomFieldId();
 
 	let initialValue: string | undefined | null;
 	let editing = false;
