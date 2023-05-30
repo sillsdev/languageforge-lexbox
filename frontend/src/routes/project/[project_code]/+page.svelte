@@ -18,6 +18,7 @@
 	} from './+page';
 	import AddProjectMember from './AddProjectMember.svelte';
 	import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
+	import { toProjectRoleEnum } from '$lib/util/enums';
 
 	export let data: PageData;
 
@@ -26,7 +27,7 @@
 
 	let changeMemberRoleModal: ChangeMemberRoleModal;
 	async function changeMemberRole(projectUser: ProjectUser) {
-		await changeMemberRoleModal.open({ userId: projectUser.User.id, name: projectUser.User.name });
+		await changeMemberRoleModal.open({ userId: projectUser.User.id, name: projectUser.User.name, role: toProjectRoleEnum(projectUser.role) });
 	}
 
 	let deleteUserModal: DeleteModal;
