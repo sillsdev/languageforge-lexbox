@@ -39,7 +39,7 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 
     [Theory]
     [InlineData("sena-3", "http://localhost:8088/hg", "normal")]
-    [InlineData("sena-3", "http://localhost:5158/api/v03", "resumable")]
+    [InlineData("sena-3", "http://hgresumable:8034/", "resumable")]
     // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
     public void CloneProjectAndSendReceive(string projectCode, string repoBaseUrl, string testName)
     {
