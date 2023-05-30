@@ -35,8 +35,8 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=raw,enabled=${{ env.PROD_RELEASE }},value=latest
-            type=raw,enabled=${{ env.PROD_RELEASE }},value=${{ env.VERSION }}
+            type=raw,enable=${{ env.PROD_RELEASE }},value=latest
+            type=raw,enable=${{ env.PROD_RELEASE }},value=${{ env.VERSION }}
       -
         uses: docker/login-action@v2
         with:

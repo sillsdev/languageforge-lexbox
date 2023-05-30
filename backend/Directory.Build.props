@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup Condition="$(DockerDev) == 'true'">
+        <IntermediateOutputPath>/app/obj/</IntermediateOutputPath>
+        <OutputPath>/app/bin/</OutputPath>
+    </PropertyGroup>
+</Project>

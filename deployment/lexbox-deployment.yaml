@@ -57,10 +57,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 260Mi
-            cpu: 0.1
+            memory: 100Mi
           limits:
-            memory: 400Mi
+            memory: 150Mi
         ports:
           - containerPort: 80
 
@@ -129,15 +128,14 @@ spec:
             value: localhost:3000
 
       - name: ui
-        image: ghcr.io/sillsdev/lexbox-ui:latest
+        image: ghcr.io/sillsdev/lexbox-ui:develop
         imagePullPolicy: Always
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 260Mi
-            cpu: 0.1
+            memory: 100Mi
           limits:
-            memory: 400Mi
+            memory: 150Mi
         ports:
           - containerPort: 3000
 
@@ -155,15 +153,14 @@ spec:
             value: http://localhost:4318
 
       - name: hasura
-        image: ghcr.io/sillsdev/lexbox-hasura
+        image: ghcr.io/sillsdev/lexbox-hasura:develop
         imagePullPolicy: Always
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 260Mi
-            cpu: 0.1
+            memory: 200Mi
           limits:
-            memory: 400Mi
+            memory: 300Mi
         env:
           - name: POSTGRES_DB
             valueFrom:
@@ -190,10 +187,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 260Mi
-            cpu: 0.1
+            memory: 50Mi
           limits:
-            memory: 400Mi
+            memory: 100Mi
         ports:
           - containerPort: 4318
         volumeMounts:
@@ -213,10 +209,9 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 260Mi
-            cpu: 0.1
+            memory: 10Mi
           limits:
-            memory: 400Mi
+            memory: 64Mi
         env:
           - name: DEPLOY_KEY
             valueFrom:
