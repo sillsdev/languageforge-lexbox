@@ -11,14 +11,14 @@ namespace Testing.Services;
 
 public class SendReceiveService
 {
-    private readonly IOptions<HgConfig> _hgOptions;
+    private readonly string _defaultBaseUrl;
     private const string fdoDataModelVersion = "7000072";
     private readonly IProgress _progress;
 
-    public SendReceiveService(IProgress progress, IOptions<HgConfig> hgOptions)
+    public SendReceiveService(IProgress progress, string defaultBaseUrl = "http://localhost:8088/hg")
     {
         // _sendReceiveOptions = sendReceiveOptions;
-        _hgOptions = hgOptions;
+        _defaultBaseUrl = defaultBaseUrl;
         _progress = progress;
     }
 
@@ -38,9 +38,10 @@ public class SendReceiveService
         return output;
     }
 
-    public async Task<string> CloneProject(string projectCode, string destDir)
+    public async Task<string> CloneProject(string projectCode, string destDir, string? baseUrlOpt = null)
     {
-        var repoUrl = $"{_hgOptions.Value.HgWebUrl}/hg/{projectCode}";
+        string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
+        string repoUrl = $"{baseUrl}/{projectCode}";
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
@@ -59,10 +60,11 @@ public class SendReceiveService
         return cloneResult;
     }
 
-    public async Task<string> SendReceiveProject(string projectCode, string projectDir)
+    public async Task<string> SendReceiveProject(string projectCode, string projectDir, string? baseUrlOpt = null)
     {
         string fwdataFilename = System.IO.Path.Join(projectDir, $"{projectCode}.fwdata");
-        var repoUrl = $"{_hgOptions.Value.HgWebUrl}/hg/{projectCode}";
+        string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
+        string repoUrl = $"{baseUrl}/{projectCode}";
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", projectDir },

@@ -9,10 +9,6 @@ namespace Testing.Services;
 
 public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 {
-    private HgConfig mockHgConfig = new HgConfig {  // For when we put an IOptions<HgConfig> back into SendReceiveService
-        RepoPath = "../../hgweb/repos",
-        HgWebUrl = "http://localhost:8088"
-    };
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
     private SendReceiveService _srService;
     private IProgress _progress;
@@ -20,9 +16,6 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
     public SendReceiveServiceTests()
     {
         _progress = new StringBuilderProgress();
-        var _options = new Mock<IOptions<HgConfig>>();
-        _options.Setup(opts => opts.Value).Returns(mockHgConfig);
-        _srService = new SendReceiveService(_progress, _options.Object);
         CleanUpTempDir();
     }
 
@@ -40,15 +33,20 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
     [InlineData("3.0.1")]
     public async Task VerifyHgVersion(string expected)
     {
+        _srService = new SendReceiveService(_progress);
         string version = await _srService.VerifyHgVersion();
         version.ShouldContain(expected);
     }
 
     [Theory]
-    [InlineData("sena-3")]
-    public async Task CloneProjectAndSendReceive(string projectCode)
+    [InlineData("sena-3", "http://localhost:8088/hg", "normal")]
+    [InlineData("sena-3", "http://localhost:5158/api/v03", "resumable")]
+    // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
+    public async Task CloneProjectAndSendReceive(string projectCode, string repoBaseUrl, string testName)
     {
-        string projectDir = Path.Join(_basePath, projectCode);
+        _srService = new SendReceiveService(_progress, repoBaseUrl);
+
+        string projectDir = Path.Join(_basePath, testName, projectCode);
         string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
         string result = await _srService.CloneProject(projectCode, projectDir);
         result.ShouldNotContain("abort");
