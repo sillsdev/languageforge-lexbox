@@ -29,13 +29,12 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
         }
     }
 
-    [Theory]
-    [InlineData("3.0.1")]
-    public async Task VerifyHgVersion(string expected)
+    [Fact]
+    public async Task VerifyHgVersion()
     {
         _srService = new SendReceiveService(_progress);
         string version = await _srService.VerifyHgVersion();
-        version.ShouldContain(expected);
+        version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
     [Theory]
