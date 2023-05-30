@@ -5,6 +5,7 @@
 	import t from '$lib/i18n';
 	import { z } from 'zod';
 	import { _changeProjectMemberRole } from './+page';
+	import { tryParse } from '$lib/forms';
 
 	export let projectId: string;
 
@@ -15,8 +16,9 @@
 	$: form = formModal?.form();
 
 	let name: string;
-	export async function open(member: { userId: string; name: string }): Promise<void> {
+	export async function open(member: { userId: string; name: string, role: ProjectRole }): Promise<void> {
 		name = member.name;
+        tryParse(schema.role, member.role, (role) => $form.role = role);
 		await formModal.open(async (form) => {
 			const result = await _changeProjectMemberRole({
 				projectId,

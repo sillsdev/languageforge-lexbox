@@ -5,7 +5,7 @@ import Input from './Input.svelte';
 import ProtectedForm, { type Token } from './ProtectedForm.svelte';
 import Select from './Select.svelte';
 import { lexSuperForm, lexSuperValidate } from './superforms';
-import { randomFieldId } from './utils';
+import { randomFieldId, tryParse } from './utils';
 
 export {
 	Button,
@@ -17,5 +17,6 @@ export {
 	Select,
 	lexSuperForm,
 	lexSuperValidate,
-	randomFieldId,
+  randomFieldId,
+  tryParse,
 };
