@@ -41,13 +41,13 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
     [InlineData("sena-3", "http://localhost:8088/hg", "normal")]
     [InlineData("sena-3", "http://localhost:5158/api/v03", "resumable")]
     // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
-    public async Task CloneProjectAndSendReceive(string projectCode, string repoBaseUrl, string testName)
+    public void CloneProjectAndSendReceive(string projectCode, string repoBaseUrl, string testName)
     {
         _srService = new SendReceiveService(_progress, repoBaseUrl);
 
         string projectDir = Path.Join(_basePath, testName, projectCode);
         string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
-        string result = await _srService.CloneProject(projectCode, projectDir);
+        string result = _srService.CloneProject(projectCode, projectDir);
         result.ShouldNotContain("abort");
         result.ShouldNotContain("error");
         fwdataFile.ShouldSatisfyAllConditions(
@@ -57,7 +57,7 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
         long oldLength = new FileInfo(fwdataFile).Length;
         // Now do a Send/Receive which should get no changes
         // Running in same test because it's dependent on CloneProject happening first
-        string result2 = await _srService.SendReceiveProject(projectCode, projectDir);
+        string result2 = _srService.SendReceiveProject(projectCode, projectDir);
         result.ShouldNotContain("abort");
         result.ShouldNotContain("error");
         fwdataFile.ShouldSatisfyAllConditions(

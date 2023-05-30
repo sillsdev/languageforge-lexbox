@@ -38,7 +38,7 @@ public class SendReceiveService
         return output;
     }
 
-    public async Task<string> CloneProject(string projectCode, string destDir, string? baseUrlOpt = null)
+    public string CloneProject(string projectCode, string destDir, string? baseUrlOpt = null)
     {
         string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
         string repoUrl = $"{baseUrl}/{projectCode}";
@@ -60,7 +60,7 @@ public class SendReceiveService
         return cloneResult;
     }
 
-    public async Task<string> SendReceiveProject(string projectCode, string projectDir, string? baseUrlOpt = null)
+    public string SendReceiveProject(string projectCode, string projectDir, string? baseUrlOpt = null)
     {
         string fwdataFilename = System.IO.Path.Join(projectDir, $"{projectCode}.fwdata");
         string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
