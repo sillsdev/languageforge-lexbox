@@ -39,7 +39,7 @@ services:
       HgConfig__RepoPath: /hg-repos
       HgConfig__HgWebUrl: http://hgweb:8088
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:8088
-      Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
+      Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hgresumable:80
       Authentication__Jwt__Secret: dev-secret_but-it-must-be-32-characters-long
       # always passes key, more info here: https://developers.cloudflare.com/turnstile/reference/testing
       CloudFlare__TurnstileKey: 1x0000000000000000000000000000000AA
@@ -123,7 +123,7 @@ services:
       - hg-repos:/var/hg/repos
 
   hgresumable:
-    image: ghcr.io/sillsdev/hgresume:v2023-02-24
+    build: ./hgresumable
     platform:  linux/amd64
     ports:
       - "8034:80" # 8034 exposed here for dev tools
