@@ -127,6 +127,7 @@ services:
     platform:  linux/amd64
     ports:
       - "8034:80" # 8034 exposed here for dev tools
+      - "80:80" # Work around Chorus bug
     volumes:
       - hg-repos:/var/vcs/public
       - hgresumable-cache:/var/cache/hgresume
@@ -158,8 +159,8 @@ services:
 
   proxy:
     image: nginx
-    ports:
-      - "80:80"
+    # ports:
+    #   - "80:80"
     volumes:
       - ./proxy/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:

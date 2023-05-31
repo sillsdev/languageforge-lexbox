@@ -17,6 +17,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
         <PackageReference Include="Moq" Version="4.18.4" />
         <PackageReference Include="Shouldly" Version="4.1.0" />
+        <PackageReference Include="SIL.Chorus.LibChorus" Version="5.1.0-beta*" />
         <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.3.6" />
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.0.0-beta*" />
         <PackageReference Include="SIL.Core" Version="11.0.0" />
@@ -37,6 +38,8 @@
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
       <ProjectReference Include="..\LexData\LexData.csproj" />
       <ProjectReference Include="..\FixFwData\FixFwData.csproj" />
+      <!-- <ProjectReference Include="../../../csharp/flexbridge/src/LfMergeBridge/LfMergeBridge.csproj" />
+      <ProjectReference Include="..\..\..\csharp\chorus\src\LibChorus\LibChorus.csproj" /> -->
     </ItemGroup>
 
     <ItemGroup>
@@ -46,7 +49,6 @@
 
   <Target Name="CreateFixFwDataExe" AfterTargets="Build" Condition="Exists('$(OutputPath)/FixFwData') And !Exists('$(OutputPath)/FixFwData.exe')">
     <Message Text="Creating FixFwData.exe in $(OutputPath) on Linux since FLExBridge requires the .exe extension" />
-    <Exec Command="ln FixFwData FixFwData.exe"
-          WorkingDirectory="$(OutputPath)" />
+    <Exec Command="ln FixFwData FixFwData.exe" WorkingDirectory="$(OutputPath)" />
   </Target>
 </Project>

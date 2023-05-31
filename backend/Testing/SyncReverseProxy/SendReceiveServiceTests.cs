@@ -15,7 +15,8 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 
     public SendReceiveServiceTests()
     {
-        _progress = new StringBuilderProgress();
+        _progress = new StringBuilderProgress() { ProgressIndicator = new NullProgressIndicator() };
+        _progress.ShowVerbose = true;
         CleanUpTempDir();
     }
 
@@ -39,7 +40,7 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 
     [Theory]
     [InlineData("sena-3", "http://localhost:8088/hg", "normal")]
-    [InlineData("sena-3", "http://hgresumable:8034/", "resumable")]
+    [InlineData("sena-3", "http://hgresumable", "resumable")]
     // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
     public void CloneProjectAndSendReceive(string projectCode, string repoBaseUrl, string testName)
     {
@@ -58,8 +59,9 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
         // Now do a Send/Receive which should get no changes
         // Running in same test because it's dependent on CloneProject happening first
         string result2 = _srService.SendReceiveProject(projectCode, projectDir);
-        result.ShouldNotContain("abort");
-        result.ShouldNotContain("error");
+        result2.ShouldNotContain("abort");
+        result2.ShouldNotContain("error");
+        result2.ShouldContain("no changes from others");
         fwdataFile.ShouldSatisfyAllConditions(
             () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
             () => new FileInfo(fwdataFile).Length.ShouldBe(oldLength)

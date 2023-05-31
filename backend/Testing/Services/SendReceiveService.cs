@@ -40,8 +40,13 @@ public class SendReceiveService
 
     public string CloneProject(string projectCode, string destDir, string? baseUrlOpt = null)
     {
+        var chorusSettings = new Chorus.Model.ServerSettingsModel();
+        chorusSettings.Username = "manager";
+        chorusSettings.SaveUserSettings();
+        Chorus.Model.ServerSettingsModel.PasswordForSession = "pass";
         string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
         string repoUrl = $"{baseUrl}/{projectCode}";
+        Console.WriteLine($"Cloning {repoUrl} ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
@@ -50,8 +55,9 @@ public class SendReceiveService
             { "languageDepotRepoUri", repoUrl },
             { "deleteRepoIfNoSuchBranch", "false" },
         };
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", _progress, flexBridgeOptions, out string cloneResult);
+        string cloneResult = "";
 
+        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", _progress, flexBridgeOptions, out cloneResult);
         if (_progress is StringBuilderProgress sbProgress)
         {
             cloneResult = cloneResult + sbProgress.Text;
@@ -62,9 +68,14 @@ public class SendReceiveService
 
     public string SendReceiveProject(string projectCode, string projectDir, string? baseUrlOpt = null)
     {
+        var chorusSettings = new Chorus.Model.ServerSettingsModel();
+        chorusSettings.Username = "manager";
+        chorusSettings.SaveUserSettings();
+        Chorus.Model.ServerSettingsModel.PasswordForSession = "pass";
         string fwdataFilename = System.IO.Path.Join(projectDir, $"{projectCode}.fwdata");
         string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
         string repoUrl = $"{baseUrl}/{projectCode}";
+        Console.WriteLine($"S/R for {repoUrl} ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", projectDir },
@@ -76,7 +87,9 @@ public class SendReceiveService
             { "commitMessage", "Testing" }
         };
 
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Send_Receive", _progress, flexBridgeOptions, out string cloneResult);
+        string cloneResult = "";
+
+        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Send_Receive", _progress, flexBridgeOptions, out cloneResult);
         if (_progress is StringBuilderProgress sbProgress)
         {
             cloneResult = cloneResult + sbProgress.Text;
