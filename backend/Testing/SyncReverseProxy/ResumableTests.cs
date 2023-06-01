@@ -14,7 +14,7 @@ public class ResumableTests
 
     [Theory]
     // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:8034")]
+    [InlineData("localhost:5158")]
     public async Task IsAvailable(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
