@@ -4,6 +4,7 @@ using LexSyncReverseProxy.Auth;
 using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Transforms;
@@ -16,16 +17,22 @@ public static class ProxyKernel
         ConfigurationManager configuration,
         IWebHostEnvironment env)
     {
-        configuration.AddJsonFile("proxy.appsettings.json",
-                optional: true,
-                reloadOnChange: env.IsDevelopment())
-            //used when running via LexBoxApi in dev
-            .AddJsonFile(Path.Combine(env.ContentRootPath, "../SyncReverseProxy", "proxy.appsettings.json"),
-                optional: true,
-                reloadOnChange: env.IsDevelopment())
-            .AddJsonFile($"proxy.appsettings.{env.EnvironmentName}.json",
-                optional: true,
-                reloadOnChange: env.IsDevelopment());
+        var defaultJsonSource = configuration.Sources.Last(s => s is JsonConfigurationSource);
+        configuration.Sources.Insert(configuration.Sources.IndexOf(defaultJsonSource) + 1,
+            new ChainedConfigurationSource
+            {
+                Configuration = new ConfigurationBuilder().AddJsonFile("proxy.appsettings.json",
+                        optional: true,
+                        reloadOnChange: env.IsDevelopment())
+                    //used when running via LexBoxApi in dev
+                    .AddJsonFile(Path.Combine(env.ContentRootPath, "../SyncReverseProxy", "proxy.appsettings.json"),
+                        optional: true,
+                        reloadOnChange: env.IsDevelopment())
+                    .AddJsonFile($"proxy.appsettings.{env.EnvironmentName}.json",
+                        optional: true,
+                        reloadOnChange: env.IsDevelopment()).Build()
+            });
+
         services.AddHttpContextAccessor();
         services.AddScoped<ProxyEventsService>();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
