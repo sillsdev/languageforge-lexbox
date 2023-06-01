@@ -14,11 +14,11 @@ public class ResumableTests
 
     [Theory]
     // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:7000")]
+    [InlineData("localhost:5158")]
     public async Task IsAvailable(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"https://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
         {
             Headers =
             {
@@ -31,14 +31,14 @@ public class ResumableTests
         responseMessage.Headers.GetValues("X-HgR-Version").ShouldHaveSingleItem().ShouldBe("3");
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
-    
+
     [Theory]
     // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:7000")]
+    [InlineData("localhost:8034")]
     public async Task WithBadUser(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"https://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
         {
             Headers =
             {
@@ -48,14 +48,14 @@ public class ResumableTests
         });
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
-    
+
     [Theory]
     // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:7000")]
+    [InlineData("localhost:8034")]
     public async Task WithBadPassword(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"https://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
         {
             Headers =
             {
@@ -65,14 +65,14 @@ public class ResumableTests
         });
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
-    
+
     [Theory]
     // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:7000")]
+    [InlineData("localhost:8034")]
     public async Task WithBadNotValidProject(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"https://{host}/api/v03/isAvailable?repoId=test-not-valid")
+            $"http://{host}/api/v03/isAvailable?repoId=test-not-valid")
         {
             Headers =
             {

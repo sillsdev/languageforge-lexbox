@@ -41,10 +41,10 @@ delete-db: # does NOT delete the volume, i.e., the data in the database
 	kubectl delete deployment,service db
 delete-pvc-db:
 	kubectl delete pvc db-data
-delete-hgresume:
-	kubectl delete deployment,service hgresume
-delete-pvc-hgresume-cache:
-	kubectl delete pvc hgresume-cache
+delete-hgresumable:
+	kubectl delete deployment,service hgresumable
+delete-pvc-hgresumable-cache:
+	kubectl delete pvc hgresumable-cache
 delete-pvc-hg-repos:
 	kubectl delete pvc hg-repos
 delete-hgweb:
@@ -65,10 +65,10 @@ scale-down-db:
 	kubectl scale deploy/db --replicas 0
 scale-up-db:
 	kubectl scale deploy/db --replicas 1
-scale-down-hgresume:
-	kubectl scale deploy/hgresume --replicas 0
-scale-up-hgresume:
-	kubectl scale deploy/hgresume --replicas 1
+scale-down-hgresumable:
+	kubectl scale deploy/hgresumable --replicas 0
+scale-up-hgresumable:
+	kubectl scale deploy/hgresumable --replicas 1
 scale-down-hgweb:
 	kubectl scale deploy/hgweb --replicas 0
 scale-up-hgweb:

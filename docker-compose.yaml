@@ -18,7 +18,7 @@ services:
         condition: service_healthy
       hgweb:
         condition: service_started
-      hgresume:
+      hgresumable:
         condition: service_started
       otel-collector:
         condition: service_started
@@ -29,7 +29,7 @@ services:
 
       # for dev convenience
       - ./backend:/src/backend
-      - nuget-cache:/root/.nuget/packages
+      - nuget-cache:/home/builder/.nuget/packages
     env_file: .env
     environment:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
@@ -39,7 +39,7 @@ services:
       HgConfig__RepoPath: /hg-repos
       HgConfig__HgWebUrl: http://hgweb:8088
       Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:8088
-      Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hg-resumable:80
+      Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hgresumable:80
       Authentication__Jwt__Secret: dev-secret_but-it-must-be-32-characters-long
       # always passes key, more info here: https://developers.cloudflare.com/turnstile/reference/testing
       CloudFlare__TurnstileKey: 1x0000000000000000000000000000000AA
@@ -59,7 +59,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  maildev: 
+  maildev:
     image: maildev/maildev # https://github.com/maildev/maildev/blob/master/README.md#usage
     ports:
       - "1080:1080" # ui port
@@ -122,14 +122,14 @@ services:
     volumes:
       - hg-repos:/var/hg/repos
 
-  hgresume:
-    image: ghcr.io/sillsdev/hgresume:v2023-02-24
+  hgresumable:
+    build: ./hgresumable
     platform:  linux/amd64
     ports:
       - "8034:80" # 8034 exposed here for dev tools
     volumes:
       - hg-repos:/var/vcs/public
-      - hgresume-cache:/var/cache/hgresume
+      - hgresumable-cache:/var/cache/hgresume
 
   otel-collector:
     image: otel/opentelemetry-collector:0.73.0
@@ -178,5 +178,5 @@ volumes:
         o: bind
         type: none
     redmine_db_data:
-    hgresume-cache:
+    hgresumable-cache:
     nuget-cache:

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>FixFwData</RootNamespace>
+    <Description>FixFwData</Description>
+    <Company>SIL International</Company>
+    <Authors>SIL International</Authors>
+    <Product>LexBoxApi Testing</Product>
+    <Copyright>Copyright © 2023 SIL International</Copyright>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <Target Name="CreateExe" AfterTargets="Build" Condition="Exists('$(OutputPath)/FixFwData') And !Exists('$(OutputPath)/FixFwData.exe')">
+    <Message Text="Creating FixFwData.exe in $(OutputPath) on Linux since FLExBridge requires the .exe extension" />
+    <Exec Command="ln FixFwData FixFwData.exe"
+          WorkingDirectory="$(OutputPath)" />
+  </Target>
+
+</Project>

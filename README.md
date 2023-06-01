@@ -82,7 +82,11 @@ There will not be an hg repository however, see optional setup below if this is 
 ### Optional setup
 
 If you want to test Send & Recieve execute `setup.sh` or `setup.bat`,
-to create the Sena 3 repo for the seed project.
+to create the Sena 3 repo for the seed project. You may also need to add the following line to your `/etc/hosts` or `C:\Windows\system32\drivers\etc\hosts` file:
+
+```
+127.0.0.1 hgresumable
+```
 
 If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
 the `.env` file.
@@ -175,8 +179,8 @@ flowchart LR
     hgkeeper -- volume-map:hg-repos --- repos[//repos/]
     api -- volume-map:hg-repos --- hg-repos[//hg-repos/]
 
-    api -- http:8080 --- hgresume([hgresume])
-    hgresume -- volume-map:hgresume-cache --- cache[//var/cache/hgresume/]
+    api -- http:8080 --- hgresumable([hgresumable])
+    hgresumable -- volume-map:hgresumable-cache --- cache[//var/cache/hgresume/]
 
     node -- http:80/api --- api
 

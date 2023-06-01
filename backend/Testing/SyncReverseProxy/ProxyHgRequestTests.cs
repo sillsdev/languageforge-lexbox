@@ -18,11 +18,11 @@ public class ProxyHgRequests
     //cli "C:\Program Files (x86)\SIL\FLExBridge3\Mercurial\hg" clone -U  "https://{userName}:{password}@hg-public.languageforge.org/{projectCode}" "C:\ProgramData\SIL\FieldWorks\Projects\lkj"
     [Theory]
     // [InlineData("hg-public.languageforge.org")]
-    [InlineData("localhost:7000")]
+    [InlineData("localhost:8034")]
     public async Task TestGet(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"https://{host}/{TestData.ProjectCode}")
+            $"http://{host}/{TestData.ProjectCode}")
         {
             Headers =
             {
@@ -35,12 +35,12 @@ public class ProxyHgRequests
 
     [Theory]
     // [InlineData("hg-public.languageforge.org")]
-    [InlineData("localhost:7000")]
+    [InlineData("localhost:8034")]
     public async Task TestGetBadPassword(string host)
     {
         var password = "not a good password";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"https://{host}/en-counselling-flex")
+            $"http://{host}/en-counselling-flex")
         {
             Headers =
             {
@@ -54,11 +54,11 @@ public class ProxyHgRequests
 
     [Theory]
     // [InlineData("hg-public.languageforge.org")]
-    [InlineData("localhost:7000")]
+    [InlineData("localhost:8034")]
     public async Task TestNoAuthResponse(string host)
     {
         var responseMessage =
-            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"https://{host}/en-counselling-flex"));
+            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{host}/en-counselling-flex"));
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
     }
