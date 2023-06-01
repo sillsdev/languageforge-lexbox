@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Text;
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore.Auth;
@@ -85,6 +87,14 @@ public class TestingController : ControllerBase
     public async Task<ActionResult<bool>> testTurnstile(string code)
     {
         return await HttpContext.RequestServices.GetRequiredService<TurnstileService>().IsTokenValid(code);
+    }
+
+    [HttpGet("debugConfiguration")]
+    [AllowAnonymous]
+    public ActionResult DebugConfiguration()
+    {
+        var configurationRoot = (IConfigurationRoot)HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        return Ok(configurationRoot.GetDebugView());
     }
 
     [HttpGet("listRedmineUsernames")]

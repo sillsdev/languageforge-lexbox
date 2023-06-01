@@ -38,8 +38,8 @@ services:
       Otel__Endpoint: http://otel-collector:4317
       HgConfig__RepoPath: /hg-repos
       HgConfig__HgWebUrl: http://hgweb:8088
-      Clusters__hg-web__Destinations__hg-web-server__Address: http://hgweb:8088
-      Clusters__resumable-web__Destinations__resumable-web-server__Address: http://hgresumable:80
+      ReverseProxy__Clusters__hgWeb__Destinations__hgWebServer__Address: http://hgweb:8088
+      ReverseProxy__Clusters__resumableWeb__Destinations__resumableWebServer__Address: http://hgresumable:80
       Authentication__Jwt__Secret: dev-secret_but-it-must-be-32-characters-long
       # always passes key, more info here: https://developers.cloudflare.com/turnstile/reference/testing
       CloudFlare__TurnstileKey: 1x0000000000000000000000000000000AA

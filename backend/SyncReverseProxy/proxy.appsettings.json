@@ -4,7 +4,7 @@
     "Routes": {
       "resumable": {
         "Order": 10,
-        "ClusterId": "resumable-web",
+        "ClusterId": "resumableWeb",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
           "Path": "/api/v03/{**catch-all}"
@@ -12,7 +12,7 @@
       },
       "hg": {
         "Order": 20,
-        "ClusterId": "hg-web",
+        "ClusterId": "hgWeb",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
           "Path": "/{project-code}"
@@ -23,9 +23,9 @@
           }
         ]
       },
-      "hg-web-view": {
+      "hgWebView": {
         "Order": 11,
-        "ClusterId": "hg-web",
+        "ClusterId": "hgWeb",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
           "Path": "/api/hg-view/{project-code}/{**catch-all}"
@@ -39,9 +39,9 @@
           }
         ]
       },
-      "hg-web-view-static-rewrite": {
+      "hgWebViewStaticRewrite": {
         "Order": 10,
-        "ClusterId": "hg-web",
+        "ClusterId": "hgWeb",
         "Match": {
           "Path": "/hg/static/{**catch-all}",
           "Headers":[
@@ -58,17 +58,17 @@
       }
     },
     "Clusters": {
-      "hg-web": {
+      "hgWeb": {
         "Destinations": {
-          "hg-web-server": {
+          "hgWebServer": {
             "Address": "http://localhost:8088/"
           }
         }
       },
-      "resumable-web": {
+      "resumableWeb": {
         "Destinations": {
-          "resumable-web-server": {
-            "Address": "http://hgresumable:80/"
+          "resumableWebServer": {
+            "Address": "http://localhost:8034/"
           }
         }
       }

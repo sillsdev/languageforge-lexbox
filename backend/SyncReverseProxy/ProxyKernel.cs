@@ -50,7 +50,7 @@ public static class ProxyKernel
                     }
                 });
 
-                if (context.Route.RouteId == "hg-web-view")
+                if (context.Route.RouteId == "hgWebView")
                 {
                     context.AddResponseTransform(async transformContext =>
                     {
