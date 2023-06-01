@@ -127,7 +127,6 @@ services:
     platform:  linux/amd64
     ports:
       - "8034:80" # 8034 exposed here for dev tools
-      - "80:80" # Bypass proxy for now, to test Send/Receive directly against resumable server
     volumes:
       - hg-repos:/var/vcs/public
       - hgresumable-cache:/var/cache/hgresume
@@ -159,10 +158,8 @@ services:
 
   proxy:
     image: nginx
-    # Bypass proxy for now, and test Send/Receive directly against resumable server on port 80
-    # (Due to a bug in Chorus, resumable servers can *only* run on port 80 or 443, no custom ports)
-    # ports:
-    #   - "80:80"
+    ports:
+      - "80:80"
     volumes:
       - ./proxy/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:

@@ -68,7 +68,7 @@
       "resumable-web": {
         "Destinations": {
           "resumable-web-server": {
-            "Address": "http://localhost:8034/"
+            "Address": "http://hgresumable:80/"
           }
         }
       }
