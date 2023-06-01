@@ -1,10 +1,5 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using LexBoxApi.Config;
-// using LexCore.Entities;
-using LexData;
-// using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using SIL.Progress;
 
 namespace Testing.Services;
@@ -42,8 +37,9 @@ public class SendReceiveService
     {
         var chorusSettings = new Chorus.Model.ServerSettingsModel();
         chorusSettings.Username = "manager";
+        chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
+        chorusSettings.Password = "pass";
         chorusSettings.SaveUserSettings();
-        Chorus.Model.ServerSettingsModel.PasswordForSession = "pass";
         string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
         string repoUrl = $"{baseUrl}/{projectCode}";
         Console.WriteLine($"Cloning {repoUrl} ...");
@@ -70,8 +66,9 @@ public class SendReceiveService
     {
         var chorusSettings = new Chorus.Model.ServerSettingsModel();
         chorusSettings.Username = "manager";
+        chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
+        chorusSettings.Password = "pass";
         chorusSettings.SaveUserSettings();
-        Chorus.Model.ServerSettingsModel.PasswordForSession = "pass";
         string fwdataFilename = System.IO.Path.Join(projectDir, $"{projectCode}.fwdata");
         string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
         string repoUrl = $"{baseUrl}/{projectCode}";
