@@ -84,9 +84,9 @@ jobs:
           TARGET_HOST: https://staging.languagedepot.org
           EXPECTED_VERSION: ${{ needs.build.outputs.version }}
         run: |
-          IterateCount = 5
+          IterateCount=5
           n=0
-          until [ "$n" -ge $IterateCount ]
+          until [ $n -ge $IterateCount ]
           do
             response=`curl -s --head "$TARGET_HOST/api/healthz"`
             # get version from response, trim off the header and fix the line endings
