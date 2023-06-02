@@ -5,6 +5,7 @@ import {
 	trace,
 	type Span,
 	type Context,
+  type Attributes,
 } from '@opentelemetry/api';
 
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
@@ -17,6 +18,7 @@ import {
 	traceEventAttributes,
 	traceErrorEvent as _traceErrorEvent,
 	traceHeaders,
+  type ErrorAttributes,
 } from './shared';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { env } from '$env/dynamic/private';
@@ -26,8 +28,8 @@ import { env } from '$env/dynamic/private';
 
 const serviceName = 'LexBox-SvelteKit-Server';
 
-export const traceErrorEvent = (error: unknown, event: RequestEvent) =>
-	_traceErrorEvent(serviceName, error, event);
+export const traceErrorEvent = (error: unknown, event: RequestEvent, metadata: ErrorAttributes): string =>
+	_traceErrorEvent(serviceName, error, event, metadata);
 
 const ROOT_TRACE_PARENT_KEY = 'traceparent';
 

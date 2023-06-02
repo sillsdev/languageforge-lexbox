@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- This file is mostly copied out of the default error page that SvelteKit generates -->
+
+<head>
+    <meta charset="utf-8">
+    <title>Language Depot - Critical Error</title>
+
+    <style>
+        body {
+            --bg: white;
+            --fg: #222;
+            --divider: #ccc;
+            background: var(--bg);
+            color: var(--fg);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 32px;
+            height: 100vh;
+        }
+
+        body>* {
+            max-width: 60rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin: 0 1rem;
+        }
+
+        .status {
+            font-weight: 200;
+            font-size: 3rem;
+            line-height: 1;
+            position: relative;
+            top: -0.05rem;
+        }
+
+        .apology {
+            border-left: 1px solid var(--divider);
+            padding: 0 0 0 1rem;
+            margin: 0 0 0 1rem;
+            min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .message {
+            white-space: pre-wrap;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                --bg: #222;
+                --fg: #ddd;
+                --divider: #666;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <span class="status">%sveltekit.status%</span>
+        <span class="apology">Woops, something went wrong on our end. Sorry!</span>
+    </div>
+    <div class="message">%sveltekit.error.message%</div>
+
+    <div>
+        Please let us know about this at
+        <a
+            href="mailto:issues@languageforge.org?body=%sveltekit.error.message%&subject=Language Depot - Unexpected error">issues@languageforge.org</a>.
+        Include the error message, a screenshot of your browser and a summary of the steps that lead to the
+        error.
+    </div>
+</body>
+
+</html>
