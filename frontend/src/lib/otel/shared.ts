@@ -60,7 +60,7 @@ export const traceErrorEvent = (
 	});
 };
 
-export const traceHeaders = (span: Span, type: string, headers: Headers) => {
+export const traceHeaders = (span: Span, type: 'request' | 'response', headers: Headers) => {
 	headers.forEach((value, key) => {
 		const normalized_name = normalizeHeaderName(key);
 		if (recordedHeaders_normalized.includes(normalized_name)) {
