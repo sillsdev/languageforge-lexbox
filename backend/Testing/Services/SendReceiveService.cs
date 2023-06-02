@@ -6,14 +6,14 @@ namespace Testing.Services;
 
 public class SendReceiveService
 {
-    private readonly string _defaultBaseUrl;
+    private readonly string _baseUrl;
     private const string fdoDataModelVersion = "7000072";
     private readonly IProgress _progress;
 
-    public SendReceiveService(IProgress progress, string defaultBaseUrl = "http://localhost:8088/hg")
+    public SendReceiveService(IProgress progress, string baseUrl = "http://localhost")
     {
         // _sendReceiveOptions = sendReceiveOptions;
-        _defaultBaseUrl = defaultBaseUrl;
+        _baseUrl = baseUrl;
         _progress = progress;
     }
 
@@ -33,16 +33,19 @@ public class SendReceiveService
         return output;
     }
 
-    public string CloneProject(string projectCode, string destDir, string? baseUrlOpt = null)
+    public string CloneProject(string projectCode, string destDir, string username, string password)
     {
-        var chorusSettings = new Chorus.Model.ServerSettingsModel();
-        chorusSettings.Username = "manager";
-        chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
-        chorusSettings.Password = "pass";
-        chorusSettings.SaveUserSettings();
-        string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
-        string repoUrl = $"{baseUrl}/{projectCode}";
-        Console.WriteLine($"Cloning {repoUrl} ...");
+        if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password)) {
+            // No username or password supplied, so we explicitly do *not* save user settings
+        } else {
+            var chorusSettings = new Chorus.Model.ServerSettingsModel();
+            chorusSettings.Username = username;
+            chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
+            chorusSettings.Password = password;
+            chorusSettings.SaveUserSettings();
+        }
+        string repoUrl = $"{_baseUrl}/{projectCode}";
+        Console.WriteLine($"Cloning {repoUrl} with user {username} and password \"{password}\" ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
@@ -62,17 +65,20 @@ public class SendReceiveService
         return cloneResult;
     }
 
-    public string SendReceiveProject(string projectCode, string projectDir, string? baseUrlOpt = null)
+    public string SendReceiveProject(string projectCode, string projectDir, string username, string password)
     {
-        var chorusSettings = new Chorus.Model.ServerSettingsModel();
-        chorusSettings.Username = "manager";
-        chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
-        chorusSettings.Password = "pass";
-        chorusSettings.SaveUserSettings();
+        if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password)) {
+            // No username or password supplied, so we explicitly do *not* save user settings
+        } else {
+            var chorusSettings = new Chorus.Model.ServerSettingsModel();
+            chorusSettings.Username = username;
+            chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
+            chorusSettings.Password = password;
+            chorusSettings.SaveUserSettings();
+        }
+        string repoUrl = $"{_baseUrl}/{projectCode}";
         string fwdataFilename = System.IO.Path.Join(projectDir, $"{projectCode}.fwdata");
-        string baseUrl = baseUrlOpt ?? _defaultBaseUrl;
-        string repoUrl = $"{baseUrl}/{projectCode}";
-        Console.WriteLine($"S/R for {repoUrl} ...");
+        Console.WriteLine($"S/R for {repoUrl} with user {username} and password \"{password}\" ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", projectDir },
