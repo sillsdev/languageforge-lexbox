@@ -1,13 +1,11 @@
 import type { PageLoadEvent } from "./$types";
 import type { Project } from "$lib/project";
 import { getClient } from "$lib/graphQLClient";
-import { user } from "$lib/user";
-import { get } from "svelte/store";
 import { graphql } from "$lib/gql";
 
 
 export async function load(event: PageLoadEvent): Promise<{ projects: Project[] }> {
-    const userId = get(user)?.id;
+    const userId = (await event.parent()).userId;
     if (!userId) return {projects: []};
     const client = getClient(event);
     //language=GraphQL
