@@ -4,23 +4,22 @@
 	import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
 	import { FormError, lexSuperForm } from '$lib/forms';
 	import Form from '$lib/forms/Form.svelte';
-	import { z, type ZodRawShape } from 'zod';
+	import type { z, ZodObject } from 'zod';
 
-	type T = $$Generic<ZodRawShape>;
-	export let schema: T;
+	type Schema = $$Generic<ZodObject>;
+    type FormType = z.infer<Schema>;
+	export let schema: Schema;
 
-	let formSchema = z.object(schema);
-	const superForm = lexSuperForm(formSchema, () => modal.submitModal());
+	const superForm = lexSuperForm(schema, () => modal.submitModal());
 	const { errors, reset, message, enhance } = superForm;
 	const _form = superForm.form;
-
-	type FormType = z.infer<typeof formSchema>;
-
 	let modal: Modal;
 
 	export async function open(
 		onSubmit: (d: FormType) => Promise<string | undefined>,
+		value?: Partial<FormType>,
 	): Promise<void> {
+		if (value) _form.set(value);
 		if ((await modal.openModal()) === DialogResponse.Cancel) return;
 		const error = await onSubmit($_form);
 		if (error) {
@@ -31,7 +30,7 @@
 		modal.close();
 	}
 
-	export function form(): Readable<z.infer<typeof formSchema>> {
+	export function form(): Readable<FormType> {
 		return superForm.form;
 	}
 </script>

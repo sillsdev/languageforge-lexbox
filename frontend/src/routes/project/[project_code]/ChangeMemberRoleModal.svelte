@@ -9,16 +9,15 @@
 
 	export let projectId: string;
 
-	const schema = {
+	const schema = z.object({
 		role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
-	};
+	});
 	let formModal: FormModal<typeof schema>;
 	$: form = formModal?.form();
 
 	let name: string;
 	export async function open(member: { userId: string; name: string, role: ProjectRole }): Promise<void> {
 		name = member.name;
-        tryParse(schema.role, member.role, (role) => $form.role = role);
 		await formModal.open(async (form) => {
 			const result = await _changeProjectMemberRole({
 				projectId,
@@ -26,7 +25,7 @@
 				role: form.role,
 			});
 			return result.error?.message;
-		});
+		}, tryParse(schema, member));
 	}
 </script>
 
