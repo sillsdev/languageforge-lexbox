@@ -11,7 +11,6 @@
 
 	onDestroy(
 		error.subscribe((e) => {
-			console.log('toggle', e);
 			alertContainerElem?.classList.toggle('hidden', !e);
 		}),
 	);
