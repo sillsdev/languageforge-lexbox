@@ -18,9 +18,14 @@ if (browser) {
 	// https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
   window.onunhandledrejection = (event: PromiseRejectionEvent) => {
     const source = 'client-unhandledrejection';
-    const traceId = trace_error_event(event.reason, event, { ['app.error.source']: source });
 
-    if (event.reason.message.startsWith('sendBeacon - cannot send')) {
+    const keysForMissingMessageError = event.reason.message ? undefined : Object.keys(event.reason).join();
+    const traceId = trace_error_event(event.reason, event, {
+      ['app.error.source']: source,
+      ['app.error.keys']: keysForMissingMessageError,
+    });
+
+    if (event.reason.message?.startsWith('sendBeacon - cannot send')) {
       // The user doesn't care if a few OTEL beacons are failing
       // (see BatchSpanProcessor configuration in otel\client.ts)
       return;
