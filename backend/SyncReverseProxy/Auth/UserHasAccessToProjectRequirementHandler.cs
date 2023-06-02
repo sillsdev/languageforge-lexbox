@@ -25,17 +25,7 @@ public class UserHasAccessToProjectRequirementHandler : AuthorizationHandler<Use
             return Task.CompletedTask;
         }
 
-        string? projectCode = null;
-        //this is used for hg requests. the key we're using is defined in app settings hg.path.match
-        if (_httpContextAccessor.HttpContext.Request.RouteValues.TryGetValue("project-code", out var projectCodeObj))
-        {
-            projectCode = projectCodeObj?.ToString() ?? null;
-        }
-        //this is for resumable requests.
-        else if (_httpContextAccessor.HttpContext.Request.Query.TryGetValue("repoId", out var projectCodeValues))
-        {
-            projectCode = projectCodeValues.ToString();
-        }
+        var projectCode = _httpContextAccessor.HttpContext.Request.GetProjectCode();
         if (string.IsNullOrEmpty(projectCode))
         {
             context.Fail(new AuthorizationFailureReason(this, "No repoId query parameter"));

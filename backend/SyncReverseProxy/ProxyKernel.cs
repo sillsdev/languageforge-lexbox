@@ -35,6 +35,7 @@ public static class ProxyKernel
 
         services.AddHttpContextAccessor();
         services.AddScoped<ProxyEventsService>();
+        services.AddMemoryCache();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         var reverseProxyConfig = configuration.GetSection("ReverseProxy");
         if (!reverseProxyConfig.Exists())
