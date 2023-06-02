@@ -1,4 +1,4 @@
-import type {Cookies} from '@sveltejs/kit'
+import {redirect, type Cookies} from '@sveltejs/kit'
 import {browser} from '$app/environment'
 import jwtDecode from 'jwt-decode'
 import {writable} from 'svelte/store'
@@ -91,6 +91,9 @@ export function get_user_id(cookies: Cookies): string | undefined {
 export function logout(cookies?: Cookies) {
     browser && clear()
     cookies && cookies.delete('.LexBoxAuth')
+    if (browser && window.location.pathname !== '/login') {
+        throw redirect(307, '/login');
+    }
 }
 
 function clear() {
