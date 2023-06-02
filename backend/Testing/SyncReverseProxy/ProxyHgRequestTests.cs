@@ -18,7 +18,7 @@ public class ProxyHgRequests
     //cli "C:\Program Files (x86)\SIL\FLExBridge3\Mercurial\hg" clone -U  "https://{userName}:{password}@hg-public.languageforge.org/{projectCode}" "C:\ProgramData\SIL\FieldWorks\Projects\lkj"
     [Theory]
     // [InlineData("hg-public.languageforge.org")]
-    [InlineData("localhost:8034")]
+    [InlineData("localhost:5158")]
     public async Task TestGet(string host)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
