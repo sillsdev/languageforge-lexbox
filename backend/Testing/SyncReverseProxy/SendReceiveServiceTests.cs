@@ -38,17 +38,36 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
-    [Theory]
-    [InlineData("sena-3", "http://localhost:8088/hg", "normal")]
-    [InlineData("sena-3", "http://hgresumable", "resumable")]
-    // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
-    public void CloneProjectAndSendReceive(string projectCode, string repoBaseUrl, string testName)
-    {
-        _srService = new SendReceiveService(_progress, repoBaseUrl);
+    private IEnumerable<string[]> hostsAndTypes => new[] { new[] { "http://localhost:8088/hg", "normal" }, new[] { "http://hgresumable", "resumable" } };
+    private string[] goodCredentials = new[] { "manager", "pass" };
+    private IEnumerable<string[]> badCredentials = new[] { new[] { "manager", "incorrect_pass" }, new[] { "invalid_user", "pass" } };
 
-        string projectDir = Path.Join(_basePath, testName, projectCode);
-        string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
-        string result = _srService.CloneProject(projectCode, projectDir);
+    public record SendReceiveTestData(string ProjectCode, string Host, string HostType, string Username, string Password, bool ShouldPass);
+
+    public IEnumerable<SendReceiveTestData> GetTestDataForSR(string projectCode)
+    {
+        foreach (var data in hostsAndTypes)
+        {
+            var host = data[0];
+            var type = data[1];
+            yield return new SendReceiveTestData(projectCode, host, type, goodCredentials[0], goodCredentials[1], true);
+            foreach (var credentials in badCredentials)
+            {
+                yield return new SendReceiveTestData(projectCode, host, type, credentials[0], credentials[1], false);
+            }
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(GetTestDataForSR), "sena-3")]
+    // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
+    public void CloneProjectAndSendReceive(SendReceiveTestData data)
+    {
+        _srService = new SendReceiveService(_progress, data.Host);
+
+        string projectDir = Path.Join(_basePath, data.HostType, data.ProjectCode);
+        string fwdataFile = Path.Join(projectDir, $"{data.ProjectCode}.fwdata");
+        string result = _srService.CloneProject(data.ProjectCode, projectDir);
         result.ShouldNotContain("abort");
         result.ShouldNotContain("error");
         fwdataFile.ShouldSatisfyAllConditions(
@@ -58,7 +77,7 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
         long oldLength = new FileInfo(fwdataFile).Length;
         // Now do a Send/Receive which should get no changes
         // Running in same test because it's dependent on CloneProject happening first
-        string result2 = _srService.SendReceiveProject(projectCode, projectDir);
+        string result2 = _srService.SendReceiveProject(data.ProjectCode, projectDir);
         result2.ShouldNotContain("abort");
         result2.ShouldNotContain("error");
         result2.ShouldContain("no changes from others");
