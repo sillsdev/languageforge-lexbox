@@ -16,9 +16,21 @@ export const trace_error_event = (
 	event: NavigationEvent
 ) => _trace_error_event(serviceName, error, event)
 
-registerInstrumentations({
-	instrumentations: [getWebAutoInstrumentations()],
-})
+// fetch_original & fetch_otel_instrumented are referenced by our proxy in app.html
+const fetch_proxy = window.fetch;
+try {
+  // Have otel instrument the original
+	window.fetch = window.fetch_original;
+	registerInstrumentations({
+		instrumentations: [getWebAutoInstrumentations()],
+	});
+} finally {
+  // Provide the (now) instrumented version for our proxy to call
+  window.fetch_otel_instrumented = window.fetch;
+  // Put the proxy back into place
+	window.fetch = fetch_proxy;
+}
+
 const resource = Resource.default().merge(
 	new Resource({
 		[SemanticResourceAttributes.SERVICE_NAME]: serviceName,
