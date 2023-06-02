@@ -1,10 +1,8 @@
 <script lang="ts">
-    import { page } from '$app/stores'
+	import UnexpectedError from '$lib/error/UnexpectedError.svelte';
 	import { Page } from '$lib/layout'
 </script>
 
 <Page>
-	<svelte:fragment slot=header>
-		{$page.status}: {$page.error?.message}
-	</svelte:fragment>
+    <UnexpectedError />
 </Page>

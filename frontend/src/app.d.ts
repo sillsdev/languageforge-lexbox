@@ -13,5 +13,12 @@ declare global {
             user: any;
             client: import('@urql/svelte').Client;
         }
+
+        interface Error {
+          traceId: string;
+          source: ErrorSource;
+        }
     }
+
+    type ErrorSource = 'client-error' | 'client-unhandledrejection' | 'server-error-hook' | 'client-error-hook';
 }

@@ -131,5 +131,14 @@
   "user_types": {
     "admin": "Admin",
     "user": "User"
+  },
+  "errors": {
+    "apology": "Woops, something went wrong on our end. Sorry!",
+    "mail_us_at": "If you're stuck, let us know about this at",
+    "please_include": "Please include the error code, a screenshot of your browser and a summary of the steps that lead to the error.",
+    "error_code": "Error code"
+  },
+  "modal": {
+    "dismiss": "Dismiss"
   }
 }

@@ -4,6 +4,7 @@ import { initClient } from '$lib/graphQLClient'
 import {loadI18n} from "$lib/i18n";
 import { traceErrorEvent, traceResponse, traceRequest, traceFetch } from '$lib/otel/server'
 import {env} from "$env/dynamic/private";
+import { getErrorMessage } from './hooks.shared';
 
 const public_routes = [
 	'/login',
@@ -46,6 +47,13 @@ export const handleFetch = (async ({event, request, fetch}) => {
 }) satisfies HandleFetch;
 
 export const handleError: HandleServerError = ({ error, event }) => {
-	traceErrorEvent(error, event);
-	console.error(error);
-}
+  const source = 'server-error-hook';
+	console.error(source, error);
+  const traceId = traceErrorEvent(error, event, { ['app.error.source']: source });
+  const message = getErrorMessage(error);
+	return {
+		traceId,
+    message: `${message} (${traceId})`, // traceId is appended so we have it on error.html
+		source,
+	};
+};
