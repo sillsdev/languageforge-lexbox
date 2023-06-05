@@ -2,7 +2,9 @@ import type {LoadEvent, RequestEvent} from "@sveltejs/kit";
 import {CombinedError, mapExchange, type Client, defaultExchanges} from "@urql/svelte";
 import {get, writable} from "svelte/store";
 import {createClient} from "@urql/svelte";
+import { browser } from "$app/environment";
 
+const TRACE_ID_KEY = '__app.trace_id';
 const clientStore = writable<Client | null>(null);
 type ServerError = { message: string, code?: string };
 
@@ -12,9 +14,13 @@ function hasError(value: unknown): value is { errors: ServerError[] } {
 }
 
 class LexGqlError extends CombinedError {
-    constructor(public readonly errors: ServerError[]) {
-        super({});
-        this.message = errors.map(e => e.message).join(', ');
+    constructor(errors: CombinedError, traceId?: string)
+    constructor(errors: ServerError[], traceId?: string)
+    constructor(errors: ServerError[] | CombinedError, public readonly traceId?: string) {
+        super(Array.isArray(errors) ? {} : errors);
+        if (Array.isArray(errors)) {
+            this.message = errors.map(e => e.message).join(', ');
+        }
     }
 }
 
@@ -22,23 +28,35 @@ function createGqlClient(event: LoadEvent | RequestEvent, gqlEndpoint?: string) 
     const url = `${gqlEndpoint ?? ''}/api/graphql`;
     return createClient({
         url,
-        fetch: event.fetch,
-        exchanges: [
-            mapExchange({
-                onResult: (result) => {
-                    if (result.error) return result;
-                    if (typeof result.data === 'object') {
-                        let errors: ServerError[] = [];
-                        for (const resultValue of Object.values(result.data)) {
-                            if (hasError(resultValue)) {
-                                errors = errors.concat(resultValue.errors.map(error => error));
-                            }
-                        }
-                        if (errors.length > 0) {
-                            result.error = new LexGqlError(errors);
-                        }
-                    }
-                    return result;
+      fetch: async (...args) => {
+        const response = await event.fetch(...args);
+        if (browser) {
+          // We only need this for errors that are thrown outside of the context of an active trace.
+          // Server errors are always in the scope of the request trace, so: client-only.
+          tryPutTraceIdOnResponse(args[1], response);
+        }
+        return response;
+      },
+      exchanges: [
+          mapExchange({
+              onResult: (result) => {
+                  if (result.error) {
+                      const traceId = tryGetTraceIdFromResponse(result.error.response);
+                      result.error = new LexGqlError(result.error, traceId);
+                      return result;
+                  }
+                  if (typeof result.data === 'object') {
+                      let errors: ServerError[] = [];
+                      for (const resultValue of Object.values(result.data)) {
+                          if (hasError(resultValue)) {
+                              errors = errors.concat(resultValue.errors.map(error => error));
+                          }
+                      }
+                      if (errors.length > 0) {
+                          result.error = new LexGqlError(errors);
+                      }
+                  }
+                  return result;
                 }
             }),
             ...defaultExchanges
@@ -66,4 +84,16 @@ export function initClient(event: LoadEvent | RequestEvent, gqlEndpoint?: string
 
 export function setClient(newClient: Client) {
     clientStore.set(newClient);
+}
+
+function tryPutTraceIdOnResponse(request: RequestInit | undefined, response: Response) {
+  const traceparent = (request?.headers as Record<string, string>)?.['traceparent'];
+  const traceId = traceparent?.match(/[\d]{2}-([^-]+)/)?.[1]
+  if (traceId) {
+    (response as object as Record<string, string>)[TRACE_ID_KEY] = traceId;
+  }
+}
+
+function tryGetTraceIdFromResponse(response?: Response) {
+  return (response as object as Record<string, string>)?.[TRACE_ID_KEY];
 }

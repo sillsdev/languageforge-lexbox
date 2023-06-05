@@ -51,7 +51,7 @@ export async function load(event: PageLoadEvent) {
 			{ projectCode },
 		)
 		.toPromise();
-	if (result.error) throw new Error(result.error.message);
+  if (result.error) throw result.error;
 	event.depends(`project:${result.data?.projects[0]?.id}`);
 	return {
 		project: result.data?.projects[0],

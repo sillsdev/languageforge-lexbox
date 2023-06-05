@@ -17,3 +17,10 @@ export const getErrorMessage = (error: unknown): string => {
 		sayWuuuuuuut
 	);
 };
+
+export const getTraceId = (error: unknown): string | undefined => {
+  if (typeof error === 'object') {
+    const _error = (error ?? {}) as Record<string, string>;
+    return _error.traceId;
+  }
+};

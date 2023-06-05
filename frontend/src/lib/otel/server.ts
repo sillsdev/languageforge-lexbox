@@ -5,7 +5,6 @@ import {
 	trace,
 	type Span,
 	type Context,
-  type Attributes,
 } from '@opentelemetry/api';
 
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
