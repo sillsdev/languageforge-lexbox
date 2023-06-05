@@ -30,9 +30,8 @@ builder.Services.AddSwaggerGen(options =>
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "LexBoxApi",
-        // Description = " Hello ",
         Description = """
-            This is the open api for LexBox, most of api is in the [graphql endpoint](/api/graphql/ui).
+            This is the open api for LexBox, most of the api is in the [graphql endpoint](/api/graphql/ui).
             However there are some test users for login here, with the default password of `pass`:
             * admin@test.com (site admin)
             * manager@test.com (Sena 3 manager)
