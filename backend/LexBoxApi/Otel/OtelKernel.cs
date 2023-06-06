@@ -34,6 +34,8 @@ public static class OtelKernel
                 .AddAspNetCoreInstrumentation(options =>
                 {
                     options.RecordException = true;
+                    // don't log health checks
+                    options.Filter = context => context.Request.Path.Value != "/api/healthz";
                     options.EnrichWithHttpRequest = (activity, request) =>
                     {
                         activity.EnrichWithUser(request.HttpContext);
