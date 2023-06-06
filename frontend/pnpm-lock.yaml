@@ -42,6 +42,9 @@ devDependencies:
   '@egoist/tailwindcss-icons':
     specifier: ^1.0.7
     version: 1.0.7(tailwindcss@3.3.2)
+  '@eslint/js':
+    specifier: ^8.42.0
+    version: 8.42.0
   '@graphql-codegen/cli':
     specifier: ^3.3.1
     version: 3.3.1(@babel/core@7.21.8)(graphql@16.6.0)
@@ -96,6 +99,9 @@ devDependencies:
   eslint:
     specifier: ^8.41.0
     version: 8.41.0
+  globals:
+    specifier: ^13.20.0
+    version: 13.20.0
   graphql:
     specifier: ^16.6.0
     version: 16.6.0
@@ -998,6 +1004,11 @@ packages:
 
   /@eslint/js@8.41.0:
     resolution: {integrity: sha512-LxcyMGxwmTh2lY9FwHPGWOHmYFCZvbrFCBZL4FzSSsxsRPuhrYUg/49/0KDfW8tnIEaEHtfmn6+NPN+1DqaNmA==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    dev: true
+
+  /@eslint/js@8.42.0:
+    resolution: {integrity: sha512-6SWlXpWU5AvId8Ac7zjzmIOqMOba/JWY8XZ4A7q7Gn1Vlfg/SFFIlrtHXt9nPn4op9ZPAkl91Jao+QQv3r/ukw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
