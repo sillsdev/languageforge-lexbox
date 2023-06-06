@@ -12,4 +12,10 @@
     "i18n-ally.sortKeys": true,
     "i18n-ally.keystyle": "nested",
     "i18n-ally.tabStyle": "tab",
+    "eslint.experimental.useFlatConfig": true,
+    "eslint.workingDirectories": [
+        { "directory": "./frontend" }
+    ],
+    "sort-imports.on-save": true,
+    "editor.detectIndentation": false,
 }
