@@ -6,6 +6,18 @@
 
 		<link rel=icon href=%sveltekit.assets%/favicon.png />
 
+        <script>
+            // Put a proxy in place before svelte assigns it to it's native_fetch variable
+            // https://github.com/sveltejs/kit/issues/9530
+            window.fetch_original = window.fetch;
+            window.fetch = function () {
+                // use the instrumented version once otel\client.ts has put it in place
+                return window.fetch_otel_instrumented
+                    ? window.fetch_otel_instrumented(...arguments)
+                    : window.fetch_original(...arguments);
+            }
+        </script>
+
 		%sveltekit.head%
 	</head>
 

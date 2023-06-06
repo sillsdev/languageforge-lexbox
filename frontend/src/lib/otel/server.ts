@@ -5,6 +5,7 @@ import {
 	trace,
 	type Span,
 	type Context,
+  type Attributes,
 } from '@opentelemetry/api';
 
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
@@ -17,6 +18,7 @@ import {
 	traceEventAttributes,
 	traceErrorEvent as _traceErrorEvent,
 	traceHeaders,
+  type ErrorAttributes,
 } from './shared';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { env } from '$env/dynamic/private';
@@ -26,10 +28,10 @@ import { env } from '$env/dynamic/private';
 
 const serviceName = 'LexBox-SvelteKit-Server';
 
-export const traceErrorEvent = (error: unknown, event: RequestEvent) =>
-	_traceErrorEvent(serviceName, error, event);
+export const traceErrorEvent = (error: unknown, event: RequestEvent, metadata: ErrorAttributes): string =>
+	_traceErrorEvent(serviceName, error, event, metadata);
 
-const TRACE_PARENT_KEY = 'traceparent';
+const ROOT_TRACE_PARENT_KEY = 'traceparent';
 
 const buildTraceparent = (span: Span): string => {
 	const spanContext = span.spanContext();
@@ -51,28 +53,28 @@ const buildContextWithTraceparentBaggage = (event: RequestEvent): Context => {
 	const traceparentContext = trace.setSpan(context.active(), traceparentSpan);
 	const traceparent = buildTraceparent(traceparentSpan);
 	const traceParentBaggage = propagation.createBaggage({
-		[TRACE_PARENT_KEY]: { value: traceparent },
+		[ROOT_TRACE_PARENT_KEY]: { value: traceparent },
 	});
 	return propagation.setBaggage(traceparentContext, traceParentBaggage);
 };
 
-export const getTraceParent = (): string | undefined => {
+export const getRootTraceparent = (): string | undefined => {
 	const baggage = propagation.getBaggage(context.active());
-	return baggage?.getEntry(TRACE_PARENT_KEY)?.value;
+	return baggage?.getEntry(ROOT_TRACE_PARENT_KEY)?.value;
 };
 
 export const traceRequest = async (
 	event: RequestEvent,
-	responseBuilder: () => Promise<Response> | Response,
+	responseBuilder: () => Promise<Response>,
 ): Promise<Response> => {
 	const tracparentContext = buildContextWithTraceparentBaggage(event);
 	return context.with(tracparentContext, () => {
 		return trace
 			.getTracer(serviceName)
-			.startActiveSpan(`${event.request.method} ${event.route.id}`, (span) => {
-				traceEventAttributes(span, event);
+			.startActiveSpan(`${event.request.method} ${event.route.id}`, async (span) => {
 				try {
-					return responseBuilder();
+          traceEventAttributes(span, event);
+					return await responseBuilder();
 				} finally {
 					span.end();
 				}
@@ -81,13 +83,13 @@ export const traceRequest = async (
 };
 
 export const traceResponse = async (
-	event: RequestEvent,
+	{ method, route }: {method: string, route: string | null},
 	responseBuilder: () => Promise<Response> | Response,
 ): Promise<Response> => {
 	return trace
 		.getTracer(serviceName)
 		.startActiveSpan(
-			`${event.request.method} ${event.route.id} - Response`,
+			`${method} ${route} - Response`,
 			async (responseSpan) => {
 				try {
 					const response = await responseBuilder();
@@ -103,6 +105,28 @@ export const traceResponse = async (
 				}
 			},
 		);
+};
+
+export const traceFetch = async (
+	request: Request,
+	fetch: () => Promise<Response>,
+): Promise<Response> => {
+	return trace
+		.getTracer(serviceName)
+		.startActiveSpan(`${request.method} ${request.url}`, async (span) => {
+      try {
+        span.setAttributes({
+          [SemanticAttributes.HTTP_METHOD]: request.method,
+          [SemanticAttributes.HTTP_TARGET]: request.url,
+        })
+        traceHeaders(span, 'request', request.headers);
+        const traceparent = buildTraceparent(span);
+        request.headers.set('Traceparent', traceparent);
+        return await traceResponse({ method: request.method, route: request.url }, fetch);
+			} finally {
+				span.end();
+			}
+		});
 };
 
 const traceResponseAttributes = (span: Span, response: Response) => {

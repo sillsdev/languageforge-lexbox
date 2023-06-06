@@ -5,7 +5,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
-import { traceErrorEvent as _trace_error_event } from './shared';
+import { traceErrorEvent as _trace_error_event, type ErrorAttributes } from './shared';
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
@@ -13,12 +13,25 @@ const serviceName = 'LexBox-SvelteKit-Client'
 
 export const trace_error_event = (
 	error: unknown,
-	event: NavigationEvent
-) => _trace_error_event(serviceName, error, event)
+  event: NavigationEvent | Event,
+  metadata: ErrorAttributes,
+) => _trace_error_event(serviceName, error, event, metadata)
 
-registerInstrumentations({
-	instrumentations: [getWebAutoInstrumentations()],
-})
+// fetch_original & fetch_otel_instrumented are referenced by our fetch_proxy in app.html
+const fetch_proxy = window.fetch;
+try {
+  // Have otel instrument the original
+	window.fetch = window.fetch_original;
+	registerInstrumentations({
+		instrumentations: [getWebAutoInstrumentations()],
+	});
+} finally {
+  // Provide the (now) instrumented version for our proxy to call
+  window.fetch_otel_instrumented = window.fetch;
+  // Put the proxy back into place
+	window.fetch = fetch_proxy;
+}
+
 const resource = Resource.default().merge(
 	new Resource({
 		[SemanticResourceAttributes.SERVICE_NAME]: serviceName,
