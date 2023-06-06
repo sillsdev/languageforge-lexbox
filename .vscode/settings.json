@@ -18,4 +18,7 @@
     ],
     "sort-imports.on-save": true,
     "editor.detectIndentation": false,
+    "eslint.validate": [
+      "svelte"
+    ],
 }

@@ -1,9 +1,10 @@
 import { FlatCompat } from '@eslint/eslintrc';
+import { fileURLToPath } from 'url';
+import globals from 'globals';
 import js from '@eslint/js';
+import path from 'path';
+import svelteParser from 'svelte-eslint-parser';
 import tsParser from '@typescript-eslint/parser';
-import globals from "globals";
-import path from "path";
-import { fileURLToPath } from "url";
 
 // mimic CommonJS variables
 const __filename = fileURLToPath(import.meta.url);
@@ -17,12 +18,14 @@ export default [
   // TypeScript libs don't seem to support the new config format yet
   // compat: https://eslint.org/blog/2022/08/new-config-system-part-2/#backwards-compatibility-utility
   ...compat.config({
-    plugins: ['@typescript-eslint'],
     extends: [
       'plugin:@typescript-eslint/recommended',
-      'plugin:@typescript-eslint/recommended-requiring-type-checking',
+      // 'plugin:@typescript-eslint/recommended-requiring-type-checking'], // doesn't seem to play well with svelte
     ],
     ignorePatterns: ['*js'],
+  }),
+  ...compat.config({
+    extends: ['plugin:svelte/recommended'],
   }),
   {
     languageOptions: {
@@ -31,12 +34,26 @@ export default [
         project: true,
         tsconfigRootDir: __dirname,
         sourceType: 'module',
+        extraFileExtensions: ['.svelte'],
       },
+    },
+  },
+  {
+    files: ['**/*.svelte'],
+    languageOptions: {
+      parser: svelteParser,
+      parserOptions: {
+        parser: '@typescript-eslint/parser',
+      }
+    },
+  },
+  {
+    languageOptions: {
       // https://eslint.org/blog/2022/08/new-config-system-part-2/#goodbye-environments%2C-hello-globals
       globals: {
         ...globals.browser,
         ...globals.node,
       }
-    },
-  },
+    }
+  }
 ];
