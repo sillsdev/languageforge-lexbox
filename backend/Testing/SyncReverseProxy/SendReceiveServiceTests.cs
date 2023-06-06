@@ -4,18 +4,20 @@ using Moq;
 using Shouldly;
 using SIL.Progress;
 using Testing.Fixtures;
+using Testing.Logging;
+using Xunit.Abstractions;
 
 namespace Testing.Services;
 
-public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
+public class SendReceiveServiceTests
 {
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
     private SendReceiveService _srService;
     private IProgress _progress;
 
-    public SendReceiveServiceTests()
+    public SendReceiveServiceTests(ITestOutputHelper output)
     {
-        _progress = new StringBuilderProgress() { ProgressIndicator = new NullProgressIndicator() };
+        _progress = new XunitStringBuilderProgress(output) { ProgressIndicator = new NullProgressIndicator() };
         _progress.ShowVerbose = true;
         CleanUpTempDir();
     }
@@ -67,27 +69,49 @@ public class SendReceiveServiceTests : IClassFixture<TestingServicesFixture>
 
         string projectDir = Path.Join(_basePath, data.HostType, data.ProjectCode);
         string fwdataFile = Path.Join(projectDir, $"{data.ProjectCode}.fwdata");
-        string result = _srService.CloneProject(data.ProjectCode, projectDir, data.Username, data.Password);
-        if (data.ShouldPass) {
-            result.ShouldNotContain("abort");
-            result.ShouldNotContain("error");
-        fwdataFile.ShouldSatisfyAllConditions(
-            () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
-            () => new FileInfo(fwdataFile).Length.ShouldBeGreaterThan(0)
-        );
-        long oldLength = new FileInfo(fwdataFile).Length;
+        long oldLength = 0;
+        try {
+            string result = _srService.CloneProject(data.ProjectCode, projectDir, data.Username, data.Password);
+            if (data.ShouldPass) {
+                result.ShouldNotContain("abort");
+                result.ShouldNotContain("error");
+                fwdataFile.ShouldSatisfyAllConditions(
+                    () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
+                    () => new FileInfo(fwdataFile).Length.ShouldBeGreaterThan(0)
+                );
+                oldLength = new FileInfo(fwdataFile).Length;
+            } else {
+                result.ShouldContain("abort: authorization failed");
+            }
+        } catch (Chorus.VcsDrivers.Mercurial.RepositoryAuthorizationException) {
+            if (data.ShouldPass) {
+                throw;
+            } else {
+                // This is a successful test, because the repo rejected the invalid password as it should
+            };
+        }
+
         // Now do a Send/Receive which should get no changes
         // Running in same test because it's dependent on CloneProject happening first
-        string result2 = _srService.SendReceiveProject(data.ProjectCode, projectDir, data.Username, data.Password);
-        result2.ShouldNotContain("abort");
-        result2.ShouldNotContain("error");
-        result2.ShouldContain("no changes from others");
-        fwdataFile.ShouldSatisfyAllConditions(
-            () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
-            () => new FileInfo(fwdataFile).Length.ShouldBe(oldLength)
-        );
-        } else {
-            result.ShouldContain("error");
+        try {
+            string result2 = _srService.SendReceiveProject(data.ProjectCode, projectDir, data.Username, data.Password);
+            if (data.ShouldPass) {
+                result2.ShouldNotContain("abort");
+                result2.ShouldNotContain("error");
+                result2.ShouldContain("no changes from others");
+                fwdataFile.ShouldSatisfyAllConditions(
+                    () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
+                    () => new FileInfo(fwdataFile).Length.ShouldBe(oldLength)
+                );
+            } else {
+                result2.ShouldContain("abort: authorization failed");
+            }
+        } catch (Chorus.VcsDrivers.Mercurial.RepositoryAuthorizationException) {
+            if (data.ShouldPass) {
+                throw;
+            } else {
+                // This is a successful test, because the repo rejected the invalid password as it should
+            };
         }
     }
 }
