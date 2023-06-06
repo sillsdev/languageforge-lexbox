@@ -40,7 +40,7 @@ public class SendReceiveServiceTests
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
-    private static IEnumerable<string[]> hostsAndTypes => new[] { new[] { "http://localhost", "normal" }, new[] { "http://hgresumable", "resumable" } };
+    private static IEnumerable<string[]> hostsAndTypes => new[] { new[] { "http://hg.localhost", "normal" }, new[] { "http://resumable.localhost", "resumable" } };
     private static string[] goodCredentials = new[] { "manager", "pass" };
     private static IEnumerable<string[]> badCredentials = new[] { new[] { "manager", "incorrect_pass" }, new[] { "invalid_user", "pass" } };
 
@@ -89,6 +89,12 @@ public class SendReceiveServiceTests
             } else {
                 // This is a successful test, because the repo rejected the invalid password as it should
             };
+        } catch (System.UnauthorizedAccessException) {
+            if (data.ShouldPass) {
+                throw;
+            } else {
+                // This is a successful test, because the repo rejected the invalid password as it should
+            };
         }
 
         // Now do a Send/Receive which should get no changes
@@ -107,6 +113,12 @@ public class SendReceiveServiceTests
                 result2.ShouldContain("abort: authorization failed");
             }
         } catch (Chorus.VcsDrivers.Mercurial.RepositoryAuthorizationException) {
+            if (data.ShouldPass) {
+                throw;
+            } else {
+                // This is a successful test, because the repo rejected the invalid password as it should
+            };
+        } catch (System.UnauthorizedAccessException) {
             if (data.ShouldPass) {
                 throw;
             } else {
