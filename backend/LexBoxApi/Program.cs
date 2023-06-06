@@ -69,6 +69,7 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.MapHealthChecks("/api/healthz").AllowAnonymous();
 // Configure the HTTP request pipeline.
 //for now allow this to run in prod, maybe later we want to disable it.
 // if (app.Environment.IsDevelopment())
@@ -88,7 +89,6 @@ app.Use(async (context, next) =>
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHealthChecks("/api/healthz").AllowAnonymous();
 app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();
 if (app.Environment.IsDevelopment())
     //required for vite to generate types
