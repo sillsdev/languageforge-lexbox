@@ -35,6 +35,7 @@ public class SendReceiveService
 
     public string CloneProject(string projectCode, string destDir, string username, string password)
     {
+        string repoUrl = $"{_baseUrl}/{projectCode}";
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password)) {
             // No username or password supplied, so we explicitly do *not* save user settings
         } else {
@@ -43,8 +44,8 @@ public class SendReceiveService
             chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
             chorusSettings.Password = password;
             chorusSettings.SaveUserSettings();
+            repoUrl = repoUrl.Replace("http://",$"http://{username}:{password}@");
         }
-        string repoUrl = $"{_baseUrl}/{projectCode}";
         Console.WriteLine($"Cloning {repoUrl} with user {username} and password \"{password}\" ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
@@ -67,6 +68,7 @@ public class SendReceiveService
 
     public string SendReceiveProject(string projectCode, string projectDir, string username, string password)
     {
+        string repoUrl = $"{_baseUrl}/{projectCode}";
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password)) {
             // No username or password supplied, so we explicitly do *not* save user settings
         } else {
@@ -75,8 +77,8 @@ public class SendReceiveService
             chorusSettings.RememberPassword = false; // Necessary for tests to work on Linux
             chorusSettings.Password = password;
             chorusSettings.SaveUserSettings();
+            repoUrl = repoUrl.Replace("http://",$"http://{username}:{password}@");
         }
-        string repoUrl = $"{_baseUrl}/{projectCode}";
         string fwdataFilename = System.IO.Path.Join(projectDir, $"{projectCode}.fwdata");
         Console.WriteLine($"S/R for {repoUrl} with user {username} and password \"{password}\" ...");
         var flexBridgeOptions = new Dictionary<string, string>
