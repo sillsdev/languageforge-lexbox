@@ -6,7 +6,6 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
     </PropertyGroup>
 

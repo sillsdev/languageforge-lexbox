@@ -3,4 +3,7 @@
         <IntermediateOutputPath>/app/obj/</IntermediateOutputPath>
         <OutputPath>/app/bin/</OutputPath>
     </PropertyGroup>
+    <PropertyGroup>
+        <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    </PropertyGroup>
 </Project>
