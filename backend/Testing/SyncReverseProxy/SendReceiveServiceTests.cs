@@ -36,7 +36,10 @@ public class SendReceiveServiceTests
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
-    private static IEnumerable<string[]> hostsAndTypes = new[] { new[] { "http://hg.localhost", "normal" }, new[] { "http://resumable.localhost", "resumable" } };
+    private static IEnumerable<string[]> hostsAndTypes = new[] {
+        new[] { $"http://{TestingEnvironmentVariables.StandardHgHostname}", "normal" },
+        new[] { $"http://{TestingEnvironmentVariables.ResumableHgHostname}", "resumable" }
+    };
     private static IEnumerable<string[]> goodCredentials = new[] { new[] { "manager", "pass" }/*, new[] { "admin", "pass" }*/ };
     private static IEnumerable<string[]> badCredentials = new[] { new[] { "manager", "incorrect_pass" }, new[] { "invalid_user", "pass" }, new[] { "", "" } };
 
