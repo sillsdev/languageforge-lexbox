@@ -41,7 +41,9 @@ export const handle = (async ({ event, resolve }) => {
 export const handleFetch = (async ({event, request, fetch}) => {
 	if (env.BACKEND_HOST && request.url.startsWith(env.BACKEND_HOST)) {
 		request.headers.set('cookie', event.request.headers.get('cookie')!);
-	}
+	} else {
+    console.log('Skipping cookie forwarding for non-backend request', request.url);
+  }
 
 	return traceFetch(request, () => fetch(request));
 }) satisfies HandleFetch;

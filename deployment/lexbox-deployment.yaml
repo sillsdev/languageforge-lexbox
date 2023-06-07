@@ -148,7 +148,7 @@ spec:
           - name: PUBLIC_ENV_NAME
             value: staging
           - name: BACKEND_HOST
-            value: http://localhost:80
+            value: http://localhost
           - name: OTEL_ENDPOINT
             value: http://localhost:4318
 
