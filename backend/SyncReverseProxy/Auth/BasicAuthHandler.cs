@@ -24,14 +24,14 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
     protected override async Task HandleForbiddenAsync(AuthenticationProperties properties)
     {
         //the Basic realm part is required by the HG client, otherwise it won't request again with a basic auth header
-        Response.Headers.WWWAuthenticate = "Basic,Basic realm=\"SyncProxy\"";
+        Response.Headers.WWWAuthenticate = "Basic realm=\"SyncProxy\"";
         await base.HandleForbiddenAsync(properties);
     }
 
     protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
     {
         //the Basic realm part is required by the HG client, otherwise it won't request again with a basic auth header
-        Response.Headers.WWWAuthenticate = "Basic,Basic realm=\"SyncProxy\"";
+        Response.Headers.WWWAuthenticate = "Basic realm=\"SyncProxy\"";
         await base.HandleChallengeAsync(properties);
     }
 
