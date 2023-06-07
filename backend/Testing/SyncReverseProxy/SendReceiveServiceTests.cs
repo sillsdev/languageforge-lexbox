@@ -42,7 +42,7 @@ public class SendReceiveServiceTests
 
     private static IEnumerable<string[]> hostsAndTypes => new[] { new[] { "http://hg.localhost", "normal" }, new[] { "http://resumable.localhost", "resumable" } };
     private static string[] goodCredentials = new[] { "manager", "pass" };
-    private static IEnumerable<string[]> badCredentials = new[] { new[] { "manager", "incorrect_pass" }, new[] { "invalid_user", "pass" } };
+    private static IEnumerable<string[]> badCredentials = new[] { new[] { "manager", "incorrect_pass" }, new[] { "invalid_user", "pass" }, new[] { "", "" } };
 
     public record SendReceiveTestData(string ProjectCode, string Host, string HostType, string Username, string Password, bool ShouldPass);
 
