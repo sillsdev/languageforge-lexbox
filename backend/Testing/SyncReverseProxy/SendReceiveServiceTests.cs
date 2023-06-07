@@ -81,7 +81,7 @@ public class SendReceiveServiceTests
                 );
                 oldLength = new FileInfo(fwdataFile).Length;
             } else {
-                result.ShouldContain("abort: authorization failed");
+                result.ShouldMatch("abort: authorization failed|Server Response 'Unauthorized'");
             }
         } catch (Chorus.VcsDrivers.Mercurial.RepositoryAuthorizationException) {
             if (data.ShouldPass) {
@@ -110,7 +110,7 @@ public class SendReceiveServiceTests
                     () => new FileInfo(fwdataFile).Length.ShouldBe(oldLength)
                 );
             } else {
-                result2.ShouldContain("abort: authorization failed");
+                result2.ShouldMatch("abort: authorization failed|Server Response 'Unauthorized'");
             }
         } catch (Chorus.VcsDrivers.Mercurial.RepositoryAuthorizationException) {
             if (data.ShouldPass) {
