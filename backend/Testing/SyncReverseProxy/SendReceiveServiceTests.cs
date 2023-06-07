@@ -126,4 +126,34 @@ public class SendReceiveServiceTests
             };
         }
     }
+
+    [Theory]
+    [InlineData("non-existent-project", "manager", "pass")]
+    [InlineData("non-existent-project", "admin", "pass")]
+    // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
+    public void TestInvalidProject(string projectCode, string username, string password)
+    {
+        foreach (string[] data in hostsAndTypes)
+        {
+            string host = data[0];
+            string type = data[1];
+            if (type == "resumable") {
+                continue;  // Skip resumable as Chorus just retries 4xx errors constantly (because it assumes they're caused by a flaky net connection)
+            }
+            var _srService = new SendReceiveService(_progress, host);
+            string projectDir = Path.Join(_basePath, type, projectCode);
+            string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
+            try {
+                string result = _srService.CloneProject(projectCode, projectDir, username, password);
+                throw new Exception("Clone should have thrown an exception but didn't; if we reach this point, this is a failed test");
+            } catch (Chorus.VcsDrivers.Mercurial.ProjectLabelErrorException) {
+                // Expected failure - this is what admin sees
+            } catch (Chorus.VcsDrivers.Mercurial.RepositoryAuthorizationException) {
+                // Expected failure - this is what manager user sees
+            }
+            fwdataFile.ShouldSatisfyAllConditions(
+                () => new FileInfo(fwdataFile).Exists.ShouldBeFalse()
+            );
+        }
+    }
 }
