@@ -54,7 +54,7 @@ public class LexAuthService
     {
         var (lexAuthUser, user) = await GetUser(email);
         // we want to silently return if the user doesn't exist, so we don't leak information.
-        if (lexAuthUser is null) return;
+        if (lexAuthUser is null || user is null) return;
         var (jwt, _) = GenerateJwt(lexAuthUser);
         await _emailService.SendForgotPasswordEmail(jwt, user);
     }

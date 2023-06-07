@@ -10,50 +10,25 @@
           "Path": "/api/v03/{**catch-all}"
         }
       },
+      "hg-root": {
+        "Order": 21,
+        "ClusterId": "hgWeb",
+        "AuthorizationPolicy": "UserHasAccessToProject",
+        "Match": {
+          "Path": "/{project-code}/{**catch-all}"
+        },
+        "Transforms": [
+          {
+            "PathPrefix": "/hg"
+          }
+        ]
+      },
       "hg": {
         "Order": 20,
         "ClusterId": "hgWeb",
         "AuthorizationPolicy": "UserHasAccessToProject",
         "Match": {
-          "Path": "/{project-code}"
-        },
-        "Transforms": [
-          {
-            "PathPrefix": "/hg"
-          }
-        ]
-      },
-      "hgWebView": {
-        "Order": 11,
-        "ClusterId": "hgWeb",
-        "AuthorizationPolicy": "UserHasAccessToProject",
-        "Match": {
-          "Path": "/api/hg-view/{project-code}/{**catch-all}"
-        },
-        "Transforms": [
-          {
-            "PathRemovePrefix": "/api/hg-view"
-          },
-          {
-            "PathPrefix": "/hg"
-          }
-        ]
-      },
-      "hgWebViewStaticRewrite": {
-        "Order": 10,
-        "ClusterId": "hgWeb",
-        "Match": {
-          "Path": "/hg/static/{**catch-all}",
-          "Headers":[
-            {
-              "Name": "Referer",
-              "Values": [
-                "/api/hg-view/",
-                "/static/hgk/css/icofont.min.css"
-              ],
-              "Mode": "Contains"
-            }
-          ]
+          "Path": "/hg/{project-code}/{**catch-all}"
         }
       }
     },

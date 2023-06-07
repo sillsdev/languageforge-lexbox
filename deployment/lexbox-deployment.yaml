@@ -108,9 +108,9 @@ spec:
                   key: CloudFlare__TurnstileKey
                   name: lexbox-api
           - name: Email__SmtpHost
-            value: smtp.example.org
+            value: email-smtp.us-east-1.amazonaws.com
           - name: Email__SmtpPort
-            value: '25'
+            value: '587'
           - name: Email__SmtpUser
             valueFrom:
               secretKeyRef:

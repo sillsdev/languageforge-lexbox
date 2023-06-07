@@ -6,6 +6,7 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/lexbox-api.yaml'
+      - 'deployment/lexbox-deployment.yaml'
 env:
   PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
 

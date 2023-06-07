@@ -54,7 +54,8 @@ public class EmailService
             activity?.AddEvent(new("connected"));
             await client.AuthenticateAsync(_emailConfig.SmtpUser, _emailConfig.SmtpPassword);
             activity?.AddEvent(new("authenticated"));
-            await client.SendAsync(message);
+            var response = await client.SendAsync(message);
+            activity?.AddTag("app.email.smtpResponse", response);
             activity?.AddEvent(new("sent"));
             await client.DisconnectAsync(true);
         }
