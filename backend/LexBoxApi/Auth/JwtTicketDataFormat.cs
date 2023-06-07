@@ -36,6 +36,7 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         var jwtBearerOptions = JwtBearerOptions ??
                                throw new ArgumentNullException(nameof(JwtBearerOptions), "options is null");
         _jwtSecurityTokenHandler.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
+        var claimsIdentity = new ClaimsIdentity(data.Principal.Claims, data.Principal.Identity?.AuthenticationType);
         var securityTokenDescriptor = new SecurityTokenDescriptor
         {
             Issuer = jwtBearerOptions.TokenValidationParameters.ValidIssuer,
@@ -44,11 +45,21 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
             Expires = data.Properties.ExpiresUtc?.UtcDateTime ?? jwtDate + _userOptions.Value.Lifetime,
             SigningCredentials = new SigningCredentials(jwtBearerOptions.TokenValidationParameters.IssuerSigningKey,
                 SecurityAlgorithms.HmacSha256),
-            Subject = new ClaimsIdentity(data.Principal.Claims, data.Principal.Identity?.AuthenticationType),
+            Subject = claimsIdentity,
             Claims = data.Properties.Items.ToDictionary(kvp => _propsPrefix + kvp.Key, kvp => kvp.Value as object)
         };
         var token = _jwtSecurityTokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
+        FixUpProjectClaims(token);
         return _jwtSecurityTokenHandler.WriteToken(token);
+    }
+
+    public static void FixUpProjectClaims(JwtSecurityToken token)
+    {
+        var proj = token.Payload["proj"];
+        if (proj is not IList<object>)
+        {
+            token.Payload["proj"] = new List<object> { proj };
+        }
     }
 
     private string Audience(string? purpose, string validAudience)

@@ -1,8 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
+using LexBoxApi.Auth;
 using LexCore.Auth;
 using LexCore.Entities;
+using Microsoft.IdentityModel.Tokens;
 using Shouldly;
 
 namespace Testing.LexCore;
@@ -54,6 +57,36 @@ public class LexAuthUserTests
         var outputJwt = tokenHandler.ReadJwtToken(encodedJwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
+        _user.ShouldBeEquivalentTo(newUser);
+    }
+
+    [Fact]
+    public void CanRoundTripClaimsWhenUsingSecurityTokenDescriptor()
+    {
+        //todo test JwtTicketDataFormat directly
+        var jwtDate = DateTime.UtcNow;
+        var claimsIdentity = new ClaimsIdentity(_user.GetClaims(), "test");
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var securityTokenDescriptor = new SecurityTokenDescriptor
+        {
+            Issuer = "test-iss",
+            Audience = "test-aud",
+            NotBefore = jwtDate,
+            Expires = jwtDate + TimeSpan.FromSeconds(10),
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())),
+                SecurityAlgorithms.HmacSha256),
+            Subject = claimsIdentity,
+            Claims = new Dictionary<string, object>
+            {
+                { "test-claim", "test-value" }
+            }
+        };
+        var token = tokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
+        JwtTicketDataFormat.FixUpProjectClaims(token);
+        var json = token.Payload.SerializeToJson();
+        var newUser = JsonSerializer.Deserialize<LexAuthUser>(json);
         _user.ShouldBeEquivalentTo(newUser);
     }
 }
