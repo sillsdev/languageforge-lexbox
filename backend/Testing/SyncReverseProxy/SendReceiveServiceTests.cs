@@ -1,9 +1,5 @@
-using LexBoxApi.Config;
-using Microsoft.Extensions.Options;
-using Moq;
 using Shouldly;
 using SIL.Progress;
-using Testing.Fixtures;
 using Testing.Logging;
 using Xunit.Abstractions;
 
