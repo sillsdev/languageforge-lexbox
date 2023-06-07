@@ -40,8 +40,8 @@ public class SendReceiveServiceTests
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
-    private static IEnumerable<string[]> hostsAndTypes => new[] { new[] { "http://hg.localhost", "normal" }, new[] { "http://resumable.localhost", "resumable" } };
-    private static string[] goodCredentials = new[] { "manager", "pass" };
+    private static IEnumerable<string[]> hostsAndTypes = new[] { new[] { "http://hg.localhost", "normal" }, new[] { "http://resumable.localhost", "resumable" } };
+    private static IEnumerable<string[]> goodCredentials = new[] { new[] { "manager", "pass" }/*, new[] { "admin", "pass" }*/ };
     private static IEnumerable<string[]> badCredentials = new[] { new[] { "manager", "incorrect_pass" }, new[] { "invalid_user", "pass" }, new[] { "", "" } };
 
     public record SendReceiveTestData(string ProjectCode, string Host, string HostType, string Username, string Password, bool ShouldPass);
@@ -52,7 +52,10 @@ public class SendReceiveServiceTests
         {
             var host = data[0];
             var type = data[1];
-            yield return new[] { new SendReceiveTestData(projectCode, host, type, goodCredentials[0], goodCredentials[1], true) };
+            foreach (var credentials in goodCredentials)
+            {
+                yield return new[] { new SendReceiveTestData(projectCode, host, type, credentials[0], credentials[1], true) };
+            }
             foreach (var credentials in badCredentials)
             {
                 yield return new[] { new SendReceiveTestData(projectCode, host, type, credentials[0], credentials[1], false) };
@@ -62,7 +65,6 @@ public class SendReceiveServiceTests
 
     [Theory]
     [MemberData(nameof(GetTestDataForSR), "sena-3")]
-    // NOTE: resumable failing because can't read sena-3 repo, because owned by UID 82 (Alpine www-data) instead of 33 (Debian www-data)
     public void CloneProjectAndSendReceive(SendReceiveTestData data)
     {
         _srService = new SendReceiveService(_progress, data.Host);
