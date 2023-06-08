@@ -3,7 +3,7 @@ import {getClient} from "$lib/graphQLClient";
 import { graphql } from "$lib/gql";
 
 export async function load(event: PageLoadEvent) {
-    const client = getClient(event);
+    const client = getClient();
 
     //language=GraphQL
     const results = await client.query(graphql(`
@@ -31,7 +31,7 @@ export async function load(event: PageLoadEvent) {
                 createdDate
             }
         }
-    `), {}).toPromise();
+    `), {}, {fetch: event.fetch}).toPromise();
     if (results.error) throw new Error(results.error.message);
     return {
         projects: results.data?.projects ?? [],
