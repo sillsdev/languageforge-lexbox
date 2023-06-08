@@ -5,6 +5,10 @@ version: '3'
 vars:
   TESTING_DIR: './backend/Testing'
   HG_REPO_DIR: './hgweb/repos'
+includes:
+  k8s:
+    taskfile: ./deployment/Taskfile.yml
+    dir: ./deployment
 
 tasks:
   setup:

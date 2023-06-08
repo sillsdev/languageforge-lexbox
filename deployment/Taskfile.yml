@@ -1,0 +1,25 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  lexbox-update:
+    cmds:
+      - kubectl apply -f ./lexbox-deployment.yaml
+  api-logs:
+    ignore_error: true
+    cmds:
+      - kubectl logs -f deployment/lexbox -c lexbox-api
+  api-console:
+    interactive: true
+    cmds:
+      - kubectl exec -it deployment/lexbox -c lexbox-api -- /bin/bash
+
+  ui-logs:
+    ignore_error: true
+    cmds:
+      - kubectl logs -f deployment/lexbox -c ui
+  ui-console:
+    interactive: true
+    cmds:
+      - kubectl exec -it deployment/lexbox -c ui -- /bin/ash
