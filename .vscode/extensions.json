@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "graphql.vscode-graphql",
+        "lokalise.i18n-ally",
+        "antfu.iconify",
+        "svelte.svelte-vscode",
+        "bradlc.vscode-tailwindcss",
+        "redhat.vscode-yaml",
+        "task.vscode-task"
+    ]
+}

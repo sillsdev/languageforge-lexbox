@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+# https://taskfile.dev
+
+version: '3'
+vars:
+  TESTING_DIR: './backend/Testing'
+  HG_REPO_DIR: './hgweb/repos'
+
+tasks:
+  setup:
+    deps: [ setup-win, setup-unix ]
+  setup-win:
+    platforms: [ windows ]
+    cmds:
+      - cmd: powershell rm -r {{.HG_REPO_DIR}}/sena-3
+        ignore_error: true
+        silent: true
+      - powershell -Command "Invoke-WebRequest 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' -OutFile sena-3.zip"
+      - powershell -Command "Expand-Archive sena-3.zip -DestinationPath {{.HG_REPO_DIR}}"
+      - powershell rm sena-3.zip
+  setup-unix:
+    platforms: [ linux, darwin ]
+    cmds:
+      - cmd: rm -rf {{.HG_REPO_DIR}}/sena-3
+        ignore_error: true
+        silent: true
+      - wget -O sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
+      - unzip -q sena-3.zip -d {{.HG_REPO_DIR}}/
+      - rm sena-3.zip
+
+  # docker dev
+  dev-up:
+    cmds:
+      - docker compose up --wait
+  dev-down:
+    cmds:
+      - docker compose down
+  # tests
+  test:
+    dir: '{{.TESTING_DIR}}'
+    cmds:
+      - dotnet test
+  test-sync:
+    dir: '{{.TESTING_DIR}}'
+    deps: [ dev-up ]
+    cmds:
+      - dotnet test --filter=SendReceive
+
+  #local dev stuff
+  dev-local-only-up:
+    vars:
+      WAIT: '{{default true .WAIT}}'
+    cmds:
+      - docker compose up maildev db hasura hgweb otel-collector hgresumable -d --wait={{.WAIT}}
+
+  local-up:
+    deps: [ ui-local, api-local ]
+  #ui
+  ui-local:
+    dir: ./frontend
+    deps: [ dev-local-only-up, ui-docker-down, ui-install ]
+    interactive: true
+    cmds:
+      - pnpm run dev
+  ui-install:
+    dir: ./frontend
+    method: checksum
+    sources:
+      - package.json
+      - pnpm-lock.yaml
+    cmds:
+      - pnpm install
+  ui-docker-down:
+    cmds:
+      - docker compose stop ui
+  #api
+  api-local:
+    dir: ./backend/LexBoxApi
+    deps: [ dev-local-only-up, api-docker-down ]
+    interactive: true
+    cmds:
+      - dotnet watch
+  api-docker-down:
+    cmds:
+      - docker compose stop lexbox-api
