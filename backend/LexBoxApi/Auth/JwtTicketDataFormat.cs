@@ -64,8 +64,11 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
 
     public static void FixUpProjectClaims(JwtSecurityToken token)
     {
+        if (!token.Payload.TryGetValue(LexAuthConstants.ProjectsClaimType, out var proj))
+        {
+            return; // no project claims to fix up, so nothing to do
+        }
         // if there's only 1 project it will be a stored in the payload as just an object and not an array.
-        var proj = token.Payload[LexAuthConstants.ProjectsClaimType];
         if (proj is not IList<object>)
         {
             token.Payload[LexAuthConstants.ProjectsClaimType] = new List<object> { proj };
