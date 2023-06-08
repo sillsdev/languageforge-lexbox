@@ -5,6 +5,8 @@ using System.Text.Json;
 using LexBoxApi.Auth;
 using LexCore.Auth;
 using LexCore.Entities;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Shouldly;
 
@@ -63,30 +65,21 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripClaimsWhenUsingSecurityTokenDescriptor()
     {
-        //todo test JwtTicketDataFormat directly
-        var jwtDate = DateTime.UtcNow;
-        var claimsIdentity = new ClaimsIdentity(_user.GetClaims(), "test");
-        var tokenHandler = new JwtSecurityTokenHandler();
-
-        var securityTokenDescriptor = new SecurityTokenDescriptor
-        {
-            Issuer = "test-iss",
-            Audience = "test-aud",
-            NotBefore = jwtDate,
-            Expires = jwtDate + TimeSpan.FromSeconds(10),
-            SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())),
-                SecurityAlgorithms.HmacSha256),
-            Subject = claimsIdentity,
-            Claims = new Dictionary<string, object>
+        var jwtUserOptions = JwtOptions.TestingOptions;
+        var jwt = JwtTicketDataFormat.ConvertAuthTicketToJwt(
+            new AuthenticationTicket(_user.GetPrincipal("test"), "test"),
+            "testing",
+            new JwtBearerOptions
             {
-                { "test-claim", "test-value" }
-            }
-        };
-        var token = tokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
-        JwtTicketDataFormat.FixUpProjectClaims(token);
-        var json = token.Payload.SerializeToJson();
-        var newUser = JsonSerializer.Deserialize<LexAuthUser>(json);
+                TokenValidationParameters = LexAuthService.TokenValidationParameters(jwtUserOptions),
+                MapInboundClaims = false
+            },
+            jwtUserOptions
+        );
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.ReadJwtToken(jwt);
+
+        var newUser = JsonSerializer.Deserialize<LexAuthUser>(Base64UrlEncoder.Decode(token.RawPayload));
         _user.ShouldBeEquivalentTo(newUser);
     }
 }

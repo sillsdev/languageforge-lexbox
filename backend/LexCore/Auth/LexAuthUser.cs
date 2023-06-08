@@ -82,7 +82,7 @@ public class LexAuthUser
     [JsonPropertyName(LexAuthConstants.RoleClaimType)]
     public required UserRole Role { get; set; }
 
-    [JsonPropertyName("proj")]
+    [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
     public required AuthUserProject[] Projects { get; init; }
 
     public IEnumerable<Claim> GetClaims()

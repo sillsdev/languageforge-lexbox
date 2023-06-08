@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +17,7 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
 
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOptions<JwtOptions> _userOptions;
-    private readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler = new();
+    private static readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler = new();
     private const string _propsPrefix = "props";
 
     public JwtTicketDataFormat(IHttpContextAccessor httpContextAccessor, IOptions<JwtOptions> userOptions)
@@ -32,9 +33,17 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
 
     public string Protect(AuthenticationTicket data, string? purpose)
     {
-        var jwtDate = DateTime.UtcNow;
         var jwtBearerOptions = JwtBearerOptions ??
                                throw new ArgumentNullException(nameof(JwtBearerOptions), "options is null");
+        return ConvertAuthTicketToJwt(data, purpose, jwtBearerOptions, _userOptions.Value);
+    }
+
+    public static string ConvertAuthTicketToJwt(AuthenticationTicket data,
+        string? purpose,
+        JwtBearerOptions jwtBearerOptions,
+        JwtOptions jwtUserOptions)
+    {
+        var jwtDate = DateTime.UtcNow;
         _jwtSecurityTokenHandler.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
         var claimsIdentity = new ClaimsIdentity(data.Principal.Claims, data.Principal.Identity?.AuthenticationType);
         var securityTokenDescriptor = new SecurityTokenDescriptor
@@ -42,7 +51,7 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
             Issuer = jwtBearerOptions.TokenValidationParameters.ValidIssuer,
             Audience = Audience(purpose, jwtBearerOptions.TokenValidationParameters.ValidAudience),
             NotBefore = data.Properties.IssuedUtc?.UtcDateTime ?? jwtDate,
-            Expires = data.Properties.ExpiresUtc?.UtcDateTime ?? jwtDate + _userOptions.Value.Lifetime,
+            Expires = data.Properties.ExpiresUtc?.UtcDateTime ?? jwtDate + jwtUserOptions.Lifetime,
             SigningCredentials = new SigningCredentials(jwtBearerOptions.TokenValidationParameters.IssuerSigningKey,
                 SecurityAlgorithms.HmacSha256),
             Subject = claimsIdentity,
@@ -55,14 +64,15 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
 
     public static void FixUpProjectClaims(JwtSecurityToken token)
     {
-        var proj = token.Payload["proj"];
+        // if there's only 1 project it will be a stored in the payload as just an object and not an array.
+        var proj = token.Payload[LexAuthConstants.ProjectsClaimType];
         if (proj is not IList<object>)
         {
-            token.Payload["proj"] = new List<object> { proj };
+            token.Payload[LexAuthConstants.ProjectsClaimType] = new List<object> { proj };
         }
     }
 
-    private string Audience(string? purpose, string validAudience)
+    private static string Audience(string? purpose, string validAudience)
     {
         if (string.IsNullOrEmpty(purpose)) return validAudience;
         return $"{validAudience}|{purpose}";

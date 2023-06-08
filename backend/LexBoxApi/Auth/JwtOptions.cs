@@ -4,6 +4,16 @@ namespace LexBoxApi.Auth;
 
 public class JwtOptions
 {
+    public static JwtOptions TestingOptions => new()
+        {
+            Audience = "testing",
+            Issuer = "unitTest",
+            Lifetime = TimeSpan.FromMinutes(1),
+            RefreshLifetime = TimeSpan.FromMinutes(1),
+            Secret = "this is only a test but must be long",
+            RefreshAudience = "testingRefresh"
+        };
+
     [Required]
     public required string Secret { get; init; }
 
