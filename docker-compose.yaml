@@ -25,7 +25,7 @@ services:
       maildev:
         condition: service_started
     volumes:
-      - hg-repos:/hg-repos
+      - ./hgweb/repos:/hg-repos
 
       # for dev convenience
       - ./backend:/src/backend
@@ -76,8 +76,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      lexbox-api:
-        condition: service_healthy
     env_file: .env
     environment:
       HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
@@ -120,7 +118,7 @@ services:
     environment:
       CUSTOM_PORT: 8088
     volumes:
-      - hg-repos:/var/hg/repos
+      - ./hgweb/repos:/var/hg/repos
 
   hgresumable:
     build: ./hgresumable
@@ -128,7 +126,7 @@ services:
     ports:
       - "8034:80" # 8034 exposed here for dev tools
     volumes:
-      - hg-repos:/var/vcs/public
+      - ./hgweb/repos:/var/vcs/public
       - hgresumable-cache:/var/cache/hgresume
 
   otel-collector:
