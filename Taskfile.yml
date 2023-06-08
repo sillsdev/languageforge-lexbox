@@ -9,6 +9,8 @@ vars:
 tasks:
   setup:
     deps: [ setup-win, setup-unix ]
+    cmds:
+      - git config blame.ignoreRevsFile .git-blame-ignore-revs
   setup-win:
     platforms: [ windows ]
     cmds:
@@ -69,6 +71,7 @@ tasks:
       - package.json
       - pnpm-lock.yaml
     cmds:
+      - corepack enable
       - pnpm install
   ui-docker-down:
     cmds:

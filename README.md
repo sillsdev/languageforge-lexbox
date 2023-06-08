@@ -17,17 +17,26 @@ There are some exceptions:
 
 Other files, like `docker-compose.yaml`, should be at the root of the repo, because they're related to all services.
 
-#### git note
-
-this repo uses a ignore revs file. To configure this repo to use it run this command
-```bash
-git config blame.ignoreRevsFile .git-blame-ignore-revs
-```
-
 ## Development
 
 ### Prerequisites
  * docker and compose
+
+### Setup
+ * install [Taskfile](https://taskfile.dev/installation/)
+   * windows: `winget install Task.Task`
+   * linux: `sudo snap install task --classic` or other options on their website
+   * mac: `brew install go-task/tap/go-task`
+   * via npm: `npm install -g @go-task/cli`
+ * run setup `task setup`
+
+#### git note
+this repo uses a ignore revs file. To configure this repo to use it run this command. It should be executed as part of `task setup`
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 #### for local dev also:
  * node version 18+
  * dotnet 7 sdk
@@ -35,30 +44,29 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 ### Docker workflow
 
 ```bash
-docker compose up -d proxy
+task dev-up
 ```
 You might run into some issues with ports already being used, you can change the ports in the `docker-compose.yaml` file if you need to.
 The full app will be running on http://localhost after everything starts.
 There are some additional urls below to access specific parts of the system.
 
 ### Local workflow
-```bash
-docker compose up -d db hasura otel-collector maildev hgweb
-```
-then you will want to execute in 2 separate consoles:
+you can run the front and back end together (console output will be mixed) or in different terminals.
 
 frontend
 ```bash
-cd frontend
-pnpm run dev
+task ui-local
 ```
 backend
 ```bash
-cd backend/LexBoxApi
-dotnet watch
+task api-local
+```
+both
+```bash
+task local-up
 ```
 
-If you don't have pnpm installed, run `npm install -g pnpm`.
+pnpm should be installed automatically using nodejs corepack, if not you can run `npm install -g pnpm` to install it.
 
 ---
 ### Helpful urls
@@ -83,11 +91,11 @@ There will not be an hg repository however, see optional setup below if this is 
 
 ### Optional setup
 
-If you want to test Send & Recieve execute `setup.sh` or `setup.bat`,
-to create the Sena 3 repo for the seed project. You may also need to add the following line to your `/etc/hosts` or `C:\Windows\system32\drivers\etc\hosts` file:
+You may need to add the following line to your `/etc/hosts` or `C:\Windows\system32\drivers\etc\hosts` file:
 
 ```
-127.0.0.1 hgresumable
+127.0.0.1 resumable.localhost
+127.0.0.1 hg.localhost
 ```
 
 If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
