@@ -1,7 +1,7 @@
 <script lang="ts">
-    export let value: string = '';
+  export let value = '';
 </script>
 
 <svelte:head>
-    <title>{value}</title>
+  <title>{value}</title>
 </svelte:head>

@@ -1,9 +1,9 @@
+import type { RequestHandler } from './$types'
 import { logout } from '$lib/user'
 import { redirect } from '@sveltejs/kit'
-import type { RequestHandler } from './$types'
 
-export const GET: RequestHandler = async ({cookies}) => {
-	logout(cookies)
+export const GET: RequestHandler = ({ cookies }) => {
+  logout(cookies)
 
-	throw redirect(303, '/login')
+  throw redirect(303, '/login')
 }

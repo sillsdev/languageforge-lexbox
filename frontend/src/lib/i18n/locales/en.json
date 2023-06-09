@@ -58,7 +58,7 @@
     }
   },
   "project_page": {
-		"project": "Project",
+    "project": "Project",
     "add_user": {
       "add_button": "Add Member",
       "email_required": "Email Required!",
@@ -68,19 +68,19 @@
     "change_role_modal": {
       "title": "Choose role for {name}"
     },
-		"project_name_empty_error": "Project name cannot be empty",
+    "project_name_empty_error": "Project name cannot be empty",
     "confirm-remove": "Would you like to remove {userName} from this project?",
     "history": "History",
-		"project_code": "Project Code",
-		"summary": "Summary",
-		"description": "Description",
-		"last_commit": "Last Commit",
-		"members": "Members",
-		"add_description": "Add description...",
+    "project_code": "Project Code",
+    "summary": "Summary",
+    "description": "Description",
+    "last_commit": "Last Commit",
+    "members": "Members",
+    "add_description": "Add description...",
     "not_found": "Project {code} not found!",
     "remove-project-user-title": "Member",
     "remove-user": "Remove",
-		"change_role": "Change Role"
+    "change_role": "Change Role"
   },
   "project_role": {
     "editor": "Editor",

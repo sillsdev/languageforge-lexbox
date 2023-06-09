@@ -4,8 +4,9 @@ import LogoutIcon from './LogoutIcon.svelte'
 import UserAddOutline from './UserAddOutline.svelte'
 
 export {
-	AuthenticatedUserIcon,
-	HamburgerIcon,
-	LogoutIcon,
-	UserAddOutline,
+  AuthenticatedUserIcon,
+  HamburgerIcon,
+  LogoutIcon,
+  UserAddOutline
 }
+

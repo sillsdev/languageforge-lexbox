@@ -3,17 +3,17 @@ import { vitePreprocess } from '@sveltejs/kit/vite';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	compilerOptions: {
-		enableSourcemap: true
-	},
-	kit: {
-		adapter: adapter(),
-	},
-	preprocess: [
-		vitePreprocess({
-			postcss: true
-		})
-	],
+  compilerOptions: {
+    enableSourcemap: true
+  },
+  kit: {
+    adapter: adapter(),
+  },
+  preprocess: [
+    vitePreprocess({
+      postcss: true
+    })
+  ],
 };
 
 export default config;
