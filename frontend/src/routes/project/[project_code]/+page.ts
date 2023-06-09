@@ -15,7 +15,7 @@ import logsample from './logsample.json';
 export type ProjectUser = ProjectPageQuery['projects'][0]['ProjectUsers'][number];
 
 export async function load(event: PageLoadEvent) {
-	const client = getClient(event);
+	const client = getClient();
 	const projectCode = event.params.project_code;
 	const result = await client
 		.query(
@@ -48,7 +48,7 @@ export async function load(event: PageLoadEvent) {
 					}
 				}
 			`),
-			{ projectCode },
+			{ projectCode }, { fetch: event.fetch },
 		)
 		.toPromise();
 	if (result.error) throw new Error(result.error.message);

@@ -10,6 +10,6 @@ export function load(event: LayoutLoadEvent) {
     logout();
   }
 	user.set(_user);
-	if (browser) initClient(event);
+	if (browser) initClient();
 	return { traceParent: event.data.traceParent, userId: _user?.id };
 }

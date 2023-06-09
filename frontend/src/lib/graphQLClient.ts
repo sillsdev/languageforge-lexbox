@@ -1,9 +1,9 @@
-import type {LoadEvent, RequestEvent} from "@sveltejs/kit";
 import {CombinedError, mapExchange, type Client, defaultExchanges} from "@urql/svelte";
-import {get, writable} from "svelte/store";
 import {createClient} from "@urql/svelte";
+import { browser } from '$app/environment';
 
-const clientStore = writable<Client | null>(null);
+let globalClient: Client | null = null;
+let backendHost: string = '';
 type ServerError = { message: string, code?: string };
 
 function hasError(value: unknown): value is { errors: ServerError[] } {
@@ -18,11 +18,10 @@ class LexGqlError extends CombinedError {
     }
 }
 
-function createGqlClient(event: LoadEvent | RequestEvent, gqlEndpoint?: string) {
-    const url = `${gqlEndpoint ?? ''}/api/graphql`;
+export function createGqlClient(gqlEndpoint?: string) {
+    const url = `${gqlEndpoint ?? backendHost}/api/graphql`;
     return createClient({
         url,
-        fetch: event.fetch,
         exchanges: [
             mapExchange({
                 onResult: (result) => {
@@ -46,24 +45,26 @@ function createGqlClient(event: LoadEvent | RequestEvent, gqlEndpoint?: string) 
     });
 }
 
-export function getClient(event?: LoadEvent): Client {
-    let client = get(clientStore);
-    if (client) {
-        return client;
-    }
-    if (event) {
-        client = createGqlClient(event);
-        setClient(client);
-        return client;
-    }
-    throw new Error("Client not set");
+export function getClient(gqlEndpoint?: string): Client {
+  if (browser) {
+    if (globalClient) return globalClient;
+    globalClient = createGqlClient('');
+    return globalClient;
+  } else {
+    //We do not cache the client on the server side.
+    return createGqlClient(gqlEndpoint);
+  }
+}
+
+export function storeGqlEndpoint(gqlEndpoint: string) {
+  backendHost = gqlEndpoint;
 }
 
 //gqlEndpoint is only required on the server side.
-export function initClient(event: LoadEvent | RequestEvent, gqlEndpoint?: string) {
-    setClient(createGqlClient(event, gqlEndpoint));
+export function initClient(gqlEndpoint?: string) {
+    setClient(createGqlClient(gqlEndpoint));
 }
 
 export function setClient(newClient: Client) {
-    clientStore.set(newClient);
+  globalClient = newClient;
 }

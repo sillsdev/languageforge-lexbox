@@ -1,6 +1,6 @@
 import { is_authn } from '$lib/user'
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
-import { initClient } from '$lib/graphQLClient'
+import { storeGqlEndpoint } from '$lib/graphQLClient'
 import {loadI18n} from "$lib/i18n";
 import { traceErrorEvent, traceResponse, traceRequest, traceFetch } from '$lib/otel/server'
 import {env} from "$env/dynamic/private";
@@ -14,6 +14,8 @@ const public_routes = [
 	'/forgotPassword/emailSent',
 ]
 
+storeGqlEndpoint(env.BACKEND_HOST);
+
 export const handle = (async ({ event, resolve }) => {
 	return traceRequest(event, async () => {
 		await loadI18n();
@@ -21,8 +23,6 @@ export const handle = (async ({ event, resolve }) => {
 		const options: ResolveOptions = {
 			filterSerializedResponseHeaders: () => true,
 		}
-
-		initClient(event, env.BACKEND_HOST)
 
 		return traceResponse({ method: event.request.method, route: event.route.id }, () => {
 			if (public_routes.includes(pathname)) {
