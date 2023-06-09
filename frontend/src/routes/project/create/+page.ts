@@ -1,11 +1,9 @@
-import { graphql } from "$lib/gql";
-import {getClient} from "$lib/graphQLClient";
-import type {CreateProjectInput} from "$lib/gql/graphql";
+import type { $OpResult, CreateProjectInput, CreateProjectMutation } from '$lib/gql/types';
+import { getClient, graphql } from '$lib/gql';
 
-
-export async function _createProject(input: CreateProjectInput) {
-    const result = await getClient().mutation(
-        graphql(`
+export async function _createProject(input: CreateProjectInput): $OpResult<CreateProjectMutation> {
+  const result = await getClient().mutation(
+    graphql(`
         mutation createProject($input: CreateProjectInput!) {
             createProject(input: $input) {
                 project {
@@ -20,7 +18,7 @@ export async function _createProject(input: CreateProjectInput) {
 
         }
         `),
-        {input}
-    ).toPromise();
-    return result;
+    { input }
+  ).toPromise();
+  return result;
 }

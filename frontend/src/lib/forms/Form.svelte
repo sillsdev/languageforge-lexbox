@@ -1,21 +1,22 @@
 <script lang="ts">
-	import type { SuperForm } from "sveltekit-superforms/client";
+  import type { AnySuperForm } from './types';
 
-	let formElem: HTMLFormElement;
-	export let id: string | undefined = undefined;
-	export let enhance: SuperForm<any>["enhance"] | undefined = undefined;
-	function enhance_if_requested(...args: Parameters<SuperForm<any>["enhance"]>) {
-		enhance && enhance(...args);
-	}
+  let formElem: HTMLFormElement;
+  export let id: string | undefined = undefined;
 
-	export function requestSubmit() {
-		formElem.requestSubmit();
-	}
+  export let enhance: AnySuperForm['enhance'] | undefined = undefined;
+  function enhanceIfRequested(...args: Parameters<AnySuperForm['enhance']>): void {
+    enhance && enhance(...args);
+  }
+
+  export function requestSubmit(): void {
+    formElem.requestSubmit();
+  }
 </script>
 
 <!-- https://daisyui.com/components/input/#with-form-control-and-labels -->
-<form bind:this={formElem} {id} use:enhance_if_requested method="post" on:submit|preventDefault class="form-control">
-	<slot />
+<form bind:this={formElem} {id} use:enhanceIfRequested method="post" on:submit|preventDefault class="form-control">
+  <slot />
 </form>
 
 <!-- see frontend/src/app.postcss for global styles related to forms -->

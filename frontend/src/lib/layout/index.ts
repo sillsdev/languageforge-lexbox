@@ -3,7 +3,8 @@ import AppMenu from './AppMenu.svelte'
 import Page from './Page.svelte'
 
 export {
-	AppBar,
-	AppMenu,
-	Page,
+  AppBar,
+  AppMenu,
+  Page
 }
+

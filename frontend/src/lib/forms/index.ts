@@ -8,15 +8,15 @@ import { lexSuperForm, lexSuperValidate } from './superforms';
 import { randomFieldId, tryParse } from './utils';
 
 export {
-	Button,
-	Form,
-	FormError,
-	ProtectedForm,
-	type Token,
-	Input,
-	Select,
-	lexSuperForm,
-	lexSuperValidate,
+  Button,
+  Form,
+  FormError,
+  Input,
+  ProtectedForm,
+  Select,
+  lexSuperForm,
+  lexSuperValidate,
   randomFieldId,
-  tryParse,
+  tryParse, type Token
 };
+

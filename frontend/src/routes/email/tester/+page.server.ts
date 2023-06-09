@@ -1,6 +1,6 @@
-import {render} from "$lib/email/emailRenderer.server";
-import ForgotPassword from "$lib/email/ForgotPassword.svelte";
+import ForgotPassword from '$lib/email/ForgotPassword.svelte';
+import { render } from '$lib/email/emailRenderer.server';
 
-export function load() {
-    return render(ForgotPassword, {name: 'John Doe'});
+export function load(): { subject: string, html: string } {
+  return render(ForgotPassword, { name: 'John Doe' });
 }
