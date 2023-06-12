@@ -34,37 +34,39 @@ tasks:
       - unzip -q sena-3.zip -d {{.HG_REPO_DIR}}/
       - rm sena-3.zip
 
-  # docker dev
-  dev-up:
+  # docker
+  up:
     cmds:
       - docker compose up --wait
-  dev-down:
+  down:
     cmds:
       - docker compose down
+
   # tests
   test:
     dir: '{{.TESTING_DIR}}'
     cmds:
       - dotnet test
-  test-sync:
+  test-sr:
     dir: '{{.TESTING_DIR}}'
-    deps: [ dev-up ]
+    deps: [ up ]
     cmds:
       - dotnet test --filter=SendReceive
 
-  #local dev stuff
-  dev-local-only-up:
+  # dev
+  infra-up: # infrastructure for our ui and api
     vars:
       WAIT: '{{default true .WAIT}}'
     cmds:
       - docker compose up maildev db hasura hgweb otel-collector hgresumable -d --wait={{.WAIT}}
 
-  local-up:
-    deps: [ ui-local, api-local ]
-  #ui
-  ui-local:
+  dev:
+    deps: [ ui, api ]
+
+  # ui
+  ui:
     dir: ./frontend
-    deps: [ dev-local-only-up, ui-docker-down, ui-install ]
+    deps: [ infra-up, ui-down, ui-install ]
     interactive: true
     cmds:
       - pnpm run dev
@@ -77,16 +79,17 @@ tasks:
     cmds:
       - corepack enable
       - pnpm install
-  ui-docker-down:
+  ui-down:
     cmds:
       - docker compose stop ui
-  #api
-  api-local:
+
+  # api
+  api:
     dir: ./backend/LexBoxApi
-    deps: [ dev-local-only-up, api-docker-down ]
+    deps: [ infra-up, api-down ]
     interactive: true
     cmds:
       - dotnet watch
-  api-docker-down:
+  api-down:
     cmds:
       - docker compose stop lexbox-api
