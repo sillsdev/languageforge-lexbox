@@ -6,6 +6,7 @@
         "svelte.svelte-vscode",
         "bradlc.vscode-tailwindcss",
         "redhat.vscode-yaml",
-        "task.vscode-task"
+        "task.vscode-task",
+        "dbaeumer.vscode-eslint"
     ]
 }

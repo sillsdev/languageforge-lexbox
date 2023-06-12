@@ -44,26 +44,26 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 ### Docker workflow
 
 ```bash
-task dev-up
+task up
 ```
 You might run into some issues with ports already being used, you can change the ports in the `docker-compose.yaml` file if you need to.
 The full app will be running on http://localhost after everything starts.
 There are some additional urls below to access specific parts of the system.
 
 ### Local workflow
-you can run the front and back end together (console output will be mixed) or in different terminals.
+you can run the front and back end together (console output will be mixed) or in different terminals. All necessary infrastructure (`task infra`) will be started automatically.
 
 frontend
 ```bash
-task ui-local
+task ui
 ```
 backend
 ```bash
-task api-local
+task api
 ```
 both
 ```bash
-task local-up
+task dev
 ```
 
 pnpm should be installed automatically using nodejs corepack, if not you can run `npm install -g pnpm` to install it.
