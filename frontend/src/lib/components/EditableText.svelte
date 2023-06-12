@@ -127,7 +127,7 @@
       on:keypress={startEditing}
     >
       {#if value}
-        <span class="mr-2 whitespace-pre-wrap text-md">{value}</span>
+        <span class="mr-2 whitespace-pre-wrap text-primary">{value}</span>
       {:else}
         <span class="mr-2 opacity-75">{placeholder}</span>
       {/if}
