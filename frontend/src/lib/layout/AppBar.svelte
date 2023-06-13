@@ -10,8 +10,8 @@
 </script>
 
 <!-- https://daisyui.com/components/navbar -->
-<header class="navbar bg-primary text-primary-content">
-  <span class="navbar-start ml-4 text-lg md:text-3xl tracking-wider">
+<header class="navbar bg-primary text-primary-content pl-6">
+  <span class="navbar-start text-lg md:text-3xl tracking-wider">
     {$t('appbar.app_name')}
   </span>
   {#if environmentName !== 'production'}

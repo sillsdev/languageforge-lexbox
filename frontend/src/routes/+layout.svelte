@@ -3,7 +3,7 @@
   import '$lib/app.postcss';
   import { error } from '$lib/error';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
-  import { AppBar, AppMenu } from '$lib/layout';
+  import { AppBar, AppMenu, Breadcrumbs } from '$lib/layout';
   import { user } from '$lib/user';
   import { onDestroy } from 'svelte';
   import type { LayoutData } from './$types';
@@ -47,6 +47,11 @@
 
   <div class="drawer-content">
     <AppBar on:menuopen={open} />
+    {#if $user}
+      <div class="bg-secondary p-2 pl-6">
+        <Breadcrumbs />
+      </div>
+    {/if}
 
     <!-- https://tailwindcss.com/docs/typography-plugin -->
     <main class="max-w-none px-2 md:px-6 pt-8">
