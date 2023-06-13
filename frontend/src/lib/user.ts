@@ -1,7 +1,7 @@
 import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
-import { writable } from 'svelte/store'
+import { derived, writable } from 'svelte/store'
 
 type JwtTokenUser = {
   sub: string
@@ -27,7 +27,8 @@ type UserProjects = {
   role: 'Manager' | 'Editor'
 }
 
-export const user = writable<LexAuthUser | null>()
+export const user = writable<LexAuthUser | null>();
+export const isAdmin = derived(user, (user) => user?.role === 'admin');
 
 export async function login(userId: string, password: string): Promise<boolean> {
   clear()

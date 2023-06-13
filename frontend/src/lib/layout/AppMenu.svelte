@@ -1,7 +1,8 @@
 <script>
   import t from '$lib/i18n';
-  import { LogoutIcon } from '$lib/icons';
+  import { AdminIcon, HomeIcon, LogoutIcon } from '$lib/icons';
   import { user } from '$lib/user';
+  import AdminContent from './AdminContent.svelte';
 </script>
 
 <div class="drawer-side" on:click on:keydown>
@@ -14,14 +15,32 @@
       <span class="font-light">{$user?.email}</span>
     </header>
 
-    <li class="hover-bordered">
+    <li>
       <a href="/logout" data-sveltekit-preload-data="tap">
         {$t('appmenu.log_out')}
         <LogoutIcon />
       </a>
     </li>
 
-    <hr class="divider" />
+    <div class="divider" />
+
+    <AdminContent>
+      <li>
+        <a href="/admin" class="text-accent" data-sveltekit-preload-data="tap">
+          {$t('page_names.admin_dashboard')}
+          <AdminIcon />
+        </a>
+      </li>
+    </AdminContent>
+
+    <li>
+      <a href="/" data-sveltekit-preload-data="tap">
+        {$t('page_names.my_projects')}
+        <HomeIcon />
+      </a>
+    </li>
+
+    <div class="divider" />
   </ul>
 </div>
 

@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
+  import t from '$lib/i18n';
+  import { AdminIcon } from '$lib/icons';
+  import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
 
   let menuToggle = false;
 
@@ -25,6 +27,12 @@
     <AppBar on:menuopen={open} />
     <div class="bg-secondary p-2 pl-6 flex justify-between items-center">
       <Breadcrumbs />
+      <AdminContent>
+        <a href="/admin" class="btn btn-sm btn-accent hidden sm:inline-flex">
+          {$t('page_names.admin_dashboard')}
+          <span class="ml-2"><AdminIcon /></span>
+        </a>
+      </AdminContent>
     </div>
 
     <Content>
