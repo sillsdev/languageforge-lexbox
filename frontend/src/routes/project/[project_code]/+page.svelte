@@ -82,14 +82,14 @@
     <div class="space-y-2">
       <span class="text-lg">
         {$t('project_page.project_code')}:
-        <span class="text-primary">{project.code}</span>
+        <span class="text-secondary">{project.code}</span>
       </span>
       <div class="text-lg">
         {$t('project_page.last_commit')}:
-        <span class="text-primary"><FormatDate date={project.lastCommit} /></span>
+        <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
       </div>
       <div class="text-lg">{$t('project_page.description')}:</div>
-      <span>
+      <span class="">
         <EditableText
           bind:value={project.description}
           disabled={!canManage}
