@@ -1,6 +1,6 @@
 <script>
   import t from '$lib/i18n';
-  import { AdminIcon, HomeIcon, LogoutIcon } from '$lib/icons';
+  import { AdminIcon, AuthenticatedUserIcon, HomeIcon, LogoutIcon } from '$lib/icons';
   import { user } from '$lib/user';
   import AdminContent from './AdminContent.svelte';
 </script>
@@ -37,6 +37,13 @@
       <a href="/" data-sveltekit-preload-data="tap">
         {$t('user_dashboard.title')}
         <HomeIcon />
+      </a>
+    </li>
+
+    <li>
+      <a href="/" data-sveltekit-preload-data="tap">
+        {$t('user_page.title')}
+        <AuthenticatedUserIcon />
       </a>
     </li>
 

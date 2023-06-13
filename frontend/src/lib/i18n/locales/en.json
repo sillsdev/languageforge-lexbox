@@ -91,6 +91,9 @@
     "remove_user": "Remove",
     "change_role": "Change Role"
   },
+  "user_page": {
+    "title": "My Account"
+  },
   "project_role": {
     "editor": "Editor",
     "editor_description": "Editor (can sync)",
@@ -107,7 +110,7 @@
   },
   "projectlist": {
     "last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
-    "no_changes": "Project Empty",
+    "no_changes": "New",
     "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
   },
   "register": {

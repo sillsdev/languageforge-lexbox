@@ -7,7 +7,7 @@
   export let date: string | Date | number | null;
   export let timeFormat: FormatStyle = 'short';
   export let dateFormat: FormatStyle = 'short';
-  export let nullLabel = 'null';
+  export let nullLabel = '–';
 
   $: formatter = new Intl.DateTimeFormat($locale, {
     dateStyle: dateFormat === 'none' ? undefined : dateFormat,

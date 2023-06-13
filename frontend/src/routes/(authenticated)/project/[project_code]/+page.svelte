@@ -57,7 +57,7 @@
 </script>
 
 <svelte:head>
-    <title>{project?.name ?? $t('project_page.not_found', { code: data.code })}</title>
+  <title>{project?.name ?? $t('project_page.not_found', { code: data.code })}</title>
 </svelte:head>
 
 <div class="space-y-4">
@@ -65,12 +65,14 @@
     <div class="space-y-2">
       <div class="text-3xl flex items-center gap-3 flex-wrap">
         <span>{$t('project_page.project')}:</span>
-        <EditableText
-          disabled={!canManage}
-          bind:value={project.name}
-          validation={projectNameValidation}
-          saveHandler={updateProjectName}
-        />
+        <span class="text-secondary">
+          <EditableText
+            disabled={!canManage}
+            bind:value={project.name}
+            validation={projectNameValidation}
+            saveHandler={updateProjectName}
+          />
+        </span>
       </div>
       <BadgeList>
         <Badge><FormatProjectType type={project.type} /></Badge>

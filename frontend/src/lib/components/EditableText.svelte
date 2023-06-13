@@ -121,18 +121,18 @@
     </span>
   {:else}
     <span
-      class:hover:bg-gray-800={!disabled}
+      class:hover:bg-base-300={!disabled}
       class="content-wrapper inline-flex items-center cursor-text rounded-lg py-2 px-3 -mx-3"
       on:click={startEditing}
       on:keypress={startEditing}
     >
       {#if value}
-        <span class="mr-2 whitespace-pre-wrap text-secondary">{value}</span>
+        <span class="mr-2 whitespace-pre-wrap">{value}</span>
       {:else}
         <span class="mr-2 opacity-75">{placeholder}</span>
       {/if}
       {#if !disabled}
-        <span class="i-mdi-pencil-outline text-lg edit-icon mb-1 self-end" />
+        <span class="i-mdi-pencil-outline text-lg text-base-content edit-icon mb-1 self-end" />
       {/if}
     </span>
   {/if}

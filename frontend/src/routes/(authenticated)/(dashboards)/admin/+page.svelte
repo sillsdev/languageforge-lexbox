@@ -78,7 +78,7 @@
               <td>{project.code}</td>
               <td>{project.projectUsersAggregate.aggregate?.count ?? 0}</td>
               <td>
-                <FormatDate date={project.lastCommit} nullLabel="–" />
+                <FormatDate date={project.lastCommit} />
               </td>
               <td>
                 <FormatProjectType type={project.type} />
@@ -120,7 +120,7 @@
               <td>{user.email}</td>
               <td>{user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}</td>
               <td>
-                <FormatDate date={user.createdDate} nullLabel="–" />
+                <FormatDate date={user.createdDate} />
               </td>
             </tr>
           {/each}

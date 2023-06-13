@@ -6,9 +6,10 @@
 <script lang="ts">
   export let type: BadgeType = undefined;
   export let icon = '';
+  export let outline = false;
 </script>
 
-<span class="badge badge-lg {type} p-4 whitespace-nowrap">
+<span class="badge badge-lg {type} p-4 whitespace-nowrap" class:badge-outline={outline}>
   <slot />
 
   {#if icon}
