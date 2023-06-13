@@ -26,7 +26,7 @@
   <div class="navbar-end">
     {#if $user}
       <button on:click={() => dispatch('menuopen')} class="btn btn-primary btn-circle">
-        <AuthenticatedUserIcon />
+        <AuthenticatedUserIcon size="text-4xl" />
       </button>
     {:else}
       <div class="tooltip tooltip-left" data-tip="Create a new account">

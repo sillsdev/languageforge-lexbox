@@ -51,7 +51,7 @@
   },
   "projectlist": {
     "last_change": "Último cambio: {lastChange, date, short} {lastChange, time, short}",
-    "no_changes": "Proyecto Vacío",
+    "no_changes": "Nuevo",
     "shared_with": "Compartido con {memberCount, plural, one {nadie} other {# personas}}"
   },
   "retention_policy": {

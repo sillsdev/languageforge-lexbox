@@ -25,7 +25,7 @@
 
   <div class="drawer-content">
     <AppBar on:menuopen={open} />
-    <div class="bg-secondary p-2 pl-6 flex justify-between items-center">
+    <div class="bg-neutral text-neutral-content p-2 pl-6 flex justify-between items-center">
       <Breadcrumbs />
       <AdminContent>
         <a href="/admin" class="btn btn-sm btn-accent hidden sm:inline-flex">
