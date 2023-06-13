@@ -18,6 +18,9 @@
 </script>
 
 <Page>
+    <svelte:fragment slot="header">
+        {$t('forgot_password.title')}
+    </svelte:fragment>
   <Form {enhance}>
     <Input
       id="email"

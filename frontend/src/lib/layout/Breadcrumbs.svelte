@@ -16,12 +16,12 @@
   interface CrumbConfig extends Record<string, CrumbValue>, Partial<CrumbFallbackMapper>, Partial<CrumbWithChild> {}
 
   const CRUMB_CONFIG = {
-    _name: 'page_names.my_projects',
-    admin: 'page_names.admin_dashboard',
-    resetPassword: 'page_names.reset_password',
+    _name: 'user_dashboard.title',
+    admin: 'admin_dashboard.title',
+    resetPassword: 'reset_password.title',
     project: {
       _name: null,
-      create: 'page_names.create_project',
+      create: 'project.create.title',
       _get: () => {
         const data = $page.data as ProjectPageData;
         return data.project?.name ?? data.code;

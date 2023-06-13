@@ -32,7 +32,7 @@
 </script>
 
 <Page>
-  <svelte:fragment slot="header">{$t('login.page_header')}</svelte:fragment>
+  <svelte:fragment slot="header">{$t('login.title')}</svelte:fragment>
 
   <Form {enhance}>
     <Input
@@ -54,7 +54,7 @@
       required
     />
     <a class="link mt-0" href="/forgotPassword">
-      {$t('login.forgot-password')}
+      {$t('login.forgot_password')}
     </a>
 
     {#if badCredentials}
@@ -66,6 +66,6 @@
     {:else}
       <Button loading={$submitting}>{$t('login.button_login')}</Button>
     {/if}
-    <a class="btn btn-primary" href="/register">Register</a>
+    <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
   </Form>
 </Page>

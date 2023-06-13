@@ -10,7 +10,7 @@
     "column_users": "Usuarios",
     "filter_label": "Filtrar",
     "filter_placeholder": "buscar...",
-    "page_header": "Proyectos",
+    "title": "Proyectos",
     "user_table_title": "Usuarios"
   },
   "appbar": {
@@ -19,7 +19,7 @@
   "appmenu": {
     "log_out": "Cerrar sesión"
   },
-  "environment-warning": "",
+  "environment_warning": "",
   "login": {
     "bad_credentials": "Algo salió mal, asegúrese de haber utilizado la información de cuenta correcta.",
     "button_login": "Acceso",
@@ -27,7 +27,7 @@
     "label_email": "Correo electrónico (o Enviar/Recibir nombre de usuario)",
     "label_password": "Contraseña",
     "missing_user_info": "Falta la información del usuario",
-    "page_header": "Acceso",
+    "title": "Acceso",
     "password_missing": "Falta la contraseña"
   },
   "project_page": {
@@ -40,7 +40,6 @@
     "history": "Historia",
     "last_commit": "Última confirmación",
     "members": "Miembros del proyecto",
-    "missing_description": "Sin descripción",
     "not_found": "¡Proyecto {code} no encontrado!"
   },
   "project_role": {
@@ -62,7 +61,7 @@
   },
   "unknown": "Desconocido",
   "user_dashboard": {
-    "page_header": "Mis proyectos"
+    "title": "Mis proyectos"
   },
   "user_types": {
     "admin": "Administración",

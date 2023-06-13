@@ -31,11 +31,15 @@
     .slice(0, userSearch ? undefined : 10);
 </script>
 
+<svelte:head>
+    <title>{$t('admin_dashboard.title')}</title>
+</svelte:head>
+
 <main>
   <div class="grid grid-cols-2">
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
-        {$t('admin_dashboard.page_header')}
+        {$t('admin_dashboard.project_table_title')}
         <Badge>{projectSearch ? projects.length : data.projects.length}</Badge>
       </span>
 

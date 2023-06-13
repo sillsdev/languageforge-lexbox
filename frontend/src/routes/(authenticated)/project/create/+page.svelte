@@ -63,13 +63,15 @@
 </script>
 
 <Page>
-  <h1 class="text-lg">Create Project</h1>
+  <svelte:fragment slot="header">
+    {$t('project.create.title')}
+  </svelte:fragment>
 
   <Form {enhance}>
     <Input label={$t('project.create.name')} bind:value={$form.name} error={$errors.name} autofocus required />
     <div class="form-control">
       <label class="label" for="description">
-        <span class="label-text">Description</span>
+        <span class="label-text">{$t('project.create.description')}</span>
       </label>
       <textarea id="description" class="textarea textarea-bordered h-24" bind:value={$form.description} />
     </div>
@@ -82,18 +84,18 @@
 
     <Select
       id="policy"
-      label={$t('project.create.retention-policy')}
+      label={$t('project.create.retention_policy')}
       bind:value={$form.retentionPolicy}
       error={$errors.retentionPolicy}
     >
-      <option value={RetentionPolicy.Verified}>{$t('retention_policy.language-project')}</option>
+      <option value={RetentionPolicy.Verified}>{$t('retention_policy.language_project')}</option>
       <option value={RetentionPolicy.Training}>{$t('retention_policy.training')}</option>
       <option value={RetentionPolicy.Test}>{$t('retention_policy.test')}</option>
       <option value={RetentionPolicy.Dev}>{$t('retention_policy.dev')}</option>
     </Select>
 
-    <Input label={$t('project.create.language-code')} bind:value={$form.languageCode} error={$errors.languageCode} />
-    <Checkbox label={$t('project.create.custom-code')} bind:value={$form.customCode} />
+    <Input label={$t('project.create.language_code')} bind:value={$form.languageCode} error={$errors.languageCode} />
+    <Checkbox label={$t('project.create.custom_code')} bind:value={$form.customCode} />
     <Input
       label={$t('project.create.code')}
       bind:value={$form.code}

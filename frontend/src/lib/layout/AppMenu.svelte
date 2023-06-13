@@ -27,7 +27,7 @@
     <AdminContent>
       <li>
         <a href="/admin" class="text-accent" data-sveltekit-preload-data="tap">
-          {$t('page_names.admin_dashboard')}
+          {$t('admin_dashboard.title')}
           <AdminIcon />
         </a>
       </li>
@@ -35,7 +35,7 @@
 
     <li>
       <a href="/" data-sveltekit-preload-data="tap">
-        {$t('page_names.my_projects')}
+        {$t('user_dashboard.title')}
         <HomeIcon />
       </a>
     </li>

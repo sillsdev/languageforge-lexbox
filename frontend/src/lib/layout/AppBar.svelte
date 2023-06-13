@@ -18,7 +18,7 @@
     <a href="https://public.languagedepot.org" class="alert alert-warning">
       <div class="items-center">
         <span>
-          {$t('environment-warning', { environmentName })}
+          {$t('environment_warning', { environmentName })}
         </span>
       </div>
     </a>

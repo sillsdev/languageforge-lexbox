@@ -34,9 +34,9 @@
     </button>
     <button class="btn" disabled={closing} on:click={() => modal.cancelModal()}>
       {#if isRemoveDialog}
-        {$t('delete_modal.dont-remove')}
+        {$t('delete_modal.dont_remove')}
       {:else}
-        {$t('delete_modal.dont-delete')}
+        {$t('delete_modal.dont_delete')}
       {/if}
     </button>
   </svelte:fragment>
