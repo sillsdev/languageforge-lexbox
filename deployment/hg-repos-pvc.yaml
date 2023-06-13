@@ -5,8 +5,8 @@ metadata:
   name: hg-repos
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
-  storageClassName: weekly-snapshots-retain-4 # provided by LTOps
+  storageClassName: local-path # for local development, needs to be "weekly-snapshots-retain-4" in staging and production
