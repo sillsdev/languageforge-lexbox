@@ -3,7 +3,7 @@
   import { Button, Form, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
-  import { login, logout, user } from '$lib/user';
+  import { login, logout, isAdmin } from '$lib/user';
   import { onMount } from 'svelte';
   import { z } from 'zod';
 
@@ -15,7 +15,7 @@
     formSchema,
     async () => {
       if (await login($form.email, $form.password)) {
-        await goto($user?.role == 'admin' ? '/admin' : '/');
+        await goto($isAdmin ? '/admin' : '/');
         return;
       }
       $message = $t('login.bad_credentials');

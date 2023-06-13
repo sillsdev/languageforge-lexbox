@@ -11,9 +11,9 @@
 
 <!-- https://daisyui.com/components/navbar -->
 <header class="navbar bg-primary text-primary-content pl-6">
-  <span class="navbar-start text-lg md:text-3xl tracking-wider">
+  <a href="/" class="navbar-start text-lg md:text-3xl tracking-wider hover:underline">
     {$t('appbar.app_name')}
-  </span>
+  </a>
   {#if environmentName !== 'production'}
     <a href="https://public.languagedepot.org" class="alert alert-warning">
       <div class="items-center">
