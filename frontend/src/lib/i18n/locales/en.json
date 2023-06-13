@@ -140,5 +140,11 @@
   },
   "modal": {
     "dismiss": "Dismiss"
+  },
+  "page_names": {
+    "my_projects": "My Projects",
+    "admin_dashboard": "Admin Dashboard",
+    "reset_password": "Reset Password",
+    "create_project": "Create Project"
   }
 }
