@@ -20,14 +20,17 @@
 </script>
 
 <Page>
+<svelte:fragment slot="header">
+    {$t('reset_password.title')}
+</svelte:fragment>
   <Form {enhance}>
     <Input
       bind:value={$form.password}
       type="password"
-      label={$t('reset-password.new-password')}
+      label={$t('reset_password.new_password')}
       error={$errors.password}
       autofocus
     />
-    <Button loading={$submitting}>{$t('reset-password.submit')}</Button>
+    <Button loading={$submitting}>{$t('reset_password.submit')}</Button>
   </Form>
 </Page>

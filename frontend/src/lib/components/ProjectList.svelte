@@ -41,7 +41,7 @@
   <a class="card hover:bg-neutral-focus bg-neutral transition duration-200" href="/project/create">
     <div class="card-body mx-auto justify-center items-center">
       <span class="i-mdi-plus text-4xl" />
-      <span class="link text-xl text-center">Create Project</span>
+      <span class="link text-xl text-center">{$t('project.create.title')}</span>
     </div>
   </a>
 </div>

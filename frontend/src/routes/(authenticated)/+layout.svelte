@@ -29,7 +29,7 @@
       <Breadcrumbs />
       <AdminContent>
         <a href="/admin" class="btn btn-sm btn-accent hidden sm:inline-flex">
-          {$t('page_names.admin_dashboard')}
+          {$t('admin_dashboard.title')}
           <span class="ml-2"><AdminIcon /></span>
         </a>
       </AdminContent>

@@ -4,6 +4,7 @@ import AppMenu from './AppMenu.svelte'
 import Breadcrumbs from './Breadcrumbs.svelte'
 import Content from './Content.svelte'
 import Page from './Page.svelte'
+import PageHeader from './PageHeader.svelte'
 
 export {
   AppBar,
@@ -12,4 +13,5 @@ export {
   Breadcrumbs,
   Content,
   AdminContent,
+  PageHeader,
 }

@@ -56,6 +56,10 @@
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 </script>
 
+<svelte:head>
+    <title>{project?.name ?? $t('project_page.not_found', { code: data.code })}</title>
+</svelte:head>
+
 <div class="space-y-4">
   {#if project}
     <div class="space-y-2">
@@ -121,7 +125,7 @@
               <li>
                 <button class="hover:bg-error hover:text-error-content" on:click={() => deleteProjectUser(member)}>
                   <span class="i-mdi-trash-can text-2xl" />
-                  {$t('project_page.remove-user')}
+                  {$t('project_page.remove_user')}
                 </button>
               </li>
             </ul>
@@ -135,10 +139,10 @@
 
         <DeleteModal
           bind:this={deleteUserModal}
-          entityName={$t('project_page.remove-project-user-title')}
+          entityName={$t('project_page.remove_project_user_title')}
           isRemoveDialog
         >
-          {$t('project_page.confirm-remove', {
+          {$t('project_page.confirm_remove', {
             userName: userToDelete?.User.name ?? '',
           })}
         </DeleteModal>
