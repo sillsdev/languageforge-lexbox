@@ -60,6 +60,6 @@
 </div>
 
 <!-- We don't want the alert for "hook" errors, because they land on +error.svelte -->
-{#if !$page.error?.source.endsWith('-hook')}
+{#if !$page.error?.source?.endsWith('-hook')}
   <UnexpectedErrorAlert />
 {/if}

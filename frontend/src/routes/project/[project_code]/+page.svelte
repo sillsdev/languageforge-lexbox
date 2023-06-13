@@ -82,11 +82,11 @@
     <div class="space-y-2">
       <span class="text-lg">
         {$t('project_page.project_code')}:
-        <span class="text-primary-content">{project.code}</span>
+        <span class="text-secondary">{project.code}</span>
       </span>
       <div class="text-lg">
         {$t('project_page.last_commit')}:
-        <span class="text-primary-content"><FormatDate date={project.lastCommit} /></span>
+        <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
       </div>
       <div class="text-lg">{$t('project_page.description')}:</div>
       <span>
@@ -99,8 +99,6 @@
         />
       </span>
     </div>
-
-    <div class="divider" />
 
     <div>
       <p class="text-2xl mb-4">
