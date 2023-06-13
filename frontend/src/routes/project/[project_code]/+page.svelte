@@ -89,7 +89,7 @@
         <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
       </div>
       <div class="text-lg">{$t('project_page.description')}:</div>
-      <span class="">
+      <span>
         <EditableText
           bind:value={project.description}
           disabled={!canManage}
