@@ -1,4 +1,4 @@
-<script lang="ts">
+<script lang="ts"> //most of this should be moved to page.ts
     import type { PageData } from './$types';
     import t from '$lib/i18n';
     import { Button, Form, Input, lexSuperForm } from '$lib/forms';
@@ -11,11 +11,10 @@
         password: z.string().min(1, $t('login.password_missing')),
         username: z.string().min(1, $t('login.password_missing')),
         name: z.string().min(1, $t('login.password_missing')),
-    });
+    }); // yeah actually i have no idea what this is but its working so...
 
     $: example_name = $user?.name;
     $: example_email = $user?.email;
-    let example_username = "jd";
     $: userid = $user?.id;
 
 
@@ -30,7 +29,7 @@
         return false;
         }
     }
-    let { form, errors, message, enhance, submitting } = lexSuperForm(
+    let { form, errors, message, enhance, submitting } = lexSuperForm( //TODO: figure out how to use submitting
     formSchema,
     () => {
         alert('hi');
@@ -40,7 +39,7 @@
 
     },
     {
-      taintedMessage: false,
+      taintedMessage: false, //also figure out what this is supposed to be for
       clearOnSubmit: 'errors',
     }
   );    export let data: PageData;
@@ -55,7 +54,7 @@
     <br><br><br>
     <Page>
 
-        <Form {enhance}>
+        <Form {enhance}> <!--what does enhance do?-->
           <Input
             id="email"
             label={$t('account_settings.label_email')}
