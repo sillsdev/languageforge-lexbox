@@ -13,8 +13,8 @@
         name: z.string().min(1, $t('login.password_missing')),
     });
 
-    let example_name = "John Doe";
-    let example_email = "johndoe@example.com";
+    $: example_name = $user?.name;
+    $: example_email = $user?.email;
     let example_username = "jd";
     $: userid = $user?.id;
 

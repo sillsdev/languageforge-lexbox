@@ -15,6 +15,7 @@
     "user_table_title": "Users"
   },
   "account_settings": {
+    "title": "Account Settings",
     "password_missing": "Password missing",
     "label_email": "change email",
     "label_username": "change username (unavailable)",
