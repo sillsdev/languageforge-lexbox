@@ -77,7 +77,7 @@ tasks:
       - package.json
       - pnpm-lock.yaml
     cmds:
-      - corepack enable
+      - corepack enable || true
       - pnpm install
   ui-down:
     cmds:
