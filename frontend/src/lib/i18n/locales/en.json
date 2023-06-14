@@ -41,6 +41,15 @@
     "success": "Success: your account has been updated",
     "button_update": "Update account info"
   },
+  "account_settings": {
+    "password_missing": "Password missing",
+    "label_email": "change email",
+    "label_username": "change username (unavailable)",
+    "label_name": "change display name",
+    "forgot_password": "Change your password instead?",
+    "button_update": "Update account info",
+    "confirm_change": "Are you sure you want to change your account information? These changes can be reverted."
+  },
   "appbar": {
     "app_name": "Language Depot"
   },
