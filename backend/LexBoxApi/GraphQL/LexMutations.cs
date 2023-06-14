@@ -96,4 +96,21 @@ public class LexMutations
             .ExecuteDeleteAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId).AsExecutable();
     }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<RequiredException>]
+    [UseMutationConvention]
+    public async Task<User> ChangeUserAccountData(ChangeUserAccountDataInput input,
+        LexBoxDbContext dbContext)
+    {
+        if (input.Username.IsNullOrEmpty()) throw new RequiredException("Username cannot be empty");
+
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        if (user is null) throw new NotFoundException("User not found");
+
+        user.Email = input.Username;
+        await dbContext.SaveChangesAsync();
+        return user;
+    }
 }

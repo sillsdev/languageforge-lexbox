@@ -4,6 +4,7 @@
     import { Button, Form, Input, lexSuperForm } from '$lib/forms';
     import { Page } from '$lib/layout';
     import { z } from 'zod';
+    import { user } from '$lib/user';
 
     const formSchema = z.object({ //not entirely sure what this is
         email: z.string().min(1, $t('account_settings.missing_user_info')),
@@ -15,11 +16,12 @@
     let example_name = "John Doe";
     let example_email = "johndoe@example.com";
     let example_username = "jd";
-
+    $: userid = $user?.id;
 
 
     function updateAccount(email: string, username:string, password: string, name:string) {
     if(confirm($t("account_settings.confirm_change"))){
+        alert(userid);
         console.log(email);
         console.log(username);
         console.log(name);
