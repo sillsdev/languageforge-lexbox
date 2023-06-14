@@ -105,10 +105,20 @@ tasks:
       - genkey
     cmds:
       - cp "$HOME/.ssh/id_lexbox_k8sdev.pub" deployment/
+      - cp deployment/k8sdev-ssh.conf "$HOME/.ssh/"
+      - chmod 600 "$HOME/.ssh/k8sdev-ssh.conf"
+
+  setupssh:
+    cmds:
+      - echo 'Host k8sdev' >> "$HOME/.ssh/config"
+      - echo '  Include k8sdev-ssh.conf' >> "$HOME/.ssh/config"
+    status:
+      - grep '  Include k8sdev-ssh.conf' "$HOME/.ssh/config"
 
   localdev:
     deps:
       - copykey
+      - setupssh
     cmds:
       - "kubectl apply -k deployment"
       - "kubectl apply -f deployment/localdev-deployment.yaml"
