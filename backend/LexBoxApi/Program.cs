@@ -52,6 +52,7 @@ builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 app.Logger.LogInformation("LexBox-api version: {version}", AppVersionService.Version);
+app.UseCors(x => x.AllowAnyOrigin()); // TODO: Allow only specific clients (e.g., frontend)
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.All,
