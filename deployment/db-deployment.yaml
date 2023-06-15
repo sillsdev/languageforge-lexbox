@@ -24,7 +24,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: local-path # for local development, needs to be "weekly-snapshots-retain-4" in staging and production
+  storageClassName: local-path # k3d doesn't have a weekly-snapshots-retain-4 class
 
 ---
 

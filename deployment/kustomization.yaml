@@ -1,7 +1,16 @@
-generatorOptions:
-  disableNameSuffixHash: true
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
 
-secretGenerator:
-- name: k8sdev-ssh-public-key
+resources:
+- config-map.yaml
+- secrets.yaml
+- hg-repos-pvc.yaml
+- hg-deployment.yaml
+- db-deployment.yaml
+- lexbox-deployment.yaml
+- proxy-deployment.yaml
+
+configMapGenerator:
+- name: otel-config
   files:
-  - authorized_keys=id_lexbox_k8sdev.pub
+    - collector-config.yaml

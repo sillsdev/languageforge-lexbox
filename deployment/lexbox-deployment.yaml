@@ -53,7 +53,7 @@ spec:
       - name: lexbox-api
         # TODO: need to parameterize this tag
         image: ghcr.io/sillsdev/lexbox-api:develop
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -129,7 +129,7 @@ spec:
 
       - name: ui
         image: ghcr.io/sillsdev/lexbox-ui:develop
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -154,7 +154,7 @@ spec:
 
       - name: hasura
         image: ghcr.io/sillsdev/lexbox-hasura:develop
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing

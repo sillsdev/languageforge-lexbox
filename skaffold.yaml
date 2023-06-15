@@ -1,0 +1,30 @@
+apiVersion: skaffold/v4beta5
+kind: Config
+metadata:
+  name: lexbox
+build:
+  artifacts:
+    - image: ghcr.io/sillsdev/hgresume
+      context: hgresumable
+      docker:
+        dockerfile: Dockerfile
+    - image: ghcr.io/sillsdev/lexbox-api
+      context: backend
+      docker:
+        dockerfile: Dockerfile
+    - image: ghcr.io/sillsdev/lexbox-hasura
+      context: hasura
+      docker:
+        dockerfile: Dockerfile
+    - image: ghcr.io/sillsdev/lexbox-hgweb
+      context: hgweb
+      docker:
+        dockerfile: Dockerfile
+    - image: ghcr.io/sillsdev/lexbox-ui
+      context: frontend
+      docker:
+        dockerfile: Dockerfile
+manifests:
+  kustomize:
+    paths:
+      - deployment
