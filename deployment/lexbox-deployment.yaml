@@ -146,7 +146,7 @@ spec:
                 key: PUBLIC_TURNSTILE_SITE_KEY
                 name: ui
           - name: PUBLIC_ENV_NAME
-            value: staging
+            value: dev
           - name: BACKEND_HOST
             value: http://localhost
           - name: OTEL_ENDPOINT
