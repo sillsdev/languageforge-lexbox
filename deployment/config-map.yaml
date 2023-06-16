@@ -2,6 +2,6 @@
 kind: ConfigMap
 metadata:
   name: email-config
+  namespace: languagedepot
 data:
   email-from: "Value"
-  

@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: lexbox
+  namespace: languagedepot
   labels:
     app: lexbox
 spec:
@@ -31,6 +32,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lexbox
+  namespace: languagedepot
   labels:
     app: lexbox
 spec:
@@ -264,6 +266,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: deploy-config
+  namespace: languagedepot
 data:
 #  branch to allow deployments from
   publish-branch: develop
@@ -321,11 +324,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: lexbox-deployer
+  namespace: languagedepot
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: deployer
+  namespace: languagedepot
 rules:
   - apiGroups: [ "apps" ]
     resources: [ "deployments" ]
@@ -335,6 +340,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: redepoly
+  namespace: languagedepot
 subjects:
   - kind: ServiceAccount
     name: lexbox-deployer
