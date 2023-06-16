@@ -9,12 +9,7 @@ ENV CUSTOM_PORT=8088
 RUN set -ex && \
     apt-get update && \
     apt-get install -y libapache2-mod-wsgi-py3 \
-    libpython3-dev python3-pip python3-setuptools build-essential && \
-    pip3 install --no-binary :all: mercurial && \
-    apt-get remove -y --purge \
-    		libpython3-dev python3-pip python3-setuptools build-essential \
-    		libffi-dev \
-    	&& \
+    mercurial && \
     apt-get autoremove --purge -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists
