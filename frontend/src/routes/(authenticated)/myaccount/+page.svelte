@@ -11,10 +11,10 @@
     import Email from '$lib/email/Email.svelte';
     // This schema defines the shape and validation rules for the form data
     const formSchema = z.object({
-      email: z.string().email($t('account_settings.invalid_email')),
-      password: z.string().min(8, $t('account_settings.password_too_short')),
-      username: z.string().nonempty($t('account_settings.username_required')),
-      name: z.string().nonempty($t('account_settings.name_required')),
+      email: z.string().length(12),
+      password: z.string().length(12),
+      username: z.string().length(12),
+      name: z.string().length(12),
     });
 
     // These are reactive variables that get the current user's data
@@ -29,7 +29,6 @@
     ) {
       if (confirm($t('account_settings.confirm_change'))) {
         // TODO: make an API call to update the user data
-        alert(userid);
         const changeUserAccountDataInput: ChangeUserAccountDataInput = {
             email: email,
             name: name,
