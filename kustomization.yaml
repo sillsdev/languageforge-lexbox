@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: languagedepot
+
+resources:
+- deployment/namespace.yaml
+- deployment/config-map.yaml
+- deployment/secrets.yaml
+- deployment/hg-repos-pvc.yaml
+- deployment/hg-deployment.yaml
+- deployment/db-deployment.yaml
+- deployment/lexbox-deployment.yaml
+- deployment/proxy-deployment.yaml
+
+configMapGenerator:
+- name: otel-config
+  files:
+    - otel/collector-config.yaml
+# - name: hasura-metadata
+#   files:
+#     - hasura/metadata/actions.yaml
+#     - hasura/metadata/allow_list.yaml
+#     - hasura/metadata/api_limits.yaml
+#     - hasura/metadata/backend_configs.yaml
+#     - hasura/metadata/cron_triggers.yaml
+#     - hasura/metadata/graphql_schema_introspection.yaml
+#     - hasura/metadata/inherited_roles.yaml
+#     - hasura/metadata/metrics_config.yaml
+#     - hasura/metadata/network.yaml
+#     - hasura/metadata/opentelemetry.yaml
+#     - hasura/metadata/query_collections.yaml
+#     - hasura/metadata/remote_schemas.yaml
+#     - hasura/metadata/rest_endpoints.yaml
+#     - hasura/metadata/version.yaml

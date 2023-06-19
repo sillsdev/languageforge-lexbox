@@ -5,6 +5,7 @@ metadata:
   name: proxy
   namespace: languagedepot
 spec:
+  ingressClassName: nginx
   defaultBackend:
     service:
       name: lexbox

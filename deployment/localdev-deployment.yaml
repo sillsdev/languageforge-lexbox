@@ -30,7 +30,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: local-path
+  storageClassName: hostpath
 
 ---
 
@@ -61,7 +61,7 @@ spec:
       containers:
       - name: k8sdev
         image: lscr.io/linuxserver/openssh-server:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: copied from lexbox-deployment, but do these make sense for the Git repo container?

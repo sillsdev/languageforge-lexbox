@@ -10,4 +10,4 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: local-path # k3d doesn't have a weekly-snapshots-retain-4 class
+  storageClassName: hostpath # k3d doesn't have a weekly-snapshots-retain-4 class

@@ -27,4 +27,4 @@ build:
 manifests:
   kustomize:
     paths:
-      - deployment
+      - .
