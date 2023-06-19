@@ -149,9 +149,9 @@ spec:
                 name: ui
           - name: PUBLIC_ENV_NAME
             value: dev
-          - name: PUBLIC_BACKEND_HOST
+          - name: BACKEND_HOST
             value: http://dev.languagedepot.org
-          - name: PUBLIC_OTEL_ENDPOINT
+          - name: OTEL_ENDPOINT
             value: http://localhost:4318
 
       - name: hasura
