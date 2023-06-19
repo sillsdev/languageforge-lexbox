@@ -25,23 +25,17 @@
     // This function updates the account information on the server
     async function updateAccount(
       email: string,
-      username: string,
-      userid: string,
       name: string
     ) {
       if (confirm($t('account_settings.confirm_change'))) {
         // TODO: make an API call to update the user data
+        alert(userid);
         const changeUserAccountDataInput: ChangeUserAccountDataInput = {
             email: email,
             name: name,
-            username: username,
-            userId: userid,
+            userId: userid || '',
         };
 
-        console.log(userid);
-        console.log(email);
-        console.log(username);
-        console.log(name);
         _changeUserAccountData(changeUserAccountDataInput);
         return true;
       } else {
@@ -53,24 +47,25 @@
     let { form, errors, message, enhance, submitting } = lexSuperForm(
       formSchema,
       async () => {
-        // This is the submit handler for the form
-        if (await updateAccount($form.email, $form.username, $form.password, $form.name)) {
+
+        if (await updateAccount($form.email, $form.name)) {
           alert('yay, account updated');
         }
       },
       {
-        taintedMessage: 'not actually sure what this is',
+        taintedMessage: false,
         clearOnSubmit: 'errors',
       }
     );
     export let data: PageData;
   </script>
+
+
   <svelte:head>
     <title>Account Settings</title>
   </svelte:head>
   <div class="content-center">
-    <h1 class="card-title justify-center text-3xl">Change account information</h1>
-    <br /><br /><br />
+    <h1 class="card-title justify-center text-3xl mb-32">Change account information</h1>
     <Page>
       <Form {enhance}>
         <Input
@@ -88,14 +83,19 @@
           bind:value={$form.name}
           placeholder={example_name}
         />
+        <!-- <Input
+        id="username"
+        label={$t('account_settings.label_name')}
+        type="text"
+        bind:value={$form.username}
+        placeholder={example_username}
+      /> -->
 
-
-        <a class="link mt-0" href="/forgotPassword">
+        <a class="link my-4" href="/forgotPassword">
           {$t('account_settings.forgot_password')}
         </a>
-        <Button on:click={()=>{updateAccount($form.email, $form.username, $form.name);}}>{$t('account_settings.button_update')}</Button>
+        <Button on:click={()=>{updateAccount($form.email, $form.name);}}>{$t('account_settings.button_update')}</Button>
       </Form>
-      <br />
     </Page>
   </div>
 

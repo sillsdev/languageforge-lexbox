@@ -99,11 +99,11 @@ public class LexMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
-    [Error<RequiredException>]
+    //[Error<RequiredException>]
     [UseMutationConvention]
     public async Task<User> ChangeUserAccountData(ChangeUserAccountDataInput input, LexBoxDbContext dbContext)
     {
-        if (input.Username.IsNullOrEmpty()) throw new RequiredException("Username cannot be empty");
+        //if (input.UserId.IsNullOrEmpty()) throw new RequiredException("UserId cannot be empty");
 
         var user = await dbContext.Users.FindAsync(input.UserId); //find based on userId
         if (user is null) throw new NotFoundException("User not found");
@@ -111,7 +111,7 @@ public class LexMutations
         // everything can change except UserId
         user.Email = input.Email;
         user.Name = input.Name;
-        user.Username = input.Username;
+        //user.Username = input.Username;
         await dbContext.SaveChangesAsync();
 
         return user;
