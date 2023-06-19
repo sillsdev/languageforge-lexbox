@@ -1,12 +1,14 @@
 import type { PageLoad } from './$types';
 import type {
   $OpResult,
-  ChangeUserAccountData,
+  ChangeUserAccountDataMutation,
   ChangeUserAccountDataInput,
+
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
+import { invalidate } from '$app/navigation';
 
-export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountData> {
+export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountDataMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
@@ -14,7 +16,7 @@ export async function _changeUserAccountData(input: ChangeUserAccountDataInput):
         mutation ChangeUserAccountData($input: ChangeUserAccountDataInput!) {
           changeUserAccountData(input: $input) {
             user {
-              userid
+              id
               name
               username
               email
@@ -28,11 +30,11 @@ export async function _changeUserAccountData(input: ChangeUserAccountDataInput):
         }
       `),
       { input: input },
-      //invalidates the graphql project cache
-      { additionalTypenames: ['Projects'] },
+      //invalidates the graphql user cache, but who knows
+      { additionalTypenames: ['Users'] },
     )
     .toPromise();
-  if (!result.error) void invalidate(`project:${input.projectId}`);
+  if (!result.error) void invalidate(`user:${input.userId}`);
   return result;
 }
 export const load = (async () => {
