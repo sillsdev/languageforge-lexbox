@@ -115,7 +115,26 @@ function clear(): void {
 
 export async function hash(password: string): Promise<string> {
   const msgUint8 = new TextEncoder().encode(password) // encode as (utf-8) Uint8Array
-  const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
+  let hashBuffer: ArrayBuffer;
+  // const c = crypto ? crypto : await import('node:crypto');
+  if (crypto && crypto.subtle) {
+    hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
+  } else {
+    // Running server-side
+    try {
+      const crypto = await import('node:crypto');
+      if (crypto.subtle)
+        hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
+      else {
+        console.log('crypto is', crypto);
+        throw new Error('crypto found but crypto.subtle not there');
+        throw "crypto found but crypto.subtle not there";
+      }
+    } catch (err) {
+      console.log('ERROR: crypto module not available -- are we running on an old version of Node?');
+      hashBuffer = new ArrayBuffer(0); // Should cause the hash comparison to fail
+    }
+  }
   const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
 
