@@ -107,9 +107,16 @@ public class LexMutations
 
         var user = await dbContext.Users.FindAsync(input.UserId); //find based on userId
         if (user is null) throw new NotFoundException("User not found");
-
+        if (_loggedInContext.User.Id != input.UserId) throw new RequiredException("User id of input does not match that of logged in user.");
         // everything can change except UserId
-        if (input.Email is not null and input.Email != ""){user.Email = input.Email;}
+        //minimum email = a@a.a
+        if (input.Email is not null and input.Email != ""){
+            if (input.Email.Contains("@") == false || input.Email.Length < 3){
+                throw new RequiredException("Email does not match requirements");
+            }
+            user.Email = input.Email;
+        }
+
         if (input.Name is not null and input.Name != ""){user.Name = input.Name;}
 
         //user.Username = input.Username;
