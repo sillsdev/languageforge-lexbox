@@ -109,8 +109,9 @@ public class LexMutations
         if (user is null) throw new NotFoundException("User not found");
 
         // everything can change except UserId
-        user.Email = input.Email;
-        user.Name = input.Name;
+        if (input.Email is not null and input.Email != ""){user.Email = input.Email;}
+        if (input.Name is not null and input.Name != ""){user.Name = input.Name;}
+
         //user.Username = input.Username;
         await dbContext.SaveChangesAsync();
 
