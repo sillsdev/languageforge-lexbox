@@ -40,8 +40,8 @@ export async function login(userId: string, password: string): Promise<boolean> 
     },
     body: JSON.stringify({
       emailOrUsername: userId,
-      password: await hash(password),
-      preHashedPassword: true,
+      password: password,
+      preHashedPassword: false,
     }),
   })
   if (!response.ok) {
