@@ -17,17 +17,14 @@
 
   "account_settings": {
     "title": "Account Settings",
-    "password_missing": "Password missing",
-    "label_email": "change email",
+    "label_email": "change email (unavailable for now)",
     "label_username": "change username (unavailable)",
     "label_name": "change display name",
     "forgot_password": "Change your password instead?",
     "button_update": "Update account info",
     "confirm_change": "Are you sure you want to change your account information? These changes can be reverted.",
-    "invalid_email": "Please enter a valid email address",
-    "password_too_short": "Please enter a password with at least 8 characters",
-    "username_required": "Please enter a username",
-    "name_required": "Please enter a name"
+    "page_h1": "Change email or display name",
+    "notify": "Any changes will be reflected here after this session, you may need to log out and then sign in to see the change."
   },
   "appbar": {
     "app_name": "Language Depot"

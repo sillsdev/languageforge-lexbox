@@ -103,27 +103,23 @@ public class LexMutations
     [UseMutationConvention]
     public async Task<User> ChangeUserAccountData(ChangeUserAccountDataInput input, LexBoxDbContext dbContext)
     {
-        //if (input.UserId.IsNullOrEmpty()) throw new RequiredException("UserId cannot be empty");
-
         var user = await dbContext.Users.FindAsync(input.UserId); //find based on userId
         if (user is null) throw new NotFoundException("User not found");
+        // Important: this should handle authentication but was not extensivley tested...
         if (_loggedInContext.User.Id != input.UserId) throw new RequiredException("User id of input does not match that of logged in user.");
-        // everything can change except UserId
+        //below works to change email
         //minimum email = a@a.a
-        if (input.Email is not null && input.Email != ""){
-            if (input.Email.Contains("@") == false || input.Email.Length < 3){
-                throw new RequiredException("Email does not match requirements");
-            }
-            user.Email = input.Email;
-        }
+        // if (input.Email is not null && input.Email != ""){
+        //     if (input.Email.Contains("@") == false || input.Email.Length < 3){
+        //         throw new RequiredException("Email does not match requirements");
+        //     }
+        //     user.Email = input.Email;
+        // }
 
         if (input.Name is not null && input.Name != ""){
             user.Name = input.Name;
-            }
-
-        //user.Username = input.Username;
+        }
         await dbContext.SaveChangesAsync();
-
         return user;
     }
 }
