@@ -2,7 +2,7 @@
   import { env } from '$env/dynamic/public';
   import t from '$lib/i18n';
   import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
-  import { user } from '$lib/user';
+  import { page } from '$app/stores';
   import { createEventDispatcher } from 'svelte';
 
   let environmentName = env.PUBLIC_ENV_NAME;
@@ -24,7 +24,7 @@
     </a>
   {/if}
   <div class="navbar-end">
-    {#if $user}
+    {#if $page.data.user}
       <button on:click={() => dispatch('menuopen')} class="btn btn-primary btn-circle">
         <AuthenticatedUserIcon size="text-4xl" />
       </button>
