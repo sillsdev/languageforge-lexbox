@@ -17,7 +17,7 @@ type JwtTokenUser = {
   }
 }
 
-type LexAuthUser = Omit<JwtTokenUser, 'sub' | 'proj' | 'errors'> & {
+export type LexAuthUser = Omit<JwtTokenUser, 'sub' | 'proj' | 'errors'> & {
   id: string
   projects: UserProjects[]
 }
@@ -28,7 +28,7 @@ type UserProjects = {
 }
 
 export const user = writable<LexAuthUser | null>();
-export const isAdmin = derived(user, (user) => user?.role === 'admin');
+export const isAdmin = (user: LexAuthUser | null) => user?.role === 'admin';
 
 export async function login(userId: string, password: string): Promise<boolean> {
   clear()

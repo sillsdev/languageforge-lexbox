@@ -1,7 +1,8 @@
 <script>
   import { isAdmin } from '$lib/user';
+  import { page } from '$app/stores'
 </script>
 
-{#if $isAdmin}
+{#if isAdmin($page.data.user)}
     <slot />
 {/if}
