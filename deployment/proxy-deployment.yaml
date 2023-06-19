@@ -61,7 +61,7 @@ spec:
             port:
               name: sveltekit
 
-  tls:
-  - hosts:
-    - staging.languagedepot.org
-    secretName: languagedepot-tls # provided by LTOps
+  # tls:
+  # - hosts:
+  #   - staging.languagedepot.org
+  #   secretName: languagedepot-tls # provided by LTOps
