@@ -2,12 +2,11 @@
     // This script handles the account settings page.
     // For now, it only allows you to modify the users display name
     // Minimal changes allow it to modify the users email as well (but this should have a re-verification system)
-    import type { PageData } from './$types';
     import t from '$lib/i18n';
-    import { Button, Form, Input, lexSuperForm } from '$lib/forms';
+    import { Button, Form, Input } from '$lib/forms';
     import { Page } from '$lib/layout';
     import { user } from '$lib/user';
-    import {_changeUserAccountData} from "./+page";
+    import {_changeUserAccountData} from './+page';
     import type {ChangeUserAccountDataInput} from '$lib/gql/types';
 
     // Get users data (reactive)
@@ -21,7 +20,7 @@
     async function updateAccount(
       email: string | undefined,
       name: string | null,
-    ) {
+    ): Promise<void> {
       if (confirm($t('account_settings.confirm_change'))) {
         // prepare the input
         const changeUserAccountDataInput: ChangeUserAccountDataInput = {
@@ -29,11 +28,10 @@
             name: name || '',
             userId: userid || '',
         };
-        _changeUserAccountData(changeUserAccountDataInput);
+        await _changeUserAccountData(changeUserAccountDataInput);
         changed = true;
       }
     }
-   export let data: PageData;
 </script>
 
 <Page>
@@ -64,9 +62,9 @@
             {$t('account_settings.forgot_password')}
             </a>
 
-            <Button on:click={()=>{updateAccount(email, newName);}}>{$t('account_settings.button_update')}</Button>
+            <Button on:click={() => updateAccount(email, newName)}>{$t('account_settings.button_update')}</Button>
             {#if changed}
-                <p class="text-warning">{$t("account_settings.notify")}</p>
+                <p class="text-warning">{$t('account_settings.notify')}</p>
             {/if}
         </Form>
     </div>
