@@ -7,6 +7,8 @@ on:
       - 'backend/**'
       - '.github/workflows/lexbox-api.yaml'
       - 'deployment/lexbox-deployment.yaml'
+  pull_request:
+
 env:
   PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
 
@@ -65,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: publish-api
     if: ${{ github.ref ==  vars.PROD_BRANCH }}
-    environment: 
+    environment:
         name: staging
         url: https://staging.languagedepot.org
     steps:
@@ -81,7 +83,7 @@ jobs:
               "version": "${{ needs.build.outputs.version }}"
             }
       - name: Verify Version
-        env: 
+        env:
           TARGET_HOST: https://staging.languagedepot.org
           EXPECTED_VERSION: ${{ needs.build.outputs.version }}
         run: |
@@ -97,7 +99,7 @@ jobs:
                 exit 0
             else
                 echo "Version $versionHeader is incorrect, expected $EXPECTED_VERSION"
-                n=$((n+1)) 
+                n=$((n+1))
                 sleep $((2 * n))
             fi
           done
