@@ -37,6 +37,3 @@ export async function _changeUserAccountData(input: ChangeUserAccountDataInput):
   if (!result.error) void invalidate(`user:${input.userId}`);
   return result;
 }
-export const load = (async () => {
-    return {};
-}) satisfies PageLoad;

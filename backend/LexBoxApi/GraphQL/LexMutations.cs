@@ -116,7 +116,7 @@ public class LexMutations
         //     user.Email = input.Email;
         // }
 
-        if (input.Name is not null && input.Name != ""){
+        if (!String.IsNullOrEmpty(input.Name)){
             user.Name = input.Name;
         }
         await dbContext.SaveChangesAsync();

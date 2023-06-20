@@ -18,7 +18,6 @@
   "account_settings": {
     "title": "Account Settings",
     "label_email": "change email (unavailable for now)",
-    "label_username": "change username (unavailable)",
     "label_name": "change display name",
     "forgot_password": "Change your password instead?",
     "button_update": "Update account info",
