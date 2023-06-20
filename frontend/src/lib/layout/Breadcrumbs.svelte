@@ -27,6 +27,8 @@
         return data.project?.name ?? data.code;
       },
     },
+    myaccount: 'account_settings.title',
+
   } as const satisfies CrumbConfig;
 
   const ROOT_CRUMB = { name: CRUMB_CONFIG._name, href: '/' };
