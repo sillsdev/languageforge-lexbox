@@ -12,6 +12,10 @@ build:
       context: backend
       docker:
         dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**"
+            dest: /src/backend
     - image: ghcr.io/sillsdev/lexbox-hasura
       context: hasura
       docker:
@@ -24,7 +28,22 @@ build:
       context: frontend
       docker:
         dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**"
+            dest: /app
 manifests:
   kustomize:
     paths:
       - .
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    patches:
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: LexBoxApi/dev.Dockerfile
+      - op: replace
+        path: /build/artifacts/4/docker/dockerfile
+        value: dev.Dockerfile
