@@ -1,7 +1,7 @@
 import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
-import { derived, writable } from 'svelte/store'
+import { writable } from 'svelte/store'
 
 type JwtTokenUser = {
   sub: string
@@ -128,10 +128,9 @@ export async function hash(password: string): Promise<string> {
       else {
         console.log('crypto is', crypto);
         throw new Error('crypto found but crypto.subtle not there');
-        throw "crypto found but crypto.subtle not there";
       }
     } catch (err) {
-      console.log('ERROR: crypto module not available -- are we running on an old version of Node?');
+      console.log('ERROR: crypto module not available -- are we running on an old version of Node? Error was', err);
       hashBuffer = new ArrayBuffer(0); // Should cause the hash comparison to fail
     }
   }
