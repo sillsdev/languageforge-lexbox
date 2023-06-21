@@ -1,7 +1,6 @@
 import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
-import { writable } from 'svelte/store'
 
 type JwtTokenUser = {
   sub: string

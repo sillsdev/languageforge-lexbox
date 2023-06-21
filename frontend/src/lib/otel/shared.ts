@@ -7,7 +7,7 @@ import {
   type Span,
 } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
-import type { Cookies, NavigationEvent, RequestEvent } from '@sveltejs/kit';
+import type { NavigationEvent, RequestEvent } from '@sveltejs/kit';
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
 
