@@ -12,4 +12,4 @@ COPY . /app/
 COPY src /app/src
 COPY static /app/static
 
-CMD [ "pnpm", "run", "dev" ]
+CMD [ "pnpm", "run", "dev", "--", "--port", "3000" ]
