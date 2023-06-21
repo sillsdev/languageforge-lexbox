@@ -97,11 +97,11 @@ function getUser(event: RequestEvent | NavigationEvent | Event): LexAuthUser | n
 }
 
 export const traceEventAttributes = (span: Span, event: RequestEvent | NavigationEvent | Event): void => {
+  const user = getUser(event);
+  if (user) {
+    span.setAttribute('app.user.id', user.id);
+  }
   if (isBrowserEvent(event)) {
-    const userId = getUser(event)?.id;
-    if (userId) {
-      span.setAttribute('app.user.id', userId);
-    }
     traceBrowserAttributes(span, window);
   } else {
     const { route, url } = event;
