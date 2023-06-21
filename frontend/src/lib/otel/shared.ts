@@ -1,4 +1,4 @@
-import { getUserId, user } from '$lib/user';
+import { getUserId, type LexAuthUser } from '$lib/user';
 import {
   SpanStatusCode,
   trace,
@@ -8,6 +8,7 @@ import {
 } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import type { Cookies, NavigationEvent, RequestEvent } from '@sveltejs/kit';
+import { page } from '$app/stores';
 import { get } from 'svelte/store';
 
 export type ErrorAttributes = Attributes & { ['app.error.source']: ErrorSource };
@@ -68,10 +69,6 @@ const recordErrorEvent = (
   if (metadata) {
     span.setAttributes(metadata);
   }
-  const userId = get(user)?.id;
-  if (userId) {
-    span.setAttribute('app.user.id', userId);
-  }
 
   traceEventAttributes(span, event);
   return span.spanContext().traceId;
@@ -86,8 +83,32 @@ export const traceHeaders = (span: Span, type: 'request' | 'response', headers: 
   });
 };
 
+function getUser(event: RequestEvent | NavigationEvent | Event): LexAuthUser | null {
+  if (isBrowserEvent(event)) {
+    try {
+      const data = get(page).data;
+      return data.user as LexAuthUser;
+    } catch {
+      return null;
+    }
+  } else if (isRequestEvent(event)) {
+    return event.locals.getUser();
+  } else {
+    try {
+      const data = get(page).data;
+      return data.user as LexAuthUser;
+    } catch {
+      return null;
+    }
+  }
+}
+
 export const traceEventAttributes = (span: Span, event: RequestEvent | NavigationEvent | Event): void => {
   if (isBrowserEvent(event)) {
+    const userId = getUser(event)?.id;
+    if (userId) {
+      span.setAttribute('app.user.id', userId);
+    }
     traceBrowserAttributes(span, window);
   } else {
     const { route, url } = event;
