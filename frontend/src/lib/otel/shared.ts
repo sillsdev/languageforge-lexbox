@@ -1,4 +1,4 @@
-import { getUserId, type LexAuthUser } from '$lib/user';
+import type { LexAuthUser } from '$lib/user';
 import {
   SpanStatusCode,
   trace,
@@ -115,8 +115,7 @@ export const traceEventAttributes = (span: Span, event: RequestEvent | Navigatio
     span.setAttribute(SemanticAttributes.NET_HOST_NAME, url.hostname);
     span.setAttribute(SemanticAttributes.NET_HOST_PORT, url.port);
     if (isRequestEvent(event)) {
-      const { request, cookies } = event;
-      trySetUserIdAttribute(span, cookies);
+      const { request } = event;
       span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP, event.getClientAddress());
       span.setAttribute(SemanticAttributes.HTTP_METHOD, request.method);
       span.setAttribute(
@@ -165,13 +164,6 @@ const forActiveOrNewSpan = (serviceName: string, name: string, action: (span: Sp
         span.end();
       }
     });
-  }
-};
-
-const trySetUserIdAttribute = (span: Span, cookies: Cookies): void => {
-  const userId = getUserId(cookies);
-  if (userId) {
-    span.setAttribute('app.user.id', userId);
   }
 };
 

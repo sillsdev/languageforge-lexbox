@@ -92,10 +92,6 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
   }
 }
 
-export function getUserId(cookies: Cookies): string | undefined {
-  return getUser(cookies)?.id
-}
-
 export function logout(cookies?: Cookies): void {
   cookies && cookies.delete('.LexBoxAuth')
   if (browser && window.location.pathname !== '/login') {
