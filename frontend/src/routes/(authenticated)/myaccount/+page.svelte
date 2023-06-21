@@ -5,14 +5,17 @@
     import t from '$lib/i18n';
     import { Button, Form, Input } from '$lib/forms';
     import { Page } from '$lib/layout';
-    import { user } from '$lib/user';
     import {_changeUserAccountData} from './+page';
     import type {ChangeUserAccountDataInput} from '$lib/gql/types';
+    import type { PageData } from './$types';
+
+    export let data: PageData;
 
     // Get users data (reactive)
-    $: users_name = $user?.name; // not to be confused with username
-    $: email = $user?.email;
-    $: userid = $user?.id;
+    $: user = data.user;
+    $: users_name = user?.name; // not to be confused with username
+    $: email = user?.email;
+    $: userid = user?.id;
     let newName: string = users_name || '';
     let changed = false;
 
