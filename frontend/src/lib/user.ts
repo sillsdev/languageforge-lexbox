@@ -27,12 +27,9 @@ type UserProjects = {
   role: 'Manager' | 'Editor'
 }
 
-export const user = writable<LexAuthUser | null>();
 export const isAdmin = (user: LexAuthUser | null) => user?.role === 'admin';
 
 export async function login(userId: string, password: string): Promise<boolean> {
-  clear()
-
   const response = await fetch('/api/login', {
     method: 'post',
     headers: {
@@ -47,7 +44,6 @@ export async function login(userId: string, password: string): Promise<boolean> 
   if (!response.ok) {
     return false;
   }
-  user.set(jwtToUser(await response.json() as JwtTokenUser));
   return true;
 }
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
@@ -71,7 +67,6 @@ export async function register(password: string, name: string, email: string, tu
     return { error: { turnstile: 'TurnstileToken' in error, accountExists: 'Email' in error } };
   }
   const userJson: LexAuthUser = jwtToUser(responseJson);
-  user.set(userJson);
   return { user: userJson };
 }
 
@@ -102,15 +97,10 @@ export function getUserId(cookies: Cookies): string | undefined {
 }
 
 export function logout(cookies?: Cookies): void {
-  browser && clear()
   cookies && cookies.delete('.LexBoxAuth')
   if (browser && window.location.pathname !== '/login') {
     throw redirect(307, '/login');
   }
-}
-
-function clear(): void {
-  user.set(null)
 }
 
 export async function hash(password: string): Promise<string> {
