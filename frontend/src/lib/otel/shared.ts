@@ -84,22 +84,15 @@ export const traceHeaders = (span: Span, type: 'request' | 'response', headers: 
 };
 
 function getUser(event: RequestEvent | NavigationEvent | Event): LexAuthUser | null {
-  if (isBrowserEvent(event)) {
+  if (isBrowserEvent(event) || isNavigationEvent(event)) {
     try {
       const data = get(page).data;
       return data.user as LexAuthUser;
     } catch {
       return null;
     }
-  } else if (isRequestEvent(event)) {
-    return event.locals.getUser();
   } else {
-    try {
-      const data = get(page).data;
-      return data.user as LexAuthUser;
-    } catch {
-      return null;
-    }
+    return event.locals.getUser();
   }
 }
 
@@ -189,3 +182,7 @@ const isBrowserEvent = (event: RequestEvent | NavigationEvent | Event): event is
 const isRequestEvent = (event: RequestEvent | NavigationEvent): event is RequestEvent => {
   return 'cookies' in event;
 };
+
+const isNavigationEvent = (event: RequestEvent | NavigationEvent): event is NavigationEvent => {
+  return !isRequestEvent(event);
+}
