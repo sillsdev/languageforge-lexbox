@@ -6,17 +6,19 @@
     import t from '$lib/i18n';
     import { Button, Form, Input, lexSuperForm } from '$lib/forms';
     import { Page } from '$lib/layout';
-    import { user } from '$lib/user';
     import {_changeUserAccountData} from "./+page";
     import type {ChangeUserAccountDataInput} from '$lib/gql/types';
-
+    import {page} from "$app/stores";
+    import { invalidate } from '$app/navigation';
     // Get users data (reactive)
-    $: users_name = $user?.name; // not to be confused with username
-    $: email = $user?.email;
-    $: userid = $user?.id;
-    let newName: string = users_name || '';
+    $: user = $page.data.user;
+    page.subscribe(console.log);
+    $: users_name = user?.name; // not to be confused with username
+    $: email = user?.email;
+    $: userid = user?.id;
+    let newName: string;
     let changed = false;
-
+    //user.set({ ...get(user), name: result.name, })
     // This function updates the account information on the server
     async function updateAccount(
       email: string | undefined,
@@ -25,11 +27,14 @@
       if (confirm($t('account_settings.confirm_change'))) {
         // prepare the input
         const changeUserAccountDataInput: ChangeUserAccountDataInput = {
-            email: email || '',
-            name: name || '',
-            userId: userid || '',
+            email: email ?? '',
+            name: name ?? '',
+            userId: userid ?? '',
         };
-        _changeUserAccountData(changeUserAccountDataInput);
+        await _changeUserAccountData(changeUserAccountDataInput);
+        if (user){
+            invalidate(`user:${user.id}`);
+        }
         changed = true;
       }
     }
@@ -37,15 +42,11 @@
 </script>
 
 <Page>
-    <svelte:fragment slot="header">
-        {$t('account_settings.title')}
-    </svelte:fragment>
     <div class="content-center">
-        <h1 class="card-title justify-center text-3xl mt-10 mb-28">{$t('account_settings.page_h1')}</h1>
         <Form>
             <Input
                 id="email"
-                label={$t('account_settings.label_email')}
+                label={$t('account_settings.email')}
                 type="email"
                 bind:value={email}
                 autofocus
@@ -54,7 +55,7 @@
             />
             <Input
                 id="name"
-                label={$t('account_settings.label_name')}
+                label={$t('account_settings.name')}
                 type="text"
                 bind:value={newName}
                 placeholder={users_name}
