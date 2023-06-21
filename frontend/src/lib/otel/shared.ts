@@ -84,15 +84,15 @@ export const traceHeaders = (span: Span, type: 'request' | 'response', headers: 
 };
 
 function getUser(event: RequestEvent | NavigationEvent | Event): LexAuthUser | null {
-  if (isBrowserEvent(event) || isNavigationEvent(event)) {
+  if (isRequestEvent(event)) {
+    return event.locals.getUser();
+  } else {
     try {
       const data = get(page).data;
       return data.user as LexAuthUser;
     } catch {
       return null;
     }
-  } else {
-    return event.locals.getUser();
   }
 }
 
@@ -179,10 +179,6 @@ const isBrowserEvent = (event: RequestEvent | NavigationEvent | Event): event is
   return 'bubbles' in event;
 };
 
-const isRequestEvent = (event: RequestEvent | NavigationEvent): event is RequestEvent => {
+const isRequestEvent = (event: RequestEvent | NavigationEvent | Event): event is RequestEvent => {
   return 'cookies' in event;
 };
-
-const isNavigationEvent = (event: RequestEvent | NavigationEvent): event is NavigationEvent => {
-  return !isRequestEvent(event);
-}
