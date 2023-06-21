@@ -19,6 +19,7 @@ public static class GraphQlSetupKernel
                 client.DefaultRequestHeaders.Add("x-hasura-admin-secret", hasuraConfig.HasuraSecret);
             });
         var graphqlBuilder = services.AddGraphQLServer()
+            .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
             .ModifyRequestOptions(options =>
             {
                 options.IncludeExceptionDetails = true;
@@ -54,6 +55,10 @@ public static class GraphQlSetupKernel
             .AddFiltering()
             .AddProjections()
             .AddMutationConventions(false)
-            .AddInstrumentation();
+            .AddInstrumentation(options =>
+            {
+                options.IncludeDocument = true;
+                options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
+            });
     }
 }

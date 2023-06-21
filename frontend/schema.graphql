@@ -100,6 +100,19 @@ type ChangeProjectNamePayload {
   project: Project
 }
 
+union ChangeUserAccountDataError = DbError | NotFoundError
+
+input ChangeUserAccountDataInput {
+  email: String!
+  name: String!
+  userId: UUID!
+}
+
+type ChangeUserAccountDataPayload {
+  errors: [ChangeUserAccountDataError!]
+  user: User
+}
+
 type Changeset {
   branch: String!
   date: [Float!]!
@@ -191,6 +204,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
+  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
 
   """

@@ -96,4 +96,30 @@ public class LexMutations
             .ExecuteDeleteAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId).AsExecutable();
     }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    //[Error<RequiredException>]
+    [UseMutationConvention]
+    public async Task<User> ChangeUserAccountData(ChangeUserAccountDataInput input, LexBoxDbContext dbContext)
+    {
+        var user = await dbContext.Users.FindAsync(input.UserId); //find based on userId
+        if (user is null) throw new NotFoundException("User not found");
+        // Important: this should handle authentication but was not extensivley tested...
+        if (_loggedInContext.User.Id != input.UserId) throw new RequiredException("User id of input does not match that of logged in user.");
+        //below works to change email
+        //minimum email = a@a.a
+        // if (input.Email is not null && input.Email != ""){
+        //     if (input.Email.Contains("@") == false || input.Email.Length < 3){
+        //         throw new RequiredException("Email does not match requirements");
+        //     }
+        //     user.Email = input.Email;
+        // }
+
+        if (!String.IsNullOrEmpty(input.Name)){
+            user.Name = input.Name;
+        }
+        await dbContext.SaveChangesAsync();
+        return user;
+    }
 }
