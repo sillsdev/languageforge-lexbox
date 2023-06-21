@@ -27,7 +27,7 @@
         return data.project?.name ?? data.code;
       },
     },
-    myaccount: 'account_settings.title',
+    user: 'account_settings.title',
 
   } as const satisfies CrumbConfig;
 

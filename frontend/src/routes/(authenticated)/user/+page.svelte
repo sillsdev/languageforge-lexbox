@@ -6,68 +6,75 @@
     import t from '$lib/i18n';
     import { Button, Form, Input, lexSuperForm } from '$lib/forms';
     import { Page } from '$lib/layout';
-    import {_changeUserAccountData} from "./+page";
+    import {_changeUserAccountData} from './+page';
     import type {ChangeUserAccountDataInput} from '$lib/gql/types';
-    import {page} from "$app/stores";
+    import {page} from '$app/stores';
     import { invalidate } from '$app/navigation';
-    // Get users data (reactive)
+    import z from 'zod';
+
+
     $: user = $page.data.user;
     page.subscribe(console.log);
-    $: users_name = user?.name; // not to be confused with username
-    $: email = user?.email;
     $: userid = user?.id;
     let newName: string;
-    let changed = false;
-    //user.set({ ...get(user), name: result.name, })
-    // This function updates the account information on the server
-    async function updateAccount(
-      email: string | undefined,
-      name: string | null,
-    ) {
-      if (confirm($t('account_settings.confirm_change'))) {
-        // prepare the input
-        const changeUserAccountDataInput: ChangeUserAccountDataInput = {
-            email: email ?? '',
-            name: name ?? '',
-            userId: userid ?? '',
-        };
-        await _changeUserAccountData(changeUserAccountDataInput);
-        if (user){
-            invalidate(`user:${user.id}`);
-        }
-        changed = true;
-      }
+    let newEmail: string;
+    let success = true;
+
+
+    const formSchema = z.object({
+        email: z.string().email(),
+        name: z.string(),
+    });
+
+    let { form, errors, enhance, submitting } = lexSuperForm(formSchema, async () => {await updateAccount();});
+
+
+    async function updateAccount(): Promise<void> {
+            const changeUserAccountDataInput: ChangeUserAccountDataInput = {
+                email: $form.email,
+                name: $form.name,
+                userId: userid ?? '',
+            };
+            await _changeUserAccountData(changeUserAccountDataInput);
+            if (user){
+                await invalidate(`user:${user.id}`).then(() =>{
+                    success = true;
+                });
+            }
     }
-   export let data: PageData;
+   export const data: PageData;
 </script>
 
 <Page>
     <div class="content-center">
-        <Form>
+            <Form {enhance}>
+                <Input
+                id="name"
+                label={$t('account_settings.name')}
+                type="text"
+                error={$errors.name}
+                bind:value={newName}
+                placeholder={$user?.name}
+            />
             <Input
                 id="email"
                 label={$t('account_settings.email')}
                 type="email"
-                bind:value={email}
+                error={$errors.email}
+                bind:value={newEmail}
                 autofocus
-                placeholder={email}
+                placeholder={$user?.email}
                 readonly={true}
             />
-            <Input
-                id="name"
-                label={$t('account_settings.name')}
-                type="text"
-                bind:value={newName}
-                placeholder={users_name}
-            />
-
-            <a class="link my-4" href="/forgotPassword">
+            <a class="link my-4" href="/resetPassword">
             {$t('account_settings.forgot_password')}
             </a>
 
-            <Button on:click={()=>{updateAccount(email, newName);}}>{$t('account_settings.button_update')}</Button>
-            {#if changed}
-                <p class="text-warning">{$t("account_settings.notify")}</p>
+            <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
+            {#if success}
+            <div class="alert alert-success mt-4">
+                <span>{$t('account_settings.success')}</span>
+              </div>
             {/if}
         </Form>
     </div>

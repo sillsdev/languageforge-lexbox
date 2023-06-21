@@ -17,13 +17,11 @@
 
   "account_settings": {
     "title": "Account Settings",
-    "label_email": "change email (unavailable for now)",
-    "label_name": "change display name",
-    "forgot_password": "Change your password instead?",
-    "button_update": "Update account info",
-    "confirm_change": "Are you sure you want to change your account information? These changes can be reverted.",
-    "page_h1": "Change email or display name",
-    "notify": "Any changes will be reflected here after this session, you may need to log out and then sign in to see the change."
+    "email": "Email",
+    "name": "Display name",
+    "forgot_password": "Reset your password instead?",
+    "success": "Success: your account has been updated",
+    "button_update": "Update account info"
   },
   "appbar": {
     "app_name": "Language Depot"
@@ -101,9 +99,6 @@
     "remove_project_user_title": "Member",
     "remove_user": "Remove",
     "change_role": "Change Role"
-  },
-  "user_page": {
-    "title": "My Account"
   },
   "project_role": {
     "editor": "Editor",
