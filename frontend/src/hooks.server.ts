@@ -1,4 +1,4 @@
-import { isAuthn } from '$lib/user'
+import { getUser, isAuthn } from '$lib/user'
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { storeGqlEndpoint } from '$lib/gql'
 import { loadI18n } from '$lib/i18n';
@@ -17,6 +17,7 @@ const PUBLIC_ROUTES = [
 storeGqlEndpoint(env.BACKEND_HOST);
 
 export const handle = (async ({ event, resolve }) => {
+  event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
     await loadI18n();
     const { cookies, url: { pathname } } = event
