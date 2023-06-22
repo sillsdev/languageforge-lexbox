@@ -42,7 +42,7 @@
                 });
             }
     }
-   export const data: PageData;
+   export let data: PageData;
 </script>
 
 <Page>
