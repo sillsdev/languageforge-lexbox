@@ -6,7 +6,16 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/lexbox-ui.yaml'
+    branches:
+      - main
+      - develop
   pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/lexbox-ui.yaml'
+    branches:
+      - main
+      - develop
 
 env:
   PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
