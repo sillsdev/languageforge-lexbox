@@ -5,6 +5,9 @@
   import Input from '$lib/forms/Input.svelte';
   import t from '$lib/i18n';
   import type { PageData } from './$types';
+  import {PencilIcon, TrashIcon} from '$lib/icons';
+  import { z } from 'zod';
+  import { FormModal } from '$lib/components/modals';
 
   export let data: PageData;
 
@@ -29,6 +32,30 @@
         u.email.toLocaleLowerCase().includes(userSearchLower)
     )
     .slice(0, userSearch ? undefined : 10);
+
+    const schema = z.object({
+    email: z.string().email(),
+    confirm: z.string().email(),
+    name: z.string(),
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
+
+  });
+  let formModal: FormModal<typeof schema>;
+  $: form = formModal?.form();
+
+  async function openModal(user: any): Promise<void> {
+    $form.email = user.email;
+    $form.name = user.name;
+    $form.confirm = user.email;
+    await formModal.open(async () => {
+        alert('hello');
+        if ($form.email !== $form.confirm){
+            return 'Emails do not match';
+        }
+      return;
+    });
+  }
 </script>
 
 <svelte:head>
@@ -111,6 +138,7 @@
             <th>{$t('admin_dashboard.column_email')}</th>
             <th>{$t('admin_dashboard.column_role')}</th>
             <th>{$t('admin_dashboard.column_created')}</th>
+            <th>Edit</th>
           </tr>
         </thead>
         <tbody>
@@ -122,10 +150,63 @@
               <td>
                 <FormatDate date={user.createdDate} />
               </td>
+            <td><button class="btn btn-ghost rounded" on:click={async () => {await openModal(user)}}><PencilIcon></PencilIcon></button></td>
+
             </tr>
           {/each}
         </tbody>
       </table>
     </div>
   </div>
+
+<FormModal bind:this={formModal} {schema} let:errors>
+    <span slot="title">Edit </span>
+    <Input
+      id="email"
+      type="email"
+      label="Enter new email"
+      bind:value={$form.email}
+      required
+      error={errors.email}
+      autofocus
+    />
+    <Input
+      id="confirm"
+      type="email"
+      label="Confirm new email"
+      bind:value={$form.confirm}
+      required
+      error={errors.confirm}
+      autofocus
+    />
+    <Input
+      id="name"
+      type="text"
+      label="Change display name"
+      bind:value={$form.name}
+      required
+      error={errors.confirm}
+      autofocus
+    />
+    <span class="text text-warning mb-4">Danger zone:</span>
+    <Input
+        id="password"
+        type="password"
+        label="Change password"
+        bind:value={$form.password}
+        required={false}
+
+  />
+  <Input
+    id="confirmPassword"
+    type="password"
+    label="Confirm password"
+    bind:value={$form.confirmPassword}
+    required={false}
+
+    />
+    <button class="btn btn-warning">Delete User<TrashIcon></TrashIcon></button>
+    <span slot="submitText">Apply</span>
+  </FormModal>
+
 </main>
