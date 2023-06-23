@@ -90,7 +90,7 @@ spec:
                   key: Authentication__Jwt__Secret
                   name: lexbox-api
           - name: HasuraConfig__HasuraUrl
-            value: http://localhost:8080/v1/graphql
+            value: http://hasura:8080/v1/graphql
           - name: HasuraConfig__HasuraSecret
             valueFrom:
               secretKeyRef:
@@ -153,36 +153,6 @@ spec:
             value: http://dev.languagedepot.org
           - name: OTEL_ENDPOINT
             value: http://localhost:4318
-
-      - name: hasura
-        image: ghcr.io/sillsdev/lexbox-hasura:develop
-        imagePullPolicy: IfNotPresent
-        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
-        resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 350Mi
-          limits:
-            memory: 500Mi
-        env:
-          - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                key: POSTGRES_DB
-                name: db
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: POSTGRES_PASSWORD
-                name: db
-          - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
-            value: postgres://postgres:$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
-          - name: PG_DATABASE_URL
-            value: $(HASURA_GRAPHQL_METADATA_DATABASE_URL)
-          - name: HASURA_GRAPHQL_ADMIN_SECRET
-            valueFrom:
-              secretKeyRef:
-                key: HASURA_GRAPHQL_ADMIN_SECRET
-                name: hasura
 
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0
@@ -260,6 +230,10 @@ spec:
               mode: 365
             - key: webhooks
               path: hooks.yaml
+      initContainers:
+      - name: wait-hasura
+        image: busybox:1.36.1
+        command: ['sh', '-c', "until nc -w 1 -z hasura.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local 8080; do echo waiting for hasura; sleep 2; done"]
 
 ---
 apiVersion: v1

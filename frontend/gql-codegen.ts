@@ -4,7 +4,7 @@ import type { Options } from 'vite-plugin-graphql-codegen';
 import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript/typings/config';
 
 const devSchema: NonNullable<Options['config']>['schema'] = {
-  'http://localhost/api/graphql/schema.graphql': {
+  'http://dev.languagedepot.org/api/graphql/schema.graphql': {
 
   }
 };

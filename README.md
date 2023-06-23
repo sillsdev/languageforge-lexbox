@@ -96,10 +96,11 @@ You may need to add the following line to your `/etc/hosts` or `C:\Windows\syste
 ```
 127.0.0.1 resumable.localhost
 127.0.0.1 hg.localhost
+127.0.0.1 dev.languagedepot.org
 ```
 
 If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
-the `.env` file.
+the `deployment/secrets.yaml` file.
 You can get the key from [here](https://ui.honeycomb.io/sil-language-forge/environments/test/api_keys)
 
 ---

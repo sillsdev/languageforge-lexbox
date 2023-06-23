@@ -9,6 +9,7 @@ resources:
 - deployment/hg-repos-pvc.yaml
 - deployment/hg-deployment.yaml
 - deployment/db-deployment.yaml
+- deployment/hasura-deployment.yaml
 - deployment/lexbox-deployment.yaml
 - deployment/proxy-deployment.yaml
 
