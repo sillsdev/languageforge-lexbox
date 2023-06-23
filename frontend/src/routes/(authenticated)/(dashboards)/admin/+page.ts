@@ -4,6 +4,8 @@ import type {
   $OpResult,
   ChangeUserAccountByAdminInput,
   ChangeUserAccountByAdminMutation,
+  DeleteUserByAdminInput,
+  DeleteUserByAdminMutation
 } from '$lib/gql/types';
 export async function load(event: PageLoadEvent) {
   const client = getClient();
@@ -40,19 +42,37 @@ export async function load(event: PageLoadEvent) {
     users: results.data?.users ?? []
   }
 }
-export async function _changeUserAccountData(input: ChangeUserAccountByAdminInput): $OpResult<ChangeUserAccountByAdminMutation> {
+export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput): $OpResult<ChangeUserAccountByAdminMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
       graphql(`
         mutation ChangeUserAccountByAdmin($input: ChangeUserAccountByAdminInput!) {
           changeUserAccountByAdmin(input: $input) {
-            user {
-              id
-              name
-              username
-              email
+            int
+            errors {
+              ... on Error {
+                message
+              }
             }
+          }
+        }
+      `),
+      { input: input },
+      //invalidates the graphql user cache, but who knows
+      { additionalTypenames: ['Users'] },
+    )
+    .toPromise();
+  return result;
+}
+export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<ChangeUserAccountByAdminMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation DeleteUserByAdmin($input: DeleteUserByAdminInput!) {
+          deleteUserByAdmin(input: $input) {
+            int
             errors {
               ... on Error {
                 message

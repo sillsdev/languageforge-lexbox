@@ -8,12 +8,14 @@
   import {PencilIcon, TrashIcon} from '$lib/icons';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';
-
+  import {_changeUserAccountByAdmin, _deleteUserByAdmin} from './+page';
+  import  type {ChangeUserAccountByAdminInput} from '$lib/gql/types';
+  import type {DeleteUserByAdminInput} from '$lib/gql/types';
+  import { hash } from '$lib/user';
   export let data: PageData;
 
   let projectSearch = '';
   let userSearch = '';
-
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
   $: projects = data.projects
     .filter(
@@ -34,25 +36,64 @@
     .slice(0, userSearch ? undefined : 10);
 
     const schema = z.object({
-    email: z.string().email(),
-    confirm: z.string().email(),
-    name: z.string(),
-    password: z.string().optional(),
-    confirmPassword: z.string().optional(),
-
+        email: z.string().email(),
+        confirm: z.string().email(),
+        name: z.string(),
+        password: z.string().optional(),
+        confirmPassword: z.string().optional(),
+        userId: z.string().optional(),
+    });
+  const verify = z.object({
+       keyphrase: z.string().optional(),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
+  let deletionFormModal: FormModal<typeof verify>;
+  $: deletionForm = deletionFormModal?.form();
 
+  async function deleteUser(id: string): Promise<void> {
+    alert(id);
+       await deletionFormModal.open(async () => {
+           if ($deletionForm.keyphrase === 'hello'){
+            if(data.user){
+               const deleteUserInput: DeleteUserByAdminInput = {
+                adminId: data.user.id,
+                userId: id,
+               }
+               await _deleteUserByAdmin(deleteUserInput);
+               return 'cool';
+           }}
+           return;
+       });
+  }
   async function openModal(user: any): Promise<void> {
     $form.email = user.email;
     $form.name = user.name;
     $form.confirm = user.email;
+    $form.userId = user.id;
     await formModal.open(async () => {
-        alert('hello');
+
         if ($form.email !== $form.confirm){
             return 'Emails do not match';
         }
+        if (data.user){
+        const changeInput: ChangeUserAccountByAdminInput = {
+            adminId: data.user.id,
+            userId: user.id,
+            email: $form.email,
+            name: $form.name,
+
+        }
+        await _changeUserAccountByAdmin(changeInput);
+    }
+    let password: string = $form.password ?? '';
+    if (password !== '' && $form.password === $form.confirmPassword){
+        await fetch('api/login/resetPasswordAdmin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ passwordHash: await hash(password), userId: user.id}),
+        });
+    }
       return;
     });
   }
@@ -205,8 +246,19 @@
     required={false}
 
     />
-    <button class="btn btn-warning">Delete User<TrashIcon></TrashIcon></button>
+    <button class="btn btn-error" on:click={async () => {await deleteUser($form.userId)}}>Delete User<TrashIcon></TrashIcon></button>
     <span slot="submitText">Apply</span>
   </FormModal>
 
+  <FormModal bind:this={deletionFormModal} {verify} let:errors>
+    <span slot="title">Edit </span>
+    <Input
+    id="keyphrase"
+    type="text"
+    label="Entere the keyphrase"
+    placeholder=""
+    error={errors.keyphrase}
+    bind:value={$deletionForm.keyphrase}
+  />
+</FormModal>
 </main>

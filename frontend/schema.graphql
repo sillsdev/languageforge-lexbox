@@ -100,6 +100,20 @@ type ChangeProjectNamePayload {
   project: Project
 }
 
+union ChangeUserAccountByAdminError = DbError | NotFoundError
+
+input ChangeUserAccountByAdminInput {
+  adminId: UUID!
+  email: String!
+  name: String!
+  userId: UUID!
+}
+
+type ChangeUserAccountByAdminPayload {
+  errors: [ChangeUserAccountByAdminError!]
+  int: Int
+}
+
 union ChangeUserAccountDataError = DbError | NotFoundError
 
 input ChangeUserAccountDataInput {
@@ -161,6 +175,18 @@ enum DbErrorCode {
   UNKNOWN
 }
 
+union DeleteUserByAdminError = DbError | NotFoundError
+
+input DeleteUserByAdminInput {
+  adminId: UUID!
+  userId: UUID!
+}
+
+type DeleteUserByAdminPayload {
+  errors: [DeleteUserByAdminError!]
+  int: Int
+}
+
 interface Error {
   message: String!
 }
@@ -204,6 +230,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
+  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload!
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
 
@@ -232,6 +259,7 @@ type Mutation {
   delete single row from the table: "Projects"
   """
   deleteProjectsByPk(id: uuid!): Projects
+  deleteUserByAdmin(input: DeleteUserByAdminInput!): DeleteUserByAdminPayload!
 
   """
   delete data from the table: "Users"
