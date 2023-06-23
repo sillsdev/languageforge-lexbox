@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types'
-import { isAdmin, logout } from '$lib/user'
+import { isAdmin } from '$lib/user'
 import { redirect } from '@sveltejs/kit'
 
 export const GET: RequestHandler = ({ locals }) => {
