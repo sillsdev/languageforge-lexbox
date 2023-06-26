@@ -1,5 +1,7 @@
 /// <reference types='@sveltejs/kit' />
 
+import type { LexAuthUser } from '$lib/user';
+
 export { }; // for some reason this is required in order to make global changes
 
 declare global {
@@ -13,6 +15,7 @@ declare global {
   namespace App {
     interface Locals {
       client: import('@urql/svelte').Client;
+      getUser: (() => LexAuthUser | null);
     }
 
     interface Error {

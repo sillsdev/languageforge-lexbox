@@ -1,4 +1,4 @@
-import { getUserId, user } from '$lib/user';
+import type { LexAuthUser } from '$lib/user';
 import {
   SpanStatusCode,
   trace,
@@ -7,7 +7,8 @@ import {
   type Span,
 } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
-import type { Cookies, NavigationEvent, RequestEvent } from '@sveltejs/kit';
+import type { NavigationEvent, RequestEvent } from '@sveltejs/kit';
+import { page } from '$app/stores';
 import { get } from 'svelte/store';
 
 export type ErrorAttributes = Attributes & { ['app.error.source']: ErrorSource };
@@ -68,10 +69,6 @@ const recordErrorEvent = (
   if (metadata) {
     span.setAttributes(metadata);
   }
-  const userId = get(user)?.id;
-  if (userId) {
-    span.setAttribute('app.user.id', userId);
-  }
 
   traceEventAttributes(span, event);
   return span.spanContext().traceId;
@@ -86,7 +83,24 @@ export const traceHeaders = (span: Span, type: 'request' | 'response', headers: 
   });
 };
 
+function getUser(event: RequestEvent | NavigationEvent | Event): LexAuthUser | null {
+  if (isRequestEvent(event)) {
+    return event.locals.getUser();
+  } else {
+    try {
+      const data = get(page).data;
+      return data.user as LexAuthUser;
+    } catch {
+      return null;
+    }
+  }
+}
+
 export const traceEventAttributes = (span: Span, event: RequestEvent | NavigationEvent | Event): void => {
+  const user = getUser(event);
+  if (user) {
+    span.setAttribute('app.user.id', user.id);
+  }
   if (isBrowserEvent(event)) {
     traceBrowserAttributes(span, window);
   } else {
@@ -101,8 +115,7 @@ export const traceEventAttributes = (span: Span, event: RequestEvent | Navigatio
     span.setAttribute(SemanticAttributes.NET_HOST_NAME, url.hostname);
     span.setAttribute(SemanticAttributes.NET_HOST_PORT, url.port);
     if (isRequestEvent(event)) {
-      const { request, cookies } = event;
-      trySetUserIdAttribute(span, cookies);
+      const { request } = event;
       span.setAttribute(SemanticAttributes.HTTP_CLIENT_IP, event.getClientAddress());
       span.setAttribute(SemanticAttributes.HTTP_METHOD, request.method);
       span.setAttribute(
@@ -154,17 +167,10 @@ const forActiveOrNewSpan = (serviceName: string, name: string, action: (span: Sp
   }
 };
 
-const trySetUserIdAttribute = (span: Span, cookies: Cookies): void => {
-  const userId = getUserId(cookies);
-  if (userId) {
-    span.setAttribute('app.user.id', userId);
-  }
-};
-
 const isBrowserEvent = (event: RequestEvent | NavigationEvent | Event): event is Event => {
   return 'bubbles' in event;
 };
 
-const isRequestEvent = (event: RequestEvent | NavigationEvent): event is RequestEvent => {
+const isRequestEvent = (event: RequestEvent | NavigationEvent | Event): event is RequestEvent => {
   return 'cookies' in event;
 };

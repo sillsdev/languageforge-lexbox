@@ -1,11 +1,10 @@
-import type { PageLoad } from './$types';
 import type {
   $OpResult,
-  ChangeUserAccountDataMutation,
   ChangeUserAccountDataInput,
-
+  ChangeUserAccountDataMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
+
 import { invalidate } from '$app/navigation';
 
 export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountDataMutation> {

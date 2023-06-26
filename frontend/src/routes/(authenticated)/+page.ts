@@ -6,8 +6,9 @@ import type { Project } from '$lib/project';
 export async function load(event: PageLoadEvent): Promise<{ projects: Project[] }> {
   // TODO: Invalidate this load() when user ID changes, so that logging out and logging in fetches a different project list
   // Currently Svelte-Kit is skipping re-running this load if you log out and back in, which results in stale project lists
-  const userId = (await event.parent()).userId;
-  if (!userId) return { projects: [] };
+  const parentData = await event.parent();
+  const userId = (parentData).userId;
+  if (!userId) return { ...parentData, projects: [] };
   const client = getClient();
   //language=GraphQL
   const results = await client.query(graphql(`
@@ -28,6 +29,7 @@ export async function load(event: PageLoadEvent): Promise<{ projects: Project[] 
   if (results.error) throw new Error(results.error.message);
   if (!results.data) throw new Error('No data returned');
   return {
+    ...parentData,
     projects: results.data.projects.map(p => ({
       id: p.id,
       name: p.name,

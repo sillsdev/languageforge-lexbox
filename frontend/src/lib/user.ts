@@ -1,7 +1,6 @@
 import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
-import { derived, writable } from 'svelte/store'
 
 type JwtTokenUser = {
   sub: string
@@ -17,7 +16,7 @@ type JwtTokenUser = {
   }
 }
 
-type LexAuthUser = Omit<JwtTokenUser, 'sub' | 'proj' | 'errors'> & {
+export type LexAuthUser = Omit<JwtTokenUser, 'sub' | 'proj' | 'errors'> & {
   id: string
   projects: UserProjects[]
 }
@@ -27,12 +26,9 @@ type UserProjects = {
   role: 'Manager' | 'Editor'
 }
 
-export const user = writable<LexAuthUser | null>();
-export const isAdmin = derived(user, (user) => user?.role === 'admin');
+export const isAdmin = (user: LexAuthUser | null) => user?.role === 'admin';
 
 export async function login(userId: string, password: string): Promise<boolean> {
-  clear()
-
   const response = await fetch('/api/login', {
     method: 'post',
     headers: {
@@ -47,7 +43,6 @@ export async function login(userId: string, password: string): Promise<boolean> 
   if (!response.ok) {
     return false;
   }
-  user.set(jwtToUser(await response.json() as JwtTokenUser));
   return true;
 }
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
@@ -71,7 +66,6 @@ export async function register(password: string, name: string, email: string, tu
     return { error: { turnstile: 'TurnstileToken' in error, accountExists: 'Email' in error } };
   }
   const userJson: LexAuthUser = jwtToUser(responseJson);
-  user.set(userJson);
   return { user: userJson };
 }
 
@@ -97,25 +91,23 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
   }
 }
 
-export function getUserId(cookies: Cookies): string | undefined {
-  return getUser(cookies)?.id
-}
-
 export function logout(cookies?: Cookies): void {
-  browser && clear()
   cookies && cookies.delete('.LexBoxAuth')
   if (browser && window.location.pathname !== '/login') {
     throw redirect(307, '/login');
   }
 }
 
-function clear(): void {
-  user.set(null)
-}
-
 export async function hash(password: string): Promise<string> {
   const msgUint8 = new TextEncoder().encode(password) // encode as (utf-8) Uint8Array
-  const hashBuffer = await crypto.subtle.digest('SHA-1', msgUint8) // hash the message
+  let hashBuffer: ArrayBuffer;
+  const c = crypto ? crypto : await import('node:crypto');
+  if (c && c.subtle) {
+    hashBuffer = await c.subtle.digest('SHA-1', msgUint8) // hash the message
+  } else {
+      console.log('crypto.subtle not found; cryptop module was', c);
+      throw new Error('crypto.subtle not found -- are we running on an old version of Node?');
+  }
   const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
   const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
 
