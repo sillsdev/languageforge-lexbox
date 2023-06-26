@@ -16,20 +16,16 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import type { Redirect, RequestEvent } from '@sveltejs/kit';
 import {
-  traceErrorEvent as _traceErrorEvent,
   traceEventAttributes,
   traceHeaders,
-  type ErrorAttributes,
-  type TraceId,
-} from './shared';
+  SERVICE_NAME,
+  tracer,
+} from '.';
+
+export * from '.';
 
 // Span and attribute names and values are based primarily on the OpenTelemetry semantic conventions for HTTP
 // https://opentelemetry.io/docs/reference/specification/trace/semantic_conventions/http/
-
-const serviceName = 'LexBox-SvelteKit-Server';
-
-export const traceErrorEvent = (error: unknown, event: RequestEvent, metadata: ErrorAttributes): TraceId =>
-  _traceErrorEvent(serviceName, error, event, metadata);
 
 const ROOT_TRACE_PARENT_KEY = 'traceparent';
 
@@ -41,7 +37,7 @@ const buildTraceparent = (span: Span): string => {
 
 const createTraceparentSpan = (event: RequestEvent): Span => {
   const method = event.request.method;
-  const span = trace.getTracer(serviceName).startSpan(`HTTP ${method}`);
+  const span = tracer().startSpan(`HTTP ${method}`);
   span.end();
   return span;
 };
@@ -71,12 +67,11 @@ export const traceRequest = async (
   return context.with(tracparentContext, () => {
     const route = event.route.id;
     const spanName = route ? `${event.request.method} ${route}` : event.request.method;
-    return trace
-      .getTracer(serviceName)
+    return tracer()
       .startActiveSpan(spanName, async (span) => {
         try {
           traceEventAttributes(span, event);
-          return await responseBuilder();
+          return await traceResponse(span, responseBuilder);
         } finally {
           span.end();
         }
@@ -84,38 +79,27 @@ export const traceRequest = async (
   });
 };
 
-export const traceResponse = async (
-  { method, route }: { method: string, route: string | null },
+const traceResponse = async (
+  span: Span,
   responseBuilder: () => Promise<Response> | Response,
 ): Promise<Response> => {
-  const spanName = route ? `${method} ${route}` : method;
-  return trace
-    .getTracer(serviceName)
-    .startActiveSpan(
-      `${spanName} - Response`,
-      async (responseSpan) => {
-        try {
-          const response = await responseBuilder();
-          traceResponseAttributes(responseSpan, response);
-          return response;
-        } catch (error) {
-          if (isRedirect(error)) {
-            traceRedirectAttributes(responseSpan, error);
-          }
-          throw error;
-        } finally {
-          responseSpan.end();
-        }
-      },
-    );
+  try {
+    const response = await responseBuilder();
+    traceResponseAttributes(span, response);
+    return response;
+  } catch (error) {
+    if (isRedirect(error)) {
+      traceRedirectAttributes(span, error);
+    }
+    throw error;
+  }
 };
 
 export const traceFetch = async (
   request: Request,
   fetch: () => Promise<Response>,
 ): Promise<Response> => {
-  return trace
-    .getTracer(serviceName)
+  return tracer()
     .startActiveSpan(`${request.method} ${request.url}`, async (span) => {
       try {
         span.setAttributes({
@@ -125,7 +109,7 @@ export const traceFetch = async (
         traceHeaders(span, 'request', request.headers);
         const traceparent = buildTraceparent(span);
         request.headers.set('Traceparent', traceparent);
-        return await traceResponse({ method: request.method, route: request.url }, fetch);
+        return await traceResponse(span, fetch);
       } finally {
         span.end();
       }
@@ -158,7 +142,7 @@ const traceExporter = new OTLPTraceExporter({
 });
 const sdk = new NodeSDK({
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+    [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
     [SemanticResourceAttributes.SERVICE_VERSION]: '0.0.1',
   }),
   traceExporter,

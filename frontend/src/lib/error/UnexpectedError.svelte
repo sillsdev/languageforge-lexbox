@@ -13,7 +13,7 @@
     if (error) {
       return {
         ...error,
-        message: `${error?.message}\r\n(${error?.source})`,
+        message: `${error?.message}\r\n(${error?.handler})`,
       };
     }
   });
