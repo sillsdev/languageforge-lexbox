@@ -2,6 +2,7 @@ name: publish & deploy Lexbox api
 
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'backend/**'
