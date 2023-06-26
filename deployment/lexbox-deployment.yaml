@@ -62,9 +62,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 150Mi
+            memory: 450Mi
           limits:
-            memory: 250Mi
+            memory: 750Mi
         ports:
           - containerPort: 80
           - containerPort: 5158
@@ -139,9 +139,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 250Mi
+            memory: 750Mi
           limits:
-            memory: 450Mi
+            memory: 1250Mi
         ports:
           - containerPort: 3000
 
