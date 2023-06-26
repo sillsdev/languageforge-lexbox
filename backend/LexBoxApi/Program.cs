@@ -85,6 +85,7 @@ app.UseHealthChecks("/api/healthz");
         options.EnableTryItOutByDefault();
     });
 }
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();
