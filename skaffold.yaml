@@ -36,6 +36,15 @@ manifests:
   kustomize:
     paths:
       - .
+  hooks:
+    before:
+      - host:
+          command: ["sh", "-c", "kubectl apply -f deployment/pvc.yaml"]
+          os: [darwin, linux]
+      - host:
+          command: ["powershell", "-Command", "kubectl apply -f deployment/pvc.yaml"]
+          os: [windows]
+
 profiles:
   - name: dev
     activation:
