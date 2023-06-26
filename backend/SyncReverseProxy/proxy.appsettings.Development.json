@@ -8,6 +8,6 @@
     }
   },
   "LexBoxApi": {
-    "Url": "https://localhost:7075"
+    "Url": "http://localhost:5158"
   }
 }

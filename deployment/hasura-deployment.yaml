@@ -118,7 +118,7 @@ spec:
           mountPath: /hasura-metadata
       - name: wait-lexbox
         image: busybox:1.36.1
-        command: ['sh', '-c', "until wget -O - http://lexbox/api/healthz; do echo waiting for lexbox-api backend; sleep 2; done"]
+        command: ['sh', '-c', "until wget -O - http://lexbox:5158/api/healthz; do echo waiting for lexbox-api backend; sleep 2; done"]
       volumes:
       - name: hasura-metadata
         persistentVolumeClaim:

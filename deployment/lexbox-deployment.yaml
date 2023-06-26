@@ -15,6 +15,9 @@ spec:
   - name: http
     protocol: TCP
     port: 80
+  - name: backend
+    protocol: TCP
+    port: 5158
   - name: otel
     protocol: TCP
     port: 4318
@@ -64,6 +67,7 @@ spec:
             memory: 250Mi
         ports:
           - containerPort: 80
+          - containerPort: 5158
 
         volumeMounts:
         - name: repos
@@ -71,7 +75,7 @@ spec:
 
         env:
           - name: ASPNETCORE_ENVIRONMENT
-            value: Staging
+            value: Development
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
@@ -150,7 +154,7 @@ spec:
           - name: PUBLIC_ENV_NAME
             value: dev
           - name: BACKEND_HOST
-            value: http://dev.languagedepot.org
+            value: http://localhost:5158
           - name: OTEL_ENDPOINT
             value: http://localhost:4318
 

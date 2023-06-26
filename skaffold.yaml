@@ -32,6 +32,23 @@ build:
         manual:
           - src: "**"
             dest: /app
+portForward:
+  # Backend
+  - resourceType: Service
+    resourceName: lexbox
+    namespace: languagedepot
+    port: 80
+    localPort: 5158
+  # OpenTelemetry
+  - resourceType: Service
+    resourceName: lexbox
+    namespace: languagedepot
+    port: 4318
+  # Svelte-Kit frontend
+  - resourceType: Service
+    resourceName: lexbox
+    namespace: languagedepot
+    port: 3000
 manifests:
   kustomize:
     paths:
