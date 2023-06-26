@@ -1,5 +1,5 @@
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
-FROM node:18 AS builder
+FROM node:20.2 AS builder
 
 WORKDIR /app
 
