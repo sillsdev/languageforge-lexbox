@@ -1,6 +1,5 @@
 import { getUser, isAuthn } from '$lib/user'
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
-import { storeGqlEndpoint } from '$lib/gql'
 import { loadI18n } from '$lib/i18n';
 import { traceErrorEvent, traceResponse, traceRequest, traceFetch } from '$lib/otel/server'
 import { env } from '$env/dynamic/private';
@@ -13,8 +12,6 @@ const PUBLIC_ROUTES = [
   '/forgotPassword',
   '/forgotPassword/emailSent',
 ]
-
-storeGqlEndpoint(env.BACKEND_HOST);
 
 export const handle = (async ({ event, resolve }) => {
   event.locals.getUser = () => getUser(event.cookies);
@@ -40,9 +37,10 @@ export const handle = (async ({ event, resolve }) => {
 }) satisfies Handle
 
 export const handleFetch = (async ({ event, request, fetch }) => {
-  if (env.BACKEND_HOST && request.url.startsWith(env.BACKEND_HOST)) {
+  if (env.BACKEND_HOST && request.url.startsWith(event.url.origin + '/api')) {
     const cookie = event.request.headers.get('cookie') as string;
     request.headers.set('cookie', cookie);
+    request = new Request(request.url.replace(event.url.origin, env.BACKEND_HOST), request);
   } else {
     console.log('Skipping cookie forwarding for non-backend request', request.url);
   }

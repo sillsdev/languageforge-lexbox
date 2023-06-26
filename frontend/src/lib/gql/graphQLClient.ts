@@ -1,10 +1,9 @@
-import { CombinedError, mapExchange, type Client, defaultExchanges } from '@urql/svelte';
+import { CombinedError, mapExchange, type Client, defaultExchanges, fetchExchange } from '@urql/svelte';
 import { createClient } from '@urql/svelte';
 import { browser } from '$app/environment';
 import { isObject } from '../util/types';
 
 let globalClient: Client | null = null;
-let backendHost = '';
 type ServerError = { message: string, code?: string };
 
 function hasError(value: unknown): value is { errors: ServerError[] } {
@@ -19,8 +18,8 @@ class LexGqlError extends CombinedError {
   }
 }
 
-export function createGqlClient(gqlEndpoint?: string): Client {
-  const url = `${gqlEndpoint ?? backendHost}/api/graphql`;
+export function createGqlClient(_gqlEndpoint?: string): Client {
+  const url = `/api/graphql`;
   return createClient({
     url,
     exchanges: [
@@ -41,29 +40,26 @@ export function createGqlClient(gqlEndpoint?: string): Client {
           return result;
         }
       }),
-      ...defaultExchanges
+      ...defaultExchanges,
+      fetchExchange
     ]
   });
 }
 
-export function getClient(gqlEndpoint?: string): Client {
+export function getClient(): Client {
   if (browser) {
     if (globalClient) return globalClient;
-    globalClient = createGqlClient('');
+    globalClient = createGqlClient();
     return globalClient;
   } else {
     //We do not cache the client on the server side.
-    return createGqlClient(gqlEndpoint);
+    return createGqlClient();
   }
 }
 
-export function storeGqlEndpoint(gqlEndpoint: string): void {
-  backendHost = gqlEndpoint;
-}
-
 //gqlEndpoint is only required on the server side.
-export function initClient(gqlEndpoint?: string): void {
-  setClient(createGqlClient(gqlEndpoint));
+export function initClient(): void {
+  setClient(createGqlClient());
 }
 
 export function setClient(newClient: Client): void {
