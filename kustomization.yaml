@@ -6,7 +6,7 @@ resources:
 - deployment/namespace.yaml
 - deployment/config-map.yaml
 - deployment/secrets.yaml
-- deployment/hg-repos-pvc.yaml
+- deployment/pvc.yaml
 - deployment/hg-deployment.yaml
 - deployment/db-deployment.yaml
 - deployment/hasura-deployment.yaml
