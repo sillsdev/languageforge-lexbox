@@ -1,7 +1,7 @@
 import { getUser, isAuthn } from '$lib/user'
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { loadI18n } from '$lib/i18n';
-import { traceErrorEvent, traceResponse, traceRequest, traceFetch } from '$lib/otel/server'
+import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/server'
 import { env } from '$env/dynamic/private';
 import { getErrorMessage } from './hooks.shared';
 
@@ -22,17 +22,15 @@ export const handle = (async ({ event, resolve }) => {
       filterSerializedResponseHeaders: () => true,
     }
 
-    return traceResponse({ method: event.request.method, route: event.route.id }, () => {
-      if (PUBLIC_ROUTES.includes(pathname)) {
-        return resolve(event, options)
-      }
-
-      if (!isAuthn(cookies)) {
-        throw redirect(307, '/login')
-      }
-
+    if (PUBLIC_ROUTES.includes(pathname)) {
       return resolve(event, options)
-    })
+    }
+
+    if (!isAuthn(cookies)) {
+      throw redirect(307, '/login')
+    }
+
+    return resolve(event, options)
   })
 }) satisfies Handle
 
@@ -49,13 +47,13 @@ export const handleFetch = (async ({ event, request, fetch }) => {
 }) satisfies HandleFetch;
 
 export const handleError: HandleServerError = ({ error, event }) => {
-  const source = 'server-error-hook';
-  console.error(source, error);
-  const traceId = traceErrorEvent(error, event, { ['app.error.source']: source });
+  const handler = 'server-error-hook';
+  console.error(handler, error);
+  const traceId = ensureErrorIsTraced(error, { event }, { ['app.error.source']: handler });
   const message = getErrorMessage(error);
   return {
     traceId,
     message: `${message} (${traceId})`, // traceId is appended so we have it on error.html
-    source,
+    handler,
   };
 };

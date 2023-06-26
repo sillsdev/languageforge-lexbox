@@ -20,9 +20,11 @@ declare global {
 
     interface Error {
       traceId: string;
-      source: ErrorSource;
+      handler: ErrorHandler;
     }
   }
 
-  type ErrorSource = 'client-error' | 'client-unhandledrejection' | 'server-error-hook' | 'client-error-hook';
+  type ErrorHandler =
+    'client-error' | 'client-unhandledrejection' |
+    'server-error-hook' | 'client-error-hook';
 }

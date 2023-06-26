@@ -1,31 +1,25 @@
-import { CombinedError, mapExchange, type Client, defaultExchanges, fetchExchange } from '@urql/svelte';
+import type { DocumentNode } from 'graphql';
+import { mapExchange, type Client, defaultExchanges, type PromisifiedSource, type AnyVariables, type TypedDocumentNode, type OperationContext, type OperationResult, fetchExchange } from '@urql/svelte';
 import { createClient } from '@urql/svelte';
 import { browser } from '$app/environment';
 import { isObject } from '../util/types';
+import { traceOperation, tracingExchange } from '$lib/otel';
+import { LexGqlError, hasError, type ServerError } from './types';
 
-let globalClient: Client | null = null;
-type ServerError = { message: string, code?: string };
-
-function hasError(value: unknown): value is { errors: ServerError[] } {
-  if (typeof value !== 'object' || value === null) return false;
-  return 'errors' in value && Array.isArray(value.errors);
-}
-
-class LexGqlError extends CombinedError {
-  constructor(public readonly errors: ServerError[]) {
-    super({});
-    this.message = errors.map(e => e.message).join(', ');
-  }
-}
+let globalClient: GqlClient | null = null;
 
 export function createGqlClient(_gqlEndpoint?: string): Client {
   const url = `/api/graphql`;
   return createClient({
     url,
     exchanges: [
+      tracingExchange,
       mapExchange({
         onResult: (result) => {
-          if (result.error) return result;
+          if (result.error) {
+            result.error = new LexGqlError([result.error]);
+            return result;
+          }
           if (isObject(result.data)) {
             let errors: ServerError[] = [];
             for (const resultValue of Object.values(result.data)) {
@@ -46,22 +40,51 @@ export function createGqlClient(_gqlEndpoint?: string): Client {
   });
 }
 
-export function getClient(): Client {
+export function getClient(): GqlClient {
   if (browser) {
     if (globalClient) return globalClient;
-    globalClient = createGqlClient();
+    globalClient = new GqlClient(createGqlClient(''));
     return globalClient;
   } else {
     //We do not cache the client on the server side.
-    return createGqlClient();
+    return new GqlClient(createGqlClient());
   }
 }
 
-//gqlEndpoint is only required on the server side.
-export function initClient(): void {
-  setClient(createGqlClient());
-}
+type OperationOptions = Partial<OperationContext & { throwErrors: boolean }>;
 
-export function setClient(newClient: Client): void {
-  globalClient = newClient;
+type QueryOperationOptions = OperationOptions
+  & { fetch: typeof fetch }; // ensure the sveltekit fetch is always provided
+
+class GqlClient {
+
+  constructor(private readonly client: Client) {
+    this.subscription = (...args) => this.client.subscription(...args);
+  }
+
+  query<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: DocumentNode | TypedDocumentNode<Data, Variables> | string, variables: Variables, context: QueryOperationOptions): Promise<OperationResult<Data, Variables>> {
+    context.throwErrors ??= true; // queries should generally just work
+    return this.doOperation(context, (_context) => this.client.query<Data, Variables>(query, variables, _context));
+  }
+
+  mutation<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: DocumentNode | TypedDocumentNode<Data, Variables> | string, variables: Variables, context: OperationOptions = {}): Promise<OperationResult<Data, Variables>> {
+    return this.doOperation(context, (_context) => this.client.mutation<Data, Variables>(query, variables, _context));
+  }
+
+  // We can't wrap a subscription, because it's not just a web request,
+  // but tracingExchange should trace subscription setup?
+  // We can't throw errors, because errors thrown in wonka/an exchange kill node.
+  subscription: typeof this.client.subscription;
+
+  private async doOperation<Data, Variables extends AnyVariables>(context: OperationOptions, operation: (context: OperationOptions) => PromisifiedSource<OperationResult<Data, Variables>>): Promise<OperationResult<Data, Variables>> {
+    return traceOperation(async () => {
+      const result = await operation(context).toPromise();
+      context?.throwErrors && this.throwAnyErrors(result);
+      return result;
+    });
+  }
+
+  private throwAnyErrors<T extends OperationResult<unknown, AnyVariables>>(result: T): void {
+    if (result.error) throw result.error;
+  }
 }
