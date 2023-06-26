@@ -1,1 +1,1 @@
-<span class="i-mdi-trash-outline text-2xl" />
+<span class="i-mdi-trash-can text-2xl" />
