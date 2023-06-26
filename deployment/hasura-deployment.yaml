@@ -116,10 +116,9 @@ spec:
         volumeMounts:
         - name: hasura-metadata
           mountPath: /hasura-metadata
-      - name: wait-db
+      - name: wait-lexbox
         image: busybox:1.36.1
-        command: ['sh', '-c', "until nc -w 1 -z db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
-        # command: ['sh', '-c', "until nc -w 1 -z db.languagedepot.svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
+        command: ['sh', '-c', "until wget -O - http://lexbox/api/healthz; do echo waiting for lexbox-api backend; sleep 2; done"]
       volumes:
       - name: hasura-metadata
         persistentVolumeClaim:
