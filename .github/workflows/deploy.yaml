@@ -9,7 +9,6 @@
   jobs:
     deploy-api:
       runs-on: ubuntu-latest
-      needs: publish-api
       if: ${{ github.ref ==  vars.PROD_BRANCH }}
       environment:
         name: staging
