@@ -74,45 +74,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy-api:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      expected-version: ${{ needs.publish-api.outputs.version }}
     needs: publish-api
     if: ${{ github.ref ==  vars.PROD_BRANCH }}
-    environment:
-        name: staging
-        url: https://staging.languagedepot.org
-    steps:
-      - name: Deploy
-        uses: drlove2002/secure-github-webhook@0.3.0
-        with:
-          url: ${{ vars.DEPLOY_WEBHOOK_URL }}
-          hmacSecret: ${{ secrets.DEPLOY_KEY }}
-          data: >-
-            {
-              "action" : "push",
-              "ref" : "${{ github.ref }}",
-              "version": "${{ needs.build.outputs.version }}"
-            }
-      - name: Verify Version
-        env:
-          TARGET_HOST: https://staging.languagedepot.org
-          EXPECTED_VERSION: ${{ needs.build.outputs.version }}
-        run: |
-          IterateCount=5
-          n=0
-          until [ $n -ge $IterateCount ]
-          do
-            response=`curl -s --head "$TARGET_HOST/api/healthz"`
-            # get version from response, trim off the header and fix the line endings
-            versionHeader=`echo "$response" | grep "lexbox-version" | cut -d' ' -f 2 | tr -d '[:space:]'`
-            if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
-                echo "Version is correct"
-                exit 0
-            else
-                echo "Version $versionHeader is incorrect, expected $EXPECTED_VERSION"
-                n=$((n+1))
-                sleep $((2 * n))
-            fi
-          done
-
-          echo "Version $versionHeader is still incorrect after waiting"
-          exit 1
