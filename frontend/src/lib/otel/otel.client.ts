@@ -1,9 +1,9 @@
-import {APP_VERSION} from '$lib/util/verstion';
 import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web'
+import { SERVICE_NAME, ensureErrorIsTraced, isRedirect, tracer } from '.'
 
+import {APP_VERSION} from '$lib/util/verstion';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { Resource } from '@opentelemetry/resources'
-import { SERVICE_NAME } from '.'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
@@ -11,7 +11,35 @@ import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
 export * from '.';
 
-// fetch_original & fetch_otel_instrumented are referenced by our fetch_proxy in app.html
+type Fetch = typeof fetch;
+
+let fetchHandler: ((fetch: Fetch, ...args: Parameters<Fetch>) => Promise<Response>) | undefined;
+
+export const handleFetch = (_fetchHandler: (fetch: Fetch, ...args: Parameters<Fetch>) => Promise<Response>): void => {
+  if (fetchHandler) throw new Error('OTEL fetch handler was already initialized');
+  fetchHandler = _fetchHandler;
+};
+
+/**
+ * Very minimal instrumentation here, because the auto-instrumentation handles the core stuff,
+ * we just want to make sure that our trace-ID gets used and that we stamp errors with it.
+ */
+export const traceFetch = (fetch: () => ReturnType<Fetch>): ReturnType<Fetch> => {
+  return tracer().startActiveSpan('fetch', async (span) => {
+    try {
+      return await fetch();
+    } catch (error) {
+      if (!isRedirect(error)) {
+        ensureErrorIsTraced(error, { span }, { ['app.error.source']: 'client-fetch-error' });
+      }
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
+};
+
+// fetch_original & fetch_instrumented are referenced by our fetch_proxy in app.html
 const fetchProxy = window.fetch;
 try {
   // Have otel instrument the original
@@ -20,8 +48,11 @@ try {
     instrumentations: [getWebAutoInstrumentations()],
   });
 } finally {
-  // Provide the (now) instrumented version for our proxy to call
-  window.fetch_otel_instrumented = window.fetch;
+  // The (now) instrumented version for our proxy to call
+  const instrumentedFetch = window.fetch;
+  // Wrap it in our own fetch handler/interceptor so we can intercept 401's and such
+  // and then provide it to the proxy so it gets used
+  window.fetch_instrumented = (...args) => fetchHandler ? fetchHandler(instrumentedFetch, ...args) : instrumentedFetch(...args);
   // Put the proxy back into place
   window.fetch = fetchProxy;
 }

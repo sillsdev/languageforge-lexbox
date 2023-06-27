@@ -9,19 +9,20 @@ import {
   context,
 } from '@opentelemetry/api';
 import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
-import type { NavigationEvent, RequestEvent } from '@sveltejs/kit';
+import type { NavigationEvent, Redirect, RequestEvent } from '@sveltejs/kit';
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
 import { isTraced, type TraceId, isTraceable, traceIt } from './types';
 import { makeOperation, type Exchange, mapExchange } from '@urql/svelte';
 import { browser } from '$app/environment';
+import { isObjectWhere } from '$lib/util/types';
 
 export const SERVICE_NAME = browser ? 'LexBox-SvelteKit-Client' : 'LexBox-SvelteKit-Server';
 const GQL_ERROR_SOURCE = browser ? 'client-gql-error' : 'server-gql-error';
 
 export const tracer = (): Tracer => trace.getTracer(SERVICE_NAME);
 
-type ErrorTracer = ErrorHandler | 'server-gql-error' | 'client-gql-error';
+type ErrorTracer = ErrorHandler | 'server-gql-error' | 'client-gql-error' | 'client-fetch-error';
 type ErrorAttributes = Attributes & { ['app.error.source']: ErrorTracer };
 
 interface ErrorContext {
@@ -207,6 +208,10 @@ const isRequestEvent = (event: RequestEvent | NavigationEvent | Event): event is
   return 'cookies' in event;
 };
 
+export const isRedirect = (error: unknown): error is Redirect => {
+  return isObjectWhere<Redirect>(error, obj => obj.status !== undefined && obj.location !== undefined);
+};
+
 const ACTIVE_SPAN_KEY = 'ACTIVE_OTEL_OPERATION_SPAN';
 const CACHED_SPAN_KEY = 'CACHED_OTEL_OPERATION_SPAN';
 
@@ -228,7 +233,8 @@ export const tracingExchange: Exchange = mapExchange({
     const operationSpan = (result.extensions?.[CACHED_SPAN_KEY] ?? operation.context[ACTIVE_SPAN_KEY]) as Span | undefined;
     const operationSpanContext = operationSpan?.spanContext();
 
-    if (result.error) {
+    const error = result.error?.networkError ?? result.error;
+    if (error && !isRedirect(error)) {
       ensureErrorIsTraced(result.error, { span: operationSpan }, { ['app.error.source']: GQL_ERROR_SOURCE });
     }
 
