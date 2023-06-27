@@ -49,18 +49,23 @@ public class LoginController : ControllerBase
         return user;
     }
 
+    [HttpPost("refresh")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<LexAuthUser>> RefreshJwt()
+    {
+        var user = await _lexAuthService.RefreshUser(_loggedInContext.User.Id);
+        if (user == null) return Unauthorized();
+        await HttpContext.SignInAsync(user.GetPrincipal("Refresh"),
+            new AuthenticationProperties { IsPersistent = true });
+        return user;
+    }
+
     [HttpPost("logout")]
     public async Task<ActionResult> Logout()
     {
         await HttpContext.SignOutAsync();
         return Ok();
-    }
-
-    [HttpGet("hashPassword")]
-    [AdminRequired]
-    public ActionResult<string> HashPassword(string pw, string salt)
-    {
-        return PasswordHashing.RedminePasswordHash(pw, salt, false);
     }
 
     [HttpPost("forgotPassword")]
