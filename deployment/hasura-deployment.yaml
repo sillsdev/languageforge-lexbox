@@ -19,22 +19,6 @@ spec:
 
 ---
 
-# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: hasura-metadata
-  namespace: languagedepot
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 25Mi
-  storageClassName: hostpath # docker-desktop doesn't have a weekly-snapshots-retain-4 class
-
----
-
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
 apiVersion: apps/v1
 kind: Deployment
@@ -62,7 +46,7 @@ spec:
       containers:
       - name: hasura
         # TODO: need to parameterize this tag
-        image: hasura/graphql-engine:v2.20.0-ce.cli-migrations-v3
+        image: ghcr.io/sillsdev/lexbox-hasura
         imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
@@ -73,10 +57,6 @@ spec:
         ports:
           - containerPort: 8080
             name: hasura-port
-
-        volumeMounts:
-        - name: hasura-metadata
-          mountPath: /hasura-metadata
 
         env:
           - name: HASURA_GRAPHQL_ENABLE_TELEMETRY
@@ -110,17 +90,7 @@ spec:
                 name: hasura
 
       initContainers:
-      - name: deploy-metadata
-        image: bitnami/git:2.41.0
-        command: ['sh', '-c', 'git clone --filter=blob:none --no-checkout https://github.com/sillsdev/languageforge-lexbox lexbox; cd lexbox/; git sparse-checkout set --no-cone hasura/metadata; git checkout; mkdir -p /hasura-metadata; cp -a hasura/metadata/* /hasura-metadata']
-        volumeMounts:
-        - name: hasura-metadata
-          mountPath: /hasura-metadata
       - name: wait-lexbox
         image: busybox:1.36.1
         command: ['sh', '-c', "until wget -O - http://lexbox:5158/api/healthz; do echo waiting for lexbox-api backend; sleep 2; done"]
-      volumes:
-      - name: hasura-metadata
-        persistentVolumeClaim:
-          claimName: hasura-metadata
 
