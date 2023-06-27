@@ -70,13 +70,22 @@ tasks:
       - task: api-up
       - docker compose up hasura -d --wait={{.WAIT}}
 
-  dev:
-    deps: [ ui, api ]
+  dev: # Currently broken (because the ui doesn't wait for the api), but probably no one uses it.
+    deps: [ api-dev, ui-only]
+    interactive: true
 
   # ui
-  ui:
+  ui-dev: # The single command for ui development
+    aliases:
+      - "ui"
     dir: ./frontend
-    deps: [ backend-up, ui-down, ui-install ]
+    deps: [ backend-up, ui-down ]
+    interactive: true
+    cmds:
+      - task: ui-only
+  ui-only:
+    dir: ./frontend
+    deps: [ ui-install ]
     interactive: true
     cmds:
       - pnpm run dev
@@ -93,7 +102,9 @@ tasks:
     cmds:
       - docker compose stop ui
   # api
-  api:
+  api-dev: # The single command for api development
+    aliases:
+      - "api"
     dir: ./backend/LexBoxApi
     deps: [ infra-up, api-stop ]
     interactive: true
