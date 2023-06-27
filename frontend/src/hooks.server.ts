@@ -1,4 +1,5 @@
 import { getUser, isAuthn } from '$lib/user'
+import { apiVersion } from '$lib/util/verstion';
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { loadI18n } from '$lib/i18n';
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/server'
@@ -43,7 +44,11 @@ export const handleFetch = (async ({ event, request, fetch }) => {
     console.log('Skipping cookie forwarding for non-backend request', request.url);
   }
 
-  return traceFetch(request, () => fetch(request));
+  const response = await traceFetch(request, () => fetch(request));
+  if (response.headers.has('lexbox-version')) {
+    apiVersion.value = response.headers.get('lexbox-version');
+  }
+  return response;
 }) satisfies HandleFetch;
 
 export const handleError: HandleServerError = ({ error, event }) => {

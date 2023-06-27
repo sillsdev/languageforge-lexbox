@@ -2,8 +2,10 @@
   import t from '$lib/i18n';
   import { AdminIcon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
+  import type {LayoutData} from './$types';
 
   let menuToggle = false;
+  export let data: LayoutData;
 
   function open(): void {
     menuToggle = true;
@@ -40,5 +42,5 @@
     </Content>
   </div>
 
-  <AppMenu on:click={close} on:keydown={close} />
+  <AppMenu on:click={close} on:keydown={close} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
 </div>
