@@ -8,7 +8,3 @@ export function isObject(v: unknown): v is IndexableObject {
 export const isObjectWhere = <T = unknown>(value: unknown, predicate: (value: IndexableObject<T>) => boolean): boolean => {
   return isObject(value) && predicate(value as IndexableObject<T>);
 }
-
-// https://www.typescriptlang.org/docs/handbook/mixins.html
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type MixinConstructor = new (...args: any[]) => object;

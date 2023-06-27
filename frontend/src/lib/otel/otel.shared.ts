@@ -12,8 +12,8 @@ import { SemanticAttributes } from '@opentelemetry/semantic-conventions';
 import type { NavigationEvent, RequestEvent } from '@sveltejs/kit';
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
-import { isTraced, type TraceId, isTraceable } from './types';
-import { makeOperation, type Exchange, type OperationResult, type AnyVariables, mapExchange } from '@urql/svelte';
+import { isTraced, type TraceId, isTraceable, traceIt } from './types';
+import { makeOperation, type Exchange, mapExchange } from '@urql/svelte';
 import { browser } from '$app/environment';
 
 export const SERVICE_NAME = browser ? 'LexBox-SvelteKit-Client' : 'LexBox-SvelteKit-Server';
@@ -92,7 +92,7 @@ const traceErrorEvent = (
 
   const traceId = span.spanContext().traceId;
   if (isTraceable(error)) {
-    error.trace(traceId);
+    traceIt(error, traceId);
   }
 
   return traceId;
@@ -207,25 +207,6 @@ const isRequestEvent = (event: RequestEvent | NavigationEvent | Event): event is
   return 'cookies' in event;
 };
 
-/**
- * We trace urql operations by both (1) wrapping entire queries and mutations and (2) intercepting operations with the tracingExchange.
- * 1) Wrapping allows us to catch and trace thrown errors.
- * 2) Intercepting gives us more context (e.g. the operation object), allows us to trace subscription setup (I think) and gives us a tidier place to hide the dirty work.
- */
-
-export const traceOperation = <T extends OperationResult<unknown, AnyVariables>>(operation: () => Promise<T>): Promise<T> => {
-  return tracer().startActiveSpan('operation', async (span) => {
-    try {
-      return await operation();
-    } catch (error) {
-      ensureErrorIsTraced(error, { span }, { ['app.error.source']: GQL_ERROR_SOURCE });
-      throw error;
-    } finally {
-      span.end();
-    }
-  });
-}
-
 const ACTIVE_SPAN_KEY = 'ACTIVE_OTEL_OPERATION_SPAN';
 const CACHED_SPAN_KEY = 'CACHED_OTEL_OPERATION_SPAN';
 
@@ -247,9 +228,7 @@ export const tracingExchange: Exchange = mapExchange({
     const operationSpan = (result.extensions?.[CACHED_SPAN_KEY] ?? operation.context[ACTIVE_SPAN_KEY]) as Span | undefined;
     const operationSpanContext = operationSpan?.spanContext();
 
-    if (result.error && (operation.kind === 'query' || operation.kind === 'subscription')) {
-      // queries/subscriptions generally won't lead to "expected" errors, so we trace them all.
-      // If something really went wrong we should have already traced it higher up anyway.
+    if (result.error) {
       ensureErrorIsTraced(result.error, { span: operationSpan }, { ['app.error.source']: GQL_ERROR_SOURCE });
     }
 
