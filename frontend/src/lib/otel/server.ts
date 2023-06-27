@@ -1,3 +1,4 @@
+import {APP_VERSION} from '$lib/util/verstion';
 import {
   TraceFlags,
   context,
@@ -143,7 +144,7 @@ const traceExporter = new OTLPTraceExporter({
 const sdk = new NodeSDK({
   resource: new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
-    [SemanticResourceAttributes.SERVICE_VERSION]: '0.0.1',
+    [SemanticResourceAttributes.SERVICE_VERSION]: APP_VERSION,
   }),
   traceExporter,
   instrumentations: [

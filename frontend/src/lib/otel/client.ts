@@ -1,3 +1,4 @@
+import {APP_VERSION} from '$lib/util/verstion';
 import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web'
 
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
@@ -28,7 +29,7 @@ try {
 const resource = Resource.default().merge(
   new Resource({
     [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
-    [SemanticResourceAttributes.SERVICE_VERSION]: '0.0.1',
+    [SemanticResourceAttributes.SERVICE_VERSION]: APP_VERSION,
   }),
 )
 const provider = new WebTracerProvider({
