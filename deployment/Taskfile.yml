@@ -5,9 +5,7 @@ version: '3'
 tasks:
   db-up:
     cmds:
-      - kubectl apply -f ./namespace.yaml
-      - kubectl apply -f ./dev/secrets.yaml
-      - kubectl apply -f ./db-deployment.yaml
+      - kubectl apply -k ./dev/
   lexbox-update:
     cmds:
       - kubectl apply -f ./lexbox-deployment.yaml

@@ -19,4 +19,4 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: hostpath # k3d doesn't have a weekly-snapshots-retain-4 class
+  storageClassName: weekly-snapshots-retain-4 # provided by LTOps

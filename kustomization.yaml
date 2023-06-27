@@ -3,11 +3,11 @@ kind: Kustomization
 namespace: languagedepot
 
 resources:
-- deployment/config-map.yaml
-- deployment/hg-deployment.yaml
-- deployment/hasura-deployment.yaml
-- deployment/lexbox-deployment.yaml
-- deployment/proxy-deployment.yaml
+- deployment/base/config-map.yaml
+- deployment/base/hg-deployment.yaml
+- deployment/base/hasura-deployment.yaml
+- deployment/base/lexbox-deployment.yaml
+- deployment/base/proxy-deployment.yaml
 
 configMapGenerator:
 - name: otel-config

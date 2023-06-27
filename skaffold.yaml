@@ -52,14 +52,14 @@ portForward:
 manifests:
   kustomize:
     paths:
-      - .
+      - deployment/dev
   hooks:
     before:
       - host:
-          command: ["sh", "-c", "kubectl apply -f deployment/db-deployment.yaml"]
+          command: ["sh", "-c", "cp otel/collector-config.yaml deployment/dev/collector-config.yaml"]
           os: [darwin, linux]
       - host:
-          command: ["powershell", "-Command", "kubectl apply -f deployment/db-deployment.yaml"]
+          command: ["powershell", "-Command", "copy otel/collector-config.yaml deployment/dev/collector-config.yaml"]
           os: [windows]
 
 profiles:
