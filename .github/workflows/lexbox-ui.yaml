@@ -1,4 +1,4 @@
-name: Build and publish a lexbox ui image
+name: lexbox ui
 
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
 on:
