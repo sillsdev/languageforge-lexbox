@@ -31,7 +31,7 @@
       retentionPolicy: $form.retentionPolicy,
     });
     if (result.error) {
-      if (result.data?.createProject.errors?.some((e) => e.code === DbErrorCode.Duplicate)) {
+      if (result.error.forCode(DbErrorCode.Duplicate)) {
         $errors.code = [$t('project.create.code_exists')];
       } else {
         $message = result.error.message;
