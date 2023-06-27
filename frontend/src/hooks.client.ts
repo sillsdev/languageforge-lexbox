@@ -1,5 +1,5 @@
 import type { HandleClientError } from '@sveltejs/kit';
-import { ensureErrorIsTraced } from '$lib/otel/client';
+import { ensureErrorIsTraced } from '$lib/otel/otel.client';
 import { getErrorMessage } from './hooks.shared';
 import { loadI18n } from '$lib/i18n';
 

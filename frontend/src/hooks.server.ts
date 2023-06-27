@@ -2,7 +2,7 @@ import { getUser, isAuthn } from '$lib/user'
 import { apiVersion } from '$lib/util/verstion';
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { loadI18n } from '$lib/i18n';
-import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/server'
+import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
 import { env } from '$env/dynamic/private';
 import { getErrorMessage } from './hooks.shared';
 
