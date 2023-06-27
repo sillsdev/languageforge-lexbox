@@ -9,13 +9,12 @@ import {
 } from '@opentelemetry/api';
 
 import { env } from '$env/dynamic/private';
-import { isObject } from '$lib/util/types';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import type { Redirect, RequestEvent } from '@sveltejs/kit';
+import type { RequestEvent } from '@sveltejs/kit';
 import {
   traceEventAttributes,
   traceHeaders,
@@ -84,16 +83,9 @@ const traceResponse = async (
   span: Span,
   responseBuilder: () => Promise<Response> | Response,
 ): Promise<Response> => {
-  try {
-    const response = await responseBuilder();
-    traceResponseAttributes(span, response);
-    return response;
-  } catch (error) {
-    if (isRedirect(error)) {
-      traceRedirectAttributes(span, error);
-    }
-    throw error;
-  }
+  const response = await responseBuilder();
+  traceResponseAttributes(span, response);
+  return response;
 };
 
 export const traceFetch = async (
@@ -124,15 +116,6 @@ const traceResponseAttributes = (span: Span, response: Response): void => {
     response.headers.get('Content-Length') ?? 0,
   );
   traceHeaders(span, 'response', response.headers);
-};
-
-const traceRedirectAttributes = (span: Span, redirect: Redirect): void => {
-  span.setAttribute('http.redirect_location', redirect.location);
-  span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, redirect.status);
-};
-
-const isRedirect = (error: unknown): error is Redirect => {
-  return isObject(error) && 'status' in error && 'location' in error;
 };
 
 // Debugging:

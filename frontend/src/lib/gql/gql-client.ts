@@ -79,6 +79,7 @@ class GqlClient {
     const error = result.error;
     if (!error) return;
     if (this.is401(error)) throw redirect(307, '/logout');
+    if (error.networkError) throw error.networkError; // e.g. SvelteKit redirects
     throw error;
   }
 

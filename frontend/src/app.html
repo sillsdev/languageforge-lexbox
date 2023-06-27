@@ -11,9 +11,9 @@
             // https://github.com/sveltejs/kit/issues/9530
             window.fetch_original = window.fetch;
             window.fetch = function () {
-                // use the instrumented version once otel\client.ts has put it in place
-                return window.fetch_otel_instrumented
-                    ? window.fetch_otel_instrumented(...arguments)
+                // use the instrumented version once otel.client.ts has put it in place
+                return window.fetch_instrumented
+                    ? window.fetch_instrumented(...arguments)
                     : window.fetch_original(...arguments);
             }
         </script>
