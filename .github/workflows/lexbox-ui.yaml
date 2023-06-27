@@ -6,6 +6,7 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/lexbox-ui.yaml'
+      - '.github/workflows/deploy.yaml'
     branches:
       - main
       - develop
@@ -13,6 +14,7 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/lexbox-ui.yaml'
+      - '.github/workflows/deploy.yaml'
     branches:
       - main
       - develop
@@ -29,8 +31,7 @@ jobs:
       DOCKER_BUILDKIT: 1
 
     steps:
-      -
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set Version
         id: setVersion
         # set version to date in vYYYY-MM-DD format
@@ -63,7 +64,11 @@ jobs:
           push: ${{ !env.ACT }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
+  deploy-ui:
+    uses: ./.github/workflows/deploy.yaml
+    if: ${{github.ref == vars.PROD_BRANCH}}
+    secrets: inherit
+    needs: publish-ui
   lint:
     runs-on: ubuntu-latest
     defaults:

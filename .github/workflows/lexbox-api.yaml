@@ -79,7 +79,7 @@ jobs:
   deploy-api:
     uses: ./.github/workflows/deploy.yaml
     with:
-      expected-version: ${{ needs.publish-api.outputs.version }}
+      expected-api-version: ${{ needs.publish-api.outputs.version }}
     secrets: inherit
     needs: publish-api
     if: ${{ github.ref ==  vars.PROD_BRANCH }}

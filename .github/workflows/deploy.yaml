@@ -1,13 +1,13 @@
 ﻿on:
   workflow_call:
     inputs:
-      expected-version:
+      expected-api-version:
         description: 'The version of the API to deploy (TODO, currently only the version to verify, it deploys latest always right now)'
-        required: true
         type: string
 
 jobs:
-  deploy-api:
+  deploy:
+    concurrency: deploy-staging
     runs-on: ubuntu-latest
     if: ${{ github.ref ==  vars.PROD_BRANCH }}
     environment:
@@ -26,6 +26,7 @@ jobs:
               "version": "${{ inputs.expected-version }}"
             }
       - name: Verify Version
+        if: ${{ inputs.expected-version }}
         env:
           TARGET_HOST: https://staging.languagedepot.org
           EXPECTED_VERSION: ${{ inputs.expected-version }}
