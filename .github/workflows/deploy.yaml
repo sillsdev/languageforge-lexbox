@@ -23,13 +23,13 @@ jobs:
             {
               "action" : "push",
               "ref" : "${{ github.ref }}",
-              "version": "${{ inputs.expected-version }}"
+              "version": "${{ inputs.expected-api-version }}"
             }
       - name: Verify Version
-        if: ${{ inputs.expected-version }}
+        if: ${{ inputs.expected-api-version }}
         env:
           TARGET_HOST: https://staging.languagedepot.org
-          EXPECTED_VERSION: ${{ inputs.expected-version }}
+          EXPECTED_VERSION: ${{ inputs.expected-api-version }}
         run: |
           IterateCount=5
           n=0
