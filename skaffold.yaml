@@ -56,10 +56,10 @@ manifests:
   hooks:
     before:
       - host:
-          command: ["sh", "-c", "kubectl apply -f deployment/pvc.yaml"]
+          command: ["sh", "-c", "kubectl apply -f deployment/db-deployment.yaml"]
           os: [darwin, linux]
       - host:
-          command: ["powershell", "-Command", "kubectl apply -f deployment/pvc.yaml"]
+          command: ["powershell", "-Command", "kubectl apply -f deployment/db-deployment.yaml"]
           os: [windows]
 
 profiles:
