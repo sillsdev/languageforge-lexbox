@@ -1,5 +1,17 @@
+import {redirect} from '@sveltejs/kit';
 import type { DocumentNode } from 'graphql';
-import { mapExchange, type Client, defaultExchanges, type PromisifiedSource, type AnyVariables, type TypedDocumentNode, type OperationContext, type OperationResult, fetchExchange } from '@urql/svelte';
+import {
+  mapExchange,
+  type Client,
+  defaultExchanges,
+  type PromisifiedSource,
+  type AnyVariables,
+  type TypedDocumentNode,
+  type OperationContext,
+  type OperationResult,
+  fetchExchange,
+  CombinedError
+} from '@urql/svelte';
 import { createClient } from '@urql/svelte';
 import { browser } from '$app/environment';
 import { isObject } from '../util/types';
@@ -85,6 +97,16 @@ class GqlClient {
   }
 
   private throwAnyErrors<T extends OperationResult<unknown, AnyVariables>>(result: T): void {
-    if (result.error) throw result.error;
+    if (!result.error) return;
+    const error = result.error as LexGqlError;
+    if (error.errors.length === 1 && is401(error.errors[0] as CombinedError)) {
+      throw redirect(307, '/logout');
+    }
+    throw result.error;
   }
+}
+
+function is401(error: CombinedError): boolean {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  return error.response?.status === 401;
 }

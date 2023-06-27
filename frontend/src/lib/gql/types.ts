@@ -5,7 +5,7 @@ export * from './generated/graphql';
 
 export type $OpResult<T> = Promise<OperationResult<T>>;
 
-export type ServerError = { message: string, code?: string };
+export type ServerError = { message: string, code?: string } | CombinedError;
 
 export function hasError(value: unknown): value is { errors: ServerError[] } {
   if (typeof value !== 'object' || value === null) return false;
