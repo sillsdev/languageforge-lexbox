@@ -1,8 +1,12 @@
-<script>
+<script lang="ts">
   import t from '$lib/i18n';
-  import { AdminIcon, AuthenticatedUserIcon, HomeIcon, LogoutIcon } from '$lib/icons';
-  import { user } from '$lib/user';
+  import {AdminIcon, AuthenticatedUserIcon, HomeIcon, LogoutIcon} from '$lib/icons';
+  import {page} from '$app/stores';
   import AdminContent from './AdminContent.svelte';
+  import Badge from '$lib/components/Badges/Badge.svelte';
+  import {APP_VERSION} from '$lib/util/verstion';
+  export let serverVersion: string;
+  export let apiVersion: string;
 </script>
 
 <div class="drawer-side" on:click on:keydown>
@@ -11,8 +15,8 @@
   <!-- https://daisyui.com/components/menu  -->
   <ul class="menu bg-base-100 min-w-[33%]">
     <header class="prose flex flex-col items-end p-4 mb-4">
-      <h2 class="mb-0">{$user?.name}</h2>
-      <span class="font-light">{$user?.email}</span>
+      <h2 class="mb-0">{$page.data.user?.name}</h2>
+      <span class="font-light">{$page.data.user?.email}</span>
     </header>
 
     <li>
@@ -48,6 +52,12 @@
     </li>
 
     <div class="divider" />
+    <div class="grow"/>
+    <li disabled class="items-end pb-2 gap-1">
+      <Badge>Client Version: {APP_VERSION}</Badge>
+      <Badge>Server Version: {serverVersion}</Badge>
+      <Badge>API Version: {apiVersion}</Badge>
+    </li>
   </ul>
 </div>
 

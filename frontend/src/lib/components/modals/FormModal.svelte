@@ -29,7 +29,9 @@
     }
     modal.close();
   }
-
+  export async function close(): Promise<void>{
+    await modal.close();
+  }
   export function form(): Readable<FormType> {
     return superForm.form;
   }
@@ -44,6 +46,7 @@
     {#if $message}
       <FormError>{$message}</FormError>
     {/if}
+    <slot name="extraActions"></slot>
     <button type="submit" form="modalForm" class="btn btn-primary" class:loading={closing}>
       <slot name="submitText" />
     </button>

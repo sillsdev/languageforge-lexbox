@@ -59,7 +59,7 @@ public class UserController : ControllerBase
             Email = accountInput.Email,
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
-            IsAdmin = false
+            IsAdmin = false,
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);

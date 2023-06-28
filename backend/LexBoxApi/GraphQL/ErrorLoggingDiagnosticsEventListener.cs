@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using HotChocolate.Execution;
 using HotChocolate.Execution.Instrumentation;
 using HotChocolate.Execution.Processing;
@@ -9,8 +10,6 @@ public class ErrorLoggingDiagnosticsEventListener : ExecutionDiagnosticEventList
 {
     private readonly ILogger<ErrorLoggingDiagnosticsEventListener> log;
 
-    public override bool EnableResolveFieldValue => base.EnableResolveFieldValue;
-
     public ErrorLoggingDiagnosticsEventListener(
         ILogger<ErrorLoggingDiagnosticsEventListener> log)
     {
@@ -21,61 +20,61 @@ public class ErrorLoggingDiagnosticsEventListener : ExecutionDiagnosticEventList
         IMiddlewareContext context,
         IError error)
     {
-        LogError(error, "ResolverError");
+        LogError(error);
     }
 
     public override void TaskError(
         IExecutionTask task,
         IError error)
     {
-        LogError(error, "TaskError");
+        LogError(error);
     }
 
     public override void RequestError(
         IRequestContext context,
         Exception exception)
     {
-        LogException(exception, "RequestError");
+        LogException(exception);
     }
 
     public override void SubscriptionEventError(
         SubscriptionEventContext context,
         Exception exception)
     {
-        LogException(exception, "SubscriptionEventError");
+        LogException(exception);
     }
 
     public override void SubscriptionTransportError(
         ISubscription subscription,
         Exception exception)
     {
-        LogException(exception, "SubscriptionTransportError");
+        LogException(exception);
     }
 
     public override void SyntaxError(IRequestContext context, IError error)
     {
-        LogError(error, "SyntaxError");
+        LogError(error);
     }
 
     public override void ValidationErrors(IRequestContext context, IReadOnlyList<IError> errors)
     {
         foreach (var error in errors)
         {
-            LogError(error, "ValidationError");
+            LogError(error);
         }
     }
 
     public override void ResolverError(IRequestContext context, ISelection selection, IError error)
     {
-        LogError(error, "ResolverError");
+        LogError(error);
     }
 
-    private void LogError(IError error, string source)
+    private void LogError(IError error, [CallerMemberName] string source = "")
     {
         log.LogError(error.Exception, "{Source}: {Message}", source, error.Message);
     }
 
-    private void LogException(Exception exception, string source)
+    private void LogException(Exception exception, [CallerMemberName] string source = "")
     {
         log.LogError(exception, "{Source}: {Message}", source, exception.Message);
     }

@@ -22,7 +22,7 @@ export async function load(event: PageLoadEvent) {
   const client = getClient();
   const projectCode = event.params.project_code;
   const result = await client
-    .query<ProjectPageQuery>(
+    .query(
       graphql(`
 				query projectPage($projectCode: String!) {
 					projects(where: { code: { _eq: $projectCode } }) {
@@ -53,9 +53,7 @@ export async function load(event: PageLoadEvent) {
 				}
 			`),
       { projectCode }, { fetch: event.fetch },
-    )
-    .toPromise();
-  if (result.error) throw new Error(result.error.message);
+    );
 
   const projectId = result.data?.projects[0]?.id as string;
   event.depends(`project:${projectId}`);
@@ -86,8 +84,7 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
       { input: input },
       //invalidates the graphql project cache
       { additionalTypenames: ['Projects'] },
-    )
-    .toPromise();
+    );
   if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
@@ -114,8 +111,7 @@ export async function _changeProjectMemberRole(input: ChangeProjectMemberRoleInp
       { input: input },
       //invalidates the graphql project cache
       { additionalTypenames: ['Projects'] },
-    )
-    .toPromise();
+    );
   if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
@@ -142,8 +138,7 @@ export async function _changeProjectName(input: ChangeProjectNameInput): $OpResu
       { input: input },
       //invalidates the graphql project cache
       { additionalTypenames: ['Projects'] },
-    )
-    .toPromise();
+    );
   if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
@@ -170,8 +165,7 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
       { input: input },
       //invalidates the graphql project cache
       { additionalTypenames: ['Projects'] },
-    )
-    .toPromise();
+    );
   if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
@@ -189,8 +183,7 @@ export async function _deleteProjectUser(projectId: string, userId: string): Pro
       { input: { projectId: projectId, userId: userId } },
       // invalidates the cached project so invalidate below will actually reload the project
       { additionalTypenames: ['Projects'] },
-    )
-    .toPromise();
+    );
   if (!result.error) {
     void invalidate(`project:${projectId}`);
   }

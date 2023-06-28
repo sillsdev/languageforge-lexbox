@@ -9,10 +9,25 @@
     "column_role": "Role",
     "column_type": "Type",
     "column_users": "Users",
-    "filter_label": "Filter",
+    "column_edit": "Edit",
+    "filter_label": " ",
     "filter_placeholder": "search...",
     "project_table_title": "Projects",
-    "user_table_title": "Users"
+    "user_table_title": "Users",
+    "username_or_email_required": "You must provide a username or email.",
+    "password_missing": "Please include a password with at least 4 characters",
+    "delete_modal": {
+      "label": "type 'delete user' to delete this user"
+    },
+    "form_modal": {
+      "title": "Edit User",
+      "email_label": "enter new email",
+      "name_label": "change display name",
+      "password_label": "change password",
+      "delete_user": "Delete User",
+      "update_user": "Update User",
+      "lock": "lock "
+    }
   },
 
   "account_settings": {

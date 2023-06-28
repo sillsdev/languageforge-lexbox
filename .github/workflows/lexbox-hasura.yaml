@@ -1,4 +1,4 @@
-name: Build and publish a lexbox configured hasura image
+name: hasura
 
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#on
 on:
@@ -6,6 +6,16 @@ on:
     paths:
       - 'hasura/**'
       - '.github/workflows/lexbox-hasura.yaml'
+    branches:
+      - main
+      - develop
+  pull_request:
+    paths:
+      - 'hasura/**'
+      - '.github/workflows/lexbox-hasura.yaml'
+    branches:
+      - main
+      - develop
 
 env:
   PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}

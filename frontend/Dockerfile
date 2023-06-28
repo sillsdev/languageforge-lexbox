@@ -11,6 +11,8 @@ RUN pnpm install
 COPY . /app/
 COPY src /app/src
 COPY static /app/static
+ARG APP_VERSION
+ENV VITE_APP_VERSION=$APP_VERSION
 
 RUN pnpm run build
 

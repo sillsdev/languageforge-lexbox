@@ -18,7 +18,6 @@ export async function _createProject(input: CreateProjectInput): $OpResult<Creat
 
         }
         `),
-    { input }
-  ).toPromise();
+    { input });
   return result;
 }
