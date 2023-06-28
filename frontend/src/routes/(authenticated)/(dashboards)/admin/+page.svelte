@@ -222,6 +222,8 @@
         label={$t('admin_dashboard.form_modal.password_label')}
         bind:value={$form.password}
         required={false}/>
+      <p>{$t('admin_dashboard.form_modal.lock')} </p><input type="checkbox" class="toggle toggle-error" />
+
     </div>
     <button slot ="extraActions" class="btn btn-error rounded" on:click={async () => {await deleteUser($form.userId)}}>{$t('admin_dashboard.form_modal.delete_user')}<TrashIcon></TrashIcon></button>
     <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>

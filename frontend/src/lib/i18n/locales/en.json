@@ -25,7 +25,8 @@
       "name_label": "change display name",
       "password_label": "change password",
       "delete_user": "Delete User",
-      "update_user": "Update User"
+      "update_user": "Update User",
+      "lock": "lock "
     }
   },
 
