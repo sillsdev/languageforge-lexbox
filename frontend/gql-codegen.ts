@@ -3,11 +3,11 @@ import type { Options } from 'vite-plugin-graphql-codegen';
 //config passed into vite instead of via codegen file, works the same though
 import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript/typings/config';
 
-const devSchema: NonNullable<Options['config']>['schema'] = {
-  'http://localhost:5158/api/graphql/schema.graphql': {
+// const devSchema: NonNullable<Options['config']>['schema'] = {
+//   'http://localhost:5158/api/graphql/schema.graphql': {
 
-  }
-};
+//   }
+// };
 
 const generationConfig: TypeScriptPluginConfig = {
   useTypeImports: true,
@@ -52,10 +52,10 @@ export const gqlOptions: Options = {
     }
   },
   configOverrideWatcher: {
-    schema: devSchema
+    schema: schemaPath
   },
   configOverrideOnStart: {
-    schema: devSchema
+    schema: schemaPath
   },
   configOverrideOnBuild: {
     schema: schemaPath,

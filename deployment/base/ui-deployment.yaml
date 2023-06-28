@@ -1,0 +1,75 @@
+# https://kubernetes.io/docs/concepts/services-networking/service/#defining-a-service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ui
+  namespace: languagedepot
+  labels:
+    app: ui
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: ui
+  ports:
+  - name: sveltekit
+    protocol: TCP
+    port: 3000
+
+---
+
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+  namespace: languagedepot
+  labels:
+    app: ui
+spec:
+  selector:
+    matchLabels:
+      app: ui
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
+    metadata:
+      labels:
+        app: ui
+    spec:
+      serviceAccountName: lexbox-deployer
+      containers:
+
+      - name: ui
+        image: ghcr.io/sillsdev/lexbox-ui:develop
+        imagePullPolicy: IfNotPresent
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 750Mi
+          limits:
+            memory: 1250Mi
+        ports:
+          - containerPort: 3000
+
+        env:
+          - name: PUBLIC_TURNSTILE_SITE_KEY
+            valueFrom:
+              secretKeyRef:
+                key: PUBLIC_TURNSTILE_SITE_KEY
+                name: ui
+          - name: PUBLIC_ENV_NAME
+            value: dev
+          - name: BACKEND_HOST
+            value: http://lexbox:5158
+          - name: OTEL_ENDPOINT
+            value: http://lexbox:4318
+
+      # initContainers:
+      # - name: wait-backend
+      #   image: busybox:1.36.1
+      #   command: ['sh', '-c', "until wget -O - http://lexbox:5158/api/healthz; do echo waiting for backend; sleep 2; done"]

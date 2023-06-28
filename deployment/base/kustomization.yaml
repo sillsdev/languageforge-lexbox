@@ -7,4 +7,5 @@ resources:
 - hg-deployment.yaml
 - hasura-deployment.yaml
 - lexbox-deployment.yaml
+- ui-deployment.yaml
 - proxy-deployment.yaml

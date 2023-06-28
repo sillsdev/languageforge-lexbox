@@ -21,9 +21,6 @@ spec:
   - name: otel
     protocol: TCP
     port: 4318
-  - name: sveltekit
-    protocol: TCP
-    port: 3000
   - name: github-deploy
     protocol: TCP
     port: 9000
@@ -131,32 +128,7 @@ spec:
             # TODO: need to parameterize this
             value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
           - name: Email__EmailRenderHost
-            value: localhost:3000
-
-      - name: ui
-        image: ghcr.io/sillsdev/lexbox-ui:develop
-        imagePullPolicy: IfNotPresent
-        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
-        resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 750Mi
-          limits:
-            memory: 1250Mi
-        ports:
-          - containerPort: 3000
-
-        env:
-          - name: PUBLIC_TURNSTILE_SITE_KEY
-            valueFrom:
-              secretKeyRef:
-                key: PUBLIC_TURNSTILE_SITE_KEY
-                name: ui
-          - name: PUBLIC_ENV_NAME
-            value: dev
-          - name: BACKEND_HOST
-            value: http://localhost:5158
-          - name: OTEL_ENDPOINT
-            value: http://localhost:4318
+            value: ui:3000
 
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0

@@ -37,8 +37,7 @@ portForward:
   - resourceType: Service
     resourceName: lexbox
     namespace: languagedepot
-    port: 80
-    localPort: 5158
+    port: 5158
   # OpenTelemetry
   - resourceType: Service
     resourceName: lexbox
@@ -46,7 +45,7 @@ portForward:
     port: 4318
   # Svelte-Kit frontend
   - resourceType: Service
-    resourceName: lexbox
+    resourceName: ui
     namespace: languagedepot
     port: 3000
 manifests:

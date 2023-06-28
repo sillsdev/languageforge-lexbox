@@ -8,7 +8,7 @@ spec:
   ingressClassName: nginx
   defaultBackend:
     service:
-      name: lexbox
+      name: ui
       port:
         name: sveltekit
   rules:
@@ -57,7 +57,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: lexbox
+            name: ui
             port:
               name: sveltekit
 
