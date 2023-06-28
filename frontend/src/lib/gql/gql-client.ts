@@ -96,6 +96,6 @@ class GqlClient {
         }
       }
     }
-    return errors.length > 0 ? undefined : new LexGqlError(errors);
+    return errors.length > 0 ? new LexGqlError(errors) : undefined;
   }
 }
