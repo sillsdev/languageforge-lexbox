@@ -62,8 +62,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
       //invalidates the graphql user cache, but who knows
       { additionalTypenames: ['Users'] },
     )
-    .toPromise();
-  return result;
+    return result;
 }
 export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<ChangeUserAccountByAdminMutation> {
   //language=GraphQL
@@ -84,7 +83,6 @@ export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResu
       { input: input },
       //invalidates the graphql user cache, but who knows
       { additionalTypenames: ['Users'] },
-    )
-    .toPromise();
+    );
   return result;
 }

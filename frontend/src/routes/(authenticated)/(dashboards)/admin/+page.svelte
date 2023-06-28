@@ -53,6 +53,7 @@
 
 
   async function deleteUser(id: any): Promise<void> {
+    formModal.close();
        await deletionFormModal.open(async () => {
         if( data.user ){
            if ($deletionForm.keyphrase === 'delete user'){
@@ -172,7 +173,7 @@
             <th>{$t('admin_dashboard.column_email')}</th>
             <th>{$t('admin_dashboard.column_role')}</th>
             <th>{$t('admin_dashboard.column_created')}</th>
-            <th>Edit</th>
+            <th>{$t('admin_dashboard.column_edit')}</th>
           </tr>
         </thead>
         <tbody>
@@ -195,11 +196,11 @@
   </div>
 
 <FormModal bind:this={formModal} {schema} let:errors>
-    <span slot="title">Edit </span>
+    <span slot="title">{$t('admin_dashboard.form_modal.title')}</span>
     <Input
       id="email"
       type="email"
-      label="enter new email"
+      label={$t('admin_dashboard.form_modal.email_label')}
       bind:value={$form.email}
       required
       error={errors.email}
@@ -208,7 +209,7 @@
     <Input
       id="name"
       type="text"
-      label="change display name"
+      label={$t('admin_dashboard.form_modal.name_label')}
       bind:value={$form.name}
       required
       error={errors.name}
@@ -218,24 +219,24 @@
     <Input
         id="password"
         type="password"
-        label="change password"
+        label={$t('admin_dashboard.form_modal.password_label')}
         bind:value={$form.password}
         required={false}/>
     </div>
-    <button class="btn btn-error rounded" on:click={async () => {await deleteUser($form.userId)}}>Delete User<TrashIcon></TrashIcon></button>
-    <span slot="submitText">Apply</span>
+    <button slot ="extraActions" class="btn btn-error rounded" on:click={async () => {await deleteUser($form.userId)}}>{$t('admin_dashboard.form_modal.delete_user')}<TrashIcon></TrashIcon></button>
+    <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
   </FormModal>
 
   <FormModal bind:this={deletionFormModal} {verify} let:errors>
-    <span slot="title">Edit </span>
+    <span slot="title">{$t('admin_dashboard.form_modal.delete_user')}</span>
     <Input
     id="keyphrase"
     type="text"
-    label="type 'delete user' to delete this user."
+    label={$t('admin_dashboard.delete_modal.label')}
     placeholder={$form.name}
     error={errors.keyphrase}
     bind:value={$deletionForm.keyphrase}
   />
-  <span slot="submitText">Apply</span>
+  <span slot="submitText">{$t('admin_dashboard.form_modal.delete_user')}</span>
 </FormModal>
 </main>
