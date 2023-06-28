@@ -18,6 +18,7 @@ public static class GraphQlSetupKernel
                 client.BaseAddress = new Uri(hasuraConfig.HasuraUrl);
                 client.DefaultRequestHeaders.Add("x-hasura-admin-secret", hasuraConfig.HasuraSecret);
             });
+        services.AddHostedService<DevSchemaWriterService>();
         var graphqlBuilder = services.AddGraphQLServer()
             .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
             .ModifyRequestOptions(options =>

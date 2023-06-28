@@ -1,475 +1,157 @@
-"""whether this query should be cached (Hasura Cloud only)"""
-directive @cached(
-  """refresh the cache entry"""
-  refresh: Boolean! = false
-
-  """measured in seconds"""
-  ttl: Int! = 60
-) on QUERY
-
-directive @computed(
-  """Specifies the fields on which a computed field is dependent on."""
-  dependantOn: [String!]
-) on FIELD_DEFINITION
-
-"""Delegates a resolver to a remote schema."""
-directive @delegate(
-  """The path to the field on the remote schema."""
-  path: String
-
-  """The name of the schema to which this field shall be delegated to."""
-  schema: String!
-) on FIELD_DEFINITION
-
-"""Annotates the original name of a type."""
-directive @source(
-  """The original name of the annotated type."""
-  name: String!
-
-  """The name of the schema to which this type belongs to."""
-  schema: String!
-) repeatable on ARGUMENT_DEFINITION | ENUM | ENUM_VALUE | FIELD_DEFINITION | INPUT_FIELD_DEFINITION | INPUT_OBJECT | INTERFACE | OBJECT | UNION
-
-union AddProjectMemberError = DbError | NotFoundError
-
-input AddProjectMemberInput {
-  projectId: UUID!
-  role: ProjectRole!
-  userEmail: String!
+﻿schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
 }
 
-type AddProjectMemberPayload {
-  errors: [AddProjectMemberError!]
+interface Error @source(name: "Error", schema: "LexBox") {
+  message: String!
+}
+
+type AddProjectMemberPayload @source(name: "AddProjectMemberPayload", schema: "LexBox") {
   project: Project
+  errors: [AddProjectMemberError!]
 }
 
-type AuthUserProject {
+type AuthUserProject @source(name: "AuthUserProject", schema: "LexBox") {
   code: String!
   role: ProjectRole!
 }
 
-"""
-Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
-"""
-input BooleanComparisonExp {
-  _eq: Boolean
-  _gt: Boolean
-  _gte: Boolean
-  _in: [Boolean!]
-  _isNull: Boolean
-  _lt: Boolean
-  _lte: Boolean
-  _neq: Boolean
-  _nin: [Boolean!]
-}
-
-union ChangeProjectDescriptionError = DbError | NotFoundError
-
-input ChangeProjectDescriptionInput {
-  description: String!
-  projectId: UUID!
-}
-
-type ChangeProjectDescriptionPayload {
+type ChangeProjectDescriptionPayload @source(name: "ChangeProjectDescriptionPayload", schema: "LexBox") {
+  project: Project
   errors: [ChangeProjectDescriptionError!]
-  project: Project
 }
 
-union ChangeProjectMemberRoleError = DbError | NotFoundError
-
-input ChangeProjectMemberRoleInput {
-  projectId: UUID!
-  role: ProjectRole!
-  userId: UUID!
-}
-
-type ChangeProjectMemberRolePayload {
-  errors: [ChangeProjectMemberRoleError!]
+type ChangeProjectMemberRolePayload @source(name: "ChangeProjectMemberRolePayload", schema: "LexBox") {
   projectUsers: LexBox_ProjectUsers
+  errors: [ChangeProjectMemberRoleError!]
 }
 
-union ChangeProjectNameError = DbError | NotFoundError | RequiredError
-
-input ChangeProjectNameInput {
-  name: String!
-  projectId: UUID!
-}
-
-type ChangeProjectNamePayload {
-  errors: [ChangeProjectNameError!]
+type ChangeProjectNamePayload @source(name: "ChangeProjectNamePayload", schema: "LexBox") {
   project: Project
+  errors: [ChangeProjectNameError!]
 }
 
-union ChangeUserAccountDataError = DbError | NotFoundError
-
-input ChangeUserAccountDataInput {
-  email: String!
-  name: String!
-  userId: UUID!
-}
-
-type ChangeUserAccountDataPayload {
-  errors: [ChangeUserAccountDataError!]
+type ChangeUserAccountDataPayload @source(name: "ChangeUserAccountDataPayload", schema: "LexBox") {
   user: User
+  errors: [ChangeUserAccountDataError!]
 }
 
-type Changeset {
-  branch: String!
+type Changeset @source(name: "Changeset", schema: "LexBox") {
+  node: String!
   date: [Float!]!
   desc: String!
-  node: String!
-  parents: [String!]!
-  phase: String!
+  branch: String!
   tags: [String!]!
   user: String!
+  phase: String!
+  parents: [String!]!
 }
 
-union CreateProjectError = DbError
-
-input CreateProjectInput {
-  code: String!
-  description: String
-  id: UUID
-  name: String!
-  retentionPolicy: RetentionPolicy!
-  type: ProjectType!
-}
-
-type CreateProjectPayload {
-  errors: [CreateProjectError!]
+type CreateProjectPayload @source(name: "CreateProjectPayload", schema: "LexBox") {
   project: Project
+  errors: [CreateProjectError!]
 }
 
-"""ordering argument of a cursor"""
-enum CursorOrdering {
-  """ascending ordering of the cursor"""
-  ASC
-
-  """descending ordering of the cursor"""
-  DESC
-}
-
-scalar DateTime @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
-
-type DbError implements Error {
+type DbError implements Error @source(name: "DbError", schema: "LexBox") {
+  message: String!
   code: DbErrorCode!
-  message: String!
 }
 
-enum DbErrorCode {
-  DUPLICATE
-  UNKNOWN
-}
-
-interface Error {
-  message: String!
-}
-
-"""
-Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
-"""
-input IntComparisonExp {
-  _eq: Int
-  _gt: Int
-  _gte: Int
-  _in: [Int!]
-  _isNull: Boolean
-  _lt: Int
-  _lte: Int
-  _neq: Int
-  _nin: [Int!]
-}
-
-type LexAuthUser {
+type LexAuthUser @source(name: "LexAuthUser", schema: "LexBox") {
+  id: UUID!
   email: String!
-  id: UUID!
   name: String!
-  projects: [AuthUserProject!]!
   role: UserRole!
+  projects: [AuthUserProject!]!
 }
 
-type LexBox_ProjectUsers {
-  createdDate: DateTime!
-  id: UUID!
-  project: Project!
+type LexBox_ProjectUsers @source(name: "ProjectUsers", schema: "LexBox") {
+  userId: UUID!
   projectId: UUID!
   role: ProjectRole!
-  updatedDate: DateTime!
   user: User!
-  userId: UUID!
+  project: Project!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
 }
 
 type Mutation {
-  addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
-  changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
-  changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
-  changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
-  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
-  createProject(input: CreateProjectInput!): CreateProjectPayload!
-
-  """
-  delete data from the table: "ProjectUsers"
-  """
-  deleteProjectUsers(
-    """filter the rows which have to be deleted"""
-    where: ProjectUsersBoolExp!
-  ): ProjectUsersMutationResponse
-
-  """
-  delete single row from the table: "ProjectUsers"
-  """
-  deleteProjectUsersByPk(id: uuid!): ProjectUsers
-
-  """
-  delete data from the table: "Projects"
-  """
-  deleteProjects(
-    """filter the rows which have to be deleted"""
-    where: ProjectsBoolExp!
-  ): ProjectsMutationResponse
-
-  """
-  delete single row from the table: "Projects"
-  """
-  deleteProjectsByPk(id: uuid!): Projects
-
-  """
-  delete data from the table: "Users"
-  """
-  deleteUsers(
-    """filter the rows which have to be deleted"""
-    where: UsersBoolExp!
-  ): UsersMutationResponse
-
-  """
-  delete single row from the table: "Users"
-  """
-  deleteUsersByPk(id: uuid!): Users
-
-  """
-  insert data into the table: "ProjectUsers"
-  """
-  insertProjectUsers(
-    """the rows to be inserted"""
-    objects: [ProjectUsersInsertInput!]!
-
-    """upsert condition"""
-    onConflict: ProjectUsersOnConflict
-  ): ProjectUsersMutationResponse
-
-  """
-  insert a single row into the table: "ProjectUsers"
-  """
-  insertProjectUsersOne(
-    """the row to be inserted"""
-    object: ProjectUsersInsertInput!
-
-    """upsert condition"""
-    onConflict: ProjectUsersOnConflict
-  ): ProjectUsers
-
-  """
-  insert data into the table: "Projects"
-  """
-  insertProjects(
-    """the rows to be inserted"""
-    objects: [ProjectsInsertInput!]!
-
-    """upsert condition"""
-    onConflict: ProjectsOnConflict
-  ): ProjectsMutationResponse
-
-  """
-  insert a single row into the table: "Projects"
-  """
-  insertProjectsOne(
-    """the row to be inserted"""
-    object: ProjectsInsertInput!
-
-    """upsert condition"""
-    onConflict: ProjectsOnConflict
-  ): Projects
-
-  """
-  insert data into the table: "Users"
-  """
-  insertUsers(
-    """the rows to be inserted"""
-    objects: [UsersInsertInput!]!
-
-    """upsert condition"""
-    onConflict: UsersOnConflict
-  ): UsersMutationResponse
-
-  """
-  insert a single row into the table: "Users"
-  """
-  insertUsersOne(
-    """the row to be inserted"""
-    object: UsersInsertInput!
-
-    """upsert condition"""
-    onConflict: UsersOnConflict
-  ): Users
-  removeProjectMember(input: RemoveProjectMemberInput!): Project
-
-  """
-  update data of the table: "ProjectUsers"
-  """
-  updateProjectUsers(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectUsersIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectUsersSetInput
-
-    """filter the rows which have to be updated"""
-    where: ProjectUsersBoolExp!
-  ): ProjectUsersMutationResponse
-
-  """
-  update single row of the table: "ProjectUsers"
-  """
-  updateProjectUsersByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectUsersIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectUsersSetInput
-    pk_columns: ProjectUsersPkColumnsInput!
-  ): ProjectUsers
-
-  """
-  update multiples rows of table: "ProjectUsers"
-  """
-  updateProjectUsersMany(
-    """updates to execute, in order"""
-    updates: [ProjectUsersUpdates!]!
-  ): [ProjectUsersMutationResponse]
-
-  """
-  update data of the table: "Projects"
-  """
-  updateProjects(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectsIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectsSetInput
-
-    """filter the rows which have to be updated"""
-    where: ProjectsBoolExp!
-  ): ProjectsMutationResponse
-
-  """
-  update single row of the table: "Projects"
-  """
-  updateProjectsByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectsIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectsSetInput
-    pk_columns: ProjectsPkColumnsInput!
-  ): Projects
-
-  """
-  update multiples rows of table: "Projects"
-  """
-  updateProjectsMany(
-    """updates to execute, in order"""
-    updates: [ProjectsUpdates!]!
-  ): [ProjectsMutationResponse]
-
-  """
-  update data of the table: "Users"
-  """
-  updateUsers(
-    """sets the columns of the filtered rows to the given values"""
-    _set: UsersSetInput
-
-    """filter the rows which have to be updated"""
-    where: UsersBoolExp!
-  ): UsersMutationResponse
-
-  """
-  update single row of the table: "Users"
-  """
-  updateUsersByPk(
-    """sets the columns of the filtered rows to the given values"""
-    _set: UsersSetInput
-    pk_columns: UsersPkColumnsInput!
-  ): Users
-
-  """
-  update multiples rows of table: "Users"
-  """
-  updateUsersMany(
-    """updates to execute, in order"""
-    updates: [UsersUpdates!]!
-  ): [UsersMutationResponse]
+  "delete data from the table: \"ProjectUsers\""
+  deleteProjectUsers("filter the rows which have to be deleted" where: ProjectUsersBoolExp!): ProjectUsersMutationResponse @delegate(schema: "hasura")
+  "delete single row from the table: \"ProjectUsers\""
+  deleteProjectUsersByPk(id: uuid!): ProjectUsers @delegate(schema: "hasura")
+  "delete data from the table: \"Projects\""
+  deleteProjects("filter the rows which have to be deleted" where: ProjectsBoolExp!): ProjectsMutationResponse @delegate(schema: "hasura")
+  "delete single row from the table: \"Projects\""
+  deleteProjectsByPk(id: uuid!): Projects @delegate(schema: "hasura")
+  "delete data from the table: \"Users\""
+  deleteUsers("filter the rows which have to be deleted" where: UsersBoolExp!): UsersMutationResponse @delegate(schema: "hasura")
+  "delete single row from the table: \"Users\""
+  deleteUsersByPk(id: uuid!): Users @delegate(schema: "hasura")
+  "insert data into the table: \"ProjectUsers\""
+  insertProjectUsers("the rows to be inserted" objects: [ProjectUsersInsertInput!]! "upsert condition" onConflict: ProjectUsersOnConflict): ProjectUsersMutationResponse @delegate(schema: "hasura")
+  "insert a single row into the table: \"ProjectUsers\""
+  insertProjectUsersOne("the row to be inserted" object: ProjectUsersInsertInput! "upsert condition" onConflict: ProjectUsersOnConflict): ProjectUsers @delegate(schema: "hasura")
+  "insert data into the table: \"Projects\""
+  insertProjects("the rows to be inserted" objects: [ProjectsInsertInput!]! "upsert condition" onConflict: ProjectsOnConflict): ProjectsMutationResponse @delegate(schema: "hasura")
+  "insert a single row into the table: \"Projects\""
+  insertProjectsOne("the row to be inserted" object: ProjectsInsertInput! "upsert condition" onConflict: ProjectsOnConflict): Projects @delegate(schema: "hasura")
+  "insert data into the table: \"Users\""
+  insertUsers("the rows to be inserted" objects: [UsersInsertInput!]! "upsert condition" onConflict: UsersOnConflict): UsersMutationResponse @delegate(schema: "hasura")
+  "insert a single row into the table: \"Users\""
+  insertUsersOne("the row to be inserted" object: UsersInsertInput! "upsert condition" onConflict: UsersOnConflict): Users @delegate(schema: "hasura")
+  "update data of the table: \"ProjectUsers\""
+  updateProjectUsers("increments the numeric columns with given value of the filtered values" _inc: ProjectUsersIncInput "sets the columns of the filtered rows to the given values" _set: ProjectUsersSetInput "filter the rows which have to be updated" where: ProjectUsersBoolExp!): ProjectUsersMutationResponse @delegate(schema: "hasura")
+  "update single row of the table: \"ProjectUsers\""
+  updateProjectUsersByPk("increments the numeric columns with given value of the filtered values" _inc: ProjectUsersIncInput "sets the columns of the filtered rows to the given values" _set: ProjectUsersSetInput pk_columns: ProjectUsersPkColumnsInput!): ProjectUsers @delegate(schema: "hasura")
+  "update multiples rows of table: \"ProjectUsers\""
+  updateProjectUsersMany("updates to execute, in order" updates: [ProjectUsersUpdates!]!): [ProjectUsersMutationResponse] @delegate(schema: "hasura")
+  "update data of the table: \"Projects\""
+  updateProjects("increments the numeric columns with given value of the filtered values" _inc: ProjectsIncInput "sets the columns of the filtered rows to the given values" _set: ProjectsSetInput "filter the rows which have to be updated" where: ProjectsBoolExp!): ProjectsMutationResponse @delegate(schema: "hasura")
+  "update single row of the table: \"Projects\""
+  updateProjectsByPk("increments the numeric columns with given value of the filtered values" _inc: ProjectsIncInput "sets the columns of the filtered rows to the given values" _set: ProjectsSetInput pk_columns: ProjectsPkColumnsInput!): Projects @delegate(schema: "hasura")
+  "update multiples rows of table: \"Projects\""
+  updateProjectsMany("updates to execute, in order" updates: [ProjectsUpdates!]!): [ProjectsMutationResponse] @delegate(schema: "hasura")
+  "update data of the table: \"Users\""
+  updateUsers("sets the columns of the filtered rows to the given values" _set: UsersSetInput "filter the rows which have to be updated" where: UsersBoolExp!): UsersMutationResponse @delegate(schema: "hasura")
+  "update single row of the table: \"Users\""
+  updateUsersByPk("sets the columns of the filtered rows to the given values" _set: UsersSetInput pk_columns: UsersPkColumnsInput!): Users @delegate(schema: "hasura")
+  "update multiples rows of table: \"Users\""
+  updateUsersMany("updates to execute, in order" updates: [UsersUpdates!]!): [UsersMutationResponse] @delegate(schema: "hasura")
+  createProject(input: CreateProjectInput!): CreateProjectPayload! @delegate(schema: "LexBox")
+  addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload! @delegate(schema: "LexBox")
+  changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload! @delegate(schema: "LexBox")
+  changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload! @delegate(schema: "LexBox")
+  changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload! @delegate(schema: "LexBox")
+  removeProjectMember(input: RemoveProjectMemberInput!): Project @delegate(schema: "LexBox")
+  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload! @delegate(schema: "LexBox")
 }
 
-type NotFoundError implements Error {
+type NotFoundError implements Error @source(name: "NotFoundError", schema: "LexBox") {
   message: String!
 }
 
-"""column ordering options"""
-enum OrderBy {
-  """in ascending order, nulls last"""
-  ASC
-
-  """in ascending order, nulls first"""
-  ASC_NULLS_FIRST
-
-  """in ascending order, nulls last"""
-  ASC_NULLS_LAST
-
-  """in descending order, nulls first"""
-  DESC
-
-  """in descending order, nulls first"""
-  DESC_NULLS_FIRST
-
-  """in descending order, nulls last"""
-  DESC_NULLS_LAST
-}
-
-type Project {
+type Project @source(name: "Project", schema: "LexBox") {
   code: String!
-  createdDate: DateTime!
-  description: String
-  id: UUID!
-  lastCommit: DateTime
   name: String!
+  description: String
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
-  updatedDate: DateTime!
   users: [LexBox_ProjectUsers!]!
+  lastCommit: DateTime
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
 }
 
-enum ProjectRole {
-  EDITOR
-  MANAGER
-  UNKNOWN
-}
-
-enum ProjectType {
-  FL_EX
-  ONE_STORY_EDITOR
-  OUR_WORD
-  UNKNOWN
-  WE_SAY
-}
-
-"""
-columns and relationships of "ProjectUsers"
-"""
-type ProjectUsers {
-  """An object relationship"""
+"columns and relationships of \"ProjectUsers\""
+type ProjectUsers @source(name: "ProjectUsers", schema: "hasura") {
+  "An object relationship"
   Projects: Projects!
-
-  """An object relationship"""
+  "An object relationship"
   User: Users!
   createdDate: timestamptz!
   id: uuid!
@@ -479,20 +161,16 @@ type ProjectUsers {
   userId: uuid!
 }
 
-"""
-aggregated selection of "ProjectUsers"
-"""
-type ProjectUsersAggregate {
+"aggregated selection of \"ProjectUsers\""
+type ProjectUsersAggregate @source(name: "ProjectUsersAggregate", schema: "hasura") {
   aggregate: ProjectUsersAggregateFields
   nodes: [ProjectUsers!]!
 }
 
-"""
-aggregate fields of "ProjectUsers"
-"""
-type ProjectUsersAggregateFields {
+"aggregate fields of \"ProjectUsers\""
+type ProjectUsersAggregateFields @source(name: "ProjectUsersAggregateFields", schema: "hasura") {
   avg: ProjectUsersAvgFields
-  count(columns: [ProjectUsersSelectColumn!], distinct: Boolean): Int!
+  count(columns: [ProjectUsersSelectColumn!] distinct: Boolean): Int!
   max: ProjectUsersMaxFields
   min: ProjectUsersMinFields
   stddev: ProjectUsersStddevFields
@@ -504,10 +182,402 @@ type ProjectUsersAggregateFields {
   variance: ProjectUsersVarianceFields
 }
 
-"""
-order by aggregate values of table "ProjectUsers"
-"""
-input ProjectUsersAggregateOrderBy {
+"aggregate avg on columns"
+type ProjectUsersAvgFields @source(name: "ProjectUsersAvgFields", schema: "hasura") {
+  role: Float
+}
+
+"aggregate max on columns"
+type ProjectUsersMaxFields @source(name: "ProjectUsersMaxFields", schema: "hasura") {
+  createdDate: timestamptz
+  id: uuid
+  projectId: uuid
+  role: Int
+  updatedDate: timestamptz
+  userId: uuid
+}
+
+"aggregate min on columns"
+type ProjectUsersMinFields @source(name: "ProjectUsersMinFields", schema: "hasura") {
+  createdDate: timestamptz
+  id: uuid
+  projectId: uuid
+  role: Int
+  updatedDate: timestamptz
+  userId: uuid
+}
+
+"response of any mutation on the table \"ProjectUsers\""
+type ProjectUsersMutationResponse @source(name: "ProjectUsersMutationResponse", schema: "hasura") {
+  "number of rows affected by the mutation"
+  affected_rows: Int!
+  "data from the rows affected by the mutation"
+  returning: [ProjectUsers!]!
+}
+
+"aggregate stddev on columns"
+type ProjectUsersStddevFields @source(name: "ProjectUsersStddevFields", schema: "hasura") {
+  role: Float
+}
+
+"aggregate stddev_pop on columns"
+type ProjectUsersStddev_popFields @source(name: "ProjectUsersStddev_popFields", schema: "hasura") {
+  role: Float
+}
+
+"aggregate stddev_samp on columns"
+type ProjectUsersStddev_sampFields @source(name: "ProjectUsersStddev_sampFields", schema: "hasura") {
+  role: Float
+}
+
+"aggregate sum on columns"
+type ProjectUsersSumFields @source(name: "ProjectUsersSumFields", schema: "hasura") {
+  role: Int
+}
+
+"aggregate var_pop on columns"
+type ProjectUsersVar_popFields @source(name: "ProjectUsersVar_popFields", schema: "hasura") {
+  role: Float
+}
+
+"aggregate var_samp on columns"
+type ProjectUsersVar_sampFields @source(name: "ProjectUsersVar_sampFields", schema: "hasura") {
+  role: Float
+}
+
+"aggregate variance on columns"
+type ProjectUsersVarianceFields @source(name: "ProjectUsersVarianceFields", schema: "hasura") {
+  role: Float
+}
+
+"columns and relationships of \"Projects\""
+type Projects @source(name: "Projects", schema: "hasura") {
+  "An array relationship"
+  ProjectUsers("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): [ProjectUsers!]!
+  code: String!
+  createdDate: timestamptz!
+  description: String
+  id: uuid!
+  lastCommit: timestamptz
+  name: String!
+  "An aggregate relationship"
+  projectUsersAggregate("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): ProjectUsersAggregate!
+  retentionPolicy: Int!
+  type: Int!
+  updatedDate: timestamptz!
+  changesets: [Changeset!]! @delegate(path: "changesets(projectCode: $fields:code)", schema: "LexBox")
+}
+
+"aggregated selection of \"Projects\""
+type ProjectsAggregate @source(name: "ProjectsAggregate", schema: "hasura") {
+  aggregate: ProjectsAggregateFields
+  nodes: [Projects!]!
+}
+
+"aggregate fields of \"Projects\""
+type ProjectsAggregateFields @source(name: "ProjectsAggregateFields", schema: "hasura") {
+  avg: ProjectsAvgFields
+  count(columns: [ProjectsSelectColumn!] distinct: Boolean): Int!
+  max: ProjectsMaxFields
+  min: ProjectsMinFields
+  stddev: ProjectsStddevFields
+  stddevPop: ProjectsStddev_popFields
+  stddevSamp: ProjectsStddev_sampFields
+  sum: ProjectsSumFields
+  varPop: ProjectsVar_popFields
+  varSamp: ProjectsVar_sampFields
+  variance: ProjectsVarianceFields
+}
+
+"aggregate avg on columns"
+type ProjectsAvgFields @source(name: "ProjectsAvgFields", schema: "hasura") {
+  retentionPolicy: Float
+  type: Float
+}
+
+"aggregate max on columns"
+type ProjectsMaxFields @source(name: "ProjectsMaxFields", schema: "hasura") {
+  code: String
+  createdDate: timestamptz
+  description: String
+  id: uuid
+  lastCommit: timestamptz
+  name: String
+  retentionPolicy: Int
+  type: Int
+  updatedDate: timestamptz
+}
+
+"aggregate min on columns"
+type ProjectsMinFields @source(name: "ProjectsMinFields", schema: "hasura") {
+  code: String
+  createdDate: timestamptz
+  description: String
+  id: uuid
+  lastCommit: timestamptz
+  name: String
+  retentionPolicy: Int
+  type: Int
+  updatedDate: timestamptz
+}
+
+"response of any mutation on the table \"Projects\""
+type ProjectsMutationResponse @source(name: "ProjectsMutationResponse", schema: "hasura") {
+  "number of rows affected by the mutation"
+  affected_rows: Int!
+  "data from the rows affected by the mutation"
+  returning: [Projects!]!
+}
+
+"aggregate stddev on columns"
+type ProjectsStddevFields @source(name: "ProjectsStddevFields", schema: "hasura") {
+  retentionPolicy: Float
+  type: Float
+}
+
+"aggregate stddev_pop on columns"
+type ProjectsStddev_popFields @source(name: "ProjectsStddev_popFields", schema: "hasura") {
+  retentionPolicy: Float
+  type: Float
+}
+
+"aggregate stddev_samp on columns"
+type ProjectsStddev_sampFields @source(name: "ProjectsStddev_sampFields", schema: "hasura") {
+  retentionPolicy: Float
+  type: Float
+}
+
+"aggregate sum on columns"
+type ProjectsSumFields @source(name: "ProjectsSumFields", schema: "hasura") {
+  retentionPolicy: Int
+  type: Int
+}
+
+"aggregate var_pop on columns"
+type ProjectsVar_popFields @source(name: "ProjectsVar_popFields", schema: "hasura") {
+  retentionPolicy: Float
+  type: Float
+}
+
+"aggregate var_samp on columns"
+type ProjectsVar_sampFields @source(name: "ProjectsVar_sampFields", schema: "hasura") {
+  retentionPolicy: Float
+  type: Float
+}
+
+"aggregate variance on columns"
+type ProjectsVarianceFields @source(name: "ProjectsVarianceFields", schema: "hasura") {
+  retentionPolicy: Float
+  type: Float
+}
+
+type Query {
+  "fetch data from the table: \"ProjectUsers\""
+  projectUsers("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): [ProjectUsers!]! @delegate(schema: "hasura")
+  "An aggregate relationship"
+  projectUsersAggregate("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): ProjectUsersAggregate! @delegate(schema: "hasura")
+  "fetch data from the table: \"ProjectUsers\" using primary key columns"
+  projectUsersByPk(id: uuid!): ProjectUsers @delegate(schema: "hasura")
+  "fetch data from the table: \"Projects\""
+  projects("distinct select on columns" distinctOn: [ProjectsSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectsOrderBy!] "filter the rows returned" where: ProjectsBoolExp): [Projects!]! @delegate(schema: "hasura")
+  "fetch aggregated fields from the table: \"Projects\""
+  projectsAggregate("distinct select on columns" distinctOn: [ProjectsSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectsOrderBy!] "filter the rows returned" where: ProjectsBoolExp): ProjectsAggregate! @delegate(schema: "hasura")
+  "fetch data from the table: \"Projects\" using primary key columns"
+  projectsByPk(id: uuid!): Projects @delegate(schema: "hasura")
+  "fetch data from the table: \"Users\""
+  users("distinct select on columns" distinctOn: [UsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [UsersOrderBy!] "filter the rows returned" where: UsersBoolExp): [Users!]! @delegate(schema: "hasura")
+  "fetch aggregated fields from the table: \"Users\""
+  usersAggregate("distinct select on columns" distinctOn: [UsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [UsersOrderBy!] "filter the rows returned" where: UsersBoolExp): UsersAggregate! @delegate(schema: "hasura")
+  "fetch data from the table: \"Users\" using primary key columns"
+  usersByPk(id: uuid!): Users @delegate(schema: "hasura")
+  myProjects: [Project!]! @delegate(schema: "LexBox")
+  me: LexAuthUser! @delegate(schema: "LexBox")
+  changesets(projectCode: String!): [Changeset!]! @delegate(schema: "LexBox")
+}
+
+type RequiredError implements Error @source(name: "RequiredError", schema: "LexBox") {
+  message: String!
+}
+
+type Subscription {
+  "fetch data from the table: \"ProjectUsers\""
+  projectUsers("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): [ProjectUsers!]! @delegate(schema: "hasura")
+  "An aggregate relationship"
+  projectUsersAggregate("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): ProjectUsersAggregate! @delegate(schema: "hasura")
+  "fetch data from the table: \"ProjectUsers\" using primary key columns"
+  projectUsersByPk(id: uuid!): ProjectUsers @delegate(schema: "hasura")
+  "fetch data from the table in a streaming manner: \"ProjectUsers\""
+  projectUsersStream("maximum number of rows returned in a single batch" batchSize: Int! "cursor to stream the results returned by the query" cursor: [ProjectUsersStreamCursorInput]! "filter the rows returned" where: ProjectUsersBoolExp): [ProjectUsers!]! @delegate(schema: "hasura")
+  "fetch data from the table: \"Projects\""
+  projects("distinct select on columns" distinctOn: [ProjectsSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectsOrderBy!] "filter the rows returned" where: ProjectsBoolExp): [Projects!]! @delegate(schema: "hasura")
+  "fetch aggregated fields from the table: \"Projects\""
+  projectsAggregate("distinct select on columns" distinctOn: [ProjectsSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectsOrderBy!] "filter the rows returned" where: ProjectsBoolExp): ProjectsAggregate! @delegate(schema: "hasura")
+  "fetch data from the table: \"Projects\" using primary key columns"
+  projectsByPk(id: uuid!): Projects @delegate(schema: "hasura")
+  "fetch data from the table in a streaming manner: \"Projects\""
+  projectsStream("maximum number of rows returned in a single batch" batchSize: Int! "cursor to stream the results returned by the query" cursor: [ProjectsStreamCursorInput]! "filter the rows returned" where: ProjectsBoolExp): [Projects!]! @delegate(schema: "hasura")
+  "fetch data from the table: \"Users\""
+  users("distinct select on columns" distinctOn: [UsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [UsersOrderBy!] "filter the rows returned" where: UsersBoolExp): [Users!]! @delegate(schema: "hasura")
+  "fetch aggregated fields from the table: \"Users\""
+  usersAggregate("distinct select on columns" distinctOn: [UsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [UsersOrderBy!] "filter the rows returned" where: UsersBoolExp): UsersAggregate! @delegate(schema: "hasura")
+  "fetch data from the table: \"Users\" using primary key columns"
+  usersByPk(id: uuid!): Users @delegate(schema: "hasura")
+  "fetch data from the table in a streaming manner: \"Users\""
+  usersStream("maximum number of rows returned in a single batch" batchSize: Int! "cursor to stream the results returned by the query" cursor: [UsersStreamCursorInput]! "filter the rows returned" where: UsersBoolExp): [Users!]! @delegate(schema: "hasura")
+}
+
+type User @source(name: "User", schema: "LexBox") {
+  name: String!
+  email: String!
+  isAdmin: Boolean!
+  passwordHash: String!
+  salt: String!
+  username: String
+  projects: [LexBox_ProjectUsers!]!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
+"columns and relationships of \"Users\""
+type Users @source(name: "Users", schema: "hasura") {
+  "An array relationship"
+  UserProjects("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): [ProjectUsers!]!
+  createdDate: timestamptz!
+  email: String!
+  id: uuid!
+  isAdmin: Boolean!
+  name: String!
+  passwordHash: String!
+  salt: String!
+  updatedDate: timestamptz!
+  "An aggregate relationship"
+  userProjectsAggregate("distinct select on columns" distinctOn: [ProjectUsersSelectColumn!] "limit the number of rows returned" limit: Int "skip the first n rows. Use only with order_by" offset: Int "sort the rows by one or more columns" orderBy: [ProjectUsersOrderBy!] "filter the rows returned" where: ProjectUsersBoolExp): ProjectUsersAggregate!
+  username: String
+}
+
+"aggregated selection of \"Users\""
+type UsersAggregate @source(name: "UsersAggregate", schema: "hasura") {
+  aggregate: UsersAggregateFields
+  nodes: [Users!]!
+}
+
+"aggregate fields of \"Users\""
+type UsersAggregateFields @source(name: "UsersAggregateFields", schema: "hasura") {
+  count(columns: [UsersSelectColumn!] distinct: Boolean): Int!
+  max: UsersMaxFields
+  min: UsersMinFields
+}
+
+"aggregate max on columns"
+type UsersMaxFields @source(name: "UsersMaxFields", schema: "hasura") {
+  createdDate: timestamptz
+  email: String
+  id: uuid
+  name: String
+  passwordHash: String
+  salt: String
+  updatedDate: timestamptz
+  username: String
+}
+
+"aggregate min on columns"
+type UsersMinFields @source(name: "UsersMinFields", schema: "hasura") {
+  createdDate: timestamptz
+  email: String
+  id: uuid
+  name: String
+  passwordHash: String
+  salt: String
+  updatedDate: timestamptz
+  username: String
+}
+
+"response of any mutation on the table \"Users\""
+type UsersMutationResponse @source(name: "UsersMutationResponse", schema: "hasura") {
+  "number of rows affected by the mutation"
+  affected_rows: Int!
+  "data from the rows affected by the mutation"
+  returning: [Users!]!
+}
+
+union AddProjectMemberError @source(name: "AddProjectMemberError", schema: "LexBox") = NotFoundError | DbError
+
+union ChangeProjectDescriptionError @source(name: "ChangeProjectDescriptionError", schema: "LexBox") = NotFoundError | DbError
+
+union ChangeProjectMemberRoleError @source(name: "ChangeProjectMemberRoleError", schema: "LexBox") = NotFoundError | DbError
+
+union ChangeProjectNameError @source(name: "ChangeProjectNameError", schema: "LexBox") = NotFoundError | DbError | RequiredError
+
+union ChangeUserAccountDataError @source(name: "ChangeUserAccountDataError", schema: "LexBox") = NotFoundError | DbError
+
+union CreateProjectError @source(name: "CreateProjectError", schema: "LexBox") = DbError
+
+input AddProjectMemberInput @source(name: "AddProjectMemberInput", schema: "LexBox") {
+  projectId: UUID!
+  userEmail: String!
+  role: ProjectRole!
+}
+
+"Boolean expression to compare columns of type \"Boolean\". All fields are combined with logical 'AND'."
+input BooleanComparisonExp @source(name: "BooleanComparisonExp", schema: "hasura") {
+  _eq: Boolean
+  _gt: Boolean
+  _gte: Boolean
+  _in: [Boolean!]
+  _isNull: Boolean
+  _lt: Boolean
+  _lte: Boolean
+  _neq: Boolean
+  _nin: [Boolean!]
+}
+
+input ChangeProjectDescriptionInput @source(name: "ChangeProjectDescriptionInput", schema: "LexBox") {
+  projectId: UUID!
+  description: String!
+}
+
+input ChangeProjectMemberRoleInput @source(name: "ChangeProjectMemberRoleInput", schema: "LexBox") {
+  projectId: UUID!
+  userId: UUID!
+  role: ProjectRole!
+}
+
+input ChangeProjectNameInput @source(name: "ChangeProjectNameInput", schema: "LexBox") {
+  projectId: UUID!
+  name: String!
+}
+
+input ChangeUserAccountDataInput @source(name: "ChangeUserAccountDataInput", schema: "LexBox") {
+  userId: UUID!
+  email: String!
+  name: String!
+}
+
+input CreateProjectInput @source(name: "CreateProjectInput", schema: "LexBox") {
+  id: UUID
+  name: String!
+  description: String
+  code: String!
+  type: ProjectType!
+  retentionPolicy: RetentionPolicy!
+}
+
+"Boolean expression to compare columns of type \"Int\". All fields are combined with logical 'AND'."
+input IntComparisonExp @source(name: "IntComparisonExp", schema: "hasura") {
+  _eq: Int
+  _gt: Int
+  _gte: Int
+  _in: [Int!]
+  _isNull: Boolean
+  _lt: Int
+  _lte: Int
+  _neq: Int
+  _nin: [Int!]
+}
+
+"order by aggregate values of table \"ProjectUsers\""
+input ProjectUsersAggregateOrderBy @source(name: "ProjectUsersAggregateOrderBy", schema: "hasura") {
   avg: ProjectUsers_avg_order_by
   count: OrderBy
   max: ProjectUsers_max_order_by
@@ -521,25 +591,15 @@ input ProjectUsersAggregateOrderBy {
   variance: ProjectUsers_variance_order_by
 }
 
-"""
-input type for inserting array relation for remote table "ProjectUsers"
-"""
-input ProjectUsersArrRelInsertInput {
+"input type for inserting array relation for remote table \"ProjectUsers\""
+input ProjectUsersArrRelInsertInput @source(name: "ProjectUsersArrRelInsertInput", schema: "hasura") {
   data: [ProjectUsersInsertInput!]!
-
-  """upsert condition"""
+  "upsert condition"
   onConflict: ProjectUsersOnConflict
 }
 
-"""aggregate avg on columns"""
-type ProjectUsersAvgFields {
-  role: Float
-}
-
-"""
-Boolean expression to filter rows from the table "ProjectUsers". All fields are combined with a logical 'AND'.
-"""
-input ProjectUsersBoolExp {
+"Boolean expression to filter rows from the table \"ProjectUsers\". All fields are combined with a logical 'AND'."
+input ProjectUsersBoolExp @source(name: "ProjectUsersBoolExp", schema: "hasura") {
   Projects: ProjectsBoolExp
   User: UsersBoolExp
   _and: [ProjectUsersBoolExp!]
@@ -553,32 +613,13 @@ input ProjectUsersBoolExp {
   userId: UuidComparisonExp
 }
 
-"""
-unique or primary key constraints on table "ProjectUsers"
-"""
-enum ProjectUsersConstraint {
-  """
-  unique or primary key constraint on columns "ProjectId", "UserId"
-  """
-  IX_ProjectUsers_UserId_ProjectId
-
-  """
-  unique or primary key constraint on columns "Id"
-  """
-  PK_ProjectUsers
-}
-
-"""
-input type for incrementing numeric columns in table "ProjectUsers"
-"""
-input ProjectUsersIncInput {
+"input type for incrementing numeric columns in table \"ProjectUsers\""
+input ProjectUsersIncInput @source(name: "ProjectUsersIncInput", schema: "hasura") {
   role: Int
 }
 
-"""
-input type for inserting data into table "ProjectUsers"
-"""
-input ProjectUsersInsertInput {
+"input type for inserting data into table \"ProjectUsers\""
+input ProjectUsersInsertInput @source(name: "ProjectUsersInsertInput", schema: "hasura") {
   Projects: ProjectsObjRelInsertInput
   User: UsersObjRelInsertInput
   createdDate: timestamptz
@@ -589,48 +630,15 @@ input ProjectUsersInsertInput {
   userId: uuid
 }
 
-"""aggregate max on columns"""
-type ProjectUsersMaxFields {
-  createdDate: timestamptz
-  id: uuid
-  projectId: uuid
-  role: Int
-  updatedDate: timestamptz
-  userId: uuid
-}
-
-"""aggregate min on columns"""
-type ProjectUsersMinFields {
-  createdDate: timestamptz
-  id: uuid
-  projectId: uuid
-  role: Int
-  updatedDate: timestamptz
-  userId: uuid
-}
-
-"""
-response of any mutation on the table "ProjectUsers"
-"""
-type ProjectUsersMutationResponse {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [ProjectUsers!]!
-}
-
-"""
-on_conflict condition type for table "ProjectUsers"
-"""
-input ProjectUsersOnConflict {
+"on_conflict condition type for table \"ProjectUsers\""
+input ProjectUsersOnConflict @source(name: "ProjectUsersOnConflict", schema: "hasura") {
   constraint: ProjectUsersConstraint!
-  update_columns: [ProjectUsersUpdateColumn!]! = []
+  update_columns: [ProjectUsersUpdateColumn!]! = [  ]
   where: ProjectUsersBoolExp
 }
 
-"""Ordering options when selecting data from "ProjectUsers"."""
-input ProjectUsersOrderBy {
+"Ordering options when selecting data from \"ProjectUsers\"."
+input ProjectUsersOrderBy @source(name: "ProjectUsersOrderBy", schema: "hasura") {
   Projects: ProjectsOrderBy
   User: UsersOrderBy
   createdDate: OrderBy
@@ -641,38 +649,13 @@ input ProjectUsersOrderBy {
   userId: OrderBy
 }
 
-"""primary key columns input for table: ProjectUsers"""
-input ProjectUsersPkColumnsInput {
+"primary key columns input for table: ProjectUsers"
+input ProjectUsersPkColumnsInput @source(name: "ProjectUsersPkColumnsInput", schema: "hasura") {
   id: uuid!
 }
 
-"""
-select columns of table "ProjectUsers"
-"""
-enum ProjectUsersSelectColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  id
-
-  """column name"""
-  projectId
-
-  """column name"""
-  role
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  userId
-}
-
-"""
-input type for updating data in table "ProjectUsers"
-"""
-input ProjectUsersSetInput {
+"input type for updating data in table \"ProjectUsers\""
+input ProjectUsersSetInput @source(name: "ProjectUsersSetInput", schema: "hasura") {
   createdDate: timestamptz
   id: uuid
   projectId: uuid
@@ -681,34 +664,16 @@ input ProjectUsersSetInput {
   userId: uuid
 }
 
-"""aggregate stddev on columns"""
-type ProjectUsersStddevFields {
-  role: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type ProjectUsersStddev_popFields {
-  role: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type ProjectUsersStddev_sampFields {
-  role: Float
-}
-
-"""
-Streaming cursor of the table "ProjectUsers"
-"""
-input ProjectUsersStreamCursorInput {
-  """Stream column input with initial value"""
+"Streaming cursor of the table \"ProjectUsers\""
+input ProjectUsersStreamCursorInput @source(name: "ProjectUsersStreamCursorInput", schema: "hasura") {
+  "Stream column input with initial value"
   initialValue: ProjectUsersStreamCursorValueInput!
-
-  """cursor ordering"""
+  "cursor ordering"
   ordering: CursorOrdering
 }
 
-"""Initial value of the column from where the streaming should start"""
-input ProjectUsersStreamCursorValueInput {
+"Initial value of the column from where the streaming should start"
+input ProjectUsersStreamCursorValueInput @source(name: "ProjectUsersStreamCursorValueInput", schema: "hasura") {
   createdDate: timestamptz
   id: uuid
   projectId: uuid
@@ -717,82 +682,33 @@ input ProjectUsersStreamCursorValueInput {
   userId: uuid
 }
 
-"""aggregate sum on columns"""
-type ProjectUsersSumFields {
-  role: Int
-}
-
-"""
-update columns of table "ProjectUsers"
-"""
-enum ProjectUsersUpdateColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  id
-
-  """column name"""
-  projectId
-
-  """column name"""
-  role
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  userId
-}
-
-input ProjectUsersUpdates {
-  """increments the numeric columns with given value of the filtered values"""
+input ProjectUsersUpdates @source(name: "ProjectUsersUpdates", schema: "hasura") {
+  "increments the numeric columns with given value of the filtered values"
   _inc: ProjectUsersIncInput
-
-  """sets the columns of the filtered rows to the given values"""
+  "sets the columns of the filtered rows to the given values"
   _set: ProjectUsersSetInput
-
-  """filter the rows which have to be updated"""
+  "filter the rows which have to be updated"
   where: ProjectUsersBoolExp!
 }
 
-"""aggregate var_pop on columns"""
-type ProjectUsersVar_popFields {
-  role: Float
-}
-
-"""aggregate var_samp on columns"""
-type ProjectUsersVar_sampFields {
-  role: Float
-}
-
-"""aggregate variance on columns"""
-type ProjectUsersVarianceFields {
-  role: Float
-}
-
-input ProjectUsers_aggregate_bool_exp {
+input ProjectUsers_aggregate_bool_exp @source(name: "ProjectUsers_aggregate_bool_exp", schema: "hasura") {
   count: ProjectUsers_aggregate_bool_exp_count
 }
 
-input ProjectUsers_aggregate_bool_exp_count {
+input ProjectUsers_aggregate_bool_exp_count @source(name: "ProjectUsers_aggregate_bool_exp_count", schema: "hasura") {
   arguments: [ProjectUsersSelectColumn!]
   distinct: Boolean
   filter: ProjectUsersBoolExp
   predicate: IntComparisonExp!
 }
 
-"""
-order by avg() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_avg_order_by {
+"order by avg() on columns of table \"ProjectUsers\""
+input ProjectUsers_avg_order_by @source(name: "ProjectUsers_avg_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-order by max() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_max_order_by {
+"order by max() on columns of table \"ProjectUsers\""
+input ProjectUsers_max_order_by @source(name: "ProjectUsers_max_order_by", schema: "hasura") {
   createdDate: OrderBy
   id: OrderBy
   projectId: OrderBy
@@ -801,10 +717,8 @@ input ProjectUsers_max_order_by {
   userId: OrderBy
 }
 
-"""
-order by min() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_min_order_by {
+"order by min() on columns of table \"ProjectUsers\""
+input ProjectUsers_min_order_by @source(name: "ProjectUsers_min_order_by", schema: "hasura") {
   createdDate: OrderBy
   id: OrderBy
   projectId: OrderBy
@@ -813,141 +727,43 @@ input ProjectUsers_min_order_by {
   userId: OrderBy
 }
 
-"""
-order by stddev() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_stddev_order_by {
+"order by stddev() on columns of table \"ProjectUsers\""
+input ProjectUsers_stddev_order_by @source(name: "ProjectUsers_stddev_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-order by stddev_pop() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_stddev_pop_order_by {
+"order by stddev_pop() on columns of table \"ProjectUsers\""
+input ProjectUsers_stddev_pop_order_by @source(name: "ProjectUsers_stddev_pop_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-order by stddev_samp() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_stddev_samp_order_by {
+"order by stddev_samp() on columns of table \"ProjectUsers\""
+input ProjectUsers_stddev_samp_order_by @source(name: "ProjectUsers_stddev_samp_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-order by sum() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_sum_order_by {
+"order by sum() on columns of table \"ProjectUsers\""
+input ProjectUsers_sum_order_by @source(name: "ProjectUsers_sum_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-order by var_pop() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_var_pop_order_by {
+"order by var_pop() on columns of table \"ProjectUsers\""
+input ProjectUsers_var_pop_order_by @source(name: "ProjectUsers_var_pop_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-order by var_samp() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_var_samp_order_by {
+"order by var_samp() on columns of table \"ProjectUsers\""
+input ProjectUsers_var_samp_order_by @source(name: "ProjectUsers_var_samp_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-order by variance() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_variance_order_by {
+"order by variance() on columns of table \"ProjectUsers\""
+input ProjectUsers_variance_order_by @source(name: "ProjectUsers_variance_order_by", schema: "hasura") {
   role: OrderBy
 }
 
-"""
-columns and relationships of "Projects"
-"""
-type Projects {
-  """An array relationship"""
-  ProjectUsers(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-  changesets: [Changeset!]!
-  code: String!
-  createdDate: timestamptz!
-  description: String
-  id: uuid!
-  lastCommit: timestamptz
-  name: String!
-
-  """An aggregate relationship"""
-  projectUsersAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-  retentionPolicy: Int!
-  type: Int!
-  updatedDate: timestamptz!
-}
-
-"""
-aggregated selection of "Projects"
-"""
-type ProjectsAggregate {
-  aggregate: ProjectsAggregateFields
-  nodes: [Projects!]!
-}
-
-"""
-aggregate fields of "Projects"
-"""
-type ProjectsAggregateFields {
-  avg: ProjectsAvgFields
-  count(columns: [ProjectsSelectColumn!], distinct: Boolean): Int!
-  max: ProjectsMaxFields
-  min: ProjectsMinFields
-  stddev: ProjectsStddevFields
-  stddevPop: ProjectsStddev_popFields
-  stddevSamp: ProjectsStddev_sampFields
-  sum: ProjectsSumFields
-  varPop: ProjectsVar_popFields
-  varSamp: ProjectsVar_sampFields
-  variance: ProjectsVarianceFields
-}
-
-"""aggregate avg on columns"""
-type ProjectsAvgFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""
-Boolean expression to filter rows from the table "Projects". All fields are combined with a logical 'AND'.
-"""
-input ProjectsBoolExp {
+"Boolean expression to filter rows from the table \"Projects\". All fields are combined with a logical 'AND'."
+input ProjectsBoolExp @source(name: "ProjectsBoolExp", schema: "hasura") {
   ProjectUsers: ProjectUsersBoolExp
   ProjectUsers_aggregate: ProjectUsers_aggregate_bool_exp
   _and: [ProjectsBoolExp!]
@@ -964,33 +780,14 @@ input ProjectsBoolExp {
   updatedDate: TimestamptzComparisonExp
 }
 
-"""
-unique or primary key constraints on table "Projects"
-"""
-enum ProjectsConstraint {
-  """
-  unique or primary key constraint on columns "Code"
-  """
-  IX_Projects_Code
-
-  """
-  unique or primary key constraint on columns "Id"
-  """
-  PK_Projects
-}
-
-"""
-input type for incrementing numeric columns in table "Projects"
-"""
-input ProjectsIncInput {
+"input type for incrementing numeric columns in table \"Projects\""
+input ProjectsIncInput @source(name: "ProjectsIncInput", schema: "hasura") {
   retentionPolicy: Int
   type: Int
 }
 
-"""
-input type for inserting data into table "Projects"
-"""
-input ProjectsInsertInput {
+"input type for inserting data into table \"Projects\""
+input ProjectsInsertInput @source(name: "ProjectsInsertInput", schema: "hasura") {
   ProjectUsers: ProjectUsersArrRelInsertInput
   code: String
   createdDate: timestamptz
@@ -1003,64 +800,22 @@ input ProjectsInsertInput {
   updatedDate: timestamptz
 }
 
-"""aggregate max on columns"""
-type ProjectsMaxFields {
-  code: String
-  createdDate: timestamptz
-  description: String
-  id: uuid
-  lastCommit: timestamptz
-  name: String
-  retentionPolicy: Int
-  type: Int
-  updatedDate: timestamptz
-}
-
-"""aggregate min on columns"""
-type ProjectsMinFields {
-  code: String
-  createdDate: timestamptz
-  description: String
-  id: uuid
-  lastCommit: timestamptz
-  name: String
-  retentionPolicy: Int
-  type: Int
-  updatedDate: timestamptz
-}
-
-"""
-response of any mutation on the table "Projects"
-"""
-type ProjectsMutationResponse {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Projects!]!
-}
-
-"""
-input type for inserting object relation for remote table "Projects"
-"""
-input ProjectsObjRelInsertInput {
+"input type for inserting object relation for remote table \"Projects\""
+input ProjectsObjRelInsertInput @source(name: "ProjectsObjRelInsertInput", schema: "hasura") {
   data: ProjectsInsertInput!
-
-  """upsert condition"""
+  "upsert condition"
   onConflict: ProjectsOnConflict
 }
 
-"""
-on_conflict condition type for table "Projects"
-"""
-input ProjectsOnConflict {
+"on_conflict condition type for table \"Projects\""
+input ProjectsOnConflict @source(name: "ProjectsOnConflict", schema: "hasura") {
   constraint: ProjectsConstraint!
-  update_columns: [ProjectsUpdateColumn!]! = []
+  update_columns: [ProjectsUpdateColumn!]! = [  ]
   where: ProjectsBoolExp
 }
 
-"""Ordering options when selecting data from "Projects"."""
-input ProjectsOrderBy {
+"Ordering options when selecting data from \"Projects\"."
+input ProjectsOrderBy @source(name: "ProjectsOrderBy", schema: "hasura") {
   code: OrderBy
   createdDate: OrderBy
   description: OrderBy
@@ -1073,47 +828,13 @@ input ProjectsOrderBy {
   updatedDate: OrderBy
 }
 
-"""primary key columns input for table: Projects"""
-input ProjectsPkColumnsInput {
+"primary key columns input for table: Projects"
+input ProjectsPkColumnsInput @source(name: "ProjectsPkColumnsInput", schema: "hasura") {
   id: uuid!
 }
 
-"""
-select columns of table "Projects"
-"""
-enum ProjectsSelectColumn {
-  """column name"""
-  code
-
-  """column name"""
-  createdDate
-
-  """column name"""
-  description
-
-  """column name"""
-  id
-
-  """column name"""
-  lastCommit
-
-  """column name"""
-  name
-
-  """column name"""
-  retentionPolicy
-
-  """column name"""
-  type
-
-  """column name"""
-  updatedDate
-}
-
-"""
-input type for updating data in table "Projects"
-"""
-input ProjectsSetInput {
+"input type for updating data in table \"Projects\""
+input ProjectsSetInput @source(name: "ProjectsSetInput", schema: "hasura") {
   code: String
   createdDate: timestamptz
   description: String
@@ -1125,37 +846,16 @@ input ProjectsSetInput {
   updatedDate: timestamptz
 }
 
-"""aggregate stddev on columns"""
-type ProjectsStddevFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type ProjectsStddev_popFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type ProjectsStddev_sampFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""
-Streaming cursor of the table "Projects"
-"""
-input ProjectsStreamCursorInput {
-  """Stream column input with initial value"""
+"Streaming cursor of the table \"Projects\""
+input ProjectsStreamCursorInput @source(name: "ProjectsStreamCursorInput", schema: "hasura") {
+  "Stream column input with initial value"
   initialValue: ProjectsStreamCursorValueInput!
-
-  """cursor ordering"""
+  "cursor ordering"
   ordering: CursorOrdering
 }
 
-"""Initial value of the column from where the streaming should start"""
-input ProjectsStreamCursorValueInput {
+"Initial value of the column from where the streaming should start"
+input ProjectsStreamCursorValueInput @source(name: "ProjectsStreamCursorValueInput", schema: "hasura") {
   code: String
   createdDate: timestamptz
   description: String
@@ -1167,451 +867,55 @@ input ProjectsStreamCursorValueInput {
   updatedDate: timestamptz
 }
 
-"""aggregate sum on columns"""
-type ProjectsSumFields {
-  retentionPolicy: Int
-  type: Int
-}
-
-"""
-update columns of table "Projects"
-"""
-enum ProjectsUpdateColumn {
-  """column name"""
-  code
-
-  """column name"""
-  createdDate
-
-  """column name"""
-  description
-
-  """column name"""
-  id
-
-  """column name"""
-  lastCommit
-
-  """column name"""
-  name
-
-  """column name"""
-  retentionPolicy
-
-  """column name"""
-  type
-
-  """column name"""
-  updatedDate
-}
-
-input ProjectsUpdates {
-  """increments the numeric columns with given value of the filtered values"""
+input ProjectsUpdates @source(name: "ProjectsUpdates", schema: "hasura") {
+  "increments the numeric columns with given value of the filtered values"
   _inc: ProjectsIncInput
-
-  """sets the columns of the filtered rows to the given values"""
+  "sets the columns of the filtered rows to the given values"
   _set: ProjectsSetInput
-
-  """filter the rows which have to be updated"""
+  "filter the rows which have to be updated"
   where: ProjectsBoolExp!
 }
 
-"""aggregate var_pop on columns"""
-type ProjectsVar_popFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate var_samp on columns"""
-type ProjectsVar_sampFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate variance on columns"""
-type ProjectsVarianceFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-type Query {
-  changesets(projectCode: String!): [Changeset!]!
-  me: LexAuthUser!
-  myProjects: [Project!]!
-
-  """
-  fetch data from the table: "ProjectUsers"
-  """
-  projectUsers(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-
-  """An aggregate relationship"""
-  projectUsersAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-
-  """fetch data from the table: "ProjectUsers" using primary key columns"""
-  projectUsersByPk(id: uuid!): ProjectUsers
-
-  """
-  fetch data from the table: "Projects"
-  """
-  projects(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): [Projects!]!
-
-  """
-  fetch aggregated fields from the table: "Projects"
-  """
-  projectsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): ProjectsAggregate!
-
-  """fetch data from the table: "Projects" using primary key columns"""
-  projectsByPk(id: uuid!): Projects
-
-  """
-  fetch data from the table: "Users"
-  """
-  users(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): [Users!]!
-
-  """
-  fetch aggregated fields from the table: "Users"
-  """
-  usersAggregate(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): UsersAggregate!
-
-  """fetch data from the table: "Users" using primary key columns"""
-  usersByPk(id: uuid!): Users
-}
-
-input RemoveProjectMemberInput {
+input RemoveProjectMemberInput @source(name: "RemoveProjectMemberInput", schema: "LexBox") {
   projectId: UUID!
   userId: UUID!
 }
 
-type RequiredError implements Error {
-  message: String!
-}
-
-enum RetentionPolicy {
-  DEV
-  TEST
-  TRAINING
-  UNKNOWN
-  VERIFIED
-}
-
-"""
-Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
-"""
-input StringComparisonExp {
+"Boolean expression to compare columns of type \"String\". All fields are combined with logical 'AND'."
+input StringComparisonExp @source(name: "StringComparisonExp", schema: "hasura") {
   _eq: String
   _gt: String
   _gte: String
-
-  """does the column match the given case-insensitive pattern"""
+  "does the column match the given case-insensitive pattern"
   _ilike: String
   _in: [String!]
-
-  """
-  does the column match the given POSIX regular expression, case insensitive
-  """
+  "does the column match the given POSIX regular expression, case insensitive"
   _iregex: String
   _isNull: Boolean
-
-  """does the column match the given pattern"""
+  "does the column match the given pattern"
   _like: String
   _lt: String
   _lte: String
   _neq: String
-
-  """does the column NOT match the given case-insensitive pattern"""
+  "does the column NOT match the given case-insensitive pattern"
   _nilike: String
   _nin: [String!]
-
-  """
-  does the column NOT match the given POSIX regular expression, case insensitive
-  """
+  "does the column NOT match the given POSIX regular expression, case insensitive"
   _niregex: String
-
-  """does the column NOT match the given pattern"""
+  "does the column NOT match the given pattern"
   _nlike: String
-
-  """
-  does the column NOT match the given POSIX regular expression, case sensitive
-  """
+  "does the column NOT match the given POSIX regular expression, case sensitive"
   _nregex: String
-
-  """does the column NOT match the given SQL regular expression"""
+  "does the column NOT match the given SQL regular expression"
   _nsimilar: String
-
-  """
-  does the column match the given POSIX regular expression, case sensitive
-  """
+  "does the column match the given POSIX regular expression, case sensitive"
   _regex: String
-
-  """does the column match the given SQL regular expression"""
+  "does the column match the given SQL regular expression"
   _similar: String
 }
 
-type Subscription {
-  """
-  fetch data from the table: "ProjectUsers"
-  """
-  projectUsers(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-
-  """An aggregate relationship"""
-  projectUsersAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-
-  """fetch data from the table: "ProjectUsers" using primary key columns"""
-  projectUsersByPk(id: uuid!): ProjectUsers
-
-  """
-  fetch data from the table in a streaming manner: "ProjectUsers"
-  """
-  projectUsersStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [ProjectUsersStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-
-  """
-  fetch data from the table: "Projects"
-  """
-  projects(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): [Projects!]!
-
-  """
-  fetch aggregated fields from the table: "Projects"
-  """
-  projectsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): ProjectsAggregate!
-
-  """fetch data from the table: "Projects" using primary key columns"""
-  projectsByPk(id: uuid!): Projects
-
-  """
-  fetch data from the table in a streaming manner: "Projects"
-  """
-  projectsStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [ProjectsStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): [Projects!]!
-
-  """
-  fetch data from the table: "Users"
-  """
-  users(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): [Users!]!
-
-  """
-  fetch aggregated fields from the table: "Users"
-  """
-  usersAggregate(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): UsersAggregate!
-
-  """fetch data from the table: "Users" using primary key columns"""
-  usersByPk(id: uuid!): Users
-
-  """
-  fetch data from the table in a streaming manner: "Users"
-  """
-  usersStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [UsersStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): [Users!]!
-}
-
-"""
-Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
-"""
-input TimestamptzComparisonExp {
+"Boolean expression to compare columns of type \"timestamptz\". All fields are combined with logical 'AND'."
+input TimestamptzComparisonExp @source(name: "TimestamptzComparisonExp", schema: "hasura") {
   _eq: timestamptz
   _gt: timestamptz
   _gte: timestamptz
@@ -1623,97 +927,8 @@ input TimestamptzComparisonExp {
   _nin: [timestamptz!]
 }
 
-scalar UUID
-
-type User {
-  createdDate: DateTime!
-  email: String!
-  id: UUID!
-  isAdmin: Boolean!
-  name: String!
-  passwordHash: String!
-  projects: [LexBox_ProjectUsers!]!
-  salt: String!
-  updatedDate: DateTime!
-  username: String
-}
-
-enum UserRole {
-  ADMIN
-  USER
-}
-
-"""
-columns and relationships of "Users"
-"""
-type Users {
-  """An array relationship"""
-  UserProjects(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-  createdDate: timestamptz!
-  email: String!
-  id: uuid!
-  isAdmin: Boolean!
-  name: String!
-  passwordHash: String!
-  salt: String!
-  updatedDate: timestamptz!
-
-  """An aggregate relationship"""
-  userProjectsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-  username: String
-}
-
-"""
-aggregated selection of "Users"
-"""
-type UsersAggregate {
-  aggregate: UsersAggregateFields
-  nodes: [Users!]!
-}
-
-"""
-aggregate fields of "Users"
-"""
-type UsersAggregateFields {
-  count(columns: [UsersSelectColumn!], distinct: Boolean): Int!
-  max: UsersMaxFields
-  min: UsersMinFields
-}
-
-"""
-Boolean expression to filter rows from the table "Users". All fields are combined with a logical 'AND'.
-"""
-input UsersBoolExp {
+"Boolean expression to filter rows from the table \"Users\". All fields are combined with a logical 'AND'."
+input UsersBoolExp @source(name: "UsersBoolExp", schema: "hasura") {
   UserProjects: ProjectUsersBoolExp
   UserProjects_aggregate: ProjectUsers_aggregate_bool_exp
   _and: [UsersBoolExp!]
@@ -1730,20 +945,8 @@ input UsersBoolExp {
   username: StringComparisonExp
 }
 
-"""
-unique or primary key constraints on table "Users"
-"""
-enum UsersConstraint {
-  """
-  unique or primary key constraint on columns "Id"
-  """
-  PK_Users
-}
-
-"""
-input type for inserting data into table "Users"
-"""
-input UsersInsertInput {
+"input type for inserting data into table \"Users\""
+input UsersInsertInput @source(name: "UsersInsertInput", schema: "hasura") {
   UserProjects: ProjectUsersArrRelInsertInput
   createdDate: timestamptz
   email: String
@@ -1756,62 +959,22 @@ input UsersInsertInput {
   username: String
 }
 
-"""aggregate max on columns"""
-type UsersMaxFields {
-  createdDate: timestamptz
-  email: String
-  id: uuid
-  name: String
-  passwordHash: String
-  salt: String
-  updatedDate: timestamptz
-  username: String
-}
-
-"""aggregate min on columns"""
-type UsersMinFields {
-  createdDate: timestamptz
-  email: String
-  id: uuid
-  name: String
-  passwordHash: String
-  salt: String
-  updatedDate: timestamptz
-  username: String
-}
-
-"""
-response of any mutation on the table "Users"
-"""
-type UsersMutationResponse {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Users!]!
-}
-
-"""
-input type for inserting object relation for remote table "Users"
-"""
-input UsersObjRelInsertInput {
+"input type for inserting object relation for remote table \"Users\""
+input UsersObjRelInsertInput @source(name: "UsersObjRelInsertInput", schema: "hasura") {
   data: UsersInsertInput!
-
-  """upsert condition"""
+  "upsert condition"
   onConflict: UsersOnConflict
 }
 
-"""
-on_conflict condition type for table "Users"
-"""
-input UsersOnConflict {
+"on_conflict condition type for table \"Users\""
+input UsersOnConflict @source(name: "UsersOnConflict", schema: "hasura") {
   constraint: UsersConstraint!
-  update_columns: [UsersUpdateColumn!]! = []
+  update_columns: [UsersUpdateColumn!]! = [  ]
   where: UsersBoolExp
 }
 
-"""Ordering options when selecting data from "Users"."""
-input UsersOrderBy {
+"Ordering options when selecting data from \"Users\"."
+input UsersOrderBy @source(name: "UsersOrderBy", schema: "hasura") {
   createdDate: OrderBy
   email: OrderBy
   id: OrderBy
@@ -1824,47 +987,13 @@ input UsersOrderBy {
   username: OrderBy
 }
 
-"""primary key columns input for table: Users"""
-input UsersPkColumnsInput {
+"primary key columns input for table: Users"
+input UsersPkColumnsInput @source(name: "UsersPkColumnsInput", schema: "hasura") {
   id: uuid!
 }
 
-"""
-select columns of table "Users"
-"""
-enum UsersSelectColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  email
-
-  """column name"""
-  id
-
-  """column name"""
-  isAdmin
-
-  """column name"""
-  name
-
-  """column name"""
-  passwordHash
-
-  """column name"""
-  salt
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  username
-}
-
-"""
-input type for updating data in table "Users"
-"""
-input UsersSetInput {
+"input type for updating data in table \"Users\""
+input UsersSetInput @source(name: "UsersSetInput", schema: "hasura") {
   createdDate: timestamptz
   email: String
   id: uuid
@@ -1876,19 +1005,16 @@ input UsersSetInput {
   username: String
 }
 
-"""
-Streaming cursor of the table "Users"
-"""
-input UsersStreamCursorInput {
-  """Stream column input with initial value"""
+"Streaming cursor of the table \"Users\""
+input UsersStreamCursorInput @source(name: "UsersStreamCursorInput", schema: "hasura") {
+  "Stream column input with initial value"
   initialValue: UsersStreamCursorValueInput!
-
-  """cursor ordering"""
+  "cursor ordering"
   ordering: CursorOrdering
 }
 
-"""Initial value of the column from where the streaming should start"""
-input UsersStreamCursorValueInput {
+"Initial value of the column from where the streaming should start"
+input UsersStreamCursorValueInput @source(name: "UsersStreamCursorValueInput", schema: "hasura") {
   createdDate: timestamptz
   email: String
   id: uuid
@@ -1900,50 +1026,15 @@ input UsersStreamCursorValueInput {
   username: String
 }
 
-"""
-update columns of table "Users"
-"""
-enum UsersUpdateColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  email
-
-  """column name"""
-  id
-
-  """column name"""
-  isAdmin
-
-  """column name"""
-  name
-
-  """column name"""
-  passwordHash
-
-  """column name"""
-  salt
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  username
-}
-
-input UsersUpdates {
-  """sets the columns of the filtered rows to the given values"""
+input UsersUpdates @source(name: "UsersUpdates", schema: "hasura") {
+  "sets the columns of the filtered rows to the given values"
   _set: UsersSetInput
-
-  """filter the rows which have to be updated"""
+  "filter the rows which have to be updated"
   where: UsersBoolExp!
 }
 
-"""
-Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'.
-"""
-input UuidComparisonExp {
+"Boolean expression to compare columns of type \"uuid\". All fields are combined with logical 'AND'."
+input UuidComparisonExp @source(name: "UuidComparisonExp", schema: "hasura") {
   _eq: uuid
   _gt: uuid
   _gte: uuid
@@ -1955,6 +1046,222 @@ input UuidComparisonExp {
   _nin: [uuid!]
 }
 
-scalar timestamptz @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
+"ordering argument of a cursor"
+enum CursorOrdering @source(name: "CursorOrdering", schema: "hasura") {
+  "ascending ordering of the cursor"
+  ASC
+  "descending ordering of the cursor"
+  DESC
+}
+
+enum DbErrorCode @source(name: "DbErrorCode", schema: "LexBox") {
+  UNKNOWN
+  DUPLICATE
+}
+
+"column ordering options"
+enum OrderBy @source(name: "OrderBy", schema: "hasura") {
+  "in ascending order, nulls last"
+  ASC
+  "in ascending order, nulls first"
+  ASC_NULLS_FIRST
+  "in ascending order, nulls last"
+  ASC_NULLS_LAST
+  "in descending order, nulls first"
+  DESC
+  "in descending order, nulls first"
+  DESC_NULLS_FIRST
+  "in descending order, nulls last"
+  DESC_NULLS_LAST
+}
+
+enum ProjectRole @source(name: "ProjectRole", schema: "LexBox") {
+  UNKNOWN
+  MANAGER
+  EDITOR
+}
+
+enum ProjectType @source(name: "ProjectType", schema: "LexBox") {
+  UNKNOWN
+  FL_EX
+  WE_SAY
+  ONE_STORY_EDITOR
+  OUR_WORD
+}
+
+"unique or primary key constraints on table \"ProjectUsers\""
+enum ProjectUsersConstraint @source(name: "ProjectUsersConstraint", schema: "hasura") {
+  "unique or primary key constraint on columns \"ProjectId\", \"UserId\""
+  IX_ProjectUsers_UserId_ProjectId
+  "unique or primary key constraint on columns \"Id\""
+  PK_ProjectUsers
+}
+
+"select columns of table \"ProjectUsers\""
+enum ProjectUsersSelectColumn @source(name: "ProjectUsersSelectColumn", schema: "hasura") {
+  "column name"
+  createdDate
+  "column name"
+  id
+  "column name"
+  projectId
+  "column name"
+  role
+  "column name"
+  updatedDate
+  "column name"
+  userId
+}
+
+"update columns of table \"ProjectUsers\""
+enum ProjectUsersUpdateColumn @source(name: "ProjectUsersUpdateColumn", schema: "hasura") {
+  "column name"
+  createdDate
+  "column name"
+  id
+  "column name"
+  projectId
+  "column name"
+  role
+  "column name"
+  updatedDate
+  "column name"
+  userId
+}
+
+"unique or primary key constraints on table \"Projects\""
+enum ProjectsConstraint @source(name: "ProjectsConstraint", schema: "hasura") {
+  "unique or primary key constraint on columns \"Code\""
+  IX_Projects_Code
+  "unique or primary key constraint on columns \"Id\""
+  PK_Projects
+}
+
+"select columns of table \"Projects\""
+enum ProjectsSelectColumn @source(name: "ProjectsSelectColumn", schema: "hasura") {
+  "column name"
+  code
+  "column name"
+  createdDate
+  "column name"
+  description
+  "column name"
+  id
+  "column name"
+  lastCommit
+  "column name"
+  name
+  "column name"
+  retentionPolicy
+  "column name"
+  type
+  "column name"
+  updatedDate
+}
+
+"update columns of table \"Projects\""
+enum ProjectsUpdateColumn @source(name: "ProjectsUpdateColumn", schema: "hasura") {
+  "column name"
+  code
+  "column name"
+  createdDate
+  "column name"
+  description
+  "column name"
+  id
+  "column name"
+  lastCommit
+  "column name"
+  name
+  "column name"
+  retentionPolicy
+  "column name"
+  type
+  "column name"
+  updatedDate
+}
+
+enum RetentionPolicy @source(name: "RetentionPolicy", schema: "LexBox") {
+  UNKNOWN
+  VERIFIED
+  TEST
+  DEV
+  TRAINING
+}
+
+enum UserRole @source(name: "UserRole", schema: "LexBox") {
+  ADMIN
+  USER
+}
+
+"unique or primary key constraints on table \"Users\""
+enum UsersConstraint @source(name: "UsersConstraint", schema: "hasura") {
+  "unique or primary key constraint on columns \"Id\""
+  PK_Users
+}
+
+"select columns of table \"Users\""
+enum UsersSelectColumn @source(name: "UsersSelectColumn", schema: "hasura") {
+  "column name"
+  createdDate
+  "column name"
+  email
+  "column name"
+  id
+  "column name"
+  isAdmin
+  "column name"
+  name
+  "column name"
+  passwordHash
+  "column name"
+  salt
+  "column name"
+  updatedDate
+  "column name"
+  username
+}
+
+"update columns of table \"Users\""
+enum UsersUpdateColumn @source(name: "UsersUpdateColumn", schema: "hasura") {
+  "column name"
+  createdDate
+  "column name"
+  email
+  "column name"
+  id
+  "column name"
+  isAdmin
+  "column name"
+  name
+  "column name"
+  passwordHash
+  "column name"
+  salt
+  "column name"
+  updatedDate
+  "column name"
+  username
+}
+
+"whether this query should be cached (Hasura Cloud only)"
+directive @cached("measured in seconds" ttl: Int! = 60 "refresh the cache entry" refresh: Boolean! = false) on QUERY
+
+directive @computed("Specifies the fields on which a computed field is dependent on." dependantOn: [String!]) on FIELD_DEFINITION
+
+"Delegates a resolver to a remote schema."
+directive @delegate("The path to the field on the remote schema." path: String "The name of the schema to which this field shall be delegated to." schema: String!) on FIELD_DEFINITION
+
+"Annotates the original name of a type."
+directive @source("The original name of the annotated type." name: String! "The name of the schema to which this type belongs to." schema: String!) repeatable on OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
+
+"The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
+directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
+
+scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
+
+scalar UUID
+
+scalar timestamptz @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
 
 scalar uuid

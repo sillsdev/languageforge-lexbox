@@ -3,12 +3,6 @@ import type { Options } from 'vite-plugin-graphql-codegen';
 //config passed into vite instead of via codegen file, works the same though
 import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript/typings/config';
 
-// const devSchema: NonNullable<Options['config']>['schema'] = {
-//   'http://localhost:5158/api/graphql/schema.graphql': {
-
-//   }
-// };
-
 const generationConfig: TypeScriptPluginConfig = {
   useTypeImports: true,
   skipTypename: true,
@@ -28,11 +22,6 @@ const generationConfig: TypeScriptPluginConfig = {
 };
 type ConfiguredOutput = NonNullable<Options['config']>['generates'][string];
 const schemaPath = 'schema.graphql';
-const schemaGeneration: Record<string, ConfiguredOutput> = {
-  [schemaPath]: {
-    plugins: ['schema-ast']
-  }
-};
 const clientGeneration: Record<string, ConfiguredOutput> = {
   './src/lib/gql/generated/': {
     preset: 'client',
@@ -43,22 +32,10 @@ const clientGeneration: Record<string, ConfiguredOutput> = {
 
 export const gqlOptions: Options = {
   config: {
+    schema: schemaPath,
     documents: ['src/**/*.{ts,graphql}', '!src/lib/gql/generated/**/*'],
     ignoreNoDocuments: true, // for better experience with the watcher
     // verbose: true,
-    generates: {
-      ...schemaGeneration,
-      ...clientGeneration
-    }
-  },
-  configOverrideWatcher: {
-    schema: schemaPath
-  },
-  configOverrideOnStart: {
-    schema: schemaPath
-  },
-  configOverrideOnBuild: {
-    schema: schemaPath,
     generates: {
       ...clientGeneration
     }
