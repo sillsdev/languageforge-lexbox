@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectSettingsService">
+    <option name="localesDirectory" value="C:\dev\LexBox\frontend\src\lib\i18n\locales" />
+    <option name="parserStrategy" value="JSON5" />
+    <option name="filePattern" value="*.json" />
+    <option name="defaultNamespace" value="" />
+  </component>
+</project>
