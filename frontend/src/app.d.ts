@@ -6,10 +6,7 @@ export { }; // for some reason this is required in order to make global changes
 
 declare global {
   interface Window {
-    /* eslint-disable @typescript-eslint/naming-convention */
-    fetch_original: typeof window.fetch;
-    fetch_instrumented: typeof window.fetch;
-    /* eslint-enable @typescript-eslint/naming-convention */
+    lexbox: { fetchProxy: Fetch }
   }
 
   namespace App {
@@ -23,6 +20,8 @@ declare global {
       handler: ErrorHandler;
     }
   }
+
+  type Fetch = typeof window.fetch;
 
   type ErrorHandler =
     'client-error' | 'client-unhandledrejection' |

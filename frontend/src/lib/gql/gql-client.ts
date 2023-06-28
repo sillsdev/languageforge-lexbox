@@ -45,7 +45,7 @@ export function getClient(): GqlClient {
 type OperationOptions = Partial<OperationContext>;
 
 type QueryOperationOptions = OperationOptions
-  & { fetch: typeof fetch }; // ensure the sveltekit fetch is always provided
+  & { fetch: Fetch }; // ensure the sveltekit fetch is always provided
 
 class GqlClient {
 

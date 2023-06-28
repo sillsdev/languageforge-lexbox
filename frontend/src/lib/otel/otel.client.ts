@@ -7,18 +7,10 @@ import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
+import { instrumentGlobalFetch } from '$lib/util/fetch-proxy';
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
 export * from '.';
-
-type Fetch = typeof fetch;
-
-let fetchHandler: ((fetch: Fetch, ...args: Parameters<Fetch>) => Promise<Response>) | undefined;
-
-export const handleFetch = (_fetchHandler: (fetch: Fetch, ...args: Parameters<Fetch>) => Promise<Response>): void => {
-  if (fetchHandler) throw new Error('OTEL fetch handler was already initialized');
-  fetchHandler = _fetchHandler;
-};
 
 /**
  * Very minimal instrumentation here, because the auto-instrumentation handles the core stuff,
@@ -39,23 +31,11 @@ export const traceFetch = (fetch: () => ReturnType<Fetch>): ReturnType<Fetch> =>
   });
 };
 
-// fetch_original & fetch_instrumented are referenced by our fetch_proxy in app.html
-const fetchProxy = window.fetch;
-try {
-  // Have otel instrument the original
-  window.fetch = window.fetch_original;
+instrumentGlobalFetch(() => {
   registerInstrumentations({
     instrumentations: [getWebAutoInstrumentations()],
   });
-} finally {
-  // The (now) instrumented version for our proxy to call
-  const instrumentedFetch = window.fetch;
-  // Wrap it in our own fetch handler/interceptor so we can intercept 401's and such
-  // and then provide it to the proxy so it gets used
-  window.fetch_instrumented = (...args) => fetchHandler ? fetchHandler(instrumentedFetch, ...args) : instrumentedFetch(...args);
-  // Put the proxy back into place
-  window.fetch = fetchProxy;
-}
+});
 
 const resource = Resource.default().merge(
   new Resource({
