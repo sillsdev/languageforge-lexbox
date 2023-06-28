@@ -1,5 +1,6 @@
 using HotChocolate.Diagnostics;
 using LexBoxApi.Config;
+using LexBoxApi.Services;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexData;
 using Microsoft.Extensions.Options;
