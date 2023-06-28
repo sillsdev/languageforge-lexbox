@@ -12,6 +12,7 @@
   import  type {ChangeUserAccountByAdminInput} from '$lib/gql/types';
   import type {DeleteUserByAdminInput} from '$lib/gql/types';
   import { hash } from '$lib/user';
+
   export let data: PageData;
 
   let projectSearch = '';
@@ -37,45 +38,37 @@
 
     const schema = z.object({
         email: z.string().email(),
-        confirm: z.string().email(),
         name: z.string(),
         password: z.string().optional(),
-        confirmPassword: z.string().optional(),
         userId: z.string().optional(),
     });
   const verify = z.object({
        keyphrase: z.string().optional(),
   });
+
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
   let deletionFormModal: FormModal<typeof verify>;
   $: deletionForm = deletionFormModal?.form();
 
-  async function deleteUser(id: string): Promise<void> {
-    alert(id);
+
+  async function deleteUser(id: any): Promise<void> {
        await deletionFormModal.open(async () => {
-           if ($deletionForm.keyphrase === 'hello'){
-            if(data.user){
+        if( data.user ){
+           if ($deletionForm.keyphrase === 'delete user'){
                const deleteUserInput: DeleteUserByAdminInput = {
                 adminId: data.user.id,
                 userId: id,
                }
                await _deleteUserByAdmin(deleteUserInput);
-               return 'cool';
            }}
-           return;
        });
   }
   async function openModal(user: any): Promise<void> {
     $form.email = user.email;
     $form.name = user.name;
-    $form.confirm = user.email;
     $form.userId = user.id;
     await formModal.open(async () => {
-
-        if ($form.email !== $form.confirm){
-            return 'Emails do not match';
-        }
         if (data.user){
         const changeInput: ChangeUserAccountByAdminInput = {
             adminId: data.user.id,
@@ -87,7 +80,7 @@
         await _changeUserAccountByAdmin(changeInput);
     }
     let password: string = $form.password ?? '';
-    if (password !== '' && $form.password === $form.confirmPassword){
+    if (password !== '' && $form.password){
         await fetch('api/login/resetPasswordAdmin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -104,7 +97,7 @@
 </svelte:head>
 
 <main>
-  <div class="grid grid-cols-2">
+  <div class="grid grid-cols-2 m:grid-cols-1">
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
         {$t('admin_dashboard.project_table_title')}
@@ -158,20 +151,20 @@
     </div>
 
     <div class="pl-1 overflow-x-auto">
+
       <span class="text-xl">
         {$t('admin_dashboard.user_table_title')}
         <Badge>{userSearch ? users.length : data.users.length}</Badge>
       </span>
-
       <Input
         type="text"
         label={$t('admin_dashboard.filter_label')}
         placeholder={$t('admin_dashboard.filter_placeholder')}
         bind:value={userSearch}
+
       />
 
       <div class="divider" />
-
       <table class="table">
         <thead>
           <tr>
@@ -191,7 +184,8 @@
               <td>
                 <FormatDate date={user.createdDate} />
               </td>
-            <td><button class="btn btn-ghost rounded" on:click={async () => {await openModal(user)}}><PencilIcon></PencilIcon></button></td>
+            <td>
+                <button class="btn btn-ghost rounded" on:click={async () => {await openModal(user)}}><PencilIcon></PencilIcon></button></td>
 
             </tr>
           {/each}
@@ -205,48 +199,30 @@
     <Input
       id="email"
       type="email"
-      label="Enter new email"
+      label="enter new email"
       bind:value={$form.email}
       required
       error={errors.email}
       autofocus
     />
     <Input
-      id="confirm"
-      type="email"
-      label="Confirm new email"
-      bind:value={$form.confirm}
-      required
-      error={errors.confirm}
-      autofocus
-    />
-    <Input
       id="name"
       type="text"
-      label="Change display name"
+      label="change display name"
       bind:value={$form.name}
       required
-      error={errors.confirm}
+      error={errors.name}
       autofocus
     />
-    <span class="text text-warning mb-4">Danger zone:</span>
+    <div class = "text-error">
     <Input
         id="password"
         type="password"
-        label="Change password"
+        label="change password"
         bind:value={$form.password}
-        required={false}
-
-  />
-  <Input
-    id="confirmPassword"
-    type="password"
-    label="Confirm password"
-    bind:value={$form.confirmPassword}
-    required={false}
-
-    />
-    <button class="btn btn-error" on:click={async () => {await deleteUser($form.userId)}}>Delete User<TrashIcon></TrashIcon></button>
+        required={false}/>
+    </div>
+    <button class="btn btn-error rounded" on:click={async () => {await deleteUser($form.userId)}}>Delete User<TrashIcon></TrashIcon></button>
     <span slot="submitText">Apply</span>
   </FormModal>
 
@@ -255,10 +231,11 @@
     <Input
     id="keyphrase"
     type="text"
-    label="Entere the keyphrase"
-    placeholder=""
+    label="type 'delete user' to delete this user."
+    placeholder={$form.name}
     error={errors.keyphrase}
     bind:value={$deletionForm.keyphrase}
   />
+  <span slot="submitText">Apply</span>
 </FormModal>
 </main>
