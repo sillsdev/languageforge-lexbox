@@ -1,4 +1,0 @@
-{
-    "$schema": "https://unpkg.com/graphql-config@4.5.0/config-schema.json",
-    "schema": "frontend/schema.graphql"
-}
