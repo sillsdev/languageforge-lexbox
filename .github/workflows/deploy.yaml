@@ -1,0 +1,52 @@
+﻿on:
+  workflow_call:
+    inputs:
+      expected-api-version:
+        description: 'The version of the API to deploy (TODO, currently only the version to verify, it deploys latest always right now)'
+        type: string
+
+jobs:
+  deploy:
+    concurrency: deploy-staging
+    runs-on: ubuntu-latest
+    if: ${{ github.ref ==  vars.PROD_BRANCH }}
+    environment:
+      name: staging
+      url: https://staging.languagedepot.org
+    steps:
+      - name: Deploy
+        uses: drlove2002/secure-github-webhook@0.3.0
+        with:
+          url: ${{ vars.DEPLOY_WEBHOOK_URL }}
+          hmacSecret: ${{ secrets.DEPLOY_KEY }}
+          data: >-
+            {
+              "action" : "push",
+              "ref" : "${{ github.ref }}",
+              "version": "${{ inputs.expected-api-version }}"
+            }
+      - name: Verify Version
+        if: ${{ inputs.expected-api-version }}
+        env:
+          TARGET_HOST: https://staging.languagedepot.org
+          EXPECTED_VERSION: ${{ inputs.expected-api-version }}
+        run: |
+          IterateCount=5
+          n=0
+          until [ $n -ge $IterateCount ]
+          do
+            response=`curl -s --head "$TARGET_HOST/api/healthz"`
+            # get version from response, trim off the header and fix the line endings
+            versionHeader=`echo "$response" | grep "lexbox-version" | cut -d' ' -f 2 | tr -d '[:space:]'`
+            if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
+                echo "Version is correct"
+                exit 0
+            else
+                echo "Version $versionHeader is incorrect, expected $EXPECTED_VERSION"
+                n=$((n+1))
+                sleep $((2 * n))
+            fi
+          done
+
+          echo "Version $versionHeader is still incorrect after waiting"
+          exit 1

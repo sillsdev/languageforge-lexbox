@@ -25,8 +25,7 @@ export async function load(event: PageLoadEvent): Promise<{ projects: Project[] 
                 }
             }
         }
-    `), { userId }, { fetch: event.fetch }).toPromise();
-  if (results.error) throw new Error(results.error.message);
+    `), { userId }, { fetch: event.fetch });
   if (!results.data) throw new Error('No data returned');
   return {
     ...parentData,

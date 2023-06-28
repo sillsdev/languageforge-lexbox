@@ -35,8 +35,8 @@ export async function load(event: PageLoadEvent) {
                 createdDate
             }
         }
-    `), {}, { fetch: event.fetch }).toPromise();
-  if (results.error) throw new Error(results.error.message);
+    `), {}, { fetch: event.fetch });
+
   return {
     projects: results.data?.projects ?? [],
     users: results.data?.users ?? []

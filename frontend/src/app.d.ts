@@ -8,7 +8,7 @@ declare global {
   interface Window {
     /* eslint-disable @typescript-eslint/naming-convention */
     fetch_original: typeof window.fetch;
-    fetch_otel_instrumented: typeof window.fetch;
+    fetch_instrumented: typeof window.fetch;
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 
@@ -20,9 +20,11 @@ declare global {
 
     interface Error {
       traceId: string;
-      source: ErrorSource;
+      handler: ErrorHandler;
     }
   }
 
-  type ErrorSource = 'client-error' | 'client-unhandledrejection' | 'server-error-hook' | 'client-error-hook';
+  type ErrorHandler =
+    'client-error' | 'client-unhandledrejection' |
+    'server-error-hook' | 'client-error-hook';
 }

@@ -13,7 +13,7 @@
     if (error) {
       return {
         ...error,
-        message: `${error?.message}\r\n(${error?.source})`,
+        message: `${error?.message}\r\n(${error?.handler})`,
       };
     }
   });
@@ -47,7 +47,7 @@
   }
 
   function getHoneyCombEnv(): string {
-    const _env = env.PUBLIC_ENV_NAME;
+    const _env = env.PUBLIC_ENV_NAME.toLowerCase();
     if (_env.includes('prod')) {
       return 'prod';
     } else if (_env.includes('stag')) {

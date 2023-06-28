@@ -26,7 +26,7 @@ type UserProjects = {
   role: 'Manager' | 'Editor'
 }
 
-export const isAdmin = (user: LexAuthUser | null) => user?.role === 'admin';
+export const isAdmin = (user: LexAuthUser | null): boolean => user?.role === 'admin';
 
 export async function login(userId: string, password: string): Promise<boolean> {
   const response = await fetch('/api/login', {
