@@ -132,7 +132,7 @@ public class LexMutations
         var admin = await dbContext.Users.FindAsync(input.AdminId);
         if (admin is null) throw new NotFoundException("Admin not found");
         if (admin.IsAdmin && _loggedInContext.User.Id == input.AdminId){
-            var user = await dbContext.Users.FindAsync(input.UserId); //find based on userId
+            var user = await dbContext.Users.FindAsync(input.UserId);
             if (user is null) throw new NotFoundException("User not found");
             if (!String.IsNullOrEmpty(input.Name)){
                 user.Name = input.Name;
