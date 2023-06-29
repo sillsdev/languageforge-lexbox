@@ -35,12 +35,15 @@ tasks:
       - rm sena-3.zip
 
   # docker
-  up:
+  up: # e.g. task up -- otel-collector --build
     cmds:
-      - docker compose up --wait
+      - docker compose up --wait {{.CLI_ARGS}}
   down:
     cmds:
       - docker compose down
+  restart: # e.g. task restart -- lexbox-api
+    cmds:
+      - docker compose restart {{.CLI_ARGS}}
 
   # tests
   test:
