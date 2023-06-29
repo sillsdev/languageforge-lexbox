@@ -264,6 +264,23 @@ spec:
         image: busybox:1.36.1
         command: ['sh', '-c', "until nc -w 1 -z db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
         # command: ['sh', '-c', "until nc -w 1 -z db.languagedepot.svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
+      - name: db-migrations
+        # Should be same image as lexbox-api container
+        image: ghcr.io/sillsdev/lexbox-api:develop
+        command: ['sh', '-c', 'dotnet run migrate --environment "Development"']
+        env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_DB
+                  name: db
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: db
+          - name: DbConfig__LexBoxConnectionString
+            value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
 
 ---
 apiVersion: v1
