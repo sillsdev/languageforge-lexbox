@@ -60,13 +60,32 @@ tasks:
     cmds:
       - docker compose up maildev db hasura hgweb otel-collector hgresumable -d --wait={{.WAIT}}
 
-  dev:
-    deps: [ ui, api ]
+  backend-up:
+    vars:
+      WAIT: '{{default true .WAIT}}'
+    cmds:
+      # GraphQL breaks if changes are made while running in docker, so a restart is handy
+      - task: api-stop
+      # Needs to start before Hasura (can't use depends-on in docker-compose.yaml, because that wouldn't support running the api locally)
+      - task: api-up
+      - docker compose up hasura -d --wait={{.WAIT}}
+
+  dev: # Currently broken (because the ui doesn't wait for the api), but probably no one uses it.
+    deps: [ api-dev, ui-only]
+    interactive: true
 
   # ui
-  ui:
+  ui-dev: # The single command for ui development
+    aliases:
+      - "ui"
     dir: ./frontend
-    deps: [ infra-up, ui-down, ui-install ]
+    deps: [ backend-up, ui-down ]
+    interactive: true
+    cmds:
+      - task: ui-only
+  ui-only:
+    dir: ./frontend
+    deps: [ ui-install ]
     interactive: true
     cmds:
       - pnpm run dev
@@ -77,19 +96,29 @@ tasks:
       - package.json
       - pnpm-lock.yaml
     cmds:
-      - corepack enable
+      - corepack enable || true
       - pnpm install
   ui-down:
     cmds:
       - docker compose stop ui
-
   # api
-  api:
+  api-dev: # The single command for api development
+    aliases:
+      - "api"
     dir: ./backend/LexBoxApi
-    deps: [ infra-up, api-down ]
+    deps: [ infra-up, api-stop ]
     interactive: true
     cmds:
       - dotnet watch
-  api-down:
+  api-up:
+    vars:
+      WAIT: '{{default true .WAIT}}'
+    cmds:
+      - docker compose up lexbox-api --wait={{.WAIT}}
+  api-stop:
     cmds:
       - docker compose stop lexbox-api
+
+  migrate-db:
+    dir: ./backend/LexBoxApi
+    cmd: dotnet run migrate --environment "Development"

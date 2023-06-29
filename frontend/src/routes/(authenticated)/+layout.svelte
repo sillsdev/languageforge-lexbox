@@ -2,8 +2,12 @@
   import t from '$lib/i18n';
   import { AdminIcon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
+  import type { LexAuthUser } from '$lib/user';
+  import type {LayoutData} from './$types';
 
   let menuToggle = false;
+  export let data: LayoutData;
+  $: user = data.user as LexAuthUser;
 
   function open(): void {
     menuToggle = true;
@@ -40,5 +44,5 @@
     </Content>
   </div>
 
-  <AppMenu on:click={close} on:keydown={close} />
+  <AppMenu on:click={close} on:keydown={close} {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
 </div>

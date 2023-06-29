@@ -8,7 +8,7 @@ namespace LexData;
 
 public static class DataKernel
 {
-    public static void AddLexData(this IServiceCollection services)
+    public static void AddLexData(this IServiceCollection services, bool autoApplyMigrations)
     {
         services.AddScoped<SeedingData>();
         services.AddDbContext<LexBoxDbContext>((serviceProvider, options) =>
@@ -24,7 +24,8 @@ public static class DataKernel
             options.EnableDetailedErrors();
             options.UseMySQL(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.RedmineConnectionString ?? throw new ArgumentNullException("RedmineConnectionString"));
         });
-        services.AddHostedService<DbStartupService>();
+        if (autoApplyMigrations)
+            services.AddHostedService<DbStartupService>();
         services.AddOptions<DbConfig>()
         .BindConfiguration("DbConfig")
         .ValidateDataAnnotations()

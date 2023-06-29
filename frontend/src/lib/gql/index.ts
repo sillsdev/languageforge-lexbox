@@ -1,2 +1,2 @@
 export * from './generated';
-export * from './graphQLClient';
+export * from './gql-client';

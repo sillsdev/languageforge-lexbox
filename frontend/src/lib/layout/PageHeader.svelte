@@ -5,7 +5,6 @@
 
     onMount(() => {
       const title = headerElem?.textContent;
-      console.log('set', title);
       window.document.title = title?.trim() ?? '';
     });
   </script>

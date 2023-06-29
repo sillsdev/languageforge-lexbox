@@ -71,6 +71,13 @@ public class LexAuthService
         return validPassword ? lexAuthUser : null;
     }
 
+    public async Task<LexAuthUser?> RefreshUser(Guid userId)
+    {
+        var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
+            .FirstOrDefaultAsync(user => user.Id == userId);
+        return user == null ? null : new LexAuthUser(user);
+    }
+
     private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
     {
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
