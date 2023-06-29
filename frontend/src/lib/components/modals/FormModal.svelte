@@ -36,6 +36,14 @@
     return superForm.form;
   }
 </script>
+<style>
+  .float-left-wrapper {
+    float: left;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    }
+</style>
 
 <Modal bind:this={modal} on:close={() => reset()} bottom>
   <Form id="modalForm" {enhance}>
@@ -46,7 +54,9 @@
     {#if $message}
       <FormError>{$message}</FormError>
     {/if}
-    <slot name="extraActions"></slot>
+    <div class="float-left-wrapper">
+      <slot name="extraActions" class="inrow"></slot>
+    </div>
     <button type="submit" form="modalForm" class="btn btn-primary" class:loading={closing}>
       <slot name="submitText" />
     </button>

@@ -127,11 +127,12 @@ public class LexMutations
     [Error<DbError>]
     //[Error<RequiredException>]
     [UseMutationConvention]
+    [AdminRequired]
     public async Task<int> ChangeUserAccountByAdmin(ChangeUserAccountByAdminInput input, LexBoxDbContext dbContext)
     {
         var admin = await dbContext.Users.FindAsync(_loggedInContext.User.Id);
         if (admin is null) throw new NotFoundException("Admin not found");
-        if (admin.IsAdmin && _loggedInContext.User.Id == input.AdminId){
+        if (_loggedInContext.User.Id == input.AdminId){
             var user = await dbContext.Users.FindAsync(input.UserId);
             if (user is null) throw new NotFoundException("User not found");
             if (!String.IsNullOrEmpty(input.Name)){
@@ -150,10 +151,11 @@ public class LexMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
+    [AdminRequired]
     public async Task<int> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
         var admin = await dbContext.Users.FindAsync(_loggedInContext.User.Id);
         if (admin is null) throw new NotFoundException("Admin not found");
-        if (admin.IsAdmin && _loggedInContext.User.Id == input.AdminId){
+        if (_loggedInContext.User.Id == input.AdminId){
             await dbContext.Users.Where(u => u.Id == input.UserId).ExecuteDeleteAsync();
             return 0;
         }
