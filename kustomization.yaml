@@ -5,7 +5,6 @@ namespace: languagedepot
 resources:
 - deployment/base/config-map.yaml
 - deployment/base/hg-deployment.yaml
-- deployment/base/hasura-deployment.yaml
 - deployment/base/lexbox-deployment.yaml
 - deployment/base/ui-deployment.yaml
 - deployment/base/proxy-deployment.yaml

@@ -18,6 +18,14 @@ spec:
   - name: backend
     protocol: TCP
     port: 5158
+  - name: hasura
+    protocol: TCP
+    port: 8080
+    targetPort: hasura-port
+  - name: hasura-8081
+    protocol: TCP
+    port: 8081 # Remove once appsettings.Development.json has been updated to use port 8080
+    targetPort: hasura-port
   - name: otel
     protocol: TCP
     port: 4318
@@ -91,7 +99,7 @@ spec:
                   key: Authentication__Jwt__Secret
                   name: lexbox-api
           - name: HasuraConfig__HasuraUrl
-            value: http://hasura:8080/v1/graphql
+            value: http://localhost:8080/v1/graphql
           - name: HasuraConfig__HasuraSecret
             valueFrom:
               secretKeyRef:
@@ -129,6 +137,51 @@ spec:
             value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
           - name: Email__EmailRenderHost
             value: ui:3000
+
+      - name: hasura
+        # TODO: need to parameterize this tag
+        image: ghcr.io/sillsdev/lexbox-hasura
+        imagePullPolicy: IfNotPresent
+        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
+        resources:
+          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+            memory: 350Mi
+          limits:
+            memory: 500Mi
+        ports:
+          - containerPort: 8080
+            name: hasura-port
+
+        env:
+          - name: HASURA_GRAPHQL_ENABLE_TELEMETRY
+            value: "false"
+          - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
+            value: "startup, http-log, webhook-log, websocket-log, query-log"
+          - name: HASURA_GRAPHQL_EXPERIMENTAL_FEATURES
+            value: naming_convention
+          - name: HASURA_GRAPHQL_DEFAULT_NAMING_CONVENTION
+            value: graphql-default
+          - name: HASURA_GRAPHQL_METADATA_DIR
+            value: /hasura-metadata
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_DB
+                name: db
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: POSTGRES_PASSWORD
+                name: db
+          - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
+            value: postgres://postgres:$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
+          - name: PG_DATABASE_URL
+            value: $(HASURA_GRAPHQL_METADATA_DATABASE_URL)
+          - name: HASURA_GRAPHQL_ADMIN_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: HASURA_GRAPHQL_ADMIN_SECRET
+                name: hasura
 
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0
