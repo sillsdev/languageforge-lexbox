@@ -27,7 +27,6 @@
       label={$t('register.label_email')}
       autofocus
       type="email"
-      required
       bind:value={$form.email}
       error={$errors.email}
     />

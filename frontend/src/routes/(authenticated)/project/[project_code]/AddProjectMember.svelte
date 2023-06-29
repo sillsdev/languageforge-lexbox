@@ -40,7 +40,6 @@
     type="email"
     label={$t('admin_dashboard.column_email')}
     bind:value={$form.email}
-    required
     error={errors.email}
     autofocus
   />
