@@ -223,7 +223,7 @@ export const tracingExchange: Exchange = mapExchange({
     const operationSpanContext = trace.setSpan(context.active(), operationSpan);
     return makeOperation(operation.kind, operation, {
       ...operation.context,
-      fetch: operation.context.fetch ? context.bind(operationSpanContext, operation.context.fetch) : undefined,
+      fetch: context.bind(operationSpanContext, operation.context.fetch ?? fetch),
       [ACTIVE_SPAN_KEY]: operationSpan,
     });
   },
