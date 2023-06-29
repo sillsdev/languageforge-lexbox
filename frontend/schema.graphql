@@ -111,7 +111,7 @@ input ChangeUserAccountByAdminInput {
 
 type ChangeUserAccountByAdminPayload {
   errors: [ChangeUserAccountByAdminError!]
-  int: Int
+  user: User
 }
 
 union ChangeUserAccountDataError = DbError | NotFoundError
@@ -184,7 +184,7 @@ input DeleteUserByAdminInput {
 
 type DeleteUserByAdminPayload {
   errors: [DeleteUserByAdminError!]
-  int: Int
+  user: User
 }
 
 interface Error {

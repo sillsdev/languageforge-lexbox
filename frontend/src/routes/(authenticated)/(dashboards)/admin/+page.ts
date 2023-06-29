@@ -49,7 +49,9 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
       graphql(`
         mutation ChangeUserAccountByAdmin($input: ChangeUserAccountByAdminInput!) {
           changeUserAccountByAdmin(input: $input) {
-            int
+            user {
+
+            }
             errors {
               ... on Error {
                 message
@@ -71,7 +73,9 @@ export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResu
       graphql(`
         mutation DeleteUserByAdmin($input: DeleteUserByAdminInput!) {
           deleteUserByAdmin(input: $input) {
-            int
+            user {
+
+            }
             errors {
               ... on Error {
                 message

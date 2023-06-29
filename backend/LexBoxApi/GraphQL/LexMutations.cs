@@ -128,38 +128,27 @@ public class LexMutations
     //[Error<RequiredException>]
     [UseMutationConvention]
     [AdminRequired]
-    public async Task<int> ChangeUserAccountByAdmin(ChangeUserAccountByAdminInput input, LexBoxDbContext dbContext)
+    public async Task<User> ChangeUserAccountByAdmin(ChangeUserAccountByAdminInput input, LexBoxDbContext dbContext)
     {
-        var admin = await dbContext.Users.FindAsync(_loggedInContext.User.Id);
-        if (admin is null) throw new NotFoundException("Admin not found");
-        if (_loggedInContext.User.Id == input.AdminId){
-            var user = await dbContext.Users.FindAsync(input.UserId);
-            if (user is null) throw new NotFoundException("User not found");
-            if (!String.IsNullOrEmpty(input.Name)){
-                user.Name = input.Name;
-            }
-            if (!String.IsNullOrEmpty(input.Email)){
-                user.Email = input.Email;
-            }
-            await dbContext.SaveChangesAsync();
-        } else {
-            return 1;
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        if (user is null) throw new NotFoundException("User not found");
+        if (!String.IsNullOrEmpty(input.Name)){
+            user.Name = input.Name;
         }
-        return 0;
+        if (!String.IsNullOrEmpty(input.Email)){
+            user.Email = input.Email;
+        }
+        await dbContext.SaveChangesAsync();
+        return user;
     }
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
     [AdminRequired]
-    public async Task<int> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
-        var admin = await dbContext.Users.FindAsync(_loggedInContext.User.Id);
-        if (admin is null) throw new NotFoundException("Admin not found");
-        if (_loggedInContext.User.Id == input.AdminId){
-            await dbContext.Users.Where(u => u.Id == input.UserId).ExecuteDeleteAsync();
-            return 0;
-        }
-        return 1;
+    public async Task<User> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
+        var user = dbContext.Users.Where(u => u.Id == input.UserId);
+        await user.ExecuteDeleteAsync();
+        return (User) user;
     }
-
 }
