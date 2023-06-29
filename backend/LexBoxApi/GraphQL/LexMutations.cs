@@ -129,7 +129,7 @@ public class LexMutations
     [UseMutationConvention]
     public async Task<int> ChangeUserAccountByAdmin(ChangeUserAccountByAdminInput input, LexBoxDbContext dbContext)
     {
-        var admin = await dbContext.Users.FindAsync(input.AdminId);
+        var admin = await dbContext.Users.FindAsync(_loggedInContext.User.Id);
         if (admin is null) throw new NotFoundException("Admin not found");
         if (admin.IsAdmin && _loggedInContext.User.Id == input.AdminId){
             var user = await dbContext.Users.FindAsync(input.UserId);
@@ -151,7 +151,7 @@ public class LexMutations
     [Error<DbError>]
     [UseMutationConvention]
     public async Task<int> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
-        var admin = await dbContext.Users.FindAsync(input.AdminId);
+        var admin = await dbContext.Users.FindAsync(_loggedInContext.User.Id);
         if (admin is null) throw new NotFoundException("Admin not found");
         if (admin.IsAdmin && _loggedInContext.User.Id == input.AdminId){
             await dbContext.Users.Where(u => u.Id == input.UserId).ExecuteDeleteAsync();
