@@ -10,8 +10,13 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.OpenApi.Models;
 
+if (DbStartupService.IsMigrationRequest(args))
+{
+    await DbStartupService.RunMigrationRequest(args);
+    return;
+}
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Host.UseConsoleLifetime();
 // Add services to the container.
 
 builder.Services.AddOpenTelemetryInstrumentation(builder.Configuration);
@@ -47,7 +52,7 @@ builder.Services.AddHttpLogging(options =>
     options.ResponseHeaders.Add("WWW-Authenticate");
 });
 
-builder.Services.AddLexData();
+builder.Services.AddLexData(builder.Environment.IsDevelopment());
 builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
@@ -64,6 +69,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
         "*.languageforge.org"
     }
 });
+
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
@@ -97,4 +103,4 @@ app.MapControllers();
 
 app.MapSyncProxy(AuthKernel.DefaultScheme);
 
-app.Run();
+await app.RunAsync();

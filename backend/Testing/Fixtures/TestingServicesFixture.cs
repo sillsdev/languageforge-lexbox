@@ -28,7 +28,7 @@ public class TestingServicesFixture : IAsyncLifetime
         });
         Services.AddSingleton<IHostEnvironment>(new HostingEnvironment { EnvironmentName = Environments.Development });
         Services.AddSingleton<IConfiguration>(new ConfigurationManager());
-        Services.AddLexData();
+        Services.AddLexData(true);
         _lazyServiceProvider = new(Services.BuildServiceProvider);
     }
 
