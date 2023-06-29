@@ -229,7 +229,7 @@
     <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
   </FormModal>
 
-  <FormModal bind:this={deletionFormModal} {verify} let:errors>
+  <FormModal bind:this={deletionFormModal} schema={verify} let:errors>
     <span slot="title">{$t('admin_dashboard.form_modal.delete_user')}</span>
     <Input
     id="keyphrase"
