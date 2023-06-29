@@ -118,3 +118,7 @@ tasks:
   api-stop:
     cmds:
       - docker compose stop lexbox-api
+
+  migrate-db:
+    dir: ./backend/LexBoxApi
+    cmd: dotnet run migrate --environment "Development"
