@@ -185,7 +185,7 @@
               <td>
                 <FormatDate date={user.createdDate} />
               </td>
-            <td>
+            <td class="p-0">
                 <button class="btn btn-ghost rounded" on:click={async () => {await openModal(user)}}><PencilIcon></PencilIcon></button></td>
 
             </tr>
