@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using HotChocolate.Execution;
 using HotChocolate.Execution.Instrumentation;
@@ -72,10 +73,44 @@ public class ErrorLoggingDiagnosticsEventListener : ExecutionDiagnosticEventList
     private void LogError(IError error, [CallerMemberName] string source = "")
     {
         log.LogError(error.Exception, "{Source}: {Message}", source, error.Message);
+        TraceError(error, source);
     }
 
     private void LogException(Exception exception, [CallerMemberName] string source = "")
     {
         log.LogError(exception, "{Source}: {Message}", source, exception.Message);
+        TraceException(exception, source);
+    }
+
+    private void TraceError(IError error, string source)
+    {
+        if (error.Exception != null)
+        {
+            TraceException(error.Exception, source);
+        }
+        else
+        {
+            Activity.Current?.AddEvent(new(source, tags: new()
+            {
+                ["error.message"] = error.Message,
+                ["error.code"] = error.Code,
+            }));
+        }
+    }
+
+    private void TraceException(Exception exception, string source)
+    {
+        Activity.Current?
+            .SetStatus(ActivityStatusCode.Error)
+            .AddEvent(new(source, tags: new()
+            {
+                ["exception.message"] = exception.Message,
+                ["exception.stacktrace"] = exception.StackTrace,
+                ["exception.source"] = exception.Source,
+            }));
+        if (exception.InnerException != null)
+        {
+            TraceException(exception.InnerException, $"{source} - Inner");
+        }
     }
 }
