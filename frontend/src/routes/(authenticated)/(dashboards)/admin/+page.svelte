@@ -84,7 +84,7 @@
     }
     let password: string = $form.password ?? '';
     if (password !== '' && $form.password){
-        await fetch('/api/User/resetPasswordAdmin', {
+        await fetch('/api/Admin/resetPasswordAdmin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ passwordHash: await hash(password), userId: user.id}),

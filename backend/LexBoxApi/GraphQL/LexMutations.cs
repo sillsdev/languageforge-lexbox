@@ -147,8 +147,9 @@ public class LexMutations
     [UseMutationConvention]
     [AdminRequired]
     public async Task<User> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
+        var User = await dbContext.Users.FindAsync(input.UserId);
         var user = dbContext.Users.Where(u => u.Id == input.UserId);
         await user.ExecuteDeleteAsync();
-        return (User) user;
+        return User;
     }
 }
