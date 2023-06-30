@@ -19,6 +19,7 @@
 
 <!-- https://daisyui.com/components/input -->
 <FormField {id} {error} {label} {autofocus}>
+  <!-- svelte-ignore a11y-autofocus -->
   <input
     {id}
     use:typeWorkaround
@@ -27,5 +28,6 @@
     {placeholder}
     class="input input-bordered"
     {readonly}
+    {autofocus}
   />
 </FormField>

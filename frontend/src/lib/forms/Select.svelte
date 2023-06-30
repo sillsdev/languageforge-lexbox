@@ -10,7 +10,8 @@
 </script>
 
 <FormField {id} {label} {error} {autofocus}>
-  <select bind:value {id} class="select select-bordered">
+  <!-- svelte-ignore a11y-autofocus -->
+  <select bind:value {id} class="select select-bordered" {autofocus}>
     <slot />
   </select>
 </FormField>

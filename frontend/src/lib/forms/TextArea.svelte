@@ -13,6 +13,7 @@
 
 <!-- https://daisyui.com/components/input -->
 <FormField {id} {error} {label} {autofocus}>
+  <!-- svelte-ignore a11y-autofocus -->
   <textarea
     {id}
     bind:value
@@ -20,5 +21,6 @@
     class:textarea-error={error}
     {placeholder}
     {readonly}
+    {autofocus}
   />
 </FormField>

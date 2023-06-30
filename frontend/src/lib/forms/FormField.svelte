@@ -5,6 +5,10 @@
   export let label: string;
   export let error: string | string[] | undefined;
   export let id: string;
+  /**
+   * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
+   * So we allow/support it and disable a11y-autofocus warnings in generic places.
+   */
   export let autofocus = false;
 
   let elem: HTMLDivElement;
