@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
 FROM node:20.2 AS builder
 
@@ -6,13 +7,13 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml /app/
 
 RUN corepack enable
-RUN pnpm install
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
 COPY . /app/
 COPY src /app/src
 COPY static /app/static
 
-RUN pnpm run build
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
 
 FROM node:20.2-alpine
 # container would not receive SIGTERM from docker when shutting down so Docker would force kill

@@ -32,6 +32,8 @@ build:
         manual:
           - src: "**"
             dest: /app
+  local:
+    useBuildkit: true
 portForward:
   # Backend
   - resourceType: Service
