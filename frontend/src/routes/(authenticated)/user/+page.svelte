@@ -33,7 +33,6 @@
                 name: newName ?? user?.name ?? '',
                 userId: userid ?? '',
             };
-            alert(changeUserAccountDataInput.name);
             await _changeUserAccountData(changeUserAccountDataInput);
             if (user){
                 await invalidate(`user:${user.id}`).then(() =>{
