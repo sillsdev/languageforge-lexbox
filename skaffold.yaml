@@ -4,10 +4,14 @@ metadata:
   name: lexbox
 build:
   artifacts:
-    - image: ghcr.io/sillsdev/hgresume
-      context: hgresumable
+    - image: ghcr.io/sillsdev/lexbox-ui
+      context: frontend
       docker:
         dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "**"
+            dest: /app
     - image: ghcr.io/sillsdev/lexbox-api
       context: backend
       docker:
@@ -20,18 +24,14 @@ build:
       context: hasura
       docker:
         dockerfile: Dockerfile
+    - image: ghcr.io/sillsdev/hgresume
+      context: hgresumable
+      docker:
+        dockerfile: Dockerfile
     - image: ghcr.io/sillsdev/lexbox-hgweb
       context: hgweb
       docker:
         dockerfile: Dockerfile
-    - image: ghcr.io/sillsdev/lexbox-ui
-      context: frontend
-      docker:
-        dockerfile: Dockerfile
-      sync:
-        manual:
-          - src: "**"
-            dest: /app
   local:
     useBuildkit: true
 portForward:
@@ -72,5 +72,5 @@ profiles:
         path: /build/artifacts/1/docker/dockerfile
         value: LexBoxApi/dev.Dockerfile
       - op: replace
-        path: /build/artifacts/4/docker/dockerfile
+        path: /build/artifacts/0/docker/dockerfile
         value: dev.Dockerfile
