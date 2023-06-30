@@ -8,13 +8,11 @@
     import { Page } from '$lib/layout';
     import {_changeUserAccountData} from './+page';
     import type {ChangeUserAccountDataInput} from '$lib/gql/types';
-    import {page} from '$app/stores';
     import { invalidate } from '$app/navigation';
     import z from 'zod';
 
 
-    $: user = $page.data.user;
-    page.subscribe(console.log);
+    $: user = data?.user;
     $: userid = user?.id;
     let newName: string;
     let newEmail: string;
@@ -22,8 +20,8 @@
 
 
     const formSchema = z.object({
-        email: z.string().email(),
-        name: z.string(),
+        email: z.string().email().optional(),
+        name: z.string().optional(),
     });
 
     let { form, errors, enhance, submitting } = lexSuperForm(formSchema, async () => {await updateAccount();});
@@ -31,14 +29,15 @@
 
     async function updateAccount(): Promise<void> {
             const changeUserAccountDataInput: ChangeUserAccountDataInput = {
-                email: $form.email,
-                name: $form.name,
+                email: newEmail ?? user?.email ?? '',
+                name: newName ?? user?.name ?? '',
                 userId: userid ?? '',
             };
+            alert(changeUserAccountDataInput.name);
             await _changeUserAccountData(changeUserAccountDataInput);
             if (user){
                 await invalidate(`user:${user.id}`).then(() =>{
-                    success = true;
+                    success = false;
                 });
             }
     }
@@ -54,7 +53,7 @@
                 type="text"
                 error={$errors.name}
                 bind:value={newName}
-                placeholder={$user?.name}
+                placeholder={user?.name}
             />
             <Input
                 id="email"
@@ -63,7 +62,7 @@
                 error={$errors.email}
                 bind:value={newEmail}
                 autofocus
-                placeholder={$user?.email}
+                placeholder={user?.email}
                 readonly={true}
             />
             <a class="link my-4" href="/resetPassword">
