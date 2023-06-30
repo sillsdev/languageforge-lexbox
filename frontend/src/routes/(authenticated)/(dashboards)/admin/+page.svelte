@@ -5,7 +5,9 @@
   import Input from '$lib/forms/Input.svelte';
   import t from '$lib/i18n';
   import type { PageData } from './$types';
-  import {PencilIcon, TrashIcon} from '$lib/icons';
+  import { TrashIcon } from '$lib/icons';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import ButtonToggle from '$lib/components/ButtonToggle.svelte';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';
   import {_changeUserAccountByAdmin, _deleteUserByAdmin} from './+page';
@@ -185,9 +187,8 @@
               <td>
                 <FormatDate date={user.createdDate} />
               </td>
-            <td>
-                <button class="btn btn-ghost rounded" on:click={async () => {await openModal(user)}}><PencilIcon></PencilIcon></button></td>
-
+            <td class="p-0">
+                <IconButton ghost={true} icon="i-mdi-pencil-outline" on:click={async () => {await openModal(user)}}></IconButton></td>
             </tr>
           {/each}
         </tbody>
@@ -222,14 +223,16 @@
         label={$t('admin_dashboard.form_modal.password_label')}
         bind:value={$form.password}
         required={false}/>
-      <p>{$t('admin_dashboard.form_modal.lock')} </p><input type="checkbox" class="toggle toggle-error" />
-
     </div>
-    <button slot ="extraActions" class="btn btn-error rounded" on:click={async () => {await deleteUser($form.userId)}}>{$t('admin_dashboard.form_modal.delete_user')}<TrashIcon></TrashIcon></button>
+    <div style="display: flex" slot = "extraActions" class="space-x-4">
+    <ButtonToggle theme="error" text1="unlock" text2= "lock" icon1="i-mdi-lock" icon2="i-mdi-unlocked"></ButtonToggle>
+    <button class="btn btn-error rounded" on:click={async () => {await deleteUser($form.userId)}}>{$t('admin_dashboard.form_modal.delete_user')}<TrashIcon></TrashIcon></button>
+
+  </div>
     <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
   </FormModal>
 
-  <FormModal bind:this={deletionFormModal} {verify} let:errors>
+  <FormModal bind:this={deletionFormModal} schema={verify} let:errors>
     <span slot="title">{$t('admin_dashboard.form_modal.delete_user')}</span>
     <Input
     id="keyphrase"

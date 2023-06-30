@@ -49,7 +49,9 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
       graphql(`
         mutation ChangeUserAccountByAdmin($input: ChangeUserAccountByAdminInput!) {
           changeUserAccountByAdmin(input: $input) {
-            int
+            user {
+
+            }
             errors {
               ... on Error {
                 message
@@ -64,14 +66,16 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
     )
     return result;
 }
-export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<ChangeUserAccountByAdminMutation> {
+export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<DeleteUserAccountByAdminMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
       graphql(`
         mutation DeleteUserByAdmin($input: DeleteUserByAdminInput!) {
           deleteUserByAdmin(input: $input) {
-            int
+            user {
+
+            }
             errors {
               ... on Error {
                 message
