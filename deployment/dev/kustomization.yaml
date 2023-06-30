@@ -5,8 +5,6 @@ namespace: languagedepot
 resources:
 - ../base/
 - secrets.yaml
-- retain-storageClass.yaml
-- lexbox-cache-volume.yaml
 
 configMapGenerator:
 - name: otel-config
@@ -17,6 +15,4 @@ patches:
   - target:
       version: v1
       kind: PersistentVolumeClaim
-      labelSelector: "keepStorageClass != yes"
     path: change-storage-class.patch.yaml
-  - path: lexbox-cache-volume.patch.yaml
