@@ -69,11 +69,6 @@
             </a>
 
             <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
-            {#if success}
-            <div class="alert alert-success mt-4">
-                <span>{$t('account_settings.success')}</span>
-              </div>
-            {/if}
         </Form>
     </div>
 </Page>
