@@ -50,7 +50,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
         mutation ChangeUserAccountByAdmin($input: ChangeUserAccountByAdminInput!) {
           changeUserAccountByAdmin(input: $input) {
             user {
-
+              id
             }
             errors {
               ... on Error {
@@ -74,7 +74,7 @@ export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResu
         mutation DeleteUserByAdmin($input: DeleteUserByAdminInput!) {
           deleteUserByAdmin(input: $input) {
             user {
-
+              id
             }
             errors {
               ... on Error {
