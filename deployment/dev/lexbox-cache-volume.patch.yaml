@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexbox
+  namespace: languagedepot
+  labels:
+    app: lexbox
+spec:
+  template:
+    spec:
+      containers:
+      - name: lexbox-api
+
+        volumeMounts:
+        - name: nuget-cache
+          mountPath: /root/.nuget/packages
+
+      volumes:
+      - name: nuget-cache
+        persistentVolumeClaim:
+          claimName: nuget-cache

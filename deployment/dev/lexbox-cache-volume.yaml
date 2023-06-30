@@ -1,0 +1,17 @@
+---
+
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nuget-cache
+  namespace: languagedepot
+  labels:
+    keepStorageClass: "yes"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: retain-hostpath
