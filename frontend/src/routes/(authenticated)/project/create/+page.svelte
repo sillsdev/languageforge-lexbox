@@ -102,9 +102,7 @@
       error={$errors.code}
       readonly={!$form.customCode}
     />
-    {#if $message}
-      <FormError>{$message}</FormError>
-    {/if}
+    <FormError error={$message} />
     <button type="submit" class="btn btn-primary mb-2" class:loading={$submitting}>
       {$t('project.create.submit')}
     </button>

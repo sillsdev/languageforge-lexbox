@@ -98,8 +98,13 @@
       {/if}
       <slot {closing} />
       {#if $$slots.actions}
-        <div class="modal-action">
-          <slot name="actions" {closing} />
+        <div class="modal-action justify-between">
+          <div>
+            <slot name="extraActions" />
+          </div>
+          <div>
+            <slot name="actions" {closing} />
+          </div>
         </div>
       {/if}
     </dialog>

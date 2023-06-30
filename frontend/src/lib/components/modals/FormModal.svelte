@@ -29,34 +29,22 @@
     }
     modal.close();
   }
-  export async function close(): Promise<void>{
-    await modal.close();
+  export function close(): void {
+    modal.close();
   }
   export function form(): Readable<FormType> {
     return superForm.form;
   }
 </script>
-<style>
-  .float-left-wrapper {
-    float: left;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    }
-</style>
 
 <Modal bind:this={modal} on:close={() => reset()} bottom>
   <Form id="modalForm" {enhance}>
     <p><slot name="title" /></p>
     <slot errors={$errors} />
   </Form>
+  <FormError error="Yikes" />
+  <slot name="extraActions" slot="extraActions" />
   <svelte:fragment slot="actions" let:closing>
-    {#if $message}
-      <FormError>{$message}</FormError>
-    {/if}
-    <div class="float-left-wrapper">
-      <slot name="extraActions" class="inrow"></slot>
-    </div>
     <button type="submit" form="modalForm" class="btn btn-primary" class:loading={closing}>
       <slot name="submitText" />
     </button>
