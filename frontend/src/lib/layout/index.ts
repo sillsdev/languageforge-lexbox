@@ -13,5 +13,5 @@ export {
   Breadcrumbs,
   Content,
   AdminContent,
-  PageHeader,
+  PageHeader
 }
