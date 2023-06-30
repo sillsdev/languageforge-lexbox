@@ -21,9 +21,9 @@
     },
     "form_modal": {
       "title": "Edit User",
-      "email_label": "enter new email",
-      "name_label": "change display name",
-      "password_label": "change password",
+      "email_label": "email",
+      "name_label": "display name",
+      "password_label": "password",
       "delete_user": "Delete User",
       "update_user": "Update User",
       "lock": "lock "
