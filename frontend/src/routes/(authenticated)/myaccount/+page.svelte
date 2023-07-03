@@ -48,7 +48,7 @@
                 id="email"
                 label={$t('account_settings.label_email')}
                 type="email"
-                bind:value={email}
+                value={email}
                 autofocus
                 placeholder={email}
                 readonly={true}
