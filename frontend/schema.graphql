@@ -178,7 +178,6 @@ enum DbErrorCode {
 union DeleteUserByAdminError = DbError | NotFoundError
 
 input DeleteUserByAdminInput {
-  adminId: UUID!
   userId: UUID!
 }
 

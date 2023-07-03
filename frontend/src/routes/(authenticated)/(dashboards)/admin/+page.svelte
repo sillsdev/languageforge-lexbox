@@ -10,13 +10,17 @@
   import ButtonToggle from '$lib/components/ButtonToggle.svelte';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';
-  import { _changeUserAccountByAdmin, _deleteUserByAdmin } from './+page';
+  import { _changeUserAccountByAdmin } from './+page';
   import type { ChangeUserAccountByAdminInput, LoadAdminDashboardQuery } from '$lib/gql/types';
-  import type { DeleteUserByAdminInput } from '$lib/gql/types';
+  import DeleteUserModal from './DeleteUserModal.svelte';
   import { hash } from '$lib/user';
 
   export let data: PageData;
-
+  let deleteModal: DeleteUserModal;
+  async function deleteUser(id: any): Promise<void>{
+    formModal.close();
+    await deleteModal.open(id);
+  }
   let projectSearch = '';
   let userSearch = '';
   type UserRow = LoadAdminDashboardQuery['users'][0]
@@ -51,23 +55,7 @@
 
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
-  let deletionFormModal: FormModal<typeof verify>;
-  $: deletionForm = deletionFormModal?.form();
 
-  async function deleteUser(id: string): Promise<void> {
-    formModal.close();
-    await deletionFormModal.open(async () => {
-      if (data.user) {
-        if ($deletionForm.keyphrase === $t('admin_dashboard.enter_to_delete.user.value')) {
-          const deleteUserInput: DeleteUserByAdminInput = {
-            adminId: data.user.id,
-            userId: id,
-          };
-          await _deleteUserByAdmin(deleteUserInput);
-        }
-      }
-    });
-  }
   async function openModal(user: UserRow): Promise<void> {
     $form.email = user.email;
     $form.name = user.name;
@@ -234,17 +222,5 @@
     </div>
     <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
   </FormModal>
-
-  <FormModal bind:this={deletionFormModal} schema={verify} let:errors>
-    <span slot="title">{$t('admin_dashboard.form_modal.delete_user')}</span>
-    <Input
-      id="keyphrase"
-      type="text"
-      label={$t('admin_dashboard.enter_to_delete.user.label')}
-      placeholder={$form.name}
-      error={errors.keyphrase}
-      bind:value={$deletionForm.keyphrase}
-    />
-    <span slot="submitText">{$t('admin_dashboard.form_modal.delete_user')}</span>
-  </FormModal>
+  <DeleteUserModal bind:this={deleteModal}></DeleteUserModal>
 </main>
