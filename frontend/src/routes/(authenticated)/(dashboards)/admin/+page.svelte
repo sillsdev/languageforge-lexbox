@@ -46,7 +46,7 @@
     userId: z.string().optional(),
   });
   const verify = z.object({
-    keyphrase: z.string().refine((value) => value.match(`^${$t('enter_to_delete.user.value')}$`)),
+    keyphrase: z.string().refine((value) => value.match(`^${$t('admin_dashboard.enter_to_delete.user.value')}$`)),
   });
 
   let formModal: FormModal<typeof schema>;
@@ -58,7 +58,7 @@
     formModal.close();
     await deletionFormModal.open(async () => {
       if (data.user) {
-        if ($deletionForm.keyphrase === $t('enter_to_delete.user.value')) {
+        if ($deletionForm.keyphrase === $t('admin_dashboard.enter_to_delete.user.value')) {
           const deleteUserInput: DeleteUserByAdminInput = {
             adminId: data.user.id,
             userId: id,
@@ -240,7 +240,7 @@
     <Input
       id="keyphrase"
       type="text"
-      label={$t('enter_to_delete.user.label')}
+      label={$t('admin_dashboard.enter_to_delete.user.label')}
       placeholder={$form.name}
       error={errors.keyphrase}
       bind:value={$deletionForm.keyphrase}
