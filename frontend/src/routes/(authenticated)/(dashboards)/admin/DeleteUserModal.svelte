@@ -17,16 +17,15 @@
   $: deletionForm = deletionFormModal?.form();
   export async function open(id: string): Promise<void> {
     await deletionFormModal.open(async () => {
-        if ($deletionForm.keyphrase === $t('admin_dashboard.enter_to_delete.user.value')) {
-          const deleteUserInput: DeleteUserByAdminInput = {
-            userId: id,
-          };
-          await _deleteUserByAdmin(deleteUserInput);
-        }
+      if ($deletionForm.keyphrase === $t('admin_dashboard.enter_to_delete.user.value')) {
+        const deleteUserInput: DeleteUserByAdminInput = {
+          userId: id,
+        };
+        await _deleteUserByAdmin(deleteUserInput);
+      }
     });
   }
 </script>
-
 
 <FormModal bind:this={deletionFormModal} schema={verify} let:errors>
   <span slot="title">{$t('admin_dashboard.form_modal.delete_user')}</span>

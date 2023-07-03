@@ -10,13 +10,13 @@
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
 
-  type UserRow = LoadAdminDashboardQuery['users'][0]
+  type UserRow = LoadAdminDashboardQuery['users'][0];
 
   export let data: PageData;
   let deleteModal: DeleteUserModal;
   let formModal: EditUserAccount;
 
-  async function deleteUser(id: any): Promise<void>{
+  async function deleteUser(id: any): Promise<void> {
     formModal.close();
     await deleteModal.open(id);
   }
@@ -43,7 +43,6 @@
         u.email.toLocaleLowerCase().includes(userSearchLower)
     )
     .slice(0, userSearch ? undefined : 10);
-
 </script>
 
 <svelte:head>
@@ -146,6 +145,6 @@
     </div>
   </div>
 
-  <EditUserAccount bind:this={formModal} deleteUser={deleteUser}></EditUserAccount>
-  <DeleteUserModal bind:this={deleteModal}></DeleteUserModal>
+  <EditUserAccount bind:this={formModal} {deleteUser} />
+  <DeleteUserModal bind:this={deleteModal} />
 </main>
