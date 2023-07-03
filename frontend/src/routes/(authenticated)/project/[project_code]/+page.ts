@@ -15,8 +15,8 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { invalidate } from '$app/navigation';
 
-type Project = ProjectPageQuery['projects'][0];
-export type ProjectUser = Project['ProjectUsers'][number];
+type Project = NonNullable<ProjectPageQuery['projectByCode']>;
+export type ProjectUser = Project['users'][number];
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
