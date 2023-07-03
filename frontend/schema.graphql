@@ -103,7 +103,6 @@ type ChangeProjectNamePayload {
 union ChangeUserAccountByAdminError = DbError | NotFoundError
 
 input ChangeUserAccountByAdminInput {
-  adminId: UUID!
   email: String!
   name: String!
   userId: UUID!
