@@ -42,7 +42,7 @@
     <p><slot name="title" /></p>
     <slot errors={$errors} />
   </Form>
-  <FormError/>
+  <FormError error={$message} />
   <slot name="extraActions" slot="extraActions" />
   <svelte:fragment slot="actions" let:closing>
     <button type="submit" form="modalForm" class="btn btn-primary" class:loading={closing}>
