@@ -221,7 +221,6 @@
         type="password"
         label={$t('admin_dashboard.form_modal.password_label')}
         bind:value={$form.password}
-        required={false}
       />
     </div>
     <div style="display: flex" slot="extraActions" class="space-x-4">
