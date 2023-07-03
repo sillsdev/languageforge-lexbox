@@ -4,6 +4,9 @@ namespace: languagedepot
 
 resources:
 - config-map.yaml
+- secrets.yaml
+- pvc.yaml
+- db-deployment.yaml
 - hg-deployment.yaml
 - lexbox-deployment.yaml
 - ui-deployment.yaml

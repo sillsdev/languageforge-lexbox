@@ -107,4 +107,4 @@ spec:
           claimName: hgresumable-cache
       - name: repos
         persistentVolumeClaim:
-          claimName: hg-repos # established in hg-repos-pvc.yaml
+          claimName: hg-repos # established in pvc.yaml

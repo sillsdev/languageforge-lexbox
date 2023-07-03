@@ -5,6 +5,7 @@ namespace: languagedepot
 resources:
 - ../base/
 - secrets.yaml
+- ingress-deployment.yaml
 
 configMapGenerator:
 - name: otel-config
@@ -16,3 +17,4 @@ patches:
       version: v1
       kind: PersistentVolumeClaim
     path: change-storage-class.patch.yaml
+  - path: proxy-deployment.yaml
