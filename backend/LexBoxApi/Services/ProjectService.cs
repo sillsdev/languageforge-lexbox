@@ -1,5 +1,6 @@
 using LexBoxApi.Models.Project;
 using LexCore.Entities;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 
