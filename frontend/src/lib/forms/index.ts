@@ -5,7 +5,7 @@ import Input from './Input.svelte';
 import ProtectedForm, { type Token } from './ProtectedForm.svelte';
 import Select from './Select.svelte';
 import TextArea from './TextArea.svelte';
-import { lexSuperForm, lexSuperValidate } from './superforms';
+import { lexSuperForm } from './superforms';
 import { randomFieldId, tryParse } from './utils';
 
 export {
@@ -17,7 +17,6 @@ export {
   Select,
   TextArea,
   lexSuperForm,
-  lexSuperValidate,
   randomFieldId,
   tryParse,
   type Token,
