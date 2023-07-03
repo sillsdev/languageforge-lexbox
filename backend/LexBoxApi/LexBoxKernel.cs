@@ -17,10 +17,10 @@ public static class LexBoxKernel
             .BindConfiguration("HgConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        services.AddOptions<HasuraConfig>()
-            .BindConfiguration("HasuraConfig")
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
+        // services.AddOptions<HasuraConfig>()
+            // .BindConfiguration("HasuraConfig")
+            // .ValidateDataAnnotations()
+            // .ValidateOnStart();
         services.AddOptions<CloudFlareConfig>()
             .BindConfiguration("CloudFlare")
             .ValidateDataAnnotations()
@@ -29,7 +29,7 @@ public static class LexBoxKernel
             .BindConfiguration("Email")
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
+        services.AddHttpClient();
         services.AddScoped<LoggedInContext>();
         services.AddScoped<ProjectService>();
         services.AddScoped<EmailService>();
