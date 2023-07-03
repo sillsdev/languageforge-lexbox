@@ -33,6 +33,7 @@
         "label": "Enter 'delete user' to delete user",
         "value": "delete user"
       }
+    }
   },
 
   "account_settings": {

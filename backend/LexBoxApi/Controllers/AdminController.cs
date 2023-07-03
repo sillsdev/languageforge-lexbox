@@ -13,14 +13,12 @@ namespace LexBoxApi.Controllers;
 [Route("/api/admin")]
 public class AdminController : ControllerBase
 {
-    private readonly LexAuthService _lexAuthService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly LoggedInContext _loggedInContext;
 
     public AdminController(LexBoxDbContext lexBoxDbContext,
         LoggedInContext loggedInContext)
     {
-        _lexAuthService = lexAuthService;
         _lexBoxDbContext = lexBoxDbContext;
         _loggedInContext = loggedInContext;
     }
