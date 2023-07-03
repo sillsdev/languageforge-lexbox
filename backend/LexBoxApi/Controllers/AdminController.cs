@@ -10,15 +10,14 @@ using Microsoft.EntityFrameworkCore;
 namespace LexBoxApi.Controllers;
 
 [ApiController]
-[Route("/api/login")]
+[Route("/api/admin")]
 public class AdminController : ControllerBase
 {
     private readonly LexAuthService _lexAuthService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly LoggedInContext _loggedInContext;
 
-    public AdminController(LexAuthService lexAuthService,
-        LexBoxDbContext lexBoxDbContext,
+    public AdminController(LexBoxDbContext lexBoxDbContext,
         LoggedInContext loggedInContext)
     {
         _lexAuthService = lexAuthService;
@@ -28,7 +27,7 @@ public class AdminController : ControllerBase
 
     public record ResetPasswordAdminRequest(string PasswordHash, Guid userId);
 
-    [HttpPost("resetPasswordAdmin")]
+    [HttpPost("resetPassword")]
     [AdminRequired]
     public async Task<ActionResult> ResetPasswordAdmin(ResetPasswordAdminRequest request)
     {

@@ -10,15 +10,16 @@
   import ButtonToggle from '$lib/components/ButtonToggle.svelte';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';
-  import {_changeUserAccountByAdmin, _deleteUserByAdmin} from './+page';
-  import  type {ChangeUserAccountByAdminInput} from '$lib/gql/types';
-  import type {DeleteUserByAdminInput} from '$lib/gql/types';
+  import { _changeUserAccountByAdmin, _deleteUserByAdmin } from './+page';
+  import type { ChangeUserAccountByAdminInput, LoadAdminDashboardQuery } from '$lib/gql/types';
+  import type { DeleteUserByAdminInput } from '$lib/gql/types';
   import { hash } from '$lib/user';
 
   export let data: PageData;
 
   let projectSearch = '';
   let userSearch = '';
+  type UserRow = LoadAdminDashboardQuery['users'][0]
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
   $: projects = data.projects
     .filter(
@@ -38,14 +39,14 @@
     )
     .slice(0, userSearch ? undefined : 10);
 
-    const schema = z.object({
-        email: z.string().email(),
-        name: z.string(),
-        password: z.string().optional(),
-        userId: z.string().optional(),
-    });
+  const schema = z.object({
+    email: z.string().email(),
+    name: z.string(),
+    password: z.string().optional(),
+    userId: z.string().optional(),
+  });
   const verify = z.object({
-       keyphrase: z.string().optional(),
+    keyphrase: z.string().refine((value) => value.match(`^${$t('enter_to_delete.user.value')}$`)),
   });
 
   let formModal: FormModal<typeof schema>;
@@ -53,50 +54,49 @@
   let deletionFormModal: FormModal<typeof verify>;
   $: deletionForm = deletionFormModal?.form();
 
-
-  async function deleteUser(id: any): Promise<void> {
+  async function deleteUser(id: string): Promise<void> {
     formModal.close();
-       await deletionFormModal.open(async () => {
-        if( data.user ){
-           if ($deletionForm.keyphrase === 'delete user'){
-               const deleteUserInput: DeleteUserByAdminInput = {
-                adminId: data.user.id,
-                userId: id,
-               }
-               await _deleteUserByAdmin(deleteUserInput);
-           }}
-       });
+    await deletionFormModal.open(async () => {
+      if (data.user) {
+        if ($deletionForm.keyphrase === $t('enter_to_delete.user.value')) {
+          const deleteUserInput: DeleteUserByAdminInput = {
+            adminId: data.user.id,
+            userId: id,
+          };
+          await _deleteUserByAdmin(deleteUserInput);
+        }
+      }
+    });
   }
-  async function openModal(user: any): Promise<void> {
+  async function openModal(user: UserRow): Promise<void> {
     $form.email = user.email;
     $form.name = user.name;
     $form.userId = user.id;
     await formModal.open(async () => {
-        if (data.user){
+      if (data.user) {
         const changeInput: ChangeUserAccountByAdminInput = {
-            adminId: data.user.id,
-            userId: user.id,
-            email: $form.email,
-            name: $form.name,
-
-        }
+          adminId: data.user.id,
+          userId: user.id,
+          email: $form.email,
+          name: $form.name,
+        };
         await _changeUserAccountByAdmin(changeInput);
-    }
-    let password: string = $form.password ?? '';
-    if (password !== '' && $form.password){
+      }
+      let password: string = $form.password ?? '';
+      if (password !== '' && $form.password) {
         await fetch('/api/Admin/resetPasswordAdmin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ passwordHash: await hash(password), userId: user.id}),
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ passwordHash: await hash(password), userId: user.id }),
         });
-    }
+      }
       return;
     });
   }
 </script>
 
 <svelte:head>
-    <title>{$t('admin_dashboard.title')}</title>
+  <title>{$t('admin_dashboard.title')}</title>
 </svelte:head>
 
 <main>
@@ -154,7 +154,6 @@
     </div>
 
     <div class="pl-1 overflow-x-auto">
-
       <span class="text-xl">
         {$t('admin_dashboard.user_table_title')}
         <Badge>{userSearch ? users.length : data.users.length}</Badge>
@@ -164,7 +163,6 @@
         label={$t('admin_dashboard.filter_label')}
         placeholder={$t('admin_dashboard.filter_placeholder')}
         bind:value={userSearch}
-
       />
 
       <div class="divider" />
@@ -187,8 +185,9 @@
               <td>
                 <FormatDate date={user.createdDate} />
               </td>
-            <td class="p-0">
-                <IconButton ghost={true} icon="i-mdi-pencil-outline" on:click={async () => {await openModal(user)}}></IconButton></td>
+              <td class="p-0">
+                <IconButton ghost={true} icon="i-mdi-pencil-outline" on:click={() => openModal(user)} />
+              </td>
             </tr>
           {/each}
         </tbody>
@@ -196,7 +195,7 @@
     </div>
   </div>
 
-<FormModal bind:this={formModal} {schema} let:errors>
+  <FormModal bind:this={formModal} {schema} let:errors>
     <span slot="title">{$t('admin_dashboard.form_modal.title')}</span>
     <Input
       id="email"
@@ -216,32 +215,37 @@
       error={errors.name}
       autofocus
     />
-    <div class = "text-error">
-    <Input
+    <div class="text-error">
+      <Input
         id="password"
         type="password"
         label={$t('admin_dashboard.form_modal.password_label')}
         bind:value={$form.password}
-        required={false}/>
+        required={false}
+      />
     </div>
-    <div style="display: flex" slot = "extraActions" class="space-x-4">
-    <ButtonToggle theme="error" text1="unlock" text2= "lock" icon1="i-mdi-lock" icon2="i-mdi-unlocked"></ButtonToggle>
-    <button class="btn btn-error rounded" on:click={async () => {await deleteUser($form.userId)}}>{$t('admin_dashboard.form_modal.delete_user')}<TrashIcon></TrashIcon></button>
-
-  </div>
+    <div style="display: flex" slot="extraActions" class="space-x-4">
+      <ButtonToggle theme="error" text1="unlock" text2="lock" icon1="i-mdi-lock" icon2="i-mdi-unlocked" />
+      <button
+        class="btn btn-error rounded"
+        on:click={async () => {
+          await deleteUser($form.userId);
+        }}>{$t('admin_dashboard.form_modal.delete_user')}<TrashIcon /></button
+      >
+    </div>
     <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
   </FormModal>
 
   <FormModal bind:this={deletionFormModal} schema={verify} let:errors>
     <span slot="title">{$t('admin_dashboard.form_modal.delete_user')}</span>
     <Input
-    id="keyphrase"
-    type="text"
-    label={$t('admin_dashboard.delete_modal.label')}
-    placeholder={$form.name}
-    error={errors.keyphrase}
-    bind:value={$deletionForm.keyphrase}
-  />
-  <span slot="submitText">{$t('admin_dashboard.form_modal.delete_user')}</span>
-</FormModal>
+      id="keyphrase"
+      type="text"
+      label={$t('enter_to_delete.user.label')}
+      placeholder={$form.name}
+      error={errors.keyphrase}
+      bind:value={$deletionForm.keyphrase}
+    />
+    <span slot="submitText">{$t('admin_dashboard.form_modal.delete_user')}</span>
+  </FormModal>
 </main>
