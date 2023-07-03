@@ -34,6 +34,13 @@ public class LexQueries
         return context.Projects;
     }
 
+    [UseSingleOrDefault]
+    [UseProjection]
+    public IQueryable<Project> ProjectByCode(LexBoxDbContext context, string code)
+    {
+        return context.Projects.Where(p => p.Code == code);
+    }
+
     [UseProjection]
     [UseFiltering]
     [UseSorting]

@@ -1,7 +1,8 @@
 <script lang="ts">
+  import type { ProjectRole } from '$lib/gql/types';
   import FormatUserProjectRole from '../FormatUserProjectRole.svelte';
   import Badge from './Badge.svelte';
-  export let member: { name: string; role: number };
+  export let member: { name: string; role: ProjectRole };
   export let canManage = false;
 </script>
 
