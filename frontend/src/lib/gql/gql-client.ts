@@ -45,7 +45,7 @@ export function getClient(): GqlClient {
 type OperationOptions = Partial<OperationContext>;
 
 type QueryOperationOptions = OperationOptions
-  & { fetch: typeof fetch }; // ensure the sveltekit fetch is always provided
+  & { fetch: Fetch }; // ensure the sveltekit fetch is always provided
 
 class GqlClient {
 
@@ -96,6 +96,6 @@ class GqlClient {
         }
       }
     }
-    return errors.length > 0 ? undefined : new LexGqlError(errors);
+    return errors.length > 0 ? new LexGqlError(errors) : undefined;
   }
 }

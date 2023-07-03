@@ -96,7 +96,7 @@
     "project": "Project",
     "add_user": {
       "add_button": "Add Member",
-      "email_required": "Email Required!",
+      "email_required": "Email required",
       "modal_title": "Add a Member to this project",
       "submit_button": "Add Member"
     },

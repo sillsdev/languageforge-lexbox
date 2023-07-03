@@ -1,6 +1,6 @@
 # https://wiki.mercurial-scm.org/modwsgi
 
-FROM httpd:2.4
+FROM httpd:2.4-bookworm
 
 ENV CUSTOM_PORT=8088
 
