@@ -25,7 +25,7 @@ export async function load(event: PageLoadEvent) {
     .query(
       graphql(`
 				query projectPage($projectCode: String!) {
-					projects(where: { code: { _eq: $projectCode } }) {
+					projectByCode(code: $projectCode) {
 						id
 						name
 						code
@@ -34,10 +34,10 @@ export async function load(event: PageLoadEvent) {
 						lastCommit
 						createdDate
 						retentionPolicy
-						ProjectUsers {
+						users {
 							id
 							role
-							User {
+							user {
 								id
 								name
 							}
@@ -55,10 +55,10 @@ export async function load(event: PageLoadEvent) {
       { projectCode }, { fetch: event.fetch },
     );
 
-  const projectId = result.data?.projects[0]?.id as string;
+  const projectId = result.data?.projectByCode?.id as string;
   event.depends(`project:${projectId}`);
   return {
-    project: result.data?.projects[0],
+    project: result.data?.projectByCode,
     code: projectCode,
   };
 }

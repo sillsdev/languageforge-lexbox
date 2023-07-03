@@ -12,28 +12,22 @@ export async function load(event: PageLoadEvent): Promise<{ projects: Project[] 
   const client = getClient();
   //language=GraphQL
   const results = await client.query(graphql(`
-        query loadProjects($userId: uuid) {
-            projects(where: {ProjectUsers: {userId: {_eq: $userId}}}){
+        query loadProjects {
+            myProjects {
                 code
                 id
                 name
                 lastCommit
-                projectUsersAggregate {
-                    aggregate {
-                        count
-                    }
-                }
             }
         }
-    `), { userId }, { fetch: event.fetch });
+    `), { }, { fetch: event.fetch });
   if (!results.data) throw new Error('No data returned');
   return {
     ...parentData,
-    projects: results.data.projects.map(p => ({
+    projects: results.data.myProjects.map(p => ({
       id: p.id,
       name: p.name,
       code: p.code,
-      userCount: p.projectUsersAggregate?.aggregate?.count ?? 0,
       lastCommit: p.lastCommit
     }))
   }

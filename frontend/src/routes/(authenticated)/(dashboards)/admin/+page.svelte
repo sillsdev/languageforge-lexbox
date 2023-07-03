@@ -76,7 +76,7 @@
                 </a>
               </td>
               <td>{project.code}</td>
-              <td>{project.projectUsersAggregate.aggregate?.count ?? 0}</td>
+              <td>TODO</td>
               <td>
                 <FormatDate date={project.lastCommit} />
               </td>
