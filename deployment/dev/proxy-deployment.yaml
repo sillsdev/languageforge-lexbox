@@ -21,7 +21,7 @@ spec:
           service:
             name: lexbox
             port:
-              name: http
+              number: 5158
       - path: /v1/traces
         pathType: Prefix
         backend:
