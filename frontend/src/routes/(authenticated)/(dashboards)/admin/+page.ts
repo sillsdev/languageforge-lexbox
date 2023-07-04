@@ -3,10 +3,12 @@ import type {
   ChangeUserAccountByAdminInput,
   ChangeUserAccountByAdminMutation,
   DeleteUserByAdminInput,
+  DeleteUserByAdminMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
+
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   //language=GraphQL
@@ -61,7 +63,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
     )
     return result;
 }
-export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<DeleteUserAccountByAdminMutation> {
+export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<DeleteUserByAdminMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(

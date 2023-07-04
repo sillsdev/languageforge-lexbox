@@ -88,4 +88,18 @@ public class LoginController : ControllerBase
         await _lexBoxDbContext.SaveChangesAsync();
         return Ok();
     }
+
+    public record ResetPasswordAdminRequest(string PasswordHash, Guid userId);
+
+    [HttpPost("resetPasswordAdmin")]
+    [AdminRequired]
+    public async Task<ActionResult> ResetPasswordAdmin(ResetPasswordAdminRequest request)
+    {
+        var passwordHash = request.PasswordHash;
+        var lexAuthUser = _loggedInContext.User;
+        var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == request.userId);
+        user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
+        await _lexBoxDbContext.SaveChangesAsync();
+        return Ok();
+    }
 }

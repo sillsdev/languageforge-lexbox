@@ -1,10 +1,10 @@
 import type {
   $OpResult,
-  ChangeUserAccountDataInput,
   ChangeUserAccountDataMutation,
+  ChangeUserAccountDataInput,
+
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
-
 import { invalidate } from '$app/navigation';
 import {refreshJwt} from '$lib/user';
 

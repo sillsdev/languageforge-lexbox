@@ -50,7 +50,7 @@
 </svelte:head>
 
 <main>
-  <div class="grid grid-cols-2">
+  <div class="grid grid-cols-2 m:grid-cols-1">
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
         {$t('admin_dashboard.project_table_title')}
@@ -104,6 +104,7 @@
     </div>
 
     <div class="pl-1 overflow-x-auto">
+
       <span class="text-xl">
         {$t('admin_dashboard.user_table_title')}
         <Badge>{userSearch ? users.length : data.users.length}</Badge>
@@ -112,6 +113,7 @@
         label=""
         placeholder={$t('admin_dashboard.filter_placeholder')}
         bind:value={userSearch}
+
       />
 
       <div class="divider" />
