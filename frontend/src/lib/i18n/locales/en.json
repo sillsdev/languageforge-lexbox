@@ -10,23 +10,26 @@
     "column_type": "Type",
     "column_users": "Users",
     "column_edit": "Edit",
-    "filter_label": " ",
-    "filter_placeholder": "search...",
+    "filter_placeholder": "Search...",
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "username_or_email_required": "You must provide a username or email.",
     "password_missing": "Please include a password with at least 4 characters",
-    "delete_modal": {
-      "label": "type 'delete user' to delete this user"
-    },
     "form_modal": {
       "title": "Edit User",
-      "email_label": "enter new email",
-      "name_label": "change display name",
-      "password_label": "change password",
+      "email_label": "Email",
+      "name_label": "Display name",
+      "password_label": "Password",
       "delete_user": "Delete User",
       "update_user": "Update User",
-      "lock": "lock "
+      "lock": "Lock User",
+      "unlock": "Unlock User"
+    },
+    "enter_to_delete": {
+      "user": {
+        "label": "Enter 'delete user' to delete user",
+        "value": "delete user"
+      }
     }
   },
 
@@ -94,7 +97,7 @@
     "project": "Project",
     "add_user": {
       "add_button": "Add Member",
-      "email_required": "Email Required!",
+      "email_required": "Email required",
       "modal_title": "Add a Member to this project",
       "submit_button": "Add Member"
     },

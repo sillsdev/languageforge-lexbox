@@ -1,23 +1,17 @@
 <script lang="ts">
+  import FormField from './FormField.svelte';
+  import { randomFieldId } from './utils';
+
   export let label: string;
-  export let id: string;
-  export let autofocus = false;
-  export let error: string | string[] = '';
   export let value: string;
+  export let id = randomFieldId();
+  export let autofocus = false;
+  export let error: string | string[] | undefined = undefined;
 </script>
 
-<label for={id} class="label">
-  <span class="label-text">
-    {label}
-  </span>
-</label>
-<!-- svelte-ignore a11y-autofocus -->
-<select {autofocus} bind:value {id} class="select select-bordered">
-  <slot />
-</select>
-
-{#if error}
-  <label for={id} class="label">
-    <span class="label-text-alt text-error mb-2">{typeof error === 'string' ? error : error.join(', ')}</span>
-  </label>
-{/if}
+<FormField {id} {label} {error} {autofocus}>
+  <!-- svelte-ignore a11y-autofocus -->
+  <select bind:value {id} class="select select-bordered" {autofocus}>
+    <slot />
+  </select>
+</FormField>

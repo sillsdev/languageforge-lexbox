@@ -1,5 +1,6 @@
 using LexBoxApi.Services;
 using LexCore.Entities;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;

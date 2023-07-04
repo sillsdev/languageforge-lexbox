@@ -42,7 +42,6 @@
       bind:value={$form.email}
       error={$errors.email}
       autofocus
-      required
     />
 
     <Input
@@ -51,7 +50,6 @@
       type="password"
       bind:value={$form.password}
       error={$errors.password}
-      required
     />
     <a class="link mt-0" href="/forgotPassword">
       {$t('login.forgot_password')}

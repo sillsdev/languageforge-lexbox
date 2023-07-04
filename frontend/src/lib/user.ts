@@ -118,6 +118,6 @@ export function isAuthn(cookies: Cookies): boolean {
   return !!cookies.get('.LexBoxAuth')
 }
 
-export async function refreshJwt() {
+export async function refreshJwt(): Promise<void> {
   await fetch('/api/login/refresh', {method: 'POST'});
 }

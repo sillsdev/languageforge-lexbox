@@ -1,34 +1,19 @@
-"""whether this query should be cached (Hasura Cloud only)"""
-directive @cached(
-  """refresh the cache entry"""
-  refresh: Boolean! = false
+directive @allowAnonymous repeatable on FIELD_DEFINITION
 
-  """measured in seconds"""
-  ttl: Int! = 60
-) on QUERY
+directive @authorize(
+  """
+  Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase.
+  """
+  apply: ApplyPolicy! = BEFORE_RESOLVER
 
-directive @computed(
-  """Specifies the fields on which a computed field is dependent on."""
-  dependantOn: [String!]
-) on FIELD_DEFINITION
+  """
+  The name of the authorization policy that determines access to the annotated resource.
+  """
+  policy: String
 
-"""Delegates a resolver to a remote schema."""
-directive @delegate(
-  """The path to the field on the remote schema."""
-  path: String
-
-  """The name of the schema to which this field shall be delegated to."""
-  schema: String!
-) on FIELD_DEFINITION
-
-"""Annotates the original name of a type."""
-directive @source(
-  """The original name of the annotated type."""
-  name: String!
-
-  """The name of the schema to which this type belongs to."""
-  schema: String!
-) repeatable on ARGUMENT_DEFINITION | ENUM | ENUM_VALUE | FIELD_DEFINITION | INPUT_FIELD_DEFINITION | INPUT_OBJECT | INTERFACE | OBJECT | UNION
+  """Roles that are allowed to access the annotated resource."""
+  roles: [String!]
+) repeatable on FIELD_DEFINITION | OBJECT
 
 union AddProjectMemberError = DbError | NotFoundError
 
@@ -43,24 +28,20 @@ type AddProjectMemberPayload {
   project: Project
 }
 
+enum ApplyPolicy {
+  AFTER_RESOLVER
+  BEFORE_RESOLVER
+  VALIDATION
+}
+
 type AuthUserProject {
   code: String!
   role: ProjectRole!
 }
 
-"""
-Boolean expression to compare columns of type "Boolean". All fields are combined with logical 'AND'.
-"""
-input BooleanComparisonExp {
-  _eq: Boolean
-  _gt: Boolean
-  _gte: Boolean
-  _in: [Boolean!]
-  _isNull: Boolean
-  _lt: Boolean
-  _lte: Boolean
-  _neq: Boolean
-  _nin: [Boolean!]
+input BooleanOperationFilterInput {
+  eq: Boolean
+  neq: Boolean
 }
 
 union ChangeProjectDescriptionError = DbError | NotFoundError
@@ -85,7 +66,7 @@ input ChangeProjectMemberRoleInput {
 
 type ChangeProjectMemberRolePayload {
   errors: [ChangeProjectMemberRoleError!]
-  projectUsers: LexBox_ProjectUsers
+  projectUsers: ProjectUsers
 }
 
 union ChangeProjectNameError = DbError | NotFoundError | RequiredError
@@ -103,7 +84,6 @@ type ChangeProjectNamePayload {
 union ChangeUserAccountByAdminError = DbError | NotFoundError
 
 input ChangeUserAccountByAdminInput {
-  adminId: UUID!
   email: String!
   name: String!
   userId: UUID!
@@ -111,7 +91,7 @@ input ChangeUserAccountByAdminInput {
 
 type ChangeUserAccountByAdminPayload {
   errors: [ChangeUserAccountByAdminError!]
-  int: Int
+  user: User
 }
 
 union ChangeUserAccountDataError = DbError | NotFoundError
@@ -154,16 +134,22 @@ type CreateProjectPayload {
   project: Project
 }
 
-"""ordering argument of a cursor"""
-enum CursorOrdering {
-  """ascending ordering of the cursor"""
-  ASC
-
-  """descending ordering of the cursor"""
-  DESC
-}
-
 scalar DateTime @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
+
+input DateTimeOperationFilterInput {
+  eq: DateTime
+  gt: DateTime
+  gte: DateTime
+  in: [DateTime]
+  lt: DateTime
+  lte: DateTime
+  neq: DateTime
+  ngt: DateTime
+  ngte: DateTime
+  nin: [DateTime]
+  nlt: DateTime
+  nlte: DateTime
+}
 
 type DbError implements Error {
   code: DbErrorCode!
@@ -178,32 +164,20 @@ enum DbErrorCode {
 union DeleteUserByAdminError = DbError | NotFoundError
 
 input DeleteUserByAdminInput {
-  adminId: UUID!
   userId: UUID!
 }
 
 type DeleteUserByAdminPayload {
   errors: [DeleteUserByAdminError!]
-  int: Int
+  user: User
 }
 
 interface Error {
   message: String!
 }
 
-"""
-Boolean expression to compare columns of type "Int". All fields are combined with logical 'AND'.
-"""
-input IntComparisonExp {
-  _eq: Int
-  _gt: Int
-  _gte: Int
-  _in: [Int!]
-  _isNull: Boolean
-  _lt: Int
-  _lte: Int
-  _neq: Int
-  _nin: [Int!]
+type IsAdminResponse {
+  value: Boolean!
 }
 
 type LexAuthUser {
@@ -214,15 +188,11 @@ type LexAuthUser {
   role: UserRole!
 }
 
-type LexBox_ProjectUsers {
-  createdDate: DateTime!
-  id: UUID!
-  project: Project!
-  projectId: UUID!
-  role: ProjectRole!
-  updatedDate: DateTime!
-  user: User!
-  userId: UUID!
+input ListFilterInputTypeOfProjectUsersFilterInput {
+  all: ProjectUsersFilterInput
+  any: Boolean
+  none: ProjectUsersFilterInput
+  some: ProjectUsersFilterInput
 }
 
 type Mutation {
@@ -233,237 +203,16 @@ type Mutation {
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload!
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
-
-  """
-  delete data from the table: "ProjectUsers"
-  """
-  deleteProjectUsers(
-    """filter the rows which have to be deleted"""
-    where: ProjectUsersBoolExp!
-  ): ProjectUsersMutationResponse
-
-  """
-  delete single row from the table: "ProjectUsers"
-  """
-  deleteProjectUsersByPk(id: uuid!): ProjectUsers
-
-  """
-  delete data from the table: "Projects"
-  """
-  deleteProjects(
-    """filter the rows which have to be deleted"""
-    where: ProjectsBoolExp!
-  ): ProjectsMutationResponse
-
-  """
-  delete single row from the table: "Projects"
-  """
-  deleteProjectsByPk(id: uuid!): Projects
   deleteUserByAdmin(input: DeleteUserByAdminInput!): DeleteUserByAdminPayload!
-
-  """
-  delete data from the table: "Users"
-  """
-  deleteUsers(
-    """filter the rows which have to be deleted"""
-    where: UsersBoolExp!
-  ): UsersMutationResponse
-
-  """
-  delete single row from the table: "Users"
-  """
-  deleteUsersByPk(id: uuid!): Users
-
-  """
-  insert data into the table: "ProjectUsers"
-  """
-  insertProjectUsers(
-    """the rows to be inserted"""
-    objects: [ProjectUsersInsertInput!]!
-
-    """upsert condition"""
-    onConflict: ProjectUsersOnConflict
-  ): ProjectUsersMutationResponse
-
-  """
-  insert a single row into the table: "ProjectUsers"
-  """
-  insertProjectUsersOne(
-    """the row to be inserted"""
-    object: ProjectUsersInsertInput!
-
-    """upsert condition"""
-    onConflict: ProjectUsersOnConflict
-  ): ProjectUsers
-
-  """
-  insert data into the table: "Projects"
-  """
-  insertProjects(
-    """the rows to be inserted"""
-    objects: [ProjectsInsertInput!]!
-
-    """upsert condition"""
-    onConflict: ProjectsOnConflict
-  ): ProjectsMutationResponse
-
-  """
-  insert a single row into the table: "Projects"
-  """
-  insertProjectsOne(
-    """the row to be inserted"""
-    object: ProjectsInsertInput!
-
-    """upsert condition"""
-    onConflict: ProjectsOnConflict
-  ): Projects
-
-  """
-  insert data into the table: "Users"
-  """
-  insertUsers(
-    """the rows to be inserted"""
-    objects: [UsersInsertInput!]!
-
-    """upsert condition"""
-    onConflict: UsersOnConflict
-  ): UsersMutationResponse
-
-  """
-  insert a single row into the table: "Users"
-  """
-  insertUsersOne(
-    """the row to be inserted"""
-    object: UsersInsertInput!
-
-    """upsert condition"""
-    onConflict: UsersOnConflict
-  ): Users
   removeProjectMember(input: RemoveProjectMemberInput!): Project
-
-  """
-  update data of the table: "ProjectUsers"
-  """
-  updateProjectUsers(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectUsersIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectUsersSetInput
-
-    """filter the rows which have to be updated"""
-    where: ProjectUsersBoolExp!
-  ): ProjectUsersMutationResponse
-
-  """
-  update single row of the table: "ProjectUsers"
-  """
-  updateProjectUsersByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectUsersIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectUsersSetInput
-    pk_columns: ProjectUsersPkColumnsInput!
-  ): ProjectUsers
-
-  """
-  update multiples rows of table: "ProjectUsers"
-  """
-  updateProjectUsersMany(
-    """updates to execute, in order"""
-    updates: [ProjectUsersUpdates!]!
-  ): [ProjectUsersMutationResponse]
-
-  """
-  update data of the table: "Projects"
-  """
-  updateProjects(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectsIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectsSetInput
-
-    """filter the rows which have to be updated"""
-    where: ProjectsBoolExp!
-  ): ProjectsMutationResponse
-
-  """
-  update single row of the table: "Projects"
-  """
-  updateProjectsByPk(
-    """increments the numeric columns with given value of the filtered values"""
-    _inc: ProjectsIncInput
-
-    """sets the columns of the filtered rows to the given values"""
-    _set: ProjectsSetInput
-    pk_columns: ProjectsPkColumnsInput!
-  ): Projects
-
-  """
-  update multiples rows of table: "Projects"
-  """
-  updateProjectsMany(
-    """updates to execute, in order"""
-    updates: [ProjectsUpdates!]!
-  ): [ProjectsMutationResponse]
-
-  """
-  update data of the table: "Users"
-  """
-  updateUsers(
-    """sets the columns of the filtered rows to the given values"""
-    _set: UsersSetInput
-
-    """filter the rows which have to be updated"""
-    where: UsersBoolExp!
-  ): UsersMutationResponse
-
-  """
-  update single row of the table: "Users"
-  """
-  updateUsersByPk(
-    """sets the columns of the filtered rows to the given values"""
-    _set: UsersSetInput
-    pk_columns: UsersPkColumnsInput!
-  ): Users
-
-  """
-  update multiples rows of table: "Users"
-  """
-  updateUsersMany(
-    """updates to execute, in order"""
-    updates: [UsersUpdates!]!
-  ): [UsersMutationResponse]
 }
 
 type NotFoundError implements Error {
   message: String!
 }
 
-"""column ordering options"""
-enum OrderBy {
-  """in ascending order, nulls last"""
-  ASC
-
-  """in ascending order, nulls first"""
-  ASC_NULLS_FIRST
-
-  """in ascending order, nulls last"""
-  ASC_NULLS_LAST
-
-  """in descending order, nulls first"""
-  DESC
-
-  """in descending order, nulls first"""
-  DESC_NULLS_FIRST
-
-  """in descending order, nulls last"""
-  DESC_NULLS_LAST
-}
-
 type Project {
+  changesets: [Changeset!]!
   code: String!
   createdDate: DateTime!
   description: String
@@ -473,13 +222,47 @@ type Project {
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
   updatedDate: DateTime!
-  users: [LexBox_ProjectUsers!]!
+  users: [ProjectUsers!]!
+}
+
+input ProjectFilterInput {
+  and: [ProjectFilterInput!]
+  code: StringOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  description: StringOperationFilterInput
+  id: UuidOperationFilterInput
+  lastCommit: DateTimeOperationFilterInput
+  name: StringOperationFilterInput
+  or: [ProjectFilterInput!]
+  retentionPolicy: RetentionPolicyOperationFilterInput
+  type: ProjectTypeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+  users: ListFilterInputTypeOfProjectUsersFilterInput
 }
 
 enum ProjectRole {
   EDITOR
   MANAGER
   UNKNOWN
+}
+
+input ProjectRoleOperationFilterInput {
+  eq: ProjectRole
+  in: [ProjectRole!]
+  neq: ProjectRole
+  nin: [ProjectRole!]
+}
+
+input ProjectSortInput {
+  code: SortEnumType
+  createdDate: SortEnumType
+  description: SortEnumType
+  id: SortEnumType
+  lastCommit: SortEnumType
+  name: SortEnumType
+  retentionPolicy: SortEnumType
+  type: SortEnumType
+  updatedDate: SortEnumType
 }
 
 enum ProjectType {
@@ -490,909 +273,44 @@ enum ProjectType {
   WE_SAY
 }
 
-"""
-columns and relationships of "ProjectUsers"
-"""
+input ProjectTypeOperationFilterInput {
+  eq: ProjectType
+  in: [ProjectType!]
+  neq: ProjectType
+  nin: [ProjectType!]
+}
+
 type ProjectUsers {
-  """An object relationship"""
-  Projects: Projects!
-
-  """An object relationship"""
-  User: Users!
-  createdDate: timestamptz!
-  id: uuid!
-  projectId: uuid!
-  role: Int!
-  updatedDate: timestamptz!
-  userId: uuid!
-}
-
-"""
-aggregated selection of "ProjectUsers"
-"""
-type ProjectUsersAggregate {
-  aggregate: ProjectUsersAggregateFields
-  nodes: [ProjectUsers!]!
-}
-
-"""
-aggregate fields of "ProjectUsers"
-"""
-type ProjectUsersAggregateFields {
-  avg: ProjectUsersAvgFields
-  count(columns: [ProjectUsersSelectColumn!], distinct: Boolean): Int!
-  max: ProjectUsersMaxFields
-  min: ProjectUsersMinFields
-  stddev: ProjectUsersStddevFields
-  stddevPop: ProjectUsersStddev_popFields
-  stddevSamp: ProjectUsersStddev_sampFields
-  sum: ProjectUsersSumFields
-  varPop: ProjectUsersVar_popFields
-  varSamp: ProjectUsersVar_sampFields
-  variance: ProjectUsersVarianceFields
-}
-
-"""
-order by aggregate values of table "ProjectUsers"
-"""
-input ProjectUsersAggregateOrderBy {
-  avg: ProjectUsers_avg_order_by
-  count: OrderBy
-  max: ProjectUsers_max_order_by
-  min: ProjectUsers_min_order_by
-  stddev: ProjectUsers_stddev_order_by
-  stddev_pop: ProjectUsers_stddev_pop_order_by
-  stddev_samp: ProjectUsers_stddev_samp_order_by
-  sum: ProjectUsers_sum_order_by
-  var_pop: ProjectUsers_var_pop_order_by
-  var_samp: ProjectUsers_var_samp_order_by
-  variance: ProjectUsers_variance_order_by
-}
-
-"""
-input type for inserting array relation for remote table "ProjectUsers"
-"""
-input ProjectUsersArrRelInsertInput {
-  data: [ProjectUsersInsertInput!]!
-
-  """upsert condition"""
-  onConflict: ProjectUsersOnConflict
-}
-
-"""aggregate avg on columns"""
-type ProjectUsersAvgFields {
-  role: Float
-}
-
-"""
-Boolean expression to filter rows from the table "ProjectUsers". All fields are combined with a logical 'AND'.
-"""
-input ProjectUsersBoolExp {
-  Projects: ProjectsBoolExp
-  User: UsersBoolExp
-  _and: [ProjectUsersBoolExp!]
-  _not: ProjectUsersBoolExp
-  _or: [ProjectUsersBoolExp!]
-  createdDate: TimestamptzComparisonExp
-  id: UuidComparisonExp
-  projectId: UuidComparisonExp
-  role: IntComparisonExp
-  updatedDate: TimestamptzComparisonExp
-  userId: UuidComparisonExp
-}
-
-"""
-unique or primary key constraints on table "ProjectUsers"
-"""
-enum ProjectUsersConstraint {
-  """
-  unique or primary key constraint on columns "ProjectId", "UserId"
-  """
-  IX_ProjectUsers_UserId_ProjectId
-
-  """
-  unique or primary key constraint on columns "Id"
-  """
-  PK_ProjectUsers
-}
-
-"""
-input type for incrementing numeric columns in table "ProjectUsers"
-"""
-input ProjectUsersIncInput {
-  role: Int
-}
-
-"""
-input type for inserting data into table "ProjectUsers"
-"""
-input ProjectUsersInsertInput {
-  Projects: ProjectsObjRelInsertInput
-  User: UsersObjRelInsertInput
-  createdDate: timestamptz
-  id: uuid
-  projectId: uuid
-  role: Int
-  updatedDate: timestamptz
-  userId: uuid
-}
-
-"""aggregate max on columns"""
-type ProjectUsersMaxFields {
-  createdDate: timestamptz
-  id: uuid
-  projectId: uuid
-  role: Int
-  updatedDate: timestamptz
-  userId: uuid
-}
-
-"""aggregate min on columns"""
-type ProjectUsersMinFields {
-  createdDate: timestamptz
-  id: uuid
-  projectId: uuid
-  role: Int
-  updatedDate: timestamptz
-  userId: uuid
-}
-
-"""
-response of any mutation on the table "ProjectUsers"
-"""
-type ProjectUsersMutationResponse {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [ProjectUsers!]!
-}
-
-"""
-on_conflict condition type for table "ProjectUsers"
-"""
-input ProjectUsersOnConflict {
-  constraint: ProjectUsersConstraint!
-  update_columns: [ProjectUsersUpdateColumn!]! = []
-  where: ProjectUsersBoolExp
-}
-
-"""Ordering options when selecting data from "ProjectUsers"."""
-input ProjectUsersOrderBy {
-  Projects: ProjectsOrderBy
-  User: UsersOrderBy
-  createdDate: OrderBy
-  id: OrderBy
-  projectId: OrderBy
-  role: OrderBy
-  updatedDate: OrderBy
-  userId: OrderBy
-}
-
-"""primary key columns input for table: ProjectUsers"""
-input ProjectUsersPkColumnsInput {
-  id: uuid!
-}
-
-"""
-select columns of table "ProjectUsers"
-"""
-enum ProjectUsersSelectColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  id
-
-  """column name"""
-  projectId
-
-  """column name"""
-  role
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  userId
-}
-
-"""
-input type for updating data in table "ProjectUsers"
-"""
-input ProjectUsersSetInput {
-  createdDate: timestamptz
-  id: uuid
-  projectId: uuid
-  role: Int
-  updatedDate: timestamptz
-  userId: uuid
-}
-
-"""aggregate stddev on columns"""
-type ProjectUsersStddevFields {
-  role: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type ProjectUsersStddev_popFields {
-  role: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type ProjectUsersStddev_sampFields {
-  role: Float
-}
-
-"""
-Streaming cursor of the table "ProjectUsers"
-"""
-input ProjectUsersStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: ProjectUsersStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input ProjectUsersStreamCursorValueInput {
-  createdDate: timestamptz
-  id: uuid
-  projectId: uuid
-  role: Int
-  updatedDate: timestamptz
-  userId: uuid
-}
-
-"""aggregate sum on columns"""
-type ProjectUsersSumFields {
-  role: Int
-}
-
-"""
-update columns of table "ProjectUsers"
-"""
-enum ProjectUsersUpdateColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  id
-
-  """column name"""
-  projectId
-
-  """column name"""
-  role
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  userId
-}
-
-input ProjectUsersUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: ProjectUsersIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: ProjectUsersSetInput
-
-  """filter the rows which have to be updated"""
-  where: ProjectUsersBoolExp!
-}
-
-"""aggregate var_pop on columns"""
-type ProjectUsersVar_popFields {
-  role: Float
-}
-
-"""aggregate var_samp on columns"""
-type ProjectUsersVar_sampFields {
-  role: Float
-}
-
-"""aggregate variance on columns"""
-type ProjectUsersVarianceFields {
-  role: Float
-}
-
-input ProjectUsers_aggregate_bool_exp {
-  count: ProjectUsers_aggregate_bool_exp_count
-}
-
-input ProjectUsers_aggregate_bool_exp_count {
-  arguments: [ProjectUsersSelectColumn!]
-  distinct: Boolean
-  filter: ProjectUsersBoolExp
-  predicate: IntComparisonExp!
-}
-
-"""
-order by avg() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_avg_order_by {
-  role: OrderBy
-}
-
-"""
-order by max() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_max_order_by {
-  createdDate: OrderBy
-  id: OrderBy
-  projectId: OrderBy
-  role: OrderBy
-  updatedDate: OrderBy
-  userId: OrderBy
-}
-
-"""
-order by min() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_min_order_by {
-  createdDate: OrderBy
-  id: OrderBy
-  projectId: OrderBy
-  role: OrderBy
-  updatedDate: OrderBy
-  userId: OrderBy
-}
-
-"""
-order by stddev() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_stddev_order_by {
-  role: OrderBy
-}
-
-"""
-order by stddev_pop() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_stddev_pop_order_by {
-  role: OrderBy
-}
-
-"""
-order by stddev_samp() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_stddev_samp_order_by {
-  role: OrderBy
-}
-
-"""
-order by sum() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_sum_order_by {
-  role: OrderBy
-}
-
-"""
-order by var_pop() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_var_pop_order_by {
-  role: OrderBy
-}
-
-"""
-order by var_samp() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_var_samp_order_by {
-  role: OrderBy
-}
-
-"""
-order by variance() on columns of table "ProjectUsers"
-"""
-input ProjectUsers_variance_order_by {
-  role: OrderBy
-}
-
-"""
-columns and relationships of "Projects"
-"""
-type Projects {
-  """An array relationship"""
-  ProjectUsers(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-  changesets: [Changeset!]!
-  code: String!
-  createdDate: timestamptz!
-  description: String
-  id: uuid!
-  lastCommit: timestamptz
-  name: String!
-
-  """An aggregate relationship"""
-  projectUsersAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-  retentionPolicy: Int!
-  type: Int!
-  updatedDate: timestamptz!
-}
-
-"""
-aggregated selection of "Projects"
-"""
-type ProjectsAggregate {
-  aggregate: ProjectsAggregateFields
-  nodes: [Projects!]!
-}
-
-"""
-aggregate fields of "Projects"
-"""
-type ProjectsAggregateFields {
-  avg: ProjectsAvgFields
-  count(columns: [ProjectsSelectColumn!], distinct: Boolean): Int!
-  max: ProjectsMaxFields
-  min: ProjectsMinFields
-  stddev: ProjectsStddevFields
-  stddevPop: ProjectsStddev_popFields
-  stddevSamp: ProjectsStddev_sampFields
-  sum: ProjectsSumFields
-  varPop: ProjectsVar_popFields
-  varSamp: ProjectsVar_sampFields
-  variance: ProjectsVarianceFields
-}
-
-"""aggregate avg on columns"""
-type ProjectsAvgFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""
-Boolean expression to filter rows from the table "Projects". All fields are combined with a logical 'AND'.
-"""
-input ProjectsBoolExp {
-  ProjectUsers: ProjectUsersBoolExp
-  ProjectUsers_aggregate: ProjectUsers_aggregate_bool_exp
-  _and: [ProjectsBoolExp!]
-  _not: ProjectsBoolExp
-  _or: [ProjectsBoolExp!]
-  code: StringComparisonExp
-  createdDate: TimestamptzComparisonExp
-  description: StringComparisonExp
-  id: UuidComparisonExp
-  lastCommit: TimestamptzComparisonExp
-  name: StringComparisonExp
-  retentionPolicy: IntComparisonExp
-  type: IntComparisonExp
-  updatedDate: TimestamptzComparisonExp
-}
-
-"""
-unique or primary key constraints on table "Projects"
-"""
-enum ProjectsConstraint {
-  """
-  unique or primary key constraint on columns "Code"
-  """
-  IX_Projects_Code
-
-  """
-  unique or primary key constraint on columns "Id"
-  """
-  PK_Projects
-}
-
-"""
-input type for incrementing numeric columns in table "Projects"
-"""
-input ProjectsIncInput {
-  retentionPolicy: Int
-  type: Int
-}
-
-"""
-input type for inserting data into table "Projects"
-"""
-input ProjectsInsertInput {
-  ProjectUsers: ProjectUsersArrRelInsertInput
-  code: String
-  createdDate: timestamptz
-  description: String
-  id: uuid
-  lastCommit: timestamptz
-  name: String
-  retentionPolicy: Int
-  type: Int
-  updatedDate: timestamptz
-}
-
-"""aggregate max on columns"""
-type ProjectsMaxFields {
-  code: String
-  createdDate: timestamptz
-  description: String
-  id: uuid
-  lastCommit: timestamptz
-  name: String
-  retentionPolicy: Int
-  type: Int
-  updatedDate: timestamptz
-}
-
-"""aggregate min on columns"""
-type ProjectsMinFields {
-  code: String
-  createdDate: timestamptz
-  description: String
-  id: uuid
-  lastCommit: timestamptz
-  name: String
-  retentionPolicy: Int
-  type: Int
-  updatedDate: timestamptz
-}
-
-"""
-response of any mutation on the table "Projects"
-"""
-type ProjectsMutationResponse {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Projects!]!
-}
-
-"""
-input type for inserting object relation for remote table "Projects"
-"""
-input ProjectsObjRelInsertInput {
-  data: ProjectsInsertInput!
-
-  """upsert condition"""
-  onConflict: ProjectsOnConflict
-}
-
-"""
-on_conflict condition type for table "Projects"
-"""
-input ProjectsOnConflict {
-  constraint: ProjectsConstraint!
-  update_columns: [ProjectsUpdateColumn!]! = []
-  where: ProjectsBoolExp
-}
-
-"""Ordering options when selecting data from "Projects"."""
-input ProjectsOrderBy {
-  code: OrderBy
-  createdDate: OrderBy
-  description: OrderBy
-  id: OrderBy
-  lastCommit: OrderBy
-  name: OrderBy
-  projectUsersAggregate: ProjectUsersAggregateOrderBy
-  retentionPolicy: OrderBy
-  type: OrderBy
-  updatedDate: OrderBy
-}
-
-"""primary key columns input for table: Projects"""
-input ProjectsPkColumnsInput {
-  id: uuid!
-}
-
-"""
-select columns of table "Projects"
-"""
-enum ProjectsSelectColumn {
-  """column name"""
-  code
-
-  """column name"""
-  createdDate
-
-  """column name"""
-  description
-
-  """column name"""
-  id
-
-  """column name"""
-  lastCommit
-
-  """column name"""
-  name
-
-  """column name"""
-  retentionPolicy
-
-  """column name"""
-  type
-
-  """column name"""
-  updatedDate
-}
-
-"""
-input type for updating data in table "Projects"
-"""
-input ProjectsSetInput {
-  code: String
-  createdDate: timestamptz
-  description: String
-  id: uuid
-  lastCommit: timestamptz
-  name: String
-  retentionPolicy: Int
-  type: Int
-  updatedDate: timestamptz
-}
-
-"""aggregate stddev on columns"""
-type ProjectsStddevFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate stddev_pop on columns"""
-type ProjectsStddev_popFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate stddev_samp on columns"""
-type ProjectsStddev_sampFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""
-Streaming cursor of the table "Projects"
-"""
-input ProjectsStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: ProjectsStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input ProjectsStreamCursorValueInput {
-  code: String
-  createdDate: timestamptz
-  description: String
-  id: uuid
-  lastCommit: timestamptz
-  name: String
-  retentionPolicy: Int
-  type: Int
-  updatedDate: timestamptz
-}
-
-"""aggregate sum on columns"""
-type ProjectsSumFields {
-  retentionPolicy: Int
-  type: Int
-}
-
-"""
-update columns of table "Projects"
-"""
-enum ProjectsUpdateColumn {
-  """column name"""
-  code
-
-  """column name"""
-  createdDate
-
-  """column name"""
-  description
-
-  """column name"""
-  id
-
-  """column name"""
-  lastCommit
-
-  """column name"""
-  name
-
-  """column name"""
-  retentionPolicy
-
-  """column name"""
-  type
-
-  """column name"""
-  updatedDate
-}
-
-input ProjectsUpdates {
-  """increments the numeric columns with given value of the filtered values"""
-  _inc: ProjectsIncInput
-
-  """sets the columns of the filtered rows to the given values"""
-  _set: ProjectsSetInput
-
-  """filter the rows which have to be updated"""
-  where: ProjectsBoolExp!
-}
-
-"""aggregate var_pop on columns"""
-type ProjectsVar_popFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate var_samp on columns"""
-type ProjectsVar_sampFields {
-  retentionPolicy: Float
-  type: Float
-}
-
-"""aggregate variance on columns"""
-type ProjectsVarianceFields {
-  retentionPolicy: Float
-  type: Float
+  createdDate: DateTime!
+  id: UUID!
+  project: Project!
+  projectId: UUID!
+  role: ProjectRole!
+  updatedDate: DateTime!
+  user: User!
+  userId: UUID!
+}
+
+input ProjectUsersFilterInput {
+  and: [ProjectUsersFilterInput!]
+  createdDate: DateTimeOperationFilterInput
+  id: UuidOperationFilterInput
+  or: [ProjectUsersFilterInput!]
+  project: ProjectFilterInput
+  projectId: UuidOperationFilterInput
+  role: ProjectRoleOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+  user: UserFilterInput
+  userId: UuidOperationFilterInput
 }
 
 type Query {
-  changesets(projectCode: String!): [Changeset!]!
+  isAdmin: IsAdminResponse!
   me: LexAuthUser!
-  myProjects: [Project!]!
-
-  """
-  fetch data from the table: "ProjectUsers"
-  """
-  projectUsers(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-
-  """An aggregate relationship"""
-  projectUsersAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-
-  """fetch data from the table: "ProjectUsers" using primary key columns"""
-  projectUsersByPk(id: uuid!): ProjectUsers
-
-  """
-  fetch data from the table: "Projects"
-  """
-  projects(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): [Projects!]!
-
-  """
-  fetch aggregated fields from the table: "Projects"
-  """
-  projectsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): ProjectsAggregate!
-
-  """fetch data from the table: "Projects" using primary key columns"""
-  projectsByPk(id: uuid!): Projects
-
-  """
-  fetch data from the table: "Users"
-  """
-  users(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): [Users!]!
-
-  """
-  fetch aggregated fields from the table: "Users"
-  """
-  usersAggregate(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): UsersAggregate!
-
-  """fetch data from the table: "Users" using primary key columns"""
-  usersByPk(id: uuid!): Users
+  myProjects(orderBy: [ProjectSortInput!]): [Project!]!
+  projectByCode(code: String!): Project
+  projects(orderBy: [ProjectSortInput!], where: ProjectFilterInput): [Project!]!
+  users(orderBy: [UserSortInput!], where: UserFilterInput): [User!]!
 }
 
 input RemoveProjectMemberInput {
@@ -1412,243 +330,31 @@ enum RetentionPolicy {
   VERIFIED
 }
 
-"""
-Boolean expression to compare columns of type "String". All fields are combined with logical 'AND'.
-"""
-input StringComparisonExp {
-  _eq: String
-  _gt: String
-  _gte: String
-
-  """does the column match the given case-insensitive pattern"""
-  _ilike: String
-  _in: [String!]
-
-  """
-  does the column match the given POSIX regular expression, case insensitive
-  """
-  _iregex: String
-  _isNull: Boolean
-
-  """does the column match the given pattern"""
-  _like: String
-  _lt: String
-  _lte: String
-  _neq: String
-
-  """does the column NOT match the given case-insensitive pattern"""
-  _nilike: String
-  _nin: [String!]
-
-  """
-  does the column NOT match the given POSIX regular expression, case insensitive
-  """
-  _niregex: String
-
-  """does the column NOT match the given pattern"""
-  _nlike: String
-
-  """
-  does the column NOT match the given POSIX regular expression, case sensitive
-  """
-  _nregex: String
-
-  """does the column NOT match the given SQL regular expression"""
-  _nsimilar: String
-
-  """
-  does the column match the given POSIX regular expression, case sensitive
-  """
-  _regex: String
-
-  """does the column match the given SQL regular expression"""
-  _similar: String
+input RetentionPolicyOperationFilterInput {
+  eq: RetentionPolicy
+  in: [RetentionPolicy!]
+  neq: RetentionPolicy
+  nin: [RetentionPolicy!]
 }
 
-type Subscription {
-  """
-  fetch data from the table: "ProjectUsers"
-  """
-  projectUsers(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-
-  """An aggregate relationship"""
-  projectUsersAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-
-  """fetch data from the table: "ProjectUsers" using primary key columns"""
-  projectUsersByPk(id: uuid!): ProjectUsers
-
-  """
-  fetch data from the table in a streaming manner: "ProjectUsers"
-  """
-  projectUsersStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [ProjectUsersStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-
-  """
-  fetch data from the table: "Projects"
-  """
-  projects(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): [Projects!]!
-
-  """
-  fetch aggregated fields from the table: "Projects"
-  """
-  projectsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectsSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectsOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): ProjectsAggregate!
-
-  """fetch data from the table: "Projects" using primary key columns"""
-  projectsByPk(id: uuid!): Projects
-
-  """
-  fetch data from the table in a streaming manner: "Projects"
-  """
-  projectsStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [ProjectsStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: ProjectsBoolExp
-  ): [Projects!]!
-
-  """
-  fetch data from the table: "Users"
-  """
-  users(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): [Users!]!
-
-  """
-  fetch aggregated fields from the table: "Users"
-  """
-  usersAggregate(
-    """distinct select on columns"""
-    distinctOn: [UsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [UsersOrderBy!]
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): UsersAggregate!
-
-  """fetch data from the table: "Users" using primary key columns"""
-  usersByPk(id: uuid!): Users
-
-  """
-  fetch data from the table in a streaming manner: "Users"
-  """
-  usersStream(
-    """maximum number of rows returned in a single batch"""
-    batchSize: Int!
-
-    """cursor to stream the results returned by the query"""
-    cursor: [UsersStreamCursorInput]!
-
-    """filter the rows returned"""
-    where: UsersBoolExp
-  ): [Users!]!
+enum SortEnumType {
+  ASC
+  DESC
 }
 
-"""
-Boolean expression to compare columns of type "timestamptz". All fields are combined with logical 'AND'.
-"""
-input TimestamptzComparisonExp {
-  _eq: timestamptz
-  _gt: timestamptz
-  _gte: timestamptz
-  _in: [timestamptz!]
-  _isNull: Boolean
-  _lt: timestamptz
-  _lte: timestamptz
-  _neq: timestamptz
-  _nin: [timestamptz!]
+input StringOperationFilterInput {
+  and: [StringOperationFilterInput!]
+  contains: String
+  endsWith: String
+  eq: String
+  in: [String]
+  ncontains: String
+  nendsWith: String
+  neq: String
+  nin: [String]
+  nstartsWith: String
+  or: [StringOperationFilterInput!]
+  startsWith: String
 }
 
 scalar UUID
@@ -1660,10 +366,25 @@ type User {
   isAdmin: Boolean!
   name: String!
   passwordHash: String!
-  projects: [LexBox_ProjectUsers!]!
+  projects: [ProjectUsers!]!
   salt: String!
   updatedDate: DateTime!
   username: String
+}
+
+input UserFilterInput {
+  and: [UserFilterInput!]
+  createdDate: DateTimeOperationFilterInput
+  email: StringOperationFilterInput
+  id: UuidOperationFilterInput
+  isAdmin: BooleanOperationFilterInput
+  name: StringOperationFilterInput
+  or: [UserFilterInput!]
+  passwordHash: StringOperationFilterInput
+  projects: ListFilterInputTypeOfProjectUsersFilterInput
+  salt: StringOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+  username: StringOperationFilterInput
 }
 
 enum UserRole {
@@ -1671,316 +392,31 @@ enum UserRole {
   USER
 }
 
-"""
-columns and relationships of "Users"
-"""
-type Users {
-  """An array relationship"""
-  UserProjects(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): [ProjectUsers!]!
-  createdDate: timestamptz!
-  email: String!
-  id: uuid!
-  isAdmin: Boolean!
-  name: String!
-  passwordHash: String!
-  salt: String!
-  updatedDate: timestamptz!
-
-  """An aggregate relationship"""
-  userProjectsAggregate(
-    """distinct select on columns"""
-    distinctOn: [ProjectUsersSelectColumn!]
-
-    """limit the number of rows returned"""
-    limit: Int
-
-    """skip the first n rows. Use only with order_by"""
-    offset: Int
-
-    """sort the rows by one or more columns"""
-    orderBy: [ProjectUsersOrderBy!]
-
-    """filter the rows returned"""
-    where: ProjectUsersBoolExp
-  ): ProjectUsersAggregate!
-  username: String
+input UserSortInput {
+  createdDate: SortEnumType
+  email: SortEnumType
+  id: SortEnumType
+  isAdmin: SortEnumType
+  name: SortEnumType
+  passwordHash: SortEnumType
+  salt: SortEnumType
+  updatedDate: SortEnumType
+  username: SortEnumType
 }
 
-"""
-aggregated selection of "Users"
-"""
-type UsersAggregate {
-  aggregate: UsersAggregateFields
-  nodes: [Users!]!
-}
-
-"""
-aggregate fields of "Users"
-"""
-type UsersAggregateFields {
-  count(columns: [UsersSelectColumn!], distinct: Boolean): Int!
-  max: UsersMaxFields
-  min: UsersMinFields
-}
-
-"""
-Boolean expression to filter rows from the table "Users". All fields are combined with a logical 'AND'.
-"""
-input UsersBoolExp {
-  UserProjects: ProjectUsersBoolExp
-  UserProjects_aggregate: ProjectUsers_aggregate_bool_exp
-  _and: [UsersBoolExp!]
-  _not: UsersBoolExp
-  _or: [UsersBoolExp!]
-  createdDate: TimestamptzComparisonExp
-  email: StringComparisonExp
-  id: UuidComparisonExp
-  isAdmin: BooleanComparisonExp
-  name: StringComparisonExp
-  passwordHash: StringComparisonExp
-  salt: StringComparisonExp
-  updatedDate: TimestamptzComparisonExp
-  username: StringComparisonExp
-}
-
-"""
-unique or primary key constraints on table "Users"
-"""
-enum UsersConstraint {
-  """
-  unique or primary key constraint on columns "Id"
-  """
-  PK_Users
-}
-
-"""
-input type for inserting data into table "Users"
-"""
-input UsersInsertInput {
-  UserProjects: ProjectUsersArrRelInsertInput
-  createdDate: timestamptz
-  email: String
-  id: uuid
-  isAdmin: Boolean
-  name: String
-  passwordHash: String
-  salt: String
-  updatedDate: timestamptz
-  username: String
-}
-
-"""aggregate max on columns"""
-type UsersMaxFields {
-  createdDate: timestamptz
-  email: String
-  id: uuid
-  name: String
-  passwordHash: String
-  salt: String
-  updatedDate: timestamptz
-  username: String
-}
-
-"""aggregate min on columns"""
-type UsersMinFields {
-  createdDate: timestamptz
-  email: String
-  id: uuid
-  name: String
-  passwordHash: String
-  salt: String
-  updatedDate: timestamptz
-  username: String
-}
-
-"""
-response of any mutation on the table "Users"
-"""
-type UsersMutationResponse {
-  """number of rows affected by the mutation"""
-  affected_rows: Int!
-
-  """data from the rows affected by the mutation"""
-  returning: [Users!]!
-}
-
-"""
-input type for inserting object relation for remote table "Users"
-"""
-input UsersObjRelInsertInput {
-  data: UsersInsertInput!
-
-  """upsert condition"""
-  onConflict: UsersOnConflict
-}
-
-"""
-on_conflict condition type for table "Users"
-"""
-input UsersOnConflict {
-  constraint: UsersConstraint!
-  update_columns: [UsersUpdateColumn!]! = []
-  where: UsersBoolExp
-}
-
-"""Ordering options when selecting data from "Users"."""
-input UsersOrderBy {
-  createdDate: OrderBy
-  email: OrderBy
-  id: OrderBy
-  isAdmin: OrderBy
-  name: OrderBy
-  passwordHash: OrderBy
-  salt: OrderBy
-  updatedDate: OrderBy
-  userProjectsAggregate: ProjectUsersAggregateOrderBy
-  username: OrderBy
-}
-
-"""primary key columns input for table: Users"""
-input UsersPkColumnsInput {
-  id: uuid!
-}
-
-"""
-select columns of table "Users"
-"""
-enum UsersSelectColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  email
-
-  """column name"""
-  id
-
-  """column name"""
-  isAdmin
-
-  """column name"""
-  name
-
-  """column name"""
-  passwordHash
-
-  """column name"""
-  salt
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  username
-}
-
-"""
-input type for updating data in table "Users"
-"""
-input UsersSetInput {
-  createdDate: timestamptz
-  email: String
-  id: uuid
-  isAdmin: Boolean
-  name: String
-  passwordHash: String
-  salt: String
-  updatedDate: timestamptz
-  username: String
-}
-
-"""
-Streaming cursor of the table "Users"
-"""
-input UsersStreamCursorInput {
-  """Stream column input with initial value"""
-  initialValue: UsersStreamCursorValueInput!
-
-  """cursor ordering"""
-  ordering: CursorOrdering
-}
-
-"""Initial value of the column from where the streaming should start"""
-input UsersStreamCursorValueInput {
-  createdDate: timestamptz
-  email: String
-  id: uuid
-  isAdmin: Boolean
-  name: String
-  passwordHash: String
-  salt: String
-  updatedDate: timestamptz
-  username: String
-}
-
-"""
-update columns of table "Users"
-"""
-enum UsersUpdateColumn {
-  """column name"""
-  createdDate
-
-  """column name"""
-  email
-
-  """column name"""
-  id
-
-  """column name"""
-  isAdmin
-
-  """column name"""
-  name
-
-  """column name"""
-  passwordHash
-
-  """column name"""
-  salt
-
-  """column name"""
-  updatedDate
-
-  """column name"""
-  username
-}
-
-input UsersUpdates {
-  """sets the columns of the filtered rows to the given values"""
-  _set: UsersSetInput
-
-  """filter the rows which have to be updated"""
-  where: UsersBoolExp!
-}
-
-"""
-Boolean expression to compare columns of type "uuid". All fields are combined with logical 'AND'.
-"""
-input UuidComparisonExp {
-  _eq: uuid
-  _gt: uuid
-  _gte: uuid
-  _in: [uuid!]
-  _isNull: Boolean
-  _lt: uuid
-  _lte: uuid
-  _neq: uuid
-  _nin: [uuid!]
+input UuidOperationFilterInput {
+  eq: UUID
+  gt: UUID
+  gte: UUID
+  in: [UUID]
+  lt: UUID
+  lte: UUID
+  neq: UUID
+  ngt: UUID
+  ngte: UUID
+  nin: [UUID]
+  nlt: UUID
+  nlte: UUID
 }
 
 scalar timestamptz @specifiedBy(url: "https://www.graphql-scalars.com/date-time")

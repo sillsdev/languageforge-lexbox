@@ -1,3 +1,9 @@
+import type {
+  $OpResult,
+  ChangeUserAccountByAdminInput,
+  ChangeUserAccountByAdminMutation,
+  DeleteUserByAdminInput,
+} from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import type {
@@ -5,15 +11,15 @@ import type {
   ChangeUserAccountByAdminInput,
   ChangeUserAccountByAdminMutation,
   DeleteUserByAdminInput,
-  DeleteUserByAdminMutation
 } from '$lib/gql/types';
+
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   //language=GraphQL
   const results = await client.query(graphql(`
         query loadAdminDashboard {
             projects(orderBy: [
-                {lastCommit: ASC_NULLS_FIRST},
+                {lastCommit: ASC},
                 {name: ASC}
             ]) {
                 code
@@ -21,11 +27,6 @@ export async function load(event: PageLoadEvent) {
                 name
                 lastCommit
                 type
-                projectUsersAggregate {
-                    aggregate {
-                        count
-                    }
-                }
             }
             users(orderBy: {name: ASC}) {
                 id
@@ -49,7 +50,9 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
       graphql(`
         mutation ChangeUserAccountByAdmin($input: ChangeUserAccountByAdminInput!) {
           changeUserAccountByAdmin(input: $input) {
-            int
+            user {
+              id
+            }
             errors {
               ... on Error {
                 message
@@ -64,14 +67,16 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
     )
     return result;
 }
-export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<ChangeUserAccountByAdminMutation> {
+export async function _deleteUserByAdmin(input: DeleteUserByAdminInput): $OpResult<DeleteUserAccountByAdminMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
       graphql(`
         mutation DeleteUserByAdmin($input: DeleteUserByAdminInput!) {
           deleteUserByAdmin(input: $input) {
-            int
+            user {
+              id
+            }
             errors {
               ... on Error {
                 message

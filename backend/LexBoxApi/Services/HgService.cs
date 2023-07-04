@@ -2,17 +2,12 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
+using LexCore.Entities;
+using LexCore.ServiceInterfaces;
 using Microsoft.Extensions.Options;
 using Path = System.IO.Path;
 
 namespace LexBoxApi.Services;
-
-public interface IHgService
-{
-    Task InitRepo(string code);
-    Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode);
-    Task<Changeset[]> GetChangesets(string projectCode);
-}
 
 public class HgService : IHgService
 {
@@ -48,7 +43,7 @@ public class HgService : IHgService
         var response = await client.GetAsync($"{_options.Value.HgWebUrl}/hg/{projectCode}/log?style=json&rev=tip");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
-        //format is this: [1678687688, offset] offset is 
+        //format is this: [1678687688, offset] offset is
         var dateArray = json?["entries"]?[0]?["date"].Deserialize<decimal[]>();
         if (dateArray is null || dateArray.Length != 2)
             return null;
@@ -70,20 +65,7 @@ public class HgService : IHgService
     }
 }
 
-public class Changeset
-{
-    public string Node { get; set; }
-    public double[] Date { get; set; }
-    public string Desc { get; set; }
 
-    public string Branch { get; set; }
-// commented out because I'm not sure of the shape and you can't use JsonArray as an output of gql
-    // public JsonArray Bookmarks { get; set; }
-    public string[] Tags { get; set; }
-    public string User { get; set; }
-    public string Phase { get; set; }
-    public string[] Parents { get; set; }
-}
 
 public class LogResponse
 {

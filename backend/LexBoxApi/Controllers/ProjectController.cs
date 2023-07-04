@@ -1,6 +1,7 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore.Entities;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

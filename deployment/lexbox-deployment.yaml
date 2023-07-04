@@ -224,6 +224,11 @@ spec:
                 name: deploy-config
                 key: publish-branch
         command: [ "sh", "-c" ]
+        startupProbe:
+          periodSeconds: 5
+          failureThreshold: 5
+          tcpSocket:
+            port: 9000
         args:
           - |
             set -e

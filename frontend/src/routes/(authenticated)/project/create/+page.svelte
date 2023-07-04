@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { FormError, lexSuperForm } from '$lib/forms';
+  import { FormError, TextArea, lexSuperForm } from '$lib/forms';
   import Checkbox from '$lib/forms/Checkbox.svelte';
   import Form from '$lib/forms/Form.svelte';
   import Input from '$lib/forms/Input.svelte';
@@ -68,13 +68,13 @@
   </svelte:fragment>
 
   <Form {enhance}>
-    <Input label={$t('project.create.name')} bind:value={$form.name} error={$errors.name} autofocus required />
-    <div class="form-control">
-      <label class="label" for="description">
-        <span class="label-text">{$t('project.create.description')}</span>
-      </label>
-      <textarea id="description" class="textarea textarea-bordered h-24" bind:value={$form.description} />
-    </div>
+    <Input label={$t('project.create.name')} bind:value={$form.name} error={$errors.name} autofocus />
+    <TextArea
+      id="description"
+      label={$t('project.create.description')}
+      bind:value={$form.description}
+      error={$errors.description}
+    />
     <Select id="type" label={$t('project.create.type')} bind:value={$form.type} error={$errors.type}>
       <option value={ProjectType.FlEx}>{$t('project_type.flex')}</option>
       <option value={ProjectType.WeSay}>{$t('project_type.weSay')}</option>
@@ -102,9 +102,7 @@
       error={$errors.code}
       readonly={!$form.customCode}
     />
-    {#if $message}
-      <FormError>{$message}</FormError>
-    {/if}
+    <FormError error={$message} />
     <button type="submit" class="btn btn-primary mb-2" class:loading={$submitting}>
       {$t('project.create.submit')}
     </button>

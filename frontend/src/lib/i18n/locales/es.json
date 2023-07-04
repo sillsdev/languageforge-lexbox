@@ -8,7 +8,6 @@
     "column_role": "Role",
     "column_type": "Tipo",
     "column_users": "Usuarios",
-    "filter_label": "Filtrar",
     "filter_placeholder": "buscar...",
     "title": "Proyectos",
     "user_table_title": "Usuarios"

@@ -35,12 +35,11 @@
   <svelte:fragment slot="header">{$t('register.title')}</svelte:fragment>
 
   <ProtectedForm {enhance} bind:turnstileToken>
-    <Input id="name" label={$t('register.label_name')} required bind:value={$form.name} error={$errors.name} />
+    <Input id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
     <Input
       id="email"
       label={$t('register.label_email')}
       type="email"
-      required
       bind:value={$form.email}
       error={$errors.email}
     />
@@ -48,7 +47,6 @@
       id="password"
       label={$t('register.label_password')}
       type="password"
-      required
       bind:value={$form.password}
       error={$errors.password}
     />
