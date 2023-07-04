@@ -1,4 +1,4 @@
-apiVersion: skaffold/v4beta5
+apiVersion: skaffold/v4beta6
 kind: Config
 metadata:
   name: lexbox
@@ -10,7 +10,7 @@ build:
         dockerfile: Dockerfile
       sync:
         manual:
-          - src: "**"
+          - src: '**'
             dest: /src/backend
     - image: ghcr.io/sillsdev/lexbox-ui
       context: frontend
@@ -18,7 +18,7 @@ build:
         dockerfile: Dockerfile
       sync:
         manual:
-          - src: "**"
+          - src: '**'
             dest: /app
     - image: ghcr.io/sillsdev/lexbox-hasura
       context: hasura
