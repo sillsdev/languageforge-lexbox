@@ -60,7 +60,7 @@ jobs:
           TEST_SERVER_HOSTNAME: staging.languagedepot.org
           TEST_STANDARD_HG_HOSTNAME: hg-staging.languagedepot.org
           TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
-        run: dotnet test --logger trx --results-directory ./testresults --filter "TestCategory=Integration"
+        run: dotnet test --logger trx --results-directory ./testresults --filter "Category=Integration"
       - name: Upload test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
