@@ -47,6 +47,7 @@ public static class ProxyKernel
 
         services.AddReverseProxy()
             .LoadFromConfig(reverseProxyConfig);
+        services.AddHostedService<ProxyConfigValidationHostedService>();
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
         services.AddAuthorizationBuilder()
