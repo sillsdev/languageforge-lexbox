@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { ensureErrorIsTraced } from '$lib/otel';
-import { isObject } from '$lib/util/types';
+import { isObject, isRedirect } from '$lib/util/types';
 import { writable, type Writable } from 'svelte/store';
 
 export const error: Writable<App.Error | null> = writable();
@@ -28,6 +28,11 @@ if (browser) {
 
   // https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
   window.onunhandledrejection = (event: PromiseRejectionEvent) => {
+    if (isRedirect(event.reason)) {
+      location.pathname = event.reason.location;
+      return;
+    }
+
     const handler = 'client-unhandledrejection';
     const message = isObject(event.reason) ? event.reason.message as string : undefined;
     const keysForMissingMessageError = message ? undefined
