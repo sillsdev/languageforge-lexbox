@@ -8,8 +8,19 @@ import type {
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
+import { isAdmin, type LexAuthUser } from '$lib/user';
+import { redirect } from '@sveltejs/kit';
+
+function requireAdmin(user: LexAuthUser | null): void {
+  if (!isAdmin(user)) {
+    throw redirect(307, '/');
+  }
+}
 
 export async function load(event: PageLoadEvent) {
+  const parentData = await event.parent();
+  requireAdmin(parentData.user);
+
   const client = getClient();
   //language=GraphQL
   const results = await client.query(graphql(`
