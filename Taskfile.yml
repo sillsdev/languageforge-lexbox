@@ -92,13 +92,15 @@ tasks:
   # ui
   ui-dev: # The single command for ui development
     aliases:
-      - "ui"
+      - ui
     dir: ./frontend
     deps: [ backend-up, ui-down ]
     interactive: true
     cmds:
       - task: ui-only
   ui-only:
+    aliases:
+      - uio
     dir: ./frontend
     deps: [ ui-install ]
     interactive: true
@@ -119,7 +121,7 @@ tasks:
   # api
   api-dev: # The single command for api development
     aliases:
-      - "api"
+      - api
     dir: ./backend/LexBoxApi
     deps: [ infra-up, api-stop ]
     interactive: true
