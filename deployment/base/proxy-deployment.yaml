@@ -36,30 +36,6 @@ spec:
             name: lexbox
             port:
               name: github-deploy
-  - host: dev.languagedepot.org
-    http:
-      paths:
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: lexbox
-            port:
-              name: http
-      - path: /v1/traces
-        pathType: Prefix
-        backend:
-          service:
-            name: lexbox
-            port:
-              name: otel
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: ui
-            port:
-              name: sveltekit
 
   # tls:
   # - hosts:
