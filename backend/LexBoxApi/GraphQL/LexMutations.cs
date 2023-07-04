@@ -125,7 +125,6 @@ public class LexMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
-    //[Error<RequiredException>]
     [UseMutationConvention]
     [AdminRequired]
     public async Task<User> ChangeUserAccountByAdmin(ChangeUserAccountByAdminInput input, LexBoxDbContext dbContext)

@@ -10,36 +10,39 @@
   import t from '$lib/i18n';
 
   export let deleteUser: CallableFunction;
-  type UserRow = LoadAdminDashboardQuery['users'][0]
+  type UserRow = LoadAdminDashboardQuery['users'][0];
 
   const schema = z.object({
     email: z.string().email(),
     name: z.string(),
     password: z.string().optional(),
-    userId: z.string().optional(),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
-  export async function close(): Promise<void> {
-    await formModal.close();
+  export function close(): void {
+    formModal.close();
   }
+  let _user: UserRow;
   export async function openModal(user: UserRow): Promise<void> {
+    _user = user;
     $form.email = user.email;
+
     $form.name = user.name;
-    $form.userId = user.id;
     await formModal.open(async () => {
-        const changeInput: ChangeUserAccountByAdminInput = {
-          userId: user.id,
-          email: $form.email,
-          name: $form.name,
-        }
-        await _changeUserAccountByAdmin(changeInput);
-      let password: string = $form.password ?? '';
-      if (password !== '' && $form.password) {
-        await fetch('/api/Admin/resetPasswordAdmin', {
+      const changeInput: ChangeUserAccountByAdminInput = {
+        userId: user.id,
+        email: $form.email,
+        name: $form.name,
+      };
+      const { error } = await _changeUserAccountByAdmin(changeInput);
+      if (error) {
+        return error.message;
+      }
+      if ($form.password) {
+        await fetch('/api/Admin/resetPassword', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ passwordHash: await hash(password), userId: user.id }),
+          body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
         });
       }
       return;
@@ -54,7 +57,6 @@
     type="email"
     label={$t('admin_dashboard.form_modal.email_label')}
     bind:value={$form.email}
-    required
     error={errors.email}
     autofocus
   />
@@ -63,9 +65,8 @@
     type="text"
     label={$t('admin_dashboard.form_modal.name_label')}
     bind:value={$form.name}
-    required
     error={errors.name}
-    autofocus
+
   />
   <div class="text-error">
     <Input
@@ -76,12 +77,12 @@
     />
   </div>
   <div style="display: flex" slot="extraActions" class="space-x-4">
-    <ButtonToggle theme="error" text1="unlock" text2="lock" icon1="i-mdi-lock" icon2="i-mdi-unlocked" />
+    <ButtonToggle theme="error" text1={$t('admin_dashboard.form_modal.unlock')} text2={$t('admin_dashboard.form_modal.lock')} icon1="i-mdi-lock" icon2="i-mdi-unlocked" />
     <button
-      class="btn btn-error rounded"
+      class="btn btn-error"
       on:click={async () => {
-        await deleteUser($form.userId);
-      }}>{$t('admin_dashboard.form_modal.delete_user')}<TrashIcon /></button
+        await deleteUser(_user.id);
+      }}>{$t('admin_dashboard.form_modal.delete_user')}<span class="ml-2"><TrashIcon /></span></button
     >
   </div>
   <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>

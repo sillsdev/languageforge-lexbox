@@ -16,7 +16,7 @@
   let deleteModal: DeleteUserModal;
   let formModal: EditUserAccount;
 
-  async function deleteUser(id: any): Promise<void> {
+  async function deleteUser(id: string): Promise<void> {
     formModal.close();
     await deleteModal.open(id);
   }
@@ -50,7 +50,7 @@
 </svelte:head>
 
 <main>
-  <div class="grid grid-cols-2 m:grid-cols-1">
+  <div class="grid grid-cols-2">
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
         {$t('admin_dashboard.project_table_title')}
@@ -59,7 +59,7 @@
 
       <Input
         type="text"
-        label={$t('admin_dashboard.filter_label')}
+        label=""
         placeholder={$t('admin_dashboard.filter_placeholder')}
         autofocus
         bind:value={projectSearch}
@@ -109,8 +109,7 @@
         <Badge>{userSearch ? users.length : data.users.length}</Badge>
       </span>
       <Input
-        type="text"
-        label={$t('admin_dashboard.filter_label')}
+        label=""
         placeholder={$t('admin_dashboard.filter_placeholder')}
         bind:value={userSearch}
       />
@@ -136,7 +135,7 @@
                 <FormatDate date={user.createdDate} />
               </td>
               <td class="p-0">
-                <IconButton ghost={true} icon="i-mdi-pencil-outline" on:click={() => openModal(user)} />
+                <IconButton ghost icon="i-mdi-pencil-outline" on:click={() => openModal(user)} />
               </td>
             </tr>
           {/each}

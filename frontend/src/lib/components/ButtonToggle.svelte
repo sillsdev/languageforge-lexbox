@@ -11,7 +11,7 @@
   }
 </script>
 
-<button on:click|preventDefault={handleClick} class="btn rounded btn-{theme} flex items-center">
+<button on:click|preventDefault={handleClick} class="btn btn-{theme} flex items-center">
   {#if isIconOne}
     <span>{text1} </span>
     <span class="{icon1} text-lg"></span>
