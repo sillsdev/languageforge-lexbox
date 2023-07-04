@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Button, Form, Input, lexSuperForm } from '$lib/forms';
+  import { Button, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { login, logout } from '$lib/user';
@@ -21,10 +21,6 @@
       $message = $t('login.bad_credentials');
       badCredentials = true;
     },
-    {
-      taintedMessage: false,
-      clearOnSubmit: 'errors',
-    }
   );
 
   onMount(logout);
@@ -51,15 +47,14 @@
       bind:value={$form.password}
       error={$errors.password}
     />
+
+    <FormError error={$message} />
+
     <a class="link mt-0" href="/forgotPassword">
       {$t('login.forgot_password')}
     </a>
 
     {#if badCredentials}
-      <aside hidden={!!$message} class="alert alert-error">
-        {$message}
-      </aside>
-
       <Button loading={$submitting}>{$t('login.button_login_again')}</Button>
     {:else}
       <Button loading={$submitting}>{$t('login.button_login')}</Button>
