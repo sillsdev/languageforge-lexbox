@@ -37,7 +37,7 @@
     "title": "Account Settings",
     "email": "Email",
     "name": "Display name",
-    "forgot_password": "Reset your password instead?",
+    "reset_password": "Reset your password instead?",
     "success": "Success: your account has been updated",
     "button_update": "Update account info"
   },
