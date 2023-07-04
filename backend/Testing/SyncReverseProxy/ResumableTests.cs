@@ -2,23 +2,24 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using Shouldly;
+using Testing.Services;
 
 namespace Testing.SyncReverseProxy;
 
+[Trait("Category", "Integration")]
 public class ResumableTests
 {
+    private readonly string _host = TestingEnvironmentVariables.ResumableHgHostname;
     private static readonly HttpClient Client = new()
     {
         Timeout = TimeSpan.FromSeconds(3)
     };
 
-    [Theory]
-    // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:5158")]
-    public async Task IsAvailable(string host)
+    [Fact]
+    public async Task IsAvailable()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
         {
             Headers =
             {
@@ -32,13 +33,11 @@ public class ResumableTests
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
-    [Theory]
-    // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:8034")]
-    public async Task WithBadUser(string host)
+    [Fact]
+    public async Task WithBadUser()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
         {
             Headers =
             {
@@ -49,13 +48,11 @@ public class ResumableTests
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
-    [Theory]
-    // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:8034")]
-    public async Task WithBadPassword(string host)
+    [Fact]
+    public async Task WithBadPassword()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
         {
             Headers =
             {
@@ -66,13 +63,11 @@ public class ResumableTests
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
-    [Theory]
-    // [InlineData("resumable.languageforge.org")]
-    [InlineData("localhost:8034")]
-    public async Task WithBadNotValidProject(string host)
+    [Fact]
+    public async Task WithBadNotValidProject()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{host}/api/v03/isAvailable?repoId=test-not-valid")
+            $"http://{_host}/api/v03/isAvailable?repoId=test-not-valid")
         {
             Headers =
             {

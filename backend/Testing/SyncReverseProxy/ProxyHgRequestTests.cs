@@ -2,11 +2,14 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using Shouldly;
+using Testing.Services;
 
 namespace Testing.SyncReverseProxy;
 
+[Trait("Category", "Integration")]
 public class ProxyHgRequests
 {
+    private string _host = TestingEnvironmentVariables.StandardHgHostname;
     private static readonly HttpClient Client = new();
 
     private void ShouldBeValidResponse(HttpResponseMessage responseMessage)
@@ -16,13 +19,11 @@ public class ProxyHgRequests
     }
 
     //cli "C:\Program Files (x86)\SIL\FLExBridge3\Mercurial\hg" clone -U  "https://{userName}:{password}@hg-public.languageforge.org/{projectCode}" "C:\ProgramData\SIL\FieldWorks\Projects\lkj"
-    [Theory]
-    // [InlineData("hg-public.languageforge.org")]
-    [InlineData("localhost:5158")]
-    public async Task TestGet(string host)
+    [Fact]
+    public async Task TestGet()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{host}/{TestData.ProjectCode}")
+            $"http://{_host}/{TestData.ProjectCode}")
         {
             Headers =
             {
@@ -33,14 +34,12 @@ public class ProxyHgRequests
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
-    [Theory]
-    // [InlineData("hg-public.languageforge.org")]
-    [InlineData("localhost:8034")]
-    public async Task TestGetBadPassword(string host)
+    [Fact]
+    public async Task TestGetBadPassword()
     {
         var password = "not a good password";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{host}/en-counselling-flex")
+            $"http://{_host}/en-counselling-flex")
         {
             Headers =
             {
@@ -52,13 +51,11 @@ public class ProxyHgRequests
         ShouldBeValidResponse(responseMessage);
     }
 
-    [Theory]
-    // [InlineData("hg-public.languageforge.org")]
-    [InlineData("localhost:8034")]
-    public async Task TestNoAuthResponse(string host)
+    [Fact]
+    public async Task TestNoAuthResponse()
     {
         var responseMessage =
-            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{host}/en-counselling-flex"));
+            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{_host}/en-counselling-flex"));
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
     }
