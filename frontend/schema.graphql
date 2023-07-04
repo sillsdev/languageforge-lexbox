@@ -81,6 +81,19 @@ type ChangeProjectNamePayload {
   project: Project
 }
 
+union ChangeUserAccountByAdminError = DbError | NotFoundError
+
+input ChangeUserAccountByAdminInput {
+  email: String!
+  name: String!
+  userId: UUID!
+}
+
+type ChangeUserAccountByAdminPayload {
+  errors: [ChangeUserAccountByAdminError!]
+  user: User
+}
+
 union ChangeUserAccountDataError = DbError | NotFoundError
 
 input ChangeUserAccountDataInput {
@@ -148,6 +161,17 @@ enum DbErrorCode {
   UNKNOWN
 }
 
+union DeleteUserByAdminError = DbError | NotFoundError
+
+input DeleteUserByAdminInput {
+  userId: UUID!
+}
+
+type DeleteUserByAdminPayload {
+  errors: [DeleteUserByAdminError!]
+  user: User
+}
+
 interface Error {
   message: String!
 }
@@ -176,8 +200,10 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
+  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload!
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
+  deleteUserByAdmin(input: DeleteUserByAdminInput!): DeleteUserByAdminPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): Project
 }
 

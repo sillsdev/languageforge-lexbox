@@ -14,6 +14,7 @@
   import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
+  import {TrashIcon} from '$lib/icons';
 
   export let data: PageData;
 
@@ -126,8 +127,8 @@
               </li>
               <li>
                 <button class="hover:bg-error hover:text-error-content" on:click={() => deleteProjectUser(member)}>
-                  <span class="i-mdi-trash-can text-2xl" />
-                  {$t('project_page.remove_user')}
+                    <TrashIcon></TrashIcon>
+                    {$t('project_page.remove_user')}
                 </button>
               </li>
             </ul>
