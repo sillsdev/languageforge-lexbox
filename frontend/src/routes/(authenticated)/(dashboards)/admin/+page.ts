@@ -13,7 +13,7 @@ export async function load(event: PageLoadEvent) {
   const results = await client.query(graphql(`
         query loadAdminDashboard {
             projects(orderBy: [
-                {lastCommit: ASC_NULLS_FIRST},
+                {lastCommit: ASC},
                 {name: ASC}
             ]) {
                 code
@@ -21,11 +21,6 @@ export async function load(event: PageLoadEvent) {
                 name
                 lastCommit
                 type
-                projectUsersAggregate {
-                    aggregate {
-                        count
-                    }
-                }
             }
             users(orderBy: {name: ASC}) {
                 id

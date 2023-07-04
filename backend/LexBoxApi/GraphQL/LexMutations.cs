@@ -1,3 +1,4 @@
+using HotChocolate.Authorization;
 using LexBoxApi.Auth;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
@@ -9,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.GraphQL;
 
+[MutationType]
 public class LexMutations
 {
     private readonly LoggedInContext _loggedInContext;
