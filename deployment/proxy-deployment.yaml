@@ -34,8 +34,30 @@ spec:
             name: lexbox
             port:
               name: github-deploy
+  - host: hg-staging.languagedepot.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
+  - host: resumable-staging.languagedepot.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
 
   tls:
   - hosts:
     - staging.languagedepot.org
+    - hg-staging.languagedepot.org
+    - resumable-staging.languagedepot.org
     secretName: languagedepot-tls # provided by LTOps
