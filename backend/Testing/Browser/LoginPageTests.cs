@@ -3,6 +3,7 @@ using Testing.Browser.Base;
 
 namespace Testing.Browser;
 
+[Trait("Category", "Integration")]
 public class LoginPageTests: PageTest
 {
     [Fact]
