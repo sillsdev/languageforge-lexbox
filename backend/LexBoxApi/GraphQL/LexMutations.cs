@@ -1,3 +1,4 @@
+using HotChocolate.Authorization;
 using LexBoxApi.Auth;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
@@ -9,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.GraphQL;
 
+[MutationType]
 public class LexMutations
 {
     private readonly LoggedInContext _loggedInContext;
@@ -121,5 +123,34 @@ public class LexMutations
         }
         await dbContext.SaveChangesAsync();
         return user;
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [AdminRequired]
+    public async Task<User> ChangeUserAccountByAdmin(ChangeUserAccountByAdminInput input, LexBoxDbContext dbContext)
+    {
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        if (user is null) throw new NotFoundException("User not found");
+        if (!String.IsNullOrEmpty(input.Name)){
+            user.Name = input.Name;
+        }
+        if (!String.IsNullOrEmpty(input.Email)){
+            user.Email = input.Email;
+        }
+        await dbContext.SaveChangesAsync();
+        return user;
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [AdminRequired]
+    public async Task<User> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
+        var User = await dbContext.Users.FindAsync(input.UserId);
+        var user = dbContext.Users.Where(u => u.Id == input.UserId);
+        await user.ExecuteDeleteAsync();
+        return User;
     }
 }

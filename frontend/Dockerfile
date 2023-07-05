@@ -12,6 +12,8 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 COPY . /app/
 COPY src /app/src
 COPY static /app/static
+ARG APP_VERSION
+ENV VITE_APP_VERSION=$APP_VERSION
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
 

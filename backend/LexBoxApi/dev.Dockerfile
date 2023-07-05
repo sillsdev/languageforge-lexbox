@@ -10,5 +10,5 @@ RUN for file in $(ls *.csproj); do dir=${file%.*} mkdir -p ${file%.*}/ && mv $fi
 COPY . .
 WORKDIR /src/backend/LexBoxApi
 RUN mkdir /src/frontend
-
-CMD dotnet watch run -lp docker
+ENV DockerDev=true
+CMD dotnet watch run -lp docker --property:InformationalVersion=dockerDev

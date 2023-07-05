@@ -5,12 +5,26 @@
   import Input from '$lib/forms/Input.svelte';
   import t from '$lib/i18n';
   import type { PageData } from './$types';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import DeleteUserModal from './DeleteUserModal.svelte';
+  import EditUserAccount from './EditUserAccount.svelte';
+  import type { LoadAdminDashboardQuery } from '$lib/gql/types';
+
+  type UserRow = LoadAdminDashboardQuery['users'][0];
 
   export let data: PageData;
+  let deleteModal: DeleteUserModal;
+  let formModal: EditUserAccount;
 
+  async function deleteUser(id: string): Promise<void> {
+    formModal.close();
+    await deleteModal.open(id);
+  }
+  async function openModal(user: UserRow): Promise<void> {
+    await formModal.openModal(user);
+  }
   let projectSearch = '';
   let userSearch = '';
-
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
   $: projects = data.projects
     .filter(
@@ -32,7 +46,7 @@
 </script>
 
 <svelte:head>
-    <title>{$t('admin_dashboard.title')}</title>
+  <title>{$t('admin_dashboard.title')}</title>
 </svelte:head>
 
 <main>
@@ -45,7 +59,7 @@
 
       <Input
         type="text"
-        label={$t('admin_dashboard.filter_label')}
+        label=""
         placeholder={$t('admin_dashboard.filter_placeholder')}
         autofocus
         bind:value={projectSearch}
@@ -76,7 +90,7 @@
                 </a>
               </td>
               <td>{project.code}</td>
-              <td>{project.projectUsersAggregate.aggregate?.count ?? 0}</td>
+              <td>TODO</td>
               <td>
                 <FormatDate date={project.lastCommit} />
               </td>
@@ -94,16 +108,13 @@
         {$t('admin_dashboard.user_table_title')}
         <Badge>{userSearch ? users.length : data.users.length}</Badge>
       </span>
-
       <Input
-        type="text"
-        label={$t('admin_dashboard.filter_label')}
+        label=""
         placeholder={$t('admin_dashboard.filter_placeholder')}
         bind:value={userSearch}
       />
 
       <div class="divider" />
-
       <table class="table">
         <thead>
           <tr>
@@ -111,6 +122,7 @@
             <th>{$t('admin_dashboard.column_email')}</th>
             <th>{$t('admin_dashboard.column_role')}</th>
             <th>{$t('admin_dashboard.column_created')}</th>
+            <th>{$t('admin_dashboard.column_edit')}</th>
           </tr>
         </thead>
         <tbody>
@@ -122,10 +134,16 @@
               <td>
                 <FormatDate date={user.createdDate} />
               </td>
+              <td class="p-0">
+                <IconButton ghost icon="i-mdi-pencil-outline" on:click={() => openModal(user)} />
+              </td>
             </tr>
           {/each}
         </tbody>
       </table>
     </div>
   </div>
+
+  <EditUserAccount bind:this={formModal} {deleteUser} />
+  <DeleteUserModal bind:this={deleteModal} />
 </main>

@@ -50,6 +50,9 @@ builder.Services.AddHttpLogging(options =>
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
                             HttpLoggingFields.ResponsePropertiesAndHeaders;
     options.ResponseHeaders.Add("WWW-Authenticate");
+#if DEBUG
+    options.RequestHeaders.Add("Cookie");
+#endif
 });
 
 builder.Services.AddLexData(builder.Environment.IsDevelopment());
@@ -92,6 +95,7 @@ app.UseHealthChecks("/api/healthz");
         options.EnableTryItOutByDefault();
     });
 }
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();

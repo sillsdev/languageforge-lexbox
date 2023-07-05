@@ -6,6 +6,7 @@ import type {
 import { getClient, graphql } from '$lib/gql';
 
 import { invalidate } from '$app/navigation';
+import {refreshJwt} from '$lib/user';
 
 export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountDataMutation> {
   //language=GraphQL
@@ -31,8 +32,10 @@ export async function _changeUserAccountData(input: ChangeUserAccountDataInput):
       { input: input },
       //invalidates the graphql user cache, but who knows
       { additionalTypenames: ['Users'] },
-    )
-    .toPromise();
-  if (!result.error) void invalidate(`user:${input.userId}`);
+    );
+  if (!result.error) {
+    await refreshJwt();
+    await invalidate(`user:${input.userId}`);
+  }
   return result;
 }

@@ -1,41 +1,46 @@
 import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web'
+import { SERVICE_NAME, ensureErrorIsTraced, isRedirect, tracer } from '.'
 
-import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
-import { ZoneContextManager } from '@opentelemetry/context-zone'
+import {APP_VERSION} from '$lib/util/verstion';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
-import { registerInstrumentations } from '@opentelemetry/instrumentation'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
-import type { NavigationEvent } from '@sveltejs/kit'
-import { traceErrorEvent as _traceErrorEvent, type ErrorAttributes, type TraceId } from './shared'
+import { ZoneContextManager } from '@opentelemetry/context-zone'
+import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
+import { instrumentGlobalFetch } from '$lib/util/fetch-proxy';
+import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
-const serviceName = 'LexBox-SvelteKit-Client'
+export * from '.';
 
-export const traceErrorEvent = (
-  error: unknown,
-  event: NavigationEvent | Event,
-  metadata: ErrorAttributes,
-): TraceId => _traceErrorEvent(serviceName, error, event, metadata)
+/**
+ * Very minimal instrumentation here, because the auto-instrumentation handles the core stuff,
+ * we just want to make sure that our trace-ID gets used and that we stamp errors with it.
+ */
+export const traceFetch = (fetch: () => ReturnType<Fetch>): ReturnType<Fetch> => {
+  return tracer().startActiveSpan('fetch', async (span) => {
+    try {
+      return await fetch();
+    } catch (error) {
+      if (!isRedirect(error)) {
+        ensureErrorIsTraced(error, { span }, { ['app.error.source']: 'client-fetch-error' });
+      }
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
+};
 
-// fetch_original & fetch_otel_instrumented are referenced by our fetch_proxy in app.html
-const fetchProxy = window.fetch;
-try {
-  // Have otel instrument the original
-  window.fetch = window.fetch_original;
+instrumentGlobalFetch(() => {
   registerInstrumentations({
     instrumentations: [getWebAutoInstrumentations()],
   });
-} finally {
-  // Provide the (now) instrumented version for our proxy to call
-  window.fetch_otel_instrumented = window.fetch;
-  // Put the proxy back into place
-  window.fetch = fetchProxy;
-}
+});
 
 const resource = Resource.default().merge(
   new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
-    [SemanticResourceAttributes.SERVICE_VERSION]: '0.0.1',
+    [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME,
+    [SemanticResourceAttributes.SERVICE_VERSION]: APP_VERSION,
   }),
 )
 const provider = new WebTracerProvider({

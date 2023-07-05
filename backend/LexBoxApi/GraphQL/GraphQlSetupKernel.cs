@@ -1,7 +1,7 @@
+using HotChocolate.Data.Projections.Expressions;
 using HotChocolate.Diagnostics;
 using LexBoxApi.Config;
-using LexBoxApi.Services;
-using LexBoxApi.GraphQL.CustomTypes;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.Extensions.Options;
 
@@ -12,28 +12,38 @@ public static class GraphQlSetupKernel
     public const string LexBoxSchemaName = "LexBox";
     public static void AddLexGraphQL(this IServiceCollection services, IWebHostEnvironment env)
     {
-        services.AddHttpClient("hasura",
-            (provider, client) =>
+
+        services.AddGraphQLServer()
+            .InitializeOnStartup()
+            .RegisterDbContext<LexBoxDbContext>()
+            .RegisterService<IHgService>()
+            .AddSorting(descriptor =>
             {
-                var hasuraConfig = provider.GetRequiredService<IOptions<HasuraConfig>>().Value;
-                client.BaseAddress = new Uri(hasuraConfig.HasuraUrl);
-                client.DefaultRequestHeaders.Add("x-hasura-admin-secret", hasuraConfig.HasuraSecret);
-            });
-        services.AddHostedService<DevSchemaWriterService>();
-        var graphqlBuilder = services.AddGraphQLServer()
+                descriptor.AddDefaults();
+                descriptor.ArgumentName("orderBy");
+            })
+            .AddFiltering()
+            .AddProjections(descriptor =>
+            {
+                descriptor.Provider(new QueryableProjectionProvider(providerDescriptor =>
+                {
+                    //does not work because hot chocolate wants to make this as the select `p => new project { userCount = p.usercount}`
+                    // which doesn't work when using projectable because the field needs to be write only
+                    //shelving it for now
+                    providerDescriptor.RegisterFieldHandler<EfCoreProjectablesFieldHandler>();
+                    providerDescriptor.AddDefaults();
+                }));
+            })
+            .AddAuthorization()
+            .AddLexBoxApiTypes()
+            .AddMutationConventions(false)
             .AddDiagnosticEventListener<ErrorLoggingDiagnosticsEventListener>()
             .ModifyRequestOptions(options =>
             {
                 options.IncludeExceptionDetails = true;
             })
-            .AddTypeExtension<ProjectExtensions>()
             .AddType(new DateTimeType("DateTime"))
             .AddType(new UuidType("UUID"))
-            .AddType(new DateTimeType("timestamptz"))
-            .AddType(new UuidType("uuid"));
-        graphqlBuilder
-            .AddRemoteSchema("hasura")
-            .AddGraphQL("hasura")
             .AddType(new DateTimeType("timestamptz"))
             .AddType(new UuidType("uuid"))
             .AddInstrumentation(options =>
@@ -41,26 +51,23 @@ public static class GraphQlSetupKernel
                 options.IncludeDocument = true;
                 options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
             });
-        graphqlBuilder.AddLocalSchema(LexBoxSchemaName)
-            .RegisterDbContext<LexBoxDbContext>()
-            .AddGraphQL("LexBox")
-            .ModifyRequestOptions(options =>
-            {
-                options.IncludeExceptionDetails = true;
-            })
-            .AddType(new DateTimeType("DateTime"))
-            .AddType(new UuidType("UUID"))
-            .AddType<LexAuthUserType>()
-            .AddMutationType<LexMutations>()
-            .AddQueryType<LexQueries>()
-            .AddSorting()
-            .AddFiltering()
-            .AddProjections()
-            .AddMutationConventions(false)
-            .AddInstrumentation(options =>
-            {
-                options.IncludeDocument = true;
-                options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
-            });
+
+        // services.AddHttpClient("hasura",
+        //     (provider, client) =>
+        //     {
+        //         var hasuraConfig = provider.GetRequiredService<IOptions<HasuraConfig>>().Value;
+        //         client.BaseAddress = new Uri(hasuraConfig.HasuraUrl);
+        //         client.DefaultRequestHeaders.Add("x-hasura-admin-secret", hasuraConfig.HasuraSecret);
+        //     });
+        // graphqlBuilder
+        //     .AddRemoteSchema("hasura")
+        //     .AddGraphQL("hasura")
+        //     .AddType(new DateTimeType("timestamptz"))
+        //     .AddType(new UuidType("uuid"))
+        //     .AddInstrumentation(options =>
+        //     {
+        //         options.IncludeDocument = true;
+        //         options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
+        //     });
     }
 }

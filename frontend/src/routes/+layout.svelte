@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import '$lib/app.postcss';
-  import { error } from '$lib/error';
+  import { error, goesToErrorPage } from '$lib/error';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
   import { onDestroy } from 'svelte';
   import type { LayoutData } from './$types';
@@ -28,7 +28,7 @@
   <slot />
 </div>
 
-<!-- We don't want the alert for "hook" errors, because they land on +error.svelte -->
-{#if !$page.error?.source?.endsWith('-hook')}
+<!-- We don't want the alert as well if we're heading to +error.svelte -->
+{#if !goesToErrorPage($page.error)}
   <UnexpectedErrorAlert />
 {/if}

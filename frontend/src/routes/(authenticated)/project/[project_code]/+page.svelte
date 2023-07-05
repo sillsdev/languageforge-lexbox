@@ -9,25 +9,25 @@
   import type { $OpResult, ChangeProjectDescriptionMutation, ChangeProjectNameMutation } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { isAdmin } from '$lib/user';
-  import { toProjectRoleEnum } from '$lib/util/enums';
   import { z } from 'zod';
   import type { PageData } from './$types';
   import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
+  import {TrashIcon} from '$lib/icons';
 
   export let data: PageData;
 
   $: user = data.user;
   $: project = data.project;
-  $: _project = project as NonNullable<typeof project>;
+  $: _project = project ;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
     await changeMemberRoleModal.open({
       userId: projectUser.User.id,
       name: projectUser.User.name,
-      role: toProjectRoleEnum(projectUser.role),
+      role: projectUser.role,
     });
   }
 
@@ -36,7 +36,7 @@
   async function deleteProjectUser(projectUser: ProjectUser): Promise<void> {
     userToDelete = projectUser;
     await deleteUserModal.prompt(async () => {
-      await _deleteProjectUser(_project.id, projectUser.User.id);
+      await _deleteProjectUser(_project.id, projectUser.user.id);
     });
   }
 
@@ -112,11 +112,11 @@
       </p>
 
       <BadgeList>
-        {#each project.ProjectUsers as member}
+        {#each project.users as member}
           <div class="dropdown dropdown-end">
             <MemberBadge
-              member={{ name: member.User.name, role: member.role }}
-              canManage={canManage && (member.User.id != userId || isAdmin(user))}
+              member={{ name: member.user.name, role: member.role }}
+              canManage={canManage && (member.user.id != userId || isAdmin(user))}
             />
             <ul class="dropdown-content menu bg-base-200 p-2 shadow rounded-box">
               <li>
@@ -127,8 +127,8 @@
               </li>
               <li>
                 <button class="hover:bg-error hover:text-error-content" on:click={() => deleteProjectUser(member)}>
-                  <span class="i-mdi-trash-can text-2xl" />
-                  {$t('project_page.remove_user')}
+                    <TrashIcon></TrashIcon>
+                    {$t('project_page.remove_user')}
                 </button>
               </li>
             </ul>
