@@ -74,3 +74,31 @@ profiles:
       - op: replace
         path: /build/artifacts/1/docker/dockerfile
         value: dev.Dockerfile
+  - name: infra
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: LexBoxApi/dev.Dockerfile
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: dev.Dockerfile
+    portForward: []
+  - name: no-frontend
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: LexBoxApi/dev.Dockerfile
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: dev.Dockerfile
+    portForward:
+    # Backend
+    - resourceType: Service
+      resourceName: lexbox
+      namespace: languagedepot
+      port: 5158
+    # OpenTelemetry
+    - resourceType: Service
+      resourceName: lexbox
+      namespace: languagedepot
+      port: 4318
