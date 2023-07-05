@@ -138,4 +138,16 @@ tasks:
 
   migrate-db:
     dir: ./backend/LexBoxApi
-    cmd: dotnet run migrate --environment "Development"
+    cmds:
+      - dotnet run migrate --environment "Development"
+
+  # usage: task add-migration -- "migration name"
+  add-migration:
+    dir: ./backend/LexBoxApi
+    cmds:
+      - dotnet ef migrations add --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext --output-dir Migrations {{.CLI_ARGS}}
+# this will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally.
+  remove-last-migration:
+    dir: ./backend/LexBoxApi
+    cmds:
+      - dotnet ef migrations remove --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
