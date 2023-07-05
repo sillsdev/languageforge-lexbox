@@ -46,8 +46,8 @@
     </li>
 
     <li>
-      <a href="/myaccount" data-sveltekit-preload-data="tap">
-        {$t('user_page.title')}
+      <a href="/user" data-sveltekit-preload-data="tap">
+        {$t('account_settings.title')}
         <AuthenticatedUserIcon />
       </a>
     </li>

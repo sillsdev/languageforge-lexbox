@@ -61,7 +61,7 @@ jobs:
           context: frontend
           build-args: |
             APP_VERSION=${{ env.VERSION }}
-          push: ${{ !env.ACT }}
+          push: ${{ !env.ACT && github.repository == 'sillsdev/languageforge-lexbox' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   deploy-ui:

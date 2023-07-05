@@ -23,7 +23,7 @@ export const handleError: HandleClientError = ({ error, event }) => {
  */
 handleFetch(async ({ fetch, args }) => {
   const response = await traceFetch(() => fetch(...args));
-  if (response.status === 401) {
+  if (response.status === 401 && location.pathname !== '/login') {
     throw redirect(307, '/logout');
   }
   return response;

@@ -109,9 +109,9 @@ spec:
             value: /hg-repos
           - name: HgConfig__HgWebUrl
             value: http://hg:8088
-          - name: Clusters__hgWeb__Destinations__hgWebServer__Address
+          - name: ReverseProxy__Clusters__hgWeb__Destinations__hgWebServer__Address
             value: http://hg:8088
-          - name: Clusters__resumableWeb__Destinations__resumableWebServer__Address
+          - name: ReverseProxy__Clusters__resumableWeb__Destinations__resumableWebServer__Address
             value: http://hg:80
           - name: CloudFlare__TurnstileKey
             valueFrom:

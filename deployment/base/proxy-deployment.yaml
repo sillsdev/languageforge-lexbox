@@ -4,6 +4,8 @@ kind: Ingress
 metadata:
   name: proxy
   namespace: languagedepot
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
   ingressClassName: nginx
   defaultBackend:
@@ -16,6 +18,13 @@ spec:
     http:
       paths:
       - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
+      - path: /hg
         pathType: Prefix
         backend:
           service:
@@ -36,8 +45,30 @@ spec:
             name: lexbox
             port:
               name: github-deploy
+  - host: hg-staging.languagedepot.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
+  - host: resumable-staging.languagedepot.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
 
-  # tls:
-  # - hosts:
-  #   - staging.languagedepot.org
-  #   secretName: languagedepot-tls # provided by LTOps
+  tls:
+  - hosts:
+    - staging.languagedepot.org
+    - hg-staging.languagedepot.org
+    - resumable-staging.languagedepot.org
+    secretName: languagedepot-tls # provided by LTOps

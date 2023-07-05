@@ -45,6 +45,7 @@ export async function login(userId: string, password: string): Promise<boolean> 
   }
   return true;
 }
+
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
 export async function register(password: string, name: string, email: string, turnstileToken: string): Promise<RegisterResponse> {
   const response = await fetch('/api/User/registerAccount', {

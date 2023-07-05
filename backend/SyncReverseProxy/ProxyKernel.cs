@@ -46,41 +46,8 @@ public static class ProxyKernel
         }
 
         services.AddReverseProxy()
-            .LoadFromConfig(reverseProxyConfig)
-            .AddTransforms(context =>
-            {
-                context.AddRequestTransform(async transformContext =>
-                {
-                    var projectCode = transformContext.HttpContext.GetRouteValue("project-code")?.ToString();
-                    if (projectCode is not null)
-                    {
-                        Activity.Current?.AddTag("app.project_code", projectCode);
-                    }
-                });
-
-                if (context.Route.RouteId == "hgWebView")
-                {
-                    context.AddResponseTransform(async transformContext =>
-                    {
-                        if (transformContext.ProxyResponse is null) return;
-                        string? projectCode = null;
-                        //this is used for hg requests. the key we're using is defined in app settings hg.path.match
-                        if (transformContext.HttpContext.Request.RouteValues.TryGetValue("project-code",
-                                out var projectCodeObj))
-                        {
-                            projectCode = projectCodeObj?.ToString() ?? null;
-                        }
-                        if (projectCode is null) return;
-                        var responseString = await transformContext.ProxyResponse.Content.ReadAsStringAsync();
-                        if (string.IsNullOrEmpty(responseString)) return;
-                        var newResponse = responseString.Replace($"""href="/{projectCode}""", $"""href="/api/hg-view/{projectCode}""");
-                        transformContext.SuppressResponseBody = true;
-                        var bytes = Encoding.UTF8.GetBytes(newResponse);
-                        transformContext.HttpContext.Response.ContentLength = bytes.Length;
-                        await transformContext.HttpContext.Response.Body.WriteAsync(bytes);
-                    });
-                }
-            });
+            .LoadFromConfig(reverseProxyConfig);
+        services.AddHostedService<ProxyConfigValidationHostedService>();
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
         services.AddAuthorizationBuilder()
@@ -97,6 +64,11 @@ public static class ProxyKernel
     {
         return app.MapReverseProxy(builder => builder.Use(async (context, next) =>
             {
+                var projectCode = context.Request.GetProjectCode();
+                if (projectCode is not null)
+                {
+                    Activity.Current?.AddTag("app.project_code", projectCode);
+                }
                 var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
                 var proxyFeature = context.Features.Get<IReverseProxyFeature>();
                 await next(context);

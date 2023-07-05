@@ -1,5 +1,5 @@
 import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web'
-import { SERVICE_NAME, ensureErrorIsTraced, isRedirect, tracer } from '.'
+import { SERVICE_NAME, ensureErrorIsTraced, tracer } from '.'
 
 import {APP_VERSION} from '$lib/util/verstion';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
@@ -8,6 +8,7 @@ import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
 import { instrumentGlobalFetch } from '$lib/util/fetch-proxy';
+import { isRedirect } from '$lib/util/types';
 import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
 export * from '.';

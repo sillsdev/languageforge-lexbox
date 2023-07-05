@@ -3,11 +3,14 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Shouldly;
+using Testing.Services;
 
 namespace Testing.SyncReverseProxy;
 
+[Trait("Category", "Integration")]
 public class GetProjectDataTests
 {
+    private readonly string _host = TestingEnvironmentVariables.ServerHostname;
     private static readonly HttpClient Client = new();
 
     private const string SampleRequest = """
@@ -21,24 +24,20 @@ Connection: Keep-Alive
 password={password}
 """;
 
-    [Theory]
-    // [InlineData("https://admin.languageforge.org")]
-    [InlineData("https://localhost:7075")]
-    public async Task GetProjectData(string host)
+    [Fact]
+    public async Task GetProjectData()
     {
-        var response = await Client.PostAsync($"{host}/api/user/{TestData.User}/projects",
+        var response = await Client.PostAsync(
+            $"http://{_host}/api/user/{TestData.User}/projects",
             new FormUrlEncodedContent(
-                new[]
-                {
-                    new KeyValuePair<string, string>("password", TestData.Password)
-                }));
+                new[] { new KeyValuePair<string, string>("password", TestData.Password) }));
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
         content.ValueKind.ShouldBe(JsonValueKind.Array);
         var projectArray = JsonArray.Create(content);
         projectArray.ShouldNotBeNull();
-        projectArray.Count.ShouldBe(1);
-        var project = projectArray.ShouldHaveSingleItem() as JsonObject;
+        projectArray.Count.ShouldBeGreaterThan(0);
+        var project = projectArray.First(p => p["identifier"].GetValue<string>() == TestData.ProjectCode) as JsonObject;
         project.ShouldNotBeNull();
         var projectDict = new Dictionary<string, JsonNode?>(project);
         projectDict.ShouldSatisfyAllConditions(
@@ -54,17 +53,13 @@ password={password}
         project["role"]!.GetValue<string>().ShouldNotBeEmpty();
     }
 
-    [Theory]
-    // [InlineData("https://admin.languageforge.org")]
-    [InlineData("https://localhost:7075")]
-    public async Task TestInvalidPassword(string host)
+    [Fact]
+    public async Task TestInvalidPassword()
     {
-        var response = await Client.PostAsync($"{host}/api/user/{TestData.User}/projects",
+        var response = await Client.PostAsync(
+            $"http://{_host}/api/user/{TestData.User}/projects",
             new FormUrlEncodedContent(
-                new[]
-                {
-                    new KeyValuePair<string, string>("password", "bad password")
-                }));
+                new[] { new KeyValuePair<string, string>("password", "bad password") }));
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
         content.ValueKind.ShouldBe(JsonValueKind.Object);
@@ -74,17 +69,13 @@ password={password}
         responseObject["error"]!.GetValue<string>().ShouldBe("Bad password");
     }
 
-    [Theory]
-    // [InlineData("https://admin.languageforge.org")]
-    [InlineData("https://localhost:7075")]
-    public async Task TestInvalidUser(string host)
+    [Fact]
+    public async Task TestInvalidUser()
     {
-        var response = await Client.PostAsync($"{host}/api/user/not-a-real-user-account/projects",
+        var response = await Client.PostAsync(
+            $"http://{_host}/api/user/not-a-real-user-account/projects",
             new FormUrlEncodedContent(
-                new[]
-                {
-                    new KeyValuePair<string, string>("password", "doesn't matter")
-                }));
+                new[] { new KeyValuePair<string, string>("password", "doesn't matter") }));
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
         content.ValueKind.ShouldBe(JsonValueKind.Object);

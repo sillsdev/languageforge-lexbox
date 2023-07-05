@@ -7,6 +7,7 @@ using LexCore.Exceptions;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LexBoxApi.GraphQL;
 
@@ -101,16 +102,15 @@ public class LexMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
-    //[Error<RequiredException>]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [UseMutationConvention]
     public async Task<User> ChangeUserAccountData(ChangeUserAccountDataInput input, LexBoxDbContext dbContext)
     {
-        var user = await dbContext.Users.FindAsync(input.UserId); //find based on userId
+        var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
-        // Important: this should handle authentication but was not extensivley tested...
-        if (_loggedInContext.User.Id != input.UserId) throw new RequiredException("User id of input does not match that of logged in user.");
-        //below works to change email
-        //minimum email = a@a.a
+        if (_loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
+        // below works to change email
+        // minimum email = a@a.a
         // if (input.Email is not null && input.Email != ""){
         //     if (input.Email.Contains("@") == false || input.Email.Length < 3){
         //         throw new RequiredException("Email does not match requirements");

@@ -36,14 +36,15 @@
       "hgWeb": {
         "Destinations": {
           "hgWebServer": {
-            "Address": "http://localhost:8088/"
+//            these are intentionally null so that if they don't get set in the config, the app will fail to start, in develop they're set in the other settings file
+            "Address": null
           }
         }
       },
       "resumableWeb": {
         "Destinations": {
           "resumableWebServer": {
-            "Address": "http://localhost:8034/"
+            "Address": null
           }
         }
       }

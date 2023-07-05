@@ -49,19 +49,31 @@ tasks:
   test:
     dir: '{{.TESTING_DIR}}'
     cmds:
-      - dotnet test
+      - dotnet test --filter=Category!=Integration
   test-sr:
     dir: '{{.TESTING_DIR}}'
     deps: [ up ]
     cmds:
       - dotnet test --filter=SendReceive
+  test-integration:
+    dir: '{{.TESTING_DIR}}'
+    deps: [ up ]
+    cmds:
+      - dotnet test --filter Category=Integration
+  test-integration-staging:
+    env:
+      TEST_SERVER_HOSTNAME: staging.languagedepot.org
+      TEST_STANDARD_HG_HOSTNAME: hg-staging.languagedepot.org
+      TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
+    cmds:
+      - dotnet test --filter Category=Integration
 
-  # dev
+      # dev
   infra-up: # infrastructure for our ui and api
     vars:
       WAIT: '{{default true .WAIT}}'
     cmds:
-      - docker compose up maildev db hasura hgweb otel-collector hgresumable -d --wait={{.WAIT}}
+      - docker compose up maildev db hgweb otel-collector hgresumable -d --wait={{.WAIT}}
 
   backend-up:
     vars:
@@ -80,13 +92,15 @@ tasks:
   # ui
   ui-dev: # The single command for ui development
     aliases:
-      - "ui"
+      - ui
     dir: ./frontend
     deps: [ backend-up, ui-down ]
     interactive: true
     cmds:
       - task: ui-only
   ui-only:
+    aliases:
+      - uio
     dir: ./frontend
     deps: [ ui-install ]
     interactive: true
@@ -107,7 +121,7 @@ tasks:
   # api
   api-dev: # The single command for api development
     aliases:
-      - "api"
+      - api
     dir: ./backend/LexBoxApi
     deps: [ infra-up, api-stop ]
     interactive: true
