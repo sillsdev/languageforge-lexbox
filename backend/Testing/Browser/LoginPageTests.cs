@@ -1,5 +1,6 @@
 ﻿using Microsoft.Playwright;
 using Testing.Browser.Base;
+using Testing.Services;
 
 namespace Testing.Browser;
 
@@ -9,7 +10,7 @@ public class LoginPageTests: PageTest
     [Fact]
     public async Task CanLoginClicking()
     {
-        await Page.GotoAsync("https://staging.languagedepot.org/login");
+        await Page.GotoAsync($"https://{TestingEnvironmentVariables.ServerHostname}/login");
 
         await Page.GetByLabel("Email (or Send/Receive username)").ClickAsync();
 
@@ -21,13 +22,13 @@ public class LoginPageTests: PageTest
 
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
 
-        await Expect(Page).ToHaveURLAsync("https://staging.languagedepot.org/admin");
+        await Expect(Page).ToHaveURLAsync($"https://{TestingEnvironmentVariables.ServerHostname}/admin");
     }
 
     [Fact]
     public async Task CanLoginKeyboardNavigation()
     {
-        await Page.GotoAsync("https://staging.languagedepot.org/login");
+        await Page.GotoAsync($"https://{TestingEnvironmentVariables.ServerHostname}/login");
 
         await Page.GetByLabel("Email (or Send/Receive username)").FillAsync("KindLion");
 
@@ -37,17 +38,17 @@ public class LoginPageTests: PageTest
 
         await Page.GetByLabel("Password").PressAsync("Enter");
 
-        await Expect(Page).ToHaveURLAsync("https://staging.languagedepot.org/admin");
+        await Expect(Page).ToHaveURLAsync($"https://{TestingEnvironmentVariables.ServerHostname}/admin");
     }
 
     [Fact]
     public async Task ShowErrorWithoutUsername()
     {
-        await Page.GotoAsync("https://staging.languagedepot.org/login");
+        await Page.GotoAsync($"https://{TestingEnvironmentVariables.ServerHostname}/login");
 
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
 
-        await Expect(Page).ToHaveURLAsync("https://staging.languagedepot.org/login");
+        await Expect(Page).ToHaveURLAsync($"https://{TestingEnvironmentVariables.ServerHostname}/login");
         await Expect(Page.GetByText("User info missing")).ToBeVisibleAsync();
     }
 }
