@@ -1,6 +1,5 @@
 <script lang="ts">
   import type { Readable } from 'svelte/store';
-
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
   import { FormError, lexSuperForm } from '$lib/forms';
   import Form from '$lib/forms/Form.svelte';

@@ -5,17 +5,32 @@
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
+  import { TrashIcon } from '$lib/icons';
   import z from 'zod';
+  import { goto } from '$app/navigation';
+  import DeleteAccountModal from './DeleteAccountModal.svelte';
+  import { _deleteUserByUser } from './+page';
+  import type { DeleteUserByUserInput } from '$lib/gql/types';
 
   export let data: PageData;
   $: user = data?.user;
   $: userid = user?.id;
+  let deleteModal: DeleteAccountModal;
 
+  async function openDeleteModal(): Promise<void> {
+    await deleteModal.open();
+  }
   const formSchema = z.object({
     email: z.string().email(),
     name: z.string(),
   });
-
+  async function deleteMe(): Promise<void> {
+    const deleteUserByUserInput: DeleteUserByUserInput = {
+      userId: userid as string,
+    };
+    await _deleteUserByUser(deleteUserByUserInput);
+    await goto('/logout');
+  }
   let { form, errors, enhance, message, submitting } = lexSuperForm(formSchema, async () => {
     const changeUserAccountDataInput: ChangeUserAccountDataInput = {
       email: $form.email,
@@ -25,7 +40,6 @@
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
   });
-
   $: {
     if (user) {
       form.set({
@@ -57,8 +71,16 @@
       <a class="link my-4" href="/resetPassword">
         {$t('account_settings.reset_password')}
       </a>
+      <div class="collapse text-error w-full underline rounded-box collapse-arrow">
+        <input type="checkbox" />
+        <div class="collapse-title text-xl font-medium">{$t('account_settings.more_settings')}</div>
+        <div class="collapse-content">
+          <span class="btn btn-error" on:click={openDeleteModal}>{$t('account_settings.delete_account')}<TrashIcon/></span>
+        </div>
+      </div>
       <FormError error={$message} />
       <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
     </Form>
   </div>
 </Page>
+<DeleteAccountModal deleteUser={deleteMe} bind:this={deleteModal} />

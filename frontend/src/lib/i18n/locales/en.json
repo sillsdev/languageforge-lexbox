@@ -39,7 +39,9 @@
     "name": "Display name",
     "reset_password": "Reset your password instead?",
     "success": "Success: your account has been updated",
-    "button_update": "Update account info"
+    "button_update": "Update account info",
+    "more_settings": "More Settings",
+    "delete_account": "Delete Account"
   },
   "appbar": {
     "app_name": "Language Depot"
