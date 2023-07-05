@@ -41,7 +41,10 @@
     "success": "Success: your account has been updated",
     "button_update": "Update account info",
     "more_settings": "More Settings",
-    "delete_account": "Delete Account"
+    "delete_account": "Delete Account",
+    "delete_user": "delete account",
+    "delete_user_label": "Enter 'delete account' to delete your account.",
+    "keyphrase": "delete account"
   },
   "appbar": {
     "app_name": "Language Depot"
