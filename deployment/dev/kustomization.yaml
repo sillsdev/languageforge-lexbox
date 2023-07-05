@@ -18,3 +18,4 @@ patches:
       kind: PersistentVolumeClaim
     path: change-storage-class.patch.yaml
   - path: proxy-deployment.yaml
+  - path: lexbox-deployment.patch.yaml

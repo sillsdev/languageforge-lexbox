@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexbox
+  namespace: languagedepot
+  labels:
+    app: lexbox
+spec:
+  template:
+    spec:
+      containers:
+      - name: lexbox-api
+        env:
+          - name: DOTNET_URLS
+            value: http://0.0.0.0:5158
