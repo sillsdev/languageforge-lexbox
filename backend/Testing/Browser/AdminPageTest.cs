@@ -1,5 +1,6 @@
 ﻿using Microsoft.Playwright;
 using Testing.Browser.Base;
+using Testing.Services;
 
 namespace Testing.Browser;
 
@@ -9,7 +10,7 @@ public class AdminPageTest: PageTest
     [Fact]
     public async Task CanNavigateToProjectPage()
     {
-        await Page.GotoAsync("https://staging.languagedepot.org/admin");
+        await Page.GotoAsync($"https://{TestingEnvironmentVariables.ServerHostname}/admin");
 
         await Page.GetByLabel("Email (or Send/Receive username)").ClickAsync();
 
@@ -21,11 +22,11 @@ public class AdminPageTest: PageTest
 
         await Page.GetByLabel("Password").PressAsync("Enter");
 
-        await Expect(Page).ToHaveURLAsync("https://staging.languagedepot.org/admin");
+        await Expect(Page).ToHaveURLAsync($"https://{TestingEnvironmentVariables.ServerHostname}/admin");
 
         await Page.GetByRole(AriaRole.Link, new() { Name = "Sena 3" }).ClickAsync();
 
-        await Expect(Page).ToHaveURLAsync("https://staging.languagedepot.org/project/sena-3");
+        await Expect(Page).ToHaveURLAsync($"https://{TestingEnvironmentVariables.ServerHostname}/project/sena-3");
 
     }
 }
