@@ -28,7 +28,8 @@ export async function load(event: PageLoadEvent): Promise<{ projects: Project[] 
       id: p.id,
       name: p.name,
       code: p.code,
-      lastCommit: p.lastCommit
+      lastCommit: p.lastCommit,
+      userCount: 0, // TODO
     }))
   }
 }
