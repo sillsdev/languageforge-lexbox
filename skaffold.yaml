@@ -2,6 +2,8 @@ apiVersion: skaffold/v4beta6
 kind: Config
 metadata:
   name: lexbox
+deploy:
+  kubeContext: docker-desktop
 build:
   artifacts:
     - image: ghcr.io/sillsdev/lexbox-api
