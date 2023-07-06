@@ -23,7 +23,7 @@ export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
       const result = event.result as ActionResult<{ form: SuperValidated<S> }>;
       if (result.type == 'success' && result.data) {
         await onSubmit(event);
-        if (formHasMessageOrErrors(sf)) { // detect any messages or errors set in the onAwait callback
+        if (formHasMessageOrErrors(sf)) { // detect any messages or errors set in the onSubmit callback
           event.cancel();
         }
       }
