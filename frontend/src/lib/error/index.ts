@@ -7,7 +7,7 @@ export const error: Writable<App.Error | null> = writable();
 
 export const dismiss = (): void => error.set(null);
 
-export const goesToErrorPage = (error: App.Error | null): boolean => error?.handler.endsWith('-hook') ?? false;
+export const goesToErrorPage = (error: App.Error | null): boolean => error?.handler?.endsWith('-hook') ?? false;
 
 if (browser) {
   /**
