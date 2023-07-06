@@ -82,7 +82,32 @@ profiles:
       - op: replace
         path: /build/artifacts/1/docker/dockerfile
         value: dev.Dockerfile
-    portForward: []
+    portForward:
+      # Postgres
+      - resourceType: Service
+        resourceName: db
+        namespace: languagedepot
+        port: 5432
+        localPort: 5433
+      # OpenTelemetry
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 4318 # http
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 4317 # grpc
+      # hg
+      - resourceType: Service
+        resourceName: hg
+        namespace: languagedepot
+        port: 8088 # web
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 80 # resumable
+        localPort: 8034
   - name: no-frontend
     patches:
       - op: replace

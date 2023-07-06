@@ -12,7 +12,7 @@ spec:
       port:
         name: sveltekit
   rules:
-  - host: dev.languagedepot.org
+  - host: lexbox.localhost
     http:
       paths:
       - path: /api

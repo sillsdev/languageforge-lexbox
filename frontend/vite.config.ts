@@ -23,16 +23,16 @@ export default defineConfig({
   server: {
     port: 3000,
     strictPort: true,
-    proxy: {
+    proxy: process.env['DockerDev'] ? undefined : {
       '/v1/traces': {
-        target: 'http://lexbox:4318'
+        target: 'http://localhost:4318'
       },
       '/api': {
-        target: 'http://lexbox:5158'
+        target: 'http://localhost:5158'
       },
       //hg web will try to load static files from /static, but they need to be routed to the backend so it can proxy to hg web
       '/static': {
-        target: 'http://lexbox:5158',
+        target: 'http://localhost:5158',
         bypass: (req) => {
           const referer = req.headers.referer ?? '';
           if (referer.includes('/api/hg-view/') || referer.includes('/static/hgk/css/icofont.min.css')) {

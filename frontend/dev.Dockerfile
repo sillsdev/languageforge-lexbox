@@ -12,5 +12,5 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 COPY . /app/
 COPY src /app/src
 COPY static /app/static
-
+ENV DockerDev=true
 CMD [ "pnpm", "run", "dev", "--port", "3000", "--host", "0.0.0.0" ]

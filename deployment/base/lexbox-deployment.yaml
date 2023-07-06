@@ -29,6 +29,9 @@ spec:
   - name: otel
     protocol: TCP
     port: 4318
+  - name: otel-grpc
+    protocol: TCP
+    port: 4317
   - name: github-deploy
     protocol: TCP
     port: 9000
@@ -193,6 +196,7 @@ spec:
             memory: 100Mi
         ports:
           - containerPort: 4318
+          - containerPort: 4317
         volumeMounts:
           - mountPath: /etc/otelcol
             name: otel-config

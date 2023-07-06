@@ -11,6 +11,8 @@ spec:
   clusterIP: None
   selector:
     app: db
+  ports:
+    - port: 5432
 
 ---
 
