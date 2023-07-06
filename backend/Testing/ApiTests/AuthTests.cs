@@ -12,27 +12,17 @@ namespace Testing.ApiTests;
 [Trait("Category", "Integration")]
 public class AuthTests
 {
+    private string _host = "staging.languagedepot.org";
     private HttpClient _httpClient = new HttpClient();
 
-    private async Task<string> LoginAs(string user, string password)
+    private async Task LoginAs(string user, string password)
     {
-        var cookieContainer = new CookieContainer();
-        var loginResponse = await _httpClient.PostAsJsonAsync(
-            $"http://{TestingEnvironmentVariables.ServerHostname}/api/login",
+        await _httpClient.PostAsJsonAsync(
+            $"http://{_host}/api/login",
             new Dictionary<string, object>
             {
                 { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
             });
-        foreach (var value in loginResponse.Headers.GetValues("Set-Cookie"))
-        {
-            cookieContainer.SetCookies(loginResponse.RequestMessage?.RequestUri ??
-                                       throw new ArgumentNullException("requestUri"),
-                value);
-        }
-
-        var lexBoxCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == ".LexBoxAuth");
-        lexBoxCookie.ShouldNotBeNull();
-        return lexBoxCookie.Value;
     }
 
     [Fact]
@@ -40,7 +30,7 @@ public class AuthTests
     {
         await LoginAs("manager", "pass");
         var managerResponse = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"http://{TestingEnvironmentVariables.ServerHostname}/api/user/currentUser"),
+                $"http://{_host}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
         var manager = await managerResponse.Content.ReadFromJsonAsync<LexAuthUser>();
         manager.ShouldNotBeNull();
@@ -48,7 +38,7 @@ public class AuthTests
 
         await LoginAs("admin", "pass");
         var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"http://{TestingEnvironmentVariables.ServerHostname}/api/user/currentUser"),
+                $"http://{_host}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
         var admin = await response.Content.ReadFromJsonAsync<LexAuthUser>();
         admin.ShouldNotBeNull();
@@ -61,7 +51,7 @@ public class AuthTests
         var query = """{"query":"query testGetMe {  me {    id    email  }}"}""";
         await LoginAs("manager", "pass");
         var managerResponse = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post,
-                $"http://{TestingEnvironmentVariables.ServerHostname}/api/graphql")
+                $"http://{_host}/api/graphql")
             {
                 Content = new StringContent(query, Encoding.UTF8, "application/json")
             },
@@ -72,7 +62,7 @@ public class AuthTests
 
         await LoginAs("admin", "pass");
         var adminResponse = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post,
-                $"http://{TestingEnvironmentVariables.ServerHostname}/api/graphql")
+                $"http://{_host}/api/graphql")
             {
                 Content = new StringContent(query, Encoding.UTF8, "application/json")
             },
