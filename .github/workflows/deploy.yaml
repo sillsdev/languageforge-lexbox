@@ -59,7 +59,7 @@ jobs:
       - name: Build dotnet
         run: dotnet build
       - name: Ensure browsers are installed
-        run: pwsh /backend/Testing/bin/Debug/net7.0/playwright.ps1 install --with-deps
+        run: pwsh ./backend/Testing/bin/Debug/net7.0/playwright.ps1 install --with-deps
       - name: Integration Test
         env:
           TEST_SERVER_HOSTNAME: staging.languagedepot.org
