@@ -121,7 +121,7 @@ tasks:
 
   playwright-generate-tests:
     cmds:
-      - pnpm dlx playwright codegen localhost:5173
+      - pnpm dlx playwright codegen staging.languagedepot.org
       # api
   api-dev: # The single command for api development
     aliases:
