@@ -9,19 +9,37 @@
   import DeleteUserModal from './DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
+  import Notify from '$lib/notifications/Notify.svelte';
+  let notify: Notify;
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
   export let data: PageData;
   let deleteModal: DeleteUserModal;
   let formModal: EditUserAccount;
-
+  let _editing: UserRow;
   async function deleteUser(id: string): Promise<void> {
     formModal.close();
-    await deleteModal.open(id);
+    const error = await deleteModal.open(id);
+    if (error === 'none'){
+      return;
+    }
+    if (error){
+      notify.add(error, 'error', 10);
+    } else {
+      notify.add(`${_editing.name} has been deleted.`, 'success', 10);
+    }
   }
   async function openModal(user: UserRow): Promise<void> {
-    await formModal.openModal(user);
+    _editing = user;
+    await formModal.openModal(user, (error: string) => {
+      if (error){
+      notify.add(error, 'error', 10);
+    } else {
+      notify.add(`'${user.name}' has been updated.`, 'success', 10);
+    }
+    });
+
   }
   let projectSearch = '';
   let userSearch = '';
@@ -148,4 +166,5 @@
 
   <EditUserAccount bind:this={formModal} {deleteUser} />
   <DeleteUserModal bind:this={deleteModal} />
+  <Notify bind:this={notify}></Notify>
 </main>

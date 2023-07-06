@@ -6,6 +6,8 @@
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
   import z from 'zod';
+  import Notify from '$lib/notifications/Notify.svelte';
+  let notify: Notify;
 
   export let data: PageData;
   $: user = data?.user;
@@ -24,6 +26,11 @@
     };
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
+    if ($message){
+      notify.add($message, 'error', 10);
+    } else {
+      notify.add('Your account has been updated.', 'success', 10);
+    }
   });
 
   $: {
@@ -61,4 +68,5 @@
       <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
     </Form>
   </div>
+  <Notify bind:this={notify}></Notify>
 </Page>

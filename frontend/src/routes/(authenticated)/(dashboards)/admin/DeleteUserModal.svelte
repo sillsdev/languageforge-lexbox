@@ -15,14 +15,15 @@
 
   let deletionFormModal: FormModal<typeof verify>;
   $: deletionForm = deletionFormModal?.form();
-  export async function open(id: string): Promise<void> {
-    await deletionFormModal.open(async () => {
+  export async function open(id: string): Promise<void | string> {
+    const errors = await deletionFormModal.open(async () => {
       const deleteUserInput: DeleteUserByAdminInput = {
         userId: id,
       };
       const { error } = await _deleteUserByAdmin(deleteUserInput);
       return error?.message;
     });
+    return errors;
   }
 </script>
 

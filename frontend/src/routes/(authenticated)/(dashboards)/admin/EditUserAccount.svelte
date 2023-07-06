@@ -23,12 +23,11 @@
     formModal.close();
   }
   let _user: UserRow;
-  export async function openModal(user: UserRow): Promise<void> {
+  export async function openModal(user: UserRow, callback: CallableFunction): Promise<void | string> {
     _user = user;
     $form.email = user.email;
-
     $form.name = user.name;
-    await formModal.open(async () => {
+    const error = await formModal.open(async () => {
       const changeInput: ChangeUserAccountByAdminInput = {
         userId: user.id,
         email: $form.email,
@@ -45,8 +44,10 @@
           body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
         });
       }
-      return;
+      callback(error);
+      return error;
     });
+    return error;
   }
 </script>
 
