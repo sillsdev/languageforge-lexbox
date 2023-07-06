@@ -34,19 +34,22 @@ jobs:
           EXPECTED_VERSION: ${{ inputs.expected-api-version }}
         run: |
           IterateCount=5
+          DelayMultiplier=5
           n=0
           until [ $n -ge $IterateCount ]
           do
-            response=`curl -s --head "$TARGET_HOST/api/healthz"`
+            curl -s --head "$TARGET_HOST/api/healthz" >> response.txt
             # get version from response, trim off the header and fix the line endings
-            versionHeader=`echo "$response" | grep "lexbox-version" | cut -d' ' -f 2 | tr -d '[:space:]'`
+            versionHeader=$((grep "lexbox-version" response.txt || echo VersionNotFound) | cut -d' ' -f 2 | tr -d '[:space:]')
             if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
                 echo "Version is correct"
                 exit 0
             else
-                echo "Version $versionHeader is incorrect, expected $EXPECTED_VERSION"
+                echo "Version '$versionHeader' is incorrect, expected '$EXPECTED_VERSION'"
+                echo "response was:"
+                cat response.txt
                 n=$((n+1))
-                sleep $((2 * n))
+                sleep $((DelayMultiplier * n))
             fi
           done
 
