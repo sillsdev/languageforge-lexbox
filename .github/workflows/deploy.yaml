@@ -38,7 +38,7 @@ jobs:
           n=0
           until [ $n -ge $IterateCount ]
           do
-            curl -s --head "$TARGET_HOST/api/healthz" >> response.txt
+            curl -s --head "$TARGET_HOST/api/healthz" > response.txt
             # get version from response, trim off the header and fix the line endings
             versionHeader=$((grep "lexbox-version" response.txt || echo VersionNotFound) | cut -d' ' -f 2 | tr -d '[:space:]')
             if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
