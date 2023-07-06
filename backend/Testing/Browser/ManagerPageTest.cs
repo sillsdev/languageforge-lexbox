@@ -4,6 +4,7 @@ using Testing.Services;
 
 namespace Testing.Browser;
 
+[Trait("Category", "Integration")]
 public class ManagerPageTest: PageTest
 {
     private string _host = "staging.languagedepot.org";
