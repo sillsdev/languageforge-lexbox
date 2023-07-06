@@ -45,8 +45,8 @@ jobs:
         # set version to date in vYYYY-MM-DD format
         run: |
           shortSha=$(echo ${{ github.sha }} | cut -c1-8)
-          echo "VERSION=v$(date --rfc-3339=date):$(shortSha)" >> ${GITHUB_ENV}
-          echo "VERSION=v$(date --rfc-3339=date):$(shortSha)" >> ${GITHUB_OUTPUT}
+          echo "VERSION=v$(date --rfc-3339=date):$shortSha" >> ${GITHUB_ENV}
+          echo "VERSION=v$(date --rfc-3339=date):$shortSha" >> ${GITHUB_OUTPUT}
       -
         name: Docker meta
         id: meta
