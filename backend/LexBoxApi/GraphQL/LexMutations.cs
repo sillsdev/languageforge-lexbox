@@ -14,20 +14,15 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class LexMutations
 {
-    private readonly LoggedInContext _loggedInContext;
-
-    public LexMutations(LoggedInContext loggedInContext)
-    {
-        _loggedInContext = loggedInContext;
-    }
-
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<Project?> CreateProject(CreateProjectInput input,
+    public async Task<Project?> CreateProject(
+        LoggedInContext loggedInContext,
+        CreateProjectInput input,
         [Service] ProjectService projectService,
         LexBoxDbContext dbContext)
     {
-        var projectId = await projectService.CreateProject(input, _loggedInContext.User.Id);
+        var projectId = await projectService.CreateProject(input, loggedInContext.User.Id);
         return await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
     }
 
@@ -104,11 +99,14 @@ public class LexMutations
     [Error<DbError>]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [UseMutationConvention]
-    public async Task<User> ChangeUserAccountData(ChangeUserAccountDataInput input, LexBoxDbContext dbContext)
+    public async Task<User> ChangeUserAccountData(
+        LoggedInContext loggedInContext,
+        ChangeUserAccountDataInput input,
+        LexBoxDbContext dbContext)
     {
         var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
-        if (_loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
+        if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
         // below works to change email
         // minimum email = a@a.a
         // if (input.Email is not null && input.Email != ""){

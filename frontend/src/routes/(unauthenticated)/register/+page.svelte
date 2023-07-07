@@ -11,7 +11,7 @@
     email: z.string().email($t('register.email')),
     password: z.string().min(1, $t('register.password_missing')),
   });
-  let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async ({ cancel }) => {
+  let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
     const { user, error } = await register($form.password, $form.name, $form.email, turnstileToken);
     if (error) {
       if (error.turnstile) {
@@ -19,7 +19,6 @@
       }
       if (error.accountExists) {
         $errors.email = [$t('register.account_exists')];
-        cancel();
       }
       return;
     }

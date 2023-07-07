@@ -118,7 +118,11 @@ tasks:
   ui-down:
     cmds:
       - docker compose stop ui
-  # api
+
+  playwright-generate-tests:
+    cmds:
+      - pnpm dlx playwright codegen staging.languagedepot.org
+      # api
   api-dev: # The single command for api development
     aliases:
       - api
