@@ -9,7 +9,7 @@
   import DeleteUserModal from './DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
-  import Notify from '$lib/notify/Notify.svelte';
+  import Notify from '$lib/notify/notify.svelte';
   let notify: Notify;
 
   type UserRow = LoadAdminDashboardQuery['users'][0];

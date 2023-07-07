@@ -15,7 +15,8 @@
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import {TrashIcon} from '$lib/icons';
-
+  import Notify from '$lib/notify/notify.svelte';
+  let notify: Notify;
   export let data: PageData;
 
   $: user = data.user;
@@ -29,6 +30,7 @@
       name: projectUser.user.name,
       role: projectUser.role,
     });
+    notify.add(`Project role of '${projectUser.user.name}' set to '${projectUser.role.toLowerCase()}'.`, 'success', 10)
   }
 
   let deleteUserModal: DeleteModal;
@@ -38,17 +40,22 @@
     await deleteUserModal.prompt(async () => {
       await _deleteProjectUser(_project.id, projectUser.user.id);
     });
+    notify.add(`User, '${projectUser.user.name}' has been removed.`, 'warning', 10);
   }
 
   function updateProjectName(newName: string): $OpResult<ChangeProjectNameMutation> {
-    return _changeProjectName({ projectId: _project.id, name: newName });
+    const result = _changeProjectName({ projectId: _project.id, name: newName });
+    notify.add(`Project name is now, '${newName}'`, 'success', 10);
+    return result;
   }
 
   function updateProjectDescription(newDescription: string): $OpResult<ChangeProjectDescriptionMutation> {
-    return _changeProjectDescription({
+    const result = _changeProjectDescription({
       projectId: _project.id,
       description: newDescription,
     });
+    notify.add(`Project description set to, '${newDescription}'`, 'success', 15);
+    return result;
   }
 
   $: userId = user?.id;
@@ -135,7 +142,7 @@
           </div>
         {/each}
         {#if canManage}
-          <AddProjectMember projectId={project.id} />
+          <AddProjectMember projectId={project.id} notify={notify}/>
         {/if}
 
         <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
@@ -169,3 +176,4 @@
     {$t('project_page.not_found', { code: data.code })}
   {/if}
 </div>
+<Notify bind:this={notify}></Notify>

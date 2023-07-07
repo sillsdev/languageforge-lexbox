@@ -6,7 +6,7 @@
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
   import z from 'zod';
-  import Notify from '$lib/notifications/Notify.svelte';
+  import Notify from '$lib/notify/notify.svelte';
   let notify: Notify;
 
   export let data: PageData;

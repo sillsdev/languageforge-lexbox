@@ -12,9 +12,9 @@
 
     // create a function to add a notification
     export function add(
-      message: string,
-      category: string,
-      duration: number
+      message = 'Success',
+      category = 'Success',
+      duration = 1000,
     ): void {
       // generate a unique id for the notification
       const id: string = Math.random().toString(36).substr(2, 9);
@@ -31,7 +31,6 @@
       }, duration * 1000);
     }
 
-    // create a function to remove a notification by id
     export function remove(id: string): void {
       notifications.update((n: Notification[]) =>
         n.filter((x: Notification) => x.id !== id)
@@ -56,6 +55,7 @@
     </span>
   </div>
   {/each}
+  <!--force these classes to be loaded-->
   <div class="alert-success" hidden></div>
   <div class="alert-error" hidden></div>
   <div class="alert-warning" hidden></div>
