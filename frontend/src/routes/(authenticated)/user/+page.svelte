@@ -28,10 +28,13 @@
 
   $: {
     if (user) {
-      form.set({
-        email: user.email,
-        name: user.name,
-      });
+      form.set(
+        {
+          email: user.email,
+          name: user.name,
+        },
+        { taint: false }
+      );
     }
   }
 </script>

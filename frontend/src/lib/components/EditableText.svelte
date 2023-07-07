@@ -34,7 +34,7 @@
     }
 
     initialValue = value;
-    form.set({ [id]: value ?? '' });
+    form.set({ [id]: value ?? '' }, { taint: false });
     editing = true;
   }
 

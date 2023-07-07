@@ -19,7 +19,7 @@
     onSubmit: (d: FormType) => Promise<string | undefined>,
     value?: Partial<FormType>
   ): Promise<void> {
-    if (value) _form.set(value);
+    if (value) _form.set(value, { taint: false });
     if ((await modal.openModal()) === DialogResponse.Cancel) return;
     const error = await onSubmit($_form);
     if (error) {
