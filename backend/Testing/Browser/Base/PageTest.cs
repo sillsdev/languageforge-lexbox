@@ -40,7 +40,7 @@ public class PlaywrightFixture : IAsyncLifetime
         Page = await Context.NewPageAsync();
     }
 
-    public IPage Page { get; set; }
+    public IPage Page { get; set; } = null!;
     public IBrowser Browser { get; set; } = null!;
     public IBrowserContext Context { get; set; } = null!;
     private IPlaywright PlaywrightInstance { get; set; } = null!;
