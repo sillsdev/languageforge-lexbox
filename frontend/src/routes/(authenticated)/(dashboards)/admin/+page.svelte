@@ -27,7 +27,7 @@
     if (error){
       notify.add(error, 'error', 10);
     } else {
-      notify.add(`${_editing.name} has been deleted.`, 'success', 10);
+      notify.add($t('admin_dashboard.notifications.user_deleted', {name: _editing.name}), 'success', 10);
     }
   }
   async function openModal(user: UserRow): Promise<void> {
@@ -36,7 +36,7 @@
       if (error){
       notify.add(error, 'error', 10);
     } else {
-      notify.add(`'${user.name}' has been updated.`, 'success', 10);
+      notify.add($t('admin_dashboard.notifications.user_updated', {name: user.name}), 'success', 10);
     }
     });
 

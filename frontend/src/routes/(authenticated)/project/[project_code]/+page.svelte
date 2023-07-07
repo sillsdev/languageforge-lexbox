@@ -30,7 +30,7 @@
       name: projectUser.user.name,
       role: projectUser.role,
     });
-    notify.add(`Project role of '${projectUser.user.name}' set to '${projectUser.role.toLowerCase()}'.`, 'success', 10)
+    notify.add($t('project_page.notifications.role_change', {name: projectUser.user.name, role: projectUser.role.toLowerCase()}), 'success', 10)
   }
 
   let deleteUserModal: DeleteModal;
@@ -40,12 +40,12 @@
     await deleteUserModal.prompt(async () => {
       await _deleteProjectUser(_project.id, projectUser.user.id);
     });
-    notify.add(`User, '${projectUser.user.name}' has been removed.`, 'warning', 10);
+    notify.add($t('project_page.notifications.user_delete', {name: projectUser.user.name}), 'warning', 10);
   }
 
   function updateProjectName(newName: string): $OpResult<ChangeProjectNameMutation> {
     const result = _changeProjectName({ projectId: _project.id, name: newName });
-    notify.add(`Project name is now, '${newName}'`, 'success', 10);
+    notify.add($t('project_page.notifications.rename_project', {name: newName}), 'success', 10);
     return result;
   }
 
@@ -54,7 +54,7 @@
       projectId: _project.id,
       description: newDescription,
     });
-    notify.add(`Project description set to, '${newDescription}'`, 'success', 15);
+    notify.add($t('project_page.notifications.describe', {description: newDescription}), 'success', 15);
     return result;
   }
 

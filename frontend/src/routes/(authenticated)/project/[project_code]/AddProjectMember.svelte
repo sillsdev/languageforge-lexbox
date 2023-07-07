@@ -7,9 +7,10 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
+  import type Notify from '$lib/notify/notify.svelte';
 
   export let projectId: string;
-
+  export let notify: Notify;
   const schema = z.object({
     email: z.string().email($t('project_page.add_user.email_required')),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
@@ -24,6 +25,9 @@
         userEmail: $form.email,
         role: $form.role,
       });
+      if (!result.error){
+        notify.add($t('project_page.notifications.add_member', {email: $form.email}))
+      }
       return result.error?.message;
     });
   }
