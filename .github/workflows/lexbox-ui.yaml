@@ -40,7 +40,7 @@ jobs:
       - name: vitest
         working-directory: ./frontend
         run: |
-          pnpm run test:unit -- --reporter=default --reporter=junit --outputFile.junit=testresults/vitest-results.xml
+          pnpm run test:unit --reporter=default --reporter=junit --outputFile.junit=testresults/vitest-results.xml
       - name: Upload test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
