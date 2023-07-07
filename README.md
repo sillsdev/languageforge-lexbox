@@ -70,7 +70,7 @@ pnpm should be installed automatically using nodejs corepack, if not you can run
 
 ---
 ### Helpful urls
-* http://dev.localhost - k8s ingress
+* http://lexbox.localhost - k8s ingress
 * http://localhost:3000 - sveltekit frontend
 * http://localhost:5158/api/swagger - swagger docs for the api
 * http://localhost:5158/api/graphql/ui - graphiql UI
