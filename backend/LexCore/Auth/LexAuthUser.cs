@@ -67,7 +67,7 @@ public class LexAuthUser
         Email = user.Email;
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
         Name = user.Name;
-        Projects = user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role)).ToArray();
+        Projects = user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role, p.ProjectId)).ToArray();
     }
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
@@ -117,9 +117,24 @@ public class LexAuthUser
             LexAuthConstants.EmailClaimType,
             LexAuthConstants.RoleClaimType));
     }
+
+    public bool CanManageProject(Guid projectId)
+    {
+        return Role == UserRole.admin || Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager);
+    }
+
+    public bool CanManageProject(string projectCode)
+    {
+        return Role == UserRole.admin || Projects.Any(p => p.Code == projectCode && p.Role == ProjectRole.Manager);
+    }
+
+    public void AssertCanManageProject(Guid projectId)
+    {
+        if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
+    }
 }
 
-public record AuthUserProject(string Code, ProjectRole Role);
+public record AuthUserProject(string Code, ProjectRole Role, Guid ProjectId);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
