@@ -20,9 +20,9 @@ public class UserMutations
         ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext)
     {
+        if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
         var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
-        if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
         // below works to change email
         // minimum email = a@a.a
         // if (input.Email is not null && input.Email != ""){
