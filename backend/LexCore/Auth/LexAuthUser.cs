@@ -132,6 +132,11 @@ public class LexAuthUser
     {
         if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
     }
+
+    public void AssertCanAccessProject(string projectCode)
+    {
+        if (Role != UserRole.admin && Projects.All(p => p.Code != projectCode)) throw new UnauthorizedAccessException();
+    }
 }
 
 public record AuthUserProject(string Code, ProjectRole Role, Guid ProjectId);
