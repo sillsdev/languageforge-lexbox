@@ -27,9 +27,9 @@ public class ProjectMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<Project> AddProjectMember(AddProjectMemberInput input,
-        LexBoxDbContext dbContext)
+    public async Task<Project> AddProjectMember(LoggedInContext loggedInContext, AddProjectMemberInput input, LexBoxDbContext dbContext)
     {
+        loggedInContext.User.AssertCanManageProject(input.ProjectId);
         var user = await dbContext.Users.FirstOrDefaultAsync(u =>
             u.Username == input.UserEmail || u.Email == input.UserEmail);
         if (user is null) throw new NotFoundException("Member not found");
@@ -42,9 +42,12 @@ public class ProjectMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<ProjectUsers> ChangeProjectMemberRole(ChangeProjectMemberRoleInput input,
+    public async Task<ProjectUsers> ChangeProjectMemberRole(
+        ChangeProjectMemberRoleInput input,
+        LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
+        loggedInContext.User.AssertCanManageProject(input.ProjectId);
         var projectUser =
             await dbContext.ProjectUsers.FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
@@ -59,8 +62,10 @@ public class ProjectMutations
     [Error<RequiredException>]
     [UseMutationConvention]
     public async Task<Project> ChangeProjectName(ChangeProjectNameInput input,
+        LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
+        loggedInContext.User.AssertCanManageProject(input.ProjectId);
         if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
 
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
@@ -75,8 +80,10 @@ public class ProjectMutations
     [Error<DbError>]
     [UseMutationConvention]
     public async Task<Project> ChangeProjectDescription(ChangeProjectDescriptionInput input,
+        LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
+        loggedInContext.User.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
 
@@ -88,8 +95,10 @@ public class ProjectMutations
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IExecutable<Project>> RemoveProjectMember(RemoveProjectMemberInput input,
+        LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
+        loggedInContext.User.AssertCanManageProject(input.ProjectId);
         await dbContext.ProjectUsers.Where(pu => pu.ProjectId == input.ProjectId && pu.UserId == input.UserId)
             .ExecuteDeleteAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId).AsExecutable();
