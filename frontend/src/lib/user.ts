@@ -102,7 +102,7 @@ export function logout(cookies?: Cookies): void {
 export async function hash(password: string): Promise<string> {
   const msgUint8 = new TextEncoder().encode(password) // encode as (utf-8) Uint8Array
   let hashBuffer: ArrayBuffer;
-  const c = crypto ? crypto : await import('node:crypto');
+  const c = typeof crypto !== 'undefined' ? crypto : await import('node:crypto');
   if (c && c.subtle) {
     hashBuffer = await c.subtle.digest('SHA-1', msgUint8) // hash the message
   } else {
