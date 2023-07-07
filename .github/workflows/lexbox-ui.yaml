@@ -32,6 +32,21 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: pnpm install
+        working-directory: ./frontend
+        run: |
+          corepack enable
+          pnpm install
+      - name: vitest
+        working-directory: ./frontend
+        run: |
+          pnpm run test -- --reporter=default --reporter=junit --outputFile.junit=./testresults/vitest-results.xml
+      - name: Upload test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: UI unit Tests
+          files: ./frontend/testresults/*.xml
       - name: Set Version
         id: setVersion
         # set version to date in vYYYY-MM-DD format
