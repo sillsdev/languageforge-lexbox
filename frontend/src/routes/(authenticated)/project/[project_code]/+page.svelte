@@ -20,13 +20,13 @@
 
   $: user = data.user;
   $: project = data.project;
-  $: _project = project ;
+  $: _project = project as NonNullable<typeof project>;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
     await changeMemberRoleModal.open({
-      userId: projectUser.User.id,
-      name: projectUser.User.name,
+      userId: projectUser.user.id,
+      name: projectUser.user.name,
       role: projectUser.role,
     });
   }
@@ -146,7 +146,7 @@
           isRemoveDialog
         >
           {$t('project_page.confirm_remove', {
-            userName: userToDelete?.User.name ?? '',
+            userName: userToDelete?.user.name ?? '',
           })}
         </DeleteModal>
       </BadgeList>

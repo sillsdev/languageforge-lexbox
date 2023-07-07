@@ -2,7 +2,7 @@ using LexCore.Auth;
 
 namespace LexBoxApi.Auth;
 
-public class LoggedInContext
+public class LoggedInContext : IDisposable
 {
     private readonly Lazy<LexAuthUser> _user;
 
@@ -21,5 +21,16 @@ public class LoggedInContext
     /// <summary>
     /// get the logged in user, will throw an exception if the user is not logged in
     /// </summary>
-    public LexAuthUser User => _user.Value;
+    public LexAuthUser User =>
+        _disposed
+            ? throw new ObjectDisposedException(nameof(LoggedInContext),
+                "this context has been disposed because the request that created it has finished")
+            : _user.Value;
+
+    private bool _disposed;
+
+    public void Dispose()
+    {
+        _disposed = true;
+    }
 }

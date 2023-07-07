@@ -1,5 +1,6 @@
 using HotChocolate.Data.Projections.Expressions;
 using HotChocolate.Diagnostics;
+using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexCore.ServiceInterfaces;
 using LexData;
@@ -17,6 +18,7 @@ public static class GraphQlSetupKernel
             .InitializeOnStartup()
             .RegisterDbContext<LexBoxDbContext>()
             .RegisterService<IHgService>()
+            .RegisterService<LoggedInContext>()
             .AddSorting(descriptor =>
             {
                 descriptor.AddDefaults();

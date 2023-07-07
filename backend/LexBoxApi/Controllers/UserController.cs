@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using LexBoxApi.Auth;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
@@ -20,11 +21,13 @@ public class UserController : ControllerBase
 {
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly TurnstileService _turnstileService;
+    private readonly LoggedInContext _loggedInContext;
 
-    public UserController(LexBoxDbContext lexBoxDbContext, TurnstileService turnstileService)
+    public UserController(LexBoxDbContext lexBoxDbContext, TurnstileService turnstileService, LoggedInContext loggedInContext)
     {
         _lexBoxDbContext = lexBoxDbContext;
         _turnstileService = turnstileService;
+        _loggedInContext = loggedInContext;
     }
 
     [HttpPost("registerAccount")]
@@ -69,5 +72,11 @@ public class UserController : ControllerBase
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
         return Ok(user);
+    }
+
+    [HttpGet("currentUser")]
+    public ActionResult<LexAuthUser> CurrentUser()
+    {
+        return _loggedInContext.User;
     }
 }
