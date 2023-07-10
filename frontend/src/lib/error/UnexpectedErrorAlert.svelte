@@ -32,7 +32,7 @@
   }
 </script>
 
-<dialog bind:this={dialog} class="modal modal-bottom alert-error">
+<dialog bind:this={dialog} class="modal modal-bottom alert-error max-w-[95vw]">
   <div class="modal-box alert-error">
     <UnexpectedError />
     <div class="flex justify-end modal-action">
