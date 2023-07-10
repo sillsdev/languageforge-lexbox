@@ -148,9 +148,10 @@ public class LexMutations
     [UseMutationConvention]
     [AdminRequired]
     public async Task<User> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
-        var user = dbContext.Users.Where(u => u.Id == input.UserId);
-        await user.ExecuteDeleteAsync();
-        return (LexCore.Entities.User) user;
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        dbContext.Users.Remove(user);
+        dbContext.SaveChangesAsync();
+        return user;
     }
 
     [Error<NotFoundException>]
