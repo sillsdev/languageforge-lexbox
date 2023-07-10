@@ -1,52 +1,45 @@
 <script lang="ts">
-  import { writable, type Writable } from 'svelte/store';
+import { type Notification, notifications, addNotification, removeNotification, removeAllNotifications } from './store.ts';
 
-  interface Notification {
-    id: string;
-    message: string;
-    category: string;
-    duration: number;
-  }
 
-  // Retrieve notifications from localStorage or use an empty array
-  const initialNotifications: Notification[] = JSON.parse(localStorage.getItem('notifications')) || [];
-
-  // create a writable store to hold the notifications
-  export const notifications: Writable<Notification[]> = writable(initialNotifications);
-
-  // create a function to add a notification
   export function add(
     message = 'Success',
     category = 'Success',
-    duration = 1000,
+    duration = 10,
   ): void {
-    // generate a unique id for the notification
+    console.log(duration);
     const id: string = Math.random().toString(36).substr(2, 9);
 
-    // push the notification to the store
-    notifications.update((n: Notification[]) => [
-      ...n,
-      { id, message, category, duration },
-    ]);
+    const notification: Notification = {
+      id,
+      message,
+      category,
+      duration,
+    };
 
-    // remove the notification after the duration
+    addNotification(notification);
     setTimeout(() => {
-      remove(id);
-    }, duration * 1000);
+      removeNotification(id);
+    }, duration*1000);
   }
-
-  export function remove(id: string): void {
-    notifications.update((n: Notification[]) =>
-      n.filter((x: Notification) => x.id !== id)
-    );
-  }
-
-  export function removeAll(): void {
-    notifications.set([]);
-  }
-
-  // Persist notifications in localStorage whenever the store changes
-  notifications.subscribe((value: Notification[]) => {
-    localStorage.setItem('notifications', JSON.stringify(value));
-  });
 </script>
+
+<div class="toast toast-center w-96">
+  {#if $notifications.length > 1}
+  <div class="mt-2">
+    <button class="btn btn-ghost" on:click={removeAllNotifications}>Close All ✕</button>
+  </div>
+  {/if}
+  {#each $notifications as { id, message, category }}
+  <div class={`alert alert-${category}`}>
+    {message}
+    <span class="btn btn-ghost btn-sm float-right pd-0" on:click={() => removeNotification(id)}>
+      ✕
+    </span>
+  </div>
+  {/each}
+  <!--force these classes to be loaded-->
+  <div class="alert-success" hidden></div>
+  <div class="alert-error" hidden></div>
+  <div class="alert-warning" hidden></div>
+</div>

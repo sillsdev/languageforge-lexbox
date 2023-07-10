@@ -5,6 +5,7 @@
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
   import { onDestroy } from 'svelte';
   import type { LayoutData } from './$types';
+  import Notify from '$lib/notify/notify.svelte';
 
   onDestroy(
     page.subscribe((p) => {
@@ -15,6 +16,8 @@
   // https://www.w3.org/TR/trace-context/#traceparent-header
   // so the page-load instrumentation can be correlated with the server load
   export let data: LayoutData;
+  export let notify: Notify;
+
 </script>
 
 <svelte:head>
@@ -32,3 +35,4 @@
 {#if !goesToErrorPage($page.error)}
   <UnexpectedErrorAlert />
 {/if}
+<Notify bind:this={notify}></Notify>

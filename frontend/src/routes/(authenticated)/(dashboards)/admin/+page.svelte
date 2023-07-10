@@ -9,8 +9,6 @@
   import DeleteUserModal from './DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
-  import Notify from '$lib/notify/notify.svelte';
-  let notify: Notify;
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
@@ -25,18 +23,18 @@
       return;
     }
     if (error){
-      notify.add(error, 'error', 10);
+      notify.add(error, 'error');
     } else {
-      notify.add($t('admin_dashboard.notifications.user_deleted', {name: _editing.name}), 'success', 10);
+      notify.add($t('admin_dashboard.notifications.user_deleted', {name: _editing.name}));
     }
   }
   async function openModal(user: UserRow): Promise<void> {
     _editing = user;
     await formModal.openModal(user, (error: string) => {
       if (error){
-      notify.add(error, 'error', 10);
+      notify.add(error, 'error');
     } else {
-      notify.add($t('admin_dashboard.notifications.user_updated', {name: user.name}), 'success', 10);
+      notify.add($t('admin_dashboard.notifications.user_updated', {name: user.name}));
     }
     });
 
@@ -166,5 +164,4 @@
 
   <EditUserAccount bind:this={formModal} {deleteUser} />
   <DeleteUserModal bind:this={deleteModal} />
-  <Notify bind:this={notify}></Notify>
 </main>

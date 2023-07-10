@@ -6,9 +6,6 @@
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
   import z from 'zod';
-  import Notify from '$lib/notify/notify.svelte';
-  let notify: Notify;
-
   export let data: PageData;
   $: user = data?.user;
   $: userid = user?.id;
@@ -71,5 +68,4 @@
       <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
     </Form>
   </div>
-  <Notify bind:this={notify}></Notify>
 </Page>

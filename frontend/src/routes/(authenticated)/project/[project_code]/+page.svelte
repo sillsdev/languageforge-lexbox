@@ -15,8 +15,7 @@
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import {TrashIcon} from '$lib/icons';
-  import Notify from '$lib/notify/notify.svelte';
-  let notify: Notify;
+
   export let data: PageData;
 
   $: user = data.user;
@@ -176,4 +175,3 @@
     {$t('project_page.not_found', { code: data.code })}
   {/if}
 </div>
-<Notify bind:this={notify}></Notify>
