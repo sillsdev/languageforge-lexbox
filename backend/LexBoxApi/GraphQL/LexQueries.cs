@@ -30,8 +30,9 @@ public class LexQueries
 
     [UseSingleOrDefault]
     [UseProjection]
-    public IQueryable<Project> ProjectByCode(LexBoxDbContext context, string code)
+    public IQueryable<Project> ProjectByCode(LexBoxDbContext context, LoggedInContext loggedInContext, string code)
     {
+        loggedInContext.User.AssertCanAccessProject(code);
         return context.Projects.Where(p => p.Code == code);
     }
 

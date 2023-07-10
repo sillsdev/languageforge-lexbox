@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using EntityFrameworkCore.Projectables;
 using HotChocolate.Data.Projections;
 using HotChocolate.Data.Projections.Expressions;
@@ -18,7 +19,7 @@ public class EfCoreProjectablesFieldHandler: QueryableProjectionScalarHandler
                selection.Field.Member?.GetCustomAttribute<ProjectableAttribute>() is not null;
     }
 
-    public override bool TryHandleEnter(QueryableProjectionContext context, ISelection selection, out ISelectionVisitorAction? action)
+    public override bool TryHandleEnter(QueryableProjectionContext context, ISelection selection, [NotNullWhen(true)] out ISelectionVisitorAction? action)
     {
         if (selection.Field.Member is PropertyInfo && selection.Field.Member.GetCustomAttribute<ProjectableAttribute>() is not null)
         {
