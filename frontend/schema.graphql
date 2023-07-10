@@ -82,7 +82,7 @@ type ChangeProjectNamePayload {
   project: Project
 }
 
-union ChangeUserAccountByAdminError = DbError | NotFoundError
+union ChangeUserAccountByAdminError = DbError | InvalidFormatError | NotFoundError
 
 input ChangeUserAccountByAdminInput {
   email: String!
@@ -95,7 +95,7 @@ type ChangeUserAccountByAdminPayload {
   user: User
 }
 
-union ChangeUserAccountDataError = DbError | NotFoundError
+union ChangeUserAccountDataError = DbError | InvalidFormatError | NotFoundError
 
 input ChangeUserAccountDataInput {
   email: String!
@@ -177,6 +177,10 @@ interface Error {
   message: String!
 }
 
+type InvalidFormatError implements Error {
+  message: String!
+}
+
 type IsAdminResponse {
   value: Boolean!
 }
@@ -184,6 +188,7 @@ type IsAdminResponse {
 type LexAuthUser {
   canManageProject(projectId: UUID!): Boolean!
   email: String!
+  emailVerificationRequired: Boolean
   id: UUID!
   name: String!
   projects: [AuthUserProject!]!
@@ -364,10 +369,13 @@ scalar UUID
 type User {
   createdDate: DateTime!
   email: String!
+  emailVerificationToken: String
+  emailVerified: Boolean!
   id: UUID!
   isAdmin: Boolean!
   name: String!
   passwordHash: String!
+  previousEmail: String
   projects: [ProjectUsers!]!
   salt: String!
   updatedDate: DateTime!
@@ -378,11 +386,14 @@ input UserFilterInput {
   and: [UserFilterInput!]
   createdDate: DateTimeOperationFilterInput
   email: StringOperationFilterInput
+  emailVerificationToken: StringOperationFilterInput
+  emailVerified: BooleanOperationFilterInput
   id: UuidOperationFilterInput
   isAdmin: BooleanOperationFilterInput
   name: StringOperationFilterInput
   or: [UserFilterInput!]
   passwordHash: StringOperationFilterInput
+  previousEmail: StringOperationFilterInput
   projects: ListFilterInputTypeOfProjectUsersFilterInput
   salt: StringOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -397,10 +408,13 @@ enum UserRole {
 input UserSortInput {
   createdDate: SortEnumType
   email: SortEnumType
+  emailVerificationToken: SortEnumType
+  emailVerified: SortEnumType
   id: SortEnumType
   isAdmin: SortEnumType
   name: SortEnumType
   passwordHash: SortEnumType
+  previousEmail: SortEnumType
   salt: SortEnumType
   updatedDate: SortEnumType
   username: SortEnumType

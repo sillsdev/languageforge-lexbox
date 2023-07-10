@@ -22,12 +22,22 @@ public class UserController : ControllerBase
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly TurnstileService _turnstileService;
     private readonly LoggedInContext _loggedInContext;
+    private readonly EmailService _emailService;
+    private readonly LexAuthService _lexAuthService;
 
-    public UserController(LexBoxDbContext lexBoxDbContext, TurnstileService turnstileService, LoggedInContext loggedInContext)
+    public UserController(
+        LexBoxDbContext lexBoxDbContext,
+        TurnstileService turnstileService,
+        LoggedInContext loggedInContext,
+        EmailService emailService,
+        LexAuthService lexAuthService
+    )
     {
         _lexBoxDbContext = lexBoxDbContext;
         _turnstileService = turnstileService;
         _loggedInContext = loggedInContext;
+        _emailService = emailService;
+        _lexAuthService = lexAuthService;
     }
 
     [HttpPost("registerAccount")]
@@ -55,6 +65,7 @@ public class UserController : ControllerBase
         }
 
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+        var verifyEmailToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes)); // TODO
         var userEntity = new User
         {
             Id = Guid.NewGuid(),
@@ -63,6 +74,8 @@ public class UserController : ControllerBase
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false,
+            EmailVerified = false,
+            EmailVerificationToken = verifyEmailToken,
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
@@ -71,7 +84,25 @@ public class UserController : ControllerBase
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
+
+        var (jwt, _) = _lexAuthService.GenerateJwt(user);
+        await _emailService.SendVerifyAddressEmail(jwt, userEntity);
+
         return Ok(user);
+    }
+
+    [HttpPost("sendVerificationEmail")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult> SendVerificationEmail()
+    {
+        var lexUser = _loggedInContext.User;
+        var user = _lexBoxDbContext.Users.Find(lexUser.Id);
+        if (user is null) return Unauthorized();
+        var (jwt, _) = _lexAuthService.GenerateJwt(lexUser);
+        await _emailService.SendVerifyAddressEmail(jwt, user);
+        return Ok();
     }
 
     [HttpGet("currentUser")]

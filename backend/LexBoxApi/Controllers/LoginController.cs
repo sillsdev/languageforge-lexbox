@@ -1,4 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
+using LexBoxApi.Services;
 using LexCore;
 using LexCore.Auth;
 using LexData;
@@ -16,14 +18,17 @@ public class LoginController : ControllerBase
     private readonly LexAuthService _lexAuthService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly LoggedInContext _loggedInContext;
+    private readonly EmailService _emailService;
 
     public LoginController(LexAuthService lexAuthService,
         LexBoxDbContext lexBoxDbContext,
-        LoggedInContext loggedInContext)
+        LoggedInContext loggedInContext,
+        EmailService emailService)
     {
         _lexAuthService = lexAuthService;
         _lexBoxDbContext = lexBoxDbContext;
         _loggedInContext = loggedInContext;
+        _emailService = emailService;
     }
 
     [HttpGet("loginRedirect")]
@@ -34,6 +39,35 @@ public class LoginController : ControllerBase
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
         return Redirect(returnTo);
+    }
+
+    [HttpGet("verifyEmail")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<LexAuthUser>> VerifyEmail(
+        string jwt, // This is required because auth looks for a jwt in the query string
+        string returnTo,
+        string token,
+        [EmailAddress] string email)
+    {
+        var userId = _loggedInContext.User.Id;
+        var user = _lexBoxDbContext.Users.Find(userId);
+        if (user == null) return Unauthorized();
+
+        if (token == user.EmailVerificationToken && email == user.Email)
+        {
+            user.EmailVerified = true;
+            user.EmailVerificationToken = null;
+            user.PreviousEmail = null;
+            await _lexBoxDbContext.SaveChangesAsync();
+            await RefreshJwt();
+            return Redirect(returnTo);
+        }
+        else if (email == user.PreviousEmail)
+        {
+            return Unauthorized("Invalid token for updated email address.");
+        }
+
+        return Unauthorized();
     }
 
     [HttpPost]
@@ -86,6 +120,7 @@ public class LoginController : ControllerBase
         var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == lexAuthUser.Id);
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
         await _lexBoxDbContext.SaveChangesAsync();
+        await _emailService.SendPasswordChangedEmail(user);
         return Ok();
     }
 }

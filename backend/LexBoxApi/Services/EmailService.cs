@@ -21,7 +21,8 @@ public class EmailService
     public EmailService(IOptions<EmailConfig> emailConfig,
         IHttpClientFactory clientFactory,
         LinkGenerator linkGenerator,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor
+    )
     {
         _clientFactory = clientFactory;
         _linkGenerator = linkGenerator;
@@ -31,15 +32,43 @@ public class EmailService
 
     public async Task SendForgotPasswordEmail(string jwt, User user)
     {
-        var message = new MimeMessage();
-        message.To.Add(new MailboxAddress(user.Name, user.Email));
+        var email = StartUserEmail(user);
+        if (!string.IsNullOrEmpty(user.PreviousEmail))
+        {
+            email.Cc.Add(new MailboxAddress(user.Name, user.PreviousEmail));
+        }
         var httpContext = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         // returnTo is a svelte app url
         var forgotLink = _linkGenerator.GetUriByAction(httpContext, "LoginRedirect", "Login", new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
-        await RenderEmail(message, new ForgotPasswordEmail(user.Name, forgotLink));
-        await SendEmailAsync(message);
+        await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink));
+        await SendEmailAsync(email);
+    }
+
+    public async Task SendVerifyAddressEmail(string jwt, User user)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(user.EmailVerificationToken);
+        var email = StartUserEmail(user);
+        var httpContext = _httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+        var verifyLink = _linkGenerator.GetUriByAction(httpContext, "verifyEmail", "Login", new
+        {
+            jwt,
+            returnTo = "/user?verifiedEmail",
+            token = user.EmailVerificationToken,
+            email = user.Email,
+        });
+        ArgumentException.ThrowIfNullOrEmpty(verifyLink);
+        await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink));
+        await SendEmailAsync(email);
+    }
+
+    public async Task SendPasswordChangedEmail(User user)
+    {
+        var email = StartUserEmail(user);
+        await RenderEmail(email, new PasswordChangedEmail(user.Name));
+        await SendEmailAsync(email);
     }
 
     private async Task SendEmailAsync(MimeMessage message)
@@ -87,5 +116,12 @@ public class EmailService
 
         message.Subject = renderResult.Subject;
         message.Body = new TextPart(TextFormat.Html) { Text = renderResult.Html };
+    }
+
+    private static MimeMessage StartUserEmail(User user)
+    {
+        var message = new MimeMessage();
+        message.To.Add(new MailboxAddress(user.Name, user.Email));
+        return message;
     }
 }

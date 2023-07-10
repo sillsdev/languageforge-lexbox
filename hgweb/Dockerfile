@@ -1,4 +1,5 @@
 # https://wiki.mercurial-scm.org/modwsgi
+# https://hg.mozilla.org/mozilla-central/help/hgweb
 
 FROM httpd:2.4-bookworm
 

@@ -5,8 +5,21 @@ import type {
 
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
-import { invalidate } from '$app/navigation';
-import {refreshJwt} from '$lib/user';
+import { goto, invalidate } from '$app/navigation';
+import { refreshJwt } from '$lib/user';
+import type { PageLoad } from './$types';
+import { browser } from '$app/environment';
+
+export const load = (async ({ url }) => {
+  if (browser) {
+    if (url.searchParams.has('verifiedEmail')) {
+      await goto(`${url.pathname}`, {
+        replaceState: true,
+      });
+      return { verifiedEmail: true };
+    }
+  }
+}) satisfies PageLoad
 
 export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountDataMutation> {
   //language=GraphQL

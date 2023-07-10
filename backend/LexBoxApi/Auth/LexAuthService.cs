@@ -81,7 +81,7 @@ public class LexAuthService
     private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
     {
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
-            .FirstOrDefaultAsync(user => user.Email == emailOrUsername || user.Username == emailOrUsername);
+            .FirstOrDefaultAsync(user => user.Email == emailOrUsername || user.Username == emailOrUsername || user.PreviousEmail == emailOrUsername);
         return (user == null ? null : new LexAuthUser(user), user);
     }
 

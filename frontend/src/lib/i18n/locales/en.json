@@ -43,7 +43,14 @@
     "name": "Display name",
     "reset_password": "Reset your password instead?",
     "success": "Success: your account has been updated",
-    "button_update": "Update account info"
+    "button_update": "Update account info",
+    "verify_email": {
+      "success": "You've successfully verified your email address.",
+      "go_to_projects": "Go to my projects",
+      "check_inbox": "Please check your inbox for the verification email we just sent.",
+      "please_verify": "Please verify your email address as soon as possible.",
+      "resend": "Resend verification email"
+    }
   },
   "appbar": {
     "app_name": "Language Depot"
@@ -192,5 +199,25 @@
   },
   "notify": {
     "close_all": "Close all"
+  },
+  "emails": {
+    "verify_email": {
+      "subject": "Verify your e-mail address",
+      "to_verify_click": "To verify your e-mail address please click the link below.",
+      "verify_button": "Verify e-mail"
+    },
+    "forgot_password": {
+      "subject": "Forgot your password?",
+      "to_reset_click": "To reset your password, click the button below.",
+      "reset_button": "Reset password"
+    },
+    "password_changed": {
+      "subject": "Your password was changed",
+      "body": "We're writing to confirm that your password was just changed."
+    },
+    "shared": {
+      "greeting": "Hello {name}!",
+      "or_nvaigate_to_url": "Or navigate to this URL in your browser:"
+    }
   }
 }
