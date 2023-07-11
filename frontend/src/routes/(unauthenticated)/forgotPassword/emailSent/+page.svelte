@@ -4,9 +4,9 @@
 </script>
 
 <Page>
-    <svelte:fragment slot="header">
-        {$t('forgot_password.email_sent.title')}
-    </svelte:fragment>
+  <svelte:fragment slot="header">
+    {$t('forgot_password.email_sent.title')}
+  </svelte:fragment>
 
   <p class="prose">
     {$t('forgot_password.email_sent.email_sent_message')}
