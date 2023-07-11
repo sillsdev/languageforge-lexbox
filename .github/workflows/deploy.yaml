@@ -56,20 +56,7 @@ jobs:
           echo "Version $versionHeader is still incorrect after waiting"
           exit 1
       - uses: actions/checkout@v3
-      - name: Build dotnet
-        run: dotnet build
-      - name: Ensure browsers are installed
-        run: pwsh ./backend/Testing/bin/Debug/net7.0/playwright.ps1 install --with-deps
-      - name: Integration Test
-        env:
-          TEST_SERVER_HOSTNAME: staging.languagedepot.org
-          TEST_STANDARD_HG_HOSTNAME: hg-staging.languagedepot.org
-          TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
-        run: dotnet test --logger trx --results-directory ./testresults --filter "Category=Integration"
-      - name: Upload test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
+      - uses: ./github/actions/integration
         with:
-          check_name: Integration Test
-          files: ./testresults/*.trx
+          hostname: staging.languagedepot.org
 

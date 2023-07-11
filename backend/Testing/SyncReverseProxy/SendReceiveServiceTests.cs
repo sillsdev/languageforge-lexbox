@@ -1,3 +1,4 @@
+using Chorus.VcsDrivers.Mercurial;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using SIL.Progress;
@@ -8,7 +9,7 @@ using Xunit.Abstractions;
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
-public class SendReceiveServiceTests
+public class SendReceiveServiceTests : IAsyncLifetime
 {
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
     private IProgress _progress;
@@ -18,6 +19,16 @@ public class SendReceiveServiceTests
         _progress = new XunitStringBuilderProgress(output) { ProgressIndicator = new NullProgressIndicator() };
         _progress.ShowVerbose = true;
         CleanUpTempDir();
+    }
+
+    public async Task InitializeAsync()
+    {
+        await VerifyHgWorking();
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     private void CleanUpTempDir()
@@ -84,6 +95,7 @@ public class SendReceiveServiceTests
         string projectDir = Path.Join(_basePath, data.HostType, data.ProjectCode);
         string fwdataFile = Path.Join(projectDir, $"{data.ProjectCode}.fwdata");
         long oldLength = 0;
+        var fileInfo = new FileInfo(fwdataFile);
         try
         {
             string result = srService.CloneProject(data.ProjectCode, projectDir, data.Username, data.Password);
@@ -91,42 +103,26 @@ public class SendReceiveServiceTests
             {
                 result.ShouldNotContain("abort");
                 result.ShouldNotContain("error");
+                fileInfo.Directory?.Exists.ShouldBeTrue("directory " + fileInfo.DirectoryName + " not found. Clone response: " + result);
+                fileInfo.Directory!.EnumerateFiles().ShouldContain(child => child.Name == fileInfo.Name);
                 fwdataFile.ShouldSatisfyAllConditions(
-                    () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
-                    () => new FileInfo(fwdataFile).Length.ShouldBeGreaterThan(0)
+                    () => fileInfo.Exists.ShouldBeTrue(),
+                    () => fileInfo.Length.ShouldBeGreaterThan(0)
                 );
-                oldLength = new FileInfo(fwdataFile).Length;
+                oldLength = fileInfo.Length;
             }
             else
             {
                 result.ShouldMatch("abort: authorization failed|Server Response 'Unauthorized'");
             }
         }
-        catch (Chorus.VcsDrivers.Mercurial.RepositoryAuthorizationException)
+        catch (RepositoryAuthorizationException) when (!data.ShouldPass)
         {
-            if (data.ShouldPass)
-            {
-                throw;
-            }
-            else
-            {
-                // This is a successful test, because the repo rejected the invalid password as it should
-            }
-
-            ;
+            // This is a successful test, because the repo rejected the invalid password as it should
         }
-        catch (System.UnauthorizedAccessException)
+        catch (UnauthorizedAccessException) when (!data.ShouldPass)
         {
-            if (data.ShouldPass)
-            {
-                throw;
-            }
-            else
-            {
-                // This is a successful test, because the repo rejected the invalid password as it should
-            }
-
-            ;
+            // This is a successful test, because the repo rejected the invalid password as it should
         }
 
         // Now do a Send/Receive which should get no changes
@@ -140,8 +136,8 @@ public class SendReceiveServiceTests
                 result2.ShouldNotContain("error");
                 result2.ShouldContain("no changes from others");
                 fwdataFile.ShouldSatisfyAllConditions(
-                    () => new FileInfo(fwdataFile).Exists.ShouldBeTrue(),
-                    () => new FileInfo(fwdataFile).Length.ShouldBe(oldLength)
+                    () => fileInfo.Exists.ShouldBeTrue(),
+                    () => fileInfo.Length.ShouldBe(oldLength)
                 );
             }
             else

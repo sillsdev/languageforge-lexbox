@@ -1,0 +1,30 @@
+﻿name: "Run integration tests"
+
+inputs:
+  hostname:
+    description: "Target host to run the integration tests against"
+    required: true
+
+runs:
+  using: composite
+  steps:
+#     standard github setup python does not support version 2 anymore :(
+    - uses: MatteoH2O1999/setup-python@v1
+      with:
+        python-version: '2.x'
+    - name: Build dotnet
+      run: dotnet build
+    - name: Ensure browsers are installed
+      run: pwsh ./backend/Testing/bin/Debug/net7.0/playwright.ps1 install --with-deps
+    - name: Integration Test
+      env:
+        TEST_SERVER_HOSTNAME: ${{ inputs.hostname }}
+        TEST_STANDARD_HG_HOSTNAME: hg-${{ inputs.hostname }}
+        TEST_RESUMABLE_HG_HOSTNAME: resumable-${{ inputs.hostname }}
+      run: dotnet test --logger trx --results-directory ./testresults --filter "Category=Integration"
+    - name: Upload test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always() && !env.act
+      with:
+        check_name: Integration Test
+        files: ./testresults/*.trx

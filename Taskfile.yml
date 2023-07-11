@@ -9,6 +9,8 @@ includes:
   k8s:
     taskfile: ./deployment/Taskfile.yml
     dir: ./deployment
+  gh:
+    taskfile: ./.github/Taskfile.yml
 
 tasks:
   setup:
