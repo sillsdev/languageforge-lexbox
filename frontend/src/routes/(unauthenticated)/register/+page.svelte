@@ -6,6 +6,7 @@
   import { register } from '$lib/user';
   import { z } from 'zod';
 
+  let turnstileToken = '';
   const formSchema = z.object({
     name: z.string().min(1, $t('register.name_missing')),
     email: z.string().email($t('register.email')),
@@ -28,7 +29,6 @@
     }
     throw new Error('Unknown error, no error from server, but also no user.');
   });
-  let turnstileToken = '';
 </script>
 
 <Page>

@@ -8,8 +8,7 @@
   import z from 'zod';
 
   export let data: PageData;
-  $: user = data?.user;
-  $: userid = user?.id;
+  const user = data.user;
 
   const formSchema = z.object({
     email: z.string().email(),
@@ -20,22 +19,20 @@
     const changeUserAccountDataInput: ChangeUserAccountDataInput = {
       email: $form.email,
       name: $form.name,
-      userId: userid as string,
+      userId: user.id,
     };
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
   });
 
   $: {
-    if (user) {
-      form.set(
-        {
-          email: user.email,
-          name: user.name,
-        },
-        { taint: false }
-      );
-    }
+    form.set(
+      {
+        email: user.email,
+        name: user.name,
+      },
+      { taint: false }
+    );
   }
 </script>
 
