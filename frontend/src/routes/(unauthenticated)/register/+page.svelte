@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Button, Input, ProtectedForm, lexSuperForm } from '$lib/forms';
+  import { Button, FormError, Input, ProtectedForm, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { register } from '$lib/user';
@@ -50,11 +50,8 @@
       bind:value={$form.password}
       error={$errors.password}
     />
-    {#if $message}
-      <aside class="alert alert-error">
-        {$message}
-      </aside>
-    {/if}
+
+    <FormError error={$message} />
     <Button loading={$submitting}>{$t('register.button_register')}</Button>
   </ProtectedForm>
 </Page>
