@@ -5,6 +5,7 @@
   import Page from '$lib/layout/Page.svelte';
   import { hash } from '$lib/user';
   import { z } from 'zod';
+  import {addNotification} from '$lib/notify/';
 
   const formSchema = z.object({
     password: z.string().min(4, $t('login.password_missing')),
@@ -15,6 +16,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passwordHash: await hash($form.password) }),
     });
+    addNotification($t('login.password_reset'), 'warning');
     await goto('/');
   });
 </script>
