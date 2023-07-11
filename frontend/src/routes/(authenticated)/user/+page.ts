@@ -11,13 +11,12 @@ import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
 
 export const load = (async ({ url }) => {
-  if (browser) {
-    if (url.searchParams.has('verifiedEmail')) {
-      await goto(`${url.pathname}`, {
-        replaceState: true,
-      });
-      return { verifiedEmail: true };
-    }
+  if (url.searchParams.has('verifiedEmail')) {
+    if (browser) await goto(`${url.pathname}`, { replaceState: true });
+    return { verifiedEmail: true };
+  } else if (url.searchParams.has('changedEmail')) {
+    if (browser) await goto(`${url.pathname}`, { replaceState: true });
+    return { changedEmail: true };
   }
 }) satisfies PageLoad
 

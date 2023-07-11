@@ -45,29 +45,23 @@ public class LoginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<LexAuthUser>> VerifyEmail(
         string jwt, // This is required because auth looks for a jwt in the query string
-        string returnTo,
-        string token,
-        [EmailAddress] string email)
+        string returnTo)
     {
+        if (_loggedInContext.User.EmailVerificationRequired == true)
+        {
+            return Unauthorized();
+        }
+
         var userId = _loggedInContext.User.Id;
         var user = _lexBoxDbContext.Users.Find(userId);
         if (user == null) return Unauthorized();
 
-        if (token == user.EmailVerificationToken && email == user.Email)
-        {
-            user.EmailVerified = true;
-            user.EmailVerificationToken = null;
-            user.PreviousEmail = null;
-            await _lexBoxDbContext.SaveChangesAsync();
-            await RefreshJwt();
-            return Redirect(returnTo);
-        }
-        else if (email == user.PreviousEmail)
-        {
-            return Unauthorized("Invalid token for updated email address.");
-        }
+        user.Email = _loggedInContext.User.Email;
+        user.EmailVerified = true;
+        await _lexBoxDbContext.SaveChangesAsync();
+        await RefreshJwt();
+        return Redirect(returnTo);
 
-        return Unauthorized();
     }
 
     [HttpPost]
@@ -110,7 +104,7 @@ public class LoginController : ControllerBase
         return Ok();
     }
 
-    public record ResetPasswordRequest(string PasswordHash);
+    public record ResetPasswordRequest([Required(AllowEmptyStrings = false)] string PasswordHash);
 
     [HttpPost("resetPassword")]
     public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)

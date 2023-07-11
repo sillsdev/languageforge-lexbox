@@ -1,10 +1,8 @@
+using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore;
-using LexCore.Auth;
 using LexData;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +26,7 @@ public class AdminController : ControllerBase
         _emailService = emailService;
     }
 
-    public record ResetPasswordAdminRequest(string PasswordHash, Guid userId);
+    public record ResetPasswordAdminRequest([Required(AllowEmptyStrings = false)] string PasswordHash, Guid userId);
 
     [HttpPost("resetPassword")]
     [AdminRequired]

@@ -14,6 +14,6 @@ public enum EmailTemplate
 
 public record ForgotPasswordEmail(string Name, string ResetUrl) : EmailTemplateBase(EmailTemplate.ForgotPassword);
 
-public record VerifyAddressEmail(string Name, string VerifyUrl) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
+public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
 
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);

@@ -33,10 +33,6 @@ public class EmailService
     public async Task SendForgotPasswordEmail(string jwt, User user)
     {
         var email = StartUserEmail(user);
-        if (!string.IsNullOrEmpty(user.PreviousEmail))
-        {
-            email.Cc.Add(new MailboxAddress(user.Name, user.PreviousEmail));
-        }
         var httpContext = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         // returnTo is a svelte app url
@@ -46,21 +42,21 @@ public class EmailService
         await SendEmailAsync(email);
     }
 
-    public async Task SendVerifyAddressEmail(string jwt, User user)
+    /// <param name="newEmail">If the user is trying to change their address, this is the new one, otherwise null.</param>
+    public async Task SendVerifyAddressEmail(string jwt, User user, string? newEmail = null)
     {
-        ArgumentException.ThrowIfNullOrEmpty(user.EmailVerificationToken);
-        var email = StartUserEmail(user);
+        var email = StartUserEmail(user, newEmail);
         var httpContext = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
+        var queryParam = string.IsNullOrEmpty(newEmail) ? "verifiedEmail" : "changedEmail";
         var verifyLink = _linkGenerator.GetUriByAction(httpContext, "VerifyEmail", "Login", new
         {
             jwt,
-            returnTo = "/user?verifiedEmail",
-            token = user.EmailVerificationToken,
-            email = user.Email,
+            returnTo = $"/user?{queryParam}",
+            email = newEmail ?? user.Email,
         });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
-        await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink));
+        await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail)));
         await SendEmailAsync(email);
     }
 
@@ -118,10 +114,10 @@ public class EmailService
         message.Body = new TextPart(TextFormat.Html) { Text = renderResult.Html };
     }
 
-    private static MimeMessage StartUserEmail(User user)
+    private static MimeMessage StartUserEmail(User user, string? email = null)
     {
         var message = new MimeMessage();
-        message.To.Add(new MailboxAddress(user.Name, user.Email));
+        message.To.Add(new MailboxAddress(user.Name, email ?? user.Email));
         return message;
     }
 }

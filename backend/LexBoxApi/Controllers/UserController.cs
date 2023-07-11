@@ -65,7 +65,6 @@ public class UserController : ControllerBase
         }
 
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-        var verifyEmailToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes)); // TODO
         var userEntity = new User
         {
             Id = Guid.NewGuid(),
@@ -75,7 +74,6 @@ public class UserController : ControllerBase
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false,
             EmailVerified = false,
-            EmailVerificationToken = verifyEmailToken,
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
@@ -100,7 +98,10 @@ public class UserController : ControllerBase
         var lexUser = _loggedInContext.User;
         var user = _lexBoxDbContext.Users.Find(lexUser.Id);
         if (user is null) return Unauthorized();
-        var (jwt, _) = _lexAuthService.GenerateJwt(lexUser);
+        var (jwt, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user)
+        {
+            EmailVerificationRequired = null,
+        });
         await _emailService.SendVerifyAddressEmail(jwt, user);
         return Ok();
     }

@@ -4,7 +4,7 @@
   import ButtonToggle from '$lib/components/ButtonToggle.svelte';
   import { z } from 'zod';
   import Input from '$lib/forms/Input.svelte';
-  import type { ChangeUserAccountByAdminInput, LoadAdminDashboardQuery } from '$lib/gql/types';
+  import type { LoadAdminDashboardQuery } from '$lib/gql/types';
   import { _changeUserAccountByAdmin } from './+page';
   import { hash } from '$lib/user';
   import t from '$lib/i18n';
@@ -28,12 +28,11 @@
     $form.email = user.email;
     $form.name = user.name;
     await formModal.open(async () => {
-      const changeInput: ChangeUserAccountByAdminInput = {
+      const { error } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
         name: $form.name,
-      };
-      const { error } = await _changeUserAccountByAdmin(changeInput);
+      });
       if (error) {
         return error.message;
       }

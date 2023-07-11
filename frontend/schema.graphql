@@ -84,12 +84,6 @@ type ChangeProjectNamePayload {
 
 union ChangeUserAccountByAdminError = DbError | InvalidFormatError | NotFoundError
 
-input ChangeUserAccountByAdminInput {
-  email: String!
-  name: String!
-  userId: UUID!
-}
-
 type ChangeUserAccountByAdminPayload {
   errors: [ChangeUserAccountByAdminError!]
   user: User
@@ -207,7 +201,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
-  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload!
+  changeUserAccountByAdmin(input: ChangeUserAccountDataInput!): ChangeUserAccountByAdminPayload!
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
   deleteUserByAdmin(input: DeleteUserByAdminInput!): DeleteUserByAdminPayload!
@@ -369,13 +363,11 @@ scalar UUID
 type User {
   createdDate: DateTime!
   email: String!
-  emailVerificationToken: String
   emailVerified: Boolean!
   id: UUID!
   isAdmin: Boolean!
   name: String!
   passwordHash: String!
-  previousEmail: String
   projects: [ProjectUsers!]!
   salt: String!
   updatedDate: DateTime!
@@ -386,14 +378,12 @@ input UserFilterInput {
   and: [UserFilterInput!]
   createdDate: DateTimeOperationFilterInput
   email: StringOperationFilterInput
-  emailVerificationToken: StringOperationFilterInput
   emailVerified: BooleanOperationFilterInput
   id: UuidOperationFilterInput
   isAdmin: BooleanOperationFilterInput
   name: StringOperationFilterInput
   or: [UserFilterInput!]
   passwordHash: StringOperationFilterInput
-  previousEmail: StringOperationFilterInput
   projects: ListFilterInputTypeOfProjectUsersFilterInput
   salt: StringOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -408,13 +398,11 @@ enum UserRole {
 input UserSortInput {
   createdDate: SortEnumType
   email: SortEnumType
-  emailVerificationToken: SortEnumType
   emailVerified: SortEnumType
   id: SortEnumType
   isAdmin: SortEnumType
   name: SortEnumType
   passwordHash: SortEnumType
-  previousEmail: SortEnumType
   salt: SortEnumType
   updatedDate: SortEnumType
   username: SortEnumType

@@ -45,11 +45,14 @@
     "success": "Success: your account has been updated",
     "button_update": "Update account info",
     "verify_email": {
-      "success": "You've successfully verified your email address.",
+      "verify_success": "You've successfully verified your email address.",
+      "change_success": "You've successfully updated your email address.",
+      "verify_to_change": "You've requested to change your e-mail address to {newEmail}. The change will only come into effect when you verify the new address. You can do so using the link in the e-mail we just sent you.",
       "go_to_projects": "Go to my projects",
       "check_inbox": "Please check your inbox for the verification email we just sent.",
       "please_verify": "Please verify your email address as soon as possible.",
-      "resend": "Resend verification email"
+      "resend": "Resend verification email",
+      "you_have_mail": "You've got mail!"
     }
   },
   "appbar": {
@@ -203,12 +206,13 @@
   "emails": {
     "verify_email": {
       "subject": "Verify your e-mail address",
-      "to_verify_click": "To verify your e-mail address please click the link below.",
+      "to_verify_click": "Click the button below to verify your e-mail address.",
+      "to_verify_and_finish_changing_click": "Click the button below to verify your new e-mail address and effectively make it the e-mail address associated with your account.",
       "verify_button": "Verify e-mail"
     },
     "forgot_password": {
       "subject": "Forgot your password?",
-      "to_reset_click": "To reset your password, click the button below.",
+      "to_reset_click": "Click the button below to reset your password.",
       "reset_button": "Reset password"
     },
     "password_changed": {

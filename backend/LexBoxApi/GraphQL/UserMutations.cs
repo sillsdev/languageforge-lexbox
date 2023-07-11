@@ -1,5 +1,5 @@
-﻿using LexBoxApi.Auth;
-using LexBoxApi.Models.Project;
+﻿using System.ComponentModel.DataAnnotations;
+using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
@@ -14,6 +14,8 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class UserMutations
 {
+    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
+
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<InvalidFormatException>]
@@ -28,62 +30,65 @@ public class UserMutations
     )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
-        return UpdateUser(input.UserId, input.Name, input.Email, dbContext, emailService, lexAuthService);
+        return UpdateUser(input, dbContext, emailService, lexAuthService);
     }
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<InvalidFormatException>]
-    [UseMutationConvention]
+    [UseMutationConvention(InputTypeName = nameof(ChangeUserAccountDataInput))]
     [AdminRequired]
     public Task<User> ChangeUserAccountByAdmin(
-        ChangeUserAccountByAdminInput input,
+        ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
         LexAuthService lexAuthService
     )
     {
-        return UpdateUser(input.UserId, input.Name, input.Email, dbContext, emailService, lexAuthService);
+        return UpdateUser(input, dbContext, emailService, lexAuthService);
     }
 
     private static async Task<User> UpdateUser(
-        Guid userId,
-        string name,
-        string email,
+        ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
         LexAuthService lexAuthService
     )
     {
-        var user = await dbContext.Users.FindAsync(userId);
+        var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
-        if (!name.IsNullOrEmpty())
-        {
-            user.Name = name;
-        }
 
-        var emailChanged = UpdateUserEmail(user, email);
+        if (!input.Name.IsNullOrEmpty())
+        {
+            user.Name = input.Name;
+        }
 
         await dbContext.SaveChangesAsync();
 
-        if (emailChanged)
+        if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email))
         {
-            await SendVerifyAddressEmail(user, emailService, lexAuthService);
+            await SendVerifyNewAddressEmail(user, emailService, lexAuthService, input.Email);
         }
 
         return user;
     }
 
-    private static async Task SendVerifyAddressEmail(
+    private static async Task SendVerifyNewAddressEmail(
         User user,
         EmailService emailService,
-        LexAuthService lexAuthService
+        LexAuthService lexAuthService,
+        string newEmail
     )
     {
-        var authUser = new LexAuthUser(user);
-        var (jwt, _) = lexAuthService.GenerateJwt(authUser);
-        await emailService.SendVerifyAddressEmail(jwt, user);
+        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser(user)
+        {
+            EmailVerificationRequired = null,
+            Email = newEmail,
+        });
+        await emailService.SendVerifyAddressEmail(jwt, user, newEmail);
     }
+
+    public record DeleteUserByAdminInput(Guid UserId);
 
     [Error<NotFoundException>]
     [Error<DbError>]
@@ -95,17 +100,5 @@ public class UserMutations
         var user = dbContext.Users.Where(u => u.Id == input.UserId);
         await user.ExecuteDeleteAsync();
         return User;
-    }
-
-    private static bool UpdateUserEmail(User user, string newEmail)
-    {
-        if (!newEmail.IsNullOrEmpty() && !newEmail.Equals(user.Email))
-        {
-            SimpleValidator.Email(newEmail);
-            user.PreviousEmail = user.Email;
-            user.Email = newEmail;
-            return true;
-        }
-        return false;
     }
 }
