@@ -4,6 +4,6 @@ import type { PageServerLoad } from './$types';
 
 export const load = (({ cookies }) => {
   if (isAuthn(cookies)) {
-    throw redirect(307, '/');
+    throw redirect(307, '/home');
   }
 }) satisfies PageServerLoad
