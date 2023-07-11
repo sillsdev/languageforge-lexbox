@@ -23,7 +23,7 @@
       return;
     }
     if (user) {
-      await goto('/');
+      await goto('/home');
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
