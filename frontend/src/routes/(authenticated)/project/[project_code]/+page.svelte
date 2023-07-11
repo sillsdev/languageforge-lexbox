@@ -15,6 +15,7 @@
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import {TrashIcon} from '$lib/icons';
+  import { addNotification } from '$lib/notify/';
 
   export let data: PageData;
 
@@ -29,7 +30,7 @@
       name: projectUser.user.name,
       role: projectUser.role,
     });
-    notify.add($t('project_page.notifications.role_change', {name: projectUser.user.name, role: projectUser.role.toLowerCase()}), 'success', 10)
+    addNotification($t('project_page.notifications.role_change', {name: projectUser.user.name, role: projectUser.role.toLowerCase()}), 'success', 10)
   }
 
   let deleteUserModal: DeleteModal;
@@ -39,12 +40,12 @@
     await deleteUserModal.prompt(async () => {
       await _deleteProjectUser(_project.id, projectUser.user.id);
     });
-    notify.add($t('project_page.notifications.user_delete', {name: projectUser.user.name}), 'warning', 10);
+    addNotification($t('project_page.notifications.user_delete', {name: projectUser.user.name}), 'warning', 10);
   }
 
   function updateProjectName(newName: string): $OpResult<ChangeProjectNameMutation> {
     const result = _changeProjectName({ projectId: _project.id, name: newName });
-    notify.add($t('project_page.notifications.rename_project', {name: newName}), 'success', 10);
+    addNotification($t('project_page.notifications.rename', {name: newName}), 'success', 10);
     return result;
   }
 
@@ -53,7 +54,7 @@
       projectId: _project.id,
       description: newDescription,
     });
-    notify.add($t('project_page.notifications.describe', {description: newDescription}), 'success', 15);
+    addNotification($t('project_page.notifications.describe', {description: newDescription}), 'success', 15);
     return result;
   }
 
@@ -141,7 +142,7 @@
           </div>
         {/each}
         {#if canManage}
-          <AddProjectMember projectId={project.id} notify={notify}/>
+          <AddProjectMember projectId={project.id}/>
         {/if}
 
         <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />

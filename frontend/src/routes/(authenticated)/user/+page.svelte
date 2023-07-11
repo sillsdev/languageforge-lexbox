@@ -5,7 +5,9 @@
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
+  import { addNotification } from '$lib/notify/';
   import z from 'zod';
+
   export let data: PageData;
   $: user = data?.user;
   $: userid = user?.id;
@@ -24,9 +26,9 @@
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
     if ($message){
-      notify.add($message, 'error', 10);
+      addNotification($message, 'error', 10); // use the notify variable to display a message
     } else {
-      notify.add('Your account has been updated.', 'success', 10);
+      addNotification('Your account has been updated.', 'success', 10);
     }
   });
 
@@ -44,28 +46,28 @@
 </script>
 
 <Page>
-  <div class="content-center">
-    <Form {enhance}>
-      <Input
-        id="name"
-        label={$t('account_settings.name')}
-        type="text"
-        error={$errors.name}
-        bind:value={$form.name}
-        autofocus
-      />
-      <Input
-        id="email"
-        label={$t('account_settings.email')}
-        type="email"
-        error={$errors.email}
-        bind:value={$form.email}
-      />
-      <a class="link my-4" href="/resetPassword">
-        {$t('account_settings.reset_password')}
-      </a>
-      <FormError error={$message} />
-      <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
-    </Form>
-  </div>
+<div class="content-center">
+  <Form {enhance}>
+    <Input
+      id="name"
+      label={$t('account_settings.name')}
+      type="text"
+      error={$errors.name}
+      bind:value={$form.name}
+      autofocus
+    />
+    <Input
+      id="email"
+      label={$t('account_settings.email')}
+      type="email"
+      error={$errors.email}
+      bind:value={$form.email}
+    />
+    <a class="link my-4" href="/resetPassword">
+      {$t('account_settings.reset_password')}
+    </a>
+    <FormError error={$message} />
+    <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
+  </Form>
+</div>
 </Page>

@@ -1,7 +1,7 @@
 import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
-
+import { removeAllNotifications } from './notify'
 type JwtTokenUser = {
   sub: string
   name: string
@@ -94,6 +94,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
 
 export function logout(cookies?: Cookies): void {
   cookies && cookies.delete('.LexBoxAuth')
+  removeAllNotifications();
   if (browser && window.location.pathname !== '/login') {
     throw redirect(307, '/login');
   }

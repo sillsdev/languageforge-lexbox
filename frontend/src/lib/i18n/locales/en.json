@@ -111,7 +111,7 @@
     "notifications": {
       "role_change": "Project role of {name} set to {role}",
       "user_delete": "{name} has been removed.",
-      "remame_project": "Project name set to {name}",
+      "remame": "Project name set to {name}",
       "describe": "Project description is now, {description}",
       "add_member": "{email} has been added to project."
     },
