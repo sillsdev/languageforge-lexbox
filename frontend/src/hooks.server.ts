@@ -6,32 +6,25 @@ import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.se
 import { env } from '$env/dynamic/private';
 import { getErrorMessage } from './hooks.shared';
 
-const PUBLIC_ROUTES = [
-  '/login',
-  '/register',
-  '/email',
-  '/forgotPassword',
-  '/forgotPassword/emailSent',
-]
-
 export const handle = (async ({ event, resolve }) => {
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
     await loadI18n();
-    const { cookies, url: { pathname } } = event
+
     const options: ResolveOptions = {
       filterSerializedResponseHeaders: () => true,
     }
 
-    if (PUBLIC_ROUTES.includes(pathname)) {
-      return resolve(event, options)
+    const { cookies, route: { id: routeId } } = event;
+    if (!routeId) {
+      throw redirect(307, '/');
+    } else if (routeId.startsWith('/(unauthenticated)/')) {
+      return resolve(event, options);
+    } else if (!isAuthn(cookies)) {
+      throw redirect(307, '/login');
     }
 
-    if (!isAuthn(cookies)) {
-      throw redirect(307, '/login')
-    }
-
-    return resolve(event, options)
+    return resolve(event, options);
   })
 }) satisfies Handle
 
