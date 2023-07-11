@@ -77,7 +77,8 @@
     "label_password": "Password",
     "missing_user_info": "User info missing",
     "title": "Log in",
-    "password_missing": "Password missing"
+    "password_missing": "Password missing",
+    "password_reset": "Your password has been reset"
   },
   "project": {
     "create": {
