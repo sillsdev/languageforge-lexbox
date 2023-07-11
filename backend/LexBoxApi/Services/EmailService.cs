@@ -52,7 +52,7 @@ public class EmailService
         var email = StartUserEmail(user);
         var httpContext = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
-        var verifyLink = _linkGenerator.GetUriByAction(httpContext, "verifyEmail", "Login", new
+        var verifyLink = _linkGenerator.GetUriByAction(httpContext, "VerifyEmail", "Login", new
         {
             jwt,
             returnTo = "/user?verifiedEmail",
