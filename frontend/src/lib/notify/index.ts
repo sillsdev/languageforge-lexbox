@@ -9,7 +9,7 @@ export interface Notification {
 export const notifications = writable([]);
 
 export function addNotification(
-  message = 'Success',
+  message,
   category = 'success',
   duration = 4,
 ): void {
