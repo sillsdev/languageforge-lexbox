@@ -11,6 +11,8 @@ runs:
   steps:
     - name: run integration tests
       uses: ./.github/actions/dotnet-integration
+      with:
+        hostname: ${{ inputs.hostname }}
     - name: Upload test results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always() && !env.act
