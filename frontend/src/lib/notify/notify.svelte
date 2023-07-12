@@ -4,7 +4,7 @@
 
 <div class="toast toast-center w-96">
 {#if $notifications.length > 1}
-<div class="mt-2">
+<div class="flex items-end">
   <button class="btn btn-ghost" on:click={removeAllNotifications}>Close All ✕</button>
 </div>
 {/if}
