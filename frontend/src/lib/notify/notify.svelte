@@ -9,7 +9,7 @@
 </div>
 {/if}
 {#each $notifications as { id, message, category }}
-<div class={`alert alert-${category}`}>
+<div class={`alert alert-${category}`} in:slide out:blur>
   {message}
   <span class="btn btn-ghost btn-sm float-right pd-0" on:click={() => removeNotification(id)}>
     ✕
