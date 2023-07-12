@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/dotnet-integration-runner-build.yml'
-      - '.github/actions/dotnet-integration/**'
+      - '.github/actions/dotnet-integration/Dockerfile'
     branches:
       - main
       - develop
