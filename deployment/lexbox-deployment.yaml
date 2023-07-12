@@ -158,36 +158,6 @@ spec:
           - name: OTEL_ENDPOINT
             value: http://localhost:4318
 
-      - name: hasura
-        image: ghcr.io/sillsdev/lexbox-hasura:develop
-        imagePullPolicy: Always
-        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
-        resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 200Mi
-          limits:
-            memory: 300Mi
-        env:
-          - name: POSTGRES_DB
-            valueFrom:
-              secretKeyRef:
-                key: POSTGRES_DB
-                name: db
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                key: POSTGRES_PASSWORD
-                name: db
-          - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
-            value: postgres://postgres:$(POSTGRES_PASSWORD)@db:5432/$(POSTGRES_DB)
-          - name: PG_DATABASE_URL
-            value: $(HASURA_GRAPHQL_METADATA_DATABASE_URL)
-          - name: HASURA_GRAPHQL_ADMIN_SECRET
-            valueFrom:
-              secretKeyRef:
-                key: HASURA_GRAPHQL_ADMIN_SECRET
-                name: hasura
-
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
