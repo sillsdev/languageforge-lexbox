@@ -11,7 +11,7 @@ export const notifications = writable([]);
 export function addNotification(
   message = 'Success',
   category = 'success',
-  duration = 10,
+  duration = 4,
 ): void {
   console.log(duration);
   const id: string = Math.random().toString(36).substr(2, 9);
