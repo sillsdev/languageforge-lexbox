@@ -5,8 +5,7 @@
   import Page from '$lib/layout/Page.svelte';
   import { hash } from '$lib/user';
   import { z } from 'zod';
-  import {notifySuccess} from '$lib/notify/';
-  import AddProjectMember from '../project/[project_code]/AddProjectMember.svelte';
+  import { notifySuccess } from '$lib/notify';
 
   const formSchema = z.object({
     password: z.string().min(4, $t('login.password_missing')),
@@ -23,9 +22,9 @@
 </script>
 
 <Page>
-<svelte:fragment slot="header">
+  <svelte:fragment slot="header">
     {$t('reset_password.title')}
-</svelte:fragment>
+  </svelte:fragment>
   <Form {enhance}>
     <Input
       bind:value={$form.password}

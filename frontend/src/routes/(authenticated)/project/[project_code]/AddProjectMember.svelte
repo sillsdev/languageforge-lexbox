@@ -7,7 +7,7 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
-  import { notifySuccess } from '$lib/notify/';
+  import { notifySuccess } from '$lib/notify';
 
   export let projectId: string;
   const schema = z.object({
@@ -24,15 +24,15 @@
         userEmail: $form.email,
         role: $form.role,
       });
-      if (!result.error){
-        notifySuccess($t('project_page.notifications.add_member', {email: $form.email}))
+      if (!result.error) {
+        notifySuccess($t('project_page.notifications.add_member', { email: $form.email }));
       }
       return result.error?.message;
     });
   }
 </script>
 
-<BadgeButton icon="i-mdi-account-plus-outline" on:click={openModal}>
+<BadgeButton type="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
   {$t('project_page.add_user.add_button')}
 </BadgeButton>
 

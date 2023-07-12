@@ -5,7 +5,7 @@
 
   export let value: string | undefined | null = undefined;
   export let disabled = false;
-  export let saveHandler: (newValue: string) => Promise<unknown>;
+  export let saveHandler: (newValue: string) => Promise<string | void | undefined>;
   export let placeholder: string | undefined = undefined;
   export let multiline = false;
   export let validation: ZodString | undefined = undefined;
@@ -18,7 +18,7 @@
   let formElem: Form;
 
   const formSchema = z.object(validation ? { [id]: validation } : {});
-  let { form, errors, reset, enhance } = lexSuperForm(
+  let { form, errors, reset, enhance, message } = lexSuperForm(
     formSchema,
     async () => {
       //callback only called when validation is successful
@@ -26,7 +26,7 @@
     },
     { taintedMessage: false }
   );
-  $: error = $errors[id]?.join(', ');
+  $: error = $errors[id]?.join(', ') ?? $message;
 
   function startEditing(): void {
     if (disabled) {
@@ -46,10 +46,14 @@
     }
 
     saving = true;
-    editing = false;
     try {
-      await saveHandler(newValue);
-      value = newValue;
+      const error = await saveHandler(newValue);
+      if (error) {
+        $message = error;
+      } else {
+        value = newValue;
+        editing = false;
+      }
     } finally {
       saving = false;
     }
