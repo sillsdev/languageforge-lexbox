@@ -53,6 +53,8 @@ spec:
       labels:
         app: hg
     spec:
+      securityContext:
+        fsGroup: 33
       containers:
       - name: hgweb
         image: ghcr.io/sillsdev/lexbox-hgweb:latest
