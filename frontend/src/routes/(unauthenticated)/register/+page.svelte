@@ -1,11 +1,12 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Button, Input, ProtectedForm, lexSuperForm } from '$lib/forms';
+  import { Button, FormError, Input, ProtectedForm, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { register } from '$lib/user';
   import { z } from 'zod';
 
+  let turnstileToken = '';
   const formSchema = z.object({
     name: z.string().min(1, $t('register.name_missing')),
     email: z.string().email($t('register.email')),
@@ -23,12 +24,11 @@
       return;
     }
     if (user) {
-      await goto('/');
+      await goto('/home');
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
   });
-  let turnstileToken = '';
 </script>
 
 <Page>
@@ -50,11 +50,8 @@
       bind:value={$form.password}
       error={$errors.password}
     />
-    {#if $message}
-      <aside class="alert alert-error">
-        {$message}
-      </aside>
-    {/if}
+
+    <FormError error={$message} />
     <Button loading={$submitting}>{$t('register.button_register')}</Button>
   </ProtectedForm>
 </Page>

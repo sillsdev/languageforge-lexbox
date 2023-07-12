@@ -18,8 +18,7 @@
   import { addNotification } from '$lib/notify/';
 
   export let data: PageData;
-
-  $: user = data.user;
+  const user = data.user;
   $: project = data.project;
   $: _project = project as NonNullable<typeof project>;
 
@@ -58,8 +57,8 @@
     return result;
   }
 
-  $: userId = user?.id;
-  $: canManage = isAdmin(user) || user?.projects.find((project) => project.code == project.code)?.role == 'Manager';
+  $: userId = user.id;
+  $: canManage = isAdmin(user) || user.projects.find((project) => project.code == project.code)?.role == 'Manager';
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 </script>
