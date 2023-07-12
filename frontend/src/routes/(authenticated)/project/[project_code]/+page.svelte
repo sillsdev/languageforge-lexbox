@@ -155,7 +155,7 @@
 
     <div class="space-y-2">
       <p class="text-2xl mb-4">
-        <a class="link" href="/api/hg-view/{project.code}" target="_blank" rel="noreferrer">
+        <a class="link" href="/hg/{project.code}" target="_blank" rel="noreferrer">
           {$t('project_page.history')}
           <span class="i-mdi-open-in-new align-middle" />
         </a>
