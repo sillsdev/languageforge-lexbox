@@ -16,7 +16,6 @@ onDestroy(
 // https://www.w3.org/TR/trace-context/#traceparent-header
 // so the page-load instrumentation can be correlated with the server load
 export let data: LayoutData;
-let notify: Notify;
 
 </script>
 

@@ -10,9 +10,8 @@ export const notifications = writable([]);
 export function addNotification(
   message: string,
   category = 'success',
-  duration = 10,
+  duration = 4,
 ): void {
-  console.log(duration);
 
   const notification: Notification = {
     message,

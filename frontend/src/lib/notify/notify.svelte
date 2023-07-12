@@ -4,12 +4,12 @@
 
 <div class="toast toast-center w-96">
 {#if $notifications.length > 1}
-<div class="mt-2">
+<div class="flex items-end">
   <button class="btn btn-ghost" on:click={removeAllNotifications}>Close All ✕</button>
 </div>
 {/if}
 {#each $notifications as { id, message, category }}
-<div class={`alert alert-${category}`}>
+<div class={`alert alert-${category}`} in:slide out:blur>
   {message}
   <span class="btn btn-ghost btn-sm float-right pd-0" on:click={() => removeNotification(id)}>
     ✕
