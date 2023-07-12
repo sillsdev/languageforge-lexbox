@@ -13,7 +13,6 @@ export function addNotification(
   category = 'success',
   duration = 4,
 ): void {
-  console.log(duration);
   const id: string = Math.random().toString(36).substr(2, 9);
 
   const notification: Notification = {
