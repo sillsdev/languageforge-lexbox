@@ -1,34 +1,48 @@
-import { writable } from 'svelte/store';
+import { writable, readonly } from 'svelte/store';
 export interface Notification {
   message: string;
-  category: string;
+  category: 'success' | 'warning';
   duration: number;
 }
 
-export const notifications = writable([]);
-
-export function addNotification(
+const _notifications = writable([]);
+export const notifications = readonly(_notifications);
+export function notifySuccess(
   message: string,
-  category = 'success',
   duration = 4,
 ): void {
 
   const notification: Notification = {
     message,
-    category,
+    category: 'success',
     duration,
   };
 
-  notifications.update((currentNotifications) => [...currentNotifications, notification]);
+  _notifications.update((currentNotifications) => [...currentNotifications, notification]);
   setTimeout(() => {
     removeNotification(notification);
   }, duration*1000);
 }
+export function notifyWarning(
+  message: string,
+  duration = 4,
+): void {
 
+  const notification: Notification = {
+    message,
+    category: 'alert-warning',
+    duration,
+  };
+
+  _notifications.update((currentNotifications) => [...currentNotifications, notification]);
+  setTimeout(() => {
+    removeNotification(notification);
+  }, duration*1000);
+}
 export function removeNotification(notification: Notification) {
-  notifications.update((currentNotifications) => currentNotifications.filter((n: Notification) => n !== notification));
+  _notifications.update((currentNotifications) => currentNotifications.filter((n: Notification) => n !== notification));
 }
 
 export function removeAllNotifications() {
-  notifications.set([]);
+  _notifications.set([]);
 }

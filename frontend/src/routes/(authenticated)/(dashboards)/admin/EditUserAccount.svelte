@@ -23,7 +23,7 @@
     formModal.close();
   }
   let _user: UserRow;
-  export async function openModal(user: UserRow, callback: CallableFunction): Promise<void | string> {
+  export async function openModal(user: UserRow): Promise<void | string> {
     _user = user;
     $form.email = user.email;
     $form.name = user.name;
@@ -44,7 +44,6 @@
           body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
         });
       }
-      callback(error);
       return error;
     });
     return error;

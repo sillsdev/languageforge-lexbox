@@ -94,8 +94,8 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
 
 export function logout(cookies?: Cookies): void {
   cookies && cookies.delete('.LexBoxAuth')
-  removeAllNotifications();
   if (browser && window.location.pathname !== '/login') {
+    removeAllNotifications();
     throw redirect(307, '/login');
   }
 }

@@ -5,7 +5,7 @@
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
-  import { addNotification } from '$lib/notify/';
+  import { notifySuccess } from '$lib/notify/';
   import z from 'zod';
 
   export let data: PageData;
@@ -24,10 +24,8 @@
     };
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
-    if ($message){
-      addNotification($message, 'error', 10); // use the notify variable to display a message
-    } else {
-      addNotification('Your account has been updated.', 'success', 10);
+    if (!$message){
+      notifySuccess('Your account has been updated.', 'success', 10);
     }
   });
 

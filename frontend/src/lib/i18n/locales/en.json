@@ -189,5 +189,8 @@
   },
   "modal": {
     "dismiss": "Dismiss"
+  },
+  "notify": {
+    "close_all": "Close all"
   }
 }

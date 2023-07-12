@@ -27,11 +27,11 @@ export let data: LayoutData;
 
 <!-- https://daisyui.com/components/drawer -->
 <div>
-<slot {notify} /> <!-- pass the notify variable as a prop -->
+<slot/> <!-- pass the notify variable as a prop -->
 </div>
 
 <!-- We don't want the alert as well if we're heading to +error.svelte -->
 {#if !goesToErrorPage($page.error)}
 <UnexpectedErrorAlert />
 {/if}
-<Notify bind:this={notify}></Notify>
+<Notify></Notify>
