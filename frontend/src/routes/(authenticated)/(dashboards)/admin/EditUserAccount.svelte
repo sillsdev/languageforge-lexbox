@@ -26,7 +26,6 @@
   export async function openModal(user: UserRow): Promise<void> {
     _user = user;
     $form.email = user.email;
-
     $form.name = user.name;
     await formModal.open(async () => {
       const changeInput: ChangeUserAccountByAdminInput = {
@@ -45,7 +44,6 @@
           body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
         });
       }
-      return;
     });
   }
 </script>
@@ -66,7 +64,6 @@
     label={$t('admin_dashboard.form_modal.name_label')}
     bind:value={$form.name}
     error={errors.name}
-
   />
   <div class="text-error">
     <Input

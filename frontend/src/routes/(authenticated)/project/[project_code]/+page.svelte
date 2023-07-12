@@ -6,7 +6,6 @@
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import type { $OpResult, ChangeProjectDescriptionMutation, ChangeProjectNameMutation } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { isAdmin } from '$lib/user';
   import { z } from 'zod';
@@ -14,7 +13,8 @@
   import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
-  import {TrashIcon} from '$lib/icons';
+  import { TrashIcon } from '$lib/icons';
+  import { notifySuccess, notifyWarning } from '$lib/notify';
 
   export let data: PageData;
   const user = data.user;
@@ -28,6 +28,12 @@
       name: projectUser.user.name,
       role: projectUser.role,
     });
+    notifySuccess(
+      $t('project_page.notifications.role_change', {
+        name: projectUser.user.name,
+        role: projectUser.role.toLowerCase(),
+      })
+    );
   }
 
   let deleteUserModal: DeleteModal;
@@ -37,17 +43,26 @@
     await deleteUserModal.prompt(async () => {
       await _deleteProjectUser(_project.id, projectUser.user.id);
     });
+    notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
   }
 
-  function updateProjectName(newName: string): $OpResult<ChangeProjectNameMutation> {
-    return _changeProjectName({ projectId: _project.id, name: newName });
+  async function updateProjectName(newName: string): Promise<string | void> {
+    const result = await _changeProjectName({ projectId: _project.id, name: newName });
+    if (result.error) {
+      return result.error.message;
+    }
+    notifySuccess($t('project_page.notifications.rename_project', { name: newName }));
   }
 
-  function updateProjectDescription(newDescription: string): $OpResult<ChangeProjectDescriptionMutation> {
-    return _changeProjectDescription({
+  async function updateProjectDescription(newDescription: string): Promise<string | void> {
+    const result = await _changeProjectDescription({
       projectId: _project.id,
       description: newDescription,
     });
+    if (result.error) {
+      return result.error.message;
+    }
+    notifySuccess($t('project_page.notifications.describe', { description: newDescription }));
   }
 
   $: userId = user.id;
@@ -126,8 +141,8 @@
               </li>
               <li>
                 <button class="hover:bg-error hover:text-error-content" on:click={() => deleteProjectUser(member)}>
-                    <TrashIcon></TrashIcon>
-                    {$t('project_page.remove_user')}
+                  <TrashIcon />
+                  {$t('project_page.remove_user')}
                 </button>
               </li>
             </ul>

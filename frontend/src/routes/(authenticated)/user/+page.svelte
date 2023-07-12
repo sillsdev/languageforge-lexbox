@@ -5,6 +5,7 @@
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
+  import { notifySuccess } from '$lib/notify';
   import z from 'zod';
 
   export let data: PageData;
@@ -23,6 +24,9 @@
     };
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
+    if (!$message) {
+      notifySuccess('Your account has been updated.');
+    }
   });
 
   $: {
