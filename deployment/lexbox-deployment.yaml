@@ -60,6 +60,12 @@ spec:
             memory: 100Mi
           limits:
             memory: 150Mi
+        startupProbe:
+          httpGet:
+            port: 80
+            path: /api/healthz
+          failureThreshold: 30
+          periodSeconds: 10
         ports:
           - containerPort: 80
 
