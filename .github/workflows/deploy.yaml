@@ -7,8 +7,6 @@
 
 jobs:
   deploy:
-    permissions:
-      checks: write
     concurrency: deploy-staging
     runs-on: ubuntu-latest
     if: ${{ github.ref ==  vars.PROD_BRANCH }}
@@ -55,9 +53,21 @@ jobs:
 
           echo "Version $versionHeader is still incorrect after waiting"
           exit 1
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/integration
-        name: Integration Tests
-        with:
-          hostname: staging.languagedepot.org
 
+  integration-tests:
+    permissions:
+      checks: write
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/dotnet-integration
+      name: Integration Tests
+      with:
+        hostname: staging.languagedepot.org
+    - name: Upload test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always() && !env.act
+      with:
+        check_name: Integration Tests
+        files: ./testresults/*.trx

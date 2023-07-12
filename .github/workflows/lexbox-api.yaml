@@ -105,6 +105,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   deploy-api:
+    name: Deploy to k8s
     uses: ./.github/workflows/deploy.yaml
     with:
       expected-api-version: ${{ needs.publish-api.outputs.version }}

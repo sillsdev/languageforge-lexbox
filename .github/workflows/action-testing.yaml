@@ -6,6 +6,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ./.github/actions/integration
+      - uses: ./.github/actions/dotnet-integration
         with:
           hostname: staging.languagedepot.org
