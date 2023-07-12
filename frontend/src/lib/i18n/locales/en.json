@@ -110,10 +110,10 @@
       "title": "Choose role for {name}"
     },
     "notifications": {
-      "role_change": "Project role of {name} set to {role}",
+      "role_change": "Project role of {name} set to {role}.",
       "user_delete": "{name} has been removed.",
-      "remame": "Project name set to {name}",
-      "describe": "Project description has been updated",
+      "rename_project": "Project name set to {name}.",
+      "describe": "Project description has been updated.",
       "add_member": "{email} has been added to project."
     },
     "project_name_empty_error": "Project name cannot be empty",

@@ -6,6 +6,7 @@
   import { hash } from '$lib/user';
   import { z } from 'zod';
   import {notifySuccess} from '$lib/notify/';
+  import AddProjectMember from '../project/[project_code]/AddProjectMember.svelte';
 
   const formSchema = z.object({
     password: z.string().min(4, $t('login.password_missing')),
@@ -16,7 +17,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passwordHash: await hash($form.password) }),
     });
-    notifySuccess($t('login.password_reset'), 'warning');
+    notifySuccess($t('login.password_reset'));
     await goto('/');
   });
 </script>

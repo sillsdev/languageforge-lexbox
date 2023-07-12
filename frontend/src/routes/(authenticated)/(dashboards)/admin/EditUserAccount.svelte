@@ -27,7 +27,7 @@
     _user = user;
     $form.email = user.email;
     $form.name = user.name;
-    const error = await formModal.open(async () => {
+    await formModal.open(async () => {
       const changeInput: ChangeUserAccountByAdminInput = {
         userId: user.id,
         email: $form.email,
@@ -46,7 +46,6 @@
       }
       return error;
     });
-    return error;
   }
 </script>
 

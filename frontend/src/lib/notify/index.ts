@@ -1,7 +1,7 @@
 import { writable, readonly } from 'svelte/store';
 export interface Notification {
   message: string;
-  category: 'success' | 'warning';
+  category: 'alert-success' | 'alert-warning' | ''; //still allowing the other colors
   duration: number;
 }
 
@@ -14,7 +14,7 @@ export function notifySuccess(
 
   const notification: Notification = {
     message,
-    category: 'success',
+    category: '', //blank for gray notifications
     duration,
   };
 
@@ -23,21 +23,11 @@ export function notifySuccess(
     removeNotification(notification);
   }, duration*1000);
 }
-export function notifyWarning(
+export function notifyWarning( // in case we need them to be different colors in the future this is its own function
   message: string,
   duration = 4,
 ): void {
-
-  const notification: Notification = {
-    message,
-    category: 'alert-warning',
-    duration,
-  };
-
-  _notifications.update((currentNotifications) => [...currentNotifications, notification]);
-  setTimeout(() => {
-    removeNotification(notification);
-  }, duration*1000);
+  notifySuccess(message, duration);
 }
 export function removeNotification(notification: Notification) {
   _notifications.update((currentNotifications) => currentNotifications.filter((n: Notification) => n !== notification));

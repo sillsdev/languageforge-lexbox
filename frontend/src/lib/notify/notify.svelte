@@ -10,7 +10,7 @@
 </div>
 {/if}
 {#each $notifications as note}
-<div class={`alert alert-${note.category} in:slide out:blur`}>
+<div class={`alert ${note.category} in:slide out:blur`}>
   {note.message}
   <span class="btn btn-ghost btn-sm float-right pd-0" on:click={() => removeNotification(note)}>
     ✕

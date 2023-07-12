@@ -25,7 +25,7 @@
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
     if (!$message){
-      notifySuccess('Your account has been updated.', 'success', 10);
+      notifySuccess('Your account has been updated.');
     }
   });
 
@@ -41,28 +41,28 @@
 </script>
 
 <Page>
-<div class="content-center">
-  <Form {enhance}>
-    <Input
-      id="name"
-      label={$t('account_settings.name')}
-      type="text"
-      error={$errors.name}
-      bind:value={$form.name}
-      autofocus
-    />
-    <Input
-      id="email"
-      label={$t('account_settings.email')}
-      type="email"
-      error={$errors.email}
-      bind:value={$form.email}
-    />
-    <a class="link my-4" href="/resetPassword">
-      {$t('account_settings.reset_password')}
-    </a>
-    <FormError error={$message} />
-    <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
-  </Form>
-</div>
+  <div class="content-center">
+    <Form {enhance}>
+      <Input
+        id="name"
+        label={$t('account_settings.name')}
+        type="text"
+        error={$errors.name}
+        bind:value={$form.name}
+        autofocus
+      />
+      <Input
+        id="email"
+        label={$t('account_settings.email')}
+        type="email"
+        error={$errors.email}
+        bind:value={$form.email}
+      />
+      <a class="link my-4" href="/resetPassword">
+        {$t('account_settings.reset_password')}
+      </a>
+      <FormError error={$message} />
+      <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
+    </Form>
+  </div>
 </Page>
