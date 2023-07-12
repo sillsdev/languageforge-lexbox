@@ -57,6 +57,7 @@ jobs:
           exit 1
       - uses: actions/checkout@v3
       - uses: ./.github/actions/integration
+        name: Integration Tests
         with:
           hostname: staging.languagedepot.org
 

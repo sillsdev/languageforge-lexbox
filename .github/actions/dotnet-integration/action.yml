@@ -7,6 +7,9 @@
   runs:
     using: docker
     image: Dockerfile
+    args:
+      - sh
+      - ./.github/actions/dotnet-integration/run-tests.sh
     env:
       TEST_SERVER_HOSTNAME: ${{ inputs.hostname }}
       TEST_STANDARD_HG_HOSTNAME: hg-${{ inputs.hostname }}
