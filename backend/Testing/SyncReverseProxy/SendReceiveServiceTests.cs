@@ -11,13 +11,12 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class SendReceiveServiceTests
 {
+    private readonly ITestOutputHelper _output;
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
-    private IProgress _progress;
 
     public SendReceiveServiceTests(ITestOutputHelper output)
     {
-        _progress = new XunitStringBuilderProgress(output) { ProgressIndicator = new NullProgressIndicator() };
-        _progress.ShowVerbose = false;
+        _output = output;
         CleanUpTempDir();
     }
 
@@ -88,7 +87,7 @@ public class SendReceiveServiceTests
     [MemberData(nameof(GetTestDataForSR), "sena-3")]
     public void CloneProjectAndSendReceive(SendReceiveTestData data)
     {
-        var srService = new SendReceiveService(_progress, data.Host);
+        var srService = new SendReceiveService(_output, data.Host);
 
         string projectDir = Path.Join(_basePath, data.HostType, data.ProjectCode);
         string fwdataFile = Path.Join(projectDir, $"{data.ProjectCode}.fwdata");
@@ -184,7 +183,7 @@ public class SendReceiveServiceTests
                 continue; // Skip resumable as Chorus just retries 4xx errors constantly (because it assumes they're caused by a flaky net connection)
             }
 
-            var _srService = new SendReceiveService(_progress, host);
+            var _srService = new SendReceiveService(_output, host);
             string projectDir = Path.Join(_basePath, type, projectCode);
             string fwdataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
             try

@@ -1,20 +1,27 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using SIL.Progress;
+using Testing.Logging;
+using Xunit.Abstractions;
 
 namespace Testing.Services;
 
 public class SendReceiveService
 {
+    private readonly ITestOutputHelper _output;
     private readonly string _baseUrl;
     private const string fdoDataModelVersion = "7000072";
-    private readonly IProgress _progress;
 
-    public SendReceiveService(IProgress progress, string baseUrl = "http://localhost")
+    public SendReceiveService(ITestOutputHelper output, string baseUrl = "http://localhost")
     {
         // _sendReceiveOptions = sendReceiveOptions;
+        _output = output;
         _baseUrl = baseUrl;
-        _progress = progress;
+    }
+
+    private IProgress NewProgress()
+    {
+        return new XunitStringBuilderProgress(_output) { ProgressIndicator = new NullProgressIndicator() };
     }
 
     public async Task<string> GetHgVersion()
@@ -39,6 +46,7 @@ public class SendReceiveService
 
     public string CloneProject(string projectCode, string destDir, string username, string password)
     {
+        var progress = NewProgress();
         string repoUrl = $"{_baseUrl}/{projectCode}";
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password)) {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -61,8 +69,8 @@ public class SendReceiveService
         };
         string cloneResult = "";
 
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", _progress, flexBridgeOptions, out cloneResult);
-        if (_progress is StringBuilderProgress sbProgress)
+        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", progress, flexBridgeOptions, out cloneResult);
+        if (progress is StringBuilderProgress sbProgress)
         {
             cloneResult = cloneResult + sbProgress.Text;
             sbProgress.Clear();
@@ -72,6 +80,7 @@ public class SendReceiveService
 
     public string SendReceiveProject(string projectCode, string projectDir, string username, string password)
     {
+        var progress = NewProgress();
         string repoUrl = $"{_baseUrl}/{projectCode}";
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password)) {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -83,7 +92,7 @@ public class SendReceiveService
             chorusSettings.SaveUserSettings();
             repoUrl = repoUrl.Replace("http://",$"http://{username}:{password}@");
         }
-        string fwdataFilename = System.IO.Path.Join(projectDir, $"{projectCode}.fwdata");
+        string fwdataFilename = Path.Join(projectDir, $"{projectCode}.fwdata");
         Console.WriteLine($"S/R for {repoUrl} with user {username} and password \"{password}\" ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
@@ -98,8 +107,8 @@ public class SendReceiveService
 
         string cloneResult = "";
 
-        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Send_Receive", _progress, flexBridgeOptions, out cloneResult);
-        if (_progress is StringBuilderProgress sbProgress)
+        LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Send_Receive", progress, flexBridgeOptions, out cloneResult);
+        if (progress is StringBuilderProgress sbProgress)
         {
             cloneResult = cloneResult + sbProgress.Text;
             sbProgress.Clear();
