@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
-public class SendReceiveServiceTests : IAsyncLifetime
+public class SendReceiveServiceTests
 {
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
     private IProgress _progress;
@@ -17,18 +17,8 @@ public class SendReceiveServiceTests : IAsyncLifetime
     public SendReceiveServiceTests(ITestOutputHelper output)
     {
         _progress = new XunitStringBuilderProgress(output) { ProgressIndicator = new NullProgressIndicator() };
-        _progress.ShowVerbose = true;
+        _progress.ShowVerbose = false;
         CleanUpTempDir();
-    }
-
-    public async Task InitializeAsync()
-    {
-        await VerifyHgWorking();
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
     }
 
     private void CleanUpTempDir()
