@@ -1,4 +1,4 @@
-using System.Net;
+using System.Net.Mime;
 using LexCore;
 using LexCore.ServiceInterfaces;
 using LexData;
@@ -20,13 +20,30 @@ public class ProxyAccessController : ControllerBase
         _lexProxyService = lexProxyService;
     }
 
+    private record PasswordJson(string Password);
+    private static readonly string PASSWORD_FORM_KEY = nameof(PasswordJson.Password).ToLower();
+
     [AllowAnonymous]
     [HttpPost("/api/user/{userName}/projects")]
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
-    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, [FromForm] string password)
+    [Consumes(MediaTypeNames.Application.Json, "application/x-www-form-urlencoded")]
+    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName/*, [FromForm/FromBody] string password*/)
     {
+        string password;
+        // The legacy API supports both types (lf-classic passes JSON & chorus passes form-data)
+        if (Request.HasFormContentType)
+        {
+            var form = await Request.ReadFormAsync();
+            password = form?[PASSWORD_FORM_KEY].FirstOrDefault() ?? string.Empty;
+        }
+        else
+        {
+            var json = await Request.ReadFromJsonAsync<PasswordJson>();
+            password = json?.Password ?? string.Empty;
+        }
+
         var user = await _lexBoxDbContext.Users.Where(user => user.Username == userName)
             .Select(user => new
             {
@@ -35,7 +52,7 @@ public class ProxyAccessController : ControllerBase
                 projects = user.Projects.Select(up => new LegacyApiProject(up.Project.Code,
                     up.Project.Name,
                     "http://public.languagedepot.org",
-                    up.Role.ToString()))
+                    up.Role.ToString().ToLower()))
             })
             .SingleOrDefaultAsync();
         if (user == null)
