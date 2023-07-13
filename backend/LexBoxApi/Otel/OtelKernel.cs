@@ -51,11 +51,14 @@ public static class OtelKernel
                 .AddHotChocolateInstrumentation()
             );
 
-        var meter = new Meter(ServiceName);
+        var meter = new Meter(ServiceName, AppVersionService.Version);
         var counter = meter.CreateCounter<long>("api.login-attempts");
         services.AddOpenTelemetry().WithMetrics(metricProviderBuilder =>
             metricProviderBuilder
-                .AddOtlpExporter()
+                .AddOtlpExporter(options =>
+                {
+                    configuration.Bind("Otel", options);
+                })
                 .AddMeter(meter.Name)
                 .SetResourceBuilder(appResourceBuilder)
                 .AddAspNetCoreInstrumentation()
