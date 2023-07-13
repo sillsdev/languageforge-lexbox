@@ -17,11 +17,11 @@
   $: deletionForm = deletionFormModal?.form();
   export async function open(id: string): Promise<void> {
     await deletionFormModal.open(async () => {
-        const deleteUserInput: DeleteUserByAdminInput = {
-          userId: id,
-        };
-        await _deleteUserByAdmin(deleteUserInput);
-
+      const deleteUserInput: DeleteUserByAdminInput = {
+        userId: id,
+      };
+      const { error } = await _deleteUserByAdmin(deleteUserInput);
+      return error?.message;
     });
   }
 </script>

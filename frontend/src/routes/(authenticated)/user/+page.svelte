@@ -5,7 +5,11 @@
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
+<<<<<<< HEAD
   import { TrashIcon } from '$lib/icons';
+=======
+  import { notifySuccess } from '$lib/notify';
+>>>>>>> 300915e5a9acb184f1b289fcc2f3d9a86002a2db
   import z from 'zod';
   import { goto } from '$app/navigation';
   import DeleteAccountModal from './DeleteAccountModal.svelte';
@@ -13,9 +17,13 @@
   import type { DeleteUserByUserInput } from '$lib/gql/types';
 
   export let data: PageData;
+<<<<<<< HEAD
   $: user = data?.user;
   $: userid = user?.id;
   let deleteModal: DeleteAccountModal;
+=======
+  const user = data.user;
+>>>>>>> 300915e5a9acb184f1b289fcc2f3d9a86002a2db
 
   async function openDeleteModal(): Promise<void> {
     await deleteModal.open();
@@ -35,18 +43,22 @@
     const changeUserAccountDataInput: ChangeUserAccountDataInput = {
       email: $form.email,
       name: $form.name,
-      userId: userid as string,
+      userId: user.id,
     };
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
+    if (!$message) {
+      notifySuccess('Your account has been updated.');
+    }
   });
   $: {
-    if (user) {
-      form.set({
+    form.set(
+      {
         email: user.email,
         name: user.name,
-      });
-    }
+      },
+      { taint: false }
+    );
   }
 </script>
 

@@ -5,6 +5,7 @@
   import Page from '$lib/layout/Page.svelte';
   import { hash } from '$lib/user';
   import { z } from 'zod';
+  import { notifySuccess } from '$lib/notify';
 
   const formSchema = z.object({
     password: z.string().min(4, $t('login.password_missing')),
@@ -15,14 +16,15 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passwordHash: await hash($form.password) }),
     });
+    notifySuccess($t('login.password_reset'));
     await goto('/');
   });
 </script>
 
 <Page>
-<svelte:fragment slot="header">
+  <svelte:fragment slot="header">
     {$t('reset_password.title')}
-</svelte:fragment>
+  </svelte:fragment>
   <Form {enhance}>
     <Input
       bind:value={$form.password}

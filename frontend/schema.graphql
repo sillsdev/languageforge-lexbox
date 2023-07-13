@@ -36,6 +36,7 @@ enum ApplyPolicy {
 
 type AuthUserProject {
   code: String!
+  projectId: UUID!
   role: ProjectRole!
 }
 
@@ -192,6 +193,7 @@ type IsAdminResponse {
 }
 
 type LexAuthUser {
+  canManageProject(projectId: UUID!): Boolean!
   email: String!
   id: UUID!
   name: String!

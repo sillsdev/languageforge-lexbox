@@ -10,18 +10,12 @@ namespace LexBoxApi.GraphQL;
 [QueryType]
 public class LexQueries
 {
-    private readonly LoggedInContext _loggedInContext;
-
-    public LexQueries(LoggedInContext loggedInContext)
-    {
-        _loggedInContext = loggedInContext;
-    }
 
     [UseProjection]
     [UseSorting]
-    public IQueryable<Project> MyProjects(LexBoxDbContext context)
+    public IQueryable<Project> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
     {
-        var projectCodes = _loggedInContext.User.Projects.Select(p => p.Code);
+        var projectCodes = loggedInContext.User.Projects.Select(p => p.Code);
         return context.Projects.Where(p => projectCodes.Contains(p.Code));
     }
 
@@ -36,8 +30,9 @@ public class LexQueries
 
     [UseSingleOrDefault]
     [UseProjection]
-    public IQueryable<Project> ProjectByCode(LexBoxDbContext context, string code)
+    public IQueryable<Project> ProjectByCode(LexBoxDbContext context, LoggedInContext loggedInContext, string code)
     {
+        loggedInContext.User.AssertCanAccessProject(code);
         return context.Projects.Where(p => p.Code == code);
     }
 
@@ -50,8 +45,8 @@ public class LexQueries
         return context.Users;
     }
 
-    public LexAuthUser Me()
+    public LexAuthUser Me(LoggedInContext loggedInContext)
     {
-        return _loggedInContext.User;
+        return loggedInContext.User;
     }
 }

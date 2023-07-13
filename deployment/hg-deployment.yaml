@@ -53,6 +53,8 @@ spec:
       labels:
         app: hg
     spec:
+      securityContext:
+        fsGroup: 33
       containers:
       - name: hgweb
         image: ghcr.io/sillsdev/lexbox-hgweb:latest
@@ -73,7 +75,7 @@ spec:
             mountPath: /var/hg/repos
 
       - name: hgresumable
-        image: ghcr.io/sillsdev/hgresume:v2023-02-24
+        image: ghcr.io/sillsdev/hgresume:v2023-07-12
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing

@@ -148,21 +148,9 @@ public class LexMutations
     [UseMutationConvention]
     [AdminRequired]
     public async Task<User> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext){
-        var user = await dbContext.Users.FindAsync(input.UserId);
-        dbContext.Users.Remove(user);
-        dbContext.SaveChangesAsync();
-        return user;
-    }
-
-    [Error<NotFoundException>]
-    [Error<DbError>]
-    [UseMutationConvention]
-    public async Task<User> DeleteUserByUser(DeleteUserByUserInput input, LexBoxDbContext dbContext){
-        var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
-        if (_loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
-        var del = dbContext.Users.Where(u => u.Id == input.UserId);
-        await del.ExecuteDeleteAsync();
-        return (LexCore.Entities.User) user;
+        var User = await dbContext.Users.FindAsync(input.UserId);
+        var user = dbContext.Users.Where(u => u.Id == input.UserId);
+        await user.ExecuteDeleteAsync();
+        return User;
     }
 }
