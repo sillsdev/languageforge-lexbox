@@ -8,7 +8,7 @@ using LexCore.Entities;
 
 namespace LexCore.Auth;
 
-public class LexAuthUser
+public record LexAuthUser
 {
     public static LexAuthUser? FromClaimsPrincipal(ClaimsPrincipal principal)
     {

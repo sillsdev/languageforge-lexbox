@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    [Migration("20230707115233_Email verification")]
+    [Migration("20230713091035_Email verification")]
     partial class Emailverification
     {
         /// <inheritdoc />
@@ -119,9 +119,6 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("EmailVerificationToken")
-                        .HasColumnType("text");
-
                     b.Property<bool>("EmailVerified")
                         .HasColumnType("boolean");
 
@@ -134,9 +131,6 @@ namespace LexData.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PreviousEmail")
                         .HasColumnType("text");
 
                     b.Property<string>("Salt")

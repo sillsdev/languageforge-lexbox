@@ -2,25 +2,26 @@
   import { onMount } from 'svelte';
   import { EmailTemplate } from '../emails';
 
-  export const templates = [
+  type EmailConfig = { type: EmailTemplate; label?: string } & Record<string, string>;
+
+  let emails: EmailConfig[] = [
     {
       type: EmailTemplate.ForgotPassword,
-      resetUrl: 'https://garfield.com',
+      resetUrl: '/resetPassword',
     },
     {
       type: EmailTemplate.VerifyEmailAddress,
-      verifyUrl: 'https://google.com',
+      verifyUrl: '/user?emailResult=verifiedEmail',
     },
     {
       label: 'Verify New Email Address',
       type: EmailTemplate.VerifyEmailAddress,
-      verifyUrl: 'https://google.com',
+      verifyUrl: '/user?emailResult=changedEmail',
       newAddress: true.toString(),
     },
-  ] as  ({ type: EmailTemplate; label?: string } & Record<string, string>)[];
+  ];
 
-
-  let currTemplate = templates[0];
+  let currEmail = emails[0];
 
   let iframe: HTMLIFrameElement;
 
@@ -33,9 +34,9 @@
 
 <label class="label cursor-pointer inline-flex gap-4 m-4">
   <span class="label-text">Email template:</span>
-  <select class="select select-info" bind:value={currTemplate}>
-    {#each templates as template}
-      <option value={template}>{template.label ?? template.type.replaceAll(/([a-z])([A-Z])/g, '$1 $2')}</option>
+  <select class="select select-info" bind:value={currEmail}>
+    {#each emails as email}
+      <option value={email}>{email.label ?? email.type.replaceAll(/([a-z])([A-Z])/g, '$1 $2')}</option>
     {/each}
   </select>
 </label>
@@ -44,8 +45,8 @@
   <iframe
     bind:this={iframe}
     width="100%"
-    src="./tester/raw?{new URLSearchParams(currTemplate)}"
-    title={currTemplate.type}
+    src="./tester/raw?{new URLSearchParams(currEmail)}"
+    title={currEmail.type}
     on:load={resizeIframe}
   />
 </div>

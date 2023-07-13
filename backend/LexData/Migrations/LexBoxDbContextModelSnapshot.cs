@@ -116,9 +116,6 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("EmailVerificationToken")
-                        .HasColumnType("text");
-
                     b.Property<bool>("EmailVerified")
                         .HasColumnType("boolean");
 
@@ -131,9 +128,6 @@ namespace LexData.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("PreviousEmail")
                         .HasColumnType("text");
 
                     b.Property<string>("Salt")

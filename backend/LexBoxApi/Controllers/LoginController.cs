@@ -42,7 +42,9 @@ public class LoginController : ControllerBase
     }
 
     [HttpGet("verifyEmail")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<LexAuthUser>> VerifyEmail(
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
@@ -53,8 +55,8 @@ public class LoginController : ControllerBase
         }
 
         var userId = _loggedInContext.User.Id;
-        var user = _lexBoxDbContext.Users.Find(userId);
-        if (user == null) return Unauthorized();
+        var user = await _lexBoxDbContext.Users.FindAsync(userId);
+        if (user == null) return NotFound();
 
         user.Email = _loggedInContext.User.Email;
         user.EmailVerified = true;

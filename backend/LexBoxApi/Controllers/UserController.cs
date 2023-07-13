@@ -83,27 +83,27 @@ public class UserController : ControllerBase
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
 
-        var (jwt, _) = _lexAuthService.GenerateJwt(user);
-        await _emailService.SendVerifyAddressEmail(jwt, userEntity);
-
+        await SendVerificationEmail(user, userEntity);
         return Ok(user);
     }
 
     [HttpPost("sendVerificationEmail")]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
     public async Task<ActionResult> SendVerificationEmail()
     {
         var lexUser = _loggedInContext.User;
-        var user = _lexBoxDbContext.Users.Find(lexUser.Id);
-        if (user is null) return Unauthorized();
-        var (jwt, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user)
-        {
-            EmailVerificationRequired = null,
-        });
-        await _emailService.SendVerifyAddressEmail(jwt, user);
+        var user = await _lexBoxDbContext.Users.FindAsync(lexUser.Id);
+        if (user is null) return NotFound();
+        await SendVerificationEmail(lexUser, user);
         return Ok();
+    }
+
+    private async Task SendVerificationEmail(LexAuthUser lexUser, User user)
+    {
+        var (jwt, _) = _lexAuthService.GenerateJwt(lexUser with { EmailVerificationRequired = null });
+        await _emailService.SendVerifyAddressEmail(jwt, user);
     }
 
     [HttpGet("currentUser")]

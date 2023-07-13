@@ -6,6 +6,16 @@ import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.se
 import { env } from '$env/dynamic/private';
 import { getErrorMessage } from './hooks.shared';
 
+const PUBLIC_ROUTE_ROOTS = [
+  '(unauthenticated)',
+  'email',
+];
+
+function getRoot(routeId: string): string {
+  const [_empty, root] = routeId.split('/');
+  return root;
+}
+
 export const handle = (async ({ event, resolve }) => {
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
@@ -18,7 +28,7 @@ export const handle = (async ({ event, resolve }) => {
     const { cookies, route: { id: routeId } } = event;
     if (!routeId) {
       throw redirect(307, '/');
-    } else if (routeId.startsWith('/(unauthenticated)/')) {
+    } else if (PUBLIC_ROUTE_ROOTS.includes(getRoot(routeId))) {
       return resolve(event, options);
     } else if (!isAuthn(cookies)) {
       throw redirect(307, '/login');

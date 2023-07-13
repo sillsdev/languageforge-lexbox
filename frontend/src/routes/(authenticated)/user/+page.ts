@@ -9,15 +9,12 @@ import { goto, invalidate } from '$app/navigation';
 import { refreshJwt } from '$lib/user';
 import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
+import type { EmailResult } from '$lib/email';
 
 export const load = (async ({ url }) => {
-  if (url.searchParams.has('verifiedEmail')) {
-    if (browser) await goto(`${url.pathname}`, { replaceState: true });
-    return { verifiedEmail: true };
-  } else if (url.searchParams.has('changedEmail')) {
-    if (browser) await goto(`${url.pathname}`, { replaceState: true });
-    return { changedEmail: true };
-  }
+  const emailResult = url.searchParams.get('emailResult') as EmailResult | null;
+  if (emailResult && browser) await goto(`${url.pathname}`, { replaceState: true });
+  return { emailResult };
 }) satisfies PageLoad
 
 export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountDataMutation> {

@@ -52,7 +52,7 @@ public class EmailService
         var verifyLink = _linkGenerator.GetUriByAction(httpContext, "VerifyEmail", "Login", new
         {
             jwt,
-            returnTo = $"/user?{queryParam}",
+            returnTo = $"/user?emailResult={queryParam}",
             email = newEmail ?? user.Email,
         });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);

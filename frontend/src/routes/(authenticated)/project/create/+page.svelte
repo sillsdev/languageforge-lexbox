@@ -59,9 +59,9 @@
     let policyCode = policyCodeMap[$form.retentionPolicy] ?? '';
     if (policyCode) policyCode = `-${policyCode}`;
     form.update(
-      ($$form) => {
-        $$form.code = `${$$form.languageCode}${policyCode}-${typeCode}`;
-        return $$form;
+      (form) => {
+        form.code = `${form.languageCode}${policyCode}-${typeCode}`;
+        return form;
       },
       { taint: false }
     );
