@@ -76,6 +76,14 @@ public class SendReceiveServiceTests
         }
     }
 
+    [Fact(
+        Skip = "Just for testing, comment out to run"
+        )]
+    public void CloneForDev()
+    {
+        CloneProjectAndSendReceive(GetTestDataForSR("sena-3").First().OfType<SendReceiveTestData>().First());
+    }
+
     [Theory]
     [MemberData(nameof(GetTestDataForSR), "sena-3")]
     public void CloneProjectAndSendReceive(SendReceiveTestData data)

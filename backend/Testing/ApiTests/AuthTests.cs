@@ -12,7 +12,7 @@ namespace Testing.ApiTests;
 [Trait("Category", "Integration")]
 public class AuthTests
 {
-    private string _host = "staging.languagedepot.org";
+    private string _host = TestingEnvironmentVariables.ServerHostname;
     private HttpClient _httpClient = new HttpClient();
 
     private async Task LoginAs(string user, string password)
