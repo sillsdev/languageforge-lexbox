@@ -8,6 +8,7 @@
   import { _changeUserAccountByAdmin } from './+page';
   import { hash } from '$lib/user';
   import t from '$lib/i18n';
+  import { DialogResponse } from '$lib/components/modals/Modal.svelte';
 
   export let deleteUser: CallableFunction;
   type UserRow = LoadAdminDashboardQuery['users'][0];
@@ -23,7 +24,7 @@
     formModal.close();
   }
   let _user: UserRow;
-  export async function openModal(user: UserRow): Promise<void> {
+  export async function openModal(user: UserRow, callback: CallableFunction): Promise<void> {
     _user = user;
     $form.email = user.email;
     $form.name = user.name;
@@ -43,6 +44,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
         });
+        callback();
       }
     });
   }

@@ -35,7 +35,6 @@
     return superForm.form;
   }
 </script>
-
 <Modal bind:this={modal} on:close={() => reset()} bottom>
   <Form id="modalForm" {enhance}>
     <p><slot name="title" /></p>

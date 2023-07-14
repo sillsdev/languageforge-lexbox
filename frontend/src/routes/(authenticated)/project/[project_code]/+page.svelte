@@ -27,13 +27,12 @@
       userId: projectUser.user.id,
       name: projectUser.user.name,
       role: projectUser.role,
-    });
-    notifySuccess(
+    }, ()=>{notifySuccess(
       $t('project_page.notifications.role_change', {
         name: projectUser.user.name,
         role: projectUser.role.toLowerCase(),
       })
-    );
+    );});
   }
 
   let deleteUserModal: DeleteModal;
@@ -42,8 +41,8 @@
     userToDelete = projectUser;
     await deleteUserModal.prompt(async () => {
       await _deleteProjectUser(_project.id, projectUser.user.id);
+      notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
     });
-    notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
   }
 
   async function updateProjectName(newName: string): Promise<string | void> {

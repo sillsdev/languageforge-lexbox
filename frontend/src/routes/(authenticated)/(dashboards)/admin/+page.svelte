@@ -19,13 +19,12 @@
   let _editing: UserRow;
   async function deleteUser(id: string): Promise<void> {
     formModal.close();
-    await deleteModal.open(id);
-    notifyWarning($t('admin_dashboard.notifications.user_deleted', { name: _editing.name }));
+    await deleteModal.open(id, ()=>{notifyWarning($t('admin_dashboard.notifications.user_deleted', { name: _editing.name }));
+});
   }
   async function openModal(user: UserRow): Promise<void> {
     _editing = user;
-    await formModal.openModal(user);
-    notifySuccess($t('admin_dashboard.notifications.user_updated', { name: user.name }));
+    await formModal.openModal(user, ()=>{notifySuccess($t('admin_dashboard.notifications.user_updated', { name: user.name }));});
   }
   let projectSearch = '';
   let userSearch = '';

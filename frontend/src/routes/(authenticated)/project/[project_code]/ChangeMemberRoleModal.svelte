@@ -16,7 +16,7 @@
   $: form = formModal?.form();
 
   let name: string;
-  export async function open(member: { userId: string; name: string; role: ProjectRole }): Promise<void> {
+  export async function open(member: { userId: string; name: string; role: ProjectRole }, callback: CallableFunction): Promise<void> {
     name = member.name;
     await formModal.open(async (form) => {
       const result = await _changeProjectMemberRole({
@@ -24,7 +24,11 @@
         userId: member.userId,
         role: form.role,
       });
-      return result.error?.message;
+      const error = result.error?.message;
+      if (!error){
+        callback();
+      }
+      return error;
     }, tryParse(schema, member));
   }
 </script>
