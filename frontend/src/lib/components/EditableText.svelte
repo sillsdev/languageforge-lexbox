@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { Form, lexSuperForm, randomFieldId } from '$lib/forms';
+  import { Form, lexSuperForm, randomFieldId, type ErrorMessage } from '$lib/forms';
   import { ZodString, z } from 'zod';
   import IconButton from './IconButton.svelte';
 
   export let value: string | undefined | null = undefined;
   export let disabled = false;
-  export let saveHandler: (newValue: string) => Promise<string | void | undefined>;
+  export let saveHandler: (newValue: string) => Promise<ErrorMessage>;
   export let placeholder: string | undefined = undefined;
   export let multiline = false;
   export let validation: ZodString | undefined = undefined;
@@ -24,7 +24,7 @@
       //callback only called when validation is successful
       await save();
     },
-    { taintedMessage: false }
+    { taintedMessage: false },
   );
   $: error = $errors[id]?.join(', ') ?? $message;
 
@@ -34,6 +34,7 @@
     }
 
     initialValue = value;
+    reset();
     form.set({ [id]: value ?? '' }, { taint: false });
     editing = true;
   }
@@ -61,7 +62,6 @@
 
   function cancel(): void {
     editing = false;
-    reset();
   }
 
   function onKeydown(event: KeyboardEvent): void {

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { FormModal } from '$lib/components/modals';
+  import { FormModal, type FormModalResult } from '$lib/components/modals';
   import { tryParse } from '$lib/forms';
   import UserRoleSelect from '$lib/forms/UserRoleSelect.svelte';
   import { ProjectRole } from '$lib/gql/types';
@@ -12,20 +12,22 @@
   const schema = z.object({
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
-  let formModal: FormModal<typeof schema>;
+  type Schema = typeof schema;
+  let formModal: FormModal<Schema>;
   $: form = formModal?.form();
 
   let name: string;
-  export async function open(member: { userId: string; name: string; role: ProjectRole }): Promise<void> {
+
+  export async function open(member: { userId: string; name: string; role: ProjectRole }): Promise<FormModalResult<Schema>> {
     name = member.name;
-    await formModal.open(async (form) => {
+    return await formModal.open(tryParse(schema, member), async () => {
       const result = await _changeProjectMemberRole({
         projectId,
         userId: member.userId,
-        role: form.role,
+        role: $form.role,
       });
       return result.error?.message;
-    }, tryParse(schema, member));
+    });
   }
 </script>
 
