@@ -3,7 +3,7 @@
   import FormField from './FormField.svelte';
 
   export let label: string;
-  export let value = '';
+  export let value: string | undefined = undefined;
   export let id = randomFieldId();
   export let autofocus = false;
   export let readonly = false;
