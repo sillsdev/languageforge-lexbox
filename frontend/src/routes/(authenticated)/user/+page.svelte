@@ -18,27 +18,24 @@
 
   let requestedEmail: string | undefined;
 
-  let { form, errors, enhance, message, submitting } = lexSuperForm(formSchema, async () => {
-    const result = await _changeUserAccountData({
+  let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {
+    const { error } = await _changeUserAccountData({
       email: $form.email,
       name: $form.name,
       userId: user.id,
     });
 
-    if (result.error) {
-      $message = result.error.message;
-      return;
+    if (error?.message) {
+      return error.message;
     }
 
-    if (prevForm.email !== $form.email) {
+    if ($formState.email.changed) {
       requestedEmail = $form.email;
     }
 
-    if (prevForm.name !== $form.name) {
+    if ($formState.name.tainted) {
       notifySuccess($t('account_settings.update_success'));
     }
-
-    prevForm = { ...$form };
   });
 
   form.set(
@@ -48,8 +45,6 @@
     },
     { taint: false }
   );
-
-  let prevForm = { ...$form };
 </script>
 
 <Page>

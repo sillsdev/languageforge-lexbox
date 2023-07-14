@@ -122,8 +122,12 @@ tasks:
   api-dev:
     aliases: [ api ]
     desc: The single command for local api development
-    dir: ./backend/LexBoxApi
     deps: [ infra-up, api-stop ]
+    interactive: true
+    cmd: task api-only
+  api-only:
+    aliases: [ apio ]
+    dir: ./backend/LexBoxApi
     interactive: true
     cmds:
       - dotnet watch

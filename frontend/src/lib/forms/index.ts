@@ -6,6 +6,7 @@ import ProtectedForm, { type Token } from './ProtectedForm.svelte';
 import Select from './Select.svelte';
 import TextArea from './TextArea.svelte';
 import { lexSuperForm } from './superforms';
+import type { ErrorMessage } from './types';
 import { randomFieldId, tryParse } from './utils';
 
 export {
@@ -20,5 +21,6 @@ export {
   randomFieldId,
   tryParse,
   type Token,
+  type ErrorMessage,
 };
 

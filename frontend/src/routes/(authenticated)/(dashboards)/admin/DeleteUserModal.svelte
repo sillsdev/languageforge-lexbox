@@ -8,15 +8,17 @@
   import { FormModal } from '$lib/components/modals';
   import { _deleteUserByAdmin } from './+page';
   import type { DeleteUserByAdminInput } from '$lib/gql/types';
+  import type { FormModalResult } from '$lib/components/modals';
 
   const verify = z.object({
     keyphrase: z.string().refine((value) => value.match(`^${$t('admin_dashboard.enter_to_delete.user.value')}$`)),
   });
-
-  let deletionFormModal: FormModal<typeof verify>;
+  type Schema = typeof verify;
+  let deletionFormModal: FormModal<Schema>;
   $: deletionForm = deletionFormModal?.form();
-  export async function open(id: string): Promise<void> {
-    await deletionFormModal.open(async () => {
+
+  export async function open(id: string): Promise<FormModalResult<Schema>> {
+    return await deletionFormModal.open(async () => {
       const deleteUserInput: DeleteUserByAdminInput = {
         userId: id,
       };

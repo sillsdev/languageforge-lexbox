@@ -8,6 +8,7 @@ import type {
   ChangeProjectMemberRoleMutation,
   ChangeProjectNameInput,
   ChangeProjectNameMutation,
+  DeleteProjectUserMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
@@ -170,7 +171,7 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
   return result;
 }
 
-export async function _deleteProjectUser(projectId: string, userId: string): Promise<void> {
+export async function _deleteProjectUser(projectId: string, userId: string): $OpResult<DeleteProjectUserMutation> {
   const result = await getClient()
     .mutation(
       graphql(`
@@ -187,4 +188,5 @@ export async function _deleteProjectUser(projectId: string, userId: string): Pro
   if (!result.error) {
     void invalidate(`project:${projectId}`);
   }
+  return result;
 }

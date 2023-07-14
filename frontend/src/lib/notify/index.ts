@@ -6,21 +6,24 @@ export interface Notification {
   duration: number;
 }
 
-const DEFAULT_DURATION = 4;
+export const enum Duration {
+  Default = 4,
+  Long = 15,
+}
 
 const _notifications = writable<Notification[]>([]);
 export const notifications = readonly(_notifications);
 
 export function notifySuccess(
   message: string,
-  duration = DEFAULT_DURATION,
+  duration = Duration.Default,
 ): void {
   addNotification({ message, category: '', duration });
 }
 
 export function notifyWarning( // in case we need them to be different colors in the future this is its own function
   message: string,
-  duration = DEFAULT_DURATION,
+  duration = Duration.Default,
 ): void {
   notifySuccess(message, duration);
 }

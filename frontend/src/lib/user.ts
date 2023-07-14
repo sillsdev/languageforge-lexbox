@@ -49,10 +49,7 @@ export async function login(userId: string, password: string): Promise<boolean> 
       preHashedPassword: true,
     }),
   })
-  if (!response.ok) {
-    return false;
-  }
-  return true;
+  return response.ok;
 }
 
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
