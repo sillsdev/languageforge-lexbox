@@ -52,7 +52,8 @@ public class SeedingData
             Username = "user",
             Salt = PwSalt,
             PasswordHash = _passwordHash,
-            IsAdmin = false
+            IsAdmin = false,
+            EmailVerified = false,
         });
 
         _lexBoxDbContext.Attach(new Project
