@@ -1,7 +1,9 @@
+using DataAnnotatedModelValidations;
 using HotChocolate.Data.Projections.Expressions;
 using HotChocolate.Diagnostics;
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
+using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.Extensions.Options;
@@ -19,6 +21,9 @@ public static class GraphQlSetupKernel
             .RegisterDbContext<LexBoxDbContext>()
             .RegisterService<IHgService>()
             .RegisterService<LoggedInContext>()
+            .RegisterService<EmailService>()
+            .RegisterService<LexAuthService>()
+            .AddDataAnnotationsValidator()
             .AddSorting(descriptor =>
             {
                 descriptor.AddDefaults();

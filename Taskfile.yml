@@ -142,25 +142,25 @@ tasks:
       - dotnet run migrate --environment "Development"
 
   add-migration:
-    desc: 'usage: task add-migration -- "migration name". Often followed by `task database-update`.\n'
+    desc: 'usage: task add-migration -- "migration name". Often followed by `task database-update`.'
     dir: ./backend/LexBoxApi
     cmds:
       - dotnet ef migrations add --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext --output-dir Migrations {{.CLI_ARGS}}
 
   remove-last-migration:
-    desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally.\n"
+    desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally."
     dir: ./backend/LexBoxApi
     cmds:
       - dotnet ef migrations remove --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   db-update:
-    desc: "Runs any migrations that haven't yet been applied.\n"
+    desc: "Runs any migrations that haven't yet been applied."
     dir: ./backend/LexBoxApi
     cmds:
       - dotnet ef database update --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   svelte-check:
-    desc: "Runs the frontend code checks done in CI. Note: the app must be built.\n"
+    desc: "Runs the frontend code checks done in CI. Note: the app must be built."
     aliases: [ sc ]
     dir: ./frontend
     cmds:
@@ -168,13 +168,13 @@ tasks:
       - pnpm run lint
 
   svelte:
-    desc: "Directory independent access to pnpm. E.g. `task svelte -- install`\n"
+    desc: "Directory independent access to pnpm. E.g. `task svelte -- install`"
     aliases: [ s ]
     dir: ./frontend
     cmd: pnpm {{.CLI_ARGS}}
 
   dotnet:
-    desc: "Directory independent access to api dotnet. E.g. `task dotnet -- restore`\n"
+    desc: "Directory independent access to api dotnet. E.g. `task dotnet -- restore`"
     aliases: [ dn ]
     dir: ./backend/LexBoxApi
     cmd: dotnet {{.CLI_ARGS}}

@@ -42,8 +42,18 @@
     "email": "Email",
     "name": "Display name",
     "reset_password": "Reset your password instead?",
-    "success": "Success: your account has been updated",
-    "button_update": "Update account info"
+    "update_success": "Your account has been updated.",
+    "button_update": "Update account info",
+    "verify_email": {
+      "verify_success": "You've successfully verified your email address.",
+      "change_success": "You've successfully updated your email address.",
+      "verify_to_change": "You've requested to change your e-mail address to {requestedEmail}. The change will only come into effect when you verify the new address. You can do so using the link in the e-mail we just sent you.",
+      "go_to_projects": "Go to my projects",
+      "check_inbox": "Please check your inbox for the verification email we just sent.",
+      "please_verify": "Please verify your email address as soon as possible.",
+      "resend": "Resend verification email",
+      "you_have_mail": "You've got mail!"
+    }
   },
   "appbar": {
     "app_name": "Language Depot"
@@ -192,5 +202,26 @@
   },
   "notify": {
     "close_all": "Close all"
+  },
+  "emails": {
+    "verify_email": {
+      "subject": "Verify your e-mail address",
+      "to_verify_click": "Click the button below to verify your e-mail address.",
+      "to_verify_and_finish_changing_click": "Click the button below to verify your new e-mail address and effectively make it the e-mail address associated with your account.",
+      "verify_button": "Verify e-mail"
+    },
+    "forgot_password": {
+      "subject": "Forgot your password?",
+      "to_reset_click": "Click the button below to reset your password.",
+      "reset_button": "Reset password"
+    },
+    "password_changed": {
+      "subject": "Your password was changed",
+      "body": "We're writing to confirm that your password was just changed."
+    },
+    "shared": {
+      "greeting": "Hello {name}!",
+      "or_nvaigate_to_url": "Or navigate to this URL in your browser:"
+    }
   }
 }

@@ -7,6 +7,7 @@ public static class LexAuthConstants
     public const string NameClaimType = "name";
     public const string IdClaimType = "sub";
     public const string ProjectsClaimType = "proj";
+    public const string EmailUnverifiedClaimType = "unver";
 }
 
 /// <summary>
