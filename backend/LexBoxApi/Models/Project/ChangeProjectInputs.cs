@@ -10,6 +10,4 @@ public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Na
 
 public record DeleteUserByAdminInput(Guid UserId);
 
-public record DeleteUserByUserInput(Guid UserId);
-
 public record ChangeUserPasswordByAdminInput(Guid AdminId, Guid UserId, string Passwrod, string ConfirmPassword);
