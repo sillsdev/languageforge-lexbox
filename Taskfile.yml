@@ -77,14 +77,10 @@ tasks:
       - docker compose up maildev db hgweb otel-collector hgresumable -d --wait={{.WAIT}}
 
   backend-up:
-    vars:
-      WAIT: '{{default true .WAIT}}'
     cmds:
       # GraphQL breaks if changes are made while running in docker, so a restart is handy
       - task: api-stop
-      # Needs to start before Hasura (can't use depends-on in docker-compose.yaml, because that wouldn't support running the api locally)
       - task: api-up
-      - docker compose up hasura -d --wait={{.WAIT}}
 
   dev: # Currently broken (because the ui doesn't wait for the api), but probably no one uses it.
     deps: [ api-dev, ui-only]
