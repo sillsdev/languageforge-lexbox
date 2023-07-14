@@ -39,7 +39,7 @@ public class ProxyHgRequests
     {
         var password = "not a good password";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/en-counselling-flex")
+            $"http://{_host}/{TestData.ProjectCode}")
         {
             Headers =
             {
@@ -55,7 +55,7 @@ public class ProxyHgRequests
     public async Task TestNoAuthResponse()
     {
         var responseMessage =
-            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{_host}/en-counselling-flex"));
+            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{_host}/{TestData.ProjectCode}"));
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
     }
