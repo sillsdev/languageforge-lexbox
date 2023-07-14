@@ -18,7 +18,7 @@ export default defineConfig({
     exclude: ['@urql/svelte']
   },
   test: {
-    include: ['src/**/*.{test,spec}.{js,ts}'],
+    include: ['src/**/*.{test,spec}.ts'],
   },
   server: {
     port: 5173,

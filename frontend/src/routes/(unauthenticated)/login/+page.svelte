@@ -21,6 +21,9 @@
       $message = $t('login.bad_credentials');
       badCredentials = true;
     },
+    {
+      taintedMessage: null,
+    },
   );
 
   onMount(logout);

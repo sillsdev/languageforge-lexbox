@@ -1,0 +1,11 @@
+﻿on:
+  workflow_call:
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/dotnet-integration
+        with:
+          hostname: staging.languagedepot.org

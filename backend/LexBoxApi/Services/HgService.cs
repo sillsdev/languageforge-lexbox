@@ -69,7 +69,7 @@ public class HgService : IHgService
 
 public class LogResponse
 {
-    public string Node { get; set; }
-    public int ChangesetCount { get; set; }
-    public Changeset[] Changesets { get; set; }
+    public string? Node { get; set; }
+    public int? ChangesetCount { get; set; }
+    public Changeset[]? Changesets { get; set; }
 }

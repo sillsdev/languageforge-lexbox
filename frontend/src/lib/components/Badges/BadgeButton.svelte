@@ -2,8 +2,8 @@
   import Badge, { type BadgeType } from './Badge.svelte';
 
   // Add more as necessary. Should be as limited as possible to maximize consistency.
-  type BadgeButtonType = 'badge-success';
-  export let type: BadgeButtonType = 'badge-success';
+  type BadgeButtonType = 'badge-success' | '';
+  export let type: BadgeButtonType = '';
   export let icon = '';
   export let disabled = false;
 

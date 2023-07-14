@@ -22,12 +22,16 @@ public class SendReceiveService
         string output = "";
         using (Process hg = new()) {
             string hgFilename = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "hg.exe" : "hg";
-            hg.StartInfo.FileName = System.IO.Path.Join("Mercurial", hgFilename);
+            hg.StartInfo.FileName = Path.Join("Mercurial", hgFilename);
+            if (!File.Exists(hg.StartInfo.FileName))
+            {
+                throw new FileNotFoundException("unable to find HG executable", hg.StartInfo.FileName);
+            }
             hg.StartInfo.Arguments = "version";
             hg.StartInfo.RedirectStandardOutput = true;
 
             hg.Start();
-            output = hg.StandardOutput.ReadToEnd();
+            output = await hg.StandardOutput.ReadToEndAsync();
             await hg.WaitForExitAsync();
         }
         return output;

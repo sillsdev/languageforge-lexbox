@@ -37,7 +37,7 @@ password={password}
         var projectArray = JsonArray.Create(content);
         projectArray.ShouldNotBeNull();
         projectArray.Count.ShouldBeGreaterThan(0);
-        var project = projectArray.First(p => p["identifier"].GetValue<string>() == TestData.ProjectCode) as JsonObject;
+        var project = projectArray.First(p => p?["identifier"]?.GetValue<string>() == TestData.ProjectCode) as JsonObject;
         project.ShouldNotBeNull();
         var projectDict = new Dictionary<string, JsonNode?>(project);
         projectDict.ShouldSatisfyAllConditions(

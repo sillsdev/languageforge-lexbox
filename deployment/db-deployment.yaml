@@ -82,7 +82,8 @@ spec:
 
         volumeMounts:
         - name: data
-          mountPath: /var/lib/postgresql
+#          this must end with /data, if it just ends with /postgresql the database will get wiped out on restart
+          mountPath: /var/lib/postgresql/data
 
       volumes:
       - name: data

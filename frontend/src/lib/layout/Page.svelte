@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import PageHeader from './PageHeader.svelte';
 </script>
 

@@ -18,7 +18,7 @@
     onSubmit: (d: FormType) => Promise<string | undefined>,
     value?: Partial<FormType>
   ): Promise<void> {
-    if (value) _form.set(value);
+    if (value) _form.set(value, { taint: false });
     if ((await modal.openModal()) === DialogResponse.Cancel) return;
     const error = await onSubmit($_form);
     if (error) {
@@ -41,7 +41,7 @@
     <p><slot name="title" /></p>
     <slot errors={$errors} />
   </Form>
-  <FormError error={$message} />
+  <FormError error={$message} right />
   <slot name="extraActions" slot="extraActions" />
   <svelte:fragment slot="actions" let:closing>
     <button type="submit" form="modalForm" class="btn btn-primary" class:loading={closing}>

@@ -6,7 +6,6 @@
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import type { $OpResult, ChangeProjectDescriptionMutation, ChangeProjectNameMutation } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { isAdmin } from '$lib/user';
   import { z } from 'zod';
@@ -14,21 +13,27 @@
   import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
-  import {TrashIcon} from '$lib/icons';
+  import { TrashIcon } from '$lib/icons';
+  import { notifySuccess, notifyWarning } from '$lib/notify';
 
   export let data: PageData;
-
-  $: user = data.user;
+  const user = data.user;
   $: project = data.project;
-  $: _project = project ;
+  $: _project = project as NonNullable<typeof project>;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
     await changeMemberRoleModal.open({
-      userId: projectUser.User.id,
-      name: projectUser.User.name,
+      userId: projectUser.user.id,
+      name: projectUser.user.name,
       role: projectUser.role,
     });
+    notifySuccess(
+      $t('project_page.notifications.role_change', {
+        name: projectUser.user.name,
+        role: projectUser.role.toLowerCase(),
+      })
+    );
   }
 
   let deleteUserModal: DeleteModal;
@@ -38,21 +43,30 @@
     await deleteUserModal.prompt(async () => {
       await _deleteProjectUser(_project.id, projectUser.user.id);
     });
+    notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
   }
 
-  function updateProjectName(newName: string): $OpResult<ChangeProjectNameMutation> {
-    return _changeProjectName({ projectId: _project.id, name: newName });
+  async function updateProjectName(newName: string): Promise<string | void> {
+    const result = await _changeProjectName({ projectId: _project.id, name: newName });
+    if (result.error) {
+      return result.error.message;
+    }
+    notifySuccess($t('project_page.notifications.rename_project', { name: newName }));
   }
 
-  function updateProjectDescription(newDescription: string): $OpResult<ChangeProjectDescriptionMutation> {
-    return _changeProjectDescription({
+  async function updateProjectDescription(newDescription: string): Promise<string | void> {
+    const result = await _changeProjectDescription({
       projectId: _project.id,
       description: newDescription,
     });
+    if (result.error) {
+      return result.error.message;
+    }
+    notifySuccess($t('project_page.notifications.describe', { description: newDescription }));
   }
 
-  $: userId = user?.id;
-  $: canManage = isAdmin(user) || user?.projects.find((project) => project.code == project.code)?.role == 'Manager';
+  $: userId = user.id;
+  $: canManage = isAdmin(user) || user.projects.find((project) => project.code == project.code)?.role == 'Manager';
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 </script>
@@ -127,8 +141,8 @@
               </li>
               <li>
                 <button class="hover:bg-error hover:text-error-content" on:click={() => deleteProjectUser(member)}>
-                    <TrashIcon></TrashIcon>
-                    {$t('project_page.remove_user')}
+                  <TrashIcon />
+                  {$t('project_page.remove_user')}
                 </button>
               </li>
             </ul>
@@ -146,7 +160,7 @@
           isRemoveDialog
         >
           {$t('project_page.confirm_remove', {
-            userName: userToDelete?.User.name ?? '',
+            userName: userToDelete?.user.name ?? '',
           })}
         </DeleteModal>
       </BadgeList>
@@ -156,7 +170,7 @@
 
     <div class="space-y-2">
       <p class="text-2xl mb-4">
-        <a class="link" href="/api/hg-view/{project.code}" target="_blank" rel="noreferrer">
+        <a class="link" href="/hg/{project.code}" target="_blank" rel="noreferrer">
           {$t('project_page.history')}
           <span class="i-mdi-open-in-new align-middle" />
         </a>

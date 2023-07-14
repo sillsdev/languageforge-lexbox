@@ -8,7 +8,7 @@ import type { AnyZodObject } from 'zod';
 //we've got to wrap this in our own version because we're not using the server side component, which this expects
 export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
   schema: S,
-  onSubmit: NonNullable<FormOptions<S, string>['onUpdate']>,
+  onSubmit: NonNullable<FormOptions<S, string>['onResult']>,
   options: Omit<FormOptions<S, string>, 'validators'> = {},
 ): SuperForm<S, string> {
   const form = superValidateSync(schema);
@@ -19,19 +19,24 @@ export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
     invalidateAll: false,
     ...options,
     onResult: async (event) => {
-      const messageBefore = get(sf.message);
       await options.onResult?.(event);
       const result = event.result as ActionResult<{ form: SuperValidated<S> }>;
       if (result.type == 'success' && result.data) {
-        await onSubmit({ form: result.data.form, formEl: event.formEl, cancel: event.cancel });
-        // sometimes during submit the message is set using the store that's returned from setup,
-        // instead of setting it via the form passed in to the submit method. This detects that and updates the message correctly
-        const messageAfter = get(sf.message);
-        if (result.data.form.message === undefined && messageAfter !== messageBefore) {
-          result.data.form.message = messageAfter;
+        await onSubmit(event);
+        if (formHasMessageOrErrors(sf)) { // detect any messages or errors set in the onSubmit callback
+          event.cancel();
         }
       }
     },
   });
   return sf;
+}
+
+function formHasMessageOrErrors<S extends ZodValidation<AnyZodObject>>(form: SuperForm<S, string>): boolean {
+  if (get(form.message)) {
+    return true;
+  }
+
+  const allErrors = get(form.allErrors);
+  return !!allErrors.find(error => error.messages.find(e => e));
 }

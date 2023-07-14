@@ -22,7 +22,7 @@ public class LexAuthUserTests
         Name = "test",
         Projects = new[]
         {
-            new AuthUserProject("test-flex", ProjectRole.Manager)
+            new AuthUserProject("test-flex", ProjectRole.Manager, Guid.NewGuid())
         }
     };
 
