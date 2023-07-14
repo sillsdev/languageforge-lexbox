@@ -1,1 +1,4 @@
-export type EmailResult = 'verifiedEmail' | 'changedEmail';
+export enum EmailResult {
+  VerifiedEmail = 'verifiedEmail',
+  ChangedEmail = 'changedEmail',
+}
