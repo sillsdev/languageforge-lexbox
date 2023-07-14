@@ -95,6 +95,7 @@ app.UseHealthChecks("/api/healthz");
     });
 }
 app.UseRouting();
+app.UseResumableStatusHack();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();

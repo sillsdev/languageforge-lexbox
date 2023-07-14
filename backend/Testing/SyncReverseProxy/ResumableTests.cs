@@ -77,4 +77,20 @@ public class ResumableTests
         });
         responseMessage.StatusCode.ShouldBeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized);
     }
+
+    [Fact]
+    public async Task WithUnauthorizedUser()
+    {
+        var userWithoutPermission = "user@test.com";
+        var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+        {
+            Headers =
+            {
+                Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(Encoding.ASCII.GetBytes($"{userWithoutPermission}:{TestData.Password}")))
+            }
+        });
+        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
 }
