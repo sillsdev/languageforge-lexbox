@@ -423,3 +423,4 @@ input UuidOperationFilterInput {
 
 scalar timestamptz @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
 
+scalar uuid
