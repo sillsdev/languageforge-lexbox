@@ -173,17 +173,6 @@ type DeleteUserByAdminPayload {
   user: User
 }
 
-union DeleteUserByUserError = DbError | NotFoundError
-
-input DeleteUserByUserInput {
-  userId: UUID!
-}
-
-type DeleteUserByUserPayload {
-  errors: [DeleteUserByUserError!]
-  user: User
-}
-
 interface Error {
   message: String!
 }
@@ -217,7 +206,6 @@ type Mutation {
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
   deleteUserByAdmin(input: DeleteUserByAdminInput!): DeleteUserByAdminPayload!
-  deleteUserByUser(input: DeleteUserByUserInput!): DeleteUserByUserPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): Project
 }
 
