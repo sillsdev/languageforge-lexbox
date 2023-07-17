@@ -1,0 +1,16 @@
+﻿#file: noinspection KubernetesMissingKeys
+#file is a patch file that will be applied to the base deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+spec:
+  template:
+    spec:
+      containers:
+        - name: ui
+          resources:
+            requests:
+              memory: 750Mi
+            limits:
+              memory: 1250Mi

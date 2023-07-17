@@ -13,3 +13,5 @@ spec:
         env:
           - name: DOTNET_URLS
             value: http://0.0.0.0:5158
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
