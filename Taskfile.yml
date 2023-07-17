@@ -17,6 +17,7 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
+      - echo HONEYCOMB_API_KEY=__REPLACE__ >> deployment\dev\local.env
   setup-win:
     platforms: [ windows ]
     cmds:
