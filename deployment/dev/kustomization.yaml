@@ -4,13 +4,20 @@ namespace: languagedepot
 
 resources:
 - ../base/
-- secrets.yaml
+#- secrets.yaml
 - ingress-deployment.yaml
 
 configMapGenerator:
 - name: otel-config
   files:
     - collector-config.yaml
+
+secretGenerator:
+  - name: otel
+    namespace: languagedepot
+    behavior: replace
+    envs:
+      - local.env
 
 patches:
   - target:
@@ -19,3 +26,4 @@ patches:
     path: change-storage-class.patch.yaml
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
+  - path: db-secrets.yaml
