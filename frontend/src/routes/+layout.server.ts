@@ -9,7 +9,7 @@ export async function load({locals, depends, fetch}: LayoutServerLoadEvent) {
 
   if (user) depends(`user:${user.id}`);
   if (apiVersion.value === null) {
-    const response = await fetch('/api/healtz');
+    const response = await fetch('/api/healthz');
     apiVersion.value = response.headers.get('lexbox-version');
   }
   return {
