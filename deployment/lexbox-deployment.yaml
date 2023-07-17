@@ -17,6 +17,9 @@ spec:
   - name: otel
     protocol: TCP
     port: 4318
+  - name: otel-grpc
+    protocol: TCP
+    port: 4317
   - name: sveltekit
     protocol: TCP
     port: 3000
@@ -168,6 +171,7 @@ spec:
             memory: 100Mi
         ports:
           - containerPort: 4318
+          - containerPort: 4317
         volumeMounts:
           - mountPath: /etc/otelcol
             name: otel-config

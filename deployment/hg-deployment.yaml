@@ -67,6 +67,8 @@ spec:
         env:
           - name: CUSTOM_PORT
             value: "8088"
+          - name: OTEL_ENDPOINT
+            value: 'lexbox:4317'
         ports:
           - containerPort: 8088
 
