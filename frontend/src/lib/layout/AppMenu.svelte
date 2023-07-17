@@ -14,10 +14,10 @@
   <div class="drawer-overlay" />
 
   <!-- https://daisyui.com/components/menu  -->
-  <ul class="menu bg-base-100 min-w-[33%]">
+  <ul class="menu bg-base-100 min-w-[33%] items-end">
     <header class="prose flex flex-col items-end p-4 mb-4">
-      <h2 class="mb-0">{user?.name}</h2>
-      <span class="font-light">{user?.email}</span>
+      <h2 class="mb-0">{user.name}</h2>
+      <span class="font-light">{user.email}</span>
     </header>
 
     <li>

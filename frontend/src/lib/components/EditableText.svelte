@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { Form, lexSuperForm, randomFieldId } from '$lib/forms';
+  import { Form, lexSuperForm, randomFieldId, type ErrorMessage } from '$lib/forms';
   import { ZodString, z } from 'zod';
   import IconButton from './IconButton.svelte';
 
   export let value: string | undefined | null = undefined;
   export let disabled = false;
-  export let saveHandler: (newValue: string) => Promise<unknown>;
+  export let saveHandler: (newValue: string) => Promise<ErrorMessage>;
   export let placeholder: string | undefined = undefined;
   export let multiline = false;
   export let validation: ZodString | undefined = undefined;
@@ -18,15 +18,15 @@
   let formElem: Form;
 
   const formSchema = z.object(validation ? { [id]: validation } : {});
-  let { form, errors, reset, enhance } = lexSuperForm(
+  let { form, errors, reset, enhance, message } = lexSuperForm(
     formSchema,
     async () => {
       //callback only called when validation is successful
       await save();
     },
-    { taintedMessage: false }
+    { taintedMessage: false },
   );
-  $: error = $errors[id]?.join(', ');
+  $: error = $errors[id]?.join(', ') ?? $message;
 
   function startEditing(): void {
     if (disabled) {
@@ -34,7 +34,8 @@
     }
 
     initialValue = value;
-    form.set({ [id]: value ?? '' });
+    reset();
+    form.set({ [id]: value ?? '' }, { taint: false });
     editing = true;
   }
 
@@ -46,10 +47,14 @@
     }
 
     saving = true;
-    editing = false;
     try {
-      await saveHandler(newValue);
-      value = newValue;
+      const error = await saveHandler(newValue);
+      if (error) {
+        $message = error;
+      } else {
+        value = newValue;
+        editing = false;
+      }
     } finally {
       saving = false;
     }
@@ -57,7 +62,6 @@
 
   function cancel(): void {
     editing = false;
-    reset();
   }
 
   function onKeydown(event: KeyboardEvent): void {

@@ -1,15 +1,15 @@
 <script lang="ts">
   import { BadgeButton } from '$lib/components/Badges';
-  import { FormModal } from '$lib/components/modals';
+  import { DialogResponse, FormModal } from '$lib/components/modals';
   import Input from '$lib/forms/Input.svelte';
   import UserRoleSelect from '$lib/forms/UserRoleSelect.svelte';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
+  import { notifySuccess } from '$lib/notify';
 
   export let projectId: string;
-
   const schema = z.object({
     email: z.string().email($t('project_page.add_user.email_required')),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
@@ -18,18 +18,21 @@
   $: form = formModal?.form();
 
   async function openModal(): Promise<void> {
-    await formModal.open(async () => {
-      const result = await _addProjectMember({
+    const { response } = await formModal.open(async () => {
+      const { error } = await _addProjectMember({
         projectId,
         userEmail: $form.email,
         role: $form.role,
       });
-      return result.error?.message;
+      return error?.message;
     });
+    if (response === DialogResponse.Submit) {
+      notifySuccess($t('project_page.notifications.add_member', { email: $form.email }));
+    }
   }
 </script>
 
-<BadgeButton icon="i-mdi-account-plus-outline" on:click={openModal}>
+<BadgeButton type="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
   {$t('project_page.add_user.add_button')}
 </BadgeButton>
 

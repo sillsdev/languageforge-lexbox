@@ -4,10 +4,11 @@
   import ButtonToggle from '$lib/components/ButtonToggle.svelte';
   import { z } from 'zod';
   import Input from '$lib/forms/Input.svelte';
-  import type { ChangeUserAccountByAdminInput, LoadAdminDashboardQuery } from '$lib/gql/types';
+  import type { LoadAdminDashboardQuery } from '$lib/gql/types';
   import { _changeUserAccountByAdmin } from './+page';
   import { hash } from '$lib/user';
   import t from '$lib/i18n';
+  import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
 
   export let deleteUser: CallableFunction;
   type UserRow = LoadAdminDashboardQuery['users'][0];
@@ -17,24 +18,23 @@
     name: z.string(),
     password: z.string().optional(),
   });
-  let formModal: FormModal<typeof schema>;
+  type Schema = typeof schema;
+  let formModal: FormModal<Schema>;
   $: form = formModal?.form();
+
   export function close(): void {
     formModal.close();
   }
-  let _user: UserRow;
-  export async function openModal(user: UserRow): Promise<void> {
-    _user = user;
-    $form.email = user.email;
 
-    $form.name = user.name;
-    await formModal.open(async () => {
-      const changeInput: ChangeUserAccountByAdminInput = {
+  let _user: UserRow;
+  export async function openModal(user: UserRow): Promise<FormModalResult<Schema>> {
+    _user = user;
+    return await formModal.open({ name: user.name, email: user.email }, async () => {
+      const { error } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
         name: $form.name,
-      };
-      const { error } = await _changeUserAccountByAdmin(changeInput);
+      });
       if (error) {
         return error.message;
       }
@@ -45,7 +45,6 @@
           body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
         });
       }
-      return;
     });
   }
 </script>
@@ -66,7 +65,6 @@
     label={$t('admin_dashboard.form_modal.name_label')}
     bind:value={$form.name}
     error={errors.name}
-
   />
   <div class="text-error">
     <Input
@@ -76,14 +74,20 @@
       bind:value={$form.password}
     />
   </div>
-  <div style="display: flex" slot="extraActions" class="space-x-4">
-    <ButtonToggle theme="error" text1={$t('admin_dashboard.form_modal.unlock')} text2={$t('admin_dashboard.form_modal.lock')} icon1="i-mdi-lock" icon2="i-mdi-unlocked" />
+  <svelte:fragment slot="extraActions">
+    <ButtonToggle
+      theme="error"
+      text1={$t('admin_dashboard.form_modal.unlock')}
+      text2={$t('admin_dashboard.form_modal.lock')}
+      icon1="i-mdi-lock"
+      icon2="i-mdi-unlocked"
+    />
     <button
       class="btn btn-error"
       on:click={async () => {
         await deleteUser(_user.id);
       }}>{$t('admin_dashboard.form_modal.delete_user')}<span class="ml-2"><TrashIcon /></span></button
     >
-  </div>
+  </svelte:fragment>
   <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
 </FormModal>

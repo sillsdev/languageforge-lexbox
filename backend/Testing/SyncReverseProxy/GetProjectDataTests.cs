@@ -24,20 +24,16 @@ Connection: Keep-Alive
 password={password}
 """;
 
-    [Fact]
-    public async Task GetProjectData()
+    private async Task ValidateResponse(HttpResponseMessage response)
     {
-        var response = await Client.PostAsync(
-            $"http://{_host}/api/user/{TestData.User}/projects",
-            new FormUrlEncodedContent(
-                new[] { new KeyValuePair<string, string>("password", TestData.Password) }));
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         var content = await response.Content.ReadFromJsonAsync<JsonElement>();
         content.ValueKind.ShouldBe(JsonValueKind.Array);
         var projectArray = JsonArray.Create(content);
         projectArray.ShouldNotBeNull();
         projectArray.Count.ShouldBeGreaterThan(0);
-        var project = projectArray.First(p => p["identifier"].GetValue<string>() == TestData.ProjectCode) as JsonObject;
+        var project =
+            projectArray.First(p => p?["identifier"]?.GetValue<string>() == TestData.ProjectCode) as JsonObject;
         project.ShouldNotBeNull();
         var projectDict = new Dictionary<string, JsonNode?>(project);
         projectDict.ShouldSatisfyAllConditions(
@@ -51,6 +47,25 @@ password={password}
         project["repository"]!.GetValue<string>().ShouldBe("http://public.languagedepot.org");
         //todo what is role for? returns unknown in my single test
         project["role"]!.GetValue<string>().ShouldNotBeEmpty();
+    }
+
+    [Fact]
+    public async Task GetProjectDataViaForm()
+    {
+        var response = await Client.PostAsync(
+            $"http://{_host}/api/user/{TestData.User}/projects",
+            new FormUrlEncodedContent(
+                new[] { new KeyValuePair<string, string>("password", TestData.Password) }));
+        await ValidateResponse(response);
+    }
+
+    [Fact]
+    public async Task GetProjectDataViaJson()
+    {
+        var response = await Client.PostAsJsonAsync(
+            $"http://{_host}/api/user/{TestData.User}/projects",
+            new { password = TestData.Password });
+        await ValidateResponse(response);
     }
 
     [Fact]

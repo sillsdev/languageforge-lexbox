@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using LexBoxApi.Auth;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
@@ -20,11 +21,23 @@ public class UserController : ControllerBase
 {
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly TurnstileService _turnstileService;
+    private readonly LoggedInContext _loggedInContext;
+    private readonly EmailService _emailService;
+    private readonly LexAuthService _lexAuthService;
 
-    public UserController(LexBoxDbContext lexBoxDbContext, TurnstileService turnstileService)
+    public UserController(
+        LexBoxDbContext lexBoxDbContext,
+        TurnstileService turnstileService,
+        LoggedInContext loggedInContext,
+        EmailService emailService,
+        LexAuthService lexAuthService
+    )
     {
         _lexBoxDbContext = lexBoxDbContext;
         _turnstileService = turnstileService;
+        _loggedInContext = loggedInContext;
+        _emailService = emailService;
+        _lexAuthService = lexAuthService;
     }
 
     [HttpPost("registerAccount")]
@@ -60,6 +73,7 @@ public class UserController : ControllerBase
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false,
+            EmailVerified = false,
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
@@ -68,6 +82,33 @@ public class UserController : ControllerBase
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
+
+        await SendVerificationEmail(user, userEntity);
         return Ok(user);
+    }
+
+    [HttpPost("sendVerificationEmail")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult> SendVerificationEmail()
+    {
+        var lexUser = _loggedInContext.User;
+        var user = await _lexBoxDbContext.Users.FindAsync(lexUser.Id);
+        if (user is null) return NotFound();
+        await SendVerificationEmail(lexUser, user);
+        return Ok();
+    }
+
+    private async Task SendVerificationEmail(LexAuthUser lexUser, User user)
+    {
+        var (jwt, _) = _lexAuthService.GenerateJwt(lexUser with { EmailVerificationRequired = null });
+        await _emailService.SendVerifyAddressEmail(jwt, user);
+    }
+
+    [HttpGet("currentUser")]
+    public ActionResult<LexAuthUser> CurrentUser()
+    {
+        return _loggedInContext.User;
     }
 }

@@ -33,8 +33,6 @@ services:
     env_file: .env
     environment:
       DbConfig__LexBoxConnectionString: Host=db;Port=5432;Username=postgres;Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
-      HasuraConfig__HasuraUrl: http://hasura:8080/v1/graphql
-      HasuraConfig__HasuraSecret: ${HASURA_GRAPHQL_ADMIN_SECRET}
       Otel__Endpoint: http://otel-collector:4317
       HgConfig__RepoPath: /hg-repos
       HgConfig__HgWebUrl: http://hgweb:8088
@@ -68,25 +66,6 @@ services:
       MAILDEV_INCOMING_USER: maildev
       MAILDEV_INCOMING_PASS: maildev_pass
 
-  hasura:
-    build: ./hasura
-    init: true
-    ports:
-      - "8081:8080" # 8081 exposed here for dev tools
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file: .env
-    environment:
-      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      PG_DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-
-      # supported variables for hasura https://hasura.io/docs/latest/deployment/graphql-engine-flags/reference/
-      # for dev convenience
-      HASURA_GRAPHQL_ENABLE_CONSOLE: true
-      HASURA_GRAPHQL_WEBSOCKET_KEEPALIVE: 20
-      HASURA_GRAPHQL_DEV_MODE: "true"
-
   db:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -117,6 +96,7 @@ services:
       - "8088:8088" # 8080 exposed here for dev tools
     environment:
       CUSTOM_PORT: 8088
+      OTEL_ENDPOINT: otel-collector:4317
     volumes:
       - ./hgweb/repos:/var/hg/repos
 
@@ -167,7 +147,6 @@ services:
       - ui
       - lexbox-api
       - otel-collector
-      - hasura
 
 volumes:
     db-data:

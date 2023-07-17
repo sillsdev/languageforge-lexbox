@@ -1,6 +1,6 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
-  import { dismiss, error } from '$lib/error';
+  import { dismiss, error } from '.';
   import { onDestroy } from 'svelte';
   import { t } from 'svelte-intl-precompile';
   import UnexpectedError from './UnexpectedError.svelte';
@@ -32,7 +32,7 @@
   }
 </script>
 
-<dialog bind:this={dialog} class="modal modal-bottom alert-error">
+<dialog bind:this={dialog} class="modal modal-bottom alert-error max-w-[95vw]">
   <div class="modal-box alert-error">
     <UnexpectedError />
     <div class="flex justify-end modal-action">

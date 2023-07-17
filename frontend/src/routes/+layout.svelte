@@ -5,6 +5,7 @@
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
   import { onDestroy } from 'svelte';
   import type { LayoutData } from './$types';
+  import Notify from '$lib/notify/Notify.svelte';
 
   onDestroy(
     page.subscribe((p) => {
@@ -32,3 +33,5 @@
 {#if !goesToErrorPage($page.error)}
   <UnexpectedErrorAlert />
 {/if}
+
+<Notify />

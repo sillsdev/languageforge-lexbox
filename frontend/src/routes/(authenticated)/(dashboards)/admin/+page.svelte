@@ -9,20 +9,42 @@
   import DeleteUserModal from './DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
+  import { Duration, notifySuccess, notifyWarning } from '$lib/notify';
+  import { DialogResponse } from '$lib/components/modals';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
   export let data: PageData;
   let deleteModal: DeleteUserModal;
   let formModal: EditUserAccount;
-
+  let _editing: UserRow;
   async function deleteUser(id: string): Promise<void> {
     formModal.close();
-    await deleteModal.open(id);
+    const { response } = await deleteModal.open(id);
+    if (response == DialogResponse.Submit) {
+      notifyWarning($t('admin_dashboard.notifications.user_deleted', { name: _editing.name }));
+    }
   }
+
   async function openModal(user: UserRow): Promise<void> {
-    await formModal.openModal(user);
+    _editing = user;
+    const { response, formState } = await formModal.openModal(user);
+    if (response == DialogResponse.Submit) {
+      if (formState.name.tainted || formState.password.tainted) {
+        notifySuccess($t('admin_dashboard.notifications.user_updated', { name: user.name }));
+      }
+      if (formState.email.changed) {
+        notifySuccess(
+          $t('admin_dashboard.notifications.email_need_verification', {
+            name: user.name,
+            requestedEmail: formState.email.currentValue,
+          }),
+          Duration.Long
+        );
+      }
+    }
   }
+
   let projectSearch = '';
   let userSearch = '';
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
@@ -104,17 +126,11 @@
     </div>
 
     <div class="pl-1 overflow-x-auto">
-
       <span class="text-xl">
         {$t('admin_dashboard.user_table_title')}
         <Badge>{userSearch ? users.length : data.users.length}</Badge>
       </span>
-      <Input
-        label=""
-        placeholder={$t('admin_dashboard.filter_placeholder')}
-        bind:value={userSearch}
-
-      />
+      <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={userSearch} />
 
       <div class="divider" />
       <table class="table">

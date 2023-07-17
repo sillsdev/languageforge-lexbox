@@ -23,6 +23,9 @@ public class MigrationController : ControllerBase
     }
 
     [HttpGet("dryRunTransformUser")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<User>> DryRunTransformUser(string email)
     {
         var user = await _redmineDbContext.Users
@@ -37,6 +40,7 @@ public class MigrationController : ControllerBase
                 IsAdmin = rmUser.Admin,
                 Salt = rmUser.Salt ?? "",
                 PasswordHash = rmUser.HashedPassword,
+                EmailVerified = true,
                 Projects = rmUser.ProjectMembership.Select(m => new ProjectUsers
                 {
                     Role = m.Role.Role.Name == "Manager" ? ProjectRole.Manager
@@ -73,14 +77,15 @@ public class MigrationController : ControllerBase
                         CreatedDate = m.User.CreatedOn ?? DateTime.UtcNow,
                         UpdatedDate = m.User.UpdatedOn ?? DateTime.UtcNow,
                         Username = m.User.Login,
-                        Email = m.User.EmailAddresses.FirstOrDefault().Address ?? "",
+                        Email = m.User.EmailAddresses.FirstOrDefault()!.Address ?? "",
                         Name = m.User.Firstname + " " + m.User.Lastname,
                         IsAdmin = m.User.Admin,
                         Salt = m.User.Salt ?? "",
                         PasswordHash = m.User.HashedPassword,
+                        EmailVerified = true,
                     }
                 }).ToList(),
-                Type = rmProject.Identifier.EndsWith("-flex") ? ProjectType.FLEx : ProjectType.Unknown,
+                Type = rmProject.Identifier!.EndsWith("-flex") ? ProjectType.FLEx : ProjectType.Unknown,
                 RetentionPolicy =
                     rmProject.Identifier.Contains("test") ? RetentionPolicy.Test : RetentionPolicy.Unknown,
                 LastCommit = null
@@ -106,7 +111,7 @@ public class MigrationController : ControllerBase
             Code = $"{rmProject.Identifier}{(prefixProjectCode ? "-lexbox" : "")}" ??
                    throw new Exception("no code for project id" + rmProject.Id),
             Description = rmProject.Description,
-            Type = rmProject.Identifier.EndsWith("-flex") ? ProjectType.FLEx : ProjectType.Unknown,
+            Type = rmProject.Identifier!.EndsWith("-flex") ? ProjectType.FLEx : ProjectType.Unknown,
             RetentionPolicy =
                 rmProject.Identifier.Contains("test") ? RetentionPolicy.Test : RetentionPolicy.Unknown,
             LastCommit = null,
@@ -124,6 +129,7 @@ public class MigrationController : ControllerBase
             IsAdmin = rmUser.Admin,
             Salt = rmUser.Salt ?? "",
             PasswordHash = rmUser.HashedPassword,
+            EmailVerified = true,
             Projects = rmUser.ProjectMembership?.Select(m => new ProjectUsers
             {
                 ProjectId = projectIdToGuid[m.ProjectId],

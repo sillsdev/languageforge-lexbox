@@ -8,7 +8,7 @@ using LexCore.Entities;
 
 namespace LexCore.Auth;
 
-public class LexAuthUser
+public record LexAuthUser
 {
     public static LexAuthUser? FromClaimsPrincipal(ClaimsPrincipal principal)
     {
@@ -30,8 +30,15 @@ public class LexAuthUser
                 if (claim.Subject?.IsAuthenticated is not true) continue;
                 if (array is null)
                 {
-                    jsonObject.Add(claim.Type, JsonValue.Create(claim.Value));
-                    continue;
+                    switch (claim.ValueType)
+                    {
+                        case ClaimValueTypes.Boolean:
+                            jsonObject.Add(claim.Type, JsonValue.Create(bool.Parse(claim.Value)));
+                            continue;
+                        default:
+                            jsonObject.Add(claim.Type, JsonValue.Create(claim.Value));
+                            continue;
+                    }
                 }
 
                 //claim json arrays may be a single object or an array of objects
@@ -67,7 +74,8 @@ public class LexAuthUser
         Email = user.Email;
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
         Name = user.Name;
-        Projects = user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role)).ToArray();
+        Projects = user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role, p.ProjectId)).ToArray();
+        EmailVerificationRequired = user.EmailVerified ? null : true;
     }
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
@@ -84,6 +92,9 @@ public class LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
     public required AuthUserProject[] Projects { get; init; }
+
+    [JsonPropertyName(LexAuthConstants.EmailUnverifiedClaimType)]
+    public bool? EmailVerificationRequired { get; init; }
 
     public IEnumerable<Claim> GetClaims()
     {
@@ -103,6 +114,12 @@ public class LexAuthUser
                 case JsonValueKind.Object:
                     yield return new Claim(jsonProperty.Name, jsonProperty.Value.ToString(), JsonClaimValueTypes.Json);
                     break;
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                    yield return new Claim(jsonProperty.Name, jsonProperty.Value.ToString(), ClaimValueTypes.Boolean);
+                    break;
+                case JsonValueKind.Null:
+                    break;
                 default:
                     yield return new Claim(jsonProperty.Name, jsonProperty.Value.ToString());
                     break;
@@ -117,9 +134,29 @@ public class LexAuthUser
             LexAuthConstants.EmailClaimType,
             LexAuthConstants.RoleClaimType));
     }
+
+    public bool CanManageProject(Guid projectId)
+    {
+        return Role == UserRole.admin || Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager);
+    }
+
+    public bool CanManageProject(string projectCode)
+    {
+        return Role == UserRole.admin || Projects.Any(p => p.Code == projectCode && p.Role == ProjectRole.Manager);
+    }
+
+    public void AssertCanManageProject(Guid projectId)
+    {
+        if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public void AssertCanAccessProject(string projectCode)
+    {
+        if (Role != UserRole.admin && Projects.All(p => p.Code != projectCode)) throw new UnauthorizedAccessException();
+    }
 }
 
-public record AuthUserProject(string Code, ProjectRole Role);
+public record AuthUserProject(string Code, ProjectRole Role, Guid ProjectId);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole

@@ -1,5 +1,3 @@
-// Copyright (c) 2016 SIL International
-// This software is licensed under the MIT license (http://opensource.org/licenses/MIT)
 using SIL.Progress;
 using Xunit.Abstractions;
 
@@ -7,8 +5,7 @@ namespace Testing.Logging
 {
     public class XunitStringBuilderProgress : StringBuilderProgress
     {
-        private ITestOutputHelper _output { get; init; }
-        // public string Text { get; } // Inherited from base class
+        private readonly ITestOutputHelper _output;
 
         public XunitStringBuilderProgress(ITestOutputHelper output)
         {
@@ -19,9 +16,12 @@ namespace Testing.Logging
         {
             // Chorus logs things like 'log -r0 --template "{node}"' which causes C# to throw string formatting
             // exceptions, so we only use the formatting version (with args) if format args were actually passed.
-            if (args is not null && args.Length > 0) {
+            if (args is { Length: > 0 })
+            {
                 _output.WriteLine(message, args);
-            } else {
+            }
+            else
+            {
                 _output.WriteLine(message);
             }
             base.WriteMessage(message, args);

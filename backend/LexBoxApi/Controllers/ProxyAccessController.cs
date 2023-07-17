@@ -1,4 +1,5 @@
-using System.Net;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Mime;
 using LexCore;
 using LexCore.ServiceInterfaces;
 using LexData;
@@ -20,13 +21,30 @@ public class ProxyAccessController : ControllerBase
         _lexProxyService = lexProxyService;
     }
 
+    public record ProjectsInput([Required(AllowEmptyStrings = false)] string Password);
+
     [AllowAnonymous]
     [HttpPost("/api/user/{userName}/projects")]
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
-    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, [FromForm] string password)
+    [Consumes("application/x-www-form-urlencoded")]
+    public async Task<ActionResult<LegacyApiProject[]>> ProjectsForm(string userName, [FromForm] ProjectsInput input)
     {
+        return await Projects(userName, input);
+    }
+
+
+    [AllowAnonymous]
+    [HttpPost("/api/user/{userName}/projects")]
+    [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, ProjectsInput input)
+    {
+        var password = input.Password;
+
         var user = await _lexBoxDbContext.Users.Where(user => user.Username == userName)
             .Select(user => new
             {
@@ -35,7 +53,7 @@ public class ProxyAccessController : ControllerBase
                 projects = user.Projects.Select(up => new LegacyApiProject(up.Project.Code,
                     up.Project.Name,
                     "http://public.languagedepot.org",
-                    up.Role.ToString()))
+                    up.Role.ToString().ToLower()))
             })
             .SingleOrDefaultAsync();
         if (user == null)
