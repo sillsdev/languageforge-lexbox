@@ -45,8 +45,8 @@ export async function login(userId: string, password: string): Promise<boolean> 
     },
     body: JSON.stringify({
       emailOrUsername: userId,
-      password: password,
-      preHashedPassword: false,
+      password: hash(password),
+      preHashedPassword: true,
     }),
   })
   return response.ok;
