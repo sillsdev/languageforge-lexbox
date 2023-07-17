@@ -18,3 +18,4 @@ spec:
           env:
             - name: PUBLIC_TURNSTILE_SITE_KEY
               value: 1x0000000000000000000000000000000AA
+              valueFrom:

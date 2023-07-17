@@ -27,3 +27,4 @@ patches:
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
   - path: db-secrets.yaml
+  - path: hg-deployment-patch.yaml
