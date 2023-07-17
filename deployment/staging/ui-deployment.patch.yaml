@@ -10,8 +10,6 @@ spec:
     spec:
       containers:
         - name: ui
-          resources:
-            requests:
-              memory: 750Mi
-            limits:
-              memory: 1250Mi
+          env:
+            - name: PUBLIC_ENV_NAME
+              value: staging

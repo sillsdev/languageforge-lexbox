@@ -3,15 +3,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ui
+  name: lexbox
   namespace: languagedepot
 spec:
   template:
     spec:
       containers:
-        - name: ui
-          resources:
-            requests:
-              memory: 750Mi
-            limits:
-              memory: 1250Mi
+        - name: lexbox-api
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Staging"
+
