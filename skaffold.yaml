@@ -22,10 +22,6 @@ build:
         manual:
           - src: '**'
             dest: /app
-    - image: ghcr.io/sillsdev/lexbox-hasura
-      context: hasura
-      docker:
-        dockerfile: Dockerfile
     - image: ghcr.io/sillsdev/hgresume
       context: hgresumable
       docker:
