@@ -58,7 +58,7 @@ spec:
       - name: lexbox-api
         # TODO: need to parameterize this tag
         image: ghcr.io/sillsdev/lexbox-api:develop
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing

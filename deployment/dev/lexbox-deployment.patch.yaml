@@ -10,6 +10,7 @@ spec:
     spec:
       containers:
       - name: lexbox-api
+        imagePullPolicy: IfNotPresent
         env:
           - name: DOTNET_URLS
             value: http://0.0.0.0:5158
