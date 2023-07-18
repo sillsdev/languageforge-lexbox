@@ -5,9 +5,10 @@ using Testing.Services;
 namespace Testing.Browser;
 
 [Trait("Category", "Integration")]
-public class AdminPageTest: PageTest
+public class AdminPageTest : PageTest
 {
     private string _host = TestingEnvironmentVariables.ServerHostname;
+
     [Fact]
     public async Task CanNavigateToProjectPage()
     {

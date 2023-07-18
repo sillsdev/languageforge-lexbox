@@ -14,6 +14,7 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class LexMutations
 {
+<<<<<<< HEAD
     private readonly LoggedInContext _loggedInContext;
 
     public LexMutations(LoggedInContext loggedInContext)
@@ -153,4 +154,6 @@ public class LexMutations
         await user.ExecuteDeleteAsync();
         return User;
     }
+=======
+>>>>>>> e6b60cdd541240ea2479c83ad6797a6b64763145
 }

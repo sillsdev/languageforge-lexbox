@@ -65,12 +65,8 @@ tasks:
     cmds:
       - dotnet test --filter Category=Integration
   test-integration-staging:
-    env:
-      TEST_SERVER_HOSTNAME: staging.languagedepot.org
-      TEST_STANDARD_HG_HOSTNAME: hg-staging.languagedepot.org
-      TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
     cmds:
-      - dotnet test --filter Category=Integration
+      - dotnet test --filter Category=Integration  -s .\backend\Testing\staging.runsettings.xml
 
       # dev
   infra-up:
