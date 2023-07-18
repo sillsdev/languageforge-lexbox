@@ -33,7 +33,7 @@ spec:
   resources:
     requests:
       storage: 10Gi
-  storageClassName: weekly-snapshots-retain-4 # provided by LTOps
+  storageClassName: longhorn
 
 ---
 
@@ -96,14 +96,6 @@ spec:
           mountPath: /var/cache/hgresume
         - name: repos
           mountPath: /var/vcs/public
-
-      initContainers:
-      - name: populate-test-repos
-        image: busybox:1.36.1
-        command: ['sh', '-c', "if [ ! -d /repos/sena-3 ]; then wget -O sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'; unzip -q sena-3.zip -d /repos/; fi"]
-        volumeMounts:
-        - name: repos
-          mountPath: /repos
 
       volumes:
       - name: cache

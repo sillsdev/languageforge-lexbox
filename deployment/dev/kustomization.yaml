@@ -28,3 +28,5 @@ patches:
   - path: ui-deployment.patch.yaml
   - path: db-secrets.yaml
   - path: hg-deployment-patch.yaml
+  - path: hg-repos-pvc.patch.yaml
+  - path: hgresumable-cache.patch.yaml

@@ -1,0 +1,7 @@
+﻿apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hgresumable-cache
+  namespace: languagedepot
+spec:
+  storageClassName: weekly-snapshots-retain-4 # provided by LTOps
