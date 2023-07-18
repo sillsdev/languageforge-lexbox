@@ -78,11 +78,11 @@
   let curves: SVGStroke[] = [];
   let svgDots: SVGDot[] = [];
 
-  function rowHeight(rowIdx: number): number {
+  $: rowHeight = (rowIdx: number): number => {
     return cumulativeHeights[rowIdx] ? cumulativeHeights[rowIdx] : rowHeightDefault * rowIdx + firstRowOffset;
   }
 
-  function colWidth(colIdx: number): number {
+  $: colWidth = (colIdx: number): number => {
     return colWidthDefault * colIdx + firstColOffset;
   }
 

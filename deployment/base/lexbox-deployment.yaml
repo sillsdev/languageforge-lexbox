@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: lexbox
+  namespace: languagedepot
   labels:
     app: lexbox
 spec:
@@ -13,16 +14,13 @@ spec:
   ports:
   - name: http
     protocol: TCP
-    port: 80
+    port: 5158
   - name: otel
     protocol: TCP
     port: 4318
   - name: otel-grpc
     protocol: TCP
     port: 4317
-  - name: sveltekit
-    protocol: TCP
-    port: 3000
   - name: github-deploy
     protocol: TCP
     port: 9000
@@ -34,6 +32,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: lexbox
+  namespace: languagedepot
   labels:
     app: lexbox
 spec:
@@ -60,25 +59,27 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 100Mi
+            memory: 125Mi
           limits:
-            memory: 150Mi
+            memory: 175Mi
         startupProbe:
           httpGet:
-            port: 80
+            port: 5158
             path: /api/healthz
           failureThreshold: 30
           periodSeconds: 10
         ports:
-          - containerPort: 80
+          - containerPort: 5158
 
         volumeMounts:
         - name: repos
           mountPath: /hg-repos
 
         env:
+          - name: DOTNET_URLS
+            value: http://0.0.0.0:5158
           - name: ASPNETCORE_ENVIRONMENT
-            value: Staging
+            value: Development
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
@@ -96,13 +97,6 @@ spec:
               secretKeyRef:
                   key: Authentication__Jwt__Secret
                   name: lexbox-api
-          - name: HasuraConfig__HasuraUrl
-            value: http://localhost:8080/v1/graphql
-          - name: HasuraConfig__HasuraSecret
-            valueFrom:
-              secretKeyRef:
-                  key: HASURA_GRAPHQL_ADMIN_SECRET
-                  name: hasura
           - name: HgConfig__RepoPath
             value: /hg-repos
           - name: HgConfig__HgWebUrl
@@ -134,32 +128,7 @@ spec:
             # TODO: need to parameterize this
             value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
           - name: Email__EmailRenderHost
-            value: localhost:3000
-
-      - name: ui
-        image: ghcr.io/sillsdev/lexbox-ui:develop
-        imagePullPolicy: Always
-        # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
-        resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 100Mi
-          limits:
-            memory: 150Mi
-        ports:
-          - containerPort: 3000
-
-        env:
-          - name: PUBLIC_TURNSTILE_SITE_KEY
-            valueFrom:
-              secretKeyRef:
-                key: PUBLIC_TURNSTILE_SITE_KEY
-                name: ui
-          - name: PUBLIC_ENV_NAME
-            value: staging
-          - name: BACKEND_HOST
-            value: http://localhost
-          - name: OTEL_ENDPOINT
-            value: http://localhost:4318
+            value: ui:3000
 
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0
@@ -243,12 +212,35 @@ spec:
               mode: 365
             - key: webhooks
               path: hooks.yaml
+      initContainers:
+      - name: wait-db
+        image: busybox:1.36.1
+        command: ['sh', '-c', "until nc -w 1 -z db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
+        # command: ['sh', '-c', "until nc -w 1 -z db.languagedepot.svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
+      - name: db-migrations
+        # Should be same image as lexbox-api container
+        image: ghcr.io/sillsdev/lexbox-api:develop
+        command: ['sh', '-c', 'dotnet run migrate --environment "Development"']
+        env:
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_DB
+                  name: db
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                  key: POSTGRES_PASSWORD
+                  name: db
+          - name: DbConfig__LexBoxConnectionString
+            value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
 
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: deploy-config
+  namespace: languagedepot
 data:
 #  branch to allow deployments from
   publish-branch: develop
@@ -306,11 +298,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: lexbox-deployer
+  namespace: languagedepot
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: deployer
+  namespace: languagedepot
 rules:
   - apiGroups: [ "apps" ]
     resources: [ "deployments" ]
@@ -320,6 +314,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: redepoly
+  namespace: languagedepot
 subjects:
   - kind: ServiceAccount
     name: lexbox-deployer

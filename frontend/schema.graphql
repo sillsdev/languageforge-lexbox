@@ -1,4 +1,4 @@
-directive @allowAnonymous repeatable on FIELD_DEFINITION
+﻿directive @allowAnonymous repeatable on FIELD_DEFINITION
 
 directive @authorize(
   """

@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: languagedepot
+
+resources:
+- ../base/
+#- secrets.yaml
+- ingress-deployment.yaml
+
+configMapGenerator:
+- name: otel-config
+  files:
+    - collector-config.yaml
+
+secretGenerator:
+  - name: otel
+    namespace: languagedepot
+    behavior: replace
+    envs:
+      - local.env
+
+patches:
+  - target:
+      version: v1
+      kind: PersistentVolumeClaim
+    path: change-storage-class.patch.yaml
+  - path: lexbox-deployment.patch.yaml
+  - path: ui-deployment.patch.yaml
+  - path: db-secrets.yaml
+  - path: hg-deployment-patch.yaml

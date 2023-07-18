@@ -1,0 +1,133 @@
+apiVersion: skaffold/v4beta6
+kind: Config
+metadata:
+  name: lexbox
+deploy:
+  kubeContext: docker-desktop
+build:
+  artifacts:
+    - image: ghcr.io/sillsdev/lexbox-api
+      context: backend
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**'
+            dest: /src/backend
+    - image: ghcr.io/sillsdev/lexbox-ui
+      context: frontend
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: '**'
+            dest: /app
+    - image: ghcr.io/sillsdev/hgresume
+      context: hgresumable
+      docker:
+        dockerfile: Dockerfile
+    - image: ghcr.io/sillsdev/lexbox-hgweb
+      context: hgweb
+      docker:
+        dockerfile: Dockerfile
+  local:
+    useBuildkit: true
+portForward:
+  # Backend
+  - resourceType: Service
+    resourceName: lexbox
+    namespace: languagedepot
+    port: 5158
+  # OpenTelemetry
+  - resourceType: Service
+    resourceName: lexbox
+    namespace: languagedepot
+    port: 4318
+  # Svelte-Kit frontend
+  - resourceType: Service
+    resourceName: ui
+    namespace: languagedepot
+    port: 3000
+  - resourceType: Service
+    resourceName: db
+    namespace: languagedepot
+    port: 5432
+    localPort: 5433
+
+manifests:
+  kustomize:
+    paths:
+      - deployment/dev
+  hooks:
+    before:
+      - host:
+          command: ["sh", "-c", "cp otel/collector-config.yaml deployment/dev/collector-config.yaml"]
+          os: [darwin, linux]
+      - host:
+          command: ["powershell", "-Command", "copy otel/collector-config.yaml deployment/dev/collector-config.yaml"]
+          os: [windows]
+
+profiles:
+  - name: dev
+    activation:
+      - command: dev
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: LexBoxApi/dev.Dockerfile
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: dev.Dockerfile
+  - name: infra
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: LexBoxApi/dev.Dockerfile
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: dev.Dockerfile
+    portForward:
+      # Postgres
+      - resourceType: Service
+        resourceName: db
+        namespace: languagedepot
+        port: 5432
+        localPort: 5433
+      # OpenTelemetry
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 4318 # http
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 4317 # grpc
+      # hg
+      - resourceType: Service
+        resourceName: hg
+        namespace: languagedepot
+        port: 8088 # web
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 80 # resumable
+        localPort: 8034
+  - name: no-frontend
+    patches:
+      - op: replace
+        path: /build/artifacts/0/docker/dockerfile
+        value: LexBoxApi/dev.Dockerfile
+      - op: replace
+        path: /build/artifacts/1/docker/dockerfile
+        value: dev.Dockerfile
+    portForward:
+    # Backend
+    - resourceType: Service
+      resourceName: lexbox
+      namespace: languagedepot
+      port: 5158
+    # OpenTelemetry
+    - resourceType: Service
+      resourceName: lexbox
+      namespace: languagedepot
+      port: 4318

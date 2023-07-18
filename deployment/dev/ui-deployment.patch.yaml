@@ -1,0 +1,21 @@
+﻿#file: noinspection KubernetesMissingKeys
+#file is a patch file that will be applied to the base deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+  namespace: languagedepot
+spec:
+  template:
+    spec:
+      containers:
+        - name: ui
+          resources:
+            requests:
+              memory: 750Mi
+            limits:
+              memory: 1250Mi
+          env:
+            - name: PUBLIC_TURNSTILE_SITE_KEY
+              value: 1x0000000000000000000000000000000AA
+              valueFrom:

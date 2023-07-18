@@ -21,9 +21,9 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.ts'],
   },
   server: {
-    port: 5173,
+    port: 3000,
     strictPort: true,
-    proxy: {
+    proxy: process.env['DockerDev'] ? undefined : {
       '/v1/traces': {
         target: 'http://localhost:4318'
       },

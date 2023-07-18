@@ -30,6 +30,24 @@ Other files, like `docker-compose.yaml`, should be at the root of the repo, beca
    * via npm: `npm install -g @go-task/cli`
  * run setup `task setup`
 
+### Extra setup steps for Windows
+
+If you're running Windows, you may need to add the following lines to your `C:\Windows\system32\drivers\etc\hosts` file:
+
+```
+127.0.0.1 resumable.localhost
+127.0.0.1 hg.localhost
+127.0.0.1 lexbox.localhost
+```
+
+On Linux, anything with a `.localhost` domain is automatically mapped to 127.0.0.1 so you don't need to edit your `/etc/hosts` file.
+
+### Optional setup for debugging
+
+If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
+the `deployment/dev/secrets.yaml` file.
+You can get the key from [here](https://ui.honeycomb.io/sil-language-forge/environments/test/api_keys)
+
 #### git note
 this repo uses a ignore revs file. To configure this repo to use it run this command. It should be executed as part of `task setup`
 
@@ -70,7 +88,8 @@ pnpm should be installed automatically using nodejs corepack, if not you can run
 
 ---
 ### Helpful urls
-* http://localhost:5173 - sveltekit frontend
+* http://lexbox.localhost - k8s ingress
+* http://localhost:3000 - sveltekit frontend
 * http://localhost:5158/api/swagger - swagger docs for the api
 * http://localhost:5158/api/graphql/ui - graphiql UI
 * http://localhost:5158/api/graphql - graphiql endpoint
@@ -88,19 +107,6 @@ The following users are available, password for them all is just `pass`:
 
 There will also be a single project, Sena 3.
 There will not be an hg repository however, see optional setup below if this is desired.
-
-### Optional setup
-
-You may need to add the following line to your `/etc/hosts` or `C:\Windows\system32\drivers\etc\hosts` file:
-
-```
-127.0.0.1 resumable.localhost
-127.0.0.1 hg.localhost
-```
-
-If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
-the `.env` file.
-You can get the key from [here](https://ui.honeycomb.io/sil-language-forge/environments/test/api_keys)
 
 ---
 ### Hasura workflow

@@ -1,0 +1,16 @@
+﻿#file: noinspection KubernetesMissingKeys
+#file is a patch file that will be applied to the base deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexbox
+  namespace: languagedepot
+spec:
+  template:
+    spec:
+      containers:
+        - name: lexbox-api
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Staging"
+

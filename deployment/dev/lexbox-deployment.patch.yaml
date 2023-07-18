@@ -1,0 +1,35 @@
+#file: noinspection KubernetesMissingKeys,KubernetesUnknownValues
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexbox
+  namespace: languagedepot
+  labels:
+    app: lexbox
+spec:
+  template:
+    spec:
+      containers:
+      - name: lexbox-api
+        imagePullPolicy: IfNotPresent
+        resources:
+            requests:
+                memory: 200Mi
+            limits:
+                memory: 1Gi
+        env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: "Development"
+          - name: Authentication__Jwt__Secret
+            value: "dev-secret_but-it-must-be-32-characters-long"
+#            intentionally set this to no value
+            valueFrom:
+          - name: CloudFlare__TurnstileKey
+            value: "1x0000000000000000000000000000000AA"
+            valueFrom:
+          - name: Email__SmtpUser
+            value: 'maildev'
+            valueFrom:
+          - name: Email__SmtpPassword
+            value: 'maildev'
+            valueFrom:
