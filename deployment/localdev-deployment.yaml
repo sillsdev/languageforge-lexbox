@@ -34,6 +34,7 @@ spec:
 
 ---
 
+
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
 apiVersion: apps/v1
 kind: Deployment
@@ -75,10 +76,6 @@ spec:
         - name: k8sdev-git
           mountPath: /app
 
-        - name: publickey
-          mountPath: /config/publickey
-          subPath: authorized_keys
-          readOnly: true
         env:
           - name: ASPNETCORE_ENVIRONMENT
             value: Staging
@@ -86,8 +83,9 @@ spec:
             value: "1000"
           - name: PGID
             value: "1000"
-          - name: PUBLIC_KEY_FILE
-            value: /config/publickey
+          - name: PUBLIC_KEY
+            # TODO: Add task to Taskfile to create this, then put the value in here with Kustomize
+            value: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCaEobNoQHVDbvmx10xt5/iMr9DSlXdmjPyJb6apdGRh4aUuTe1qlribhT92HcwvleZrZk2K6Efx6JaLl8HFcaCOOh6ofl+PSa3L2nZkv9xMl+fdp41oKHAH1x5FRrxmpR2Cxu9kbg/fHi1L9CPAi/kR4vmPxKmBrGpiKzlrLHoUzTTjATwfI92s4yB2wlEz+/DFnueXToRvh0deilAdbCNWFEHoFayeOag7BaX2aWPrDTrp0vYCkN42djny8dAExqWVfIfVi71m7UrOs6vUXaGVysnqDkFw2nUh/r2a10LrrQvC8TVyC4qiP979vDqJ0zy3+1/P3cjhe3HkzmzabzA1oh0GvWEJGC/nmfoun7awGrlzEfQNCl6jgK8InUDcWjEOOjE6KRrbgo5/QNt5o8jOnWrBGtuHb2hRGjCej26rIWs8BbVvgBQJnSvomPvkcoNBkiAMicHLnlSZJ67zgpUWhFsj9LsyeJ0VoSkK0sbMqI6fYTi5pSyY/akwLOCtP0= rmunn@localhost"
           - name: USER_NAME
             value: k8sdev
           - name: SUDO_ACCESS
@@ -97,12 +95,10 @@ spec:
       - name: clonerepo
         image: alpine/git
         command: ['sh', '-c', 'git clone https://github.com/sillsdev/languageforge-lexbox /app']
-        volumeMounts:
-        - name: k8sdev-git
-          mountPath: /app
       - name: fixperms
         image: busybox
         command: ['sh', '-c', 'chown -R 1000:1000 /app']
+
         volumeMounts:
         - name: k8sdev-git
           mountPath: /app
@@ -111,6 +107,3 @@ spec:
       - name: k8sdev-git
         persistentVolumeClaim:
           claimName: k8sdev-git
-      - name: publickey
-        secret:
-          secretName: k8sdev-ssh-public-key

@@ -9,6 +9,5 @@ riderModule.iml
 **/MercurialExtensions/
 backend/Testing/SyncReverseProxy/TestData.cs
 .task
-deployment/id_lexbox_k8sdev.pub
 deployment/dev/collector-config.yaml
 deployment/dev/local.env
