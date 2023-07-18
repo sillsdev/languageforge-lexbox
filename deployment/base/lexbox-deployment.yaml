@@ -14,9 +14,6 @@ spec:
   ports:
   - name: http
     protocol: TCP
-    port: 80
-  - name: backend
-    protocol: TCP
     port: 5158
   - name: otel
     protocol: TCP
@@ -67,12 +64,11 @@ spec:
             memory: 175Mi
         startupProbe:
           httpGet:
-            port: 80
+            port: 5158
             path: /api/healthz
           failureThreshold: 30
           periodSeconds: 10
         ports:
-          - containerPort: 80
           - containerPort: 5158
 
         volumeMounts:
@@ -80,6 +76,8 @@ spec:
           mountPath: /hg-repos
 
         env:
+          - name: DOTNET_URLS
+            value: http://0.0.0.0:5158
           - name: ASPNETCORE_ENVIRONMENT
             value: Development
           - name: POSTGRES_DB

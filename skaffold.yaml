@@ -48,6 +48,12 @@ portForward:
     resourceName: ui
     namespace: languagedepot
     port: 3000
+  - resourceType: Service
+    resourceName: db
+    namespace: languagedepot
+    port: 5432
+    localPort: 5433
+
 manifests:
   kustomize:
     paths:
