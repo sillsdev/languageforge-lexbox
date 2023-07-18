@@ -38,3 +38,5 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Development"
+          command: [ 'sh', '-c', 'dotnet run migrate' ]
+
