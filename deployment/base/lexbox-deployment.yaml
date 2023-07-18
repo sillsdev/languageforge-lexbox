@@ -220,7 +220,7 @@ spec:
       - name: db-migrations
         # Should be same image as lexbox-api container
         image: ghcr.io/sillsdev/lexbox-api:develop
-        command: ['sh', '-c', 'dotnet run migrate --environment "Development"']
+        command: ['sh', '-c', 'dotnet run migrate']
         env:
           - name: POSTGRES_DB
             valueFrom:

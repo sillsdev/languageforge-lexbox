@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: languagedepot
 
 resources:
-- config-map.yaml
 - secrets.yaml
 - pvc.yaml
 - db-deployment.yaml

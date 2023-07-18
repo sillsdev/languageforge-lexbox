@@ -13,4 +13,8 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Production"
-
+      initContainers:
+        - name: db-migrations
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"

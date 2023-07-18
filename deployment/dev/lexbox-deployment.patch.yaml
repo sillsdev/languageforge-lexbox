@@ -33,3 +33,8 @@ spec:
           - name: Email__SmtpPassword
             value: 'maildev'
             valueFrom:
+      initContainers:
+        - name: db-migrations
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
