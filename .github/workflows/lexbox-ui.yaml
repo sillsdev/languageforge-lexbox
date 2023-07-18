@@ -84,10 +84,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   deploy-ui:
     uses: ./.github/workflows/deploy.yaml
-#    if: ${{github.ref == vars.PROD_BRANCH}}
-    if: ${{ false }}
+    if: ${{github.ref == vars.PROD_BRANCH}}
     secrets: inherit
     needs: publish-ui
+    with:
+      deployment: ui #k8s deployment name
+      expected-api-version: ${{ needs.publish-ui.outputs.version }}
+
   check-and-lint:
     runs-on: ubuntu-latest
     defaults:

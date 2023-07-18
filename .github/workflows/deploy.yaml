@@ -4,6 +4,10 @@
       expected-api-version:
         description: 'The version of the API to deploy (TODO, currently only the version to verify, it deploys latest always right now)'
         type: string
+      deployment:
+        description: 'The k8s deployment to update'
+        type: string
+        default: 'lexbox'
 
 jobs:
   deploy:
@@ -23,10 +27,11 @@ jobs:
             {
               "action" : "push",
               "ref" : "${{ github.ref }}",
-              "version": "${{ inputs.expected-api-version }}"
+              "version": "${{ inputs.expected-api-version }}",
+              "deployment": "${{ inputs.deployment }}"
             }
       - name: Verify Version
-        if: ${{ inputs.expected-api-version }}
+        if: ${{ inputs.expected-api-version && inputs.deployment == "lexbox" }}
         env:
           TARGET_HOST: https://staging.languagedepot.org
           EXPECTED_VERSION: ${{ inputs.expected-api-version }}

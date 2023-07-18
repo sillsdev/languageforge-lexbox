@@ -109,6 +109,7 @@ jobs:
     uses: ./.github/workflows/deploy.yaml
     with:
       expected-api-version: ${{ needs.publish-api.outputs.version }}
+      deployment: lexbox #k8s deployment name
     secrets: inherit
     needs: publish-api
     if: ${{ github.ref ==  vars.PROD_BRANCH }}
