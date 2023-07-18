@@ -3,7 +3,6 @@ kind: Kustomization
 namespace: languagedepot
 
 resources:
-- secrets.yaml
 - pvc.yaml
 - db-deployment.yaml
 - hg-deployment.yaml

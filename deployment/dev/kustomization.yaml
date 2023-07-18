@@ -6,6 +6,7 @@ resources:
 - ../base/
 #- secrets.yaml
 - ingress-deployment.yaml
+- db-secrets.yaml
 
 configMapGenerator:
 - name: otel-config
@@ -15,9 +16,13 @@ configMapGenerator:
 secretGenerator:
   - name: otel
     namespace: languagedepot
-    behavior: replace
+    behavior: create
     envs:
       - local.env
+  - name: deploy-key
+    namespace: deploy-key
+    literals:
+      - deploy-key=test
 
 patches:
   - target:
@@ -26,7 +31,6 @@ patches:
     path: change-storage-class.patch.yaml
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
-  - path: db-secrets.yaml
   - path: hg-deployment-patch.yaml
   - path: hg-repos-pvc.patch.yaml
   - path: hgresumable-cache.patch.yaml
