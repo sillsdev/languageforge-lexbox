@@ -56,7 +56,8 @@ public static class GraphQlSetupKernel
             .AddInstrumentation(options =>
             {
                 options.IncludeDocument = true;
-                options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
+                // ResolveFieldValue causes one activity per field in the query (which is a lot) because it's for each user in a response for example.
+                options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest & (~ActivityScopes.ResolveFieldValue);
             });
 
         // services.AddHttpClient("hasura",
