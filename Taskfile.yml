@@ -17,7 +17,7 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
-      - echo HONEYCOMB_API_KEY=__REPLACE__ >> deployment\dev\local.env
+      - echo HONEYCOMB_API_KEY=__REPLACE__ >> deployment/dev/local.env
   setup-win:
     platforms: [ windows ]
     cmds:
@@ -67,7 +67,7 @@ tasks:
       - dotnet test --filter Category=Integration
   test-integration-staging:
     cmds:
-      - dotnet test --filter Category=Integration  -s .\backend\Testing\staging.runsettings.xml
+      - dotnet test --filter Category=Integration  -s ./backend/Testing/staging.runsettings.xml
 
       # dev
   infra-up:
