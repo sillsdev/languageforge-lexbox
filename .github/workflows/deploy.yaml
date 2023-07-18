@@ -31,7 +31,7 @@ jobs:
               "deployment": "${{ inputs.deployment }}"
             }
       - name: Verify Version
-        if: ${{ inputs.expected-api-version && inputs.deployment == "lexbox" }}
+        if: ${{ inputs.expected-api-version && inputs.deployment == 'lexbox' }}
         env:
           TARGET_HOST: https://staging.languagedepot.org
           EXPECTED_VERSION: ${{ inputs.expected-api-version }}
