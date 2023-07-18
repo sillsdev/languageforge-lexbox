@@ -1,5 +1,4 @@
 import { redirect } from '@sveltejs/kit';
-import type { DocumentNode } from 'graphql';
 import {
   type Client,
   type PromisifiedSource,
@@ -9,7 +8,8 @@ import {
   type OperationResult,
   fetchExchange,
   CombinedError,
-  cacheExchange
+  cacheExchange,
+  queryStore
 } from '@urql/svelte';
 import { createClient } from '@urql/svelte';
 import { browser } from '$app/environment';
@@ -31,34 +31,51 @@ function createGqlClient(_gqlEndpoint?: string): Client {
   });
 }
 
-export function getClient(): GqlClient {
+export function getClient(fetch?: Fetch): GqlClient {
   if (browser) {
     if (globalClient) return globalClient;
-    globalClient = new GqlClient(createGqlClient(''));
+    globalClient = new GqlClient(createGqlClient(''), fetch);
     return globalClient;
   } else {
     //We do not cache the client on the server side.
-    return new GqlClient(createGqlClient());
+    return new GqlClient(createGqlClient(), fetch);
   }
 }
 
 type OperationOptions = Partial<OperationContext>;
 
-type QueryOperationOptions = OperationOptions
-  & { fetch: Fetch }; // ensure the sveltekit fetch is always provided
+type QueryOperationOptions = OperationOptions; // ensure the sveltekit fetch is always provided
 
 class GqlClient {
 
-  constructor(private readonly client: Client) {
+  constructor(private readonly client: Client, private readonly fetch?: Fetch) {
     this.subscription = (...args) => this.client.subscription(...args);
   }
 
-  query<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: DocumentNode | TypedDocumentNode<Data, Variables> | string, variables: Variables, context: QueryOperationOptions): $OpResult<Data> {
-    return this.doOperation(context, (_context) => this.client.query<Data, Variables>(query, variables, _context));
+  query<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: QueryOperationOptions = {}): $OpResult<Data> {
+    return this.doOperation(
+      {fetch: this.fetch, ...context},
+      (_context) => this.client.query<Data, Variables>(query, variables, _context)
+    );
   }
 
-  mutation<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: DocumentNode | TypedDocumentNode<Data, Variables> | string, variables: Variables, context: OperationOptions = {}): $OpResult<Data> {
-    return this.doOperation(context, (_context) => this.client.mutation<Data, Variables>(query, variables, _context));
+  queryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
+    query: TypedDocumentNode<Data, Variables>,
+    variables: Variables,
+    context: QueryOperationOptions = {}){
+    return queryStore<Data, Variables>({
+      client: this.client,
+      query,
+      variables,
+      context: {fetch: this.fetch, ...context}
+    });
+  }
+
+  mutation<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: OperationOptions = {}): $OpResult<Data> {
+    return this.doOperation(
+      context,
+      (_context) => this.client.mutation<Data, Variables>(query, variables, _context)
+    );
   }
 
   // We can't wrap a subscription, because it's not just a web request,

@@ -9,6 +9,7 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { isAdmin, type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
+import {derived} from 'svelte/store';
 
 function requireAdmin(user: LexAuthUser | null): void {
   if (!isAdmin(user)) {
@@ -20,9 +21,9 @@ export async function load(event: PageLoadEvent) {
   const parentData = await event.parent();
   requireAdmin(parentData.user);
 
-  const client = getClient();
+  const client = getClient(event.fetch);
   //language=GraphQL
-  const results = await client.query(graphql(`
+  const results = client.queryStore(graphql(`
         query loadAdminDashboard {
             projects(orderBy: [
                 {lastCommit: ASC},
@@ -42,13 +43,28 @@ export async function load(event: PageLoadEvent) {
                 createdDate
             }
         }
-    `), {}, { fetch: event.fetch });
+    `), {});
+
+  await new Promise((resolve, reject) => {
+    results.subscribe(value => {
+      console.log('gql result:', value);
+      if (value.fetching) return;
+      if (value.error) {
+        reject(value.error);
+      } else {
+        resolve(value);
+      }
+    });
+  });
 
   return {
-    projects: results.data?.projects ?? [],
-    users: results.data?.users ?? []
+    results,
+    projects: derived(results, r => r.data?.projects ?? []),
+    users: derived(results, r => r.data?.users ?? [])
   }
 }
+
+
 export async function _changeUserAccountByAdmin(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountByAdminMutation> {
   //language=GraphQL
   const result = await getClient()
@@ -58,6 +74,8 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountDataInpu
           changeUserAccountByAdmin(input: $input) {
             user {
               id
+              name
+              email
             }
             errors {
               ... on Error {

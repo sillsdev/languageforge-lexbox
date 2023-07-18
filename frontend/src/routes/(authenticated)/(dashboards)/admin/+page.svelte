@@ -15,6 +15,9 @@
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
   export let data: PageData;
+  $: results = data.results;
+  $: allProjects = $results.data.projects;
+  $: allUsers = $results.data.users;
   let deleteModal: DeleteUserModal;
   let formModal: EditUserAccount;
   let _editing: UserRow;
@@ -31,7 +34,7 @@
     const { response, formState } = await formModal.openModal(user);
     if (response == DialogResponse.Submit) {
       if (formState.name.tainted || formState.password.tainted) {
-        notifySuccess($t('admin_dashboard.notifications.user_updated', { name: user.name }));
+        notifySuccess($t('admin_dashboard.notifications.user_updated', { name: formState.name.currentValue }));
       }
       if (formState.email.changed) {
         notifySuccess(
@@ -48,7 +51,7 @@
   let projectSearch = '';
   let userSearch = '';
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
-  $: projects = data.projects
+  $: projects = allProjects
     .filter(
       (p) =>
         !projectSearch ||
@@ -57,7 +60,7 @@
     )
     .slice(0, projectSearch ? undefined : 10);
   $: userSearchLower = userSearch.toLocaleLowerCase();
-  $: users = data.users
+  $: users = allUsers
     .filter(
       (u) =>
         !userSearch ||
@@ -76,7 +79,7 @@
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
         {$t('admin_dashboard.project_table_title')}
-        <Badge>{projectSearch ? projects.length : data.projects.length}</Badge>
+        <Badge>{projectSearch ? projects.length : allProjects.length}</Badge>
       </span>
 
       <Input
@@ -128,7 +131,7 @@
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
         {$t('admin_dashboard.user_table_title')}
-        <Badge>{userSearch ? users.length : data.users.length}</Badge>
+        <Badge>{userSearch ? users.length : allUsers.length}</Badge>
       </span>
       <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={userSearch} />
 
