@@ -1,0 +1,2 @@
+﻿__base__ = ../json/map
+notfound = '\{"error": "not found"}'

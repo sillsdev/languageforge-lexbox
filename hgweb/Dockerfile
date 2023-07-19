@@ -37,6 +37,7 @@ RUN install -d /var/hg/repos -o www-data -g www-data
 # Configure hgweb
 COPY hgweb.hgrc /var/hg/
 COPY hgweb.wsgi /usr/local/www/wsgi-scripts/
+COPY json-lex /usr/lib/python3/dist-packages/mercurial/templates/json-lex
 
 VOLUME /var/hg/repos
 
