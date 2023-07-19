@@ -8,11 +8,6 @@ resources:
 - ingress-deployment.yaml
 - db-secrets.yaml
 
-configMapGenerator:
-- name: otel-config
-  files:
-    - collector-config.yaml
-
 secretGenerator:
   - name: otel
     namespace: languagedepot
