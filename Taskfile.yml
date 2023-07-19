@@ -11,6 +11,12 @@ includes:
     dir: ./deployment
   gh:
     taskfile: ./.github/Taskfile.yml
+  ui:
+    taskfile: ./frontend/Taskfile.yml
+    dir: ./frontend
+  api:
+    taskfile: ./backend/Taskfile.yml
+    dir: ./backend
 
 tasks:
   setup:
@@ -79,107 +85,34 @@ tasks:
 
   backend-up:
     cmds:
-      # GraphQL breaks if changes are made while running in docker, so a restart is handy
-      - task: api-stop
+      - task: api:stop
       - task: api-up
 
   dev: # Currently broken (because the ui doesn't wait for the api), but probably no one uses it.
-    deps: [ api-dev, ui-only]
+    deps: [ api-dev, ui:ui-only]
     interactive: true
 
-  # ui
   ui-dev:
     aliases: [ ui ]
     desc: The single command for local ui development
     dir: ./frontend
-    deps: [ backend-up, ui-down ]
+    deps: [ backend-up, ui:down ]
     interactive: true
     cmds:
-      - task: ui-only
-  ui-only:
-    aliases: [ uio ]
-    dir: ./frontend
-    deps: [ ui-install ]
-    interactive: true
-    cmds:
-      - pnpm run dev
-  ui-install:
-    dir: ./frontend
-    method: checksum
-    sources:
-      - package.json
-      - pnpm-lock.yaml
-    cmds:
-      - corepack enable || true
-      - pnpm install
-  ui-down:
-    cmds:
-      - docker compose stop ui
+      - task: ui:only
 
-  playwright-generate-tests:
-    cmds:
-      - pnpm dlx playwright codegen staging.languagedepot.org
       # api
   api-dev:
     aliases: [ api ]
     desc: The single command for local api development
-    deps: [ infra-up, api-stop ]
-    interactive: true
-    cmd: task api-only
-  api-only:
-    aliases: [ apio ]
-    dir: ./backend/LexBoxApi
+    deps: [ infra-up, api:stop ]
     interactive: true
     cmds:
-      - dotnet watch
+      - task: api:only
   api-up:
     vars:
       WAIT: '{{default true .WAIT}}'
     cmds:
       - docker compose up lexbox-api --wait={{.WAIT}}
-  api-stop:
-    cmds:
-      - docker compose stop lexbox-api
 
-  migrate-db:
-    dir: ./backend/LexBoxApi
-    cmds:
-      - dotnet run migrate --environment "Development"
 
-  add-migration:
-    desc: 'usage: task add-migration -- "migration name". Often followed by `task database-update`.'
-    dir: ./backend/LexBoxApi
-    cmds:
-      - dotnet ef migrations add --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext --output-dir Migrations {{.CLI_ARGS}}
-
-  remove-last-migration:
-    desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally."
-    dir: ./backend/LexBoxApi
-    cmds:
-      - dotnet ef migrations remove --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
-
-  db-update:
-    desc: "Runs any migrations that haven't yet been applied."
-    dir: ./backend/LexBoxApi
-    cmds:
-      - dotnet ef database update --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
-
-  svelte-check:
-    desc: "Runs the frontend code checks done in CI. Note: the app must be built."
-    aliases: [ sc ]
-    dir: ./frontend
-    cmds:
-      - pnpm run check
-      - pnpm run lint
-
-  svelte:
-    desc: "Directory independent access to pnpm. E.g. `task svelte -- install`"
-    aliases: [ s ]
-    dir: ./frontend
-    cmd: pnpm {{.CLI_ARGS}}
-
-  dotnet:
-    desc: "Directory independent access to api dotnet. E.g. `task dotnet -- restore`"
-    aliases: [ dn ]
-    dir: ./backend/LexBoxApi
-    cmd: dotnet {{.CLI_ARGS}}

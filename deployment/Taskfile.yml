@@ -26,3 +26,14 @@ tasks:
     interactive: true
     cmds:
       - kubectl exec -it deployment/lexbox -c ui -- /bin/ash
+
+
+  diff-staging:
+    dir: ./staging
+    cmds:
+      - kubectl diff -k . --context dallas-rke
+
+  update-staging:
+    dir: ./staging
+    cmds:
+      - kubectl apply -k . --context dallas-rke
