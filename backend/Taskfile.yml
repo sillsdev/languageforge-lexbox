@@ -1,0 +1,41 @@
+﻿version: 3
+
+tasks:
+  api-only:
+    aliases: [ apio, only ]
+    dir: ./LexBoxApi
+    interactive: true
+    cmds:
+      - dotnet watch
+  stop:
+    cmds:
+      - docker compose stop lexbox-api
+
+  migrate-db:
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet run migrate --environment "Development"
+
+  add-migration:
+    desc: 'usage: task add-migration -- "migration name". Often followed by `task database-update`.'
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet ef migrations add --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext --output-dir Migrations {{.CLI_ARGS}}
+
+  remove-last-migration:
+    desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally."
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet ef migrations remove --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
+
+  db-update:
+    desc: "Runs any migrations that haven't yet been applied."
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet ef database update --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
+
+  dotnet:
+    desc: "Directory independent access to api dotnet. E.g. `task dotnet -- restore`"
+    aliases: [ dn ]
+    dir: ./LexBoxApi
+    cmd: dotnet {{.CLI_ARGS}}

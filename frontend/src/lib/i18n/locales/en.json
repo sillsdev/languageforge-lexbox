@@ -14,10 +14,11 @@
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "username_or_email_required": "You must provide a username or email.",
-    "password_missing": "Please include a password with at least 4 characters",
+    "password_missing": "Password must be at least 4 characters",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
-      "user_updated": "{name} has been updated."
+      "user_updated": "{name} has been updated.",
+      "email_need_verification": "You've requested to change the e-mail address for {name} to {requestedEmail}. The change will only come into effect when the user verifies the new address. They can do so using the link in the e-mail we just sent them."
     },
     "form_modal": {
       "title": "Edit User",
@@ -42,13 +43,18 @@
     "email": "Email",
     "name": "Display name",
     "reset_password": "Reset your password instead?",
-    "success": "Your account has been updated",
+    "update_success": "Your account has been updated.",
     "button_update": "Update account info",
-    "more_settings": "More Settings",
-    "delete_account": "Delete Account",
-    "delete_user": "delete account",
-    "keyphrase": "delete account",
-    "delete_success": "Your account has been deleted."
+    "verify_email": {
+      "verify_success": "You've successfully verified your email address.",
+      "change_success": "You've successfully updated your email address.",
+      "verify_to_change": "You've requested to change your e-mail address to {requestedEmail}. The change will only come into effect when you verify the new address. You can do so using the link in the e-mail we just sent you.",
+      "go_to_projects": "Go to my projects",
+      "check_inbox": "Please check your inbox for the verification email we just sent.",
+      "please_verify": "Please verify your email address as soon as possible.",
+      "resend": "Resend verification email",
+      "you_have_mail": "You've got mail!"
+    }
   },
   "appbar": {
     "app_name": "Language Depot"
@@ -197,5 +203,26 @@
   },
   "notify": {
     "close_all": "Close all"
+  },
+  "emails": {
+    "verify_email": {
+      "subject": "Verify your e-mail address",
+      "to_verify_click": "Click the button below to verify your e-mail address.",
+      "to_verify_and_finish_changing_click": "Click the button below to verify your new e-mail address and effectively make it the e-mail address associated with your account.",
+      "verify_button": "Verify e-mail"
+    },
+    "forgot_password": {
+      "subject": "Forgot your password?",
+      "to_reset_click": "Click the button below to reset your password.",
+      "reset_button": "Reset password"
+    },
+    "password_changed": {
+      "subject": "Your password was changed",
+      "body": "We're writing to confirm that your password was just changed."
+    },
+    "shared": {
+      "greeting": "Hello {name}!",
+      "or_nvaigate_to_url": "Or navigate to this URL in your browser:"
+    }
   }
 }

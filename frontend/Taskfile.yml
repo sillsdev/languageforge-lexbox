@@ -1,0 +1,37 @@
+﻿version: 3
+tasks:
+  ui-only:
+    aliases: [ uio, only ]
+    deps: [ install ]
+    interactive: true
+    cmds:
+      - pnpm run dev
+
+  install:
+    method: checksum
+    sources:
+      - package.json
+      - pnpm-lock.yaml
+    cmds:
+      - corepack enable || true
+      - pnpm install
+
+  down:
+    cmds:
+      - docker compose stop ui
+
+  playwright-generate-tests:
+    cmds:
+      - pnpm dlx playwright codegen staging.languagedepot.org
+
+  svelte-check:
+    desc: "Runs the frontend code checks done in CI. Note: the app must be built."
+    aliases: [ sc ]
+    cmds:
+      - pnpm run check
+      - pnpm run lint
+
+  svelte:
+    desc: "Directory independent access to pnpm. E.g. `task svelte -- install`"
+    aliases: [ s ]
+    cmd: pnpm {{.CLI_ARGS}}

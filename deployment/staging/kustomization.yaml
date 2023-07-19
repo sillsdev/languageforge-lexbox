@@ -1,0 +1,14 @@
+﻿apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: languagedepot
+
+resources:
+  - ../base
+patches:
+  - path: lexbox-deployment.patch.yaml
+  - path: ui-deployment.patch.yaml
+  - path: ingress-config-staging.yaml
+    target:
+      kind: Ingress
+      name: proxy
+      namespace: languagedepot

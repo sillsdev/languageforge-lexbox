@@ -1,8 +1,9 @@
 <script lang="ts">
+  import EmailVerificationStatus from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
   import { AdminIcon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
-  import type {LayoutData} from './$types';
+  import type { LayoutData } from './$types';
 
   let menuToggle = false;
   export let data: LayoutData;
@@ -37,6 +38,12 @@
         </a>
       </AdminContent>
     </div>
+
+    {#if !user.emailVerified}
+      <div class="max-w-prose mx-auto mt-6">
+        <EmailVerificationStatus {user} />
+      </div>
+    {/if}
 
     <Content>
       <slot />

@@ -1,4 +1,4 @@
-directive @allowAnonymous repeatable on FIELD_DEFINITION
+﻿directive @allowAnonymous repeatable on FIELD_DEFINITION
 
 directive @authorize(
   """
@@ -82,20 +82,14 @@ type ChangeProjectNamePayload {
   project: Project
 }
 
-union ChangeUserAccountByAdminError = DbError | NotFoundError
-
-input ChangeUserAccountByAdminInput {
-  email: String!
-  name: String!
-  userId: UUID!
-}
+union ChangeUserAccountByAdminError = DbError | InvalidFormatError | NotFoundError
 
 type ChangeUserAccountByAdminPayload {
   errors: [ChangeUserAccountByAdminError!]
   user: User
 }
 
-union ChangeUserAccountDataError = DbError | NotFoundError
+union ChangeUserAccountDataError = DbError | InvalidFormatError | NotFoundError
 
 input ChangeUserAccountDataInput {
   email: String!
@@ -177,6 +171,10 @@ interface Error {
   message: String!
 }
 
+type InvalidFormatError implements Error {
+  message: String!
+}
+
 type IsAdminResponse {
   value: Boolean!
 }
@@ -184,6 +182,7 @@ type IsAdminResponse {
 type LexAuthUser {
   canManageProject(projectId: UUID!): Boolean!
   email: String!
+  emailVerificationRequired: Boolean
   id: UUID!
   name: String!
   projects: [AuthUserProject!]!
@@ -202,7 +201,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
-  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload!
+  changeUserAccountByAdmin(input: ChangeUserAccountDataInput!): ChangeUserAccountByAdminPayload!
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
@@ -364,6 +363,7 @@ scalar UUID
 type User {
   createdDate: DateTime!
   email: String!
+  emailVerified: Boolean!
   id: UUID!
   isAdmin: Boolean!
   name: String!
@@ -378,6 +378,7 @@ input UserFilterInput {
   and: [UserFilterInput!]
   createdDate: DateTimeOperationFilterInput
   email: StringOperationFilterInput
+  emailVerified: BooleanOperationFilterInput
   id: UuidOperationFilterInput
   isAdmin: BooleanOperationFilterInput
   name: StringOperationFilterInput
@@ -397,6 +398,7 @@ enum UserRole {
 input UserSortInput {
   createdDate: SortEnumType
   email: SortEnumType
+  emailVerified: SortEnumType
   id: SortEnumType
   isAdmin: SortEnumType
   name: SortEnumType

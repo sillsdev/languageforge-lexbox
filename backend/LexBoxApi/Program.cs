@@ -60,6 +60,7 @@ builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 app.Logger.LogInformation("LexBox-api version: {version}", AppVersionService.Version);
+
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.All,
@@ -71,7 +72,6 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
         "*.languageforge.org"
     }
 });
-
 app.Use(async (context, next) =>
 {
     context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
@@ -95,6 +95,7 @@ app.UseHealthChecks("/api/healthz");
     });
 }
 app.UseRouting();
+app.UseResumableStatusHack();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();

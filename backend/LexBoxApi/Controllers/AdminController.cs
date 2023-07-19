@@ -1,9 +1,8 @@
+using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
+using LexBoxApi.Services;
 using LexCore;
-using LexCore.Auth;
 using LexData;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,15 +14,19 @@ public class AdminController : ControllerBase
 {
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly LoggedInContext _loggedInContext;
+    private readonly EmailService _emailService;
 
     public AdminController(LexBoxDbContext lexBoxDbContext,
-        LoggedInContext loggedInContext)
+        LoggedInContext loggedInContext,
+        EmailService emailService
+    )
     {
         _lexBoxDbContext = lexBoxDbContext;
         _loggedInContext = loggedInContext;
+        _emailService = emailService;
     }
 
-    public record ResetPasswordAdminRequest(string PasswordHash, Guid userId);
+    public record ResetPasswordAdminRequest([Required(AllowEmptyStrings = false)] string PasswordHash, Guid userId);
 
     [HttpPost("resetPassword")]
     [AdminRequired]
@@ -34,6 +37,7 @@ public class AdminController : ControllerBase
         var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == request.userId);
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
         await _lexBoxDbContext.SaveChangesAsync();
+        await _emailService.SendPasswordChangedEmail(user);
         return Ok();
     }
 }

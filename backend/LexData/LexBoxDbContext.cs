@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexData;
 
-public class LexBoxDbContext: DbContext
+public class LexBoxDbContext : DbContext
 {
-    public LexBoxDbContext(DbContextOptions<LexBoxDbContext> options): base(options)
+    public LexBoxDbContext(DbContextOptions<LexBoxDbContext> options) : base(options)
     {
     }
 

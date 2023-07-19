@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="DataAnnotatedModelValidations" Version="4.0.2" />
         <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.2.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>

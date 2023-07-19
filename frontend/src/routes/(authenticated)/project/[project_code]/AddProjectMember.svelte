@@ -1,6 +1,6 @@
 <script lang="ts">
   import { BadgeButton } from '$lib/components/Badges';
-  import { FormModal } from '$lib/components/modals';
+  import { DialogResponse, FormModal } from '$lib/components/modals';
   import Input from '$lib/forms/Input.svelte';
   import UserRoleSelect from '$lib/forms/UserRoleSelect.svelte';
   import { ProjectRole } from '$lib/gql/types';
@@ -18,17 +18,17 @@
   $: form = formModal?.form();
 
   async function openModal(): Promise<void> {
-    await formModal.open(async () => {
-      const result = await _addProjectMember({
+    const { response } = await formModal.open(async () => {
+      const { error } = await _addProjectMember({
         projectId,
         userEmail: $form.email,
         role: $form.role,
       });
-      if (!result.error) {
-        notifySuccess($t('project_page.notifications.add_member', { email: $form.email }));
-      }
-      return result.error?.message;
+      return error?.message;
     });
+    if (response === DialogResponse.Submit) {
+      notifySuccess($t('project_page.notifications.add_member', { email: $form.email }));
+    }
   }
 </script>
 

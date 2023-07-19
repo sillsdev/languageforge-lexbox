@@ -8,7 +8,8 @@
 <script lang="ts">
   import t from '$lib/i18n';
   import { createEventDispatcher } from 'svelte';
-  import { writable, type Unsubscriber } from 'svelte/store';
+  import { writable } from 'svelte/store';
+
   const dispatch = createEventDispatcher<{
     close: DialogResponse;
     open: void;
@@ -25,8 +26,7 @@
     $open = true;
     dispatch('open');
     const response = await new Promise<DialogResponse>((resolve) => {
-      let unsub: Unsubscriber;
-      unsub = dialogResponse.subscribe((reason) => {
+      const unsub = dialogResponse.subscribe((reason) => {
         if (reason) {
           unsub();
           resolve(reason);
@@ -48,15 +48,13 @@
     $dialogResponse = DialogResponse.Submit;
     //a promise that will resolve when the modal is closed, or openModal is called again
     return new Promise<void>((resolve) => {
-      let unsubOpen: Unsubscriber;
-      unsubOpen = open.subscribe((open) => {
+      const unsubOpen = open.subscribe((open) => {
         if (!open) {
           unsubOpen();
           resolve();
         }
       });
-      let unsubResponse: Unsubscriber;
-      unsubResponse = dialogResponse.subscribe((reason) => {
+      const unsubResponse = dialogResponse.subscribe((reason) => {
         if (reason === null) {
           unsubResponse();
           resolve();
@@ -99,10 +97,10 @@
       <slot {closing} />
       {#if $$slots.actions}
         <div class="modal-action justify-between">
-          <div>
+          <div class="flex gap-4">
             <slot name="extraActions" />
           </div>
-          <div>
+          <div class="flex gap-4">
             <slot name="actions" {closing} />
           </div>
         </div>

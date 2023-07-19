@@ -18,9 +18,9 @@
         <PackageReference Include="Microsoft.Playwright.TestAdapter" Version="1.35.0" />
         <PackageReference Include="Moq" Version="4.18.4" />
         <PackageReference Include="Shouldly" Version="4.1.0" />
-        <PackageReference Include="SIL.Chorus.LibChorus" Version="5.2.0-beta0003" />
+        <PackageReference Include="SIL.Chorus.LibChorus" Version="5.2.0-beta0005" />
         <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.3.6" />
-        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.0.0-beta*" />
+        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.0.1" />
         <PackageReference Include="SIL.Core" Version="12.1.0-beta0031" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
         <PackageReference Include="xunit" Version="2.4.2" />

@@ -15,6 +15,8 @@
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { TrashIcon } from '$lib/icons';
   import { notifySuccess, notifyWarning } from '$lib/notify';
+  import { DialogResponse } from '$lib/components/modals';
+  import type { ErrorMessage } from '$lib/forms';
 
   export let data: PageData;
   const user = data.user;
@@ -23,30 +25,36 @@
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
-    await changeMemberRoleModal.open({
+    const { response } = await changeMemberRoleModal.open({
       userId: projectUser.user.id,
       name: projectUser.user.name,
       role: projectUser.role,
     });
-    notifySuccess(
-      $t('project_page.notifications.role_change', {
-        name: projectUser.user.name,
-        role: projectUser.role.toLowerCase(),
-      })
-    );
+
+    if (response === DialogResponse.Submit) {
+      notifySuccess(
+        $t('project_page.notifications.role_change', {
+          name: projectUser.user.name,
+          role: projectUser.role.toLowerCase(),
+        })
+      );
+    }
   }
 
   let deleteUserModal: DeleteModal;
   let userToDelete: ProjectUser | undefined;
   async function deleteProjectUser(projectUser: ProjectUser): Promise<void> {
     userToDelete = projectUser;
-    await deleteUserModal.prompt(async () => {
-      await _deleteProjectUser(_project.id, projectUser.user.id);
+    const deleted = await deleteUserModal.prompt(async () => {
+      const { error } = await _deleteProjectUser(_project.id, projectUser.user.id);
+      return error?.message;
     });
-    notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
+    if (deleted) {
+      notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
+    }
   }
 
-  async function updateProjectName(newName: string): Promise<string | void> {
+  async function updateProjectName(newName: string): Promise<ErrorMessage> {
     const result = await _changeProjectName({ projectId: _project.id, name: newName });
     if (result.error) {
       return result.error.message;
@@ -54,7 +62,7 @@
     notifySuccess($t('project_page.notifications.rename_project', { name: newName }));
   }
 
-  async function updateProjectDescription(newDescription: string): Promise<string | void> {
+  async function updateProjectDescription(newDescription: string): Promise<ErrorMessage> {
     const result = await _changeProjectDescription({
       projectId: _project.id,
       description: newDescription,

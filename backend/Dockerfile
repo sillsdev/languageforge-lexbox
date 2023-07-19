@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
 EXPOSE 80
@@ -12,17 +13,17 @@ COPY . .
 #
 # move them into the proper sub folders, based on the name of the project
 # RUN for file in $(ls *.csproj); do mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done
-RUN dotnet restore "LexBoxApi/LexBoxApi.csproj"
+RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore "LexBoxApi/LexBoxApi.csproj"
 # COPY . .
 # WORKDIR "/LexBoxApi"
 
 ARG APP_VERSION
 LABEL version=$APP_VERSION
 
-RUN dotnet build /p:InformationalVersion=$APP_VERSION "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/build
+RUN --mount=type=cache,target=/root/.nuget/packages dotnet build /p:InformationalVersion=$APP_VERSION "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish /p:InformationalVersion=$APP_VERSION "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/publish
+RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:InformationalVersion=$APP_VERSION "/LexBoxApi/LexBoxApi.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app

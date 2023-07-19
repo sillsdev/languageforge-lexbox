@@ -4,7 +4,7 @@
 
   export let id = randomFieldId();
   export let label: string;
-  export let value = '';
+  export let value: string | undefined = undefined;
   export let type = 'text';
   export let autofocus = false;
   export let readonly = false;

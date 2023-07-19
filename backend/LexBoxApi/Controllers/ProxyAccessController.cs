@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 using LexCore;
 using LexCore.ServiceInterfaces;
@@ -20,29 +21,29 @@ public class ProxyAccessController : ControllerBase
         _lexProxyService = lexProxyService;
     }
 
-    private record PasswordJson(string Password);
-    private static readonly string PASSWORD_FORM_KEY = nameof(PasswordJson.Password).ToLower();
+    public record ProjectsInput([Required(AllowEmptyStrings = false)] string Password);
 
     [AllowAnonymous]
     [HttpPost("/api/user/{userName}/projects")]
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
-    [Consumes(MediaTypeNames.Application.Json, "application/x-www-form-urlencoded")]
-    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName/*, [FromForm/FromBody] string password*/)
+    [Consumes("application/x-www-form-urlencoded")]
+    public async Task<ActionResult<LegacyApiProject[]>> ProjectsForm(string userName, [FromForm] ProjectsInput input)
     {
-        string password;
-        // The legacy API supports both types (lf-classic passes JSON & chorus passes form-data)
-        if (Request.HasFormContentType)
-        {
-            var form = await Request.ReadFormAsync();
-            password = form?[PASSWORD_FORM_KEY].FirstOrDefault() ?? string.Empty;
-        }
-        else
-        {
-            var json = await Request.ReadFromJsonAsync<PasswordJson>();
-            password = json?.Password ?? string.Empty;
-        }
+        return await Projects(userName, input);
+    }
+
+
+    [AllowAnonymous]
+    [HttpPost("/api/user/{userName}/projects")]
+    [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
+    [Consumes(MediaTypeNames.Application.Json)]
+    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, ProjectsInput input)
+    {
+        var password = input.Password;
 
         var user = await _lexBoxDbContext.Users.Where(user => user.Username == userName)
             .Select(user => new

@@ -1,7 +1,9 @@
+using DataAnnotatedModelValidations;
 using HotChocolate.Data.Projections.Expressions;
 using HotChocolate.Diagnostics;
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
+using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.Extensions.Options;
@@ -19,6 +21,9 @@ public static class GraphQlSetupKernel
             .RegisterDbContext<LexBoxDbContext>()
             .RegisterService<IHgService>()
             .RegisterService<LoggedInContext>()
+            .RegisterService<EmailService>()
+            .RegisterService<LexAuthService>()
+            .AddDataAnnotationsValidator()
             .AddSorting(descriptor =>
             {
                 descriptor.AddDefaults();
@@ -51,7 +56,8 @@ public static class GraphQlSetupKernel
             .AddInstrumentation(options =>
             {
                 options.IncludeDocument = true;
-                options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
+                // ResolveFieldValue causes one activity per field in the query (which is a lot) because it's for each user in a response for example.
+                options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest & (~ActivityScopes.ResolveFieldValue);
             });
 
         // services.AddHttpClient("hasura",
