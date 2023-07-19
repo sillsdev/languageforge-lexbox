@@ -10,35 +10,22 @@ using Testing.Services;
 namespace Testing.ApiTests;
 
 [Trait("Category", "Integration")]
-public class AuthTests
+public class AuthTests : ApiTestBase
 {
-    private string _host = TestingEnvironmentVariables.ServerHostname;
-    private HttpClient _httpClient = new HttpClient();
-
-    private async Task LoginAs(string user, string password)
-    {
-        await _httpClient.PostAsJsonAsync(
-            $"http://{_host}/api/login",
-            new Dictionary<string, object>
-            {
-                { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
-            });
-    }
-
     [Fact]
     public async Task TestLoginAndVerifyDifferentUsers()
     {
         await LoginAs("manager", "pass");
-        var managerResponse = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"http://{_host}/api/user/currentUser"),
+        var managerResponse = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                $"http://{Host}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
         var manager = await managerResponse.Content.ReadFromJsonAsync<LexAuthUser>();
         manager.ShouldNotBeNull();
         manager.Email.ShouldBe("manager@test.com");
 
         await LoginAs("admin", "pass");
-        var response = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"http://{_host}/api/user/currentUser"),
+        var response = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                $"http://{Host}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
         var admin = await response.Content.ReadFromJsonAsync<LexAuthUser>();
         admin.ShouldNotBeNull();
@@ -48,27 +35,15 @@ public class AuthTests
     [Fact]
     public async Task TestGqlVerifyDifferentUsers()
     {
-        var query = """{"query":"query testGetMe {  me {    id    email  }}"}""";
+        var query = """query testGetMe {  me {    id    email  }}""";
         await LoginAs("manager", "pass");
-        var managerResponse = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post,
-                $"http://{_host}/api/graphql")
-            {
-                Content = new StringContent(query, Encoding.UTF8, "application/json")
-            },
-            HttpCompletionOption.ResponseContentRead);
-        var manager = await managerResponse.Content.ReadFromJsonAsync<JsonObject>();
+        var manager = await ExecuteGql(query);
         manager.ShouldNotBeNull();
-        manager["data"]?["me"]?["email"]?.ToString().ShouldBe("manager@test.com");
+        manager["data"]!["me"]!["email"]!.ToString().ShouldBe("manager@test.com");
 
         await LoginAs("admin", "pass");
-        var adminResponse = await _httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Post,
-                $"http://{_host}/api/graphql")
-            {
-                Content = new StringContent(query, Encoding.UTF8, "application/json")
-            },
-            HttpCompletionOption.ResponseContentRead);
-        var admin = await adminResponse.Content.ReadFromJsonAsync<JsonObject>();
+        var admin = await ExecuteGql(query);
         admin.ShouldNotBeNull();
-        admin["data"]?["me"]?["email"]?.ToString().ShouldBe("admin@test.com");
+        admin["data"]!["me"]!["email"]!.ToString().ShouldBe("admin@test.com");
     }
 }
