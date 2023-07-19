@@ -66,4 +66,22 @@ public class ProjectController : ControllerBase
         return await _lexBoxDbContext.Projects.Where(p => !p.Code.EndsWith("-lexbox"))
             .ExecuteUpdateAsync(_ => _.SetProperty(p => p.Code, p => p.Code + "-lexbox"));
     }
+
+    [HttpDelete("project/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    [AdminRequired]
+    public async Task<ActionResult<Project>> DeleteProject(Guid id)
+    {
+        //this project is only for testing purposes. It will delete projects permanently from the database.
+        var project = await _lexBoxDbContext.Projects.FindAsync(id);
+        if (project is null) return NotFound();
+        if (project.RetentionPolicy != RetentionPolicy.Dev) return Forbid();
+        _lexBoxDbContext.Projects.Remove(project);
+        var hgService = HttpContext.RequestServices.GetRequiredService<IHgService>();
+        await hgService.DeleteRepo(project.Code);
+        await _lexBoxDbContext.SaveChangesAsync();
+        return project;
+    }
 }
