@@ -93,7 +93,6 @@ public class UserMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    [AdminRequired]
     public async Task<User> DeleteUserByAdminOrSelf(DeleteUserByAdminOrSelfInput input, LexBoxDbContext dbContext, LoggedInContext loggedInContext)
     {
         loggedInContext.User.AssertCanDeleteAccount(input.UserId);
