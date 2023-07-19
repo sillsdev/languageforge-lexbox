@@ -58,6 +58,8 @@ spec:
             memory: 400Mi
 
         env:
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
