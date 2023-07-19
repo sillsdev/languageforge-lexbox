@@ -42,13 +42,13 @@
     "email": "Email",
     "name": "Display name",
     "reset_password": "Reset your password instead?",
-    "success": "Success: your account has been updated",
+    "success": "Your account has been updated",
     "button_update": "Update account info",
     "more_settings": "More Settings",
     "delete_account": "Delete Account",
     "delete_user": "delete account",
-    "delete_user_label": "Enter 'delete account' to delete your account.",
-    "keyphrase": "delete account"
+    "keyphrase": "delete account",
+    "delete_success": "Your account has been deleted."
   },
   "appbar": {
     "app_name": "Language Depot"

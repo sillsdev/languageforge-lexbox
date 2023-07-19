@@ -162,25 +162,14 @@ enum DbErrorCode {
   UNKNOWN
 }
 
-union DeleteUserByAdminError = DbError | NotFoundError
+union DeleteUserByAdminOrSelfError = DbError | NotFoundError
 
-input DeleteUserByAdminInput {
+input DeleteUserByAdminOrSelfInput {
   userId: UUID!
 }
 
-type DeleteUserByAdminPayload {
-  errors: [DeleteUserByAdminError!]
-  user: User
-}
-
-union DeleteUserByUserError = DbError | NotFoundError
-
-input DeleteUserByUserInput {
-  userId: UUID!
-}
-
-type DeleteUserByUserPayload {
-  errors: [DeleteUserByUserError!]
+type DeleteUserByAdminOrSelfPayload {
+  errors: [DeleteUserByAdminOrSelfError!]
   user: User
 }
 
@@ -216,8 +205,7 @@ type Mutation {
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload!
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
-  deleteUserByAdmin(input: DeleteUserByAdminInput!): DeleteUserByAdminPayload!
-  deleteUserByUser(input: DeleteUserByUserInput!): DeleteUserByUserPayload!
+  deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): Project
 }
 

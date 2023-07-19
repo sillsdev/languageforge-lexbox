@@ -6,33 +6,26 @@
   import { _changeUserAccountData } from './+page';
   import type { ChangeUserAccountDataInput } from '$lib/gql/types';
   import { TrashIcon } from '$lib/icons';
-  import { notifySuccess } from '$lib/notify';
+  import { notifySuccess, notifyWarning } from '$lib/notify';
   import z from 'zod';
   import { goto } from '$app/navigation';
-  import DeleteAccountModal from './DeleteAccountModal.svelte';
-  import { _deleteUserByUser } from './+page';
-  import type { DeleteUserByUserInput } from '$lib/gql/types';
+  import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
 
   export let data: PageData;
   $: user = data?.user;
   $: userid = user?.id;
-  let deleteModal: DeleteAccountModal;
+  let deleteModal: DeleteUserModal;
 
 
   async function openDeleteModal(): Promise<void> {
-    await deleteModal.open();
+    await deleteModal.open(userid);
+    notifyWarning($t('account_settings.delete_success'))
+    await goto('/logout');
   }
   const formSchema = z.object({
     email: z.string().email(),
     name: z.string(),
   });
-  async function deleteMe(): Promise<void> {
-    const deleteUserByUserInput: DeleteUserByUserInput = {
-      userId: userid as string,
-    };
-    await _deleteUserByUser(deleteUserByUserInput);
-    await goto('/logout');
-  }
   let { form, errors, enhance, message, submitting } = lexSuperForm(formSchema, async () => {
     const changeUserAccountDataInput: ChangeUserAccountDataInput = {
       email: $form.email,
@@ -42,7 +35,7 @@
     const result = await _changeUserAccountData(changeUserAccountDataInput);
     $message = result.error?.message;
     if (!$message) {
-      notifySuccess('Your account has been updated.');
+      notifySuccess($t('account_settings.success'));
     }
   });
   $: {
@@ -89,4 +82,4 @@
     </Form>
   </div>
 </Page>
-<DeleteAccountModal deleteUser={deleteMe} bind:this={deleteModal} />
+<DeleteUserModal bind:this={deleteModal} />

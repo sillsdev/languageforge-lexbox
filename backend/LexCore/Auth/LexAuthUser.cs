@@ -137,6 +137,9 @@ public class LexAuthUser
     {
         if (Role != UserRole.admin && Projects.All(p => p.Code != projectCode)) throw new UnauthorizedAccessException();
     }
+    public void AssertCanDeleteAccount(Guid userid){
+        if (this.Id != userid && this.Role != UserRole.admin) throw new UnauthorizedAccessException();
+    }
 }
 
 public record AuthUserProject(string Code, ProjectRole Role, Guid ProjectId);

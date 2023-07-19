@@ -6,8 +6,8 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';
-  import { _deleteUserByAdmin } from './+page';
-  import type { DeleteUserByAdminInput } from '$lib/gql/types';
+  import { _deleteUserByAdminOrSelf } from '../../routes/(authenticated)/(dashboards)/admin/+page';
+  import type { DeleteUserByAdminOrSelfInput } from '$lib/gql/types';
 
   const verify = z.object({
     keyphrase: z.string().refine((value) => value.match(`^${$t('admin_dashboard.enter_to_delete.user.value')}$`)),
@@ -17,10 +17,10 @@
   $: deletionForm = deletionFormModal?.form();
   export async function open(id: string): Promise<void> {
     await deletionFormModal.open(async () => {
-      const deleteUserInput: DeleteUserByAdminInput = {
+      const deleteUserInput: DeleteUserByAdminOrSelfInput = {
         userId: id,
       };
-      const { error } = await _deleteUserByAdmin(deleteUserInput);
+      const { error } = await _deleteUserByAdminOrSelf(deleteUserInput);
       return error?.message;
     });
   }
