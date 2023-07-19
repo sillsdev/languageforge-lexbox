@@ -35,6 +35,6 @@ mutation {
 }
 """);
         var project = response["data"]!["createProject"]!["project"].ShouldBeOfType<JsonObject>();
-        project["name"]!.GetValue<string>().ShouldBe("test");
+        project["name"]!.GetValue<string>().ShouldBe("Test race condition");
     }
 }
