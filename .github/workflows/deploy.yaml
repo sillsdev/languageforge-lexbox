@@ -1,13 +1,14 @@
 ﻿on:
   workflow_call:
     inputs:
-      expected-api-version:
-        description: 'The version of the API to deploy (TODO, currently only the version to verify, it deploys latest always right now)'
+      version:
+        description: 'The version of the image to deploy'
         type: string
-      deployment:
-        description: 'The k8s deployment to update'
+        required: true
+      image:
+        description: 'The image to update'
         type: string
-        default: 'lexbox'
+        required: true
 
 jobs:
   deploy:
@@ -18,43 +19,35 @@ jobs:
       name: staging
       url: https://staging.languagedepot.org
     steps:
-      - name: Deploy
-        uses: drlove2002/secure-github-webhook@0.3.0
+      - name: Checkout lexbox repo
+        uses: actions/checkout@v3
         with:
-          url: ${{ vars.DEPLOY_WEBHOOK_URL }}
-          hmacSecret: ${{ secrets.DEPLOY_KEY }}
-          data: >-
-            {
-              "action" : "push",
-              "ref" : "${{ github.ref }}",
-              "version": "${{ inputs.expected-api-version }}",
-              "deployment": "${{ inputs.deployment }}"
-            }
-      - name: Verify Version
-        if: ${{ inputs.expected-api-version && inputs.deployment == 'lexbox' }}
-        env:
-          TARGET_HOST: https://staging.languagedepot.org
-          EXPECTED_VERSION: ${{ inputs.expected-api-version }}
+          path: lexbox
+      - name: Run kustomize
+        working-directory: lexbox/deployment/staging
         run: |
-          IterateCount=5
-          DelayMultiplier=5
-          n=0
-          until [ $n -ge $IterateCount ]
-          do
-            curl -s --head "$TARGET_HOST/api/healthz" > response.txt
-            # get version from response, trim off the header and fix the line endings
-            versionHeader=$((grep "lexbox-version" response.txt || echo VersionNotFound) | cut -d' ' -f 2 | tr -d '[:space:]')
-            if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
-                echo "Version is correct"
-                exit 0
-            else
-                echo "Version '$versionHeader' is incorrect, expected '$EXPECTED_VERSION'"
-                echo "response was:"
-                cat response.txt
-                n=$((n+1))
-                sleep $((DelayMultiplier * n))
-            fi
-          done
+          kubectl kustomize -k . -o resources.yaml
+      - name: Checkout fleet repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ vars.FLEET_REPO }}
+#          todo set some kind of access token, either pat or ssh
+          path: fleet
+      - name: Copy yaml resources to fleet repo
+        run: |
+          cp lexbox/deployment/staging/resources.yaml fleet/languageforge-lexbox/
+#        this kustomization file is in the fleet repo and only modifies the image versions being used.
+      - name: Update image version in fleet kustomization.yaml
+        uses: mikefarah/yq@v4
+        with:
+          cmd: yq -i '(.images.[] | select(.name == "${{ inputs.image }}").newTag) = "${{ inputs.version }}"' fleet/languageforge-lexbox/kustomization.yaml
+      - name: Push to fleet repo
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: "[Lexbox] Update image: ${{ inputs.image }} to ${{ inputs.version }}"
+          cwd: './fleet/'
+          add: 'languageforge-lexbox/*'
+          push: true
 
-          echo "Version $versionHeader is still incorrect after waiting"
-          exit 1
+

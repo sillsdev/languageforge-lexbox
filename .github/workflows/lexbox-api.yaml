@@ -24,6 +24,7 @@ on:
 
 env:
   PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
+  IMAGE_NAME: ghcr.io/sillsdev/lexbox-api
 
 
 jobs:
@@ -80,7 +81,7 @@ jobs:
         if: ${{ !env.ACT }}
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/sillsdev/lexbox-api
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -108,8 +109,8 @@ jobs:
     name: Deploy to k8s
     uses: ./.github/workflows/deploy.yaml
     with:
-      expected-api-version: ${{ needs.publish-api.outputs.version }}
-      deployment: lexbox #k8s deployment name
+      version: ${{ needs.publish-api.outputs.version }}
+      image: ${{ env.IMAGE_NAME }}
     secrets: inherit
     needs: publish-api
     if: ${{ github.ref ==  vars.PROD_BRANCH }}
@@ -118,8 +119,35 @@ jobs:
     permissions:
       checks: write
     runs-on: ubuntu-latest
-    needs: deploy-api
+    needs: [deploy-api, publish-api]
     steps:
+      - name: Verify Version
+        env:
+          TARGET_HOST: https://staging.languagedepot.org
+          EXPECTED_VERSION: ${{ needs.publish-api.outputs.version }}
+        run: |
+          IterateCount=5
+          DelayMultiplier=5
+          n=0
+          until [ $n -ge $IterateCount ]
+          do
+            curl -s --head "$TARGET_HOST/api/healthz" > response.txt
+            # get version from response, trim off the header and fix the line endings
+            versionHeader=$((grep "lexbox-version" response.txt || echo VersionNotFound) | cut -d' ' -f 2 | tr -d '[:space:]')
+            if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
+                echo "Version is correct"
+                exit 0
+            else
+                echo "Version '$versionHeader' is incorrect, expected '$EXPECTED_VERSION'"
+                echo "response was:"
+                cat response.txt
+                n=$((n+1))
+                sleep $((DelayMultiplier * n))
+            fi
+          done
+
+          echo "Version $versionHeader is still incorrect after waiting"
+          exit 1
       - uses: actions/checkout@v3
       - uses: ./.github/actions/dotnet-integration
         name: Integration Tests

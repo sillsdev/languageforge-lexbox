@@ -21,6 +21,7 @@ on:
 
 env:
   PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
+  IMAGE_NAME: ghcr.io/sillsdev/lexbox-ui
 
 jobs:
   publish-ui:
@@ -61,7 +62,7 @@ jobs:
         if: ${{ !env.ACT }}
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/sillsdev/lexbox-ui
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -88,8 +89,8 @@ jobs:
     secrets: inherit
     needs: publish-ui
     with:
-      deployment: ui #k8s deployment name
-      expected-api-version: ${{ needs.publish-ui.outputs.version }}
+      version: ${{ needs.publish-ui.outputs.version }}
+      image: ${{ env.IMAGE_NAME }}
 
   check-and-lint:
     runs-on: ubuntu-latest

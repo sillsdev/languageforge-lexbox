@@ -19,6 +19,8 @@ on:
 
 env:
   PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
+  IMAGE_NAME: ghcr.io/sillsdev/lexbox-hgweb
+
 jobs:
   publish-hgweb:
     runs-on: ubuntu-latest
@@ -35,13 +37,14 @@ jobs:
         # set version to date in vYYYY-MM-DD format
         run: |
           echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_ENV}
+          echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_OUTPUT}
 
       - name: Docker meta
         id: meta
         if: ${{ !env.ACT }}
         uses: docker/metadata-action@v4
         with:
-          images: ghcr.io/sillsdev/lexbox-hgweb
+          images: ${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -62,3 +65,11 @@ jobs:
           push: ${{ !env.ACT }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+  deploy-hgweb:
+      uses: ./.github/workflows/deploy.yaml
+      if: ${{github.ref == vars.PROD_BRANCH}}
+      secrets: inherit
+      needs: publish-hgweb
+      with:
+        version: ${{ needs.publish-hgweb.outputs.version }}
+        image: ${{ env.IMAGE_NAME }}
