@@ -16,6 +16,8 @@ import { browser } from '$app/environment';
 import { isObject } from '../util/types';
 import { tracingExchange } from '$lib/otel';
 import { LexGqlError, isErrorResult, type $OpResult, type GqlInputError } from './types';
+import type { Readable } from 'svelte/store';
+import {derived} from 'svelte/store';
 
 let globalClient: GqlClient | null = null;
 
@@ -31,14 +33,14 @@ function createGqlClient(_gqlEndpoint?: string): Client {
   });
 }
 
-export function getClient(fetch?: Fetch): GqlClient {
+export function getClient(): GqlClient {
   if (browser) {
     if (globalClient) return globalClient;
-    globalClient = new GqlClient(createGqlClient(''), fetch);
+    globalClient = new GqlClient(createGqlClient(''));
     return globalClient;
   } else {
     //We do not cache the client on the server side.
-    return new GqlClient(createGqlClient(), fetch);
+    return new GqlClient(createGqlClient());
   }
 }
 
@@ -46,29 +48,45 @@ type OperationOptions = Partial<OperationContext>;
 
 type QueryOperationOptions = OperationOptions; // ensure the sveltekit fetch is always provided
 
+type OperationResultState<Data, Variables extends AnyVariables> = ReturnType<typeof queryStore<Data, Variables>> extends Readable<infer T> ? T : never;
+type QueryStoreReturnType<Data> = {[K in keyof Data]: Readable<Data[K]>};
 class GqlClient {
 
-  constructor(private readonly client: Client, private readonly fetch?: Fetch) {
+  constructor(private readonly client: Client) {
     this.subscription = (...args) => this.client.subscription(...args);
   }
 
   query<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: QueryOperationOptions = {}): $OpResult<Data> {
     return this.doOperation(
-      {fetch: this.fetch, ...context},
+      context,
       (_context) => this.client.query<Data, Variables>(query, variables, _context)
     );
   }
-
-  queryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
+  async queryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
+    fetch: Fetch,
     query: TypedDocumentNode<Data, Variables>,
     variables: Variables,
-    context: QueryOperationOptions = {}){
-    return queryStore<Data, Variables>({
+    context: QueryOperationOptions = {}) {
+    const resultStore = queryStore<Data, Variables>({
       client: this.client,
       query,
       variables,
-      context: {fetch: this.fetch, ...context}
+      context: {fetch, ...context}
     });
+    const results = await new Promise<OperationResultState<Data, Variables>>((resolve) => {
+      resultStore.subscribe(value => {
+        if (value.fetching) return;
+        resolve(value);
+      });
+    });
+    this.throwAnyUnexpectedErrors(results);
+    const keys = Object.keys(results.data ?? {}) as Array<keyof typeof results.data>;
+    const resultData = {} as Record<string, Readable<unknown>>;
+    for (const key of keys) {
+      resultData[key] = derived(resultStore, value => (value.data ? value.data[key] : undefined));
+    }
+
+    return resultData as QueryStoreReturnType<Data>;
   }
 
   mutation<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: OperationOptions = {}): $OpResult<Data> {
