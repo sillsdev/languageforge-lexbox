@@ -1,8 +1,9 @@
 ﻿on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
-  integration-test:
+  test-integration-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

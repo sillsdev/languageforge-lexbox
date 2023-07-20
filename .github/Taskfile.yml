@@ -2,4 +2,4 @@
 tasks:
   integration-test:
     cmds:
-      - act -j integration-test
+      - act -j test-integration-tests
