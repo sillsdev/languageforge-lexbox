@@ -62,6 +62,8 @@ public static class OtelKernel
                 .AddMeter(meter.Name)
                 .SetResourceBuilder(appResourceBuilder)
                 .AddAspNetCoreInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddProcessInstrumentation()
                 .AddHttpClientInstrumentation()
         );
     }
