@@ -79,5 +79,6 @@ public static class OtelKernel
         {
             activity.SetTag("app.user.role", userRole);
         }
+        activity.SetTag("http.abort", httpContext.RequestAborted.IsCancellationRequested);
     }
 }

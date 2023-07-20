@@ -69,6 +69,7 @@ public static class ProxyKernel
                 {
                     Activity.Current?.AddTag("app.project_code", projectCode);
                 }
+
                 var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
                 var proxyFeature = context.Features.Get<IReverseProxyFeature>();
                 await next(context);
@@ -79,5 +80,25 @@ public static class ProxyKernel
             {
                 AuthenticationSchemes = string.Join(',', BasicAuthHandler.AuthScheme, extraAuthScheme ?? "")
             });
+    }
+
+    /// <summary>
+    /// this is required because if resumable receives a 403 Forbidden,
+    /// it will retry forever, we must return a 401 Unauthorized instead.
+    /// Must be called after routing but before Auth so it can intercept and change the 403
+    /// </summary>
+    public static void UseResumableStatusHack(this IApplicationBuilder app)
+    {
+        app.Use(async (context, next) =>
+        {
+            await next(context);
+            if (context.Response.StatusCode != 403)
+            {
+                return;
+            }
+            var routeModel = context.GetEndpoint()?.Metadata.GetMetadata<RouteModel>();
+            if (routeModel?.Config.RouteId == "resumable")
+                context.Response.StatusCode = 401;
+        });
     }
 }

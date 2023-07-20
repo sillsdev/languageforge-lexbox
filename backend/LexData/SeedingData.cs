@@ -40,7 +40,20 @@ public class SeedingData
             Username = "admin",
             Salt = PwSalt,
             PasswordHash = _passwordHash,
-            IsAdmin = true
+            IsAdmin = true,
+            EmailVerified = true,
+        });
+
+        _lexBoxDbContext.Attach(new User
+        {
+            Id = new Guid("79198d79-3f69-4de5-914f-96c336e58f94"),
+            Email = "user@test.com",
+            Name = "Test User",
+            Username = "user",
+            Salt = PwSalt,
+            PasswordHash = _passwordHash,
+            IsAdmin = false,
+            EmailVerified = false,
         });
 
         _lexBoxDbContext.Attach(new Project
@@ -65,7 +78,8 @@ public class SeedingData
                         Username = "manager",
                         IsAdmin = false,
                         Salt = PwSalt,
-                        PasswordHash = _passwordHash
+                        PasswordHash = _passwordHash,
+                        EmailVerified = true,
                     }
                 },
                 new()
@@ -80,7 +94,8 @@ public class SeedingData
                         Username = "editor",
                         IsAdmin = false,
                         Salt = PwSalt,
-                        PasswordHash = _passwordHash
+                        PasswordHash = _passwordHash,
+                        EmailVerified = true,
                     }
                 },
             }

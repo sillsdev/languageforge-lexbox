@@ -1,38 +1,69 @@
-<script lang="ts">
-  import type { Readable } from 'svelte/store';
+<script context="module" lang="ts">
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
-  import { FormError, lexSuperForm } from '$lib/forms';
+  import type { LexFormState } from '$lib/forms/superforms';
+  import type { AnyZodObject, ZodObject, z } from 'zod';
+
+  export type FormModalResult<S extends AnyZodObject> = {
+    response: DialogResponse;
+    formState: LexFormState<S>;
+  };
+</script>
+
+<script lang="ts">
+  import { FormError, lexSuperForm, type ErrorMessage } from '$lib/forms';
   import Form from '$lib/forms/Form.svelte';
-  import type { ZodObject, z } from 'zod';
+  import type { Readable } from 'svelte/store';
 
   type Schema = $$Generic<ZodObject>;
   type FormType = z.infer<Schema>;
+  type SubmitCallback = (state: LexFormState<Schema>) => Promise<ErrorMessage>;
+
   export let schema: Schema;
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
-  const { errors, reset, message, enhance } = superForm;
-  const _form = superForm.form;
+  const { form: _form, errors, reset, message, enhance, formState } = superForm;
   let modal: Modal;
 
   export async function open(
-    onSubmit: (d: FormType) => Promise<string | undefined>,
-    value?: Partial<FormType>
-  ): Promise<void> {
+    value: Partial<FormType> | undefined,
+    onSubmit: SubmitCallback
+  ): Promise<FormModalResult<Schema>>;
+  export async function open(onSubmit: SubmitCallback): Promise<FormModalResult<Schema>>;
+  export async function open(
+    valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined,
+    _onSubmit?: SubmitCallback
+  ): Promise<FormModalResult<Schema>> {
+    const onSubmit = _onSubmit ?? (valueOrOnSubmit as SubmitCallback);
+    const value = _onSubmit ? (valueOrOnSubmit as Partial<FormType>) : undefined;
+
     if (value) _form.set(value, { taint: false });
-    if ((await modal.openModal()) === DialogResponse.Cancel) return;
-    const error = await onSubmit($_form);
-    if (error) {
-      $message = error;
-      // again go back to the top and await a response from the modal.
-      return await open(onSubmit);
-    }
+
+    const response = await openModal(() => onSubmit($formState));
+    const _formState = $formState; // we need to read the form state before the modal closes or it will be reset
     modal.close();
+    return { response, formState: _formState };
   }
+
   export function close(): void {
     modal.close();
   }
-  export function form(): Readable<FormType> {
+
+  export function form(): Readable<Readonly<FormType>> {
     return superForm.form;
+  }
+
+  async function openModal(onSubmit: () => Promise<ErrorMessage>): Promise<DialogResponse> {
+    const result = await modal.openModal();
+    if (result == DialogResponse.Cancel) return result;
+
+    const error = await onSubmit();
+    if (error) {
+      $message = error;
+      // again go back to the top and await a response from the modal.
+      return await openModal(onSubmit);
+    }
+
+    return result;
   }
 </script>
 
@@ -42,7 +73,9 @@
     <slot errors={$errors} />
   </Form>
   <FormError error={$message} right />
-  <slot name="extraActions" slot="extraActions" />
+  <svelte:fragment slot="extraActions">
+    <slot name="extraActions" />
+  </svelte:fragment>
   <svelte:fragment slot="actions" let:closing>
     <button type="submit" form="modalForm" class="btn btn-primary" class:loading={closing}>
       <slot name="submitText" />

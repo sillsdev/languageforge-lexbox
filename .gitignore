@@ -9,3 +9,5 @@ riderModule.iml
 **/MercurialExtensions/
 backend/Testing/SyncReverseProxy/TestData.cs
 .task
+deployment/dev/collector-config.yaml
+deployment/dev/local.env

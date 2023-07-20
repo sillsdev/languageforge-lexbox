@@ -1,91 +1,105 @@
-﻿using LexBoxApi.Auth;
-using LexBoxApi.Models.Project;
+﻿using System.ComponentModel.DataAnnotations;
+using LexBoxApi.Auth;
+using LexBoxApi.Services;
+using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.GraphQL;
 
 [MutationType]
 public class UserMutations
 {
+    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
+
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<InvalidFormatException>]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [UseMutationConvention]
-    public async Task<User> ChangeUserAccountData(
+    public Task<User> ChangeUserAccountData(
         LoggedInContext loggedInContext,
         ChangeUserAccountDataInput input,
-        LexBoxDbContext dbContext)
+        LexBoxDbContext dbContext,
+        EmailService emailService,
+        LexAuthService lexAuthService
+    )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
+        return UpdateUser(input, dbContext, emailService, lexAuthService);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<InvalidFormatException>]
+    [UseMutationConvention(InputTypeName = nameof(ChangeUserAccountDataInput))]
+    [AdminRequired]
+    public Task<User> ChangeUserAccountByAdmin(
+        ChangeUserAccountDataInput input,
+        LexBoxDbContext dbContext,
+        EmailService emailService,
+        LexAuthService lexAuthService
+    )
+    {
+        return UpdateUser(input, dbContext, emailService, lexAuthService);
+    }
+
+    private static async Task<User> UpdateUser(
+        ChangeUserAccountDataInput input,
+        LexBoxDbContext dbContext,
+        EmailService emailService,
+        LexAuthService lexAuthService
+    )
+    {
         var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
-        // below works to change email
-        // minimum email = a@a.a
-        // if (input.Email is not null && input.Email != ""){
-        //     if (input.Email.Contains("@") == false || input.Email.Length < 3){
-        //         throw new RequiredException("Email does not match requirements");
-        //     }
-        //     user.Email = input.Email;
-        // }
 
-        if (!String.IsNullOrEmpty(input.Name))
+        if (!input.Name.IsNullOrEmpty())
         {
             user.Name = input.Name;
         }
 
         await dbContext.SaveChangesAsync();
+
+        if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email))
+        {
+            await SendVerifyNewAddressEmail(user, emailService, lexAuthService, input.Email);
+        }
+
         return user;
     }
 
-    [Error<NotFoundException>]
-    [Error<DbError>]
-    [UseMutationConvention]
-    [AdminRequired]
-    public async Task<User> ChangeUserAccountByAdmin(ChangeUserAccountByAdminInput input, LexBoxDbContext dbContext)
+    private static async Task SendVerifyNewAddressEmail(
+        User user,
+        EmailService emailService,
+        LexAuthService lexAuthService,
+        string newEmail
+    )
     {
-        var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
-        if (!String.IsNullOrEmpty(input.Name))
+        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser(user)
         {
-            user.Name = input.Name;
-        }
-
-        if (!String.IsNullOrEmpty(input.Email))
-        {
-            user.Email = input.Email;
-        }
-
-        await dbContext.SaveChangesAsync();
-        return user;
+            EmailVerificationRequired = null,
+            Email = newEmail,
+        });
+        await emailService.SendVerifyAddressEmail(jwt, user, newEmail);
     }
 
-    [Error<NotFoundException>]
-    [Error<DbError>]
-    [UseMutationConvention]
-    [AdminRequired]
-    public async Task<User> DeleteUserByAdmin(DeleteUserByAdminInput input, LexBoxDbContext dbContext)
-    {
-        var User = await dbContext.Users.FindAsync(input.UserId);
-        var user = dbContext.Users.Where(u => u.Id == input.UserId);
-        await user.ExecuteDeleteAsync();
-        return User;
-    }
+    public record DeleteUserByAdminInput(Guid UserId);
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<User> DeleteUserByUser(DeleteUserByUserInput input, LexBoxDbContext dbContext, LoggedInContext loggedInContext)
-{
+    public async Task<User> DeleteUserByAdminOrSelf(DeleteUserByAdminOrSelfInput input, LexBoxDbContext dbContext, LoggedInContext loggedInContext)
+    {
+        loggedInContext.User.AssertCanDeleteAccount(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
-        if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
         dbContext.Users.Remove(user);
-        dbContext.SaveChangesAsync();
-        return (LexCore.Entities.User) user;
+        await dbContext.SaveChangesAsync();
+        return user;
     }
-
 }

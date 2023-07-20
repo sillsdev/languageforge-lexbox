@@ -3,6 +3,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: hg
+  namespace: languagedepot
   labels:
     app: hg
 spec:
@@ -25,12 +26,14 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: hgresumable-cache
+  namespace: languagedepot
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
+  storageClassName: longhorn
 
 ---
 
@@ -39,6 +42,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hg
+  namespace: languagedepot
   labels:
     app: hg
 spec:
@@ -67,6 +71,8 @@ spec:
         env:
           - name: CUSTOM_PORT
             value: "8088"
+          - name: OTEL_ENDPOINT
+            value: 'lexbox:4317'
         ports:
           - containerPort: 8088
 
@@ -97,4 +103,4 @@ spec:
           claimName: hgresumable-cache
       - name: repos
         persistentVolumeClaim:
-          claimName: hg-repos # established in hg-repos-pvc.yaml
+          claimName: hg-repos # established in pvc.yaml

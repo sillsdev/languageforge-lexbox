@@ -58,7 +58,13 @@
     let typeCode = typeCodeMap[$form.type] ?? 'misc';
     let policyCode = policyCodeMap[$form.retentionPolicy] ?? '';
     if (policyCode) policyCode = `-${policyCode}`;
-    $form.code = `${$form.languageCode}${policyCode}-${typeCode}`;
+    form.update(
+      (form) => {
+        form.code = `${form.languageCode}${policyCode}-${typeCode}`;
+        return form;
+      },
+      { taint: false }
+    );
   }
 </script>
 

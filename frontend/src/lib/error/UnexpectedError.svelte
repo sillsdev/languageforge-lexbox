@@ -1,7 +1,7 @@
 <script lang="ts">
   /* eslint-disable svelte/no-dom-manipulating */
   import { env } from '$env/dynamic/public';
-  import { error as _error } from '$lib/error';
+  import { error as _error } from '.';
   import { onDestroy } from 'svelte';
   import { t } from 'svelte-intl-precompile';
   import { derived } from 'svelte/store';

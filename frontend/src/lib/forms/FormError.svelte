@@ -1,5 +1,7 @@
 <script lang="ts">
-  export let error: string | undefined = undefined;
+  import type { ErrorMessage } from './types';
+
+  export let error: ErrorMessage = undefined;
   export let right = false; // when the form submit button is on the right
 </script>
 

@@ -71,6 +71,7 @@ export default [
         'error',
         {
           'argsIgnorePattern': '^_',
+          'destructuredArrayIgnorePattern': '^_',
           'caughtErrors': 'all',
           'ignoreRestSiblings': true,
         },

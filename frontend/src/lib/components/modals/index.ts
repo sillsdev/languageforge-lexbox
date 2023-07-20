@@ -1,6 +1,4 @@
 import Modal, { DialogResponse } from './Modal.svelte';
+import FormModal, { type FormModalResult } from './FormModal.svelte';
 
-import FormModal from './FormModal.svelte';
-
-export { DialogResponse, FormModal, Modal };
-
+export { DialogResponse, FormModal, Modal, FormModalResult };

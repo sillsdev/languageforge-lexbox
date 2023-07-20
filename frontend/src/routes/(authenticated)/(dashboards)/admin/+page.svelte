@@ -6,10 +6,11 @@
   import t from '$lib/i18n';
   import type { PageData } from './$types';
   import IconButton from '$lib/components/IconButton.svelte';
-  import DeleteUserModal from './DeleteUserModal.svelte';
+  import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
-  import { notifySuccess, notifyWarning } from '$lib/notify';
+  import { Duration, notifySuccess, notifyWarning } from '$lib/notify';
+  import { DialogResponse } from '$lib/components/modals';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
@@ -19,14 +20,31 @@
   let _editing: UserRow;
   async function deleteUser(id: string): Promise<void> {
     formModal.close();
-    await deleteModal.open(id);
-    notifyWarning($t('admin_dashboard.notifications.user_deleted', { name: _editing.name }));
+    const { response } = await deleteModal.open(id);
+    if (response == DialogResponse.Submit) {
+      notifyWarning($t('admin_dashboard.notifications.user_deleted', { name: _editing.name }));
+    }
   }
+
   async function openModal(user: UserRow): Promise<void> {
     _editing = user;
-    await formModal.openModal(user);
-    notifySuccess($t('admin_dashboard.notifications.user_updated', { name: user.name }));
+    const { response, formState } = await formModal.openModal(user);
+    if (response == DialogResponse.Submit) {
+      if (formState.name.tainted || formState.password.tainted) {
+        notifySuccess($t('admin_dashboard.notifications.user_updated', { name: user.name }));
+      }
+      if (formState.email.changed) {
+        notifySuccess(
+          $t('admin_dashboard.notifications.email_need_verification', {
+            name: user.name,
+            requestedEmail: formState.email.currentValue,
+          }),
+          Duration.Long
+        );
+      }
+    }
   }
+
   let projectSearch = '';
   let userSearch = '';
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
@@ -108,17 +126,11 @@
     </div>
 
     <div class="pl-1 overflow-x-auto">
-
       <span class="text-xl">
         {$t('admin_dashboard.user_table_title')}
         <Badge>{userSearch ? users.length : data.users.length}</Badge>
       </span>
-      <Input
-        label=""
-        placeholder={$t('admin_dashboard.filter_placeholder')}
-        bind:value={userSearch}
-
-      />
+      <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={userSearch} />
 
       <div class="divider" />
       <table class="table">

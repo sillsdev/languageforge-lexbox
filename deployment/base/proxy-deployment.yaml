@@ -3,16 +3,19 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: proxy
+  namespace: languagedepot
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 spec:
+  ingressClassName: nginx
   defaultBackend:
     service:
-      name: lexbox
+      name: ui
       port:
         name: sveltekit
   rules:
-  - host: staging.languagedepot.org
+# each host here is patched by index, so don't change the order of them in this file without changing the patch files (ingress-config.yaml)
+  - host: localhost
     http:
       paths:
       - path: /api
@@ -43,7 +46,7 @@ spec:
             name: lexbox
             port:
               name: github-deploy
-  - host: hg-staging.languagedepot.org
+  - host: hg.localhost
     http:
       paths:
       - path: /
@@ -53,7 +56,7 @@ spec:
             name: lexbox
             port:
               name: http
-  - host: resumable-staging.languagedepot.org
+  - host: resumable.localhost
     http:
       paths:
       - path: /
@@ -66,7 +69,7 @@ spec:
 
   tls:
   - hosts:
-    - staging.languagedepot.org
-    - hg-staging.languagedepot.org
-    - resumable-staging.languagedepot.org
+    - localhost
+    - hg.localhost
+    - resumable.localhost
     secretName: languagedepot-tls # provided by LTOps

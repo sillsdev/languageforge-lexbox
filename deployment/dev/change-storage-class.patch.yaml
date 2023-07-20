@@ -1,0 +1,7 @@
+apiVersion: apps/v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hg-repos
+  namespace: languagedepot
+spec:
+  storageClassName: hostpath # Because docker-desktop doesn't have a weekly-snapshots-retain-4 storage class
