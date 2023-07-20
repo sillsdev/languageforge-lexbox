@@ -10,6 +10,7 @@ includes:
     taskfile: ./deployment/Taskfile.yml
     dir: ./deployment
   gh:
+    dir: .
     taskfile: ./.github/Taskfile.yml
   ui:
     taskfile: ./frontend/Taskfile.yml

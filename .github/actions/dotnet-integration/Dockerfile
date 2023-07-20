@@ -3,6 +3,7 @@
 #install python2 for hg, and the rest are for playwright
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python2 \
+        patch\
         libglib2.0-0\
         libnss3\
         libnspr4\
