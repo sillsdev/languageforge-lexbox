@@ -74,7 +74,7 @@
   }
 
   $: userId = user.id;
-  $: canManage = isAdmin(user) || user.projects.find((project) => project.code == project.code)?.role == 'Manager';
+  $: canManage = isAdmin(user) || user.projects.find(p => p.code == project?.code)?.role == 'Manager';
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 </script>

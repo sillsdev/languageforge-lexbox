@@ -17,8 +17,17 @@ type JwtTokenUser = {
   name: string
   email: string
   role: 'admin' | 'user'
-  proj: UserProjects[],
+  proj?: JwtTokenProject[],
   unver: boolean | undefined,
+}
+
+type JwtTokenProject = {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  Code: string,
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  ProjectId: string,
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  Role: 'Manager' | 'Editor',
 }
 
 export type LexAuthUser = {
@@ -31,6 +40,7 @@ export type LexAuthUser = {
 }
 
 type UserProjects = {
+  projectId: string
   code: string
   role: 'Manager' | 'Editor'
 }
@@ -96,7 +106,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     name,
     email,
     role,
-    projects,
+    projects: projects?.map(p => ({code: p.Code, role: p.Role, projectId: p.ProjectId})) ?? [],
     emailVerified: !user.unver,
   }
 }
