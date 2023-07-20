@@ -20,7 +20,8 @@
 
   export let data: PageData;
   const user = data.user;
-  $: project = data.project;
+  let projectStore = data.project;
+  $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
@@ -91,7 +92,7 @@
         <span class="text-secondary">
           <EditableText
             disabled={!canManage}
-            bind:value={project.name}
+            value={project.name}
             validation={projectNameValidation}
             saveHandler={updateProjectName}
           />
@@ -119,7 +120,7 @@
       <div class="text-lg">{$t('project_page.description')}:</div>
       <span>
         <EditableText
-          bind:value={project.description}
+          value={project.description}
           disabled={!canManage}
           saveHandler={updateProjectDescription}
           placeholder={$t('project_page.add_description')}

@@ -3,6 +3,7 @@
   import UserDashboard from './(dashboards)/UserDashboard.svelte';
 
   export let data: PageData;
+  $: projects = data.projects;
 </script>
 
-<UserDashboard projects={data.projects} />
+<UserDashboard projects={$projects} />

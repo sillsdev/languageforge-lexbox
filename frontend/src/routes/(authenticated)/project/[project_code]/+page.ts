@@ -14,7 +14,7 @@ import type {
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
-import { invalidate } from '$app/navigation';
+import { get } from 'svelte/store';
 
 type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -23,7 +23,7 @@ export async function load(event: PageLoadEvent) {
   const client = getClient();
   const projectCode = event.params.project_code;
   const result = await client
-    .query(
+    .queryStore(event.fetch,
       graphql(`
 				query projectPage($projectCode: String!) {
 					projectByCode(code: $projectCode) {
@@ -53,13 +53,13 @@ export async function load(event: PageLoadEvent) {
 					}
 				}
 			`),
-      { projectCode }, { fetch: event.fetch },
+      { projectCode }
     );
 
-  const projectId = result.data?.projectByCode?.id as string;
+  const projectId = get(result.projectByCode)?.id as string;
   event.depends(`project:${projectId}`);
   return {
-    project: result.data?.projectByCode,
+    project: result.projectByCode,
     code: projectCode,
   };
 }
@@ -82,11 +82,8 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
           }
         }
       `),
-      { input: input },
-      //invalidates the graphql project cache
-      { additionalTypenames: ['Projects'] },
+      { input: input }
     );
-  if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
 
@@ -110,10 +107,7 @@ export async function _changeProjectMemberRole(input: ChangeProjectMemberRoleInp
         }
       `),
       { input: input },
-      //invalidates the graphql project cache
-      { additionalTypenames: ['Projects'] },
     );
-  if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
 
@@ -136,11 +130,8 @@ export async function _changeProjectName(input: ChangeProjectNameInput): $OpResu
           }
         }
       `),
-      { input: input },
-      //invalidates the graphql project cache
-      { additionalTypenames: ['Projects'] },
+      { input: input }
     );
-  if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
 
@@ -163,11 +154,8 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
           }
         }
       `),
-      { input: input },
-      //invalidates the graphql project cache
-      { additionalTypenames: ['Projects'] },
+      { input: input }
     );
-  if (!result.error) void invalidate(`project:${input.projectId}`);
   return result;
 }
 
@@ -181,12 +169,7 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
           }
         }
       `),
-      { input: { projectId: projectId, userId: userId } },
-      // invalidates the cached project so invalidate below will actually reload the project
-      { additionalTypenames: ['Projects'] },
+      { input: { projectId: projectId, userId: userId } }
     );
-  if (!result.error) {
-    void invalidate(`project:${projectId}`);
-  }
   return result;
 }
