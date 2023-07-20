@@ -9,7 +9,6 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { isAdmin, type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
-import {derived} from 'svelte/store';
 
 function requireAdmin(user: LexAuthUser | null): void {
   if (!isAdmin(user)) {
@@ -21,9 +20,9 @@ export async function load(event: PageLoadEvent) {
   const parentData = await event.parent();
   requireAdmin(parentData.user);
 
-  const client = getClient(event.fetch);
+  const client = getClient();
   //language=GraphQL
-  const results = client.queryStore(graphql(`
+  const results = await client.queryStore(event.fetch, graphql(`
         query loadAdminDashboard {
             projects(orderBy: [
                 {lastCommit: ASC},
@@ -45,22 +44,8 @@ export async function load(event: PageLoadEvent) {
         }
     `), {});
 
-  await new Promise((resolve, reject) => {
-    results.subscribe(value => {
-      console.log('gql result:', value);
-      if (value.fetching) return;
-      if (value.error) {
-        reject(value.error);
-      } else {
-        resolve(value);
-      }
-    });
-  });
-
   return {
-    results,
-    projects: derived(results, r => r.data?.projects ?? []),
-    users: derived(results, r => r.data?.users ?? [])
+    ...results
   }
 }
 

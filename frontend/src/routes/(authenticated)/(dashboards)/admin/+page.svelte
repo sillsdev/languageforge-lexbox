@@ -15,9 +15,8 @@
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
   export let data: PageData;
-  $: results = data.results;
-  $: allProjects = $results.data.projects;
-  $: allUsers = $results.data.users;
+  $: allProjects = data.projects;
+  $: allUsers = data.users;
   let deleteModal: DeleteUserModal;
   let formModal: EditUserAccount;
   let _editing: UserRow;
@@ -51,7 +50,7 @@
   let projectSearch = '';
   let userSearch = '';
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
-  $: projects = allProjects
+  $: projects = $allProjects
     .filter(
       (p) =>
         !projectSearch ||
@@ -60,7 +59,7 @@
     )
     .slice(0, projectSearch ? undefined : 10);
   $: userSearchLower = userSearch.toLocaleLowerCase();
-  $: users = allUsers
+  $: users = $allUsers
     .filter(
       (u) =>
         !userSearch ||
@@ -79,7 +78,7 @@
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
         {$t('admin_dashboard.project_table_title')}
-        <Badge>{projectSearch ? projects.length : allProjects.length}</Badge>
+        <Badge>{projectSearch ? projects.length : $allProjects.length}</Badge>
       </span>
 
       <Input
@@ -131,7 +130,7 @@
     <div class="pl-1 overflow-x-auto">
       <span class="text-xl">
         {$t('admin_dashboard.user_table_title')}
-        <Badge>{userSearch ? users.length : allUsers.length}</Badge>
+        <Badge>{userSearch ? users.length : $allUsers.length}</Badge>
       </span>
       <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={userSearch} />
 
