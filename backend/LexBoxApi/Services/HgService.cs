@@ -28,6 +28,11 @@ public class HgService : IHgService
         ));
     }
 
+    public async Task DeleteRepo(string code)
+    {
+        await Task.Run(() => Directory.Delete(Path.Combine(_options.Value.RepoPath, code), true));
+    }
+
     private void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
         foreach (DirectoryInfo dir in source.GetDirectories())

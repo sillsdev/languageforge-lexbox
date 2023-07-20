@@ -16,5 +16,5 @@ spec:
       initContainers:
         - name: db-migrations
           env:
-            - name: ASPNETCORE_ENVIRONMENT
+            - name: DOTNET_ENVIRONMENT
               value: "Staging"

@@ -108,7 +108,7 @@ profiles:
         namespace: languagedepot
         port: 8088 # web
       - resourceType: Service
-        resourceName: lexbox
+        resourceName: hg
         namespace: languagedepot
         port: 80 # resumable
         localPort: 8034

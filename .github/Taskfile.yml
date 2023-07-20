@@ -2,4 +2,11 @@
 tasks:
   integration-test:
     cmds:
-      - act -j integration-test
+      - act -j test-integration-tests
+
+  inspect-integration-image:
+    dir: .github/actions/dotnet-integration
+    interactive: true
+    cmds:
+      - docker build -f action.Dockerfile -t inspect-dotnet-integration .
+      - docker run -it --rm --mount type=bind,source="$(pwd)../../../../",target=/source inspect-dotnet-integration bash
