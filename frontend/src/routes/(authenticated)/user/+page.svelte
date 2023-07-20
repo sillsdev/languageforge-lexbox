@@ -11,14 +11,18 @@
   import type { PageData } from './$types';
   import { TrashIcon } from '$lib/icons';
   import {onMount} from 'svelte';
+  import {DialogResponse} from '$lib/components/modals';
+
   export let data: PageData;
   $: user = data?.user;
   $: userid = user?.id;
   let deleteModal: DeleteUserModal;
 
   async function openDeleteModal(): Promise<void> {
-    await deleteModal.open(userid);
-    notifyWarning($t('account_settings.delete_success'))
+    let {response} = await deleteModal.open(userid);
+    if (response == DialogResponse.Submit){
+      notifyWarning($t('account_settings.delete_success'))
+    }
     await goto('/logout');
   }
   const formSchema = z.object({
