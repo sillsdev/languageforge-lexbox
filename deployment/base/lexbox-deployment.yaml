@@ -59,9 +59,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 125Mi
+            memory: 200Mi
           limits:
-            memory: 175Mi
+            memory: 250Mi
         startupProbe:
           httpGet:
             port: 5158
