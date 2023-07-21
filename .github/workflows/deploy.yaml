@@ -50,7 +50,7 @@ jobs:
       - name: Update image version in fleet kustomization.yaml
         uses: mikefarah/yq@v4
         with:
-          cmd: yq -i '(.images.[] | select(.name == "${{ inputs.image }}").newTag) = "${{ inputs.version }}"' fleet/languageforge-lexbox/kustomization.yaml
+          cmd: yq eval -i '(.images.[] | select(.name == "${{ inputs.image }}").newTag) = "${{ inputs.version }}"' "fleet/languageforge-lexbox/kustomization.yaml"
       - name: Push to fleet repo
 #        https://github.com/EndBug/add-and-commit
         uses: EndBug/add-and-commit@v9
