@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
+using LexBoxApi.Models.Project;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.Exceptions;
