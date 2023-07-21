@@ -15,7 +15,6 @@ export default defineConfig({
     sveltekit(),
   ],
   optimizeDeps: {
-    exclude: ['@urql/svelte']
   },
   test: {
     include: ['src/**/*.{test,spec}.ts'],

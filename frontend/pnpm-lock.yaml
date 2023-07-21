@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@opentelemetry/api':
     specifier: ^1.4.1
@@ -87,9 +91,18 @@ devDependencies:
   '@typescript-eslint/parser':
     specifier: ^5.59.7
     version: 5.59.7(eslint@8.41.0)(typescript@4.9.5)
+  '@urql/core':
+    specifier: ^4.1.0
+    version: 4.1.0(graphql@16.6.0)
+  '@urql/devtools':
+    specifier: ^2.0.3
+    version: 2.0.3(@urql/core@4.1.0)(graphql@16.6.0)
+  '@urql/exchange-graphcache':
+    specifier: ^6.2.0
+    version: 6.2.0(graphql@16.6.0)
   '@urql/svelte':
-    specifier: ^3.0.4
-    version: 3.0.4(graphql@16.6.0)(svelte@3.59.1)
+    specifier: ^4.0.3
+    version: 4.0.3(graphql@16.6.0)(svelte@3.59.1)
   autoprefixer:
     specifier: ^10.4.14
     version: 10.4.14(postcss@8.4.23)
@@ -158,6 +171,17 @@ devDependencies:
     version: 3.21.4
 
 packages:
+
+  /@0no-co/graphql.web@1.0.4(graphql@16.6.0):
+    resolution: {integrity: sha512-W3ezhHGfO0MS1PtGloaTpg0PbaT8aZSmmaerL7idtU5F7oCI+uu25k+MsMS31BVFlp4aMkHSrNRxiD72IlK8TA==}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
+    peerDependenciesMeta:
+      graphql:
+        optional: true
+    dependencies:
+      graphql: 16.6.0
+    dev: true
 
   /@alloc/quick-lru@5.2.0:
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -3677,25 +3701,46 @@ packages:
       eslint-visitor-keys: 3.4.1
     dev: true
 
-  /@urql/core@3.2.2(graphql@16.6.0):
-    resolution: {integrity: sha512-i046Cz8cZ4xIzGMTyHZrbdgzcFMcKD7+yhCAH5FwWBRjcKrc+RjEOuR9X5AMuBvr8c6IAaE92xAqa4wmlGfWTQ==}
-    peerDependencies:
-      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+  /@urql/core@4.1.0(graphql@16.6.0):
+    resolution: {integrity: sha512-mQLO6RAOhITvq6oktFzsEuAngdVwJbTuS+XaZi6evUQu797MXhI0smldEkWg9osvn/I2dyO57oR3LpxpMr9nTg==}
     dependencies:
+      '@0no-co/graphql.web': 1.0.4(graphql@16.6.0)
+      wonka: 6.3.2
+    transitivePeerDependencies:
+      - graphql
+    dev: true
+
+  /@urql/devtools@2.0.3(@urql/core@4.1.0)(graphql@16.6.0):
+    resolution: {integrity: sha512-TktPLiBS9LcBPHD6qcnb8wqOVcg3Bx0iCtvQ80uPpfofwwBGJmqnQTjUdEFU6kwaLOFZULQ9+Uo4831G823mQw==}
+    peerDependencies:
+      '@urql/core': '>= 1.14.0'
+      graphql: '>= 0.11.0'
+    dependencies:
+      '@urql/core': 4.1.0(graphql@16.6.0)
       graphql: 16.6.0
       wonka: 6.3.2
     dev: true
 
-  /@urql/svelte@3.0.4(graphql@16.6.0)(svelte@3.59.1):
-    resolution: {integrity: sha512-tgUhQ3V7Nb4Z1cD4wMyIq1mIfcr+Pxeb4j4bIp9sb0ORNKuLt+msPdc8YgvhHbyDFNrP7X0nrQmXsrunNIOU0w==}
-    peerDependencies:
-      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-      svelte: ^3.0.0
+  /@urql/exchange-graphcache@6.2.0(graphql@16.6.0):
+    resolution: {integrity: sha512-d8SHgY47HeOziNLciinFz1olKclMBUfILBQFTnHq4Lqsu4XGT/jnqFaPR5hTWiwPR8NkiXprvyQ8elJhfrMhrA==}
     dependencies:
-      '@urql/core': 3.2.2(graphql@16.6.0)
-      graphql: 16.6.0
+      '@0no-co/graphql.web': 1.0.4(graphql@16.6.0)
+      '@urql/core': 4.1.0(graphql@16.6.0)
+      wonka: 6.3.2
+    transitivePeerDependencies:
+      - graphql
+    dev: true
+
+  /@urql/svelte@4.0.3(graphql@16.6.0)(svelte@3.59.1):
+    resolution: {integrity: sha512-snb0qW3fhvVPkiTzkeQ5tu9IIjyfeH7cJMvu8a9wzdG7PALoy4DPn0E71N3HoFLjxpEa1g782bgt3ac05vepCw==}
+    peerDependencies:
+      svelte: ^3.0.0 || ^4.0.0
+    dependencies:
+      '@urql/core': 4.1.0(graphql@16.6.0)
       svelte: 3.59.1
       wonka: 6.3.2
+    transitivePeerDependencies:
+      - graphql
     dev: true
 
   /@vitest/expect@0.33.0:

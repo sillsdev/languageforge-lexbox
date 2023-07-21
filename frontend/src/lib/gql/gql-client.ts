@@ -1,23 +1,24 @@
-import { redirect } from '@sveltejs/kit';
+import {redirect} from '@sveltejs/kit';
 import {
   type Client,
-  type PromisifiedSource,
   type AnyVariables,
   type TypedDocumentNode,
   type OperationContext,
   type OperationResult,
   fetchExchange,
   CombinedError,
-  cacheExchange,
-  queryStore
+  queryStore,
+  type OperationResultSource
 } from '@urql/svelte';
-import { createClient } from '@urql/svelte';
-import { browser } from '$app/environment';
-import { isObject } from '../util/types';
-import { tracingExchange } from '$lib/otel';
-import { LexGqlError, isErrorResult, type $OpResult, type GqlInputError } from './types';
-import type { Readable } from 'svelte/store';
-import {derived} from 'svelte/store';
+import {createClient} from '@urql/svelte';
+import {browser} from '$app/environment';
+import {isObject} from '../util/types';
+import {tracingExchange} from '$lib/otel';
+import {LexGqlError, isErrorResult, type $OpResult, type GqlInputError} from './types';
+import type {Readable, Unsubscriber} from 'svelte/store';
+import {derived, writable} from 'svelte/store';
+import {cacheExchange} from '@urql/exchange-graphcache';
+import {devtoolsExchange} from '@urql/devtools';
 
 let globalClient: GqlClient | null = null;
 
@@ -26,8 +27,14 @@ function createGqlClient(_gqlEndpoint?: string): Client {
   return createClient({
     url,
     exchanges: [
+      // ...(import.meta.env.DEV ? [devtoolsExchange] : []),
+      cacheExchange({
+        keys: {
+          //     eslint-disable-next-line @typescript-eslint/naming-convention
+          'Changeset': () => null,
+        }
+      }),
       tracingExchange,
-      cacheExchange,
       fetchExchange
     ]
   });
@@ -49,10 +56,11 @@ type OperationOptions = Partial<OperationContext>;
 type QueryOperationOptions = OperationOptions; // ensure the sveltekit fetch is always provided
 
 type OperationResultState<Data, Variables extends AnyVariables> = ReturnType<typeof queryStore<Data, Variables>> extends Readable<infer T> ? T : never;
-type QueryStoreReturnType<Data> = {[K in keyof Data]: Readable<Data[K]>};
+type QueryStoreReturnType<Data> = { [K in keyof Data]: Readable<Data[K]> };
+
 class GqlClient {
 
-  constructor(private readonly client: Client) {
+  constructor(public readonly client: Client) {
     this.subscription = (...args) => this.client.subscription(...args);
   }
 
@@ -62,28 +70,42 @@ class GqlClient {
       (_context) => this.client.query<Data, Variables>(query, variables, _context)
     );
   }
+
   async queryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
     fetch: Fetch,
     query: TypedDocumentNode<Data, Variables>,
     variables: Variables,
-    context: QueryOperationOptions = {}) {
-    const resultStore = queryStore<Data, Variables>({
+    context: QueryOperationOptions = {}): Promise<QueryStoreReturnType<Data>> {
+    console.log('execute query');
+    const brokenQueryStore = queryStore<Data, Variables>({
       client: this.client,
       query,
       variables,
       context: {fetch, ...context}
     });
+    let invalidate = undefined as Unsubscriber | undefined;
+    //this is here as a workaround because of this: https://github.com/urql-graphql/urql/issues/3329
+    const resultStore = writable({fetching: true, data: undefined} as { fetching: boolean, data?: Data }, () => {
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      return invalidate ?? function () {
+      };
+    });
     const results = await new Promise<OperationResultState<Data, Variables>>((resolve) => {
-      resultStore.subscribe(value => {
+      invalidate = brokenQueryStore.subscribe(value => {
+        resultStore.set(value);
         if (value.fetching) return;
         resolve(value);
       });
     });
+
     this.throwAnyUnexpectedErrors(results);
     const keys = Object.keys(results.data ?? {}) as Array<keyof typeof results.data>;
     const resultData = {} as Record<string, Readable<unknown>>;
     for (const key of keys) {
-      resultData[key] = derived(resultStore, value => (value.data ? value.data[key] : undefined));
+      resultData[key] = derived(resultStore, value => {
+        const dataValue = value.data ? value.data[key] : undefined;
+        return dataValue;
+      });
     }
 
     return resultData as QueryStoreReturnType<Data>;
@@ -101,7 +123,7 @@ class GqlClient {
   // We can't throw errors, because errors thrown in wonka/an exchange kill node.
   subscription: typeof this.client.subscription;
 
-  private async doOperation<Data, Variables extends AnyVariables>(context: OperationOptions, operation: (context: OperationOptions) => PromisifiedSource<OperationResult<Data, Variables>>): $OpResult<Data> {
+  private async doOperation<Data, Variables extends AnyVariables>(context: OperationOptions, operation: (context: OperationOptions) => OperationResultSource<OperationResult<Data, Variables>>): $OpResult<Data> {
     const result = await operation(context).toPromise();
     this.throwAnyUnexpectedErrors(result);
     return {
@@ -122,7 +144,7 @@ class GqlClient {
     return (error.response as Response | undefined)?.status === 401;
   }
 
-  private findInputErrors<T>({ data }: OperationResult<T, AnyVariables>): LexGqlError | undefined {
+  private findInputErrors<T>({data}: OperationResult<T, AnyVariables>): LexGqlError | undefined {
     const errors: GqlInputError[] = [];
     if (isObject(data)) {
       for (const resultValue of Object.values(data)) {

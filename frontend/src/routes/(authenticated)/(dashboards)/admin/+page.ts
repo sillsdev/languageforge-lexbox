@@ -1,6 +1,7 @@
 import type {
   $OpResult,
   ChangeUserAccountByAdminMutation,
+  ChangeUserAccountDataInput,
   DeleteUserByAdminOrSelfInput,
   DeleteUserByAdminOrSelfMutation,
 } from '$lib/gql/types';
@@ -70,9 +71,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountDataInpu
           }
         }
       `),
-      { input: input },
-      //invalidates the graphql user cache, but who knows
-      { additionalTypenames: ['Users'] },
+      { input: input }
     )
     return result;
 }
