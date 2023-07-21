@@ -48,7 +48,7 @@ jobs:
           cp lexbox/deployment/staging/resources.yaml fleet/languageforge-lexbox/
 #        this kustomization file is in the fleet repo and only modifies the image versions being used.
       - name: Update image version in fleet kustomization.yaml
-        uses: mikefarah/yq@v4
+        uses: mikefarah/yq@v4.34.2
         with:
           cmd: yq eval -i '(.images.[] | select(.name == "${{ inputs.image }}").newTag) = "${{ inputs.version }}"' "fleet/languageforge-lexbox/kustomization.yaml"
       - name: Push to fleet repo
