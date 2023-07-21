@@ -21,9 +21,9 @@
   async function openDeleteModal(): Promise<void> {
     let {response} = await deleteModal.open(userid);
     if (response == DialogResponse.Submit){
-      notifyWarning($t('account_settings.delete_success'))
+      notifyWarning($t('account_settings.delete_success'));
+      await goto('/logout');
     }
-    await goto('/logout');
   }
   const formSchema = z.object({
     email: z.string().email(),
