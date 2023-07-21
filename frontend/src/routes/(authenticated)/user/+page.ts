@@ -2,6 +2,9 @@ import type {
   $OpResult,
   ChangeUserAccountDataMutation,
   ChangeUserAccountDataInput,
+  DeleteUserByAdminOrSelfMutation,
+  DeleteUserByAdminOrSelfInput
+
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 import { goto, invalidate } from '$app/navigation';

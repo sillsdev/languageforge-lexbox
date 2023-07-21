@@ -6,7 +6,7 @@
   import t from '$lib/i18n';
   import type { PageData } from './$types';
   import IconButton from '$lib/components/IconButton.svelte';
-  import DeleteUserModal from './DeleteUserModal.svelte';
+  import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
   import { Duration, notifySuccess, notifyWarning } from '$lib/notify';

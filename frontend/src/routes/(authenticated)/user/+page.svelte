@@ -3,14 +3,28 @@
   import { Button, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
-  import { notifySuccess } from '$lib/notify';
-  import z from 'zod';
-  import type { PageData } from './$types';
   import { _changeUserAccountData } from './+page';
+  import { notifySuccess, notifyWarning } from '$lib/notify';
+  import z from 'zod';
+  import { goto } from '$app/navigation';
+  import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
+  import type { PageData } from './$types';
+  import { TrashIcon } from '$lib/icons';
+  import {onMount} from 'svelte';
+  import {DialogResponse} from '$lib/components/modals';
 
   export let data: PageData;
-  const user = data.user;
+  $: user = data?.user;
+  $: userid = user?.id;
+  let deleteModal: DeleteUserModal;
 
+  async function openDeleteModal(): Promise<void> {
+    let {response} = await deleteModal.open(userid);
+    if (response == DialogResponse.Submit){
+      notifyWarning($t('account_settings.delete_success'));
+      await goto('/logout');
+    }
+  }
   const formSchema = z.object({
     email: z.string().email(),
     name: z.string(),
@@ -37,14 +51,15 @@
       notifySuccess($t('account_settings.update_success'));
     }
   });
-
-  form.set(
+  onMount(()=>{
+    form.set(
     {
       email: user.email,
       name: user.name,
     },
     { taint: false }
   );
+  })
 </script>
 
 <Page>
@@ -72,6 +87,13 @@
       error={$errors.email}
       bind:value={$form.email}
     />
+    <div class="collapse text-error w-full underline rounded-box collapse-arrow">
+      <input type="checkbox" />
+      <div class="collapse-title text-xl font-medium">{$t('account_settings.more_settings')}</div>
+      <div class="collapse-content">
+        <span class="btn btn-error" on:click={openDeleteModal}>{$t('account_settings.delete_account')}<TrashIcon/></span>
+      </div>
+    </div>
     <a class="link my-4" href="/resetPassword">
       {$t('account_settings.reset_password')}
     </a>
@@ -79,3 +101,4 @@
     <Button loading={$submitting}>{$t('account_settings.button_update')}</Button>
   </Form>
 </Page>
+<DeleteUserModal bind:this={deleteModal} />
