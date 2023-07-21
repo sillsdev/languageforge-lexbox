@@ -80,6 +80,8 @@ spec:
             value: http://0.0.0.0:5158
           - name: ASPNETCORE_ENVIRONMENT
             value: Development
+          - name: OTEL_METRIC_EXPORT_INTERVAL
+            value: '15000' # 15 seconds
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
