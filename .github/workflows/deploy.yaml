@@ -36,7 +36,7 @@ jobs:
       - name: Run kustomize
         working-directory: lexbox/deployment/staging
         run: |
-          kubectl kustomize -k . -o resources.yaml
+          kubectl kustomize . -o resources.yaml
       - name: Checkout fleet repo
         uses: actions/checkout@v3
         with:
