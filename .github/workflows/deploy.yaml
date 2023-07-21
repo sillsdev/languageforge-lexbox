@@ -1,4 +1,14 @@
 ﻿on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The version of the image to deploy'
+        type: string
+        required: true
+      image:
+        description: 'The image to update'
+        type: string
+        required: true
   workflow_call:
     inputs:
       version:
@@ -31,7 +41,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: ${{ vars.FLEET_REPO }}
-#          todo set some kind of access token, either pat or ssh
+          ssh-key: ${{ secrets.FLEET_REPO_SSH_KEY }}
           path: fleet
       - name: Copy yaml resources to fleet repo
         run: |
@@ -42,6 +52,7 @@ jobs:
         with:
           cmd: yq -i '(.images.[] | select(.name == "${{ inputs.image }}").newTag) = "${{ inputs.version }}"' fleet/languageforge-lexbox/kustomization.yaml
       - name: Push to fleet repo
+#        https://github.com/EndBug/add-and-commit
         uses: EndBug/add-and-commit@v9
         with:
           default_author: github_actions
