@@ -90,7 +90,7 @@ jobs:
     needs: publish-ui
     with:
       version: ${{ needs.publish-ui.outputs.version }}
-      image: ${{ env.IMAGE_NAME }}
+      image: 'ghcr.io/sillsdev/lexbox-ui'
 
   check-and-lint:
     runs-on: ubuntu-latest

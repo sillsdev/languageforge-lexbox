@@ -72,4 +72,4 @@ jobs:
       needs: publish-hgweb
       with:
         version: ${{ needs.publish-hgweb.outputs.version }}
-        image: ${{ env.IMAGE_NAME }}
+        image: 'ghcr.io/sillsdev/lexbox-hgweb'

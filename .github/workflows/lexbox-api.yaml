@@ -110,7 +110,7 @@ jobs:
     uses: ./.github/workflows/deploy.yaml
     with:
       version: ${{ needs.publish-api.outputs.version }}
-      image: ${{ env.IMAGE_NAME }}
+      image: 'ghcr.io/sillsdev/lexbox-api'
     secrets: inherit
     needs: publish-api
     if: ${{ github.ref ==  vars.PROD_BRANCH }}
