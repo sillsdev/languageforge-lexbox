@@ -65,6 +65,7 @@ public class SendReceiveServiceTests
     [Fact]
     public async Task VerifyHgWorking()
     {
+        HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
         string version = await _sendReceiveService.GetHgVersion();
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
