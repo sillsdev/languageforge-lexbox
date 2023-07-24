@@ -25,10 +25,8 @@ public class ProxyAccessController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("/api/user/{userName}/projects")]
-    [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
     [Consumes("application/x-www-form-urlencoded")]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<ActionResult<LegacyApiProject[]>> ProjectsForm(string userName, [FromForm] ProjectsInput input)
     {
         return await Projects(userName, input);
