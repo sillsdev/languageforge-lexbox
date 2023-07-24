@@ -50,7 +50,6 @@ spec:
       labels:
         app: lexbox
     spec:
-      serviceAccountName: lexbox-deployer
       containers:
       - name: lexbox-api
         # TODO: need to parameterize this tag

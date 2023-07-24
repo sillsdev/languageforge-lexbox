@@ -41,7 +41,6 @@ spec:
       labels:
         app: ui
     spec:
-      serviceAccountName: lexbox-deployer
       containers:
 
       - name: ui
