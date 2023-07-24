@@ -24,6 +24,11 @@ public class SendReceiveServiceTests
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
         CleanUpTempDir();
+        var fileInfo = new FileInfo("Mercurial/hg");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && fileInfo.Exists)
+        {
+            fileInfo.Delete();
+        }
     }
 
     private void CleanUpTempDir()
