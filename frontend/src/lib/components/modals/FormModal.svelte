@@ -38,7 +38,7 @@
 
     if (value) _form.set(value, { taint: false });
 
-    const response = await openModal(() => onSubmit($formState));
+    const response = await openModal(onSubmit);
     const _formState = $formState; // we need to read the form state before the modal closes or it will be reset
     modal.close();
     return { response, formState: _formState };
@@ -52,11 +52,11 @@
     return superForm.form;
   }
 
-  async function openModal(onSubmit: () => Promise<ErrorMessage>): Promise<DialogResponse> {
+  async function openModal(onSubmit: SubmitCallback): Promise<DialogResponse> {
     const result = await modal.openModal();
     if (result == DialogResponse.Cancel) return result;
 
-    const error = await onSubmit();
+    const error = await onSubmit($formState);
     if (error) {
       $message = error;
       // again go back to the top and await a response from the modal.
