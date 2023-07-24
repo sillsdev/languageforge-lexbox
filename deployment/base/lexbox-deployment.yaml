@@ -154,46 +154,6 @@ spec:
               secretKeyRef:
                 key: HONEYCOMB_API_KEY
                 name: otel
-      # receives a webhook and redeploys the application, from https://github.com/silnrsi/langfontfinder/blob/183fcd348ebdbffaf5560b3b816223ebd5b98c5a/kubernetes/service-deploy.yaml
-      - name: deployer
-        image: alpine
-        imagePullPolicy: IfNotPresent
-        resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 10Mi
-          limits:
-            memory: 64Mi
-        env:
-          - name: DEPLOY_KEY
-            valueFrom:
-              secretKeyRef:
-                name: deploy-key
-                key: deploy-key
-          - name: PUBLISH_BRANCH
-            valueFrom:
-              configMapKeyRef:
-                name: deploy-config
-                key: publish-branch
-        command: [ "sh", "-c" ]
-        startupProbe:
-          periodSeconds: 5
-          failureThreshold: 5
-          tcpSocket:
-            port: 9000
-        args:
-          - |
-            set -e
-            apk add curl webhook
-            exec webhook -verbose \
-              -urlprefix=api \
-              -template \
-              -hooks=/webhooks/hooks.yaml
-        ports:
-          - containerPort: 9000
-        volumeMounts:
-          - name: webhooks
-            mountPath: /webhooks
-            readOnly: true
 
       volumes:
       - name: repos
@@ -205,20 +165,10 @@ spec:
           items:
             - key: collector-config.yaml
               path: config.yaml
-      - name: webhooks
-        configMap:
-          name: deploy-config
-          items:
-            - key: deployer
-              path: deploy.sh
-              mode: 365
-            - key: webhooks
-              path: hooks.yaml
       initContainers:
       - name: wait-db
         image: busybox:1.36.1
         command: ['sh', '-c', "until nc -w 1 -z db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
-        # command: ['sh', '-c', "until nc -w 1 -z db.languagedepot.svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
       - name: db-migrations
         # Should be same image as lexbox-api container
         image: ghcr.io/sillsdev/lexbox-api:develop
@@ -236,95 +186,3 @@ spec:
                   name: db
           - name: DbConfig__LexBoxConnectionString
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: deploy-config
-  namespace: languagedepot
-data:
-#  branch to allow deployments from
-  publish-branch: develop
-#  script to execute when the webhook gets called
-  deployer: |
-    #!/bin/sh
-    SERVICEACCOUNT=/run/secrets/kubernetes.io/serviceaccount
-    NAMESPACE=$(cat $SERVICEACCOUNT/namespace)
-    DEPLOYMENTS="https://kubernetes.default.svc/apis/apps/v1/namespaces/$NAMESPACE/deployments"
-    TOKEN=$(cat $SERVICEACCOUNT/token)
-    NOW=$(date -Is)
-    curl --location --request PATCH "$DEPLOYMENTS/$DEPLOYMENT_NAME?fieldManager=kubectl-rollout" \
-    --cacert $SERVICEACCOUNT/ca.crt \
-    --header 'Content-Type: application/strategic-merge-patch+json' \
-    --header "Authorization: Bearer $TOKEN" \
-    --data-raw "{\"spec\": {\"template\": {\"metadata\": {\"annotations\": {\"kubectl.kubernetes.io/restartedAt\": \"$NOW\"}}}}}"
-
-#    documentation https://github.com/adnanh/webhook/blob/master/docs/Hook-Definition.md
-  webhooks: |
-    - id: github-deploy
-      execute-command: /webhooks/deploy.sh
-      command-working-directory: /mnt
-      pass-environment-to-command:
-        - source: payload
-          name: deployment
-          envname: DEPLOYMENT_NAME
-      http-methods: [POST]
-      trigger-rule:
-        and:
-        - or:
-          - match:
-              type: payload-hmac-sha256
-              secret: '{{ getenv "DEPLOY_KEY" }}'
-              parameter:
-                source: header
-                name: X-Hub-Signature-256
-          - match:
-              type: payload-hmac-sha1
-              secret: '{{ getenv "DEPLOY_KEY" }}'
-              parameter:
-                source: header
-                name: X-Hub-Signature
-        - match:
-            type: value
-            value: push
-            parameter:
-              source: payload
-              name: action
-        - match:
-            type: value
-            value: 'refs/heads/{{getenv "PUBLISH_BRANCH"}}'
-            parameter:
-              source: payload
-              name: ref
-
-# setup role based access control for the deployer
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: lexbox-deployer
-  namespace: languagedepot
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: deployer
-  namespace: languagedepot
-rules:
-  - apiGroups: [ "apps" ]
-    resources: [ "deployments" ]
-    verbs: [ "patch" ]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: redepoly
-  namespace: languagedepot
-subjects:
-  - kind: ServiceAccount
-    name: lexbox-deployer
-roleRef:
-  kind: Role
-  name: deployer
-  apiGroup: rbac.authorization.k8s.io
