@@ -1,0 +1,13 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: lexbox
+  namespace: languagedepot
+spec:
+  ports:
+    - name: maildev-ui
+      port: 1080
+      targetPort: 1080
+    - name: maildev-smtp
+      port: 1025
+      targetPort: 1025

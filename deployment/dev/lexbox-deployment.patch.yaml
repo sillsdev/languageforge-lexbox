@@ -31,8 +31,18 @@ spec:
             value: 'maildev'
             valueFrom:
           - name: Email__SmtpPassword
-            value: 'maildev'
+            value: 'maildev_pass'
             valueFrom:
+      - name: maildev
+        image: maildev/maildev # https://github.com/maildev/maildev/blob/master/README.md#usage
+        ports:
+          - containerPort: 1080 # ui port
+          - containerPort: 1025 # smtp port
+        env:
+          - name: MAILDEV_INCOMING_USER
+            value: 'maildev'
+          - name: MAILDEV_INCOMING_PASS
+            value: 'maildev_pass'
       initContainers:
         - name: db-migrations
           env:

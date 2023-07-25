@@ -53,6 +53,11 @@ portForward:
     namespace: languagedepot
     port: 5432
     localPort: 5433
+#    maildev
+  - resourceType: Service
+    resourceName: lexbox
+    namespace: languagedepot
+    port: 1080
 
 manifests:
   kustomize:
@@ -104,6 +109,16 @@ profiles:
         namespace: languagedepot
         port: 80 # resumable
         localPort: 8034
+      #    maildev
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 1080
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 1025
+
   - name: no-frontend
     patches:
       - op: replace
@@ -123,3 +138,8 @@ profiles:
       resourceName: lexbox
       namespace: languagedepot
       port: 4318
+  #    maildev
+    - resourceType: Service
+      resourceName: lexbox
+      namespace: languagedepot
+      port: 1080

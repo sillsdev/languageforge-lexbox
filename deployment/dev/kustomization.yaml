@@ -29,3 +29,4 @@ patches:
   - path: hg-deployment-patch.yaml
   - path: hg-repos-pvc.patch.yaml
   - path: hgresumable-cache.patch.yaml
+  - path: lexbox-service.patch.yaml
