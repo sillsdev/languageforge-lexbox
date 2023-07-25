@@ -2,7 +2,7 @@
 
 tasks:
   api-only:
-    aliases: [ apio, only ]
+    aliases: [ o, only ]
     dir: ./LexBoxApi
     interactive: true
     cmds:
