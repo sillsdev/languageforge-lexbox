@@ -210,7 +210,6 @@ const isRequestEvent = (event: RequestEvent | NavigationEvent | Event): event is
 
 
 const ACTIVE_SPAN_KEY = 'ACTIVE_OTEL_OPERATION_SPAN_KEY';
-const CACHED_SPAN_KEY = 'CACHED_OTEL_OPERATION_SPAN';
 const activeSpanWeakMap = new WeakMap<object, Span>();
 
 function setOpContextSpan(opKey: number, context: OperationContext, span: Span): void {
@@ -247,36 +246,13 @@ export const tracingExchange: Exchange = mapExchange({
   },
   onResult: (result) => {
     const operation = result.operation;
-    const cacheOutcome = operation.context.meta?.cacheOutcome;
-    const operationSpan = (result.extensions?.[CACHED_SPAN_KEY] ?? getOpContextSpan(operation.context)) as Span|undefined;
-    const operationSpanContext = operationSpan?.spanContext();
+    const operationSpan = getOpContextSpan(operation.context);
 
     const error = result.error?.networkError ?? result.error;
     if (error && !isRedirect(error)) {
       ensureErrorIsTraced(result.error, { span: operationSpan }, { ['app.error.source']: GQL_ERROR_SOURCE });
     }
 
-    if (cacheOutcome && cacheOutcome !== 'miss') {
-      // We have no access to the span started above and it will therefore never end.
-      // That's alright, because this operation is not particularly interesting.
-      // Instead we (should) have access to the span/context of the original/cached operation, so we'll link to that.
-      tracer().startActiveSpan(`operation ${operation.kind} cache hit`, {
-        links: (operationSpanContext ? [{ context: operationSpanContext }] : [])
-      }, (span) => {
-        if (!operationSpanContext) { // :'(
-          const keys = Object.keys(operation.variables ?? {}).join();
-          span.setAttribute('app.urql.cache.missing_original_trace', `${operation.kind}: ${keys} (${operation.key})`);
-        }
-        span.end();
-      });
-    } else if (operationSpan) {
-      result.extensions ??= {};
-      // This is a bit of a hack that's only truly necessary in dev.
-      // In prod we get the cached operation, but in dev we only get the cached result, so that's where we need
-      // to store stuff if we ever want to see it again.
-      // https://github.com/urql-graphql/urql/blob/6a441884790bf6b07acb553f7bdc3702c3a1c315/packages/core/src/exchanges/cache.ts#L78
-      result.extensions[CACHED_SPAN_KEY] = operationSpan;
-      operationSpan?.end();
-    }
+    operationSpan?.end();
   },
 });
