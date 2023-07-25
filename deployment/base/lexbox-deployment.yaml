@@ -21,9 +21,6 @@ spec:
   - name: otel-grpc
     protocol: TCP
     port: 4317
-  - name: github-deploy
-    protocol: TCP
-    port: 9000
 
 ---
 

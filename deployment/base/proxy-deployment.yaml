@@ -39,13 +39,6 @@ spec:
             name: lexbox
             port:
               name: otel
-      - path: /api/github-deploy
-        pathType: Exact
-        backend:
-          service:
-            name: lexbox
-            port:
-              name: github-deploy
   - host: hg.localhost
     http:
       paths:
