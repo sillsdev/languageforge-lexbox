@@ -13,7 +13,7 @@ import type { NavigationEvent, RequestEvent } from '@sveltejs/kit';
 import { page } from '$app/stores';
 import { get } from 'svelte/store';
 import { isTraced, type TraceId, isTraceable, traceIt } from './types';
-import { makeOperation, type Exchange, mapExchange } from '@urql/svelte';
+import {makeOperation, type Exchange, mapExchange, type OperationContext} from '@urql/svelte';
 import { browser } from '$app/environment';
 import { isRedirect } from '$lib/util/types';
 
@@ -209,25 +209,46 @@ const isRequestEvent = (event: RequestEvent | NavigationEvent | Event): event is
 };
 
 
-const ACTIVE_SPAN_KEY = 'ACTIVE_OTEL_OPERATION_SPAN';
+const ACTIVE_SPAN_KEY = 'ACTIVE_OTEL_OPERATION_SPAN_KEY';
 const CACHED_SPAN_KEY = 'CACHED_OTEL_OPERATION_SPAN';
+const activeSpanWeakMap = new WeakMap<object, Span>();
+
+function setOpContextSpan(opKey: number, context: OperationContext, span: Span): void {
+  // we can't store the span directly in the context because the context will be serialized
+  // (not the one we receive back which is why this still works), and a span is not serializable.
+  // so we create an object as a key to a weak map, and store that in the context.
+  // value of opKey isn't important, as the instance of the object is what's used by the map.
+  const spanKey = {opKey};
+  activeSpanWeakMap.set(spanKey, span);
+  context[ACTIVE_SPAN_KEY] = spanKey;
+}
+
+function getOpContextSpan(context: OperationContext): Span | undefined {
+  // get the span key which was created above, and use it to get the span from the weak map.
+  // we don't need to remove the value from the map because it'll go away automatically when the
+  // key is garbage collected when the context is.
+  const spanKey = context[ACTIVE_SPAN_KEY] as object;
+  return spanKey ? activeSpanWeakMap.get(spanKey) : undefined;
+}
 
 export const tracingExchange: Exchange = mapExchange({
   onOperation: (operation) => {
     const operationSpan = tracer().startSpan(`operation ${operation.kind}`, {
       attributes: { 'graphql.operation.kind': operation.kind }
     });
+
     const operationSpanContext = trace.setSpan(context.active(), operationSpan);
-    return makeOperation(operation.kind, operation, {
+    const opContext = {
       ...operation.context,
       fetch: context.bind(operationSpanContext, operation.context.fetch ?? fetch),
-      [ACTIVE_SPAN_KEY]: operationSpan,
-    });
+    };
+    setOpContextSpan(operation.key, opContext, operationSpan);
+    return makeOperation(operation.kind, operation, opContext);
   },
   onResult: (result) => {
     const operation = result.operation;
     const cacheOutcome = operation.context.meta?.cacheOutcome;
-    const operationSpan = (result.extensions?.[CACHED_SPAN_KEY] ?? operation.context[ACTIVE_SPAN_KEY]) as Span | undefined;
+    const operationSpan = (result.extensions?.[CACHED_SPAN_KEY] ?? getOpContextSpan(operation.context)) as Span|undefined;
     const operationSpanContext = operationSpan?.spanContext();
 
     const error = result.error?.networkError ?? result.error;

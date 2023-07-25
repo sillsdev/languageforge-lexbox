@@ -27,7 +27,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
   return createClient({
     url,
     exchanges: [
-      // ...(import.meta.env.DEV ? [devtoolsExchange] : []),
+      ...(import.meta.env.DEV ? [devtoolsExchange] : []),
       cacheExchange({
         keys: {
           //     eslint-disable-next-line @typescript-eslint/naming-convention
