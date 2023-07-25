@@ -76,7 +76,6 @@ class GqlClient {
     query: TypedDocumentNode<Data, Variables>,
     variables: Variables,
     context: QueryOperationOptions = {}): Promise<QueryStoreReturnType<Data>> {
-    console.log('execute query');
     const brokenQueryStore = queryStore<Data, Variables>({
       client: this.client,
       query,
