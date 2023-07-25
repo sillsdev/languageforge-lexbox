@@ -88,7 +88,13 @@
 
 {#if $open}
   <!-- using DaisyUI modal https://daisyui.com/components/modal/ -->
-  <dialog bind:this={dialog} class="modal justify-items-center" class:modal-bottom={bottom} on:cancel={cancelModal}>
+  <dialog
+    bind:this={dialog}
+    class="modal justify-items-center"
+    class:modal-bottom={bottom}
+    on:cancel={cancelModal}
+    on:close={cancelModal}
+  >
     <div class="modal-box max-w-3xl">
       {#if showCloseButton}
         <button class="btn btn-sm btn-circle absolute right-2 top-2" aria-label={$t('close')} on:click={cancelModal}
@@ -107,5 +113,8 @@
         </div>
       {/if}
     </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>invisible</button>
+    </form>
   </dialog>
 {/if}
