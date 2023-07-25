@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
   import t from '$lib/i18n';
   import type { ProjectPageData } from '$lib/page-data';
+  import { get } from 'svelte/store';
 
   interface Breadcrumb {
     name: string;
@@ -24,7 +25,7 @@
       create: 'project.create.title',
       _get: () => {
         const data = $page.data as ProjectPageData;
-        return data.project?.name ?? data.code;
+        return get(data.project)?.name ?? data.code;
       },
     },
     user: 'account_settings.title',

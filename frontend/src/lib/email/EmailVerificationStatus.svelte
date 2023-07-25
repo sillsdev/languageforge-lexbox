@@ -3,6 +3,7 @@
   import { slide } from 'svelte/transition';
   import type { LexAuthUser } from '$lib/user';
   import type { EmailResult } from '.';
+  import { Button } from '$lib/forms';
 
   export let user: LexAuthUser;
   export let emailResult: EmailResult | null = null;
@@ -36,7 +37,7 @@
 {:else if requestedEmail}
   <div class="alert alert-info" transition:slide|local>
     <div>
-      <span>{$t('account_settings.verify_email.you_have_mail')}</span>
+      <div>{$t('account_settings.verify_email.you_have_mail')}</div>
       <span>{$t('account_settings.verify_email.verify_to_change', { requestedEmail })}</span>
     </div>
     <span class="i-mdi-email-heart-outline" />
@@ -45,7 +46,7 @@
   {#if sentVerificationEmail}
     <div class="alert alert-info" transition:slide|local>
       <div>
-        <span>{$t('account_settings.verify_email.you_have_mail')}</span>
+        <div>{$t('account_settings.verify_email.you_have_mail')}</div>
         <span>{$t('account_settings.verify_email.check_inbox')}</span>
       </div>
       <span class="i-mdi-email-heart-outline" />
@@ -53,9 +54,9 @@
   {:else}
     <div class="alert alert-warning" transition:slide|local>
       <span>{$t('account_settings.verify_email.please_verify')}</span>
-      <button class="btn" class:loading={sendingVerificationEmail} on:click={sendVerificationEmail}>
-        {$t('account_settings.verify_email.resend')}</button
-      >
+      <Button loading={sendingVerificationEmail} on:click={sendVerificationEmail}>
+        {$t('account_settings.verify_email.resend')}
+      </Button>
     </div>
   {/if}
 {/if}
@@ -71,7 +72,7 @@
 
     & > div {
       @apply flex-col items-start;
-      & > span:first-child {
+      & > div:first-child {
         @apply font-bold;
       }
     }

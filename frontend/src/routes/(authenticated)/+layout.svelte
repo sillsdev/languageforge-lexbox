@@ -34,7 +34,7 @@
       <AdminContent>
         <a href="/admin" class="btn btn-sm btn-accent hidden sm:inline-flex">
           {$t('admin_dashboard.title')}
-          <span class="ml-2"><AdminIcon /></span>
+          <AdminIcon />
         </a>
       </AdminContent>
     </div>

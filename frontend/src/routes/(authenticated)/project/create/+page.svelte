@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { FormError, TextArea, lexSuperForm } from '$lib/forms';
+  import { FormError, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
   import Checkbox from '$lib/forms/Checkbox.svelte';
   import Form from '$lib/forms/Form.svelte';
   import Input from '$lib/forms/Input.svelte';
@@ -109,8 +109,8 @@
       readonly={!$form.customCode}
     />
     <FormError error={$message} />
-    <button type="submit" class="btn btn-primary mb-2" class:loading={$submitting}>
+    <SubmitButton loading={$submitting}>
       {$t('project.create.submit')}
-    </button>
+    </SubmitButton>
   </Form>
 </Page>

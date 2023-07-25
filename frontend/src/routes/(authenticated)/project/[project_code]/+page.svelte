@@ -89,7 +89,7 @@
     <div class="space-y-2">
       <div class="text-3xl flex items-center gap-3 flex-wrap">
         <span>{$t('project_page.project')}:</span>
-        <span class="text-secondary">
+        <span class="text-primary">
           <EditableText
             disabled={!canManage}
             value={project.name}
@@ -118,7 +118,7 @@
         <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
       </div>
       <div class="text-lg">{$t('project_page.description')}:</div>
-      <span>
+      <span class="text-secondary">
         <EditableText
           value={project.description}
           disabled={!canManage}
@@ -141,7 +141,7 @@
               member={{ name: member.user.name, role: member.role }}
               canManage={canManage && (member.user.id != userId || isAdmin(user))}
             />
-            <ul class="dropdown-content menu bg-base-200 p-2 shadow rounded-box">
+            <ul class="dropdown-content menu bg-base-200 p-2 shadow rounded-box z-10">
               <li>
                 <button on:click={() => changeMemberRole(member)}>
                   <span class="i-mdi-account-lock text-2xl" />

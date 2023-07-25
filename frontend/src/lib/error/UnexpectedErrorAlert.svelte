@@ -12,7 +12,7 @@
   onDestroy(
     error.subscribe((e) => {
       if (!dialog) return;
-      (e) ? open() : close();
+      e ? open() : close();
     })
   );
 
@@ -32,8 +32,8 @@
   }
 </script>
 
-<dialog bind:this={dialog} class="modal modal-bottom alert-error max-w-[95vw]">
-  <div class="modal-box alert-error">
+<dialog bind:this={dialog} class="modal">
+  <div class="modal-box bg-error text-error-content max-w-[95vw] w-[unset]">
     <UnexpectedError />
     <div class="flex justify-end modal-action">
       <button on:click={dismissClick} class="btn btn-ghost self-end">{$t('modal.dismiss')}</button>

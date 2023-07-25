@@ -19,6 +19,7 @@
   let dialogResponse = writable<DialogResponse | null>(null);
   let open = writable(false);
   $: closing = $dialogResponse !== null && $open;
+  $: submitting = $dialogResponse === DialogResponse.Submit && $open;
   export let bottom = false;
   export let showCloseButton = true;
   export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false): Promise<DialogResponse> {
@@ -87,24 +88,24 @@
 
 {#if $open}
   <!-- using DaisyUI modal https://daisyui.com/components/modal/ -->
-  <div class="modal" class:modal-bottom={bottom} class:modal-open={$open}>
-    <dialog bind:this={dialog} class="modal-box max-w-3xl relative" class:mb-0={bottom} on:cancel={cancelModal}>
+  <dialog bind:this={dialog} class="modal justify-items-center" class:modal-bottom={bottom} on:cancel={cancelModal}>
+    <div class="modal-box max-w-3xl">
       {#if showCloseButton}
         <button class="btn btn-sm btn-circle absolute right-2 top-2" aria-label={$t('close')} on:click={cancelModal}
-          >✕</button
-        >
+          >✕
+        </button>
       {/if}
-      <slot {closing} />
+      <slot {closing} {submitting} />
       {#if $$slots.actions}
         <div class="modal-action justify-between">
           <div class="flex gap-4">
             <slot name="extraActions" />
           </div>
           <div class="flex gap-4">
-            <slot name="actions" {closing} />
+            <slot name="actions" {closing} {submitting} />
           </div>
         </div>
       {/if}
-    </dialog>
-  </div>
+    </div>
+  </dialog>
 {/if}

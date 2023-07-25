@@ -73,10 +73,10 @@
   <title>{$t('admin_dashboard.title')}</title>
 </svelte:head>
 
-<main>
-  <div class="grid grid-cols-2 m:grid-cols-1">
-    <div class="pl-1 overflow-x-auto">
-      <span class="text-xl">
+<main class="flex justify-center">
+  <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
+    <div>
+      <span class="text-xl flex gap-4">
         {$t('admin_dashboard.project_table_title')}
         <Badge>{projectSearch ? projects.length : $allProjects.length}</Badge>
       </span>
@@ -90,77 +90,81 @@
       />
 
       <div class="divider" />
-
-      <table class="table">
-        <thead>
-          <tr>
-            <th>{$t('admin_dashboard.column_name')}</th>
-            <th>{$t('admin_dashboard.column_code')}</th>
-            <th>{$t('admin_dashboard.column_users')}</th>
-            <th
-              >{$t('admin_dashboard.column_last_change')}<span
-                class="i-mdi-sort-ascending text-xl align-[-5px] ml-1"
-              /></th
-            >
-            <th>{$t('admin_dashboard.column_type')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each projects as project}
-            <tr>
-              <td>
-                <a class="link" href={`/project/${project.code}`}>
-                  {project.name}
-                </a>
-              </td>
-              <td>{project.code}</td>
-              <td>TODO</td>
-              <td>
-                <FormatDate date={project.lastCommit} />
-              </td>
-              <td>
-                <FormatProjectType type={project.type} />
-              </td>
+      <div class="overflow-x-auto">
+        <table class="table table-lg">
+          <thead>
+            <tr class="bg-base-200">
+              <th>{$t('admin_dashboard.column_name')}</th>
+              <th>{$t('admin_dashboard.column_code')}</th>
+              <th>{$t('admin_dashboard.column_users')}</th>
+              <th>
+                {$t('admin_dashboard.column_last_change')}
+                <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
+              </th>
+              <th>{$t('admin_dashboard.column_type')}</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#each projects as project}
+              <tr>
+                <td>
+                  <a class="link" href={`/project/${project.code}`}>
+                    {project.name}
+                  </a>
+                </td>
+                <td>{project.code}</td>
+                <td>TODO</td>
+                <td>
+                  <FormatDate date={project.lastCommit} />
+                </td>
+                <td>
+                  <FormatProjectType type={project.type} />
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="pl-1 overflow-x-auto">
-      <span class="text-xl">
+    <div>
+      <span class="text-xl flex gap-4">
         {$t('admin_dashboard.user_table_title')}
         <Badge>{userSearch ? users.length : $allUsers.length}</Badge>
       </span>
       <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={userSearch} />
 
       <div class="divider" />
-      <table class="table">
-        <thead>
-          <tr>
-            <th>{$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-1" /></th>
-            <th>{$t('admin_dashboard.column_email')}</th>
-            <th>{$t('admin_dashboard.column_role')}</th>
-            <th>{$t('admin_dashboard.column_created')}</th>
-            <th>{$t('admin_dashboard.column_edit')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each users as user}
-            <tr>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}</td>
-              <td>
-                <FormatDate date={user.createdDate} />
-              </td>
-              <td class="p-0">
-                <IconButton ghost icon="i-mdi-pencil-outline" on:click={() => openModal(user)} />
-              </td>
+      <div class="overflow-x-auto">
+        <table class="table table-lg">
+          <thead>
+            <tr class="bg-base-200">
+              <th>
+                {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
+              </th>
+              <th>{$t('admin_dashboard.column_email')}</th>
+              <th>{$t('admin_dashboard.column_role')}</th>
+              <th>{$t('admin_dashboard.column_created')}</th>
+              <th>{$t('admin_dashboard.column_edit')}</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#each users as user}
+              <tr>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}</td>
+                <td>
+                  <FormatDate date={user.createdDate} />
+                </td>
+                <td class="p-0">
+                  <IconButton ghost icon="i-mdi-pencil-outline" on:click={() => openModal(user)} />
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 

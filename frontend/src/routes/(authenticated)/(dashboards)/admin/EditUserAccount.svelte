@@ -76,18 +76,16 @@
   </div>
   <svelte:fragment slot="extraActions">
     <ButtonToggle
-      theme="error"
+      style="btn-error"
       text1={$t('admin_dashboard.form_modal.unlock')}
       text2={$t('admin_dashboard.form_modal.lock')}
       icon1="i-mdi-lock"
       icon2="i-mdi-unlocked"
     />
-    <button
-      class="btn btn-error"
-      on:click={async () => {
-        await deleteUser(_user.id);
-      }}>{$t('admin_dashboard.form_modal.delete_user')}<span class="ml-2"><TrashIcon /></span></button
-    >
+    <button class="btn btn-error" on:click={() => deleteUser(_user.id)}>
+      {$t('account_settings.delete_account')}
+      <TrashIcon />
+    </button>
   </svelte:fragment>
   <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
 </FormModal>

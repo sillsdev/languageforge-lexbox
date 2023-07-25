@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { Form, Input, lexSuperForm } from '$lib/forms';
-  import Button from '$lib/forms/Button.svelte';
+  import { SubmitButton } from '$lib/forms';
   import t from '$lib/i18n';
   import Page from '$lib/layout/Page.svelte';
   import { z } from 'zod';
@@ -18,9 +18,9 @@
 </script>
 
 <Page>
-    <svelte:fragment slot="header">
-        {$t('forgot_password.title')}
-    </svelte:fragment>
+  <svelte:fragment slot="header">
+    {$t('forgot_password.title')}
+  </svelte:fragment>
   <Form {enhance}>
     <Input
       id="email"
@@ -30,6 +30,6 @@
       bind:value={$form.email}
       error={$errors.email}
     />
-    <Button loading={$submitting}>{$t('forgot_password.send_email')}</Button>
+    <SubmitButton loading={$submitting}>{$t('forgot_password.send_email')}</SubmitButton>
   </Form>
 </Page>
