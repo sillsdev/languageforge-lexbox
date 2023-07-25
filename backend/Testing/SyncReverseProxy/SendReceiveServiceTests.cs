@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Chorus.VcsDrivers.Mercurial;
 using Shouldly;
 using Testing.Services;
