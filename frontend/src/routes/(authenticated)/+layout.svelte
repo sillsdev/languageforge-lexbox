@@ -7,7 +7,7 @@
 
   let menuToggle = false;
   export let data: LayoutData;
-  const user = data.user;
+  $: user = data.user;
 
   function open(): void {
     menuToggle = true;

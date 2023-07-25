@@ -19,7 +19,7 @@
   import type { ErrorMessage } from '$lib/forms';
 
   export let data: PageData;
-  const user = data.user;
+  $: user = data.user;
   let projectStore = data.project;
   $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
