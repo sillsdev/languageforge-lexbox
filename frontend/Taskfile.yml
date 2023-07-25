@@ -1,7 +1,7 @@
 ﻿version: 3
 tasks:
   ui-only:
-    aliases: [ uio, only ]
+    aliases: [ o, only ]
     deps: [ install ]
     interactive: true
     cmds:
