@@ -17,7 +17,7 @@ pnpm run dev
 pnpm run dev -- --open
 ```
 
-The app will be running at [http://localhost:5173](http://localhost:5173) by default.
+The app will be running at [http://localhost:3000](http://localhost:3000) by default.
 
 > In order to configure the robot protection in forms, you'll need to `cp .env.example .env`
 
