@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Button, Form, FormError, Input, lexSuperForm } from '$lib/forms';
+  import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { login, logout } from '$lib/user';
@@ -58,9 +58,9 @@
     </a>
 
     {#if badCredentials}
-      <Button loading={$submitting}>{$t('login.button_login_again')}</Button>
+      <SubmitButton loading={$submitting}>{$t('login.button_login_again')}</SubmitButton>
     {:else}
-      <Button loading={$submitting}>{$t('login.button_login')}</Button>
+      <SubmitButton loading={$submitting}>{$t('login.button_login')}</SubmitButton>
     {/if}
     <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
   </Form>

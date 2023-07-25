@@ -1,4 +1,5 @@
 import Button from './Button.svelte';
+import SubmitButton from './SubmitButton.svelte';
 import Form from './Form.svelte';
 import FormError from './FormError.svelte';
 import Input from './Input.svelte';
@@ -11,6 +12,7 @@ import { randomFieldId, tryParse } from './utils';
 
 export {
   Button,
+  SubmitButton,
   Form,
   FormError,
   Input,
@@ -23,4 +25,3 @@ export {
   type Token,
   type ErrorMessage,
 };
-

@@ -8,8 +8,7 @@ form {
     @apply mb-4;
   }
 
-  button,
-  a {
+  .btn {
     @apply mt-4;
   }
 
@@ -24,15 +23,26 @@ form {
 }
 
 button.button-badge:not([disabled]) {
-  @apply hover:drop-shadow-xl hover:brightness-90;
+  @apply hover:drop-shadow-xl hover:brightness-95 transition;
 }
 
 form {
-    input, select, textarea {
-        margin: 0;
-    }
+  input,
+  select,
+  textarea {
+    margin: 0;
+  }
 
-    .form-control {
-        @apply mb-2;
-    }
+  .form-control {
+    @apply mb-2;
+  }
+}
+
+.toast:where(.toast-center) {
+  right: unset;
+  white-space: unset;
+}
+
+.delete-modal :global(.btn[type='submit']) {
+  @apply btn-error;
 }

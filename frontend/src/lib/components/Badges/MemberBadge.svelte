@@ -6,7 +6,7 @@
   export let canManage = false;
 </script>
 
-<button on:click disabled={!canManage} class="button-badge">
+<button on:click disabled={!canManage} class="button-badge group transition">
   <span class="badge badge-lg badge-primary p-4 pr-0 parent-badge">
     <span class="pr-2 whitespace-nowrap">
       {member.name}
@@ -17,7 +17,9 @@
     </Badge>
 
     {#if canManage}
-      <span class="i-mdi-dots-vertical text-lg ml-1 mr-3" />
+    <span class="flex justify-center p-1 ml-1 mr-1 group-hover:bg-neutral/50 transition duration-300 rounded-full">
+      <span class="i-mdi-dots-vertical text-lg" />
+    </span>
     {/if}
   </span>
 </button>

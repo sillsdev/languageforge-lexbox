@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Button, Form, FormError, Input, lexSuperForm } from '$lib/forms';
+  import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import Page from '$lib/layout/Page.svelte';
   import { hash } from '$lib/user';
@@ -37,6 +37,6 @@
       autofocus
     />
     <FormError error={$message} />
-    <Button loading={$submitting}>{$t('reset_password.submit')}</Button>
+    <SubmitButton loading={$submitting}>{$t('reset_password.submit')}</SubmitButton>
   </Form>
 </Page>

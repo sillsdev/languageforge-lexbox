@@ -10,7 +10,7 @@
 </script>
 
 <script lang="ts">
-  import { FormError, lexSuperForm, type ErrorMessage } from '$lib/forms';
+  import { FormError, lexSuperForm, type ErrorMessage, SubmitButton } from '$lib/forms';
   import Form from '$lib/forms/Form.svelte';
   import type { Readable } from 'svelte/store';
 
@@ -76,9 +76,9 @@
   <svelte:fragment slot="extraActions">
     <slot name="extraActions" />
   </svelte:fragment>
-  <svelte:fragment slot="actions" let:closing>
-    <button type="submit" form="modalForm" class="btn btn-primary" class:loading={closing}>
+  <svelte:fragment slot="actions" let:submitting>
+    <SubmitButton form="modalForm" loading={submitting}>
       <slot name="submitText" />
-    </button>
+    </SubmitButton>
   </svelte:fragment>
 </Modal>

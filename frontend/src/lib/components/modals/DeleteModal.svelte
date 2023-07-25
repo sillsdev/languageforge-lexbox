@@ -3,6 +3,7 @@
   import t from '$lib/i18n';
   import FormError from '$lib/forms/FormError.svelte';
   import type { ErrorMessage } from '$lib/forms';
+  import Loader from '../Loader.svelte';
 
   export let entityName: string;
   export let isRemoveDialog = false;
@@ -34,8 +35,9 @@
   </h2>
   <slot />
   <FormError {error} right />
-  <svelte:fragment slot="actions" let:closing>
-    <button class="btn btn-error" class:loading={closing} on:click={() => modal.submitModal()}>
+  <svelte:fragment slot="actions" let:submitting>
+    <button class="btn btn-error" on:click={() => modal.submitModal()}>
+      <Loader loading={submitting} />
       <span class="i-mdi-trash text-2xl mr-2" />
       {#if isRemoveDialog}
         {$t('delete_modal.remove', { entityName })}
@@ -43,7 +45,7 @@
         {$t('delete_modal.delete', { entityName })}
       {/if}
     </button>
-    <button class="btn" disabled={closing} on:click={() => modal.cancelModal()}>
+    <button class="btn btn-nuetral" disabled={submitting} on:click={() => modal.cancelModal()}>
       {#if isRemoveDialog}
         {$t('delete_modal.dont_remove')}
       {:else}

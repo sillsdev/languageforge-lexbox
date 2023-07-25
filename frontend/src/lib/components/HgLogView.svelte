@@ -123,7 +123,7 @@
 <div class="horiz">
   <TrainTracks {circles} {paths} rowHeights={heights} />
 
-  <table class="table table-compact table-zebra">
+  <table class="table table-zebra">
     <tbody>
       {#each expandedLog as log, idx}
         <tr bind:offsetHeight={heights[idx]}>

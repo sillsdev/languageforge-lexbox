@@ -2,7 +2,7 @@ import { readonly, writable } from 'svelte/store';
 
 export interface Notification {
   message: string;
-  category: 'alert-success' | 'alert-warning' | ''; // still allowing the other colors
+  category?: 'alert-warning';
   duration: number;
 }
 
@@ -12,20 +12,22 @@ export const enum Duration {
 }
 
 const _notifications = writable<Notification[]>([]);
+// _notifications.set([{ message: 'Test notification', duration: 4 }, { message: 'Test notification', duration: 4 }])
+
 export const notifications = readonly(_notifications);
 
 export function notifySuccess(
   message: string,
   duration = Duration.Default,
 ): void {
-  addNotification({ message, category: '', duration });
+  addNotification({ message, duration });
 }
 
 export function notifyWarning( // in case we need them to be different colors in the future this is its own function
   message: string,
   duration = Duration.Default,
 ): void {
-  notifySuccess(message, duration);
+  addNotification({ message, duration, category: 'alert-warning' });
 }
 
 function addNotification(notification: Notification): void {
