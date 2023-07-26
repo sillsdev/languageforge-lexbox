@@ -39,6 +39,8 @@ spec:
       containers:
       - name: db
         image: postgres:15-alpine
+        ports:
+          - containerPort: 5432
         # https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
         readinessProbe:
             exec:
