@@ -1,7 +1,6 @@
 <script lang="ts">
   import { FormModal } from '$lib/components/modals';
   import { TrashIcon } from '$lib/icons';
-  import ButtonToggle from '$lib/components/ButtonToggle.svelte';
   import { z } from 'zod';
   import Input from '$lib/forms/Input.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
@@ -75,13 +74,13 @@
     />
   </div>
   <svelte:fragment slot="extraActions">
-    <ButtonToggle
+    <!--ButtonToggle
       style="btn-error"
       text1={$t('admin_dashboard.form_modal.unlock')}
       text2={$t('admin_dashboard.form_modal.lock')}
       icon1="i-mdi-lock"
       icon2="i-mdi-unlocked"
-    />
+    /-->
     <button class="btn btn-error" on:click={() => deleteUser(_user.id)}>
       {$t('account_settings.delete_account')}
       <TrashIcon />
