@@ -19,6 +19,7 @@ import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived, writable} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
 import {devtoolsExchange} from '@urql/devtools';
+import type { LexAuthUser } from '$lib/user';
 
 let globalClient: GqlClient | null = null;
 
@@ -51,6 +52,16 @@ export function getClient(): GqlClient {
   }
 }
 
+export function ensureClientMatchesUser(user: LexAuthUser): void {
+  if (!globalClient) return;
+  if (globalClient.ownedByUserId === '') globalClient.ownedByUserId = user.id;
+  if (globalClient.ownedByUserId === user.id) return;
+
+  console.warn(`Deleting the current client since it is owned by a different user, this will clear the cache, this happens after the load function, so it may reuse cached data from the old user, ${globalClient.ownedByUserId} !== ${user.id}`)
+  globalClient = null;
+  getClient().ownedByUserId = user.id;
+}
+
 type OperationOptions = Partial<OperationContext>;
 
 type QueryOperationOptions = OperationOptions; // ensure the sveltekit fetch is always provided
@@ -59,7 +70,7 @@ type OperationResultState<Data, Variables extends AnyVariables> = ReturnType<typ
 type QueryStoreReturnType<Data> = { [K in keyof Data]: Readable<Data[K]> };
 
 class GqlClient {
-
+  public ownedByUserId = '';
   constructor(public readonly client: Client) {
     this.subscription = (...args) => this.client.subscription(...args);
   }

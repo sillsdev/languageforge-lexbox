@@ -4,10 +4,12 @@
   import { AdminIcon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
   import type { LayoutData } from './$types';
+  import {onMount} from 'svelte';
+  import {ensureClientMatchesUser} from '$lib/gql';
 
   let menuToggle = false;
   export let data: LayoutData;
-  $: user = data.user;
+  $: user = data.user ;
 
   function open(): void {
     menuToggle = true;
@@ -20,6 +22,9 @@
   function closeOnEscape(event: KeyboardEvent): void {
     event.key === 'Escape' && close();
   }
+  onMount(() => {
+    ensureClientMatchesUser(user);
+  });
 </script>
 
 <svelte:window on:keydown={closeOnEscape} />
