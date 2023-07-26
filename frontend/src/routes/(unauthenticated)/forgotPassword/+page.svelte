@@ -10,7 +10,7 @@
     email: z.string().email($t('register.email')),
   });
   let { form, errors, enhance, submitting } = lexSuperForm(formSchema, async () => {
-    await fetch(`api/login/forgotPassword?email=${$form.email}`, {
+    await fetch(`api/login/forgotPassword?email=${encodeURIComponent($form.email)}`, {
       method: 'POST',
     });
     await goto('/forgotPassword/emailSent');
