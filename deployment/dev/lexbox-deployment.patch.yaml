@@ -44,9 +44,6 @@ spec:
           - name: MAILDEV_INCOMING_PASS
             value: 'maildev_pass'
       initContainers:
-        - name: db-migrations
-          env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: "Development"
-          command: [ 'sh', '-c', 'dotnet run migrate' ]
+        - $patch: delete
+          name: db-migrations
 
