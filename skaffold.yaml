@@ -9,7 +9,7 @@ build:
     - image: ghcr.io/sillsdev/lexbox-api
       context: backend
       docker:
-        dockerfile: Dockerfile
+        dockerfile: LexBoxApi/dev.Dockerfile
       sync:
         manual:
           - src: '**'
@@ -17,7 +17,7 @@ build:
     - image: ghcr.io/sillsdev/lexbox-ui
       context: frontend
       docker:
-        dockerfile: Dockerfile
+        dockerfile: dev.Dockerfile
       sync:
         manual:
           - src: '**'
@@ -68,21 +68,7 @@ profiles:
   - name: dev
     activation:
       - command: dev
-    patches:
-      - op: replace
-        path: /build/artifacts/0/docker/dockerfile
-        value: LexBoxApi/dev.Dockerfile
-      - op: replace
-        path: /build/artifacts/1/docker/dockerfile
-        value: dev.Dockerfile
   - name: infra
-    patches:
-      - op: replace
-        path: /build/artifacts/0/docker/dockerfile
-        value: LexBoxApi/dev.Dockerfile
-      - op: replace
-        path: /build/artifacts/1/docker/dockerfile
-        value: dev.Dockerfile
     portForward:
       # Postgres
       - resourceType: Service
@@ -120,13 +106,6 @@ profiles:
         port: 1025
 
   - name: no-frontend
-    patches:
-      - op: replace
-        path: /build/artifacts/0/docker/dockerfile
-        value: LexBoxApi/dev.Dockerfile
-      - op: replace
-        path: /build/artifacts/1/docker/dockerfile
-        value: dev.Dockerfile
     portForward:
     # Backend
     - resourceType: Service
