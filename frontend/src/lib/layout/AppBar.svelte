@@ -7,13 +7,16 @@
 
   let environmentName = env.PUBLIC_ENV_NAME;
   const dispatch = createEventDispatcher();
+  let loggedIn = $page.data.user != null;
 </script>
 
 <!-- https://daisyui.com/components/navbar -->
 <header class="navbar bg-primary text-primary-content pl-6">
-  <a href="/" class="navbar-start text-lg md:text-3xl tracking-wider hover:underline">
-    {$t('appbar.app_name')}
+
+  <a href={loggedIn ? '/' : '/login'} class="navbar-start text-lg md:text-3xl tracking-wider hover:underline">
+  {$t('appbar.app_name')}
   </a>
+
   {#if environmentName !== 'production'}
     <a href="https://public.languagedepot.org" class="alert alert-warning">
       <div class="items-center">
@@ -24,7 +27,7 @@
     </a>
   {/if}
   <div class="navbar-end">
-    {#if $page.data.user}
+    {#if loggedIn}
       <button on:click={() => dispatch('menuopen')} class="btn btn-primary btn-circle">
         <AuthenticatedUserIcon size="text-4xl" />
       </button>
