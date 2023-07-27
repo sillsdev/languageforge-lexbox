@@ -9,10 +9,17 @@ public class UserPageTest : PageTest
 {
     private string _host = TestingEnvironmentVariables.ServerHostname;
 
-    [Fact]
+    public override async Task InitializeAsync()
+    {
+        await base.InitializeAsync();
+
+        await LoginAs("admin", "pass");
+    }
+
+    [Fact(Skip = "we need to create a user for testing that we can change the email of, maybe do that in a dedicated test")]
     public async Task CanUpdateAccountInfo()
     {
-        await Page.GotoAsync($"https://{_host}/user");
+        await Page.GotoAsync($"http://{_host}/user");
         await Page.GetByLabel("Display name").ClickAsync();
         await Page.GetByLabel("Display name").FillAsync("Test Admin Changed");
         await Page.GetByLabel("Email").ClickAsync();
@@ -27,23 +34,21 @@ public class UserPageTest : PageTest
     [Fact]
     public async Task DisplaysFormErrorsOnInvalidData()
     {
-        await Page.GotoAsync($"https://{_host}/user");
+        //need to use network idle, otherwise the inputs might get reset by hydration
+        await Page.GotoAsync($"http://{_host}/user", new (){WaitUntil = WaitUntilState.NetworkIdle});
         await Page.FillAsync("#email", "");
         await Page.FillAsync("#name", "");
         await Page.ClickAsync("text=Update account info");
-        await Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
-        var emailError = await Page.QuerySelectorAsync("text=Invalid email");
-        //var nameError = await Page.QuerySelectorAsync("text=Name is required"); this doesn't happen
-        Assert.NotNull(emailError);
+        await Expect(Page.GetByText("Invalid email")).ToBeVisibleAsync();
     }
 
     [Fact]
     public async Task CanResetPassword()
     {
-        await Page.GotoAsync($"https://{_host}/user");
+        await Page.GotoAsync($"http://{_host}/user");
+        await Expect(Page).ToHaveURLAsync($"http://{_host}/user");
         await Page.ClickAsync("text=Reset your password instead?");
-        await Page.WaitForLoadStateAsync(LoadState.DOMContentLoaded);
-        Assert.Contains("/resetPassword", Page.Url);
+        await Expect(Page).ToHaveURLAsync($"http://{_host}/resetPassword");
     }
 }
 
