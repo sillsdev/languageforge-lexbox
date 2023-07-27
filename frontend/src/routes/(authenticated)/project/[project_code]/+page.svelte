@@ -17,6 +17,7 @@
   import { notifySuccess, notifyWarning } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import type { ErrorMessage } from '$lib/forms';
+  import ResetProjectModal from './ResetProjectModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -40,6 +41,12 @@
         })
       );
     }
+  }
+
+  let resetProjectModal: ResetProjectModal;
+  async function resetProject(): void {
+    const response = await resetProjectModal.open();
+    console.log('Reset project modal response:', response);
   }
 
   let deleteUserModal: DeleteModal;
@@ -162,6 +169,9 @@
         {/if}
 
         <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
+        {#if isAdmin(user)}
+          <ResetProjectModal bind:this={resetProjectModal} />
+        {/if}
 
         <DeleteModal
           bind:this={deleteUserModal}
@@ -176,7 +186,16 @@
     </div>
 
     <div class="divider" />
-
+    {#if isAdmin(user)}
+    <div class="space-y-2">
+      <p class="text-2xl mb-4">
+        <span class="link" target="_blank" on:click={() => resetProject()}>
+          {$t('project_page.reset_project_model.title', {name: project?.name})}
+          <span class="i-mdi-open-in-new align-middle" />
+        </span>
+      </p>
+    </div>
+    {/if}
     <div class="space-y-2">
       <p class="text-2xl mb-4">
         <a class="link" href="/hg/{project.code}" target="_blank" rel="noreferrer">

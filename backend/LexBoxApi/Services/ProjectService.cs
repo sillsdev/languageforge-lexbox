@@ -39,6 +39,18 @@ public class ProjectService
         return projectId;
     }
 
+    public async Task<string> BackupProject(ResetProjectByAdminInput input)
+    {
+        var backupFile = await _hgService.BackupRepo(input.Code);
+        return backupFile;
+    }
+
+    public async Task<string> ResetProject(ResetProjectByAdminInput input)
+    {
+        var backupPath = await _hgService.ResetRepo(input.Code);
+        return backupPath;
+    }
+
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)
     {
         var lastCommitFromHg = await _hgService.GetLastCommitTimeFromHg(projectCode);

@@ -123,6 +123,11 @@
     "change_role_modal": {
       "title": "Choose role for {name}"
     },
+    "reset_project_model": {
+      "title": "Reset project {name}",
+      "confirm_downloaded": "I confirm that I have downloaded the backup file and verified that it works. I am ready to completely reset the repository history.",
+      "admin_required": "This action can only be performed by site admins"
+    },
     "notifications": {
       "role_change": "Project role of {name} set to {role}.",
       "user_delete": "{name} has been removed.",

@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.IO;
+using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LexBoxApi.Config;
@@ -31,6 +34,40 @@ public class HgService : IHgService
     public async Task DeleteRepo(string code)
     {
         await Task.Run(() => Directory.Delete(Path.Combine(_options.Value.RepoPath, code), true));
+    }
+
+    public async Task<string> BackupRepo(string code)
+    {
+        string tempPath = Path.GetTempPath();
+        string timestamp = DateTime.UtcNow.ToString(DateTimeFormatInfo.InvariantInfo.SortableDateTimePattern).Replace(':', '-');
+        string baseName = $"backup-{code}-{timestamp}.zip";
+        string filename = Path.Join(tempPath, baseName);
+        // TODO: Check if a backup has been taken within the past 30 minutes, and return that backup instead of making a new one
+        // This would allow resuming an interrupted download
+        await Task.Run(() => ZipFile.CreateFromDirectory(Path.Combine(_options.Value.RepoPath, code), filename));
+        return filename;
+    }
+
+    public async Task<string> ResetRepo(string code)
+    {
+        string repoPath = Path.Combine(_options.Value.RepoPath, code);
+        string timestamp = DateTime.UtcNow.ToString(DateTimeFormatInfo.InvariantInfo.SortableDateTimePattern).Replace(':', '-');
+        // var tempFilename = await BackupRepo(code);
+        string backupPath = $"backup-{code}-{timestamp}";
+        System.IO.Directory.Move(repoPath, backupPath);
+        await InitRepo(code);
+        return backupPath;
+    }
+
+    public async Task RevertRepo(string code, string revHash)
+    {
+        // Steps:
+        // 1. Rename repo to repo-backup-date (verifying first that it does not exist, adding -NNN at the end (001, 002, 003) if it does)
+        // 2. Make empty directory (NOT a repo yet) with this project code
+        // 3. Clone repo-backup-date-NNN into empty directory, passing "-r revHash" param
+        // 4. Copy .hg/hgrc from backup dir, overwriting the one in the cloned dir
+        //
+        // Will need an SSH key as a k8s secret, put it into authorized_keys on the hgweb side so that lexbox can do "ssh hgweb hg clone ..."
     }
 
     private void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
