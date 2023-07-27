@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Modal from '$lib/components/modals/Modal.svelte';
+  import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
   import Form from '$lib/forms/Form.svelte';
   import t from '$lib/i18n';
   import Checkbox from '$lib/forms/Checkbox.svelte';
@@ -7,9 +7,16 @@
 
   let modal: Modal;
 
-  export async function open(): Promise<void> {
+  export async function open(): Promise<DialogResponse> {
     console.log('Opening modal', modal);
-    await modal.openModal();
+    const x = await modal.openModal();
+    console.log('Response', x);
+    return x;
+  }
+
+  export function submit(): void {
+    modal.submitModal();
+    modal.close();
   }
 
   export function close(): void {
@@ -29,7 +36,7 @@
     <Checkbox bind:value={confirmCheck} label={$t('project_page.reset_project_model.confirm_downloaded')} />
   </Form>
   <svelte:fragment slot="actions" let:submitting>
-    <Button type="submit" on:click style="btn-primary" loading={submitting} disabled={!confirmCheck}>
+    <Button type="submit" style="btn-primary" on:click={submit} loading={submitting} disabled={!confirmCheck}>
       <span>{$t('project_page.reset_project')}</span>
     </Button>
   </svelte:fragment>
