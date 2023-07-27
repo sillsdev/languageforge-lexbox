@@ -71,6 +71,7 @@
       type="password"
       label={$t('admin_dashboard.form_modal.password_label')}
       bind:value={$form.password}
+      autocomplete="new-password"
     />
   </div>
   <svelte:fragment slot="extraActions">
