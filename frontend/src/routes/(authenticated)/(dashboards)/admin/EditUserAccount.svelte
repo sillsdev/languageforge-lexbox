@@ -67,7 +67,7 @@
   />
   <div class="text-error">
     <Input
-      id="password"
+      id="new-password"
       type="password"
       label={$t('admin_dashboard.form_modal.password_label')}
       bind:value={$form.password}
