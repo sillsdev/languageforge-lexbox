@@ -18,7 +18,7 @@
   $: form = formModal?.form();
 
   async function openModal(): Promise<void> {
-    const { response } = await formModal.open(async () => {
+    const { response, formState } = await formModal.open(async () => {
       const { error } = await _addProjectMember({
         projectId,
         userEmail: $form.email,
@@ -27,7 +27,7 @@
       return error?.message;
     });
     if (response === DialogResponse.Submit) {
-      notifySuccess($t('project_page.notifications.add_member', { email: $form.email }));
+      notifySuccess($t('project_page.notifications.add_member', { email: formState.email.currentValue }));
     }
   }
 </script>
