@@ -11,7 +11,7 @@ public class LoginPageTests: PageTest
     [Fact]
     public async Task CanLogin()
     {
-        await Page.GotoAsync($"https://{_host}/login");
+        await Page.GotoAsync($"https://{_host}/login", new (){WaitUntil = WaitUntilState.NetworkIdle});
 
         await Page.GetByLabel("Email (or Send/Receive username)").ClickAsync();
         await Page.GetByLabel("Email (or Send/Receive username)").FillAsync("admin");
