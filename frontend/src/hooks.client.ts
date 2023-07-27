@@ -4,6 +4,8 @@ import { redirect, type HandleClientError } from '@sveltejs/kit';
 import { getErrorMessage } from './hooks.shared';
 import { loadI18n } from '$lib/i18n';
 import { handleFetch } from '$lib/util/fetch-proxy';
+import {invalidate} from '$app/navigation';
+import {USER_LOAD_KEY} from '$lib/user';
 
 await loadI18n();
 
@@ -25,6 +27,9 @@ handleFetch(async ({ fetch, args }) => {
   const response = await traceFetch(() => fetch(...args));
   if (response.status === 401 && location.pathname !== '/login') {
     throw redirect(307, '/logout');
+  }
+  if (response.headers.get('lexbox-refresh') == 'true') {
+    await invalidate(USER_LOAD_KEY);
   }
   return response;
 });

@@ -44,7 +44,7 @@ type UserProjects = {
   code: string
   role: 'Manager' | 'Editor'
 }
-
+export const USER_LOAD_KEY = 'current-user';
 export const isAdmin = (user: LexAuthUser | null): boolean => user?.role === 'admin';
 
 export async function login(userId: string, password: string): Promise<boolean> {

@@ -5,8 +5,7 @@ import type {
 
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
-import { goto, invalidate } from '$app/navigation';
-import { refreshJwt } from '$lib/user';
+import { goto } from '$app/navigation';
 import type { PageLoad } from './$types';
 import { browser } from '$app/environment';
 import { EmailResult } from '$lib/email';
@@ -47,9 +46,5 @@ export async function _changeUserAccountData(input: ChangeUserAccountDataInput):
       //invalidates the graphql user cache, but who knows
       { additionalTypenames: ['Users'] },
     );
-  if (!result.error) {
-    await refreshJwt();
-    await invalidate(`user:${input.userId}`);
-  }
   return result;
 }
