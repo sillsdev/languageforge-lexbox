@@ -7,6 +7,7 @@ using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -16,15 +17,18 @@ namespace LexBoxApi.Auth;
 
 public class LexAuthService
 {
+    public const string RefreshHeaderName = "lexbox-refresh";
     private readonly IOptions<JwtOptions> _userOptions;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly EmailService _emailService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public LexAuthService(IOptions<JwtOptions> userOptions, LexBoxDbContext lexBoxDbContext, EmailService emailService)
+    public LexAuthService(IOptions<JwtOptions> userOptions, LexBoxDbContext lexBoxDbContext, EmailService emailService, IHttpContextAccessor httpContextAccessor)
     {
         _userOptions = userOptions;
         _lexBoxDbContext = lexBoxDbContext;
         _emailService = emailService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public static TokenValidationParameters TokenValidationParameters(JwtOptions jwtOptions, bool forRefresh = false)
@@ -73,9 +77,15 @@ public class LexAuthService
 
     public async Task<LexAuthUser?> RefreshUser(Guid userId)
     {
-        var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
+        var dbUser = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FirstOrDefaultAsync(user => user.Id == userId);
-        return user == null ? null : new LexAuthUser(user);
+        if (dbUser is null) return null;
+        var jwtUser = new LexAuthUser(dbUser);
+        var context = _httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(context);
+        await context.SignInAsync(jwtUser.GetPrincipal("Refresh"), new AuthenticationProperties { IsPersistent = true });
+        context.Response.Headers.Add(RefreshHeaderName, "true");
+        return jwtUser;
     }
 
     private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)

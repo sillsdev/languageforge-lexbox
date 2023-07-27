@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
 using LexBoxApi.Models.Project;
 using LexCore.Auth;
@@ -22,6 +23,7 @@ public class UserMutations
     [Error<InvalidFormatException>]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [UseMutationConvention]
+    [RefreshJwt]
     public Task<User> ChangeUserAccountData(
         LoggedInContext loggedInContext,
         ChangeUserAccountDataInput input,

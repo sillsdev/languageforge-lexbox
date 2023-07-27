@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
 using LexCore.Entities;
@@ -14,6 +15,7 @@ public class ProjectMutations
 {
     [Error<DbError>]
     [UseMutationConvention]
+    [RefreshJwt]
     public async Task<Project?> CreateProject(
         LoggedInContext loggedInContext,
         CreateProjectInput input,
