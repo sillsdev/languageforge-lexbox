@@ -17,12 +17,16 @@
   import { notifySuccess, notifyWarning } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import type { ErrorMessage } from '$lib/forms';
-  import { Page } from '$lib/layout';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { FormField } from '$lib/forms';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
   import { page } from '$app/stores';
+  import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
+  import { _deleteProject } from '$lib/gql/mutations';
+  import { goto } from '$app/navigation';
+  import MoreSettings from '$lib/components/MoreSettings.svelte';
+  import { Page } from '$lib/layout';
 
   export let data: PageData;
   $: user = data.user;
@@ -101,6 +105,19 @@
     copiedToClipboard = true;
     copyingToClipboard = false;
     await delay(() => (copiedToClipboard = false));
+  }
+
+  let deleteProjectModal: ConfirmDeleteModal;
+
+  async function softDeleteProject(): Promise<void> {
+    const result = await deleteProjectModal.open(_project.name, async () => {
+      const { error } = await _deleteProject(_project.id);
+      return error?.message;
+    });
+    if (result.response === DialogResponse.Submit) {
+      notifyWarning($t('delete_project_modal.success', { name: _project.name, code: _project.code }));
+      await goto(data.home);
+    }
   }
 </script>
 
@@ -253,6 +270,18 @@
           <HgLogView json={project.changesets} />
         </div>
       </div>
+
+      {#if canManage}
+        <div class="divider" />
+
+        <MoreSettings>
+          <button class="btn btn-error" on:click={softDeleteProject}>
+            {$t('delete_project_modal.submit')}<TrashIcon />
+          </button>
+        </MoreSettings>
+      {/if}
+
+      <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
     {:else}
       <div class="text-center text-error">
         {$t('project_page.not_found', { code: data.code })}

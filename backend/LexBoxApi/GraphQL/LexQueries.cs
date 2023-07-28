@@ -1,9 +1,8 @@
 using LexBoxApi.Auth;
-using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
-using LexCore.ServiceInterfaces;
 using LexData;
+using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.GraphQL;
 
@@ -23,9 +22,16 @@ public class LexQueries
     [UseFiltering]
     [UseSorting]
     [AdminRequired]
-    public IQueryable<Project> Projects(LexBoxDbContext context)
+    public IQueryable<Project> Projects(LexBoxDbContext context, bool withDeleted = false)
     {
-        return context.Projects;
+        if (withDeleted)
+        {
+            return context.Projects.IgnoreQueryFilters();
+        }
+        else
+        {
+            return context.Projects;
+        }
     }
 
     [UseSingleOrDefault]

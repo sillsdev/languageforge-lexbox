@@ -10,6 +10,8 @@ namespace LexBoxApi.Services;
 
 public class HgService : IHgService
 {
+    private const string DELETED_REPO_FOLDER = "_____deleted_____";
+
     private readonly IOptions<HgConfig> _options;
     private readonly IHttpClientFactory _clientFactory;
 
@@ -25,6 +27,7 @@ public class HgService : IHgService
     /// </summary>
     public async Task InitRepo(string code)
     {
+        AssertIsSafeRepoName(code);
         await Task.Run(() => CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
             new DirectoryInfo(_options.Value.RepoPath).CreateSubdirectory(code)
@@ -34,6 +37,19 @@ public class HgService : IHgService
     public async Task DeleteRepo(string code)
     {
         await Task.Run(() => Directory.Delete(Path.Combine(_options.Value.RepoPath, code), true));
+    }
+
+    public async Task SoftDeleteRepo(string code, string deletedRepoSuffix)
+    {
+        var deletedRepoName = $"{code}__{deletedRepoSuffix}";
+        await Task.Run(() =>
+        {
+            var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
+            Directory.CreateDirectory(deletedRepoPath);
+            Directory.Move(
+                Path.Combine(_options.Value.RepoPath, code),
+                Path.Combine(deletedRepoPath, deletedRepoName));
+        });
     }
 
     private void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
@@ -70,6 +86,11 @@ public class HgService : IHgService
         response.EnsureSuccessStatusCode();
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
+    }
+
+    private void AssertIsSafeRepoName(string name)
+    {
+        if (string.Equals(name, DELETED_REPO_FOLDER)) throw new ArgumentException($"Invalid repo name: {DELETED_REPO_FOLDER}.");
     }
 }
 

@@ -12,6 +12,14 @@
   import { notifySuccess, notifyWarning } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
+  import { TrashIcon } from '$lib/icons';
+  import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
+  import type { AdminSearchParams } from './+page';
+  import { goto } from '$app/navigation';
+  import { getBoolSearchParam, toSearchParams } from '$lib/util/urls';
+  import { page } from '$app/stores';
+  import { _deleteProject } from '$lib/gql/mutations';
+  import Dropdown from '$lib/components/Dropdown.svelte';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
@@ -19,7 +27,12 @@
   $: allProjects = data.projects;
   $: allUsers = data.users;
 
+  const options: AdminSearchParams = {
+    showDeletedProjects: getBoolSearchParam<AdminSearchParams>('showDeletedProjects', $page.url.searchParams),
+  };
+
   let deleteUserModal: DeleteUserModal;
+  let deleteProjectModal: ConfirmDeleteModal;
   let formModal: EditUserAccount;
 
   async function deleteUser(user: UserRow): Promise<void> {
@@ -70,6 +83,24 @@
         u.email.toLocaleLowerCase().includes(userSearchLower)
     )
     .slice(0, userLimit);
+
+  async function softDeleteProject(project: (typeof projects)[0]): Promise<void> {
+    const result = await deleteProjectModal.open(project.name, async () => {
+      const { error } = await _deleteProject(project.id);
+      return error?.message;
+    });
+    if (result.response === DialogResponse.Submit) {
+      notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
+    }
+  }
+
+  async function refreshPage(): Promise<void> {
+    await goto(`?${toSearchParams(options)}`, {
+      replaceState: true,
+      noScroll: true,
+      keepFocus: true,
+    });
+  }
 </script>
 
 <svelte:head>
@@ -89,13 +120,37 @@
         </Badge>
       </span>
 
-      <Input
-        type="text"
-        label=""
-        placeholder={$t('admin_dashboard.filter_placeholder')}
-        autofocus
-        bind:value={projectSearch}
-      />
+      <div class="flex items-end gap-4">
+        <Input
+          type="text"
+          label=""
+          placeholder={$t('admin_dashboard.filter_placeholder')}
+          autofocus
+          bind:value={projectSearch}
+        />
+        <Dropdown>
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label tabindex="-1" class="btn flex flex-nowrap gap-2" class:text-success={options.showDeletedProjects}>
+            {$t('admin_dashboard.options')}
+            <span class="i-mdi-dots-vertical text-xl" />
+          </label>
+          <ul slot="content" class="menu">
+            <li>
+              <div class="whitespace-nowrap">
+                <label class="cursor-pointer label gap-4">
+                  <span class="label-text">{$t('admin_dashboard.show_delete_projects')}</span>
+                  <input
+                    bind:checked={options.showDeletedProjects}
+                    type="checkbox"
+                    class="toggle toggle-error"
+                    on:change={refreshPage}
+                  />
+                </label>
+              </div>
+            </li>
+          </ul>
+        </Dropdown>
+      </div>
 
       <div class="divider" />
       <div class="overflow-x-auto">
@@ -110,23 +165,55 @@
                 <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
               <th>{$t('admin_dashboard.column_type')}</th>
+              <th />
             </tr>
           </thead>
           <tbody>
             {#each projects as project}
               <tr>
                 <td>
-                  <a class="link" href={`/project/${project.code}`}>
-                    {project.name}
-                  </a>
+                  {#if project.deletedDate}
+                    <span class="flex gap-2 text-error items-center">
+                      {project.name}
+                      <TrashIcon pale />
+                    </span>
+                  {:else}
+                    <a class="link" href={`/project/${project.code}`}>
+                      {project.name}
+                    </a>
+                  {/if}
                 </td>
                 <td>{project.code}</td>
                 <td>TODO</td>
                 <td>
-                  <FormatDate date={project.lastCommit} />
+                  {#if project.deletedDate}
+                    <span class="text-error">
+                      <FormatDate date={project.deletedDate} />
+                    </span>
+                  {:else}
+                    <FormatDate date={project.lastCommit} />
+                  {/if}
                 </td>
                 <td>
                   <FormatProjectType type={project.type} />
+                </td>
+                <td class="p-0">
+                  {#if !project.deletedDate}
+                    <Dropdown>
+                      <!-- svelte-ignore a11y-label-has-associated-control -->
+                      <label tabindex="-1" class="btn btn-ghost btn-square">
+                        <span class="i-mdi-dots-vertical text-lg" />
+                      </label>
+                      <ul slot="content" class="menu">
+                        <li>
+                          <button class="text-error whitespace-nowrap" on:click={() => softDeleteProject(project)}>
+                            <TrashIcon />
+                            {$t('delete_project_modal.submit')}
+                          </button>
+                        </li>
+                      </ul>
+                    </Dropdown>
+                  {/if}
                 </td>
               </tr>
             {/each}
@@ -186,4 +273,5 @@
 
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
+  <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
 </main>
