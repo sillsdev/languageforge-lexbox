@@ -10,6 +10,8 @@
     "column_type": "Type",
     "column_users": "Users",
     "column_edit": "Edit",
+    "options": "Options",
+    "show_delete_projects": "Show deleted projects",
     "filter_placeholder": "Search...",
     "project_table_title": "Projects",
     "user_table_title": "Users",
@@ -79,6 +81,15 @@
     "remove": "Remove {entityName}"
   },
   "environment_warning": "This is a {environmentName} environment. Click here to go to the public site.",
+  "delete_project_modal": {
+    "title": "Delete Project",
+    "submit": "Delete Project",
+    "enter_to_delete": {
+      "label": "Enter ''{_value}'' to confirm deleting the project ''{name}''",
+      "value": "DELETE PROJECT"
+    },
+    "success": "Project ''{name}'' ({code}) was deleted."
+  },
   "forgot_password": {
     "title": "Forgot Password",
     "send_email": "Send reset email",

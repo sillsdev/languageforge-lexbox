@@ -97,6 +97,7 @@ type Mutation {
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): Project
+  softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
 }
 
 type NotFoundError implements Error {
@@ -114,6 +115,7 @@ type Project {
   users: [ProjectUsers!]!
   lastCommit: DateTime
   id: UUID!
+  deletedDate: DateTime
   updatedDate: DateTime!
 }
 
@@ -131,7 +133,7 @@ type ProjectUsers {
 type Query {
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
-  projects(where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
+  projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   projectByCode(code: String!): Project
   users(where: UserFilterInput orderBy: [UserSortInput!]): [User!]! @authorize(policy: "AdminRequiredPolicy")
   me: LexAuthUser!
@@ -139,6 +141,11 @@ type Query {
 
 type RequiredError implements Error {
   message: String!
+}
+
+type SoftDeleteProjectPayload {
+  project: Project
+  errors: [SoftDeleteProjectError!]
 }
 
 type User {
@@ -170,6 +177,8 @@ union ChangeUserAccountDataError = NotFoundError | DbError | InvalidFormatError
 union CreateProjectError = DbError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
+
+union SoftDeleteProjectError = NotFoundError | DbError
 
 input AddProjectMemberInput {
   projectId: UUID!
@@ -256,6 +265,7 @@ input ProjectFilterInput {
   type: ProjectTypeOperationFilterInput
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
+  deletedDate: DateTimeOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -275,6 +285,7 @@ input ProjectSortInput {
   retentionPolicy: SortEnumType
   type: SortEnumType
   lastCommit: SortEnumType
+  deletedDate: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType
@@ -310,6 +321,10 @@ input RetentionPolicyOperationFilterInput {
   neq: RetentionPolicy
   in: [RetentionPolicy!]
   nin: [RetentionPolicy!]
+}
+
+input SoftDeleteProjectInput {
+  projectId: UUID!
 }
 
 input StringOperationFilterInput {

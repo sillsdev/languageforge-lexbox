@@ -1,3 +1,4 @@
+import type { ConditionalPick } from 'type-fest';
 import type { PrimitiveRecord } from './types';
 
 /**
@@ -8,4 +9,18 @@ import type { PrimitiveRecord } from './types';
 export function toSearchParams(params: PrimitiveRecord): string {
   const searchParams = new URLSearchParams(params as unknown as Record<string, string>);
   return searchParams.toString();
+}
+
+/**
+ * @param defaultValue The value to return of the specified parameter is `null`
+ */
+export function getBoolSearchParam<T extends PrimitiveRecord>(key: keyof ConditionalPick<T, boolean | null> & string, params: URLSearchParams, defaultValue = false): boolean {
+  const value = params.get(key);
+  if (value === true.toString()) {
+    return true;
+  } else if (value === false.toString()) {
+    return false;
+  } else {
+    return defaultValue;
+  }
 }

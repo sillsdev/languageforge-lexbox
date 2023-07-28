@@ -4,6 +4,7 @@ using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.Exceptions;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -104,5 +105,36 @@ public class ProjectMutations
         await dbContext.ProjectUsers.Where(pu => pu.ProjectId == input.ProjectId && pu.UserId == input.UserId)
             .ExecuteDeleteAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId).AsExecutable();
+    }
+
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    public async Task<Project> SoftDeleteProject(
+        Guid projectId,
+        LoggedInContext loggedInContext,
+        LexBoxDbContext dbContext,
+        IHgService hgService)
+    {
+        loggedInContext.User.AssertCanManageProject(projectId);
+
+        var project = await dbContext.Projects.Include(p => p.Users).FirstOrDefaultAsync(p => p.Id == projectId);
+        if (project is null) throw new NotFoundException("Project not found");
+        if (project.DeletedDate is not null) throw new InvalidOperationException("Project already deleted");
+
+        var deletedAt = DateTimeOffset.UtcNow;
+        var timestamp = deletedAt.ToString("yyyy_MM_dd_HHmmss");
+        project.DeletedDate = deletedAt;
+        var projectCode = project.Code;
+        project.Code = $"{project.Code}__{timestamp}";
+        project.Users.Clear();
+
+        using var transaction = await dbContext.Database.BeginTransactionAsync();
+        await dbContext.SaveChangesAsync();
+        await hgService.SoftDeleteRepo(projectCode, timestamp);
+        await transaction.CommitAsync();
+
+        return project;
     }
 }

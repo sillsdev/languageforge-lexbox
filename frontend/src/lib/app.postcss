@@ -55,6 +55,10 @@ form {
   @apply !text-error;
 }
 
+.pale {
+  @apply saturate-[75%];
+}
+
 /* rescues a border that vanishes in FireFox */
 @supports (-moz-appearance: none) {
   .table thead tr:first-child.sticky {
@@ -68,4 +72,9 @@ input[readonly]:focus {
 
 .btn {
     @apply flex-nowrap;
+}
+
+/* open dropdowns upwards for the last 2 table rows */
+table tr:nth-last-child(-n + 2) .dropdown {
+  @apply dropdown-top;
 }
