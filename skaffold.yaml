@@ -107,6 +107,12 @@ profiles:
 
   - name: no-frontend
     portForward:
+    # Postgres - for dev convenience
+    - resourceType: Service
+      resourceName: db
+      namespace: languagedepot
+      port: 5432
+      localPort: 5433
     # Backend
     - resourceType: Service
       resourceName: lexbox
