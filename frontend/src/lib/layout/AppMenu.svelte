@@ -54,7 +54,8 @@
 
     <div class="divider" />
     <div class="grow" />
-    <div class="flex flex-col items-end gap-1">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <div class="flex flex-col items-end gap-1" on:click|stopPropagation={() => null}>
       <Badge>Client Version: {APP_VERSION}</Badge>
       <Badge>Server Version: {serverVersion}</Badge>
       <Badge>API Version: {apiVersion}</Badge>
