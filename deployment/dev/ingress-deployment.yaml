@@ -321,6 +321,9 @@ subjects:
 apiVersion: v1
 data:
   allow-snippet-annotations: "true"
+  proxy-buffer-size: "16k"
+  large-client-header-buffers: "4 16k"
+
 kind: ConfigMap
 metadata:
   labels:

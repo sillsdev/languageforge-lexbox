@@ -6,6 +6,7 @@ metadata:
   namespace: languagedepot
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
 spec:
   ingressClassName: nginx
   defaultBackend:
