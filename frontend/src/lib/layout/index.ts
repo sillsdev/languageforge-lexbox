@@ -3,6 +3,7 @@ import AppBar from './AppBar.svelte'
 import AppMenu from './AppMenu.svelte'
 import Breadcrumbs from './Breadcrumbs.svelte'
 import Content from './Content.svelte'
+import Footer from './Footer.svelte'
 import Page from './Page.svelte'
 import PageHeader from './PageHeader.svelte'
 
@@ -14,4 +15,5 @@ export {
   Content,
   AdminContent,
   PageHeader,
+  Footer,
 }

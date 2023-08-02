@@ -227,5 +227,10 @@
       "greeting": "Hello {name}!",
       "or_nvaigate_to_url": "Or navigate to this URL in your browser:"
     }
+  },
+  "footer": {
+    "contact": "Contact",
+    "terms_of_use": "Terms of use",
+    "privacy_policy": "Privacy policy"
   }
 }

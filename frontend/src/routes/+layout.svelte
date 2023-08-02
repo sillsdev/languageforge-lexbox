@@ -6,6 +6,7 @@
   import { onDestroy } from 'svelte';
   import type { LayoutData } from './$types';
   import Notify from '$lib/notify/Notify.svelte';
+  import { Footer } from '$lib/layout';
 
   onDestroy(
     page.subscribe((p) => {
@@ -25,8 +26,11 @@
 </svelte:head>
 
 <!-- https://daisyui.com/components/drawer -->
-<div>
-  <slot />
+<div class="flex flex-col justify-between min-h-screen">
+  <div>
+    <slot />
+  </div>
+  <Footer />
 </div>
 
 <!-- We don't want the alert as well if we're heading to +error.svelte -->
