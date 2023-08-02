@@ -2,7 +2,7 @@
   import t from '$lib/i18n';
 </script>
 
-<footer class="bg-neutral text-neutral-content py-2 px-2 md:py-4 md:px-8 w-screen">
+<footer class="bg-neutral text-neutral-content py-2 px-2 md:py-4 md:px-8">
   <div class="flex justify-between items-start max-w-2xl m-auto">
     <div class="space-y-2">
       <div class="flex gap-4 items-center">
