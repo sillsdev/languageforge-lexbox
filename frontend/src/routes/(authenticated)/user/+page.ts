@@ -13,11 +13,11 @@ import { EmailResult } from '$lib/email';
 
 const EMAIL_RESULTS = Object.values(EmailResult);
 
-export const load = (async ({ url }) => {
+export const load = (({ url }) => {
   const emailResult = url.searchParams.get('emailResult') as EmailResult | null;
   if (emailResult) {
     if (!EMAIL_RESULTS.includes(emailResult)) throw new Error(`Invalid emailResult: ${emailResult}.`);
-    if (browser) await goto(`${url.pathname}`, { replaceState: true });
+    if (browser) void goto(`${url.pathname}`, { replaceState: true });
   }
   return { emailResult };
 }) satisfies PageLoad
