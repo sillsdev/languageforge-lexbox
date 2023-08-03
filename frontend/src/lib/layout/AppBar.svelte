@@ -4,6 +4,7 @@
   import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
   import { page } from '$app/stores';
   import { createEventDispatcher } from 'svelte';
+  import NavBalls from './NavBalls.svelte';
 
   let environmentName = env.PUBLIC_ENV_NAME;
   const dispatch = createEventDispatcher();
@@ -28,6 +29,7 @@
   {/if}
   <div class="navbar-end">
     {#if loggedIn}
+      <NavBalls />
       <button on:click={() => dispatch('menuopen')} class="btn btn-primary btn-circle">
         <AuthenticatedUserIcon size="text-4xl" />
       </button>

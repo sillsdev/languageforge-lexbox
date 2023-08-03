@@ -46,3 +46,18 @@ form {
 .delete-modal :global(.btn[type='submit']) {
   @apply btn-error;
 }
+
+.btn-md-sm {
+    height: 2.3rem;
+    padding-left: 0.775rem;
+    padding-right: 0.775rem;
+    min-height: 2.3rem;
+    font-size: 0.775rem;
+}
+
+.btn-circle:where(.btn-md-sm) {
+    height: 2.3rem;
+    width: 2.3rem;
+    border-radius: 9999px;
+    padding: 0px;
+}

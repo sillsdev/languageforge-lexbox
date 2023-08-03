@@ -1,15 +1,17 @@
 <script lang="ts">
   import EmailVerificationStatus from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
-  import { AdminIcon } from '$lib/icons';
+  import { AdminIcon, AuthenticatedUserIcon, HomeIcon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
   import type { LayoutData } from './$types';
-  import {onMount} from 'svelte';
-  import {ensureClientMatchesUser} from '$lib/gql';
+  import { onMount } from 'svelte';
+  import { ensureClientMatchesUser } from '$lib/gql';
+  import { slide, fly, scale } from 'svelte/transition';
+  import NavBalls from '$lib/layout/NavBalls.svelte';
 
   let menuToggle = false;
   export let data: LayoutData;
-  $: user = data.user ;
+  $: user = data.user;
 
   function open(): void {
     menuToggle = true;
@@ -34,14 +36,14 @@
 
   <div class="drawer-content">
     <AppBar on:menuopen={open} />
-    <div class="bg-neutral text-neutral-content p-2 pl-6 flex justify-between items-center">
+    <div class="bg-neutral text-neutral-content p-2 px-6 grid grid-cols-3 items-center">
       <Breadcrumbs />
-      <AdminContent>
-        <a href="/admin" class="btn btn-sm btn-accent hidden sm:inline-flex">
-          {$t('admin_dashboard.title')}
-          <AdminIcon />
-        </a>
-      </AdminContent>
+      <div class="justify-self-center">
+        <NavBalls />
+      </div>
+      <div class="justify-self-end">
+        <NavBalls />
+      </div>
     </div>
 
     <div class="max-w-prose mx-auto mt-6">
