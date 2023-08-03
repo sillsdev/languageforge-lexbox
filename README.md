@@ -21,6 +21,7 @@ Other files, like `docker-compose.yaml`, should be at the root of the repo, beca
 
 ### Prerequisites
  * docker and compose
+   * enable Kubernetes in the Docker Desktop settings
 
 ### Setup
  * install [Taskfile](https://taskfile.dev/installation/)
@@ -29,6 +30,7 @@ Other files, like `docker-compose.yaml`, should be at the root of the repo, beca
    * mac: `brew install go-task/tap/go-task`
    * via npm: `npm install -g @go-task/cli`
  * install [Skaffold](https://skaffold.dev/docs/install/#standalone-binary) add it to your path
+ * clone the repo
  * run setup `task setup`
 
 ### Extra setup steps for Windows
