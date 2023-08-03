@@ -1,8 +1,8 @@
 <script lang="ts" context="module">
   import { writable, type Writable } from 'svelte/store';
 
-  export let requestedEmail: Writable<string> = writable();
-  export let emailResult: Writable<EmailResult> = writable();
+  export let requestedEmail: Writable<string | null> = writable();
+  export let emailResult: Writable<EmailResult | null> = writable();
 </script>
 
 <script lang="ts">
@@ -11,6 +11,8 @@
   import type { LexAuthUser } from '$lib/user';
   import type { EmailResult } from '.';
   import { Button } from '$lib/forms';
+  import { Duration } from '$lib/notify';
+  import { onDestroy } from 'svelte';
 
   export let user: LexAuthUser;
 
@@ -27,6 +29,22 @@
       sendingVerificationEmail = false;
     }
   }
+
+  const emailResultUnsubscriber = emailResult.subscribe((result) => {
+    if (result) {
+      setTimeout(() => emailResult.set(null), Duration.Medium);
+    }
+  });
+  const requestedEmailUnsubscriber = requestedEmail.subscribe((result) => {
+    if (result) {
+      setTimeout(() => requestedEmail.set(null), Duration.Long);
+    }
+  });
+
+  onDestroy(() => {
+    emailResultUnsubscriber();
+    requestedEmailUnsubscriber();
+  });
 </script>
 
 {#if $requestedEmail}
