@@ -7,9 +7,6 @@ tasks:
     interactive: true
     cmds:
       - dotnet watch
-  stop:
-    cmds:
-      - docker compose stop lexbox-api
 
   migrate-db:
     dir: ./LexBoxApi

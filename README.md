@@ -28,6 +28,7 @@ Other files, like `docker-compose.yaml`, should be at the root of the repo, beca
    * linux: `sudo snap install task --classic` or other options on their website
    * mac: `brew install go-task/tap/go-task`
    * via npm: `npm install -g @go-task/cli`
+ * install [Skaffold](https://skaffold.dev/docs/install/#standalone-binary) add it to your path
  * run setup `task setup`
 
 ### Extra setup steps for Windows
@@ -37,7 +38,6 @@ If you're running Windows, you may need to add the following lines to your `C:\W
 ```
 127.0.0.1 resumable.localhost
 127.0.0.1 hg.localhost
-127.0.0.1 lexbox.localhost
 ```
 
 On Linux, anything with a `.localhost` domain is automatically mapped to 127.0.0.1 so you don't need to edit your `/etc/hosts` file.
@@ -45,7 +45,7 @@ On Linux, anything with a `.localhost` domain is automatically mapped to 127.0.0
 ### Optional setup for debugging
 
 If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
-the `deployment/dev/secrets.yaml` file.
+the `deployment/dev/local.env` file.
 You can get the key from [here](https://ui.honeycomb.io/sil-language-forge/environments/test/api_keys)
 
 #### git note
@@ -64,7 +64,6 @@ git config blame.ignoreRevsFile .git-blame-ignore-revs
 ```bash
 task up
 ```
-You might run into some issues with ports already being used, you can change the ports in the `docker-compose.yaml` file if you need to.
 The full app will be running on http://localhost after everything starts.
 There are some additional urls below to access specific parts of the system.
 
@@ -84,11 +83,11 @@ both
 task dev
 ```
 
-pnpm should be installed automatically using nodejs corepack, if not you can run `npm install -g pnpm` to install it.
+pnpm should be installed automatically using nodejs corepack, if not you can run `corepack enable` to install it.
 
 ---
 ### Helpful urls
-* http://lexbox.localhost - k8s ingress
+* http://localhost - k8s ingress
 * http://localhost:3000 - sveltekit frontend
 * http://localhost:5158/api/swagger - swagger docs for the api
 * http://localhost:5158/api/graphql/ui - graphiql UI
@@ -104,6 +103,7 @@ The following users are available, password for them all is just `pass`:
 * admin@test.com: super admin
 * manager@test.com: project manager
 * editor@test.com: project editor
+* user@test.com: user without any projects
 
 There will also be a single project, Sena 3.
 There will not be an hg repository however, see optional setup below if this is desired.
@@ -130,41 +130,20 @@ so you might try restarting dotnet and wait for it to update the database schema
 Then come back and reload the metadata again.
 
 ---
-### Proxy Diagram
+### Diagram
 
-Development:
 ```mermaid
 graph TD
-    Chorus --> Proxy
+    Chorus --> lexbox-api
 
-    Proxy[Proxy] --> Api
-    Proxy --> hg-keeper
-    Proxy --> hgresumable
-    hg-keeper --> hg[hg file system]
+    lexbox-api --> hgweb
+    lexbox-api --> hgresumable
+    hgweb --> hg[hg file system]
     hgresumable --> hg
-    Api --> hg
+    lexbox-api --> hg
 
-    Frontend --> Api
-    Api --> Hasura[hasura]
-    Api --> db
-    Hasura --> db[postgres]
-```
-
-Production:
-```mermaid
-graph TD
-    Chorus --> Api
-
-    Api --> hg-keeper
-    Api --> hgresumable
-    hg-keeper --> hg[hg file system]
-    hgresumable --> hg
-    Api[API & Proxy] --> hg
-
-    Frontend --> Api
-    Api --> Hasura[hasura]
-    Api --> db
-    Hasura --> db[postgres]
+    ui["ui (sveltekit)"] --> lexbox-api
+    lexbox-api --> db["db (postgres)"]
 ```
 
 More info on the frontend and backend can be found in their respective READMEs:
@@ -186,16 +165,13 @@ flowchart LR
 
     api -- postgres:5432 --- db([db])
     db -- volume-map:db-data --- data[//var/lib/postgresql/]
-
-    api -- http:8080 --- hasura([hasura])
-    hasura -- postgres:5432 --- db
-    hasura -- volume-map --- metadata[//hasura-metadata/]
-
-    api -- http:8080 --- hgkeeper([hgkeeper])
-    hgkeeper -- volume-map:hg-repos --- repos[//repos/]
-    api -- volume-map:hg-repos --- hg-repos[//hg-repos/]
+  
+    api -- http:8080 --- hgweb([hgweb])
+    hgweb -- volume-map:hg-repos --- repos
+    api -- volume-map:hg-repos --- repos
 
     api -- http:8080 --- hgresumable([hgresumable])
+    hgresumable -- volume-map:hg-repos --- repos
     hgresumable -- volume-map:hgresumable-cache --- cache[//var/cache/hgresume/]
 
     node -- http:80/api --- api

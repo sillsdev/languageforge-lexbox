@@ -44,18 +44,10 @@ tasks:
       - unzip -q sena-3.zip -d {{.HG_REPO_DIR}}/
       - rm sena-3.zip
 
-  # docker
+  # k8s
   up:
-    desc: 'E.g.: task up -- otel-collector --build'
     cmds:
-      - docker compose up --wait {{.CLI_ARGS}}
-  down:
-    cmds:
-      - docker compose down
-  restart:
-    desc: E.g. task restart -- lexbox-api
-    cmds:
-      - docker compose restart {{.CLI_ARGS}}
+      - skaffold dev --cleanup=false --kube-context docker-desktop
 
   # tests
   test:
@@ -79,15 +71,8 @@ tasks:
       # dev
   infra-up:
     desc: Starts infrastructure for our ui and api
-    vars:
-      WAIT: '{{default true .WAIT}}'
     cmds:
-      - docker compose up maildev db hgweb otel-collector hgresumable -d --wait={{.WAIT}}
-
-  backend-up:
-    cmds:
-      - task: api:stop
-      - task: api-up
+      - skaffold run --cleanup=false --kube-context docker-desktop --profile=infra
 
   dev: # Currently broken (because the ui doesn't wait for the api), but probably no one uses it.
     deps: [ api-dev, ui:ui-only]
@@ -97,7 +82,7 @@ tasks:
     aliases: [ ui ]
     desc: The single command for local ui development
     dir: ./frontend
-    deps: [ backend-up, ui:down ]
+    deps: [ infra-up ]
     interactive: true
     cmds:
       - task: ui:only
@@ -106,14 +91,9 @@ tasks:
   api-dev:
     aliases: [ api ]
     desc: The single command for local api development
-    deps: [ infra-up, api:stop ]
+    deps: [ infra-up ]
     interactive: true
     cmds:
       - task: api:only
-  api-up:
-    vars:
-      WAIT: '{{default true .WAIT}}'
-    cmds:
-      - docker compose up lexbox-api --wait={{.WAIT}}
 
 
