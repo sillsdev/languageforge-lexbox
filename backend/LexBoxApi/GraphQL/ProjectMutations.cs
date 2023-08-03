@@ -36,7 +36,7 @@ public class ProjectMutations
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
         await dbContext.SaveChangesAsync();
-        return await dbContext.Projects.Where(p => p.Id == input.ProjectId).FirstAsync();
+        return await dbContext.Projects.Include(p => p.Users).ThenInclude(u => u.User).Where(p => p.Id == input.ProjectId).FirstAsync();
     }
 
     [Error<NotFoundException>]
