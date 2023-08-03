@@ -49,6 +49,7 @@
       type="password"
       bind:value={$form.password}
       error={$errors.password}
+      autocomplete="new-password"
     />
 
     <FormError error={$message} />
