@@ -1,3 +1,10 @@
+<script lang="ts" context="module">
+  import { writable, type Writable } from 'svelte/store';
+
+  export let requestedEmail: Writable<string> = writable();
+  export let emailResult: Writable<EmailResult> = writable();
+</script>
+
 <script lang="ts">
   import t from '$lib/i18n';
   import { slide } from 'svelte/transition';
@@ -6,8 +13,6 @@
   import { Button } from '$lib/forms';
 
   export let user: LexAuthUser;
-  export let emailResult: EmailResult | null = null;
-  export let requestedEmail: string | undefined = undefined;
 
   let sendingVerificationEmail = false;
   let sentVerificationEmail = false;
@@ -24,23 +29,23 @@
   }
 </script>
 
-{#if emailResult}
+{#if $requestedEmail}
+  <div class="alert alert-info" transition:slide|local>
+    <div>
+      <div>{$t('account_settings.verify_email.you_have_mail')}</div>
+      <span>{$t('account_settings.verify_email.verify_to_change', { $requestedEmail })}</span>
+    </div>
+    <span class="i-mdi-email-heart-outline" />
+  </div>
+{:else if $emailResult}
   <div class="alert alert-success" transition:slide|local>
-    {#if emailResult == 'verifiedEmail'}
+    {#if $emailResult == 'verifiedEmail'}
       <span>{$t('account_settings.verify_email.verify_success')}</span>
     {:else}
       <span>{$t('account_settings.verify_email.change_success')}</span>
     {/if}
     <span class="i-mdi-check-circle-outline" />
     <a class="btn" href="/">{$t('account_settings.verify_email.go_to_projects')}</a>
-  </div>
-{:else if requestedEmail}
-  <div class="alert alert-info" transition:slide|local>
-    <div>
-      <div>{$t('account_settings.verify_email.you_have_mail')}</div>
-      <span>{$t('account_settings.verify_email.verify_to_change', { requestedEmail })}</span>
-    </div>
-    <span class="i-mdi-email-heart-outline" />
   </div>
 {:else if !user?.emailVerified}
   {#if sentVerificationEmail}

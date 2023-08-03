@@ -44,11 +44,9 @@
       </AdminContent>
     </div>
 
-    {#if !user.emailVerified}
-      <div class="max-w-prose mx-auto mt-6">
-        <EmailVerificationStatus {user} />
-      </div>
-    {/if}
+    <div class="max-w-prose mx-auto mt-6">
+      <EmailVerificationStatus {user} />
+    </div>
 
     <Content>
       <slot />
