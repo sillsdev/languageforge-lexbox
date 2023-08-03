@@ -30,3 +30,8 @@ patches:
   - path: hg-repos-pvc.patch.yaml
   - path: hgresumable-cache.patch.yaml
   - path: lexbox-service.patch.yaml
+  - path: ingress-config.patch.yaml
+    target:
+      kind: Ingress
+      name: proxy
+      namespace: languagedepot
