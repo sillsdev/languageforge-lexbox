@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LexBoxApi.Config;
-using LexBoxApi.GraphQL;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using Microsoft.Extensions.Options;
@@ -20,6 +19,10 @@ public class HgService : IHgService
         _clientFactory = clientFactory;
     }
 
+    /// <summary>
+    /// Note: The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
+    /// See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
+    /// </summary>
     public async Task InitRepo(string code)
     {
         await Task.Run(() => CopyFilesRecursively(
@@ -69,8 +72,6 @@ public class HgService : IHgService
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
     }
 }
-
-
 
 public class LogResponse
 {

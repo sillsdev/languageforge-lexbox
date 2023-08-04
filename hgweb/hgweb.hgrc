@@ -4,6 +4,8 @@
 [web]
 allow_push=*
 push_ssl=False
+# default
+refreshinterval=20
 
 # enable old clients to push using the old wire protocol
 [server]

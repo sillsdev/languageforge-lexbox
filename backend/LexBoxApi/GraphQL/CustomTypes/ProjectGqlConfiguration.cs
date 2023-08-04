@@ -10,6 +10,7 @@ public class ProjectGqlConfiguration : ObjectType<Project>
     protected override void Configure(IObjectTypeDescriptor<Project> descriptor)
     {
         descriptor.Field(p => p.Code).IsProjected();
+        descriptor.Field(p => p.CreatedDate).IsProjected();
         // descriptor.Field("userCount").Resolve(ctx => ctx.Parent<Project>().UserCount);
     }
 }
