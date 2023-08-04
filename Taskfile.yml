@@ -46,6 +46,7 @@ tasks:
 
   # k8s
   up:
+    interactive: true
     cmds:
       - skaffold dev --cleanup=false --kube-context docker-desktop
 
