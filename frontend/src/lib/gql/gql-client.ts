@@ -16,7 +16,7 @@ import {isObject} from '../util/types';
 import {tracingExchange} from '$lib/otel';
 import {LexGqlError, isErrorResult, type $OpResult, type GqlInputError} from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
-import {derived, writable} from 'svelte/store';
+import {derived} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
 import {devtoolsExchange} from '@urql/devtools';
 import type { LexAuthUser } from '$lib/user';
