@@ -28,7 +28,7 @@ handleFetch(async ({ fetch, args }) => {
   if (response.status === 401 && location.pathname !== '/login') {
     throw redirect(307, '/logout');
   }
-  if (response.headers.get('lexbox-refresh') == 'true') {
+  if (response.headers.get('lexbox-refresh-jwt') == 'true') {
     await invalidate(USER_LOAD_KEY);
   }
   return response;
