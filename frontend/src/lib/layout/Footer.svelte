@@ -1,5 +1,8 @@
 <script>
   import t from '$lib/i18n';
+
+  import silLogo from '$lib/assets/sil_logo_glyph.png';
+  import payapLogo from '$lib/assets/payap-logo.png';
 </script>
 
 <footer class="bg-neutral text-neutral-content py-2 px-2 md:py-4 md:px-8">
@@ -8,11 +11,11 @@
       <div class="flex gap-4 items-center">
         <a href="https://www.sil.org/">
           <!-- https://www.sil.org/about/media -->
-          <img class="h-12" src="./sil_logo_glyph.png" alt="SIL International logo" />
+          <img class="h-12" src={silLogo} alt="SIL International logo" />
         </a>
         <a href="https://ic.payap.ac.th/">
           <!-- http://info.payap.ac.th/info/link_download/ -->
-          <img class="h-11" src="./payap-logo.png" alt="Payap University logo" />
+          <img class="h-11" src={payapLogo} alt="Payap University logo" />
         </a>
       </div>
       <div>
