@@ -17,7 +17,7 @@ namespace LexBoxApi.Auth;
 
 public class LexAuthService
 {
-    public const string RefreshHeaderName = "lexbox-refresh";
+    public const string RefreshHeaderName = "lexbox-refresh-jwt";
     private readonly IOptions<JwtOptions> _userOptions;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly EmailService _emailService;
