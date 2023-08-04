@@ -14,7 +14,17 @@ public class Project : EntityBase
 
     public async Task<Changeset[]> GetChangesets(IHgService hgService)
     {
-        return await hgService.GetChangesets(Code);
+        var age = DateTimeOffset.UtcNow.Subtract(CreatedDate);
+        if (age.TotalSeconds < 40)
+        {
+            // The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
+            // See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
+            return Array.Empty<Changeset>();
+        }
+        else
+        {
+            return await hgService.GetChangesets(Code);
+        }
     }
 }
 
