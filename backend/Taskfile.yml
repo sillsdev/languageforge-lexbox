@@ -36,3 +36,10 @@ tasks:
     aliases: [ dn ]
     dir: ./LexBoxApi
     cmd: dotnet {{.CLI_ARGS}}
+
+  playwright-install:
+    deps: [ playwright-install-win ]
+
+  playwright-install-win:
+    platforms: [ windows ]
+    cmd: bin/Debug/net7.0/playwright.ps1 install
