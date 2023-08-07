@@ -102,8 +102,6 @@ public class UserMutations
         await emailService.SendVerifyAddressEmail(jwt, user, newEmail);
     }
 
-    public record DeleteUserByAdminInput(Guid UserId);
-
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
