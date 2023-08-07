@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using LexBoxApi.Config;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.Services;
 
@@ -16,8 +17,17 @@ public class TurnstileService
         _options = options;
     }
 
-    public async Task<bool> IsTokenValid(string token)
+    public async Task<bool> IsTokenValid(string token, string? email = null)
     {
+        if (email is not null)
+        {
+            var allowDomain = _options.Value.AllowDomain;
+            if (!allowDomain.IsNullOrEmpty() && email.EndsWith($"@{allowDomain}"))
+            {
+                return true;
+            }
+        }
+
         var httpClient = _httpClientFactory.CreateClient("cloudflare");
         var data = new StringContent(
             $"secret={_options.Value.TurnstileKey}&response={token}",

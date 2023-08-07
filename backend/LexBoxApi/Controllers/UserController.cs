@@ -48,7 +48,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<LexAuthUser>> RegisterAccount(RegisterAccountInput accountInput)
     {
         using var registerActivity = LexBoxActivitySource.Get().StartActivity("Register");
-        var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken);
+        var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken, accountInput.Email);
         registerActivity?.AddTag("app.turnstile_token_valid", validToken);
         if (!validToken)
         {

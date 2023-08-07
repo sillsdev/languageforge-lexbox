@@ -6,4 +6,5 @@ public class CloudFlareConfig
 {
     [Required]
     public required string TurnstileKey { get; init; }
+    public string? AllowDomain { get; init; }
 }

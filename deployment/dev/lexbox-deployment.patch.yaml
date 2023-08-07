@@ -27,6 +27,8 @@ spec:
           - name: CloudFlare__TurnstileKey
             value: "1x0000000000000000000000000000000AA"
             valueFrom:
+          - name: CloudFlare__AllowDomain
+            value: "mailinator.com"
           - name: Email__SmtpUser
             value: 'maildev'
             valueFrom:
