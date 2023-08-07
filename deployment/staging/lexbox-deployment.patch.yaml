@@ -13,6 +13,8 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Staging"
+            - name: CloudFlare__AllowDomain
+              value: "mailinator.com"
             - name: Email__SmtpHost
               value: email-smtp.us-east-1.amazonaws.com
             - name: Email__SmtpPort
