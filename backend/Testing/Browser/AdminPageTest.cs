@@ -1,27 +1,22 @@
-﻿using Microsoft.Playwright;
-using Testing.Browser.Base;
-using Testing.Services;
+﻿using Testing.Browser.Base;
+using Testing.Browser.Page;
+using Testing.Browser.Util;
 
 namespace Testing.Browser;
 
 [Trait("Category", "Integration")]
 public class AdminPageTest : PageTest
 {
-    private string _host = TestingEnvironmentVariables.ServerHostname;
-
     [Fact]
     public async Task CanNavigateToProjectPage()
     {
-        await Page.GotoAsync($"https://{_host}/admin");
+        var loginPage = await new LoginPage(Page).Goto();
+        await loginPage.FillForm("admin", "pass");
 
-        await Page.GetByLabel("Email (or Send/Receive username)").FillAsync("admin");
-        await Page.GetByLabel("Password").FillAsync("pass");
-        await Page.GetByLabel("Password").PressAsync("Enter");
+        var adminPage = await TaskUtil.WhenAllTakeSecond(
+            loginPage.Submit(),
+            new AdminDashboardPage(Page).WaitFor());
 
-        await Expect(Page).ToHaveURLAsync($"https://{_host}/admin");
-
-        await Page.GetByRole(AriaRole.Link, new() { Name = "Sena 3" }).ClickAsync();
-
-        await Expect(Page).ToHaveURLAsync($"https://{_host}/project/sena-3");
+        await adminPage.OpenProject("Sena 3", "sena-3");
     }
 }
