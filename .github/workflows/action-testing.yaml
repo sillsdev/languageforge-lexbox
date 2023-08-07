@@ -1,6 +1,11 @@
 ﻿on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      project-code:
+          description: "Project code to run S&R tests against"
+          required: false
+          default: 'sena-3'
 
 jobs:
   test-integration-tests:
@@ -10,3 +15,4 @@ jobs:
       - uses: ./.github/actions/dotnet-integration
         with:
           hostname: staging.languagedepot.org
+          project-code: ${{ inputs.project-code }}

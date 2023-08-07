@@ -4,6 +4,10 @@
     hostname:
       description: "Target host to run the integration tests against"
       required: true
+    project-code:
+      description: "Project code to run S&R tests against"
+      required: false
+      default: 'sena-3'
   runs:
     using: docker
     image: 'action.Dockerfile'
@@ -14,3 +18,4 @@
       TEST_SERVER_HOSTNAME: ${{ inputs.hostname }}
       TEST_STANDARD_HG_HOSTNAME: hg-${{ inputs.hostname }}
       TEST_RESUMABLE_HG_HOSTNAME: resumable-${{ inputs.hostname }}
+      TEST_PROJECT_CODE: ${{ inputs.project-code }}

@@ -23,7 +23,7 @@ public class ProxyHgRequests
     public async Task TestGet()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/{TestData.ProjectCode}")
+            $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -39,7 +39,7 @@ public class ProxyHgRequests
     {
         var password = "not a good password";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/{TestData.ProjectCode}")
+            $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -55,7 +55,7 @@ public class ProxyHgRequests
     public async Task TestNoAuthResponse()
     {
         var responseMessage =
-            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{_host}/{TestData.ProjectCode}"));
+            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}"));
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
     }

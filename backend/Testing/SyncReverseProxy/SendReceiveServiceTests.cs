@@ -60,9 +60,10 @@ public class SendReceiveServiceTests
     }
 
     private SendReceiveParams GetParams(HgProtocol protocol,
-        string projectCode = TestData.ProjectCode,
+        string? projectCode = null,
         [CallerMemberName] string testName = "")
     {
+        projectCode ??= TestingEnvironmentVariables.ProjectCode;
         var (projectDir, _) = GetProjectDir(projectCode, testName: testName);
         var sendReceiveParams = new SendReceiveParams(projectCode, protocol.GetTestHostName(), projectDir);
         return sendReceiveParams;
@@ -113,10 +114,7 @@ public class SendReceiveServiceTests
     )]
     public void CloneForDev()
     {
-        var sendReceiveTestData = GetTestDataForSR("sena-3").ElementAt(1)
-            .OfType<SendReceiveTestData>().First();
-        _output.WriteLine("Test run: {0}", sendReceiveTestData);
-        // CloneProjectAndSendReceive(sendReceiveTestData);
+        CanCloneSendReceive(HgProtocol.Hgweb, "admin");
     }
 
     [Theory]
@@ -126,9 +124,9 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
     {
-        var (projectDir, fwDataFile) = GetProjectDir(TestData.ProjectCode, Path.Join(hgProtocol.ToString(), user));
+        var (projectDir, fwDataFile) = GetProjectDir(TestingEnvironmentVariables.ProjectCode, Path.Join(hgProtocol.ToString(), user));
         var auth = new SendReceiveAuth(user, "pass");
-        var sendReceiveParams = new SendReceiveParams(TestData.ProjectCode, hgProtocol.GetTestHostName(), projectDir);
+        var sendReceiveParams = new SendReceiveParams(TestingEnvironmentVariables.ProjectCode, hgProtocol.GetTestHostName(), projectDir);
 
         // Clone
         var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);

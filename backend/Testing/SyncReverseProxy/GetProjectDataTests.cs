@@ -33,7 +33,7 @@ password={password}
         projectArray.ShouldNotBeNull();
         projectArray.Count.ShouldBeGreaterThan(0);
         var project =
-            projectArray.First(p => p?["identifier"]?.GetValue<string>() == TestData.ProjectCode) as JsonObject;
+            projectArray.First(p => p?["identifier"]?.GetValue<string>() == TestingEnvironmentVariables.ProjectCode) as JsonObject;
         project.ShouldNotBeNull();
         var projectDict = new Dictionary<string, JsonNode?>(project);
         projectDict.ShouldSatisfyAllConditions(
@@ -42,7 +42,7 @@ password={password}
             () => projectDict.ShouldContainKey("repository"),
             () => projectDict.ShouldContainKey("role")
         );
-        project["identifier"]!.GetValue<string>().ShouldBe(TestData.ProjectCode);
+        project["identifier"]!.GetValue<string>().ShouldBe(TestingEnvironmentVariables.ProjectCode);
         project["name"]!.GetValue<string>().ShouldBe("Sena 3");
         project["repository"]!.GetValue<string>().ShouldBe("http://public.languagedepot.org");
         //todo what is role for? returns unknown in my single test
