@@ -24,6 +24,8 @@ env:
 jobs:
   publish-hgweb:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.setVersion.outputs.VERSION }}
 
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
