@@ -1,0 +1,17 @@
+# docs: https://www.mercurial-scm.org/doc/hgrc.5.html
+
+# disable auth
+[web]
+allow_push=*
+push_ssl=False
+# default
+refreshinterval=20
+
+# enable old clients to push using the old wire protocol
+[server]
+bundle1=True
+bundle1.push=True
+bundle1.pull=True
+
+[paths]
+/ = /var/hg/repos/*

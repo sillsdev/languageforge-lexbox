@@ -6,6 +6,10 @@ configMapGenerator:
   - name: otel-config
     files:
       - collector-config.yaml
+  - name: hg-config
+    files:
+      - hg.conf
+      - hgweb.hgrc
 
 resources:
 - pvc.yaml
