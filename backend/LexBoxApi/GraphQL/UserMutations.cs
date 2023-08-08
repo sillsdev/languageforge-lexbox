@@ -34,7 +34,7 @@ public class UserMutations
     )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
-        return UpdateUser(input, dbContext, emailService, lexAuthService);
+        return UpdateUser(loggedInContext, input, dbContext, emailService, lexAuthService);
     }
 
     [Error<NotFoundException>]
@@ -42,16 +42,18 @@ public class UserMutations
     [Error<InvalidFormatException>]
     [AdminRequired]
     public Task<User> ChangeUserAccountByAdmin(
+        LoggedInContext loggedInContext,
         ChangeUserAccountByAdminInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
         LexAuthService lexAuthService
     )
     {
-        return UpdateUser(input, dbContext, emailService, lexAuthService);
+        return UpdateUser(loggedInContext, input, dbContext, emailService, lexAuthService);
     }
 
     private static async Task<User> UpdateUser(
+        LoggedInContext loggedInContext,
         ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
@@ -68,7 +70,10 @@ public class UserMutations
 
         if (input is ChangeUserAccountByAdminInput adminInput)
         {
-            user.IsAdmin = adminInput.Role == UserRole.admin;
+            if (user.Id != loggedInContext.User.Id)
+            {
+                user.IsAdmin = adminInput.Role == UserRole.admin;
+            }
         }
 
         await dbContext.SaveChangesAsync();
