@@ -9,6 +9,7 @@ import { getErrorMessage } from './hooks.shared';
 const PUBLIC_ROUTE_ROOTS = [
   '(unauthenticated)',
   'email',
+  'healthz',
 ];
 
 function getRoot(routeId: string): string {
