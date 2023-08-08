@@ -1,14 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
 using LexBoxApi.GraphQL.CustomTypes;
-using LexBoxApi.Services;
 using LexBoxApi.Models.Project;
+using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.GraphQL;
@@ -17,6 +16,8 @@ namespace LexBoxApi.GraphQL;
 public class UserMutations
 {
     public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
+    public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, UserRole Role)
+        : ChangeUserAccountDataInput(UserId, Email, Name);
 
     [Error<NotFoundException>]
     [Error<DbError>]
@@ -39,10 +40,9 @@ public class UserMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<InvalidFormatException>]
-    [UseMutationConvention(InputTypeName = nameof(ChangeUserAccountDataInput))]
     [AdminRequired]
     public Task<User> ChangeUserAccountByAdmin(
-        ChangeUserAccountDataInput input,
+        ChangeUserAccountByAdminInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
         LexAuthService lexAuthService
@@ -64,6 +64,11 @@ public class UserMutations
         if (!input.Name.IsNullOrEmpty())
         {
             user.Name = input.Name;
+        }
+
+        if (input is ChangeUserAccountByAdminInput adminInput)
+        {
+            user.IsAdmin = adminInput.Role == UserRole.admin;
         }
 
         await dbContext.SaveChangesAsync();

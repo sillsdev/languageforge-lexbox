@@ -1,7 +1,7 @@
 import type {
   $OpResult,
+  ChangeUserAccountByAdminInput,
   ChangeUserAccountByAdminMutation,
-  ChangeUserAccountDataInput,
   DeleteUserByAdminOrSelfInput,
   DeleteUserByAdminOrSelfMutation,
 } from '$lib/gql/types';
@@ -51,17 +51,18 @@ export async function load(event: PageLoadEvent) {
 }
 
 
-export async function _changeUserAccountByAdmin(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountByAdminMutation> {
+export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput): $OpResult<ChangeUserAccountByAdminMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
       graphql(`
-        mutation ChangeUserAccountByAdmin($input: ChangeUserAccountDataInput!) {
+        mutation ChangeUserAccountByAdmin($input: ChangeUserAccountByAdminInput!) {
           changeUserAccountByAdmin(input: $input) {
             user {
               id
               name
               email
+              isAdmin
             }
             errors {
               ... on Error {
