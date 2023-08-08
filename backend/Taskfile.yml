@@ -37,6 +37,11 @@ tasks:
     dir: ./LexBoxApi
     cmd: dotnet {{.CLI_ARGS}}
 
+  generate-gql-schema:
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet run generate-gql-schema
+
   playwright-install:
     deps: [ playwright-install-win ]
 
