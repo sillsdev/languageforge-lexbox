@@ -49,7 +49,7 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
-        loggedInContext.User.AssertCanManageProject(input.ProjectId);
+        loggedInContext.User.AssertCanManagerProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
             await dbContext.ProjectUsers.FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
