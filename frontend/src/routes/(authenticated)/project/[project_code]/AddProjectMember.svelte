@@ -2,7 +2,7 @@
   import { BadgeButton } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
   import Input from '$lib/forms/Input.svelte';
-  import UserRoleSelect from '$lib/forms/UserRoleSelect.svelte';
+  import ProjectRoleSelect from '$lib/forms/ProjectRoleSelect.svelte';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -46,6 +46,6 @@
     error={errors.email}
     autofocus
   />
-  <UserRoleSelect bind:value={$form.role} error={errors.role} />
+  <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <span slot="submitText">{$t('project_page.add_user.submit_button')}</span>
 </FormModal>

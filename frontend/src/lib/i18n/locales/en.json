@@ -145,11 +145,16 @@
     "change_role": "Change Role"
   },
   "project_role": {
+    "label": "Role",
     "editor": "Editor",
     "editor_description": "Editor (can sync)",
-    "label": "Role",
     "manager": "Manager",
     "manager_description": "Manager (can sync & share)"
+  },
+  "system_role": {
+    "label": "Role",
+    "admin_description": "System Admin (can manage all projects & users)",
+    "user_description": "User (can create & manage their own projects)"
   },
   "project_type": {
     "flex": "FLEx",

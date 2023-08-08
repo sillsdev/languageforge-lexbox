@@ -153,7 +153,9 @@
               <tr>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
-                <td>{user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}</td>
+                <td class:text-accent={user.isAdmin}>
+                  {user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}
+                </td>
                 <td>
                   <FormatDate date={user.createdDate} />
                 </td>

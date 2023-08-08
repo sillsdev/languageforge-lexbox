@@ -1,7 +1,7 @@
 <script lang="ts">
   import { FormModal, type FormModalResult } from '$lib/components/modals';
   import { tryParse } from '$lib/forms';
-  import UserRoleSelect from '$lib/forms/UserRoleSelect.svelte';
+  import ProjectRoleSelect from '$lib/forms/ProjectRoleSelect.svelte';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -33,6 +33,6 @@
 
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title">{$t('project_page.change_role_modal.title', { name })}</span>
-  <UserRoleSelect bind:value={$form.role} error={errors.role} />
+  <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <span slot="submitText">{$t('project_page.change_role')}</span>
 </FormModal>
