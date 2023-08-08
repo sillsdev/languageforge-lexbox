@@ -5,11 +5,12 @@
   import Input from '$lib/forms/Input.svelte';
   import { UserRole, type LoadAdminDashboardQuery } from '$lib/gql/types';
   import { _changeUserAccountByAdmin } from './+page';
-  import { hash } from '$lib/user';
+  import { hash, type LexAuthUser } from '$lib/user';
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
   import SystemRoleSelect from '$lib/forms/SystemRoleSelect.svelte';
 
+  export let currUser: LexAuthUser;
   export let deleteUser: CallableFunction;
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
@@ -73,6 +74,7 @@
     id="role"
     bind:value={$form.role}
     error={errors.role}
+    disabled={_user.id === currUser.id}
   />
   <div class="text-error">
     <Input

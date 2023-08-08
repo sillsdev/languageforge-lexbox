@@ -170,6 +170,6 @@
     </div>
   </div>
 
-  <EditUserAccount bind:this={formModal} {deleteUser} />
+  <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteModal} />
 </main>
