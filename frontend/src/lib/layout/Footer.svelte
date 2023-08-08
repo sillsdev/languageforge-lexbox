@@ -6,7 +6,7 @@
 </script>
 
 <footer class="bg-neutral text-neutral-content py-2 px-2 md:py-4 md:px-8">
-  <div class="flex justify-between items-start max-w-2xl m-auto">
+  <div class="flex justify-between items-start m-auto">
     <div class="space-y-2">
       <div class="flex gap-4 items-center">
         <a href="https://www.sil.org/">
