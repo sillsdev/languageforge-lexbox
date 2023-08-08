@@ -45,7 +45,7 @@ type UserProjects = {
   code: string
   role: 'Manager' | 'Editor'
 }
-export const USER_LOAD_KEY = 'current-user';
+export const USER_LOAD_KEY = 'user:current';
 export const isAdmin = (user: LexAuthUser | null): boolean => user?.role === 'admin';
 
 export const getHomePath = (user: LexAuthUser | null): string => isAdmin(user) ? '/admin' : '/';
