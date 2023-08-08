@@ -44,7 +44,7 @@
       </AdminContent>
     </div>
 
-    <div class="max-w-prose mx-auto mt-6">
+    <div class="max-w-prose mx-auto email-status-container">
       <EmailVerificationStatus {user} />
     </div>
 
@@ -55,3 +55,9 @@
 
   <AppMenu on:click={close} on:keydown={close} {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
 </div>
+
+<style lang="postcss">
+  :global(.email-status-container > div:first-child) {
+    @apply mt-6;
+  }
+</style>
