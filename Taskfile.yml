@@ -18,6 +18,9 @@ includes:
   api:
     taskfile: ./backend/Taskfile.yml
     dir: ./backend
+  hgweb:
+    taskfile: ./hgweb/Taskfile.yml
+    dir: ./hgweb
 
 tasks:
   setup:

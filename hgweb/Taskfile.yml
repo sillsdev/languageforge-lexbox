@@ -1,0 +1,10 @@
+# https://taskfile.dev
+version: '3'
+
+tasks:
+  sync-into-k8s:
+    vars:
+      api_pod:
+        sh: kubectl get pods -l app=hg -o jsonpath='{.items[0].metadata.name}' --context docker-desktop --namespace languagedepot
+    cmds:
+      - kubectl cp ./repos {{.api_pod}}:/var/hg/ --container hgweb --context docker-desktop --namespace languagedepot
