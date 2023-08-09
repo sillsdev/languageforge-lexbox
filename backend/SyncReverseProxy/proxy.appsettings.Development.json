@@ -1,12 +1,4 @@
 {
-  "Logging": {
-    "LogLevel": {
-      "Default": "Warning",
-      "Yarp": "Information",
-      "Microsoft.AspNetCore": "Information",
-      "Microsoft.Hosting.Lifetime": "Information"
-    }
-  },
   "ReverseProxy": {
     "Clusters": {
       "hgWeb": {
