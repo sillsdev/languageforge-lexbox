@@ -6,6 +6,13 @@ namespace LexSyncReverseProxy;
 
 public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
 {
+    private ILogger<ForwarderTelemetryConsumer> _logger;
+
+    public ForwarderTelemetryConsumer(ILogger<ForwarderTelemetryConsumer> logger)
+    {
+        _logger = logger;
+    }
+
     public void OnContentTransferred(DateTime timestamp,
         bool isRequest,
         long contentLength,
@@ -36,6 +43,23 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
         }
     }
 
+    public void OnContentTransferring(DateTime timestamp,
+        bool isRequest,
+        long contentLength,
+        long iops,
+        TimeSpan readTime,
+        TimeSpan writeTime)
+    {
+        _logger.LogInformation("Content transferring, {ContentLength}", contentLength);
+        Activity.Current?.AddEvent(new("Content transferring", timestamp, new()
+        {
+            {"contentLength", contentLength},
+            {"iops", iops},
+            {"readTime", readTime},
+            {"writeTime", writeTime}
+        }));
+    }
+
     public void OnForwarderStage(DateTime timestamp, ForwarderStage stage)
     {
         Activity.Current?.AddEvent(new(stage.ToString(), timestamp));
@@ -43,6 +67,7 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
 
     public void OnForwarderFailed(DateTime timestamp, ForwarderError error)
     {
+        _logger.LogError("Forwarder Failed: {Error}", error.ToString());
         Activity.Current?.SetStatus(ActivityStatusCode.Error, "Forwarder failed: " + error.ToString());
         Activity.Current?.AddEvent(new("Forwarder failed", timestamp));
     }
