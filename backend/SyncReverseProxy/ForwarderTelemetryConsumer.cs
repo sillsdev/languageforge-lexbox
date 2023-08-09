@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.Telemetry.Consumption;
 
 namespace LexSyncReverseProxy;
@@ -33,5 +34,16 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
             activity.SetTag("http.response.body.size", contentLength);
             activity.SetTag("http.response.iops", iops);
         }
+    }
+
+    public void OnForwarderStage(DateTime timestamp, ForwarderStage stage)
+    {
+        Activity.Current?.AddEvent(new(stage.ToString(), timestamp));
+    }
+
+    public void OnForwarderFailed(DateTime timestamp, ForwarderError error)
+    {
+        Activity.Current?.SetStatus(ActivityStatusCode.Error, "Forwarder failed: " + error.ToString());
+        Activity.Current?.AddEvent(new("Forwarder failed", timestamp));
     }
 }
