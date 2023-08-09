@@ -32,7 +32,7 @@
     _editing = user;
     const { response, formState } = await formModal.openModal(user);
     if (response == DialogResponse.Submit) {
-      if (formState.name.tainted || formState.password.tainted) {
+      if (formState.name.tainted || formState.password.tainted || formState.role.tainted) {
         notifySuccess($t('admin_dashboard.notifications.user_updated', { name: formState.name.currentValue }));
       }
       if (formState.email.changed) {
