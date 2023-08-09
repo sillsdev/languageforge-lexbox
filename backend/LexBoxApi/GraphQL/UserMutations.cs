@@ -70,6 +70,7 @@ public class UserMutations
 
         if (input is ChangeUserAccountByAdminInput adminInput)
         {
+            loggedInContext.User.AssertIsAdmin();
             if (user.Id != loggedInContext.User.Id)
             {
                 user.IsAdmin = adminInput.Role == UserRole.admin;

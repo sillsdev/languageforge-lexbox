@@ -145,6 +145,11 @@ public record LexAuthUser
         return Role == UserRole.admin || Projects.Any(p => p.Code == projectCode && p.Role == ProjectRole.Manager);
     }
 
+    public void AssertIsAdmin()
+    {
+        if (Role != UserRole.admin) throw new UnauthorizedAccessException();
+    }
+
     public void AssertCanManageProject(Guid projectId)
     {
         if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
