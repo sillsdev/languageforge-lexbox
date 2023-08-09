@@ -2,16 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: languagedepot
 
-configMapGenerator:
-  - name: otel-config
-    files:
-      - collector-config.yaml
-  - name: hg-config
-    files:
-      - hg.conf
-      - hgweb.hgrc
-
 resources:
+#  this enables us to define configMaps from files outside of the deployment folder, we can't put one in the root however
+- ../../hgweb
+- ../../otel
 - pvc.yaml
 - db-deployment.yaml
 - hg-deployment.yaml

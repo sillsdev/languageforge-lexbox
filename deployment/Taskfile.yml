@@ -33,7 +33,7 @@ tasks:
     cmds:
       - kubectl diff -k . --context dallas-rke
 
-  update-staging:
+  print-staging:
     dir: ./staging
     cmds:
-      - kubectl apply -k . --context dallas-rke
+      - kubectl kustomize .
