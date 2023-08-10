@@ -32,7 +32,7 @@
         <AuthenticatedUserIcon size="text-4xl" />
       </button>
     {:else}
-      <div class="tooltip tooltip-left" data-tip="Create a new account">
+      <div class="tooltip tooltip-left" data-tip={$t('register.create_new_account')}>
         <a href="/register" class="btn btn-primary btn-circle">
           <UserAddOutline />
         </a>

@@ -191,7 +191,8 @@
     "label_password": "Password",
     "name_missing": "Name missing",
     "password_missing": "Password missing",
-    "turnstile_error": "Captcha Error, try again"
+    "turnstile_error": "Captcha Error, try again",
+    "create_new_account": "Create a new account"
   },
   "reset_password": {
     "title": "Reset Password",
