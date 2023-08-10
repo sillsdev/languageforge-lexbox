@@ -144,7 +144,7 @@
                 member={{ name: member.user.name, role: member.role }}
                 canManage={canManage && (member.user.id != userId || isAdmin(user))}
               />
-              <svelte:fragment slot="items">
+              <ul slot="content" class="menu">
                 <li>
                   <button on:click={() => changeMemberRole(member)}>
                     <span class="i-mdi-account-lock text-2xl" />
@@ -157,7 +157,7 @@
                     {$t('project_page.remove_user')}
                   </button>
                 </li>
-              </svelte:fragment>
+              </ul>
             </Dropdown>
           {/each}
           {#if canManage}
