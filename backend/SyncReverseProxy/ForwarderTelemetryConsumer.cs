@@ -6,7 +6,7 @@ namespace LexSyncReverseProxy;
 
 public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
 {
-    private ILogger<ForwarderTelemetryConsumer> _logger;
+    private readonly ILogger<ForwarderTelemetryConsumer> _logger;
 
     public ForwarderTelemetryConsumer(ILogger<ForwarderTelemetryConsumer> logger)
     {
@@ -21,17 +21,18 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
         TimeSpan writeTime,
         TimeSpan firstReadTime)
     {
+        _logger.LogInformation("Content transferred, {Type} content length {ContentLength} bytes",
+            isRequest ? "Request" : "Response",
+            contentLength.ToString("N"));
         var activity = Activity.Current;
         if (activity is null) return;
         var eventTags = new ActivityTagsCollection
         {
-            { "readTime", readTime },
-            { "writeTime", writeTime },
-            { "firstReadTime", firstReadTime }
+            { "readTime", readTime }, { "writeTime", writeTime }, { "firstReadTime", firstReadTime }
         };
         if (isRequest)
         {
-            activity.AddEvent(new ("Request finished", timestamp, eventTags));
+            activity.AddEvent(new("Request finished", timestamp, eventTags));
             activity.SetTag("http.request.body.size", contentLength);
             activity.SetTag("http.request.iops", iops);
         }
@@ -50,14 +51,16 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
         TimeSpan readTime,
         TimeSpan writeTime)
     {
-        _logger.LogInformation("Content transferring, {ContentLength}", contentLength);
-        Activity.Current?.AddEvent(new("Content transferring", timestamp, new()
-        {
-            {"contentLength", contentLength},
-            {"iops", iops},
-            {"readTime", readTime},
-            {"writeTime", writeTime}
-        }));
+        _logger.LogInformation("Content transferring, {ContentLength} bytes", contentLength.ToString("N"));
+        Activity.Current?.AddEvent(new("Content transferring",
+            timestamp,
+            new()
+            {
+                { "contentLength", contentLength },
+                { "iops", iops },
+                { "readTime", readTime },
+                { "writeTime", writeTime }
+            }));
     }
 
     public void OnForwarderStage(DateTime timestamp, ForwarderStage stage)
