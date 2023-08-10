@@ -50,6 +50,7 @@
   let projectSearch = '';
   let userSearch = '';
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
+  $: projectLimit = projectSearch ? Infinity : 10;
   $: projects = $allProjects
     .filter(
       (p) =>
@@ -57,8 +58,9 @@
         p.name.toLocaleLowerCase().includes(projectSearchLower) ||
         p.code.toLocaleLowerCase().includes(projectSearchLower)
     )
-    .slice(0, projectSearch ? undefined : 10);
+    .slice(0, projectLimit);
   $: userSearchLower = userSearch.toLocaleLowerCase();
+  $: userLimit = userSearch ? Infinity : 10;
   $: users = $allUsers
     .filter(
       (u) =>
@@ -66,19 +68,24 @@
         u.name.toLocaleLowerCase().includes(userSearchLower) ||
         u.email.toLocaleLowerCase().includes(userSearchLower)
     )
-    .slice(0, userSearch ? undefined : 10);
+    .slice(0, userLimit);
 </script>
 
 <svelte:head>
   <title>{$t('admin_dashboard.title')}</title>
 </svelte:head>
-
 <main class="flex justify-center">
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
     <div>
       <span class="text-xl flex gap-4">
         {$t('admin_dashboard.project_table_title')}
-        <Badge>{projectSearch ? projects.length : $allProjects.length}</Badge>
+        <Badge>
+          <span class="inline-flex gap-2">
+            {projects.length}
+            <span>/</span>
+            {$allProjects.length}
+          </span>
+        </Badge>
       </span>
 
       <Input
@@ -130,7 +137,13 @@
     <div>
       <span class="text-xl flex gap-4">
         {$t('admin_dashboard.user_table_title')}
-        <Badge>{userSearch ? users.length : $allUsers.length}</Badge>
+        <Badge>
+          <span class="inline-flex gap-2">
+            {users.length}
+            <span>/</span>
+            {$allUsers.length}
+          </span>
+        </Badge>
       </span>
       <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={userSearch} />
 
