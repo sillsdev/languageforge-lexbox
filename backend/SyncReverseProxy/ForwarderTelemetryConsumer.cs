@@ -24,7 +24,7 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
     {
         _logger.LogInformation("Content transferred, {Type} content length {ContentLength} bytes",
             isRequest ? "Request" : "Response",
-            contentLength.ToString("N"));
+            contentLength.ToString("N0"));
         var activity = Activity.Current;
         if (activity is null) return;
         var eventTags = new ActivityTagsCollection
@@ -59,7 +59,7 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
         TimeSpan readTime,
         TimeSpan writeTime)
     {
-        _logger.LogInformation("Content transferring, {ContentLength} bytes", contentLength.ToString("N"));
+        _logger.LogInformation("Content transferring, {ContentLength} bytes", contentLength.ToString("N0"));
         var activity = Activity.Current;
         if (activity is null) return;
         //we use this activity data weak weak map to keep track of how many events we've added.
