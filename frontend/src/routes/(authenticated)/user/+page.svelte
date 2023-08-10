@@ -4,7 +4,7 @@
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
-  import { Duration, notifySuccess, notifyWarning } from '$lib/notify';
+  import { notifySuccess, notifyWarning } from '$lib/notify';
   import z from 'zod';
   import { goto } from '$app/navigation';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';

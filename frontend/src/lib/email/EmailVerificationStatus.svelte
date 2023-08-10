@@ -11,8 +11,8 @@
   import type { LexAuthUser } from '$lib/user';
   import type { EmailResult } from '.';
   import { Button } from '$lib/forms';
-  import { Duration } from '$lib/notify';
   import { onDestroy } from 'svelte';
+  import { Duration } from '$lib/util/time';
 
   export let user: LexAuthUser;
 

@@ -9,8 +9,9 @@
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
   import type { LoadAdminDashboardQuery } from '$lib/gql/types';
-  import { Duration, notifySuccess, notifyWarning } from '$lib/notify';
+  import { notifySuccess, notifyWarning } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
+  import { Duration } from '$lib/util/time';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
