@@ -26,10 +26,10 @@ tasks:
       - dotnet ef migrations remove --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   db-update:
-    desc: "Runs any migrations that haven't yet been applied."
+    desc: "Runs any migrations that haven't yet been applied or rolls back to the specified migration."
     dir: ./LexBoxApi
     cmds:
-      - dotnet ef database update --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
+      - dotnet ef database update {{.CLI_ARGS}} --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   dotnet:
     desc: "Directory independent access to api dotnet. E.g. `task dotnet -- restore`"
