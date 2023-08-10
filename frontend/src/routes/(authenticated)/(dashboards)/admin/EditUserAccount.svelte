@@ -11,7 +11,7 @@
   import { Button, SystemRoleSelect } from '$lib/forms';
 
   export let currUser: LexAuthUser;
-  export let deleteUser: CallableFunction;
+  export let deleteUser: (user: UserRow) => void;
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
   const schema = z.object({
@@ -93,7 +93,7 @@
       icon1="i-mdi-lock"
       icon2="i-mdi-unlocked"
     /-->
-    <Button style="btn-error" on:click={() => deleteUser(_user.id)} disabled={_user.id === currUser.id}>
+    <Button style="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
       {$t('admin_dashboard.form_modal.delete_user.submit')}
       <TrashIcon />
     </Button>

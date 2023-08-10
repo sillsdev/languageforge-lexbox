@@ -16,13 +16,12 @@
 
   export let data: PageData;
   $: user = data?.user;
-  $: userid = user?.id;
   let deleteModal: DeleteUserModal;
 
   $: if (data.emailResult) emailResult.set(data.emailResult);
 
   async function openDeleteModal(): Promise<void> {
-    let { response } = await deleteModal.open(userid);
+    let { response } = await deleteModal.open(user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
       await new Promise((resolve) => setTimeout(() => void goto('/logout').then(resolve), Duration.Default));
@@ -98,4 +97,4 @@
     </button>
   </MoreSettings>
 </Page>
-<DeleteUserModal bind:this={deleteModal} />
+<DeleteUserModal bind:this={deleteModal} i18nScope="account_settings.delete_account" />

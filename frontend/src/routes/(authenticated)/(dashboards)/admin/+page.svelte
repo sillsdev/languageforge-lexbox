@@ -17,19 +17,19 @@
   export let data: PageData;
   $: allProjects = data.projects;
   $: allUsers = data.users;
-  let deleteModal: DeleteUserModal;
+
+  let deleteUserModal: DeleteUserModal;
   let formModal: EditUserAccount;
-  let _editing: UserRow;
-  async function deleteUser(id: string): Promise<void> {
+
+  async function deleteUser(user: UserRow): Promise<void> {
     formModal.close();
-    const { response } = await deleteModal.open(id);
+    const { response } = await deleteUserModal.open(user);
     if (response == DialogResponse.Submit) {
-      notifyWarning($t('admin_dashboard.notifications.user_deleted', { name: _editing.name }));
+      notifyWarning($t('admin_dashboard.notifications.user_deleted', { name: user.name }));
     }
   }
 
   async function openModal(user: UserRow): Promise<void> {
-    _editing = user;
     const { response, formState } = await formModal.openModal(user);
     if (response == DialogResponse.Submit) {
       if (formState.name.tainted || formState.password.tainted || formState.role.tainted) {
@@ -171,5 +171,5 @@
   </div>
 
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
-  <DeleteUserModal bind:this={deleteModal} />
+  <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
 </main>

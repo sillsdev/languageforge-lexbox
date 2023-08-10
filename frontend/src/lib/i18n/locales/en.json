@@ -25,19 +25,19 @@
       "email_label": "Email",
       "name_label": "Display name",
       "password_label": "Password",
-      "delete_user": "Delete User",
       "update_user": "Update User",
       "lock": "Lock User",
-      "unlock": "Unlock User"
-    },
-    "enter_to_delete": {
-      "user": {
-        "label": "Enter 'DELETE USER' to confirm deleting user",
-        "value": "DELETE USER"
+      "unlock": "Unlock User",
+      "delete_user": {
+        "title": "Delete User",
+        "submit": "Delete User",
+        "enter_to_delete": {
+          "label": "Enter ''{_value}'' to confirm deleting the user ''{name}''",
+          "value": "DELETE USER"
+        }
       }
     }
   },
-
   "account_settings": {
     "title": "Account Settings",
     "email": "Email",
@@ -45,8 +45,14 @@
     "reset_password": "Reset your password instead?",
     "update_success": "Your account has been updated.",
     "button_update": "Update account info",
-    "more_settings": "More Settings",
-    "delete_account": "Delete Account",
+    "delete_account": {
+      "title": "Delete Account",
+      "submit": "Delete Account",
+      "enter_to_delete": {
+        "label": "Enter ''{_value}'' to confirm deleting your account",
+        "value": "DELETE ACCOUNT"
+      }
+    },
     "delete_success": "Your account has been deleted.",
     "verify_email": {
       "verify_success": "You've successfully verified your email address.",

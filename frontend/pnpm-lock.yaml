@@ -154,6 +154,9 @@ devDependencies:
   tslib:
     specifier: ^2.5.2
     version: 2.5.2
+  type-fest:
+    specifier: ^4.0.0
+    version: 4.0.0
   typescript:
     specifier: ^4.9.5
     version: 4.9.5
@@ -7952,6 +7955,11 @@ packages:
   /type-fest@0.21.3:
     resolution: {integrity: sha512-t0rzBq87m3fVcduHDUFhKmyyX+9eo6WQjZvf51Ea/M0Q7+T374Jp1aUiyUl0GKxp8M/OETVHSDvmkyPgvX+X2w==}
     engines: {node: '>=10'}
+    dev: true
+
+  /type-fest@4.0.0:
+    resolution: {integrity: sha512-d/oYtUnPM9zar2fqqGLYPzgcY0qUlYK0evgNVti93xpzfjGkMgZHu9Lvgrkn0rqGXTgsFRxFamzjGoD9Uo+dgw==}
+    engines: {node: '>=16'}
     dev: true
 
   /typescript@4.9.5:
