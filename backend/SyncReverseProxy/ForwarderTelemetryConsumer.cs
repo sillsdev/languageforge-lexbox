@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Yarp.ReverseProxy.Forwarder;
 using Yarp.Telemetry.Consumption;
 
@@ -44,6 +45,13 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
         }
     }
 
+    private record ContentTransferringData(int EventCount)
+    {
+        public int EventCount { get; set; } = EventCount;
+    }
+
+    private ConditionalWeakTable<Activity, ContentTransferringData> _activityData = new();
+
     public void OnContentTransferring(DateTime timestamp,
         bool isRequest,
         long contentLength,
@@ -52,7 +60,19 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
         TimeSpan writeTime)
     {
         _logger.LogInformation("Content transferring, {ContentLength} bytes", contentLength.ToString("N"));
-        Activity.Current?.AddEvent(new("Content transferring",
+        var activity = Activity.Current;
+        if (activity is null) return;
+        //we use this activity data weak weak map to keep track of how many events we've added.
+        //it's a very expensive calculation becase Count() does a walk through a linked list.
+        var data = _activityData.GetValue(activity, static a => new ContentTransferringData(a.Events.Count()));
+        // the max number of events seems to be 128 (we may be able to override that default, but this seems fine)
+        // we want to stop before we get there as other events are more important
+        if (data.EventCount > 110) //todo, it would be nice to slow down the rate at which we record this event instead of just abruptly stopping at 110
+        {
+            return;
+        }
+
+        activity.AddEvent(new("Content transferring",
             timestamp,
             new()
             {
@@ -61,6 +81,7 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
                 { "readTime", readTime },
                 { "writeTime", writeTime }
             }));
+        data.EventCount++;
     }
 
     public void OnForwarderStage(DateTime timestamp, ForwarderStage stage)
