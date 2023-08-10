@@ -13,6 +13,7 @@
   import { onMount } from 'svelte';
   import { DialogResponse } from '$lib/components/modals';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
+  import { delay } from '$lib/util/time';
 
   export let data: PageData;
   $: user = data?.user;
@@ -24,7 +25,7 @@
     let { response } = await deleteModal.open(user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
-      await new Promise((resolve) => setTimeout(() => void goto('/logout').then(resolve), Duration.Default));
+      await delay(() => void goto('/logout'), Duration.Default);
     }
   }
 
