@@ -25,7 +25,7 @@
     let { response } = await deleteModal.open(user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
-      await delay(() => void goto('/logout'), Duration.Default);
+      await delay(() => void goto('/logout'));
     }
   }
 
