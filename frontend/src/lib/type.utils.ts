@@ -26,3 +26,12 @@ export type DeepPathsToType<Base, Path extends string, Type> = keyof OmitNever<{
  * Create a union of all possible deep paths of an object who's value type is `string`
  */
 export type DeepPathsToString<Shape extends object> = DeepPathsToType<Shape, DeepPaths<Shape>, string>;
+
+type StringList<Option extends string> = Option
+  | `${Option} ${Option}`;
+
+/**
+ * Defines a string type that is a space-separated list of `CssClass's`
+ */
+export type CssClassList<CssClass extends string, MutuallyEsclusiveCssClass extends string | never = never> =
+  IfNever<MutuallyEsclusiveCssClass, StringList<CssClass>, MutuallyEsclusiveCssClass | `${MutuallyEsclusiveCssClass} ${StringList<CssClass>}`>;

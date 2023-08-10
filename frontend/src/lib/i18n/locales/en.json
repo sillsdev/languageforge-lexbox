@@ -155,6 +155,10 @@
       "date_header": "Date",
       "author_header": "Author",
       "log_header": "Message"
+    },
+    "get_project": {
+      "label": "Get project",
+      "project_url": "Project URL"
     }
   },
   "project_role": {
@@ -254,5 +258,8 @@
   },
   "more_settings": {
     "title": "More settings"
+  },
+  "clipboard": {
+    "copied": "Copied!"
   }
 }
