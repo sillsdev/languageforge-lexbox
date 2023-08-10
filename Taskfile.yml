@@ -77,6 +77,10 @@ tasks:
     desc: Starts infrastructure for our ui and api
     cmds:
       - skaffold run --cleanup=false --kube-context docker-desktop --profile=infra
+  backend-up:
+    desc: Starts entire backend for our ui (including the LexBox api)
+    cmds:
+      - skaffold dev --cleanup=false --kube-context docker-desktop --profile=no-frontend
 
   dev: # Currently broken (because the ui doesn't wait for the api), but probably no one uses it.
     deps: [ api-dev, ui:ui-only]
@@ -86,7 +90,7 @@ tasks:
     aliases: [ ui ]
     desc: The single command for local ui development
     dir: ./frontend
-    deps: [ infra-up ]
+    deps: [ backend-up ]
     interactive: true
     cmds:
       - task: ui:only
