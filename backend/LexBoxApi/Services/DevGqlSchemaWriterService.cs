@@ -20,7 +20,7 @@ public class DevGqlSchemaWriterService : IHostedService
         var builder = Host.CreateApplicationBuilder(args);
         builder.Services.AddLogging();
         builder.Services.AddSingleton<IHostLifetime, ConsoleLifetime>();
-        builder.Services.AddLexGraphQL(true);
+        builder.Services.AddLexGraphQL(builder.Environment, true);
         var host = builder.Build();
         await host.StartAsync();
         await host.StopAsync();

@@ -38,6 +38,6 @@ public static class LexBoxKernel
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSyncProxy(configuration, environment);
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
-        services.AddLexGraphQL();
+        services.AddLexGraphQL(environment);
     }
 }

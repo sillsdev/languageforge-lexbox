@@ -13,9 +13,9 @@ namespace LexBoxApi.GraphQL;
 public static class GraphQlSetupKernel
 {
     public const string LexBoxSchemaName = "LexBox";
-    public static void AddLexGraphQL(this IServiceCollection services, bool generateSchema = false)
+    public static void AddLexGraphQL(this IServiceCollection services, IHostEnvironment env, bool forceGenerateSchema = false)
     {
-        if (generateSchema)
+        if (forceGenerateSchema || env.IsDevelopment())
             services.AddHostedService<DevGqlSchemaWriterService>();
 
         services.AddGraphQLServer()
