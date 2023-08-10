@@ -181,15 +181,17 @@
       <div class="divider" />
 
       <div class="space-y-2">
-        <p class="text-2xl mb-4">
-          <a class="link" href="/hg/{project.code}" target="_blank" rel="noreferrer">
-            {$t('project_page.history')}
-            <span class="i-mdi-open-in-new align-middle" />
+        <p class="text-2xl mb-4 flex gap-4 items-baseline">
+          {$t('project_page.history')}
+          <a class="btn btn-sm btn-outline btn-info" href="/hg/{project.code}" target="_blank">
+            {$t('project_page.hg.open_in_hgweb')}<span class="i-mdi-open-in-new text-2xl" />
           </a>
         </p>
 
         <!-- <HgWeb code={project.code} /> -->
-        <HgLogView json={project.changesets} />
+        <div class="max-h-[75vh] overflow-y-auto">
+          <HgLogView json={project.changesets} />
+        </div>
       </div>
     {:else}
       <div class="text-center text-error">

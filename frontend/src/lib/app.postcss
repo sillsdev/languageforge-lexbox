@@ -22,8 +22,8 @@ form {
   overflow: hidden;
 }
 
-button.button-badge:not([disabled]) {
-  @apply hover:drop-shadow-xl hover:brightness-95 transition;
+.button-badge[tabindex='-1'] {
+  @apply hover:drop-shadow-xl hover:brightness-95 transition cursor-pointer;
 }
 
 form {
@@ -49,4 +49,11 @@ form {
 
 .menu .text-error {
   @apply !text-error;
+}
+
+/* rescues a border that vanishes in FireFox */
+@supports (-moz-appearance: none) {
+  .table thead tr:first-child.sticky {
+    border-bottom-width: 2px;
+  }
 }
