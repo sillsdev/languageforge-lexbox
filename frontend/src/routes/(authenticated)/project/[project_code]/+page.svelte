@@ -19,12 +19,20 @@
   import type { ErrorMessage } from '$lib/forms';
   import { Page } from '$lib/layout';
   import Dropdown from '$lib/components/Dropdown.svelte';
+  import { FormField } from '$lib/forms';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import { delay } from '$lib/util/time';
+  import { page } from '$app/stores';
 
   export let data: PageData;
   $: user = data.user;
   let projectStore = data.project;
   $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
+
+  $: projectHgUrl = import.meta.env.DEV
+    ? `http://${$page.url.host}/hg/${data.code}`
+    : `http://hg-${$page.url.host}/${data.code}`;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
@@ -80,6 +88,20 @@
   $: canManage = isAdmin(user) || user.projects.find((p) => p.code == project?.code)?.role == 'Manager';
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
+
+  var getProjectDropdownTrigger: HTMLElement;
+
+  var copyingToClipboard = false;
+  var copiedToClipboard = false;
+
+  async function copyProjectUrlToClipboard(): Promise<void> {
+    getProjectDropdownTrigger.focus(); // keeps the dropdown open
+    copyingToClipboard = true;
+    await navigator.clipboard.writeText(projectHgUrl);
+    copiedToClipboard = true;
+    copyingToClipboard = false;
+    await delay(() => copiedToClipboard = false);
+  }
 </script>
 
 <svelte:head>
@@ -90,16 +112,47 @@
   <div class="space-y-4">
     {#if project}
       <div class="space-y-2">
-        <div class="text-3xl flex items-center gap-3 flex-wrap">
-          <span>{$t('project_page.project')}:</span>
-          <span class="text-primary">
-            <EditableText
-              disabled={!canManage}
-              value={project.name}
-              validation={projectNameValidation}
-              saveHandler={updateProjectName}
-            />
-          </span>
+        <div class="flex flex-row justify-between items-center">
+          <div class="text-3xl flex items-center gap-3 flex-wrap">
+            <span>{$t('project_page.project')}:</span>
+            <span class="text-primary">
+              <EditableText
+                disabled={!canManage}
+                value={project.name}
+                validation={projectNameValidation}
+                saveHandler={updateProjectName}
+              />
+            </span>
+          </div>
+          <div>
+            <Dropdown>
+              <!-- svelte-ignore a11y-label-has-associated-control -->
+              <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-success">
+                {$t('project_page.get_project.label')}
+                <span class="i-mdi-dots-vertical text-2xl" />
+              </label>
+              <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+                <div class="card-body max-sm:p-4">
+                  <FormField label={$t('project_page.get_project.project_url')}>
+                    <div class="join">
+                      <input
+                        value={projectHgUrl}
+                        class="input input-bordered join-item w-full focus:input-success"
+                        readonly
+                      />
+                      <div class="join-item tooltip-open" class:tooltip={copiedToClipboard} data-tip={$t('clipboard.copied')}>
+                        {#if copiedToClipboard}
+                          <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+                        {:else}
+                          <IconButton loading={copyingToClipboard} icon="i-mdi-content-copy" style="btn-outline" on:click={copyProjectUrlToClipboard} />
+                        {/if}
+                      </div>
+                    </div>
+                  </FormField>
+                </div>
+              </div>
+            </Dropdown>
+          </div>
         </div>
         <BadgeList>
           <Badge><FormatProjectType type={project.type} /></Badge>

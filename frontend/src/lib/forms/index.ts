@@ -1,6 +1,7 @@
 import Button from './Button.svelte';
 import SubmitButton from './SubmitButton.svelte';
 import Form from './Form.svelte';
+import FormField from './FormField.svelte';
 import FormError from './FormError.svelte';
 import Input from './Input.svelte';
 import ProtectedForm, { type Token } from './ProtectedForm.svelte';
@@ -15,6 +16,7 @@ export {
   Button,
   SubmitButton,
   Form,
+  FormField,
   FormError,
   Input,
   ProtectedForm,

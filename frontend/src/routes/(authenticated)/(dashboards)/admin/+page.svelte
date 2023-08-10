@@ -174,7 +174,7 @@
                   <FormatDate date={user.createdDate} />
                 </td>
                 <td class="p-0">
-                  <IconButton ghost icon="i-mdi-pencil-outline" on:click={() => openModal(user)} />
+                  <IconButton icon="i-mdi-pencil-outline" style="btn-ghost" on:click={() => openModal(user)} />
                 </td>
               </tr>
             {/each}
