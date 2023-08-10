@@ -148,10 +148,6 @@
     font-size: inherit;
   }
 
-  textarea {
-    min-width: 40vw;
-  }
-
   .edit-icon {
     flex: 1 0 1.125rem;
   }

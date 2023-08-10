@@ -1,10 +1,10 @@
-import {APP_VERSION, apiVersion} from '$lib/util/verstion';
+import { APP_VERSION, apiVersion } from '$lib/util/verstion';
 
 import type { LayoutServerLoadEvent } from './$types'
+import { USER_LOAD_KEY } from '$lib/user';
 import { getRootTraceparent } from '$lib/otel/otel.server'
-import {USER_LOAD_KEY} from '$lib/user';
 
-export async function load({locals, depends, fetch}: LayoutServerLoadEvent) {
+export async function load({ locals, depends, fetch }: LayoutServerLoadEvent) {
   const user = locals.getUser();
   const traceParent = getRootTraceparent()
 

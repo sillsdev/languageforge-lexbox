@@ -3,9 +3,9 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';
-  import { _deleteUserByAdminOrSelf } from '../../routes/(authenticated)/(dashboards)/admin/+page';
   import type { DeleteUserByAdminOrSelfInput } from '$lib/gql/types';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
+  import { _deleteUserByAdminOrSelf } from '$lib/gql/mutations';
 
   const verify = z.object({
     keyphrase: z.string().refine((value) => value.match(`^${$t('admin_dashboard.enter_to_delete.user.value')}$`)),

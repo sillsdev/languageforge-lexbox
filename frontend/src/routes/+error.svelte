@@ -1,8 +1,10 @@
 <script lang="ts">
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
-  import { Page } from '$lib/layout';
+  import { Content, Page } from '$lib/layout';
 </script>
 
-<Page>
-  <UnexpectedError />
-</Page>
+<Content>
+  <Page>
+    <UnexpectedError />
+  </Page>
+</Content>

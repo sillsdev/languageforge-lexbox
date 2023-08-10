@@ -8,7 +8,7 @@
   import { hash, type LexAuthUser } from '$lib/user';
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
-  import SystemRoleSelect from '$lib/forms/SystemRoleSelect.svelte';
+  import { Button, SystemRoleSelect } from '$lib/forms';
 
   export let currUser: LexAuthUser;
   export let deleteUser: CallableFunction;
@@ -93,10 +93,10 @@
       icon1="i-mdi-lock"
       icon2="i-mdi-unlocked"
     /-->
-    <button class="btn btn-error" on:click={() => deleteUser(_user.id)}>
-      {$t('account_settings.delete_account')}
+    <Button style="btn-error" on:click={() => deleteUser(_user.id)} disabled={_user.id === currUser.id}>
+      {$t('admin_dashboard.form_modal.delete_user.submit')}
       <TrashIcon />
-    </button>
+    </Button>
   </svelte:fragment>
   <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
 </FormModal>

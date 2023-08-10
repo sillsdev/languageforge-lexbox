@@ -4,7 +4,7 @@
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
-  import { notifySuccess, notifyWarning } from '$lib/notify';
+  import { Duration, notifySuccess, notifyWarning } from '$lib/notify';
   import z from 'zod';
   import { goto } from '$app/navigation';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
@@ -12,6 +12,7 @@
   import { TrashIcon } from '$lib/icons';
   import { onMount } from 'svelte';
   import { DialogResponse } from '$lib/components/modals';
+  import MoreSettings from '$lib/components/MoreSettings.svelte';
 
   export let data: PageData;
   $: user = data?.user;
@@ -24,9 +25,10 @@
     let { response } = await deleteModal.open(userid);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
-      await goto('/logout');
+      await new Promise((resolve) => setTimeout(() => void goto('/logout').then(resolve), Duration.Default));
     }
   }
+
   const formSchema = z.object({
     email: z.string().email(),
     name: z.string(),
@@ -90,17 +92,10 @@
       {$t('account_settings.reset_password')}
     </a>
   </div>
-  <div class="collapse border border-neutral-content collapse-arrow mt-4">
-    <input type="checkbox" />
-    <div class="collapse-title text-lg">{$t('account_settings.more_settings')}</div>
-    <div class="collapse-content">
-      <div class="divider mt-0" />
-      <div class="flex justify-end">
-        <button class="btn btn-error" on:click={openDeleteModal}
-          >{$t('account_settings.delete_account')}<TrashIcon /></button
-        >
-      </div>
-    </div>
-  </div>
+  <MoreSettings>
+    <button class="btn btn-error" on:click={openDeleteModal}>
+      {$t('account_settings.delete_account.submit')}<TrashIcon />
+    </button>
+  </MoreSettings>
 </Page>
 <DeleteUserModal bind:this={deleteModal} />

@@ -35,7 +35,7 @@
   <svelte:fragment slot="header">{$t('register.title')}</svelte:fragment>
 
   <ProtectedForm {enhance} bind:turnstileToken>
-    <Input id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
+    <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
     <Input
       id="email"
       label={$t('register.label_email')}

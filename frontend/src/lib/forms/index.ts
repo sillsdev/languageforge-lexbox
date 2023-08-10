@@ -9,6 +9,7 @@ import TextArea from './TextArea.svelte';
 import { lexSuperForm } from './superforms';
 import type { ErrorMessage } from './types';
 import { randomFieldId, tryParse } from './utils';
+import SystemRoleSelect from './SystemRoleSelect.svelte';
 
 export {
   Button,
@@ -24,4 +25,5 @@ export {
   tryParse,
   type Token,
   type ErrorMessage,
+  SystemRoleSelect,
 };

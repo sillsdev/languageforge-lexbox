@@ -145,7 +145,7 @@
               <th>{$t('admin_dashboard.column_email')}</th>
               <th>{$t('admin_dashboard.column_role')}</th>
               <th>{$t('admin_dashboard.column_created')}</th>
-              <th>{$t('admin_dashboard.column_edit')}</th>
+              <th />
             </tr>
           </thead>
           <tbody>

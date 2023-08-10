@@ -244,5 +244,8 @@
     "contact": "Contact",
     "terms_of_use": "Terms of use",
     "privacy_policy": "Privacy policy"
+  },
+  "more_settings": {
+    "title": "More settings"
   }
 }
