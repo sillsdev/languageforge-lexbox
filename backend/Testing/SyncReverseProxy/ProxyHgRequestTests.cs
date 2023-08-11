@@ -66,16 +66,17 @@ public class ProxyHgRequests
     {
         var projectCode = TestingEnvironmentVariables.ProjectCode;
         var host = TestingEnvironmentVariables.StandardHgHostname;
-        // var host = "localhost:60978";
-
+        // host = "hg-staging.languagedepot.org";
+        // projectCode = "elawa-dev-flex";
         var auth = new AuthenticationHeaderValue("Basic",
-            Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")));
+            Convert.ToBase64String(Encoding.ASCII.GetBytes($"admin:{TestData.Password}")));
         var batchRequest = new HttpRequestMessage(HttpMethod.Get, $"http://{host}/{projectCode}?cmd=batch")
         {
             Headers = { Authorization = auth }
         };
         batchRequest.Headers.Add("x-hgarg-1", "cmds=heads+%3Bknown+nodes%3D");
         var batchResponse = await Client.SendAsync(batchRequest);
+        batchResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
         var batchBody = await batchResponse.Content.ReadAsStringAsync();
         batchBody.ShouldEndWith(";");
         var heads = batchBody.Split('\n')[^2];

@@ -110,11 +110,12 @@ public class SendReceiveServiceTests
     }
 
     [Fact(
-        // Skip = "Just for testing, comment out to run"
+        Skip = "Just for testing, comment out to run"
     )]
     public void CloneForDev()
     {
-        CanCloneSendReceive(HgProtocol.Hgweb, "admin");
+        TestingEnvironmentVariables.StandardHgHostname = "hg-staging.languagedepot.org";
+        RunCloneSendReceive(HgProtocol.Hgweb, "admin", "elawa-dev-flex");
     }
 
     [Theory]
@@ -124,7 +125,10 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
     {
-        var projectCode = TestingEnvironmentVariables.ProjectCode;
+        RunCloneSendReceive(hgProtocol, user, TestingEnvironmentVariables.ProjectCode);
+    }
+    private void RunCloneSendReceive(HgProtocol hgProtocol, string user, string projectCode)
+    {
         var (projectDir, fwDataFile) = GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user));
         var auth = new SendReceiveAuth(user, "pass");
         var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(), projectDir);
