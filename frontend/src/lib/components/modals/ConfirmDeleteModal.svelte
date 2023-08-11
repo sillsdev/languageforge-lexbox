@@ -38,7 +38,7 @@
   $: deletionForm = deletionFormModal?.form();
 </script>
 
-<div class="delete-modal">
+<div class="delete-modal contents">
   <FormModal bind:this={deletionFormModal} schema={verify} let:errors>
     <span slot="title">{$t('title')}</span>
     <Input
