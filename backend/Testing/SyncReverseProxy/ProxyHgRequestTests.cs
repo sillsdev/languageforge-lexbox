@@ -55,8 +55,44 @@ public class ProxyHgRequests
     public async Task TestNoAuthResponse()
     {
         var responseMessage =
-            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}"));
+            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}"));
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
+    }
+
+    [Fact]
+    public async Task SimpleClone()
+    {
+        var projectCode = TestingEnvironmentVariables.ProjectCode;
+        var host = TestingEnvironmentVariables.StandardHgHostname;
+        // var host = "localhost:60978";
+
+        var auth = new AuthenticationHeaderValue("Basic",
+            Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")));
+        var batchRequest = new HttpRequestMessage(HttpMethod.Get, $"http://{host}/{projectCode}?cmd=batch")
+        {
+            Headers = { Authorization = auth }
+        };
+        batchRequest.Headers.Add("x-hgarg-1", "cmds=heads+%3Bknown+nodes%3D");
+        var batchResponse = await Client.SendAsync(batchRequest);
+        var batchBody = await batchResponse.Content.ReadAsStringAsync();
+        batchBody.ShouldEndWith(";");
+        var heads = batchBody.Split('\n')[^2];
+
+        var getBundleRequest = new HttpRequestMessage(HttpMethod.Get, $"http://{host}/{projectCode}?cmd=getbundle")
+        {
+            Headers = { Authorization = auth },
+        };
+
+        getBundleRequest.Headers.Add("x-hgarg-1", $"common=0000000000000000000000000000000000000000&heads={heads}");
+        Directory.CreateDirectory("test");
+        await using var fileStream = File.Open("test/simpleCloneResponse", FileMode.Create);
+
+        //act
+        var bundleResponse = await Client.SendAsync(getBundleRequest, HttpCompletionOption.ResponseHeadersRead);
+        bundleResponse.EnsureSuccessStatusCode();
+
+        await bundleResponse.Content.CopyToAsync(fileStream);
     }
 }

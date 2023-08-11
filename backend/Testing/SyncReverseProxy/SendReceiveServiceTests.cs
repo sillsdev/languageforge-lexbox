@@ -124,9 +124,10 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
     {
-        var (projectDir, fwDataFile) = GetProjectDir(TestingEnvironmentVariables.ProjectCode, Path.Join(hgProtocol.ToString(), user));
+        var projectCode = TestingEnvironmentVariables.ProjectCode;
+        var (projectDir, fwDataFile) = GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user));
         var auth = new SendReceiveAuth(user, "pass");
-        var sendReceiveParams = new SendReceiveParams(TestingEnvironmentVariables.ProjectCode, hgProtocol.GetTestHostName(), projectDir);
+        var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(), projectDir);
 
         // Clone
         var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);
