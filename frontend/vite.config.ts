@@ -5,7 +5,7 @@ import { gqlOptions } from './gql-codegen';
 import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
 import { sveltekit } from '@sveltejs/kit/vite';
 
-const exposeServer = true;
+const exposeServer = false;
 
 export default defineConfig({
   build: {
