@@ -7,7 +7,7 @@
 </script>
 
 <!-- https://daisyui.com/components/button -->
-<button on:click class="btn whitespace-nowrap flex-nowrap {style ?? ''}" {type} {...$$restProps}>
+<button on:click class="btn whitespace-nowrap {style ?? ''}" {type} {...$$restProps}>
   <Loader {loading} />
   <slot />
 </button>

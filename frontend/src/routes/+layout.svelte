@@ -25,8 +25,7 @@
   {/if}
 </svelte:head>
 
-<!-- https://daisyui.com/components/drawer -->
-<div class="flex flex-col justify-between min-h-screen">
+<div class="flex flex-col justify-between h-full">
   <div>
     <slot />
   </div>

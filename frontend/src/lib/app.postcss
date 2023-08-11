@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body, .drawer-side, .drawer-side > .menu {
+    height: 100%;
+}
+
 /* frontend/src/lib/forms/Form.svelte */
 form {
   input {
@@ -60,4 +64,8 @@ form {
 
 input[readonly]:focus {
   outline: none;
+}
+
+.btn {
+    @apply flex-nowrap;
 }

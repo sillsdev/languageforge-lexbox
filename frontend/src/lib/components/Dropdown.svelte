@@ -19,7 +19,7 @@
   <div class="contents" on:mousedown={blurIfOpen}>
     <slot />
   </div>
-  <div tabindex="-1" class="dropdown-content bg-base-200 shadow rounded-box z-10">
+  <div tabindex="-1" class="dropdown-content bg-base-200 shadow rounded-box z-[1]">
     <slot name="content" />
   </div>
 </div>

@@ -6,7 +6,7 @@
 </script>
 
 {#if $notifications.length > 0}
-  <div class="toast toast-center prose z-10">
+  <div class="toast toast-center prose z-20">
     {#if $notifications.length > 1}
       <div class="flex justify-end" in:slide out:blur>
         <BadgeButton on:click={removeAllNotifications}>{$t('notify.close_all')}<span class="ml-2">✕</span></BadgeButton>

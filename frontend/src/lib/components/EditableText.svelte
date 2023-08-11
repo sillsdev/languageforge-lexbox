@@ -87,7 +87,7 @@
 
 <span>
   {#if editing || saving}
-    <span class="inline-flex items-end not-prose space-x-2 relative" class:w-full={multiline}>
+    <span class="inline-flex not-prose space-x-2 relative max-sm:flex-col" class:w-full={multiline}>
       <!-- svelte-ignore a11y-autofocus -->
       <span
         class="tooltip-error tooltip-open tooltip-bottom"
@@ -120,8 +120,10 @@
         </Form>
       </span>
 
-      <IconButton on:click={submit} loading={saving} icon="i-mdi-check-bold" />
-      <IconButton on:click={cancel} disabled={saving} icon="i-mdi-close-thick" />
+      <div class="max-sm:mt-2 flex flew-nowrap gap-2 self-end">
+        <IconButton on:click={submit} loading={saving} icon="i-mdi-check-bold" />
+        <IconButton on:click={cancel} disabled={saving} icon="i-mdi-close-thick" />
+      </div>
     </span>
   {:else}
     <span

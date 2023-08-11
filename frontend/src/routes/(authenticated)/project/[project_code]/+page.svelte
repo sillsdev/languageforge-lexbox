@@ -100,7 +100,7 @@
     await navigator.clipboard.writeText(projectHgUrl);
     copiedToClipboard = true;
     copyingToClipboard = false;
-    await delay(() => copiedToClipboard = false);
+    await delay(() => (copiedToClipboard = false));
   }
 </script>
 
@@ -111,48 +111,55 @@
 <Page wide>
   <div class="space-y-4">
     {#if project}
-      <div class="space-y-2">
-        <div class="flex flex-row justify-between items-center">
-          <div class="text-3xl flex items-center gap-3 flex-wrap">
-            <span>{$t('project_page.project')}:</span>
-            <span class="text-primary">
-              <EditableText
-                disabled={!canManage}
-                value={project.name}
-                validation={projectNameValidation}
-                saveHandler={updateProjectName}
-              />
-            </span>
-          </div>
-          <div>
-            <Dropdown>
-              <!-- svelte-ignore a11y-label-has-associated-control -->
-              <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-success">
-                {$t('project_page.get_project.label')}
-                <span class="i-mdi-dots-vertical text-2xl" />
-              </label>
-              <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-                <div class="card-body max-sm:p-4">
-                  <FormField label={$t('project_page.get_project.project_url')}>
-                    <div class="join">
-                      <input
-                        value={projectHgUrl}
-                        class="input input-bordered join-item w-full focus:input-success"
-                        readonly
-                      />
-                      <div class="join-item tooltip-open" class:tooltip={copiedToClipboard} data-tip={$t('clipboard.copied')}>
-                        {#if copiedToClipboard}
-                          <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
-                        {:else}
-                          <IconButton loading={copyingToClipboard} icon="i-mdi-content-copy" style="btn-outline" on:click={copyProjectUrlToClipboard} />
-                        {/if}
-                      </div>
+      <div class="space-y-2 space-x-1">
+        <div class="float-right mt-1 sm:mt-2 md:mt-1">
+          <Dropdown>
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-sm md:btn-md btn-success">
+              {$t('project_page.get_project.label')}
+              <span class="i-mdi-dots-vertical text-2xl" />
+            </label>
+            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+              <div class="card-body max-sm:p-4">
+                <FormField label={$t('project_page.get_project.project_url')}>
+                  <div class="join">
+                    <input
+                      value={projectHgUrl}
+                      class="input input-bordered join-item w-full focus:input-success"
+                      readonly
+                    />
+                    <div
+                      class="join-item tooltip-open"
+                      class:tooltip={copiedToClipboard}
+                      data-tip={$t('clipboard.copied')}
+                    >
+                      {#if copiedToClipboard}
+                        <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+                      {:else}
+                        <IconButton
+                          loading={copyingToClipboard}
+                          icon="i-mdi-content-copy"
+                          style="btn-outline"
+                          on:click={copyProjectUrlToClipboard}
+                        />
+                      {/if}
                     </div>
-                  </FormField>
-                </div>
+                  </div>
+                </FormField>
               </div>
-            </Dropdown>
-          </div>
+            </div>
+          </Dropdown>
+        </div>
+        <div class="text-3xl flex items-center gap-3 gap-y-0 flex-wrap">
+          <span>{$t('project_page.project')}:</span>
+          <span class="text-primary">
+            <EditableText
+              disabled={!canManage}
+              value={project.name}
+              validation={projectNameValidation}
+              saveHandler={updateProjectName}
+            />
+          </span>
         </div>
         <BadgeList>
           <Badge><FormatProjectType type={project.type} /></Badge>
@@ -242,7 +249,7 @@
         </p>
 
         <!-- <HgWeb code={project.code} /> -->
-        <div class="max-h-[75vh] overflow-y-auto">
+        <div class="max-h-[75vh] overflow-auto border-b border-base-200">
           <HgLogView json={project.changesets} />
         </div>
       </div>

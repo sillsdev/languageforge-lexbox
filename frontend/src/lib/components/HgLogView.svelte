@@ -123,7 +123,7 @@
 
 <table class="table table-zebra">
   <thead>
-    <tr class="sticky top-0 z-10 bg-base-100">
+    <tr class="sticky top-0 z-[1] bg-base-100">
       <th></th>
       <th>{$t('project_page.hg.date_header')}</th>
       <th>{$t('project_page.hg.author_header')}</th>
