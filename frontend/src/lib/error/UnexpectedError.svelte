@@ -9,7 +9,7 @@
   let alertMessageElem: HTMLElement | undefined;
   let traceIdElem: HTMLElement;
 
-  const error = derived(_error, (error) => {
+  const error = derived(_error(), (error) => {
     if (error) {
       return {
         ...error,

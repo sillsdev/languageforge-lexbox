@@ -10,7 +10,7 @@
   beforeNavigate(dismiss);
 
   onDestroy(
-    error.subscribe((e) => {
+    error().subscribe((e) => {
       if (!dialog) return;
       e ? open() : close();
     })
