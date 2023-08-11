@@ -78,7 +78,7 @@
     "dont_remove": "Don't remove",
     "remove": "Remove {entityName}"
   },
-  "environment_warning": "This is the {environmentName} environment. Click here to go to the public site.",
+  "environment_warning": "This is a {environmentName} environment. Click here to go to the public site.",
   "forgot_password": {
     "title": "Forgot Password",
     "send_email": "Send reset email",
