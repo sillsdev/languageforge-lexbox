@@ -121,7 +121,7 @@
             </label>
             <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
               <div class="card-body max-sm:p-4">
-                <FormField label={$t('project_page.get_project.project_url')}>
+                <FormField label={$t('project_page.get_project.send_receive_url')}>
                   <div class="join">
                     <input
                       value={projectHgUrl}

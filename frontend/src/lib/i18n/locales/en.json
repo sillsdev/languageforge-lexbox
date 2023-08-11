@@ -158,7 +158,7 @@
     },
     "get_project": {
       "label": "Get project",
-      "project_url": "Project URL"
+      "send_receive_url": "Send/Receive URL"
     }
   },
   "project_role": {
