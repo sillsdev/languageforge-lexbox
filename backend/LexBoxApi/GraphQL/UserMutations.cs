@@ -8,6 +8,7 @@ using LexCore.Entities;
 using LexCore.Exceptions;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.GraphQL;
@@ -21,7 +22,7 @@ public class UserMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
-    [Error<InvalidFormatException>]
+    [Error<UniqueValueException>]
     [UseMutationConvention]
     [RefreshJwt]
     public Task<User> ChangeUserAccountData(
@@ -38,7 +39,7 @@ public class UserMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
-    [Error<InvalidFormatException>]
+    [Error<UniqueValueException>]
     [AdminRequired]
     public Task<User> ChangeUserAccountByAdmin(
         LoggedInContext loggedInContext,
@@ -78,21 +79,22 @@ public class UserMutations
 
         await dbContext.SaveChangesAsync();
 
-        if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email))
+        if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
         {
-            await SendVerifyNewAddressEmail(user, emailService, lexAuthService, input.Email);
+            await SendVerifyNewAddressEmail(user, emailService, lexAuthService, dbContext, input.Email);
         }
 
         return user;
     }
 
-    private static async Task SendVerifyNewAddressEmail(
-        User user,
+    private static async Task SendVerifyNewAddressEmail(User user,
         EmailService emailService,
         LexAuthService lexAuthService,
-        string newEmail
-    )
+        LexBoxDbContext lexBoxDbContext,
+        string newEmail)
     {
+        var emailInUse = await lexBoxDbContext.Users.AnyAsync(u => u.Email == newEmail);
+        if (emailInUse) throw new UniqueValueException("Email");
         var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser(user)
         {
             EmailVerificationRequired = null,
