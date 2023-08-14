@@ -19,16 +19,6 @@ spec:
               value: email-smtp.us-east-1.amazonaws.com
             - name: Email__SmtpPort
               value: '587'
-            - name: Email__SmtpUser
-              valueFrom:
-                secretKeyRef:
-                  key: SMTP_USER
-                  name: email
-            - name: Email__SmtpPassword
-              valueFrom:
-                secretKeyRef:
-                  key: SMTP_PASSWORD
-                  name: email
             - name: Email__From
               # TODO: need to parameterize this
               value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"

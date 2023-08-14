@@ -1,0 +1,11 @@
+﻿- op: replace
+  path: /spec/rules/0/host
+  value: prod.languagedepot.org
+- op: replace
+  path: /spec/rules/1/host
+  value: hg-prod.languagedepot.org
+- op: replace
+  path: /spec/tls/0/hosts
+  value:
+    - prod.languagedepot.org
+    - hg-prod.languagedepot.org

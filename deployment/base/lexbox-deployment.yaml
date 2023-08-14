@@ -110,6 +110,16 @@ spec:
                   name: lexbox-api
           - name: Email__EmailRenderHost
             value: ui:3000
+          - name: Email__SmtpUser
+            valueFrom:
+              secretKeyRef:
+                key: SMTP_USER
+                name: email
+          - name: Email__SmtpPassword
+            valueFrom:
+              secretKeyRef:
+                key: SMTP_PASSWORD
+                name: email
 
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0
