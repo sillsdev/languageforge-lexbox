@@ -19,10 +19,16 @@ tasks:
   playwright-generate-tests:
     cmds:
       - pnpm dlx playwright codegen https://staging.languagedepot.org
-
-  svelte-check:
+  build:
+    desc: "Builds the frontend app."
+    aliases: [ b ]
+    deps: [ install ]
+    cmds:
+      - pnpm run build
+  check:
     desc: "Runs the frontend code checks done in CI. Note: the app must be built."
-    aliases: [ sc ]
+    aliases: [ sc, svelte-check ]
+    deps: [ install ]
     cmds:
       - pnpm run check
       - pnpm run lint

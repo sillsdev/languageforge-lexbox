@@ -63,7 +63,7 @@
     const error = await onSubmit($formState);
     if (error) {
       if (typeof error === 'string') $message = error;
-      if (typeof error === 'object') $errors = error;
+      if (typeof error === 'object') $errors = {...$errors, ...error};
       // again go back to the top and await a response from the modal.
       return await openModal(onSubmit);
     }
