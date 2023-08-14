@@ -17,5 +17,5 @@ spec:
               memory: 1250Mi
           env:
             - name: PUBLIC_TURNSTILE_SITE_KEY
-              value: 1x0000000000000000000000000000000AA
+              value: 1x00000000000000000000AA
               valueFrom:
