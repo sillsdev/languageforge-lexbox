@@ -3,6 +3,7 @@ using System;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    partial class LexBoxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230814044145_email-unique-and-case-insensitive")]
+    partial class emailuniqueandcaseinsensitive
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,9 +41,6 @@ namespace LexData.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now()");
 
-                    b.Property<DateTimeOffset?>("DeletedDate")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -50,9 +50,6 @@ namespace LexData.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<Guid?>("ParentId")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("RetentionPolicy")
                         .HasColumnType("integer");
@@ -69,8 +66,6 @@ namespace LexData.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
-
-                    b.HasIndex("ParentId");
 
                     b.ToTable("Projects");
                 });
@@ -132,15 +127,6 @@ namespace LexData.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("LocalizationCode")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("en");
-
-                    b.Property<bool>("Locked")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -167,13 +153,6 @@ namespace LexData.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("LexCore.Entities.Project", b =>
-                {
-                    b.HasOne("LexCore.Entities.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ParentId");
                 });
 
             modelBuilder.Entity("LexCore.Entities.ProjectUsers", b =>
