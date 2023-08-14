@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
-  import type { LexFormState } from '$lib/forms/superforms';
+  import type {LexFormErrors, LexFormState} from '$lib/forms/superforms';
   import type { AnyZodObject, ZodObject, z } from 'zod';
   import type { ZodValidation } from 'sveltekit-superforms';
   import type { ErrorMessage } from '$lib/forms';
@@ -10,7 +10,7 @@
     formState: LexFormState<S>;
   };
 
-  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<ErrorMessage>;
+  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<ErrorMessage | Partial<LexFormErrors<Schema>>>;
 </script>
 
 <script lang="ts">
@@ -62,7 +62,8 @@
 
     const error = await onSubmit($formState);
     if (error) {
-      $message = error;
+      if (typeof error === 'string') $message = error;
+      if (typeof error === 'object') $errors = error;
       // again go back to the top and await a response from the modal.
       return await openModal(onSubmit);
     }

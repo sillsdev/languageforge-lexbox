@@ -33,12 +33,15 @@
     _user = user;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
     return await formModal.open({ name: user.name, email: user.email, role }, async () => {
-      const { error } = await _changeUserAccountByAdmin({
+      const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
         name: $form.name,
         role: $form.role,
       });
+      if (data?.changeUserAccountByAdmin.errors?.some(e => e.__typename === 'UniqueValueError')) {
+        return {email: [$t('admin_dashboard.email_used')]};
+      }
       if (error) {
         return error.message;
       }

@@ -28,6 +28,8 @@ export class LexGqlError {
 
   constructor(public readonly errors: GqlInputError[]) {
     this.message = this.errors.map(e => e.message).join(', ');
+    //sometimes there are errors but the message wasn't selected for some reason, if we have an empty string here then code lower down will think there's no error at all.
+    if (this.message === '') this.message = 'Unknown error';
   }
 
   forCode(code: string): GqlInputError[] | undefined {

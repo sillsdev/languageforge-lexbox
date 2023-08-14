@@ -69,10 +69,6 @@ type DeleteUserByAdminOrSelfPayload {
   errors: [DeleteUserByAdminOrSelfError!]
 }
 
-type InvalidFormatError implements Error {
-  message: String!
-}
-
 type IsAdminResponse {
   value: Boolean!
 }
@@ -150,6 +146,10 @@ type SoftDeleteProjectPayload {
   errors: [SoftDeleteProjectError!]
 }
 
+type UniqueValueError implements Error {
+  message: String!
+}
+
 type User {
   canLogin: Boolean!
   name: String!
@@ -175,9 +175,9 @@ union ChangeProjectMemberRoleError = NotFoundError | DbError
 
 union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
-union ChangeUserAccountByAdminError = NotFoundError | DbError | InvalidFormatError
+union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
-union ChangeUserAccountDataError = NotFoundError | DbError | InvalidFormatError
+union ChangeUserAccountDataError = NotFoundError | DbError | UniqueValueError
 
 union CreateProjectError = DbError
 
