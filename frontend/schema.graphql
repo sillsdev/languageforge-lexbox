@@ -114,8 +114,8 @@ type Project {
   type: ProjectType!
   users: [ProjectUsers!]!
   lastCommit: DateTime
-  id: UUID!
   deletedDate: DateTime
+  id: UUID!
   updatedDate: DateTime!
 }
 
@@ -149,12 +149,14 @@ type SoftDeleteProjectPayload {
 }
 
 type User {
+  canLogin: Boolean!
   name: String!
   email: String!
   isAdmin: Boolean!
   passwordHash: String!
   salt: String!
   emailVerified: Boolean!
+  locked: Boolean!
   username: String
   projects: [ProjectUsers!]!
   id: UUID!
@@ -351,6 +353,7 @@ input UserFilterInput {
   passwordHash: StringOperationFilterInput
   salt: StringOperationFilterInput
   emailVerified: BooleanOperationFilterInput
+  locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
   projects: ListFilterInputTypeOfProjectUsersFilterInput
   id: UuidOperationFilterInput
@@ -365,6 +368,7 @@ input UserSortInput {
   passwordHash: SortEnumType
   salt: SortEnumType
   emailVerified: SortEnumType
+  locked: SortEnumType
   username: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
