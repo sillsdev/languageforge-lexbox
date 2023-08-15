@@ -265,13 +265,16 @@ public class HgService : IHgService
         }
     }
 
+    public async Task<string?> GetRepositoryIdentifier(Project project)
+    {
+        var json = await GetCommit(project.Code, project.MigrationStatus, "0");
+        return json?["entries"]?.AsArray().FirstOrDefault()?["node"].Deserialize<string>();
+    }
+
     public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode,
         ProjectMigrationStatus migrationStatus)
     {
-        var response = await GetClient(migrationStatus, projectCode)
-            .GetAsync($"{projectCode}/log?style=json-lex&rev=tip");
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadFromJsonAsync<JsonObject>();
+        var json = await GetCommit(projectCode, migrationStatus, "tip");
         //format is this: [1678687688, offset] offset is
         var dateArray = json?["entries"]?[0]?["date"].Deserialize<decimal[]>();
         if (dateArray is null || dateArray.Length != 2 || dateArray[0] <= 0)
@@ -282,6 +285,16 @@ public class HgService : IHgService
         var offset = (double)dateArray[1] * -1;
         var date = DateTimeOffset.FromUnixTimeSeconds((long)dateArray[0]).ToOffset(TimeSpan.FromSeconds(offset));
         return date.ToUniversalTime();
+    }
+
+    private async Task<JsonObject?> GetCommit(string projectCode,
+        ProjectMigrationStatus migrationStatus,
+        string rev)
+    {
+        var response = await GetClient(migrationStatus, projectCode)
+            .GetAsync($"{projectCode}/log?style=json-lex&rev={rev}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<JsonObject>();
     }
 
     public async Task<Changeset[]> GetChangesets(string projectCode, ProjectMigrationStatus migrationStatus)

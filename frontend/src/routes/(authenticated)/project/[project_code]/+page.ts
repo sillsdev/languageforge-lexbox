@@ -17,7 +17,7 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { error } from '@sveltejs/kit';
 
-type Project = NonNullable<ProjectPageQuery['projectByCode']>;
+export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
 
 export async function load(event: PageLoadEvent) {

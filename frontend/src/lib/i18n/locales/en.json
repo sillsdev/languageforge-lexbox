@@ -226,15 +226,21 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "log_header": "Message"
     },
     "get_project": {
-      "instructions": "### To load the project into{type, select, FL_EX { } other { (e.g.) }}FLEx\n\
-1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
+      "instructions_header": "To open the project with{type, select, FL_EX { } other { (e.g.) }}FLEx{mode, select, manual { manually} other { }}",
+      "instructions": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
 1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" and \"Password\" for Language Depot and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
       "label": "Get project",
-      "send_receive_url": "Send/Receive URL"
-    }
+      "send_receive_url": "Send/Receive URL",
+    },
+    "open_with_flex": {
+      "button": "Open with FLEx",
+      "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.?](https://software.sil.org/fieldworks/download/).",
+      "instructions": "To open this project click **Open FieldWorks** in the dialog shown by your browser.\n\n\
+If you don't see a dialog or already closed it, click the button below:",
+    },
   },
   "project_role": {
     "label": "Role",
