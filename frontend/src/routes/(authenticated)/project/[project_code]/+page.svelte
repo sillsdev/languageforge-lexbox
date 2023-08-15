@@ -170,7 +170,7 @@
 
         <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
         {#if isAdmin(user)}
-          <ResetProjectModal bind:this={resetProjectModal} />
+          <ResetProjectModal bind:this={resetProjectModal} code={data.code} />
         {/if}
 
         <DeleteModal
@@ -186,16 +186,6 @@
     </div>
 
     <div class="divider" />
-    {#if isAdmin(user)}
-    <div class="space-y-2">
-      <p class="text-2xl mb-4">
-        <span class="link" target="_blank" on:click={() => resetProject()}>
-          {$t('project_page.reset_project_model.title', {name: project?.name})}
-          <span class="i-mdi-open-in-new align-middle" />
-        </span>
-      </p>
-    </div>
-    {/if}
     <div class="space-y-2">
       <p class="text-2xl mb-4">
         <a class="link" href="/hg/{project.code}" target="_blank" rel="noreferrer">
@@ -207,6 +197,16 @@
       <!-- <HgWeb code={project.code} /> -->
       <HgLogView json={project.changesets} />
     </div>
+    {#if isAdmin(user)}
+    <div class="card card-bordered border-error">
+      <p class="text-2xl mb-4">
+        <span class="link" on:click={() => resetProject()}>
+          {$t('project_page.reset_project_modal.title', {name: project?.name})}
+          <span class="i-mdi-open-in-new align-middle" />
+        </span>
+      </p>
+    </div>
+    {/if}
   {:else}
     {$t('project_page.not_found', { code: data.code })}
   {/if}

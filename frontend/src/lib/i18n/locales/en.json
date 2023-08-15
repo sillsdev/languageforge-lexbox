@@ -123,10 +123,12 @@
     "change_role_modal": {
       "title": "Choose role for {name}"
     },
-    "reset_project_model": {
+    "reset_project_modal": {
       "title": "Reset project {name}",
+      "download_button": "Download backup file",
       "confirm_downloaded": "I confirm that I have downloaded the backup file and verified that it works. I am ready to completely reset the repository history.",
-      "admin_required": "This action can only be performed by site admins"
+      "admin_required": "This action can only be performed by site admins",
+      "reset_project": "Reset project (NO UNDO)"
     },
     "notifications": {
       "role_change": "Project role of {name} set to {role}.",
