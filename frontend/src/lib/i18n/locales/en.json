@@ -121,6 +121,7 @@
       "description_missing": "Description required",
       "language_code": "Language Code",
       "language_code_too_short": "Language code must be at least 3 characters",
+      "language_code_invalid": "Language code can only include lowercase a-z and '-'",
       "name": "Name",
       "description": "Description",
       "name_missing": "Project name required",
