@@ -3,6 +3,7 @@ using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
@@ -22,6 +23,7 @@ public class ProjectServiceTest
         {
             s.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
             s.AddScoped<IRepoMigrationService>(_ => Mock.Of<IRepoMigrationService>());
+            s.AddSingleton<IMemoryCache>(_ => Mock.Of<IMemoryCache>());
             s.AddScoped<ProjectService>();
         });
         _projectService = serviceProvider.GetRequiredService<ProjectService>();

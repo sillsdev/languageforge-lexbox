@@ -101,10 +101,12 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable, "manager")]
     public async Task CanCloneSendReceiveWithJwtOverBasicAuth(HgProtocol hgProtocol, string user)
     {
-        var jwt = await JwtHelper.GetJwtForUser(new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword));
+        var projectCode = TestingEnvironmentVariables.ProjectCode;
+        var jwt = await JwtHelper.GetProjectJwtForUser(new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword), projectCode);
+
         RunCloneSendReceive(hgProtocol,
             new SendReceiveAuth(AuthKernel.JwtOverBasicAuthUsername, jwt),
-            TestingEnvironmentVariables.ProjectCode);
+            projectCode);
     }
 
     private void RunCloneSendReceive(HgProtocol hgProtocol, SendReceiveAuth auth, string projectCode)

@@ -8,6 +8,7 @@ using LexCore;
 using LexCore.Auth;
 using LexData;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -18,30 +19,16 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/login")]
-public class LoginController : ControllerBase
+public class LoginController(
+    LexAuthService lexAuthService,
+    LexBoxDbContext lexBoxDbContext,
+    LoggedInContext loggedInContext,
+    EmailService emailService,
+    UserService userService,
+    TurnstileService turnstileService,
+    ProjectService projectService)
+    : ControllerBase
 {
-    private readonly LexAuthService _lexAuthService;
-    private readonly LexBoxDbContext _lexBoxDbContext;
-    private readonly LoggedInContext _loggedInContext;
-    private readonly EmailService _emailService;
-    private readonly UserService _userService;
-    private readonly TurnstileService _turnstileService;
-
-    public LoginController(LexAuthService lexAuthService,
-        LexBoxDbContext lexBoxDbContext,
-        LoggedInContext loggedInContext,
-        EmailService emailService,
-        UserService userService,
-        TurnstileService turnstileService)
-    {
-        _lexAuthService = lexAuthService;
-        _lexBoxDbContext = lexBoxDbContext;
-        _loggedInContext = loggedInContext;
-        _emailService = emailService;
-        _userService = userService;
-        _turnstileService = turnstileService;
-    }
-
     /// <summary>
     /// this endpoint is called when we can only pass a jwt in the query string. It redirects to the requested path
     /// and logs in using that jwt with a cookie
@@ -53,8 +40,8 @@ public class LoginController : ControllerBase
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
     {
-        var user = _loggedInContext.User;
-        var userUpdatedDate = await _userService.GetUserUpdatedDate(user.Id);
+        var user = loggedInContext.User;
+        var userUpdatedDate = await userService.GetUserUpdatedDate(user.Id);
         if (userUpdatedDate != user.UpdatedDate)
         {
             return await EmailLinkExpired();
@@ -78,26 +65,26 @@ public class LoginController : ControllerBase
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
     {
-        if (_loggedInContext.User.EmailVerificationRequired == true)
+        if (loggedInContext.User.EmailVerificationRequired == true)
         {
             return Unauthorized();
         }
 
-        var userId = _loggedInContext.User.Id;
-        var user = await _lexBoxDbContext.Users.FindAsync(userId);
+        var userId = loggedInContext.User.Id;
+        var user = await lexBoxDbContext.Users.FindAsync(userId);
         if (user == null) return NotFound();
         //users can verify their email even if the updated date is out of sync when not changing their email
         //this is to prevent some edge cases where changing their name and then using an old verify email link would fail
-        if (user.Email != _loggedInContext.User.Email &&
-            user.UpdatedDate.ToUnixTimeSeconds() != _loggedInContext.User.UpdatedDate)
+        if (user.Email != loggedInContext.User.Email &&
+            user.UpdatedDate.ToUnixTimeSeconds() != loggedInContext.User.UpdatedDate)
         {
             return await EmailLinkExpired();
         }
 
-        user.Email = _loggedInContext.User.Email;
+        user.Email = loggedInContext.User.Email;
         user.EmailVerified = true;
         user.UpdateUpdatedDate();
-        await _lexBoxDbContext.SaveChangesAsync();
+        await lexBoxDbContext.SaveChangesAsync();
         await RefreshJwt();
         return Redirect(returnTo);
     }
@@ -108,9 +95,9 @@ public class LoginController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<LexAuthUser>> Login(LoginRequest loginRequest)
     {
-        var user = await _lexAuthService.Login(loginRequest);
+        var user = await lexAuthService.Login(loginRequest);
         if (user == null) return Unauthorized();
-        await _userService.UpdateUserLastActive(user.Id);
+        await userService.UpdateUserLastActive(user.Id);
         await HttpContext.SignInAsync(user.GetPrincipal("Password"),
             new AuthenticationProperties { IsPersistent = true });
         return user;
@@ -121,7 +108,7 @@ public class LoginController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<LexAuthUser>> RefreshJwt()
     {
-        var user = await _lexAuthService.RefreshUser(_loggedInContext.User.Id);
+        var user = await lexAuthService.RefreshUser(loggedInContext.User.Id);
         if (user == null) return Unauthorized();
         return user;
     }
@@ -141,7 +128,7 @@ public class LoginController : ControllerBase
     public async Task<ActionResult> ForgotPassword(ForgotPasswordInput input)
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
-        var validToken = await _turnstileService.IsTokenValid(input.TurnstileToken, input.Email);
+        var validToken = await turnstileService.IsTokenValid(input.TurnstileToken, input.Email);
         activity?.AddTag("app.turnstile_token_valid", validToken);
         if (!validToken)
         {
@@ -149,7 +136,7 @@ public class LoginController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        await _userService.ForgotPassword(input.Email);
+        await userService.ForgotPassword(input.Email);
         return Ok();
     }
 
@@ -164,13 +151,13 @@ public class LoginController : ControllerBase
     public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)
     {
         var passwordHash = request.PasswordHash;
-        var lexAuthUser = _loggedInContext.User;
-        var user = await _lexBoxDbContext.Users.FindAsync(lexAuthUser.Id);
+        var lexAuthUser = loggedInContext.User;
+        var user = await lexBoxDbContext.Users.FindAsync(lexAuthUser.Id);
         if (user == null) return NotFound();
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
         user.UpdateUpdatedDate();
-        await _lexBoxDbContext.SaveChangesAsync();
-        await _emailService.SendPasswordChangedEmail(user);
+        await lexBoxDbContext.SaveChangesAsync();
+        await emailService.SendPasswordChangedEmail(user);
         //the old jwt is only valid for calling forgot password endpoints, we need to generate a new one
         if (lexAuthUser.Audience == LexboxAudience.ForgotPassword)
             await RefreshJwt();

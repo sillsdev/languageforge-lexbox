@@ -4,4 +4,5 @@ metadata:
   name: app-config
 data:
   environment-name: "Production"
+  hg-domain: "hg-public.languageforge.org"
 

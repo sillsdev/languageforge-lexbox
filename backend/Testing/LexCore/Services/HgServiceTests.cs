@@ -33,7 +33,8 @@ public class HgServiceTests
             PublicRedmineHgWebUrl = RedminePublic,
             PrivateRedmineHgWebUrl = RedminePrivate,
             RedmineHgResumableUrl = RedmineResumable,
-            RedmineTrustToken = "tt"
+            RedmineTrustToken = "tt",
+            SendReceiveDomain = LexboxHgWeb
         };
         _hgService = new HgService(new OptionsWrapper<HgConfig>(_hgConfig),
             Mock.Of<IHttpClientFactory>(),

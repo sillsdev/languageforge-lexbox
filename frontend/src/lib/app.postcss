@@ -131,7 +131,7 @@ input[readonly]:focus {
   }
 }
 
-.header-actions .btn {
+.header-actions .btn:not(:where(.modal *)) {
   @apply btn-sm sm:btn-md;
 }
 
@@ -157,4 +157,12 @@ input[readonly]:focus {
 
 .btn.badge {
   border-radius: var(--rounded-badge);
+}
+
+.prose .alert a {
+  filter: contrast(1.5)
+}
+
+.collapse input:hover ~ .collapse-title {
+  @apply opacity-70 transition-opacity;
 }
