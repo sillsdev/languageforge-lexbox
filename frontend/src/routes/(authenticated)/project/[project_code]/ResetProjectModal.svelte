@@ -2,7 +2,6 @@
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
   import Form from '$lib/forms/Form.svelte';
   import t from '$lib/i18n';
-  import Checkbox from '$lib/forms/Checkbox.svelte';
   import Button from '$lib/forms/Button.svelte';
 
   let modal: Modal;

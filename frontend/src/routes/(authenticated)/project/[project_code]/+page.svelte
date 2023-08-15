@@ -46,7 +46,17 @@
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): void {
     const response = await resetProjectModal.open();
-    console.log('Reset project modal response:', response);
+    if (response === 'submit') {
+      const url = `/api/project/resetProject/${project.code}`;
+      const resetResponse = await fetch(url, {method: 'post'});
+      if (resetResponse.ok) {
+        notifySuccess(
+          $t('project_page.notifications.reset_project', {
+            code: project.code,
+          })
+      );
+      }
+    }
   }
 
   let deleteUserModal: DeleteModal;

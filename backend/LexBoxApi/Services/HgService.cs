@@ -53,7 +53,7 @@ public class HgService : IHgService
         string repoPath = Path.Combine(_options.Value.RepoPath, code);
         string timestamp = DateTime.UtcNow.ToString(DateTimeFormatInfo.InvariantInfo.SortableDateTimePattern).Replace(':', '-');
         // var tempFilename = await BackupRepo(code);
-        string backupPath = $"backup-{code}-{timestamp}";
+        string backupPath = Path.Combine(_options.Value.RepoPath, $"backup-{code}-{timestamp}");
         System.IO.Directory.Move(repoPath, backupPath);
         await InitRepo(code);
         return backupPath;
