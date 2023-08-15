@@ -6,6 +6,8 @@ public class HgConfig
 {
     [Required]
     public required string RepoPath { get; init; }
+    [Required]
+    public required string SendReceiveDomain { get; init; }
     [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
     public required string HgWebUrl { get; init; }
     [Required, Url]

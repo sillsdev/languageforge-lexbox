@@ -11,4 +11,5 @@ public enum LexboxAudience
     LexboxApi,
     ForgotPassword,
     SendAndReceive,
+    SendAndReceiveRefresh,
 }

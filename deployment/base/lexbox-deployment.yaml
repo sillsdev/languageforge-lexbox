@@ -115,6 +115,11 @@ spec:
             value: "10.42.0.0/16"
           - name: HgConfig__RepoPath
             value: /hg-repos
+          - name: HgConfig__SendReceiveDomain
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: hg-domain
           - name: HgConfig__HgWebUrl
             value: http://hg:8088/hg/
           - name: HgConfig__HgResumableUrl

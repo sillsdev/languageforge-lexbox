@@ -23,21 +23,21 @@
   import type { BadgeVariant } from '$lib/components/Badges/Badge.svelte';
   import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
-  import { Button, type ErrorMessage, FormField } from '$lib/forms';
+  import { Button, type ErrorMessage } from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import IconButton from '$lib/components/IconButton.svelte';
-  import { delay } from '$lib/util/time';
-  import { page } from '$app/stores';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { _deleteProject } from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, HeaderPage } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
-  import { ProjectMigrationStatus, ProjectRole, ResetStatus } from '$lib/gql/generated/graphql';
+  import { ProjectMigrationStatus, ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
   import Icon from '$lib/icons/Icon.svelte';
+  import OpenInFlexModal from './OpenInFlexModal.svelte';
+  import OpenInFlexButton from './OpenInFlexButton.svelte';
+  import SendReceiveUrlField from './SendReceiveUrlField.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -54,10 +54,6 @@
   const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = false;
   $: showMembers = showAllMembers ? members : members.slice(0, TRUNCATED_MEMBER_COUNT);
-
-  $: projectHgUrl = import.meta.env.DEV
-    ? `http://hg.${$page.url.host}/${data.code}`
-    : `https://hg-public.${$page.url.host.replace('depot', 'forge')}/${data.code}`;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -121,18 +117,6 @@
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 
-  var copyingToClipboard = false;
-  var copiedToClipboard = false;
-
-  async function copyProjectUrlToClipboard(): Promise<void> {
-    copyingToClipboard = true;
-    await navigator.clipboard.writeText(projectHgUrl);
-    copiedToClipboard = true;
-    copyingToClipboard = false;
-    await delay();
-    copiedToClipboard = false;
-  }
-
   let deleteProjectModal: ConfirmDeleteModal;
 
   async function softDeleteProject(): Promise<void> {
@@ -194,6 +178,8 @@
     migrationStatus = ProjectMigrationStatus.Migrating;
     await watchMigrationStatus();
   }
+
+  let openInFlexModal: OpenInFlexModal;
 </script>
 
 <!-- we need the if so that the page doesn't break when we delete the project -->
@@ -209,52 +195,31 @@
     </svelte:fragment>
     <svelte:fragment slot="actions">
       {#if migrationStatus !== ProjectMigrationStatus.Migrating}
-        <Dropdown>
-          <button class="btn btn-success">
-            {$t('project_page.get_project.label')}
-            <span class="i-mdi-dots-vertical text-2xl" />
-          </button>
-          <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-            <div class="card-body max-sm:p-4">
-              <div class="prose">
-                <Markdown
-                  md={$t('project_page.get_project.instructions', {
-                    type: project.type,
-                    code: data.code,
-                    name: project.name,
-                  })}
-                />
+        {#if project.type === ProjectType.FlEx}
+          <OpenInFlexModal bind:this={openInFlexModal} {project} />
+          <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open} />
+        {:else}
+          <Dropdown>
+            <button class="btn btn-primary">
+              {$t('project_page.get_project.label')}
+              <span class="i-mdi-dots-vertical text-2xl" />
+            </button>
+            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+              <div class="card-body max-sm:p-4">
+                <div class="prose">
+                  <h3>{$t('project_page.get_project.instructions_header', { type: project.type, mode: 'normal' })}</h3>
+                  <Markdown
+                    md={$t('project_page.get_project.instructions', {
+                      code: project.code,
+                      name: project.name,
+                    })}
+                  />
+                </div>
+                <SendReceiveUrlField projectCode={project.code} />
               </div>
-              <AdminContent>
-                <FormField label={$t('project_page.get_project.send_receive_url')}>
-                  <div class="join">
-                    <input
-                      value={projectHgUrl}
-                      class="input input-bordered join-item w-full focus:input-success"
-                      readonly
-                    />
-                    <div
-                      class="join-item tooltip-open"
-                      class:tooltip={copiedToClipboard}
-                      data-tip={$t('clipboard.copied')}
-                    >
-                      {#if copiedToClipboard}
-                        <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
-                      {:else}
-                        <IconButton
-                          loading={copyingToClipboard}
-                          icon="i-mdi-content-copy"
-                          style="btn-outline"
-                          on:click={copyProjectUrlToClipboard}
-                        />
-                      {/if}
-                    </div>
-                  </div>
-                </FormField>
-              </AdminContent>
             </div>
-          </div>
-        </Dropdown>
+          </Dropdown>
+        {/if}
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="title">

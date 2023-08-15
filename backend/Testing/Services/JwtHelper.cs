@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using LexBoxApi.Auth;
 using Shouldly;
 
@@ -16,6 +17,19 @@ public class JwtHelper
         var jwt = GetJwtFromLoginResponse(response);
         ClearCookies(Handler);
         return jwt;
+    }
+
+    public static async Task<string> GetProjectJwtForUser(SendReceiveAuth auth, string projectCode)
+    {
+        var flexJwt = await GetJwtForUser(auth);
+        var response = await Client.SendAsync(new(HttpMethod.Get,
+            $"{TestingEnvironmentVariables.ServerBaseUrl}/api/integration/getProjectToken?projectCode={projectCode}")
+        {
+            Headers = { Authorization = new("Bearer", flexJwt) }
+        });
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+        return json.GetProperty("projectToken").GetString() ?? throw new NullReferenceException("projectToken was null");
     }
 
     public static async Task<HttpResponseMessage> ExecuteLogin(SendReceiveAuth auth, HttpClient httpClient)

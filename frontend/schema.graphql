@@ -501,6 +501,7 @@ enum LexboxAudience {
   LEXBOX_API
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
+  SEND_AND_RECEIVE_REFRESH
 }
 
 enum ProjectMigrationStatus {
