@@ -40,7 +40,8 @@ public class MigrationController : ControllerBase
                 IsAdmin = rmUser.Admin,
                 Salt = rmUser.Salt ?? "",
                 PasswordHash = rmUser.HashedPassword,
-                EmailVerified = true,
+                EmailVerified = rmUser.Status != 2,
+                Locked = rmUser.Status == 3,
                 Projects = rmUser.ProjectMembership.Select(m => new ProjectUsers
                 {
                     Role = m.Role.Role.Name == "Manager" ? ProjectRole.Manager
@@ -82,7 +83,8 @@ public class MigrationController : ControllerBase
                         IsAdmin = m.User.Admin,
                         Salt = m.User.Salt ?? "",
                         PasswordHash = m.User.HashedPassword,
-                        EmailVerified = true,
+                        EmailVerified = m.User.Status != 2,
+                        Locked = m.User.Status == 3,
                     }
                 }).ToList(),
                 Type = rmProject.Identifier!.EndsWith("-flex") ? ProjectType.FLEx : ProjectType.Unknown,
@@ -129,7 +131,8 @@ public class MigrationController : ControllerBase
             IsAdmin = rmUser.Admin,
             Salt = rmUser.Salt ?? "",
             PasswordHash = rmUser.HashedPassword,
-            EmailVerified = true,
+            EmailVerified = rmUser.Status != 2,
+            Locked = rmUser.Status == 3,
             Projects = rmUser.ProjectMembership?.Select(m => new ProjectUsers
             {
                 ProjectId = projectIdToGuid[m.ProjectId],

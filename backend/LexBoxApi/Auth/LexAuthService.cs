@@ -58,7 +58,7 @@ public class LexAuthService
     {
         var (lexAuthUser, user) = await GetUser(email);
         // we want to silently return if the user doesn't exist, so we don't leak information.
-        if (lexAuthUser is null || user is null) return;
+        if (lexAuthUser is null || user?.CanLogin() is not true) return;
         var (jwt, _) = GenerateJwt(lexAuthUser);
         await _emailService.SendForgotPasswordEmail(jwt, user);
     }
@@ -66,7 +66,7 @@ public class LexAuthService
     public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
         var (lexAuthUser, user) = await GetUser(loginRequest.EmailOrUsername);
-        if (user == null) return null;
+        if (user?.CanLogin() is not true) return null;
 
         var validPassword = PasswordHashing.IsValidPassword(loginRequest.Password,
             user.Salt,
@@ -79,7 +79,7 @@ public class LexAuthService
     {
         var dbUser = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FirstOrDefaultAsync(user => user.Id == userId);
-        if (dbUser is null) return null;
+        if (dbUser?.CanLogin() is not true) return null;
         var jwtUser = new LexAuthUser(dbUser);
         var context = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(context);

@@ -74,6 +74,7 @@ public class UserController : ControllerBase
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false,
             EmailVerified = false,
+            Locked = false,
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
@@ -95,7 +96,7 @@ public class UserController : ControllerBase
     {
         var lexUser = _loggedInContext.User;
         var user = await _lexBoxDbContext.Users.FindAsync(lexUser.Id);
-        if (user is null) return NotFound();
+        if (user?.CanLogin() is not true) return NotFound();
         await SendVerificationEmail(lexUser, user);
         return Ok();
     }

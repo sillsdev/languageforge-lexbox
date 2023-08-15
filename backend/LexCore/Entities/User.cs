@@ -8,6 +8,7 @@ public class User : EntityBase
     public required string PasswordHash { get; set; }
     public required string Salt { get; set; }
     public required bool EmailVerified { get; set; }
+    public bool Locked { get; set; } = false;
 
     /// <summary>
     /// Used for legacy users
@@ -15,4 +16,9 @@ public class User : EntityBase
     public string? Username { get; set; }
 
     public List<ProjectUsers> Projects { get; set; } = new();
+
+    public bool CanLogin()
+    {
+        return !Locked;
+    }
 }
