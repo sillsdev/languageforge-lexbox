@@ -41,6 +41,7 @@ export async function load(event: PageLoadEvent) {
                 email
                 isAdmin
                 createdDate
+                emailVerified
             }
         }
     `), { withDeletedProjects });
