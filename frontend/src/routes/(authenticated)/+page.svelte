@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import t from "$lib/i18n";
-  import ProjectList from "$lib/components/ProjectList.svelte";
-  import {Page} from "$lib/layout";
+  import t from '$lib/i18n';
+  import ProjectList from '$lib/components/ProjectList.svelte';
+  import {Page} from '$lib/layout';
 
   export let data: PageData;
   $: projects = data.projects;

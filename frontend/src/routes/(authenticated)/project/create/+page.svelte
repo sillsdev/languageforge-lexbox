@@ -17,7 +17,7 @@
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
     languageCode: z.string()
       .min(3, $t('project.create.language_code_too_short'))
-      .regex(/^[a-z\-]+$/, $t('project.create.language_code_invalid')),
+      .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
     code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
     customCode: z.boolean().default(false),
   });
