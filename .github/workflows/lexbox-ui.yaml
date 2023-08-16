@@ -102,7 +102,7 @@ jobs:
           TARGET_HOST: https://staging.languagedepot.org
           EXPECTED_VERSION: ${{ needs.publish-ui.outputs.version }}
         run: |
-          IterateCount=5
+          IterateCount=10
           DelayMultiplier=5
           n=0
           until [ $n -ge $IterateCount ]
