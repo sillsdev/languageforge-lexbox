@@ -15,6 +15,7 @@ export async function load(event: PageLoadEvent) {
                 id
                 name
                 lastCommit
+                userCount
             }
         }
   `), {});
@@ -24,7 +25,7 @@ export async function load(event: PageLoadEvent) {
       name: p.name,
       code: p.code,
       lastCommit: p.lastCommit,
-      userCount: 0, // TODO
+      userCount: p.userCount,
     })))
   }
 }

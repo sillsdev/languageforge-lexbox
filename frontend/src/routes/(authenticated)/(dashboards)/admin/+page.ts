@@ -34,6 +34,7 @@ export async function load(event: PageLoadEvent) {
                 lastCommit
                 type
                 deletedDate
+                userCount
             }
             users(orderBy: {name: ASC}) {
                 id

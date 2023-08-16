@@ -184,7 +184,7 @@
                   {/if}
                 </td>
                 <td>{project.code}</td>
-                <td>TODO</td>
+                <td>{project.userCount}</td>
                 <td>
                   {#if project.deletedDate}
                     <span class="text-error">

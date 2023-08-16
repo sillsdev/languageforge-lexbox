@@ -115,6 +115,7 @@ type Project {
   users: [ProjectUsers!]!
   lastCommit: DateTime
   deletedDate: DateTime
+  userCount: Int!
   id: UUID!
   updatedDate: DateTime!
 }
@@ -250,6 +251,21 @@ input DeleteUserByAdminOrSelfInput {
   userId: UUID!
 }
 
+input IntOperationFilterInput {
+  eq: Int
+  neq: Int
+  in: [Int]
+  nin: [Int]
+  gt: Int
+  ngt: Int
+  gte: Int
+  ngte: Int
+  lt: Int
+  nlt: Int
+  lte: Int
+  nlte: Int
+}
+
 input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput
   none: ProjectUsersFilterInput
@@ -268,6 +284,7 @@ input ProjectFilterInput {
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
+  userCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -288,6 +305,7 @@ input ProjectSortInput {
   type: SortEnumType
   lastCommit: SortEnumType
   deletedDate: SortEnumType
+  userCount: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType

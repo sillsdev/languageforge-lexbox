@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
+using EntityFrameworkCore.Projectables;
 using LexCore.ServiceInterfaces;
 
 namespace LexCore.Entities;
@@ -12,6 +15,11 @@ public class Project : EntityBase
     public required List<ProjectUsers> Users { get; set; }
     public required DateTimeOffset? LastCommit { get; set; }
     public DateTimeOffset? DeletedDate { get; set; }
+
+    [NotMapped]
+    [Projectable(UseMemberBody = nameof(SqlUserCount))]
+    public int UserCount { get; set; }
+    private static Expression<Func<Project, int>> SqlUserCount => project => project.Users.Count;
 
     public async Task<Changeset[]> GetChangesets(IHgService hgService)
     {
