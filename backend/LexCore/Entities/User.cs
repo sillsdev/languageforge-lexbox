@@ -1,9 +1,21 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace LexCore.Entities;
 
 public class User : EntityBase
 {
+    public const string DefaultLocalizationCode = "en";
     public required string Name { get; set; }
     public required string Email { get; set; }
+    private string _localizationCode = DefaultLocalizationCode;
+
+    public string LocalizationCode
+    {
+        get => _localizationCode;
+        [MemberNotNull(nameof(_localizationCode))]
+        set => _localizationCode = string.IsNullOrEmpty(value) ? DefaultLocalizationCode : value;
+    }
+
     public required bool IsAdmin { get; set; }
     public required string PasswordHash { get; set; }
     public required string Salt { get; set; }

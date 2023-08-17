@@ -10,6 +10,7 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
     public override void Configure(EntityTypeBuilder<User> builder)
     {
         base.Configure(builder);
+        builder.Property(u => u.LocalizationCode).HasDefaultValue(User.DefaultLocalizationCode);
         builder.HasMany(user => user.Projects)
             .WithOne(projectUser => projectUser.User)
             .HasForeignKey(projectUser => projectUser.UserId)
