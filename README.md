@@ -135,17 +135,24 @@ Then come back and reload the metadata again.
 ### Diagram
 
 ```mermaid
-graph TD
+flowchart TD
     Chorus --> lexbox-api
 
+    subgraph lexbox pod 
+        lexbox-api --> otel
+    end
     lexbox-api --> hgweb
     lexbox-api --> hgresumable
+    subgraph hg pod 
+        hgweb
+        hgresumable
+    end
     hgweb --> hg[hg file system]
     hgresumable --> hg
     lexbox-api --> hg
 
     ui["ui (sveltekit)"] --> lexbox-api
-    lexbox-api --> db["db (postgres)"]
+    lexbox-api ---> db[(postgres)]
 ```
 
 More info on the frontend and backend can be found in their respective READMEs:
@@ -159,27 +166,27 @@ More info on the frontend and backend can be found in their respective READMEs:
 ```mermaid
 
 flowchart LR
-    FLEx -- "https:(hg-public-qa|hg-private-qa|admin-qa|resumable-qa)" --- proxy
+    FLEx -- "https:(hg-staging|resumable-staging)" --- proxy
     Web -- https://staging.languagedepot.org --- proxy([ingress])
 
-    proxy -- http:80/api --- api([lexbox-api])
-    proxy -- http:3000 --- node([sveltekit])
+    proxy ---|http:5158/api or /hg| api([lexbox-api])
+    proxy ---|http:3000| node([sveltekit])
 
     api -- postgres:5432 --- db([db])
     db -- volume-map:db-data --- data[//var/lib/postgresql/]
   
-    api -- http:8080 --- hgweb([hgweb])
-    hgweb -- volume-map:hg-repos --- repos
-    api -- volume-map:hg-repos --- repos
+    api -- http:8088/hg --- hgweb([hgweb])
+    hgweb -- /var/hg/repos --- repos
+    api -- /hg-repos --- repos
 
-    api -- http:8080 --- hgresumable([hgresumable])
-    hgresumable -- volume-map:hg-repos --- repos
-    hgresumable -- volume-map:hgresumable-cache --- cache[//var/cache/hgresume/]
+    api -- http:80 --- hgresumable([hgresumable])
+    hgresumable -- /var/vcs/public --- repos
+    hgresumable -- hgresumable-cache --- cache[//var/cache/hgresume/]
 
-    node -- http:80/api --- api
+    node <-->|http:5158/api & email| api
 
     api -- gRPC:4317 --- otel-collector([otel-collector])
-    proxy -- http:4318/traces --- otel-collector
+    proxy ---|http:4318/traces| otel-collector
     node -- gRPC:4317 --- otel-collector
 
 ```
