@@ -88,9 +88,6 @@ type LexAuthUser {
 }
 
 type Mutation {
-  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
-  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
-  deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload!
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
@@ -98,6 +95,9 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): Project
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
+  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
+  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
+  deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
 }
 
 type NotFoundError implements Error {
@@ -132,12 +132,12 @@ type ProjectUsers {
 }
 
 type Query {
-  isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   projectByCode(code: String!): Project
   users(where: UserFilterInput orderBy: [UserSortInput!]): [User!]! @authorize(policy: "AdminRequiredPolicy")
   me: LexAuthUser!
+  isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
 
 type RequiredError implements Error {
@@ -153,6 +153,7 @@ type User {
   canLogin: Boolean!
   name: String!
   email: String!
+  localizationCode: String!
   isAdmin: Boolean!
   passwordHash: String!
   salt: String!
@@ -367,6 +368,7 @@ input UserFilterInput {
   or: [UserFilterInput!]
   name: StringOperationFilterInput
   email: StringOperationFilterInput
+  localizationCode: StringOperationFilterInput
   isAdmin: BooleanOperationFilterInput
   passwordHash: StringOperationFilterInput
   salt: StringOperationFilterInput
@@ -382,6 +384,7 @@ input UserFilterInput {
 input UserSortInput {
   name: SortEnumType
   email: SortEnumType
+  localizationCode: SortEnumType
   isAdmin: SortEnumType
   passwordHash: SortEnumType
   salt: SortEnumType

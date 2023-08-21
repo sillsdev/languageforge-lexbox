@@ -31,6 +31,7 @@ const clientGeneration: Record<string, ConfiguredOutput> = {
 };
 
 export const gqlOptions: Options = {
+  matchOnSchemas: true,
   config: {
     schema: schemaPath,
     documents: ['src/**/*.{ts,graphql}', '!src/lib/gql/generated/**/*'],

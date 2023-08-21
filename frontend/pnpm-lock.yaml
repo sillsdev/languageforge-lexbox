@@ -167,8 +167,8 @@ devDependencies:
     specifier: ^4.3.8
     version: 4.3.8(@types/node@20.2.3)
   vite-plugin-graphql-codegen:
-    specifier: ^3.2.1
-    version: 3.2.1(@graphql-codegen/cli@3.3.1)(graphql@16.6.0)(vite@4.3.8)
+    specifier: ^3.3.0
+    version: 3.3.0(@graphql-codegen/cli@3.3.1)(graphql@16.6.0)(vite@4.3.8)
   vitest:
     specifier: ^0.33.0
     version: 0.33.0
@@ -1377,6 +1377,20 @@ packages:
       tslib: 2.5.2
     dev: true
 
+  /@graphql-codegen/plugin-helpers@5.0.1(graphql@16.6.0):
+    resolution: {integrity: sha512-6L5sb9D8wptZhnhLLBcheSPU7Tg//DGWgc5tQBWX46KYTOTQHGqDpv50FxAJJOyFVJrveN9otWk9UT9/yfY4ww==}
+    peerDependencies:
+      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      '@graphql-tools/utils': 10.0.5(graphql@16.6.0)
+      change-case-all: 1.0.15
+      common-tags: 1.8.2
+      graphql: 16.6.0
+      import-from: 4.0.0
+      lodash: 4.17.21
+      tslib: 2.5.2
+    dev: true
+
   /@graphql-codegen/schema-ast@3.0.1(graphql@16.6.0):
     resolution: {integrity: sha512-rTKTi4XiW4QFZnrEqetpiYEWVsOFNoiR/v3rY9mFSttXFbIwNXPme32EspTiGWmEEdHY8UuTDtZN3vEcs/31zw==}
     peerDependencies:
@@ -1815,6 +1829,18 @@ packages:
       - utf-8-validate
     dev: true
 
+  /@graphql-tools/utils@10.0.5(graphql@16.6.0):
+    resolution: {integrity: sha512-ZTioQqg9z9eCG3j+KDy54k1gp6wRIsLqkx5yi163KVvXVkfjsrdErCyZjrEug21QnKE9piP4tyxMpMMOT1RuRw==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.6.0)
+      dset: 3.1.2
+      graphql: 16.6.0
+      tslib: 2.5.2
+    dev: true
+
   /@graphql-tools/utils@9.2.1(graphql@16.6.0):
     resolution: {integrity: sha512-WUw506Ql6xzmOORlriNrD6Ugx+HjVgYxt9KCXD9mHAak+eaXSwuGGPyE60hy9xaDEoXKBsG7SkG69ybitaVl6A==}
     peerDependencies:
@@ -1859,7 +1885,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.7.7
-      '@types/node': 20.2.3
+      '@types/node': 20.4.4
     dev: false
 
   /@grpc/proto-loader@0.7.7:
@@ -8079,14 +8105,15 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-graphql-codegen@3.2.1(@graphql-codegen/cli@3.3.1)(graphql@16.6.0)(vite@4.3.8):
-    resolution: {integrity: sha512-cK97r1xZKvU3S55HjrzVjS8uFkN1iiSomgk2QWyp5J42NtpDoTJRfal//+pvGTiuGr9k7hDp0KsAhBbKK8l8yw==}
+  /vite-plugin-graphql-codegen@3.3.0(@graphql-codegen/cli@3.3.1)(graphql@16.6.0)(vite@4.3.8):
+    resolution: {integrity: sha512-BHuCs0Qr163K5iDGeh46bWEiqqxVpfJhcde23DfakY75DQuX4tyOy6B1B9cW+Ihi9Jla0omuFwncfAGmE6fxmA==}
     peerDependencies:
-      '@graphql-codegen/cli': ^1.0.0 || ^2.0.0 || ^3.0.0
+      '@graphql-codegen/cli': ^1.0.0 || ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
       graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
       vite: ^2.7.0 || ^3.0.0 || ^4.0.0
     dependencies:
       '@graphql-codegen/cli': 3.3.1(@babel/core@7.22.9)(graphql@16.6.0)
+      '@graphql-codegen/plugin-helpers': 5.0.1(graphql@16.6.0)
       graphql: 16.6.0
       vite: 4.3.8(@types/node@20.2.3)
     dev: true
