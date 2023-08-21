@@ -22,7 +22,6 @@ public class UserMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<InvalidFormatException>]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [UseMutationConvention]
     [RefreshJwt]
     public Task<User> ChangeUserAccountData(

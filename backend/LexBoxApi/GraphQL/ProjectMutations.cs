@@ -17,20 +17,24 @@ public class ProjectMutations
     [Error<DbError>]
     [UseMutationConvention]
     [RefreshJwt]
-    public async Task<Project?> CreateProject(
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> CreateProject(
         LoggedInContext loggedInContext,
         CreateProjectInput input,
         [Service] ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.CreateProject(input, loggedInContext.User.Id);
-        return await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
+        return dbContext.Projects.Where(p => p.Id == projectId);
     }
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<Project> AddProjectMember(LoggedInContext loggedInContext, AddProjectMemberInput input, LexBoxDbContext dbContext)
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> AddProjectMember(LoggedInContext loggedInContext, AddProjectMemberInput input, LexBoxDbContext dbContext)
     {
         loggedInContext.User.AssertCanManageProject(input.ProjectId);
         var user = await dbContext.Users.FirstOrDefaultAsync(u =>
@@ -39,13 +43,15 @@ public class ProjectMutations
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
         await dbContext.SaveChangesAsync();
-        return await dbContext.Projects.Include(p => p.Users).ThenInclude(u => u.User).Where(p => p.Id == input.ProjectId).FirstAsync();
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<ProjectUsers> ChangeProjectMemberRole(
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<ProjectUsers>> ChangeProjectMemberRole(
         ChangeProjectMemberRoleInput input,
         LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
@@ -57,14 +63,17 @@ public class ProjectMutations
         if (projectUser is null) throw new NotFoundException("Project member not found");
         projectUser.Role = input.Role;
         await dbContext.SaveChangesAsync();
-        return projectUser;
+
+        return dbContext.ProjectUsers.Where(u => u.Id == projectUser.Id);
     }
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<RequiredException>]
     [UseMutationConvention]
-    public async Task<Project> ChangeProjectName(ChangeProjectNameInput input,
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> ChangeProjectName(ChangeProjectNameInput input,
         LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
@@ -76,13 +85,15 @@ public class ProjectMutations
 
         project.Name = input.Name;
         await dbContext.SaveChangesAsync();
-        return project;
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<Project> ChangeProjectDescription(ChangeProjectDescriptionInput input,
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> ChangeProjectDescription(ChangeProjectDescriptionInput input,
         LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
@@ -92,26 +103,28 @@ public class ProjectMutations
 
         project.Description = input.Description;
         await dbContext.SaveChangesAsync();
-        return project;
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IExecutable<Project>> RemoveProjectMember(RemoveProjectMemberInput input,
+    public async Task<IQueryable<Project>> RemoveProjectMember(RemoveProjectMemberInput input,
         LoggedInContext loggedInContext,
         LexBoxDbContext dbContext)
     {
         loggedInContext.User.AssertCanManageProject(input.ProjectId);
         await dbContext.ProjectUsers.Where(pu => pu.ProjectId == input.ProjectId && pu.UserId == input.UserId)
             .ExecuteDeleteAsync();
-        return dbContext.Projects.Where(p => p.Id == input.ProjectId).AsExecutable();
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<Project> SoftDeleteProject(
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> SoftDeleteProject(
         Guid projectId,
         LoggedInContext loggedInContext,
         LexBoxDbContext dbContext,
@@ -135,6 +148,6 @@ public class ProjectMutations
         await hgService.SoftDeleteRepo(projectCode, timestamp);
         await transaction.CommitAsync();
 
-        return project;
+        return dbContext.Projects.Where(p => p.Id == projectId);
     }
 }
