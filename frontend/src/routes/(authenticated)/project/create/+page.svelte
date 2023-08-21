@@ -45,7 +45,7 @@
   });
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
-    [ProjectType.WeSay]: 'wesay',
+    [ProjectType.WeSay]: 'dictionary',
     [ProjectType.OneStoryEditor]: 'onestory',
     [ProjectType.OurWord]: 'ourword',
   };
