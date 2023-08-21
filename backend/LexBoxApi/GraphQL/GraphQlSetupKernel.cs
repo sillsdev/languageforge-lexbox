@@ -25,6 +25,7 @@ public static class GraphQlSetupKernel
             .RegisterService<LoggedInContext>()
             .RegisterService<EmailService>()
             .RegisterService<LexAuthService>()
+            //for now this is an inlined version to work around this issue: https://github.com/fiakkasa/DataAnnotatedModelValidations/issues/13
             .AddDataAnnotationsValidator()
             .AddSorting(descriptor =>
             {
