@@ -105,7 +105,9 @@ spec:
           - name: HgConfig__RepoPath
             value: /hg-repos
           - name: HgConfig__HgWebUrl
-            value: http://hg:8088
+            value: http://hg:8088/hg/
+          - name: HgConfig__HgResumableUrl
+            value: http://hg:80/
           - name: ReverseProxy__Clusters__hgWeb__Destinations__hgWebServer__Address
             value: http://hg:8088
           - name: ReverseProxy__Clusters__resumableWeb__Destinations__resumableWebServer__Address

@@ -1,11 +1,14 @@
 using System.Diagnostics;
 using System.Text;
+using LexCore.Config;
 using LexSyncReverseProxy.Auth;
 using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Options;
+using Yarp.ReverseProxy.Forwarder;
 using Yarp.ReverseProxy.Model;
 using Yarp.ReverseProxy.Transforms;
 
@@ -13,6 +16,8 @@ namespace LexSyncReverseProxy;
 
 public static class ProxyKernel
 {
+    public const string UserHasAccessToProjectPolicy = "UserHasAccessToProject";
+
     public static void AddSyncProxy(this IServiceCollection services,
         ConfigurationManager configuration,
         IWebHostEnvironment env)
@@ -46,9 +51,7 @@ public static class ProxyKernel
                 new[] { "ReverseProxy config section is missing" });
         }
 
-        services.AddReverseProxy()
-            .LoadFromConfig(reverseProxyConfig);
-        services.AddHostedService<ProxyConfigValidationHostedService>();
+        services.AddHttpForwarder();
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, BasicAuthHandler>(BasicAuthHandler.AuthScheme, null);
         services.AddAuthorizationBuilder()
@@ -60,27 +63,95 @@ public static class ProxyKernel
                 });
     }
 
-    public static ReverseProxyConventionBuilder MapSyncProxy(this IEndpointRouteBuilder app,
+    public static void MapSyncProxy(this IEndpointRouteBuilder app,
         string? extraAuthScheme = null)
     {
-        return app.MapReverseProxy(builder => builder.Use(async (context, next) =>
+        var httpClient = new HttpMessageInvoker(new SocketsHttpHandler
+        {
+            UseProxy = false,
+            UseCookies = false,
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+            ConnectTimeout = TimeSpan.FromSeconds(15)
+        });
+
+        var authorizeAttribute = new AuthorizeAttribute
+        {
+            AuthenticationSchemes = string.Join(',', BasicAuthHandler.AuthScheme, extraAuthScheme ?? ""),
+            Policy = UserHasAccessToProjectPolicy
+        };
+        //hgresumable
+        app.Map("/api/v03/{**catch-all}",
+            async (IHttpForwarder forwarder,
+                ProxyEventsService eventsService,
+                IOptions<HgConfig> hgConfig,
+                HttpContext context,
+                [FromQuery(Name = "repoId")] string projectCode) =>
             {
-                var projectCode = context.Request.GetProjectCode();
-                if (projectCode is not null)
+                await Forward(forwarder,
+                    eventsService,
+                    context,
+                    httpClient,
+                    hgConfig.Value.HgResumableUrl,
+                    projectCode);
+            }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.resumable);
+
+        //hgweb
+        app.Map($"/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
+            async (IHttpForwarder forwarder,
+                ProxyEventsService eventsService,
+                IOptions<HgConfig> hgConfig,
+                HttpContext context,
+                [FromRoute(Name = "project-code")] string projectCode) =>
+            {
+                await Forward(forwarder,
+                    eventsService,
+                    context,
+                    httpClient,
+                    hgConfig.Value.HgWebUrl,
+                    projectCode);
+            }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
+        app.Map($"/hg/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
+            async (IHttpForwarder forwarder,
+                ProxyEventsService eventsService,
+                IOptions<HgConfig> hgConfig,
+                HttpContext context,
+                [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
+            {
+                var hgWebUrl = hgConfig.Value.HgWebUrl;
+                if (hgWebUrl.EndsWith("hg/"))
                 {
-                    Activity.Current?.AddTag("app.project_code", projectCode);
+                    hgWebUrl = hgWebUrl[..^"hg/".Length];
                 }
 
-                var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
-                var proxyFeature = context.Features.Get<IReverseProxyFeature>();
-                await next(context);
-                ArgumentNullException.ThrowIfNull(proxyFeature);
-                await eventsService.AfterRequest(context, proxyFeature);
-            }))
-            .RequireAuthorization(new AuthorizeAttribute
-            {
-                AuthenticationSchemes = string.Join(',', BasicAuthHandler.AuthScheme, extraAuthScheme ?? "")
-            });
+                await Forward(forwarder,
+                    eventsService,
+                    context,
+                    httpClient,
+                    hgWebUrl,
+                    projectCode);
+            }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
+    }
+
+    private enum HgType
+    {
+        hgWeb,
+        resumable
+    }
+
+    private static async Task Forward(IHttpForwarder forwarder,
+        ProxyEventsService eventsService,
+        HttpContext context,
+        HttpMessageInvoker httpClient,
+        string destinationPrefix,
+        string projectCode)
+    {
+        Activity.Current?.AddTag("app.project_code", projectCode);
+        await forwarder.SendAsync(context, destinationPrefix, httpClient);
+        var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault();
+        if (hgType == HgType.hgWeb)
+        {
+            await eventsService.HandleHgRequest(context);
+        }
     }
 
     /// <summary>
@@ -97,8 +168,9 @@ public static class ProxyKernel
             {
                 return;
             }
-            var routeModel = context.GetEndpoint()?.Metadata.GetMetadata<RouteModel>();
-            if (routeModel?.Config.RouteId == "resumable")
+
+            var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault();
+            if (hgType == HgType.resumable)
                 context.Response.StatusCode = 401;
         });
     }

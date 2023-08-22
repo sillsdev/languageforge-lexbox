@@ -6,7 +6,7 @@ public static class HgHelpers
     {
         string? projectCode = null;
         //this is used for hg requests. the key we're using is defined in app settings hg.path.match
-        if (request.RouteValues.TryGetValue("project-code", out var projectCodeObj))
+        if (request.RouteValues.TryGetValue(ProxyConstants.HgProjectCodeRouteKey, out var projectCodeObj))
         {
             projectCode = projectCodeObj?.ToString() ?? null;
         }

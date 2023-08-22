@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LexBoxApi.Config;
+using LexCore.Config;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using Microsoft.Extensions.Options;
@@ -13,12 +14,18 @@ public class HgService : IHgService
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
 
     private readonly IOptions<HgConfig> _options;
-    private readonly IHttpClientFactory _clientFactory;
+    private readonly Lazy<HttpClient> _hgClient;
+    private HttpClient HgClient => _hgClient.Value;
 
     public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory)
     {
         _options = options;
-        _clientFactory = clientFactory;
+        _hgClient = new(() =>
+        {
+            var client = clientFactory.CreateClient("HgWeb");
+            client.BaseAddress = new Uri(_options.Value.HgWebUrl);
+            return client;
+        });
     }
 
     /// <summary>
@@ -63,8 +70,7 @@ public class HgService : IHgService
 
     public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode)
     {
-        var client = _clientFactory.CreateClient("hgWeg");
-        var response = await client.GetAsync($"{_options.Value.HgWebUrl}/hg/{projectCode}/log?style=json-lex&rev=tip");
+        var response = await HgClient.GetAsync($"{projectCode}/log?style=json-lex&rev=tip");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         //format is this: [1678687688, offset] offset is
@@ -81,8 +87,7 @@ public class HgService : IHgService
 
     public async Task<Changeset[]> GetChangesets(string projectCode)
     {
-        var client = _clientFactory.CreateClient("hgWeg");
-        var response = await client.GetAsync($"{_options.Value.HgWebUrl}/hg/{projectCode}/log?style=json-lex");
+        var response = await HgClient.GetAsync($"{projectCode}/log?style=json-lex");
         response.EnsureSuccessStatusCode();
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
         return logResponse?.Changesets ?? Array.Empty<Changeset>();

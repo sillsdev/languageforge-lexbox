@@ -12,33 +12,20 @@ public class ProxyEventsService
         _lexProxyService = lexProxyService;
     }
 
-    public ValueTask AfterRequest(HttpContext context, IReverseProxyFeature reverseProxyFeature)
+    public ValueTask HandleHgRequest(HttpContext context)
     {
-        switch (reverseProxyFeature.Route.Config.RouteId)
+        if (context.Request.Query.TryGetValue("cmd", out var cmd)
+            && cmd == "unbundle"
+            && context.Request.RouteValues.TryGetValue("project-code", out var projectCodeObj))
         {
-            case "hg":
-                return HandleHgRequest(context);
-        }
-
-        return ValueTask.CompletedTask;
-    }
-
-    private ValueTask HandleHgRequest(HttpContext context)
-    {
-        if (context.Request.Query.TryGetValue("cmd", out var cmd))
-        {
-            if (cmd == "unbundle")
+            var projectCode = projectCodeObj?.ToString() ?? null;
+            if (projectCode is not null)
             {
-                if (context.Request.RouteValues.TryGetValue("project-code", out var projectCodeObj))
-                {
-                    var projectCode = projectCodeObj?.ToString() ?? null;
-                    if (projectCode is not null)
-                    {
-                        Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode));
-                    }
-                }
+                //discard, we don't care about the result
+                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode));
             }
         }
+
         return ValueTask.CompletedTask;
     }
 }
