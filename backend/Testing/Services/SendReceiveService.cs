@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Nini.Ini;
 using SIL.Progress;
 using Testing.Logging;
 using Xunit.Abstractions;
@@ -18,6 +19,16 @@ public class SendReceiveService
     public SendReceiveService(ITestOutputHelper output)
     {
         _output = output;
+        FixupCaCerts();
+    }
+
+    private static void FixupCaCerts()
+    {
+        var caCertsPem = Path.GetFullPath(Path.Join("Mercurial", "cacert.pem"));
+        //this cacerts.rc file is what is used when doing a clone, all future actions on a repo use the hgrc file defined in the .hg folder
+        var caCertsRc = new IniDocument(Path.Join("Mercurial", "default.d", "cacerts.rc"), IniFileType.MercurialStyle);
+        caCertsRc.Sections.GetOrCreate("web").Set("cacerts", caCertsPem);
+        caCertsRc.Save();
     }
 
     private StringBuilderProgress NewProgress()
