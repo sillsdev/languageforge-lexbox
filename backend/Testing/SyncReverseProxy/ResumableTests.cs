@@ -74,7 +74,7 @@ public class ResumableTests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
             }
         });
-        responseMessage.StatusCode.ShouldBeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
