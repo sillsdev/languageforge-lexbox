@@ -210,10 +210,9 @@
     {#if isAdmin(user)}
     <div class="card card-bordered border-error">
       <p class="text-2xl mb-4">
-        <span class="link" on:click={() => resetProject()}>
+        <button class="btn btn-accent" on:click={() => resetProject()}>
           {$t('project_page.reset_project_modal.title', {name: project?.name})}
-          <span class="i-mdi-open-in-new align-middle" />
-        </span>
+        </button>
       </p>
     </div>
     {/if}
