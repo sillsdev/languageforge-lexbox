@@ -208,13 +208,11 @@
       <HgLogView json={project.changesets} />
     </div>
     {#if isAdmin(user)}
-    <div class="card card-bordered border-error">
-      <p class="text-2xl mb-4">
-        <button class="btn btn-accent" on:click={() => resetProject()}>
-          {$t('project_page.reset_project_modal.title', {name: project?.name})}
-        </button>
-      </p>
-    </div>
+    <p class="text-2xl mb-4">
+      <button class="btn btn-accent" on:click={() => resetProject()}>
+        {$t('project_page.reset_project_modal.title', {name: project?.name})}
+      </button>
+    </p>
     {/if}
   {:else}
     {$t('project_page.not_found', { code: data.code })}
