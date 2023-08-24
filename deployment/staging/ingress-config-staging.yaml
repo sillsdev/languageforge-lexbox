@@ -3,7 +3,7 @@
   value: staging.languagedepot.org
 - op: replace
   path: /spec/rules/1/host
-  value: hg-staging.languagedepot.org
+  value: hg-staging.languageforge.org
 - op: replace
   path: /spec/rules/2/host
   value: resumable-staging.languagedepot.org
@@ -11,5 +11,5 @@
   path: /spec/tls/0/hosts
   value:
     - staging.languagedepot.org
-    - hg-staging.languagedepot.org
+    - hg-staging.languageforge.org
     - resumable-staging.languagedepot.org
