@@ -15,7 +15,7 @@ public class SendReceiveService
 {
     private readonly ITestOutputHelper _output;
     private const string fdoDataModelVersion = "7000072";
-    private const string Protocol = "http";
+    private const string Protocol = "https";
 
     public SendReceiveService(ITestOutputHelper output)
     {
@@ -65,7 +65,7 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        var repoUrl = new UriBuilder($"http://{baseUrl}/{projectCode}") { Scheme = Protocol };
+        var repoUrl = new UriBuilder($"{Protocol}://{baseUrl}/{projectCode}");
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
             // No username or password supplied, so we explicitly do *not* save user settings
