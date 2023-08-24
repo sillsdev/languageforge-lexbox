@@ -56,11 +56,9 @@ public class HgService : IHgService
 
     public async Task<string> ResetRepo(string code)
     {
-        string repoPath = Path.Combine(_options.Value.RepoPath, code);
-        string timestamp = DateTime.UtcNow.ToString(DateTimeFormatInfo.InvariantInfo.SortableDateTimePattern).Replace(':', '-');
-        // var tempFilename = await BackupRepo(code);
-        string backupPath = Path.Combine(_options.Value.RepoPath, $"backup-{code}-{timestamp}");
-        System.IO.Directory.Move(repoPath, backupPath);
+        string timestamp = DateTimeOffset.UtcNow.ToString("yyyy_MM_dd_HHmmss");
+        // TODO: Make that "yyyy_MM_dd_HHmmss" string a constant somewhere, then reference it here and in ProjectMutations.SoftDeleteProject
+        await SoftDeleteRepo(code, timestamp);
         await InitRepo(code);
         return backupPath;
     }
