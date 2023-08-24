@@ -302,7 +302,7 @@
       <AdminContent>
         <p class="text-2xl mb-4">
           <button class="btn btn-accent" on:click={() => resetProject()}>
-            {$t('project_page.reset_project_modal.title', {name: project?.name})}
+            {$t('project_page.reset_project_modal.title', {name: project.name})}
           </button>
         </p>
       </AdminContent>
