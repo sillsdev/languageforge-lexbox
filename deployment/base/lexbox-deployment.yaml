@@ -47,6 +47,8 @@ spec:
       labels:
         app: lexbox
     spec:
+      securityContext:
+        fsGroup: 33
       containers:
       - name: lexbox-api
         # TODO: need to parameterize this tag
@@ -154,10 +156,11 @@ spec:
           items:
             - key: collector-config.yaml
               path: config.yaml
+
       initContainers:
       - name: wait-db
         image: busybox:1.36.1
-        command: ['sh', '-c', "until nc -w 1 -z db.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local 5432; do echo waiting for db; sleep 2; done"]
+        command: ['sh', '-c', "until nc -w 1 -z db 5432; do echo waiting for db; sleep 2; done; echo db ready"]
       - name: db-migrations
         # Should be same image as lexbox-api container
         image: ghcr.io/sillsdev/lexbox-api:develop

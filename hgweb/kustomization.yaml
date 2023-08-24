@@ -4,6 +4,8 @@ namespace: languagedepot
 
 configMapGenerator:
   - name: hg-config
+    options:
+      disableNameSuffixHash: true
     files:
       - hg.conf
       - hgweb.hgrc

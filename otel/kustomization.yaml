@@ -4,5 +4,7 @@ namespace: languagedepot
 
 configMapGenerator:
   - name: otel-config
+    options:
+      disableNameSuffixHash: true
     files:
       - collector-config.yaml
