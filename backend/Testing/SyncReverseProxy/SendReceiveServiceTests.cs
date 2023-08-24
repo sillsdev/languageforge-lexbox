@@ -77,38 +77,6 @@ public class SendReceiveServiceTests
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
-    private static readonly (string host, string type)[] HostsAndTypes =
-    {
-        (host: $"http://{TestingEnvironmentVariables.StandardHgHostname}", type: "normal"),
-        (host: $"http://{TestingEnvironmentVariables.ResumableHgHostname}", type: "resumable")
-    };
-
-    private static readonly (string user, string pass, bool valid)[] Credentials =
-    {
-        (user: "manager", pass: "pass", valid: true),
-        (user: "manager", pass: "incorrect_pass", valid: false),
-        (user: "invalid_user", pass: "pass", valid: false),
-        (user: "", pass: "", valid: false),
-    };
-
-    public record SendReceiveTestData(string ProjectCode,
-        string Host,
-        string HostType,
-        string Username,
-        string Password,
-        bool ShouldPass);
-
-    public static IEnumerable<object[]> GetTestDataForSR(string projectCode)
-    {
-        foreach (var (host, type) in HostsAndTypes)
-        {
-            foreach (var (user, pass, valid) in Credentials)
-            {
-                yield return new[] { new SendReceiveTestData(projectCode, host, type, user, pass, valid) };
-            }
-        }
-    }
-
     [Fact(
         Skip = "Just for testing, comment out to run"
     )]
