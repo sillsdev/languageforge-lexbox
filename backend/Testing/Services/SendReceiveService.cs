@@ -83,7 +83,7 @@ public class SendReceiveService
             repoUrl.Password = password;
         }
 
-        progress.WriteMessage($"Cloning {repoUrl} with user {username} and password \"{password}\" ...");
+        progress.WriteMessage($"Cloning {repoUrl} with user '{username}' ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
@@ -122,7 +122,7 @@ public class SendReceiveService
         }
 
         string fwdataFilename = Path.Join(destDir, $"{projectCode}.fwdata");
-        progress.WriteMessage($"S/R for {repoUrl} with user {username} and password \"{password}\" ...");
+        progress.WriteMessage($"S/R for {repoUrl} with user '{username}' ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
