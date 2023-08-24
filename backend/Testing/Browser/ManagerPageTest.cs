@@ -1,6 +1,7 @@
 ﻿using Testing.Browser.Base;
 using Testing.Browser.Page;
 using Testing.Browser.Util;
+using Testing.Services;
 
 namespace Testing.Browser;
 
@@ -11,7 +12,7 @@ public class ManagerPageTest : PageTest
     public async Task DisplayDashboardThenProjectPage()
     {
         var loginPage = await new LoginPage(Page).Goto();
-        await loginPage.FillForm("manager", "pass");
+        await loginPage.FillForm("manager", TestingEnvironmentVariables.DefaultPassword);
 
         var userDashboardPage = await TaskUtil.WhenAllTakeSecond(
             loginPage.Submit(),

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 using Shouldly;
+using Testing.Services;
 
 namespace Testing.ApiTests;
 
@@ -13,7 +14,7 @@ public class NewProjectRaceCondition : ApiTestBase
         var project1Id = Guid.Parse("3e81814d-ce7e-438f-1111-beac1cd7596b");
         var project2Id = Guid.Parse("3e81814d-ce7e-438f-2222-beac1cd7596b");
 
-        await LoginAs("admin", "pass");
+        await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
 
         try
         {
