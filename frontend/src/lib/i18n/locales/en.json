@@ -151,6 +151,7 @@
     },
     "notifications": {
       "role_change": "Project role of {name} set to {role}.",
+      "reset_project": "Project {code} has been reset.",
       "user_delete": "{name} has been removed.",
       "rename_project": "Project name set to {name}.",
       "describe": "Project description has been updated.",
