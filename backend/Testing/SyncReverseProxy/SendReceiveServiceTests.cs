@@ -10,11 +10,11 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class SendReceiveServiceTests
 {
-    public SendReceiveAuth ManagerAuth = new("manager", "pass");
-    public SendReceiveAuth AdminAuth = new("admin", "pass");
+    public SendReceiveAuth ManagerAuth = new("manager", TestingEnvironmentVariables.DefaultPassword);
+    public SendReceiveAuth AdminAuth = new("admin", TestingEnvironmentVariables.DefaultPassword);
     public SendReceiveAuth InvalidPass = new("manager", "incorrect_pass");
-    public SendReceiveAuth InvalidUser = new("invalid_user", "pass");
-    public SendReceiveAuth UnauthorizedUser = new("user", "pass");
+    public SendReceiveAuth InvalidUser = new("invalid_user", TestingEnvironmentVariables.DefaultPassword);
+    public SendReceiveAuth UnauthorizedUser = new("user", TestingEnvironmentVariables.DefaultPassword);
 
     private readonly ITestOutputHelper _output;
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
@@ -98,7 +98,7 @@ public class SendReceiveServiceTests
     private void RunCloneSendReceive(HgProtocol hgProtocol, string user, string projectCode)
     {
         var (projectDir, fwDataFile) = GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user));
-        var auth = new SendReceiveAuth(user, "pass");
+        var auth = new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword);
         var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(), projectDir);
 
         // Clone

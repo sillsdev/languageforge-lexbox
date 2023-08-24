@@ -66,6 +66,7 @@ public class SendReceiveService
         var (username, password) = auth;
         var progress = NewProgress();
         var repoUrl = new UriBuilder($"{Protocol}://{baseUrl}/{projectCode}");
+        progress.WriteMessage($"Cloning {repoUrl} with user '{username}' ...");
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -83,7 +84,6 @@ public class SendReceiveService
             repoUrl.Password = password;
         }
 
-        progress.WriteMessage($"Cloning {repoUrl} with user '{username}' ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
@@ -103,7 +103,8 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        var repoUrl = new UriBuilder($"http://{baseUrl}/{projectCode}") { Scheme = Protocol };
+        var repoUrl = new UriBuilder($"{Protocol}://{baseUrl}/{projectCode}");
+        progress.WriteMessage($"S/R for {repoUrl} with user '{username}' ...");
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -122,7 +123,6 @@ public class SendReceiveService
         }
 
         string fwdataFilename = Path.Join(destDir, $"{projectCode}.fwdata");
-        progress.WriteMessage($"S/R for {repoUrl} with user '{username}' ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },

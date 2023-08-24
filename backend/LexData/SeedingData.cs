@@ -1,6 +1,8 @@
 using LexCore;
 using LexCore.Entities;
+using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace LexData;
 
@@ -8,10 +10,12 @@ public class SeedingData
 {
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     private readonly LexBoxDbContext _lexBoxDbContext;
+    private readonly IOptions<DbConfig> _dbConfig;
 
-    public SeedingData(LexBoxDbContext lexBoxDbContext)
+    public SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig)
     {
         _lexBoxDbContext = lexBoxDbContext;
+        _dbConfig = dbConfig;
     }
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
@@ -25,13 +29,14 @@ public class SeedingData
     }
 
     private const string PwSalt = "password-salt";
-    private readonly string _passwordHash = PasswordHashing.HashPassword("pass", PwSalt, false);
 
     public async Task SeedDatabase(CancellationToken cancellationToken = default)
     {
         //NOTE: When seeding make sure you provide a constant Id like I have done here,
         // this will allow us to call seed multiple times without creating new entities each time.
-
+        if (string.IsNullOrEmpty(_dbConfig.Value.DefaultSeedUserPassword))
+            throw new Exception("DefaultSeedUserPassword is not set");
+        var passwordHash = PasswordHashing.HashPassword(_dbConfig.Value.DefaultSeedUserPassword, PwSalt, false);
         _lexBoxDbContext.Attach(new User
         {
             Id = TestAdminId,
@@ -39,7 +44,7 @@ public class SeedingData
             Name = "Test Admin",
             Username = "admin",
             Salt = PwSalt,
-            PasswordHash = _passwordHash,
+            PasswordHash = passwordHash,
             IsAdmin = true,
             EmailVerified = true,
         });
@@ -51,7 +56,7 @@ public class SeedingData
             Name = "Test User",
             Username = "user",
             Salt = PwSalt,
-            PasswordHash = _passwordHash,
+            PasswordHash = passwordHash,
             IsAdmin = false,
             EmailVerified = false,
         });
@@ -78,7 +83,7 @@ public class SeedingData
                         Username = "manager",
                         IsAdmin = false,
                         Salt = PwSalt,
-                        PasswordHash = _passwordHash,
+                        PasswordHash = passwordHash,
                         EmailVerified = true,
                     }
                 },
@@ -94,7 +99,7 @@ public class SeedingData
                         Username = "editor",
                         IsAdmin = false,
                         Salt = PwSalt,
-                        PasswordHash = _passwordHash,
+                        PasswordHash = passwordHash,
                         EmailVerified = true,
                     }
                 },
@@ -112,7 +117,7 @@ public class SeedingData
 
     public async Task CleanUpSeedData()
     {
-        await _lexBoxDbContext.Users.Where(u => u.PasswordHash == _passwordHash).ExecuteDeleteAsync();
+        await _lexBoxDbContext.Users.Where(u => u.Salt == PwSalt).ExecuteDeleteAsync();
         await _lexBoxDbContext.Projects.Where(p => p.Code == "sena-3").ExecuteDeleteAsync();
     }
 }
