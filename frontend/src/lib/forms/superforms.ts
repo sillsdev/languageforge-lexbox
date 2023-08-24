@@ -65,7 +65,7 @@ function formHasMessageOrErrors<S extends ZodValidation<AnyZodObject>>(form: Sup
 function getFormState<S extends ZodValidation<AnyZodObject>>(sf: SuperForm<S, string>): Readable<LexFormState<S>> {
   const untaintedValues = { ...get(sf.form) };
   const fieldStateStore: Readable<LexFormState<S>> = derived([sf.form, sf.tainted], ([form, tainted]) => {
-    const fields = Object.keys(form) as (keyof S)[];
+    const fields = Object.keys(sf.fields) as (keyof S)[];
     const taintedFields = Object.keys(tainted ?? {}) as (keyof S)[];
     const untaintedFields = fields.filter(field => !taintedFields.includes(field));
     for (const untaintedField of untaintedFields) {

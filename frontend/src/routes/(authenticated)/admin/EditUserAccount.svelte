@@ -3,19 +3,22 @@
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
   import Input from '$lib/forms/Input.svelte';
-  import type { LoadAdminDashboardQuery } from '$lib/gql/types';
+  import { UserRole, type LoadAdminDashboardQuery } from '$lib/gql/types';
   import { _changeUserAccountByAdmin } from './+page';
-  import { hash } from '$lib/user';
+  import { hash, type LexAuthUser } from '$lib/user';
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
+  import { Button, SystemRoleSelect } from '$lib/forms';
 
-  export let deleteUser: CallableFunction;
+  export let currUser: LexAuthUser;
+  export let deleteUser: (user: UserRow) => void;
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
   const schema = z.object({
     email: z.string().email(),
     name: z.string(),
     password: z.string().optional(),
+    role: z.enum([UserRole.User, UserRole.Admin]),
   });
   type Schema = typeof schema;
   let formModal: FormModal<Schema>;
@@ -28,11 +31,13 @@
   let _user: UserRow;
   export async function openModal(user: UserRow): Promise<FormModalResult<Schema>> {
     _user = user;
-    return await formModal.open({ name: user.name, email: user.email }, async () => {
+    const role = user.isAdmin ? UserRole.Admin : UserRole.User;
+    return await formModal.open({ name: user.name, email: user.email, role }, async () => {
       const { error } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
         name: $form.name,
+        role: $form.role,
       });
       if (error) {
         return error.message;
@@ -65,6 +70,12 @@
     bind:value={$form.name}
     error={errors.name}
   />
+  <SystemRoleSelect
+    id="role"
+    bind:value={$form.role}
+    error={errors.role}
+    disabled={_user.id === currUser.id}
+  />
   <div class="text-error">
     <Input
       id="new-password"
@@ -82,10 +93,10 @@
       icon1="i-mdi-lock"
       icon2="i-mdi-unlocked"
     /-->
-    <button class="btn btn-error" on:click={() => deleteUser(_user.id)}>
-      {$t('account_settings.delete_account')}
+    <Button style="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
+      {$t('admin_dashboard.form_modal.delete_user.submit')}
       <TrashIcon />
-    </button>
+    </Button>
   </svelte:fragment>
   <span slot="submitText">{$t('admin_dashboard.form_modal.update_user')}</span>
 </FormModal>

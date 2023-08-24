@@ -23,7 +23,7 @@ public class ProxyHgRequests
     public async Task TestGet()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/{TestData.ProjectCode}")
+            $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -39,7 +39,7 @@ public class ProxyHgRequests
     {
         var password = "not a good password";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/{TestData.ProjectCode}")
+            $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -55,8 +55,45 @@ public class ProxyHgRequests
     public async Task TestNoAuthResponse()
     {
         var responseMessage =
-            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get, $"http://{_host}/{TestData.ProjectCode}"));
+            await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}"));
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
+    }
+
+    [Fact]
+    public async Task SimpleClone()
+    {
+        var projectCode = TestingEnvironmentVariables.ProjectCode;
+        var host = TestingEnvironmentVariables.StandardHgHostname;
+        // host = "hg-staging.languagedepot.org";
+        // projectCode = "elawa-dev-flex";
+        var auth = new AuthenticationHeaderValue("Basic",
+            Convert.ToBase64String(Encoding.ASCII.GetBytes($"admin:{TestData.Password}")));
+        var batchRequest = new HttpRequestMessage(HttpMethod.Get, $"http://{host}/{projectCode}?cmd=batch")
+        {
+            Headers = { Authorization = auth }
+        };
+        batchRequest.Headers.Add("x-hgarg-1", "cmds=heads+%3Bknown+nodes%3D");
+        var batchResponse = await Client.SendAsync(batchRequest);
+        batchResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var batchBody = await batchResponse.Content.ReadAsStringAsync();
+        batchBody.ShouldEndWith(";");
+        var heads = batchBody.Split('\n')[^2];
+
+        var getBundleRequest = new HttpRequestMessage(HttpMethod.Get, $"http://{host}/{projectCode}?cmd=getbundle")
+        {
+            Headers = { Authorization = auth },
+        };
+
+        getBundleRequest.Headers.Add("x-hgarg-1", $"common=0000000000000000000000000000000000000000&heads={heads}");
+        Directory.CreateDirectory("test");
+        await using var fileStream = File.Open("test/simpleCloneResponse", FileMode.Create);
+
+        //act
+        var bundleResponse = await Client.SendAsync(getBundleRequest, HttpCompletionOption.ResponseHeadersRead);
+        bundleResponse.EnsureSuccessStatusCode();
+
+        await bundleResponse.Content.CopyToAsync(fileStream);
     }
 }

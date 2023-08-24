@@ -7,3 +7,8 @@ resources:
 patches:
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
+  - path: ingress-config-prod.yaml
+    target:
+      kind: Ingress
+      name: proxy
+      namespace: languagedepot

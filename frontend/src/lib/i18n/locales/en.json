@@ -10,10 +10,13 @@
     "column_type": "Type",
     "column_users": "Users",
     "column_edit": "Edit",
+    "options": "Options",
+    "show_delete_projects": "Show deleted projects",
     "filter_placeholder": "Search...",
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "username_or_email_required": "You must provide a username or email.",
+    "email_not_verified": "Not Verified",
     "password_missing": "Password must be at least 4 characters",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
@@ -25,19 +28,19 @@
       "email_label": "Email",
       "name_label": "Display name",
       "password_label": "Password",
-      "delete_user": "Delete User",
       "update_user": "Update User",
       "lock": "Lock User",
-      "unlock": "Unlock User"
-    },
-    "enter_to_delete": {
-      "user": {
-        "label": "Enter 'DELETE USER' to confirm deleting user",
-        "value": "DELETE USER"
+      "unlock": "Unlock User",
+      "delete_user": {
+        "title": "Delete User",
+        "submit": "Delete User",
+        "enter_to_delete": {
+          "label": "Enter ''{_value}'' to confirm deleting the user ''{name}''",
+          "value": "DELETE USER"
+        }
       }
     }
   },
-
   "account_settings": {
     "title": "Account Settings",
     "email": "Email",
@@ -45,8 +48,14 @@
     "reset_password": "Reset your password instead?",
     "update_success": "Your account has been updated.",
     "button_update": "Update account info",
-    "more_settings": "More Settings",
-    "delete_account": "Delete Account",
+    "delete_account": {
+      "title": "Delete Account",
+      "submit": "Delete Account",
+      "enter_to_delete": {
+        "label": "Enter ''{_value}'' to confirm deleting your account",
+        "value": "DELETE ACCOUNT"
+      }
+    },
     "delete_success": "Your account has been deleted.",
     "verify_email": {
       "verify_success": "You've successfully verified your email address.",
@@ -72,7 +81,16 @@
     "dont_remove": "Don't remove",
     "remove": "Remove {entityName}"
   },
-  "environment_warning": "This is the {environmentName} environment. Click here to go to the public site.",
+  "environment_warning": "This is a {environmentName} environment. Click here to go to the public site.",
+  "delete_project_modal": {
+    "title": "Delete Project",
+    "submit": "Delete Project",
+    "enter_to_delete": {
+      "label": "Enter ''{_value}'' to confirm deleting the project ''{name}''",
+      "value": "DELETE PROJECT"
+    },
+    "success": "Project ''{name}'' ({code}) was deleted."
+  },
   "forgot_password": {
     "title": "Forgot Password",
     "send_email": "Send reset email",
@@ -104,6 +122,7 @@
       "description_missing": "Description required",
       "language_code": "Language Code",
       "language_code_too_short": "Language code must be at least 3 characters",
+      "language_code_invalid": "Language code can only include lowercase a-z and '-'",
       "name": "Name",
       "description": "Description",
       "name_missing": "Project name required",
@@ -149,14 +168,30 @@
     "not_found": "Project {code} not found!",
     "remove_project_user_title": "Member",
     "remove_user": "Remove",
-    "change_role": "Change Role"
+    "change_role": "Change Role",
+    "hg": {
+      "open_in_hgweb": "Open in HgWeb",
+      "no_history": "No history",
+      "date_header": "Date",
+      "author_header": "Author",
+      "log_header": "Message"
+    },
+    "get_project": {
+      "label": "Get project",
+      "send_receive_url": "Send/Receive URL"
+    }
   },
   "project_role": {
+    "label": "Role",
     "editor": "Editor",
     "editor_description": "Editor (can sync)",
-    "label": "Role",
     "manager": "Manager",
     "manager_description": "Manager (can sync & share)"
+  },
+  "system_role": {
+    "label": "Role",
+    "admin_description": "System Admin (can manage all projects & users)",
+    "user_description": "User (can create & manage their own projects)"
   },
   "project_type": {
     "flex": "FLEx",
@@ -180,7 +215,8 @@
     "label_password": "Password",
     "name_missing": "Name missing",
     "password_missing": "Password missing",
-    "turnstile_error": "Captcha Error, try again"
+    "turnstile_error": "Captcha Error, try again",
+    "create_new_account": "Create a new account"
   },
   "reset_password": {
     "title": "Reset Password",
@@ -239,5 +275,11 @@
     "contact": "Contact",
     "terms_of_use": "Terms of use",
     "privacy_policy": "Privacy policy"
+  },
+  "more_settings": {
+    "title": "More settings"
+  },
+  "clipboard": {
+    "copied": "Copied!"
   }
 }

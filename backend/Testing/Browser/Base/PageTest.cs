@@ -1,7 +1,10 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
+using LexCore.Auth;
 using Microsoft.Playwright;
 using Shouldly;
+using Testing.Browser.Page;
+using Testing.Browser.Util;
 using Testing.Services;
 
 namespace Testing.Browser.Base;
@@ -13,6 +16,7 @@ public class PageTest : IAsyncLifetime
     public IPage Page => _fixture.Page;
     public IBrowser Browser => _fixture.Browser;
     public IBrowserContext Context => _fixture.Context;
+    public static bool IsDev => TestingEnvironmentVariables.IsDev;
 
     public PageTest()
     {
@@ -28,7 +32,7 @@ public class PageTest : IAsyncLifetime
         await _fixture.InitializeAsync();
         if (EnableTrace)
         {
-            await Context.Tracing.StartAsync(new ()
+            await Context.Tracing.StartAsync(new()
             {
                 Screenshots = true,
                 Snapshots = true,
@@ -51,6 +55,7 @@ public class PageTest : IAsyncLifetime
 
     public async Task LoginAs(string user, string password)
     {
+        // TODO can't we just use Page.APIRequest instead
         var responseMessage = await HttpClient.PostAsJsonAsync(
             $"http://{TestingEnvironmentVariables.ServerHostname}/api/login",
             new Dictionary<string, object>
@@ -72,12 +77,38 @@ public class PageTest : IAsyncLifetime
             {
                 Value = cookie.Value,
                 Domain = cookie.Domain,
-                Expires = (float) cookie.Expires.Subtract(DateTime.UnixEpoch).TotalSeconds,
+                Expires = (float)cookie.Expires.Subtract(DateTime.UnixEpoch).TotalSeconds,
                 Name = cookie.Name,
                 Path = cookie.Path,
                 Secure = cookie.Secure,
                 HttpOnly = cookie.HttpOnly
             }));
+    }
+
+    protected Task<LoginPage> Logout()
+    {
+        return TaskUtil.WhenAllTakeSecond(
+            Page.GotoAsync("/logout"),
+            new LoginPage(Page).WaitFor());
+    }
+
+    protected async Task<TempUserDashboardPage> RegisterUser(string name, string email, string password)
+    {
+        var registerPage = await new RegisterPage(Page).Goto();
+        await registerPage.FillForm(name, email, password);
+        await TaskUtil.WhenAllTakeSecond(
+            registerPage.Submit(),
+            new UserDashboardPage(Page).WaitFor());
+        var userId = await GetCurrentUserId();
+        var user = new TempUser(userId, name, email, password);
+        return new TempUserDashboardPage(Page, user);
+    }
+
+    private async Task<Guid> GetCurrentUserId()
+    {
+        var userResponse = await Page.APIRequest.GetAsync($"http://{TestingEnvironmentVariables.ServerHostname}/api/user/currentUser");
+        var user = await userResponse.JsonAsync<LexAuthUser>();
+        return user.ShouldNotBeNull().Id;
     }
 }
 
@@ -86,8 +117,13 @@ public class PlaywrightFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         PlaywrightInstance = await Playwright.CreateAsync();
-        Browser = await PlaywrightInstance.Chromium.LaunchAsync();
-        Context = await Browser.NewContextAsync(new BrowserNewContextOptions());
+        Browser = await PlaywrightInstance.Chromium.LaunchAsync(
+            // new() { Headless = false }
+        );
+        Context = await Browser.NewContextAsync(new BrowserNewContextOptions
+        {
+            BaseURL = $"http://{TestingEnvironmentVariables.ServerHostname}/",
+        });
         Page = await Context.NewPageAsync();
     }
 

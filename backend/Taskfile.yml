@@ -7,9 +7,6 @@ tasks:
     interactive: true
     cmds:
       - dotnet watch
-  stop:
-    cmds:
-      - docker compose stop lexbox-api
 
   migrate-db:
     dir: ./LexBoxApi
@@ -29,13 +26,54 @@ tasks:
       - dotnet ef migrations remove --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   db-update:
-    desc: "Runs any migrations that haven't yet been applied."
+    desc: "Runs any migrations that haven't yet been applied or rolls back to the specified migration."
     dir: ./LexBoxApi
     cmds:
-      - dotnet ef database update --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
+      - dotnet ef database update {{.CLI_ARGS}} --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   dotnet:
     desc: "Directory independent access to api dotnet. E.g. `task dotnet -- restore`"
     aliases: [ dn ]
     dir: ./LexBoxApi
     cmd: dotnet {{.CLI_ARGS}}
+
+  generate-gql-schema:
+    dir: ./LexBoxApi
+    cmds:
+      - dotnet run generate-gql-schema
+
+  playwright-install:
+    deps: [ playwright-install-win ]
+
+  playwright-install-win:
+    platforms: [ windows ]
+    cmd: bin/Debug/net7.0/playwright.ps1 install
+
+  install-dottrace:
+    vars:
+      api_pod:
+        sh: kubectl get pods -l app=lexbox -o jsonpath='{.items[0].metadata.name}' --namespace languagedepot
+    cmds:
+#      - curl -O https://download.jetbrains.com/resharper/dotUltimate.2023.2/JetBrains.dotTrace.CommandLineTools.linux-x64.2023.2.tar.gz -L
+      - kubectl exec {{.api_pod}} --container lexbox-api --namespace languagedepot -- sh -c "mkdir -p /dotTrace"
+      - kubectl cp JetBrains.dotTrace.CommandLineTools.linux-x64.2023.2.tar.gz {{.api_pod}}:/dotTrace/JetBrains.dotTrace.CommandLineTools.linux-x64.2023.2.tar.gz --container lexbox-api --namespace languagedepot
+      - kubectl exec {{.api_pod}} --container lexbox-api --namespace languagedepot -- sh -c "cd /dotTrace && tar -xf JetBrains.dotTrace.CommandLineTools.linux-x64.2023.2.tar.gz"
+
+
+
+  install-dotMemory:
+    vars:
+      api_pod:
+        sh: kubectl get pods -l app=lexbox -o jsonpath='{.items[0].metadata.name}' --namespace languagedepot
+    cmds:
+      - curl -O https://download.jetbrains.com/resharper/dotUltimate.2023.2/JetBrains.dotMemory.Console.linux-x64.2023.2.tar.gz -L
+      - kubectl exec {{.api_pod}} --container lexbox-api --namespace languagedepot -- sh -c "mkdir -p /dotMemory"
+      - kubectl cp JetBrains.dotMemory.Console.linux-x64.2023.2.tar.gz {{.api_pod}}:/dotMemory/JetBrains.dotMemory.Console.linux-x64.2023.2.tar.gz --container lexbox-api --namespace languagedepot
+      - kubectl exec {{.api_pod}} --container lexbox-api --namespace languagedepot -- sh -c "cd /dotMemory && tar -xf JetBrains.dotMemory.Console.linux-x64.2023.2.tar.gz"
+  start-memory-profile:
+    interactive: true
+    vars:
+      api_pod:
+        sh: kubectl get pods -l app=lexbox -o jsonpath='{.items[0].metadata.name}' --namespace languagedepot
+    cmds:
+      - kubectl exec {{.api_pod}} --container lexbox-api --namespace languagedepot -- sh -c "cd /dotMemory && ./dotmemory attach 1 --trigger-on-activation --trigger-delay=5s --trigger-timer=30s"

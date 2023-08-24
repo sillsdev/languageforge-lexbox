@@ -16,7 +16,7 @@ import {isObject} from '../util/types';
 import {tracingExchange} from '$lib/otel';
 import {LexGqlError, isErrorResult, type $OpResult, type GqlInputError} from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
-import {derived, writable} from 'svelte/store';
+import {derived} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
 import {devtoolsExchange} from '@urql/devtools';
 import type { LexAuthUser } from '$lib/user';
@@ -87,23 +87,17 @@ class GqlClient {
     query: TypedDocumentNode<Data, Variables>,
     variables: Variables,
     context: QueryOperationOptions = {}): Promise<QueryStoreReturnType<Data>> {
-    const brokenQueryStore = queryStore<Data, Variables>({
+    const resultStore = queryStore<Data, Variables>({
       client: this.client,
       query,
       variables,
       context: {fetch, ...context}
     });
-    let invalidate = undefined as Unsubscriber | undefined;
-    //this is here as a workaround because of this: https://github.com/urql-graphql/urql/issues/3329
-    const resultStore = writable({fetching: true, data: undefined} as { fetching: boolean, data?: Data }, () => {
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      return invalidate ?? function () {
-      };
-    });
     const results = await new Promise<OperationResultState<Data, Variables>>((resolve) => {
-      invalidate = brokenQueryStore.subscribe(value => {
-        resultStore.set(value);
+      let invalidate = undefined as Unsubscriber | undefined;
+      invalidate = resultStore.subscribe(value => {
         if (value.fetching) return;
+        if (invalidate) invalidate();
         resolve(value);
       });
     });

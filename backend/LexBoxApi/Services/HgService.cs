@@ -4,7 +4,6 @@ using System.IO.Compression;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using LexBoxApi.Config;
-using LexBoxApi.GraphQL;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using Microsoft.Extensions.Options;
@@ -14,6 +13,8 @@ namespace LexBoxApi.Services;
 
 public class HgService : IHgService
 {
+    private const string DELETED_REPO_FOLDER = "_____deleted_____";
+
     private readonly IOptions<HgConfig> _options;
     private readonly IHttpClientFactory _clientFactory;
 
@@ -23,8 +24,13 @@ public class HgService : IHgService
         _clientFactory = clientFactory;
     }
 
+    /// <summary>
+    /// Note: The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
+    /// See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
+    /// </summary>
     public async Task InitRepo(string code)
     {
+        AssertIsSafeRepoName(code);
         await Task.Run(() => CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
             new DirectoryInfo(_options.Value.RepoPath).CreateSubdirectory(code)
@@ -70,6 +76,19 @@ public class HgService : IHgService
         // Will need an SSH key as a k8s secret, put it into authorized_keys on the hgweb side so that lexbox can do "ssh hgweb hg clone ..."
     }
 
+    public async Task SoftDeleteRepo(string code, string deletedRepoSuffix)
+    {
+        var deletedRepoName = $"{code}__{deletedRepoSuffix}";
+        await Task.Run(() =>
+        {
+            var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
+            Directory.CreateDirectory(deletedRepoPath);
+            Directory.Move(
+                Path.Combine(_options.Value.RepoPath, code),
+                Path.Combine(deletedRepoPath, deletedRepoName));
+        });
+    }
+
     private void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
         foreach (DirectoryInfo dir in source.GetDirectories())
@@ -105,9 +124,12 @@ public class HgService : IHgService
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
     }
+
+    private void AssertIsSafeRepoName(string name)
+    {
+        if (string.Equals(name, DELETED_REPO_FOLDER)) throw new ArgumentException($"Invalid repo name: {DELETED_REPO_FOLDER}.");
+    }
 }
-
-
 
 public class LogResponse
 {

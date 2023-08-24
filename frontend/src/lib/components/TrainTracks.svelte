@@ -14,7 +14,7 @@
 
   export let firstRowOffset = 10;
   export let firstColOffset = 10;
-  export let colWidthDefault = 20; // May be auto-calculated in the future
+  export let colWidthDefault = 10; // May be auto-calculated in the future
   export let rowHeightDefault = 20;
   export let circleSize = 5;
 
@@ -98,7 +98,7 @@
   $: maxWidth = Math.max(...svgDots.map((c) => c.x)) + colWidthDefault;
 </script>
 {#if circles?.length > 0}
-  <svg width={maxWidth}>
+  <svg width={maxWidth} height="0" style="height: 100%">
     {#if rowHeights?.length > 0}
       {#each curves as curve}
         <path fill="none" stroke={curve.color} stroke-width="1.5" d={curve.d} />

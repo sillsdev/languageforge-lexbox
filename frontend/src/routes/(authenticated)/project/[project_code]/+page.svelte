@@ -18,12 +18,26 @@
   import { DialogResponse } from '$lib/components/modals';
   import type { ErrorMessage } from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
+  import { FormField } from '$lib/forms';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import { delay } from '$lib/util/time';
+  import { page } from '$app/stores';
+  import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
+  import { _deleteProject } from '$lib/gql/mutations';
+  import { goto } from '$app/navigation';
+  import MoreSettings from '$lib/components/MoreSettings.svelte';
+  import { Page } from '$lib/layout';
 
   export let data: PageData;
   $: user = data.user;
   let projectStore = data.project;
   $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
+
+  $: projectHgUrl = import.meta.env.DEV
+    ? `http://${$page.url.host}/hg/${data.code}`
+    : `http://hg-${$page.url.host}/${data.code}`;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
@@ -59,11 +73,11 @@
     }
   }
 
-  let deleteUserModal: DeleteModal;
+  let removeUserModal: DeleteModal;
   let userToDelete: ProjectUser | undefined;
   async function deleteProjectUser(projectUser: ProjectUser): Promise<void> {
     userToDelete = projectUser;
-    const deleted = await deleteUserModal.prompt(async () => {
+    const deleted = await removeUserModal.prompt(async () => {
       const { error } = await _deleteProjectUser(_project.id, projectUser.user.id);
       return error?.message;
     });
@@ -92,129 +106,211 @@
   }
 
   $: userId = user.id;
-  $: canManage = isAdmin(user) || user.projects.find(p => p.code == project?.code)?.role == 'Manager';
+  $: canManage = isAdmin(user) || user.projects.find((p) => p.code == project?.code)?.role == 'Manager';
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
+
+  var getProjectDropdownTrigger: HTMLElement;
+
+  var copyingToClipboard = false;
+  var copiedToClipboard = false;
+
+  async function copyProjectUrlToClipboard(): Promise<void> {
+    getProjectDropdownTrigger.focus(); // keeps the dropdown open
+    copyingToClipboard = true;
+    await navigator.clipboard.writeText(projectHgUrl);
+    copiedToClipboard = true;
+    copyingToClipboard = false;
+    await delay(() => (copiedToClipboard = false));
+  }
+
+  let deleteProjectModal: ConfirmDeleteModal;
+
+  async function softDeleteProject(): Promise<void> {
+    const result = await deleteProjectModal.open(_project.name, async () => {
+      const { error } = await _deleteProject(_project.id);
+      return error?.message;
+    });
+    if (result.response === DialogResponse.Submit) {
+      notifyWarning($t('delete_project_modal.success', { name: _project.name, code: _project.code }));
+      await goto(data.home);
+    }
+  }
 </script>
 
 <svelte:head>
   <title>{project?.name ?? $t('project_page.not_found', { code: data.code })}</title>
 </svelte:head>
 
-<div class="space-y-4">
-  {#if project}
-    <div class="space-y-2">
-      <div class="text-3xl flex items-center gap-3 flex-wrap">
-        <span>{$t('project_page.project')}:</span>
-        <span class="text-primary">
+<Page wide>
+  <div class="space-y-4">
+    {#if project}
+      <div class="space-y-2 space-x-1">
+        <div class="float-right mt-1 sm:mt-2 md:mt-1">
+          <Dropdown>
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-sm md:btn-md btn-success">
+              {$t('project_page.get_project.label')}
+              <span class="i-mdi-dots-vertical text-2xl" />
+            </label>
+            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+              <div class="card-body max-sm:p-4">
+                <FormField label={$t('project_page.get_project.send_receive_url')}>
+                  <div class="join">
+                    <input
+                      value={projectHgUrl}
+                      class="input input-bordered join-item w-full focus:input-success"
+                      readonly
+                    />
+                    <div
+                      class="join-item tooltip-open"
+                      class:tooltip={copiedToClipboard}
+                      data-tip={$t('clipboard.copied')}
+                    >
+                      {#if copiedToClipboard}
+                        <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+                      {:else}
+                        <IconButton
+                          loading={copyingToClipboard}
+                          icon="i-mdi-content-copy"
+                          style="btn-outline"
+                          on:click={copyProjectUrlToClipboard}
+                        />
+                      {/if}
+                    </div>
+                  </div>
+                </FormField>
+              </div>
+            </div>
+          </Dropdown>
+        </div>
+        <div class="text-3xl flex items-center gap-3 gap-y-0 flex-wrap">
+          <span>{$t('project_page.project')}:</span>
+          <span class="text-primary">
+            <EditableText
+              disabled={!canManage}
+              value={project.name}
+              validation={projectNameValidation}
+              saveHandler={updateProjectName}
+            />
+          </span>
+        </div>
+        <BadgeList>
+          <Badge><FormatProjectType type={project.type} /></Badge>
+          <Badge><FormatRetentionPolicy policy={project.retentionPolicy} /></Badge>
+        </BadgeList>
+      </div>
+
+      <div class="divider" />
+
+      <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
+
+      <div class="space-y-2">
+        <span class="text-lg">
+          {$t('project_page.project_code')}:
+          <span class="text-secondary">{project.code}</span>
+        </span>
+        <div class="text-lg">
+          {$t('project_page.last_commit')}:
+          <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
+        </div>
+        <div class="text-lg">{$t('project_page.description')}:</div>
+        <span class="text-secondary">
           <EditableText
+            value={project.description}
             disabled={!canManage}
-            value={project.name}
-            validation={projectNameValidation}
-            saveHandler={updateProjectName}
+            saveHandler={updateProjectDescription}
+            placeholder={$t('project_page.add_description')}
+            multiline
           />
         </span>
       </div>
-      <BadgeList>
-        <Badge><FormatProjectType type={project.type} /></Badge>
-        <Badge><FormatRetentionPolicy policy={project.retentionPolicy} /></Badge>
-      </BadgeList>
-    </div>
 
-    <div class="divider" />
+      <div>
+        <p class="text-2xl mb-4">
+          {$t('project_page.members')}
+        </p>
 
-    <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
+        <BadgeList>
+          {#each project.users as member}
+            <Dropdown>
+              <MemberBadge
+                member={{ name: member.user.name, role: member.role }}
+                canManage={canManage && (member.user.id != userId || isAdmin(user))}
+              />
+              <ul slot="content" class="menu">
+                <li>
+                  <button on:click={() => changeMemberRole(member)}>
+                    <span class="i-mdi-account-lock text-2xl" />
+                    {$t('project_page.change_role')}
+                  </button>
+                </li>
+                <li>
+                  <button class="text-error" on:click={() => deleteProjectUser(member)}>
+                    <TrashIcon />
+                    {$t('project_page.remove_user')}
+                  </button>
+                </li>
+              </ul>
+            </Dropdown>
+          {/each}
+          {#if canManage}
+            <AddProjectMember projectId={project.id} />
+          {/if}
 
-    <div class="space-y-2">
-      <span class="text-lg">
-        {$t('project_page.project_code')}:
-        <span class="text-secondary">{project.code}</span>
-      </span>
-      <div class="text-lg">
-        {$t('project_page.last_commit')}:
-        <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
+          <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
+          {#if isAdmin(user)}
+            <ResetProjectModal bind:this={resetProjectModal} code={data.code} />
+          {/if}
+
+          <DeleteModal
+            bind:this={removeUserModal}
+            entityName={$t('project_page.remove_project_user_title')}
+            isRemoveDialog
+          >
+            {$t('project_page.confirm_remove', {
+              userName: userToDelete?.user.name ?? '',
+            })}
+          </DeleteModal>
+        </BadgeList>
       </div>
-      <div class="text-lg">{$t('project_page.description')}:</div>
-      <span class="text-secondary">
-        <EditableText
-          value={project.description}
-          disabled={!canManage}
-          saveHandler={updateProjectDescription}
-          placeholder={$t('project_page.add_description')}
-          multiline
-        />
-      </span>
-    </div>
 
-    <div>
-      <p class="text-2xl mb-4">
-        {$t('project_page.members')}
-      </p>
-
-      <BadgeList>
-        {#each project.users as member}
-          <div class="dropdown dropdown-end">
-            <MemberBadge
-              member={{ name: member.user.name, role: member.role }}
-              canManage={canManage && (member.user.id != userId || isAdmin(user))}
-            />
-            <ul class="dropdown-content menu bg-base-200 p-2 shadow rounded-box z-10">
-              <li>
-                <button on:click={() => changeMemberRole(member)}>
-                  <span class="i-mdi-account-lock text-2xl" />
-                  {$t('project_page.change_role')}
-                </button>
-              </li>
-              <li>
-                <button class="hover:bg-error hover:text-error-content" on:click={() => deleteProjectUser(member)}>
-                  <TrashIcon />
-                  {$t('project_page.remove_user')}
-                </button>
-              </li>
-            </ul>
-          </div>
-        {/each}
-        {#if canManage}
-          <AddProjectMember projectId={project.id} />
-        {/if}
-
-        <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
-        {#if isAdmin(user)}
-          <ResetProjectModal bind:this={resetProjectModal} code={data.code} />
-        {/if}
-
-        <DeleteModal
-          bind:this={deleteUserModal}
-          entityName={$t('project_page.remove_project_user_title')}
-          isRemoveDialog
-        >
-          {$t('project_page.confirm_remove', {
-            userName: userToDelete?.user.name ?? '',
-          })}
-        </DeleteModal>
-      </BadgeList>
-    </div>
-
-    <div class="divider" />
-    <div class="space-y-2">
-      <p class="text-2xl mb-4">
-        <a class="link" href="/hg/{project.code}" target="_blank" rel="noreferrer">
+      <div class="divider" />
+      <div class="space-y-2">
+        <p class="text-2xl mb-4 flex gap-4 items-baseline">
           {$t('project_page.history')}
-          <span class="i-mdi-open-in-new align-middle" />
-        </a>
-      </p>
+          <a class="btn btn-sm btn-outline btn-info" href="/hg/{project.code}" target="_blank">
+            {$t('project_page.hg.open_in_hgweb')}<span class="i-mdi-open-in-new text-2xl" />
+          </a>
+        </p>
 
-      <!-- <HgWeb code={project.code} /> -->
-      <HgLogView json={project.changesets} />
-    </div>
-    {#if isAdmin(user)}
-    <p class="text-2xl mb-4">
-      <button class="btn btn-accent" on:click={() => resetProject()}>
-        {$t('project_page.reset_project_modal.title', {name: project?.name})}
-      </button>
-    </p>
+        <!-- <HgWeb code={project.code} /> -->
+        <div class="max-h-[75vh] overflow-auto border-b border-base-200">
+          <HgLogView json={project.changesets} />
+        </div>
+      </div>
+
+      {#if canManage}
+        <div class="divider" />
+
+        <MoreSettings>
+          <button class="btn btn-error" on:click={softDeleteProject}>
+          </button>
+        </MoreSettings>
+      {/if}
+      {#if isAdmin(user)}
+      <p class="text-2xl mb-4">
+        <button class="btn btn-accent" on:click={() => resetProject()}>
+          {$t('project_page.reset_project_modal.title', {name: project?.name})}
+        </button>
+      </p>
+      {/if}
+
+      <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
+    {:else}
+      <div class="text-center text-error">
+        {$t('project_page.not_found', { code: data.code })}
+      </div>
     {/if}
-  {:else}
-    {$t('project_page.not_found', { code: data.code })}
-  {/if}
-</div>
+  </div>
+</Page>

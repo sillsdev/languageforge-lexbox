@@ -27,13 +27,21 @@ tasks:
     cmds:
       - kubectl exec -it deployment/lexbox -c ui -- /bin/ash
 
+  local-api-forward:
+    cmds:
+      - kubectl port-forward service/lexbox 5158:5158 -n languagedepot --context docker-desktop
+
 
   diff-staging:
     dir: ./staging
     cmds:
       - kubectl diff -k . --context dallas-rke
 
-  update-staging:
+  print-staging:
     dir: ./staging
     cmds:
-      - kubectl apply -k . --context dallas-rke
+      - kubectl kustomize .
+  print-production:
+    dir: ./production
+    cmds:
+      - kubectl kustomize .

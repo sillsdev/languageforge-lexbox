@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { EmailTemplate } from '../emails';
+  import { toSearchParams } from '$lib/util/urls';
 
-  type EmailConfig = { type: EmailTemplate; label?: string } & Record<string, string>;
+  type EmailConfig = { type: EmailTemplate; label?: string } & Record<string, string | boolean>;
 
   let emails: EmailConfig[] = [
     {
@@ -17,7 +18,7 @@
       label: 'Verify New Email Address',
       type: EmailTemplate.VerifyEmailAddress,
       verifyUrl: '/user?emailResult=changedEmail',
-      newAddress: true.toString(),
+      newAddress: true,
     },
   ];
 
@@ -45,7 +46,7 @@
   <iframe
     bind:this={iframe}
     width="100%"
-    src="./tester/raw?{new URLSearchParams(currEmail)}"
+    src="./tester/raw?{toSearchParams(currEmail)}"
     title={currEmail.type}
     on:load={resizeIframe}
   />

@@ -19,7 +19,7 @@ public class ResumableTests
     public async Task IsAvailable()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -37,7 +37,7 @@ public class ResumableTests
     public async Task WithBadUser()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -52,7 +52,7 @@ public class ResumableTests
     public async Task WithBadPassword()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -83,7 +83,7 @@ public class ResumableTests
     {
         var userWithoutPermission = "user@test.com";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestData.ProjectCode}")
+            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {

@@ -15,5 +15,6 @@ public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>
             .WithOne(projectUser => projectUser.Project)
             .HasForeignKey(projectUser => projectUser.ProjectId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.HasQueryFilter(p => p.DeletedDate == null);
     }
 }

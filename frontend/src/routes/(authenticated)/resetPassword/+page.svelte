@@ -6,6 +6,9 @@
   import { hash } from '$lib/user';
   import { z } from 'zod';
   import { notifySuccess } from '$lib/notify';
+  import type { PageData } from './$types';
+
+  export let data: PageData;
 
   const formSchema = z.object({
     password: z.string().min(4, $t('admin_dashboard.password_missing')),
@@ -20,7 +23,7 @@
       return response.statusText;
     }
     notifySuccess($t('login.password_reset'));
-    await goto('/');
+    await goto(data.home);
   });
 </script>
 

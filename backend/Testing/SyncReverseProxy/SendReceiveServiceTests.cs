@@ -60,9 +60,10 @@ public class SendReceiveServiceTests
     }
 
     private SendReceiveParams GetParams(HgProtocol protocol,
-        string projectCode = TestData.ProjectCode,
+        string? projectCode = null,
         [CallerMemberName] string testName = "")
     {
+        projectCode ??= TestingEnvironmentVariables.ProjectCode;
         var (projectDir, _) = GetProjectDir(projectCode, testName: testName);
         var sendReceiveParams = new SendReceiveParams(projectCode, protocol.GetTestHostName(), projectDir);
         return sendReceiveParams;
@@ -76,47 +77,13 @@ public class SendReceiveServiceTests
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
-    private static readonly (string host, string type)[] HostsAndTypes =
-    {
-        (host: $"http://{TestingEnvironmentVariables.StandardHgHostname}", type: "normal"),
-        (host: $"http://{TestingEnvironmentVariables.ResumableHgHostname}", type: "resumable")
-    };
-
-    private static readonly (string user, string pass, bool valid)[] Credentials =
-    {
-        (user: "manager", pass: "pass", valid: true),
-        (user: "manager", pass: "incorrect_pass", valid: false),
-        (user: "invalid_user", pass: "pass", valid: false),
-        (user: "", pass: "", valid: false),
-    };
-
-    public record SendReceiveTestData(string ProjectCode,
-        string Host,
-        string HostType,
-        string Username,
-        string Password,
-        bool ShouldPass);
-
-    public static IEnumerable<object[]> GetTestDataForSR(string projectCode)
-    {
-        foreach (var (host, type) in HostsAndTypes)
-        {
-            foreach (var (user, pass, valid) in Credentials)
-            {
-                yield return new[] { new SendReceiveTestData(projectCode, host, type, user, pass, valid) };
-            }
-        }
-    }
-
     [Fact(
-        // Skip = "Just for testing, comment out to run"
+        Skip = "Just for testing, comment out to run"
     )]
     public void CloneForDev()
     {
-        var sendReceiveTestData = GetTestDataForSR("sena-3").ElementAt(1)
-            .OfType<SendReceiveTestData>().First();
-        _output.WriteLine("Test run: {0}", sendReceiveTestData);
-        // CloneProjectAndSendReceive(sendReceiveTestData);
+        TestingEnvironmentVariables.StandardHgHostname = "hg-staging.languagedepot.org";
+        RunCloneSendReceive(HgProtocol.Hgweb, "admin", "elawa-dev-flex");
     }
 
     [Theory]
@@ -126,9 +93,13 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
     {
-        var (projectDir, fwDataFile) = GetProjectDir(TestData.ProjectCode, Path.Join(hgProtocol.ToString(), user));
+        RunCloneSendReceive(hgProtocol, user, TestingEnvironmentVariables.ProjectCode);
+    }
+    private void RunCloneSendReceive(HgProtocol hgProtocol, string user, string projectCode)
+    {
+        var (projectDir, fwDataFile) = GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user));
         var auth = new SendReceiveAuth(user, "pass");
-        var sendReceiveParams = new SendReceiveParams(TestData.ProjectCode, hgProtocol.GetTestHostName(), projectDir);
+        var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(), projectDir);
 
         // Clone
         var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);

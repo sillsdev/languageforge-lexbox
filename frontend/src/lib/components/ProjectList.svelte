@@ -6,12 +6,12 @@
   export let projects: Project[] = [];
 </script>
 
-<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-4">
+<div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
   {#each projects as project}
-    <a class="card bg-base-200 hover:bg-neutral hover:text-neutral-content transition duration-200" href={`/project/${project.code}`}>
+    <a class="card bg-base-200 shadow-base-300" href={`/project/${project.code}`}>
       <div class="card-body">
         <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
-          <span class="link">
+          <span class="text-primary">
             {project.name}
           </span>
         </h2>
@@ -24,7 +24,7 @@
           </p>
         {/if}
 
-        <p>
+        <p class="flex items-end">
           {#if project.lastCommit}
             {$t('projectlist.last_change', {
               lastChange: new Date(project.lastCommit),
@@ -38,10 +38,23 @@
       </div>
     </a>
   {/each}
-  <a class="card border-4 border-base-200 hover:bg-neutral hover:text-neutral-content hover:border-neutral transition duration-200" href="/project/create">
-    <div class="card-body mx-auto justify-center items-center">
+  <a class="card border-4 border-base-200 shadow-base-300" href="/project/create">
+    <div class="card-body mx-auto justify-center items-center text-primary">
       <span class="i-mdi-plus text-4xl" />
-      <span class="link text-xl text-center">{$t('project.create.title')}</span>
+      <span class="text-xl text-center">{$t('project.create.title')}</span>
     </div>
   </a>
 </div>
+
+<style lang="postcss">
+  .card {
+    @apply
+      shadow-lg
+      transition
+      duration-200
+      hover:bg-neutral
+      hover:text-neutral-content
+      hover:border-neutral
+      hover:shadow-xl;
+  }
+</style>

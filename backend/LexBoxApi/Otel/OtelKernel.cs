@@ -38,14 +38,42 @@ public static class OtelKernel
                     options.Filter = context => context.Request.Path.Value != "/api/healthz";
                     options.EnrichWithHttpRequest = (activity, request) =>
                     {
+                        var contentLength = request.Headers.ContentLength;
+                        if (contentLength.HasValue)
+                        {
+                            activity.SetTag("http.request.body.size", contentLength.Value);
+                        }
                         activity.EnrichWithUser(request.HttpContext);
                     };
                     options.EnrichWithHttpResponse = (activity, response) =>
                     {
+                        var contentLength = response.Headers.ContentLength;
+                        if (contentLength.HasValue)
+                        {
+                            activity.SetTag("http.response.body.size", contentLength.Value);
+                        }
                         activity.EnrichWithUser(response.HttpContext);
                     };
                 })
-                .AddHttpClientInstrumentation()
+                .AddHttpClientInstrumentation(options =>
+                {
+                    options.EnrichWithHttpRequestMessage = (activity, request) =>
+                    {
+                        var contentLength = request.Content?.Headers.ContentLength;
+                        if (contentLength.HasValue)
+                        {
+                            activity.SetTag("http.request.body.size", contentLength.Value);
+                        }
+                    };
+                    options.EnrichWithHttpResponseMessage = (activity, response) =>
+                    {
+                        var contentLength = response.Content.Headers.ContentLength;
+                        if (contentLength.HasValue)
+                        {
+                            activity.SetTag("http.response.body.size", contentLength.Value);
+                        }
+                    };
+                })
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddNpgsql()
                 .AddHotChocolateInstrumentation()

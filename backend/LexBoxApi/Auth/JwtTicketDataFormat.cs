@@ -19,11 +19,13 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
     private readonly IOptions<JwtOptions> _userOptions;
     private static readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler = new();
     private const string _propsPrefix = "props";
+    private readonly ILogger<JwtTicketDataFormat> _logger;
 
-    public JwtTicketDataFormat(IHttpContextAccessor httpContextAccessor, IOptions<JwtOptions> userOptions)
+    public JwtTicketDataFormat(IHttpContextAccessor httpContextAccessor, IOptions<JwtOptions> userOptions, ILogger<JwtTicketDataFormat> logger)
     {
         _httpContextAccessor = httpContextAccessor;
         _userOptions = userOptions;
+        _logger = logger;
     }
 
     public string Protect(AuthenticationTicket data)
@@ -116,7 +118,7 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.LogError(e, "Error validating token");
             }
         }
 

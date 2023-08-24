@@ -15,6 +15,13 @@ if (DbStartupService.IsMigrationRequest(args))
     await DbStartupService.RunMigrationRequest(args);
     return;
 }
+
+if (DevGqlSchemaWriterService.IsSchemaGenerationRequest(args))
+{
+    await DevGqlSchemaWriterService.GenerateGqlSchema(args);
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseConsoleLifetime();
 // Add services to the container.

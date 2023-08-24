@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body, .drawer-side, .drawer-side > .menu {
+    height: 100%;
+}
+
 /* frontend/src/lib/forms/Form.svelte */
 form {
   input {
@@ -22,8 +26,8 @@ form {
   overflow: hidden;
 }
 
-button.button-badge:not([disabled]) {
-  @apply hover:drop-shadow-xl hover:brightness-95 transition;
+.button-badge[tabindex='-1'] {
+  @apply hover:drop-shadow-xl hover:brightness-95 transition cursor-pointer;
 }
 
 form {
@@ -43,6 +47,34 @@ form {
   white-space: unset;
 }
 
-.delete-modal :global(.btn[type='submit']) {
+.delete-modal .btn[type='submit'] {
   @apply btn-error;
+}
+
+.menu .text-error {
+  @apply !text-error;
+}
+
+.pale {
+  @apply saturate-[75%];
+}
+
+/* rescues a border that vanishes in FireFox */
+@supports (-moz-appearance: none) {
+  .table thead tr:first-child.sticky {
+    border-bottom-width: 2px;
+  }
+}
+
+input[readonly]:focus {
+  outline: none;
+}
+
+.btn {
+    @apply flex-nowrap;
+}
+
+/* open dropdowns upwards for the last 2 table rows */
+table tr:nth-last-child(-n + 2) .dropdown {
+  @apply dropdown-top;
 }

@@ -4,6 +4,7 @@
   import FormError from '$lib/forms/FormError.svelte';
   import type { ErrorMessage } from '$lib/forms';
   import Loader from '../Loader.svelte';
+  import { TrashIcon } from '$lib/icons';
 
   export let entityName: string;
   export let isRemoveDialog = false;
@@ -38,12 +39,12 @@
   <svelte:fragment slot="actions" let:submitting>
     <button class="btn btn-error" on:click={() => modal.submitModal()}>
       <Loader loading={submitting} />
-      <span class="i-mdi-trash text-2xl mr-2" />
       {#if isRemoveDialog}
         {$t('delete_modal.remove', { entityName })}
       {:else}
         {$t('delete_modal.delete', { entityName })}
       {/if}
+      <TrashIcon />
     </button>
     <button class="btn btn-nuetral" disabled={submitting} on:click={() => modal.cancelModal()}>
       {#if isRemoveDialog}

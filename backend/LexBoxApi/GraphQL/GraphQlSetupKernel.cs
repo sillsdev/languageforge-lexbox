@@ -13,8 +13,10 @@ namespace LexBoxApi.GraphQL;
 public static class GraphQlSetupKernel
 {
     public const string LexBoxSchemaName = "LexBox";
-    public static void AddLexGraphQL(this IServiceCollection services, IWebHostEnvironment env)
+    public static void AddLexGraphQL(this IServiceCollection services, IHostEnvironment env, bool forceGenerateSchema = false)
     {
+        if (forceGenerateSchema || env.IsDevelopment())
+            services.AddHostedService<DevGqlSchemaWriterService>();
 
         services.AddGraphQLServer()
             .InitializeOnStartup()
@@ -23,6 +25,7 @@ public static class GraphQlSetupKernel
             .RegisterService<LoggedInContext>()
             .RegisterService<EmailService>()
             .RegisterService<LexAuthService>()
+            //for now this is an inlined version to work around this issue: https://github.com/fiakkasa/DataAnnotatedModelValidations/issues/13
             .AddDataAnnotationsValidator()
             .AddSorting(descriptor =>
             {

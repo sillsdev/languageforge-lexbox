@@ -145,6 +145,11 @@ public record LexAuthUser
         return Role == UserRole.admin || Projects.Any(p => p.Code == projectCode && p.Role == ProjectRole.Manager);
     }
 
+    public void AssertIsAdmin()
+    {
+        if (Role != UserRole.admin) throw new UnauthorizedAccessException();
+    }
+
     public void AssertCanManageProject(Guid projectId)
     {
         if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
@@ -154,8 +159,16 @@ public record LexAuthUser
     {
         if (Role != UserRole.admin && Projects.All(p => p.Code != projectCode)) throw new UnauthorizedAccessException();
     }
-    public void AssertCanDeleteAccount(Guid userid){
-        if (this.Id != userid && this.Role != UserRole.admin) throw new UnauthorizedAccessException();
+
+    public void AssertCanDeleteAccount(Guid userid)
+    {
+        if (Id != userid && Role != UserRole.admin) throw new UnauthorizedAccessException();
+    }
+
+    public void AssertCanManagerProjectMemberRole(Guid projectId, Guid userId)
+    {
+        AssertCanManageProject(projectId);
+        if (userId == Id) throw new UnauthorizedAccessException("Not allowed to change own project role.");
     }
 }
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EmailVerificationStatus from '$lib/email/EmailVerificationStatus.svelte';
+  import { emailResult, requestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
@@ -12,25 +12,27 @@
   import { TrashIcon } from '$lib/icons';
   import { onMount } from 'svelte';
   import { DialogResponse } from '$lib/components/modals';
+  import MoreSettings from '$lib/components/MoreSettings.svelte';
+  import { delay } from '$lib/util/time';
 
   export let data: PageData;
   $: user = data?.user;
-  $: userid = user?.id;
   let deleteModal: DeleteUserModal;
 
+  $: if (data.emailResult) emailResult.set(data.emailResult);
+
   async function openDeleteModal(): Promise<void> {
-    let { response } = await deleteModal.open(userid);
+    let { response } = await deleteModal.open(user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
-      await goto('/logout');
+      await delay(() => void goto('/logout'));
     }
   }
+
   const formSchema = z.object({
     email: z.string().email(),
     name: z.string(),
   });
-
-  let requestedEmail: string | undefined;
 
   let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {
     const { error } = await _changeUserAccountData({
@@ -44,7 +46,7 @@
     }
 
     if ($formState.email.changed) {
-      requestedEmail = $form.email;
+      requestedEmail.set($form.email);
     }
 
     if ($formState.name.tainted) {
@@ -66,11 +68,6 @@
   <svelte:fragment slot="header">
     {$t('account_settings.title')}
   </svelte:fragment>
-  {#if user.emailVerified}
-    <div class="mb-4">
-      <EmailVerificationStatus {user} emailResult={data.emailResult} {requestedEmail} />
-    </div>
-  {/if}
   <Form {enhance}>
     <Input
       id="name"
@@ -95,17 +92,10 @@
       {$t('account_settings.reset_password')}
     </a>
   </div>
-  <div class="collapse border border-neutral-content collapse-arrow mt-4">
-    <input type="checkbox" />
-    <div class="collapse-title text-lg">{$t('account_settings.more_settings')}</div>
-    <div class="collapse-content">
-      <div class="divider mt-0" />
-      <div class="flex justify-end">
-        <button class="btn btn-error" on:click={openDeleteModal}
-          >{$t('account_settings.delete_account')}<TrashIcon /></button
-        >
-      </div>
-    </div>
-  </div>
+  <MoreSettings>
+    <button class="btn btn-error" on:click={openDeleteModal}>
+      {$t('account_settings.delete_account.submit')}<TrashIcon />
+    </button>
+  </MoreSettings>
 </Page>
-<DeleteUserModal bind:this={deleteModal} />
+<DeleteUserModal bind:this={deleteModal} i18nScope="account_settings.delete_account" />

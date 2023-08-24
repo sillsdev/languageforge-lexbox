@@ -1,174 +1,72 @@
-﻿directive @allowAnonymous repeatable on FIELD_DEFINITION
-
-directive @authorize(
-  """
-  Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase.
-  """
-  apply: ApplyPolicy! = BEFORE_RESOLVER
-
-  """
-  The name of the authorization policy that determines access to the annotated resource.
-  """
-  policy: String
-
-  """Roles that are allowed to access the annotated resource."""
-  roles: [String!]
-) repeatable on FIELD_DEFINITION | OBJECT
-
-union AddProjectMemberError = DbError | NotFoundError
-
-input AddProjectMemberInput {
-  projectId: UUID!
-  role: ProjectRole!
-  userEmail: String!
-}
-
-type AddProjectMemberPayload {
-  errors: [AddProjectMemberError!]
-  project: Project
-}
-
-enum ApplyPolicy {
-  AFTER_RESOLVER
-  BEFORE_RESOLVER
-  VALIDATION
-}
-
-type AuthUserProject {
-  code: String!
-  projectId: UUID!
-  role: ProjectRole!
-}
-
-input BooleanOperationFilterInput {
-  eq: Boolean
-  neq: Boolean
-}
-
-union ChangeProjectDescriptionError = DbError | NotFoundError
-
-input ChangeProjectDescriptionInput {
-  description: String!
-  projectId: UUID!
-}
-
-type ChangeProjectDescriptionPayload {
-  errors: [ChangeProjectDescriptionError!]
-  project: Project
-}
-
-union ChangeProjectMemberRoleError = DbError | NotFoundError
-
-input ChangeProjectMemberRoleInput {
-  projectId: UUID!
-  role: ProjectRole!
-  userId: UUID!
-}
-
-type ChangeProjectMemberRolePayload {
-  errors: [ChangeProjectMemberRoleError!]
-  projectUsers: ProjectUsers
-}
-
-union ChangeProjectNameError = DbError | NotFoundError | RequiredError
-
-input ChangeProjectNameInput {
-  name: String!
-  projectId: UUID!
-}
-
-type ChangeProjectNamePayload {
-  errors: [ChangeProjectNameError!]
-  project: Project
-}
-
-union ChangeUserAccountByAdminError = DbError | InvalidFormatError | NotFoundError
-
-type ChangeUserAccountByAdminPayload {
-  errors: [ChangeUserAccountByAdminError!]
-  user: User
-}
-
-union ChangeUserAccountDataError = DbError | InvalidFormatError | NotFoundError
-
-input ChangeUserAccountDataInput {
-  email: String!
-  name: String!
-  userId: UUID!
-}
-
-type ChangeUserAccountDataPayload {
-  errors: [ChangeUserAccountDataError!]
-  user: User
-}
-
-type Changeset {
-  branch: String!
-  date: [Float!]!
-  desc: String!
-  node: String!
-  parents: [String!]!
-  phase: String!
-  tags: [String!]!
-  user: String!
-}
-
-union CreateProjectError = DbError
-
-input CreateProjectInput {
-  code: String!
-  description: String
-  id: UUID
-  name: String!
-  retentionPolicy: RetentionPolicy!
-  type: ProjectType!
-}
-
-type CreateProjectPayload {
-  errors: [CreateProjectError!]
-  project: Project
-}
-
-scalar DateTime @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
-
-input DateTimeOperationFilterInput {
-  eq: DateTime
-  gt: DateTime
-  gte: DateTime
-  in: [DateTime]
-  lt: DateTime
-  lte: DateTime
-  neq: DateTime
-  ngt: DateTime
-  ngte: DateTime
-  nin: [DateTime]
-  nlt: DateTime
-  nlte: DateTime
-}
-
-type DbError implements Error {
-  code: DbErrorCode!
-  message: String!
-}
-
-enum DbErrorCode {
-  DUPLICATE
-  UNKNOWN
-}
-
-union DeleteUserByAdminOrSelfError = DbError | NotFoundError
-
-input DeleteUserByAdminOrSelfInput {
-  userId: UUID!
-}
-
-type DeleteUserByAdminOrSelfPayload {
-  errors: [DeleteUserByAdminOrSelfError!]
-  user: User
+﻿schema {
+  query: Query
+  mutation: Mutation
 }
 
 interface Error {
   message: String!
+}
+
+type AddProjectMemberPayload {
+  project: Project
+  errors: [AddProjectMemberError!]
+}
+
+type AuthUserProject {
+  code: String!
+  role: ProjectRole!
+  projectId: UUID!
+}
+
+type ChangeProjectDescriptionPayload {
+  project: Project
+  errors: [ChangeProjectDescriptionError!]
+}
+
+type ChangeProjectMemberRolePayload {
+  projectUsers: ProjectUsers
+  errors: [ChangeProjectMemberRoleError!]
+}
+
+type ChangeProjectNamePayload {
+  project: Project
+  errors: [ChangeProjectNameError!]
+}
+
+type ChangeUserAccountByAdminPayload {
+  user: User
+  errors: [ChangeUserAccountByAdminError!]
+}
+
+type ChangeUserAccountDataPayload {
+  user: User
+  errors: [ChangeUserAccountDataError!]
+}
+
+type Changeset {
+  node: String!
+  date: [Float!]!
+  desc: String!
+  branch: String!
+  tags: [String!]!
+  user: String!
+  phase: String!
+  parents: [String!]!
+}
+
+type CreateProjectPayload {
+  project: Project
+  errors: [CreateProjectError!]
+}
+
+type DbError implements Error {
+  message: String!
+  code: DbErrorCode!
+}
+
+type DeleteUserByAdminOrSelfPayload {
+  user: User
+  errors: [DeleteUserByAdminOrSelfError!]
 }
 
 type InvalidFormatError implements Error {
@@ -181,31 +79,25 @@ type IsAdminResponse {
 
 type LexAuthUser {
   canManageProject(projectId: UUID!): Boolean!
-  email: String!
-  emailVerificationRequired: Boolean
   id: UUID!
+  email: String!
   name: String!
-  projects: [AuthUserProject!]!
   role: UserRole!
-}
-
-input ListFilterInputTypeOfProjectUsersFilterInput {
-  all: ProjectUsersFilterInput
-  any: Boolean
-  none: ProjectUsersFilterInput
-  some: ProjectUsersFilterInput
+  projects: [AuthUserProject!]!
+  emailVerificationRequired: Boolean
 }
 
 type Mutation {
+  createProject(input: CreateProjectInput!): CreateProjectPayload!
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
-  changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
-  changeUserAccountByAdmin(input: ChangeUserAccountDataInput!): ChangeUserAccountByAdminPayload!
-  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
-  createProject(input: CreateProjectInput!): CreateProjectPayload!
-  deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
+  changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): Project
+  softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
+  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
+  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
+  deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
 }
 
 type NotFoundError implements Error {
@@ -213,105 +105,231 @@ type NotFoundError implements Error {
 }
 
 type Project {
-  changesets: [Changeset!]!
   code: String!
   createdDate: DateTime!
-  description: String
-  id: UUID!
-  lastCommit: DateTime
+  changesets: [Changeset!]!
   name: String!
+  description: String
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
-  updatedDate: DateTime!
   users: [ProjectUsers!]!
+  lastCommit: DateTime
+  deletedDate: DateTime
+  userCount: Int!
+  id: UUID!
+  updatedDate: DateTime!
+}
+
+type ProjectUsers {
+  userId: UUID!
+  projectId: UUID!
+  role: ProjectRole!
+  user: User!
+  project: Project!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
+type Query {
+  myProjects(orderBy: [ProjectSortInput!]): [Project!]!
+  projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
+  projectByCode(code: String!): Project
+  users(where: UserFilterInput orderBy: [UserSortInput!]): [User!]! @authorize(policy: "AdminRequiredPolicy")
+  me: LexAuthUser!
+  isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
+}
+
+type RequiredError implements Error {
+  message: String!
+}
+
+type SoftDeleteProjectPayload {
+  project: Project
+  errors: [SoftDeleteProjectError!]
+}
+
+type User {
+  canLogin: Boolean!
+  name: String!
+  email: String!
+  localizationCode: String!
+  isAdmin: Boolean!
+  passwordHash: String!
+  salt: String!
+  emailVerified: Boolean!
+  locked: Boolean!
+  username: String
+  projects: [ProjectUsers!]!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
+union AddProjectMemberError = NotFoundError | DbError
+
+union ChangeProjectDescriptionError = NotFoundError | DbError
+
+union ChangeProjectMemberRoleError = NotFoundError | DbError
+
+union ChangeProjectNameError = NotFoundError | DbError | RequiredError
+
+union ChangeUserAccountByAdminError = NotFoundError | DbError | InvalidFormatError
+
+union ChangeUserAccountDataError = NotFoundError | DbError | InvalidFormatError
+
+union CreateProjectError = DbError
+
+union DeleteUserByAdminOrSelfError = NotFoundError | DbError
+
+union SoftDeleteProjectError = NotFoundError | DbError
+
+input AddProjectMemberInput {
+  projectId: UUID!
+  userEmail: String!
+  role: ProjectRole!
+}
+
+input BooleanOperationFilterInput {
+  eq: Boolean
+  neq: Boolean
+}
+
+input ChangeProjectDescriptionInput {
+  projectId: UUID!
+  description: String!
+}
+
+input ChangeProjectMemberRoleInput {
+  projectId: UUID!
+  userId: UUID!
+  role: ProjectRole!
+}
+
+input ChangeProjectNameInput {
+  projectId: UUID!
+  name: String!
+}
+
+input ChangeUserAccountByAdminInput {
+  role: UserRole!
+  userId: UUID!
+  email: String!
+  name: String!
+}
+
+input ChangeUserAccountDataInput {
+  userId: UUID!
+  email: String!
+  name: String!
+}
+
+input CreateProjectInput {
+  id: UUID
+  name: String!
+  description: String
+  code: String!
+  type: ProjectType!
+  retentionPolicy: RetentionPolicy!
+}
+
+input DateTimeOperationFilterInput {
+  eq: DateTime
+  neq: DateTime
+  in: [DateTime]
+  nin: [DateTime]
+  gt: DateTime
+  ngt: DateTime
+  gte: DateTime
+  ngte: DateTime
+  lt: DateTime
+  nlt: DateTime
+  lte: DateTime
+  nlte: DateTime
+}
+
+input DeleteUserByAdminOrSelfInput {
+  userId: UUID!
+}
+
+input IntOperationFilterInput {
+  eq: Int
+  neq: Int
+  in: [Int]
+  nin: [Int]
+  gt: Int
+  ngt: Int
+  gte: Int
+  ngte: Int
+  lt: Int
+  nlt: Int
+  lte: Int
+  nlte: Int
+}
+
+input ListFilterInputTypeOfProjectUsersFilterInput {
+  all: ProjectUsersFilterInput
+  none: ProjectUsersFilterInput
+  some: ProjectUsersFilterInput
+  any: Boolean
 }
 
 input ProjectFilterInput {
   and: [ProjectFilterInput!]
-  code: StringOperationFilterInput
-  createdDate: DateTimeOperationFilterInput
-  description: StringOperationFilterInput
-  id: UuidOperationFilterInput
-  lastCommit: DateTimeOperationFilterInput
-  name: StringOperationFilterInput
   or: [ProjectFilterInput!]
+  code: StringOperationFilterInput
+  name: StringOperationFilterInput
+  description: StringOperationFilterInput
   retentionPolicy: RetentionPolicyOperationFilterInput
   type: ProjectTypeOperationFilterInput
-  updatedDate: DateTimeOperationFilterInput
   users: ListFilterInputTypeOfProjectUsersFilterInput
-}
-
-enum ProjectRole {
-  EDITOR
-  MANAGER
-  UNKNOWN
+  lastCommit: DateTimeOperationFilterInput
+  deletedDate: DateTimeOperationFilterInput
+  userCount: IntOperationFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
 }
 
 input ProjectRoleOperationFilterInput {
   eq: ProjectRole
-  in: [ProjectRole!]
   neq: ProjectRole
+  in: [ProjectRole!]
   nin: [ProjectRole!]
 }
 
 input ProjectSortInput {
   code: SortEnumType
-  createdDate: SortEnumType
-  description: SortEnumType
-  id: SortEnumType
-  lastCommit: SortEnumType
   name: SortEnumType
+  description: SortEnumType
   retentionPolicy: SortEnumType
   type: SortEnumType
+  lastCommit: SortEnumType
+  deletedDate: SortEnumType
+  userCount: SortEnumType
+  id: SortEnumType
+  createdDate: SortEnumType
   updatedDate: SortEnumType
-}
-
-enum ProjectType {
-  FL_EX
-  ONE_STORY_EDITOR
-  OUR_WORD
-  UNKNOWN
-  WE_SAY
 }
 
 input ProjectTypeOperationFilterInput {
   eq: ProjectType
-  in: [ProjectType!]
   neq: ProjectType
+  in: [ProjectType!]
   nin: [ProjectType!]
-}
-
-type ProjectUsers {
-  createdDate: DateTime!
-  id: UUID!
-  project: Project!
-  projectId: UUID!
-  role: ProjectRole!
-  updatedDate: DateTime!
-  user: User!
-  userId: UUID!
 }
 
 input ProjectUsersFilterInput {
   and: [ProjectUsersFilterInput!]
-  createdDate: DateTimeOperationFilterInput
-  id: UuidOperationFilterInput
   or: [ProjectUsersFilterInput!]
-  project: ProjectFilterInput
+  userId: UuidOperationFilterInput
   projectId: UuidOperationFilterInput
   role: ProjectRoleOperationFilterInput
-  updatedDate: DateTimeOperationFilterInput
   user: UserFilterInput
-  userId: UuidOperationFilterInput
-}
-
-type Query {
-  isAdmin: IsAdminResponse!
-  me: LexAuthUser!
-  myProjects(orderBy: [ProjectSortInput!]): [Project!]!
-  projectByCode(code: String!): Project
-  projects(orderBy: [ProjectSortInput!], where: ProjectFilterInput): [Project!]!
-  users(orderBy: [UserSortInput!], where: UserFilterInput): [User!]!
+  project: ProjectFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
 }
 
 input RemoveProjectMemberInput {
@@ -319,23 +337,111 @@ input RemoveProjectMemberInput {
   userId: UUID!
 }
 
-type RequiredError implements Error {
-  message: String!
+input RetentionPolicyOperationFilterInput {
+  eq: RetentionPolicy
+  neq: RetentionPolicy
+  in: [RetentionPolicy!]
+  nin: [RetentionPolicy!]
+}
+
+input SoftDeleteProjectInput {
+  projectId: UUID!
+}
+
+input StringOperationFilterInput {
+  and: [StringOperationFilterInput!]
+  or: [StringOperationFilterInput!]
+  eq: String
+  neq: String
+  contains: String
+  ncontains: String
+  in: [String]
+  nin: [String]
+  startsWith: String
+  nstartsWith: String
+  endsWith: String
+  nendsWith: String
+}
+
+input UserFilterInput {
+  and: [UserFilterInput!]
+  or: [UserFilterInput!]
+  name: StringOperationFilterInput
+  email: StringOperationFilterInput
+  localizationCode: StringOperationFilterInput
+  isAdmin: BooleanOperationFilterInput
+  passwordHash: StringOperationFilterInput
+  salt: StringOperationFilterInput
+  emailVerified: BooleanOperationFilterInput
+  locked: BooleanOperationFilterInput
+  username: StringOperationFilterInput
+  projects: ListFilterInputTypeOfProjectUsersFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+}
+
+input UserSortInput {
+  name: SortEnumType
+  email: SortEnumType
+  localizationCode: SortEnumType
+  isAdmin: SortEnumType
+  passwordHash: SortEnumType
+  salt: SortEnumType
+  emailVerified: SortEnumType
+  locked: SortEnumType
+  username: SortEnumType
+  id: SortEnumType
+  createdDate: SortEnumType
+  updatedDate: SortEnumType
+}
+
+input UuidOperationFilterInput {
+  eq: UUID
+  neq: UUID
+  in: [UUID]
+  nin: [UUID]
+  gt: UUID
+  ngt: UUID
+  gte: UUID
+  ngte: UUID
+  lt: UUID
+  nlt: UUID
+  lte: UUID
+  nlte: UUID
+}
+
+enum ApplyPolicy {
+  BEFORE_RESOLVER
+  AFTER_RESOLVER
+  VALIDATION
+}
+
+enum DbErrorCode {
+  UNKNOWN
+  DUPLICATE
+}
+
+enum ProjectRole {
+  UNKNOWN
+  MANAGER
+  EDITOR
+}
+
+enum ProjectType {
+  UNKNOWN
+  FL_EX
+  WE_SAY
+  ONE_STORY_EDITOR
+  OUR_WORD
 }
 
 enum RetentionPolicy {
-  DEV
-  TEST
-  TRAINING
   UNKNOWN
   VERIFIED
-}
-
-input RetentionPolicyOperationFilterInput {
-  eq: RetentionPolicy
-  in: [RetentionPolicy!]
-  neq: RetentionPolicy
-  nin: [RetentionPolicy!]
+  TEST
+  DEV
+  TRAINING
 }
 
 enum SortEnumType {
@@ -343,86 +449,22 @@ enum SortEnumType {
   DESC
 }
 
-input StringOperationFilterInput {
-  and: [StringOperationFilterInput!]
-  contains: String
-  endsWith: String
-  eq: String
-  in: [String]
-  ncontains: String
-  nendsWith: String
-  neq: String
-  nin: [String]
-  nstartsWith: String
-  or: [StringOperationFilterInput!]
-  startsWith: String
-}
-
-scalar UUID
-
-type User {
-  createdDate: DateTime!
-  email: String!
-  emailVerified: Boolean!
-  id: UUID!
-  isAdmin: Boolean!
-  name: String!
-  passwordHash: String!
-  projects: [ProjectUsers!]!
-  salt: String!
-  updatedDate: DateTime!
-  username: String
-}
-
-input UserFilterInput {
-  and: [UserFilterInput!]
-  createdDate: DateTimeOperationFilterInput
-  email: StringOperationFilterInput
-  emailVerified: BooleanOperationFilterInput
-  id: UuidOperationFilterInput
-  isAdmin: BooleanOperationFilterInput
-  name: StringOperationFilterInput
-  or: [UserFilterInput!]
-  passwordHash: StringOperationFilterInput
-  projects: ListFilterInputTypeOfProjectUsersFilterInput
-  salt: StringOperationFilterInput
-  updatedDate: DateTimeOperationFilterInput
-  username: StringOperationFilterInput
-}
-
 enum UserRole {
   ADMIN
   USER
 }
 
-input UserSortInput {
-  createdDate: SortEnumType
-  email: SortEnumType
-  emailVerified: SortEnumType
-  id: SortEnumType
-  isAdmin: SortEnumType
-  name: SortEnumType
-  passwordHash: SortEnumType
-  salt: SortEnumType
-  updatedDate: SortEnumType
-  username: SortEnumType
-}
+directive @allowAnonymous repeatable on FIELD_DEFINITION
 
-input UuidOperationFilterInput {
-  eq: UUID
-  gt: UUID
-  gte: UUID
-  in: [UUID]
-  lt: UUID
-  lte: UUID
-  neq: UUID
-  ngt: UUID
-  ngte: UUID
-  nin: [UUID]
-  nlt: UUID
-  nlte: UUID
-}
+directive @authorize("The name of the authorization policy that determines access to the annotated resource." policy: String "Roles that are allowed to access the annotated resource." roles: [String!] "Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase." apply: ApplyPolicy! = BEFORE_RESOLVER) repeatable on OBJECT | FIELD_DEFINITION
 
-scalar timestamptz @specifiedBy(url: "https://www.graphql-scalars.com/date-time")
+"The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
+directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
+
+scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
+
+scalar UUID
+
+scalar timestamptz @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
 
 scalar uuid

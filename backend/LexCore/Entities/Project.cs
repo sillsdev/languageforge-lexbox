@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
+using EntityFrameworkCore.Projectables;
 using LexCore.ServiceInterfaces;
 
 namespace LexCore.Entities;
@@ -11,10 +14,26 @@ public class Project : EntityBase
     public required ProjectType Type { get; set; }
     public required List<ProjectUsers> Users { get; set; }
     public required DateTimeOffset? LastCommit { get; set; }
+    public DateTimeOffset? DeletedDate { get; set; }
+
+    [NotMapped]
+    [Projectable(UseMemberBody = nameof(SqlUserCount))]
+    public int UserCount { get; set; }
+    private static Expression<Func<Project, int>> SqlUserCount => project => project.Users.Count;
 
     public async Task<Changeset[]> GetChangesets(IHgService hgService)
     {
-        return await hgService.GetChangesets(Code);
+        var age = DateTimeOffset.UtcNow.Subtract(CreatedDate);
+        if (age.TotalSeconds < 40)
+        {
+            // The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
+            // See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
+            return Array.Empty<Changeset>();
+        }
+        else
+        {
+            return await hgService.GetChangesets(Code);
+        }
     }
 }
 

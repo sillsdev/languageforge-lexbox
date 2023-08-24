@@ -16,10 +16,6 @@ tasks:
       - corepack enable || true
       - pnpm install
 
-  down:
-    cmds:
-      - docker compose stop ui
-
   playwright-generate-tests:
     cmds:
       - pnpm dlx playwright codegen staging.languagedepot.org

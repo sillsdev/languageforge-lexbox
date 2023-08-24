@@ -6,9 +6,12 @@
   export let canManage = false;
 </script>
 
-<button on:click disabled={!canManage} class="button-badge group transition">
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+<!-- svelte-ignore a11y-label-has-associated-control -->
+<!-- https://daisyui.com/components/dropdown/#method-2-using-label-and-css-focus -->
+<label tabindex={canManage ? -1 : null} class="button-badge group transition">
   <span class="badge badge-lg badge-primary p-4 pr-0 parent-badge">
-    <span class="pr-2 whitespace-nowrap">
+    <span class="pr-3 whitespace-nowrap">
       {member.name}
     </span>
 
@@ -22,7 +25,7 @@
     </span>
     {/if}
   </span>
-</button>
+</label>
 
 <style>
   .parent-badge {

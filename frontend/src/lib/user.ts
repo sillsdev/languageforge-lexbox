@@ -2,6 +2,7 @@ import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
 import { removeAllNotifications } from './notify'
+import { deleteCookie, getCookie } from './util/cookies'
 
 type RegisterResponseErrors = {
   errors: {
@@ -44,8 +45,10 @@ type UserProjects = {
   code: string
   role: 'Manager' | 'Editor'
 }
-
+export const USER_LOAD_KEY = 'user:current';
 export const isAdmin = (user: LexAuthUser | null): boolean => user?.role === 'admin';
+
+export const getHomePath = (user: LexAuthUser | null): string => isAdmin(user) ? '/admin' : '/';
 
 export async function login(userId: string, password: string): Promise<boolean> {
   const response = await fetch('/api/login', {
@@ -89,7 +92,7 @@ export async function register(password: string, name: string, email: string, tu
 }
 
 export function getUser(cookies: Cookies): LexAuthUser | null {
-  const token = cookies.get('.LexBoxAuth')
+  const token = getCookie('.LexBoxAuth', cookies);
 
   if (!token) {
     return null
@@ -112,7 +115,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
 }
 
 export function logout(cookies?: Cookies): void {
-  cookies && cookies.delete('.LexBoxAuth')
+  cookies && deleteCookie('.LexBoxAuth', cookies);
   removeAllNotifications();
   if (browser && window.location.pathname !== '/login') {
     throw redirect(307, '/login');

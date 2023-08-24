@@ -15,7 +15,9 @@
     description: z.string().min(1, $t('project.create.description_missing')),
     type: z.nativeEnum(ProjectType).default(ProjectType.FlEx),
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
-    languageCode: z.string().toLowerCase().min(3, $t('project.create.language_code_too_short')),
+    languageCode: z.string()
+      .min(3, $t('project.create.language_code_too_short'))
+      .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
     code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
     customCode: z.boolean().default(false),
   });
@@ -43,7 +45,7 @@
   });
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
-    [ProjectType.WeSay]: 'wesay',
+    [ProjectType.WeSay]: 'dictionary',
     [ProjectType.OneStoryEditor]: 'onestory',
     [ProjectType.OurWord]: 'ourword',
   };

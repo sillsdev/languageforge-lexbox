@@ -86,8 +86,6 @@ public class LoginController : ControllerBase
     {
         var user = await _lexAuthService.RefreshUser(_loggedInContext.User.Id);
         if (user == null) return Unauthorized();
-        await HttpContext.SignInAsync(user.GetPrincipal("Refresh"),
-            new AuthenticationProperties { IsPersistent = true });
         return user;
     }
 

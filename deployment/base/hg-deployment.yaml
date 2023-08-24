@@ -79,6 +79,14 @@ spec:
         volumeMounts:
           - name: repos
             mountPath: /var/hg/repos
+          - name: hg-apache-config
+            mountPath: /usr/local/apache2/conf/sites
+            readOnly: true
+          - name: hgrc
+            mountPath: /var/hg
+            readOnly: true
+
+
 
       - name: hgresumable
         image: ghcr.io/sillsdev/hgresume:v2023-07-12
@@ -104,3 +112,15 @@ spec:
       - name: repos
         persistentVolumeClaim:
           claimName: hg-repos # established in pvc.yaml
+      - name: hg-apache-config
+        configMap:
+          name: hg-config
+          items:
+          - key: hg.conf
+            path: hg.conf
+      - name: hgrc
+        configMap:
+          name: hg-config
+          items:
+          - key: hgweb.hgrc
+            path: hgweb.hgrc

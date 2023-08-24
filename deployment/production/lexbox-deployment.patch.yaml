@@ -13,8 +13,15 @@ spec:
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Production"
+            - name: Email__SmtpHost
+              value: email-smtp.us-east-1.amazonaws.com
+            - name: Email__SmtpPort
+              value: '587'
+            - name: Email__From
+              # TODO: need to parameterize this
+              value: "Language Depot <no-reply@languagedepot.org>"
       initContainers:
         - name: db-migrations
           env:
-            - name: ASPNETCORE_ENVIRONMENT
+            - name: DOTNET_ENVIRONMENT
               value: "Production"

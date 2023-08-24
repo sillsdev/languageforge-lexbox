@@ -82,7 +82,7 @@ public class TestingController : ControllerBase
     }
 
     [HttpGet("testTurnstile")]
-    public async Task<ActionResult<bool>> testTurnstile(string code)
+    public async Task<ActionResult<bool>> TestTurnstile(string code)
     {
         return await HttpContext.RequestServices.GetRequiredService<TurnstileService>().IsTokenValid(code);
     }

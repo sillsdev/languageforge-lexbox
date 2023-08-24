@@ -4,13 +4,14 @@
   import { SubmitButton } from '$lib/forms';
   import t from '$lib/i18n';
   import Page from '$lib/layout/Page.svelte';
+  import { toSearchParams } from '$lib/util/urls';
   import { z } from 'zod';
 
   const formSchema = z.object({
     email: z.string().email($t('register.email')),
   });
   let { form, errors, enhance, submitting } = lexSuperForm(formSchema, async () => {
-    await fetch(`api/login/forgotPassword?email=${encodeURIComponent($form.email)}`, {
+    await fetch(`api/login/forgotPassword?${toSearchParams($form)}`, {
       method: 'POST',
     });
     await goto('/forgotPassword/emailSent');

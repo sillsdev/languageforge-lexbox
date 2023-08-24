@@ -1,8 +1,11 @@
+import basicSsl from '@vitejs/plugin-basic-ssl';
 import codegen from 'vite-plugin-graphql-codegen';
 import { defineConfig } from 'vitest/config';
 import { gqlOptions } from './gql-codegen';
 import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
 import { sveltekit } from '@sveltejs/kit/vite';
+
+const exposeServer = false;
 
 export default defineConfig({
   build: {
@@ -13,6 +16,7 @@ export default defineConfig({
     codegen(gqlOptions),
     precompileIntl('src/lib/i18n/locales'),
     sveltekit(),
+    exposeServer ? basicSsl() : null, // crypto.subtle is only availble on secure connections
   ],
   optimizeDeps: {
   },
@@ -21,6 +25,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    host: exposeServer,
     strictPort: true,
     proxy: process.env['DockerDev'] ? undefined : {
       '/v1/traces': {

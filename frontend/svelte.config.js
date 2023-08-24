@@ -7,7 +7,9 @@ const config = {
     enableSourcemap: true
   },
   kit: {
-    adapter: adapter(),
+    adapter: adapter({
+      precompress: true
+    }),
   },
   preprocess: [
     vitePreprocess({

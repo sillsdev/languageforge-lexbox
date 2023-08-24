@@ -37,6 +37,9 @@ namespace LexData.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now()");
 
+                    b.Property<DateTimeOffset?>("DeletedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -120,6 +123,15 @@ namespace LexData.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("LocalizationCode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("en");
+
+                    b.Property<bool>("Locked")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")

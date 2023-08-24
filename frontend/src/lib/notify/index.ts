@@ -1,14 +1,11 @@
 import { readonly, writable } from 'svelte/store';
 
+import { Duration } from '$lib/util/time';
+
 export interface Notification {
   message: string;
   category?: 'alert-warning';
   duration: number;
-}
-
-export const enum Duration {
-  Default = 4,
-  Long = 15,
 }
 
 const _notifications = writable<Notification[]>([]);
@@ -34,7 +31,7 @@ function addNotification(notification: Notification): void {
   _notifications.update((currentNotifications) => [...currentNotifications, notification]);
   setTimeout(() => {
     removeNotification(notification);
-  }, notification.duration * 1000);
+  }, notification.duration);
 }
 
 export function removeNotification(notification: Notification): void {

@@ -4,6 +4,8 @@
 </script>
 
 <script lang="ts">
+  import t from '$lib/i18n';
+
   import FormatDate from './FormatDate.svelte';
   import type { Circle, Path } from './TrainTracks.svelte';
   import TrainTracks from './TrainTracks.svelte';
@@ -119,27 +121,48 @@
   let heights: number[] = [];
 </script>
 
-<!-- TODO: Create table with log entries, then capture row heights -->
-<div class="horiz">
-  <TrainTracks {circles} {paths} rowHeights={heights} />
-
-  <table class="table table-zebra">
-    <tbody>
+<table class="table table-zebra">
+  <thead>
+    <tr class="sticky top-0 z-[1] bg-base-100">
+      <th></th>
+      <th>{$t('project_page.hg.date_header')}</th>
+      <th>{$t('project_page.hg.author_header')}</th>
+      <th>{$t('project_page.hg.log_header')}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {#if json.length}
       {#each expandedLog as log, idx}
-        <tr bind:offsetHeight={heights[idx]}>
-          <td><FormatDate date={log.date[0] * 1000} /></td>
+        <tr>
+          {#if idx === 0}
+            <td class="py-0 w-0" rowspan="1000000">
+              <TrainTracks {circles} {paths} rowHeights={heights} />
+            </td>
+          {/if}
+          <td bind:offsetHeight={heights[idx]}><FormatDate date={log.date[0] * 1000} /></td>
           <td>{log.user}</td>
           <td>{log.trimmedLog}</td>
         </tr>
       {/each}
-    </tbody>
-  </table>
-</div>
+    {:else}
+      <tr>
+        <td colspan="100">
+          <div class="text p-2 text-secondary flex gap-2 items-center">
+            <span class="i-mdi-creation-outline text-xl" /> {$t('project_page.hg.no_history')}
+          </div>
+        </td>
+      </tr>
+    {/if}
+  </tbody>
+</table>
 
-<style>
-  .horiz {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
+<style lang="postcss">
+  /* These make "height: 100%" work on the train tracks SVG */
+  table {
+    @apply h-1;
+
+    & tr, td {
+      height: 100%;
+    }
   }
 </style>

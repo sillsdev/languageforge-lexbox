@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Nini.Ini;
 using SIL.Progress;
 using Testing.Logging;
 using Xunit.Abstractions;
@@ -14,10 +15,21 @@ public class SendReceiveService
 {
     private readonly ITestOutputHelper _output;
     private const string fdoDataModelVersion = "7000072";
+    private const string Protocol = "http";
 
     public SendReceiveService(ITestOutputHelper output)
     {
         _output = output;
+        FixupCaCerts();
+    }
+
+    private static void FixupCaCerts()
+    {
+        var caCertsPem = Path.GetFullPath(Path.Join("Mercurial", "cacert.pem"));
+        //this cacerts.rc file is what is used when doing a clone, all future actions on a repo use the hgrc file defined in the .hg folder
+        var caCertsRc = new IniDocument(Path.Join("Mercurial", "default.d", "cacerts.rc"), IniFileType.MercurialStyle);
+        caCertsRc.Sections.GetOrCreate("web").Set("cacerts", caCertsPem);
+        caCertsRc.Save();
     }
 
     private StringBuilderProgress NewProgress()
@@ -53,7 +65,7 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        string repoUrl = $"http://{baseUrl}/{projectCode}";
+        var repoUrl = new UriBuilder($"http://{baseUrl}/{projectCode}") { Scheme = Protocol };
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -67,7 +79,8 @@ public class SendReceiveService
                 Password = password
             };
             chorusSettings.SaveUserSettings();
-            repoUrl = repoUrl.Replace("http://", $"http://{username}:{password}@");
+            repoUrl.UserName = username;
+            repoUrl.Password = password;
         }
 
         progress.WriteMessage($"Cloning {repoUrl} with user {username} and password \"{password}\" ...");
@@ -76,7 +89,7 @@ public class SendReceiveService
             { "fullPathToProject", destDir },
             { "fdoDataModelVersion", fdoDataModelVersion },
             { "languageDepotRepoName", "LexBox" },
-            { "languageDepotRepoUri", repoUrl },
+            { "languageDepotRepoUri", repoUrl.ToString() },
             { "deleteRepoIfNoSuchBranch", "false" },
         };
         string cloneResult;
@@ -90,7 +103,7 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        string repoUrl = $"http://{baseUrl}/{projectCode}";
+        var repoUrl = new UriBuilder($"http://{baseUrl}/{projectCode}") { Scheme = Protocol };
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -104,7 +117,8 @@ public class SendReceiveService
                 Password = password
             };
             chorusSettings.SaveUserSettings();
-            repoUrl = repoUrl.Replace("http://", $"http://{username}:{password}@");
+            repoUrl.UserName = username;
+            repoUrl.Password = password;
         }
 
         string fwdataFilename = Path.Join(destDir, $"{projectCode}.fwdata");
@@ -115,7 +129,7 @@ public class SendReceiveService
             { "fwdataFilename", fwdataFilename },
             { "fdoDataModelVersion", fdoDataModelVersion },
             { "languageDepotRepoName", "LexBox" },
-            { "languageDepotRepoUri", repoUrl },
+            { "languageDepotRepoUri", repoUrl.ToString() },
             { "user", "LexBox" },
             { "commitMessage", "Testing" }
         };

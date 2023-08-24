@@ -48,7 +48,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<LexAuthUser>> RegisterAccount(RegisterAccountInput accountInput)
     {
         using var registerActivity = LexBoxActivitySource.Get().StartActivity("Register");
-        var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken);
+        var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken, accountInput.Email);
         registerActivity?.AddTag("app.turnstile_token_valid", validToken);
         if (!validToken)
         {
@@ -70,10 +70,12 @@ public class UserController : ControllerBase
             Id = Guid.NewGuid(),
             Name = accountInput.Name,
             Email = accountInput.Email,
+            //todo determine user localization, defaults to en
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false,
             EmailVerified = false,
+            Locked = false,
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
@@ -95,7 +97,7 @@ public class UserController : ControllerBase
     {
         var lexUser = _loggedInContext.User;
         var user = await _lexBoxDbContext.Users.FindAsync(lexUser.Id);
-        if (user is null) return NotFound();
+        if (user?.CanLogin() is not true) return NotFound();
         await SendVerificationEmail(lexUser, user);
         return Ok();
     }

@@ -2,21 +2,25 @@
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
   import type { LexFormState } from '$lib/forms/superforms';
   import type { AnyZodObject, ZodObject, z } from 'zod';
+  import type { ZodValidation } from 'sveltekit-superforms';
+  import type { ErrorMessage } from '$lib/forms';
 
   export type FormModalResult<S extends AnyZodObject> = {
     response: DialogResponse;
     formState: LexFormState<S>;
   };
+
+  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<ErrorMessage>;
 </script>
 
 <script lang="ts">
-  import { FormError, lexSuperForm, type ErrorMessage, SubmitButton } from '$lib/forms';
+  import { FormError, lexSuperForm, SubmitButton } from '$lib/forms';
   import Form from '$lib/forms/Form.svelte';
   import type { Readable } from 'svelte/store';
 
   type Schema = $$Generic<ZodObject>;
   type FormType = z.infer<Schema>;
-  type SubmitCallback = (state: LexFormState<Schema>) => Promise<ErrorMessage>;
+  type SubmitCallback = FormSubmitCallback<Schema>;
 
   export let schema: Schema;
 

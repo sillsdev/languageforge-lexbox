@@ -32,23 +32,23 @@
 <div class="drawer drawer-end">
   <input type="checkbox" checked={menuToggle} class="drawer-toggle" />
 
-  <div class="drawer-content">
+  <div class="drawer-content max-w-[100vw]">
     <AppBar on:menuopen={open} />
     <div class="bg-neutral text-neutral-content p-2 pl-6 flex justify-between items-center">
       <Breadcrumbs />
       <AdminContent>
-        <a href="/admin" class="btn btn-sm btn-accent hidden sm:inline-flex">
-          {$t('admin_dashboard.title')}
+        <a href="/admin" class="btn btn-sm btn-accent">
+          <span class="max-sm:hidden">
+            {$t('admin_dashboard.title')}
+          </span>
           <AdminIcon />
         </a>
       </AdminContent>
     </div>
 
-    {#if !user.emailVerified}
-      <div class="max-w-prose mx-auto mt-6">
-        <EmailVerificationStatus {user} />
-      </div>
-    {/if}
+    <div class="max-w-prose mx-auto email-status-container">
+      <EmailVerificationStatus {user} />
+    </div>
 
     <Content>
       <slot />
@@ -57,3 +57,9 @@
 
   <AppMenu on:click={close} on:keydown={close} {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
 </div>
+
+<style lang="postcss">
+  :global(.email-status-container > div:first-child) {
+    @apply mt-6;
+  }
+</style>

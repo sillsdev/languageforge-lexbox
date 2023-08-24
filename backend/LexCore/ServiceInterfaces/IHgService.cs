@@ -8,6 +8,7 @@ public interface IHgService
     Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode);
     Task<Changeset[]> GetChangesets(string projectCode);
     Task DeleteRepo(string code);
+    Task SoftDeleteRepo(string code, string deletedRepoSuffix);
     Task<string> BackupRepo(string code);
     Task<string> ResetRepo(string code);
 }

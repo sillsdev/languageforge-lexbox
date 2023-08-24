@@ -73,6 +73,14 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
           addProjectMember(input: $input) {
             project {
               id
+              users {
+                id
+                role
+                user {
+                  id
+                  name
+                }
+              }
             }
             errors {
               ... on Error {
