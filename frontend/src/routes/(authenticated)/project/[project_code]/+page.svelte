@@ -28,6 +28,7 @@
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { Page } from '$lib/layout';
+  import AdminContent from '$lib/layout/AdminContent.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -259,9 +260,9 @@
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
-          {#if isAdmin(user)}
+          <AdminContent>
             <ResetProjectModal bind:this={resetProjectModal} code={data.code} />
-          {/if}
+          </AdminContent>
 
           <DeleteModal
             bind:this={removeUserModal}
@@ -298,13 +299,13 @@
           </button>
         </MoreSettings>
       {/if}
-      {#if isAdmin(user)}
-      <p class="text-2xl mb-4">
-        <button class="btn btn-accent" on:click={() => resetProject()}>
-          {$t('project_page.reset_project_modal.title', {name: project?.name})}
-        </button>
-      </p>
-      {/if}
+      <AdminContent>
+        <p class="text-2xl mb-4">
+          <button class="btn btn-accent" on:click={() => resetProject()}>
+            {$t('project_page.reset_project_modal.title', {name: project?.name})}
+          </button>
+        </p>
+      </AdminContent>
 
       <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
     {:else}
