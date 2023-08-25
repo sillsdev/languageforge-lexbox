@@ -181,5 +181,10 @@ spec:
               secretKeyRef:
                   key: POSTGRES_PASSWORD
                   name: db
+          - name: DbConfig__DefaultSeedUserPassword
+            valueFrom:
+              secretKeyRef:
+                key: SEED_USER_PASSWORD
+                name: db
           - name: DbConfig__LexBoxConnectionString
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
