@@ -27,7 +27,14 @@ public class SendReceiveService
     {
         var caCertsPem = Path.GetFullPath(Path.Join("Mercurial", "cacert.pem"));
         //this cacerts.rc file is what is used when doing a clone, all future actions on a repo use the hgrc file defined in the .hg folder
-        var caCertsRc = new IniDocument(Path.Join("Mercurial", "default.d", "cacerts.rc"), IniFileType.MercurialStyle);
+        var cacertsRcPath = Path.Join("Mercurial", "default.d", "cacerts.rc");
+        //the default.d folder doesn't exist in linux builds, so we modify the mercurial.ini file instead
+        if (!File.Exists(cacertsRcPath))
+        {
+            cacertsRcPath = Path.Join("Mercurial", "mercurial.ini");
+        }
+
+        var caCertsRc = new IniDocument(cacertsRcPath, IniFileType.MercurialStyle);
         caCertsRc.Sections.GetOrCreate("web").Set("cacerts", caCertsPem);
         caCertsRc.Save();
     }
