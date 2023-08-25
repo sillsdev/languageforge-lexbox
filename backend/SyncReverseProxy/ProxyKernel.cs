@@ -81,39 +81,23 @@ public static class ProxyKernel
         };
         //hgresumable
         app.Map("/api/v03/{**catch-all}",
-            async (IHttpForwarder forwarder,
-                ProxyEventsService eventsService,
-                IOptions<HgConfig> hgConfig,
+            async (IOptions<HgConfig> hgConfig,
                 HttpContext context,
                 [FromQuery(Name = "repoId")] string projectCode) =>
             {
-                await Forward(forwarder,
-                    eventsService,
-                    context,
-                    httpClient,
-                    hgConfig.Value.HgResumableUrl,
-                    projectCode);
+                await Forward(context, httpClient, hgConfig.Value.HgResumableUrl, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.resumable);
 
         //hgweb
         app.Map($"/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
-            async (IHttpForwarder forwarder,
-                ProxyEventsService eventsService,
-                IOptions<HgConfig> hgConfig,
+            async (IOptions<HgConfig> hgConfig,
                 HttpContext context,
                 [FromRoute(Name = "project-code")] string projectCode) =>
             {
-                await Forward(forwarder,
-                    eventsService,
-                    context,
-                    httpClient,
-                    hgConfig.Value.HgWebUrl,
-                    projectCode);
+                await Forward(context, httpClient, hgConfig.Value.HgWebUrl, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
         app.Map($"/hg/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
-            async (IHttpForwarder forwarder,
-                ProxyEventsService eventsService,
-                IOptions<HgConfig> hgConfig,
+            async (IOptions<HgConfig> hgConfig,
                 HttpContext context,
                 [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
             {
@@ -123,12 +107,7 @@ public static class ProxyKernel
                     hgWebUrl = hgWebUrl[..^"hg/".Length];
                 }
 
-                await Forward(forwarder,
-                    eventsService,
-                    context,
-                    httpClient,
-                    hgWebUrl,
-                    projectCode);
+                await Forward(context, httpClient, hgWebUrl, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
     }
 
@@ -138,13 +117,13 @@ public static class ProxyKernel
         resumable
     }
 
-    private static async Task Forward(IHttpForwarder forwarder,
-        ProxyEventsService eventsService,
-        HttpContext context,
+    private static async Task Forward(HttpContext context,
         HttpMessageInvoker httpClient,
         string destinationPrefix,
         string projectCode)
     {
+        var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
+        var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
         Activity.Current?.AddTag("app.project_code", projectCode);
         await forwarder.SendAsync(context, destinationPrefix, httpClient);
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault();
