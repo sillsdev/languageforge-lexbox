@@ -77,12 +77,9 @@ public class SendReceiveServiceTests
         version.ShouldStartWith("Mercurial Distributed SCM");
     }
 
-    [Fact(
-        Skip = "Just for testing, comment out to run"
-    )]
-    public void CloneForDev()
+    [Fact]
+    public void CloneBigProject()
     {
-        TestingEnvironmentVariables.StandardHgHostname = "hg-staging.languagedepot.org";
         RunCloneSendReceive(HgProtocol.Hgweb, "admin", "elawa-dev-flex");
     }
 
