@@ -23,9 +23,17 @@ public class SendReceiveService
         FixupCaCerts();
     }
 
+    private static bool _cacertsFixed = false;
+
     private static void FixupCaCerts()
     {
-        var caCertsPem = Path.GetFullPath(Path.Join(MercurialLocation.PathToMercurialFolder, "cacert.pem"));
+        if (_cacertsFixed) return;
+        var caCertsPem = new []
+        {
+            "/etc/ssl/certs/ca-certificates.crt",
+            Path.GetFullPath(Path.Join(MercurialLocation.PathToMercurialFolder, "cacert.pem")),
+        } .FirstOrDefault(File.Exists);
+        if (string.IsNullOrEmpty(caCertsPem)) throw new FileNotFoundException("unable to find cacert.pem");
         //this cacerts.rc file is what is used when doing a clone, all future actions on a repo use the hgrc file defined in the .hg folder
         var cacertsRcPath = Path.Join(MercurialLocation.PathToMercurialFolder, "default.d", "cacerts.rc");
         //the default.d folder doesn't exist in linux builds, so we modify the mercurial.ini file instead
@@ -37,6 +45,7 @@ public class SendReceiveService
         var caCertsRc = new IniDocument(cacertsRcPath, IniFileType.MercurialStyle);
         caCertsRc.Sections.GetOrCreate("web").Set("cacerts", caCertsPem);
         caCertsRc.Save();
+        _cacertsFixed = true;
     }
 
     private StringBuilderProgress NewProgress()
