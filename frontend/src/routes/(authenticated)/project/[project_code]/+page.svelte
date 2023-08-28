@@ -104,7 +104,8 @@
     await navigator.clipboard.writeText(projectHgUrl);
     copiedToClipboard = true;
     copyingToClipboard = false;
-    await delay(() => (copiedToClipboard = false));
+    await delay();
+    copiedToClipboard = false;
   }
 
   let deleteProjectModal: ConfirmDeleteModal;
