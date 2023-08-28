@@ -141,4 +141,4 @@ jobs:
         uses: ataylorme/eslint-annotate-action@2.2.0
         if: always()
         with:
-          report-json: eslint_report.json
+          report-json: ./frontend/eslint_report.json
