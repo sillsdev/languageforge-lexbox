@@ -15,7 +15,6 @@ public class PageTest : IAsyncLifetime
     public IPage Page => _fixture.Page;
     public IBrowser Browser => _fixture.Browser;
     public IBrowserContext Context => _fixture.Context;
-    public static bool IsDev => TestingEnvironmentVariables.IsDev;
 
     public PageTest()
     {

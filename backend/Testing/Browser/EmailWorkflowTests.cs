@@ -24,9 +24,7 @@ public class EmailWorkflowTests : PageTest
 
         // await Page.PauseAsync(); // Pause in dev to forward e-mails to mailinator
 
-        MailInboxPage inboxPage = IsDev
-            ? await new MailDevInboxPage(Page, mailinatorId).Goto()
-            : await new MailinatorInboxPage(Page, mailinatorId).Goto();
+        var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
         await Expect(inboxPage.EmailLocator).ToHaveCountAsync(2);
         var emailPage = await inboxPage.OpenEmail();
         var newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickVerifyEmail);
@@ -81,9 +79,7 @@ public class EmailWorkflowTests : PageTest
         await forgotPasswordPage.Submit();
 
         // Step: Use reset password link
-        MailInboxPage inboxPage = IsDev
-            ? await new MailDevInboxPage(Page, mailinatorId).Goto()
-            : await new MailinatorInboxPage(Page, mailinatorId).Goto();
+        var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
         var emailPage = await inboxPage.OpenEmail();
 
         var newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickResetPassword);
