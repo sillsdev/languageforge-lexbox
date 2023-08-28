@@ -1,6 +1,7 @@
 #!/bin/sh
-dotnet restore
-dotnet build
+#for some reason local tests of this aren't happy if there's no args on these commands
+dotnet restore -v m
+dotnet build -v m
 pwsh backend/Testing/bin/Debug/net7.0/playwright.ps1 install
 patch -u ./backend/Testing/bin/Debug/net7.0/runtimes/linux-x64/native/Mercurial/mercurial/httppeer.py <<EOF
 --- a/mercurial/httppeer.py     Sun Feb 01 18:47:04 2015 -0600

@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using Chorus;
 using Nini.Ini;
 using SIL.Progress;
 using Testing.Logging;
@@ -25,13 +25,13 @@ public class SendReceiveService
 
     private static void FixupCaCerts()
     {
-        var caCertsPem = Path.GetFullPath(Path.Join("Mercurial", "cacert.pem"));
+        var caCertsPem = Path.GetFullPath(Path.Join(MercurialLocation.PathToMercurialFolder, "cacert.pem"));
         //this cacerts.rc file is what is used when doing a clone, all future actions on a repo use the hgrc file defined in the .hg folder
-        var cacertsRcPath = Path.Join("Mercurial", "default.d", "cacerts.rc");
+        var cacertsRcPath = Path.Join(MercurialLocation.PathToMercurialFolder, "default.d", "cacerts.rc");
         //the default.d folder doesn't exist in linux builds, so we modify the mercurial.ini file instead
         if (!File.Exists(cacertsRcPath))
         {
-            cacertsRcPath = Path.Join("Mercurial", "mercurial.ini");
+            cacertsRcPath = Path.Join(MercurialLocation.PathToMercurialFolder, "mercurial.ini");
         }
 
         var caCertsRc = new IniDocument(cacertsRcPath, IniFileType.MercurialStyle);
@@ -50,8 +50,7 @@ public class SendReceiveService
     public async Task<string> GetHgVersion()
     {
         using Process hg = new();
-        string hgFilename = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "hg.exe" : "hg";
-        hg.StartInfo.FileName = Path.Join("Mercurial", hgFilename);
+        hg.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
         if (!File.Exists(hg.StartInfo.FileName))
         {
             throw new FileNotFoundException("unable to find HG executable", hg.StartInfo.FileName);
