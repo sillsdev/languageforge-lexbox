@@ -117,9 +117,10 @@ public class PlaywrightFixture : IAsyncLifetime
         Browser = await PlaywrightInstance.Chromium.LaunchAsync(
             // new() { Headless = false }
         );
+        var protocol = TestingEnvironmentVariables.IsDev ? "http" : "https";
         Context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
-            BaseURL = $"http://{TestingEnvironmentVariables.ServerHostname}/",
+            BaseURL = $"{protocol}://{TestingEnvironmentVariables.ServerHostname}/",
         });
         Page = await Context.NewPageAsync();
     }
