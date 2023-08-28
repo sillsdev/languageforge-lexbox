@@ -1,5 +1,4 @@
 using Microsoft.Playwright;
-using Testing.Browser.Util;
 
 namespace Testing.Browser.Page.External;
 
@@ -30,9 +29,8 @@ public class MailDevInboxPage : BasePage<MailDevInboxPage>, MailInboxPage
 
     public async Task<MailEmailPage> OpenEmail(int index = 0)
     {
-        return await TaskUtil.WhenAllTakeFirst(
-            new MailDevEmailPage(Page).WaitFor(),
-            EmailLocator.Nth(index).ClickAsync());
+        await EmailLocator.Nth(index).ClickAsync();
+        return await new MailDevEmailPage(Page).WaitFor();
     }
 }
 

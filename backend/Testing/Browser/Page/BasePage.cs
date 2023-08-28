@@ -29,16 +29,20 @@ public abstract class BasePage<T> where T : BasePage<T>
 
         var response = await Page.GotoAsync(Url);
         response?.Ok.ShouldBeTrue(); // is null if same URL, but different hash
-        await WaitFor();
-        return (T)this;
+        return await WaitFor();
     }
 
     public async Task<T> WaitFor()
     {
-        await Task.WhenAll(
-            Url is null ? Task.CompletedTask : Page.WaitForURLAsync(Url, new() { WaitUntil = WaitUntilState.NetworkIdle }),
-            Task.WhenAll(TestLocators.Select(l => l.WaitForAsync()))
-        );
+        if (Url is not null)
+        {
+            await Page.WaitForURLAsync(Url, new() { WaitUntil = WaitUntilState.NetworkIdle });
+        }
+        else
+        {
+            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+        }
+        await Task.WhenAll(TestLocators.Select(l => l.WaitForAsync()));
         return (T)this;
     }
 

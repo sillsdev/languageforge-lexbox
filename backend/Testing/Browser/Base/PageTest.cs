@@ -4,7 +4,6 @@ using LexCore.Auth;
 using Microsoft.Playwright;
 using Shouldly;
 using Testing.Browser.Page;
-using Testing.Browser.Util;
 using Testing.Services;
 
 namespace Testing.Browser.Base;
@@ -85,20 +84,18 @@ public class PageTest : IAsyncLifetime
             }));
     }
 
-    protected Task<LoginPage> Logout()
+    protected async Task<LoginPage> Logout()
     {
-        return TaskUtil.WhenAllTakeSecond(
-            Page.GotoAsync("/logout"),
-            new LoginPage(Page).WaitFor());
+        await Page.GotoAsync("/logout");
+        return await new LoginPage(Page).WaitFor();
     }
 
     protected async Task<TempUserDashboardPage> RegisterUser(string name, string email, string password)
     {
         var registerPage = await new RegisterPage(Page).Goto();
         await registerPage.FillForm(name, email, password);
-        await TaskUtil.WhenAllTakeSecond(
-            registerPage.Submit(),
-            new UserDashboardPage(Page).WaitFor());
+        await registerPage.Submit();
+        await new UserDashboardPage(Page).WaitFor();
         var userId = await GetCurrentUserId();
         var user = new TempUser(userId, name, email, password);
         return new TempUserDashboardPage(Page, user);

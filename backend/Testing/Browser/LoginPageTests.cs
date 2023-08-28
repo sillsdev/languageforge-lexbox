@@ -12,9 +12,8 @@ public class LoginPageTests : PageTest
     {
         var loginPage = await new LoginPage(Page).Goto();
         await loginPage.FillForm("admin", TestingEnvironmentVariables.DefaultPassword);
-        await Task.WhenAll(
-            loginPage.Submit(),
-            new AdminDashboardPage(Page).WaitFor());
+        await loginPage.Submit();
+        await new AdminDashboardPage(Page).WaitFor();
     }
 
     [Fact]
@@ -39,8 +38,7 @@ public class LoginPageTests : PageTest
         await Expect(Page.GetByText("Something went wrong, please make sure you have used the correct account informa")).ToBeVisibleAsync();
 
         await loginPage.FillForm("admin", TestingEnvironmentVariables.DefaultPassword);
-        await Task.WhenAll(
-            loginPage.Submit(),
-            new AdminDashboardPage(Page).WaitFor());
+        await loginPage.Submit();
+        await new AdminDashboardPage(Page).WaitFor();
     }
 }
