@@ -4,6 +4,7 @@ using LexCore.Auth;
 using Microsoft.Playwright;
 using Shouldly;
 using Testing.Browser.Page;
+using Testing.Browser.Util;
 using Testing.Services;
 
 namespace Testing.Browser.Base;
