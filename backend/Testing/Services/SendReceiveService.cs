@@ -15,7 +15,7 @@ public class SendReceiveService
 {
     private readonly ITestOutputHelper _output;
     private const string fdoDataModelVersion = "7000072";
-    private const string Protocol = "https";
+    private static string Protocol = TestingEnvironmentVariables.IsDev ? "http" : "https";
 
     public SendReceiveService(ITestOutputHelper output)
     {

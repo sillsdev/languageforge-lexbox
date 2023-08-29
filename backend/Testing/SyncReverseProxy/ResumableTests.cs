@@ -9,7 +9,7 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class ResumableTests
 {
-    private readonly string _host = TestingEnvironmentVariables.ResumableHgHostname;
+    private readonly string _baseUrl = TestingEnvironmentVariables.ResumableBaseUrl;
     private static readonly HttpClient Client = new()
     {
         Timeout = TimeSpan.FromSeconds(3)
@@ -19,7 +19,7 @@ public class ResumableTests
     public async Task IsAvailable()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -37,7 +37,7 @@ public class ResumableTests
     public async Task WithBadUser()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -52,7 +52,7 @@ public class ResumableTests
     public async Task WithBadPassword()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -67,7 +67,7 @@ public class ResumableTests
     public async Task WithBadNotValidProject()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId=test-not-valid")
+            $"{_baseUrl}/api/v03/isAvailable?repoId=test-not-valid")
         {
             Headers =
             {
@@ -83,7 +83,7 @@ public class ResumableTests
     {
         var userWithoutPermission = "user@test.com";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {

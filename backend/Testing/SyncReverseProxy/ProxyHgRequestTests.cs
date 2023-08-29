@@ -9,7 +9,7 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class ProxyHgRequests
 {
-    private string _host = TestingEnvironmentVariables.StandardHgHostname;
+    private string _baseUrl = TestingEnvironmentVariables.StandardHgBaseUrl;
     private static readonly HttpClient Client = new();
 
     private void ShouldBeValidResponse(HttpResponseMessage responseMessage)
@@ -23,7 +23,7 @@ public class ProxyHgRequests
     public async Task TestGet()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -39,7 +39,7 @@ public class ProxyHgRequests
     {
         var password = "not a good password";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -56,7 +56,7 @@ public class ProxyHgRequests
     {
         var responseMessage =
             await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"http://{_host}/{TestingEnvironmentVariables.ProjectCode}"));
+                $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}"));
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         ShouldBeValidResponse(responseMessage);
     }
@@ -65,12 +65,10 @@ public class ProxyHgRequests
     public async Task SimpleClone()
     {
         var projectCode = TestingEnvironmentVariables.ProjectCode;
-        var host = TestingEnvironmentVariables.StandardHgHostname;
-        // host = "hg-staging.languagedepot.org";
         // projectCode = "elawa-dev-flex";
         var auth = new AuthenticationHeaderValue("Basic",
             Convert.ToBase64String(Encoding.ASCII.GetBytes($"admin:{TestData.Password}")));
-        var batchRequest = new HttpRequestMessage(HttpMethod.Get, $"http://{host}/{projectCode}?cmd=batch")
+        var batchRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUrl}/{projectCode}?cmd=batch")
         {
             Headers = { Authorization = auth }
         };
@@ -81,7 +79,7 @@ public class ProxyHgRequests
         batchBody.ShouldEndWith(";");
         var heads = batchBody.Split('\n')[^2];
 
-        var getBundleRequest = new HttpRequestMessage(HttpMethod.Get, $"http://{host}/{projectCode}?cmd=getbundle")
+        var getBundleRequest = new HttpRequestMessage(HttpMethod.Get, $"{_baseUrl}/{projectCode}?cmd=getbundle")
         {
             Headers = { Authorization = auth },
         };
