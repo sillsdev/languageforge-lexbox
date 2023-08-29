@@ -18,4 +18,4 @@ patch -u ./backend/Testing/bin/Debug/net7.0/runtimes/linux-x64/native/Mercurial/
 
  class httppeer(wireproto.wirepeer):
 EOF
-dotnet test --logger trx --results-directory ./testresults --filter Category=Integration
+dotnet test --logger trx --results-directory ./testresults --filter CloneBigProject

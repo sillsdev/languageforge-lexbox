@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Chorus.VcsDrivers.Mercurial;
 using Shouldly;
+using Testing.Logging;
 using Testing.Services;
 using Xunit.Abstractions;
 
@@ -25,11 +26,6 @@ public class SendReceiveServiceTests
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
         CleanUpTempDir();
-        var fileInfo = new FileInfo("Mercurial/hg");
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && fileInfo.Exists)
-        {
-            fileInfo.Delete();
-        }
     }
 
     private void CleanUpTempDir()
@@ -72,9 +68,10 @@ public class SendReceiveServiceTests
     [Fact]
     public async Task VerifyHgWorking()
     {
-        HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
         string version = await _sendReceiveService.GetHgVersion();
         version.ShouldStartWith("Mercurial Distributed SCM");
+        HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) {ShowVerbose = true});
+        HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
     }
 
     [Fact]

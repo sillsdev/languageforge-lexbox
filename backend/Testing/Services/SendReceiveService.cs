@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Chorus;
 using Nini.Ini;
 using SIL.Progress;
@@ -60,7 +61,7 @@ public class SendReceiveService
     {
         using Process hg = new();
         hg.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
-        if (!File.Exists(hg.StartInfo.FileName))
+        if (!File.Exists(hg.StartInfo.FileName) && !File.Exists(hg.StartInfo.FileName + ".exe"))
         {
             throw new FileNotFoundException("unable to find HG executable", hg.StartInfo.FileName);
         }
@@ -109,7 +110,7 @@ public class SendReceiveService
         };
         string cloneResult;
         LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", progress, flexBridgeOptions, out cloneResult);
-        cloneResult += "Progress out: " + progress.Text;
+        cloneResult += $"{Environment.NewLine}Progress out: {progress.Text}";
         return cloneResult;
     }
 
