@@ -10,7 +10,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os:
+          #disabled pending issue #232
+#          - ubuntu-latest
+          - windows-latest
     environment:
       name: staging
     runs-on: ${{ matrix.os }}
