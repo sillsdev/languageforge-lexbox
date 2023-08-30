@@ -148,48 +148,9 @@ jobs:
           exit 1
 
   integration-tests:
+    name: Integration tests
+    uses: ./.github/workflows/integration-test.yaml
     permissions:
       checks: write
-    strategy:
-        fail-fast: false
-        matrix:
-            os: [ubuntu-latest, windows-latest]
-    environment:
-      name: staging
-    runs-on: ${{ matrix.os }}
-    needs: [verify-published]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '7'
-      - uses: MatteoH2O1999/setup-python@v1.5.0
-        id: python
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        with:
-          python-version: '2.7.18'
-          cache-build: true
-          allow-build: allow
-      - name: Link python
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
-      - name: Dotnet build
-        run: dotnet build
-      - name: Playwright setup
-        run: pwsh backend/Testing/bin/Debug/net7.0/playwright.ps1 install
-      - name: Integration tests
-        env:
-          TEST_SERVER_HOSTNAME: staging.languagedepot.org
-            #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
-          TEST_STANDARD_HG_HOSTNAME: hg-staging.languageforge.org
-          TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
-          TEST_PROJECT_CODE: 'sena-3'
-          TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: dotnet test --logger trx --results-directory ./testresults --filter Category=Integration
-      - name: Upload test results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        if: always() && !env.act
-        with:
-          check_name: Integration Tests ${{ matrix.os }}
-          files: ./testresults/*.trx
+    secrets: inherit
+    needs: verify-published

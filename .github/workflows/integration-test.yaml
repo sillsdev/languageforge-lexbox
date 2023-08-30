@@ -1,26 +1,19 @@
-﻿name: integration action testing
 on:
-  push:
-    branches:
-      - integration-action-testing
   workflow_call:
-  workflow_dispatch:
-    inputs:
-      project-code:
-          description: "Project code to run S&R tests against"
-          required: false
-          default: 'sena-3'
 
-#todo deduplicate this code from the code in lexbox-api.yaml
+
 jobs:
-  test-integration-tests:
-    runs-on: ${{ matrix.os }}
-    environment:
-      name: staging
+  test:
+    name: ${{ matrix.os }}
+    permissions:
+      checks: write
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ ubuntu-latest, windows-latest ]
+    environment:
+      name: staging
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-dotnet@v3
@@ -44,15 +37,15 @@ jobs:
       - name: Integration tests
         env:
           TEST_SERVER_HOSTNAME: staging.languagedepot.org
-            #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
+          #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
           TEST_STANDARD_HG_HOSTNAME: hg-staging.languageforge.org
           TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: dotnet test --logger trx --results-directory ./testresults --filter "VerifyHgWorking|CloneBigProject"
+        run: dotnet test --logger trx --results-directory ./testresults --filter Category=Integration
       - name: Upload test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
         with:
-          check_name: Manual Integration Tests ${{ matrix.os }}
+          check_name: Integration Tests ${{ matrix.os }}
           files: ./testresults/*.trx
