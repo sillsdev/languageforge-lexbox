@@ -11,6 +11,7 @@ on:
           required: false
           default: 'sena-3'
 
+#todo deduplicate this code from the code in lexbox-api.yaml
 jobs:
   test-integration-tests:
     runs-on: ${{ matrix.os }}
@@ -38,8 +39,8 @@ jobs:
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
         run: dotnet build
-#      - name: Playwright setup
-#        run: pwsh backend/Testing/bin/Debug/net7.0/playwright.ps1 install
+      - name: Playwright setup
+        run: pwsh backend/Testing/bin/Debug/net7.0/playwright.ps1 install
       - name: Integration tests
         env:
           TEST_SERVER_HOSTNAME: staging.languagedepot.org
