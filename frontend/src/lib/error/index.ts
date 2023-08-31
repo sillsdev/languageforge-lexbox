@@ -7,14 +7,24 @@ import { ensureErrorIsTraced } from '$lib/otel';
 
 const ERROR_STORE_KEY = 'ERROR_STORE_KEY';
 
-export const initErrorStore = (error: Writable<App.Error | null>): Writable<App.Error | null> => setContext(ERROR_STORE_KEY, error);
+export const initErrorStore = (error: Writable<App.Error | null>): Writable<App.Error | null> => {
+  setContext(ERROR_STORE_KEY, error);
+  setupGlobalErrorHandlers(error);
+  return error;
+};
 export const error = (): Writable<App.Error | null> => getContext(ERROR_STORE_KEY);
 export const dismiss = (): void => error().set(null);
 
 export const goesToErrorPage = (error: App.Error | null): boolean => error?.handler?.endsWith('-hook') ?? false;
 
-
-if (browser) {
+let errorHandlersSetup = false;
+function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
+  if (!browser) {
+    return;
+  }
+  if (errorHandlersSetup) {
+    throw new Error('error handlers already setup. This should only be called once.');
+  }
   /**
    * Errors that land in these handlers should generally already be traced. The tracing here is only a weak fallback.
    * These handlers are presumably never called in the context of a trace, so they have to create their own.
@@ -26,13 +36,13 @@ if (browser) {
     const handler = 'client-error';
     const traceId = ensureErrorIsTraced(
       event.error,
-      { event },
+      {event},
       {
         ['app.error.source']: handler,
         ['app.error.traced_by_handler']: true,
       }
     );
-    error().set({ message: event.message, traceId, handler });
+    error.set({message: event.message, traceId, handler});
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
@@ -47,11 +57,11 @@ if (browser) {
     const keysForMissingMessageError = message
       ? undefined
       : isObject(event.reason)
-      ? Object.keys(event.reason).join()
-      : undefined;
+        ? Object.keys(event.reason).join()
+        : undefined;
     const traceId = ensureErrorIsTraced(
       event.reason,
-      { event },
+      {event},
       {
         ['app.error.source']: handler,
         ['app.error.keys']: keysForMissingMessageError,
@@ -65,6 +75,7 @@ if (browser) {
       return;
     }
 
-    error().set({ message: message ?? `We're not sure what happened.`, traceId, handler });
+    error.set({message: message ?? `We're not sure what happened.`, traceId, handler});
   };
+  errorHandlersSetup = true;
 }
