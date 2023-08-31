@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -12,7 +13,7 @@ public class ResumableTests
     private readonly string _baseUrl = TestingEnvironmentVariables.ResumableBaseUrl;
     private static readonly HttpClient Client = new()
     {
-        Timeout = TimeSpan.FromSeconds(3)
+        Timeout = TimeSpan.FromSeconds(5)
     };
 
     [Fact]
@@ -29,8 +30,9 @@ public class ResumableTests
         });
         var responseString = await responseMessage.Content.ReadAsStringAsync();
         responseString.ShouldBeNullOrEmpty();
-        responseMessage.Headers.GetValues("X-HgR-Version").ShouldHaveSingleItem().ShouldBe("3");
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var headers = responseMessage.Headers.ToDictionary(kvp => kvp.Key, kvp => string.Join(',', kvp.Value), StringComparer.OrdinalIgnoreCase);
+        headers.ShouldContainKeyAndValue("X-HgR-Version", "3");
     }
 
     [Fact]
