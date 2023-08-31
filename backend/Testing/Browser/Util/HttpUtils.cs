@@ -11,7 +11,7 @@ public static class HttpUtils
     public static async Task<JsonObject> ExecuteGql(this IPage page, [StringSyntax("graphql")] string gql, bool expectGqlError = false)
     {
         var response = await page.APIRequest.PostAsync(
-            $"http://{TestingEnvironmentVariables.ServerHostname}/api/graphql",
+            $"{TestingEnvironmentVariables.ServerBaseUrl}/api/graphql",
             new() { DataObject = new { query = gql } });
         response.Status.ShouldBe(200, $"code was {response.Status} ({response.StatusText})");
         var jsonResponse = await response.JsonAsync<JsonObject>();

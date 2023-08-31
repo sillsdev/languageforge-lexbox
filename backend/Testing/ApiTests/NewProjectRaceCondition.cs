@@ -24,8 +24,8 @@ public class NewProjectRaceCondition : ApiTestBase
         }
         finally
         {
-            await HttpClient.DeleteAsync($"http://{Host}/api/project/project/{project1Id}");
-            await HttpClient.DeleteAsync($"http://{Host}/api/project/project/{project2Id}");
+            await HttpClient.DeleteAsync($"{BaseUrl}/api/project/project/{project1Id}");
+            await HttpClient.DeleteAsync($"{BaseUrl}/api/project/project/{project2Id}");
         }
     }
 

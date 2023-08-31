@@ -56,7 +56,7 @@ public class PageTest : IAsyncLifetime
     {
         // TODO can't we just use Page.APIRequest instead
         var responseMessage = await HttpClient.PostAsJsonAsync(
-            $"http://{TestingEnvironmentVariables.ServerHostname}/api/login",
+            $"{TestingEnvironmentVariables.ServerBaseUrl}/api/login",
             new Dictionary<string, object>
             {
                 { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
@@ -68,7 +68,7 @@ public class PageTest : IAsyncLifetime
         var cookieContainer = new CookieContainer();
         foreach (var cookie in cookies)
         {
-            cookieContainer.SetCookies(new($"http://{TestingEnvironmentVariables.ServerHostname}"), cookie);
+            cookieContainer.SetCookies(new($"{TestingEnvironmentVariables.ServerBaseUrl}"), cookie);
         }
 
         await Context.AddCookiesAsync(cookieContainer.GetAllCookies()
@@ -103,7 +103,7 @@ public class PageTest : IAsyncLifetime
 
     private async Task<Guid> GetCurrentUserId()
     {
-        var userResponse = await Page.APIRequest.GetAsync($"http://{TestingEnvironmentVariables.ServerHostname}/api/user/currentUser");
+        var userResponse = await Page.APIRequest.GetAsync($"{TestingEnvironmentVariables.ServerBaseUrl}/api/user/currentUser");
         var user = await userResponse.JsonAsync<LexAuthUser>();
         return user.ShouldNotBeNull().Id;
     }
@@ -117,10 +117,9 @@ public class PlaywrightFixture : IAsyncLifetime
         Browser = await PlaywrightInstance.Chromium.LaunchAsync(
             // new() { Headless = false }
         );
-        var protocol = TestingEnvironmentVariables.IsDev ? "http" : "https";
         Context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
-            BaseURL = $"{protocol}://{TestingEnvironmentVariables.ServerHostname}/",
+            BaseURL = $"{TestingEnvironmentVariables.ServerBaseUrl}/",
         });
         Page = await Context.NewPageAsync();
     }

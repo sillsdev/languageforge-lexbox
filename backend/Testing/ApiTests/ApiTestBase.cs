@@ -8,13 +8,13 @@ namespace Testing.ApiTests;
 
 public class ApiTestBase
 {
-    protected readonly string Host = TestingEnvironmentVariables.ServerHostname;
+    protected readonly string BaseUrl = TestingEnvironmentVariables.ServerBaseUrl;
     protected readonly HttpClient HttpClient = new HttpClient();
 
     protected async Task LoginAs(string user, string password)
     {
         var response = await HttpClient.PostAsJsonAsync(
-            $"http://{Host}/api/login",
+            $"{BaseUrl}/api/login",
             new Dictionary<string, object>
             {
                 { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
@@ -24,7 +24,7 @@ public class ApiTestBase
 
     protected async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false)
     {
-        var response = await HttpClient.PostAsJsonAsync($"http://{Host}/api/graphql", new { query = gql });
+        var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql", new { query = gql });
         response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
         jsonResponse.ShouldNotBeNull("for query " + gql);

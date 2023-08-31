@@ -17,7 +17,7 @@ public class AuthTests : ApiTestBase
     {
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         var managerResponse = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"http://{Host}/api/user/currentUser"),
+                $"{BaseUrl}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
         var manager = await managerResponse.Content.ReadFromJsonAsync<LexAuthUser>();
         manager.ShouldNotBeNull();
@@ -25,7 +25,7 @@ public class AuthTests : ApiTestBase
 
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var response = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"http://{Host}/api/user/currentUser"),
+                $"{BaseUrl}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
         var admin = await response.Content.ReadFromJsonAsync<LexAuthUser>();
         admin.ShouldNotBeNull();
