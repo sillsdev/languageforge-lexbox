@@ -69,8 +69,13 @@ tasks:
     cmds:
       - dotnet test --filter Category=Integration
   test-integration-staging:
+    env:
+      TEST_DEFAULT_PASSWORD: '***'
+#      set to enable debug mode, number of ms to delay actions
+      PWDEBUG: 0
     cmds:
-      - dotnet test --filter Category=Integration  -s ./backend/Testing/staging.runsettings.xml
+#      - 'read -p "password: " TEST_DEFAULT_PASSWORD'
+      - dotnet test --filter Category=Integration   -s ./backend/Testing/staging.runsettings
 
       # dev
   infra-up:

@@ -3,12 +3,6 @@
 version: '3'
 
 tasks:
-  db-up:
-    cmds:
-      - kubectl apply -f ./base/db-deployment.yaml
-  lexbox-update:
-    cmds:
-      - kubectl apply -f ./lexbox-deployment.yaml
   api-logs:
     ignore_error: true
     cmds:
@@ -16,20 +10,24 @@ tasks:
   api-console:
     interactive: true
     cmds:
-      - kubectl exec -it deployment/lexbox -c lexbox-api -- /bin/bash
+      - kubectl exec -it deployment/lexbox -c lexbox-api -- /bin/sh
 
   ui-logs:
     ignore_error: true
     cmds:
-      - kubectl logs -f deployment/lexbox -c ui
+      - kubectl logs -f deployment/ui
   ui-console:
     interactive: true
     cmds:
-      - kubectl exec -it deployment/lexbox -c ui -- /bin/ash
+      - kubectl exec -it deployment/ui -- /bin/sh
 
   local-api-forward:
     cmds:
       - kubectl port-forward service/lexbox 5158:5158 -n languagedepot --context docker-desktop
+
+  staging-db-forward:
+    cmds:
+      - kubectl port-forward service/db 5434:5432 -n languagedepot --context dallas-rke
 
 
   diff-staging:
