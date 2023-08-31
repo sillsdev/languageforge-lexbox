@@ -6,7 +6,7 @@ namespace Testing.Browser.Page;
 public abstract class BasePage<T> where T : BasePage<T>
 {
     public IPage Page { get; private set; }
-    public string? Url { get; private set; }
+    public string? Url { get; protected set; }
     protected ILocator[] TestLocators { get; }
 
     public BasePage(IPage page, string? url, ILocator testLocator)
@@ -44,11 +44,5 @@ public abstract class BasePage<T> where T : BasePage<T>
         }
         await Task.WhenAll(TestLocators.Select(l => l.WaitForAsync()));
         return (T)this;
-    }
-
-    protected async Task<T> Goto(string newUrl)
-    {
-        Url = newUrl;
-        return await Goto();
     }
 }

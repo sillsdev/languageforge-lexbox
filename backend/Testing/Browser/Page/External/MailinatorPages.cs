@@ -17,7 +17,8 @@ public class MailinatorInboxPage : MailInboxPage
 
     public override async Task<MailInboxPage> Goto()
     {
-        return await Goto($"https://www.mailinator.com/v4/public/inboxes.jsp?to={MailboxId}");
+        Url = $"https://www.mailinator.com/v4/public/inboxes.jsp?to={MailboxId}";
+        return await base.Goto();
     }
 }
 
