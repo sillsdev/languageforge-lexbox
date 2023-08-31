@@ -36,7 +36,7 @@
 
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
-    : `https://hg-${$page.url.host.replace("depot", "forge")}/${data.code}`;
+    : `https://hg-${$page.url.host.replace('depot', 'forge')}/${data.code}`;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
