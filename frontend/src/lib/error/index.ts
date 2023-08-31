@@ -13,8 +13,13 @@ export const initErrorStore = (error: Writable<App.Error | null>): Writable<App.
   return error;
 };
 export const error = (): Writable<App.Error | null> => getContext(ERROR_STORE_KEY);
-export const dismiss = (): void => error().set(null);
-
+//we can't just have a `dismiss` function because we need to be able to call it from the template
+//but we can't use `error()` after a component is created, so we need to define a hook function which is called once
+//and returns a function that uses the store.
+export function  useDismiss(): () => void {
+  const errorStore = error();
+  return () => errorStore.set(null);
+}
 export const goesToErrorPage = (error: App.Error | null): boolean => error?.handler?.endsWith('-hook') ?? false;
 
 let errorHandlersSetup = false;

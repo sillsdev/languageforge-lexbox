@@ -1,12 +1,12 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
-  import { dismiss, error } from '.';
+  import {error, useDismiss} from '.';
   import { onDestroy } from 'svelte';
   import { t } from 'svelte-intl-precompile';
   import UnexpectedError from './UnexpectedError.svelte';
 
   let dialog: HTMLDialogElement;
-
+  const dismiss = useDismiss();
   beforeNavigate(dismiss);
 
   onDestroy(
