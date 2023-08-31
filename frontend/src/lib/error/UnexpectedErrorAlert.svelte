@@ -1,16 +1,17 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
-  import {error, useDismiss} from '.';
+  import {useDismiss, useError} from '.';
   import { onDestroy } from 'svelte';
   import { t } from 'svelte-intl-precompile';
   import UnexpectedError from './UnexpectedError.svelte';
 
   let dialog: HTMLDialogElement;
+  const error = useError();
   const dismiss = useDismiss();
   beforeNavigate(dismiss);
 
   onDestroy(
-    error().subscribe((e) => {
+    error.subscribe((e) => {
       if (!dialog) return;
       e ? open() : close();
     })

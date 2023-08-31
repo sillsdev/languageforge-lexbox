@@ -1,7 +1,7 @@
 <script lang="ts">
   /* eslint-disable svelte/no-dom-manipulating */
   import { env } from '$env/dynamic/public';
-  import { error as _error } from '.';
+  import { useError } from '.';
   import { onDestroy } from 'svelte';
   import { t } from 'svelte-intl-precompile';
   import { derived } from 'svelte/store';
@@ -9,7 +9,7 @@
   let alertMessageElem: HTMLElement | undefined;
   let traceIdElem: HTMLElement;
 
-  const error = derived(_error(), (error) => {
+  const error = derived(useError(), (error) => {
     if (error) {
       return {
         ...error,
