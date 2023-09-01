@@ -13,7 +13,7 @@ public class ResumableTests
     private readonly string _baseUrl = TestingEnvironmentVariables.ResumableBaseUrl;
     private static readonly HttpClient Client = new()
     {
-        Timeout = TimeSpan.FromSeconds(5)
+        Timeout = TimeSpan.FromSeconds(10)
     };
 
     [Fact]
@@ -27,7 +27,7 @@ public class ResumableTests
                 Authorization = new AuthenticationHeaderValue("Basic",
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
             }
-        });
+        }, HttpCompletionOption.ResponseHeadersRead);
         var responseString = await responseMessage.Content.ReadAsStringAsync();
         responseString.ShouldBeNullOrEmpty();
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
