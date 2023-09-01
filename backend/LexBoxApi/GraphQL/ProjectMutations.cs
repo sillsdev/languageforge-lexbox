@@ -6,6 +6,7 @@ using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexData;
+using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -37,8 +38,7 @@ public class ProjectMutations
     public async Task<IQueryable<Project>> AddProjectMember(LoggedInContext loggedInContext, AddProjectMemberInput input, LexBoxDbContext dbContext)
     {
         loggedInContext.User.AssertCanManageProject(input.ProjectId);
-        var user = await dbContext.Users.FirstOrDefaultAsync(u =>
-            u.Username == input.UserEmail || u.Email == input.UserEmail);
+        var user = await dbContext.Users.FindByEmail(input.UserEmail);
         if (user is null) throw new NotFoundException("Member not found");
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });

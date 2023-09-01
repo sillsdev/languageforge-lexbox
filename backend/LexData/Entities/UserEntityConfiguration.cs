@@ -17,3 +17,16 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
+
+public static class UserEntityExtensions
+{
+    public static IQueryable<User> FilterByEmail(this IQueryable<User> users, string email)
+    {
+        return users.Where(user => user.Email == email || user.Username == email);
+    }
+
+    public static async Task<User?> FindByEmail(this IQueryable<User> users, string email)
+    {
+        return await users.FilterByEmail(email).FirstOrDefaultAsync();
+    }
+}

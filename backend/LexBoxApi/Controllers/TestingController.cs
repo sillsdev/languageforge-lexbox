@@ -2,6 +2,7 @@ using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexData;
+using LexData.Entities;
 using LexData.Redmine;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +52,7 @@ public class TestingController : ControllerBase
     public async Task<ActionResult<string>> MakeJwt(string usernameOrEmail, UserRole userRole)
     {
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
-            .FirstOrDefaultAsync(user => user.Email == usernameOrEmail || user.Username == usernameOrEmail);
+            .FindByEmail(usernameOrEmail);
         if (user is null) return NotFound();
         var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole });
         return token;
