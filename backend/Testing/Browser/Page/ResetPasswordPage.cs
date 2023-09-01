@@ -5,7 +5,7 @@ namespace Testing.Browser.Page;
 public class ResetPasswordPage : AuthenticatedBasePage<ResetPasswordPage>
 {
     public ResetPasswordPage(IPage page)
-    : base(page, "/resetPassword", page.GetByRole(AriaRole.Heading, new() { Name = "Reset Password" }))
+    : base(page, "/resetPassword", page.GetByRole(AriaRole.Button, new() { Name = "Reset Password" }))
     {
     }
 
