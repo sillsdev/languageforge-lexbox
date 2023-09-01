@@ -19,6 +19,25 @@
             </SchemaInfo>
           </value>
         </entry>
+        <entry key="Taskfile">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="New Schema" />
+              <option name="name" value="Taskfile" />
+              <option name="relativePathToSchema" value="https://taskfile.dev/schema.json" />
+              <option name="schemaVersion" value="JSON Schema version 7" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="pattern" value="true" />
+                    <option name="path" value="Taskfile.yml" />
+                    <option name="mappingKind" value="Pattern" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="launchSettings">
           <value>
             <SchemaInfo>

@@ -16,11 +16,15 @@
       <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="staging" read-only="true" single-connection="true" uuid="8b0e8c78-f27c-49cf-a90b-422417753421">
+    <data-source source="LOCAL" name="staging" single-connection="true" uuid="8b0e8c78-f27c-49cf-a90b-422417753421">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
+      <auto-commit>false</auto-commit>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5434/lexbox</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+      </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
