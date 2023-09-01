@@ -7,11 +7,8 @@
   let modal: Modal;
   export let code: string;
 
-  export async function open(): Promise<DialogResponse> {
-    console.log('Opening modal', modal);
-    const x = await modal.openModal();
-    console.log('Response', x);
-    return x;
+  export function open(): Promise<DialogResponse> {
+    return modal.openModal();
   }
 
   export function submit(): void {

@@ -260,9 +260,6 @@
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
-          <AdminContent>
-            <ResetProjectModal bind:this={resetProjectModal} code={data.code} />
-          </AdminContent>
 
           <DeleteModal
             bind:this={removeUserModal}
@@ -296,16 +293,18 @@
 
         <MoreSettings>
           <button class="btn btn-error" on:click={softDeleteProject}>
+            {$t('delete_project_modal.submit')}<TrashIcon />
           </button>
+          <AdminContent>
+            <p class="text-2xl mb-4">
+              <button class="btn btn-accent" on:click={() => resetProject()}>
+                {$t('project_page.reset_project_modal.title', {name: project.name})}
+              </button>
+            </p>
+            <ResetProjectModal bind:this={resetProjectModal} code={data.code} />
+          </AdminContent>
         </MoreSettings>
       {/if}
-      <AdminContent>
-        <p class="text-2xl mb-4">
-          <button class="btn btn-accent" on:click={() => resetProject()}>
-            {$t('project_page.reset_project_modal.title', {name: project.name})}
-          </button>
-        </p>
-      </AdminContent>
 
       <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
     {:else}
