@@ -21,6 +21,30 @@ tasks:
     cmds:
       - kubectl exec -it deployment/ui -- /bin/sh
 
+  infra-forward:
+    interactive: true
+    deps: [local-db-forward, local-otel-http-forward, local-otel-grpc-forward, local-hgweb-forward, local-resumable-forward]
+  local-db-forward:
+    internal: true
+    cmds:
+      - kubectl port-forward service/db 5433:5432 -n languagedepot --context docker-desktop
+  local-otel-http-forward:
+    internal: true
+    cmds:
+      - kubectl port-forward service/lexbox 4318:4318 -n languagedepot --context docker-desktop
+  local-otel-grpc-forward:
+    internal: true
+    cmds:
+      - kubectl port-forward service/lexbox 4317:4317 -n languagedepot --context docker-desktop
+  local-hgweb-forward:
+    internal: true
+    cmds:
+      - kubectl port-forward service/hg 8088:8088 -n languagedepot --context docker-desktop
+  local-resumable-forward:
+    internal: true
+    cmds:
+      - kubectl port-forward service/hg 80:80 -n languagedepot --context docker-desktop
+
   local-api-forward:
     cmds:
       - kubectl port-forward service/lexbox 5158:5158 -n languagedepot --context docker-desktop
