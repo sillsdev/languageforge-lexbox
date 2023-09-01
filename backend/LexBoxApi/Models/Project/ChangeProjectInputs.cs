@@ -7,3 +7,4 @@ public record ChangeProjectDescriptionInput(Guid ProjectId, string Description);
 public record DeleteUserByAdminOrSelfInput(Guid UserId);
 
 public record ResetProjectByAdminInput(string Code);
+public record ResetProjectByAdminOutput(string backupPath);
