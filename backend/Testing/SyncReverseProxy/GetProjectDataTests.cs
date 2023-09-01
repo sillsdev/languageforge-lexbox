@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Shouldly;
@@ -54,6 +55,16 @@ password={password}
     {
         var response = await Client.PostAsync(
             $"{_baseUrl}/api/user/{TestData.User}/projects",
+            new FormUrlEncodedContent(
+                new[] { new KeyValuePair<string, string>("password", TestData.Password) }));
+        await ValidateResponse(response);
+    }
+
+    [Fact]
+    public async Task GetProjectDataWithEmailAddress()
+    {
+        var response = await Client.PostAsync(
+            $"{_baseUrl}/api/user/{TestData.User}@test.com/projects",
             new FormUrlEncodedContent(
                 new[] { new KeyValuePair<string, string>("password", TestData.Password) }));
         await ValidateResponse(response);
