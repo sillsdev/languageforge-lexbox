@@ -12,7 +12,13 @@ public class ProxyEventsService
         _lexProxyService = lexProxyService;
     }
 
-    public ValueTask HandleHgRequest(HttpContext context)
+    public ValueTask OnResumableRequest(HttpContext context)
+    {
+        //todo update project last change
+        return ValueTask.CompletedTask;
+    }
+
+    public ValueTask OnHgRequest(HttpContext context)
     {
         if (context.Request.Query.TryGetValue("cmd", out var cmd)
             && cmd == "unbundle"

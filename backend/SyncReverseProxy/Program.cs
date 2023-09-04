@@ -15,7 +15,7 @@ builder.Services.AddOptions<LexBoxApiConfig>()
     .ValidateOnStart();
 builder.Services.AddScoped<ILexProxyService, RestLexProxyService>();
 builder.Services.AddHttpClient();
-builder.Services.AddSyncProxy(builder.Configuration, builder.Environment);
+builder.Services.AddSyncProxy();
 builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |

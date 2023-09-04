@@ -18,38 +18,13 @@ public static class ProxyKernel
 {
     public const string UserHasAccessToProjectPolicy = "UserHasAccessToProject";
 
-    public static void AddSyncProxy(this IServiceCollection services,
-        ConfigurationManager configuration,
-        IWebHostEnvironment env)
+    public static void AddSyncProxy(this IServiceCollection services)
     {
-        var defaultJsonSource = configuration.Sources.Last(s => s is JsonConfigurationSource);
-        configuration.Sources.Insert(configuration.Sources.IndexOf(defaultJsonSource) + 1,
-            new ChainedConfigurationSource
-            {
-                Configuration = new ConfigurationBuilder().AddJsonFile("proxy.appsettings.json",
-                        optional: true,
-                        reloadOnChange: env.IsDevelopment())
-                    //used when running via LexBoxApi in dev
-                    .AddJsonFile(Path.Combine(env.ContentRootPath, "../SyncReverseProxy", "proxy.appsettings.json"),
-                        optional: true,
-                        reloadOnChange: env.IsDevelopment())
-                    .AddJsonFile($"proxy.appsettings.{env.EnvironmentName}.json",
-                        optional: true,
-                        reloadOnChange: env.IsDevelopment()).Build()
-            });
-
         services.AddHttpContextAccessor();
         services.AddScoped<ProxyEventsService>();
         services.AddMemoryCache();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
-        var reverseProxyConfig = configuration.GetSection("ReverseProxy");
-        if (!reverseProxyConfig.Exists())
-        {
-            throw new OptionsValidationException("ReverseProxy",
-                typeof(IConfiguration),
-                new[] { "ReverseProxy config section is missing" });
-        }
 
         services.AddHttpForwarder();
         services.AddAuthentication()
@@ -128,9 +103,14 @@ public static class ProxyKernel
         Activity.Current?.AddTag("app.project_code", projectCode);
         await forwarder.SendAsync(context, destinationPrefix, httpClient);
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault();
-        if (hgType == HgType.hgWeb)
+        switch (hgType)
         {
-            await eventsService.HandleHgRequest(context);
+            case HgType.hgWeb:
+                await eventsService.OnHgRequest(context);
+                break;
+            case HgType.resumable:
+                await eventsService.OnResumableRequest(context);
+                break;
         }
     }
 
