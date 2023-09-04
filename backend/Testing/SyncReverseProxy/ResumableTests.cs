@@ -11,16 +11,9 @@ namespace Testing.SyncReverseProxy;
 public class ResumableTests
 {
     private readonly string _baseUrl = TestingEnvironmentVariables.ResumableBaseUrl;
-    private static readonly HttpClient Client = new()
-    {
-        Timeout = TimeSpan.FromSeconds(10)
-    };
+    private static readonly HttpClient Client = new();
 
-    [Fact(
-        Skip = """
-               For some reason this test fails in github,
-               it's not strictly necessary since we already have S&R resumable tests
-               """)]
+    [Fact]
     public async Task IsAvailable()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
