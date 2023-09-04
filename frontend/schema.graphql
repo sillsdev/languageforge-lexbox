@@ -108,6 +108,7 @@ type Project {
   code: String!
   createdDate: DateTime!
   changesets: [Changeset!]!
+  parentId: UUID
   name: String!
   description: String
   retentionPolicy: RetentionPolicy!
@@ -277,6 +278,7 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
 input ProjectFilterInput {
   and: [ProjectFilterInput!]
   or: [ProjectFilterInput!]
+  parentId: UuidOperationFilterInput
   code: StringOperationFilterInput
   name: StringOperationFilterInput
   description: StringOperationFilterInput
@@ -299,6 +301,7 @@ input ProjectRoleOperationFilterInput {
 }
 
 input ProjectSortInput {
+  parentId: SortEnumType
   code: SortEnumType
   name: SortEnumType
   description: SortEnumType

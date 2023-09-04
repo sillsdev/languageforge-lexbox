@@ -11,6 +11,9 @@ public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>
     {
         base.Configure(builder);
         builder.HasIndex(p => p.Code).IsUnique();
+        builder.HasOne<Project>()
+            .WithMany()
+            .HasForeignKey(p => p.ParentId);
         builder.HasMany(project => project.Users)
             .WithOne(projectUser => projectUser.Project)
             .HasForeignKey(projectUser => projectUser.ProjectId)

@@ -65,6 +65,11 @@ public class MigrationController : ControllerBase
                 rmProject.Identifier.Contains("test") ? RetentionPolicy.Test : RetentionPolicy.Unknown,
             LastCommit = null,
             Id = projectIdToGuid[rmProject.Id],
+            ParentId = rmProject.ParentId switch
+            {
+                null => null,
+                _ => projectIdToGuid[rmProject.ParentId.Value]
+            },
             Users = new List<ProjectUsers>()
         }));
 
