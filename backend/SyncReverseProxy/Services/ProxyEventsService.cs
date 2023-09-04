@@ -16,7 +16,7 @@ public class ProxyEventsService
     {
         if (context.Request.Query.TryGetValue("cmd", out var cmd)
             && cmd == "unbundle"
-            && context.Request.RouteValues.TryGetValue("project-code", out var projectCodeObj))
+            && context.Request.RouteValues.TryGetValue(ProxyConstants.HgProjectCodeRouteKey, out var projectCodeObj))
         {
             var projectCode = projectCodeObj?.ToString() ?? null;
             if (projectCode is not null)
