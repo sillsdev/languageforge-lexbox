@@ -58,16 +58,6 @@ tasks:
     dir: '{{.TESTING_DIR}}'
     cmds:
       - dotnet test --filter=Category!=Integration
-  test-sr:
-    dir: '{{.TESTING_DIR}}'
-    deps: [ up ]
-    cmds:
-      - dotnet test --filter=SendReceive
-  test-integration:
-    dir: '{{.TESTING_DIR}}'
-    deps: [ up ]
-    cmds:
-      - dotnet test --filter Category=Integration
   test-integration-staging:
     env:
       TEST_DEFAULT_PASSWORD: '***'
@@ -79,7 +69,7 @@ tasks:
 
       # dev
   infra-up:
-    desc: Starts infrastructure for our ui and api
+    desc: 'Starts infrastructure for our ui and api, if you want port forwarding use k8s:infra-forward'
     cmds:
       - skaffold run --cleanup=false --kube-context docker-desktop --profile=infra
   backend-up:
@@ -87,26 +77,18 @@ tasks:
     cmds:
       - skaffold dev --cleanup=false --kube-context docker-desktop --profile=no-frontend
 
-  dev: # Currently broken (because the ui doesn't wait for the api), but probably no one uses it.
-    deps: [ api-dev, ui:ui-only]
-    interactive: true
-
   ui-dev:
     aliases: [ ui ]
     desc: The single command for local ui development
     dir: ./frontend
-    deps: [ backend-up ]
+    deps: [ backend-up, ui:only ]
     interactive: true
-    cmds:
-      - task: ui:only
 
       # api
   api-dev:
     aliases: [ api ]
     desc: The single command for local api development
-    deps: [ infra-up ]
+    deps: [ infra-up, api:only, k8s:infra-forward ]
     interactive: true
-    cmds:
-      - task: api:only
 
 
