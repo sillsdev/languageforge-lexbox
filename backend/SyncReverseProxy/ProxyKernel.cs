@@ -92,7 +92,7 @@ public static class ProxyKernel
         app.Map($"/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
             async (IOptions<HgConfig> hgConfig,
                 HttpContext context,
-                [FromRoute(Name = "project-code")] string projectCode) =>
+                [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
             {
                 await Forward(context, httpClient, hgConfig.Value.HgWebUrl, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
@@ -104,6 +104,7 @@ public static class ProxyKernel
                 var hgWebUrl = hgConfig.Value.HgWebUrl;
                 if (hgWebUrl.EndsWith("hg/"))
                 {
+                    // the mapped path already starts with `hg/`
                     hgWebUrl = hgWebUrl[..^"hg/".Length];
                 }
 
