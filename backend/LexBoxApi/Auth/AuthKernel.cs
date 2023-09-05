@@ -28,7 +28,16 @@ public static class AuthKernel
             //this will make sure that all endpoints require auth unless they have the AllowAnonymous attribute
             options.FallbackPolicy = options.DefaultPolicy;
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
-                builder => builder.RequireAssertion(context => context.User.IsInRole(UserRole.admin.ToString())));
+                builder => builder.RequireAuthenticatedUser()
+                    .RequireAssertion(context => context.User.IsInRole(UserRole.admin.ToString())));
+
+            //user can create a project if they have the claim or are an admin
+            options.AddPolicy(CreateProjectRequiredAttribute.PolicyName,
+                builder => builder.RequireAuthenticatedUser()
+                    .RequireAssertion(context =>
+                        context.User.HasClaim(LexAuthConstants.CanCreateProjectClaimType, "true") ||
+                        context.User.IsInRole(UserRole.admin.ToString())
+                    ));
         });
         services.AddOptions<JwtOptions>()
             .BindConfiguration("Authentication:Jwt")
@@ -47,7 +56,7 @@ public static class AuthKernel
                     options.ForwardDefaultSelector = context =>
                     {
                         if ((context.Request.Headers.ContainsKey("Authorization") &&
-                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer")) ||
+                             context.Request.Headers.Authorization.ToString().StartsWith("Bearer")) ||
                             context.Request.Query.ContainsKey("jwt"))
                         {
                             return JwtBearerDefaults.AuthenticationScheme;

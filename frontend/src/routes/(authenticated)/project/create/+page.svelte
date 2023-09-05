@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { FormError, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
+  import {goto} from '$app/navigation';
+  import {FormError, lexSuperForm, SubmitButton, TextArea} from '$lib/forms';
   import Checkbox from '$lib/forms/Checkbox.svelte';
   import Form from '$lib/forms/Form.svelte';
   import Input from '$lib/forms/Input.svelte';
   import Select from '$lib/forms/Select.svelte';
-  import { DbErrorCode, ProjectType, RetentionPolicy } from '$lib/gql/types';
+  import {CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy} from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { Page } from '$lib/layout';
-  import { z } from 'zod';
-  import { _createProject } from './+page';
+  import {Page} from '$lib/layout';
+  import {z} from 'zod';
+  import {_createProject} from './+page';
+
   const formSchema = z.object({
     name: z.string().min(1, $t('project.create.name_missing')),
     description: z.string().min(1, $t('project.create.description_missing')),
@@ -41,7 +42,11 @@
 
       return;
     }
-    await goto(`/project/${$form.code}`);
+    if (result.data?.createProject.createProjectResponse?.result == CreateProjectResult.Created) {
+      await goto(`/project/${$form.code}`);
+    } else {
+      alert('project creation requested');
+    }
   });
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
