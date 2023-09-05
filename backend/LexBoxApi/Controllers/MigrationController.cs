@@ -82,20 +82,9 @@ public class MigrationController : ControllerBase
             Users = new List<ProjectUsers>()
         }));
 
-        _lexBoxDbContext.Users.AddRange(users.Select(rmUser => new User
+        _lexBoxDbContext.Users.AddRange(users.Select(rmUser =>
         {
-            CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? now,
-            UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? now,
-            Username = rmUser.Login,
-            LocalizationCode = rmUser.Language ?? LexCore.Entities.User.DefaultLocalizationCode,
-            Email = rmUser.EmailAddresses.FirstOrDefault()?.Address ?? throw new Exception("no email for user id" + rmUser.Login),
-            Name = rmUser.Firstname + " " + rmUser.Lastname,
-            IsAdmin = rmUser.Admin,
-            Salt = rmUser.Salt ?? "",
-            PasswordHash = rmUser.HashedPassword,
-            EmailVerified = rmUser.Status != 2,
-            Locked = rmUser.Status == 3,
-            Projects = rmUser.ProjectMembership?.Select(m => new ProjectUsers
+            var userProjects = rmUser.ProjectMembership?.Select(m => new ProjectUsers
             {
                 ProjectId = projectIdToGuid[m.ProjectId],
                 Role = m.Role.Role.Name switch
@@ -106,7 +95,25 @@ public class MigrationController : ControllerBase
                 },
                 CreatedDate = m.CreatedOn?.ToUniversalTime() ?? now,
                 UpdatedDate = m.CreatedOn?.ToUniversalTime() ?? now
-            }).ToList() ?? new List<ProjectUsers>()
+            }).ToList() ?? new List<ProjectUsers>();
+            return new User
+            {
+                CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? now,
+                UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? now,
+                Username = rmUser.Login,
+                LocalizationCode = rmUser.Language ?? LexCore.Entities.User.DefaultLocalizationCode,
+                Email =
+                    rmUser.EmailAddresses.FirstOrDefault()?.Address ??
+                    throw new Exception("no email for user id" + rmUser.Login),
+                Name = rmUser.Firstname + " " + rmUser.Lastname,
+                IsAdmin = rmUser.Admin,
+                Salt = rmUser.Salt ?? "",
+                PasswordHash = rmUser.HashedPassword,
+                EmailVerified = rmUser.Status != 2,
+                Locked = rmUser.Status == 3,
+                Projects = userProjects,
+                CanCreateProjects = userProjects.Any(p => p.Role == ProjectRole.Manager)
+            };
         }));
         if (!dryRun)
         {
