@@ -15,19 +15,30 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class ProjectMutations
 {
+    public enum CreateProjectResult
+    {
+        Created,
+        Requested
+    }
+
+    public record CreateProjectResponse(Guid? Id, CreateProjectResult Result);
     [Error<DbError>]
     [UseMutationConvention]
     [RefreshJwt]
-    [UseFirstOrDefault]
-    [UseProjection]
-    public async Task<IQueryable<Project>> CreateProject(
+    public async Task<CreateProjectResponse?> CreateProject(
         LoggedInContext loggedInContext,
         CreateProjectInput input,
         [Service] ProjectService projectService,
         LexBoxDbContext dbContext)
     {
+        if (!loggedInContext.User.HasProjectCreatePermission())
+        {
+            //todo send email to admin
+            return new CreateProjectResponse(null, CreateProjectResult.Requested);
+        }
+
         var projectId = await projectService.CreateProject(input, loggedInContext.User.Id);
-        return dbContext.Projects.Where(p => p.Id == projectId);
+        return new CreateProjectResponse(projectId, CreateProjectResult.Created);
     }
 
     [Error<NotFoundException>]
@@ -35,11 +46,14 @@ public class ProjectMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Project>> AddProjectMember(LoggedInContext loggedInContext, AddProjectMemberInput input, LexBoxDbContext dbContext)
+    public async Task<IQueryable<Project>> AddProjectMember(LoggedInContext loggedInContext,
+        AddProjectMemberInput input,
+        LexBoxDbContext dbContext)
     {
         loggedInContext.User.AssertCanManageProject(input.ProjectId);
         var user = await dbContext.Users.FindByEmail(input.UserEmail);
         if (user is null) throw new NotFoundException("Member not found");
+        user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
         await dbContext.SaveChangesAsync();
@@ -58,10 +72,11 @@ public class ProjectMutations
     {
         loggedInContext.User.AssertCanManagerProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
-            await dbContext.ProjectUsers.FirstOrDefaultAsync(u =>
+            await dbContext.ProjectUsers.Include(r => r.User).FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
         if (projectUser is null) throw new NotFoundException("Project member not found");
         projectUser.Role = input.Role;
+        projectUser.User.UpdateCreateProjectsPermission(input.Role);
         await dbContext.SaveChangesAsync();
 
         return dbContext.ProjectUsers.Where(u => u.Id == projectUser.Id);
