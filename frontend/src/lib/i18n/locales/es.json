@@ -66,5 +66,11 @@
   "user_types": {
     "admin": "Administración",
     "user": "Usuario"
+  },
+  "emails": {
+    "create_project_request_email": {
+      "subject": "",
+      "heading": ""
+    }
   }
 }
