@@ -61,13 +61,12 @@ public class HgService : IHgService
         return filename;
     }
 
-    public async Task<string> ResetRepo(string code)
+    public async Task ResetRepo(string code)
     {
         string timestamp = DateTimeOffset.UtcNow.ToString("yyyy_MM_dd_HHmmss");
         // TODO: Make that "yyyy_MM_dd_HHmmss" string a constant somewhere, then reference it here and in ProjectMutations.SoftDeleteProject
         await SoftDeleteRepo(code, timestamp);
         await InitRepo(code);
-        return backupPath;
     }
 
     public async Task RevertRepo(string code, string revHash)

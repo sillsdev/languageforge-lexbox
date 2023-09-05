@@ -45,10 +45,9 @@ public class ProjectService
         return backupFile;
     }
 
-    public async Task<ResetProjectByAdminOutput> ResetProject(ResetProjectByAdminInput input)
+    public async Task ResetProject(ResetProjectByAdminInput input)
     {
-        var backupPath = await _hgService.ResetRepo(input.Code);
-        return new ResetProjectByAdminOutput(backupPath);
+        await _hgService.ResetRepo(input.Code);
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)

@@ -78,9 +78,10 @@ public class ProjectController : ControllerBase
 
     [HttpPost("resetProject/{code}")]
     [AdminRequired]
-    public async Task<ActionResult<ResetProjectByAdminOutput>> ResetProject(string code)
+    public async Task<ActionResult> ResetProject(string code)
     {
-        return await _projectService.ResetProject(new Models.Project.ResetProjectByAdminInput(code));
+        await _projectService.ResetProject(new Models.Project.ResetProjectByAdminInput(code));
+        return Ok();
     }
 
     [HttpDelete("project/{id}")]
