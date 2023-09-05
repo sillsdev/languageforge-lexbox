@@ -29,11 +29,11 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         CreateProjectInput input,
         [Service] ProjectService projectService,
-        LexBoxDbContext dbContext)
+        [Service] EmailService emailService)
     {
         if (!loggedInContext.User.HasProjectCreatePermission())
         {
-            //todo send email to admin
+            await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
             return new CreateProjectResponse(null, CreateProjectResult.Requested);
         }
 
