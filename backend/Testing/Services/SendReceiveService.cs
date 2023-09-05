@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using Chorus;
 using Nini.Ini;
 using SIL.Progress;
 using Testing.Logging;
@@ -15,7 +16,7 @@ public class SendReceiveService
 {
     private readonly ITestOutputHelper _output;
     private const string fdoDataModelVersion = "7000072";
-    private const string Protocol = "http";
+    private static string Protocol = TestingEnvironmentVariables.IsDev ? "http" : "https";
 
     public SendReceiveService(ITestOutputHelper output)
     {
@@ -23,13 +24,29 @@ public class SendReceiveService
         FixupCaCerts();
     }
 
+    private static bool _cacertsFixed = false;
+
     private static void FixupCaCerts()
     {
-        var caCertsPem = Path.GetFullPath(Path.Join("Mercurial", "cacert.pem"));
+        if (_cacertsFixed) return;
+        var caCertsPem = new []
+        {
+            "/etc/ssl/certs/ca-certificates.crt",
+            Path.GetFullPath(Path.Join(MercurialLocation.PathToMercurialFolder, "cacert.pem")),
+        } .FirstOrDefault(File.Exists);
+        if (string.IsNullOrEmpty(caCertsPem)) throw new FileNotFoundException("unable to find cacert.pem");
         //this cacerts.rc file is what is used when doing a clone, all future actions on a repo use the hgrc file defined in the .hg folder
-        var caCertsRc = new IniDocument(Path.Join("Mercurial", "default.d", "cacerts.rc"), IniFileType.MercurialStyle);
+        var cacertsRcPath = Path.Join(MercurialLocation.PathToMercurialFolder, "default.d", "cacerts.rc");
+        //the default.d folder doesn't exist in linux builds, so we modify the mercurial.ini file instead
+        if (!File.Exists(cacertsRcPath))
+        {
+            cacertsRcPath = Path.Join(MercurialLocation.PathToMercurialFolder, "mercurial.ini");
+        }
+
+        var caCertsRc = new IniDocument(cacertsRcPath, IniFileType.MercurialStyle);
         caCertsRc.Sections.GetOrCreate("web").Set("cacerts", caCertsPem);
         caCertsRc.Save();
+        _cacertsFixed = true;
     }
 
     private StringBuilderProgress NewProgress()
@@ -43,9 +60,8 @@ public class SendReceiveService
     public async Task<string> GetHgVersion()
     {
         using Process hg = new();
-        string hgFilename = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "hg.exe" : "hg";
-        hg.StartInfo.FileName = Path.Join("Mercurial", hgFilename);
-        if (!File.Exists(hg.StartInfo.FileName))
+        hg.StartInfo.FileName = MercurialLocation.PathToHgExecutable;
+        if (!File.Exists(hg.StartInfo.FileName) && !File.Exists(hg.StartInfo.FileName + ".exe"))
         {
             throw new FileNotFoundException("unable to find HG executable", hg.StartInfo.FileName);
         }
@@ -65,7 +81,8 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        var repoUrl = new UriBuilder($"http://{baseUrl}/{projectCode}") { Scheme = Protocol };
+        var repoUrl = new UriBuilder($"{Protocol}://{baseUrl}/{projectCode}");
+        progress.WriteMessage($"Cloning {repoUrl} with user '{username}' ...");
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -83,7 +100,6 @@ public class SendReceiveService
             repoUrl.Password = password;
         }
 
-        progress.WriteMessage($"Cloning {repoUrl} with user {username} and password \"{password}\" ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },
@@ -94,7 +110,7 @@ public class SendReceiveService
         };
         string cloneResult;
         LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", progress, flexBridgeOptions, out cloneResult);
-        cloneResult += "Progress out: " + progress.Text;
+        cloneResult += $"{Environment.NewLine}Progress out: {progress.Text}";
         return cloneResult;
     }
 
@@ -103,7 +119,8 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        var repoUrl = new UriBuilder($"http://{baseUrl}/{projectCode}") { Scheme = Protocol };
+        var repoUrl = new UriBuilder($"{Protocol}://{baseUrl}/{projectCode}");
+        progress.WriteMessage($"S/R for {repoUrl} with user '{username}' ...");
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
             // No username or password supplied, so we explicitly do *not* save user settings
@@ -122,7 +139,6 @@ public class SendReceiveService
         }
 
         string fwdataFilename = Path.Join(destDir, $"{projectCode}.fwdata");
-        progress.WriteMessage($"S/R for {repoUrl} with user {username} and password \"{password}\" ...");
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", destDir },

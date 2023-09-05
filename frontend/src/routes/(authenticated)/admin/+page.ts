@@ -72,6 +72,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
               isAdmin
             }
             errors {
+                __typename
               ... on Error {
                 message
               }

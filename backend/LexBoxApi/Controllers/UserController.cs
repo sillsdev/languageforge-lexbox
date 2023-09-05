@@ -7,6 +7,7 @@ using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
+using LexData.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +57,7 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var hasExistingUser = await _lexBoxDbContext.Users.AnyAsync(u => u.Email == accountInput.Email);
+        var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmail(accountInput.Email).AnyAsync();
         registerActivity?.AddTag("app.email_available", !hasExistingUser);
         if (hasExistingUser)
         {

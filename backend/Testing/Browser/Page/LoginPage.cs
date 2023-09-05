@@ -1,5 +1,4 @@
 using Microsoft.Playwright;
-using Testing.Browser.Util;
 
 namespace Testing.Browser.Page;
 
@@ -21,10 +20,9 @@ public class LoginPage : BasePage<LoginPage>
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
     }
 
-    public Task<ForgotPasswordPage> ClickForgotPassword()
+    public async Task<ForgotPasswordPage> ClickForgotPassword()
     {
-        return TaskUtil.WhenAllTakeSecond(
-            Page.GetByRole(AriaRole.Link, new() { Name = "Forgot password" }).ClickAsync(),
-            new ForgotPasswordPage(Page).WaitFor());
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Forgot password" }).ClickAsync();
+        return await new ForgotPasswordPage(Page).WaitFor();
     }
 }

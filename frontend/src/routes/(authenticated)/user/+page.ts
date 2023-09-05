@@ -35,6 +35,7 @@ export async function _changeUserAccountData(input: ChangeUserAccountDataInput):
               email
             }
             errors {
+              __typename
               ... on Error {
                 message
               }

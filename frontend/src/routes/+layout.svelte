@@ -1,22 +1,24 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import '$lib/app.postcss';
-  import { error, goesToErrorPage } from '$lib/error';
+  import { goesToErrorPage, initErrorStore } from '$lib/error';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
-  import { onDestroy } from 'svelte';
   import type { LayoutData } from './$types';
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
+  import { writable } from 'svelte/store';
+  import { onDestroy } from 'svelte';
 
+  // https://www.w3.org/TR/trace-context/#traceparent-header
+  // so the page-load instrumentation can be correlated with the server load
+  export let data: LayoutData;
+
+  const error = initErrorStore(writable());
   onDestroy(
     page.subscribe((p) => {
       error.set(p.error);
     })
   );
-
-  // https://www.w3.org/TR/trace-context/#traceparent-header
-  // so the page-load instrumentation can be correlated with the server load
-  export let data: LayoutData;
 </script>
 
 <svelte:head>

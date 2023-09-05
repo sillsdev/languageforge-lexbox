@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -9,35 +10,33 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class ResumableTests
 {
-    private readonly string _host = TestingEnvironmentVariables.ResumableHgHostname;
-    private static readonly HttpClient Client = new()
-    {
-        Timeout = TimeSpan.FromSeconds(3)
-    };
+    private readonly string _baseUrl = TestingEnvironmentVariables.ResumableBaseUrl;
+    private static readonly HttpClient Client = new();
 
     [Fact]
     public async Task IsAvailable()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
                 Authorization = new AuthenticationHeaderValue("Basic",
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
             }
-        });
+        }, HttpCompletionOption.ResponseHeadersRead);
         var responseString = await responseMessage.Content.ReadAsStringAsync();
         responseString.ShouldBeNullOrEmpty();
-        responseMessage.Headers.GetValues("X-HgR-Version").ShouldHaveSingleItem().ShouldBe("3");
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var headers = responseMessage.Headers.ToDictionary(kvp => kvp.Key, kvp => string.Join(',', kvp.Value), StringComparer.OrdinalIgnoreCase);
+        headers.ShouldContainKeyAndValue("X-HgR-Version", "3");
     }
 
     [Fact]
     public async Task WithBadUser()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -52,7 +51,7 @@ public class ResumableTests
     public async Task WithBadPassword()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
@@ -67,7 +66,7 @@ public class ResumableTests
     public async Task WithBadNotValidProject()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId=test-not-valid")
+            $"{_baseUrl}/api/v03/isAvailable?repoId=test-not-valid")
         {
             Headers =
             {
@@ -75,7 +74,7 @@ public class ResumableTests
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
             }
         });
-        responseMessage.StatusCode.ShouldBeOneOf(HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized);
+        responseMessage.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -83,7 +82,7 @@ public class ResumableTests
     {
         var userWithoutPermission = "user@test.com";
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-            $"http://{_host}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {

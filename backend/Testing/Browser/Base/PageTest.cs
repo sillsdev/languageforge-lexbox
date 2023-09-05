@@ -16,7 +16,6 @@ public class PageTest : IAsyncLifetime
     public IPage Page => _fixture.Page;
     public IBrowser Browser => _fixture.Browser;
     public IBrowserContext Context => _fixture.Context;
-    public static bool IsDev => TestingEnvironmentVariables.IsDev;
 
     public PageTest()
     {
@@ -57,7 +56,7 @@ public class PageTest : IAsyncLifetime
     {
         // TODO can't we just use Page.APIRequest instead
         var responseMessage = await HttpClient.PostAsJsonAsync(
-            $"http://{TestingEnvironmentVariables.ServerHostname}/api/login",
+            $"{TestingEnvironmentVariables.ServerBaseUrl}/api/login",
             new Dictionary<string, object>
             {
                 { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
@@ -69,7 +68,7 @@ public class PageTest : IAsyncLifetime
         var cookieContainer = new CookieContainer();
         foreach (var cookie in cookies)
         {
-            cookieContainer.SetCookies(new($"http://{TestingEnvironmentVariables.ServerHostname}"), cookie);
+            cookieContainer.SetCookies(new($"{TestingEnvironmentVariables.ServerBaseUrl}"), cookie);
         }
 
         await Context.AddCookiesAsync(cookieContainer.GetAllCookies()
@@ -85,20 +84,18 @@ public class PageTest : IAsyncLifetime
             }));
     }
 
-    protected Task<LoginPage> Logout()
+    protected async Task<LoginPage> Logout()
     {
-        return TaskUtil.WhenAllTakeSecond(
-            Page.GotoAsync("/logout"),
-            new LoginPage(Page).WaitFor());
+        await Page.GotoAsync("/logout");
+        return await new LoginPage(Page).WaitFor();
     }
 
     protected async Task<TempUserDashboardPage> RegisterUser(string name, string email, string password)
     {
         var registerPage = await new RegisterPage(Page).Goto();
         await registerPage.FillForm(name, email, password);
-        await TaskUtil.WhenAllTakeSecond(
-            registerPage.Submit(),
-            new UserDashboardPage(Page).WaitFor());
+        await registerPage.Submit();
+        await new UserDashboardPage(Page).WaitFor();
         var userId = await GetCurrentUserId();
         var user = new TempUser(userId, name, email, password);
         return new TempUserDashboardPage(Page, user);
@@ -106,7 +103,7 @@ public class PageTest : IAsyncLifetime
 
     private async Task<Guid> GetCurrentUserId()
     {
-        var userResponse = await Page.APIRequest.GetAsync($"http://{TestingEnvironmentVariables.ServerHostname}/api/user/currentUser");
+        var userResponse = await Page.APIRequest.GetAsync($"{TestingEnvironmentVariables.ServerBaseUrl}/api/user/currentUser");
         var user = await userResponse.JsonAsync<LexAuthUser>();
         return user.ShouldNotBeNull().Id;
     }
@@ -122,7 +119,7 @@ public class PlaywrightFixture : IAsyncLifetime
         );
         Context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
-            BaseURL = $"http://{TestingEnvironmentVariables.ServerHostname}/",
+            BaseURL = $"{TestingEnvironmentVariables.ServerBaseUrl}/",
         });
         Page = await Context.NewPageAsync();
     }

@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace LexBoxApi.Config;
+namespace LexCore.Config;
 
 public class HgConfig
 {
     [Required]
     public required string RepoPath { get; init; }
-    [Required]
+    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
     public required string HgWebUrl { get; init; }
+    [Required, Url]
+    public required string HgResumableUrl { get; init; }
 }

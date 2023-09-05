@@ -37,8 +37,8 @@
   $: _project = project as NonNullable<typeof project>;
 
   $: projectHgUrl = import.meta.env.DEV
-    ? `http://${$page.url.host}/hg/${data.code}`
-    : `http://hg-${$page.url.host}/${data.code}`;
+    ? `http://hg.${$page.url.host}/${data.code}`
+    : `https://hg-${$page.url.host.replace('depot', 'forge')}/${data.code}`;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
@@ -122,7 +122,8 @@
     await navigator.clipboard.writeText(projectHgUrl);
     copiedToClipboard = true;
     copyingToClipboard = false;
-    await delay(() => (copiedToClipboard = false));
+    await delay();
+    copiedToClipboard = false;
   }
 
   let deleteProjectModal: ConfirmDeleteModal;

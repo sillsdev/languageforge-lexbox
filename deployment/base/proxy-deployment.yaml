@@ -60,10 +60,21 @@ spec:
             name: lexbox
             port:
               name: http
+  - host: admin.localhost
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
 
   tls:
   - hosts:
     - localhost
     - hg.localhost
     - resumable.localhost
+    - admin.localhost
     secretName: languagedepot-tls # provided by LTOps

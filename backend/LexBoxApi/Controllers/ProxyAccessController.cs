@@ -3,6 +3,7 @@ using System.Net.Mime;
 using LexCore;
 using LexCore.ServiceInterfaces;
 using LexData;
+using LexData.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,7 @@ public class ProxyAccessController : ControllerBase
     {
         var password = input.Password;
 
-        var user = await _lexBoxDbContext.Users.Where(user => user.Username == userName)
+        var user = await _lexBoxDbContext.Users.FilterByEmail(userName)
             .Select(user => new
             {
                 user.Salt,

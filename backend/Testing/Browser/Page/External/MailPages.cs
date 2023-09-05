@@ -1,15 +1,40 @@
 using Microsoft.Playwright;
+using Testing.Services;
 
 namespace Testing.Browser.Page.External;
 
-public interface MailInboxPage
+public abstract class MailInboxPage : BasePage<MailInboxPage>
 {
-    public string AddressId { get; }
+    public string MailboxId { get; private set; }
     public ILocator EmailLocator { get; }
 
-    public Task<MailInboxPage> GotoMailbox(string mailboxId);
+    public static MailInboxPage Get(IPage page, string mailboxId)
+    {
+        return TestingEnvironmentVariables.IsDev
+            ? new MailDevInboxPage(page, mailboxId)
+            : new MailinatorInboxPage(page, mailboxId);
+    }
 
-    public Task<MailEmailPage> OpenEmail(int index = 0);
+    public MailInboxPage(IPage page, string url, ILocator testLocator, string mailboxId, ILocator emailLocator)
+    : base(page, url, testLocator)
+    {
+        MailboxId = mailboxId;
+        EmailLocator = emailLocator;
+    }
+
+    protected abstract MailEmailPage GetEmailPage();
+
+    public async Task<MailInboxPage> GotoMailbox(string mailboxId)
+    {
+        MailboxId = mailboxId;
+        return await Goto();
+    }
+
+    public async Task<MailEmailPage> OpenEmail(int index = 0)
+    {
+        await EmailLocator.Nth(index).ClickAsync();
+        return await GetEmailPage().WaitFor();
+    }
 }
 
 public abstract class MailEmailPage : BasePage<MailEmailPage>

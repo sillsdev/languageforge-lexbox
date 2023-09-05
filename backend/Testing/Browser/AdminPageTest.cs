@@ -1,6 +1,6 @@
 ﻿using Testing.Browser.Base;
 using Testing.Browser.Page;
-using Testing.Browser.Util;
+using Testing.Services;
 
 namespace Testing.Browser;
 
@@ -11,11 +11,10 @@ public class AdminPageTest : PageTest
     public async Task CanNavigateToProjectPage()
     {
         var loginPage = await new LoginPage(Page).Goto();
-        await loginPage.FillForm("admin", "pass");
+        await loginPage.FillForm("admin", TestingEnvironmentVariables.DefaultPassword);
 
-        var adminPage = await TaskUtil.WhenAllTakeSecond(
-            loginPage.Submit(),
-            new AdminDashboardPage(Page).WaitFor());
+        await loginPage.Submit();
+        var adminPage = await new AdminDashboardPage(Page).WaitFor();
 
         await adminPage.OpenProject("Sena 3", "sena-3");
     }

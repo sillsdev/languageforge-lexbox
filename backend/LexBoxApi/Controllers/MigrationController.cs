@@ -2,6 +2,7 @@ using LexBoxApi.Auth;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
+using LexData.Entities;
 using LexData.Redmine;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ public class MigrationController : ControllerBase
     public async Task<ActionResult<User>> DryRunTransformUser(string email)
     {
 
-        var user = await _lexBoxDbContext.Users.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await _lexBoxDbContext.Users.FindByEmail(email);
         if (user is null) return NotFound();
         return user;
     }
@@ -64,6 +65,11 @@ public class MigrationController : ControllerBase
                 rmProject.Identifier.Contains("test") ? RetentionPolicy.Test : RetentionPolicy.Unknown,
             LastCommit = null,
             Id = projectIdToGuid[rmProject.Id],
+            ParentId = rmProject.ParentId switch
+            {
+                null => null,
+                _ => projectIdToGuid[rmProject.ParentId.Value]
+            },
             Users = new List<ProjectUsers>()
         }));
 

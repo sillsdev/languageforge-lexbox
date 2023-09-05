@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Chorus.VcsDrivers.Mercurial;
 using Shouldly;
+using Testing.Logging;
 using Testing.Services;
 using Xunit.Abstractions;
 
@@ -10,11 +11,11 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class SendReceiveServiceTests
 {
-    public SendReceiveAuth ManagerAuth = new("manager", "pass");
-    public SendReceiveAuth AdminAuth = new("admin", "pass");
+    public SendReceiveAuth ManagerAuth = new("manager", TestingEnvironmentVariables.DefaultPassword);
+    public SendReceiveAuth AdminAuth = new("admin", TestingEnvironmentVariables.DefaultPassword);
     public SendReceiveAuth InvalidPass = new("manager", "incorrect_pass");
-    public SendReceiveAuth InvalidUser = new("invalid_user", "pass");
-    public SendReceiveAuth UnauthorizedUser = new("user", "pass");
+    public SendReceiveAuth InvalidUser = new("invalid_user", TestingEnvironmentVariables.DefaultPassword);
+    public SendReceiveAuth UnauthorizedUser = new("user", TestingEnvironmentVariables.DefaultPassword);
 
     private readonly ITestOutputHelper _output;
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
@@ -25,11 +26,6 @@ public class SendReceiveServiceTests
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
         CleanUpTempDir();
-        var fileInfo = new FileInfo("Mercurial/hg");
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && fileInfo.Exists)
-        {
-            fileInfo.Delete();
-        }
     }
 
     private void CleanUpTempDir()
@@ -72,17 +68,15 @@ public class SendReceiveServiceTests
     [Fact]
     public async Task VerifyHgWorking()
     {
-        HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
         string version = await _sendReceiveService.GetHgVersion();
         version.ShouldStartWith("Mercurial Distributed SCM");
+        HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) {ShowVerbose = true});
+        HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
     }
 
-    [Fact(
-        Skip = "Just for testing, comment out to run"
-    )]
-    public void CloneForDev()
+    [Fact]
+    public void CloneBigProject()
     {
-        TestingEnvironmentVariables.StandardHgHostname = "hg-staging.languagedepot.org";
         RunCloneSendReceive(HgProtocol.Hgweb, "admin", "elawa-dev-flex");
     }
 
@@ -98,7 +92,7 @@ public class SendReceiveServiceTests
     private void RunCloneSendReceive(HgProtocol hgProtocol, string user, string projectCode)
     {
         var (projectDir, fwDataFile) = GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user));
-        var auth = new SendReceiveAuth(user, "pass");
+        var auth = new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword);
         var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(), projectDir);
 
         // Clone

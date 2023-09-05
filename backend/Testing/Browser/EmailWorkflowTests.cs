@@ -1,7 +1,6 @@
 ﻿using Testing.Browser.Base;
 using Testing.Browser.Page;
 using Testing.Browser.Page.External;
-using Testing.Browser.Util;
 
 namespace Testing.Browser;
 
@@ -25,15 +24,11 @@ public class EmailWorkflowTests : PageTest
 
         // await Page.PauseAsync(); // Pause in dev to forward e-mails to mailinator
 
-        MailInboxPage inboxPage = IsDev
-            ? await new MailDevInboxPage(Page, mailinatorId).Goto()
-            : await new MailinatorInboxPage(Page, mailinatorId).Goto();
+        var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
         await Expect(inboxPage.EmailLocator).ToHaveCountAsync(2);
         var emailPage = await inboxPage.OpenEmail();
-        var userPage = await TaskUtil.WhenAllTakeSecond(
-            emailPage.ClickVerifyEmail(),
-            new UserAccountSettingsPage(await Page.Context.WaitForPageAsync()).WaitFor()
-        );
+        var newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickVerifyEmail);
+        var userPage = await new UserAccountSettingsPage(newPage).WaitFor();
 
         await userPage.EmailVerificationAlert.AssertSuccessfullyVerified();
 
@@ -56,19 +51,16 @@ public class EmailWorkflowTests : PageTest
         await inboxPage.GotoMailbox(newMailinatorId);
         await Expect(inboxPage.EmailLocator).ToHaveCountAsync(1);
         emailPage = await inboxPage.OpenEmail();
-        userPage = await TaskUtil.WhenAllTakeSecond(
-            emailPage.ClickVerifyEmail(),
-            new UserAccountSettingsPage(await Page.Context.WaitForPageAsync()).WaitFor()
-        );
+        newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickVerifyEmail);
+        userPage = await new UserAccountSettingsPage(newPage).WaitFor();
 
         await userPage.EmailVerificationAlert.AssertSuccessfullyUpdated();
 
         // Step: Confirm new e-mail address works
         var loginPage = await Logout();
         await loginPage.FillForm(newEmail, password);
-        await Task.WhenAll(
-            loginPage.Submit(),
-            userDashboardPage.WaitFor());
+        await loginPage.Submit();
+        await userDashboardPage.WaitFor();
     }
 
     [Fact]
@@ -87,14 +79,11 @@ public class EmailWorkflowTests : PageTest
         await forgotPasswordPage.Submit();
 
         // Step: Use reset password link
-        MailInboxPage inboxPage = IsDev
-            ? await new MailDevInboxPage(Page, mailinatorId).Goto()
-            : await new MailinatorInboxPage(Page, mailinatorId).Goto();
+        var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
         var emailPage = await inboxPage.OpenEmail();
 
-        var resetPasswordPage = await TaskUtil.WhenAllTakeSecond(
-            emailPage.ClickResetPassword(),
-            new ResetPasswordPage(await Page.Context.WaitForPageAsync()).WaitFor());
+        var newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickResetPassword);
+        var resetPasswordPage = await new ResetPasswordPage(newPage).WaitFor();
 
         var newPassword = Guid.NewGuid().ToString();
         await resetPasswordPage.FillForm(newPassword);
@@ -103,8 +92,7 @@ public class EmailWorkflowTests : PageTest
         // Step: Confirm new password works
         loginPage = await Logout();
         await loginPage.FillForm(email, newPassword);
-        await Task.WhenAll(
-            loginPage.Submit(),
-            userDashboardPage.WaitFor());
+        await loginPage.Submit();
+        await userDashboardPage.WaitFor();
     }
 }

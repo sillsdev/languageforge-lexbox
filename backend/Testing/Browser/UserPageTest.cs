@@ -47,8 +47,7 @@ public class UserPageTest : PageTest
 
         var loginPage = await Logout();
         await loginPage.FillForm(userDashboardPage.User.Email, newPassword);
-        await Task.WhenAll(
-            loginPage.Submit(),
-            new UserDashboardPage(Page).WaitFor());
+        await loginPage.Submit();
+        await new UserDashboardPage(Page).WaitFor();
     }
 }

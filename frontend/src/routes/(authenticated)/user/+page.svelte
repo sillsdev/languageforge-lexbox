@@ -25,7 +25,8 @@
     let { response } = await deleteModal.open(user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
-      await delay(() => void goto('/logout'));
+      await delay();
+      await goto('/logout');
     }
   }
 
@@ -35,12 +36,15 @@
   });
 
   let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {
-    const { error } = await _changeUserAccountData({
+    const { error, data } = await _changeUserAccountData({
       email: $form.email,
       name: $form.name,
       userId: user.id,
     });
-
+    if (data?.changeUserAccountData.errors?.some(e => e.__typename === 'UniqueValueError')) {
+      $errors.email = [$t('admin_dashboard.email_used')];
+      return;
+    }
     if (error?.message) {
       return error.message;
     }

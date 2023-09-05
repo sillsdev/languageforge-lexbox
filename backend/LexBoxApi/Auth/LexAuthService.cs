@@ -7,6 +7,7 @@ using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
+using LexData.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -92,8 +93,10 @@ public class LexAuthService
 
     private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
     {
-        var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
-            .FirstOrDefaultAsync(user => user.Email == emailOrUsername || user.Username == emailOrUsername);
+        var user = await _lexBoxDbContext.Users
+            .FilterByEmail(emailOrUsername)
+            .Include(u => u.Projects).ThenInclude(p => p.Project)
+            .FirstOrDefaultAsync();
         return (user == null ? null : new LexAuthUser(user), user);
     }
 

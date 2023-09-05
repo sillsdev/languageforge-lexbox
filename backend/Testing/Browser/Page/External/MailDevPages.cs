@@ -1,38 +1,24 @@
 using Microsoft.Playwright;
-using Testing.Browser.Util;
 
 namespace Testing.Browser.Page.External;
 
-public class MailDevInboxPage : BasePage<MailDevInboxPage>, MailInboxPage
+public class MailDevInboxPage : MailInboxPage
 {
-    public string AddressId { get; private set; }
-    public ILocator EmailLocator { get; private set; }
-
-    public MailDevInboxPage(IPage page, string mailboxId) : base(page,
-        "http://localhost:1080/#/", page.Locator("ul.email-list"))
+    public MailDevInboxPage(IPage page, string mailboxId)
+    : base(page, "http://localhost:1080/#/", page.Locator("ul.email-list"), mailboxId, page.Locator("ul.email-list li a"))
     {
-        AddressId = mailboxId;
-        EmailLocator = Page.Locator("ul.email-list li a");
     }
 
-    public override async Task<MailDevInboxPage> Goto()
+    protected override MailEmailPage GetEmailPage()
+    {
+        return new MailDevEmailPage(Page);
+    }
+
+    public override async Task<MailInboxPage> Goto()
     {
         await base.Goto();
-        await Page.Locator("input.search-input").FillAsync(AddressId);
+        await Page.Locator("input.search-input").FillAsync(MailboxId);
         return this;
-    }
-
-    public async Task<MailInboxPage> GotoMailbox(string mailboxId)
-    {
-        AddressId = mailboxId;
-        return await Goto();
-    }
-
-    public async Task<MailEmailPage> OpenEmail(int index = 0)
-    {
-        return await TaskUtil.WhenAllTakeFirst(
-            new MailDevEmailPage(Page).WaitFor(),
-            EmailLocator.Nth(index).ClickAsync());
     }
 }
 

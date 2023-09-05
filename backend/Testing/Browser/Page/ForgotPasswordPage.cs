@@ -1,5 +1,4 @@
 using Microsoft.Playwright;
-using Testing.Browser.Util;
 
 namespace Testing.Browser.Page;
 
@@ -15,11 +14,10 @@ public class ForgotPasswordPage : BasePage<ForgotPasswordPage>
         await Page.GetByLabel("Email").FillAsync(email);
     }
 
-    public Task<ResetPasswordEmailSentPage> Submit()
+    public async Task<ResetPasswordEmailSentPage> Submit()
     {
-        return TaskUtil.WhenAllTakeSecond(
-            Page.GetByRole(AriaRole.Button, new() { Name = "Send reset email" }).ClickAsync(),
-            new ResetPasswordEmailSentPage(Page).WaitFor());
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Send reset email" }).ClickAsync();
+        return await new ResetPasswordEmailSentPage(Page).WaitFor();
     }
 }
 

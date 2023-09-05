@@ -1,5 +1,4 @@
 using Microsoft.Playwright;
-using Testing.Browser.Util;
 
 namespace Testing.Browser.Page;
 
@@ -13,8 +12,7 @@ public class AdminDashboardPage : AuthenticatedBasePage<AdminDashboardPage>
     public async Task<ProjectPage> OpenProject(string projectName, string projectCode)
     {
         var projectTable = Page.Locator("table").Nth(0);
-        return await TaskUtil.WhenAllTakeSecond(
-            projectTable.GetByRole(AriaRole.Link, new() { Name = projectName }).ClickAsync(),
-            new ProjectPage(Page, projectName, projectCode).WaitFor());
+        await projectTable.GetByRole(AriaRole.Link, new() { Name = projectName }).ClickAsync();
+        return await new ProjectPage(Page, projectName, projectCode).WaitFor();
     }
 }

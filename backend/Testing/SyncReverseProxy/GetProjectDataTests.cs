@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Shouldly;
@@ -10,7 +11,7 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class GetProjectDataTests
 {
-    private readonly string _host = TestingEnvironmentVariables.ServerHostname;
+    private readonly string _baseUrl = TestingEnvironmentVariables.ServerBaseUrl;
     private static readonly HttpClient Client = new();
 
     private const string SampleRequest = """
@@ -53,7 +54,17 @@ password={password}
     public async Task GetProjectDataViaForm()
     {
         var response = await Client.PostAsync(
-            $"http://{_host}/api/user/{TestData.User}/projects",
+            $"{_baseUrl}/api/user/{TestData.User}/projects",
+            new FormUrlEncodedContent(
+                new[] { new KeyValuePair<string, string>("password", TestData.Password) }));
+        await ValidateResponse(response);
+    }
+
+    [Fact]
+    public async Task GetProjectDataWithEmailAddress()
+    {
+        var response = await Client.PostAsync(
+            $"{_baseUrl}/api/user/{TestData.User}@test.com/projects",
             new FormUrlEncodedContent(
                 new[] { new KeyValuePair<string, string>("password", TestData.Password) }));
         await ValidateResponse(response);
@@ -63,7 +74,7 @@ password={password}
     public async Task GetProjectDataViaJson()
     {
         var response = await Client.PostAsJsonAsync(
-            $"http://{_host}/api/user/{TestData.User}/projects",
+            $"{_baseUrl}/api/user/{TestData.User}/projects",
             new { password = TestData.Password });
         await ValidateResponse(response);
     }
@@ -72,7 +83,7 @@ password={password}
     public async Task TestInvalidPassword()
     {
         var response = await Client.PostAsync(
-            $"http://{_host}/api/user/{TestData.User}/projects",
+            $"{_baseUrl}/api/user/{TestData.User}/projects",
             new FormUrlEncodedContent(
                 new[] { new KeyValuePair<string, string>("password", "bad password") }));
         response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
@@ -88,7 +99,7 @@ password={password}
     public async Task TestInvalidUser()
     {
         var response = await Client.PostAsync(
-            $"http://{_host}/api/user/not-a-real-user-account/projects",
+            $"{_baseUrl}/api/user/not-a-real-user-account/projects",
             new FormUrlEncodedContent(
                 new[] { new KeyValuePair<string, string>("password", "doesn't matter") }));
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);

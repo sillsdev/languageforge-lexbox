@@ -20,6 +20,9 @@ spec:
         env:
           - name: ASPNETCORE_ENVIRONMENT
             value: "Development"
+          - name: DbConfig__DefaultSeedUserPassword
+            value: "pass"
+            valueFrom: # don't use secret as defined in base
           - name: Authentication__Jwt__Secret
             value: "dev-secret_but-it-must-be-32-characters-long"
 #            intentionally set this to no value

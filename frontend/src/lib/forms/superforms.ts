@@ -13,6 +13,8 @@ export type LexFormState<S extends ZodValidation<AnyZodObject>> = Required<{ [fi
   currentValue: z.infer<S>[field];
 } }>;
 
+export type LexFormErrors<S extends ZodValidation<AnyZodObject>> = SuperValidated<S, string>['errors'];
+
 type LexSuperForm<S extends ZodValidation<AnyZodObject>> =
   SuperForm<S, string> & {
     formState: Readable<LexFormState<S>>

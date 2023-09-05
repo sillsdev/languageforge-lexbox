@@ -7,6 +7,7 @@ namespace LexCore.Entities;
 
 public class Project : EntityBase
 {
+    public Guid? ParentId { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }

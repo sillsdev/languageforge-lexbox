@@ -1,5 +1,6 @@
 ﻿using Testing.Browser.Base;
 using Testing.Browser.Page;
+using Testing.Services;
 
 namespace Testing.Browser;
 
@@ -10,10 +11,9 @@ public class LoginPageTests : PageTest
     public async Task CanLogin()
     {
         var loginPage = await new LoginPage(Page).Goto();
-        await loginPage.FillForm("admin", "pass");
-        await Task.WhenAll(
-            loginPage.Submit(),
-            new AdminDashboardPage(Page).WaitFor());
+        await loginPage.FillForm("admin", TestingEnvironmentVariables.DefaultPassword);
+        await loginPage.Submit();
+        await new AdminDashboardPage(Page).WaitFor();
     }
 
     [Fact]
@@ -37,9 +37,8 @@ public class LoginPageTests : PageTest
 
         await Expect(Page.GetByText("Something went wrong, please make sure you have used the correct account informa")).ToBeVisibleAsync();
 
-        await loginPage.FillForm("admin", "pass");
-        await Task.WhenAll(
-            loginPage.Submit(),
-            new AdminDashboardPage(Page).WaitFor());
+        await loginPage.FillForm("admin", TestingEnvironmentVariables.DefaultPassword);
+        await loginPage.Submit();
+        await new AdminDashboardPage(Page).WaitFor();
     }
 }
