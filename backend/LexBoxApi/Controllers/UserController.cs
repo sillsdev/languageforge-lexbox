@@ -77,6 +77,7 @@ public class UserController : ControllerBase
             IsAdmin = false,
             EmailVerified = false,
             Locked = false,
+            CanCreateProjects = false
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
