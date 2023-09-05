@@ -20,6 +20,7 @@
   import { page } from '$app/stores';
   import { _deleteProject } from '$lib/gql/mutations';
   import Dropdown from '$lib/components/Dropdown.svelte';
+  import Button from '$lib/forms/Button.svelte';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
@@ -61,28 +62,43 @@
     }
   }
 
+  const defaultSearchLimit = 100;
+
   let projectSearch = '';
   let userSearch = '';
   $: projectSearchLower = projectSearch.toLocaleLowerCase();
-  $: projectLimit = projectSearch ? Infinity : 10;
-  $: projects = $allProjects
+  let projectSearchLimit = defaultSearchLimit;
+  $: projectLimit = projectSearch ? projectSearchLimit : 10;
+  $: filteredProjects = $allProjects
     .filter(
       (p) =>
         !projectSearch ||
         p.name.toLocaleLowerCase().includes(projectSearchLower) ||
         p.code.toLocaleLowerCase().includes(projectSearchLower)
-    )
-    .slice(0, projectLimit);
+    );
+  $: projects = filteredProjects.slice(0, projectLimit);
+  $: {
+    // Reset limit if search is changed
+    projectSearch;
+    projectSearchLimit = defaultSearchLimit;
+  }
+
   $: userSearchLower = userSearch.toLocaleLowerCase();
-  $: userLimit = userSearch ? Infinity : 10;
-  $: users = $allUsers
+  let userSearchLimit = defaultSearchLimit;
+  $: userLimit = userSearch ? userSearchLimit : 10;
+  $: filteredUsers = $allUsers
     .filter(
       (u) =>
         !userSearch ||
         u.name.toLocaleLowerCase().includes(userSearchLower) ||
         u.email.toLocaleLowerCase().includes(userSearchLower)
-    )
-    .slice(0, userLimit);
+    );
+  $: users = filteredUsers.slice(0, userLimit);
+  $: {
+    // Reset limit if search is changed
+    userSearch;
+    userSearchLimit = defaultSearchLimit;
+  }
 
   async function softDeleteProject(project: (typeof projects)[0]): Promise<void> {
     const result = await deleteProjectModal.open(project.name, async () => {
@@ -113,7 +129,7 @@
         {$t('admin_dashboard.project_table_title')}
         <Badge>
           <span class="inline-flex gap-2">
-            {projects.length}
+            {projectSearch ? filteredProjects.length : projects.length}
             <span>/</span>
             {$allProjects.length}
           </span>
@@ -219,6 +235,9 @@
             {/each}
           </tbody>
         </table>
+        {#if projectSearch && projectSearchLimit === defaultSearchLimit && filteredProjects.length > defaultSearchLimit}
+            <Button class="float-right mt-2" on:click={() => projectSearchLimit = Infinity}>Load all</Button>
+        {/if}
       </div>
     </div>
 
@@ -227,7 +246,7 @@
         {$t('admin_dashboard.user_table_title')}
         <Badge>
           <span class="inline-flex gap-2">
-            {users.length}
+            {userSearch ? filteredUsers.length : users.length}
             <span>/</span>
             {$allUsers.length}
           </span>
@@ -272,6 +291,9 @@
             {/each}
           </tbody>
         </table>
+        {#if userSearch && userSearchLimit === defaultSearchLimit && filteredUsers.length > defaultSearchLimit}
+          <Button class="float-right mt-2" on:click={() => userSearchLimit = Infinity}>Load all</Button>
+        {/if}
       </div>
     </div>
   </div>
