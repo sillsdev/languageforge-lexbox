@@ -36,11 +36,19 @@ public class MigrationController : ControllerBase
     }
 
     [HttpGet("dryRunTransformProject")]
-    public async Task<ActionResult<Project>> DryRunTransformProject(string code)
+    public async Task<ActionResult<object>> DryRunTransformProject(string code)
     {
-        await MigrateData(false);
+        await using var transaction = await _lexBoxDbContext.Database.BeginTransactionAsync();
+        await MigrateData(false, false);
         var project = await _lexBoxDbContext.Projects.FirstOrDefaultAsync(p => p.Code == code);
-        return project is null ? NotFound() : project;
+        await transaction.RollbackAsync();
+        return project is null ? NotFound() : new
+        {
+            Name = project.Name,
+            Code = project.Code,
+            Description = project.Description,
+            Type = project.Type,
+        };
     }
 
     [HttpGet("migrateData")]
@@ -48,7 +56,8 @@ public class MigrationController : ControllerBase
     {
         var now = DateTimeOffset.UtcNow;
         var projects = await _redmineDbContext.Projects.ToArrayAsync();
-        var users = await _redmineDbContext.Users.Include(u => u.EmailAddresses).ToArrayAsync();
+        //filter out empty login because there's some default redmine accounts without a login
+        var users = await _redmineDbContext.Users.Where(u => u.Login != "").Include(u => u.EmailAddresses).ToArrayAsync();
         await _redmineDbContext.Members.Include(p => p.Role).ToArrayAsync();
         await _redmineDbContext.Roles.ToArrayAsync();
         var projectIdToGuid = projects.ToDictionary(p => p.Id, p => Guid.NewGuid());
@@ -79,7 +88,7 @@ public class MigrationController : ControllerBase
             UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? now,
             Username = rmUser.Login,
             LocalizationCode = rmUser.Language ?? LexCore.Entities.User.DefaultLocalizationCode,
-            Email = rmUser.EmailAddresses.FirstOrDefault()?.Address ?? "",
+            Email = rmUser.EmailAddresses.FirstOrDefault()?.Address ?? throw new Exception("no email for user id" + rmUser.Login),
             Name = rmUser.Firstname + " " + rmUser.Lastname,
             IsAdmin = rmUser.Admin,
             Salt = rmUser.Salt ?? "",
@@ -89,17 +98,19 @@ public class MigrationController : ControllerBase
             Projects = rmUser.ProjectMembership?.Select(m => new ProjectUsers
             {
                 ProjectId = projectIdToGuid[m.ProjectId],
-                Role = m.Role.Role.Name == "Manager" ? ProjectRole.Manager
-                    : m.Role.Role.Name == "Contributor" ? ProjectRole.Editor : ProjectRole.Unknown,
+                Role = m.Role.Role.Name switch
+                {
+                    "Manager" => ProjectRole.Manager,
+                    "Contributor" => ProjectRole.Editor,
+                    _ => ProjectRole.Unknown
+                },
                 CreatedDate = m.CreatedOn?.ToUniversalTime() ?? now,
                 UpdatedDate = m.CreatedOn?.ToUniversalTime() ?? now
             }).ToList() ?? new List<ProjectUsers>()
         }));
         if (!dryRun)
         {
-            await using var transaction = await _lexBoxDbContext.Database.BeginTransactionAsync();
             await _lexBoxDbContext.SaveChangesAsync();
-            await transaction.CommitAsync();
         }
 
         return Ok(_lexBoxDbContext.ChangeTracker.Entries().Count());

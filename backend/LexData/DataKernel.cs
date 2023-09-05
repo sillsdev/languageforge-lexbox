@@ -23,7 +23,10 @@ public static class DataKernel
         services.AddDbContext<RedmineDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
-            options.UseMySQL(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.RedmineConnectionString ?? throw new ArgumentNullException("RedmineConnectionString"));
+            var connectionString =
+                serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.RedmineConnectionString ??
+                throw new ArgumentNullException("RedmineConnectionString");
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         });
         if (autoApplyMigrations)
             services.AddHostedService<DbStartupService>();
