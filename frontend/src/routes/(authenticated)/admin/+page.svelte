@@ -125,16 +125,24 @@
 <main class="flex justify-center">
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
     <div>
-      <span class="text-xl flex gap-4">
-        {$t('admin_dashboard.project_table_title')}
-        <Badge>
-          <span class="inline-flex gap-2">
-            {projectSearch ? filteredProjects.length : projects.length}
-            <span>/</span>
-            {$allProjects.length}
+      <div class="flex justify-between items-center">
+        <span class="text-xl flex gap-4">
+          {$t('admin_dashboard.project_table_title')}
+          <Badge>
+            <span class="inline-flex gap-2">
+              {projectSearch ? filteredProjects.length : projects.length}
+              <span>/</span>
+              {$allProjects.length}
+            </span>
+          </Badge>
+        </span>
+        <a href="/project/create" class="btn btn-sm btn-success">
+          <span class="max-sm:hidden">
+            {$t('project.create.title')}
           </span>
-        </Badge>
-      </span>
+          <span class="i-mdi-plus text-2xl" />
+        </a>
+      </div>
 
       <div class="flex items-end gap-4">
         <Input
