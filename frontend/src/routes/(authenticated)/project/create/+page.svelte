@@ -13,6 +13,7 @@
     import {notifySuccess} from '$lib/notify';
     import {Duration} from '$lib/util/time';
 
+    export let data;
     const formSchema = z.object({
     name: z.string().min(1, $t('project.create.name_missing')),
     description: z.string().min(1, $t('project.create.description_missing')),
@@ -120,7 +121,11 @@
     />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>
-      {$t('project.create.submit')}
+        {#if data.user.canCreateProject || data.user.role === 'admin'}
+            {$t('project.create.submit')}
+        {:else}
+            {$t('project.create.request')}
+        {/if}
     </SubmitButton>
   </Form>
 </Page>
