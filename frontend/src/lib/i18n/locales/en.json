@@ -131,7 +131,8 @@
       "retention_policy": "Retention Policy",
       "submit": "Create Project",
       "type": "Type",
-      "requested": "Your request for project {name} has been submitted."
+      "requested": "Your request for project {name} has been submitted.",
+      "request": "Request"
     }
   },
   "project_page": {

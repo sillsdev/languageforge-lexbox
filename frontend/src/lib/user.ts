@@ -20,6 +20,7 @@ type JwtTokenUser = {
   role: 'admin' | 'user'
   proj?: JwtTokenProject[],
   unver: boolean | undefined,
+  mkproj: boolean | undefined,
 }
 
 type JwtTokenProject = {
@@ -38,6 +39,7 @@ export type LexAuthUser = {
   role: 'admin' | 'user'
   projects: UserProjects[]
   emailVerified: boolean
+  canCreateProject: boolean
 }
 
 type UserProjects = {
@@ -111,6 +113,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     role,
     projects: projects?.map(p => ({code: p.Code, role: p.Role, projectId: p.ProjectId})) ?? [],
     emailVerified: !user.unver,
+    canCreateProject: user.mkproj === true,
   }
 }
 
