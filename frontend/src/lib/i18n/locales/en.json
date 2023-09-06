@@ -266,8 +266,8 @@
       "or_nvaigate_to_url": "Or navigate to this URL in your browser:"
     },
     "create_project_request_email": {
-      "subject": "{name} would like to create a project",
-      "heading": "User {name} requested to create a project:"
+      "subject": "Project request {projectName}",
+      "heading": "User {name} ({email}) requested that a project be created for them. Details below:"
     }
   },
   "footer": {
