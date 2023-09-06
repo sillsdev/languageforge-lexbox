@@ -44,6 +44,9 @@ dependencies:
   svelte-intl-precompile:
     specifier: ^0.12.1
     version: 0.12.1(@babel/core@7.22.9)(svelte@3.59.1)
+  svelte-markdown:
+    specifier: ^0.2.3
+    version: 0.2.3(svelte@3.59.1)
 
 devDependencies:
   '@egoist/tailwindcss-icons':
@@ -3673,6 +3676,10 @@ packages:
     resolution: {integrity: sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==}
     dev: false
 
+  /@types/marked@4.3.1:
+    resolution: {integrity: sha512-vSSbKZFbNktrQ15v7o1EaH78EbWV+sPQbPjHG+Cp8CaNcPFUEfjZ0Iml/V0bFDwsTlYe8o6XC5Hfdp91cqPV2g==}
+    dev: false
+
   /@types/memcached@2.2.7:
     resolution: {integrity: sha512-ImJbz1i8pl+OnyhYdIDnHe8jAuM8TOwM/7VsciqhYX3IL0jPPUToAtVxklfcWFGYckahEYZxhd9FS0z3MM1dpA==}
     dependencies:
@@ -6074,6 +6081,12 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
+  /marked@4.3.0:
+    resolution: {integrity: sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==}
+    engines: {node: '>= 12'}
+    hasBin: true
+    dev: false
+
   /mensch@0.3.4:
     resolution: {integrity: sha512-IAeFvcOnV9V0Yk+bFhYR07O3yNina9ANIN5MoXBKYJ/RLYPurd2d0yw14MDhpr9/momp0WofT1bPUh3hkzdi/g==}
     dev: false
@@ -7680,6 +7693,16 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - svelte
+    dev: false
+
+  /svelte-markdown@0.2.3(svelte@3.59.1):
+    resolution: {integrity: sha512-2h680NzTXnAD0CXhxe3GeHl6W+ayG4iKQRl+BIDRw+R0mUE0OiNxP1Vt8Rn+aWevB/LBiBIPCAwvL+0BkG057A==}
+    peerDependencies:
+      svelte: ^3.0.0
+    dependencies:
+      '@types/marked': 4.3.1
+      marked: 4.3.0
+      svelte: 3.59.1
     dev: false
 
   /svelte-preprocess@5.0.3(@babel/core@7.22.9)(postcss@8.4.23)(svelte@3.59.1)(typescript@4.9.5):

@@ -2,8 +2,10 @@
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFieldId } from './utils';
+  import SvelteMarkdown from 'svelte-markdown';
 
   export let label: string;
+  export let description: string | undefined = undefined;
   export let error: string | string[] | undefined = undefined;
   export let id: string = randomFieldId();
   /**
@@ -28,5 +30,18 @@
     </span>
   </label>
   <slot />
+  {#if description}
+    <label for={id} class="label pb-0">
+      <span class="label-text-alt">
+        <SvelteMarkdown source={description} />
+      </span>
+    </label>
+  {/if}
   <FormFieldError {id} {error} />
 </div>
+
+<style lang="postcss">
+  :global(.form-control a) {
+    @apply link;
+  }
+</style>

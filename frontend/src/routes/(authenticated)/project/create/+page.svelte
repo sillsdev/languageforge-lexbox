@@ -10,6 +10,7 @@
     import {Page} from '$lib/layout';
     import {z} from 'zod';
     import {_createProject} from './+page';
+    import AdminContent from '$lib/layout/AdminContent.svelte';
     import {notifySuccess} from '$lib/notify';
     import {Duration} from '$lib/util/time';
 
@@ -85,7 +86,13 @@
   </svelte:fragment>
 
   <Form {enhance}>
-    <Input label={$t('project.create.name')} bind:value={$form.name} error={$errors.name} autofocus />
+    <Input
+      label={$t('project.create.name')}
+      description={$t('project.create.name_description')}
+      bind:value={$form.name}
+      error={$errors.name}
+      autofocus
+    />
     <TextArea
       id="description"
       label={$t('project.create.description')}
@@ -108,11 +115,20 @@
       <option value={RetentionPolicy.Verified}>{$t('retention_policy.language_project')}</option>
       <option value={RetentionPolicy.Training}>{$t('retention_policy.training')}</option>
       <option value={RetentionPolicy.Test}>{$t('retention_policy.test')}</option>
-      <option value={RetentionPolicy.Dev}>{$t('retention_policy.dev')}</option>
+      <AdminContent>
+        <option value={RetentionPolicy.Dev}>{$t('retention_policy.dev')}</option>
+      </AdminContent>
     </Select>
 
-    <Input label={$t('project.create.language_code')} bind:value={$form.languageCode} error={$errors.languageCode} />
-    <Checkbox label={$t('project.create.custom_code')} bind:value={$form.customCode} />
+    <Input
+      label={$t('project.create.language_code')}
+      description={$t('project.create.language_code_description')}
+      bind:value={$form.languageCode}
+      error={$errors.languageCode}
+    />
+    <AdminContent>
+      <Checkbox label={$t('project.create.custom_code')} bind:value={$form.customCode} />
+    </AdminContent>
     <Input
       label={$t('project.create.code')}
       bind:value={$form.code}
