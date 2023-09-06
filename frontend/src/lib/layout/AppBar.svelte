@@ -18,11 +18,11 @@
       <span class="i-mdi-open-in-new text-xl" />
     </a>
   {/if}
-  <div class="navbar bg-primary text-primary-content md:pl-6">
-    <a href={loggedIn ? '/' : '/login'} class="navbar-start text-lg md:text-3xl tracking-wider hover:underline">
+  <div class="navbar justify-between bg-primary text-primary-content md:pl-6">
+    <a href={loggedIn ? '/' : '/login'} class="text-lg md:text-3xl tracking-wider hover:underline">
       {$t('appbar.app_name')}
     </a>
-    <div class="navbar-end">
+    <div>
       {#if loggedIn}
         <button on:click={() => dispatch('menuopen')} class="btn btn-primary btn-circle">
           <AuthenticatedUserIcon size="text-4xl" />
