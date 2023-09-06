@@ -12,6 +12,10 @@ type AddProjectMemberPayload {
   errors: [AddProjectMemberError!]
 }
 
+type AlreadyExistsError implements Error {
+  message: String!
+}
+
 type AuthUserProject {
   code: String!
   role: ProjectRole!
@@ -187,7 +191,7 @@ union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
 union ChangeUserAccountDataError = NotFoundError | DbError | UniqueValueError
 
-union CreateProjectError = DbError
+union CreateProjectError = DbError | AlreadyExistsError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 

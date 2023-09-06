@@ -23,6 +23,7 @@ public class ProjectMutations
 
     public record CreateProjectResponse(Guid? Id, CreateProjectResult Result);
     [Error<DbError>]
+    [Error<AlreadyExistsException>]
     [UseMutationConvention]
     [RefreshJwt]
     public async Task<CreateProjectResponse?> CreateProject(
