@@ -64,7 +64,7 @@
       "verify_to_change": "You've requested to change your e-mail address to {requestedEmail}. The change will only come into effect when you verify the new address. You can do so using the link in the e-mail we just sent you.",
       "go_to_projects": "Go to my projects",
       "check_inbox": "Please check your inbox for the verification email we just sent.",
-      "please_verify": "Please verify your email address as soon as possible.",
+      "please_verify": "We sent you an email, so that you can verify your email address. Please do so as soon as possible.",
       "resend": "Resend verification email",
       "you_have_mail": "You've got mail!"
     }
