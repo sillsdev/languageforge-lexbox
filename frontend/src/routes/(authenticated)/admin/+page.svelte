@@ -280,11 +280,16 @@
             {#each users as user}
               <tr>
                 <td>{user.name}</td>
-                <td class:tooltip={!user.emailVerified} data-tip={$t('admin_dashboard.email_not_verified')}>
-                  {user.email}
-                  {#if !user.emailVerified}
-                    <span class="tooltip i-mdi-question-mark text-warning mb-[-3px]"/>
-                  {/if}
+                <td>
+                  <span class="inline-flex items-center gap-2 text-left">
+                    {user.email}
+                    {#if !user.emailVerified}
+                    <span class="tooltip text-warning text-xl shrink-0 leading-none"
+                      data-tip={$t('admin_dashboard.email_not_verified')}>
+                      <span class="i-mdi-help-circle-outline" />
+                    </span>
+                    {/if}
+                  </span>
                 </td>
                 <td class:text-accent={user.isAdmin}>
                   {user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}
