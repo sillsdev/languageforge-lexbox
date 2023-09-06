@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using LexBoxApi.Config;
 using LexCore.Config;
 using LexCore.Entities;
+using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using Microsoft.Extensions.Options;
 using Path = System.IO.Path;
@@ -35,6 +36,8 @@ public class HgService : IHgService
     public async Task InitRepo(string code)
     {
         AssertIsSafeRepoName(code);
+        if (Directory.Exists(Path.Combine(_options.Value.RepoPath, code)))
+            throw new AlreadyExistsException($"Repo already exists: {code}.");
         await Task.Run(() => CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
             new DirectoryInfo(_options.Value.RepoPath).CreateSubdirectory(code)
