@@ -2,7 +2,7 @@
   import { Badge, BadgeList, MemberBadge } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import FormatDate from '$lib/components/FormatDate.svelte';
-  import FormatProjectType from '$lib/components/FormatProjectType.svelte';
+  import { ProjectTypeBadge } from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
@@ -188,7 +188,7 @@
           </span>
         </div>
         <BadgeList>
-          <Badge><FormatProjectType type={project.type} /></Badge>
+          <ProjectTypeBadge type={project.type} />
           <Badge><FormatRetentionPolicy policy={project.retentionPolicy} /></Badge>
         </BadgeList>
       </div>

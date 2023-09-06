@@ -2,7 +2,7 @@
     import Email from '$lib/email/Email.svelte';
     import t from '$lib/i18n';
     import type {CreateProjectInput} from '$lib/gql/generated/graphql';
-    import FormatProjectType from '$lib/components/FormatProjectType.svelte';
+    import {FormatProjectType} from '$lib/components/ProjectType';
     import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
 
     export let name: string;
