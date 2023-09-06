@@ -130,7 +130,8 @@
       "name_missing": "Project name required",
       "retention_policy": "Retention Policy",
       "submit": "Create Project",
-      "type": "Type"
+      "type": "Type",
+      "requested": "Your request for project {name} has been submitted."
     }
   },
   "project_page": {
