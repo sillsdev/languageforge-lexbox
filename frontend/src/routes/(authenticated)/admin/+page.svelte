@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Badge } from '$lib/components/Badges';
   import FormatDate from '$lib/components/FormatDate.svelte';
-  import FormatProjectType from '$lib/components/FormatProjectType.svelte';
+  import { ProjectTypeIcon } from '$lib/components/ProjectType';
   import Input from '$lib/forms/Input.svelte';
   import t from '$lib/i18n';
   import type { PageData } from './$types';
@@ -21,6 +21,7 @@
   import { _deleteProject } from '$lib/gql/mutations';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import Button from '$lib/forms/Button.svelte';
+  import { getProjectTypeI18nKey } from '$lib/components/ProjectType/FormatProjectType.svelte';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
 
@@ -219,7 +220,9 @@
                   {/if}
                 </td>
                 <td>
-                  <FormatProjectType type={project.type} />
+                  <span class="tooltip" data-tip={$t(getProjectTypeI18nKey(project.type))}>
+                    <ProjectTypeIcon type={project.type} />
+                  </span>
                 </td>
                 <td class="p-0">
                   {#if !project.deletedDate}

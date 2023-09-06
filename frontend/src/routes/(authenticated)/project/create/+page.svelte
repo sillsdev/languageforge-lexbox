@@ -1,26 +1,28 @@
 <script lang="ts">
-    import {goto} from '$app/navigation';
-    import {FormError, lexSuperForm, SubmitButton, TextArea} from '$lib/forms';
-    import Checkbox from '$lib/forms/Checkbox.svelte';
-    import Form from '$lib/forms/Form.svelte';
-    import Input from '$lib/forms/Input.svelte';
-    import Select from '$lib/forms/Select.svelte';
-    import {CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy} from '$lib/gql/types';
-    import t from '$lib/i18n';
-    import {Page} from '$lib/layout';
-    import {z} from 'zod';
-    import {_createProject} from './+page';
-    import AdminContent from '$lib/layout/AdminContent.svelte';
-    import {notifySuccess} from '$lib/notify';
-    import {Duration} from '$lib/util/time';
+  import { goto } from '$app/navigation';
+  import { FormError, lexSuperForm, SubmitButton, TextArea } from '$lib/forms';
+  import Checkbox from '$lib/forms/Checkbox.svelte';
+  import Form from '$lib/forms/Form.svelte';
+  import Input from '$lib/forms/Input.svelte';
+  import Select from '$lib/forms/Select.svelte';
+  import { CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy } from '$lib/gql/types';
+  import t from '$lib/i18n';
+  import { Page } from '$lib/layout';
+  import { z } from 'zod';
+  import { _createProject } from './+page';
+  import AdminContent from '$lib/layout/AdminContent.svelte';
+  import { notifySuccess } from '$lib/notify';
+  import { Duration } from '$lib/util/time';
+  import { ProjectTypeIcon } from '$lib/components/ProjectType';
 
-    export let data;
-    const formSchema = z.object({
+  export let data;
+  const formSchema = z.object({
     name: z.string().min(1, $t('project.create.name_missing')),
     description: z.string().min(1, $t('project.create.description_missing')),
     type: z.nativeEnum(ProjectType).default(ProjectType.FlEx),
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
-    languageCode: z.string()
+    languageCode: z
+      .string()
       .min(3, $t('project.create.language_code_too_short'))
       .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
     code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
@@ -99,12 +101,17 @@
       bind:value={$form.description}
       error={$errors.description}
     />
-    <Select id="type" label={$t('project.create.type')} bind:value={$form.type} error={$errors.type}>
-      <option value={ProjectType.FlEx}>{$t('project_type.flex')}</option>
-      <option value={ProjectType.WeSay}>{$t('project_type.weSay')}</option>
-      <option value={ProjectType.OneStoryEditor}>{$t('project_type.oneStoryEditor')}</option>
-      <option value={ProjectType.OurWord}>{$t('project_type.ourWord')}</option>
-    </Select>
+    <div class="relative">
+      <Select id="type" label={$t('project.create.type')} bind:value={$form.type} error={$errors.type}>
+        <option value={ProjectType.FlEx}>{$t('project_type.flex')}</option>
+        <option value={ProjectType.WeSay}>{$t('project_type.weSay')}</option>
+        <option value={ProjectType.OneStoryEditor}>{$t('project_type.oneStoryEditor')}</option>
+        <option value={ProjectType.OurWord}>{$t('project_type.ourWord')}</option>
+      </Select>
+      <span class="absolute right-10 bottom-4 pointer-events-none">
+        <ProjectTypeIcon type={$form.type} size="h-8" />
+      </span>
+    </div>
 
     <Select
       id="policy"
