@@ -30,6 +30,11 @@
     "title": "Acceso",
     "password_missing": "Falta la contraseña"
   },
+  "project": {
+    "create": {
+      "requested": ""
+    }
+  },
   "project_page": {
     "add_user": {
       "add_button": "Añadir miembro",
