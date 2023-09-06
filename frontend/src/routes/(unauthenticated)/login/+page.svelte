@@ -2,9 +2,14 @@
   import { goto } from '$app/navigation';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
-  import { Page } from '$lib/layout';
+  import { PageHeader } from '$lib/layout';
   import { login, logout } from '$lib/user';
   import { onMount } from 'svelte';
+  import SvelteMarkdown from 'svelte-markdown';
+  import flexLogo from '$lib/assets/flex-logo.png';
+  import lfLogo from '$lib/assets/lf-logo.png';
+  import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.png';
+  import weSayLogo from '$lib/assets/we-say-logo.png';
   import { z } from 'zod';
 
   const formSchema = z.object({
@@ -23,45 +28,68 @@
     },
     {
       taintedMessage: null,
-    },
+    }
   );
 
   onMount(logout);
   let badCredentials = false;
 </script>
 
-<Page>
-  <svelte:fragment slot="header">{$t('login.title')}</svelte:fragment>
+<div class="hero flex-grow">
+  <div class="hero-content flex-col lg:flex-row-reverse gap-16">
+    <div class="prose text-lg">
+      <SvelteMarkdown source={$t('login.welcome')} />
+      <div class="flex gap-4 not-prose justify-center">
+        <a href="https://software.sil.org/fieldworks/">
+          <img src={flexLogo} class="h-12" alt="FLEx Logo">
+        </a>
+        <a href="https://languageforge.org/">
+          <img src={lfLogo} class="h-12" alt="Language Forge Logo">
+        </a>
+        <a href="https://software.sil.org/onestoryeditor/">
+          <img src={oneStoryEditorLogo} class="h-12" alt="OneStory Editor Logo">
+        </a>
+        <a href="https://software.sil.org/wesay/">
+          <img src={weSayLogo} class="h-12" alt="WeSay Logo">
+        </a>
+      </div>
+    </div>
+    <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-200">
+      <div class="card-body">
+        <PageHeader>{$t('login.title')}</PageHeader>
 
-  <Form {enhance}>
-    <Input
-      id="email"
-      label={$t('login.label_email')}
-      type="text"
-      bind:value={$form.email}
-      error={$errors.email}
-      autofocus
-    />
+        <Form {enhance}>
+          <Input
+            id="email"
+            label={$t('login.label_email')}
+            type="text"
+            bind:value={$form.email}
+            error={$errors.email}
+            autofocus
+          />
 
-    <Input
-      id="password"
-      label={$t('login.label_password')}
-      type="password"
-      bind:value={$form.password}
-      error={$errors.password}
-    />
+          <Input
+            id="password"
+            label={$t('login.label_password')}
+            type="password"
+            bind:value={$form.password}
+            error={$errors.password}
+          />
 
-    <FormError error={$message} />
+          <FormError error={$message} />
 
-    <a class="link mt-0" href="/forgotPassword">
-      {$t('login.forgot_password')}
-    </a>
+          <a class="link mt-0" href="/forgotPassword">
+            {$t('login.forgot_password')}
+          </a>
 
-    {#if badCredentials}
-      <SubmitButton loading={$submitting}>{$t('login.button_login_again')}</SubmitButton>
-    {:else}
-      <SubmitButton loading={$submitting}>{$t('login.button_login')}</SubmitButton>
-    {/if}
-    <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
-  </Form>
-</Page>
+          {#if badCredentials}
+            <SubmitButton loading={$submitting}>{$t('login.button_login_again')}</SubmitButton>
+          {:else}
+            <SubmitButton loading={$submitting}>{$t('login.button_login')}</SubmitButton>
+          {/if}
+          <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
+        </Form>
+      </div>
+    </div>
+  </div>
+</div>

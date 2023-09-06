@@ -4,6 +4,7 @@
 
   export let id = randomFieldId();
   export let label: string;
+  export let description: string | undefined = undefined;
   export let value: string | undefined = undefined;
   export let type = 'text';
   export let autofocus = false;
@@ -21,7 +22,7 @@
 </script>
 
 <!-- https://daisyui.com/components/input -->
-<FormField {id} {error} {label} {autofocus}>
+<FormField {id} {error} {label} {autofocus} {description}>
   <!-- svelte-ignore a11y-autofocus -->
   <input
     {id}

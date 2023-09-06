@@ -13,6 +13,6 @@
   </PageHeader>
 {/if}
 
-<main class="md:px-8 {yPadding} md:mx-auto {maxWidth}">
+<main class="md:px-8 {yPadding} md:mx-auto {maxWidth} w-full">
   <slot />
 </main>

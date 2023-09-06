@@ -75,6 +75,7 @@
 		"@opentelemetry/semantic-conventions": "^1.13.0",
 		"@vitejs/plugin-basic-ssl": "^1.0.1",
 		"mjml": "^4.14.1",
-		"svelte-intl-precompile": "^0.12.1"
+		"svelte-intl-precompile": "^0.12.1",
+		"svelte-markdown": "^0.2.3"
 	}
 }
