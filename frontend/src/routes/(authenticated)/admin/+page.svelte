@@ -236,7 +236,7 @@
           </tbody>
         </table>
         {#if projectSearch && projectSearchLimit < filteredProjects.length}
-            <Button class="float-right mt-2" on:click={() => projectSearchLimit = Infinity}>Load all</Button>
+            <Button class="float-right mt-2" on:click={() => projectSearchLimit = Infinity}>{$t('admin_dashboard.load_more')}</Button>
         {/if}
       </div>
     </div>
@@ -292,7 +292,7 @@
           </tbody>
         </table>
         {#if userSearch && userSearchLimit < filteredUsers.length}
-          <Button class="float-right mt-2" on:click={() => userSearchLimit = Infinity}>Load all</Button>
+          <Button class="float-right mt-2" on:click={() => userSearchLimit = Infinity}>{$t('admin_dashboard.load_more')}</Button>
         {/if}
       </div>
     </div>

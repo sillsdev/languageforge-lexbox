@@ -40,7 +40,8 @@
           "value": "DELETE USER"
         }
       }
-    }
+    },
+    "load_more": "Load more"
   },
   "account_settings": {
     "title": "Account Settings",

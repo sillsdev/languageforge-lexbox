@@ -1,5 +1,6 @@
 {
   "admin_dashboard": {
+    "title": "Proyectos",
     "column_code": "Código",
     "column_created": "Creado",
     "column_email": "Correo electrónico",
@@ -9,8 +10,8 @@
     "column_type": "Tipo",
     "column_users": "Usuarios",
     "filter_placeholder": "buscar...",
-    "title": "Proyectos",
-    "user_table_title": "Usuarios"
+    "user_table_title": "Usuarios",
+    "load_more": ""
   },
   "appbar": {
     "app_name": "Depósito de idiomas"
