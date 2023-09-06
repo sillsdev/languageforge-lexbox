@@ -235,7 +235,7 @@
             {/each}
           </tbody>
         </table>
-        {#if projectSearch && projectSearchLimit === defaultSearchLimit && filteredProjects.length > defaultSearchLimit}
+        {#if projectSearch && projectSearchLimit < filteredProjects.length}
             <Button class="float-right mt-2" on:click={() => projectSearchLimit = Infinity}>Load all</Button>
         {/if}
       </div>
@@ -291,7 +291,7 @@
             {/each}
           </tbody>
         </table>
-        {#if userSearch && userSearchLimit === defaultSearchLimit && filteredUsers.length > defaultSearchLimit}
+        {#if userSearch && userSearchLimit < filteredUsers.length}
           <Button class="float-right mt-2" on:click={() => userSearchLimit = Infinity}>Load all</Button>
         {/if}
       </div>
