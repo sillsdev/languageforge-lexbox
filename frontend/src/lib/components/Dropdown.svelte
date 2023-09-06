@@ -27,9 +27,9 @@
   class:dropdown-end={!right}
   class:dropdown-right={right}
   class:dropdown-hover={hover}>
-  <div class="contents" on:mousedown={blurIfOpen}>
+  <button class="contents" on:mousedown={blurIfOpen}>
     <slot close={blurIfOpen} {trapFocus} />
-  </div>
+  </button>
   <div class="dropdown-content bg-base-200 shadow rounded-box z-[2]">
     <slot name="content" />
   </div>

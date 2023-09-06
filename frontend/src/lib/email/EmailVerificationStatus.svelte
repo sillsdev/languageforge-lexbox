@@ -9,7 +9,7 @@
   import t from '$lib/i18n';
   import { slide } from 'svelte/transition';
   import type { LexAuthUser } from '$lib/user';
-  import type { EmailResult } from '.';
+  import { EmailResult } from '.';
   import { Button } from '$lib/forms';
   import { onDestroy } from 'svelte';
   import { Duration } from '$lib/util/time';
@@ -57,7 +57,7 @@
   </div>
 {:else if $emailResult}
   <div class="alert alert-success" transition:slide|local>
-    {#if $emailResult == 'verifiedEmail'}
+    {#if $emailResult === EmailResult.VerifiedEmail}
       <span>{$t('account_settings.verify_email.verify_success')}</span>
     {:else}
       <span>{$t('account_settings.verify_email.change_success')}</span>

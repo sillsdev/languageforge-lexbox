@@ -120,13 +120,13 @@
         </Form>
       </span>
 
-      <div class="max-sm:mt-2 flex flew-nowrap gap-2 self-end">
+      <span class="max-sm:mt-2 flex flew-nowrap gap-2 self-end">
         <IconButton on:click={submit} loading={saving} icon="i-mdi-check-bold" />
         <IconButton on:click={cancel} disabled={saving} icon="i-mdi-close-thick" />
-      </div>
+      </span>
     </span>
   {:else}
-    <span
+    <button
       class:hover:bg-base-300={!disabled}
       class="content-wrapper inline-flex items-center cursor-text rounded-lg py-2 px-3 -mx-3"
       on:click={startEditing}
@@ -140,7 +140,7 @@
       {#if !disabled}
         <span class="i-mdi-pencil-outline text-lg text-base-content edit-icon mb-1 self-end" />
       {/if}
-    </span>
+    </button>
   {/if}
 </span>
 

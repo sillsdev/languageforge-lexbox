@@ -1,4 +1,4 @@
-import { parse, walk, type Node } from 'svelte/compiler';
+import { parse, walk } from 'svelte/compiler';
 
 import type { ComponentType } from 'svelte';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces';
@@ -14,7 +14,7 @@ function getSubject(head: string): string {
   const {html} = parse(head, { filename: 'file.html' });
   let subject: string | undefined;
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  walk(html as Node, {
+  walk(html as Parameters<typeof walk>[0], {
     enter(node: TemplateNode, ..._) {
       if (node.type === 'Element' && node.name === 'title') {
         subject = node.children?.[0].data as string;
