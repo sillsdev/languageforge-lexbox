@@ -71,7 +71,7 @@
 
   <div>
     <span>{$t('errors.error_code')}:</span>
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
     <span on:click={onTraceIdClick} bind:this={traceIdElem}>{$error?.traceId}</span>
   </div>
 </div>

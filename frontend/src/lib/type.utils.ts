@@ -35,7 +35,7 @@ type StringList<Option extends string> = Option
 /**
  * Defines a string type that is a space-separated list of `CssClass's`
  */
-export type CssClassList<CssClass extends string, MutuallyEsclusiveCssClass extends string | never = never> =
+export type CssClassList<CssClass extends string, MutuallyEsclusiveCssClass extends string = string> =
   IfNever<MutuallyEsclusiveCssClass, StringList<CssClass>, MutuallyEsclusiveCssClass | `${MutuallyEsclusiveCssClass} ${StringList<CssClass>}`>;
 
 export type StoreType<T extends Readable<unknown>> = T extends Readable<infer S> ? S : never;

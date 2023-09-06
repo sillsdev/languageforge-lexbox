@@ -21,17 +21,17 @@
   <li>
     <a href="/logout" data-sveltekit-preload-data="tap">
       {$t('appmenu.log_out')}
-      <LogoutIcon/>
+      <LogoutIcon />
     </a>
   </li>
 
-  <div class="divider"/>
+  <div class="divider" />
 
   <AdminContent>
     <li>
       <a href="/admin" class="text-accent" data-sveltekit-preload-data="tap">
         {$t('admin_dashboard.title')}
-        <AdminIcon/>
+        <AdminIcon />
       </a>
     </li>
   </AdminContent>
@@ -39,19 +39,19 @@
   <li>
     <a href="/" data-sveltekit-preload-data="tap">
       {$t('user_dashboard.title')}
-      <HomeIcon/>
+      <HomeIcon />
     </a>
   </li>
 
   <li>
     <a href="/user" data-sveltekit-preload-data="tap">
       {$t('account_settings.title')}
-      <AuthenticatedUserIcon/>
+      <AuthenticatedUserIcon />
     </a>
   </li>
 
-  <div class="divider"/>
-  <div class="grow"/>
+  <div class="divider" />
+  <div class="grow" />
   <div class="flex flex-col items-end gap-1">
     <Badge>Client Version: {APP_VERSION}</Badge>
     <Badge>Server Version: {serverVersion}</Badge>

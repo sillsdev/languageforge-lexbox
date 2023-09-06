@@ -28,13 +28,14 @@
   const { form: _form, errors, reset, message, enhance, formState } = superForm;
   let modal: Modal;
 
+
   export async function open(
-    value: Partial<FormType> | undefined,
+    value: Partial<FormType> | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
     onSubmit: SubmitCallback
   ): Promise<FormModalResult<Schema>>;
   export async function open(onSubmit: SubmitCallback): Promise<FormModalResult<Schema>>;
   export async function open(
-    valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined,
+    valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
     _onSubmit?: SubmitCallback
   ): Promise<FormModalResult<Schema>> {
     const onSubmit = _onSubmit ?? (valueOrOnSubmit as SubmitCallback);
