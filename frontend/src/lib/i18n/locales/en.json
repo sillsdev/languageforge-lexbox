@@ -132,7 +132,7 @@
       "submit": "Create Project",
       "type": "Type",
       "requested": "Your request for project {name} has been submitted.",
-      "request": "Request"
+      "request": "Request Project"
     }
   },
   "project_page": {
