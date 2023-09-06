@@ -11,8 +11,8 @@
 
 </script>
 
-<Email subject={$t('emails.create_project_request_email.subject', {name: user.name})} {name}>
-    <mj-text>{$t('emails.create_project_request_email.heading', {name: user.name})}</mj-text>
+<Email subject={$t('emails.create_project_request_email.subject', {projectName: project.name})} {name}>
+    <mj-text>{$t('emails.create_project_request_email.heading', {name: user.name, email: user.email})}</mj-text>
     <mj-table>
         <tr>
             <td>{$t('project.create.name')}</td>
