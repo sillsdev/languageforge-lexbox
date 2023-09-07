@@ -8,10 +8,10 @@ export function isObject(v: unknown): v is IndexableObject {
   return v !== undefined && v !== null && typeof v === 'object';
 }
 
-export const isObjectWhere = <T = unknown>(value: unknown, predicate: (value: IndexableObject<T>) => boolean): boolean => {
+export function isObjectWhere<T = unknown>(value: unknown, predicate: (value: IndexableObject<T>) => boolean): boolean {
   return isObject(value) && predicate(value as IndexableObject<T>);
 }
 
-export const isRedirect = (error: unknown): error is Redirect => {
+export function isRedirect(error: unknown): error is Redirect {
   return isObjectWhere<Redirect>(error, obj => obj.status !== undefined && obj.location !== undefined);
-};
+}

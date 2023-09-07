@@ -9,6 +9,7 @@ import {USER_LOAD_KEY} from '$lib/user';
 
 await loadI18n();
 
+// eslint-disable-next-line func-style
 export const handleError: HandleClientError = ({ error, event }) => {
   const handler = 'client-error-hook';
   const traceId = ensureErrorIsTraced(error, { event }, { ['app.error.source']: handler });

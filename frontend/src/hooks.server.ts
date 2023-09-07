@@ -17,7 +17,8 @@ function getRoot(routeId: string): string {
   return root;
 }
 
-export const handle = (async ({ event, resolve }) => {
+// eslint-disable-next-line func-style
+export const handle: Handle = ({ event, resolve }) => {
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
     await loadI18n();
@@ -37,9 +38,10 @@ export const handle = (async ({ event, resolve }) => {
 
     return resolve(event, options);
   })
-}) satisfies Handle
+};
 
-export const handleFetch = (async ({ event, request, fetch }) => {
+// eslint-disable-next-line func-style
+export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
   if (env.BACKEND_HOST && request.url.startsWith(event.url.origin + '/api')) {
     const cookie = event.request.headers.get('cookie') as string;
     request.headers.set('cookie', cookie);
@@ -53,8 +55,9 @@ export const handleFetch = (async ({ event, request, fetch }) => {
     apiVersion.value = response.headers.get('lexbox-version');
   }
   return response;
-}) satisfies HandleFetch;
+};
 
+// eslint-disable-next-line func-style
 export const handleError: HandleServerError = ({ error, event }) => {
   const handler = 'server-error-hook';
   console.error(handler, error);

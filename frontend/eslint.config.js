@@ -51,6 +51,11 @@ export default [
           'leadingUnderscore': 'allow',
         },
         {
+          'selector': 'function',
+          'filter': {'regex': 'GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS', 'match': true},
+          'format': ['UPPER_CASE'],
+        },
+        {
           'selector': 'default',
           'modifiers': ['const'],
           'format': ['camelCase', 'UPPER_CASE'],
@@ -90,6 +95,7 @@ export default [
       'svelte/no-store-async': 'error',
       'svelte/require-store-reactive-access': 'error',
       'svelte/mustache-spacing': 'error',
+      'func-style': ['warn', 'declaration']
     },
   },
   {

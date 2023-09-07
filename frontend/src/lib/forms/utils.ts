@@ -4,7 +4,6 @@ import { z, type ZodDefault, type ZodType } from 'zod';
 export function randomFieldId(): string {
   return crypto.randomUUID().split('-').at(-1) as string;
 }
-
 export function tryParse<T, ValidT>(zodType: ZodDefault<ZodType<ValidT>>, value: T): ValidT | undefined
 export function tryParse<T, ValidT>(zodType: ZodType<ValidT>, value: T): ValidT | undefined
 export function tryParse<T, ValidT>(zodType: ZodType<ValidT>, value: T): ValidT | undefined {

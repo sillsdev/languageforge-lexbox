@@ -1,11 +1,11 @@
 import { APP_VERSION } from '$lib/util/verstion';
-import type { RequestHandler } from './$types'
+import type { RequestEvent } from './$types'
 import { text } from '@sveltejs/kit'
 
-export const GET: RequestHandler = () => {
+export function GET(_event: RequestEvent): Response {
   return text('Healthy', {
     headers: {
       'lexbox-version': APP_VERSION,
     },
   });
-};
+}

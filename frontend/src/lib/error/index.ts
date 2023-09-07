@@ -7,12 +7,16 @@ import { ensureErrorIsTraced } from '$lib/otel';
 
 const ERROR_STORE_KEY = 'ERROR_STORE_KEY';
 
-export const initErrorStore = (error: Writable<App.Error | null>): Writable<App.Error | null> => {
+export function initErrorStore(error: Writable<App.Error | null>): Writable<App.Error | null> {
   setContext(ERROR_STORE_KEY, error);
   setupGlobalErrorHandlers(error);
   return error;
-};
-export const useError = (): Writable<App.Error | null> => getContext(ERROR_STORE_KEY);
+}
+
+export function useError(): Writable<App.Error | null> {
+  return getContext(ERROR_STORE_KEY);
+}
+
 //we can't just have a `dismiss` function because we need to be able to call it from the template
 //but we can't use `error()` after a component is created, so we need to define a hook function which is called once
 //and returns a function that uses the store.
@@ -20,7 +24,10 @@ export function  useDismiss(): () => void {
   const errorStore = useError();
   return () => errorStore.set(null);
 }
-export const goesToErrorPage = (error: App.Error | null): boolean => error?.handler?.endsWith('-hook') ?? false;
+
+export function goesToErrorPage(error: App.Error | null): boolean {
+  return error?.handler?.endsWith('-hook') ?? false;
+}
 
 let errorHandlersSetup = false;
 function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {

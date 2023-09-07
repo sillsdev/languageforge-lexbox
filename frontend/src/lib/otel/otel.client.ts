@@ -13,24 +13,25 @@ import { registerInstrumentations } from '@opentelemetry/instrumentation'
 
 export * from '.';
 
+
 /**
  * Very minimal instrumentation here, because the auto-instrumentation handles the core stuff,
  * we just want to make sure that our trace-ID gets used and that we stamp errors with it.
  */
-export const traceFetch = (fetch: () => ReturnType<Fetch>): ReturnType<Fetch> => {
+export function traceFetch(fetch: () => ReturnType<Fetch>): ReturnType<Fetch> {
   return tracer().startActiveSpan('fetch', async (span) => {
     try {
       return await fetch();
     } catch (error) {
       if (!isRedirect(error)) {
-        ensureErrorIsTraced(error, { span }, { ['app.error.source']: 'client-fetch-error' });
+        ensureErrorIsTraced(error, {span}, {['app.error.source']: 'client-fetch-error'});
       }
       throw error;
     } finally {
       span.end();
     }
   });
-};
+}
 
 instrumentGlobalFetch(() => {
   registerInstrumentations({

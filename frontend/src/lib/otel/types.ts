@@ -8,11 +8,11 @@ export interface Traced {
   readonly traceId: TraceId;
 }
 
-export const isTraced = (value: unknown): value is Traced => {
+export function isTraced(value: unknown): value is Traced {
   return isObjectWhere<Traced>(value, traced => traced.traceId !== undefined);
 }
 
-export const isTraceable = (value: unknown): value is Traceable => {
+export function isTraceable(value: unknown): value is Traceable {
   return isObject(value);
 }
 
@@ -22,7 +22,7 @@ class TraceItError extends Error {
   }
 }
 
-export const traceIt = (traceable: Traceable, traceId: TraceId): void => {
+export function traceIt(traceable: Traceable, traceId: TraceId): void {
   if (traceable.traceId) {
     throw new TraceItError(traceable, `Object has already been traced (${traceable.traceId} vs ${traceId}).`);
   }

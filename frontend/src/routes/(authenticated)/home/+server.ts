@@ -1,8 +1,8 @@
-import type { RequestHandler } from './$types'
+import type {RequestEvent} from './$types'
 import { getHomePath } from '$lib/user'
 import { redirect } from '@sveltejs/kit'
 
-export const GET: RequestHandler = ({ locals }) => {
+export function GET({locals}: RequestEvent) : void {
   const user = locals.getUser();
   if (user) {
     const dest = getHomePath(user);
