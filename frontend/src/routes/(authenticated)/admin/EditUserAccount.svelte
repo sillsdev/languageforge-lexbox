@@ -5,11 +5,12 @@
   import Input from '$lib/forms/Input.svelte';
   import { UserRole, type LoadAdminDashboardQuery } from '$lib/gql/types';
   import { _changeUserAccountByAdmin } from './+page';
-  import { hash, type LexAuthUser } from '$lib/user';
+  import { type LexAuthUser } from '$lib/user';
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
   import { Button, SystemRoleSelect } from '$lib/forms';
   import { passwordFormRules } from '$lib/forms/utils';
+  import {hash} from '$lib/util/hash';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: UserRow) => void;
