@@ -39,7 +39,7 @@ public class ProjectService
         return projectId;
     }
 
-    public async Task<string> BackupProject(ResetProjectByAdminInput input)
+    public async Task<string?> BackupProject(ResetProjectByAdminInput input)
     {
         var backupFile = await _hgService.BackupRepo(input.Code);
         return backupFile;
