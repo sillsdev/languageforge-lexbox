@@ -3,7 +3,7 @@
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import Page from '$lib/layout/Page.svelte';
-  import { hash } from '$lib/user';
+  import { hash } from '$lib/util/hash';
   import { z } from 'zod';
   import { notifySuccess } from '$lib/notify';
   import type { PageData } from './$types';

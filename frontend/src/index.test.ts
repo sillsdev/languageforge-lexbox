@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hash } from '$lib/user';
+import {hash} from '$lib/util/hash';
 
 describe('password hashing', () => {
   it('can hash a pw using sha1', async () => {
