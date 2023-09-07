@@ -24,6 +24,11 @@
         userEmail: $form.email,
         role: $form.role,
       });
+
+      if (error?.byType('NotFoundError')) {
+        return { email: [$t('project_page.add_user.user_not_found')] };
+      }
+
       return error?.message;
     });
     if (response === DialogResponse.Submit) {

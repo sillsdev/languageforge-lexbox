@@ -10,6 +10,8 @@ export interface GqlResult<T> {
 export type $OpResult<T> = Promise<GqlResult<T>>;
 
 export interface GqlInputError {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  __typename: 'NotFoundError';
   message: string;
   code?: string;
 }
@@ -32,8 +34,13 @@ export class LexGqlError {
     if (this.message === '') this.message = 'Unknown error';
   }
 
-  forCode(code: string): GqlInputError[] | undefined {
+  byCode(code: string): GqlInputError[] | undefined {
     const codeErrors = this.errors.filter(error => error.code == code);
+    return codeErrors.length > 0 ? codeErrors : undefined;
+  }
+
+  byType(typename: GqlInputError['__typename']): GqlInputError[] | undefined {
+    const codeErrors = this.errors.filter(error => error.__typename == typename);
     return codeErrors.length > 0 ? codeErrors : undefined;
   }
 }
