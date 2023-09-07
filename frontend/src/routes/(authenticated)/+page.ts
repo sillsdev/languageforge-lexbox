@@ -20,6 +20,6 @@ export async function load(event: PageLoadEvent) {
         }
   `), {});
   return {
-    projects: results.myProjects
+    projects: results.myProjects,
   }
 }

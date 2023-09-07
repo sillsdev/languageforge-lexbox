@@ -14,7 +14,7 @@ import {createClient} from '@urql/svelte';
 import {browser} from '$app/environment';
 import {isObject} from '../util/types';
 import {tracingExchange} from '$lib/otel';
-import {LexGqlError, isErrorResult, type $OpResult, type GqlInputError} from './types';
+import {LexGqlError, isErrorResult, type $OpResult, type GqlInputError, type ExtractErrorTypename, type GenericData} from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
@@ -75,7 +75,7 @@ class GqlClient {
     this.subscription = (...args) => this.client.subscription(...args);
   }
 
-  query<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: QueryOperationOptions = {}): $OpResult<Data> {
+  query<Data extends GenericData, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: QueryOperationOptions = {}): $OpResult<Data> {
     return this.doOperation(
       context,
       (_context) => this.client.query<Data, Variables>(query, variables, _context)
@@ -115,7 +115,7 @@ class GqlClient {
     return resultData as QueryStoreReturnType<Data>;
   }
 
-  mutation<Data = unknown, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: OperationOptions = {}): $OpResult<Data> {
+  mutation<Data extends GenericData, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: OperationOptions = {}): $OpResult<Data> {
     return this.doOperation(
       context,
       (_context) => this.client.mutation<Data, Variables>(query, variables, _context)
@@ -127,7 +127,7 @@ class GqlClient {
   // We can't throw errors, because errors thrown in wonka/an exchange kill node.
   subscription: typeof this.client.subscription;
 
-  private async doOperation<Data, Variables extends AnyVariables>(context: OperationOptions, operation: (context: OperationOptions) => OperationResultSource<OperationResult<Data, Variables>>): $OpResult<Data> {
+  private async doOperation<Data extends GenericData, Variables extends AnyVariables>(context: OperationOptions, operation: (context: OperationOptions) => OperationResultSource<OperationResult<Data, Variables>>): $OpResult<Data> {
     const result = await operation(context).toPromise();
     this.throwAnyUnexpectedErrors(result);
     return {
@@ -148,15 +148,16 @@ class GqlClient {
     return (error.response as Response | undefined)?.status === 401;
   }
 
-  private findInputErrors<T>({data}: OperationResult<T, AnyVariables>): LexGqlError | undefined {
-    const errors: GqlInputError[] = [];
+  private findInputErrors<T extends GenericData>({data}: OperationResult<T, AnyVariables>): LexGqlError<ExtractErrorTypename<T>> | undefined {
+    const errors: GqlInputError<ExtractErrorTypename<T>>[] = [];
     if (isObject(data)) {
       for (const resultValue of Object.values(data)) {
         if (isErrorResult(resultValue)) {
-          errors.push(...resultValue.errors);
+          errors.push(...resultValue.errors as GqlInputError<ExtractErrorTypename<T>>[]);
         }
       }
     }
+
     return errors.length > 0 ? new LexGqlError(errors) : undefined;
   }
 }
