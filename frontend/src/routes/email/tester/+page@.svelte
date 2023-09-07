@@ -4,22 +4,26 @@
     import {ProjectType, RetentionPolicy} from '$lib/gql/generated/graphql';
     import type {RenderEmailResult} from '$lib/email/emailRenderer.server';
 
+    function absoluteUrl(path: string): string {
+      return browser ? `${location.origin}/${path}` : path;
+    }
+
     let emails: Array<EmailTemplateProps & { label?: string }> = [
         {
             template: EmailTemplate.ForgotPassword,
             name: 'Bob',
-            resetUrl: '/resetPassword',
+            resetUrl: absoluteUrl('resetPassword'),
         },
         {
             template: EmailTemplate.VerifyEmailAddress,
             name: 'Bob',
-            verifyUrl: '/user?emailResult=verifiedEmail',
+            verifyUrl: absoluteUrl('user?emailResult=verifiedEmail'),
         },
         {
             label: 'Verify New Email Address',
             name: 'Bob',
             template: EmailTemplate.VerifyEmailAddress,
-            verifyUrl: '/user?emailResult=changedEmail',
+            verifyUrl: absoluteUrl('user?emailResult=changedEmail'),
             newAddress: true,
         },
         {
@@ -27,6 +31,7 @@
             name: 'Bob',
             template: EmailTemplate.CreateProjectRequest,
             project: {
+                id: null,
                 name: 'My Project',
                 code: 'MYPROJ',
                 type: ProjectType.FlEx,
@@ -41,19 +46,18 @@
     ];
 
     let currEmail = emails[0];
-    let emailJson: RenderEmailResult = null;
+    let emailJson: RenderEmailResult;
     $: if (browser) {
-        fetch('.', {method: 'POST', body: JSON.stringify(currEmail)})
+        void fetch('.', {method: 'POST', body: JSON.stringify(currEmail)})
             .then(res => res.json())
             .then(json => {
                 if (json.message) {
-                    emailJson = {html: json.message};
+                    emailJson = {html: json.message, subject: ''};
                 } else {
                     emailJson = json;
                 }
             });
     }
-
 
 </script>
 
@@ -75,7 +79,7 @@
                 width="100%"
                 height="500"
                 src={'data:text/html;charset=utf-8,' + encodeURIComponent(emailJson.html)}
-                title={currEmail.type}
+                title={currEmail.template}
         />
     {/if}
 </div>

@@ -35,7 +35,7 @@ interface VerifyEmailAddressProps extends EmailTemplatePropsBase<EmailTemplate.V
 
 interface CreateProjectProps extends EmailTemplatePropsBase<EmailTemplate.CreateProjectRequest> {
     project: CreateProjectInput;
-    userRequestEmail: string;
+    user: { name: string, email: string };
 }
 
 export type EmailTemplateProps =
