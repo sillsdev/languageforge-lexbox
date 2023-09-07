@@ -15,8 +15,7 @@
 </script>
 
 <!-- https://daisyui.com/components/input/#with-form-control-and-labels -->
-<form bind:this={formElem} {id} use:enhanceIfRequested method="post" on:submit|preventDefault class="form-control">
+<form bind:this={formElem} {id} use:enhanceIfRequested method="post" on:submit|preventDefault class="flex flex-col">
   <slot />
 </form>
-
 <!-- see frontend/src/app.postcss for global styles related to forms -->
