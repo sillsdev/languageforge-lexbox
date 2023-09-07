@@ -144,11 +144,16 @@
       "title": "Choose role for {name}"
     },
     "reset_project_modal": {
-      "title": "Reset project {name}",
+      "title": "Reset project",
+      "submit": "Reset project",
       "download_button": "Download backup file",
       "confirm_downloaded": "I confirm that I have downloaded the backup file and verified that it works. I am ready to completely reset the repository history.",
+      "confirm_downloaded_error": "Please check the box to confirm you have downloaded the backup file",
+      "confirm_project_code": "Enter project code to confirm reset",
+      "confirm_project_code_error": "Please type the project code to confirm reset",
       "admin_required": "This action can only be performed by site admins",
-      "reset_project": "Reset project (NO UNDO)"
+      "reset_project": "Reset project (NO UNDO)",
+      "reset_project_notification": "Successfully reset project {code}"
     },
     "notifications": {
       "role_change": "Project role of {name} set to {role}.",

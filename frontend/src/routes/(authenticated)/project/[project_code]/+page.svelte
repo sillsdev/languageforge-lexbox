@@ -13,7 +13,7 @@
   import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
-  import { TrashIcon } from '$lib/icons';
+  import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { notifySuccess, notifyWarning } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import type { ErrorMessage } from '$lib/forms';
@@ -58,20 +58,9 @@
     }
   }
 
-  let resetProjectModal: ResetProjectModal;
-  async function resetProject(): Promise<void> {
-    const response = await resetProjectModal.open();
-    if (response === 'submit') {
-      const url = `/api/project/resetProject/${_project.code}`;
-      const resetResponse = await fetch(url, {method: 'post'});
-      if (resetResponse.ok) {
-        notifySuccess(
-          $t('project_page.notifications.reset_project', {
-            code: _project.code,
-          })
-      );
-      }
-    }
+  let resetProjectModal: NewResetProjectModal;
+  async function resetProject(): Promise<FormModalResult<Schema>> {
+    return await resetProjectModal.open(_project.code);
   }
 
   let removeUserModal: DeleteModal;
@@ -299,10 +288,10 @@
           <AdminContent>
             <p class="text-2xl mb-4">
               <button class="btn btn-accent" on:click={() => resetProject()}>
-                {$t('project_page.reset_project_modal.title', {name: project.name})}
+                {$t('project_page.reset_project_modal.title')}<CircleArrowIcon />
               </button>
             </p>
-            <ResetProjectModal bind:this={resetProjectModal} code={data.code} />
+            <ResetProjectModal bind:this={resetProjectModal} i18nScope="project_page.reset_project_modal" />
           </AdminContent>
         </MoreSettings>
       {/if}
