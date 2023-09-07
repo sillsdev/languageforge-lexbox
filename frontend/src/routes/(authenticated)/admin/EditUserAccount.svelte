@@ -9,6 +9,7 @@
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
   import { Button, SystemRoleSelect } from '$lib/forms';
+  import { passwordFormRules } from '$lib/forms/utils';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: UserRow) => void;
@@ -17,7 +18,7 @@
   const schema = z.object({
     email: z.string().email(),
     name: z.string(),
-    password: z.string().optional(),
+    password: passwordFormRules($t).optional(),
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
   type Schema = typeof schema;
@@ -86,6 +87,7 @@
       label={$t('admin_dashboard.form_modal.password_label')}
       bind:value={$form.password}
       autocomplete="new-password"
+      error={errors.password}
     />
   </div>
   <svelte:fragment slot="extraActions">
