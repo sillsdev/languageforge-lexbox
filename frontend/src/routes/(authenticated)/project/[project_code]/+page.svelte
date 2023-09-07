@@ -2,7 +2,7 @@
   import { Badge, BadgeList, MemberBadge } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import FormatDate from '$lib/components/FormatDate.svelte';
-  import FormatProjectType from '$lib/components/FormatProjectType.svelte';
+  import { ProjectTypeBadge } from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
@@ -27,8 +27,8 @@
   import { _deleteProject } from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { Page } from '$lib/layout';
-  import AdminContent from '$lib/layout/AdminContent.svelte';
+  import { AdminContent, Page } from '$lib/layout';
+  import SvelteMarkdown from 'svelte-markdown';
 
   export let data: PageData;
   $: user = data.user;
@@ -146,31 +146,38 @@
             </label>
             <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
               <div class="card-body max-sm:p-4">
-                <FormField label={$t('project_page.get_project.send_receive_url')}>
-                  <div class="join">
-                    <input
-                      value={projectHgUrl}
-                      class="input input-bordered join-item w-full focus:input-success"
-                      readonly
-                    />
-                    <div
-                      class="join-item tooltip-open"
-                      class:tooltip={copiedToClipboard}
-                      data-tip={$t('clipboard.copied')}
-                    >
-                      {#if copiedToClipboard}
-                        <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
-                      {:else}
-                        <IconButton
-                          loading={copyingToClipboard}
-                          icon="i-mdi-content-copy"
-                          style="btn-outline"
-                          on:click={copyProjectUrlToClipboard}
-                        />
-                      {/if}
+                <div class="prose">
+                  <SvelteMarkdown
+                    source={$t('project_page.get_project.instructions', {type: _project.type, code: data.code, name: _project.name})}>
+                  </SvelteMarkdown>
+                </div>
+                <AdminContent>
+                  <FormField label={$t('project_page.get_project.send_receive_url')}>
+                    <div class="join">
+                      <input
+                        value={projectHgUrl}
+                        class="input input-bordered join-item w-full focus:input-success"
+                        readonly
+                      />
+                      <div
+                        class="join-item tooltip-open"
+                        class:tooltip={copiedToClipboard}
+                        data-tip={$t('clipboard.copied')}
+                      >
+                        {#if copiedToClipboard}
+                          <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+                        {:else}
+                          <IconButton
+                            loading={copyingToClipboard}
+                            icon="i-mdi-content-copy"
+                            style="btn-outline"
+                            on:click={copyProjectUrlToClipboard}
+                          />
+                        {/if}
+                      </div>
                     </div>
-                  </div>
-                </FormField>
+                  </FormField>
+                </AdminContent>
               </div>
             </div>
           </Dropdown>
@@ -187,7 +194,7 @@
           </span>
         </div>
         <BadgeList>
-          <Badge><FormatProjectType type={project.type} /></Badge>
+          <ProjectTypeBadge type={project.type} />
           <Badge><FormatRetentionPolicy policy={project.retentionPolicy} /></Badge>
         </BadgeList>
       </div>

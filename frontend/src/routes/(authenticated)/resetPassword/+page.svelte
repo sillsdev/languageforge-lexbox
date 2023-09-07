@@ -7,11 +7,12 @@
   import { z } from 'zod';
   import { notifySuccess } from '$lib/notify';
   import type { PageData } from './$types';
+  import { passwordFormRules } from '$lib/forms/utils';
 
   export let data: PageData;
 
   const formSchema = z.object({
-    password: z.string().min(4, $t('admin_dashboard.password_missing')),
+    password: passwordFormRules($t),
   });
   let { form, errors, enhance, submitting, message } = lexSuperForm(formSchema, async () => {
     const response = await fetch('api/login/resetPassword', {

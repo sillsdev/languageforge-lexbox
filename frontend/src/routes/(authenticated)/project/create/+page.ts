@@ -6,8 +6,9 @@ export async function _createProject(input: CreateProjectInput): $OpResult<Creat
     graphql(`
         mutation createProject($input: CreateProjectInput!) {
             createProject(input: $input) {
-                project {
-                    id
+                createProjectResponse {
+                  id
+                  result
                 }
                 errors {
                     ... on DbError {

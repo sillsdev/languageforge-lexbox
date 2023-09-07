@@ -1,9 +1,11 @@
 <script lang="ts">
+  import type { LoadProjectsQuery } from '$lib/gql/types';
   import t from '$lib/i18n';
-  import type { Project } from '$lib/project';
   import { Badge } from './Badges';
+  import { ProjectTypeIcon } from './ProjectType';
 
-  export let projects: Project[] = [];
+  export let projects: LoadProjectsQuery['myProjects'];
+
 </script>
 
 <div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
@@ -11,8 +13,8 @@
     <a class="card bg-base-200 shadow-base-300" href={`/project/${project.code}`}>
       <div class="card-body">
         <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
-          <span class="text-primary">
-            {project.name}
+          <span class="text-primary inline-flex gap-2 items-center">
+            {project.name} <ProjectTypeIcon type={project.type} />
           </span>
         </h2>
 

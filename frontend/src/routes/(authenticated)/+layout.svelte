@@ -6,6 +6,7 @@
   import type { LayoutData } from './$types';
   import {onMount} from 'svelte';
   import {ensureClientMatchesUser} from '$lib/gql';
+  import {beforeNavigate} from '$app/navigation';
 
   let menuToggle = false;
   export let data: LayoutData;
@@ -25,6 +26,7 @@
   onMount(() => {
     ensureClientMatchesUser(user);
   });
+  beforeNavigate(() => close());
 </script>
 
 <svelte:window on:keydown={closeOnEscape} />
@@ -54,8 +56,10 @@
       <slot />
     </Content>
   </div>
-
-  <AppMenu on:click={close} on:keydown={close} {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
+  <div class="drawer-side z-10" >
+    <button class="drawer-overlay" on:click={close} on:keydown={close}/>
+    <AppMenu {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
+  </div>
 </div>
 
 <style lang="postcss">

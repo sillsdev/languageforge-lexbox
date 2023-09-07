@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using LexBoxApi.Config;
+using LexBoxApi.Models.Project;
 using LexBoxApi.Otel;
 using LexBoxApi.Services.Email;
+using LexCore.Auth;
 using LexCore.Entities;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
@@ -36,7 +38,10 @@ public class EmailService
         var httpContext = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         // returnTo is a svelte app url
-        var forgotLink = _linkGenerator.GetUriByAction(httpContext, "LoginRedirect", "Login", new { jwt, returnTo = "/resetPassword" });
+        var forgotLink = _linkGenerator.GetUriByAction(httpContext,
+            "LoginRedirect",
+            "Login",
+            new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
         await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink));
         await SendEmailAsync(email);
@@ -49,12 +54,10 @@ public class EmailService
         var httpContext = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryParam = string.IsNullOrEmpty(newEmail) ? "verifiedEmail" : "changedEmail";
-        var verifyLink = _linkGenerator.GetUriByAction(httpContext, "VerifyEmail", "Login", new
-        {
-            jwt,
-            returnTo = $"/user?emailResult={queryParam}",
-            email = newEmail ?? user.Email,
-        });
+        var verifyLink = _linkGenerator.GetUriByAction(httpContext,
+            "VerifyEmail",
+            "Login",
+            new { jwt, returnTo = $"/user?emailResult={queryParam}", email = newEmail ?? user.Email, });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
         await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail)));
         await SendEmailAsync(email);
@@ -64,6 +67,15 @@ public class EmailService
     {
         var email = StartUserEmail(user);
         await RenderEmail(email, new PasswordChangedEmail(user.Name));
+        await SendEmailAsync(email);
+    }
+
+    public async Task SendCreateProjectRequestEmail(LexAuthUser user, CreateProjectInput projectInput)
+    {
+        var email = new MimeMessage();
+        email.To.Add(new MailboxAddress("Admin", _emailConfig.CreateProjectEmailDestination));
+        await RenderEmail(email,
+            new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput));
         await SendEmailAsync(email);
     }
 

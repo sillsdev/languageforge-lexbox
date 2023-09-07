@@ -20,6 +20,12 @@ public class User : EntityBase
     public required string PasswordHash { get; set; }
     public required string Salt { get; set; }
     public required bool EmailVerified { get; set; }
+    public required bool CanCreateProjects { get; set; }
+
+    public void UpdateCreateProjectsPermission(ProjectRole role)
+    {
+        if (role == ProjectRole.Manager) CanCreateProjects = true;
+    }
     public bool Locked { get; set; } = false;
 
     /// <summary>

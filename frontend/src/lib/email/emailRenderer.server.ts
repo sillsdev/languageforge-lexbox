@@ -3,8 +3,10 @@ import { parse, walk } from 'svelte/compiler';
 import type { ComponentType } from 'svelte';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces';
 import mjml2html from 'mjml';
+import type {EmailTemplateProps} from '../../routes/email/emails';
 
 type RenderResult = { head: string, html: string, css: string };
+export type RenderEmailResult = { subject: string, html: string };
 
 function getSubject(head: string): string {
   // using the Subject.svelte component a title should have been placed in the head.
@@ -22,7 +24,7 @@ function getSubject(head: string): string {
   return subject;
 }
 
-export function render(emailComponent: ComponentType, props: Record<string, string>): { subject: string; html: string } {
+export function render(emailComponent: ComponentType, props: Omit<EmailTemplateProps, 'template'>): RenderEmailResult {
   // eslint-disable-next-line
   const result: RenderResult = (emailComponent as any).render(props) as RenderResult;
   return {

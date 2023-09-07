@@ -12,6 +12,10 @@ type AddProjectMemberPayload {
   errors: [AddProjectMemberError!]
 }
 
+type AlreadyExistsError implements Error {
+  message: String!
+}
+
 type AuthUserProject {
   code: String!
   role: ProjectRole!
@@ -55,8 +59,13 @@ type Changeset {
 }
 
 type CreateProjectPayload {
-  project: Project
+  createProjectResponse: CreateProjectResponse
   errors: [CreateProjectError!]
+}
+
+type CreateProjectResponse {
+  id: UUID
+  result: CreateProjectResult!
 }
 
 type DbError implements Error {
@@ -75,12 +84,14 @@ type IsAdminResponse {
 
 type LexAuthUser {
   canManageProject(projectId: UUID!): Boolean!
+  hasProjectCreatePermission: Boolean!
   id: UUID!
   email: String!
   name: String!
   role: UserRole!
   projects: [AuthUserProject!]!
   emailVerificationRequired: Boolean
+  canCreateProjects: Boolean
 }
 
 type Mutation {
@@ -159,6 +170,7 @@ type User {
   passwordHash: String!
   salt: String!
   emailVerified: Boolean!
+  canCreateProjects: Boolean!
   locked: Boolean!
   username: String
   projects: [ProjectUsers!]!
@@ -179,7 +191,7 @@ union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
 union ChangeUserAccountDataError = NotFoundError | DbError | UniqueValueError
 
-union CreateProjectError = DbError
+union CreateProjectError = DbError | AlreadyExistsError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
@@ -376,6 +388,7 @@ input UserFilterInput {
   passwordHash: StringOperationFilterInput
   salt: StringOperationFilterInput
   emailVerified: BooleanOperationFilterInput
+  canCreateProjects: BooleanOperationFilterInput
   locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
   projects: ListFilterInputTypeOfProjectUsersFilterInput
@@ -392,6 +405,7 @@ input UserSortInput {
   passwordHash: SortEnumType
   salt: SortEnumType
   emailVerified: SortEnumType
+  canCreateProjects: SortEnumType
   locked: SortEnumType
   username: SortEnumType
   id: SortEnumType
@@ -418,6 +432,11 @@ enum ApplyPolicy {
   BEFORE_RESOLVER
   AFTER_RESOLVER
   VALIDATION
+}
+
+enum CreateProjectResult {
+  CREATED
+  REQUESTED
 }
 
 enum DbErrorCode {

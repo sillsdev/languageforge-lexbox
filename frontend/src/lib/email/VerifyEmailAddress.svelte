@@ -4,7 +4,7 @@
 
   export let name: string;
   export let verifyUrl: string;
-  export let newAddress: string;
+  export let newAddress: boolean;
 </script>
 
 <Email subject={$t('emails.verify_email.subject')} {name}>

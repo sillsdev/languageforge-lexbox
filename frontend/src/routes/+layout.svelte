@@ -27,8 +27,8 @@
   {/if}
 </svelte:head>
 
-<div class="flex flex-col justify-between h-full">
-  <div>
+<div class="flex flex-col justify-between min-h-full">
+  <div class="flex flex-col flex-grow">
     <slot />
   </div>
   <Footer />

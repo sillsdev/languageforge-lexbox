@@ -14,7 +14,10 @@ public class EmailConfig
     public required string SmtpHost { get; init; }
     [Required]
     public required string From { get; init; }
-    
+
     [Required]
     public required string EmailRenderHost { get; init; }
+
+    [Required]
+    public required string CreateProjectEmailDestination { get; init; }
 }

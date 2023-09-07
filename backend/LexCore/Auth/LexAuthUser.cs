@@ -76,6 +76,7 @@ public record LexAuthUser
         Name = user.Name;
         Projects = user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role, p.ProjectId)).ToArray();
         EmailVerificationRequired = user.EmailVerified ? null : true;
+        CanCreateProjects = user.CanCreateProjects ? true : null;
     }
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
@@ -95,6 +96,8 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.EmailUnverifiedClaimType)]
     public bool? EmailVerificationRequired { get; init; }
+    [JsonPropertyName(LexAuthConstants.CanCreateProjectClaimType)]
+    public bool? CanCreateProjects { get; init; }
 
     public IEnumerable<Claim> GetClaims()
     {
@@ -169,6 +172,11 @@ public record LexAuthUser
     {
         AssertCanManageProject(projectId);
         if (userId == Id) throw new UnauthorizedAccessException("Not allowed to change own project role.");
+    }
+
+    public bool HasProjectCreatePermission()
+    {
+        return CanCreateProjects ?? Role == UserRole.admin;
     }
 }
 

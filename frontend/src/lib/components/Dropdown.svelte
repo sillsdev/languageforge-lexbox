@@ -1,5 +1,7 @@
 <script lang="ts">
   let dropdownContainer: HTMLElement;
+  export let hover = false;
+  export let right = false;
 
   /**
    * Enables closing the dropdown by clicking on the dropdown a second time
@@ -15,11 +17,11 @@
 <!-- The most "modern" method for creating a dropdown with DaisyUI is using the <details> tag,
   but they only close when the user explicitly clicks on the toggle button again.
   We generally want dropdowns to close automatically as the user interacts with the app -->
-<div bind:this={dropdownContainer} class="dropdown dropdown-end">
+<div bind:this={dropdownContainer} class="dropdown dropdown-end" class:dropdown-end={!right} class:dropdown-right={right} class:dropdown-hover={hover}>
   <div class="contents" on:mousedown={blurIfOpen}>
     <slot />
   </div>
-  <div tabindex="-1" class="dropdown-content bg-base-200 shadow rounded-box z-[1]">
+  <div tabindex="-1" class="dropdown-content bg-base-200 shadow rounded-box z-[2]">
     <slot name="content" />
   </div>
 </div>

@@ -17,7 +17,7 @@
   interface CrumbConfig extends Record<string, CrumbValue>, Partial<CrumbFallbackMapper>, Partial<CrumbWithChild> {}
 
   const CRUMB_CONFIG = {
-    _name: 'user_dashboard.title',
+    _name: 'user_dashboard.home_title',
     admin: 'admin_dashboard.title',
     resetPassword: 'reset_password.title',
     project: {

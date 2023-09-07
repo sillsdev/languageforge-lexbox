@@ -1,5 +1,7 @@
 import type { Get, IfNever } from 'type-fest';
 
+import type { Readable } from 'svelte/store';
+
 /**
  * Removes properties with value `never` from an object type
  */
@@ -35,3 +37,5 @@ type StringList<Option extends string> = Option
  */
 export type CssClassList<CssClass extends string, MutuallyEsclusiveCssClass extends string | never = never> =
   IfNever<MutuallyEsclusiveCssClass, StringList<CssClass>, MutuallyEsclusiveCssClass | `${MutuallyEsclusiveCssClass} ${StringList<CssClass>}`>;
+
+export type StoreType<T extends Readable<unknown>> = T extends Readable<infer S> ? S : never;
