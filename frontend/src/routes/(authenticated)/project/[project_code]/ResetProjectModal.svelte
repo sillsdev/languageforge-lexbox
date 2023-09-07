@@ -65,7 +65,7 @@
 <div class="reset-modal contents">
   <FormModal bind:this={resetProjectModal} schema={verify} let:errors>
     <span slot="title">{$t('title')}</span>
-    <a rel="external" target="_blank" href="/api/project/backupProject/{code}" download>
+    <a rel="external" href="/api/project/backupProject/{code}" download>
       <span class="btn">{$t('download_button')}</span>
     </a>
     <Checkbox label={$t('confirm_downloaded')} bind:value={$modalForm.confirmDownloaded} />
