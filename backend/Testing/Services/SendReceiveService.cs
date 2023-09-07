@@ -10,7 +10,10 @@ namespace Testing.Services;
 
 public record SendReceiveAuth(string Username, string Password);
 
-public record SendReceiveParams(string ProjectCode, string BaseUrl, string DestDir);
+public record SendReceiveParams(string ProjectCode, string BaseUrl, string DestDir)
+{
+    public string FwDataFile { get; } = Path.Join(DestDir, $"{ProjectCode}.fwdata");
+}
 
 public class SendReceiveService
 {
@@ -114,7 +117,7 @@ public class SendReceiveService
         return cloneResult;
     }
 
-    public string SendReceiveProject(SendReceiveParams sendReceiveParams, SendReceiveAuth auth)
+    public string SendReceiveProject(SendReceiveParams sendReceiveParams, SendReceiveAuth auth, string commitMessage = "Testing")
     {
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
@@ -147,7 +150,7 @@ public class SendReceiveService
             { "languageDepotRepoName", "LexBox" },
             { "languageDepotRepoUri", repoUrl.ToString() },
             { "user", "LexBox" },
-            { "commitMessage", "Testing" }
+            { "commitMessage", commitMessage }
         };
 
         string cloneResult;

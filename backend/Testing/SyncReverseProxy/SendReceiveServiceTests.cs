@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using Chorus.VcsDrivers.Mercurial;
 using Shouldly;
 using Testing.Logging;
@@ -43,7 +44,7 @@ public class SendReceiveServiceTests
 
     private static int _folderIndex = 1;
 
-    private (string projectDir, string fwDataFile) GetProjectDir(string projectCode,
+    private string GetProjectDir(string projectCode,
         string? identifier = null,
         [CallerMemberName] string testName = "")
     {
@@ -51,8 +52,7 @@ public class SendReceiveServiceTests
         if (identifier is not null) projectDir = Path.Join(projectDir, identifier);
         //fwdata file containing folder name will be the same as the file name
         projectDir = Path.Join(projectDir, _folderIndex++.ToString(), projectCode);
-        var fwDataFile = Path.Join(projectDir, $"{projectCode}.fwdata");
-        return (projectDir, fwDataFile);
+        return projectDir;
     }
 
     private SendReceiveParams GetParams(HgProtocol protocol,
@@ -60,8 +60,7 @@ public class SendReceiveServiceTests
         [CallerMemberName] string testName = "")
     {
         projectCode ??= TestingEnvironmentVariables.ProjectCode;
-        var (projectDir, _) = GetProjectDir(projectCode, testName: testName);
-        var sendReceiveParams = new SendReceiveParams(projectCode, protocol.GetTestHostName(), projectDir);
+        var sendReceiveParams = new SendReceiveParams(projectCode, protocol.GetTestHostName(), GetProjectDir(projectCode, testName: testName));
         return sendReceiveParams;
     }
 
@@ -91,9 +90,11 @@ public class SendReceiveServiceTests
     }
     private void RunCloneSendReceive(HgProtocol hgProtocol, string user, string projectCode)
     {
-        var (projectDir, fwDataFile) = GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user));
         var auth = new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword);
-        var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(), projectDir);
+        var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(),
+            GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user)));
+        var projectDir = sendReceiveParams.DestDir;
+        var fwDataFile = sendReceiveParams.FwDataFile;
 
         // Clone
         var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);
@@ -114,6 +115,28 @@ public class SendReceiveServiceTests
         fwDataFileInfo.Exists.ShouldBeTrue();
         fwDataFileInfo.Length.ShouldBe(fwDataFileOriginalLength);
     }
+
+    [Fact]
+    public void ModifyProjectData()
+    {
+        var projectCode = TestingEnvironmentVariables.ProjectCode;
+
+        // Clone
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
+        var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, AdminAuth);
+        cloneResult.ShouldNotContain("abort");
+        cloneResult.ShouldNotContain("error");
+        var fwDataFileInfo = new FileInfo(sendReceiveParams.FwDataFile);
+        fwDataFileInfo.Length.ShouldBeGreaterThan(0);
+        ModifyProjectHelper.ModifyProject(sendReceiveParams.FwDataFile);
+
+        // Send changes
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
+        srResult.ShouldNotContain("abort");
+        srResult.ShouldNotContain("error");
+    }
+
+
 
     [Fact]
     public void InvalidPassOnCloneHgWeb()
