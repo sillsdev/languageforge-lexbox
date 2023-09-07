@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm } from '$lib/forms';
+  import { passwordFormRules } from '$lib/forms/utils';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { register } from '$lib/user';
@@ -10,8 +11,9 @@
   const formSchema = z.object({
     name: z.string().min(1, $t('register.name_missing')),
     email: z.string().email($t('register.email')),
-    password: z.string().min(1, $t('register.password_missing')),
+    password: passwordFormRules($t),
   });
+
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
     const { user, error } = await register($form.password, $form.name, $form.email, turnstileToken);
     if (error) {

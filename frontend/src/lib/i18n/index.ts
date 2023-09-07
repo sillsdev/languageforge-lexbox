@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import type { DeepPathsToType, DeepPaths, DeepPathsToString } from '$lib/type.utils';
+import type { DeepPathsToType, DeepPaths, DeepPathsToString, StoreType } from '$lib/type.utils';
 import { addMessages, getLocaleFromNavigator, init, register, t as translate, waitLocale } from 'svelte-intl-precompile';
 
 import type I18n from '../i18n/locales/en.json';
@@ -29,6 +29,8 @@ const t = derived(translate, tFunc => {
   });
 });
 export default t;
+
+export type Translater = StoreType<typeof t>;
 
 export function tScoped<Shape extends object>(scope: I18nShapeKey<Shape>): Readable<(key: DeepPathsToString<Shape>, values?: InterpolationValues) => string> {
   return derived(t, tFunc => (key: DeepPathsToString<Shape>, values?: InterpolationValues) =>
