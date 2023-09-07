@@ -287,7 +287,7 @@
                   <span class="inline-flex items-center gap-2 text-left">
                     {user.email}
                     {#if !user.emailVerified}
-                    <span class="tooltip text-warning text-xl shrink-0 leading-none"
+                    <span class="tooltip text-warning text-xl shrink-0 leading-0"
                       data-tip={$t('admin_dashboard.email_not_verified')}>
                       <span class="i-mdi-help-circle-outline" />
                     </span>
