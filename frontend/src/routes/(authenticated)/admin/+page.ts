@@ -81,6 +81,6 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
         }
       `),
       { input: input }
-    )
+  )
   return result;
 }

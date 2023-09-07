@@ -1,4 +1,5 @@
 import { getClient, graphql } from '$lib/gql';
+
 import type { PageLoadEvent } from './$types';
 
 export async function load(event: PageLoadEvent) {
@@ -18,6 +19,6 @@ export async function load(event: PageLoadEvent) {
         }
   `), {});
   return {
-    projects: results.myProjects
+    projects: results.myProjects,
   }
 }

@@ -2,45 +2,52 @@ import { isObjectWhere } from '$lib/util/types';
 
 export * from './generated/graphql';
 
-export interface GqlResult<T> {
+export interface GqlResult<T extends GenericData> {
   data?: T;
-  error?: LexGqlError;
+  error?: LexGqlError<ExtractErrorTypename<T>>;
 }
 
-export type $OpResult<T> = Promise<GqlResult<T>>;
+export type $OpResult<T extends GenericData> = Promise<GqlResult<T>>;
 
-export interface GqlInputError {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type GenericData = Record<string, { errors: Errors } | Record<any, any> | null>;
+// eslint-disable-next-line @typescript-eslint/naming-convention
+type Errors = ({ __typename?: string, message?: string })[];
+export type ExtractErrors<T extends GenericData> = Extract<NonNullable<T[keyof T]>['errors'], Errors>;
+export type ExtractErrorTypename<T extends GenericData> = Extract<NonNullable<T[keyof T]>['errors'], Errors>[number]['__typename'];
+
+export interface GqlInputError<Typename extends string> {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  __typename: 'NotFoundError';
+  __typename: Typename;
   message: string;
   code?: string;
 }
 
 interface ErrorResult {
-  errors: GqlInputError[];
+  errors: GqlInputError<string>[];
 }
 
 export function isErrorResult(value: unknown): value is ErrorResult {
   return isObjectWhere<ErrorResult>(value, obj => Array.isArray(obj.errors));
 }
 
-export class LexGqlError {
+export class LexGqlError<Typename extends string> {
 
   readonly message: string;
 
-  constructor(public readonly errors: GqlInputError[]) {
+  constructor(public readonly errors: GqlInputError<Typename>[]) {
     this.message = this.errors.map(e => e.message).join(', ');
     //sometimes there are errors but the message wasn't selected for some reason, if we have an empty string here then code lower down will think there's no error at all.
     if (this.message === '') this.message = 'Unknown error';
   }
 
-  byCode(code: string): GqlInputError[] | undefined {
+  byCode(code: string): GqlInputError<Typename>[] | undefined {
     const codeErrors = this.errors.filter(error => error.code == code);
     return codeErrors.length > 0 ? codeErrors : undefined;
   }
 
-  byType(typename: GqlInputError['__typename']): GqlInputError[] | undefined {
-    const codeErrors = this.errors.filter(error => error.__typename == typename);
+  byType<T extends Typename>(typename: T): GqlInputError<T>[] | undefined {
+    const codeErrors = this.errors.filter(error => error.__typename == typename) as GqlInputError<T>[];
     return codeErrors.length > 0 ? codeErrors : undefined;
   }
 }
