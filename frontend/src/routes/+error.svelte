@@ -1,7 +1,9 @@
 <script lang="ts">
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
-  import { Content, Page } from '$lib/layout';
+  import { AppBar, Content, Page } from '$lib/layout';
 </script>
+
+<AppBar />
 
 <Content>
   <Page>
