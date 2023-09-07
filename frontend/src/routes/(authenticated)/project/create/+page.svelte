@@ -33,7 +33,7 @@
       retentionPolicy: $form.retentionPolicy,
     });
     if (result.error) {
-      if (result.error.forCode(DbErrorCode.Duplicate)) {
+      if (result.error.byCode(DbErrorCode.Duplicate)) {
         $errors.code = [$t('project.create.code_exists')];
       } else {
         $message = result.error.message;

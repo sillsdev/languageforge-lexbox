@@ -139,7 +139,8 @@
       "add_button": "Add Member",
       "email_required": "Email required",
       "modal_title": "Add a Member to this project",
-      "submit_button": "Add Member"
+      "submit_button": "Add Member",
+      "user_not_found": "No user was found with this email address"
     },
     "change_role_modal": {
       "title": "Choose role for {name}"

@@ -83,15 +83,13 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
               }
             }
             errors {
-              ... on Error {
-                message
-              }
+              __typename
             }
           }
         }
       `),
       { input: input }
-    );
+  );
   return result;
 }
 
