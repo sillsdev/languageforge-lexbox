@@ -57,6 +57,7 @@ builder.Services.AddHttpLogging(options =>
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
                             HttpLoggingFields.ResponsePropertiesAndHeaders;
     options.ResponseHeaders.Add("WWW-Authenticate");
+    options.ResponseHeaders.Add("lexbox-version");
 #if DEBUG
     options.RequestHeaders.Add("Cookie");
 #endif
