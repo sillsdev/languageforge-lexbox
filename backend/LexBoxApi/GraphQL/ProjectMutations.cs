@@ -5,6 +5,7 @@ using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
+using LexCore.Utils;
 using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -137,7 +138,7 @@ public class ProjectMutations
         if (project.DeletedDate is not null) throw new InvalidOperationException("Project already deleted");
 
         var deletedAt = DateTimeOffset.UtcNow;
-        var timestamp = deletedAt.ToString("yyyy_MM_dd_HHmmss");
+        var timestamp = FileUtils.ToTimestamp(deletedAt);
         project.DeletedDate = deletedAt;
         var projectCode = project.Code;
         project.Code = $"{project.Code}__{timestamp}";

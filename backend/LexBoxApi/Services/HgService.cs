@@ -7,6 +7,7 @@ using LexBoxApi.Config;
 using LexCore.Config;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
+using LexCore.Utils;
 using Microsoft.Extensions.Options;
 using Path = System.IO.Path;
 
@@ -58,7 +59,7 @@ public class HgService : IHgService
             return null; // Which controller will turn into HTTP 404
         }
         string tempPath = Path.GetTempPath();
-        string timestamp = DateTime.UtcNow.ToString(DateTimeFormatInfo.InvariantInfo.SortableDateTimePattern).Replace(':', '-');
+        string timestamp = FileUtils.ToTimestamp(DateTime.UtcNow);
         string baseName = $"backup-{code}-{timestamp}.zip";
         string filename = Path.Join(tempPath, baseName);
         // TODO: Check if a backup has been taken within the past 30 minutes, and return that backup instead of making a new one
@@ -69,9 +70,8 @@ public class HgService : IHgService
 
     public async Task ResetRepo(string code)
     {
-        string timestamp = DateTimeOffset.UtcNow.ToString("yyyy_MM_dd_HHmmss");
-        // TODO: Make that "yyyy_MM_dd_HHmmss" string a constant somewhere, then reference it here and in ProjectMutations.SoftDeleteProject
-        await SoftDeleteRepo(code, timestamp);
+        string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
+        await SoftDeleteRepo(code, $"{timestamp}__reset");
         await InitRepo(code);
     }
 

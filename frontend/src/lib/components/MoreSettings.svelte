@@ -7,7 +7,7 @@
   <div class="collapse-title text-lg">{$t('more_settings.title')}</div>
   <div class="collapse-content">
     <div class="divider mt-0" />
-    <div class="flex justify-end">
+    <div class="flex justify-end gap-4">
       <slot />
     </div>
   </div>

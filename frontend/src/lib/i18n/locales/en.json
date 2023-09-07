@@ -151,8 +151,6 @@
       "confirm_downloaded_error": "Please check the box to confirm you have downloaded the backup file",
       "confirm_project_code": "Enter project code to confirm reset",
       "confirm_project_code_error": "Please type the project code to confirm reset",
-      "admin_required": "This action can only be performed by site admins",
-      "reset_project": "Reset project (NO UNDO)",
       "reset_project_notification": "Successfully reset project {code}"
     },
     "notifications": {

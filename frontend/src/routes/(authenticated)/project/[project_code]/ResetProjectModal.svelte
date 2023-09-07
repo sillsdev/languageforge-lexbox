@@ -2,22 +2,14 @@
   export type ResetProjectModalI18nShape = {
     title: string,
     submit: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+    /* eslint-disable @typescript-eslint/naming-convention */
     download_button: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     confirm_downloaded: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     confirm_downloaded_error: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     confirm_project_code: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     confirm_project_code_error: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    admin_required: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    reset_project: string,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     reset_project_notification: string,
+    /* eslint-enable @typescript-eslint/naming-convention */
   };
 </script>
 
@@ -30,11 +22,9 @@
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
   import { CircleArrowIcon } from '$lib/icons';
   import { notifySuccess } from '$lib/notify';
-  import FormFieldError from '$lib/forms/FormFieldError.svelte';
 
   export let i18nScope: I18nShapeKey<ResetProjectModalI18nShape>;
-  // let name: string;
-  // export let code: string;
+
   let code: string;
 
   export async function open(_code: string): Promise<FormModalResult<Schema>> {
@@ -65,11 +55,18 @@
 <div class="reset-modal contents">
   <FormModal bind:this={resetProjectModal} schema={verify} let:errors>
     <span slot="title">{$t('title')}</span>
-    <a rel="external" href="/api/project/backupProject/{code}" download>
-      <span class="btn">{$t('download_button')}</span>
-    </a>
-    <Checkbox label={$t('confirm_downloaded')} bind:value={$modalForm.confirmDownloaded} />
-    <FormFieldError id="confirm-checkbox-error-label" error={errors.confirmDownloaded} />
+    <div class="form-control">
+      <a rel="external" href="/api/project/backupProject/{code}"
+        class="btn btn-success" download>
+        {$t('download_button')}
+        <span class="i-mdi-download text-2xl" />
+      </a>
+    </div>
+    <Checkbox
+      id="confirmDownloaded"
+      label={$t('confirm_downloaded')}
+      bind:value={$modalForm.confirmDownloaded}
+      error={errors.confirmDownloaded} />
     <Input
       id="confirmProjectCode"
       type="text"

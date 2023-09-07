@@ -58,9 +58,9 @@
     }
   }
 
-  let resetProjectModal: NewResetProjectModal;
-  async function resetProject(): Promise<FormModalResult<Schema>> {
-    return await resetProjectModal.open(_project.code);
+  let resetProjectModal: ResetProjectModal;
+  async function resetProject(): Promise<void> {
+    await resetProjectModal.open(_project.code);
   }
 
   let removeUserModal: DeleteModal;
@@ -286,11 +286,9 @@
             {$t('delete_project_modal.submit')}<TrashIcon />
           </button>
           <AdminContent>
-            <p class="text-2xl mb-4">
               <button class="btn btn-accent" on:click={() => resetProject()}>
                 {$t('project_page.reset_project_modal.title')}<CircleArrowIcon />
               </button>
-            </p>
             <ResetProjectModal bind:this={resetProjectModal} i18nScope="project_page.reset_project_modal" />
           </AdminContent>
         </MoreSettings>
