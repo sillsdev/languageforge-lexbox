@@ -113,6 +113,7 @@ public class EmailService
 
         var httpClient = _clientFactory.CreateClient();
         httpClient.BaseAddress = new Uri("http://" + _emailConfig.EmailRenderHost);
+        parameters.BaseUrl = _emailConfig.BaseUrl;
         var response = await httpClient.PostAsJsonAsync("email", parameters);
         response.EnsureSuccessStatusCode();
         var renderResult = await response.Content.ReadFromJsonAsync<RenderResult>();

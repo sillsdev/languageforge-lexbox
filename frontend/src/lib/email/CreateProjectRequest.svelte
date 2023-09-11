@@ -6,9 +6,10 @@
     import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
 
     export let name: string;
+    export let baseUrl: string;
     export let project: CreateProjectInput;
     export let user: { name: string; email: string };
-
+    let createUrl = new URL('/project/create', baseUrl);
 </script>
 
 <Email subject={$t('emails.create_project_request_email.subject', {projectName: project.name})} {name}>
@@ -37,5 +38,5 @@
 
     </mj-table>
 <!--    todo should have a url here-->
-    <mj-button>{$t('project.create.submit')}</mj-button>
+    <mj-button href={createUrl}>{$t('project.create.submit')}</mj-button>
 </Email>

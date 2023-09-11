@@ -3,7 +3,14 @@ using LexBoxApi.Models.Project;
 
 namespace LexBoxApi.Services.Email;
 
-public record EmailTemplateBase(EmailTemplate Template);
+public record EmailTemplateBase(EmailTemplate Template)
+{
+    /// <summary>
+    /// passed to the renderer so that it can generate links to svelte pages. However a jwt should never be passed to Svelte
+    /// if we need to use a jwt then it should hit the api directly and the api should redirect to the svelte page
+    /// </summary>
+    public string? BaseUrl { get; set; }
+}
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EmailTemplate

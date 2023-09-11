@@ -22,6 +22,7 @@ export const componentMap = {
 interface EmailTemplatePropsBase<T extends EmailTemplate> {
     template: T;
     name: string;
+    baseUrl?: string;
 }
 
 interface ForgotPasswordProps extends EmailTemplatePropsBase<EmailTemplate.ForgotPassword> {
