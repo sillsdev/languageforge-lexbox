@@ -37,6 +37,7 @@ public static class LexBoxKernel
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();
+        services.AddSingleton<LexboxLinkGenerator>();
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);

@@ -20,4 +20,6 @@ public class EmailConfig
 
     [Required]
     public required string CreateProjectEmailDestination { get; init; }
+    [Required, Url]
+    public required string BaseUrl { get; init; }
 }

@@ -22,6 +22,8 @@ spec:
             - name: Email__From
               # TODO: need to parameterize this
               value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
+            - name: Email__BaseUrl
+              value: "https://staging.languagedepot.org"
       initContainers:
         - name: db-migrations
           env:

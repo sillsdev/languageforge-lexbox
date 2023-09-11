@@ -22,7 +22,7 @@ public class EmailService
 
     public EmailService(IOptions<EmailConfig> emailConfig,
         IHttpClientFactory clientFactory,
-        LinkGenerator linkGenerator,
+        LexboxLinkGenerator linkGenerator,
         IHttpContextAccessor httpContextAccessor
     )
     {

@@ -129,6 +129,8 @@ spec:
               secretKeyRef:
                 key: SMTP_PASSWORD
                 name: email
+          - name: Email__BaseUrl
+            value: http://localhost
 
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0
