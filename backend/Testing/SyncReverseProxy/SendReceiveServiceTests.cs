@@ -1,8 +1,10 @@
+using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using Chorus.VcsDrivers.Mercurial;
 using Shouldly;
+using Testing.ApiTests;
 using Testing.Logging;
 using Testing.Services;
 using Xunit.Abstractions;
@@ -136,6 +138,45 @@ public class SendReceiveServiceTests
         srResult.ShouldNotContain("error");
     }
 
+    [Fact(Skip = "unable to push a new project with the current setup")]
+    public async Task SendNewProject()
+    {
+        var id = Guid.NewGuid();
+        var apiTester = new ApiTestBase();
+        var auth = AdminAuth;
+        var projectCode = "kevin-test-01";
+        await apiTester.LoginAs(auth.Username, auth.Password);
+        await apiTester
+            .ExecuteGql($$"""
+                          mutation {
+                              createProject(input: {
+                                  name: "Kevin test 01",
+                                  type: FL_EX,
+                                  id: "{{id}}",
+                                  code: "{{projectCode}}",
+                                  description: "this is just a testing project for testing a race condition",
+                                  retentionPolicy: DEV
+                              }) {
+                                  createProjectResponse {
+                                      id
+                                  }
+                              }
+                          }
+                          """);
+
+        var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
+        ZipFile.ExtractToDirectory(@"C:\clipboard\LexBox\kevin-test-01.zip", sendReceiveParams.DestDir);
+        File.Exists(sendReceiveParams.FwDataFile).ShouldBeTrue();
+
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth);
+        _output.WriteLine(srResult);
+        srResult.ShouldNotContain("abort");
+        srResult.ShouldNotContain("failure");
+        srResult.ShouldNotContain("error");
+
+        await apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}");
+    }
 
 
     [Fact]

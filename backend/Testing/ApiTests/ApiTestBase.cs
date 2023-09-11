@@ -8,10 +8,10 @@ namespace Testing.ApiTests;
 
 public class ApiTestBase
 {
-    protected readonly string BaseUrl = TestingEnvironmentVariables.ServerBaseUrl;
-    protected readonly HttpClient HttpClient = new HttpClient();
+    public readonly string BaseUrl = TestingEnvironmentVariables.ServerBaseUrl;
+    public readonly HttpClient HttpClient = new HttpClient();
 
-    protected async Task LoginAs(string user, string password)
+    public async Task LoginAs(string user, string password)
     {
         var response = await HttpClient.PostAsJsonAsync(
             $"{BaseUrl}/api/login",
@@ -22,7 +22,7 @@ public class ApiTestBase
         response.EnsureSuccessStatusCode();
     }
 
-    protected async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false)
+    public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false)
     {
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql", new { query = gql });
         response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");

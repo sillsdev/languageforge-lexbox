@@ -5,7 +5,7 @@
     <EnvironmentVariables>
       <!-- List of environment variables we want to set-->
       <TEST_SERVER_HOSTNAME>staging.languagedepot.org</TEST_SERVER_HOSTNAME>
-      <TEST_STANDARD_HG_HOSTNAME>hg-staging.languagedepot.org</TEST_STANDARD_HG_HOSTNAME>
+      <TEST_STANDARD_HG_HOSTNAME>hg-staging.languageforge.org</TEST_STANDARD_HG_HOSTNAME>
       <TEST_RESUMABLE_HG_HOSTNAME>resumable-staging.languagedepot.org</TEST_RESUMABLE_HG_HOSTNAME>
     </EnvironmentVariables>
   </RunConfiguration>
