@@ -9,4 +9,6 @@ public interface IHgService
     Task<Changeset[]> GetChangesets(string projectCode);
     Task DeleteRepo(string code);
     Task SoftDeleteRepo(string code, string deletedRepoSuffix);
+    Task<string?> BackupRepo(string code);
+    Task ResetRepo(string code);
 }

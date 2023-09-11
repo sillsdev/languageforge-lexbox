@@ -42,7 +42,7 @@
 </div>
 
 <style lang="postcss">
-  :global(.form-control a) {
+  :global(.form-control .label a) {
     @apply link;
   }
 </style>

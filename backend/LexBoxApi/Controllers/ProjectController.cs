@@ -67,6 +67,24 @@ public class ProjectController : ControllerBase
             .ExecuteUpdateAsync(_ => _.SetProperty(p => p.Code, p => p.Code + "-lexbox"));
     }
 
+    [HttpGet("backupProject/{code}")]
+    [AdminRequired]
+    public async Task<IActionResult> BackupProject(string code)
+    {
+        var filename = await _projectService.BackupProject(new Models.Project.ResetProjectByAdminInput(code));
+        if (string.IsNullOrEmpty(filename)) return NotFound();
+        var stream = System.IO.File.OpenRead(filename); // Do NOT use "using var stream = ..." as we need to let ASP.NET Core handle the disposal after the download completes
+        return File(stream, "application/zip", filename);
+    }
+
+    [HttpPost("resetProject/{code}")]
+    [AdminRequired]
+    public async Task<ActionResult> ResetProject(string code)
+    {
+        await _projectService.ResetProject(new Models.Project.ResetProjectByAdminInput(code));
+        return Ok();
+    }
+
     [HttpDelete("project/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
