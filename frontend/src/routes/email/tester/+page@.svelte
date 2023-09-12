@@ -28,7 +28,7 @@
         },
         {
             label: 'Create Project Request',
-            name: 'Bob',
+            name: 'Admin',
             baseUrl: 'http://localhost:3000',
             template: EmailTemplate.CreateProjectRequest,
             project: {
