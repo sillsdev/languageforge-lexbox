@@ -2,12 +2,15 @@
   import { env } from '$env/dynamic/public';
   import t from '$lib/i18n';
   import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
-  import { page } from '$app/stores';
   import { createEventDispatcher } from 'svelte';
+  import type {LexAuthUser} from '$lib/user';
+  import Button from '$lib/forms/Button.svelte';
+  import {page} from '$app/stores';
 
   let environmentName = env.PUBLIC_ENV_NAME;
   const dispatch = createEventDispatcher();
-  let loggedIn = $page.data.user != null;
+  export let user: LexAuthUser | undefined;
+  $: loggedIn = !!user;
 </script>
 
 <!-- https://daisyui.com/components/navbar -->
@@ -23,15 +26,26 @@
       {$t('appbar.app_name')}
     </a>
     <div>
-      {#if loggedIn}
-        <button on:click={() => dispatch('menuopen')} class="btn btn-primary btn-circle">
+      {#if user}
+        <Button on:click={() => dispatch('menuopen')} class="btn-primary normal-case">
+          {user.name}
           <AuthenticatedUserIcon size="text-4xl" />
-        </button>
+        </Button>
       {:else}
         <div class="tooltip tooltip-left" data-tip={$t('register.create_new_account')}>
-          <a href="/register" class="btn btn-primary btn-circle">
-            <UserAddOutline />
-          </a>
+          {#if $page.url.pathname !== '/login'}
+            <a href="/login" class="btn btn-primary">
+              {$t('login.button_login')}
+            <span class="i-mdi-logout text-3xl"/>
+            </a>
+          {/if}
+
+          {#if $page.url.pathname !== '/register'}
+            <a href="/register" class="btn btn-primary">
+              {$t('register.button_register')}
+              <UserAddOutline/>
+            </a>
+          {/if}
         </div>
       {/if}
     </div>

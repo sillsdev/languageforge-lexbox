@@ -35,7 +35,7 @@
   <input type="checkbox" checked={menuToggle} class="drawer-toggle" />
 
   <div class="drawer-content max-w-[100vw]">
-    <AppBar on:menuopen={open} />
+    <AppBar on:menuopen={open} {user}/>
     <div class="bg-neutral text-neutral-content p-2 pl-6 flex justify-between items-center">
       <Breadcrumbs />
       <AdminContent>

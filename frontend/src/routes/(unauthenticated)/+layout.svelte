@@ -2,7 +2,7 @@
   import { AppBar, Content } from '$lib/layout';
 </script>
 
-<AppBar />
+<AppBar user={undefined} />
 
 <Content>
   <slot />
