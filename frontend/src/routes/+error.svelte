@@ -3,7 +3,7 @@
   import { AppBar, Content, Page } from '$lib/layout';
 </script>
 
-<AppBar />
+<AppBar user={undefined} />
 
 <Content>
   <Page>
