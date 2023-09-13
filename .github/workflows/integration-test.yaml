@@ -6,6 +6,7 @@ on:
 
 jobs:
   test:
+    concurrency: test-staging
     name: ${{ matrix.os }}
     permissions:
       checks: write
