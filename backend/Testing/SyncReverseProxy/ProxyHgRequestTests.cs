@@ -2,8 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
-using Mono.Unix.Native;
-using Org.BouncyCastle.Tls;
+using LexBoxApi.Auth;
 using Shouldly;
 using Testing.Services;
 
@@ -44,7 +43,6 @@ public class ProxyHgRequests
     [Fact]
     public async Task TestGetWithJwtInBasicAuth()
     {
-        _baseUrl = "http://localhost:5158";
         var response = await Client.PostAsJsonAsync(
             $"{_baseUrl}/api/login",
             new Dictionary<string, object>
@@ -55,7 +53,7 @@ public class ProxyHgRequests
         var cookies = response.Headers.GetValues("Set-Cookie");
         var cookieContainer = new CookieContainer();
         cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
-        var authCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == ".LexBoxAuth");
+        var authCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
         authCookie.ShouldNotBeNull();
         var jwt = authCookie.Value;
         jwt.ShouldNotBeNullOrEmpty();
