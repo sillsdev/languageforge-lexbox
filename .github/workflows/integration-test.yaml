@@ -14,8 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          #disabled pending issue #232
-#          - ubuntu-latest
+          - ubuntu-latest
           - windows-latest
     environment:
       name: staging
