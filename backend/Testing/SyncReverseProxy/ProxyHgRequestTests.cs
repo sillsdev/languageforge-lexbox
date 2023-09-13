@@ -1,6 +1,9 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
+using Mono.Unix.Native;
+using Org.BouncyCastle.Tls;
 using Shouldly;
 using Testing.Services;
 
@@ -10,7 +13,11 @@ namespace Testing.SyncReverseProxy;
 public class ProxyHgRequests
 {
     private string _baseUrl = TestingEnvironmentVariables.StandardHgBaseUrl;
-    private static readonly HttpClient Client = new();
+    private static readonly HttpClientHandler Handler = new HttpClientHandler()
+    {
+        UseCookies = false
+    };
+    private static readonly HttpClient Client = new(Handler);
 
     private void ShouldBeValidResponse(HttpResponseMessage responseMessage)
     {
@@ -29,6 +36,37 @@ public class ProxyHgRequests
             {
                 Authorization = new AuthenticationHeaderValue("Basic",
                     Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
+            }
+        });
+        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task TestGetWithJwtInBasicAuth()
+    {
+        _baseUrl = "http://localhost:5158";
+        var response = await Client.PostAsJsonAsync(
+            $"{_baseUrl}/api/login",
+            new Dictionary<string, object>
+            {
+                { "password",  TestData.Password }, { "emailOrUsername", TestData.User }, { "preHashedPassword", false }
+            });
+        response.EnsureSuccessStatusCode();
+        var cookies = response.Headers.GetValues("Set-Cookie");
+        var cookieContainer = new CookieContainer();
+        cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
+        var authCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == ".LexBoxAuth");
+        authCookie.ShouldNotBeNull();
+        var jwt = authCookie.Value;
+        jwt.ShouldNotBeNullOrEmpty();
+
+        var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+            $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}")
+        {
+            Headers =
+            {
+                Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(Encoding.ASCII.GetBytes($"bearer:{jwt}")))
             }
         });
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);

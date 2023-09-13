@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
+using System.Text;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +13,8 @@ namespace LexBoxApi.Auth;
 public static class AuthKernel
 {
     public const string DefaultScheme = "JwtOrCookie";
+    public const string JwtOverBasicAuthUsername = "bearer";
+    public const string AuthCookieName = ".LexBoxAuth";
 
     public static void AddLexBoxAuth(IServiceCollection services,
         IConfigurationRoot configuration,
@@ -55,10 +60,20 @@ public static class AuthKernel
                 {
                     options.ForwardDefaultSelector = context =>
                     {
-                        if ((context.Request.Headers.ContainsKey("Authorization") &&
-                             context.Request.Headers.Authorization.ToString().StartsWith("Bearer")) ||
-                            context.Request.Query.ContainsKey("jwt"))
+
+                        if (context.Request.IsJwtRequest())
                         {
+                            return JwtBearerDefaults.AuthenticationScheme;
+                        }
+
+                        //jwtOverBasic auth can be performance intensive so we want to avoid it if possible
+                        if (context.Request.Cookies.ContainsKey(AuthCookieName))
+                        {
+                            return CookieAuthenticationDefaults.AuthenticationScheme;
+                        }
+                        if (context.Request.IsJwtOverBasicAuth(out var jwt))
+                        {
+                            context.Features.Set(new JwtOverBasicAuthFeature(jwt));
                             return JwtBearerDefaults.AuthenticationScheme;
                         }
 
@@ -69,7 +84,7 @@ public static class AuthKernel
             {
                 configuration.Bind("Authentication:Cookie", options);
                 options.LoginPath = "/api/login";
-                options.Cookie.Name = ".LexBoxAuth";
+                options.Cookie.Name = AuthCookieName;
                 options.ForwardChallenge = JwtBearerDefaults.AuthenticationScheme;
                 options.ForwardForbid = JwtBearerDefaults.AuthenticationScheme;
             })
@@ -91,7 +106,12 @@ public static class AuthKernel
                 {
                     OnMessageReceived = context =>
                     {
-                        if (context.Request.Query.TryGetValue("jwt", out var jwt))
+                        var authFeature = context.HttpContext.Features.Get<JwtOverBasicAuthFeature>();
+                        if (authFeature is not null)
+                        {
+                            context.Token = authFeature.Jwt;
+                        }
+                        else if (context.Request.Query.TryGetValue("jwt", out var jwt))
                         {
                             context.Token = jwt;
                         }
@@ -130,4 +150,33 @@ public static class AuthKernel
             });
         });
     }
+
+    public static bool IsJwtRequest(this HttpRequest request)
+    {
+        return (request.Headers.ContainsKey("Authorization") &&
+                request.Headers.Authorization.ToString().StartsWith("Bearer")) ||
+               request.Query.ContainsKey("jwt");
+    }
+
+    public static bool IsJwtOverBasicAuth(this HttpRequest request, [MaybeNullWhen(false)] out string jwt)
+    {
+        jwt = null;
+        if (!request.Headers.TryGetValue("Authorization", out var authHeader)) return false;
+        if (!AuthenticationHeaderValue.TryParse(authHeader.ToString(), out var header))
+            return false;
+        if (!header.Scheme.Equals("basic", StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(header.Parameter)) return false;
+        var basicAuth = Encoding.UTF8.GetString(Convert.FromBase64String(header.Parameter));
+        var (username, password) = basicAuth.Split(':') switch
+        {
+            ["", ""] => (null, null),
+            [var u, var p] => (u, p),
+            _ => (null, null)
+        };
+        if (username is null || password is null) return false;
+        if (!username.Equals(JwtOverBasicAuthUsername, StringComparison.OrdinalIgnoreCase)) return false;
+        jwt = password;
+        return true;
+    }
+
+    public record JwtOverBasicAuthFeature(string Jwt);
 }
