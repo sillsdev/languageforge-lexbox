@@ -13,7 +13,6 @@ builder.Services.AddOptions<LexBoxApiConfig>()
     .BindConfiguration("LexBoxApi")
     .ValidateDataAnnotations()
     .ValidateOnStart();
-builder.Services.AddScoped<ILexProxyService, RestLexProxyService>();
 builder.Services.AddHttpClient();
 builder.Services.AddSyncProxy();
 builder.Services.AddHttpLogging(options =>

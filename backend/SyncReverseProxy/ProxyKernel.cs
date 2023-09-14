@@ -1,16 +1,11 @@
 using System.Diagnostics;
-using System.Text;
-using LexCore.Config;
+using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy.Auth;
 using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration.Json;
-using Microsoft.Extensions.Options;
 using Yarp.ReverseProxy.Forwarder;
-using Yarp.ReverseProxy.Model;
-using Yarp.ReverseProxy.Transforms;
 
 namespace LexSyncReverseProxy;
 
@@ -25,6 +20,13 @@ public static class ProxyKernel
         services.AddMemoryCache();
         services.AddScoped<IAuthorizationHandler, UserHasAccessToProjectRequirementHandler>();
         services.AddTelemetryConsumer<ForwarderTelemetryConsumer>();
+        services.AddSingleton(new HttpMessageInvoker(new SocketsHttpHandler
+        {
+            UseProxy = false,
+            UseCookies = false,
+            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
+            ConnectTimeout = TimeSpan.FromSeconds(15)
+        }));
 
         services.AddHttpForwarder();
         services.AddAuthentication()
@@ -41,13 +43,6 @@ public static class ProxyKernel
     public static void MapSyncProxy(this IEndpointRouteBuilder app,
         string? extraAuthScheme = null)
     {
-        var httpClient = new HttpMessageInvoker(new SocketsHttpHandler
-        {
-            UseProxy = false,
-            UseCookies = false,
-            ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
-            ConnectTimeout = TimeSpan.FromSeconds(15)
-        });
 
         var authorizeAttribute = new AuthorizeAttribute
         {
@@ -56,53 +51,41 @@ public static class ProxyKernel
         };
         //hgresumable
         app.Map("/api/v03/{**catch-all}",
-            async (IOptions<HgConfig> hgConfig,
-                HttpContext context,
-                [FromQuery(Name = "repoId")] string projectCode) =>
+            async (HttpContext context, [FromQuery(Name = "repoId")] string projectCode) =>
             {
-                await Forward(context, httpClient, hgConfig.Value.HgResumableUrl, projectCode);
+                await Forward(context, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.resumable);
 
         //hgweb
         app.Map($"/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
-            async (IOptions<HgConfig> hgConfig,
-                HttpContext context,
-                [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
+            async (HttpContext context, [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
             {
-                await Forward(context, httpClient, hgConfig.Value.HgWebUrl, projectCode);
+                await Forward(context, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
         app.Map($"/hg/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
-            async (IOptions<HgConfig> hgConfig,
-                HttpContext context,
-                [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
+            async (HttpContext context, [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
             {
-                var hgWebUrl = hgConfig.Value.HgWebUrl;
-                if (hgWebUrl.EndsWith("hg/"))
-                {
-                    // the mapped path already starts with `hg/`
-                    hgWebUrl = hgWebUrl[..^"hg/".Length];
-                }
-
-                await Forward(context, httpClient, hgWebUrl, projectCode);
+                await Forward(context, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
     }
 
-    private enum HgType
-    {
-        hgWeb,
-        resumable
-    }
+
 
     private static async Task Forward(HttpContext context,
-        HttpMessageInvoker httpClient,
-        string destinationPrefix,
         string projectCode)
     {
+        Activity.Current?.AddTag("app.project_code", projectCode);
+        var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
-        Activity.Current?.AddTag("app.project_code", projectCode);
+        var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
+        var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
+        var destinationPrefix = await lexProxyService.GetDestinationPrefix(hgType, projectCode);
+        if (hgType == HgType.hgWeb && context.Request.Path.StartsWithSegments("/hg/"))
+        {
+            context.Request.Path = context.Request.Path.Value!["/hg".Length..];
+        }
         await forwarder.SendAsync(context, destinationPrefix, httpClient);
-        var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault();
         switch (hgType)
         {
             case HgType.hgWeb:

@@ -38,6 +38,16 @@ public class Project : EntityBase
     }
 }
 
+public enum ProjectMigrationStatus
+{
+    //default value
+    Unknown,
+    Migrated,
+    Migrating,
+    PrivateRedmine,
+    PublicRedmine,
+}
+
 public enum ProjectType
 {
     Unknown = 0,

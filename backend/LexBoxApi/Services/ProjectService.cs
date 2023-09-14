@@ -59,4 +59,15 @@ public class ProjectService
             );
         return lastCommitFromHg;
     }
+
+    public async Task<ProjectMigrationStatus> GetProjectMigrationStatus(string projectCode)
+    {
+        //todo remove this when we have the migration info in the db
+        return ProjectMigrationStatus.Migrated;
+        // var project = await _dbContext.Projects.AsNoTracking()
+        // .Where(p => p.Code == projectCode)
+        // .Select(p => new ProjectMigrationInfo(p.IsMigrated, p.RedminePublic))
+        // .FirstOrDefaultAsync();
+        // return project;
+    }
 }
