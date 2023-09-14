@@ -20,12 +20,21 @@ public static class DataKernel
         services.AddLogging();
         services.AddHealthChecks()
             .AddDbContextCheck<LexBoxDbContext>(customTestQuery: (context, token) => context.HeathCheck(token));
-        services.AddDbContext<RedmineDbContext>((serviceProvider, options) =>
+        services.AddDbContext<PrivateRedmineDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
             var connectionString =
                 serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.RedmineConnectionString ??
                 throw new ArgumentNullException("RedmineConnectionString");
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+        });
+        services.AddDbContext<PublicRedmineDbContext>((serviceProvider, options) =>
+        {
+            options.EnableDetailedErrors();
+            var connectionString =
+                serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.RedmineConnectionString ??
+                throw new ArgumentNullException("RedmineConnectionString");
+            connectionString = connectionString.Replace("database=languagedepot", "database=languagedepotpvt");
             options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         });
         if (autoApplyMigrations)
