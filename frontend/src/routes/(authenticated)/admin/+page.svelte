@@ -5,33 +5,43 @@
   import Input from '$lib/forms/Input.svelte';
   import t from '$lib/i18n';
   import type { PageData } from './$types';
-  import IconButton from '$lib/components/IconButton.svelte';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
-  import type { LoadAdminDashboardQuery } from '$lib/gql/types';
+  import type { LoadAdminDashboardQuery, ProjectType } from '$lib/gql/types';
   import { notifySuccess, notifyWarning } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
-  import { TrashIcon } from '$lib/icons';
+  import { Icon, TrashIcon } from '$lib/icons';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import type { AdminSearchParams } from './+page';
-  import { goto } from '$app/navigation';
-  import { getBoolSearchParam, toSearchParams } from '$lib/util/urls';
-  import { page } from '$app/stores';
   import { _deleteProject } from '$lib/gql/mutations';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import Button from '$lib/forms/Button.svelte';
-  import { getProjectTypeI18nKey } from '$lib/components/ProjectType/FormatProjectType.svelte';
+  import { getProjectTypeI18nKey } from '$lib/components/ProjectType';
+  import { FormField, ProjectTypeSelect } from '$lib/forms';
+  import { getSearchParams, queryParam  } from '$lib/util/query-params';
+  import AuthenticatedUserIcon from '$lib/icons/AuthenticatedUserIcon.svelte';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import type { AdminSearchParams } from './+page';
+  import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
+  import { ActiveFilter } from '$lib/components/FilterBar';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
+  type ProjectRow = LoadAdminDashboardQuery['projects'][0];
 
   export let data: PageData;
   $: allProjects = data.projects;
   $: allUsers = data.users;
 
-  const options: AdminSearchParams = {
-    showDeletedProjects: getBoolSearchParam<AdminSearchParams>('showDeletedProjects', $page.url.searchParams),
-  };
+  const { queryParams, defaultQueryParams } = getSearchParams<AdminSearchParams>({
+    showDeletedProjects: queryParam.boolean<boolean>(false),
+    projectType: queryParam.string<ProjectType | undefined>(undefined),
+    userEmail: queryParam.string(undefined),
+    projectSearch: queryParam.string<string>(''),
+  });
+
+  function filterProjectsByUser(user: UserRow): void {
+    $queryParams.userEmail = user.email;
+  }
 
   let deleteUserModal: DeleteUserModal;
   let deleteProjectModal: ConfirmDeleteModal;
@@ -63,42 +73,50 @@
     }
   }
 
-  const defaultSearchLimit = 100;
+  const defaultFilterLimit = 100;
 
-  let projectSearch = '';
+  function getFilteredUser(userEmail: string | undefined): UserRow | undefined {
+    return !userEmail ? undefined
+    : filteredUser && filteredUser.email == $queryParams.userEmail ? filteredUser
+    : $allUsers.find(user => user.email === $queryParams.userEmail);
+  }
+
+  let hasActiveProjectFilter: boolean;
+
   let userSearch = '';
-  $: projectSearchLower = projectSearch.toLocaleLowerCase();
-  let projectSearchLimit = defaultSearchLimit;
-  $: projectLimit = projectSearch ? projectSearchLimit : 10;
-  $: filteredProjects = $allProjects
-    .filter(
-      (p) =>
-        !projectSearch ||
+  $: projectSearchLower = $queryParams.projectSearch.toLocaleLowerCase();
+  let projectFilterLimit = defaultFilterLimit;
+  $: projectLimit = hasActiveProjectFilter ? projectFilterLimit : 10;
+  $: filteredUser = getFilteredUser($queryParams.userEmail);
+  $: userProjects = !filteredUser ? undefined
+    : filteredUser.projects.map(({projectId}) => $allProjects.find(p => p.id === projectId) as ProjectRow);
+  $: filteredProjects = (userProjects ?? $allProjects).filter(
+    (p) =>
+      (!$queryParams.projectSearch ||
         p.name.toLocaleLowerCase().includes(projectSearchLower) ||
-        p.code.toLocaleLowerCase().includes(projectSearchLower)
-    );
+        p.code.toLocaleLowerCase().includes(projectSearchLower)) &&
+      (!$queryParams.projectType || p.type === $queryParams.projectType));
   $: projects = filteredProjects.slice(0, projectLimit);
   $: {
     // Reset limit if search is changed
-    projectSearch;
-    projectSearchLimit = defaultSearchLimit;
+    hasActiveProjectFilter;
+    projectFilterLimit = defaultFilterLimit;
   }
 
   $: userSearchLower = userSearch.toLocaleLowerCase();
-  let userSearchLimit = defaultSearchLimit;
+  let userSearchLimit = defaultFilterLimit;
   $: userLimit = userSearch ? userSearchLimit : 10;
-  $: filteredUsers = $allUsers
-    .filter(
-      (u) =>
-        !userSearch ||
-        u.name.toLocaleLowerCase().includes(userSearchLower) ||
-        u.email.toLocaleLowerCase().includes(userSearchLower)
-    );
+  $: filteredUsers = $allUsers.filter(
+    (u) =>
+      !userSearch ||
+      u.name.toLocaleLowerCase().includes(userSearchLower) ||
+      u.email.toLocaleLowerCase().includes(userSearchLower)
+  );
   $: users = filteredUsers.slice(0, userLimit);
   $: {
     // Reset limit if search is changed
     userSearch;
-    userSearchLimit = defaultSearchLimit;
+    userSearchLimit = defaultFilterLimit;
   }
 
   async function softDeleteProject(project: (typeof projects)[0]): Promise<void> {
@@ -109,14 +127,6 @@
     if (result.response === DialogResponse.Submit) {
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
-  }
-
-  async function refreshPage(): Promise<void> {
-    await goto(`?${toSearchParams(options)}`, {
-      replaceState: true,
-      noScroll: true,
-      keepFocus: true,
-    });
   }
 </script>
 
@@ -131,7 +141,7 @@
           {$t('admin_dashboard.project_table_title')}
           <Badge>
             <span class="inline-flex gap-2">
-              {projectSearch ? filteredProjects.length : projects.length}
+              {hasActiveProjectFilter ? filteredProjects.length : projects.length}
               <span>/</span>
               {$allProjects.length}
             </span>
@@ -145,37 +155,72 @@
         </a>
       </div>
 
-      <div class="flex items-end gap-4">
-        <Input
-          type="text"
-          label=""
-          placeholder={$t('admin_dashboard.filter_placeholder')}
-          autofocus
-          bind:value={projectSearch}
-        />
-        <Dropdown>
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label tabindex="-1" class="btn flex flex-nowrap gap-2" class:text-success={options.showDeletedProjects}>
-            {$t('admin_dashboard.options')}
-            <span class="i-mdi-dots-vertical text-xl" />
-          </label>
-          <ul slot="content" class="menu">
-            <li>
-              <div class="whitespace-nowrap">
-                <label class="cursor-pointer label gap-4">
-                  <span class="label-text">{$t('admin_dashboard.show_delete_projects')}</span>
-                  <input
-                    bind:checked={options.showDeletedProjects}
-                    type="checkbox"
-                    class="toggle toggle-error"
-                    on:change={refreshPage}
-                  />
-                </label>
+      <FilterBar bind:search={$queryParams.projectSearch} filters={queryParams} defaultValues={defaultQueryParams} bind:hasActiveFilter={hasActiveProjectFilter}>
+        <svelte:fragment slot="activeFilters" let:activeFilters>
+          {#each activeFilters as filter}
+              {#if filter.key === 'projectType'}
+                <ActiveFilter {filter}>
+                  <ProjectTypeIcon type={filter.value} />
+                </ActiveFilter>
+              {:else if filter.key === 'showDeletedProjects'}
+                <ActiveFilter {filter}>
+                  <TrashIcon color="text-error" />
+                  {$t('admin_dashboard.project_filter.show_deleted')}
+                </ActiveFilter>
+              {:else if filter.key === 'userEmail' && filter.value}
+                <ActiveFilter {filter}>
+                  <AuthenticatedUserIcon />
+                  {filter.value}
+                </ActiveFilter>
+              {/if}
+          {/each}
+        </svelte:fragment>
+        <svelte:fragment slot="filters" let:trapFocus>
+          <h2 class="card-title">Project filters</h2>
+          <FormField label={$t('admin_dashboard.project_filter.project_member')}>
+            {#if $queryParams.userEmail}
+              <div class="join">
+                <input class="input input-bordered join-item flex-grow" placeholder={$t('admin_dashboard.project_filter.all_users')} readonly value={$queryParams.userEmail} />
+                  <div class="join-item isolate">
+                    <IconButton
+                      icon="i-mdi-close"
+                      style="btn-outline"
+                      on:click={() => {$queryParams.userEmail = undefined; trapFocus(); }}
+                    />
+                  </div>
               </div>
-            </li>
-          </ul>
-        </Dropdown>
-      </div>
+            {:else}
+              <div class="alert alert-info gap-2">
+                <span class="i-mdi-info-outline text-xl"></span>
+                <div class="flex_ items-center gap-2">
+                  <span class="mr-1">{$t('admin_dashboard.project_filter.select_user_from_table')}</span>
+                  <span class="btn btn-sm btn-square pointer-events-none">
+                    <span class="i-mdi-dots-vertical"></span>
+                  </span>
+                  <span class="i-mdi-chevron-right"></span>
+                  <span class="btn btn-sm pointer-events-none normal-case font-normal">
+                    <span class="i-mdi-filter-outline mr-1"></span>
+                    {$t('admin_dashboard.filter_projects')}
+                  </span>
+                </div>
+              </div>
+            {/if}
+          </FormField>
+          <div class="form-control">
+            <ProjectTypeSelect bind:value={$queryParams.projectType} optionalLabel={$t('project_type.any')} />
+          </div>
+          <div class="form-control">
+            <label class="cursor-pointer label gap-4">
+              <span class="label-text">{$t('admin_dashboard.show_delete_projects')}</span>
+              <input
+                bind:checked={$queryParams.showDeletedProjects}
+                type="checkbox"
+                class="toggle toggle-error"
+              />
+            </label>
+          </div>
+        </svelte:fragment>
+      </FilterBar>
 
       <div class="divider" />
       <div class="overflow-x-auto">
@@ -220,7 +265,7 @@
                   {/if}
                 </td>
                 <td>
-                  <span class="tooltip" data-tip={$t(getProjectTypeI18nKey(project.type))}>
+                  <span class="tooltip align-bottom" data-tip={$t(getProjectTypeI18nKey(project.type))}>
                     <ProjectTypeIcon type={project.type} />
                   </span>
                 </td>
@@ -246,8 +291,10 @@
             {/each}
           </tbody>
         </table>
-        {#if projectSearch && projectSearchLimit < filteredProjects.length}
-            <Button class="float-right mt-2" on:click={() => projectSearchLimit = Infinity}>{$t('admin_dashboard.load_more')}</Button>
+        {#if hasActiveProjectFilter && projectFilterLimit < filteredProjects.length}
+          <Button class="float-right mt-2" on:click={() => (projectFilterLimit = Infinity)}>
+            {$t('admin_dashboard.load_more')}
+          </Button>
         {/if}
       </div>
     </div>
@@ -287,10 +334,11 @@
                   <span class="inline-flex items-center gap-2 text-left">
                     {user.email}
                     {#if !user.emailVerified}
-                    <span class="tooltip text-warning text-xl shrink-0 leading-0"
-                      data-tip={$t('admin_dashboard.email_not_verified')}>
-                      <span class="i-mdi-help-circle-outline" />
-                    </span>
+                      <span
+                        class="tooltip text-warning text-xl shrink-0 leading-0"
+                        data-tip={$t('admin_dashboard.email_not_verified')}>
+                        <span class="i-mdi-help-circle-outline" />
+                      </span>
                     {/if}
                   </span>
                 </td>
@@ -301,14 +349,36 @@
                   <FormatDate date={user.createdDate} />
                 </td>
                 <td class="p-0">
-                  <IconButton icon="i-mdi-pencil-outline" style="btn-ghost" on:click={() => openModal(user)} />
+                  <Dropdown let:close>
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
+                    <label tabindex="-1" class="btn btn-ghost btn-square">
+                      <span class="i-mdi-dots-vertical text-lg" />
+                    </label>
+                    <ul slot="content" class="menu">
+                      <li>
+                        <button class="whitespace-nowrap" on:click={() => openModal(user)}>
+                          <Icon icon="i-mdi-pencil-outline"  />
+                          {$t('admin_dashboard.form_modal.title')}
+                        </button>
+                      </li>
+                      <li>
+                        <button class="whitespace-nowrap" on:click={() => {close();filterProjectsByUser(user);}}>
+                          <Icon icon="i-mdi-filter-outline"  />
+                          {$t('admin_dashboard.filter_projects')}
+                        </button>
+                      </li>
+                    </ul>
+                  </Dropdown>
                 </td>
               </tr>
             {/each}
           </tbody>
         </table>
         {#if userSearch && userSearchLimit < filteredUsers.length}
-          <Button class="float-right mt-2" on:click={() => userSearchLimit = Infinity}>{$t('admin_dashboard.load_more')}</Button>
+          <Button class="float-right mt-2"
+            on:click={() => (userSearchLimit = Infinity)}>
+            {$t('admin_dashboard.load_more')}
+          </Button>
         {/if}
       </div>
     </div>
