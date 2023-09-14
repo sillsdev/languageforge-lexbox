@@ -15,5 +15,5 @@ export function tryParse<T, ValidT>(zodType: ZodType<ValidT>, value: T): ValidT 
 export function passwordFormRules($t: Translater): z.ZodString {
   return z.string()
     .min(4, $t('form.password.too_short'))
-    .regex(/^[a-zA-Z0-9-]+$/, $t('form.password.allowed_characters'));
+    .regex(/^[^&%+]+$/, $t('form.password.forbidden_characters'));
 }
