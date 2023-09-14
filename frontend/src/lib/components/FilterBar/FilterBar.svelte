@@ -20,6 +20,9 @@
   export let defaultValues: Filters;
   export let hasActiveFilter: boolean;
   const activeFilters = pickActiveFilters(filters, defaultValues);
+  $: {
+    hasActiveFilter = $activeFilters.length > 0;
+  }
 
   function reseFilters(): void {
     $filters = defaultValues;
@@ -41,7 +44,6 @@
           filters.push({ key, value } as Filter);
         }
       }
-      hasActiveFilter = filters.length > 0;
       return filters;
     });
   }
