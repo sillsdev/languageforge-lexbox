@@ -60,11 +60,14 @@ public class MigrationController : ControllerBase
         var users = await _redmineDbContext.Users.Where(u => u.Login != "").Include(u => u.EmailAddresses).ToArrayAsync();
         await _redmineDbContext.Members.Include(p => p.Role).ToArrayAsync();
         await _redmineDbContext.Roles.ToArrayAsync();
+        //todo set based on redmine db
+        var migrationStatus = ProjectMigrationStatus.PublicRedmine;
         var projectIdToGuid = projects.ToDictionary(p => p.Id, p => Guid.NewGuid());
         _lexBoxDbContext.Projects.AddRange(projects.Select(rmProject => new Project
         {
             CreatedDate = rmProject.CreatedOn?.ToUniversalTime() ?? now,
             UpdatedDate = rmProject.UpdatedOn?.ToUniversalTime() ?? now,
+            MigrationStatus = migrationStatus,
             Name = rmProject.Name,
             Code = $"{rmProject.Identifier}{(prefixProjectCode ? "-lexbox" : "")}" ??
                    throw new Exception("no code for project id" + rmProject.Id),

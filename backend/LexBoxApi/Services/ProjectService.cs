@@ -27,6 +27,7 @@ public class ProjectService
                 Id = projectId,
                 Code = input.Code,
                 Name = input.Name,
+                MigrationStatus = ProjectMigrationStatus.Migrated,
                 Description = input.Description,
                 Type = input.Type,
                 LastCommit = null,
