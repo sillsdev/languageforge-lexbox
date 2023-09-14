@@ -11,8 +11,7 @@ public partial class RedmineDbContext : DbContext
     {
     }
 
-    public RedmineDbContext(DbContextOptions<RedmineDbContext> options)
-        : base(options)
+    protected RedmineDbContext(DbContextOptions options) : base(options)
     {
     }
 
@@ -291,4 +290,18 @@ public partial class RedmineDbContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+
+public class PrivateRedmineDbContext: RedmineDbContext
+{
+    public PrivateRedmineDbContext(DbContextOptions<PrivateRedmineDbContext> options) : base(options)
+    {
+    }
+}
+
+public class PublicRedmineDbContext: RedmineDbContext
+{
+    public PublicRedmineDbContext(DbContextOptions<PublicRedmineDbContext> options) : base(options)
+    {
+    }
 }
