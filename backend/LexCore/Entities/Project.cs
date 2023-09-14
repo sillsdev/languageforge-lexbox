@@ -17,6 +17,8 @@ public class Project : EntityBase
     public required DateTimeOffset? LastCommit { get; set; }
     public DateTimeOffset? DeletedDate { get; set; }
 
+    public required ProjectMigrationStatus MigrationStatus { get; set; } = ProjectMigrationStatus.Migrated;
+
     [NotMapped]
     [Projectable(UseMemberBody = nameof(SqlUserCount))]
     public int UserCount { get; set; }
