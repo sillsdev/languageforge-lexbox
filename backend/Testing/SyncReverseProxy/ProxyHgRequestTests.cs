@@ -24,12 +24,26 @@ public class ProxyHgRequests
         responseMessage.Headers.WwwAuthenticate.ToString().ShouldContain("Basic realm=\"");
     }
 
-    //cli "C:\Program Files (x86)\SIL\FLExBridge3\Mercurial\hg" clone -U  "https://{userName}:{password}@hg-public.languageforge.org/{projectCode}" "C:\ProgramData\SIL\FieldWorks\Projects\lkj"
     [Fact]
     public async Task TestGet()
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
             $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}")
+        {
+            Headers =
+            {
+                Authorization = new AuthenticationHeaderValue("Basic",
+                    Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
+            }
+        });
+        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task TestGetPrefixHg()
+    {
+        var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+            $"{_baseUrl}/hg/{TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
