@@ -58,9 +58,11 @@
       autofocus
     />
     <div class="ml-auto flex join">
-      <button class="btn btn-square btn-sm join-item" on:click={reseFilters}>
-        <span class="text-lg">✕</span>
-      </button>
+      {#if hasActiveFilter}
+        <button class="btn btn-square btn-sm join-item" on:click={reseFilters}>
+          <span class="text-lg">✕</span>
+        </button>
+      {/if}
       <div class="join-item">
         <Dropdown let:trapFocus>
           <!-- svelte-ignore a11y-label-has-associated-control -->
