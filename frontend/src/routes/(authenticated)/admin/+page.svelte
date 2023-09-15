@@ -208,7 +208,8 @@
             {/if}
           </FormField>
           <div class="form-control">
-            <ProjectTypeSelect bind:value={$queryParams.projectType} optionalLabel={$t('project_type.any')} />
+            <ProjectTypeSelect bind:value={$queryParams.projectType}
+              undefinedOptionLabel={$t('project_type.any')} />
           </div>
           <div class="form-control">
             <label class="cursor-pointer label gap-4">

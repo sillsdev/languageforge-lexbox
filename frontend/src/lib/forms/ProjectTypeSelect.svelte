@@ -6,13 +6,13 @@
 
   export let value: ProjectType | undefined;
   export let error: string | string[] | undefined = undefined;
-  export let optionalLabel: string | undefined = undefined;
+  export let undefinedOptionLabel: string | undefined = undefined;
 
 </script>
 <div class="relative">
   <Select id="type" label={$t('project_type.type')} bind:value {error} on:change>
-    {#if optionalLabel}
-      <option value={undefined}>{optionalLabel}</option>
+    {#if undefinedOptionLabel}
+      <option value={undefined}>{undefinedOptionLabel}</option>
     {/if}
     <option value={ProjectType.FlEx}>{$t('project_type.flex')}</option>
     <option value={ProjectType.WeSay}>{$t('project_type.weSay')}</option>
