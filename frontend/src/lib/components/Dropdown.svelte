@@ -30,7 +30,7 @@
   <div class="contents" on:mousedown={blurIfOpen}>
     <slot close={blurIfOpen} {trapFocus} />
   </div>
-  <div tabindex="-1" class="dropdown-content bg-base-200 shadow rounded-box z-[2]">
+  <div class="dropdown-content bg-base-200 shadow rounded-box z-[2]">
     <slot name="content" />
   </div>
 </div>

@@ -24,6 +24,7 @@
   import type { AdminSearchParams } from './+page';
   import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
   import { ActiveFilter } from '$lib/components/FilterBar';
+  import { bubbleFocusOnDestroy } from '$lib/util/focus';
 
   type UserRow = LoadAdminDashboardQuery['users'][0];
   type ProjectRow = LoadAdminDashboardQuery['projects'][0];
@@ -175,17 +176,17 @@
               {/if}
           {/each}
         </svelte:fragment>
-        <svelte:fragment slot="filters" let:trapFocus>
+        <svelte:fragment slot="filters">
           <h2 class="card-title">Project filters</h2>
           <FormField label={$t('admin_dashboard.project_filter.project_member')}>
             {#if $queryParams.userEmail}
-              <div class="join">
+              <div class="join" use:bubbleFocusOnDestroy>
                 <input class="input input-bordered join-item flex-grow" placeholder={$t('admin_dashboard.project_filter.all_users')} readonly value={$queryParams.userEmail} />
                   <div class="join-item isolate">
                     <IconButton
                       icon="i-mdi-close"
                       style="btn-outline"
-                      on:click={() => {$queryParams.userEmail = undefined; trapFocus(); }}
+                      on:click={() => $queryParams.userEmail = undefined}
                     />
                   </div>
               </div>
