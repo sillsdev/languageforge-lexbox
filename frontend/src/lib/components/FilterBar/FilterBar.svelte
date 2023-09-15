@@ -1,19 +1,17 @@
 <script lang="ts" context="module">
-  export const RESET_FILTER_KEY = 'reset-filter-key';
+  export type Filter<T = Record<string, unknown>> = Readonly<
+    {
+      [K in keyof T]: { value: T[K]; key: K & string, clear: () => void };
+    }[keyof T]
+  >;
 </script>
 
 <script lang="ts">
-  import { setContext } from 'svelte';
   import t from '$lib/i18n';
   import { derived, type Readable, type Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
 
   type Filters = $$Generic<Record<string, unknown>>;
-  type Filter = Readonly<
-    {
-      [K in keyof Filters]: { value: Filters[K]; key: K };
-    }[keyof Filters]
-  >;
 
   export let search = '';
   export let filters: Writable<Filters>;
@@ -28,20 +26,20 @@
     $filters = defaultValues;
   }
 
-  setContext(RESET_FILTER_KEY, function resetFilter({ key }: Filter): void {
+  function resetFilter(key: string): void {
     $filters = {
       ...$filters,
       [key]: defaultValues[key],
     };
-  });
+  }
 
-  function pickActiveFilters(filterStore: Readable<Filters>, defaultValues: Filters): Readable<Filter[]> {
+  function pickActiveFilters(filterStore: Readable<Filters>, defaultValues: Filters): Readable<Filter<Filters>[]> {
     return derived(filterStore, (values) => {
-      const filters: Filter[] = [];
+      const filters: Filter<Filters>[] = [];
       for (const key in values) {
         const value = values[key];
         if (value !== defaultValues[key]) {
-          filters.push({ key, value } as Filter);
+          filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
         }
       }
       return filters;
