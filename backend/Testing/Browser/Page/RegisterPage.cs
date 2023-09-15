@@ -12,7 +12,7 @@ public class RegisterPage : BasePage<RegisterPage>
     public override async Task<RegisterPage> Goto()
     {
         await base.Goto();
-        await Task.Delay(500);
+        await Task.Delay(5000);
         return this;
     }
 
