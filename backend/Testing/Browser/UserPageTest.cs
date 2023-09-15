@@ -14,6 +14,7 @@ public class UserPageTest : PageTest
     [Fact]
     public async Task CanUpdateAccountInfo()
     {
+        await Page.PauseAsync();
         await using var userDashboardPage = await RegisterUser("Test: Edit account - update", $"{Guid.NewGuid()}@mailinator.com", "test_edit_account_update");
         var userPage = await new UserAccountSettingsPage(Page).Goto();
         await userPage.FillDisplayName("Test: Edit account - update - changed");

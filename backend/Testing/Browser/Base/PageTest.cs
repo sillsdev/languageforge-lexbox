@@ -115,7 +115,7 @@ public class PlaywrightFixture : IAsyncLifetime
     {
         PlaywrightInstance = await Playwright.CreateAsync();
         Browser = await PlaywrightInstance.Chromium.LaunchAsync(
-            // new() { Headless = false }
+            new() { Headless = false, Devtools = true }
         );
         Context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
