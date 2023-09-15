@@ -9,6 +9,13 @@ public class RegisterPage : BasePage<RegisterPage>
     {
     }
 
+    public override async Task<RegisterPage> Goto()
+    {
+        await base.Goto();
+        await Task.Delay(500);
+        return this;
+    }
+
     public async Task FillForm(string name, string email, string password)
     {
         await Page.GetByLabel("Name").FillAsync(name);
