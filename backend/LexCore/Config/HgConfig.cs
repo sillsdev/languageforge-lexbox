@@ -18,4 +18,9 @@ public class HgConfig
 
     [Required, Url]
     public required string RedmineHgResumableUrl { get; init; }
+
+    [Required(AllowEmptyStrings = false)]
+    public required string RedmineTrustToken { get; init; }
+    [Required(AllowEmptyStrings = false)]
+    public required string LfMergeTrustToken { get; init; }
 }

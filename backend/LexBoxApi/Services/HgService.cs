@@ -1,16 +1,14 @@
-using System.Globalization;
-using System.IO;
 using System.IO.Compression;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using LexBoxApi.Config;
 using LexCore.Config;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Utils;
 using LexSyncReverseProxy;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Path = System.IO.Path;
 
@@ -21,20 +19,30 @@ public class HgService : IHgService
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
 
     private readonly IOptions<HgConfig> _options;
-    private readonly IMemoryCache _memoryCache;
     private readonly Lazy<HttpClient> _hgClient;
 
-    public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory, IMemoryCache memoryCache)
+    public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory)
     {
         _options = options;
-        _memoryCache = memoryCache;
         _hgClient = new(() => clientFactory.CreateClient("HgWeb"));
     }
 
+    /// <summary>
+    /// could cause a race condition if HgService is no longer a scoped service
+    /// </summary>
     private HttpClient GetClient(ProjectMigrationStatus migrationStatus, string code)
     {
         var client = _hgClient.Value;
         client.BaseAddress = new Uri(DetermineProjectUrlPrefix(HgType.hgWeb, code, migrationStatus, _options.Value));
+        if (migrationStatus is ProjectMigrationStatus.PrivateRedmine or ProjectMigrationStatus.PublicRedmine)
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                Convert.ToBase64String(Encoding.ASCII.GetBytes($"lexbox:{_options.Value.RedmineTrustToken}")));
+        }
+        else
+        {
+            client.DefaultRequestHeaders.Authorization = null;
+        }
         return client;
     }
 
