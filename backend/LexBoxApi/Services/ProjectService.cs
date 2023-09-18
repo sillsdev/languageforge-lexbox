@@ -54,11 +54,11 @@ public class ProjectService
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)
     {
-        var lastCommitFromHg = await _hgService.GetLastCommitTimeFromHg(projectCode);
-        await _dbContext.Projects.Where(p => p.Code == projectCode)
-            .ExecuteUpdateAsync(_ =>
-                _.SetProperty(project => project.LastCommit, lastCommitFromHg)
-            );
+        var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
+        if (project is null) return null;
+        var lastCommitFromHg = await _hgService.GetLastCommitTimeFromHg(projectCode, project.MigrationStatus);
+        project.LastCommit = lastCommitFromHg;
+        await _dbContext.SaveChangesAsync();
         return lastCommitFromHg;
     }
 

@@ -34,18 +34,21 @@ public class ProjectController : ControllerBase
     [HttpGet("lastCommitForRepo")]
     public async Task<ActionResult<DateTimeOffset?>> LastCommitForRepo(string code)
     {
-        return await _hgService.GetLastCommitTimeFromHg(code);
+        var migrationStatus = await _lexBoxDbContext.Projects.Where(p => p.Code == code).Select(p => p.MigrationStatus).FirstOrDefaultAsync();
+        if (migrationStatus == default) return NotFound();
+        return await _hgService.GetLastCommitTimeFromHg(code, migrationStatus);
     }
 
     [HttpPost("updateAllRepoCommitDates")]
     [AdminRequired]
     public async Task<ActionResult> UpdateAllRepoCommitDates(bool onlyUnknown)
     {
-        var projectCodes = await _lexBoxDbContext.Projects.Where(p => !onlyUnknown || p.LastCommit == null).Select(p => p.Code).ToArrayAsync();
-        foreach (var code in projectCodes)
+        var projects = _lexBoxDbContext.Projects.Where(p => !onlyUnknown || p.LastCommit == null).AsAsyncEnumerable();
+        await foreach (var project in projects)
         {
-            await _projectService.UpdateLastCommit(code);
+            project.LastCommit = await _hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
         }
+        await _lexBoxDbContext.SaveChangesAsync();
 
         return Ok();
     }

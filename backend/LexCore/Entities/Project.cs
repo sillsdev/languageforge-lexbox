@@ -27,7 +27,7 @@ public class Project : EntityBase
     public async Task<Changeset[]> GetChangesets(IHgService hgService)
     {
         var age = DateTimeOffset.UtcNow.Subtract(CreatedDate);
-        if (age.TotalSeconds < 40)
+        if (age.TotalSeconds < 40 || MigrationStatus == ProjectMigrationStatus.Migrating)
         {
             // The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
             // See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
@@ -35,7 +35,7 @@ public class Project : EntityBase
         }
         else
         {
-            return await hgService.GetChangesets(Code);
+            return await hgService.GetChangesets(Code, MigrationStatus);
         }
     }
 }
