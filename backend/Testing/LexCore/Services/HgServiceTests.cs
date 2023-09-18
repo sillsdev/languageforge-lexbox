@@ -8,7 +8,7 @@ using Testing.Fixtures;
 
 namespace Testing.LexCore.Services;
 
-public class LexProxyServiceTests
+public class HgServiceTests
 {
     private const string LexboxHgWeb = "https://hg.lexbox";
     private const string LexboxResumable = "https://resumable.lexbox";
@@ -36,7 +36,7 @@ public class LexProxyServiceTests
     [InlineData(HgType.resumable, ProjectMigrationStatus.PrivateRedmine, RedmineResumable)]
     public void DetermineProjectPrefixWorks(HgType type, ProjectMigrationStatus status, string expectedUrl)
     {
-        LexProxyService.DetermineProjectUrlPrefix(type, "test", status, _hgConfig).ShouldBe(expectedUrl);
+        HgService.DetermineProjectUrlPrefix(type, "test", status, _hgConfig).ShouldBe(expectedUrl);
     }
 
     [Theory]
@@ -44,7 +44,7 @@ public class LexProxyServiceTests
     [InlineData(HgType.resumable)]
     public void ThrowsIfMigrating(HgType type)
     {
-        var act = () => LexProxyService.DetermineProjectUrlPrefix(type, "test", ProjectMigrationStatus.Migrating, _hgConfig);
+        var act = () => HgService.DetermineProjectUrlPrefix(type, "test", ProjectMigrationStatus.Migrating, _hgConfig);
         act.ShouldThrow<ProjectMigratingException>();
     }
 }

@@ -19,6 +19,7 @@ public class LexProxyService : ILexProxyService
     private readonly IMemoryCache _memoryCache;
     public LexProxyService(LexAuthService lexAuthService,
         ProjectService projectService,
+        IHgService hgService,
         IOptions<HgConfig> options,
         IMemoryCache memoryCache)
     {
@@ -42,31 +43,11 @@ public class LexProxyService : ILexProxyService
     public async ValueTask<string> GetDestinationPrefix(HgType type, string projectCode)
     {
         var projectMigrationInfo = await GetProjectMigrationInfo(projectCode);
-        var result = DetermineProjectUrlPrefix(type, projectCode, projectMigrationInfo, _hgConfig);
+        var result = HgService.DetermineProjectUrlPrefix(type, projectCode, projectMigrationInfo, _hgConfig);
         return result;
     }
 
-    public static string DetermineProjectUrlPrefix(HgType type,
-        string projectCode,
-        ProjectMigrationStatus projectMigrationInfo,
-        HgConfig hgConfig)
-    {
-        return (type, projectMigrationInfo) switch
-        {
-            (_ , ProjectMigrationStatus.Migrating) => throw new ProjectMigratingException(projectCode),
-            //migrated projects
-            (HgType.hgWeb, ProjectMigrationStatus.Migrated) => hgConfig.HgWebUrl,
-            (HgType.resumable, ProjectMigrationStatus.Migrated) => hgConfig.HgResumableUrl,
 
-            //not migrated projects
-            (HgType.hgWeb, ProjectMigrationStatus.PublicRedmine) => hgConfig.PublicRedmineHgWebUrl,
-            (HgType.hgWeb, ProjectMigrationStatus.PrivateRedmine) => hgConfig.PrivateRedmineHgWebUrl,
-            //all resumable redmine go to the same place
-            (HgType.resumable, ProjectMigrationStatus.PublicRedmine) => hgConfig.RedmineHgResumableUrl,
-            (HgType.resumable, ProjectMigrationStatus.PrivateRedmine) => hgConfig.RedmineHgResumableUrl,
-            _ => throw new ArgumentException($"Unknown HG request type: {type}")
-        };
-    }
 
     private async ValueTask<ProjectMigrationStatus> GetProjectMigrationInfo(string projectCode)
     {

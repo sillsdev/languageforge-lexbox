@@ -11,6 +11,7 @@ public class ProjectGqlConfiguration : ObjectType<Project>
     {
         descriptor.Field(p => p.Code).IsProjected();
         descriptor.Field(p => p.CreatedDate).IsProjected();
+        descriptor.Field(p => p.MigrationStatus).IsProjected();
         // descriptor.Field("userCount").Resolve(ctx => ctx.Parent<Project>().UserCount);
     }
 }

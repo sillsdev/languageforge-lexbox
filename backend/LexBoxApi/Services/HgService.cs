@@ -9,6 +9,8 @@ using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexCore.Utils;
+using LexSyncReverseProxy;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Path = System.IO.Path;
 
@@ -19,18 +21,21 @@ public class HgService : IHgService
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
 
     private readonly IOptions<HgConfig> _options;
+    private readonly IMemoryCache _memoryCache;
     private readonly Lazy<HttpClient> _hgClient;
-    private HttpClient HgClient => _hgClient.Value;
 
-    public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory)
+    public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory, IMemoryCache memoryCache)
     {
         _options = options;
-        _hgClient = new(() =>
-        {
-            var client = clientFactory.CreateClient("HgWeb");
-            client.BaseAddress = new Uri(_options.Value.HgWebUrl);
-            return client;
-        });
+        _memoryCache = memoryCache;
+        _hgClient = new(() => clientFactory.CreateClient("HgWeb"));
+    }
+
+    private HttpClient GetClient(ProjectMigrationStatus migrationStatus, string code)
+    {
+        var client = _hgClient.Value;
+        client.BaseAddress = new Uri(DetermineProjectUrlPrefix(HgType.hgWeb, code, migrationStatus, _options.Value));
+        return client;
     }
 
     /// <summary>
@@ -111,9 +116,10 @@ public class HgService : IHgService
             file.CopyTo(Path.Combine(target.FullName, file.Name));
     }
 
-    public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode)
+    public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode,
+        ProjectMigrationStatus migrationStatus)
     {
-        var response = await HgClient.GetAsync($"{projectCode}/log?style=json-lex&rev=tip");
+        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json-lex&rev=tip");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         //format is this: [1678687688, offset] offset is
@@ -128,9 +134,9 @@ public class HgService : IHgService
         return date.ToUniversalTime();
     }
 
-    public async Task<Changeset[]> GetChangesets(string projectCode)
+    public async Task<Changeset[]> GetChangesets(string projectCode, ProjectMigrationStatus migrationStatus)
     {
-        var response = await HgClient.GetAsync($"{projectCode}/log?style=json-lex");
+        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json-lex");
         response.EnsureSuccessStatusCode();
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
@@ -139,6 +145,28 @@ public class HgService : IHgService
     private void AssertIsSafeRepoName(string name)
     {
         if (string.Equals(name, DELETED_REPO_FOLDER)) throw new ArgumentException($"Invalid repo name: {DELETED_REPO_FOLDER}.");
+    }
+
+    public static string DetermineProjectUrlPrefix(HgType type,
+        string projectCode,
+        ProjectMigrationStatus projectMigrationInfo,
+        HgConfig hgConfig)
+    {
+        return (type, projectMigrationInfo) switch
+        {
+            (_, ProjectMigrationStatus.Migrating) => throw new ProjectMigratingException(projectCode),
+            //migrated projects
+            (HgType.hgWeb, ProjectMigrationStatus.Migrated) => hgConfig.HgWebUrl,
+            (HgType.resumable, ProjectMigrationStatus.Migrated) => hgConfig.HgResumableUrl,
+
+            //not migrated projects
+            (HgType.hgWeb, ProjectMigrationStatus.PublicRedmine) => hgConfig.PublicRedmineHgWebUrl,
+            (HgType.hgWeb, ProjectMigrationStatus.PrivateRedmine) => hgConfig.PrivateRedmineHgWebUrl,
+            //all resumable redmine go to the same place
+            (HgType.resumable, ProjectMigrationStatus.PublicRedmine) => hgConfig.RedmineHgResumableUrl,
+            (HgType.resumable, ProjectMigrationStatus.PrivateRedmine) => hgConfig.RedmineHgResumableUrl,
+            _ => throw new ArgumentException($"Unknown HG request type: {type}")
+        };
     }
 }
 
