@@ -29,6 +29,7 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, Page } from '$lib/layout';
   import SvelteMarkdown from 'svelte-markdown';
+  import {ProjectMigrationStatus} from '$lib/gql/generated/graphql';
 
   export let data: PageData;
   $: user = data.user;
@@ -127,6 +128,15 @@
       await goto(data.home);
     }
   }
+
+  //no need to translate these since it'll only be temporary
+  const migrationStatusTable = {
+    [ProjectMigrationStatus.Migrated]: 'Migrated',
+    [ProjectMigrationStatus.Migrating]: 'Migrating',
+    [ProjectMigrationStatus.Unknown]: 'Unknown',
+    [ProjectMigrationStatus.PrivateRedmine]: 'Not Migrated (private)',
+    [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
+  } satisfies Record<ProjectMigrationStatus, string>;
 </script>
 
 <svelte:head>
@@ -196,6 +206,7 @@
         <BadgeList>
           <ProjectTypeBadge type={project.type} />
           <Badge><FormatRetentionPolicy policy={project.retentionPolicy} /></Badge>
+          <Badge>{migrationStatusTable[project.migrationStatus]}</Badge>
         </BadgeList>
       </div>
 
