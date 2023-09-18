@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy.Auth;
 using LexSyncReverseProxy.Services;
@@ -80,12 +81,19 @@ public static class ProxyKernel
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
         var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
-        var destinationPrefix = await lexProxyService.GetDestinationPrefix(hgType, projectCode);
+        var requestInfo = await lexProxyService.GetDestinationPrefix(hgType, projectCode);
         if (hgType == HgType.hgWeb && context.Request.Path.StartsWithSegments("/hg/"))
         {
             context.Request.Path = context.Request.Path.Value!["/hg".Length..];
         }
-        await forwarder.SendAsync(context, destinationPrefix, httpClient);
+
+        if (requestInfo.TrustToken is not null && context.User.Identity?.IsAuthenticated == true)
+        {
+            var base64String = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{context.User.Identity.Name}:{requestInfo.TrustToken}"));
+            context.Request.Headers.Authorization = $"Basic {base64String}";
+        }
+
+        await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient);
         switch (hgType)
         {
             case HgType.hgWeb:
