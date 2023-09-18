@@ -22,7 +22,9 @@ public class HgServiceTests
         HgResumableUrl = LexboxResumable,
         PublicRedmineHgWebUrl = RedminePublic,
         PrivateRedmineHgWebUrl = RedminePrivate,
-        RedmineHgResumableUrl = RedmineResumable
+        RedmineHgResumableUrl = RedmineResumable,
+        RedmineTrustToken = "tt",
+        LfMergeTrustToken = "tt"
     };
 
     [Theory]
