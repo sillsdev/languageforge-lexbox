@@ -127,7 +127,7 @@ public class HgService : IHgService
     public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode,
         ProjectMigrationStatus migrationStatus)
     {
-        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json-lex&rev=tip");
+        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json&rev=tip");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         //format is this: [1678687688, offset] offset is
@@ -144,7 +144,7 @@ public class HgService : IHgService
 
     public async Task<Changeset[]> GetChangesets(string projectCode, ProjectMigrationStatus migrationStatus)
     {
-        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json-lex");
+        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json");
         response.EnsureSuccessStatusCode();
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
