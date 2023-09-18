@@ -32,6 +32,7 @@ export async function load(event: PageLoadEvent) {
 						code
 						description
 						type
+            migrationStatus
 						lastCommit
 						createdDate
 						retentionPolicy

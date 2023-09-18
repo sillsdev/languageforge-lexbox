@@ -114,6 +114,7 @@ type NotFoundError implements Error {
 type Project {
   code: String!
   createdDate: DateTime!
+  migrationStatus: ProjectMigrationStatus!
   changesets: [Changeset!]!
   parentId: UUID
   name: String!
@@ -299,10 +300,18 @@ input ProjectFilterInput {
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
+  migrationStatus: ProjectMigrationStatusOperationFilterInput
   userCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
+}
+
+input ProjectMigrationStatusOperationFilterInput {
+  eq: ProjectMigrationStatus
+  neq: ProjectMigrationStatus
+  in: [ProjectMigrationStatus!]
+  nin: [ProjectMigrationStatus!]
 }
 
 input ProjectRoleOperationFilterInput {
@@ -321,6 +330,7 @@ input ProjectSortInput {
   type: SortEnumType
   lastCommit: SortEnumType
   deletedDate: SortEnumType
+  migrationStatus: SortEnumType
   userCount: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
@@ -442,6 +452,14 @@ enum CreateProjectResult {
 enum DbErrorCode {
   UNKNOWN
   DUPLICATE
+}
+
+enum ProjectMigrationStatus {
+  UNKNOWN
+  MIGRATED
+  MIGRATING
+  PRIVATE_REDMINE
+  PUBLIC_REDMINE
 }
 
 enum ProjectRole {
