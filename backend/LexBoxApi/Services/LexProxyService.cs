@@ -40,13 +40,17 @@ public class LexProxyService : ILexProxyService
         await _projectService.UpdateLastCommit(projectCode);
     }
 
-    public async ValueTask<string> GetDestinationPrefix(HgType type, string projectCode)
+    public async ValueTask<RequestInfo> GetDestinationPrefix(HgType type, string projectCode)
     {
         var projectMigrationInfo = await GetProjectMigrationInfo(projectCode);
         var result = HgService.DetermineProjectUrlPrefix(type, projectCode, projectMigrationInfo, _hgConfig);
-        return result;
+        string? trustToken = null;
+        if (projectMigrationInfo is ProjectMigrationStatus.PrivateRedmine or ProjectMigrationStatus.PublicRedmine)
+        {
+            trustToken = _hgConfig.RedmineTrustToken;
+        }
+        return new RequestInfo(result, trustToken);
     }
-
 
 
     private async ValueTask<ProjectMigrationStatus> GetProjectMigrationInfo(string projectCode)
