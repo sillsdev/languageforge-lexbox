@@ -72,6 +72,7 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
 
     private async ValueTask<LexAuthUser?> GetUser(string password, string username)
     {
+        //todo utilize LfMerge trust token to let in LfMerge as an admin #291
         var cacheKey = Convert.ToBase64String(KeyDerivation.Pbkdf2(
             username + '|' + password,
             cacheKeySalt,
