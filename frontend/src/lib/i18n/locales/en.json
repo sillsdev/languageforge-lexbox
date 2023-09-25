@@ -317,7 +317,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   },
   "form": {
     "password": {
-      "forbidden_characters": "The symbols &, +, and % can cause problems in passwords",
+      "forbidden_characters": "The symbols &, +, and % are not allowed in passwords",
       "too_short": "Must be at least 4 characters"
     }
   }
