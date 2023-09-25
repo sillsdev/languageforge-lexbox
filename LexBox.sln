@@ -6,7 +6,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexBoxApi", "backend\LexBox
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B323B57A-2D47-4A64-9882-57D656886483}"
 	ProjectSection(SolutionItems) = preProject
-		docker-compose.yaml = docker-compose.yaml
 		.dockerignore = .dockerignore
 		.env = .env
 		.gitignore = .gitignore
