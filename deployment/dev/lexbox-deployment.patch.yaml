@@ -38,6 +38,12 @@ spec:
           - name: Email__SmtpPassword
             value: 'maildev_pass'
             valueFrom:
+          - name: HgConfig__RedmineTrustToken
+            value: 'dummy'
+            valueFrom:
+          - name: HgConfig__LfMergeTrustToken
+            value: 'dummy'
+            valueFrom:
       - name: maildev
         image: maildev/maildev # https://github.com/maildev/maildev/blob/master/README.md#usage
         ports:
