@@ -5,6 +5,7 @@ import { isAdmin, type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
 import { getBoolSearchParam } from '$lib/util/query-params';
 import type { $OpResult, ChangeUserAccountByAdminInput, ChangeUserAccountByAdminMutation, ProjectType } from '$lib/gql/types';
+import type {LoadAdminDashboardQuery} from '$lib/gql/types';
 
 export type AdminSearchParams = {
   showDeletedProjects: boolean,
@@ -12,6 +13,9 @@ export type AdminSearchParams = {
   userEmail: string | undefined,
   projectSearch: string,
 };
+
+export type Project = LoadAdminDashboardQuery['projects'][number];
+export type User = LoadAdminDashboardQuery['users'][number];
 
 export async function load(event: PageLoadEvent) {
   const parentData = await event.parent();
