@@ -82,7 +82,7 @@ public static class ProxyKernel
         var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
         var requestInfo = await lexProxyService.GetDestinationPrefix(hgType, projectCode);
-        if (hgType == HgType.hgWeb && context.Request.Path.StartsWithSegments("/hg/"))
+        if (hgType == HgType.hgWeb && context.Request.Path.StartsWithSegments("/hg"))
         {
             context.Request.Path = context.Request.Path.Value!["/hg".Length..];
         }

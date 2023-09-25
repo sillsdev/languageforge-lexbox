@@ -66,7 +66,7 @@ public class ProjectService
     {
         var migrationStatus = await _dbContext.Projects.AsNoTracking()
             .Where(p => p.Code == projectCode).Select(p => p.MigrationStatus).FirstOrDefaultAsync();
-        if (migrationStatus == default) throw new NotFoundException("Project not found");
+        if (migrationStatus == default) throw new NotFoundException($"Project not found: {projectCode}");
         return migrationStatus;
     }
 }
