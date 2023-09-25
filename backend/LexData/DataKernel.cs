@@ -20,7 +20,7 @@ public static class DataKernel
         services.AddLogging();
         services.AddHealthChecks()
             .AddDbContextCheck<LexBoxDbContext>(customTestQuery: (context, token) => context.HeathCheck(token));
-        services.AddDbContext<PrivateRedmineDbContext>((serviceProvider, options) =>
+        services.AddDbContext<PublicRedmineDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
             var connectionString =
@@ -28,7 +28,7 @@ public static class DataKernel
                 throw new ArgumentNullException("RedmineConnectionString");
             options.UseMySql(connectionString, ServerVersion.Parse("11.1.2-mariadb"));
         });
-        services.AddDbContext<PublicRedmineDbContext>((serviceProvider, options) =>
+        services.AddDbContext<PrivateRedmineDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
             var connectionString =

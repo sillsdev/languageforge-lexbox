@@ -12,12 +12,12 @@ public partial class RedmineDbContext
 
         var memberEntity = modelBuilder.Entity<RmMember>();
         memberEntity.HasOne(m => m.Role).WithOne(r => r.Member);
-        
+
 
         var projectEntity = modelBuilder.Entity<RmProject>();
         projectEntity.HasMany(p => p.Members).WithOne(m => m.Project);
         projectEntity.HasOne(p => p.Parent).WithMany(p => p.Children);
-        
+
         var memberRoleEntity = modelBuilder.Entity<RmMemberRole>();
         memberRoleEntity.HasOne(mr => mr.Role).WithMany(r => r.MemberRoles);
     }
@@ -26,7 +26,7 @@ public partial class RedmineDbContext
 public partial class RmUser
 {
     public required List<RmEmailAddress> EmailAddresses { get; set; }
-    public required List<RmMember> ProjectMembership { get; set; }
+    public required List<RmMember>? ProjectMembership { get; set; }
 }
 
 public partial class RmEmailAddress
@@ -38,7 +38,7 @@ public partial class RmMember
 {
     public required RmUser User { get; set; }
     public required RmMemberRole Role { get; set; }
-    public required RmProject Project { get; set; }
+    public required RmProject? Project { get; set; }
 }
 
 public partial class RmMemberRole
