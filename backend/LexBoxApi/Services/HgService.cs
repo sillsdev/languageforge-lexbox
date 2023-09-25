@@ -157,10 +157,10 @@ public class HgService : IHgService
 
     public static string DetermineProjectUrlPrefix(HgType type,
         string projectCode,
-        ProjectMigrationStatus projectMigrationInfo,
+        ProjectMigrationStatus migrationStatus,
         HgConfig hgConfig)
     {
-        return (type, projectMigrationInfo) switch
+        return (type, migrationStatus) switch
         {
             (_, ProjectMigrationStatus.Migrating) => throw new ProjectMigratingException(projectCode),
             //migrated projects
@@ -173,7 +173,7 @@ public class HgService : IHgService
             //all resumable redmine go to the same place
             (HgType.resumable, ProjectMigrationStatus.PublicRedmine) => hgConfig.RedmineHgResumableUrl,
             (HgType.resumable, ProjectMigrationStatus.PrivateRedmine) => hgConfig.RedmineHgResumableUrl,
-            _ => throw new ArgumentException($"Unknown HG request type: {type}")
+            _ => throw new ArgumentException($"Unknown request, HG request type: {type}, migration status: {migrationStatus}")
         };
     }
 }

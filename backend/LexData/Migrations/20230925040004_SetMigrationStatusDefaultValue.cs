@@ -5,25 +5,32 @@
 namespace LexData.Migrations
 {
     /// <inheritdoc />
-    public partial class AddProjectMigrationStatus : Migration
+    public partial class SetMigrationStatusDefaultValue : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
+            migrationBuilder.AlterColumn<int>(
                 name: "MigrationStatus",
                 table: "Projects",
                 type: "integer",
                 nullable: false,
-                defaultValue: 1);
+                defaultValue: 1,
+                oldClrType: typeof(int),
+                oldType: "integer");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.AlterColumn<int>(
                 name: "MigrationStatus",
-                table: "Projects");
+                table: "Projects",
+                type: "integer",
+                nullable: false,
+                oldClrType: typeof(int),
+                oldType: "integer",
+                oldDefaultValue: 1);
         }
     }
 }

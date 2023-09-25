@@ -11,6 +11,7 @@ public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>
     {
         base.Configure(builder);
         builder.HasIndex(p => p.Code).IsUnique();
+        builder.Property(p => p.MigrationStatus).HasDefaultValue(ProjectMigrationStatus.Migrated);
         builder.HasOne<Project>()
             .WithMany()
             .HasForeignKey(p => p.ParentId);
