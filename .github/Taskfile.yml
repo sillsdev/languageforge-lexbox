@@ -3,3 +3,7 @@ tasks:
   integration-test:
     cmds:
       - act -j test
+  check:
+    cmds:
+      - docker run --rm -v .:/repo --workdir /repo rhysd/actionlint:latest -color
+
