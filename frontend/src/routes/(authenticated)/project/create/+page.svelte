@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { FormError, lexSuperForm, SubmitButton, TextArea } from '$lib/forms';
+  import { FormError, lexSuperForm, ProjectTypeSelect, SubmitButton, TextArea } from '$lib/forms';
   import Checkbox from '$lib/forms/Checkbox.svelte';
   import Form from '$lib/forms/Form.svelte';
   import Input from '$lib/forms/Input.svelte';
@@ -13,7 +13,6 @@
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { notifySuccess } from '$lib/notify';
   import { Duration } from '$lib/util/time';
-  import { ProjectTypeIcon } from '$lib/components/ProjectType';
 
   export let data;
   const formSchema = z.object({
@@ -101,17 +100,8 @@
       bind:value={$form.description}
       error={$errors.description}
     />
-    <div class="relative">
-      <Select id="type" label={$t('project.create.type')} bind:value={$form.type} error={$errors.type}>
-        <option value={ProjectType.FlEx}>{$t('project_type.flex')}</option>
-        <option value={ProjectType.WeSay}>{$t('project_type.weSay')}</option>
-        <option value={ProjectType.OneStoryEditor}>{$t('project_type.oneStoryEditor')}</option>
-        <option value={ProjectType.OurWord}>{$t('project_type.ourWord')}</option>
-      </Select>
-      <span class="absolute right-10 bottom-4 pointer-events-none">
-        <ProjectTypeIcon type={$form.type} size="h-8" />
-      </span>
-    </div>
+
+    <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
 
     <Select
       id="policy"

@@ -11,6 +11,7 @@ import { lexSuperForm } from './superforms';
 import type { ErrorMessage } from './types';
 import { randomFieldId, tryParse } from './utils';
 import SystemRoleSelect from './SystemRoleSelect.svelte';
+import ProjectTypeSelect from './ProjectTypeSelect.svelte';
 
 export {
   Button,
@@ -28,4 +29,5 @@ export {
   type Token,
   type ErrorMessage,
   SystemRoleSelect,
+  ProjectTypeSelect,
 };

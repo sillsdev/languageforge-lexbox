@@ -1,17 +1,16 @@
-import type {
-  $OpResult,
-  ChangeUserAccountByAdminInput,
-  ChangeUserAccountByAdminMutation,
-} from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import { isAdmin, type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
-import { getBoolSearchParam } from '$lib/util/urls';
+import { getBoolSearchParam } from '$lib/util/query-params';
+import type { $OpResult, ChangeUserAccountByAdminInput, ChangeUserAccountByAdminMutation, ProjectType } from '$lib/gql/types';
 
 export type AdminSearchParams = {
   showDeletedProjects: boolean,
+  projectType: ProjectType | undefined,
+  userEmail: string | undefined,
+  projectSearch: string,
 };
 
 export async function load(event: PageLoadEvent) {
@@ -43,6 +42,10 @@ export async function load(event: PageLoadEvent) {
                 isAdmin
                 createdDate
                 emailVerified
+                projects {
+                  id
+                  projectId
+                }
             }
         }
     `), { withDeletedProjects });

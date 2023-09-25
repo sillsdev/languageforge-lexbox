@@ -10,9 +10,15 @@
     "column_type": "Type",
     "column_users": "Users",
     "column_edit": "Edit",
-    "options": "Options",
     "show_delete_projects": "Show deleted projects",
     "filter_placeholder": "Search...",
+    "project_filter": {
+      "select_user_from_table": "Select a user from the user table:",
+      "project_member": "Project member",
+      "all_users": "All users",
+      "show_deleted": "Show deleted",
+    },
+    "filter_projects": "Filter projects",
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "username_or_email_required": "You must provide a username or email.",
@@ -136,7 +142,6 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "name_missing": "Project name required",
       "retention_policy": "Purpose",
       "submit": "Create Project",
-      "type": "Type",
       "requested": "Your request for project {name} has been submitted.",
       "request": "Request Project"
     }
@@ -215,11 +220,14 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "user_description": "User (can create & manage their own projects)"
   },
   "project_type": {
+    "type": "Project type",
+    "any": "Any",
     "flex": "FLEx",
     "oneStoryEditor": "OneStory Editor",
     "other": "Other",
     "ourWord": "OurWord",
-    "weSay": "WeSay (LIFT)"
+    "weSay": "WeSay (LIFT)",
+    "logo": "{type} logo",
   },
   "projectlist": {
     "last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",

@@ -4,8 +4,9 @@
   import oneStoryLogo from '$lib/assets/onestory-editor-logo.png';
   import weSayLogo from '$lib/assets/we-say-logo.png';
   import ourWordLogo from '$lib/assets/our-word-logo.png';
+  import t from '$lib/i18n';
 
-  export let type: ProjectType;
+  export let type: ProjectType | undefined;
   export let size = 'h-6';
 
   $: src = type === ProjectType.FlEx ? flexLogo
@@ -15,7 +16,7 @@
 </script>
 
 {#if src}
-  <img {src} alt="Project software logo" class={size}>
-{:else}
+  <img {src} alt={$t('project_type.logo', { type: type ?? ProjectType.Unknown })} class={size}>
+{:else if type}
   <span class="i-mdi-help-circle-outline text-xl" />
 {/if}

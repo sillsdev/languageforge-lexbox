@@ -2,14 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, .drawer-side, .drawer-side > .menu {
-    height: 100%;
+html,
+body,
+.drawer-side,
+.drawer-side > .menu {
+  height: 100%;
 }
 
 /* frontend/src/lib/forms/Form.svelte */
 form {
-  input {
-    @apply mb-4;
+  input,
+  select,
+  textarea {
+    margin: 0;
   }
 
   .btn {
@@ -27,23 +32,15 @@ form {
 }
 
 .button-badge[tabindex='-1'] {
-  @apply hover:drop-shadow-xl hover:brightness-95 transition cursor-pointer;
+  @apply hover:drop-shadow-xl hover:brightness-105 transition cursor-pointer;
 }
 
-form {
-  input,
-  select,
-  textarea {
-    margin: 0;
-  }
+.form-control {
+  @apply mb-2;
 
-  .form-control {
-    @apply mb-2;
-
-    label:last-child {
-        /* Essentially removes the margin that we added to the form-control */
-        @apply pb-0;
-    }
+  label:last-child {
+    /* Essentially removes the margin that we added to the form-control */
+    @apply pb-0;
   }
 }
 
@@ -61,12 +58,12 @@ form {
 }
 
 .menu {
-    .text-error {
-        @apply !text-error;
-    }
-    .text-accent {
-        @apply !text-accent;
-    }
+  .text-error {
+    @apply !text-error;
+  }
+  .text-accent {
+    @apply !text-accent;
+  }
 }
 
 .pale {
@@ -85,7 +82,7 @@ input[readonly]:focus {
 }
 
 .btn {
-    @apply flex-nowrap;
+  @apply flex-nowrap;
 }
 
 /* open dropdowns upwards for the last 2 table rows */
@@ -94,10 +91,24 @@ table tr:nth-last-child(-n + 2) .dropdown {
 }
 
 .prose :where(a) {
-    /* bold is just a bit too loud, especially when there are lots of link (e.g. our login welcome message) */
-    @apply font-normal;
+  /* bold is just a bit too loud, especially when there are lots of link (e.g. our login welcome message) */
+  @apply font-normal;
 }
 
 .leading-0 {
-    line-height: 0;
+  line-height: 0;
+}
+
+.filter-bar {
+  > * {
+    height: 32px;
+  }
+
+  [class*='i-mdi'] {
+    margin-bottom: -1px;
+  }
+
+  .badge {
+    @apply h-full;
+  }
 }

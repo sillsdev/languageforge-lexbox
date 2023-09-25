@@ -39,3 +39,7 @@ export type CssClassList<CssClass extends string, MutuallyEsclusiveCssClass exte
   IfNever<MutuallyEsclusiveCssClass, StringList<CssClass>, MutuallyEsclusiveCssClass | `${MutuallyEsclusiveCssClass} ${StringList<CssClass>}`>;
 
 export type StoreType<T extends Readable<unknown>> = T extends Readable<infer S> ? S : never;
+
+export type StandardEnum<T> = {
+  [id: string]: T;
+}

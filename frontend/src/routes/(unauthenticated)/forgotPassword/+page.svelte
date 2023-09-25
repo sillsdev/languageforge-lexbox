@@ -4,7 +4,7 @@
   import { SubmitButton } from '$lib/forms';
   import t from '$lib/i18n';
   import Page from '$lib/layout/Page.svelte';
-  import { toSearchParams } from '$lib/util/urls';
+  import { toSearchParams } from '$lib/util/query-params';
   import { z } from 'zod';
 
   const formSchema = z.object({

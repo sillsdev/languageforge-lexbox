@@ -1,3 +1,4 @@
+import ActionBadge  from './ActionBadge.svelte';
 import Badge from './Badge.svelte';
 import BadgeButton from './BadgeButton.svelte';
 import BadgeList from './BadgeList.svelte';
@@ -7,5 +8,6 @@ export {
   Badge,
   BadgeButton,
   BadgeList,
+  ActionBadge,
   MemberBadge
 };
