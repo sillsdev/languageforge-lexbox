@@ -22,7 +22,8 @@
 
         {#if project.userCount > 1}
           <p>
-            {$t('projectlist.shared_with', { memberCount: project.userCount })}
+            <span class="i-mdi-account text-xl mb-[-4px]" /> {project.userCount}
+            <!--{$t('projectlist.shared_with', { memberCount: project.userCount })}-->
           </p>
         {/if}
 
