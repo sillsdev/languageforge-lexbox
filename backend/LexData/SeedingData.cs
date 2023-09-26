@@ -70,6 +70,7 @@ public class SeedingData
             Code = "sena-3",
             Type = ProjectType.FLEx,
             MigrationStatus = ProjectMigrationStatus.Migrated,
+            ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
             Users = new()
