@@ -79,7 +79,7 @@ public class MigrationController : ControllerBase
         await dbContext.Members.Include(p => p.Role).ToArrayAsync();
         await dbContext.Roles.ToArrayAsync();
         //todo set based on redmine db
-        var migrationStatus = ProjectMigrationStatus.PublicRedmine;
+        var migrationStatus = dbContext is PublicRedmineDbContext ? ProjectMigrationStatus.PublicRedmine : ProjectMigrationStatus.PrivateRedmine;
         var projectIdToGuid = projects.ToDictionary(p => p.Id, p => Guid.NewGuid());
         _lexBoxDbContext.Projects.AddRange(projects.Select(rmProject =>
             MigrateProject(rmProject, now, migrationStatus, projectIdToGuid)));
@@ -149,6 +149,7 @@ public class MigrationController : ControllerBase
             CreatedDate = rmProject.CreatedOn?.ToUniversalTime() ?? now,
             UpdatedDate = rmProject.UpdatedOn?.ToUniversalTime() ?? now,
             MigrationStatus = migrationStatus,
+            ProjectOrigin = migrationStatus,
             Name = rmProject.Name,
             Code = rmProject.Identifier ?? throw new Exception("no code for project id" + rmProject.Id),
             Description = rmProject.Description,
