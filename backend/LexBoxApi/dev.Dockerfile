@@ -4,7 +4,7 @@ EXPOSE 80
 EXPOSE 443
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  apt update && apt-get --no-install-recommends install -y rsync
+  apt update && apt-get --no-install-recommends install -y rsync ssh
 WORKDIR /src/backend
 # Copy the main source project files
 COPY */*.csproj *.sln ./

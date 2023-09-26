@@ -11,11 +11,13 @@ public class ProjectService
 {
     private readonly LexBoxDbContext _dbContext;
     private readonly IHgService _hgService;
+    private readonly RepoMigrationService _migrationService;
 
-    public ProjectService(LexBoxDbContext dbContext, IHgService hgService)
+    public ProjectService(LexBoxDbContext dbContext, IHgService hgService, RepoMigrationService migrationService)
     {
         _dbContext = dbContext;
         _hgService = hgService;
+        _migrationService = migrationService;
     }
 
     public async Task<Guid> CreateProject(CreateProjectInput input, Guid userId)
@@ -69,5 +71,13 @@ public class ProjectService
             .Where(p => p.Code == projectCode).Select(p => p.MigrationStatus).FirstOrDefaultAsync();
         if (migrationStatus == default) throw new NotFoundException($"Project not found: {projectCode}");
         return migrationStatus;
+    }
+
+    public async Task MigrateProject(string projectCode)
+    {
+        var project = await _dbContext.Projects.SingleAsync(p => p.Code == projectCode);
+        project.MigrationStatus = ProjectMigrationStatus.Migrating;
+        await _dbContext.SaveChangesAsync();
+        _migrationService.QueueMigration(projectCode);
     }
 }

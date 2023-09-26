@@ -28,7 +28,7 @@ RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:Informatio
 FROM base AS final
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
-  apt update && apt-get --no-install-recommends install -y rsync
+  apt update && apt-get --no-install-recommends install -y rsync ssh
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "LexBoxApi.dll"]

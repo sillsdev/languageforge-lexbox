@@ -1,9 +1,11 @@
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using LexBoxApi.Otel;
 using LexCore.Config;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -21,10 +23,12 @@ public class HgService : IHgService
 
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
+    private readonly ILogger<HgService> _logger;
 
-    public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory)
+    public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory, ILogger<HgService> logger)
     {
         _options = options;
+        _logger = logger;
         _hgClient = new(() => clientFactory.CreateClient("HgWeb"));
     }
 
@@ -95,6 +99,49 @@ public class HgService : IHgService
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
         await SoftDeleteRepo(code, $"{timestamp}__reset");
         await InitRepo(code);
+    }
+
+    public async Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken)
+    {
+        using var activity = LexBoxActivitySource.Get().StartActivity();
+        _logger.LogInformation("Migrating repo {Code}", project.Code);
+        activity?.AddTag("app.project_code", project.Code);
+        //rsync data from remote server to /hg-repos
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return false;
+        var repoPath = Path.GetFullPath(_options.Value.RepoPath);
+        var remoteHost = "public.languagedepot.org";
+        var remotePathPart = project.ProjectOrigin == ProjectMigrationStatus.PublicRedmine ? "public" : "private";
+        var remotePath = $"/var/vcs/{remotePathPart}/{project.Code}";
+        var process = Process.Start(new ProcessStartInfo
+        {
+            FileName = "/bin/sh",
+            CreateNoWindow = true,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            //.hg/cache is excluded since there can be issues reading and it's not required
+            Arguments = $"""
+                         -c "rsync -vaxhAXP --del --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
+                         """,
+        });
+        if (process is null)
+        {
+            return false;
+
+        }
+        await process.WaitForExitAsync(cancellationToken);
+        if (process.ExitCode == 0)
+        {
+            activity?.SetStatus(ActivityStatusCode.Ok);
+            _logger.LogInformation("Migration of repo {Code} finished", project.Code);
+            return true;
+        }
+
+        var error = await process.StandardError.ReadToEndAsync(cancellationToken);
+        var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+        var description = $"rsync failed with exit code {process.ExitCode}. Error: {error}. Output: {output}";
+        _logger.LogError(description);
+        activity?.SetStatus(ActivityStatusCode.Error, description);
+        return false;
     }
 
     public async Task RevertRepo(string code, string revHash)
