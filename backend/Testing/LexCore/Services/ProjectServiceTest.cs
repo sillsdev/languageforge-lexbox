@@ -18,6 +18,7 @@ public class ProjectServiceTest : IClassFixture<TestingServicesFixture>
     public ProjectServiceTest(TestingServicesFixture testing)
     {
         testing.Services.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
+        testing.Services.AddScoped<RepoMigrationService>(_ => Mock.Of<RepoMigrationService>());
         testing.Services.AddScoped<ProjectService>();
         _projectService = testing.ServiceProvider.GetRequiredService<ProjectService>();
     }
