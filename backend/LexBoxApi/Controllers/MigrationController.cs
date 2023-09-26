@@ -1,4 +1,5 @@
 using LexBoxApi.Auth;
+using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
@@ -17,11 +18,16 @@ public class MigrationController : ControllerBase
     private readonly RedmineDbContext _redminePublicDbContext;
     private readonly RedmineDbContext _privateRedmineDbContext;
     private readonly LexBoxDbContext _lexBoxDbContext;
+    private readonly ProjectService _projectService;
 
-    public MigrationController(PublicRedmineDbContext redmineDbContext, PrivateRedmineDbContext privateRedmineDbContext, LexBoxDbContext lexBoxDbContext)
+    public MigrationController(PublicRedmineDbContext redmineDbContext,
+        PrivateRedmineDbContext privateRedmineDbContext,
+        LexBoxDbContext lexBoxDbContext,
+        ProjectService projectService)
     {
         _redminePublicDbContext = redmineDbContext;
         _lexBoxDbContext = lexBoxDbContext;
+        _projectService = projectService;
         _privateRedmineDbContext = privateRedmineDbContext;
     }
 
@@ -43,13 +49,12 @@ public class MigrationController : ControllerBase
         await MigrateData(false);
         var project = await _lexBoxDbContext.Projects.FirstOrDefaultAsync(p => p.Code == code);
         await transaction.RollbackAsync();
-        return project is null ? NotFound() : new
-        {
-            Name = project.Name,
-            Code = project.Code,
-            Description = project.Description,
-            Type = project.Type,
-        };
+        return project is null
+            ? NotFound()
+            : new
+            {
+                Name = project.Name, Code = project.Code, Description = project.Description, Type = project.Type,
+            };
     }
 
     [HttpGet("migrateData")]
@@ -71,7 +76,8 @@ public class MigrationController : ControllerBase
 
     private async Task Migrate(RedmineDbContext dbContext, DateTimeOffset now)
     {
-        var existingUsers = await _lexBoxDbContext.Users.ToDictionaryAsync(u => u.Email, u => u, StringComparer.OrdinalIgnoreCase);
+        var existingUsers =
+            await _lexBoxDbContext.Users.ToDictionaryAsync(u => u.Email, u => u, StringComparer.OrdinalIgnoreCase);
         var projects = await dbContext.Projects.ToArrayAsync();
         //filter out empty login because there's some default redmine accounts without a login
         var users = await dbContext.Users.Where(u => u.Login != "").Include(u => u.EmailAddresses)
@@ -79,11 +85,14 @@ public class MigrationController : ControllerBase
         await dbContext.Members.Include(p => p.Role).ToArrayAsync();
         await dbContext.Roles.ToArrayAsync();
         //todo set based on redmine db
-        var migrationStatus = dbContext is PublicRedmineDbContext ? ProjectMigrationStatus.PublicRedmine : ProjectMigrationStatus.PrivateRedmine;
+        var migrationStatus = dbContext is PublicRedmineDbContext
+            ? ProjectMigrationStatus.PublicRedmine
+            : ProjectMigrationStatus.PrivateRedmine;
         var projectIdToGuid = projects.ToDictionary(p => p.Id, p => Guid.NewGuid());
         _lexBoxDbContext.Projects.AddRange(projects.Select(rmProject =>
             MigrateProject(rmProject, now, migrationStatus, projectIdToGuid)));
-        _lexBoxDbContext.Users.AddRange(users.Select(rmUser => MigrateUser(rmUser, projectIdToGuid, now, existingUsers)).OfType<User>());
+        _lexBoxDbContext.Users.AddRange(users.Select(rmUser => MigrateUser(rmUser, projectIdToGuid, now, existingUsers))
+            .OfType<User>());
     }
 
     private static User? MigrateUser(RmUser rmUser,
@@ -113,13 +122,16 @@ public class MigrationController : ControllerBase
             {
                 user.IsAdmin = true;
             }
+
             if (!user.CanCreateProjects && userProjects.Any(p => p.Role == ProjectRole.Manager))
             {
                 user.CanCreateProjects = true;
             }
+
             //a new user wasnt added
             return null;
         }
+
         return new User
         {
             CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? now,
@@ -165,5 +177,20 @@ public class MigrationController : ControllerBase
             },
             Users = new List<ProjectUsers>()
         };
+    }
+
+    [HttpGet("migrateRepo")]
+    public async Task<ActionResult> MigrateRepo(string projectCode)
+    {
+        await _projectService.MigrateProject(projectCode);
+        return Ok();
+    }
+    [HttpGet("migrateStatus")]
+    public async Task<ActionResult<ProjectMigrationStatus>> MigrateStatus(string projectCode)
+    {
+        return await _lexBoxDbContext.Projects
+            .Where(p => p.Code == projectCode)
+            .Select(p => p.MigrationStatus)
+            .SingleAsync();
     }
 }

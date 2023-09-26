@@ -11,4 +11,5 @@ public interface IHgService
     Task SoftDeleteRepo(string code, string deletedRepoSuffix);
     Task<string?> BackupRepo(string code);
     Task ResetRepo(string code);
+    Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken);
 }

@@ -167,6 +167,9 @@ spec:
       - name: repos
         persistentVolumeClaim:
           claimName: hg-repos # established in hg-repos-pvc.yaml
+      - name: ssh-config
+        secret:
+          secretName: lexbox-api-ssh
       - name: otel-config
         configMap:
           name: otel-config

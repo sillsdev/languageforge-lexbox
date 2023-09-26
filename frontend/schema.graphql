@@ -124,6 +124,7 @@ type Project {
   users: [ProjectUsers!]!
   lastCommit: DateTime
   deletedDate: DateTime
+  projectOrigin: ProjectMigrationStatus!
   userCount: Int!
   id: UUID!
   updatedDate: DateTime!
@@ -305,6 +306,7 @@ input ProjectFilterInput {
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
+  projectOrigin: ProjectMigrationStatusOperationFilterInput
   migrationStatus: ProjectMigrationStatusOperationFilterInput
   userCount: IntOperationFilterInput
   id: UuidOperationFilterInput
@@ -335,6 +337,7 @@ input ProjectSortInput {
   type: SortEnumType
   lastCommit: SortEnumType
   deletedDate: SortEnumType
+  projectOrigin: SortEnumType
   migrationStatus: SortEnumType
   userCount: SortEnumType
   id: SortEnumType
