@@ -80,4 +80,31 @@ public class ProjectService
         await _dbContext.SaveChangesAsync();
         _migrationService.QueueMigration(projectCode);
     }
+
+    public async Task<bool> AwaitMigration(string projectCode, CancellationToken cancellationToken)
+    {
+        var project = await _dbContext.Projects.SingleAsync(p => p.Code == projectCode, cancellationToken);
+        if (project.MigrationStatus == ProjectMigrationStatus.Migrated) return true;
+        //could be a race condition here... but eh.
+        while (await _migrationService.MigrationCompleted.WaitToReadAsync(cancellationToken) &&
+            _migrationService.MigrationCompleted.TryPeek(out var migratedProjectCode))
+        {
+            if (migratedProjectCode == projectCode)
+            {
+                await _migrationService.MigrationCompleted.ReadAsync(cancellationToken);
+                return true;
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+            //if the project is still in the queue (because no one else is listening) then remove it.
+            // probably won't be true, but just in case.
+            if (_migrationService.MigrationCompleted.TryRead(out var queuedProjectCode) &&
+                queuedProjectCode == projectCode)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

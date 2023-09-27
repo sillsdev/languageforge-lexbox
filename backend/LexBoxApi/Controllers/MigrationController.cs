@@ -185,6 +185,7 @@ public class MigrationController : ControllerBase
         await _projectService.MigrateProject(projectCode);
         return Ok();
     }
+
     [HttpGet("migrateStatus")]
     public async Task<ActionResult<ProjectMigrationStatus>> MigrateStatus(string projectCode)
     {
@@ -192,5 +193,15 @@ public class MigrationController : ControllerBase
             .Where(p => p.Code == projectCode)
             .Select(p => p.MigrationStatus)
             .SingleAsync();
+    }
+
+    [HttpGet("awaitMigrated")]
+    public async Task<ActionResult<bool>> AwaitMigrated(string projectCode)
+    {
+        var token = CancellationTokenSource.CreateLinkedTokenSource(
+            new CancellationTokenSource(TimeSpan.FromMinutes(2)).Token,
+            HttpContext.RequestAborted
+        ).Token;
+        return await _projectService.AwaitMigration(projectCode, token);
     }
 }

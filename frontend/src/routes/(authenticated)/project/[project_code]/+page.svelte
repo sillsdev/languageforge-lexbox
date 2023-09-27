@@ -30,6 +30,9 @@
   import { AdminContent, Page } from '$lib/layout';
   import SvelteMarkdown from 'svelte-markdown';
   import {ProjectMigrationStatus} from '$lib/gql/generated/graphql';
+  import {onMount} from 'svelte';
+  import Button from '$lib/forms/Button.svelte';
+  import Icon from '$lib/icons/Icon.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -129,14 +132,36 @@
     }
   }
 
+  let migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
   //no need to translate these since it'll only be temporary
   const migrationStatusTable = {
     [ProjectMigrationStatus.Migrated]: 'Migrated',
     [ProjectMigrationStatus.Migrating]: 'Migrating',
     [ProjectMigrationStatus.Unknown]: 'Unknown',
     [ProjectMigrationStatus.PrivateRedmine]: 'Not Migrated (private)',
-    [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
+      [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
   } satisfies Record<ProjectMigrationStatus, string>;
+  onMount(() => {
+      migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
+      if (migrationStatus === ProjectMigrationStatus.Migrating) {
+          watchMigrationStatus();
+      }
+  });
+
+  async function watchMigrationStatus() {
+    notifyWarning('This project is currently being migrated. Some features may not work as expected.');
+    const result = await fetch(`/api/migrate/awaitMigrated?projectCode=${project.code}`);
+    const response = await result.json();
+    if (response) {
+      migrationStatus = ProjectMigrationStatus.Migrated;
+    }
+  }
+
+  async function migrateProject() {
+    await fetch(`/api/migrate/migrateRepo?projectCode=${project.code}`);
+    migrationStatus = ProjectMigrationStatus.Migrating;
+    await watchMigrationStatus();
+  }
 </script>
 
 <svelte:head>
@@ -148,49 +173,57 @@
     {#if project}
       <div class="space-y-2 space-x-1">
         <div class="float-right mt-1 sm:mt-2 md:mt-1">
-          <Dropdown>
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-sm md:btn-md btn-success">
-              {$t('project_page.get_project.label')}
-              <span class="i-mdi-dots-vertical text-2xl" />
-            </label>
-            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-              <div class="card-body max-sm:p-4">
-                <div class="prose">
-                  <SvelteMarkdown
-                    source={$t('project_page.get_project.instructions', {type: _project.type, code: data.code, name: _project.name})}>
-                  </SvelteMarkdown>
-                </div>
-                <AdminContent>
-                  <FormField label={$t('project_page.get_project.send_receive_url')}>
-                    <div class="join">
-                      <input
-                        value={projectHgUrl}
-                        class="input input-bordered join-item w-full focus:input-success"
-                        readonly
-                      />
-                      <div
-                        class="join-item tooltip-open"
-                        class:tooltip={copiedToClipboard}
-                        data-tip={$t('clipboard.copied')}
-                      >
-                        {#if copiedToClipboard}
-                          <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
-                        {:else}
-                          <IconButton
-                            loading={copyingToClipboard}
-                            icon="i-mdi-content-copy"
-                            style="btn-outline"
-                            on:click={copyProjectUrlToClipboard}
-                          />
-                        {/if}
-                      </div>
+          {#if migrationStatus !== ProjectMigrationStatus.Migrating}
+              <Dropdown>
+                <!-- svelte-ignore a11y-label-has-associated-control -->
+                <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-sm md:btn-md btn-success">
+                  {$t('project_page.get_project.label')}
+                  <span class="i-mdi-dots-vertical text-2xl" />
+                </label>
+                <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+                  <div class="card-body max-sm:p-4">
+                    <div class="prose">
+                      <SvelteMarkdown
+                        source={$t('project_page.get_project.instructions', {type: _project.type, code: data.code, name: _project.name})}>
+                      </SvelteMarkdown>
                     </div>
-                  </FormField>
-                </AdminContent>
-              </div>
-            </div>
-          </Dropdown>
+                    <AdminContent>
+                      <FormField label={$t('project_page.get_project.send_receive_url')}>
+                        <div class="join">
+                          <input
+                            value={projectHgUrl}
+                            class="input input-bordered join-item w-full focus:input-success"
+                            readonly
+                          />
+                          <div
+                            class="join-item tooltip-open"
+                            class:tooltip={copiedToClipboard}
+                            data-tip={$t('clipboard.copied')}
+                          >
+                            {#if copiedToClipboard}
+                              <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+                            {:else}
+                              <IconButton
+                                loading={copyingToClipboard}
+                                icon="i-mdi-content-copy"
+                                style="btn-outline"
+                                on:click={copyProjectUrlToClipboard}
+                              />
+                            {/if}
+                          </div>
+                        </div>
+                      </FormField>
+                    </AdminContent>
+                  </div>
+                </div>
+              </Dropdown>
+          {/if}
+          {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
+              <Button on:click={migrateProject}>
+                Migrate Project
+                <Icon icon="i-mdi-source-branch-sync"/>
+              </Button>
+          {/if}
         </div>
         <div class="text-3xl flex items-center gap-3 gap-y-0 flex-wrap">
           <span>{$t('project_page.project')}:</span>
@@ -204,9 +237,15 @@
           </span>
         </div>
         <BadgeList>
-          <ProjectTypeBadge type={project.type} />
-          <Badge><FormatRetentionPolicy policy={project.retentionPolicy} /></Badge>
-          <Badge>{migrationStatusTable[project.migrationStatus]}</Badge>
+          <ProjectTypeBadge type={project.type}/>
+          <Badge>
+            <FormatRetentionPolicy policy={project.retentionPolicy}/>
+          </Badge>
+          {#if migrationStatus === ProjectMigrationStatus.Migrating}
+            <Badge><span class="loading loading-spinner loading-xs"></span> Migrating</Badge>
+          {:else}
+            <Badge>{migrationStatusTable[migrationStatus]}</Badge>
+          {/if}
         </BadgeList>
       </div>
 
