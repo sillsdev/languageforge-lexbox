@@ -8,7 +8,7 @@ namespace LexData;
 
 public static class DataKernel
 {
-    public static void AddLexData(this IServiceCollection services, bool autoApplyMigrations)
+    public static void AddLexData(this IServiceCollection services, bool autoApplyMigrations, ServiceLifetime dbContextLifeTime = ServiceLifetime.Scoped)
     {
         services.AddScoped<SeedingData>();
         services.AddDbContext<LexBoxDbContext>((serviceProvider, options) =>
@@ -16,7 +16,7 @@ public static class DataKernel
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
             options.UseProjectables();
-        });
+        }, dbContextLifeTime);
         services.AddLogging();
         services.AddHealthChecks()
             .AddDbContextCheck<LexBoxDbContext>(customTestQuery: (context, token) => context.HeathCheck(token));
