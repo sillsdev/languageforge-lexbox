@@ -10,5 +10,6 @@ public class ProjectUsersEntityConfiguration : EntityBaseConfiguration<ProjectUs
     {
         base.Configure(builder);
         builder.HasIndex(pu => new { pu.UserId, pu.ProjectId }).IsUnique();
+        builder.HasQueryFilter(pu => pu.Project.DeletedDate == null);
     }
 }
