@@ -18,6 +18,9 @@ public class RepoMigrationService : BackgroundService
     }
 
     private Channel<string> ProjectMigrationQueue { get; } = Channel.CreateUnbounded<string>();
+    private readonly Channel<string> _migrationCompleted = Channel.CreateUnbounded<string>();
+    public ChannelReader<string> MigrationCompleted => _migrationCompleted.Reader;
+
     private readonly TaskCompletionSource _started = new();
     /// used for tests to determine that the projects have been queried from the db on startup
     public Task Started => _started.Task;
@@ -66,6 +69,7 @@ public class RepoMigrationService : BackgroundService
         {
             project.MigrationStatus = ProjectMigrationStatus.Migrated;
             await dbContext.SaveChangesAsync(stoppingToken);
+            await _migrationCompleted.Writer.WriteAsync(projectCode, stoppingToken);
         }
     }
 }

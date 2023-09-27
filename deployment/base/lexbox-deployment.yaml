@@ -170,6 +170,7 @@ spec:
       - name: ssh-config
         secret:
           secretName: lexbox-api-ssh
+          defaultMode: 384 # 0600 in octal
       - name: otel-config
         configMap:
           name: otel-config
