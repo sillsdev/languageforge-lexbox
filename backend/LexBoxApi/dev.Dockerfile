@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 EXPOSE 80
 EXPOSE 443
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -14,5 +14,4 @@ RUN for file in $(ls *.csproj); do dir=${file%.*} mkdir -p ${file%.*}/ && mv $fi
 COPY . .
 WORKDIR /src/backend/LexBoxApi
 RUN mkdir /src/frontend
-ENV DockerDev=true
 CMD dotnet watch run -lp docker --property:InformationalVersion=dockerDev

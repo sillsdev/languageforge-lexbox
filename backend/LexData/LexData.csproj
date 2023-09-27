@@ -21,7 +21,6 @@
       <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0-rc.1.23419.4" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0-rc.1" />
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
-      <PackageReference Update="Microsoft.VisualStudio.Threading.Analyzers" Version="17.7.30" />
 </ItemGroup>
 
     <ItemGroup>
