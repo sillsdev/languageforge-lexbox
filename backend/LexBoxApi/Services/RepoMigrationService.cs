@@ -18,6 +18,9 @@ public class RepoMigrationService : BackgroundService
     }
 
     private Channel<string> ProjectMigrationQueue { get; } = Channel.CreateUnbounded<string>();
+    private readonly TaskCompletionSource _started = new();
+    /// used for tests to determine that the projects have been queried from the db on startup
+    public Task Started => _started.Task;
 
     public void QueueMigration(string projectCode)
     {
@@ -38,7 +41,7 @@ public class RepoMigrationService : BackgroundService
                 await ProjectMigrationQueue.Writer.WriteAsync(projectCode, stoppingToken);
             }
         }
-
+        _started.SetResult();
         while (!stoppingToken.IsCancellationRequested)
         {
             var projectCode = await ProjectMigrationQueue.Reader.ReadAsync(stoppingToken);
@@ -53,7 +56,7 @@ public class RepoMigrationService : BackgroundService
         await using var scope = _serviceProvider.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<LexBoxDbContext>();
         var hgService = scope.ServiceProvider.GetRequiredService<IHgService>();
-        var project = dbContext.Projects.Single(p => p.Code == projectCode);
+        var project = await dbContext.Projects.SingleAsync(p => p.Code == projectCode, stoppingToken);
         if (project.MigrationStatus == ProjectMigrationStatus.Migrated)
         {
             return;

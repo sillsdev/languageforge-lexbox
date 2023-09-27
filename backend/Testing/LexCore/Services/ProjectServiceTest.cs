@@ -11,16 +11,20 @@ using Testing.Fixtures;
 
 namespace Testing.LexCore.Services;
 
-public class ProjectServiceTest : IClassFixture<TestingServicesFixture>
+[Collection(nameof(TestingServicesFixture))]
+public class ProjectServiceTest
 {
     private readonly ProjectService _projectService;
 
     public ProjectServiceTest(TestingServicesFixture testing)
     {
-        testing.Services.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
-        testing.Services.AddScoped<RepoMigrationService>(_ => Mock.Of<RepoMigrationService>());
-        testing.Services.AddScoped<ProjectService>();
-        _projectService = testing.ServiceProvider.GetRequiredService<ProjectService>();
+        var serviceProvider = testing.ConfigureServices(s =>
+        {
+            s.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
+            s.AddScoped(_ => new RepoMigrationService(Mock.Of<IServiceProvider>()));
+            s.AddScoped<ProjectService>();
+        });
+        _projectService = serviceProvider.GetRequiredService<ProjectService>();
     }
 
     [Fact]
