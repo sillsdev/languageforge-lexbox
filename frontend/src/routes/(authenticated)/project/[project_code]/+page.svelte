@@ -144,11 +144,11 @@
   onMount(() => {
       migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
       if (migrationStatus === ProjectMigrationStatus.Migrating) {
-          watchMigrationStatus();
+          void watchMigrationStatus();
       }
   });
 
-  async function watchMigrationStatus() {
+  async function watchMigrationStatus(): Promise<void> {
     if (!project) return;
     notifyWarning('This project is currently being migrated. Some features may not work as expected.');
     const result = await fetch(`/api/migrate/awaitMigrated?projectCode=${project.code}`);
@@ -158,7 +158,7 @@
     }
   }
 
-  async function migrateProject() {
+  async function migrateProject(): Promise<void> {
     if (!project) return;
     await fetch(`/api/migrate/migrateRepo?projectCode=${project.code}`);
     migrationStatus = ProjectMigrationStatus.Migrating;
