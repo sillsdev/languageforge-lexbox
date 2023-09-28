@@ -13,12 +13,9 @@
   // so the page-load instrumentation can be correlated with the server load
   export let data: LayoutData;
 
-  const error = initErrorStore(writable());
-  onDestroy(
-    page.subscribe((p) => {
-      error.set(p.error);
-    })
-  );
+  const error = initErrorStore(writable($page.error));
+  $: $error = $page.error;
+
 </script>
 
 <svelte:head>

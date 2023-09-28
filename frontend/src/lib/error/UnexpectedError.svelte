@@ -27,15 +27,10 @@
     const subject = `Language Depot - Unexpected error`;
     return `?subject=${subject}&body=${body}`;
   });
-
-  onDestroy(
-    error.subscribe((e) => {
-      if (e) {
-        if (alertMessageElem) alertMessageElem.textContent = e.message;
-        if (traceIdElem) traceIdElem.textContent = e.traceId;
-      }
-    })
-  );
+  $: if ($error) {
+    if (alertMessageElem) alertMessageElem.textContent = $error.message;
+    if (traceIdElem) traceIdElem.textContent = $error.traceId;
+  }
 
   function onTraceIdClick(event: MouseEvent): void {
     if (event.ctrlKey) {

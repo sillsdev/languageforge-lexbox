@@ -9,13 +9,15 @@
   const error = useError();
   const dismiss = useDismiss();
   beforeNavigate(dismiss);
-
-  onDestroy(
-    error.subscribe((e) => {
-      if (!dialog) return;
-      e ? open() : close();
-    })
-  );
+  $: {
+    if (dialog) {
+      if ($error) {
+        open();
+      } else {
+        close();
+      }
+    }
+  }
 
   function dismissClick(): void {
     close();
