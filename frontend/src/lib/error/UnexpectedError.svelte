@@ -2,7 +2,6 @@
   /* eslint-disable svelte/no-dom-manipulating */
   import { env } from '$env/dynamic/public';
   import { useError } from '.';
-  import { onDestroy } from 'svelte';
   import { t } from 'svelte-intl-precompile';
   import { derived } from 'svelte/store';
 

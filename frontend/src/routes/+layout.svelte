@@ -7,7 +7,6 @@
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
   import { writable } from 'svelte/store';
-  import { onDestroy } from 'svelte';
 
   // https://www.w3.org/TR/trace-context/#traceparent-header
   // so the page-load instrumentation can be correlated with the server load

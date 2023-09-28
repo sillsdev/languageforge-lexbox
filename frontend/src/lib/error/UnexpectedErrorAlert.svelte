@@ -1,7 +1,6 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
   import {useDismiss, useError} from '.';
-  import { onDestroy } from 'svelte';
   import { t } from 'svelte-intl-precompile';
   import UnexpectedError from './UnexpectedError.svelte';
 

@@ -6,7 +6,7 @@ import {
   type OperationContext,
   type OperationResult,
   fetchExchange,
-  CombinedError,
+  type CombinedError,
   queryStore,
   type OperationResultSource
 } from '@urql/svelte';

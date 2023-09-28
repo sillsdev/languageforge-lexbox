@@ -88,6 +88,7 @@ export default [
           'allowedNames': ['load'],
         },
       ],
+      '@typescript-eslint/consistent-type-imports': ['error', {'fixStyle': 'inline-type-imports'}],
       // https://sveltejs.github.io/eslint-plugin-svelte/rules/
       'svelte/html-quotes': 'error',
       'svelte/no-dom-manipulating': 'warn',

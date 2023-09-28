@@ -22,7 +22,7 @@ import Button from '$lib/forms/Button.svelte';
 export let projects: Project[];
 export let users: User[];
 
-export function setUserFilter(email: string) {
+export function setUserFilter(email: string): void {
     $queryParams.userEmail = email;
 }
 

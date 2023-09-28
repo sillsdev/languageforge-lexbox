@@ -1,6 +1,6 @@
-import type { Action } from 'svelte/action';
+import type {ActionReturn} from 'svelte/action';
 
-export const bubbleFocusOnDestroy: Action = (node) => {
+export function bubbleFocusOnDestroy(node: HTMLElement): ActionReturn {
   const focusableAncestor = node.closest('[tabindex]') as { focus?: HTMLOrSVGElement['focus'] } | null;
 
   function getHasFocus(): boolean {
