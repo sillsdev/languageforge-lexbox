@@ -149,6 +149,7 @@
   });
 
   async function watchMigrationStatus() {
+    if (!project) return;
     notifyWarning('This project is currently being migrated. Some features may not work as expected.');
     const result = await fetch(`/api/migrate/awaitMigrated?projectCode=${project.code}`);
     const response = await result.json();
@@ -158,6 +159,7 @@
   }
 
   async function migrateProject() {
+    if (!project) return;
     await fetch(`/api/migrate/migrateRepo?projectCode=${project.code}`);
     migrationStatus = ProjectMigrationStatus.Migrating;
     await watchMigrationStatus();
