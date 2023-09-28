@@ -65,8 +65,8 @@
     } else if (crumbValue._name !== undefined) {
       return crumbValue._name;
     }
-
-    throw new Error(`No breadcrumb found for '${token}'`);
+    console.error(`No breadcrumb found for '${token}'`);
+    return token;
   }
 </script>
 

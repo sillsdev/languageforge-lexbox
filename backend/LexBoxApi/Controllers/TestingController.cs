@@ -23,7 +23,7 @@ public class TestingController : ControllerBase
     public TestingController(LexAuthService lexAuthService,
         LexBoxDbContext lexBoxDbContext,
         SeedingData seedingData,
-        RedmineDbContext redmineDbContext)
+        PublicRedmineDbContext redmineDbContext)
     {
         _lexAuthService = lexAuthService;
         _lexBoxDbContext = lexBoxDbContext;
