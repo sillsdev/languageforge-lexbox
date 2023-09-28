@@ -49,8 +49,9 @@ public class RepoMigrationTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await _lexBoxDbContext.Database.RollbackTransactionAsync();
+        //need to stop first to avoid race condition with db context
         await _repoMigrationService.StopAsync(CancellationToken.None);
+        await _lexBoxDbContext.Database.RollbackTransactionAsync();
     }
 
     private Project Project([CallerMemberName] string code = "")
