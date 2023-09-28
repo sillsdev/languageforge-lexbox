@@ -1,9 +1,9 @@
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
 using Chorus.VcsDrivers.Mercurial;
+using LexCore.Utils;
 using Shouldly;
+using SIL.Progress;
 using Testing.ApiTests;
 using Testing.Logging;
 using Testing.Services;
@@ -138,7 +138,7 @@ public class SendReceiveServiceTests
         srResult.ShouldNotContain("error");
     }
 
-    [Fact(Skip = "unable to push a new project with the current setup")]
+    [Fact]
     public async Task SendNewProject()
     {
         var id = Guid.NewGuid();
@@ -154,28 +154,36 @@ public class SendReceiveServiceTests
                                   type: FL_EX,
                                   id: "{{id}}",
                                   code: "{{projectCode}}",
-                                  description: "this is just a testing project for testing a race condition",
+                                  description: "this is a new project created during a unit test to verify we can send a new project for the first time",
                                   retentionPolicy: DEV
                               }) {
                                   createProjectResponse {
                                       id
+                                      result
                                   }
                               }
                           }
                           """);
+        await using var deleteProject = Defer.Async( () => apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}"));
 
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
-        ZipFile.ExtractToDirectory(@"C:\clipboard\LexBox\kevin-test-01.zip", sendReceiveParams.DestDir);
+        var stream = await apiTester.HttpClient.GetStreamAsync("https://drive.google.com/uc?export=download&id=1w357T1Ti7bDwEof4HPBUZ5gB7WSKA5O2");
+        using var zip = new ZipArchive(stream);
+        zip.ExtractToDirectory(sendReceiveParams.DestDir);
         File.Exists(sendReceiveParams.FwDataFile).ShouldBeTrue();
 
-        await Task.Delay(TimeSpan.FromSeconds(5));
+        //hack around the fact that our send and receive won't create a repo from scratch.
+        HgRunner.Run("hg init", sendReceiveParams.DestDir, 1, new NullProgress());
+        HgRunner.Run("hg branch 7500002.7000072", sendReceiveParams.DestDir, 1, new NullProgress());
+        HgRunner.Run("hg add Lexicon.fwstub", sendReceiveParams.DestDir, 1, new NullProgress());
+        HgRunner.Run("""hg commit -m "first commit" """, sendReceiveParams.DestDir, 1, new NullProgress());
+
+
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth);
         _output.WriteLine(srResult);
         srResult.ShouldNotContain("abort");
         srResult.ShouldNotContain("failure");
         srResult.ShouldNotContain("error");
-
-        await apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}");
     }
 
 

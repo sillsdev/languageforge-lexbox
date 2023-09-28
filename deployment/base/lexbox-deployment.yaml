@@ -48,6 +48,8 @@ spec:
         app: lexbox
     spec:
       securityContext:
+        runAsGroup: 33
+        runAsUser: 0
         fsGroup: 33
       containers:
       - name: lexbox-api

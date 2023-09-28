@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -55,10 +56,15 @@ public class HgService : IHgService
         AssertIsSafeRepoName(code);
         if (Directory.Exists(Path.Combine(_options.Value.RepoPath, code)))
             throw new AlreadyExistsException($"Repo already exists: {code}.");
-        await Task.Run(() => CopyFilesRecursively(
+        await Task.Run(() => InitRepoAt(_options.Value.RepoPath, code));
+    }
+
+    public static void InitRepoAt(string repoPath, string code)
+    {
+        CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
-            new DirectoryInfo(_options.Value.RepoPath).CreateSubdirectory(code)
-        ));
+            new DirectoryInfo(repoPath).CreateSubdirectory(code)
+        );
     }
 
     public async Task DeleteRepo(string code)
@@ -115,13 +121,25 @@ public class HgService : IHgService
         });
     }
 
-    private void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
+    private const UnixFileMode Permissions = UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute | UnixFileMode.SetGroup |
+                                             UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.SetUser;
+    private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
         foreach (DirectoryInfo dir in source.GetDirectories())
-            CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
+        {
+            var directoryInfo = target.CreateSubdirectory(dir.Name);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                File.SetUnixFileMode(directoryInfo.FullName, Permissions);
+            CopyFilesRecursively(dir, directoryInfo);
+        }
 
         foreach (FileInfo file in source.GetFiles())
-            file.CopyTo(Path.Combine(target.FullName, file.Name));
+        {
+            var destFileName = Path.Combine(target.FullName, file.Name);
+            file.CopyTo(destFileName);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                File.SetUnixFileMode(destFileName, Permissions);
+        }
     }
 
     public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode,
