@@ -243,8 +243,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "label_name": "Name",
     "label_password": "Password",
     "name_missing": "Name missing",
-    "turnstile_error": "Captcha Error, try again",
-    "create_new_account": "Create a new account"
+    "turnstile_error": "Captcha Error, try again"
   },
   "reset_password": {
     "title": "Reset Password",

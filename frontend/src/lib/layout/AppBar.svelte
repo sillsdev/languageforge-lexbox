@@ -32,21 +32,19 @@
           <AuthenticatedUserIcon size="text-4xl" />
         </Button>
       {:else}
-        <div class="tooltip tooltip-left" data-tip={$t('register.create_new_account')}>
-          {#if $page.url.pathname !== '/login'}
-            <a href="/login" class="btn btn-primary">
-              {$t('login.button_login')}
-            <span class="i-mdi-logout text-3xl"/>
-            </a>
-          {/if}
+        {#if $page.url.pathname !== '/login'}
+          <a href="/login" class="btn btn-primary">
+            {$t('login.button_login')}
+          <span class="i-mdi-logout text-3xl"/>
+          </a>
+        {/if}
 
-          {#if $page.url.pathname !== '/register'}
-            <a href="/register" class="btn btn-primary">
-              {$t('register.button_register')}
-              <UserAddOutline/>
-            </a>
-          {/if}
-        </div>
+        {#if $page.url.pathname !== '/register'}
+          <a href="/register" class="btn btn-primary">
+            {$t('register.button_register')}
+            <UserAddOutline/>
+          </a>
+        {/if}
       {/if}
     </div>
   </div>
