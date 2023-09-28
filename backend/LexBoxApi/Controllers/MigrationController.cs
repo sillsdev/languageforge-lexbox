@@ -124,10 +124,10 @@ public class MigrationController : ControllerBase
         {
             CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? now,
             UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? now,
+            LastActive = rmUser.LastLoginOn?.ToUniversalTime() ?? now,
             Username = rmUser.Login,
             LocalizationCode = rmUser.Language ?? LexCore.Entities.User.DefaultLocalizationCode,
-            Email =
-                email,
+            Email = email,
             Name = rmUser.Firstname + " " + rmUser.Lastname,
             IsAdmin = rmUser.Admin,
             Salt = rmUser.Salt ?? "",

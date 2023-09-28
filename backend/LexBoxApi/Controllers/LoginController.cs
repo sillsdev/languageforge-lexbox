@@ -19,16 +19,19 @@ public class LoginController : ControllerBase
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly LoggedInContext _loggedInContext;
     private readonly EmailService _emailService;
+    private readonly UserService _userService;
 
     public LoginController(LexAuthService lexAuthService,
         LexBoxDbContext lexBoxDbContext,
         LoggedInContext loggedInContext,
-        EmailService emailService)
+        EmailService emailService,
+        UserService userService)
     {
         _lexAuthService = lexAuthService;
         _lexBoxDbContext = lexBoxDbContext;
         _loggedInContext = loggedInContext;
         _emailService = emailService;
+        _userService = userService;
     }
 
     [HttpGet("loginRedirect")]
@@ -63,7 +66,6 @@ public class LoginController : ControllerBase
         await _lexBoxDbContext.SaveChangesAsync();
         await RefreshJwt();
         return Redirect(returnTo);
-
     }
 
     [HttpPost]
@@ -74,6 +76,7 @@ public class LoginController : ControllerBase
     {
         var user = await _lexAuthService.Login(loginRequest);
         if (user == null) return Unauthorized();
+        await _userService.UpdateUserLastActive(user.Id);
         await HttpContext.SignInAsync(user.GetPrincipal("Password"),
             new AuthenticationProperties { IsPersistent = true });
         return user;

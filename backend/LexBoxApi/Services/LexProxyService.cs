@@ -15,23 +15,26 @@ public class LexProxyService : ILexProxyService
 {
     private readonly LexAuthService _lexAuthService;
     private readonly ProjectService _projectService;
+    private readonly UserService _userService;
     private readonly HgConfig _hgConfig;
     private readonly IMemoryCache _memoryCache;
     public LexProxyService(LexAuthService lexAuthService,
         ProjectService projectService,
-        IHgService hgService,
         IOptions<HgConfig> options,
-        IMemoryCache memoryCache)
+        IMemoryCache memoryCache,
+        UserService userService)
     {
         _lexAuthService = lexAuthService;
         _projectService = projectService;
         _memoryCache = memoryCache;
+        _userService = userService;
         _hgConfig = options.Value;
     }
 
     public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
         var user = await _lexAuthService.Login(loginRequest);
+        if (user is not null) await _userService.UpdateUserLastActive(user.Id);
         return user;
     }
 
