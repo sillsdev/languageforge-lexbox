@@ -5,7 +5,7 @@
   import { ProjectTypeIcon } from './ProjectType';
 
   export let projects: LoadProjectsQuery['myProjects'];
-
+  export let showCreateButton = true;
 </script>
 
 <div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
@@ -41,12 +41,15 @@
       </div>
     </a>
   {/each}
-  <a class="card border-4 border-base-200 shadow-base-300" href="/project/create">
-    <div class="card-body mx-auto justify-center items-center text-primary">
-      <span class="i-mdi-plus text-4xl" />
-      <span class="text-xl text-center">{$t('project.create.title')}</span>
-    </div>
-  </a>
+
+  {#if showCreateButton}
+    <a class="card border-4 border-base-200 shadow-base-300" href="/project/create">
+      <div class="card-body mx-auto justify-center items-center text-primary">
+        <span class="i-mdi-plus text-4xl"/>
+        <span class="text-xl text-center">{$t('project.create.title')}</span>
+      </div>
+    </a>
+  {/if}
 </div>
 
 <style lang="postcss">
