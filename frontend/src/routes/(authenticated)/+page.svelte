@@ -6,6 +6,7 @@
 
   export let data: PageData;
   $: projects = data.projects;
+
 </script>
 
 <Page>
@@ -13,5 +14,5 @@
     {$t('user_dashboard.title')}
   </svelte:fragment>
 
-  <ProjectList projects={$projects}/>
+  <ProjectList projects={$projects} showCreateButton={data.user.emailVerified}/>
 </Page>

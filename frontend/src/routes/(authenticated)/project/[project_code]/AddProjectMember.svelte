@@ -28,6 +28,9 @@
       if (error?.byType('NotFoundError')) {
         return { email: [$t('project_page.add_user.user_not_found')] };
       }
+      if (error?.byType('ProjectMembersMustBeVerified')) {
+        return { email: [$t('project_page.add_user.user_not_verified')] };
+      }
 
       return error?.message;
     });

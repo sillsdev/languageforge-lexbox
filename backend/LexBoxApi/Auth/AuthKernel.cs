@@ -35,6 +35,9 @@ public static class AuthKernel
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireAuthenticatedUser()
                     .RequireAssertion(context => context.User.IsInRole(UserRole.admin.ToString())));
+            options.AddPolicy(VerifiedEmailRequiredAttribute.PolicyName,
+                builder => builder.RequireAuthenticatedUser()
+                    .RequireAssertion(context => !context.User.HasClaim(LexAuthConstants.EmailUnverifiedClaimType, "true")));
 
             //user can create a project if they have the claim or are an admin
             options.AddPolicy(CreateProjectRequiredAttribute.PolicyName,

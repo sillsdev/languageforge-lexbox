@@ -27,6 +27,7 @@ public class ProjectMutations
     [Error<AlreadyExistsException>]
     [UseMutationConvention]
     [RefreshJwt]
+    [VerifiedEmailRequired]
     public async Task<CreateProjectResponse?> CreateProject(
         LoggedInContext loggedInContext,
         CreateProjectInput input,
@@ -45,6 +46,7 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -55,6 +57,7 @@ public class ProjectMutations
         loggedInContext.User.AssertCanManageProject(input.ProjectId);
         var user = await dbContext.Users.FindByEmail(input.UserEmail);
         if (user is null) throw new NotFoundException("Member not found");
+        if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
