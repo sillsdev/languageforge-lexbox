@@ -59,7 +59,7 @@ public class LexboxLinkGenerator : LinkGenerator
             address,
             values,
             ambientValues,
-            scheme,
+            scheme ?? _scheme,
             host ?? new HostString(_host),
             pathBase,
             fragment,
