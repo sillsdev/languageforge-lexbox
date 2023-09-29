@@ -170,6 +170,7 @@ type User {
   isAdmin: Boolean!
   passwordHash: String!
   salt: String!
+  lastActive: DateTime!
   emailVerified: Boolean!
   canCreateProjects: Boolean!
   locked: Boolean!
@@ -397,6 +398,7 @@ input UserFilterInput {
   isAdmin: BooleanOperationFilterInput
   passwordHash: StringOperationFilterInput
   salt: StringOperationFilterInput
+  lastActive: DateTimeOperationFilterInput
   emailVerified: BooleanOperationFilterInput
   canCreateProjects: BooleanOperationFilterInput
   locked: BooleanOperationFilterInput
@@ -414,6 +416,7 @@ input UserSortInput {
   isAdmin: SortEnumType
   passwordHash: SortEnumType
   salt: SortEnumType
+  lastActive: SortEnumType
   emailVerified: SortEnumType
   canCreateProjects: SortEnumType
   locked: SortEnumType
