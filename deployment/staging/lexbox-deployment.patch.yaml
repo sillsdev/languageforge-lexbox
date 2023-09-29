@@ -10,10 +10,6 @@ spec:
     spec:
       containers:
         - name: lexbox-api
-          volumeMounts:
-          - name: ssh-config
-            mountPath: /root/.ssh
-            readOnly: true
 
           env:
             - name: ASPNETCORE_ENVIRONMENT

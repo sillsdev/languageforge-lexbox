@@ -48,9 +48,9 @@ spec:
         app: lexbox
     spec:
       securityContext:
+#        fsgroup removed as there's a conflict with volume default mode for the ssh secret. https://github.com/kubernetes/kubernetes/issues/57923
         runAsGroup: 33
         runAsUser: 0
-        fsGroup: 33
       containers:
       - name: lexbox-api
         # TODO: need to parameterize this tag
@@ -74,6 +74,8 @@ spec:
         volumeMounts:
         - name: repos
           mountPath: /hg-repos
+        - name: ssh-config
+          mountPath: /root/.ssh
 
         env:
           - name: DOTNET_URLS
