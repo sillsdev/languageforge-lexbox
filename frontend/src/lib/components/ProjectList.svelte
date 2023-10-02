@@ -52,6 +52,12 @@
   {/if}
 </div>
 
+{#if !showCreateButton && !projects.length}
+  <div class="text-lg text-secondary flex gap-4 items-center justify-center">
+    <span class="i-mdi-creation-outline text-xl shrink-0" /> {$t('user_dashboard.no_projects')}
+  </div>
+{/if}
+
 <style lang="postcss">
   .card {
     @apply

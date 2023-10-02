@@ -261,7 +261,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   "unknown": "Unknown",
   "user_dashboard": {
     "home_title": "Home",
-    "title": "My Projects"
+    "title": "My Projects",
+    "no_projects": "You aren't in any projects yet. You have to verify your email address before you can join or request a project."
   },
   "user_types": {
     "admin": "Admin",
