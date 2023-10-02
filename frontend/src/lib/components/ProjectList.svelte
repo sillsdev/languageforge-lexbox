@@ -43,7 +43,7 @@
   {/each}
 
   {#if showCreateButton}
-    <a class="card border-4 border-base-200 shadow-base-300" href="/project/create">
+    <a class="card border-4 border-base-200 shadow-base-300" class:in-center-column={!projects.length} href="/project/create">
       <div class="card-body mx-auto justify-center items-center text-primary">
         <span class="i-mdi-plus text-4xl"/>
         <span class="text-xl text-center">{$t('project.create.title')}</span>
@@ -68,5 +68,9 @@
       hover:text-neutral-content
       hover:border-neutral
       hover:shadow-xl;
+  }
+
+  .in-center-column {
+    grid-column: 2;
   }
 </style>
