@@ -41,16 +41,16 @@
       <SvelteMarkdown source={$t('login.welcome')} />
       <div class="flex gap-4 not-prose justify-center">
         <a href="https://software.sil.org/fieldworks/">
-          <img src={flexLogo} class="h-12" alt="FLEx Logo">
+          <img src={flexLogo} class="h-12" height="48" alt="FLEx Logo">
         </a>
         <a href="https://languageforge.org/">
-          <img src={lfLogo} class="h-12" alt="Language Forge Logo">
+          <img src={lfLogo} class="h-12" height="48" alt="Language Forge Logo">
         </a>
         <a href="https://software.sil.org/onestoryeditor/">
-          <img src={oneStoryEditorLogo} class="h-12" alt="OneStory Editor Logo">
+          <img src={oneStoryEditorLogo} class="h-12" height="48" alt="OneStory Editor Logo">
         </a>
         <a href="https://software.sil.org/wesay/">
-          <img src={weSayLogo} class="h-12" alt="WeSay Logo">
+          <img src={weSayLogo} class="h-12" height="48" alt="WeSay Logo">
         </a>
       </div>
     </div>

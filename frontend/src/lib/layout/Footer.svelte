@@ -11,11 +11,11 @@
       <div class="flex gap-4 items-center">
         <a href="https://www.sil.org/">
           <!-- https://www.sil.org/about/media -->
-          <img class="h-6 md:h-12" src={silLogo} alt="SIL International logo" />
+          <img class="h-6 md:h-12" height="48" src={silLogo} alt="SIL International logo" />
         </a>
         <a href="https://li.payap.ac.th/">
           <!-- http://info.payap.ac.th/info/link_download/ -->
-          <img class="h-6 md:h-11" src={payapLogo} alt="Payap University logo" />
+          <img class="h-6 md:h-11" height="44" src={payapLogo} alt="Payap University logo" />
         </a>
       </div>
       <div>
