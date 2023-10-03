@@ -118,8 +118,8 @@
     "title": "Log in",
     "password_missing": "Password missing",
     "password_reset": "Your password has been reset",
-    "welcome": "### Welcome to Glossia!\n\
-Glossia (formerly Language Depot) is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
+    "welcome": "### Welcome to Language Depot!\n\
+Language Depot is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://onestory.org/) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
@@ -201,7 +201,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "instructions": "### To load the project into{type, select, FL_EX { } other { (e.g.) }}FLEx\n\
 1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
-1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" and \"Password\" for Glossia/Language Depot and click \"Log in\"\n\
+1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" and \"Password\" for Language Depot and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
       "label": "Get project",
