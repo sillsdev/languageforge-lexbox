@@ -135,7 +135,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "language_code": "Language Code",
       "language_code_description": "Preferably an [Ethnologue code](https://www.ethnologue.com)",
       "language_code_too_short": "Language code must be at least 3 characters",
-      "language_code_invalid": "Language code can only include lowercase a-z and '-'",
+      "language_code_invalid": "Language code can only include lowercase a-z, digits and '-'",
       "name": "Name",
       "name_description": "E.g. the name of the language you're working on",
       "description": "Description",
