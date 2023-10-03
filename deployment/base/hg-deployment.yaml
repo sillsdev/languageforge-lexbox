@@ -21,22 +21,6 @@ spec:
 
 ---
 
-# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: hgresumable-cache
-  namespace: languagedepot
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: longhorn
-
----
-
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
 apiVersion: apps/v1
 kind: Deployment
@@ -107,8 +91,8 @@ spec:
 
       volumes:
       - name: cache
-        persistentVolumeClaim:
-          claimName: hgresumable-cache
+        emptyDir:
+          sizeLimit: 3Gi
       - name: repos
         persistentVolumeClaim:
           claimName: hg-repos # established in pvc.yaml

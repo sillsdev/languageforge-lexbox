@@ -1,3 +1,7 @@
 ﻿- op: replace
   path: /spec/tls/0/secretName
   value: null
+- op: add
+#  ~1 gets replaced with a / in the path
+  path: /metadata/annotations/nginx.ingress.kubernetes.io~1ssl-redirect
+  value: "false"

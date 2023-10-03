@@ -1,7 +1,0 @@
-﻿apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: hgresumable-cache
-  namespace: languagedepot
-spec:
-  storageClassName: hostpath
