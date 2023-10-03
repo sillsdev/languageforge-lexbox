@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using LexCore.Auth;
+using LexCore.Utils;
 using Microsoft.Playwright;
 using Shouldly;
 using Testing.Browser.Page;
@@ -11,7 +12,7 @@ namespace Testing.Browser.Base;
 
 public class PageTest : IAsyncLifetime
 {
-    protected bool EnableTrace { get; init; }
+    protected bool EnableTrace { get; init; } = true;
     private readonly PlaywrightFixture _fixture;
     public IPage Page => _fixture.Page;
     public IBrowser Browser => _fixture.Browser;
@@ -44,7 +45,10 @@ public class PageTest : IAsyncLifetime
     {
         if (EnableTrace)
         {
-            await Context.Tracing.StopAsync(new() { Path = "trace.zip" });
+            var now = FileUtils.ToTimestamp(DateTime.UtcNow);
+            var testClass = GetType().Name;
+            var tracePath = Path.Combine("playwright-traces", $"{testClass}_{now}.zip");
+            await Context.Tracing.StopAsync(new() { Path = tracePath });
         }
 
         await _fixture.DisposeAsync();
@@ -114,8 +118,10 @@ public class PlaywrightFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         PlaywrightInstance = await Playwright.CreateAsync();
-        Browser = await PlaywrightInstance.Chromium.LaunchAsync(
-            // new() { Headless = false }
+        Browser = await PlaywrightInstance.Chromium.LaunchAsync(new()
+        {
+            // Headless = false,
+        }
         );
         Context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
