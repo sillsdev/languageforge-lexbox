@@ -47,13 +47,13 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: dotnet test --output ./bin --logger trx --results-directory ./testresults --filter Category=Integration
+        run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
       - name: Upload test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
         with:
           check_name: Integration Tests ${{ matrix.os }}
-          files: ./testresults/*.trx
+          files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()
         uses: actions/upload-artifact@v3
