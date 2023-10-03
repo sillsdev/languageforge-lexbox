@@ -78,7 +78,7 @@
 <svelte:head>
   <title>{$t('admin_dashboard.title')}</title>
 </svelte:head>
-<main class="flex justify-center">
+<main>
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
     <ProjectTable bind:this={projectsTable} projects={$allProjects} users={$allUsers} {defaultFilterLimit}/>
 
