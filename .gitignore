@@ -12,3 +12,4 @@ backend/Testing/SyncReverseProxy/TestData.cs
 deployment/dev/collector-config.yaml
 deployment/dev/local.env
 dump.sql
+test-results/

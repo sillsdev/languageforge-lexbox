@@ -60,13 +60,13 @@ jobs:
       - name: Dotnet build
         run: dotnet build
       - name: Unit tests
-        run: dotnet test --logger xunit --results-directory ./testresults --filter "Category!=Integration"
+        run: dotnet test --logger xunit --results-directory ./test-results --filter "Category!=Integration"
       - name: Upload test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           check_name: C# Unit Tests
-          files: ./testresults/*.xml
+          files: ./test-results/*.xml
 
       - name: Set Version
         id: setVersion
