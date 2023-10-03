@@ -4,7 +4,7 @@ namespace Testing.Browser.Component;
 
 public class EmailVerificationAlert : BaseComponent<EmailVerificationAlert>
 {
-    private const string PLEASE_VERIFY_SELECTOR = ":text('Please verify')";
+    private const string PLEASE_VERIFY_SELECTOR = ":text('We sent you an email, so that you can verify your email address')";
     private const string VERIFICATION_SENT_SELECTOR = ":text('check your inbox for the verification email')";
     private const string SUCCESSFULLY_VERIFIED_SELECTOR = ":text('successfully verified')";
     private const string REQUESTED_TO_CHANGE_SELECTOR = ":text('requested to change')";
