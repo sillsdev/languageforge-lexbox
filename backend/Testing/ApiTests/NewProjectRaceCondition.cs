@@ -43,18 +43,15 @@ public class NewProjectRaceCondition : ApiTestBase
                     description: "this is just a testing project for testing a race condition",
                     retentionPolicy: DEV
                 }) {
-                    project {
-                        name
-                        changesets {
-                            desc
-                        }
+                    createProjectResponse {
+                        id
                     }
                 }
             }
             """);
 
-        var project = response["data"]!["createProject"]!["project"].ShouldBeOfType<JsonObject>();
-        project["name"]!.GetValue<string>().ShouldBe(name);
+        var project = response["data"]!["createProject"]!["createProjectResponse"].ShouldBeOfType<JsonObject>();
+        project["id"]!.GetValue<string>().ShouldBe(id.ToString());
 
         // Query a 2nd time to ensure the instability of new repos isn't causing trouble
         response = await ExecuteGql($$"""

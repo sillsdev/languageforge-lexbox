@@ -25,12 +25,12 @@ public class ApiTestBase
     public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false)
     {
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql", new { query = gql });
-        response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
-        jsonResponse.ShouldNotBeNull("for query " + gql);
+        jsonResponse.ShouldNotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
         if (!expectGqlError)
         {
             jsonResponse["errors"].ShouldBeNull();
+            response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         }
         return jsonResponse;
     }
