@@ -221,10 +221,12 @@
               </Dropdown>
           {/if}
           {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
+            <AdminContent>
               <Button on:click={migrateProject}>
                 Migrate Project
                 <Icon icon="i-mdi-source-branch-sync"/>
               </Button>
+            </AdminContent>
           {/if}
         </div>
         <div class="text-3xl flex items-center gap-3 gap-y-0 flex-wrap">
