@@ -2,6 +2,7 @@
 
 public static class Defer
 {
+    public static readonly IDisposable Noop = Action(static () => { });
     public static IDisposable Action(Action action)
     {
         return new DeferImpl(action);

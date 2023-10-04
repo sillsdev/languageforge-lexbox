@@ -40,6 +40,7 @@ public static class LexBoxKernel
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<LexboxLinkGenerator>();
         services.AddSingleton<RepoMigrationService>();
+        services.AddSingleton<IRepoMigrationService>(provider => provider.GetRequiredService<RepoMigrationService>());
         services.AddHostedService(provider => provider.GetRequiredService<RepoMigrationService>());
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);

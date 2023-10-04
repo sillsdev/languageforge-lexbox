@@ -14,17 +14,27 @@ namespace Testing.LexCore.Services;
 public class RepoMigrationTests : IAsyncLifetime
 {
     private readonly RepoMigrationService _repoMigrationService;
+    private readonly CancellationTokenSource _migrationServiceToken = new();
     private readonly Mock<IHgService> _hgServiceMock = new();
     private readonly LexBoxDbContext _lexBoxDbContext;
-    private readonly TaskCompletionSource<Project> _migrateCalled = new();
+    private readonly TaskCompletionSource<Project> _migrateCalled =
+        new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private bool _autoCompleteMigration = true;
+    private readonly TaskCompletionSource<bool> _migrationCompleted = new();
 
     public RepoMigrationTests(TestingServicesFixture testing)
     {
+        RepoMigrationService.QueueAfterReadBlockDelay = TimeSpan.Zero;
         _hgServiceMock.Setup(hg => hg.MigrateRepo(It.IsAny<Project>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Project project, CancellationToken cancellationToken) =>
+            .Returns((Project project, CancellationToken cancellationToken) =>
             {
                 _migrateCalled.SetResult(project);
-                return true;
+                if (_autoCompleteMigration)
+                {
+                    return Task.FromResult(true);
+                }
+
+                return _migrationCompleted.Task;
             });
         var serviceProvider = testing.ConfigureServices(s =>
         {
@@ -37,7 +47,7 @@ public class RepoMigrationTests : IAsyncLifetime
 
     private async Task StartMigrationService()
     {
-        await _repoMigrationService.StartAsync(CancellationToken.None);
+        await _repoMigrationService.StartAsync(_migrationServiceToken.Token);
         //start above doesn't wait for anything. This is a way to ensure that the service has started and queried the db for projects already
         await _repoMigrationService.Started;
     }
@@ -49,8 +59,15 @@ public class RepoMigrationTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        //need to stop first to avoid race condition with db context
-        await _repoMigrationService.StopAsync(CancellationToken.None);
+        _migrationServiceToken.Cancel();
+        if (!_migrationCompleted.Task.IsCompleted)
+        {
+            //service stop will deadlock if this task isn't cancelled.
+            _migrationCompleted.SetCanceled();
+        }
+
+        //need to stop first to avoid race condition with db context, if we don't pass in a token this could hang the tests
+        await _repoMigrationService.StopAsync(new CancellationTokenSource(10).Token);
         await _lexBoxDbContext.Database.RollbackTransactionAsync();
     }
 
@@ -104,5 +121,89 @@ public class RepoMigrationTests : IAsyncLifetime
         _hgServiceMock.Verify(hg => hg.MigrateRepo(It.IsAny<Project>(), It.IsAny<CancellationToken>()), Times.Once());
         var actualProject = await _migrateCalled.Task;
         return actualProject;
+    }
+
+    private async Task ExpectMigrationNotCalled()
+    {
+        (await Task.WhenAny(_migrateCalled.Task, Task.Delay(TimeSpan.FromSeconds(1)))).ShouldNotBe(_migrateCalled.Task);
+    }
+
+    [Fact]
+    public async Task DontMigrateWithSendReceiveInFlight()
+    {
+        await StartMigrationService();
+        var project = Project();
+        _lexBoxDbContext.Add(project);
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        using (await _repoMigrationService.BeginSendReceive(project.Code))
+        {
+            _repoMigrationService.QueueMigration(project.Code);
+            await ExpectMigrationNotCalled();
+        }
+
+        await ExpectMigrationCalled();
+    }
+
+    [Fact]
+    public async Task CanNotSendReceiveWhenMigrating()
+    {
+        await StartMigrationService();
+        var project = Project();
+        _lexBoxDbContext.Add(project);
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        _autoCompleteMigration = false;
+        _repoMigrationService.QueueMigration(project.Code);
+        await ExpectMigrationCalled();
+
+        //not allowed to begin
+        var sendReceiveToken = await _repoMigrationService.BeginSendReceive(project.Code);
+        sendReceiveToken.ShouldBeNull();
+
+        //migration finished
+        _migrationCompleted.SetResult(true);
+        await _repoMigrationService.MigrationCompleted.ReadAsync();
+
+        //allowed to begin now
+        sendReceiveToken = await _repoMigrationService.BeginSendReceive(project.Code);
+        sendReceiveToken.ShouldNotBeNull();
+        sendReceiveToken.Dispose();
+    }
+
+    [Fact]
+    public async Task MigratingOneProjectDoesNotBlockAnother()
+    {
+        await StartMigrationService();
+        var projectA = Project("project-a");
+        var projectB = Project("project-b");
+        _lexBoxDbContext.Add(projectA);
+        _lexBoxDbContext.Add(projectB);
+        await _lexBoxDbContext.SaveChangesAsync();
+        _autoCompleteMigration = false;
+
+        _repoMigrationService.QueueMigration(projectA.Code);
+        await ExpectMigrationCalled();
+
+        var srToken = await _repoMigrationService.BeginSendReceive(projectB.Code);
+        srToken.ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task SendReceiveForOneProjectDoesNotBlockMigrationOfAnother()
+    {
+        await StartMigrationService();
+        var projectA = Project("project-a");
+        var projectB = Project("project-b");
+        _lexBoxDbContext.Add(projectA);
+        _lexBoxDbContext.Add(projectB);
+        await _lexBoxDbContext.SaveChangesAsync();
+        _autoCompleteMigration = false;
+
+        var srToken = await _repoMigrationService.BeginSendReceive(projectB.Code);
+        srToken.ShouldNotBeNull();
+
+        _repoMigrationService.QueueMigration(projectA.Code);
+        await ExpectMigrationCalled();
     }
 }
