@@ -58,7 +58,7 @@ public class LexProxyService : ILexProxyService
 
     private async ValueTask<ProjectMigrationStatus> GetProjectMigrationInfo(string projectCode)
     {
-        var cacheKey = $"ProjectMigrationInfo_{projectCode}";
+        var cacheKey = GetProjectMigrationInfoCacheKey(projectCode);
         if (_memoryCache.TryGetValue(cacheKey, out ProjectMigrationStatus migrationInfo) && migrationInfo is not ProjectMigrationStatus.Unknown)
         {
             return migrationInfo;
@@ -66,5 +66,15 @@ public class LexProxyService : ILexProxyService
         migrationInfo = await _projectService.GetProjectMigrationStatus(projectCode);
         _memoryCache.Set(cacheKey, migrationInfo, TimeSpan.FromMinutes(10));
         return migrationInfo;
+    }
+
+    private string GetProjectMigrationInfoCacheKey(string projectCode)
+    {
+        return $"ProjectMigrationInfo_{projectCode}";
+    }
+
+    public void ClearProjectMigrationInfo(string projectCode)
+    {
+        _memoryCache.Remove(GetProjectMigrationInfoCacheKey(projectCode));
     }
 }

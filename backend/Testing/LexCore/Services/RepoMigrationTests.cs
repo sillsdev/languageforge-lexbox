@@ -14,6 +14,7 @@ namespace Testing.LexCore.Services;
 public class RepoMigrationTests : IAsyncLifetime
 {
     private readonly RepoMigrationService _repoMigrationService;
+    private readonly Mock<ILexProxyService> _lexProxyServiceMock = new();
     private readonly CancellationTokenSource _migrationServiceToken = new();
     private readonly Mock<IHgService> _hgServiceMock = new();
     private readonly LexBoxDbContext _lexBoxDbContext;
@@ -40,6 +41,7 @@ public class RepoMigrationTests : IAsyncLifetime
         {
             s.AddSingleton(_hgServiceMock.Object);
             s.AddSingleton<RepoMigrationService>();
+            s.AddSingleton(_lexProxyServiceMock.Object);
         });
         _repoMigrationService = serviceProvider.GetRequiredService<RepoMigrationService>();
         _lexBoxDbContext = serviceProvider.GetDbContext();
@@ -164,6 +166,7 @@ public class RepoMigrationTests : IAsyncLifetime
         //migration finished
         _migrationCompleted.SetResult(true);
         await _repoMigrationService.MigrationCompleted.ReadAsync();
+        _lexProxyServiceMock.Verify(l => l.ClearProjectMigrationInfo(project.Code));
 
         //allowed to begin now
         sendReceiveToken = await _repoMigrationService.BeginSendReceive(project.Code);

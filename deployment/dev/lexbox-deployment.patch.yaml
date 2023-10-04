@@ -42,8 +42,11 @@ spec:
             value: 'maildev_pass'
             valueFrom:
           - name: HgConfig__RedmineTrustToken
-            value: 'dummy'
             valueFrom:
+              secretKeyRef:
+                key: RedmineTrustToken
+                name: lexbox-api
+                optional: true
           - name: HgConfig__LfMergeTrustToken
             value: 'dummy'
             valueFrom:
