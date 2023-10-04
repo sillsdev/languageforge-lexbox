@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy.Auth;
 using LexSyncReverseProxy.Services;
@@ -80,8 +81,16 @@ public static class ProxyKernel
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
         var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
+        var repoMigrationService = context.RequestServices.GetRequiredService<IRepoMigrationService>();
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
+
         var requestInfo = await lexProxyService.GetDestinationPrefix(hgType, projectCode);
+
+        //notify the migration service that this project is being accessed, this will block migrations from starting
+        using var sendReceiveTicket = await repoMigrationService.BeginSendReceive(projectCode, requestInfo.Status);
+        //if there's a race condition then requestInfo could show that the project is not migrating, when it already is at this time
+        if (sendReceiveTicket is null) throw new ProjectMigratingException(projectCode);
+
         if (hgType == HgType.hgWeb && context.Request.Path.StartsWithSegments("/hg"))
         {
             context.Request.Path = context.Request.Path.Value!["/hg".Length..];
@@ -89,8 +98,8 @@ public static class ProxyKernel
 
         if (requestInfo.TrustToken is not null && context.User.Identity?.IsAuthenticated == true)
         {
-            var base64String = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{context.User.Identity.Name}:{requestInfo.TrustToken}"));
-            context.Request.Headers.Authorization = $"Basic {base64String}";
+            var basicBytes = Encoding.ASCII.GetBytes($"{context.User.Identity.Name}:{requestInfo.TrustToken}");
+            context.Request.Headers.Authorization = $"Basic {Convert.ToBase64String(basicBytes)}";
         }
 
         await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient);

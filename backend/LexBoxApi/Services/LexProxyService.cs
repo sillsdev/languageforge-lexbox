@@ -52,7 +52,7 @@ public class LexProxyService : ILexProxyService
         {
             trustToken = _hgConfig.RedmineTrustToken;
         }
-        return new RequestInfo(result, trustToken);
+        return new RequestInfo(result, trustToken, projectMigrationInfo);
     }
 
 
