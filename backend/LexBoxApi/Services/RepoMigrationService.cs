@@ -93,7 +93,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
                     continue;
                 }
 
-                migrated = await MigrateProject(projectCode, stoppingToken).ConfigureAwait(false);
+                migrated = await MigrateProject(projectCode, stoppingToken);
             }
 
             if (migrated)
@@ -110,6 +110,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
         await using var scope = _serviceProvider.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<LexBoxDbContext>();
         var hgService = scope.ServiceProvider.GetRequiredService<IHgService>();
+        var proxyService = scope.ServiceProvider.GetRequiredService<ILexProxyService>();
         var project = await dbContext.Projects.SingleAsync(p => p.Code == projectCode, stoppingToken);
         if (project.MigrationStatus == ProjectMigrationStatus.Migrated)
         {
@@ -120,6 +121,8 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
         {
             project.MigrationStatus = ProjectMigrationStatus.Migrated;
             await dbContext.SaveChangesAsync(stoppingToken);
+            //clear the cache that controls routing, needs to be done before we unblock send receive
+            proxyService.ClearProjectMigrationInfo(projectCode);
             return true;
         }
 
