@@ -43,9 +43,11 @@ public class LexProxyService : ILexProxyService
         await _projectService.UpdateLastCommit(projectCode);
     }
 
-    public async ValueTask<RequestInfo> GetDestinationPrefix(HgType type, string projectCode)
+    public async ValueTask<RequestInfo?> GetDestinationPrefix(HgType type, string projectCode)
     {
-        var projectMigrationInfo = await GetProjectMigrationInfo(projectCode);
+        var maybeProjectMigrationInfo = await GetProjectMigrationInfo(projectCode);
+        if (maybeProjectMigrationInfo is null) return null;
+        var projectMigrationInfo = maybeProjectMigrationInfo.Value;
         var result = HgService.DetermineProjectUrlPrefix(type, projectCode, projectMigrationInfo, _hgConfig);
         string? trustToken = null;
         if (projectMigrationInfo is ProjectMigrationStatus.PrivateRedmine or ProjectMigrationStatus.PublicRedmine)
@@ -56,14 +58,16 @@ public class LexProxyService : ILexProxyService
     }
 
 
-    private async ValueTask<ProjectMigrationStatus> GetProjectMigrationInfo(string projectCode)
+    private async ValueTask<ProjectMigrationStatus?> GetProjectMigrationInfo(string projectCode)
     {
         var cacheKey = GetProjectMigrationInfoCacheKey(projectCode);
         if (_memoryCache.TryGetValue(cacheKey, out ProjectMigrationStatus migrationInfo) && migrationInfo is not ProjectMigrationStatus.Unknown)
         {
             return migrationInfo;
         }
-        migrationInfo = await _projectService.GetProjectMigrationStatus(projectCode);
+        var maybeMigrationInfo = await _projectService.GetProjectMigrationStatus(projectCode);
+        if (maybeMigrationInfo is null) return null;
+        migrationInfo = maybeMigrationInfo.Value;
         _memoryCache.Set(cacheKey, migrationInfo, TimeSpan.FromMinutes(10));
         return migrationInfo;
     }

@@ -85,6 +85,11 @@ public static class ProxyKernel
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
 
         var requestInfo = await lexProxyService.GetDestinationPrefix(hgType, projectCode);
+        if (requestInfo is null)
+        {
+            await Results.NotFound().ExecuteAsync(context);
+            return;
+        }
 
         //notify the migration service that this project is being accessed, this will block migrations from starting
         using var sendReceiveTicket = await repoMigrationService.BeginSendReceive(projectCode, requestInfo.Status);

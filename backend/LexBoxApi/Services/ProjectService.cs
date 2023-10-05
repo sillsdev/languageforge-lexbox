@@ -65,11 +65,11 @@ public class ProjectService
         return lastCommitFromHg;
     }
 
-    public async Task<ProjectMigrationStatus> GetProjectMigrationStatus(string projectCode)
+    public async Task<ProjectMigrationStatus?> GetProjectMigrationStatus(string projectCode)
     {
         var migrationStatus = await _dbContext.Projects.AsNoTracking()
             .Where(p => p.Code == projectCode).Select(p => p.MigrationStatus).FirstOrDefaultAsync();
-        if (migrationStatus == default) throw new NotFoundException($"Project not found: {projectCode}");
+        if (migrationStatus == default) return null;
         return migrationStatus;
     }
 
