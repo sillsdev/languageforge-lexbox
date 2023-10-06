@@ -1,18 +1,27 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page, updated } from '$app/stores';
   import '$lib/app.postcss';
-  import { goesToErrorPage, initErrorStore } from '$lib/error';
+  import { initErrorStore } from '$lib/error';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
   import type { LayoutData } from './$types';
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
   import { writable } from 'svelte/store';
+  import { notifyWarning } from '$lib/notify';
+  import { Duration } from '$lib/util/time';
+  import { onDestroy } from 'svelte';
+  import { browser } from '$app/environment';
+  import t from '$lib/i18n';
 
   export let data: LayoutData;
 
   const error = initErrorStore(writable($page.error));
   $: $error = $page.error;
-
+  $: {
+    if (browser && $updated) {
+      notifyWarning($t('notifications.update_detected'), Duration.Long);
+    }
+  }
 </script>
 
 <svelte:head>
@@ -33,7 +42,7 @@
 </div>
 
 <!-- We don't want the alert as well if we're heading to +error.svelte -->
-{#if !goesToErrorPage($page.error)}
+{#if !$page.error}
   <UnexpectedErrorAlert />
 {/if}
 

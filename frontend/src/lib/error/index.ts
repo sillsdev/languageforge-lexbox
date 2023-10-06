@@ -4,6 +4,7 @@ import { isObject, isRedirect } from '$lib/util/types';
 import type { Writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import { ensureErrorIsTraced } from '$lib/otel';
+import { getStores } from '$app/stores';
 
 const ERROR_STORE_KEY = 'ERROR_STORE_KEY';
 
@@ -25,10 +26,6 @@ export function  useDismiss(): () => void {
   return () => errorStore.set(null);
 }
 
-export function goesToErrorPage(error: App.Error | null): boolean {
-  return error?.handler?.endsWith('-hook') ?? false;
-}
-
 let errorHandlersSetup = false;
 function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
   if (!browser) {
@@ -38,6 +35,9 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
     throw new Error('error handlers already setup. This should only be called once.');
   }
   errorHandlersSetup = true;
+
+  const { updated } = getStores();
+
   /**
    * Errors that land in these handlers should generally already be traced. The tracing here is only a weak fallback.
    * These handlers are presumably never called in the context of a trace, so they have to create their own.
@@ -45,7 +45,7 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
    */
 
   // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror#window.addEventListenererror
-  window.addEventListener('error', (event: ErrorEvent) => {
+  window.addEventListener('error', async (event: ErrorEvent) => {
     const handler = 'client-error';
     const traceId = ensureErrorIsTraced(
       event.error,
@@ -55,11 +55,12 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
         ['app.error.traced_by_handler']: true,
       }
     );
-    error.set({message: event.message, traceId, handler});
+    const updateDetected = await updated.check();
+    error.set({message: event.message, traceId, handler, updateDetected});
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
-  window.onunhandledrejection = (event: PromiseRejectionEvent) => {
+  window.onunhandledrejection = async (event: PromiseRejectionEvent) => {
     if (isRedirect(event.reason)) {
       location.pathname = event.reason.location;
       return;
@@ -88,6 +89,7 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
       return;
     }
 
-    error.set({message: message ?? `We're not sure what happened.`, traceId, handler});
+    const updateDetected = await updated.check();
+    error.set({message: message ?? `We're not sure what happened.`, traceId, handler, updateDetected});
   };
 }

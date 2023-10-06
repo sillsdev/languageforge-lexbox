@@ -21,6 +21,7 @@ import {
   SERVICE_NAME,
   tracer,
 } from '.';
+import type { MaybePromise } from '$app/forms';
 
 export * from '.';
 
@@ -61,7 +62,7 @@ export function getRootTraceparent(): string | undefined {
 
 export async function traceRequest(
     event: RequestEvent,
-    responseBuilder: () => Promise<Response>,
+    responseBuilder: (requestSpan: Span) => MaybePromise<Response>,
 ): Promise<Response> {
   const tracparentContext = buildContextWithTraceparentBaggage(event);
   return context.with(tracparentContext, () => {
@@ -71,7 +72,7 @@ export async function traceRequest(
         .startActiveSpan(spanName, async (span) => {
           try {
             traceEventAttributes(span, event);
-            return await traceResponse(span, responseBuilder);
+            return await traceResponse(span, () => responseBuilder(span));
           } finally {
             span.end();
           }

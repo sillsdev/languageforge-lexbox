@@ -272,7 +272,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "apology": "Woops, something went wrong on our end. Sorry!",
     "mail_us_at": "If you're stuck, let us know about this at",
     "please_include": "Please include the error code, a screenshot of your browser and a summary of the steps that lead to the error.",
-    "error_code": "Error code"
+    "error_code": "Error code",
+    "not_found": "404 - Woops, we can't find that page. Sorry!",
+    "go_home": "Perhaps you'd like to [go home](/)?",
   },
   "modal": {
     "dismiss": "Dismiss"
@@ -321,5 +323,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "forbidden_characters": "The symbols &, +, and % are not allowed in passwords",
       "too_short": "Must be at least 4 characters"
     }
+  },
+  "notifications": {
+    "update_detected": "A new version of the application was detected. You may need to reload the page.",
   }
 }
