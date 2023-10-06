@@ -8,8 +8,6 @@
   import { Footer } from '$lib/layout';
   import { writable } from 'svelte/store';
 
-  // https://www.w3.org/TR/trace-context/#traceparent-header
-  // so the page-load instrumentation can be correlated with the server load
   export let data: LayoutData;
 
   const error = initErrorStore(writable($page.error));
@@ -19,6 +17,10 @@
 
 <svelte:head>
   {#if data.traceParent}
+    <!--
+      https://www.w3.org/TR/trace-context/#traceparent-header
+      so the page-load instrumentation can be correlated with the server load
+    -->
     <meta name="traceparent" content={data.traceParent} />
   {/if}
 </svelte:head>
