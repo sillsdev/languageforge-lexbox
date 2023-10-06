@@ -20,12 +20,9 @@
 
         <p>{project.code}</p>
 
-        {#if project.userCount > 1}
-          <p>
-            <span class="i-mdi-account text-xl mb-[-4px]" /> {project.userCount}
-            <!--{$t('projectlist.shared_with', { memberCount: project.userCount })}-->
-          </p>
-        {/if}
+        <p>
+          <span class="i-mdi-account text-xl mb-[-4px]" /> {project.userCount}
+        </p>
 
         <p class="flex items-end">
           {#if project.lastCommit}
