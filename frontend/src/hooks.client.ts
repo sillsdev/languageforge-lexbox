@@ -6,18 +6,29 @@ import { loadI18n } from '$lib/i18n';
 import { handleFetch } from '$lib/util/fetch-proxy';
 import {invalidate} from '$app/navigation';
 import {USER_LOAD_KEY} from '$lib/user';
+import { updated } from '$app/stores';
 
 await loadI18n();
 
 // eslint-disable-next-line func-style
-export const handleError: HandleClientError = ({ error, event }) => {
+export const handleError: HandleClientError = async ({ error, event }) => {
   const handler = 'client-error-hook';
-  const traceId = ensureErrorIsTraced(error, { event }, { ['app.error.source']: handler });
-  const message = getErrorMessage(error);
+
+  // someone has to have subscribed to updated before `check` is allowed to be called
+  // this seems to work and provide the correct value :shrug:
+  updated.subscribe(() => { })();
+  const updateDetected = await updated.check();
+
+  const traceId = ensureErrorIsTraced(error, { event }, {
+    ['app.error.source']: handler,
+    ...(updateDetected ? { ['app.update-detected']: true } : {}),
+  });
+  let message = getErrorMessage(error);
   return {
     traceId,
     message,
     handler,
+    updateDetected,
   };
 };
 

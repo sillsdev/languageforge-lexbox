@@ -136,7 +136,10 @@ export function traceEventAttributes(span: Span, event: RequestEvent | Navigatio
     span.setAttribute(SemanticAttributes.HTTP_URL, url.href);
     span.setAttribute(
         SemanticAttributes.HTTP_TARGET,
-        `${url.pathname}${url.hash ?? ''}${url.search ?? ''}`,
+        `${url.pathname}${url.search ?? ''}`,
+        // In some cases the server throws an error when trying to access url.hash: (and we don't use it anyway)
+        // `${url.pathname}${url.hash ?? ''}${url.search ?? ''}`,
+        // "Cannot access event.url.hash. Consider using `$page.url.hash` inside a component instead"
     );
     span.setAttribute(SemanticAttributes.HTTP_SCHEME, url.protocol);
     span.setAttribute(SemanticAttributes.NET_HOST_NAME, url.hostname);

@@ -10,9 +10,10 @@
 
   const error = derived(useError(), (error) => {
     if (error) {
+      const updatedDetected = error.updateDetected ? '\r\nUpdate detected' : '';
       return {
         ...error,
-        message: `${error?.message}\r\n(${error?.handler})`,
+        message: `${error?.message}\r\n(${error?.handler})${updatedDetected}`,
       };
     }
   });

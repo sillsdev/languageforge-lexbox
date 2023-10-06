@@ -19,6 +19,7 @@ declare global {
     interface Error {
       traceId: string;
       handler: ErrorHandler;
+      updateDetected?: boolean;
     }
   }
 

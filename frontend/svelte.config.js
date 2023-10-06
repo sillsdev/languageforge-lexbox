@@ -7,6 +7,9 @@ const config = {
     enableSourcemap: true
   },
   kit: {
+    version: {
+      pollInterval: 5000,
+    },
     adapter: adapter({
       precompress: true
     }),
