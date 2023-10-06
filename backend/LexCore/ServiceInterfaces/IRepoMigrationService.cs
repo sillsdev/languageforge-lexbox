@@ -19,4 +19,6 @@ public interface IRepoMigrationService
     /// <param name="status"></param>
     /// <returns></returns>
     ValueTask<IDisposable?> BeginSendReceive(string projectCode, ProjectMigrationStatus status = ProjectMigrationStatus.PublicRedmine);
+
+    Task WaitMigrationFinishedAsync(string projectCode, CancellationToken cancellationToken);
 }
