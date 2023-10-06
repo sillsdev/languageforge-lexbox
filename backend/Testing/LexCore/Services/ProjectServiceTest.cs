@@ -21,7 +21,7 @@ public class ProjectServiceTest
         var serviceProvider = testing.ConfigureServices(s =>
         {
             s.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
-            s.AddScoped(_ => new RepoMigrationService(Mock.Of<IServiceProvider>()));
+            s.AddScoped<IRepoMigrationService>(_ => Mock.Of<IRepoMigrationService>());
             s.AddScoped<ProjectService>();
         });
         _projectService = serviceProvider.GetRequiredService<ProjectService>();
