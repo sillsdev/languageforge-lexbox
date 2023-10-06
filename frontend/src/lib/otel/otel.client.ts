@@ -55,9 +55,10 @@ provider.addSpanProcessor(
   new BatchSpanProcessor(exporter, {
     // max number of spans pulled from the qeuue and exported in a single batch
     // this can't be much higher or the export will be too big for the sendBeacon() API
-    maxExportBatchSize: 15,
+    maxExportBatchSize: 10,
     // minimum time between exports
-    scheduledDelayMillis: 2000,
+    scheduledDelayMillis: 1000,
+    maxQueueSize: 5000, // default: 2048
   }),
 )
 
