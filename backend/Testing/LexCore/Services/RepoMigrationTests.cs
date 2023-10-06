@@ -148,6 +148,36 @@ public class RepoMigrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task WaitMigrationFinishedTriggers()
+    {
+        await StartMigrationService();
+        var project = Project();
+        _lexBoxDbContext.Add(project);
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        var waitCompletedTask = _repoMigrationService.WaitMigrationFinishedAsync(project.Code, CancellationToken.None);
+
+        _repoMigrationService.QueueMigration(project.Code);
+        await ExpectMigrationCalled();
+        (await Task.WhenAny(waitCompletedTask, Task.Delay(100))).ShouldBe(waitCompletedTask);
+    }
+
+    [Fact]
+    public async Task WaitMigrationFinishedDoesNotTriggerOnTheWrongCode()
+    {
+        await StartMigrationService();
+        var project = Project();
+        _lexBoxDbContext.Add(project);
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        var waitCompletedTask = _repoMigrationService.WaitMigrationFinishedAsync("wrong-code", CancellationToken.None);
+
+        _repoMigrationService.QueueMigration(project.Code);
+        await ExpectMigrationCalled();
+        (await Task.WhenAny(waitCompletedTask, Task.Delay(100))).ShouldNotBe(waitCompletedTask);
+    }
+
+    [Fact]
     public async Task CanNotSendReceiveWhenMigrating()
     {
         await StartMigrationService();
@@ -165,7 +195,7 @@ public class RepoMigrationTests : IAsyncLifetime
 
         //migration finished
         _migrationCompleted.SetResult(true);
-        await _repoMigrationService.MigrationCompleted.ReadAsync();
+        await _repoMigrationService.WaitMigrationFinishedAsync(project.Code, CancellationToken.None);
         _lexProxyServiceMock.Verify(l => l.ClearProjectMigrationInfo(project.Code));
 
         //allowed to begin now

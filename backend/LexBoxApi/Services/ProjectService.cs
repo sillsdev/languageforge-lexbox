@@ -11,9 +11,9 @@ public class ProjectService
 {
     private readonly LexBoxDbContext _dbContext;
     private readonly IHgService _hgService;
-    private readonly RepoMigrationService _migrationService;
+    private readonly IRepoMigrationService _migrationService;
 
-    public ProjectService(LexBoxDbContext dbContext, IHgService hgService, RepoMigrationService migrationService)
+    public ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRepoMigrationService migrationService)
     {
         _dbContext = dbContext;
         _hgService = hgService;
@@ -85,26 +85,14 @@ public class ProjectService
     {
         var project = await _dbContext.Projects.SingleAsync(p => p.Code == projectCode, cancellationToken);
         if (project.MigrationStatus == ProjectMigrationStatus.Migrated) return true;
-        //could be a race condition here... but eh.
-        while (await _migrationService.MigrationCompleted.WaitToReadAsync(cancellationToken) &&
-            _migrationService.MigrationCompleted.TryPeek(out var migratedProjectCode))
+        try
         {
-            if (migratedProjectCode == projectCode)
-            {
-                await _migrationService.MigrationCompleted.ReadAsync(cancellationToken);
-                return true;
-            }
-
-            await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-            //if the project is still in the queue (because no one else is listening) then remove it.
-            // probably won't be true, but just in case.
-            if (_migrationService.MigrationCompleted.TryRead(out var queuedProjectCode) &&
-                queuedProjectCode == projectCode)
-            {
-                return true;
-            }
+            await _migrationService.WaitMigrationFinishedAsync(projectCode, cancellationToken);
+            return true;
         }
-
-        return false;
+        catch (TaskCanceledException)
+        {
+            return false;
+        }
     }
 }

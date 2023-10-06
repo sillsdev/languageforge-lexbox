@@ -23,6 +23,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
 
     private Channel<string> ProjectMigrationQueue { get; } = Channel.CreateUnbounded<string>();
     private readonly Channel<string> _migrationCompleted = Channel.CreateUnbounded<string>();
+    private readonly ConcurrentDictionary<Guid, Channel<string>> _projectMigrationChannels = new();
     public ChannelReader<string> MigrationCompleted => _migrationCompleted.Reader;
 
     private readonly TaskCompletionSource _started = new();
@@ -32,6 +33,40 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
     public void QueueMigration(string projectCode)
     {
         ProjectMigrationQueue.Writer.TryWrite(projectCode);
+    }
+
+    /// <summary>
+    /// awaits until the project has been migrated, or the token is cancelled
+    /// </summary>
+    public async Task WaitMigrationFinishedAsync(string projectCode, CancellationToken cancellationToken)
+    {
+        var channel = Channel.CreateUnbounded<string>();
+        var key = Guid.NewGuid();
+        using var cleanup = Defer.Action(() =>
+        {
+            channel.Writer.TryComplete();
+            _projectMigrationChannels.TryRemove(key, out _);
+        });
+        _projectMigrationChannels.TryAdd(key, channel);
+        //only way this stops is if the token is cancelled.
+        await foreach (var projectMigrated in channel.Reader.ReadAllAsync(cancellationToken))
+        {
+            if (projectMigrated != projectCode) continue;
+            return;
+        }
+    }
+
+    private void MigrationFinished(string projectCode)
+    {
+        foreach (var (key, channel) in _projectMigrationChannels)
+        {
+            //try to write, if we can't that means the channel has been closed and we can remove it
+            if (!channel.Writer.TryWrite(projectCode))
+            {
+                //it should be removed in the Wait method above, but if it's not, we'll remove it here
+                _projectMigrationChannels.TryRemove(key, out _);
+            }
+        }
     }
 
     private readonly ConcurrentWeakDictionary<string, AsyncReaderWriterLock> _projectLocks = new();
@@ -98,7 +133,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
 
             if (migrated)
             {
-                await _migrationCompleted.Writer.WriteAsync(projectCode, stoppingToken);
+                MigrationFinished(projectCode);
             }
         }
     }
