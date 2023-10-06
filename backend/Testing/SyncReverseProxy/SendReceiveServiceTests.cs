@@ -178,7 +178,8 @@ public class SendReceiveServiceTests
         HgRunner.Run("hg add Lexicon.fwstub", sendReceiveParams.DestDir, 1, new NullProgress());
         HgRunner.Run("""hg commit -m "first commit" """, sendReceiveParams.DestDir, 1, new NullProgress());
 
-
+        //attempt to prevent issue where project isn't found yet.
+        await Task.Delay(TimeSpan.FromSeconds(5));
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth);
         _output.WriteLine(srResult);
         srResult.ShouldNotContain("abort");
