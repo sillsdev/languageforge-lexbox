@@ -14,10 +14,6 @@
       setTimeout(() => (document.activeElement as HTMLElement)?.blur());
     }
   }
-
-  function trapFocus(): void {
-    dropdownContainer.focus();
-  }
 </script>
 
 <!-- The most "modern" method for creating a dropdown with DaisyUI is using the <details> tag,
@@ -30,7 +26,7 @@
   class:dropdown-right={right}
   class:dropdown-hover={hover}>
   <button class="contents" on:mousedown={blurIfOpen}>
-    <slot close={blurIfOpen} {trapFocus} />
+    <slot close={blurIfOpen} />
   </button>
   <div class="dropdown-content bg-base-200 shadow rounded-box z-[2]">
     <slot name="content" />
