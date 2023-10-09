@@ -13,6 +13,13 @@ export default defineConfig({
     sourcemap: true
   },
   plugins: [
+    {
+      resolveId(id: string): string | undefined {
+        if (id === 'css-tree') {
+          return './node_modules/css-tree/dist/csstree.esm.js';
+        }
+      }
+    },
     codegen(gqlOptions),
     precompileIntl('src/lib/i18n/locales'),
     sveltekit(),
