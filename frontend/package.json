@@ -74,6 +74,7 @@
 		"@opentelemetry/sdk-trace-web": "^1.13.0",
 		"@opentelemetry/semantic-conventions": "^1.13.0",
 		"@vitejs/plugin-basic-ssl": "^1.0.1",
+		"css-tree": "^2.3.1",
 		"mjml": "^4.14.1",
 		"svelte-intl-precompile": "^0.12.3",
 		"svelte-markdown": "^0.4.0",
