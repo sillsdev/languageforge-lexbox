@@ -10,7 +10,7 @@
     [ProjectType.Unknown]: 'project_type.other',
   };
 
-  export const getProjectTypeI18nKey = (type: ProjectType): string => {
+  export function getProjectTypeI18nKey(type: ProjectType): string {
     return types[type] ?? 'unknown';
   }
 </script>
