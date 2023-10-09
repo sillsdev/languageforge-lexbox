@@ -45,6 +45,7 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
    */
 
   // https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onerror#window.addEventListenererror
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   window.addEventListener('error', async (event: ErrorEvent) => {
     const handler = 'client-error';
     const traceId = ensureErrorIsTraced(
