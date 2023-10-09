@@ -17,9 +17,6 @@ spec:
                 memory: 200Mi
             limits:
                 memory: 1Gi
-        volumeMounts:
-          - $patch: delete
-            name: ssh-config
         env:
           - name: ASPNETCORE_ENVIRONMENT
             value: "Development"
