@@ -4,7 +4,6 @@
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
   import t from '$lib/i18n';
   import { AppBar, Content, Page } from '$lib/layout';
-  import { error } from '@sveltejs/kit';
   import SvelteMarkdown from 'svelte-markdown';
 </script>
 

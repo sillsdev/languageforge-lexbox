@@ -9,7 +9,6 @@
   import { writable } from 'svelte/store';
   import { notifyWarning } from '$lib/notify';
   import { Duration } from '$lib/util/time';
-  import { onDestroy } from 'svelte';
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
 
