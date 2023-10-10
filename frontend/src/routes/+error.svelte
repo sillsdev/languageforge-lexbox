@@ -1,10 +1,8 @@
 <script lang="ts">
   import { page } from '$app/stores';
-  import { LinkRenderer } from '$lib/components/Markdown';
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
   import t from '$lib/i18n';
   import { Layout, Page } from '$lib/layout';
-  import SvelteMarkdown from 'svelte-markdown';
 </script>
 
 <Layout>
@@ -15,10 +13,12 @@
           <span class="i-mdi-emoticon-confused-outline text-3xl" />
           <span class="text-2xl">{$t('errors.not_found')}</span>
         </div>
-        <SvelteMarkdown source={$t('errors.go_home')} renderers={{ link: LinkRenderer }} />
       </div>
     {:else}
       <UnexpectedError />
     {/if}
+    <div class="mt-8 text-center">
+      <a class="btn btn-success" href="/">{$t('errors.go_home')} <span class="i-mdi-home-outline text-xl"></span></a>
+    </div>
   </Page>
 </Layout>
