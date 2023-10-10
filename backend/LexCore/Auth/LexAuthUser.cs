@@ -165,13 +165,13 @@ public record LexAuthUser
 
     public void AssertCanDeleteAccount(Guid userid)
     {
-        if (Id != userid && Role != UserRole.admin) throw new UnauthorizedAccessException();
+        if (Role != UserRole.admin && Id != userid) throw new UnauthorizedAccessException();
     }
 
     public void AssertCanManagerProjectMemberRole(Guid projectId, Guid userId)
     {
         AssertCanManageProject(projectId);
-        if (userId == Id) throw new UnauthorizedAccessException("Not allowed to change own project role.");
+        if (Role != UserRole.admin && userId == Id) throw new UnauthorizedAccessException("Not allowed to change own project role.");
     }
 
     public bool HasProjectCreatePermission()
