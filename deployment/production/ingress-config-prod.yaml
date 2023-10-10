@@ -5,7 +5,15 @@
   path: /spec/rules/1/host
   value: hg-prod.languagedepot.org
 - op: replace
+  path: /spec/rules/2/host
+  value: resumable.languagedepot.org
+- op: replace
+  path: /spec/rules/3/host
+  value: admin.languagedepot.org
+- op: replace
   path: /spec/tls/0/hosts
   value:
     - prod.languagedepot.org
     - hg-prod.languagedepot.org
+    - resumable.languagedepot.org
+    - admin.languagedepot.org
