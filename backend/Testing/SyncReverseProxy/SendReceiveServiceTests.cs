@@ -173,10 +173,23 @@ public class SendReceiveServiceTests
         File.Exists(sendReceiveParams.FwDataFile).ShouldBeTrue();
 
         //hack around the fact that our send and receive won't create a repo from scratch.
-        HgRunner.Run("hg init", sendReceiveParams.DestDir, 1, new NullProgress());
-        HgRunner.Run("hg branch 7500002.7000072", sendReceiveParams.DestDir, 1, new NullProgress());
-        HgRunner.Run("hg add Lexicon.fwstub", sendReceiveParams.DestDir, 1, new NullProgress());
-        HgRunner.Run("""hg commit -m "first commit" """, sendReceiveParams.DestDir, 1, new NullProgress());
+        var progress = new NullProgress();
+        HgRunner.Run("hg init", sendReceiveParams.DestDir, 1, progress);
+        HgRunner.Run("hg branch 7500002.7000072", sendReceiveParams.DestDir, 1, progress);
+        HgRunner.Run($"hg add Lexicon.fwstub", sendReceiveParams.DestDir, 1, progress);
+        HgRunner.Run("""hg commit -m "first commit" """, sendReceiveParams.DestDir, 1, progress);
+
+        //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
+        const int totalSizeMb = 1100;
+        const int fileCount = 25;
+        for (int i = 1; i < fileCount; i++)
+        {
+            var bigFileName = $"big-file{i}.bin";
+            WriteBigFile(Path.Combine(sendReceiveParams.DestDir, bigFileName), totalSizeMb / fileCount);
+            HgRunner.Run($"hg add {bigFileName}", sendReceiveParams.DestDir, 1, progress);
+            HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.DestDir, 5, progress).ExitCode.ShouldBe(0);
+        }
+
 
         //attempt to prevent issue where project isn't found yet.
         await Task.Delay(TimeSpan.FromSeconds(5));
@@ -185,6 +198,20 @@ public class SendReceiveServiceTests
         srResult.ShouldNotContain("abort");
         srResult.ShouldNotContain("failure");
         srResult.ShouldNotContain("error");
+    }
+
+    private static void WriteBigFile(string path, int sizeMb)
+    {
+        var random = new Random();
+        using var file = File.Open(path, FileMode.Create);
+
+        Span<byte> buffer = stackalloc byte[1024 * 1024];
+        for (int i = 0; i < (sizeMb * 1024 * 1024 / buffer.Length); i++)
+        {
+            random.NextBytes(buffer);
+            file.Write(buffer);
+        }
+        file.Flush(true);
     }
 
 
