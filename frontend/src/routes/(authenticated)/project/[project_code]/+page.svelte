@@ -285,10 +285,11 @@
 
         <BadgeList>
           {#each project.users as member}
-            <Dropdown>
+            {@const canManageMember = canManage && (member.user.id !== userId  || isAdmin(user))}
+            <Dropdown disabled={!canManageMember}>
               <MemberBadge
                 member={{ name: member.user.name, role: member.role }}
-                canManage={canManage && (member.user.id != userId || isAdmin(user))}
+                canManage={canManageMember}
               />
               <ul slot="content" class="menu">
                 <li>

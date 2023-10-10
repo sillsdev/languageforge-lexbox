@@ -3,6 +3,7 @@
   export let hover = false;
   export let right = false;
   export let open = false;
+  export let disabled = false;
 
   /**
    * Enables closing the dropdown by clicking on the dropdown a second time
@@ -22,7 +23,8 @@
 <!-- The most "modern" method for creating a dropdown with DaisyUI is using the <details> tag,
   but they only close when the user explicitly clicks on the toggle button again.
   We generally want dropdowns to close automatically as the user interacts with the app -->
-<div bind:this={dropdownContainer} tabindex="-1" class="dropdown dropdown-end"
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+<div bind:this={dropdownContainer} tabindex={disabled ? null : -1} class="dropdown dropdown-end"
   class:dropdown-open={open}
   class:dropdown-end={!right}
   class:dropdown-right={right}
