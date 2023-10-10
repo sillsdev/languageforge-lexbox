@@ -9,7 +9,7 @@ using Testing.Services;
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
-public class GetProjectDataTests
+public class LegacyProjectApiTests
 {
     private readonly string _baseUrl = TestingEnvironmentVariables.ServerBaseUrl;
     private static readonly HttpClient Client = new();

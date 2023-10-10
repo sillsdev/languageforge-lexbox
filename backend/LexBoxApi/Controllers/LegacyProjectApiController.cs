@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
 using LexCore;
+using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
 using LexData.Entities;
@@ -11,12 +12,12 @@ using Microsoft.EntityFrameworkCore;
 namespace LexBoxApi.Controllers;
 
 [ApiController]
-public class ProxyAccessController : ControllerBase
+public class LegacyProjectApiController : ControllerBase
 {
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly ILexProxyService _lexProxyService;
 
-    public ProxyAccessController(LexBoxDbContext lexBoxDbContext, ILexProxyService lexProxyService)
+    public LegacyProjectApiController(LexBoxDbContext lexBoxDbContext, ILexProxyService lexProxyService)
     {
         _lexBoxDbContext = lexBoxDbContext;
         _lexProxyService = lexProxyService;
@@ -49,10 +50,11 @@ public class ProxyAccessController : ControllerBase
             {
                 user.Salt,
                 user.PasswordHash,
-                projects = user.Projects.Select(up => new LegacyApiProject(up.Project.Code,
-                    up.Project.Name,
+                projects = user.Projects.Select(member => new LegacyApiProject(member.Project.Code,
+                    member.Project.Name,
+                    //it seems this is largely ignored by the client as it uses the LF domain instead
                     "http://public.languagedepot.org",
-                    up.Role.ToString().ToLower()))
+                    RoleToString(member.Role)))
             })
             .SingleOrDefaultAsync();
         if (user == null)
@@ -67,6 +69,17 @@ public class ProxyAccessController : ControllerBase
         }
 
         return user.projects.ToArray();
+    }
+
+    private string RoleToString(ProjectRole role)
+    {
+        //instead of using toString which could change if we rename the enum, we only ever want to return these 3 values
+        return role switch
+        {
+            ProjectRole.Manager => "manager",
+            ProjectRole.Editor => "editor",
+            _ => "unknown"
+        };
     }
 }
 
