@@ -182,7 +182,7 @@ public class SendReceiveServiceTests
         //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
         const int totalSizeMb = 1100;
         const int fileCount = 25;
-        for (int i = 1; i < fileCount; i++)
+        for (int i = 1; i <= fileCount; i++)
         {
             var bigFileName = $"big-file{i}.bin";
             WriteBigFile(Path.Combine(sendReceiveParams.DestDir, bigFileName), totalSizeMb / fileCount);
