@@ -24,6 +24,11 @@ if (DevGqlSchemaWriterService.IsSchemaGenerationRequest(args))
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseConsoleLifetime();
+builder.WebHost.UseKestrel(o =>
+{
+    //allow large pushes from hg, can't scope this only to hg requests as this setting is still respected in some cases
+    o.Limits.MaxRequestBodySize = null;
+});
 // Add services to the container.
 
 builder.Services.AddOpenTelemetryInstrumentation(builder.Configuration);
