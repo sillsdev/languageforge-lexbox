@@ -25,6 +25,7 @@ env:
 
 jobs:
   publish-ui:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.setVersion.outputs.VERSION }}

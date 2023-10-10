@@ -6,6 +6,7 @@ on:
 
 jobs:
   test:
+    timeout-minutes: 60
     concurrency: test-staging
     name: ${{ matrix.os }}
     permissions:
