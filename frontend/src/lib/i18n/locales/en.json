@@ -274,7 +274,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "please_include": "Please include the error code, a screenshot of your browser and a summary of the steps that lead to the error.",
     "error_code": "Error code",
     "not_found": "404 - Woops, we can't find that page. Sorry!",
-    "go_home": "Perhaps you'd like to [go home](/)?",
+    "go_home": "Go home",
   },
   "modal": {
     "dismiss": "Dismiss"
