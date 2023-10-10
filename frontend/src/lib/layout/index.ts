@@ -1,3 +1,4 @@
+import Layout from './Layout.svelte'
 import AdminContent from './AdminContent.svelte'
 import AppBar from './AppBar.svelte'
 import AppMenu from './AppMenu.svelte'
@@ -8,6 +9,7 @@ import Page from './Page.svelte'
 import PageHeader from './PageHeader.svelte'
 
 export {
+  Layout,
   AppBar,
   AppMenu,
   Page,

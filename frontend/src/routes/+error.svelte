@@ -3,13 +3,11 @@
   import { LinkRenderer } from '$lib/components/Markdown';
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
   import t from '$lib/i18n';
-  import { AppBar, Content, Page } from '$lib/layout';
+  import { Layout, Page } from '$lib/layout';
   import SvelteMarkdown from 'svelte-markdown';
 </script>
 
-<AppBar user={undefined} />
-
-<Content>
+<Layout>
   <Page>
     {#if $page.status === 404}
       <div class="flex flex-col gap-4 items-center">
@@ -23,4 +21,4 @@
       <UnexpectedError />
     {/if}
   </Page>
-</Content>
+</Layout>
