@@ -15,6 +15,8 @@
       method: 'POST',
     });
     await goto('/forgotPassword/emailSent');
+  }, {
+    taintedMessage: null,
   });
 </script>
 
