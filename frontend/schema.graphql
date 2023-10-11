@@ -84,6 +84,7 @@ type IsAdminResponse {
 
 type LexAuthUser {
   canManageProject(projectId: UUID!): Boolean!
+  canAccessProject(projectCode: String!): Boolean!
   hasProjectCreatePermission: Boolean!
   id: UUID!
   email: String!

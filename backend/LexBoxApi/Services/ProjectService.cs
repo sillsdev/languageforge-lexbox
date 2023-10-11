@@ -81,9 +81,10 @@ public class ProjectService
         _migrationService.QueueMigration(projectCode);
     }
 
-    public async Task<bool> AwaitMigration(string projectCode, CancellationToken cancellationToken)
+    public async Task<bool?> AwaitMigration(string projectCode, CancellationToken cancellationToken)
     {
-        var project = await _dbContext.Projects.SingleAsync(p => p.Code == projectCode, cancellationToken);
+        var project = await _dbContext.Projects.SingleOrDefaultAsync(p => p.Code == projectCode, cancellationToken);
+        if (project is null) return null;
         if (project.MigrationStatus == ProjectMigrationStatus.Migrated) return true;
         try
         {

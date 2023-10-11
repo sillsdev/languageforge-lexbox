@@ -1,6 +1,5 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
-using LexCore.Auth;
 using LexCore.Entities;
 using LexData;
 using LexData.Entities;
@@ -193,15 +192,5 @@ public class MigrationController : ControllerBase
             .Where(p => p.Code == projectCode)
             .Select(p => p.MigrationStatus)
             .SingleAsync();
-    }
-
-    [HttpGet("awaitMigrated")]
-    public async Task<ActionResult<bool>> AwaitMigrated(string projectCode)
-    {
-        var token = CancellationTokenSource.CreateLinkedTokenSource(
-            new CancellationTokenSource(TimeSpan.FromMinutes(2)).Token,
-            HttpContext.RequestAborted
-        ).Token;
-        return await _projectService.AwaitMigration(projectCode, token);
     }
 }

@@ -15,12 +15,14 @@ public class ProjectController : ControllerBase
     private readonly ProjectService _projectService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHgService _hgService;
+    private readonly LoggedInContext _loggedInContext;
 
-    public ProjectController(ProjectService projectService, IHgService hgService, LexBoxDbContext lexBoxDbContext)
+    public ProjectController(ProjectService projectService, IHgService hgService, LexBoxDbContext lexBoxDbContext, LoggedInContext loggedInContext)
     {
         _projectService = projectService;
         _hgService = hgService;
         _lexBoxDbContext = lexBoxDbContext;
+        _loggedInContext = loggedInContext;
     }
 
     [HttpPost("refreshProjectLastChanged")]
@@ -104,5 +106,25 @@ public class ProjectController : ControllerBase
         await hgService.DeleteRepo(project.Code);
         await _lexBoxDbContext.SaveChangesAsync();
         return project;
+    }
+
+
+
+    [HttpGet("awaitMigrated")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<bool>> AwaitMigrated(string projectCode)
+    {
+        if (!_loggedInContext.User.CanAccessProject(projectCode))
+            return Unauthorized();
+
+        var token = CancellationTokenSource.CreateLinkedTokenSource(
+            new CancellationTokenSource(TimeSpan.FromMinutes(2)).Token,
+            HttpContext.RequestAborted
+        ).Token;
+        var result = await _projectService.AwaitMigration(projectCode, token);
+        if (result is null) return NotFound();
+        return result.Value;
     }
 }

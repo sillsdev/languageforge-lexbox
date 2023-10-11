@@ -151,7 +151,7 @@
   async function watchMigrationStatus(): Promise<void> {
     if (!project) return;
     notifyWarning('This project is currently being migrated. Some features may not work as expected.');
-    const result = await fetch(`/api/migrate/awaitMigrated?projectCode=${project.code}`);
+    const result = await fetch(`/api/project/awaitMigrated?projectCode=${project.code}`);
     const response = await result.json();
     if (response) {
       migrationStatus = ProjectMigrationStatus.Migrated;

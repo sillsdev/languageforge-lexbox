@@ -160,7 +160,12 @@ public record LexAuthUser
 
     public void AssertCanAccessProject(string projectCode)
     {
-        if (Role != UserRole.admin && Projects.All(p => p.Code != projectCode)) throw new UnauthorizedAccessException();
+        if (!CanAccessProject(projectCode)) throw new UnauthorizedAccessException();
+    }
+
+    public bool CanAccessProject(string projectCode)
+    {
+        return Role == UserRole.admin || Projects.Any(p => p.Code == projectCode);
     }
 
     public void AssertCanDeleteAccount(Guid userid)
