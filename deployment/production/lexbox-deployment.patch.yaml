@@ -22,6 +22,12 @@ spec:
               value: "Language Depot <no-reply@languagedepot.org>"
             - name: Email__BaseUrl
               value: "https://prod.languagedepot.org"
+            - name: HgConfig__PublicRedmineHgWebUrl
+              value: "https://hg-public.languageforge.org"
+            - name: HgConfig__PrivateRedmineHgWebUrl
+              value: "https://hg-private.languageforge.org"
+            - name: HgConfig__RedmineHgResumableUrl
+              value: "https://hgresumable.languageforge.org"
       initContainers:
         - name: db-migrations
           env:
