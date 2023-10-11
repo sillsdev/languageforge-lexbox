@@ -14,22 +14,16 @@ namespace LexBoxApi.Controllers;
 [AdminRequired]
 public class MigrationController : ControllerBase
 {
-    private readonly Lazy<PublicRedmineDbContext> _redminePublicDbContextLazy;
-    private RedmineDbContext RedminePublicDbContext => _redminePublicDbContextLazy.Value;
-    private readonly Lazy<PrivateRedmineDbContext> _privateRedmineDbContextLazy;
-    private RedmineDbContext PrivateRedmineDbContext => _privateRedmineDbContextLazy.Value;
+    private RedmineDbContext RedminePublicDbContext => HttpContext.RequestServices.GetRequiredService<PublicRedmineDbContext>();
+    private RedmineDbContext PrivateRedmineDbContext => HttpContext.RequestServices.GetRequiredService<PrivateRedmineDbContext>();
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly ProjectService _projectService;
 
     public MigrationController(LexBoxDbContext lexBoxDbContext,
-        ProjectService projectService,
-        Lazy<PublicRedmineDbContext> redminePublicDbContextLazy,
-        Lazy<PrivateRedmineDbContext> privateRedmineDbContextLazy)
+        ProjectService projectService)
     {
         _lexBoxDbContext = lexBoxDbContext;
         _projectService = projectService;
-        _redminePublicDbContextLazy = redminePublicDbContextLazy;
-        _privateRedmineDbContextLazy = privateRedmineDbContextLazy;
     }
 
     [HttpGet("migrateData")]
