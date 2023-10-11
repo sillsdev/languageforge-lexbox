@@ -10,6 +10,9 @@ spec:
     spec:
       containers:
         - name: lexbox-api
+          resources:
+            limits:
+              memory: 350Mi
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Production"
