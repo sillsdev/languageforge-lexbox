@@ -14,20 +14,22 @@ namespace LexBoxApi.Controllers;
 [AdminRequired]
 public class MigrationController : ControllerBase
 {
-    private readonly RedmineDbContext _redminePublicDbContext;
-    private readonly RedmineDbContext _privateRedmineDbContext;
+    private readonly Lazy<PublicRedmineDbContext> _redminePublicDbContextLazy;
+    private RedmineDbContext RedminePublicDbContext => _redminePublicDbContextLazy.Value;
+    private readonly Lazy<PrivateRedmineDbContext> _privateRedmineDbContextLazy;
+    private RedmineDbContext PrivateRedmineDbContext => _privateRedmineDbContextLazy.Value;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly ProjectService _projectService;
 
-    public MigrationController(PublicRedmineDbContext redmineDbContext,
-        PrivateRedmineDbContext privateRedmineDbContext,
-        LexBoxDbContext lexBoxDbContext,
-        ProjectService projectService)
+    public MigrationController(LexBoxDbContext lexBoxDbContext,
+        ProjectService projectService,
+        Lazy<PublicRedmineDbContext> redminePublicDbContextLazy,
+        Lazy<PrivateRedmineDbContext> privateRedmineDbContextLazy)
     {
-        _redminePublicDbContext = redmineDbContext;
         _lexBoxDbContext = lexBoxDbContext;
         _projectService = projectService;
-        _privateRedmineDbContext = privateRedmineDbContext;
+        _redminePublicDbContextLazy = redminePublicDbContextLazy;
+        _privateRedmineDbContextLazy = privateRedmineDbContextLazy;
     }
 
     [HttpGet("migrateData")]
@@ -35,9 +37,9 @@ public class MigrationController : ControllerBase
     {
         var now = DateTimeOffset.UtcNow;
         await using var transaction = await _lexBoxDbContext.Database.BeginTransactionAsync();
-        await Migrate(_redminePublicDbContext, now);
+        await Migrate(RedminePublicDbContext, now);
         if (!dryRun) await _lexBoxDbContext.SaveChangesAsync();
-        await Migrate(_privateRedmineDbContext, now);
+        await Migrate(PrivateRedmineDbContext, now);
         if (!dryRun)
         {
             await _lexBoxDbContext.SaveChangesAsync();
