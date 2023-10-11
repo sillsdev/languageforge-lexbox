@@ -10,7 +10,7 @@ tasks:
   api-console:
     interactive: true
     cmds:
-      - kubectl exec -it deployment/lexbox -c lexbox-api -- /bin/sh
+      - kubectl exec -it deployment/lexbox -c lexbox-api -- /bin/bash
 
   ui-logs:
     ignore_error: true

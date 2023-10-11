@@ -30,32 +30,6 @@ public class MigrationController : ControllerBase
         _privateRedmineDbContext = privateRedmineDbContext;
     }
 
-    [HttpGet("dryRunTransformUser")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public async Task<ActionResult<User>> DryRunTransformUser(string email)
-    {
-        var user = await _lexBoxDbContext.Users.FindByEmail(email);
-        if (user is null) return NotFound();
-        return user;
-    }
-
-    [HttpGet("dryRunTransformProject")]
-    public async Task<ActionResult<object>> DryRunTransformProject(string code)
-    {
-        await using var transaction = await _lexBoxDbContext.Database.BeginTransactionAsync();
-        await MigrateData(false);
-        var project = await _lexBoxDbContext.Projects.FirstOrDefaultAsync(p => p.Code == code);
-        await transaction.RollbackAsync();
-        return project is null
-            ? NotFound()
-            : new
-            {
-                Name = project.Name, Code = project.Code, Description = project.Description, Type = project.Type,
-            };
-    }
-
     [HttpGet("migrateData")]
     public async Task<ActionResult> MigrateData(bool dryRun = true)
     {
