@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mime;
+using EntityFrameworkCore.Projectables;
 using LexCore;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
@@ -71,16 +72,13 @@ public class LegacyProjectApiController : ControllerBase
         return user.projects.ToArray();
     }
 
-    private string RoleToString(ProjectRole role)
-    {
-        //instead of using toString which could change if we rename the enum, we only ever want to return these 3 values
-        return role switch
-        {
-            ProjectRole.Manager => "manager",
-            ProjectRole.Editor => "editor",
-            _ => "unknown"
-        };
-    }
+    [Projectable]
+    private string RoleToString(ProjectRole role) =>
+        //instead of using toString which could change if we rename the enum, we only ever want to return these 3 values.
+        //this needs to be ugly so that projectable will work :(
+        role == ProjectRole.Manager ? "manager"
+        : role == ProjectRole.Editor ? "editor"
+        : "unknown";
 }
 
 public record LegacyApiProject(string Identifier, string Name, string Repository, string Role);
