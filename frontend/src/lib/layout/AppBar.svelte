@@ -2,11 +2,16 @@
   import { env } from '$env/dynamic/public';
   import t from '$lib/i18n';
   import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
-  import { createEventDispatcher } from 'svelte';
+  import {createEventDispatcher, onMount} from 'svelte';
   import type {LexAuthUser} from '$lib/user';
   import Button from '$lib/forms/Button.svelte';
   import {page} from '$app/stores';
 
+  onMount(() => {
+    isPlaywright = localStorage.getItem('isPlaywright') === 'true';
+    if (isPlaywright) environmentName = 'playwright';
+  });
+  let isPlaywright = false;
   let environmentName = env.PUBLIC_ENV_NAME;
   const dispatch = createEventDispatcher();
   export let user: LexAuthUser | undefined;

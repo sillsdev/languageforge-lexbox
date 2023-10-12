@@ -126,6 +126,21 @@ public class PlaywrightFixture : IAsyncLifetime
         Context = await Browser.NewContextAsync(new BrowserNewContextOptions
         {
             BaseURL = $"{TestingEnvironmentVariables.ServerBaseUrl}/",
+            StorageState = $$"""
+                           {
+                             "origins": [
+                               {
+                                 "origin": "{{TestingEnvironmentVariables.ServerHostname}}",
+                                 "localStorage": [
+                                   {
+                                     "name": "isPlaywright",
+                                     "value": "true"
+                                   }
+                                 ]
+                               }
+                             ]
+                           }
+                           """
         });
         Page = await Context.NewPageAsync();
     }
