@@ -412,6 +412,7 @@ input StringOperationFilterInput {
   nstartsWith: String
   endsWith: String
   nendsWith: String
+  icontains: String
 }
 
 input UserFilterInput {
