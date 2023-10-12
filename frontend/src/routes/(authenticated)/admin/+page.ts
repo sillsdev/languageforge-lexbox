@@ -15,7 +15,7 @@ export type AdminSearchParams = {
 };
 
 export type Project = LoadAdminDashboardQuery['projects'][number];
-export type User = LoadAdminDashboardQuery['users'][number];
+export type User = LoadAdminDashboardQuery['users']['items'][number];
 
 export async function load(event: PageLoadEvent) {
   const parentData = await event.parent();
@@ -39,7 +39,9 @@ export async function load(event: PageLoadEvent) {
                 deletedDate
                 userCount
             }
-            users(orderBy: {name: ASC}) {
+            users(orderBy: {name: ASC}, take: 100) {
+              totalCount
+              items {
                 id
                 name
                 email
@@ -47,9 +49,10 @@ export async function load(event: PageLoadEvent) {
                 createdDate
                 emailVerified
                 projects {
-                  id
-                  projectId
+                    id
+                    projectId
                 }
+              }
             }
         }
     `), { withDeletedProjects });

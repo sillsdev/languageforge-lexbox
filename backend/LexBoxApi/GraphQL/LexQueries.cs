@@ -42,13 +42,15 @@ public class LexQueries
         return context.Projects.Where(p => p.Code == code);
     }
 
+    [UseOffsetPaging]
     [UseProjection]
     [UseFiltering]
     [UseSorting]
     [AdminRequired]
     public IQueryable<User> Users(LexBoxDbContext context)
     {
-        return context.Users;
+        //default order by, can be overwritten by the gql query
+        return context.Users.OrderBy(u => u.Name);
     }
 
     public LexAuthUser Me(LoggedInContext loggedInContext)

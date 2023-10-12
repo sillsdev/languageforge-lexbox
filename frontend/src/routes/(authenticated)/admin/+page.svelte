@@ -60,12 +60,12 @@
   $: userSearchLower = userSearch.toLocaleLowerCase();
   let userSearchLimit = defaultFilterLimit;
   $: userLimit = userSearch ? userSearchLimit : 10;
-  $: filteredUsers = $allUsers.filter(
+  $: filteredUsers = $allUsers?.items?.filter(
     (u) =>
       !userSearch ||
       u.name.toLocaleLowerCase().includes(userSearchLower) ||
       u.email.toLocaleLowerCase().includes(userSearchLower)
-  );
+  ) ?? [];
   $: users = filteredUsers.slice(0, userLimit);
   $: {
     // Reset limit if search is changed
@@ -80,7 +80,7 @@
 </svelte:head>
 <main>
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
-    <ProjectTable bind:this={projectsTable} projects={$allProjects} users={$allUsers} {defaultFilterLimit}/>
+    <ProjectTable bind:this={projectsTable} projects={$allProjects} users={$allUsers?.items ?? []} {defaultFilterLimit}/>
 
     <div>
       <span class="text-xl flex gap-4">
@@ -89,7 +89,7 @@
           <span class="inline-flex gap-2">
             {userSearch ? filteredUsers.length : users.length}
             <span>/</span>
-            {$allUsers.length}
+            {$allUsers?.totalCount}
           </span>
         </Badge>
       </span>

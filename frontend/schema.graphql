@@ -58,6 +58,14 @@ type Changeset {
   parents: [String!]!
 }
 
+"Information about the offset pagination."
+type CollectionSegmentInfo {
+  "Indicates whether more items exist following the set defined by the clients arguments."
+  hasNextPage: Boolean!
+  "Indicates whether more items exist prior the set defined by the clients arguments."
+  hasPreviousPage: Boolean!
+}
+
 type CreateProjectPayload {
   createProjectResponse: CreateProjectResponse
   errors: [CreateProjectError!]
@@ -150,7 +158,7 @@ type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   projectByCode(code: String!): Project
-  users(where: UserFilterInput orderBy: [UserSortInput!]): [User!]! @authorize(policy: "AdminRequiredPolicy")
+  users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
@@ -185,6 +193,15 @@ type User {
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
+}
+
+"A segment of a collection."
+type UsersCollectionSegment {
+  "Information to aid in pagination."
+  pageInfo: CollectionSegmentInfo!
+  "A flattened list of the items."
+  items: [User!]
+  totalCount: Int!
 }
 
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified

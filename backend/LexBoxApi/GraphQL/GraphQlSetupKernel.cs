@@ -42,6 +42,11 @@ public static class GraphQlSetupKernel
                     providerDescriptor.RegisterFieldHandler<EfCoreProjectablesFieldHandler>();
                     providerDescriptor.AddDefaults();
                 }));
+            }).SetPagingOptions(new ()
+            {
+                DefaultPageSize = 100,
+                MaxPageSize = 1000,
+                IncludeTotalCount = true
             })
             .AddAuthorization()
             .AddLexBoxApiTypes()
