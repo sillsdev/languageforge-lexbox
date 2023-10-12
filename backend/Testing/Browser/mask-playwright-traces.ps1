@@ -25,7 +25,7 @@ foreach ($file in $files) {
             foreach ($secret in $secrets) {
                 $pieces = $content -split "\b$($secret.Value)\b"
                 $entryMaskCount += $pieces.Count - 1;
-                $content = $pieces -join $pieces, "*******"
+                $content = $pieces -join "*******"
             }
             $reader.Dispose()
             $writer = [System.IO.StreamWriter]::new($entry.Open())
