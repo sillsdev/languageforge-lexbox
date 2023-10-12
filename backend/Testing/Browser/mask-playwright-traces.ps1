@@ -1,8 +1,6 @@
 param(
-    [Parameter(Mandatory)][string] $traceDir,
-    [Parameter(Mandatory)][string[]] $secrets
+    [Parameter(Mandatory)][string] $traceDir
 )
-
 Add-Type -Assembly  System.IO.Compression.FileSystem
 
 # trace = Core trace info
@@ -10,6 +8,7 @@ Add-Type -Assembly  System.IO.Compression.FileSystem
 # json = Network log payloads
 $filesToMask = "\.(json|trace|network)$"
 $files = Get-ChildItem -path $traceDir -Filter *.zip
+$secrets = Get-ChildItem env:PLAYWRIGHT_SECRET_*
 
 Write-Output "Masking $($secrets.Count) secrets in $($files.Count) traces.";
 
@@ -24,7 +23,7 @@ foreach ($file in $files) {
             $content = $reader.ReadToEnd()
             $entryMaskCount = 0;
             foreach ($secret in $secrets) {
-                $pieces = $content -split "\b$secret\b"
+                $pieces = $content -split "\b$($secret.Value)\b"
                 $entryMaskCount += $pieces.Count - 1;
                 $content = $pieces -join $pieces, "*******"
             }
