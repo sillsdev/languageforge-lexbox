@@ -50,6 +50,7 @@ jobs:
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
       - name: Mask Playwright traces
+        if: always()
         run: pwsh backend/Testing/Browser/mask-playwright-traces.ps1 --traceDir ./bin/playwright-traces --secrets ${{ secrets.TEST_USER_PASSWORD }},another-example-secret
       - name: Upload test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
