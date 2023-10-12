@@ -215,9 +215,11 @@ public class HgService : IHgService
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
     }
 
+    private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };
     private void AssertIsSafeRepoName(string name)
     {
-        if (string.Equals(name, DELETED_REPO_FOLDER)) throw new ArgumentException($"Invalid repo name: {DELETED_REPO_FOLDER}.");
+        if (InvalidRepoNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+            throw new ArgumentException($"Invalid repo name: {name}.");
     }
 
     public static string DetermineProjectUrlPrefix(HgType type,

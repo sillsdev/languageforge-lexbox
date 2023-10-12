@@ -117,7 +117,8 @@ if (app.Environment.IsDevelopment())
     app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
 app.MapControllers();
-
+// /api routes should never make it to this point, they should be handled by the controllers, so return 404
+app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
 app.MapSyncProxy(AuthKernel.DefaultScheme);
 
 await app.RunAsync();
