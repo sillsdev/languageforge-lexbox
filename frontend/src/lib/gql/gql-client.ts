@@ -31,8 +31,10 @@ function createGqlClient(_gqlEndpoint?: string): Client {
       ...(import.meta.env.DEV ? [devtoolsExchange] : []),
       cacheExchange({
         keys: {
-          //     eslint-disable-next-line @typescript-eslint/naming-convention
+          /* eslint-disable @typescript-eslint/naming-convention */
           'Changeset': () => null,
+          'UsersCollectionSegment': () => null,
+          /* eslint-enable @typescript-eslint/naming-convention */
         }
       }),
       tracingExchange,
