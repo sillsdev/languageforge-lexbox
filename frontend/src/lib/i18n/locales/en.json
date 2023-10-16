@@ -13,7 +13,7 @@
     "show_delete_projects": "Show deleted projects",
     "filter_placeholder": "Search...",
     "project_filter": {
-      "select_user_from_table": "Select a user from the user table:",
+      "select_user_from_table": "To filter projects for a specific user, select the user from the user table:",
       "project_member": "Project member",
       "all_users": "All users",
       "show_deleted": "Show deleted",
