@@ -55,6 +55,10 @@ jobs:
         env:
           PLAYWRIGHT_SECRET_1: ${{ secrets.TEST_USER_PASSWORD }}
         run: pwsh backend/Testing/Browser/mask-playwright-traces.ps1 --traceDir ./bin/playwright-traces
+      - name: Password protect Playwright traces
+        env:
+          ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: 7z a ./playwright-traces.7z ./bin/playwright-traces/*.* -p"$ZIP_PASSWORD"
       - name: Upload test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
@@ -66,4 +70,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: playwright-traces-${{ matrix.os }}
-          path: ./bin/playwright-traces
+          path: ./playwright-traces.7z
