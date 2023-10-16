@@ -7,7 +7,7 @@
   export let description: string | undefined = undefined;
   export let value: string | undefined = undefined;
   export let type: 'text' | 'email' | 'password' = 'text';
-  export let autofocus = false;
+  export let autofocus: true | undefined = undefined;
   export let readonly = false;
   export let error: string | string[] | undefined = undefined;
   export let placeholder = '';
