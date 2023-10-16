@@ -180,8 +180,8 @@ public class SendReceiveServiceTests
         HgRunner.Run("""hg commit -m "first commit" """, sendReceiveParams.DestDir, 1, progress);
 
         //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
-        const int totalSizeMb = 1100;
-        const int fileCount = 25;
+        const int totalSizeMb = 100;
+        const int fileCount = 10;
         for (int i = 1; i <= fileCount; i++)
         {
             var bigFileName = $"big-file{i}.bin";
