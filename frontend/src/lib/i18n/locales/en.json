@@ -326,7 +326,10 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   "notifications": {
     "update_detected": "A new version of the application was detected. You may need to reload the page.",
   },
+  "table": {
+    "refine_filter": "Refine your filter to see {remainingRows} more rows..."
+  },
   "turnstile": {
     "invalid": "Captcha Error, try again",
-  }
+  },
 }
