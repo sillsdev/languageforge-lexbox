@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
+using LexBoxApi.Models;
+using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexCore;
 using LexCore.Auth;
@@ -7,6 +9,7 @@ using LexData;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Controllers;
@@ -20,18 +23,21 @@ public class LoginController : ControllerBase
     private readonly LoggedInContext _loggedInContext;
     private readonly EmailService _emailService;
     private readonly UserService _userService;
+    private readonly TurnstileService _turnstileService;
 
     public LoginController(LexAuthService lexAuthService,
         LexBoxDbContext lexBoxDbContext,
         LoggedInContext loggedInContext,
         EmailService emailService,
-        UserService userService)
+        UserService userService,
+        TurnstileService turnstileService)
     {
         _lexAuthService = lexAuthService;
         _lexBoxDbContext = lexBoxDbContext;
         _loggedInContext = loggedInContext;
         _emailService = emailService;
         _userService = userService;
+        _turnstileService = turnstileService;
     }
 
     [HttpGet("loginRedirect")]
@@ -101,9 +107,21 @@ public class LoginController : ControllerBase
 
     [HttpPost("forgotPassword")]
     [AllowAnonymous]
-    public async Task<ActionResult> ForgotPassword(string email)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult> ForgotPassword(ForgotPasswordInput input)
     {
-        await _lexAuthService.ForgotPassword(email);
+        using var registerActivity = LexBoxActivitySource.Get().StartActivity("ForgotPassword");
+        var validToken = await _turnstileService.IsTokenValid(input.TurnstileToken, input.Email);
+        registerActivity?.AddTag("app.turnstile_token_valid", validToken);
+        if (!validToken)
+        {
+            ModelState.AddModelError<ForgotPasswordInput>(r => r.TurnstileToken, "token invalid");
+            return ValidationProblem(ModelState);
+        }
+
+        await _lexAuthService.ForgotPassword(input.Email);
         return Ok();
     }
 

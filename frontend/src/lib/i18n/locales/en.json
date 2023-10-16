@@ -244,7 +244,6 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "label_name": "Name",
     "label_password": "Password",
     "name_missing": "Name missing",
-    "turnstile_error": "Captcha Error, try again"
   },
   "reset_password": {
     "title": "Reset Password",
@@ -326,5 +325,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   },
   "notifications": {
     "update_detected": "A new version of the application was detected. You may need to reload the page.",
+  },
+  "turnstile": {
+    "invalid": "Captcha Error, try again",
   }
 }
