@@ -95,7 +95,7 @@ async function softDeleteProject(project: Project): Promise<void> {
     </div>
 
     <FilterBar bind:search={$queryParams.projectSearch} filters={queryParams} defaultValues={defaultQueryParams}
-               bind:hasActiveFilter={hasActiveProjectFilter}>
+               bind:hasActiveFilter={hasActiveProjectFilter} autofocus>
         <svelte:fragment slot="activeFilters" let:activeFilters>
             {#each activeFilters as filter}
                 {#if filter.key === 'projectType'}

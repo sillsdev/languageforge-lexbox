@@ -14,6 +14,7 @@
   type Filters = $$Generic<Record<string, unknown>>;
 
   export let search = '';
+  export let autofocus: true | undefined = undefined;
   export let filters: Writable<Filters>;
   export let defaultValues: Filters;
   export let hasActiveFilter: boolean;
@@ -55,7 +56,7 @@
       bind:value={search}
       placeholder={$t('admin_dashboard.filter_placeholder')}
       class="seach-input input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
-      autofocus
+      {autofocus}
     />
     <div class="ml-auto flex join">
       {#if hasActiveFilter}
