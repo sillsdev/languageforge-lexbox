@@ -4,6 +4,7 @@ using Testing.Services;
 
 namespace Testing.ApiTests;
 
+[Trait("Category", "Integration")]
 public class InvalidRouteTests : ApiTestBase
 {
     [Fact]
