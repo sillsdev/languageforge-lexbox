@@ -112,9 +112,9 @@ public class LoginController : ControllerBase
     [ProducesDefaultResponseType]
     public async Task<ActionResult> ForgotPassword(ForgotPasswordInput input)
     {
-        using var registerActivity = LexBoxActivitySource.Get().StartActivity("ForgotPassword");
+        using var activity = LexBoxActivitySource.Get().StartActivity();
         var validToken = await _turnstileService.IsTokenValid(input.TurnstileToken, input.Email);
-        registerActivity?.AddTag("app.turnstile_token_valid", validToken);
+        activity?.AddTag("app.turnstile_token_valid", validToken);
         if (!validToken)
         {
             ModelState.AddModelError<ForgotPasswordInput>(r => r.TurnstileToken, "token invalid");
