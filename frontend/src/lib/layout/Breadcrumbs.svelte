@@ -25,7 +25,7 @@
       create: 'project.create.title',
       _get: () => {
         const data = $page.data as ProjectPageData;
-        return get(data.project)?.name ?? data.code;
+        return data.project ? get(data.project)?.name ?? data.code : data.code;
       },
     },
     user: 'account_settings.title',

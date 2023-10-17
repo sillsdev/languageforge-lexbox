@@ -14,7 +14,6 @@ import type {
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
-import { get } from 'svelte/store';
 
 type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -57,8 +56,7 @@ export async function load(event: PageLoadEvent) {
       { projectCode }
     );
 
-  const projectId = get(result.projectByCode)?.id as string;
-  event.depends(`project:${projectId}`);
+  event.depends(`project:${projectCode}`);
   return {
     project: result.projectByCode,
     code: projectCode,
