@@ -41,7 +41,7 @@
   $: _project = project as NonNullable<typeof project>;
   $: changesetPromise = data.promise.changesets.then((result) => {
     return new Promise((fulfill) => {
-      result.projectByCode.subscribe((x) => fulfill(x.changesets));
+      result.projectByCode.subscribe((x) => { if (x) { fulfill(x.changesets); } });
     })
   })
 
