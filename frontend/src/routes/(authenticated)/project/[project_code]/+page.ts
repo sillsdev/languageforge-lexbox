@@ -53,7 +53,7 @@ export async function load(event: PageLoadEvent) {
   const changesets = client
   .queryStore(event.fetch,
     graphql(`
-      query projectPage($projectCode: String!) {
+      query projectChangesets($projectCode: String!) {
         projectByCode(code: $projectCode) {
           id
           code
