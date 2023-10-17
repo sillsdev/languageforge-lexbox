@@ -39,10 +39,18 @@ public static class AuthKernel
                 .Build();
             foreach (var audience in Enum.GetValues<LexboxAudience>())
             {
-                options.AddPolicy(audience.PolicyName(), builder =>
+                if (audience == LexboxAudience.Unknown) continue;
+                //for exclusive the endpoint is only accessible for the specified audience
+                options.AddPolicy(audience.PolicyName(true), builder =>
                 {
                     builder.RequireAuthenticatedUser();
                     builder.AddRequirements(new AudienceRequirement(audience));
+                });
+                //for non exclusive the endpoint is also accessible for the default audience
+                options.AddPolicy(audience.PolicyName(false), builder =>
+                {
+                    builder.RequireAuthenticatedUser();
+                    builder.AddRequirements(new AudienceRequirement(audience, LexboxAudience.LexboxApi));
                 });
             }
             //don't use RequireDefaultLexboxAuth here because that only allows the default audience

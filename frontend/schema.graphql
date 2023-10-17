@@ -95,7 +95,7 @@ type LexAuthUser {
   canAccessProject(projectCode: String!): Boolean!
   hasProjectCreatePermission: Boolean!
   id: UUID!
-  audience: String!
+  audience: LexboxAudience!
   email: String!
   name: String!
   role: UserRole!
@@ -482,6 +482,11 @@ enum CreateProjectResult {
 enum DbErrorCode {
   UNKNOWN
   DUPLICATE
+}
+
+enum LexboxAudience {
+  LEXBOX_API
+  FORGOT_PASSWORD
 }
 
 enum ProjectMigrationStatus {
