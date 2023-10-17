@@ -39,6 +39,11 @@
   let projectStore = data.project;
   $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
+  $: changesetPromise = data.promise.changesets.then((result) => {
+    return new Promise((fulfill) => {
+      result.projectByCode.subscribe((x) => fulfill(x.changesets));
+    })
+  })
 
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
@@ -352,7 +357,8 @@
 
         <!-- <HgWeb code={project.code} /> -->
         <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          {#await data.promise.changesets}
+          {#await changesetPromise}
+            Loading log view...
           {:then changesets}
             <HgLogView json={changesets} />
           {/await}
