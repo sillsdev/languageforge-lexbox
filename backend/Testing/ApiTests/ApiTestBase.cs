@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using LexBoxApi.Auth;
 using Shouldly;
 using Testing.Services;
 
@@ -9,9 +11,15 @@ namespace Testing.ApiTests;
 public class ApiTestBase
 {
     public readonly string BaseUrl = TestingEnvironmentVariables.ServerBaseUrl;
-    public readonly HttpClient HttpClient = new HttpClient();
+    private readonly HttpClientHandler _httpClientHandler = new();
+    public readonly HttpClient HttpClient;
 
-    public async Task LoginAs(string user, string password)
+    public ApiTestBase()
+    {
+        HttpClient = new HttpClient(_httpClientHandler);
+    }
+
+    public async Task<string> LoginAs(string user, string password)
     {
         var response = await HttpClient.PostAsJsonAsync(
             $"{BaseUrl}/api/login",
@@ -20,6 +28,28 @@ public class ApiTestBase
                 { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
             });
         response.EnsureSuccessStatusCode();
+
+        return GetJwtFromResponse(response);
+    }
+
+    public void ClearCookies()
+    {
+        foreach (Cookie cookie in _httpClientHandler.CookieContainer.GetAllCookies())
+        {
+            cookie.Expired = true;
+        }
+    }
+
+    private string GetJwtFromResponse(HttpResponseMessage response)
+    {
+        var cookies = response.Headers.GetValues("Set-Cookie");
+        var cookieContainer = new CookieContainer();
+        cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
+        var authCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
+        authCookie.ShouldNotBeNull();
+        var jwt = authCookie.Value;
+        jwt.ShouldNotBeNullOrEmpty();
+        return jwt;
     }
 
     public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false)

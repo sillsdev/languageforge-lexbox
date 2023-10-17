@@ -41,6 +41,7 @@ public class LoginController : ControllerBase
     }
 
     [HttpGet("loginRedirect")]
+    [AllowAnyAudience]
     public async Task<ActionResult> LoginRedirect(
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
@@ -128,6 +129,7 @@ public class LoginController : ControllerBase
     public record ResetPasswordRequest([Required(AllowEmptyStrings = false)] string PasswordHash);
 
     [HttpPost("resetPassword")]
+    [RequireAudience(LexboxAudience.ForgotPassword)]
     public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)
     {
         var passwordHash = request.PasswordHash;
@@ -136,6 +138,8 @@ public class LoginController : ControllerBase
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
         await _lexBoxDbContext.SaveChangesAsync();
         await _emailService.SendPasswordChangedEmail(user);
+        //the old jwt is only valid for calling forgot password endpoints, we need to generate a new one
+        await RefreshJwt();
         return Ok();
     }
 }

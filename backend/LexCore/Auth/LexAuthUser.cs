@@ -4,18 +4,19 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using LexCore.Entities;
 
 namespace LexCore.Auth;
 
 public record LexAuthUser
 {
+    private static readonly JsonTypeInfo LexAuthUserTypeInfo = JsonSerializerOptions.Default.GetTypeInfo(typeof(LexAuthUser));
     public static LexAuthUser? FromClaimsPrincipal(ClaimsPrincipal principal)
     {
         if (principal.Identity?.IsAuthenticated is not true) return null;
         var jsonObject = new JsonObject();
-        var typeInfo = JsonSerializerOptions.Default.GetTypeInfo(typeof(LexAuthUser));
-        foreach (var property in typeInfo.Properties)
+        foreach (var property in LexAuthUserTypeInfo.Properties)
         {
             var isArray = property.PropertyType != typeof(string) &&
                           property.PropertyType.IsAssignableTo(typeof(IEnumerable));
@@ -81,6 +82,8 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
     public required Guid Id { get; set; }
+    [JsonPropertyName(LexAuthConstants.AudienceClaimType)]
+    public string Audience { get; set; }
 
     [JsonPropertyName(LexAuthConstants.EmailClaimType)]
     public required string Email { get; set; }

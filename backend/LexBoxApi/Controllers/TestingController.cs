@@ -31,30 +31,21 @@ public class TestingController : ControllerBase
         _redmineDbContext = redmineDbContext;
     }
 
-    [HttpGet("requires-auth")]
-    public OkObjectResult RequiresAuth()
-    {
-        return Ok("success: " + User.Identity?.Name ?? "Unknown");
-    }
 
-    [HttpGet("requires-admin")]
-    [AdminRequired]
-    public OkResult RequiresAdmin()
-    {
-        return Ok();
-    }
 
     [AllowAnonymous]
     [HttpGet("makeJwt")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<string>> MakeJwt(string usernameOrEmail, UserRole userRole)
+    public async Task<ActionResult<string>> MakeJwt(string usernameOrEmail,
+        UserRole userRole,
+        LexboxAudience audience = LexboxAudience.LexboxApi)
     {
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FindByEmail(usernameOrEmail);
         if (user is null) return NotFound();
-        var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole });
+        var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole }, audience: audience);
         return token;
     }
 
