@@ -24,7 +24,10 @@ public class LexAuthService
     private readonly EmailService _emailService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public LexAuthService(IOptions<JwtOptions> userOptions, LexBoxDbContext lexBoxDbContext, EmailService emailService, IHttpContextAccessor httpContextAccessor)
+    public LexAuthService(IOptions<JwtOptions> userOptions,
+        LexBoxDbContext lexBoxDbContext,
+        EmailService emailService,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userOptions = userOptions;
         _lexBoxDbContext = lexBoxDbContext;
@@ -32,7 +35,7 @@ public class LexAuthService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public static TokenValidationParameters TokenValidationParameters(JwtOptions jwtOptions, bool forRefresh = false)
+    public static TokenValidationParameters TokenValidationParameters(JwtOptions jwtOptions)
     {
         var validationParams = new TokenValidationParameters
         {
@@ -40,8 +43,10 @@ public class LexAuthService
             NameClaimType = LexAuthConstants.EmailClaimType,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = GetSigningKey(jwtOptions),
-            ValidAudience = forRefresh ? jwtOptions.RefreshAudience : jwtOptions.Audience,
-            ValidIssuer = jwtOptions.Issuer,
+            //default audience, used for cookie tokens in JwtTicketDataFormat
+            ValidAudience = LexboxAudience.LexboxApi.ToString(),
+            ValidAudiences = Enum.GetNames(typeof(LexboxAudience)),
+            ValidIssuer = LexboxAudience.LexboxApi.ToString(),
             RequireSignedTokens = true,
             RequireExpirationTime = true,
             ValidateIssuer = true,
@@ -62,7 +67,7 @@ public class LexAuthService
         var (lexAuthUser, user) = await GetUser(email);
         // we want to silently return if the user doesn't exist, so we don't leak information.
         if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _) = GenerateJwt(lexAuthUser);
+        var (jwt, _) = GenerateJwt(lexAuthUser, audience: LexboxAudience.ForgotPassword);
         await _emailService.SendForgotPasswordEmail(jwt, user);
     }
 
@@ -86,7 +91,8 @@ public class LexAuthService
         var jwtUser = new LexAuthUser(dbUser);
         var context = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(context);
-        await context.SignInAsync(jwtUser.GetPrincipal("Refresh"), new AuthenticationProperties { IsPersistent = true });
+        await context.SignInAsync(jwtUser.GetPrincipal("Refresh"),
+            new AuthenticationProperties { IsPersistent = true });
         context.Response.Headers.Add(RefreshHeaderName, "true");
         return jwtUser;
     }
@@ -100,21 +106,18 @@ public class LexAuthService
         return (user == null ? null : new LexAuthUser(user), user);
     }
 
-    public (string token, TimeSpan tokenLifetime) GenerateJwt(LexAuthUser user, TimeSpan? lifetime = null)
+    public (string token, TimeSpan tokenLifetime) GenerateJwt(LexAuthUser user,
+        TimeSpan? lifetime = null,
+        LexboxAudience audience = LexboxAudience.LexboxApi)
     {
         lifetime ??= TimeSpan.MaxValue;
         var options = _userOptions.Value;
         // use the min lifetime, prevents the caller setting a longer lifetime then is configured in the application.
-        return GenerateToken(user, options.Audience, lifetime.Value > options.Lifetime ? options.Lifetime : lifetime.Value);
-    }
-
-    public (string token, TimeSpan tokenLifetime) GenerateRefreshToken(LexAuthUser user)
-    {
-        return GenerateToken(user, _userOptions.Value.RefreshAudience, _userOptions.Value.RefreshLifetime);
+        return GenerateToken(user, audience, lifetime.Value > options.Lifetime ? options.Lifetime : lifetime.Value);
     }
 
     private (string token, TimeSpan tokenLifetime) GenerateToken(LexAuthUser user,
-        string audience,
+        LexboxAudience audience,
         TimeSpan tokenLifetime)
     {
         var jwtDate = DateTime.UtcNow;
@@ -125,8 +128,8 @@ public class LexAuthService
         identity.AddClaims(user.GetClaims());
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.CreateJwtSecurityToken(
-            audience: audience,
-            issuer: options.Issuer,
+            audience: audience.ToString(),
+            issuer: LexboxAudience.LexboxApi.ToString(),
             subject: identity,
             notBefore: jwtDate,
             expires: jwtDate + tokenLifetime,

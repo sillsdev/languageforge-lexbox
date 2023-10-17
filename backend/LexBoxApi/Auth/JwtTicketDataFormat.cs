@@ -21,7 +21,9 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
     private const string _propsPrefix = "props";
     private readonly ILogger<JwtTicketDataFormat> _logger;
 
-    public JwtTicketDataFormat(IHttpContextAccessor httpContextAccessor, IOptions<JwtOptions> userOptions, ILogger<JwtTicketDataFormat> logger)
+    public JwtTicketDataFormat(IHttpContextAccessor httpContextAccessor,
+        IOptions<JwtOptions> userOptions,
+        ILogger<JwtTicketDataFormat> logger)
     {
         _httpContextAccessor = httpContextAccessor;
         _userOptions = userOptions;
@@ -48,10 +50,12 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         var jwtDate = DateTime.UtcNow;
         _jwtSecurityTokenHandler.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
         var claimsIdentity = new ClaimsIdentity(data.Principal.Claims, data.Principal.Identity?.AuthenticationType);
+        //there may already be an audience claim, we want to reuse that if it exists, if not fallback to the default audience
+        var audience = DetermineAudience(claimsIdentity) ?? jwtBearerOptions.TokenValidationParameters.ValidAudience;
         var securityTokenDescriptor = new SecurityTokenDescriptor
         {
             Issuer = jwtBearerOptions.TokenValidationParameters.ValidIssuer,
-            Audience = Audience(purpose, jwtBearerOptions.TokenValidationParameters.ValidAudience),
+            Audience = audience,
             NotBefore = data.Properties.IssuedUtc?.UtcDateTime ?? jwtDate,
             Expires = data.Properties.ExpiresUtc?.UtcDateTime ?? jwtDate + jwtUserOptions.Lifetime,
             SigningCredentials = new SigningCredentials(jwtBearerOptions.TokenValidationParameters.IssuerSigningKey,
@@ -64,23 +68,27 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         return _jwtSecurityTokenHandler.WriteToken(token);
     }
 
+    private static string? DetermineAudience(ClaimsIdentity identity)
+    {
+        var audienceClaim = identity.FindFirst(LexAuthConstants.AudienceClaimType);
+        if (audienceClaim is null) return null;
+        //we need to remove the audience claim because it'll get added to the token twice from the SecurityTokenDescriptor Audience property otherwise
+        identity.TryRemoveClaim(audienceClaim);
+        return audienceClaim.Value;
+    }
+
     public static void FixUpProjectClaims(JwtSecurityToken token)
     {
         if (!token.Payload.TryGetValue(LexAuthConstants.ProjectsClaimType, out var proj))
         {
             return; // no project claims to fix up, so nothing to do
         }
+
         // if there's only 1 project it will be a stored in the payload as just an object and not an array.
         if (proj is not IList<object>)
         {
             token.Payload[LexAuthConstants.ProjectsClaimType] = new List<object> { proj };
         }
-    }
-
-    private static string Audience(string? purpose, string validAudience)
-    {
-        if (string.IsNullOrEmpty(purpose)) return validAudience;
-        return $"{validAudience}|{purpose}";
     }
 
     public AuthenticationTicket? Unprotect(string? protectedText)
@@ -93,7 +101,6 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         var jwtBearerOptions = JwtBearerOptions ??
                                throw new ArgumentNullException(nameof(JwtBearerOptions), "options is null");
         var validationParameters = jwtBearerOptions.TokenValidationParameters.Clone();
-        validationParameters.ValidAudience = Audience(purpose, validationParameters.ValidAudience);
         foreach (var validator in jwtBearerOptions.SecurityTokenValidators)
         {
             try
@@ -114,7 +121,10 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
                         if (claim.Type.StartsWith(_propsPrefix)) identity.TryRemoveClaim(claim);
                     }
                 }
-                return new AuthenticationTicket(principal, properties, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                return new AuthenticationTicket(principal,
+                    properties,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
             }
             catch (Exception e)
             {

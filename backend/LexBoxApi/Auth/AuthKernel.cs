@@ -1,9 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Text;
+using LexBoxApi.Auth.Requirements;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
@@ -26,22 +28,36 @@ public static class AuthKernel
         }
 
         services.AddScoped<LexAuthService>();
+        services.AddSingleton<IAuthorizationHandler, AudienceRequirementHandler>();
         services.AddAuthorization(options =>
         {
             //fallback policy is used when there's no auth attribute.
             //default policy is when there's no parameters specified on the auth attribute
             //this will make sure that all endpoints require auth unless they have the AllowAnonymous attribute
-            options.FallbackPolicy = options.DefaultPolicy;
+            options.FallbackPolicy = options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                .RequireDefaultLexboxAuth()
+                .Build();
+            foreach (var audience in Enum.GetValues<LexboxAudience>())
+            {
+                options.AddPolicy(audience.PolicyName(), builder =>
+                {
+                    builder.RequireAuthenticatedUser();
+                    builder.AddRequirements(new AudienceRequirement(audience));
+                });
+            }
+            //don't use RequireDefaultLexboxAuth here because that only allows the default audience
+            options.AddPolicy(AllowAnyAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
+
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
-                builder => builder.RequireAuthenticatedUser()
+                builder => builder.RequireDefaultLexboxAuth()
                     .RequireAssertion(context => context.User.IsInRole(UserRole.admin.ToString())));
             options.AddPolicy(VerifiedEmailRequiredAttribute.PolicyName,
-                builder => builder.RequireAuthenticatedUser()
+                builder => builder.RequireDefaultLexboxAuth()
                     .RequireAssertion(context => !context.User.HasClaim(LexAuthConstants.EmailUnverifiedClaimType, "true")));
 
             //user can create a project if they have the claim or are an admin
             options.AddPolicy(CreateProjectRequiredAttribute.PolicyName,
-                builder => builder.RequireAuthenticatedUser()
+                builder => builder.RequireDefaultLexboxAuth()
                     .RequireAssertion(context =>
                         context.User.HasClaim(LexAuthConstants.CanCreateProjectClaimType, "true") ||
                         context.User.IsInRole(UserRole.admin.ToString())
@@ -100,8 +116,8 @@ public static class AuthKernel
                     throw new ArgumentException("default jwt secret value used, please specify non default value");
                 }
 
-                options.Audience = jwtOptions.Audience;
-                options.ClaimsIssuer = jwtOptions.Issuer;
+                options.Audience = LexboxAudience.LexboxApi.ToString();
+                options.ClaimsIssuer = LexboxAudience.LexboxApi.ToString();
                 options.IncludeErrorDetails = true;
                 options.TokenValidationParameters = LexAuthService.TokenValidationParameters(jwtOptions);
                 options.MapInboundClaims = false;
@@ -152,6 +168,12 @@ public static class AuthKernel
                 }
             });
         });
+    }
+
+    public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
+    {
+        return builder.RequireAuthenticatedUser()
+            .AddRequirements(new AudienceRequirement(LexboxAudience.LexboxApi));
     }
 
     public static bool IsJwtRequest(this HttpRequest request)

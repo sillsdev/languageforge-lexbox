@@ -95,6 +95,7 @@ type LexAuthUser {
   canAccessProject(projectCode: String!): Boolean!
   hasProjectCreatePermission: Boolean!
   id: UUID!
+  audience: String!
   email: String!
   name: String!
   role: UserRole!
