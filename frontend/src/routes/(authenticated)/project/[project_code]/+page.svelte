@@ -352,7 +352,10 @@
 
         <!-- <HgWeb code={project.code} /> -->
         <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          <HgLogView json={project.changesets} />
+          {#await data.promise.changesets}
+          {:then changesets}
+            <HgLogView json={changesets} />
+          {/await}
         </div>
       </div>
 

@@ -45,22 +45,35 @@ export async function load(event: PageLoadEvent) {
 								name
 							}
 						}
-						changesets {
-							node
-							parents
-							date
-							user
-							desc
-						}
 					}
 				}
 			`),
       { projectCode }
     );
+  const changesets = client
+  .queryStore(event.fetch,
+    graphql(`
+      query projectPage($projectCode: String!) {
+        projectByCode(code: $projectCode) {
+          id
+          code
+          changesets {
+            node
+            parents
+            date
+            user
+            desc
+          }
+        }
+      }
+    `),
+    { projectCode }
+  );
 
   event.depends(`project:${projectCode}`);
   return {
     project: result.projectByCode,
+    promise: { changesets },
     code: projectCode,
   };
 }
