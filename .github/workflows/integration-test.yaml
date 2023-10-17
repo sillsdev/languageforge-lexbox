@@ -57,6 +57,7 @@ jobs:
         run: pwsh backend/Testing/Browser/mask-playwright-traces.ps1 --traceDir ./bin/playwright-traces
       - name: Password protect Playwright traces
         if: always()
+        shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: 7z a ./playwright-traces.7z ./bin/playwright-traces/*.* -p"$ZIP_PASSWORD"
