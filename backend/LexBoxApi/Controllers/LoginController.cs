@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace LexBoxApi.Controllers;
 
@@ -34,8 +35,13 @@ public class LoginController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary>
+    /// this endpoint is called when we can only pass a jwt in the query string. It redirects to the requested path
+    /// and logs in using that jwt with a cookie
+    /// </summary>
     [HttpGet("loginRedirect")]
     [AllowAnyAudience]
+
     public async Task<ActionResult> LoginRedirect(
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
@@ -121,7 +127,8 @@ public class LoginController : ControllerBase
         await _lexBoxDbContext.SaveChangesAsync();
         await _emailService.SendPasswordChangedEmail(user);
         //the old jwt is only valid for calling forgot password endpoints, we need to generate a new one
-        await RefreshJwt();
+        if (lexAuthUser.Audience == LexboxAudience.ForgotPassword)
+            await RefreshJwt();
         return Ok();
     }
 }
