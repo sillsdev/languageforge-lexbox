@@ -15,6 +15,7 @@ export default defineConfig({
   plugins: [
     {
       resolveId(id: string): string | undefined {
+        //workaround for https://github.com/sveltejs/kit/issues/10799
         if (id === 'css-tree') {
           return './node_modules/css-tree/dist/csstree.esm.js';
         }
