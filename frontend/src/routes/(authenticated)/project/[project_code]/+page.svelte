@@ -29,7 +29,7 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, Page } from '$lib/layout';
   import SvelteMarkdown from 'svelte-markdown';
-  import {ProjectMigrationStatus} from '$lib/gql/generated/graphql';
+  import {ProjectMigrationStatus, ResetStatus} from '$lib/gql/generated/graphql';
   import {onMount} from 'svelte';
   import Button from '$lib/forms/Button.svelte';
   import Icon from '$lib/icons/Icon.svelte';
@@ -64,7 +64,7 @@
 
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
-    await resetProjectModal.open(_project.code);
+    await resetProjectModal.open(_project.code, _project.resetStatus)
   }
 
   let removeUserModal: DeleteModal;
@@ -249,6 +249,10 @@
             <Badge><span class="loading loading-spinner loading-xs"></span> Migrating</Badge>
           {:else}
             <Badge>{migrationStatusTable[migrationStatus]}</Badge>
+          {/if}
+          {#if project.resetStatus === ResetStatus.InProgress}
+            <Badge type="badge-warning">Project Reset in progress
+            <span class="i-mdi-warning text-xl mb-[-2px]"/></Badge>
           {/if}
         </BadgeList>
       </div>

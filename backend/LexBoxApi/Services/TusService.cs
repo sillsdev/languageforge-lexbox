@@ -22,6 +22,7 @@ public class TusService
         _projectService = projectService;
         _config = config.Value;
         Directory.CreateDirectory(Path.GetFullPath(_config.TestUploadPath));
+        Directory.CreateDirectory(Path.GetFullPath(_config.ResetUploadPath));
     }
 
     public Task<DefaultTusConfiguration> GetTestConfig(HttpContext context)
