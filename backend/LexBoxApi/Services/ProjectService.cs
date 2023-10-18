@@ -52,7 +52,20 @@ public class ProjectService
 
     public async Task ResetProject(ResetProjectByAdminInput input)
     {
+        var rowsAffected = await _dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
+            .ExecuteUpdateAsync(u => u.SetProperty(p => p.ResetStatus, ResetStatus.InProgress));
+        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found");
         await _hgService.ResetRepo(input.Code);
+    }
+
+    public async Task FinishReset(string code, Stream zipFile)
+    {
+        var project = await _dbContext.Projects.Where(p => p.Code == code).SingleOrDefaultAsync();
+        if (project is null) throw new NotFoundException($"project {code} not found");
+        if (project.ResetStatus != ResetStatus.InProgress) throw new ProjectResetException($"project {code} not ready to finish reset");
+        await _hgService.FinishReset(code, zipFile);
+        project.ResetStatus = ResetStatus.None;
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)
