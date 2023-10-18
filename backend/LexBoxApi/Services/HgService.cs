@@ -100,13 +100,11 @@ public class HgService : IHgService
     {
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
         await SoftDeleteRepo(code, $"{timestamp}__reset");
-        await InitRepo(code);
     }
 
     public async Task FinishReset(string code, Stream zipFile)
     {
         using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
-        await DeleteRepo(code);
         var repoPath = Path.Combine(_options.Value.RepoPath, code);
         archive.ExtractToDirectory(repoPath);
 
