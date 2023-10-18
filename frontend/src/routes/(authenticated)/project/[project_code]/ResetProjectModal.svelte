@@ -35,7 +35,7 @@
 
     let currentStep = ResetSteps.Download;
 
-    function nextStep() {
+    function nextStep(): void {
         currentStep++;
     }
 
@@ -71,21 +71,21 @@
         }
     });
 
-    async function uploadComplete() {
+    async function uploadComplete(): Promise<void> {
         await _refreshProjectStatus(code);
         nextStep();
     }
 
-    function onClose() {
+    function onClose(): void {
         currentStep = ResetSteps.Download;
         reset();
     }
 
 </script>
 
-<div class="reset-modal contents">
+<div class="reset-modal contents" class:hide-modal-actions={currentStep === ResetSteps.Upload}>
     <Modal bind:this={modal} on:close={onClose} showCloseButton={false}>
-        <h2 class="text-xl mb-2">{$t('title')}</h2>
+        <h2 class="text-xl mb-4">{$t('title')}</h2>
         <ul class="steps w-full mb-2">
             <li class="step step-primary">Download</li>
             <li class="step" class:step-primary={currentStep >= ResetSteps.Reset}>Reset</li>
@@ -130,7 +130,6 @@
             <span>Unknown step</span>
         {/if}
         <svelte:fragment slot="actions">
-
             {#if currentStep === ResetSteps.Download}
                 <button class="btn btn-primary" on:click={nextStep}>
                     Next

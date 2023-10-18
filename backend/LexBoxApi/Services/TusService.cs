@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Linq;
+using System.Net;
 using System.Text;
 using LexBoxApi.Config;
 using LexCore.Utils;
@@ -16,6 +17,7 @@ public class TusService
 {
     private readonly TusConfig _config;
     private readonly ProjectService _projectService;
+    private static readonly string[] SupportZipTypes = new[] { "application/zip", "application/x-zip-compressed" };
 
     public TusService(IOptions<TusConfig> config, ProjectService projectService)
     {
@@ -98,9 +100,9 @@ public class TusService
             return;
         }
 
-        if (filetype != "application/zip")
+        if (!SupportZipTypes.Contains(filetype))
         {
-            createContext.FailRequest(HttpStatusCode.BadRequest, $"file type {filetype} is not allowed, only application/zip is allowed");
+            createContext.FailRequest(HttpStatusCode.BadRequest, $"File type {filetype} is not allowed, only {string.Join(", ", SupportZipTypes)} are allowed");
             return;
         }
     }
