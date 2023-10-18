@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.OpenApi.Models;
+using tusdotnet;
 
 if (DbStartupService.IsMigrationRequest(args))
 {
@@ -117,6 +118,8 @@ if (app.Environment.IsDevelopment())
     app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
 app.MapControllers();
+app.MapTus("/api/tus-test", async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
+    .RequireAuthorization(new AdminRequiredAttribute());
 // /api routes should never make it to this point, they should be handled by the controllers, so return 404
 app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
 app.MapSyncProxy(AuthKernel.DefaultScheme);

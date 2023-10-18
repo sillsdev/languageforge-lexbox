@@ -63,6 +63,8 @@ spec:
                 name: ui
           - name: PUBLIC_ENV_NAME
             value: dev
+          - name: PUBLIC_TUS_CHUNK_SIZE_MB
+            value: "180"
           - name: BACKEND_HOST
             value: http://lexbox:5158
           - name: OTEL_ENDPOINT

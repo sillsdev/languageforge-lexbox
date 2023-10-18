@@ -78,6 +78,7 @@
 		"mjml": "^4.14.1",
 		"svelte-intl-precompile": "^0.12.3",
 		"svelte-markdown": "^0.4.0",
-		"sveltekit-search-params": "^1.0.15"
+		"sveltekit-search-params": "^1.0.15",
+		"tus-js-client": "^3.1.1"
 	}
 }
