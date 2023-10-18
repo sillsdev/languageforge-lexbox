@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page, updated } from '$app/stores';
+  import { getStores } from '$app/stores';
   import '$lib/app.postcss';
   import { initErrorStore } from '$lib/error';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
@@ -13,6 +13,7 @@
   import t from '$lib/i18n';
 
   export let data: LayoutData;
+  const { page, updated } = getStores();
 
   const error = initErrorStore(writable($page.error));
   $: $error = $page.error;
