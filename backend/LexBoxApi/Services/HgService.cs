@@ -48,6 +48,7 @@ public class HgService : IHgService
         {
             client.DefaultRequestHeaders.Authorization = null;
         }
+
         return client;
     }
 
@@ -84,6 +85,7 @@ public class HgService : IHgService
         {
             return null; // Which controller will turn into HTTP 404
         }
+
         string tempPath = Path.GetTempPath();
         string timestamp = FileUtils.ToTimestamp(DateTime.UtcNow);
         string baseName = $"backup-{code}-{timestamp}.zip";
@@ -99,6 +101,47 @@ public class HgService : IHgService
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
         await SoftDeleteRepo(code, $"{timestamp}__reset");
         await InitRepo(code);
+    }
+
+    public async Task FinishReset(string code, Stream zipFile)
+    {
+        using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
+        await DeleteRepo(code);
+        var repoPath = Path.Combine(_options.Value.RepoPath, code);
+        archive.ExtractToDirectory(repoPath);
+
+        var hgPath = Path.Join(repoPath, ".hg");
+        if (Directory.Exists(hgPath))
+        {
+            await CleanupRepoFolder(repoPath);
+            return;
+        }
+
+        var hgFolder = Directory.EnumerateDirectories(repoPath, ".hg", SearchOption.AllDirectories).FirstOrDefault();
+        if (hgFolder is null)
+        {
+            throw new ArgumentException("Zip file does not contain a .hg folder");
+        }
+
+        Directory.Move(hgFolder, hgPath);
+        await CleanupRepoFolder(repoPath);
+    }
+
+    /// <summary>
+    /// deletes all files and folders in the repo folder except for .hg
+    /// </summary>
+    private async Task CleanupRepoFolder(string path)
+    {
+        var repoDir = new DirectoryInfo(path);
+        await Task.Run(() =>
+        {
+            foreach (var info in repoDir.EnumerateFileSystemInfos())
+            {
+                if (info.Name == ".hg") continue;
+                if (info is DirectoryInfo dir) dir.Delete(true);
+                else info.Delete();
+            }
+        });
     }
 
     public async Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken)
@@ -126,8 +169,8 @@ public class HgService : IHgService
         if (process is null)
         {
             return false;
-
         }
+
         await process.WaitForExitAsync(cancellationToken);
         if (process.ExitCode == 0)
         {
@@ -138,7 +181,8 @@ public class HgService : IHgService
 
         var error = await process.StandardError.ReadToEndAsync(cancellationToken);
         var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var description = $"rsync for project {project.Code} failed with exit code {process.ExitCode}. Error: {error}. Output: {output}";
+        var description =
+            $"rsync for project {project.Code} failed with exit code {process.ExitCode}. Error: {error}. Output: {output}";
         _logger.LogError(description);
         activity?.SetStatus(ActivityStatusCode.Error, description);
         return false;
@@ -168,8 +212,11 @@ public class HgService : IHgService
         });
     }
 
-    private const UnixFileMode Permissions = UnixFileMode.GroupRead | UnixFileMode.GroupWrite | UnixFileMode.GroupExecute | UnixFileMode.SetGroup |
-                                             UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.SetUser;
+    private const UnixFileMode Permissions = UnixFileMode.GroupRead | UnixFileMode.GroupWrite |
+                                             UnixFileMode.GroupExecute | UnixFileMode.SetGroup |
+                                             UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
+                                             UnixFileMode.SetUser;
+
     private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
         foreach (DirectoryInfo dir in source.GetDirectories())
@@ -192,7 +239,8 @@ public class HgService : IHgService
     public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode,
         ProjectMigrationStatus migrationStatus)
     {
-        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json-lex&rev=tip");
+        var response = await GetClient(migrationStatus, projectCode)
+            .GetAsync($"{projectCode}/log?style=json-lex&rev=tip");
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         //format is this: [1678687688, offset] offset is
@@ -216,6 +264,7 @@ public class HgService : IHgService
     }
 
     private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };
+
     private void AssertIsSafeRepoName(string name)
     {
         if (InvalidRepoNames.Contains(name, StringComparer.OrdinalIgnoreCase))
@@ -240,7 +289,8 @@ public class HgService : IHgService
             //all resumable redmine go to the same place
             (HgType.resumable, ProjectMigrationStatus.PublicRedmine) => hgConfig.RedmineHgResumableUrl,
             (HgType.resumable, ProjectMigrationStatus.PrivateRedmine) => hgConfig.RedmineHgResumableUrl,
-            _ => throw new ArgumentException($"Unknown request, HG request type: {type}, migration status: {migrationStatus}")
+            _ => throw new ArgumentException(
+                $"Unknown request, HG request type: {type}, migration status: {migrationStatus}")
         };
     }
 }

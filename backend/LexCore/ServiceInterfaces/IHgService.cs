@@ -12,4 +12,5 @@ public interface IHgService
     Task<string?> BackupRepo(string code);
     Task ResetRepo(string code);
     Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken);
+    Task FinishReset(string code, Stream zipFile);
 }
