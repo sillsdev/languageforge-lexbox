@@ -32,6 +32,7 @@ export async function load(event: PageLoadEvent) {
 						description
 						type
             migrationStatus
+                        resetStatus
 						lastCommit
 						createdDate
 						retentionPolicy
@@ -177,4 +178,16 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
       { input: { projectId: projectId, userId: userId } }
     );
   return result;
+}
+
+export async function _refreshProjectStatus(projectCode: string): Promise<void> {
+    const result = await getClient().query(graphql(`
+        query refreshProjectStatus($projectCode: String!) {
+            projectByCode(code: $projectCode){
+                id
+                resetStatus
+                migrationStatus
+            }
+        }
+    `), { projectCode }, {requestPolicy: 'network-only'});
 }
