@@ -3,6 +3,7 @@
   import Button from '$lib/forms/Button.svelte';
   import {env} from '$env/dynamic/public';
   import FormField from '$lib/forms/FormField.svelte';
+  import {createEventDispatcher} from 'svelte';
 
   enum UploadStatus {
     NO_FILE,
@@ -12,6 +13,11 @@
     COMPLETE,
     ERROR
   }
+
+  export let endpoint: string;
+  const dispatch = createEventDispatcher<{
+    uploadComplete: { upload: Upload }
+  }>();
 
   let status = UploadStatus.NO_FILE;
   let percent = 0;
@@ -25,7 +31,7 @@
     let file = inputElement.files[0];
     upload = new Upload(file, {
       chunkSize: maxUploadChunkSizeMb * 1024 * 1024,
-      endpoint: '/api/tus-test',
+      endpoint,
       uploadDataDuringCreation: true,
       onProgress: (bytesUploaded, bytesTotal) => {
         percent = bytesUploaded / bytesTotal * 100;
@@ -33,6 +39,8 @@
       onSuccess: () => {
         status = UploadStatus.COMPLETE;
         percent = 100;
+        if (upload)
+          dispatch('uploadComplete', {upload});
       },
       onError: (err) => {
         status = UploadStatus.ERROR;
@@ -54,7 +62,7 @@
   }
 </script>
 <FormField label="Upload test file" id="test-upload">
-  <input id="test-upload" type="file" class="file-input" on:change={fileSelected}/>
+  <input id="test-upload" type="file" class="file-input file-input-bordered file-input-primary" on:change={fileSelected}/>
 </FormField>
 <p>Status: {UploadStatus[status]}</p>
 {#if error}
@@ -63,5 +71,5 @@
 <progress class="progress progress-success" value={percent} max="100"></progress>
 
 {#if status < UploadStatus.UPLOADING}
-    <Button disabled={!upload} on:click={() => startUpload()}>Start</Button>
+    <Button style="btn-success" disabled={!upload} on:click={() => startUpload()}>Start</Button>
 {/if}

@@ -5,11 +5,15 @@
     const response = await fetch('/api/Testing/testRedirect', {redirect: 'follow'});
     console.log(response);
   }
+
+  function uploadFinished() {
+      alert('upload done!');
+  }
 </script>
 
 <button on:click={execute}>Test</button>
 <div class="card w-96 bg-base-200 shadow-lg">
   <div class="card-body">
-    <TusUpload/>
+    <TusUpload endpoint="/api/tus-test" on:uploadComplete={uploadFinished}/>
   </div>
 </div>
