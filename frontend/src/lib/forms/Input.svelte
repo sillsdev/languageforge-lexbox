@@ -1,6 +1,7 @@
 <script lang="ts">
   import { randomFieldId } from './utils';
   import FormField from './FormField.svelte';
+  import { debounce as _debounce } from '$lib/util/time';
 
   export let id = randomFieldId();
   export let label: string;
@@ -14,20 +15,29 @@
   // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
   export let autocomplete: 'new-password' | undefined = undefined;
+  export let debounce: number | boolean = false;
+
+  const DEFAULT_DEBOUNCE_TIME = 400;
+  $: debounceTime = typeof debounce === 'number' ? debounce : DEFAULT_DEBOUNCE_TIME;
+  $: valueSetter = debounce
+    ? _debounce((newValue: string) => value = newValue, debounceTime)
+    : (newValue: string) => value = newValue;
+
+  function onInput(event: Event): void {
+    const newValue = (event.target as HTMLInputElement).value;
+    valueSetter(newValue);
+  }
 </script>
 
 <!-- https://daisyui.com/components/input -->
 <FormField {id} {error} {label} {autofocus} {description}>
   <!-- svelte-ignore a11y-autofocus -->
-  <!--
-    {...{type}} prevents a Svelte compile error (https://github.com/sveltejs/svelte/issues/3921)
-    and is perfectly safe, because we limit the type to string values
-  -->
   <input
     {id}
-    {...{ type }}
-    bind:value
+    {type}
+    {value}
     class:input-error={error}
+    on:input={onInput}
     {placeholder}
     class="input input-bordered"
     {readonly}

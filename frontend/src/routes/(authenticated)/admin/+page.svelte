@@ -90,7 +90,7 @@
           </span>
         </Badge>
       </span>
-      <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={$queryParamValues.userSearch} />
+      <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={$queryParamValues.userSearch} debounce />
 
       <div class="divider" />
       <div class="overflow-x-auto">
