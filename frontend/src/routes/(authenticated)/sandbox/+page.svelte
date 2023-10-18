@@ -14,6 +14,6 @@
 <button on:click={execute}>Test</button>
 <div class="card w-96 bg-base-200 shadow-lg">
   <div class="card-body">
-    <TusUpload endpoint="/api/tus-test" on:uploadComplete={uploadFinished}/>
+    <TusUpload endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
   </div>
 </div>

@@ -44,6 +44,11 @@ public class ProjectService
         return projectId;
     }
 
+    public async Task<bool> ProjectExists(string projectCode)
+    {
+        return await _dbContext.Projects.AnyAsync(p => p.Code == projectCode);
+    }
+
     public async Task<string?> BackupProject(ResetProjectByAdminInput input)
     {
         var backupFile = await _hgService.BackupRepo(input.Code);
