@@ -162,12 +162,20 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "reset_project_modal": {
       "title": "Reset project",
       "submit": "Reset project",
+      "close": "Close",
+      "next": "Next",
       "download_button": "Download backup file",
       "confirm_downloaded": "I confirm that I have downloaded the backup file and verified that it works. I am ready to completely reset the repository history.",
       "confirm_downloaded_error": "Please check the box to confirm you have downloaded the backup file",
       "confirm_project_code": "Enter project code to confirm reset",
       "confirm_project_code_error": "Please type the project code to confirm reset",
-      "reset_project_notification": "Successfully reset project {code}"
+      "reset_project_notification": "Successfully reset project {code}",
+      "upload_project": "Upload Project",
+      "select_zip": "Project zip file, should only contain the .hg folder at the root",
+      "download_step": "Download",
+      "reset_step": "Reset",
+      "upload_step": "Upload",
+      "finished_step": "Finished",
     },
     "notifications": {
       "role_change": "Project role of {name} set to {role}.",
@@ -331,5 +339,15 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   },
   "turnstile": {
     "invalid": "Captcha Error, try again",
+  },
+  "tus": {
+    "upload": "Upload",
+    "status": "Status: {status, select, NoFile {No file} Ready {Ready} Error {Error} Uploading {Uploading} Paused {Paused} Complete {Complete} other {Unknown}}",
+    "zip_only": "Only .zip files are allowed",
+    "no_file_selected": "Please choose a file",
+    "select_file": "Select file",
+    "server_error_codes": {
+      "ZIP_MISSING_HG_FOLDER": "The ZIP file does not contain a folder named .hg"
+    }
   },
 }

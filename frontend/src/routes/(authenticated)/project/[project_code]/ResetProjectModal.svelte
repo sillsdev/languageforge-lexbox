@@ -2,6 +2,8 @@
     export type ResetProjectModalI18nShape = {
         title: string,
         submit: string,
+        close: string,
+        next: string,
         /* eslint-disable @typescript-eslint/naming-convention */
         download_button: string,
         confirm_downloaded: string,
@@ -9,6 +11,12 @@
         confirm_project_code: string,
         confirm_project_code_error: string,
         reset_project_notification: string,
+        upload_project: string,
+        select_zip: string,
+        download_step: string,
+        reset_step: string,
+        upload_step: string,
+        finished_step: string,
         /* eslint-enable @typescript-eslint/naming-convention */
     };
 </script>
@@ -87,10 +95,10 @@
     <Modal bind:this={modal} on:close={onClose} showCloseButton={false}>
         <h2 class="text-xl mb-4">{$t('title')}</h2>
         <ul class="steps w-full mb-2">
-            <li class="step step-primary">Download</li>
-            <li class="step" class:step-primary={currentStep >= ResetSteps.Reset}>Reset</li>
-            <li class="step" class:step-primary={currentStep >= ResetSteps.Upload}>Upload</li>
-            <li class="step" class:step-primary={currentStep >= ResetSteps.Finished}>Finished</li>
+            <li class="step step-primary">{$t('download_step')}</li>
+            <li class="step" class:step-primary={currentStep >= ResetSteps.Reset}>{$t('reset_step')}</li>
+            <li class="step" class:step-primary={currentStep >= ResetSteps.Upload}>{$t('upload_step')}</li>
+            <li class="step" class:step-primary={currentStep >= ResetSteps.Finished}>{$t('finished_step')}</li>
         </ul>
 
         {#if currentStep === ResetSteps.Download}
@@ -120,6 +128,8 @@
 
         {:else if currentStep === ResetSteps.Upload}
             <TusUpload endpoint={'/api/project/upload-zip/' + code}
+                       uploadLabel={$t('upload_project')}
+                       inputLabel={$t('select_zip')}
                        accept="application/zip"
                        on:uploadComplete={uploadComplete}/>
         {:else if currentStep === ResetSteps.Finished}
@@ -132,7 +142,7 @@
         <svelte:fragment slot="actions">
             {#if currentStep === ResetSteps.Download}
                 <button class="btn btn-primary" on:click={nextStep}>
-                    Next
+                    {$t('next')}
                     <span class="i-mdi-chevron-right text-2xl"/>
                 </button>
             {:else if currentStep === ResetSteps.Reset}
@@ -142,7 +152,7 @@
                 </button>
             {:else if currentStep === ResetSteps.Finished}
                 <button class="btn btn-primary" on:click={() => modal.submitModal()}>
-                    Close
+                  {$t('close')}
                 </button>
             {/if}
         </svelte:fragment>

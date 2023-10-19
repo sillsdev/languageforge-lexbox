@@ -67,7 +67,7 @@ public class ProjectService
     {
         var project = await _dbContext.Projects.Where(p => p.Code == code).SingleOrDefaultAsync();
         if (project is null) throw new NotFoundException($"project {code} not found");
-        if (project.ResetStatus != ResetStatus.InProgress) throw new ProjectResetException($"project {code} not ready to finish reset");
+        if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.NotReadyForUpload(code);
         await _hgService.FinishReset(code, zipFile);
         project.ResetStatus = ResetStatus.None;
         await _dbContext.SaveChangesAsync();
