@@ -82,8 +82,9 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
     public required Guid Id { get; set; }
+
     [JsonPropertyName(LexAuthConstants.AudienceClaimType)]
-    public LexboxAudience Audience { get; set; }
+    public LexboxAudience Audience { get; set; } = LexboxAudience.LexboxApi;
 
     [JsonPropertyName(LexAuthConstants.EmailClaimType)]
     public required string Email { get; set; }

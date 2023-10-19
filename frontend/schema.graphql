@@ -485,8 +485,10 @@ enum DbErrorCode {
 }
 
 enum LexboxAudience {
+  UNKNOWN
   LEXBOX_API
   FORGOT_PASSWORD
+  SEND_AND_RECEIVE
 }
 
 enum ProjectMigrationStatus {
