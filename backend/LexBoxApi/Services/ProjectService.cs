@@ -70,6 +70,7 @@ public class ProjectService
         if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.NotReadyForUpload(code);
         await _hgService.FinishReset(code, zipFile);
         project.ResetStatus = ResetStatus.None;
+        project.LastCommit = await _hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
         await _dbContext.SaveChangesAsync();
     }
 

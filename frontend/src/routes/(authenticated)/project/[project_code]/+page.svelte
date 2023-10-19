@@ -353,9 +353,9 @@
           </button>
           <AdminContent>
               <button class="btn btn-accent" on:click={() => resetProject()}>
-                {$t('project_page.reset_project_modal.title')}<CircleArrowIcon />
+                {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
               </button>
-            <ResetProjectModal bind:this={resetProjectModal} i18nScope="project_page.reset_project_modal" />
+            <ResetProjectModal bind:this={resetProjectModal} />
           </AdminContent>
         </MoreSettings>
       {/if}
