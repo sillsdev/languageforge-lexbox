@@ -189,5 +189,10 @@ export async function _refreshProjectStatus(projectCode: string): Promise<void> 
                 migrationStatus
             }
         }
-    `), { projectCode }, {requestPolicy: 'network-only'});
+    `), { projectCode }, { requestPolicy: 'network-only' });
+
+  if (result.error) {
+    // this should be meaningless, but just in case and it makes the linter happy
+    throw result.error;
+  }
 }

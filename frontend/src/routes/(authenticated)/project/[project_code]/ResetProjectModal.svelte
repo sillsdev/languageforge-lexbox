@@ -1,30 +1,7 @@
-<script context="module" lang="ts">
-    export type ResetProjectModalI18nShape = {
-        title: string,
-        submit: string,
-        close: string,
-        next: string,
-        /* eslint-disable @typescript-eslint/naming-convention */
-        download_button: string,
-        confirm_downloaded: string,
-        confirm_downloaded_error: string,
-        confirm_project_code: string,
-        confirm_project_code_error: string,
-        reset_project_notification: string,
-        upload_project: string,
-        select_zip: string,
-        download_step: string,
-        reset_step: string,
-        upload_step: string,
-        finished_step: string,
-        /* eslint-enable @typescript-eslint/naming-convention */
-    };
-</script>
-
 <script lang="ts">
     import Input from '$lib/forms/Input.svelte';
     import Checkbox from '$lib/forms/Checkbox.svelte';
-    import {tScoped, type I18nShapeKey} from '$lib/i18n';
+    import {tScoped} from '$lib/i18n';
     import {z} from 'zod';
     import {CircleArrowIcon} from '$lib/icons';
     import Modal from '$lib/components/modals/Modal.svelte';
@@ -47,7 +24,9 @@
         currentStep++;
     }
 
-    export let i18nScope: I18nShapeKey<ResetProjectModalI18nShape>;
+    function previousStep(): void {
+        currentStep--;
+    }
 
     let code: string;
     let modal: Modal;
@@ -61,7 +40,7 @@
         return currentStep == ResetSteps.Finished;
     }
 
-    $: t = tScoped<ResetProjectModalI18nShape>(i18nScope);
+    const t = tScoped('project_page.reset_project_modal');
 
     let verify = z.object({
         confirmProjectCode: z.string().refine((value) => value === code, () => ({message: $t('confirm_project_code_error')})),
@@ -93,23 +72,23 @@
 
 <div class="reset-modal contents" class:hide-modal-actions={currentStep === ResetSteps.Upload}>
     <Modal bind:this={modal} on:close={onClose} showCloseButton={false}>
-        <h2 class="text-xl mb-4">{$t('title')}</h2>
+        <h2 class="text-xl mb-4">{$t('title', { code })}</h2>
         <ul class="steps w-full mb-2">
-            <li class="step step-primary">{$t('download_step')}</li>
+            <li class="step step-primary">{$t('backup_step')}</li>
             <li class="step" class:step-primary={currentStep >= ResetSteps.Reset}>{$t('reset_step')}</li>
-            <li class="step" class:step-primary={currentStep >= ResetSteps.Upload}>{$t('upload_step')}</li>
+            <li class="step" class:step-primary={currentStep >= ResetSteps.Upload}>{$t('restore_step')}</li>
             <li class="step" class:step-primary={currentStep >= ResetSteps.Finished}>{$t('finished_step')}</li>
         </ul>
 
-        {#if currentStep === ResetSteps.Download}
-            <div class="form-control">
-                <a rel="external" href="/api/project/backupProject/{code}"
-                   class="btn btn-success w-96" download>
-                    {$t('download_button')}
-                    <span class="i-mdi-download text-2xl"/>
-                </a>
-            </div>
+        <div class="divider my-2" />
 
+        {#if currentStep === ResetSteps.Download}
+            <p class="mb-2 label">First, download a backup of the project that you can use to restore it in step 3:</p>
+            <a rel="external" href="/api/project/backupProject/{code}"
+                class="btn btn-success" download>
+                {$t('download_button')}
+                <span class="i-mdi-download text-2xl"/>
+            </a>
         {:else if currentStep === ResetSteps.Reset}
             <Form id="reset-form" {enhance}>
                 <Checkbox
@@ -127,9 +106,13 @@
             </Form>
 
         {:else if currentStep === ResetSteps.Upload}
+            <div class="label">
+              The project repository was successfully reset. Now upload a zip file to restore it:
+            </div>
             <TusUpload endpoint={'/api/project/upload-zip/' + code}
                        uploadLabel={$t('upload_project')}
                        inputLabel={$t('select_zip')}
+                       inputDescription={$t('should_only_contain_hg')}
                        accept="application/zip"
                        on:uploadComplete={uploadComplete}/>
         {:else if currentStep === ResetSteps.Finished}
@@ -139,10 +122,18 @@
         {:else}
             <span>Unknown step</span>
         {/if}
+        <svelte:fragment slot="extraActions">
+          {#if currentStep === ResetSteps.Reset}
+            <button class="btn btn-secondary" on:click={previousStep}>
+              <span class="i-mdi-chevron-left text-2xl"/>
+                {$t('back')}
+            </button>
+          {/if}
+        </svelte:fragment>
         <svelte:fragment slot="actions">
             {#if currentStep === ResetSteps.Download}
                 <button class="btn btn-primary" on:click={nextStep}>
-                    {$t('next')}
+                    {$t('i_have_working_backup')}
                     <span class="i-mdi-chevron-right text-2xl"/>
                 </button>
             {:else if currentStep === ResetSteps.Reset}
@@ -158,3 +149,9 @@
         </svelte:fragment>
     </Modal>
 </div>
+
+<style>
+  :global(.hide-modal-actions .modal-action) {
+      display: none !important;
+  }
+</style>

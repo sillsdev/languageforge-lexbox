@@ -100,11 +100,13 @@ public class HgService : IHgService
     {
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
         await SoftDeleteRepo(code, $"{timestamp}__reset");
+        await InitRepo(code); // we don't want 404s
     }
 
     public async Task FinishReset(string code, Stream zipFile)
     {
         using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
+        await DeleteRepo(code);
         var repoPath = Path.Combine(_options.Value.RepoPath, code);
         Directory.CreateDirectory(repoPath);
         archive.ExtractToDirectory(repoPath);
@@ -120,6 +122,7 @@ public class HgService : IHgService
         if (hgFolder is null)
         {
             await DeleteRepo(code);
+            await InitRepo(code); // we don't want 404s
             //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
             throw ProjectResetException.ZipMissingHgFolder();
         }

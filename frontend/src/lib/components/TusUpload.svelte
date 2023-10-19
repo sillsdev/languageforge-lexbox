@@ -20,6 +20,7 @@
   export let accept: string;
   export let uploadLabel: string = $t('tus.upload');
   export let inputLabel: string = $t('tus.select_file');
+  export let inputDescription: string | undefined = undefined;
   const dispatch = createEventDispatcher<{
     uploadComplete: { upload: Upload }
   }>();
@@ -37,6 +38,7 @@
     let inputElement = e.target as HTMLInputElement;
     if (!inputElement.files?.length) return;
     let file = inputElement.files[0];
+    console.log(file);
     if (accept === 'application/zip' && !file.name.endsWith('.zip')) {
       fileError = $t('tus.zip_only');
       return;
@@ -121,7 +123,7 @@
 
 <div class="space-y-4">
   <form>
-    <FormField label={inputLabel} id="tus-upload" error={fileError}>
+    <FormField label={inputLabel} id="tus-upload" error={fileError} description={inputDescription}>
       <input id="tus-upload"
              type="file"
              {accept}
@@ -131,10 +133,12 @@
     </FormField>
     <FormError {error}/>
   </form>
-  <p>{$t('tus.status', {status})}</p>
-  <progress class="progress progress-success" class:progress-error={error} value={percent} max="100"/>
 </div>
 
-<div class="mt-6">
+<div class="mt-6 flex items-center gap-6">
   <Button style="btn-success" disabled={status > UploadStatus.Ready} on:click={startUpload}>{uploadLabel}</Button>
+  <div class="flex-1">
+    <p class="label label-text py-0">Upload progress</p>
+    <progress class="progress progress-success" class:progress-error={error} value={percent} max="100"/>
+  </div>
 </div>

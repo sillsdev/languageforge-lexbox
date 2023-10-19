@@ -12,7 +12,7 @@
 
 <script lang="ts">
   import Input from '$lib/forms/Input.svelte';
-  import { tScoped, type I18nShapeKey } from '$lib/i18n';
+  import { tTypeScoped, type I18nShapeKey } from '$lib/i18n';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';
   import type { FormModalResult, FormSubmitCallback } from '$lib/components/modals/FormModal.svelte';
@@ -26,7 +26,7 @@
     return await deletionFormModal.open(onSubmit);
   }
 
-  $: t = tScoped<DeleteModalI18nShape>(i18nScope);
+  $: t = tTypeScoped<DeleteModalI18nShape>(i18nScope);
 
   const verify = z.object({
     keyphrase: z.string().refine((value) => value.match(`^${$t('enter_to_delete.value')}$`)),
