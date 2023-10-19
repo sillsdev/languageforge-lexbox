@@ -13,7 +13,8 @@
   import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
-  import { CircleArrowIcon, TrashIcon } from '$lib/icons';
+  import { CircleArrowIcon, TrashIcon, type IconString } from '$lib/icons';
+  import type { BadgeVariant } from '$lib/components/Badges/Badge.svelte';
   import { notifySuccess, notifyWarning } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import type { ErrorMessage } from '$lib/forms';
@@ -141,6 +142,12 @@
     [ProjectMigrationStatus.PrivateRedmine]: 'Not Migrated (private)',
       [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
   } satisfies Record<ProjectMigrationStatus, string>;
+  const migrationStatusIcon = {
+    [ProjectMigrationStatus.Migrated]: 'i-mdi-check-circle',
+  } satisfies Record<ProjectMigrationStatus, IconString>;
+  const migrationStatusBadgeVariant = {
+    [ProjectMigrationStatus.Migrated]: 'badge-success',
+  } satisfies Record<ProjectMigrationStatus, BadgeVariant>;
   onMount(() => {
       migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
       if (migrationStatus === ProjectMigrationStatus.Migrating) {
@@ -248,7 +255,7 @@
           {#if migrationStatus === ProjectMigrationStatus.Migrating}
             <Badge><span class="loading loading-spinner loading-xs"></span> Migrating</Badge>
           {:else}
-            <Badge>{migrationStatusTable[migrationStatus]}</Badge>
+            <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>{migrationStatusTable[migrationStatus]}</Badge>
           {/if}
         </BadgeList>
       </div>
