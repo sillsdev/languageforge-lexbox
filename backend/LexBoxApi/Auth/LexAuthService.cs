@@ -45,7 +45,7 @@ public class LexAuthService
             IssuerSigningKey = GetSigningKey(jwtOptions),
             //default audience, used for cookie tokens in JwtTicketDataFormat
             ValidAudience = LexboxAudience.LexboxApi.ToString(),
-            ValidAudiences = Enum.GetNames(typeof(LexboxAudience)),
+            ValidAudiences = Enum.GetNames<LexboxAudience>().Where(a => a != LexboxAudience.Unknown.ToString()),
             ValidIssuer = LexboxAudience.LexboxApi.ToString(),
             RequireSignedTokens = true,
             RequireExpirationTime = true,
