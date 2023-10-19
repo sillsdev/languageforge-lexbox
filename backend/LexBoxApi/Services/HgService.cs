@@ -106,6 +106,7 @@ public class HgService : IHgService
     {
         using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
         var repoPath = Path.Combine(_options.Value.RepoPath, code);
+        Directory.CreateDirectory(repoPath);
         archive.ExtractToDirectory(repoPath);
 
         var hgPath = Path.Join(repoPath, ".hg");
@@ -118,7 +119,9 @@ public class HgService : IHgService
         var hgFolder = Directory.EnumerateDirectories(repoPath, ".hg", SearchOption.AllDirectories).FirstOrDefault();
         if (hgFolder is null)
         {
-            throw new ArgumentException("Zip file does not contain a .hg folder");
+            await DeleteRepo(code);
+            //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
+            throw ProjectResetException.ZipMissingHgFolder();
         }
 
         Directory.Move(hgFolder, hgPath);

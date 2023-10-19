@@ -1,6 +1,7 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore.Auth;
+using LexCore.Exceptions;
 using LexData;
 using LexData.Entities;
 using LexData.Redmine;
@@ -96,5 +97,12 @@ public class TestingController : ControllerBase
     public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);
 
     public record TestingControllerProjectUser(string? Username, string Role, string Email, Guid Id);
+
+    [HttpGet("throwsException")]
+    [AllowAnonymous]
+    public ActionResult ThrowsException()
+    {
+        throw new ExceptionWithCode("This is a test exception", "test-error");
+    }
 }
 #endif
