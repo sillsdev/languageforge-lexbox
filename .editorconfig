@@ -38,15 +38,15 @@ trim_trailing_whitespace = false
 
 ; applies only to PHP files
 [*.php]
-tab_width = 4
-indent_size = 4
-continuation_indent_size = 4
+tab_width = 2
+indent_size = 2
+continuation_indent_size = 2
 
 ; applies to the rest of these files
 [*.{css, html, xml}]
-tab_width = 4
-indent_size = 4
-continuation_indent_size = 8
+tab_width = 2
+indent_size = 2
+continuation_indent_size = 2
 
 [*.cs]
 tab_width = 4
