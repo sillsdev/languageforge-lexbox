@@ -246,4 +246,17 @@ public class RepoMigrationTests : IAsyncLifetime
         _repoMigrationService.QueueMigration(projectA.Code);
         await ExpectMigrationCalled();
     }
+
+    [Fact]
+    public async Task ShutdownServiceShouldCancelAnyMigrationFinishedTasks()
+    {
+        await StartMigrationService();
+
+        var migrationP1Task = _repoMigrationService.WaitMigrationFinishedAsync("p1", CancellationToken.None);
+        var migrationP2Task = _repoMigrationService.WaitMigrationFinishedAsync("p2", CancellationToken.None);
+
+        await _repoMigrationService.StopAsync(Timeout());
+        await migrationP1Task.ShouldThrowAsync<OperationCanceledException>();
+        await migrationP2Task.ShouldThrowAsync<OperationCanceledException>();
+    }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
 using LexBoxApi.Otel;
@@ -27,6 +28,8 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
     public ChannelReader<string> MigrationCompleted => _migrationCompleted.Reader;
 
     private readonly TaskCompletionSource _started = new();
+    private object _shutdownLock = new();
+    private bool _shutdownStarted = false;
     /// used for tests to determine that the projects have been queried from the db on startup
     public Task Started => _started.Task;
 
@@ -40,6 +43,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
     /// </summary>
     public async Task WaitMigrationFinishedAsync(string projectCode, CancellationToken cancellationToken)
     {
+        if (_shutdownStarted) ThrowShutdownStarted();
         var channel = Channel.CreateUnbounded<string>();
         var key = Guid.NewGuid();
         using var cleanup = Defer.Action(() =>
@@ -47,13 +51,24 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
             channel.Writer.TryComplete();
             _projectMigrationChannels.TryRemove(key, out _);
         });
-        _projectMigrationChannels.TryAdd(key, channel);
+        lock (_shutdownLock)
+        {
+            if (_shutdownStarted) ThrowShutdownStarted();
+            _projectMigrationChannels.TryAdd(key, channel);
+        }
         //only way this stops is if the token is cancelled.
         await foreach (var projectMigrated in channel.Reader.ReadAllAsync(cancellationToken))
         {
             if (projectMigrated != projectCode) continue;
             return;
         }
+        throw new OperationCanceledException("Server is shutting down");
+    }
+
+    [DoesNotReturn]
+    private void ThrowShutdownStarted()
+    {
+        throw new InvalidOperationException("Shutdown has started, can't wait for migration");
     }
 
     private void MigrationFinished(string projectCode)
@@ -97,6 +112,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        using var shutdown = Defer.Action(OnShutdown);
         //load currently migrating projects into the queue
         await using (var scope = _serviceProvider.CreateAsyncScope())
         {
@@ -135,6 +151,18 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
             {
                 MigrationFinished(projectCode);
             }
+        }
+    }
+
+    private void OnShutdown()
+    {
+        lock (_shutdownLock)
+        {
+            _shutdownStarted = true;
+        }
+        foreach (var (_, channel) in _projectMigrationChannels)
+        {
+            channel.Writer.TryComplete();
         }
     }
 
