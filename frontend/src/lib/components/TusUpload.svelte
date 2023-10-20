@@ -27,13 +27,13 @@
 
   let status = UploadStatus.NoFile;
   let percent = 0;
-  let error: string | undefined = undefined;
   let fileError: string | undefined = undefined;
+  let uploadError: string | undefined = undefined;
   let upload: Upload | undefined;
   const maxUploadChunkSizeMb = parseInt(env.PUBLIC_TUS_CHUNK_SIZE_MB);
 
   function fileSelected(e: Event): void {
-    error = fileError = upload = undefined;
+    uploadError = fileError = upload = undefined;
     status = UploadStatus.NoFile;
     let inputElement = e.target as HTMLInputElement;
     if (!inputElement.files?.length) return;
@@ -63,10 +63,10 @@
         status = UploadStatus.Error;
         const errorCode = getErrorCode(err);
         if (errorCode !== 'unknown') {
-          error = $t('tus.server_error_codes.' + errorCode);
+          uploadError = $t('tus.server_error_codes.' + errorCode);
           return;
         }
-        error = err.message;
+        uploadError = err.message;
       },
       onShouldRetry: (err) => {
         //probably won't do anything as this is what the library does already, more to make ts happy and to avoid breaking if the library changes it's implementation
@@ -131,14 +131,14 @@
              on:cancel|stopPropagation
              on:change={fileSelected}/>
     </FormField>
-    <FormError {error}/>
+    <FormError error={uploadError}/>
   </form>
 </div>
 
 <div class="mt-6 flex items-center gap-6">
   <Button style="btn-success" disabled={status > UploadStatus.Ready} on:click={startUpload}>{uploadLabel}</Button>
   <div class="flex-1">
-    <p class="label label-text py-0">Upload progress</p>
-    <progress class="progress progress-success" class:progress-error={error} value={percent} max="100"/>
+    <p class="label label-text py-0">{$t('tus.upload_progress')}</p>
+    <progress class="progress progress-success" class:progress-error={uploadError} value={percent} max="100"/>
   </div>
 </div>

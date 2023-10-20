@@ -14,6 +14,7 @@ import type {
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
+import { invalidate } from '$app/navigation';
 
 type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -32,7 +33,7 @@ export async function load(event: PageLoadEvent) {
 						description
 						type
             migrationStatus
-                        resetStatus
+            resetStatus
 						lastCommit
 						createdDate
 						retentionPolicy
@@ -180,13 +181,21 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
   return result;
 }
 
-export async function _refreshProjectStatus(projectCode: string): Promise<void> {
+export async function _refreshProjectMigrationStatusAndRepoInfo(projectCode: string): Promise<void> {
     const result = await getClient().query(graphql(`
         query refreshProjectStatus($projectCode: String!) {
-            projectByCode(code: $projectCode){
+            projectByCode(code: $projectCode) {
                 id
                 resetStatus
                 migrationStatus
+                lastCommit
+                changesets {
+                  node
+                  parents
+                  date
+                  user
+                  desc
+                }
             }
         }
     `), { projectCode }, { requestPolicy: 'network-only' });
@@ -195,4 +204,6 @@ export async function _refreshProjectStatus(projectCode: string): Promise<void> 
     // this should be meaningless, but just in case and it makes the linter happy
     throw result.error;
   }
+
+  await invalidate(`project:${projectCode}`);
 }

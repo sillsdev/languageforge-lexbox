@@ -251,8 +251,13 @@
             <Badge>{migrationStatusTable[migrationStatus]}</Badge>
           {/if}
           {#if project.resetStatus === ResetStatus.InProgress}
-            <Badge type="badge-warning">Project Reset in progress
-            <span class="i-mdi-warning text-xl mb-[-2px]"/></Badge>
+            <button class:tooltip={isAdmin(user)} data-tip={$t('project_page.reset_project_modal.click_to_continue')}
+              disabled={!isAdmin(user)} on:click={resetProject}>
+              <Badge type="badge-warning">
+                {$t('project_page.reset_project_modal.reset_in_progress')}
+                <span class="i-mdi-warning text-xl mb-[-2px]"/>
+              </Badge>
+            </button>
           {/if}
         </BadgeList>
       </div>
@@ -352,7 +357,7 @@
             {$t('delete_project_modal.submit')}<TrashIcon />
           </button>
           <AdminContent>
-              <button class="btn btn-accent" on:click={() => resetProject()}>
+              <button class="btn btn-accent" on:click={resetProject}>
                 {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
               </button>
             <ResetProjectModal bind:this={resetProjectModal} />
