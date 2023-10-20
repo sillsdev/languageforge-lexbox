@@ -13,7 +13,7 @@ indent_style = tab
 tab_width = 4
 
 ; applies only to JS, TS, and YML files
-[*.{js,ts,yml}]
+[*.{js,ts,yml,yaml}]
 tab_width = 2
 indent_size = 2
 continuation_indent_size = 2

@@ -1,0 +1,57 @@
+name: develop API CI/CD
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/lexbox-api.yaml'
+      - '.github/workflows/deploy.yaml'
+      - 'deployment/lexbox-deployment.yaml'
+    branches:
+      - develop
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/lexbox-api.yaml'
+      - '.github/workflows/deploy.yaml'
+      - 'deployment/lexbox-deployment.yaml'
+    branches:
+      - develop
+
+jobs:
+  set-version:
+    name: Set Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.setVersion.outputs.VERSION }}
+    steps:
+      - name: Set Version
+        id: setVersion
+        # set version to date in vYYYY-MM-DD-commitSha format
+        run: |
+          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
+          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
+  build-api:
+    name: Build API
+    needs: set-version
+    uses: ./.github/workflows/lexbox-api.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+  deploy-api:
+    name: Deploy API
+    needs: [ build-api, set-version ]
+    uses: ./.github/workflows/deploy.yaml
+    secrets: inherit
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      image: 'ghcr.io/sillsdev/lexbox-api'
+      k8s-environment: staging #todo change to develop
+      health-endpoint: https://staging.languagedepot.org/api/healthz #todo change to develop
+
+  integration-tests:
+    name: Integration tests
+    uses: ./.github/workflows/integration-test.yaml
+    permissions:
+      checks: write
+    secrets: inherit
+    needs: deploy-api
