@@ -51,24 +51,24 @@ export async function load(event: PageLoadEvent) {
       { projectCode }
     );
   const changesets = client
-  .queryStore(event.fetch,
-    graphql(`
-      query projectChangesets($projectCode: String!) {
-        projectByCode(code: $projectCode) {
-          id
-          code
-          changesets {
-            node
-            parents
-            date
-            user
-            desc
+    .queryStore(event.fetch,
+      graphql(`
+        query projectChangesets($projectCode: String!) {
+          projectByCode(code: $projectCode) {
+            id
+            code
+            changesets {
+              node
+              parents
+              date
+              user
+              desc
+            }
           }
         }
-      }
-    `),
-    { projectCode }
-  );
+      `),
+      { projectCode }
+    );
 
   event.depends(`project:${projectCode}`);
   return {
@@ -103,7 +103,7 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
         }
       `),
       { input: input }
-  );
+    );
   return result;
 }
 

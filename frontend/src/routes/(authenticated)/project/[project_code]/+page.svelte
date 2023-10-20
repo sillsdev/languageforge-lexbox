@@ -33,17 +33,17 @@
   import { onMount } from 'svelte';
   import Button from '$lib/forms/Button.svelte';
   import Icon from '$lib/icons/Icon.svelte';
+  import { filterDefined, unwrapToStore } from '$lib/util/store';
+  import { derived } from 'svelte/store';
 
   export let data: PageData;
   $: user = data.user;
   let projectStore = data.project;
   $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
-  $: changesetPromise = data.promise.changesets.then((result) => {
-    return new Promise((fulfill) => {
-      result.projectByCode.subscribe((x) => { if (x) { fulfill(x.changesets); } });
-    })
-  })
+  $: changesets = derived(filterDefined(
+    unwrapToStore(data.promise.changesets, changesetsResult => changesetsResult?.projectByCode)),
+    projectChangesets => projectChangesets?.changesets);
 
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
@@ -355,13 +355,8 @@
           </a>
         </p>
 
-        <!-- <HgWeb code={project.code} /> -->
         <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          {#await changesetPromise}
-            Loading log view...
-          {:then changesets}
-            <HgLogView json={changesets} />
-          {/await}
+          <HgLogView logEntries={changesets} />
         </div>
       </div>
 
