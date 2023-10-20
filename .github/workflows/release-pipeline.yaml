@@ -1,0 +1,46 @@
+name: Release pipeline
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  set-version:
+    name: Set Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.setVersion.outputs.VERSION }}
+    steps:
+      - name: Set Version
+        id: setVersion
+        # set version to date in vYYYY-MM-DD-commitSha format
+        run: |
+          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
+          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
+  build-api:
+    name: Build API
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-api.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: true
+
+  build-ui:
+    name: Build UI
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-ui.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: true
+
+  deploy:
+    name: Deploy
+    uses: ./.github/workflows/deploy.yaml
+    needs: [ build-api, build-ui, set-version ]
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      image: 'ghcr.io/sillsdev/lexbox-api' # todo need to be able to update more than one image at a time
+      k8s-environment: staging #
+      health-endpoint: https://staging.languagedepot.org/api/healthz
+
+
