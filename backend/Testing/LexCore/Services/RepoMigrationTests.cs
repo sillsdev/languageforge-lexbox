@@ -252,8 +252,8 @@ public class RepoMigrationTests : IAsyncLifetime
     {
         await StartMigrationService();
 
-        var migrationP1Task = _repoMigrationService.WaitMigrationFinishedAsync("p1", CancellationToken.None);
-        var migrationP2Task = _repoMigrationService.WaitMigrationFinishedAsync("p2", CancellationToken.None);
+        var migrationP1Task = _repoMigrationService.WaitMigrationFinishedAsync("p1", Timeout());
+        var migrationP2Task = _repoMigrationService.WaitMigrationFinishedAsync("p2", Timeout());
 
         await _repoMigrationService.StopAsync(Timeout());
         await migrationP1Task.ShouldThrowAsync<OperationCanceledException>();
