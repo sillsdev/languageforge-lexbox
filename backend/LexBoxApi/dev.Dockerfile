@@ -9,7 +9,7 @@ WORKDIR /src/backend
 # Copy the main source project files
 COPY */*.csproj *.sln ./
 # move them into the proper sub folders, based on the name of the project
-RUN for file in $(ls *.csproj); do dir=${file%.*} mkdir -p ${file%.*}/ && mv $file ${file%.*}/ && echo dotnet restore ${file%.*}/${file} >> restore-csprojs.sh; done; bash restore-csprojs.sh; rm restore-csprojs.sh
+RUN for file in $(ls *.csproj); do dir=${file%.*} mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done; dotnet restore FixFwData/FixFwData.csproj; dotnet restore LexBoxApi/LexBoxApi.csproj
 
 COPY . .
 WORKDIR /src/backend/LexBoxApi
