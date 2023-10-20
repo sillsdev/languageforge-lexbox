@@ -21,7 +21,7 @@ public class RepoMigrationTests : IAsyncLifetime
     private readonly TaskCompletionSource<Project> _migrateCalled =
         new(TaskCreationOptions.RunContinuationsAsynchronously);
     private bool _autoCompleteMigration = true;
-    private readonly TaskCompletionSource<bool> _migrationCompleted = new();
+    private readonly TaskCompletionSource<bool> _hgMigrateTaskSource = new();
 
     public RepoMigrationTests(TestingServicesFixture testing)
     {
@@ -35,7 +35,7 @@ public class RepoMigrationTests : IAsyncLifetime
                     return Task.FromResult(true);
                 }
 
-                return _migrationCompleted.Task;
+                return _hgMigrateTaskSource.Task;
             });
         var serviceProvider = testing.ConfigureServices(s =>
         {
@@ -62,15 +62,21 @@ public class RepoMigrationTests : IAsyncLifetime
     public async Task DisposeAsync()
     {
         _migrationServiceToken.Cancel();
-        if (!_migrationCompleted.Task.IsCompleted)
+        if (!_hgMigrateTaskSource.Task.IsCompleted)
         {
             //service stop will deadlock if this task isn't cancelled.
-            _migrationCompleted.SetCanceled();
+            _hgMigrateTaskSource.SetCanceled();
         }
 
         //need to stop first to avoid race condition with db context, if we don't pass in a token this could hang the tests
-        await _repoMigrationService.StopAsync(new CancellationTokenSource(10).Token);
+        await _repoMigrationService.StopAsync(Timeout(1000));
         await _lexBoxDbContext.Database.RollbackTransactionAsync();
+    }
+
+    private CancellationToken Timeout(int ms = 100)
+    {
+        var cts = new CancellationTokenSource(ms);
+        return cts.Token;
     }
 
     private Project Project([CallerMemberName] string code = "")
@@ -155,7 +161,7 @@ public class RepoMigrationTests : IAsyncLifetime
         _lexBoxDbContext.Add(project);
         await _lexBoxDbContext.SaveChangesAsync();
 
-        var waitCompletedTask = _repoMigrationService.WaitMigrationFinishedAsync(project.Code, CancellationToken.None);
+        var waitCompletedTask = _repoMigrationService.WaitMigrationFinishedAsync(project.Code, Timeout());
 
         _repoMigrationService.QueueMigration(project.Code);
         await ExpectMigrationCalled();
@@ -170,14 +176,14 @@ public class RepoMigrationTests : IAsyncLifetime
         _lexBoxDbContext.Add(project);
         await _lexBoxDbContext.SaveChangesAsync();
 
-        var waitCompletedTask = _repoMigrationService.WaitMigrationFinishedAsync("wrong-code", CancellationToken.None);
+        var waitCompletedTask = _repoMigrationService.WaitMigrationFinishedAsync("wrong-code", Timeout(1000));
 
         _repoMigrationService.QueueMigration(project.Code);
         await ExpectMigrationCalled();
         (await Task.WhenAny(waitCompletedTask, Task.Delay(100))).ShouldNotBe(waitCompletedTask);
     }
 
-    [Fact(Skip = "Preventing the API from being deployed")]
+    [Fact]
     public async Task CanNotSendReceiveWhenMigrating()
     {
         await StartMigrationService();
@@ -193,9 +199,10 @@ public class RepoMigrationTests : IAsyncLifetime
         var sendReceiveToken = await _repoMigrationService.BeginSendReceive(project.Code);
         sendReceiveToken.ShouldBeNull();
 
-        //migration finished
-        _migrationCompleted.SetResult(true);
-        await _repoMigrationService.WaitMigrationFinishedAsync(project.Code, CancellationToken.None);
+        //migration finished, avoid race condition by starting to wait before we mark completed.
+        var migrationFinishedTask = _repoMigrationService.WaitMigrationFinishedAsync(project.Code, Timeout());
+        _hgMigrateTaskSource.SetResult(true);
+        await migrationFinishedTask;
         _lexProxyServiceMock.Verify(l => l.ClearProjectMigrationInfo(project.Code));
 
         //allowed to begin now
