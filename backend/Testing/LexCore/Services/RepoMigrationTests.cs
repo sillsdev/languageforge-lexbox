@@ -259,4 +259,12 @@ public class RepoMigrationTests : IAsyncLifetime
         await migrationP1Task.ShouldThrowAsync<OperationCanceledException>();
         await migrationP2Task.ShouldThrowAsync<OperationCanceledException>();
     }
+
+    [Fact]
+    public async Task CantWaitMigrationWhenServiceIsShuttingDown()
+    {
+        await StartMigrationService();
+        await _repoMigrationService.StopAsync(Timeout());
+        await _repoMigrationService.WaitMigrationFinishedAsync("p1", Timeout()).ShouldThrowAsync<InvalidOperationException>();
+    }
 }
