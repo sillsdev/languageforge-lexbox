@@ -1,9 +1,9 @@
 ﻿<script lang="ts">
-  import {Upload, type DetailedError} from 'tus-js-client';
+  import { Upload, type DetailedError } from 'tus-js-client';
   import Button from '$lib/forms/Button.svelte';
-  import {env} from '$env/dynamic/public';
+  import { env } from '$env/dynamic/public';
   import FormField from '$lib/forms/FormField.svelte';
-  import {createEventDispatcher, onDestroy} from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import FormError from '$lib/forms/FormError.svelte';
   import t from '$lib/i18n';
 
@@ -13,7 +13,7 @@
     Error = 'Error',
     Uploading = 'Uploading',
     Paused = 'Paused',
-    Complete = 'Complete'
+    Complete = 'Complete',
   }
 
   export let endpoint: string;
@@ -22,7 +22,7 @@
   export let inputLabel: string = $t('tus.select_file');
   export let inputDescription: string | undefined = undefined;
   const dispatch = createEventDispatcher<{
-    uploadComplete: { upload: Upload }
+    uploadComplete: { upload: Upload };
   }>();
 
   let status = UploadStatus.NoFile;
@@ -47,17 +47,16 @@
       chunkSize: maxUploadChunkSizeMb * 1024 * 1024,
       endpoint,
       metadata: {
-        filetype: file.type
+        filetype: file.type,
       },
       uploadDataDuringCreation: false,
       onProgress: (bytesUploaded, bytesTotal) => {
-        percent = bytesTotal > 0 ? bytesUploaded / bytesTotal * 100 : 0;
+        percent = bytesTotal > 0 ? (bytesUploaded / bytesTotal) * 100 : 0;
       },
       onSuccess: () => {
         status = UploadStatus.Complete;
         percent = 100;
-        if (upload)
-          dispatch('uploadComplete', {upload});
+        if (upload) dispatch('uploadComplete', { upload });
       },
       onError: (err) => {
         status = UploadStatus.Error;
@@ -78,7 +77,7 @@
 
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
         return navigator.onLine && (status === 409 || status == 423 || status < 400 || 499 < status);
-      }
+      },
     });
     percent = 0;
     status = UploadStatus.Ready;
@@ -124,14 +123,16 @@
 <div class="space-y-4">
   <form>
     <FormField label={inputLabel} id="tus-upload" error={fileError} description={inputDescription}>
-      <input id="tus-upload"
-             type="file"
-             {accept}
-             class="file-input file-input-bordered file-input-primary"
-             on:cancel|stopPropagation
-             on:change={fileSelected}/>
+      <input
+        id="tus-upload"
+        type="file"
+        {accept}
+        class="file-input file-input-bordered file-input-primary"
+        on:cancel|stopPropagation
+        on:change={fileSelected}
+      />
     </FormField>
-    <FormError error={uploadError}/>
+    <FormError error={uploadError} />
   </form>
 </div>
 
@@ -139,6 +140,6 @@
   <Button style="btn-success" disabled={status > UploadStatus.Ready} on:click={startUpload}>{uploadLabel}</Button>
   <div class="flex-1">
     <p class="label label-text py-0">{$t('tus.upload_progress')}</p>
-    <progress class="progress progress-success" class:progress-error={uploadError} value={percent} max="100"/>
+    <progress class="progress progress-success" class:progress-error={uploadError} value={percent} max="100" />
   </div>
 </div>
