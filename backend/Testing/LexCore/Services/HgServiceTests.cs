@@ -119,6 +119,6 @@ public class HgServiceTests
 
         stream.Position = 0;
         var act = () => _hgService.FinishReset(code, stream);
-        act.ShouldThrow<ArgumentException>();
+        act.ShouldThrow<ProjectResetException>();
     }
 }
