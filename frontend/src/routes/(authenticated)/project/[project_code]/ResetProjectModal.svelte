@@ -9,7 +9,9 @@
     import Form from '$lib/forms/Form.svelte';
     import TusUpload from '$lib/components/TusUpload.svelte';
     import {ResetStatus} from '$lib/gql/generated/graphql';
-    import {_refreshProjectStatus} from './+page';
+    import {_refreshProjectMigrationStatusAndRepoInfo} from './+page';
+    import { scale } from 'svelte/transition';
+    import { bounceIn } from 'svelte/easing';
 
     enum ResetSteps {
         Download,
@@ -52,14 +54,14 @@
         const resetResponse = await fetch(url, {method: 'post'});
         //we should do the reset via a mutation, but this is easier for now
         //we need to refresh the status so if the admin closes the dialog they can resume back where they left off.
-        await _refreshProjectStatus(code);
+        await _refreshProjectMigrationStatusAndRepoInfo(code);
         if (resetResponse.ok) {
             nextStep();
         }
     });
 
     async function uploadComplete(): Promise<void> {
-        await _refreshProjectStatus(code);
+        await _refreshProjectMigrationStatusAndRepoInfo(code);
         nextStep();
     }
 
@@ -83,7 +85,9 @@
         <div class="divider my-2" />
 
         {#if currentStep === ResetSteps.Download}
-            <p class="mb-2 label">First, download a backup of the project that you can use to restore it in step 3:</p>
+            <p class="mb-2 label">
+              {$t('download_instruction')}
+            </p>
             <a rel="external" href="/api/project/backupProject/{code}"
                 class="btn btn-success" download>
                 {$t('download_button')}
@@ -107,7 +111,7 @@
 
         {:else if currentStep === ResetSteps.Upload}
             <div class="label">
-              The project repository was successfully reset. Now upload a zip file to restore it:
+              {$t('upload_instruction')}
             </div>
             <TusUpload endpoint={'/api/project/upload-zip/' + code}
                        uploadLabel={$t('upload_project')}
@@ -117,7 +121,10 @@
                        on:uploadComplete={uploadComplete}/>
         {:else if currentStep === ResetSteps.Finished}
             <div class="text-center">
-                <span class="i-mdi-check text-6xl"/>
+              <p class="mb-2 label justify-center">
+                {$t('reset_success')}
+              </p>
+              <span class="i-mdi-check-circle-outline text-7xl text-success" transition:scale={{duration: 600, start: 0.7, easing: bounceIn}} />
             </div>
         {:else}
             <span>Unknown step</span>
