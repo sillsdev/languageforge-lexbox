@@ -144,7 +144,7 @@ spec:
             value: http://localhost
 
       - name: otel-collector
-        image: otel/opentelemetry-collector:0.73.0
+        image: otel/opentelemetry-collector-contrib:0.87.0
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -155,7 +155,7 @@ spec:
           - containerPort: 4318
           - containerPort: 4317
         volumeMounts:
-          - mountPath: /etc/otelcol
+          - mountPath: /etc/otelcol-contrib
             name: otel-config
             readOnly: true
 
