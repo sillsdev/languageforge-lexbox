@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using Chorus.VcsDrivers.Mercurial;
+using LexBoxApi.Auth;
 using LexCore.Utils;
 using Shouldly;
 using SIL.Progress;
@@ -78,7 +79,9 @@ public class SendReceiveServiceTests
     [Fact]
     public void CloneBigProject()
     {
-        RunCloneSendReceive(HgProtocol.Hgweb, "admin", "elawa-dev-flex");
+        RunCloneSendReceive(HgProtocol.Hgweb,
+            new SendReceiveAuth("admin", TestingEnvironmentVariables.DefaultPassword),
+            "elawa-dev-flex");
     }
 
     [Theory]
@@ -88,13 +91,28 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
     {
-        RunCloneSendReceive(hgProtocol, user, TestingEnvironmentVariables.ProjectCode);
+        RunCloneSendReceive(hgProtocol,
+            new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword),
+            TestingEnvironmentVariables.ProjectCode);
     }
-    private void RunCloneSendReceive(HgProtocol hgProtocol, string user, string projectCode)
+
+    [Theory]
+    [InlineData(HgProtocol.Hgweb, "admin")]
+    [InlineData(HgProtocol.Hgweb, "manager")]
+    [InlineData(HgProtocol.Resumable, "admin")]
+    [InlineData(HgProtocol.Resumable, "manager")]
+    public async Task CanCloneSendReceiveWithJwtOverBasicAuth(HgProtocol hgProtocol, string user)
     {
-        var auth = new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword);
+        var jwt = await JwtHelper.GetJwtForUser(new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword));
+        RunCloneSendReceive(hgProtocol,
+            new SendReceiveAuth(AuthKernel.JwtOverBasicAuthUsername, jwt),
+            TestingEnvironmentVariables.ProjectCode);
+    }
+
+    private void RunCloneSendReceive(HgProtocol hgProtocol, SendReceiveAuth auth, string projectCode)
+    {
         var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(),
-            GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), user)));
+            GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), auth.Username)));
         var projectDir = sendReceiveParams.DestDir;
         var fwDataFile = sendReceiveParams.FwDataFile;
 

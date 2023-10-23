@@ -57,19 +57,7 @@ public class ProxyHgRequests
     [Fact]
     public async Task TestGetWithJwtInBasicAuth()
     {
-        var response = await Client.PostAsJsonAsync(
-            $"{_baseUrl}/api/login",
-            new Dictionary<string, object>
-            {
-                { "password",  TestData.Password }, { "emailOrUsername", TestData.User }, { "preHashedPassword", false }
-            });
-        response.EnsureSuccessStatusCode();
-        var cookies = response.Headers.GetValues("Set-Cookie");
-        var cookieContainer = new CookieContainer();
-        cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
-        var authCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
-        authCookie.ShouldNotBeNull();
-        var jwt = authCookie.Value;
+        var jwt = await JwtHelper.GetJwtForUser(new(TestData.User, TestData.Password));
         jwt.ShouldNotBeNullOrEmpty();
 
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
