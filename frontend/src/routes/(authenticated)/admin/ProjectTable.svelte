@@ -15,10 +15,12 @@ import {ActiveFilter, FilterBar} from '$lib/components/FilterBar';
 import Badge from '$lib/components/Badges/Badge.svelte';
 import {getSearchParams, queryParam} from '$lib/util/query-params';
 import type {ProjectType} from '$lib/gql/types';
+import {ProjectMigrationStatus} from '$lib/gql/generated/graphql';
 import AuthenticatedUserIcon from '$lib/icons/AuthenticatedUserIcon.svelte';
 import IconButton from '$lib/components/IconButton.svelte';
 import {bubbleFocusOnDestroy} from '$lib/util/focus';
 import Button from '$lib/forms/Button.svelte';
+import AdminContent from '$lib/layout/AdminContent.svelte';
 export let projects: Project[];
 export let users: User[];
 
@@ -72,6 +74,18 @@ async function softDeleteProject(project: Project): Promise<void> {
         notifyWarning($t('delete_project_modal.success', {name: project.name, code: project.code}));
     }
 }
+
+  const migrationStatusTable = {
+    [ProjectMigrationStatus.Migrated]: 'i-mdi-checkbox-marked-circle-outline',
+    [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
+    [ProjectMigrationStatus.Unknown]: 'i-mdi-help-circle-outline',
+    [ProjectMigrationStatus.PrivateRedmine]: 'i-mdi-checkbox-blank-circle-outline',
+    [ProjectMigrationStatus.PublicRedmine]: 'i-mdi-checkbox-blank-circle-outline',
+  } satisfies Record<ProjectMigrationStatus, string>;
+  function migrationStatusIcon(migrationStatus) {
+    migrationStatus = migrationStatus ?? ProjectMigrationStatus.Unknown;
+    return migrationStatusTable[migrationStatus] ?? migrationStatusTable[ProjectMigrationStatus.Unknown];
+  }
 </script>
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
 <div>
@@ -177,6 +191,9 @@ async function softDeleteProject(project: Project): Promise<void> {
                     {$t('admin_dashboard.column_last_change')}
                     <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2"/>
                 </th>
+                <AdminContent>
+                  <th>{$t('admin_dashboard.column_migrated')}</th>
+                </AdminContent>
                 <th>{$t('admin_dashboard.column_type')}</th>
                 <th/>
             </tr>
@@ -207,6 +224,9 @@ async function softDeleteProject(project: Project): Promise<void> {
                             <FormatDate date={project.lastCommit}/>
                         {/if}
                     </td>
+                    <AdminContent>
+                      <td><span class={migrationStatusIcon(project.migrationStatus)} /></td>
+                    </AdminContent>
                     <td>
                   <span class="tooltip align-bottom" data-tip={$t(getProjectTypeI18nKey(project.type))}>
                     <ProjectTypeIcon type={project.type}/>

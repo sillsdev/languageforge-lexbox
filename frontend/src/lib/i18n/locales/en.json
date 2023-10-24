@@ -5,6 +5,7 @@
     "column_created": "Created",
     "column_email": "Email",
     "column_last_change": "Last Change",
+    "column_migrated": "Migrated",
     "column_name": "Name",
     "column_role": "Role",
     "column_type": "Type",
