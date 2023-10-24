@@ -6,7 +6,7 @@
 </script>
 
 {#if showing < total}
-  <div class="text px-6 pt-4 text-secondary flex gap-2 items-center">
+  <div class="text px-6 text-secondary flex gap-2 items-center">
     <span class="i-mdi-creation-outline text-lg" />
     {$t('table.refine_filter', { remainingRows: total - showing })}
   </div>
