@@ -1,4 +1,4 @@
-name: develop API CI/CD
+name: Develop API CI/CD
 on:
   workflow_dispatch:
   push:
