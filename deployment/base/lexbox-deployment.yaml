@@ -142,6 +142,10 @@ spec:
                 name: email
           - name: Email__BaseUrl
             value: http://localhost
+          - name: Tus__TestUploadPath
+            value: /tmp/tus-test-upload
+          - name: Tus__ResetUploadPath
+            value: /tmp/tus-reset-upload
 
       - name: otel-collector
         image: otel/opentelemetry-collector:0.73.0
