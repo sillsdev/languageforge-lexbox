@@ -49,12 +49,6 @@ jobs:
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
-      - name: Mask Playwright traces
-        if: always()
-        shell: pwsh
-        env:
-          PLAYWRIGHT_SECRET_1: ${{ secrets.TEST_USER_PASSWORD }}
-        run: pwsh backend/Testing/Browser/mask-playwright-traces.ps1 --traceDir ./bin/playwright-traces
       - name: Password protect Playwright traces
         if: always()
         shell: bash
