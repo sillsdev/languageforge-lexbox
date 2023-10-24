@@ -7,6 +7,7 @@ using LexCore.Auth;
 using LexCore.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shouldly;
 
@@ -14,16 +15,19 @@ namespace Testing.LexCore;
 
 public class LexAuthUserTests
 {
+    private readonly LexAuthService _lexAuthService = new LexAuthService(
+        new OptionsWrapper<JwtOptions>(JwtOptions.TestingOptions),
+        null,
+        null,
+        null);
+
     private readonly LexAuthUser _user = new()
     {
         Id = Guid.NewGuid(),
         Email = "test@test.com",
         Role = UserRole.user,
         Name = "test",
-        Projects = new[]
-        {
-            new AuthUserProject("test-flex", ProjectRole.Manager, Guid.NewGuid())
-        }
+        Projects = new[] { new AuthUserProject("test-flex", ProjectRole.Manager, Guid.NewGuid()) }
     };
 
     [Fact]
@@ -80,6 +84,17 @@ public class LexAuthUserTests
         var token = tokenHandler.ReadJwtToken(jwt);
 
         var newUser = JsonSerializer.Deserialize<LexAuthUser>(Base64UrlEncoder.Decode(token.RawPayload));
+        _user.ShouldBeEquivalentTo(newUser);
+    }
+
+    [Fact]
+    public void CanRoundTripJwtFromUserThroughLexAuthService()
+    {
+        var (jwt, _) = _lexAuthService.GenerateJwt(_user);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var outputJwt = tokenHandler.ReadJwtToken(jwt);
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
+        var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         _user.ShouldBeEquivalentTo(newUser);
     }
 }

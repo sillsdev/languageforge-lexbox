@@ -125,7 +125,7 @@ public class LexAuthService
         var identity = new ClaimsIdentity(JwtBearerDefaults.AuthenticationScheme);
         var id = Guid.NewGuid().ToString().GetHashCode().ToString("x", CultureInfo.InvariantCulture);
         identity.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, id));
-        identity.AddClaims(user.GetClaims());
+        identity.AddClaims(user.GetClaims().Where(c => c.Type != JwtRegisteredClaimNames.Aud));
         var handler = new JwtSecurityTokenHandler();
         var jwt = handler.CreateJwtSecurityToken(
             audience: audience.ToString(),
