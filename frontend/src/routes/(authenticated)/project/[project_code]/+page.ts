@@ -15,7 +15,6 @@ import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import { derived } from 'svelte/store';
-import { invalidate } from '$app/navigation';
 
 type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -221,6 +220,4 @@ export async function _refreshProjectMigrationStatusAndRepoInfo(projectCode: str
     // this should be meaningless, but just in case and it makes the linter happy
     throw result.error;
   }
-
-  await invalidate(`project:${projectCode}`);
 }
