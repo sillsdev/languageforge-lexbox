@@ -1,7 +1,7 @@
 import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web'
 import { SERVICE_NAME, ensureErrorIsTraced, tracer } from '.'
 
-import {APP_VERSION} from '$lib/util/verstion';
+import {APP_VERSION} from '$lib/util/version';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http'
 import { Resource } from '@opentelemetry/resources'
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'

@@ -1,5 +1,5 @@
 import { getUser, isAuthn } from '$lib/user'
-import { apiVersion } from '$lib/util/verstion';
+import { apiVersion } from '$lib/util/version';
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { loadI18n } from '$lib/i18n';
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'

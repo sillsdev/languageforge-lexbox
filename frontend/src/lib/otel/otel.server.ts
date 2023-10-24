@@ -1,4 +1,4 @@
-import {APP_VERSION} from '$lib/util/verstion';
+import {APP_VERSION} from '$lib/util/version';
 import {
   TraceFlags,
   context,
