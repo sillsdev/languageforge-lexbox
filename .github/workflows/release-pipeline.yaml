@@ -33,14 +33,41 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
       label-latest: true
 
+  build-hgweb:
+    name: Build hgweb
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-hgweb.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: true
+
   deploy:
     name: Deploy
     uses: ./.github/workflows/deploy.yaml
-    needs: [ build-api, build-ui, set-version ]
+    needs: [ build-api, build-ui, build-hgweb, set-version ]
     with:
       version: ${{ needs.set-version.outputs.version }}
-      image: 'ghcr.io/sillsdev/lexbox-api' # todo need to be able to update more than one image at a time
-      k8s-environment: staging #
-      health-endpoint: https://staging.languagedepot.org/api/healthz
+      image: 'ghcr.io/sillsdev/lexbox-*'
+      k8s-environment: staging
+      deploy-domain: staging.languagedepot.org
 
+  integration-tests:
+    name: Integration tests
+    uses: ./.github/workflows/integration-test.yaml
+    permissions:
+      checks: write
+    secrets: inherit
+    needs: deploy
+    with:
+      test-domain: staging.languagedepot.org
+
+  deploy-prod:
+    name: Deploy
+    uses: ./.github/workflows/deploy.yaml
+    needs: [ integration-tests, set-version ]
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      image: 'ghcr.io/sillsdev/lexbox-*'
+      k8s-environment: production
+      deploy-domain: prod.languagedepot.org
 

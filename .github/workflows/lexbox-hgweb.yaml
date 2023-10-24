@@ -7,25 +7,34 @@ on:
       - 'hgweb/**'
       - '.github/workflows/lexbox-hgweb.yaml'
     branches:
-      - main
       - develop
   pull_request:
     paths:
       - 'hgweb/**'
       - '.github/workflows/lexbox-hgweb.yaml'
     branches:
-      - main
       - develop
+  workflow_call:
+    inputs:
+      version:
+        description: 'The version of the image to build'
+        required: true
+        type: string
+      label-latest:
+        description: 'The label to apply to the latest image'
+        type: boolean
+        default: false
 
 env:
-  PROD_RELEASE: ${{github.ref == vars.PROD_BRANCH}}
+  PROD_RELEASE: ${{ inputs.label-latest}}
   IMAGE_NAME: ghcr.io/sillsdev/lexbox-hgweb
+  VERSION: ${{ inputs.version }}
 
 jobs:
   publish-hgweb:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.setVersion.outputs.VERSION }}
+      version: ${{ inputs.version || steps.setVersion.outputs.VERSION }}
 
     env:
       # https://docs.docker.com/develop/develop-images/build_enhancements/
@@ -36,6 +45,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Set Version
         id: setVersion
+        if: ${{ !env.VERSION }}
         # set version to date in vYYYY-MM-DD format
         run: |
           echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_ENV}
@@ -69,9 +79,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   deploy-hgweb:
       uses: ./.github/workflows/deploy.yaml
-      if: ${{github.ref == vars.PROD_BRANCH}}
+      if: ${{github.ref == 'refs/heads/develop'}}
       secrets: inherit
       needs: publish-hgweb
       with:
         version: ${{ needs.publish-hgweb.outputs.version }}
         image: 'ghcr.io/sillsdev/lexbox-hgweb'
+        deploy-domain: 'staging.languagedepot.org'
+        k8s-environment: 'dev'
