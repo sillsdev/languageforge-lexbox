@@ -1,14 +1,25 @@
 name: Integration Tests
 on:
   workflow_call:
+    inputs:
+      test-domain:
+        description: 'The environment to run the tests in'
+        required: true
+        type: string
+        default: 'staging.languagedepot.org'
   workflow_dispatch:
-
+    inputs:
+      test-domain:
+        description: 'The environment to run the tests in'
+        required: true
+        type: string
+        default: 'staging.languagedepot.org'
 
 jobs:
   test:
     timeout-minutes: 60
-    concurrency: test-staging
-    name: ${{ matrix.os }}
+    concurrency: test-${{ inputs.test-domain }}
+    name: Test ${{ matrix.os }} on ${{ inputs.test-domain }}
     permissions:
       checks: write
     strategy:
@@ -42,10 +53,10 @@ jobs:
         run: pwsh backend/Testing/bin/Debug/net7.0/playwright.ps1 install
       - name: Integration tests
         env:
-          TEST_SERVER_HOSTNAME: staging.languagedepot.org
+          TEST_SERVER_HOSTNAME: ${{ inputs.test-domain }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
           TEST_STANDARD_HG_HOSTNAME: hg-staging.languageforge.org
-          TEST_RESUMABLE_HG_HOSTNAME: resumable-staging.languagedepot.org
+          TEST_RESUMABLE_HG_HOSTNAME: resumable-${{ inputs.test-domain }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
