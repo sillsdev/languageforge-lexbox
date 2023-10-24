@@ -44,7 +44,7 @@ jobs:
       label-latest: true
 
   deploy:
-    name: Deploy
+    name: Deploy Staging
     uses: ./.github/workflows/deploy.yaml
     needs: [ build-api, build-ui, build-hgweb, set-version ]
     secrets: inherit
@@ -65,7 +65,7 @@ jobs:
       test-domain: staging.languagedepot.org
 
   deploy-prod:
-    name: Deploy
+    name: Deploy Production
     uses: ./.github/workflows/deploy.yaml
     needs: [ integration-tests, set-version ]
     secrets: inherit
