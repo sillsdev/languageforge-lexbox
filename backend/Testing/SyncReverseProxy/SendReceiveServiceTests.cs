@@ -79,9 +79,7 @@ public class SendReceiveServiceTests
     [Fact]
     public void CloneBigProject()
     {
-        RunCloneSendReceive(HgProtocol.Hgweb,
-            new SendReceiveAuth("admin", TestingEnvironmentVariables.DefaultPassword),
-            "elawa-dev-flex");
+        RunCloneSendReceive(HgProtocol.Hgweb, AdminAuth, "elawa-dev-flex");
     }
 
     [Theory]
@@ -97,11 +95,13 @@ public class SendReceiveServiceTests
     }
 
     [Theory]
-    [InlineData(HgProtocol.Hgweb)]
-    [InlineData(HgProtocol.Resumable)]
-    public async Task CanCloneSendReceiveWithJwtOverBasicAuth(HgProtocol hgProtocol)
+    [InlineData(HgProtocol.Hgweb, "admin")]
+    [InlineData(HgProtocol.Hgweb, "manager")]
+    [InlineData(HgProtocol.Resumable, "admin")]
+    [InlineData(HgProtocol.Resumable, "manager")]
+    public async Task CanCloneSendReceiveWithJwtOverBasicAuth(HgProtocol hgProtocol, string user)
     {
-        var jwt = await JwtHelper.GetJwtForUser(AdminAuth);
+        var jwt = await JwtHelper.GetJwtForUser(new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword));
         RunCloneSendReceive(hgProtocol,
             new SendReceiveAuth(AuthKernel.JwtOverBasicAuthUsername, jwt),
             TestingEnvironmentVariables.ProjectCode);
