@@ -6,14 +6,12 @@ on:
         description: 'The environment to run the tests in'
         required: true
         type: string
-        default: 'staging.languagedepot.org'
   workflow_dispatch:
     inputs:
       test-domain:
         description: 'The environment to run the tests in'
         required: true
         type: string
-        default: 'staging.languagedepot.org'
 
 jobs:
   test:
