@@ -39,7 +39,7 @@
   let projectStore = data.project;
   $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
-  $: changesets = data.changesets;
+  $: changesetStore = data.changesets;
 
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
@@ -352,7 +352,7 @@
         </p>
 
         <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          <HgLogView logEntryStore={changesets} />
+          <HgLogView logEntries={$changesetStore.changesets} loading={$changesetStore.fetching} />
         </div>
       </div>
 

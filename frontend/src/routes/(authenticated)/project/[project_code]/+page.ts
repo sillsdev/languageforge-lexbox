@@ -74,8 +74,8 @@ export async function load(event: PageLoadEvent) {
   return {
     project: projectResult.projectByCode,
     changesets: derived(changesetResultStore, result => ({
-      loading: result.fetching,
-      changesets: result.data?.projectByCode?.changesets,
+      fetching: result.fetching,
+      changesets: result.data?.projectByCode?.changesets ?? [],
     })),
     code: projectCode,
   };
