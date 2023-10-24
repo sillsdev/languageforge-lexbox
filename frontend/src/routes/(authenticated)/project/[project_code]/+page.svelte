@@ -252,11 +252,13 @@
           <Badge>
             <FormatRetentionPolicy policy={project.retentionPolicy}/>
           </Badge>
+          <AdminContent>
           {#if migrationStatus === ProjectMigrationStatus.Migrating}
             <Badge><span class="loading loading-spinner loading-xs"></span> Migrating</Badge>
           {:else}
             <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>{migrationStatusTable[migrationStatus]}</Badge>
           {/if}
+          </AdminContent>
         </BadgeList>
       </div>
 
