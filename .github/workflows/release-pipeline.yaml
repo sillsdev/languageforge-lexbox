@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
 
 jobs:
   set-version:
@@ -45,6 +47,7 @@ jobs:
     name: Deploy
     uses: ./.github/workflows/deploy.yaml
     needs: [ build-api, build-ui, build-hgweb, set-version ]
+    secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}
       image: 'ghcr.io/sillsdev/lexbox-*'
@@ -54,10 +57,10 @@ jobs:
   integration-tests:
     name: Integration tests
     uses: ./.github/workflows/integration-test.yaml
+    needs: deploy
     permissions:
       checks: write
     secrets: inherit
-    needs: deploy
     with:
       test-domain: staging.languagedepot.org
 
@@ -65,6 +68,7 @@ jobs:
     name: Deploy
     uses: ./.github/workflows/deploy.yaml
     needs: [ integration-tests, set-version ]
+    secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}
       image: 'ghcr.io/sillsdev/lexbox-*'
