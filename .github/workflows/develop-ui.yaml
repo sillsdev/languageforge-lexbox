@@ -41,8 +41,8 @@ jobs:
     with:
       version: ${{ needs.set-version.outputs.version }}
       image: 'ghcr.io/sillsdev/lexbox-ui'
-      k8s-environment: staging #todo change to develop
-      health-endpoint: https://staging.languagedepot.org/api/healthz #todo change to develop
+      k8s-environment: dev
+      deploy-domain: staging.languagedepot.org #todo change to develop
 
   check-and-lint:
     runs-on: ubuntu-latest
