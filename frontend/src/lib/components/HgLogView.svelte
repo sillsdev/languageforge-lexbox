@@ -5,7 +5,6 @@
 
 <script lang="ts">
   import t from '$lib/i18n';
-  import type { Readable } from 'svelte/store';
 
   import FormatDate from './FormatDate.svelte';
   import type { Circle, Path } from './TrainTracks.svelte';
@@ -21,8 +20,8 @@
     col: number;
   };
 
-  export let logEntryStore: Readable<{changesets: LogEntries | undefined, loading: boolean}>;
-  $: logEntries = $logEntryStore.changesets; // JSON-format hg log
+  export let logEntries: LogEntries;
+  export let loading: boolean;
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
@@ -147,7 +146,7 @@
       <tr>
         <td colspan="100">
           <div class="text p-2 text-secondary flex gap-2 items-center">
-            {#if $logEntryStore.loading}
+            {#if loading}
               <Loader loading />
               {$t('project_page.hg.loading')}
             {:else}
