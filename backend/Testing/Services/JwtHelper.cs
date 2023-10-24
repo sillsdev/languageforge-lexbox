@@ -6,23 +6,24 @@ namespace Testing.Services;
 
 public class JwtHelper
 {
+    private static readonly HttpClientHandler Handler = new();
+    private static readonly HttpClient Client = new(Handler);
 
     public static async Task<string> GetJwtForUser(SendReceiveAuth auth)
     {
-        var handler = new HttpClientHandler();
-        var client = new HttpClient(handler);
-        var response = await client.PostAsJsonAsync(
+        var response = await Client.PostAsJsonAsync(
             $"{TestingEnvironmentVariables.StandardHgBaseUrl}/api/login",
             new Dictionary<string, object>
             {
                 { "password",  auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
             });
         response.EnsureSuccessStatusCode();
-        var cookieContainer = handler.CookieContainer;
-        var authCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
+        var authCookie = Handler.CookieContainer.GetAllCookies()
+            .FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
         authCookie.ShouldNotBeNull();
         var jwt = authCookie.Value;
         jwt.ShouldNotBeNullOrEmpty();
+        Handler.CookieContainer = new(); // reset the cookies as we're using a shared client
         return jwt;
     }
 }
