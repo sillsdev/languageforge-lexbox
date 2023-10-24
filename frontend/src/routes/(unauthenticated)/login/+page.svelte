@@ -8,7 +8,7 @@
   import SvelteMarkdown from 'svelte-markdown';
   import flexLogo from '$lib/assets/flex-logo.png';
   import lfLogo from '$lib/assets/lf-logo.png';
-  import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.png';
+  import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.svg';
   import weSayLogo from '$lib/assets/we-say-logo.png';
   import { z } from 'zod';
 
