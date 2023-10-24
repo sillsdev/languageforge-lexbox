@@ -14,6 +14,7 @@ import type {
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
+import { derived } from 'svelte/store';
 import { invalidate } from '$app/navigation';
 
 type Project = NonNullable<ProjectPageQuery['projectByCode']>;
@@ -22,8 +23,8 @@ export type ProjectUser = Project['users'][number];
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   const projectCode = event.params.project_code;
-  const result = await client
-    .queryStore(event.fetch,
+  const projectResult = await client
+    .awaitedQueryStore(event.fetch,
       graphql(`
 				query projectPage($projectCode: String!) {
 					projectByCode(code: $projectCode) {
@@ -50,7 +51,7 @@ export async function load(event: PageLoadEvent) {
 			`),
       { projectCode }
     );
-  const changesets = client
+  const changesetResultStore = client
     .queryStore(event.fetch,
       graphql(`
         query projectChangesets($projectCode: String!) {
@@ -68,12 +69,15 @@ export async function load(event: PageLoadEvent) {
         }
       `),
       { projectCode }
-    );
+  );
 
   event.depends(`project:${projectCode}`);
   return {
-    project: result.projectByCode,
-    promise: { changesets },
+    project: projectResult.projectByCode,
+    changesets: derived(changesetResultStore, result => ({
+      loading: result.fetching,
+      changesets: result.data?.projectByCode?.changesets,
+    })),
     code: projectCode,
   };
 }

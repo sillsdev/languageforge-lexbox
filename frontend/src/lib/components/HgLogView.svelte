@@ -21,7 +21,8 @@
     col: number;
   };
 
-  export let logEntries: Readable<LogEntries>; // JSON-format hg log
+  export let logEntryStore: Readable<{changesets: LogEntries | undefined, loading: boolean}>;
+  $: logEntries = $logEntryStore.changesets; // JSON-format hg log
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
@@ -100,7 +101,7 @@
 
   let expandedLog: ExpandedLogEntry[];
   $: {
-    expandedLog = ($logEntries ?? []) as ExpandedLogEntry[];
+    expandedLog = (logEntries ?? []) as ExpandedLogEntry[];
     assignRowsAndColumns(expandedLog);
     expandedLog = expandedLog.map((e) => ({
       ...e,
@@ -129,7 +130,7 @@
     </tr>
   </thead>
   <tbody>
-    {#if $logEntries?.length}
+    {#if logEntries?.length}
       {#each expandedLog as log, idx}
         <tr>
           {#if idx === 0}
@@ -146,12 +147,12 @@
       <tr>
         <td colspan="100">
           <div class="text p-2 text-secondary flex gap-2 items-center">
-            {#if $logEntries}
-              <span class="i-mdi-creation-outline text-2xl" />
-              {$t('project_page.hg.no_history')}
-            {:else}
+            {#if $logEntryStore.loading}
               <Loader loading />
               {$t('project_page.hg.loading')}
+            {:else}
+              <span class="i-mdi-creation-outline text-2xl" />
+              {$t('project_page.hg.no_history')}
             {/if}
           </div>
         </td>
