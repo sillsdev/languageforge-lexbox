@@ -60,12 +60,12 @@ jobs:
       - name: Checkout fleet repo
         uses: actions/checkout@v3
         with:
-          repository: ${{ vars.FLEET_REPO }} # todo move these out of environments into repo secrets
+          repository: ${{ vars.FLEET_REPO }}
           ssh-key: ${{ secrets.FLEET_REPO_SSH_KEY }}
           path: fleet
       - name: Copy yaml resources to fleet repo
         run: |
-          cp lexbox/deployment/${{ inputs.k8s-environment }}/resources.yaml fleet/languageforge-lexbox/
+          cp lexbox/deployment/${{ inputs.k8s-environment }}/resources.yaml fleet/${{ inputs.k8s-environment }}/
       #        this kustomization file is in the fleet repo and only modifies the image versions being used.
       - name: Update image version in fleet kustomization.yaml
         uses: mikefarah/yq@v4.34.2
@@ -88,7 +88,7 @@ jobs:
           message: "[Lexbox] Update ${{ inputs.k8s-environment }} image: ${{ inputs.image }} to ${{ inputs.version }}"
           cwd: './fleet/'
           add: '${{ inputs.k8s-environment }}/*'
-          push: false
+          push: true
   verify-published:
     name: Verify ${{ matrix.verify.name }} Published
     runs-on: ubuntu-latest
