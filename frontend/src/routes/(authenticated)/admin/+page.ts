@@ -35,7 +35,7 @@ export async function load(event: PageLoadEvent) {
   };
 
   //language=GraphQL
-  const projectResultsPromise = client.queryStore(event.fetch, graphql(`
+  const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
         query loadAdminDashboardProjects($withDeletedProjects: Boolean, $filter: ProjectFilterInput) {
             projects(
               where: $filter,
@@ -54,7 +54,7 @@ export async function load(event: PageLoadEvent) {
         }
     `), { withDeletedProjects, filter: projectFilter });
 
-  const userResultsPromise = client.queryStore(event.fetch, graphql(`
+  const userResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
         query loadAdminDashboardUsers($userSearch: String, $take: Int!) {
             users(
               where: {or: [
