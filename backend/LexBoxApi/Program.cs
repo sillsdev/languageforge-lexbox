@@ -105,6 +105,7 @@ app.Use(async (context, next) =>
     context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
     await next();
 });
+app.UseStatusCodePages();
 if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler();
 app.UseHealthChecks("/api/healthz");

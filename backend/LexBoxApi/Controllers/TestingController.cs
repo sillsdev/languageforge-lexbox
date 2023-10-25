@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Controllers;
 
-#if DEBUG
 [ApiController]
 [Route("/api/[controller]")]
 public class TestingController : ControllerBase
@@ -32,8 +31,7 @@ public class TestingController : ControllerBase
         _redmineDbContext = redmineDbContext;
     }
 
-
-
+#if DEBUG
     [AllowAnonymous]
     [HttpGet("makeJwt")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -98,11 +96,16 @@ public class TestingController : ControllerBase
 
     public record TestingControllerProjectUser(string? Username, string Role, string Email, Guid Id);
 
+#endif
     [HttpGet("throwsException")]
     [AllowAnonymous]
     public ActionResult ThrowsException()
     {
         throw new ExceptionWithCode("This is a test exception", "test-error");
     }
+
+    [HttpGet("test500NoException")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public ActionResult Test500NoError() => StatusCode(500);
 }
-#endif
