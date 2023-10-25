@@ -83,7 +83,7 @@ spec:
           - name: ASPNETCORE_ENVIRONMENT
             value: Development
           - name: OTEL_METRIC_EXPORT_INTERVAL
-            value: '15000' # 15 seconds
+            value: '60000' # 60s
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
