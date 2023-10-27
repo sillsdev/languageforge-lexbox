@@ -66,6 +66,10 @@ tasks:
     cmds:
 #      - 'read -p "password: " TEST_DEFAULT_PASSWORD'
       - dotnet test --filter Category=Integration   -s ./backend/Testing/staging.runsettings
+  test-playwright:
+    dir: '{{.TESTING_DIR}}'
+    cmds:
+      - dotnet test --filter=Testing.Browser
 
       # dev
   infra-up:
