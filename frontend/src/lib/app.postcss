@@ -124,3 +124,46 @@ table tr:nth-last-child(-n + 2) .dropdown {
     transition: background-color 0.5s;
   }
 }
+
+.unhydrated {
+    .input, input, button {
+        visibility: hidden;
+    }
+
+    form {
+        & > * {
+            visibility: hidden;
+        }
+
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            @apply w-full h-full;
+            @apply rounded-xl;
+
+            background-image: linear-gradient(110deg, var(--tw-gradient-stops));
+            @apply from-base-300;
+            @apply via-neutral-600;
+            @apply to-base-300;
+            background-size: 400% 400%;
+            animation: gradient 5s ease-in-out infinite;
+
+            @keyframes gradient {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+
+        }
+    }
+}
