@@ -24,6 +24,9 @@ tasks:
   infra-forward:
     interactive: true
     deps: [local-db-forward, local-otel-http-forward, local-otel-grpc-forward, local-hgweb-forward, local-resumable-forward, local-maildev-forward, local-maildev-smtp-forward]
+  backend-forward:
+    interactive: true
+    deps: [infra-forward, local-api-forward]
   local-db-forward:
     internal: true
     cmds:
