@@ -1,8 +1,8 @@
+import { browser, dev } from '$app/environment';
 import { getContext, setContext } from 'svelte';
 import { isObject, isRedirect } from '$lib/util/types';
 
 import type { Writable } from 'svelte/store';
-import { browser } from '$app/environment';
 import { ensureErrorIsTraced } from '$lib/otel';
 import { getStores } from '$app/stores';
 
@@ -31,7 +31,7 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
   if (!browser) {
     return;
   }
-  if (errorHandlersSetup) {
+  if (errorHandlersSetup && !dev) {
     throw new Error('error handlers already setup. This should only be called once.');
   }
   errorHandlersSetup = true;
