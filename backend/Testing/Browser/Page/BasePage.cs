@@ -36,11 +36,11 @@ public abstract class BasePage<T> where T : BasePage<T>
     {
         if (Url is not null)
         {
-            await Page.WaitForURLAsync(Url, new() { WaitUntil = WaitUntilState.NetworkIdle });
+            await Page.WaitForURLAsync(Url, new() { WaitUntil = WaitUntilState.Load });
         }
         else
         {
-            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Page.WaitForLoadStateAsync(LoadState.Load);
         }
         await Task.WhenAll(TestLocators.Select(l => l.WaitForAsync()));
         return (T)this;
