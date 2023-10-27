@@ -11,6 +11,8 @@
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
+  import { onMount } from 'svelte';
+  import { blur } from 'svelte/transition';
 
   export let data: LayoutData;
   const { page, updated } = getStores();
@@ -22,6 +24,9 @@
       notifyWarning($t('notifications.update_detected'), Duration.Long);
     }
   }
+
+  let unhydrated = true;
+  onMount(() => unhydrated = false);
 </script>
 
 <svelte:head>
@@ -33,6 +38,13 @@
     <meta name="traceparent" content={data.traceParent} />
   {/if}
 </svelte:head>
+
+{#if unhydrated}
+  <div class="fixed top-0 bottom-0 left-0 right-0 z-10 flex flex-col items-center justify-center" out:blur={{duration: 1000}}>
+    <span class="loading loading-spinner bg-primary w-24 z-10"></span>
+    <div class="absolute top-0 bottom-0 left-0 right-0 bg-base-100 opacity-60"></div>
+  </div>
+{/if}
 
 <div class="flex flex-col justify-between min-h-full">
   <div class="flex flex-col flex-grow">
