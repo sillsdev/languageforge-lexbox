@@ -19,6 +19,7 @@ function getRoot(routeId: string): string {
 
 // eslint-disable-next-line func-style
 export const handle: Handle = ({ event, resolve }) => {
+  console.log(`HTTP request: ${event.request.method} ${event.request.url}`);
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
     await loadI18n();
