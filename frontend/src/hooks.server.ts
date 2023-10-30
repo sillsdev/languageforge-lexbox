@@ -4,10 +4,13 @@ import { redirect, type Handle, type HandleFetch, type HandleServerError, type R
 import { loadI18n } from '$lib/i18n';
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
 import { env } from '$env/dynamic/private';
-import { getErrorMessage } from './hooks.shared';
+import { getErrorMessage, validateFetchResponse } from './hooks.shared';
+
+const UNAUTHENTICATED_ROOT = '(unauthenticated)';
+const AUTHENTICATED_ROOT = '(authenticated)';
 
 const PUBLIC_ROUTE_ROOTS = [
-  '(unauthenticated)',
+  UNAUTHENTICATED_ROOT,
   'email',
   'healthz',
 ];
@@ -55,6 +58,12 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
   if (response.headers.has('lexbox-version')) {
     apiVersion.value = response.headers.get('lexbox-version');
   }
+
+  const routeId = event.route.id ?? '';
+  validateFetchResponse(response,
+    routeId.endsWith('/login'),
+    routeId.endsWith(AUTHENTICATED_ROOT) || routeId.endsWith('/home') || routeId.endsWith('/admin'));
+
   return response;
 };
 

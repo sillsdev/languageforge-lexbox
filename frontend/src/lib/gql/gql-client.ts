@@ -1,4 +1,3 @@
-import {redirect} from '@sveltejs/kit';
 import {
   type Client,
   type AnyVariables,
@@ -6,7 +5,6 @@ import {
   type OperationContext,
   type OperationResult,
   fetchExchange,
-  type CombinedError,
   queryStore,
   type OperationResultSource,
   type OperationResultStore
@@ -167,13 +165,10 @@ class GqlClient {
   private throwAnyUnexpectedErrors<T extends OperationResult<unknown, AnyVariables>>(result: T): void {
     const error = result.error;
     if (!error) return;
-    if (this.is401(error)) throw redirect(307, '/logout');
-    if (error.networkError) throw error.networkError; // e.g. SvelteKit redirects
+    // unexpected status codes are handled in the fetch hooks
+    // throws there (e.g. SvelteKit redirects) turn into networkErrors that we rethrow here
+    if (error.networkError) throw error.networkError;
     throw error;
-  }
-
-  private is401(error: CombinedError): boolean {
-    return (error.response as Response | undefined)?.status === 401;
   }
 
   private findInputErrors<T extends GenericData>({data}: OperationResult<T, AnyVariables>): LexGqlError<ExtractErrorTypename<T>> | undefined {
