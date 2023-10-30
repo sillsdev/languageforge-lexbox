@@ -97,11 +97,22 @@ class GqlClient {
       context: {fetch, ...context}
     });
 
-    return derived(resultStore, (result) => {
-      this.throwAnyUnexpectedErrors(result);
-      return result;
-    });
+    if (browser) {
+      return derived(resultStore, (result) => {
+        this.throwAnyUnexpectedErrors(result);
+        return result;
+      });
+    } else {
+      /**
+       * We kill vite if we validate each query result and throw in the urql pipeline, but we shouldn't ever need to, because:
+       * 1) Only the initial result of the query store will ever be fetched server-side
+       * 2) If we want to await the initial result server-side, then we should be using `awaitedQueryStore`, where we CAN safely validate the result and throw
+       * 3) If we don't await the initial result server-side then there should never be a result OR an error server-side
+       */
+      return resultStore;
+    }
   }
+
   async awaitedQueryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
     fetch: Fetch,
     query: TypedDocumentNode<Data, Variables>,
@@ -117,6 +128,8 @@ class GqlClient {
         resolve(value);
       });
     });
+
+    this.throwAnyUnexpectedErrors(results);
 
     const keys = Object.keys(results.data ?? {}) as Array<keyof typeof results.data>;
     const resultData = {} as Record<string, Readable<unknown>>;
