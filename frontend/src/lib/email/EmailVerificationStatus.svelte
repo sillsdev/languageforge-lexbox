@@ -11,8 +11,7 @@
   import type { LexAuthUser } from '$lib/user';
   import { EmailResult } from '.';
   import { Button } from '$lib/forms';
-  import { onDestroy } from 'svelte';
-  import { Duration } from '$lib/util/time';
+  import { onNavigate } from '$app/navigation';
 
   export let user: LexAuthUser;
 
@@ -30,20 +29,9 @@
     }
   }
 
-  const emailResultUnsubscriber = emailResult.subscribe((result) => {
-    if (result) {
-      setTimeout(() => emailResult.set(null), Duration.Medium);
-    }
-  });
-  const requestedEmailUnsubscriber = requestedEmail.subscribe((result) => {
-    if (result) {
-      setTimeout(() => requestedEmail.set(null), Duration.Long);
-    }
-  });
-
-  onDestroy(() => {
-    emailResultUnsubscriber();
-    requestedEmailUnsubscriber();
+  onNavigate(() => {
+    emailResult.set(null);
+    requestedEmail.set(null);
   });
 </script>
 
