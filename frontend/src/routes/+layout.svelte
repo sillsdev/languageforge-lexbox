@@ -24,8 +24,8 @@
     }
   }
 
-  let unhydrated = true;
-  onMount(() => unhydrated = false);
+  let hydrating = true;
+  onMount(() => hydrating = false);
 </script>
 
 <svelte:head>
@@ -38,7 +38,7 @@
   {/if}
 </svelte:head>
 
-<div class="flex flex-col justify-between min-h-full" class:unhydrated>
+<div class="flex flex-col justify-between min-h-full" class:hydrating>
   <div class="flex flex-col flex-grow">
     <slot />
   </div>
