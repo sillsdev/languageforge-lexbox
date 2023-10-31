@@ -17,6 +17,11 @@ public class PageTest : IAsyncLifetime
     public IPage Page => _fixture.Page;
     public IBrowser Browser => _fixture.Browser;
     public IBrowserContext Context => _fixture.Context;
+    /// <summary>
+    /// Exceptions that are deferred until the end of the test, because they can't
+    /// be cleanly thrown in sub-threads.
+    /// </summary>
+    private List<UnexpectedResponseException> DeferredExceptions { get; } = new();
 
     public PageTest()
     {
@@ -26,6 +31,21 @@ public class PageTest : IAsyncLifetime
     public ILocatorAssertions Expect(ILocator locator) => Assertions.Expect(locator);
     public IPageAssertions Expect(IPage page) => Assertions.Expect(page);
     public IAPIResponseAssertions Expect(IAPIResponse response) => Assertions.Expect(response);
+    /// <summary>
+    /// Consumes a deferred exception that was "thrown" in a sub-thread, and returns it
+    /// or throws if no exception of the given type is found.
+    /// </summary>
+    public UnexpectedResponseException ExpectDeferredException()
+    {
+        var exception = DeferredExceptions.ShouldHaveSingleItem();
+        DeferredExceptions.Clear();
+        return exception;
+    }
+
+    public void ExpectNoDeferredExceptions()
+    {
+        DeferredExceptions.ShouldBeEmpty();
+    }
 
     public virtual async Task InitializeAsync()
     {
@@ -39,6 +59,14 @@ public class PageTest : IAsyncLifetime
                 Sources = true
             });
         }
+
+        Context.Response += (_, response) =>
+        {
+            if (response.Status >= (int)HttpStatusCode.InternalServerError)
+            {
+                DeferredExceptions.Add(new UnexpectedResponseException(response));
+            }
+        };
     }
 
     public virtual async Task DisposeAsync()
@@ -52,6 +80,11 @@ public class PageTest : IAsyncLifetime
         }
 
         await _fixture.DisposeAsync();
+
+        if (DeferredExceptions.Any())
+        {
+            throw new AggregateException(DeferredExceptions);
+        }
     }
 
     static readonly HttpClient HttpClient = new HttpClient();
