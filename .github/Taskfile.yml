@@ -1,6 +1,8 @@
 ﻿version: 3
+
 tasks:
   integration-test:
+    dir: ..
     cmds:
       - act -j test
   check:
