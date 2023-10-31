@@ -44,7 +44,7 @@ jobs:
         working-directory: ./frontend
         run: |
           pnpm run test:unit --reporter=default --reporter=junit --outputFile.junit=test-results/vitest-results.xml
-      - name: Upload test results
+      - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:

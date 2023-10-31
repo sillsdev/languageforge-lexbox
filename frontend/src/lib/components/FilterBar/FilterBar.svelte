@@ -18,6 +18,12 @@
   export let filters: Writable<Filters>;
   export let defaultValues: Filters;
   export let hasActiveFilter: boolean;
+
+  /**
+   * Explicitly specify the filter object keys that should be used from the `filters` (optional)
+   */
+  export let filterKeys: Set<keyof Filters> | undefined = undefined;
+
   const activeFilters = pickActiveFilters(filters, defaultValues);
   $: {
     hasActiveFilter = $activeFilters.length > 0;
@@ -38,6 +44,8 @@
     return derived(filterStore, (values) => {
       const filters: Filter<Filters>[] = [];
       for (const key in values) {
+        if (filterKeys && !filterKeys.has(key)) continue;
+
         const value = values[key];
         if (value !== defaultValues[key]) {
           filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);

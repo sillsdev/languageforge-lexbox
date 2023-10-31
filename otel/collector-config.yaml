@@ -21,6 +21,11 @@ processors:
   memory_limiter:
     check_interval: 1s
     limit_mib: 400
+  redaction: # https://pkg.go.dev/github.com/open-telemetry/opentelemetry-collector-contrib/processor/redactionprocessor#section-readme
+    allow_all_keys: true
+    blocked_values:
+      - "[A-Za-z0-9-_]{10,}\\.[A-Za-z0-9-_]{20,}\\.[A-Za-z0-9-_]{10,}" # jwt
+    summary: debug
 
 exporters:
   logging:
@@ -44,7 +49,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter]
+      processors: [memory_limiter, redaction, batch]
       exporters: [otlp, logging]
     metrics:
       receivers: [otlp]

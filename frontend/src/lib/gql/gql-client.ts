@@ -8,7 +8,8 @@ import {
   fetchExchange,
   type CombinedError,
   queryStore,
-  type OperationResultSource
+  type OperationResultSource,
+  type OperationResultStore
 } from '@urql/svelte';
 import {createClient} from '@urql/svelte';
 import {browser} from '$app/environment';
@@ -31,8 +32,10 @@ function createGqlClient(_gqlEndpoint?: string): Client {
       ...(import.meta.env.DEV ? [devtoolsExchange] : []),
       cacheExchange({
         keys: {
-          //     eslint-disable-next-line @typescript-eslint/naming-convention
+          /* eslint-disable @typescript-eslint/naming-convention */
           'Changeset': () => null,
+          'UsersCollectionSegment': () => null,
+          /* eslint-enable @typescript-eslint/naming-convention */
         }
       }),
       tracingExchange,
@@ -82,17 +85,30 @@ class GqlClient {
     );
   }
 
-  async queryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
+  queryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
     fetch: Fetch,
     query: TypedDocumentNode<Data, Variables>,
     variables: Variables,
-    context: QueryOperationOptions = {}): Promise<QueryStoreReturnType<Data>> {
+    context: QueryOperationOptions = {}): OperationResultStore<Data, Variables> {
     const resultStore = queryStore<Data, Variables>({
       client: this.client,
       query,
       variables,
       context: {fetch, ...context}
     });
+
+    return derived(resultStore, (result) => {
+      this.throwAnyUnexpectedErrors(result);
+      return result;
+    });
+  }
+  async awaitedQueryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
+    fetch: Fetch,
+    query: TypedDocumentNode<Data, Variables>,
+    variables: Variables,
+    context: QueryOperationOptions = {}): Promise<QueryStoreReturnType<Data>> {
+    const resultStore = this.queryStore<Data, Variables>(fetch, query, variables, context);
+
     const results = await new Promise<OperationResultState<Data, Variables>>((resolve) => {
       let invalidate = undefined as Unsubscriber | undefined;
       invalidate = resultStore.subscribe(value => {
@@ -102,7 +118,6 @@ class GqlClient {
       });
     });
 
-    this.throwAnyUnexpectedErrors(results);
     const keys = Object.keys(results.data ?? {}) as Array<keyof typeof results.data>;
     const resultData = {} as Record<string, Readable<unknown>>;
     for (const key of keys) {

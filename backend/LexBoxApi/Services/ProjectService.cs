@@ -44,6 +44,11 @@ public class ProjectService
         return projectId;
     }
 
+    public async Task<bool> ProjectExists(string projectCode)
+    {
+        return await _dbContext.Projects.AnyAsync(p => p.Code == projectCode);
+    }
+
     public async Task<string?> BackupProject(ResetProjectByAdminInput input)
     {
         var backupFile = await _hgService.BackupRepo(input.Code);
@@ -52,7 +57,21 @@ public class ProjectService
 
     public async Task ResetProject(ResetProjectByAdminInput input)
     {
+        var rowsAffected = await _dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
+            .ExecuteUpdateAsync(u => u.SetProperty(p => p.ResetStatus, ResetStatus.InProgress));
+        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found");
         await _hgService.ResetRepo(input.Code);
+    }
+
+    public async Task FinishReset(string code, Stream zipFile)
+    {
+        var project = await _dbContext.Projects.Where(p => p.Code == code).SingleOrDefaultAsync();
+        if (project is null) throw new NotFoundException($"project {code} not found");
+        if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.NotReadyForUpload(code);
+        await _hgService.FinishReset(code, zipFile);
+        project.ResetStatus = ResetStatus.None;
+        project.LastCommit = await _hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)

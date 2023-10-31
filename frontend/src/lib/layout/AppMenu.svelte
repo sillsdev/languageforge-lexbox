@@ -3,7 +3,7 @@
   import {AdminIcon, AuthenticatedUserIcon, HomeIcon, LogoutIcon} from '$lib/icons';
   import AdminContent from './AdminContent.svelte';
   import Badge from '$lib/components/Badges/Badge.svelte';
-  import {APP_VERSION} from '$lib/util/verstion';
+  import {APP_VERSION} from '$lib/util/version';
   import type {LexAuthUser} from '$lib/user';
 
   export let serverVersion: string;

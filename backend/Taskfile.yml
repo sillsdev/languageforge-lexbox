@@ -38,6 +38,7 @@ tasks:
     cmd: dotnet {{.CLI_ARGS}}
 
   generate-gql-schema:
+    aliases: [ gg ]
     dir: ./LexBoxApi
     cmds:
       - dotnet run generate-gql-schema

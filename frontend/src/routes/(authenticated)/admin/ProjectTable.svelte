@@ -1,7 +1,7 @@
-﻿<script lang="ts">
+<script lang="ts">
 import t from '$lib/i18n';
 import {getProjectTypeI18nKey, ProjectTypeIcon} from '$lib/components/ProjectType';
-import type {AdminSearchParams, Project, User} from './+page';
+import {_FILTER_PAGE_SIZE, type AdminSearchParams, type Project} from './+page';
 import {_deleteProject} from '$lib/gql/mutations';
 import {DialogResponse} from '$lib/components/modals';
 import {notifyWarning} from '$lib/notify';
@@ -14,56 +14,36 @@ import FormField from '$lib/forms/FormField.svelte';
 import MigrationStatusSelect from '$lib/forms/MigrationStatusSelect.svelte';
 import {ActiveFilter, FilterBar} from '$lib/components/FilterBar';
 import Badge from '$lib/components/Badges/Badge.svelte';
-import {getSearchParams, queryParam} from '$lib/util/query-params';
-import type {ProjectType} from '$lib/gql/types';
 import {ProjectMigrationStatus} from '$lib/gql/generated/graphql';
 import AuthenticatedUserIcon from '$lib/icons/AuthenticatedUserIcon.svelte';
 import IconButton from '$lib/components/IconButton.svelte';
 import {bubbleFocusOnDestroy} from '$lib/util/focus';
 import Button from '$lib/forms/Button.svelte';
+import type { QueryParams } from '$lib/util/query-params';
+
 export let projects: Project[];
-export let users: User[];
 
-export function setUserFilter(email: string): void {
-    $queryParams.userEmail = email;
-}
+export let queryParams: QueryParams<AdminSearchParams>;
+$: filters = queryParams.queryParamValues;
+$: defaultFilters = queryParams.defaultQueryParamValues;
 
-export let defaultFilterLimit: number;
-const {queryParams, defaultQueryParams} = getSearchParams<AdminSearchParams>({
-    showDeletedProjects: queryParam.boolean<boolean>(false),
-    projectType: queryParam.string<ProjectType | undefined>(undefined),
-    userEmail: queryParam.string(undefined),
-    projectSearch: queryParam.string<string>(''),
-    migrationStatus: queryParam.string<string>(''),
-});
-function getFilteredUser(userEmail: string | undefined): User | undefined {
-    if (!userEmail) {
-        return undefined;
-    }
-    if (filteredUser?.email == userEmail) {
-        return filteredUser;
-    }
-    return users.find(user => user.email === userEmail);
-}
-
+const projectFilterKeys = new Set(['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'] as const) satisfies Set<keyof AdminSearchParams>;
+let projectFilterLimit = _FILTER_PAGE_SIZE;
 let hasActiveProjectFilter: boolean;
-$: projectSearchLower = $queryParams.projectSearch.toLocaleLowerCase();
-let projectFilterLimit = defaultFilterLimit;
+$: projectSearchLower = $filters.projectSearch.toLocaleLowerCase();
 $: projectLimit = hasActiveProjectFilter ? projectFilterLimit : 10;
-$: filteredUser = getFilteredUser($queryParams.userEmail);
-$: userProjects = filteredUser?.projects.map(({projectId}) => projects.find(p => p.id === projectId) as Project);
-$: filteredProjects = (userProjects ?? projects).filter(
+$: filteredProjects = projects.filter(
     (p) =>
-        (!$queryParams.projectSearch ||
+        (!$filters.projectSearch ||
             p.name.toLocaleLowerCase().includes(projectSearchLower) ||
             p.code.toLocaleLowerCase().includes(projectSearchLower)) &&
-        (!$queryParams.projectType || p.type === $queryParams.projectType) &&
-        (!$queryParams.migrationStatus || p.migrationStatus === $queryParams.migrationStatus));
+        (!$filters.projectType || p.type === $filters.projectType) &&
+        (!$filters.migrationStatus || p.migrationStatus === $filters.migrationStatus));
 $: shownProjects = filteredProjects.slice(0, projectLimit);
 $: {
     // Reset limit if search is changed
     hasActiveProjectFilter;
-    projectFilterLimit = defaultFilterLimit;
+    projectFilterLimit = _FILTER_PAGE_SIZE;
 }
 
 let deleteProjectModal: ConfirmDeleteModal;
@@ -89,6 +69,7 @@ async function softDeleteProject(project: Project): Promise<void> {
     return migrationStatusTable[migrationStatus] ?? migrationStatusTable[ProjectMigrationStatus.Unknown];
   }
 </script>
+
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
 <div>
     <div class="flex justify-between items-center">
@@ -96,9 +77,9 @@ async function softDeleteProject(project: Project): Promise<void> {
           {$t('admin_dashboard.project_table_title')}
             <Badge>
             <span class="inline-flex gap-2">
-              {hasActiveProjectFilter ? filteredProjects.length : shownProjects.length}
-                <span>/</span>
-                {projects.length}
+              {shownProjects.length}
+              <span>/</span>
+              {filteredProjects.length}
             </span>
           </Badge>
         </span>
@@ -110,8 +91,8 @@ async function softDeleteProject(project: Project): Promise<void> {
         </a>
     </div>
 
-    <FilterBar bind:search={$queryParams.projectSearch} filters={queryParams} defaultValues={defaultQueryParams}
-               bind:hasActiveFilter={hasActiveProjectFilter} autofocus>
+    <FilterBar bind:search={$filters.projectSearch} {filters} defaultValues={defaultFilters}
+               bind:hasActiveFilter={hasActiveProjectFilter} filterKeys={projectFilterKeys} autofocus>
         <svelte:fragment slot="activeFilters" let:activeFilters>
             {#each activeFilters as filter}
                 {#if filter.key === 'projectType'}
@@ -134,16 +115,16 @@ async function softDeleteProject(project: Project): Promise<void> {
         <svelte:fragment slot="filters">
             <h2 class="card-title">Project filters</h2>
             <FormField label={$t('admin_dashboard.project_filter.project_member')}>
-                {#if $queryParams.userEmail}
+                {#if $filters.userEmail}
                     <div class="join" use:bubbleFocusOnDestroy>
                         <input class="input input-bordered join-item flex-grow"
                                placeholder={$t('admin_dashboard.project_filter.all_users')} readonly
-                               value={$queryParams.userEmail}/>
+                               value={$filters.userEmail}/>
                         <div class="join-item isolate">
                             <IconButton
                                     icon="i-mdi-close"
                                     style="btn-outline"
-                                    on:click={() => $queryParams.userEmail = undefined}
+                                    on:click={() => $filters.userEmail = undefined}
                             />
                         </div>
                     </div>
@@ -165,18 +146,18 @@ async function softDeleteProject(project: Project): Promise<void> {
                 {/if}
             </FormField>
             <div class="form-control">
-                <ProjectTypeSelect bind:value={$queryParams.projectType}
+                <ProjectTypeSelect bind:value={$filters.projectType}
                                    undefinedOptionLabel={$t('project_type.any')}/>
             </div>
             <div class="form-control">
-                <MigrationStatusSelect bind:value={$queryParams.migrationStatus}
+                <MigrationStatusSelect bind:value={$filters.migrationStatus}
                                        undefinedOptionLabel="Any"/>
             </div>
             <div class="form-control">
                 <label class="cursor-pointer label gap-4">
                     <span class="label-text">{$t('admin_dashboard.show_delete_projects')}</span>
                     <input
-                            bind:checked={$queryParams.showDeletedProjects}
+                            bind:checked={$filters.showDeletedProjects}
                             type="checkbox"
                             class="toggle toggle-error"
                     />

@@ -1,4 +1,4 @@
-import {APP_VERSION} from '$lib/util/verstion';
+import {APP_VERSION} from '$lib/util/version';
 import {
   TraceFlags,
   context,
@@ -14,14 +14,13 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import type { RequestEvent } from '@sveltejs/kit';
+import type { MaybePromise, RequestEvent } from '@sveltejs/kit';
 import {
   traceEventAttributes,
   traceHeaders,
   SERVICE_NAME,
   tracer,
 } from '.';
-import type { MaybePromise } from '$app/forms';
 
 export * from '.';
 

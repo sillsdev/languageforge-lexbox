@@ -161,14 +161,30 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "title": "Choose role for {name}"
     },
     "reset_project_modal": {
-      "title": "Reset project",
+      "title": "Reset project {code}",
       "submit": "Reset project",
-      "download_button": "Download backup file",
-      "confirm_downloaded": "I confirm that I have downloaded the backup file and verified that it works. I am ready to completely reset the repository history.",
-      "confirm_downloaded_error": "Please check the box to confirm you have downloaded the backup file",
+      "close": "Close",
+      "i_have_working_backup": "I have a working backup",
+      "next": "Next",
+      "back": "Back",
+      "download_instruction": "First, download a backup of the project that you can use to restore it in step 3:",
+      "download_button": "Download project backup",
+      "confirm_downloaded": "I confirm that I have downloaded a backup of the project and verified that it works. I am ready to completely reset/delete the contents of the project repository.",
+      "confirm_downloaded_error": "Please confirm you have downloaded a backup",
       "confirm_project_code": "Enter project code to confirm reset",
       "confirm_project_code_error": "Please type the project code to confirm reset",
-      "reset_project_notification": "Successfully reset project {code}"
+      "reset_project_notification": "Successfully reset project {code}",
+      "upload_instruction": "The project repository was successfully reset. Now upload a zip file to restore it:",
+      "upload_project": "Upload Project",
+      "select_zip": "Project zip file",
+      "should_only_contain_hg": "Should only contain the .hg folder at the root",
+      "reset_success": "Project successfully reset.",
+      "backup_step": "Backup",
+      "reset_step": "Reset",
+      "restore_step": "Restore",
+      "finished_step": "Finished",
+      "reset_in_progress": "Project Reset in progress",
+      "click_to_continue": "Click to continue",
     },
     "notifications": {
       "role_change": "Project role of {name} set to {role}.",
@@ -194,6 +210,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "hg": {
       "open_in_hgweb": "Open in HgWeb",
       "no_history": "No history",
+      "loading": "Loading history...",
       "date_header": "Date",
       "author_header": "Author",
       "log_header": "Message"
@@ -327,7 +344,21 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   "notifications": {
     "update_detected": "A new version of the application was detected. You may need to reload the page.",
   },
+  "table": {
+    "refine_filter": "Refine your filter to see {remainingRows} more rows..."
+  },
   "turnstile": {
     "invalid": "Captcha Error, try again",
-  }
+  },
+  "tus": {
+    "upload": "Upload",
+    "upload_progress": "Upload progress",
+    "status": "Status: {status, select, NoFile {No file} Ready {Ready} Error {Error} Uploading {Uploading} Paused {Paused} Complete {Complete} other {Unknown}}",
+    "zip_only": "Only .zip files are allowed",
+    "no_file_selected": "Please choose a file",
+    "select_file": "Select file",
+    "server_error_codes": {
+      "ZIP_MISSING_HG_FOLDER": "The ZIP file does not contain a folder named .hg"
+    }
+  },
 }

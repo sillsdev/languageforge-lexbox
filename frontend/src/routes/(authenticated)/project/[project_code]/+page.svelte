@@ -30,8 +30,8 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, Page } from '$lib/layout';
   import SvelteMarkdown from 'svelte-markdown';
-  import {ProjectMigrationStatus} from '$lib/gql/generated/graphql';
-  import {onMount} from 'svelte';
+  import { ProjectMigrationStatus, ResetStatus } from '$lib/gql/generated/graphql';
+  import { onMount } from 'svelte';
   import Button from '$lib/forms/Button.svelte';
   import Icon from '$lib/icons/Icon.svelte';
 
@@ -40,6 +40,7 @@
   let projectStore = data.project;
   $: project = $projectStore;
   $: _project = project as NonNullable<typeof project>;
+  $: changesetStore = data.changesets;
 
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
@@ -65,7 +66,7 @@
 
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
-    await resetProjectModal.open(_project.code);
+    await resetProjectModal.open(_project.code, _project.resetStatus);
   }
 
   let removeUserModal: DeleteModal;
@@ -140,7 +141,7 @@
     [ProjectMigrationStatus.Migrating]: 'Migrating',
     [ProjectMigrationStatus.Unknown]: 'Unknown',
     [ProjectMigrationStatus.PrivateRedmine]: 'Not Migrated (private)',
-      [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
+    [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
   } satisfies Record<ProjectMigrationStatus, string>;
   const migrationStatusIcon = {
     [ProjectMigrationStatus.Migrated]: 'i-mdi-check-circle',
@@ -149,10 +150,10 @@
     [ProjectMigrationStatus.Migrated]: 'badge-success',
   } satisfies Record<ProjectMigrationStatus, BadgeVariant>;
   onMount(() => {
-      migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
-      if (migrationStatus === ProjectMigrationStatus.Migrating) {
-          void watchMigrationStatus();
-      }
+    migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
+    if (migrationStatus === ProjectMigrationStatus.Migrating) {
+      void watchMigrationStatus();
+    }
   });
 
   async function watchMigrationStatus(): Promise<void> {
@@ -183,55 +184,59 @@
       <div class="space-y-2 space-x-1">
         <div class="float-right mt-1 sm:mt-2 md:mt-1">
           {#if migrationStatus !== ProjectMigrationStatus.Migrating}
-              <Dropdown>
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-sm md:btn-md btn-success">
-                  {$t('project_page.get_project.label')}
-                  <span class="i-mdi-dots-vertical text-2xl" />
-                </label>
-                <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-                  <div class="card-body max-sm:p-4">
-                    <div class="prose">
-                      <SvelteMarkdown
-                        source={$t('project_page.get_project.instructions', {type: _project.type, code: data.code, name: _project.name})}>
-                      </SvelteMarkdown>
-                    </div>
-                    <AdminContent>
-                      <FormField label={$t('project_page.get_project.send_receive_url')}>
-                        <div class="join">
-                          <input
-                            value={projectHgUrl}
-                            class="input input-bordered join-item w-full focus:input-success"
-                            readonly
-                          />
-                          <div
-                            class="join-item tooltip-open"
-                            class:tooltip={copiedToClipboard}
-                            data-tip={$t('clipboard.copied')}
-                          >
-                            {#if copiedToClipboard}
-                              <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
-                            {:else}
-                              <IconButton
-                                loading={copyingToClipboard}
-                                icon="i-mdi-content-copy"
-                                style="btn-outline"
-                                on:click={copyProjectUrlToClipboard}
-                              />
-                            {/if}
-                          </div>
-                        </div>
-                      </FormField>
-                    </AdminContent>
+            <Dropdown>
+              <!-- svelte-ignore a11y-label-has-associated-control -->
+              <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-sm md:btn-md btn-success">
+                {$t('project_page.get_project.label')}
+                <span class="i-mdi-dots-vertical text-2xl" />
+              </label>
+              <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+                <div class="card-body max-sm:p-4">
+                  <div class="prose">
+                    <SvelteMarkdown
+                      source={$t('project_page.get_project.instructions', {
+                        type: _project.type,
+                        code: data.code,
+                        name: _project.name,
+                      })}
+                    />
                   </div>
+                  <AdminContent>
+                    <FormField label={$t('project_page.get_project.send_receive_url')}>
+                      <div class="join">
+                        <input
+                          value={projectHgUrl}
+                          class="input input-bordered join-item w-full focus:input-success"
+                          readonly
+                        />
+                        <div
+                          class="join-item tooltip-open"
+                          class:tooltip={copiedToClipboard}
+                          data-tip={$t('clipboard.copied')}
+                        >
+                          {#if copiedToClipboard}
+                            <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+                          {:else}
+                            <IconButton
+                              loading={copyingToClipboard}
+                              icon="i-mdi-content-copy"
+                              style="btn-outline"
+                              on:click={copyProjectUrlToClipboard}
+                            />
+                          {/if}
+                        </div>
+                      </div>
+                    </FormField>
+                  </AdminContent>
                 </div>
-              </Dropdown>
+              </div>
+            </Dropdown>
           {/if}
           {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
             <AdminContent>
               <Button on:click={migrateProject}>
                 Migrate Project
-                <Icon icon="i-mdi-source-branch-sync"/>
+                <Icon icon="i-mdi-source-branch-sync" />
               </Button>
             </AdminContent>
           {/if}
@@ -248,17 +253,30 @@
           </span>
         </div>
         <BadgeList>
-          <ProjectTypeBadge type={project.type}/>
+          <ProjectTypeBadge type={project.type} />
           <Badge>
-            <FormatRetentionPolicy policy={project.retentionPolicy}/>
+            <FormatRetentionPolicy policy={project.retentionPolicy} />
           </Badge>
           <AdminContent>
           {#if migrationStatus === ProjectMigrationStatus.Migrating}
-            <Badge><span class="loading loading-spinner loading-xs"></span> Migrating</Badge>
+            <Badge><span class="loading loading-spinner loading-xs" /> Migrating</Badge>
           {:else}
             <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>{migrationStatusTable[migrationStatus]}</Badge>
           {/if}
           </AdminContent>
+          {#if project.resetStatus === ResetStatus.InProgress}
+            <button
+              class:tooltip={isAdmin(user)}
+              data-tip={$t('project_page.reset_project_modal.click_to_continue')}
+              disabled={!isAdmin(user)}
+              on:click={resetProject}
+            >
+              <Badge type="badge-warning">
+                {$t('project_page.reset_project_modal.reset_in_progress')}
+                <span class="i-mdi-warning text-xl mb-[-2px]" />
+              </Badge>
+            </button>
+          {/if}
         </BadgeList>
       </div>
 
@@ -294,12 +312,11 @@
 
         <BadgeList>
           {#each project.users as member}
-            {@const canManageMember = canManage && (member.user.id !== userId  || isAdmin(user))}
+            {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
             <Dropdown disabled={!canManageMember}>
               <MemberBadge
                 member={{ name: member.user.name, role: member.role }}
-                canManage={canManageMember}
-              />
+                canManage={canManageMember} />
               <ul slot="content" class="menu">
                 <li>
                   <button on:click={() => changeMemberRole(member)}>
@@ -343,9 +360,8 @@
           </a>
         </p>
 
-        <!-- <HgWeb code={project.code} /> -->
         <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          <HgLogView json={project.changesets} />
+          <HgLogView logEntries={$changesetStore.changesets} loading={$changesetStore.fetching} />
         </div>
       </div>
 
@@ -357,10 +373,10 @@
             {$t('delete_project_modal.submit')}<TrashIcon />
           </button>
           <AdminContent>
-              <button class="btn btn-accent" on:click={() => resetProject()}>
-                {$t('project_page.reset_project_modal.title')}<CircleArrowIcon />
-              </button>
-            <ResetProjectModal bind:this={resetProjectModal} i18nScope="project_page.reset_project_modal" />
+            <button class="btn btn-accent" on:click={resetProject}>
+              {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
+            </button>
+            <ResetProjectModal bind:this={resetProjectModal} />
           </AdminContent>
         </MoreSettings>
       {/if}

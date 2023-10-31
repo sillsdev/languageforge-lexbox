@@ -3,11 +3,14 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { isAdmin, type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
-import { getBoolSearchParam } from '$lib/util/query-params';
-import type { $OpResult, ChangeUserAccountByAdminInput, ChangeUserAccountByAdminMutation, ProjectType } from '$lib/gql/types';
-import type {LoadAdminDashboardQuery} from '$lib/gql/types';
+import { getBoolSearchParam, getSearchParam } from '$lib/util/query-params';
+import type { $OpResult, ChangeUserAccountByAdminInput, ChangeUserAccountByAdminMutation, ProjectFilterInput, ProjectType } from '$lib/gql/types';
+import type { LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery } from '$lib/gql/types';
+
+export const _FILTER_PAGE_SIZE = 100;
 
 export type AdminSearchParams = {
+  userSearch: string,
   showDeletedProjects: boolean,
   projectType: ProjectType | undefined,
   userEmail: string | undefined,
@@ -15,33 +18,51 @@ export type AdminSearchParams = {
   migrationStatus: string,
 };
 
-export type Project = LoadAdminDashboardQuery['projects'][number];
-export type User = LoadAdminDashboardQuery['users']['items'][number];
+export type Project = LoadAdminDashboardProjectsQuery['projects'][number];
+export type User = NonNullable<NonNullable<LoadAdminDashboardUsersQuery['users']>['items']>[number];
 
 export async function load(event: PageLoadEvent) {
   const parentData = await event.parent();
   requireAdmin(parentData.user);
 
   const withDeletedProjects = getBoolSearchParam<AdminSearchParams>('showDeletedProjects', event.url.searchParams);
+  const userSearch = getSearchParam<AdminSearchParams>('userSearch', event.url.searchParams) ?? '';
+  const userEmail = getSearchParam<AdminSearchParams>('userEmail', event.url.searchParams);
 
   const client = getClient();
+
+  const projectFilter: ProjectFilterInput = {
+    ...(userEmail ? { users: { some: { user: { email: { icontains: userEmail } } } } } : {})
+  };
+
   //language=GraphQL
-  const results = await client.queryStore(event.fetch, graphql(`
-        query loadAdminDashboard($withDeletedProjects: Boolean) {
-            projects(orderBy: [
+  const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
+        query loadAdminDashboardProjects($withDeletedProjects: Boolean, $filter: ProjectFilterInput) {
+            projects(
+              where: $filter,
+              orderBy: [
                 {lastCommit: ASC},
                 {name: ASC}
             ], withDeleted: $withDeletedProjects) {
-                code
-                id
-                name
-                lastCommit
+              code
+              id
+              name
+              lastCommit
                 migrationStatus
-                type
-                deletedDate
-                userCount
+              type
+              deletedDate
+              userCount
             }
-            users(orderBy: {name: ASC}, take: 100) {
+        }
+    `), { withDeletedProjects, filter: projectFilter });
+
+  const userResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
+        query loadAdminDashboardUsers($userSearch: String, $take: Int!) {
+            users(
+              where: {or: [
+                {name: {icontains: $userSearch}},
+                {email: {icontains: $userSearch}}
+            ]}, orderBy: {name: ASC}, take: $take) {
               totalCount
               items {
                 id
@@ -57,10 +78,13 @@ export async function load(event: PageLoadEvent) {
               }
             }
         }
-    `), { withDeletedProjects });
+    `), { userSearch, take: _FILTER_PAGE_SIZE });
+
+  const [projectResults, userResults] = await Promise.all([projectResultsPromise, userResultsPromise]);
 
   return {
-    ...results
+    ...projectResults,
+    ...userResults,
   }
 }
 
@@ -93,6 +117,6 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
         }
       `),
       { input: input }
-  )
+    )
   return result;
 }

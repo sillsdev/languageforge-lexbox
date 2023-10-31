@@ -1,14 +1,18 @@
 using System.Text.Json.Serialization;
 using LexBoxApi;
 using LexBoxApi.Auth;
+using LexBoxApi.ErrorHandling;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
+using LexCore.Exceptions;
 using LexData;
 using LexSyncReverseProxy;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.OpenApi.Models;
+using tusdotnet;
 
 if (DbStartupService.IsMigrationRequest(args))
 {
@@ -57,6 +61,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddHealthChecks();
+//in prod the exception handler middleware adds the exception feature, but in dev we need to do it manually
+builder.Services.AddSingleton<IDeveloperPageExceptionFilter, AddExceptionFeatureDevExceptionFilter>();
+builder.Services.AddProblemDetails(o =>
+{
+    o.CustomizeProblemDetails = context =>
+    {
+        var exceptionHandlerFeature = context.HttpContext.Features.Get<IExceptionHandlerFeature>();
+        if (exceptionHandlerFeature?.Error is not IExceptionWithCode exceptionWithCode) return;
+        context.ProblemDetails.Extensions["app-error-code"] = exceptionWithCode.Code;
+    };
+});
 builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
@@ -90,7 +105,9 @@ app.Use(async (context, next) =>
     context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
     await next();
 });
-
+app.UseStatusCodePages();
+if (!app.Environment.IsDevelopment())
+    app.UseExceptionHandler();
 app.UseHealthChecks("/api/healthz");
 // Configure the HTTP request pipeline.
 //for now allow this to run in prod, maybe later we want to disable it.
@@ -117,6 +134,12 @@ if (app.Environment.IsDevelopment())
     app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
 app.MapControllers();
+app.MapTus("/api/tus-test",
+        async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
+    .RequireAuthorization(new AdminRequiredAttribute());
+app.MapTus($"/api/project/upload-zip/{{{ProxyConstants.HgProjectCodeRouteKey}}}",
+        async context => await context.RequestServices.GetRequiredService<TusService>().GetResetZipUploadConfig())
+    .RequireAuthorization(new AdminRequiredAttribute());
 // /api routes should never make it to this point, they should be handled by the controllers, so return 404
 app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
 app.MapSyncProxy(AuthKernel.DefaultScheme);

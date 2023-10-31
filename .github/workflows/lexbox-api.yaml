@@ -62,12 +62,18 @@ jobs:
         run: dotnet build
       - name: Unit tests
         run: dotnet test --logger xunit --results-directory ./test-results --filter "Category!=Integration" --blame-hang-timeout 10m
-      - name: Upload test results
+      - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
           check_name: C# Unit Tests
           files: ./test-results/*.xml
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: dotnet-unit-test-results
+          path: ./test-results
 
       - name: Set Version
         id: setVersion

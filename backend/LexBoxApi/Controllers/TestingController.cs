@@ -1,6 +1,7 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Services;
 using LexCore.Auth;
+using LexCore.Exceptions;
 using LexData;
 using LexData.Entities;
 using LexData.Redmine;
@@ -10,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Controllers;
 
-#if DEBUG
 [ApiController]
 [Route("/api/[controller]")]
 public class TestingController : ControllerBase
@@ -31,30 +31,20 @@ public class TestingController : ControllerBase
         _redmineDbContext = redmineDbContext;
     }
 
-    [HttpGet("requires-auth")]
-    public OkObjectResult RequiresAuth()
-    {
-        return Ok("success: " + User.Identity?.Name ?? "Unknown");
-    }
-
-    [HttpGet("requires-admin")]
-    [AdminRequired]
-    public OkResult RequiresAdmin()
-    {
-        return Ok();
-    }
-
+#if DEBUG
     [AllowAnonymous]
     [HttpGet("makeJwt")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<string>> MakeJwt(string usernameOrEmail, UserRole userRole)
+    public async Task<ActionResult<string>> MakeJwt(string usernameOrEmail,
+        UserRole userRole,
+        LexboxAudience audience = LexboxAudience.LexboxApi)
     {
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FindByEmail(usernameOrEmail);
         if (user is null) return NotFound();
-        var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole });
+        var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole }, audience: audience);
         return token;
     }
 
@@ -105,5 +95,17 @@ public class TestingController : ControllerBase
     public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);
 
     public record TestingControllerProjectUser(string? Username, string Role, string Email, Guid Id);
-}
+
 #endif
+    [HttpGet("throwsException")]
+    [AllowAnonymous]
+    public ActionResult ThrowsException()
+    {
+        throw new ExceptionWithCode("This is a test exception", "test-error");
+    }
+
+    [HttpGet("test500NoException")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public ActionResult Test500NoError() => StatusCode(500);
+}

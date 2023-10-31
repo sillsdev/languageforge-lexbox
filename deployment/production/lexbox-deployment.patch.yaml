@@ -26,11 +26,11 @@ spec:
             - name: Email__BaseUrl
               value: "https://prod.languagedepot.org"
             - name: HgConfig__PublicRedmineHgWebUrl
-              value: "https://hg-public.languageforge.org"
+              value: "https://hg-public.languageforge.org/"
             - name: HgConfig__PrivateRedmineHgWebUrl
-              value: "https://hg-private.languageforge.org"
+              value: "https://hg-private.languageforge.org/"
             - name: HgConfig__RedmineHgResumableUrl
-              value: "https://hgresumable.languageforge.org"
+              value: "https://hg-resumable.languageforge.org"
       initContainers:
         - name: db-migrations
           env:

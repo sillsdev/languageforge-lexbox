@@ -1,4 +1,4 @@
-import { APP_VERSION, apiVersion } from '$lib/util/verstion';
+import { APP_VERSION, apiVersion } from '$lib/util/version';
 
 import type { LayoutServerLoadEvent } from './$types'
 import { USER_LOAD_KEY } from '$lib/user';

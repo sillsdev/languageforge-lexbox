@@ -1,13 +1,15 @@
 import type { Options } from 'vite-plugin-graphql-codegen';
+import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript/typings/config';
+
 //https://the-guild.dev/graphql/codegen/docs/guides/svelte
 //config passed into vite instead of via codegen file, works the same though
-import type { TypeScriptPluginConfig } from '@graphql-codegen/typescript/typings/config';
+
 
 const generationConfig: TypeScriptPluginConfig = {
   useTypeImports: true,
   skipTypename: true,
   strictScalars: true,
-  avoidOptionals: true,
+  avoidOptionals: false,
   scalars: {
     /* eslint-disable @typescript-eslint/naming-convention */
     'numeric': 'number',

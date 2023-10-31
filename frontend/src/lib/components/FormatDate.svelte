@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { locale } from 'svelte-intl-precompile';
-  export let date: string | Date | number | null;
+  export let date: string | Date | number | null | undefined;
   export let timeFormat: FormatStyle = 'short';
   export let dateFormat: FormatStyle = 'short';
   export let nullLabel = '–';

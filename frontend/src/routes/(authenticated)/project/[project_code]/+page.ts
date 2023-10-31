@@ -14,7 +14,7 @@ import type {
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
-import { get } from 'svelte/store';
+import { derived } from 'svelte/store';
 
 type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -22,8 +22,8 @@ export type ProjectUser = Project['users'][number];
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   const projectCode = event.params.project_code;
-  const result = await client
-    .queryStore(event.fetch,
+  const projectResult = await client
+    .awaitedQueryStore(event.fetch,
       graphql(`
 				query projectPage($projectCode: String!) {
 					projectByCode(code: $projectCode) {
@@ -33,6 +33,7 @@ export async function load(event: PageLoadEvent) {
 						description
 						type
             migrationStatus
+            resetStatus
 						lastCommit
 						createdDate
 						retentionPolicy
@@ -44,23 +45,38 @@ export async function load(event: PageLoadEvent) {
 								name
 							}
 						}
-						changesets {
-							node
-							parents
-							date
-							user
-							desc
-						}
 					}
 				}
 			`),
       { projectCode }
     );
+  const changesetResultStore = client
+    .queryStore(event.fetch,
+      graphql(`
+        query projectChangesets($projectCode: String!) {
+          projectByCode(code: $projectCode) {
+            id
+            code
+            changesets {
+              node
+              parents
+              date
+              user
+              desc
+            }
+          }
+        }
+      `),
+      { projectCode }
+  );
 
-  const projectId = get(result.projectByCode)?.id as string;
-  event.depends(`project:${projectId}`);
+  event.depends(`project:${projectCode}`);
   return {
-    project: result.projectByCode,
+    project: projectResult.projectByCode,
+    changesets: derived(changesetResultStore, result => ({
+      fetching: result.fetching,
+      changesets: result.data?.projectByCode?.changesets ?? [],
+    })),
     code: projectCode,
   };
 }
@@ -90,7 +106,7 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
         }
       `),
       { input: input }
-  );
+    );
   return result;
 }
 
@@ -179,4 +195,29 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
       { input: { projectId: projectId, userId: userId } }
     );
   return result;
+}
+
+export async function _refreshProjectMigrationStatusAndRepoInfo(projectCode: string): Promise<void> {
+    const result = await getClient().query(graphql(`
+        query refreshProjectStatus($projectCode: String!) {
+            projectByCode(code: $projectCode) {
+                id
+                resetStatus
+                migrationStatus
+                lastCommit
+                changesets {
+                  node
+                  parents
+                  date
+                  user
+                  desc
+                }
+            }
+        }
+    `), { projectCode }, { requestPolicy: 'network-only' });
+
+  if (result.error) {
+    // this should be meaningless, but just in case and it makes the linter happy
+    throw result.error;
+  }
 }

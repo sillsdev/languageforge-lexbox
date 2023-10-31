@@ -1,8 +1,11 @@
 using DataAnnotatedModelValidations;
+using HotChocolate.Data.Filters;
+using HotChocolate.Data.Filters.Expressions;
 using HotChocolate.Data.Projections.Expressions;
 using HotChocolate.Diagnostics;
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
+using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
 using LexData;
@@ -31,7 +34,11 @@ public static class GraphQlSetupKernel
                 descriptor.AddDefaults();
                 descriptor.ArgumentName("orderBy");
             })
-            .AddFiltering()
+            .AddFiltering((descriptor) =>
+            {
+                descriptor.AddDefaults();
+                descriptor.AddDeterministicInvariantContainsFilter();
+            })
             .AddProjections(descriptor =>
             {
                 descriptor.Provider(new QueryableProjectionProvider(providerDescriptor =>

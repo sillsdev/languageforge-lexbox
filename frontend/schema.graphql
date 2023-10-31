@@ -95,6 +95,7 @@ type LexAuthUser {
   canAccessProject(projectCode: String!): Boolean!
   hasProjectCreatePermission: Boolean!
   id: UUID!
+  audience: LexboxAudience!
   email: String!
   name: String!
   role: UserRole!
@@ -133,6 +134,7 @@ type Project {
   users: [ProjectUsers!]!
   lastCommit: DateTime
   deletedDate: DateTime
+  resetStatus: ResetStatus!
   projectOrigin: ProjectMigrationStatus!
   userCount: Int!
   id: UUID!
@@ -324,6 +326,7 @@ input ProjectFilterInput {
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
+  resetStatus: ResetStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
   migrationStatus: ProjectMigrationStatusOperationFilterInput
   userCount: IntOperationFilterInput
@@ -355,6 +358,7 @@ input ProjectSortInput {
   type: SortEnumType
   lastCommit: SortEnumType
   deletedDate: SortEnumType
+  resetStatus: SortEnumType
   projectOrigin: SortEnumType
   migrationStatus: SortEnumType
   userCount: SortEnumType
@@ -388,6 +392,13 @@ input RemoveProjectMemberInput {
   userId: UUID!
 }
 
+input ResetStatusOperationFilterInput {
+  eq: ResetStatus
+  neq: ResetStatus
+  in: [ResetStatus!]
+  nin: [ResetStatus!]
+}
+
 input RetentionPolicyOperationFilterInput {
   eq: RetentionPolicy
   neq: RetentionPolicy
@@ -412,6 +423,7 @@ input StringOperationFilterInput {
   nstartsWith: String
   endsWith: String
   nendsWith: String
+  icontains: String
 }
 
 input UserFilterInput {
@@ -482,6 +494,13 @@ enum DbErrorCode {
   DUPLICATE
 }
 
+enum LexboxAudience {
+  UNKNOWN
+  LEXBOX_API
+  FORGOT_PASSWORD
+  SEND_AND_RECEIVE
+}
+
 enum ProjectMigrationStatus {
   UNKNOWN
   MIGRATED
@@ -502,6 +521,11 @@ enum ProjectType {
   WE_SAY
   ONE_STORY_EDITOR
   OUR_WORD
+}
+
+enum ResetStatus {
+  NONE
+  IN_PROGRESS
 }
 
 enum RetentionPolicy {

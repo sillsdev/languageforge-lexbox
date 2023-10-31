@@ -7,6 +7,7 @@ import { handleFetch } from '$lib/util/fetch-proxy';
 import {invalidate} from '$app/navigation';
 import {USER_LOAD_KEY} from '$lib/user';
 import { updated } from '$app/stores';
+import { APP_VERSION } from '$lib/util/version';
 
 await loadI18n();
 
@@ -19,11 +20,19 @@ export const handleError: HandleClientError = async ({ error, event }) => {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   updated.subscribe(() => { })();
   const updateDetected = await updated.check();
+  const autoReload = shouldTryAutoReload(updateDetected);
 
   const traceId = ensureErrorIsTraced(error, { event }, {
     ['app.error.source']: handler,
-    ...(updateDetected ? { ['app.update-detected']: true } : {}),
+    ['app.update-detected']: updateDetected,
+    ['app.auto-reload']: autoReload,
   });
+
+  if (autoReload) {
+    location.reload();
+    return;
+  }
+
   const message = getErrorMessage(error);
   return {
     traceId,
@@ -32,6 +41,22 @@ export const handleError: HandleClientError = async ({ error, event }) => {
     updateDetected,
   };
 };
+
+function shouldTryAutoReload(updateDetected: boolean): boolean {
+  if (!updateDetected) {
+    return false;
+  }
+
+  const lastReloadVersion = sessionStorage.getItem('last-reload-version');
+  const currVersion = APP_VERSION;
+  if (!lastReloadVersion || lastReloadVersion !== currVersion) {
+    sessionStorage.setItem('last-reload-version', currVersion);
+    return true;
+  }
+
+  // we already tried a reload on the current version
+  return false;
+}
 
 /**
  * This is obviously NOT a SvelteKit handler/feature. It just mimics the `handleFetch` in hooks.server.ts.

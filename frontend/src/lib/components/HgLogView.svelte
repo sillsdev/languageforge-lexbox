@@ -9,21 +9,19 @@
   import FormatDate from './FormatDate.svelte';
   import type { Circle, Path } from './TrainTracks.svelte';
   import TrainTracks from './TrainTracks.svelte';
+  import Loader from './Loader.svelte';
+  import type { ProjectChangesetsQuery } from '$lib/gql/types';
 
-  type LogEntry = {
-    node: string;
-    parents: string[];
-    date: number[];
-    user: string;
-    desc: string;
-  };
+  type LogEntries = NonNullable<ProjectChangesetsQuery['projectByCode']>['changesets'];
+  type LogEntry = NonNullable<LogEntries>[0];
   type ExpandedLogEntry = LogEntry & {
     trimmedLog: string;
     row: number;
     col: number;
   };
 
-  export let json: LogEntry[]; // JSON-format hg log
+  export let logEntries: LogEntries;
+  export let loading: boolean;
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
@@ -102,7 +100,7 @@
 
   let expandedLog: ExpandedLogEntry[];
   $: {
-    expandedLog = json as ExpandedLogEntry[];
+    expandedLog = (logEntries ?? []) as ExpandedLogEntry[];
     assignRowsAndColumns(expandedLog);
     expandedLog = expandedLog.map((e) => ({
       ...e,
@@ -131,7 +129,7 @@
     </tr>
   </thead>
   <tbody>
-    {#if json.length}
+    {#if logEntries?.length}
       {#each expandedLog as log, idx}
         <tr>
           {#if idx === 0}
@@ -148,7 +146,13 @@
       <tr>
         <td colspan="100">
           <div class="text p-2 text-secondary flex gap-2 items-center">
-            <span class="i-mdi-creation-outline text-xl" /> {$t('project_page.hg.no_history')}
+            {#if loading}
+              <Loader loading />
+              {$t('project_page.hg.loading')}
+            {:else}
+              <span class="i-mdi-creation-outline text-2xl" />
+              {$t('project_page.hg.no_history')}
+            {/if}
           </div>
         </td>
       </tr>

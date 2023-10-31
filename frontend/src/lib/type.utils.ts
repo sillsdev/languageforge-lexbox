@@ -7,6 +7,8 @@ import type { Readable } from 'svelte/store';
  */
 type OmitNever<T> = { [K in keyof T as IfNever<T[K], never, K>]: T[K] };
 
+type OrIfNever<T, N> = IfNever<T, N, T>;
+
 /**
  * Creates a union of all possible deep paths / nested keys (e.g. `obj.nestedObj.prop`) of an object
  */
@@ -20,9 +22,9 @@ export type DeepPaths<ObjectType extends object> =
 /**
  * Create a union of all possible deep paths of an object who's value fulfill `Condition`
  */
-export type DeepPathsToType<Base, Path extends string, Type> = keyof OmitNever<{
+export type DeepPathsToType<Base, Path extends string, Type> = OrIfNever<keyof OmitNever<{
   [Property in Path]: Get<Base, Property> extends Type ? Property : never;
-}>;
+}>, Readonly<`No paths match type:`> | Type>;
 
 /**
  * Create a union of all possible deep paths of an object who's value type is `string`

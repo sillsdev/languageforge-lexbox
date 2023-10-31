@@ -30,11 +30,16 @@ public static class LexBoxKernel
             .BindConfiguration("Email")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<TusConfig>()
+            .BindConfiguration("Tus")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddHttpClient();
         services.AddScoped<LoggedInContext>();
         services.AddScoped<ProjectService>();
         services.AddScoped<UserService>();
         services.AddScoped<EmailService>();
+        services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();

@@ -83,7 +83,7 @@ spec:
           - name: ASPNETCORE_ENVIRONMENT
             value: Development
           - name: OTEL_METRIC_EXPORT_INTERVAL
-            value: '15000' # 15 seconds
+            value: '60000' # 60s
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
@@ -142,9 +142,13 @@ spec:
                 name: email
           - name: Email__BaseUrl
             value: http://localhost
+          - name: Tus__TestUploadPath
+            value: /tmp/tus-test-upload
+          - name: Tus__ResetUploadPath
+            value: /tmp/tus-reset-upload
 
       - name: otel-collector
-        image: otel/opentelemetry-collector:0.73.0
+        image: otel/opentelemetry-collector-contrib:0.87.0
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
@@ -155,7 +159,7 @@ spec:
           - containerPort: 4318
           - containerPort: 4317
         volumeMounts:
-          - mountPath: /etc/otelcol
+          - mountPath: /etc/otelcol-contrib
             name: otel-config
             readOnly: true
 

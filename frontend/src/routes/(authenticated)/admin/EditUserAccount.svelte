@@ -3,8 +3,8 @@
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
   import Input from '$lib/forms/Input.svelte';
-  import { UserRole, type LoadAdminDashboardQuery } from '$lib/gql/types';
-  import { _changeUserAccountByAdmin } from './+page';
+  import { UserRole } from '$lib/gql/types';
+  import { _changeUserAccountByAdmin, type User } from './+page';
   import type { LexAuthUser } from '$lib/user';
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
@@ -13,8 +13,7 @@
   import {hash} from '$lib/util/hash';
 
   export let currUser: LexAuthUser;
-  export let deleteUser: (user: UserRow) => void;
-  type UserRow = LoadAdminDashboardQuery['users'][0];
+  export let deleteUser: (user: User) => void;
 
   const schema = z.object({
     email: z.string().email(),
@@ -30,8 +29,8 @@
     formModal.close();
   }
 
-  let _user: UserRow;
-  export async function openModal(user: UserRow): Promise<FormModalResult<Schema>> {
+  let _user: User;
+  export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
     return await formModal.open({ name: user.name, email: user.email, role }, async () => {

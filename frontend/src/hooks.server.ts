@@ -1,5 +1,5 @@
 import { getUser, isAuthn } from '$lib/user'
-import { apiVersion } from '$lib/util/verstion';
+import { apiVersion } from '$lib/util/version';
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { loadI18n } from '$lib/i18n';
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
@@ -19,6 +19,7 @@ function getRoot(routeId: string): string {
 
 // eslint-disable-next-line func-style
 export const handle: Handle = ({ event, resolve }) => {
+  console.log(`HTTP request: ${event.request.method} ${event.request.url}`);
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
     await loadI18n();

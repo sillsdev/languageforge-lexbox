@@ -64,6 +64,9 @@ namespace LexData.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(1);
 
+                    b.Property<int>("ResetStatus")
+                        .HasColumnType("integer");
+
                     b.Property<int>("RetentionPolicy")
                         .HasColumnType("integer");
 

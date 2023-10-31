@@ -112,3 +112,15 @@ table tr:nth-last-child(-n + 2) .dropdown {
     @apply h-full;
   }
 }
+
+.file-input {
+  /* some make-up for what looks like a Chrome rendering bug */
+  border-width: 2px;
+}
+
+.steps .step-primary {
+  &:before,
+  &:after {
+    transition: background-color 0.5s;
+  }
+}
