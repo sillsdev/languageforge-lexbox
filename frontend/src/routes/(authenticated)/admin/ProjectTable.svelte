@@ -11,6 +11,7 @@ import TrashIcon from '$lib/icons/TrashIcon.svelte';
 import FormatDate from '$lib/components/FormatDate.svelte';
 import ProjectTypeSelect from '$lib/forms/ProjectTypeSelect.svelte';
 import FormField from '$lib/forms/FormField.svelte';
+import MigrationStatusSelect from '$lib/forms/MigrationStatusSelect.svelte';
 import {ActiveFilter, FilterBar} from '$lib/components/FilterBar';
 import Badge from '$lib/components/Badges/Badge.svelte';
 import {getSearchParams, queryParam} from '$lib/util/query-params';
@@ -34,6 +35,7 @@ const {queryParams, defaultQueryParams} = getSearchParams<AdminSearchParams>({
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
+    migrationStatus: queryParam.string<string>(''),
 });
 function getFilteredUser(userEmail: string | undefined): User | undefined {
     if (!userEmail) {
@@ -56,7 +58,8 @@ $: filteredProjects = (userProjects ?? projects).filter(
         (!$queryParams.projectSearch ||
             p.name.toLocaleLowerCase().includes(projectSearchLower) ||
             p.code.toLocaleLowerCase().includes(projectSearchLower)) &&
-        (!$queryParams.projectType || p.type === $queryParams.projectType));
+        (!$queryParams.projectType || p.type === $queryParams.projectType) &&
+        (!$queryParams.migrationStatus || p.migrationStatus === $queryParams.migrationStatus));
 $: shownProjects = filteredProjects.slice(0, projectLimit);
 $: {
     // Reset limit if search is changed
@@ -165,6 +168,10 @@ async function softDeleteProject(project: Project): Promise<void> {
             <div class="form-control">
                 <ProjectTypeSelect bind:value={$queryParams.projectType}
                                    undefinedOptionLabel={$t('project_type.any')}/>
+            </div>
+            <div class="form-control">
+                <MigrationStatusSelect bind:value={$queryParams.migrationStatus}
+                                       undefinedOptionLabel="Any"/>
             </div>
             <div class="form-control">
                 <label class="cursor-pointer label gap-4">
