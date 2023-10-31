@@ -21,7 +21,6 @@ import AuthenticatedUserIcon from '$lib/icons/AuthenticatedUserIcon.svelte';
 import IconButton from '$lib/components/IconButton.svelte';
 import {bubbleFocusOnDestroy} from '$lib/util/focus';
 import Button from '$lib/forms/Button.svelte';
-import AdminContent from '$lib/layout/AdminContent.svelte';
 export let projects: Project[];
 export let users: User[];
 
@@ -198,9 +197,7 @@ async function softDeleteProject(project: Project): Promise<void> {
                     {$t('admin_dashboard.column_last_change')}
                     <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2"/>
                 </th>
-                <AdminContent>
-                  <th>{$t('admin_dashboard.column_migrated')}</th>
-                </AdminContent>
+                <th>{$t('admin_dashboard.column_migrated')}</th>
                 <th>{$t('admin_dashboard.column_type')}</th>
                 <th/>
             </tr>
@@ -231,9 +228,7 @@ async function softDeleteProject(project: Project): Promise<void> {
                             <FormatDate date={project.lastCommit}/>
                         {/if}
                     </td>
-                    <AdminContent>
-                      <td><span class={migrationStatusIcon(project.migrationStatus)} /></td>
-                    </AdminContent>
+                    <td><span class={migrationStatusIcon(project.migrationStatus)} /></td>
                     <td>
                   <span class="tooltip align-bottom" data-tip={$t(getProjectTypeI18nKey(project.type))}>
                     <ProjectTypeIcon type={project.type}/>
