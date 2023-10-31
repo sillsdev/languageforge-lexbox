@@ -5,9 +5,7 @@ import type {
 
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
-import { goto } from '$app/navigation';
 import type { PageLoad } from './$types';
-import { browser } from '$app/environment';
 import { EmailResult } from '$lib/email';
 
 const EMAIL_RESULTS = Object.values(EmailResult);
@@ -16,7 +14,6 @@ export const load = (({ url }) => {
   const emailResult = url.searchParams.get('emailResult') as EmailResult | null;
   if (emailResult) {
     if (!EMAIL_RESULTS.includes(emailResult)) throw new Error(`Invalid emailResult: ${emailResult}.`);
-    if (browser) void goto(`${url.pathname}`, { replaceState: true });
   }
   return { emailResult };
 }) satisfies PageLoad
