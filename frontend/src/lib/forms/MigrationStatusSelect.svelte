@@ -2,7 +2,7 @@
   import { ProjectMigrationStatus } from '$lib/gql/generated/graphql';
   import Select from './Select.svelte';
 
-  export let value: ProjectMigrationStatus | undefined;
+  export let value: ProjectMigrationStatus | "UNMIGRATED" | undefined;
   export let error: string | string[] | undefined = undefined;
   export let undefinedOptionLabel: string | undefined = undefined;
 
@@ -13,8 +13,6 @@
     <option value="">Any</option>
     <option value={ProjectMigrationStatus.Migrated}>Migrated</option>
     <option value={ProjectMigrationStatus.Migrating}>Migrating</option>
-    <option value={ProjectMigrationStatus.Unknown}>Unknown</option>
-    <option value={ProjectMigrationStatus.PrivateRedmine}>Unmigrated, private</option>
-    <option value={ProjectMigrationStatus.PublicRedmine}>Unmigrated, public</option>
+    <option value="UNMIGRATED">Unmigrated</option>
   </Select>
 </div>

@@ -28,6 +28,16 @@ $: filters = queryParams.queryParamValues;
 $: defaultFilters = queryParams.defaultQueryParamValues;
 
 const projectFilterKeys = new Set(['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'] as const) satisfies Set<keyof AdminSearchParams>;
+function matchMigrationStatus(filter: string|undefined, status: string): boolean {
+  return (!filter ||
+    filter === status ||
+    filter === 'UNMIGRATED' && (
+      status === ProjectMigrationStatus.Unknown ||
+      status === ProjectMigrationStatus.PrivateRedmine ||
+      status === ProjectMigrationStatus.PublicRedmine
+    )
+  );
+}
 let projectFilterLimit = _FILTER_PAGE_SIZE;
 let hasActiveProjectFilter: boolean;
 $: projectSearchLower = $filters.projectSearch.toLocaleLowerCase();
@@ -38,7 +48,7 @@ $: filteredProjects = projects.filter(
             p.name.toLocaleLowerCase().includes(projectSearchLower) ||
             p.code.toLocaleLowerCase().includes(projectSearchLower)) &&
         (!$filters.projectType || p.type === $filters.projectType) &&
-        (!$filters.migrationStatus || p.migrationStatus === $filters.migrationStatus));
+        matchMigrationStatus($filters.migrationStatus, p.migrationStatus));
 $: shownProjects = filteredProjects.slice(0, projectLimit);
 $: {
     // Reset limit if search is changed
