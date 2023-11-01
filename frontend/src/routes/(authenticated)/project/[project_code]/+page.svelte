@@ -158,7 +158,6 @@
 
   async function watchMigrationStatus(): Promise<void> {
     if (!project) return;
-    notifyWarning('This project is currently being migrated. Some features may not work as expected.');
     const result = await fetch(`/api/project/awaitMigrated?projectCode=${project.code}`);
     const response = await result.json();
     if (response) {
@@ -181,6 +180,12 @@
 <Page wide>
   <div class="space-y-4">
     {#if project}
+      {#if migrationStatus === ProjectMigrationStatus.Migrating}
+        <div class="alert alert-warning">
+          <span class="i-mdi-alert text-2xl" />
+          <span>This project is currently being migrated. Some features may not work as expected.</span>
+        </div>
+      {/if}
       <div class="space-y-2 space-x-1">
         <div class="float-right mt-1 sm:mt-2 md:mt-1">
           {#if migrationStatus !== ProjectMigrationStatus.Migrating}
