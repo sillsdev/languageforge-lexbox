@@ -35,6 +35,7 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
   deploy-api:
     name: Deploy API
+    if: ${{github.ref == 'refs/heads/develop'}}
     needs: [ build-ui, set-version ]
     uses: ./.github/workflows/deploy.yaml
     secrets: inherit
