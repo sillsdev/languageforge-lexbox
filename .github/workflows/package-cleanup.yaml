@@ -12,7 +12,7 @@ jobs:
           - 'sillsdev/lexbox-api'
           - 'sillsdev/lexbox-hgweb'
     steps:
-      - uses: actions/delete-package-version@v4.1.1
+      - uses: actions/delete-package-versions@v4.1.1
         with:
           package-name: ${{ matrix.package-name }}
           package-type: 'container'
