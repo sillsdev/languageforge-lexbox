@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using LexCore.Auth;
@@ -50,6 +51,8 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         var jwtDate = DateTime.UtcNow;
         _jwtSecurityTokenHandler.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
         var claimsIdentity = new ClaimsIdentity(data.Principal.Claims, data.Principal.Identity?.AuthenticationType);
+        var keyId = Guid.NewGuid().ToString().GetHashCode().ToString("x", CultureInfo.InvariantCulture);
+        claimsIdentity.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, keyId));
         //there may already be an audience claim, we want to reuse that if it exists, if not fallback to the default audience
         var audience = DetermineAudience(claimsIdentity) ?? jwtBearerOptions.TokenValidationParameters.ValidAudience;
         var securityTokenDescriptor = new SecurityTokenDescriptor
