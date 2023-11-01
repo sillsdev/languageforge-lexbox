@@ -1,0 +1,20 @@
+﻿name: Package Cleanup
+on:
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package-name:
+          - 'sillsdev/lexbox-ui'
+          - 'sillsdev/lexbox-api'
+          - 'sillsdev/lexbox-hgweb'
+    steps:
+      - uses: actions/delete-package-version@v4.1.1
+        with:
+          package-name: ${{ matrix.package-name }}
+          package-type: 'container'
+          min-versions-to-keep: 10
+          delete-only-untagged-versions: 'true'
