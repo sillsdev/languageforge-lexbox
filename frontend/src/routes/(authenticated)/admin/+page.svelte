@@ -27,7 +27,7 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
-    migrationStatus: queryParam.string<ProjectMigrationStatus | "UNMIGRATED" | undefined>(undefined),
+    migrationStatus: queryParam.string<ProjectMigrationStatus | 'UNMIGRATED' | undefined>(undefined),
   });
 
   const { queryParamValues } = queryParams;

@@ -2,7 +2,7 @@
   import { ProjectMigrationStatus } from '$lib/gql/generated/graphql';
   import Select from './Select.svelte';
 
-  export let value: ProjectMigrationStatus | "UNMIGRATED" | undefined;
+  export let value: ProjectMigrationStatus | 'UNMIGRATED' | undefined;
   export let error: string | string[] | undefined = undefined;
 
 </script>

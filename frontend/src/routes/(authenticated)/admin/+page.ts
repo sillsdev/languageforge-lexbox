@@ -15,7 +15,7 @@ export type AdminSearchParams = {
   projectType: ProjectType | undefined,
   userEmail: string | undefined,
   projectSearch: string,
-  migrationStatus: ProjectMigrationStatus | "UNMIGRATED" | undefined,
+  migrationStatus: ProjectMigrationStatus | 'UNMIGRATED' | undefined,
 };
 
 export type Project = LoadAdminDashboardProjectsQuery['projects'][number];

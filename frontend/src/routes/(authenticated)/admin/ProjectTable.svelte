@@ -28,7 +28,7 @@ $: filters = queryParams.queryParamValues;
 $: defaultFilters = queryParams.defaultQueryParamValues;
 
 const projectFilterKeys = new Set(['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'] as const) satisfies Set<keyof AdminSearchParams>;
-function matchMigrationStatus(filter: string|undefined, status: string): boolean {
+function matchMigrationStatus(filter: ProjectMigrationStatus | 'UNMIGRATED' | undefined, status: ProjectMigrationStatus): boolean {
   return (!filter ||
     filter === status ||
     filter === 'UNMIGRATED' && (
@@ -74,7 +74,7 @@ async function softDeleteProject(project: Project): Promise<void> {
     [ProjectMigrationStatus.PrivateRedmine]: 'i-mdi-checkbox-blank-circle-outline',
     [ProjectMigrationStatus.PublicRedmine]: 'i-mdi-checkbox-blank-circle-outline',
   } satisfies Record<ProjectMigrationStatus, string>;
-  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus) {
+  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus): string {
     migrationStatus = migrationStatus ?? ProjectMigrationStatus.Unknown;
     return migrationStatusTable[migrationStatus] ?? migrationStatusTable[ProjectMigrationStatus.Unknown];
   }
