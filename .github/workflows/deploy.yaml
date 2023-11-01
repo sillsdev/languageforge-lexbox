@@ -106,7 +106,7 @@ jobs:
     steps:
       - name: Verify Version
         env:
-          TARGET_ENDPOINT: ${{ matrix.verify.endpoint }}
+          TARGET: 'https://${{ matrix.verify.endpoint }}'
           EXPECTED_VERSION: ${{ matrix.verify.version }}
         run: |
           IterateCount=10
@@ -114,7 +114,7 @@ jobs:
           n=0
           until [ $n -ge $IterateCount ]
           do
-            curl -s --head "$TARGET_ENDPOINT" > response.txt
+            curl -s --head "$TARGET" > response.txt
             # get version from response, trim off the header and fix the line endings
             versionHeader=$((grep "lexbox-version" response.txt || echo VersionNotFound) | cut -d' ' -f 2 | tr -d '[:space:]')
             if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
