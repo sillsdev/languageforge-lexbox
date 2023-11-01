@@ -3,7 +3,7 @@
   value: prod.languagedepot.org
 - op: replace
   path: /spec/rules/1/host
-  value: hg-prod.languagedepot.org
+  value: hg-prod.languageforge.org
 - op: replace
   path: /spec/rules/2/host
   value: resumable.languagedepot.org
@@ -14,6 +14,6 @@
   path: /spec/tls/0/hosts
   value:
     - prod.languagedepot.org
-    - hg-prod.languagedepot.org
+    - hg-prod.languageforge.org
     - resumable.languagedepot.org
     - admin.languagedepot.org
