@@ -8,9 +8,9 @@ jobs:
     strategy:
       matrix:
         package-name:
-          - 'sillsdev/lexbox-ui'
-          - 'sillsdev/lexbox-api'
-          - 'sillsdev/lexbox-hgweb'
+          - 'lexbox-ui'
+          - 'lexbox-api'
+          - 'lexbox-hgweb'
     steps:
       - uses: actions/delete-package-versions@v4.1.1
         with:
