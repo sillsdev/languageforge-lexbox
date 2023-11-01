@@ -7,6 +7,7 @@ resources:
 patches:
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
+  - path: hg-deployment-patch.yaml
   - path: ingress-config-staging.yaml
     target:
       kind: Ingress

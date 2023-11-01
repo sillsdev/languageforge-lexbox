@@ -111,6 +111,19 @@ public class SeedingData
                 },
             }
         });
+        _lexBoxDbContext.Attach(new Project
+        {
+            Id = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507"),
+            Name = "Elawa",
+            Description = "Eastern Lawa project",
+            Code = "elawa-dev-flex",
+            Type = ProjectType.FLEx,
+            MigrationStatus = ProjectMigrationStatus.Migrated,
+            ProjectOrigin = ProjectMigrationStatus.Migrated,
+            LastCommit = DateTimeOffset.UtcNow,
+            RetentionPolicy = RetentionPolicy.Dev,
+            Users = new()
+        });
 
         foreach (var entry in _lexBoxDbContext.ChangeTracker.Entries())
         {
