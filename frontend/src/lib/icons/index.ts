@@ -24,4 +24,4 @@ export {
   TrashIcon
 }
 
-export type IconString = `i-mdi-${string}`;
+export type IconString = `i-mdi-${string}` | `loading loading-spinner loading-${string}`;

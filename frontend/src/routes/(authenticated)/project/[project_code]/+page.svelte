@@ -145,9 +145,14 @@
   } satisfies Record<ProjectMigrationStatus, string>;
   const migrationStatusIcon = {
     [ProjectMigrationStatus.Migrated]: 'i-mdi-check-circle',
+    [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
   } satisfies Record<ProjectMigrationStatus, IconString>;
   const migrationStatusBadgeVariant = {
     [ProjectMigrationStatus.Migrated]: 'badge-success',
+    [ProjectMigrationStatus.Migrating]: 'badge-warning',
+    [ProjectMigrationStatus.Unknown]: 'badge-neutral',
+    [ProjectMigrationStatus.PrivateRedmine]: 'badge-neutral',
+    [ProjectMigrationStatus.PublicRedmine]: 'badge-neutral',
   } satisfies Record<ProjectMigrationStatus, BadgeVariant>;
   onMount(() => {
     migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
@@ -263,11 +268,7 @@
             <FormatRetentionPolicy policy={project.retentionPolicy} />
           </Badge>
           <AdminContent>
-          {#if migrationStatus === ProjectMigrationStatus.Migrating}
-            <Badge><span class="loading loading-spinner loading-xs" /> Migrating</Badge>
-          {:else}
             <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>{migrationStatusTable[migrationStatus]}</Badge>
-          {/if}
           </AdminContent>
           {#if project.resetStatus === ResetStatus.InProgress}
             <button
