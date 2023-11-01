@@ -1,0 +1,15 @@
+﻿#file: noinspection KubernetesMissingKeys
+#file is a patch file that will be applied to the base deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ui
+  namespace: languagedepot
+spec:
+  template:
+    spec:
+      containers:
+        - name: ui
+          env:
+            - name: PUBLIC_ENV_NAME
+              value: develop
