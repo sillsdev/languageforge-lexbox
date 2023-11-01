@@ -41,7 +41,7 @@ jobs:
     with:
       version: ${{ needs.set-version.outputs.version }}
       image: 'ghcr.io/sillsdev/lexbox-ui'
-      k8s-environment: dev
+      k8s-environment: develop
       deploy-domain: staging.languagedepot.org #todo change to develop
 
   check-and-lint:

@@ -86,4 +86,4 @@ jobs:
         version: ${{ needs.publish-hgweb.outputs.version }}
         image: 'ghcr.io/sillsdev/lexbox-hgweb'
         deploy-domain: 'staging.languagedepot.org'
-        k8s-environment: 'dev'
+        k8s-environment: 'develop'
