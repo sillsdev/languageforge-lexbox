@@ -146,7 +146,10 @@
   const migrationStatusIcon = {
     [ProjectMigrationStatus.Migrated]: 'i-mdi-check-circle',
     [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
-  } satisfies Record<ProjectMigrationStatus, IconString>;
+    [ProjectMigrationStatus.Unknown]: undefined,
+    [ProjectMigrationStatus.PrivateRedmine]: undefined,
+    [ProjectMigrationStatus.PublicRedmine]: undefined,
+  } satisfies Record<ProjectMigrationStatus, IconString|undefined>;
   const migrationStatusBadgeVariant = {
     [ProjectMigrationStatus.Migrated]: 'badge-success',
     [ProjectMigrationStatus.Migrating]: 'badge-warning',

@@ -74,7 +74,7 @@ async function softDeleteProject(project: Project): Promise<void> {
     [ProjectMigrationStatus.PrivateRedmine]: 'i-mdi-checkbox-blank-circle-outline',
     [ProjectMigrationStatus.PublicRedmine]: 'i-mdi-checkbox-blank-circle-outline',
   } satisfies Record<ProjectMigrationStatus, string>;
-  function migrationStatusIcon(migrationStatus) {
+  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus) {
     migrationStatus = migrationStatus ?? ProjectMigrationStatus.Unknown;
     return migrationStatusTable[migrationStatus] ?? migrationStatusTable[ProjectMigrationStatus.Unknown];
   }
@@ -160,8 +160,7 @@ async function softDeleteProject(project: Project): Promise<void> {
                                    undefinedOptionLabel={$t('project_type.any')}/>
             </div>
             <div class="form-control">
-                <MigrationStatusSelect bind:value={$filters.migrationStatus}
-                                       undefinedOptionLabel="Any"/>
+                <MigrationStatusSelect bind:value={$filters.migrationStatus} />
             </div>
             <div class="form-control">
                 <label class="cursor-pointer label gap-4">

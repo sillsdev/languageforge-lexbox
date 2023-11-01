@@ -15,7 +15,7 @@
   import type { AdminSearchParams, User } from './+page';
   import ProjectTable from './ProjectTable.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import type { ProjectType } from '$lib/gql/types';
+  import type { ProjectType, ProjectMigrationStatus } from '$lib/gql/types';
 
   export let data: PageData;
   $: allProjects = data.projects;
@@ -27,7 +27,7 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
-    migrationStatus: queryParam.string<string>(''),
+    migrationStatus: queryParam.string<ProjectMigrationStatus | "UNMIGRATED" | undefined>(undefined),
   });
 
   const { queryParamValues } = queryParams;

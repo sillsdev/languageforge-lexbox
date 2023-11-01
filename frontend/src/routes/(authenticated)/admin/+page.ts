@@ -4,7 +4,7 @@ import type { PageLoadEvent } from './$types';
 import { isAdmin, type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
 import { getBoolSearchParam, getSearchParam } from '$lib/util/query-params';
-import type { $OpResult, ChangeUserAccountByAdminInput, ChangeUserAccountByAdminMutation, ProjectFilterInput, ProjectType } from '$lib/gql/types';
+import type { $OpResult, ChangeUserAccountByAdminInput, ChangeUserAccountByAdminMutation, ProjectFilterInput, ProjectType, ProjectMigrationStatus } from '$lib/gql/types';
 import type { LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery } from '$lib/gql/types';
 
 export const _FILTER_PAGE_SIZE = 100;
@@ -15,7 +15,7 @@ export type AdminSearchParams = {
   projectType: ProjectType | undefined,
   userEmail: string | undefined,
   projectSearch: string,
-  migrationStatus: string,
+  migrationStatus: ProjectMigrationStatus | "UNMIGRATED" | undefined,
 };
 
 export type Project = LoadAdminDashboardProjectsQuery['projects'][number];
