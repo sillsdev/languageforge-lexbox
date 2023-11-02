@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { emailResult, requestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
+  import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
@@ -19,6 +19,8 @@
   $: user = data?.user;
   let deleteModal: DeleteUserModal;
 
+  $: emailResult = useEmailResult();
+  $: requestedEmail = useRequestedEmail();
   $: if (data.emailResult) emailResult.set(data.emailResult);
 
   async function openDeleteModal(): Promise<void> {
