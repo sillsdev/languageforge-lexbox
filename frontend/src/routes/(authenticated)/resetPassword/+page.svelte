@@ -5,11 +5,13 @@
   import Page from '$lib/layout/Page.svelte';
   import { hash } from '$lib/util/hash';
   import { z } from 'zod';
-  import { notifySuccess } from '$lib/notify';
+  import { useNotifications } from '$lib/notify';
   import type { PageData } from './$types';
   import { passwordFormRules } from '$lib/forms/utils';
 
   export let data: PageData;
+
+  const { notifySuccess } = useNotifications();
 
   const formSchema = z.object({
     password: passwordFormRules($t),

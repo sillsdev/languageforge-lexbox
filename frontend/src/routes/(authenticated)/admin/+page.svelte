@@ -6,7 +6,7 @@
   import type { PageData } from './$types';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
-  import { notifySuccess, notifyWarning } from '$lib/notify';
+  import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
   import { Icon } from '$lib/icons';
@@ -20,6 +20,8 @@
   export let data: PageData;
   $: allProjects = data.projects;
   $: userData = data.users;
+
+  const { notifySuccess, notifyWarning } = useNotifications();
 
   const queryParams = getSearchParams<AdminSearchParams>({
     userSearch: queryParam.string<string>(''),
