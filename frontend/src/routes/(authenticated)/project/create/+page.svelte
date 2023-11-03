@@ -11,10 +11,13 @@
   import { z } from 'zod';
   import { _createProject } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
-  import { notifySuccess } from '$lib/notify';
+  import { useNotifications } from '$lib/notify';
   import { Duration } from '$lib/util/time';
 
   export let data;
+
+  const { notifySuccess } = useNotifications();
+
   const formSchema = z.object({
     name: z.string().min(1, $t('project.create.name_missing')),
     description: z.string().min(1, $t('project.create.description_missing')),

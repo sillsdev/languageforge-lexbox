@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { notifications, removeAllNotifications, removeNotification } from '.';
   import t from '$lib/i18n';
   import { BadgeButton } from '$lib/components/Badges';
   import { slide, blur } from 'svelte/transition';
+  import { useNotifications } from '.';
+
+  const { notifications, removeAllNotifications, removeNotification } = useNotifications();
 </script>
 
 {#if $notifications.length > 0}

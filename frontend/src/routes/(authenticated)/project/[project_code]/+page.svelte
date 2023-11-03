@@ -14,7 +14,7 @@
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
-  import { notifySuccess, notifyWarning } from '$lib/notify';
+  import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import type { ErrorMessage } from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
@@ -44,6 +44,8 @@
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
     : `https://hg-${$page.url.host.replace('depot', 'forge')}/${data.code}`;
+
+  const { notifySuccess, notifyWarning } = useNotifications();
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
