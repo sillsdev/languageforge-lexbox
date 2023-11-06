@@ -30,20 +30,6 @@ public class SandboxPageTests : PageTest
         ExpectDeferredException();
     }
 
-    [Fact(Skip = "Playwright doesn't catch the document load request of pages opened with Ctrl+Click")]
-    public async Task CatchGoto500InNewTabWithCtrl()
-    {
-        await new SandboxPage(Page).Goto();
-        await Context.RunAndWaitForPageAsync(async () =>
-        {
-            await Page.GetByText("Goto 500 page").ClickAsync(new()
-            {
-                Modifiers = new[] { KeyboardModifier.Control },
-            });
-        });
-        ExpectDeferredException();
-    }
-
     [Fact]
     public async Task CatchFetch500()
     {
@@ -53,6 +39,6 @@ public class SandboxPageTests : PageTest
             await Page.GetByText("Fetch 500").ClickAsync();
         }, "/api/testing/test500NoException");
         ExpectDeferredException();
-        await Expect(Page.Locator(".modal-box.bg-error:has-text('Internal Server Error (500)')")).ToBeVisibleAsync();
+        await Expect(Page.Locator(".modal-box.bg-error:text-matches('Unexpected response:.*(500)', 'g')")).ToBeVisibleAsync();
     }
 }

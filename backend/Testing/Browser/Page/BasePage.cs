@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using Shouldly;
 
@@ -8,6 +9,7 @@ public abstract class BasePage<T> where T : BasePage<T>
     public IPage Page { get; private set; }
     public string? Url { get; protected set; }
     protected ILocator[] TestLocators { get; }
+    private Regex? UrlPattern => Url is not null ? new Regex($"{Regex.Escape(Url)}($|\\?|#)") : null;
 
     public BasePage(IPage page, string? url, ILocator testLocator)
     : this(page, url, new[] { testLocator })
@@ -34,9 +36,9 @@ public abstract class BasePage<T> where T : BasePage<T>
 
     public async Task<T> WaitFor()
     {
-        if (Url is not null)
+        if (UrlPattern is not null)
         {
-            await Page.WaitForURLAsync(Url, new() { WaitUntil = WaitUntilState.Load });
+            await Page.WaitForURLAsync(UrlPattern, new() { WaitUntil = WaitUntilState.Load });
         }
         else
         {
