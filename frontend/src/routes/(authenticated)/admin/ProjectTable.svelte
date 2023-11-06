@@ -20,6 +20,7 @@ import IconButton from '$lib/components/IconButton.svelte';
 import {bubbleFocusOnDestroy} from '$lib/util/focus';
 import Button from '$lib/forms/Button.svelte';
 import type { QueryParams } from '$lib/util/query-params';
+import type { IconString } from '$lib/icons';
 
 export let projects: Project[];
 
@@ -67,16 +68,16 @@ async function softDeleteProject(project: Project): Promise<void> {
     }
 }
 
-  const migrationStatusTable = {
+  const migrationStatusToIcon = {
     [ProjectMigrationStatus.Migrated]: 'i-mdi-checkbox-marked-circle-outline',
     [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
     [ProjectMigrationStatus.Unknown]: 'i-mdi-help-circle-outline',
     [ProjectMigrationStatus.PrivateRedmine]: 'i-mdi-checkbox-blank-circle-outline',
     [ProjectMigrationStatus.PublicRedmine]: 'i-mdi-checkbox-blank-circle-outline',
-  } satisfies Record<ProjectMigrationStatus, string>;
-  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus): string {
+  } satisfies Record<ProjectMigrationStatus, IconString>;
+  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus): IconString {
     migrationStatus = migrationStatus ?? ProjectMigrationStatus.Unknown;
-    return migrationStatusTable[migrationStatus] ?? migrationStatusTable[ProjectMigrationStatus.Unknown];
+    return migrationStatusToIcon[migrationStatus] ?? migrationStatusToIcon[ProjectMigrationStatus.Unknown];
   }
 </script>
 

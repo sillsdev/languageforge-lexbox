@@ -24,4 +24,5 @@ export {
   TrashIcon
 }
 
-export type IconString = `i-mdi-${string}` | `loading loading-spinner loading-${string}`;
+type DaisySize = 'xs' | 'sm' | 'md' | 'lg';
+export type IconString = `i-mdi-${string}` | `loading loading-spinner${'' | ` loading-${DaisySize}`}`;
