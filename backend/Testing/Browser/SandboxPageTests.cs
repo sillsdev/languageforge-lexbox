@@ -30,20 +30,6 @@ public class SandboxPageTests : PageTest
         ExpectDeferredException();
     }
 
-    [Fact(Skip = "Playwright doesn't catch the document load request of pages opened with Ctrl+Click")]
-    public async Task CatchGoto500InNewTabWithCtrl()
-    {
-        await new SandboxPage(Page).Goto();
-        await Context.RunAndWaitForPageAsync(async () =>
-        {
-            await Page.GetByText("Goto 500 page").ClickAsync(new()
-            {
-                Modifiers = new[] { KeyboardModifier.Control },
-            });
-        });
-        ExpectDeferredException();
-    }
-
     [Fact]
     public async Task CatchFetch500()
     {
