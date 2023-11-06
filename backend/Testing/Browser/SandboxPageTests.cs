@@ -53,6 +53,6 @@ public class SandboxPageTests : PageTest
             await Page.GetByText("Fetch 500").ClickAsync();
         }, "/api/testing/test500NoException");
         ExpectDeferredException();
-        await Expect(Page.Locator(".modal-box.bg-error:has-text('Internal Server Error (500)')")).ToBeVisibleAsync();
+        await Expect(Page.Locator(".modal-box.bg-error:text-matches('Unexpected response:.*(500)', 'g')")).ToBeVisibleAsync();
     }
 }

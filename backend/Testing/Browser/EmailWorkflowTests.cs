@@ -32,12 +32,12 @@ public class EmailWorkflowTests : PageTest
 
         await userPage.EmailVerificationAlert.AssertSuccessfullyVerified();
 
-        // Step: Verify verification alert is gone
-        await userPage.Page.ReloadAsync(); // So we don't have to wait ~10 seconds for the alert to disappear
-        await userPage.WaitFor();
+        // Step: Verify verification alert goes away on navigation
+        await userPage.GoHome();
         await userPage.EmailVerificationAlert.AssertGone();
 
         // Step: Request new e-mail address
+        await userPage.Goto();
         var newMailinatorId = Guid.NewGuid().ToString();
         var newEmail = $"{newMailinatorId}@mailinator.com";
         await userPage.FillEmail(newEmail);
