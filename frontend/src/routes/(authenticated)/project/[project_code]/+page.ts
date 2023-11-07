@@ -188,7 +188,17 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
       graphql(`
         mutation deleteProjectUser($input: RemoveProjectMemberInput!) {
           removeProjectMember(input: $input) {
-            code
+            project {
+              id
+              users {
+                id
+                role
+                user {
+                  id
+                  name
+                }
+              }
+            }
           }
         }
       `),

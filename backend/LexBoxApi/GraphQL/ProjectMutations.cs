@@ -126,6 +126,7 @@ public class ProjectMutations
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
+    [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> RemoveProjectMember(RemoveProjectMemberInput input,

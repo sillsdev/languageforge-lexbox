@@ -110,7 +110,7 @@ type Mutation {
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
-  removeProjectMember(input: RemoveProjectMemberInput!): Project
+  removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
@@ -163,6 +163,10 @@ type Query {
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
+}
+
+type RemoveProjectMemberPayload {
+  project: Project
 }
 
 type RequiredError implements Error {
