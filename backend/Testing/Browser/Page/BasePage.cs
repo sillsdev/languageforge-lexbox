@@ -4,6 +4,8 @@ using Shouldly;
 
 namespace Testing.Browser.Page;
 
+public record GotoOptions(bool? ExpectRedirect = false);
+
 public abstract class BasePage<T> where T : BasePage<T>
 {
     public IPage Page { get; private set; }
@@ -22,7 +24,7 @@ public abstract class BasePage<T> where T : BasePage<T>
         TestLocators = testLocators;
     }
 
-    public virtual async Task<T> Goto()
+    public virtual async Task<T> Goto(GotoOptions? options = null)
     {
         if (Url is null)
         {
@@ -31,7 +33,13 @@ public abstract class BasePage<T> where T : BasePage<T>
 
         var response = await Page.GotoAsync(Url);
         response?.Ok.ShouldBeTrue(); // is null if same URL, but different hash
-        return await WaitFor();
+
+        if (options?.ExpectRedirect != true)
+        {
+            await WaitFor();
+        }
+
+        return (T)this;
     }
 
     public async Task<T> WaitFor()

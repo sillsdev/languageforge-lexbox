@@ -8,9 +8,9 @@ namespace Testing.Browser.Util;
 
 public static class HttpUtils
 {
-    public static async Task<JsonObject> ExecuteGql(this IPage page, [StringSyntax("graphql")] string gql, bool expectGqlError = false)
+    public static async Task<JsonObject> ExecuteGql(this IAPIRequestContext requestContext, [StringSyntax("graphql")] string gql, bool expectGqlError = false)
     {
-        var response = await page.APIRequest.PostAsync(
+        var response = await requestContext.PostAsync(
             $"{TestingEnvironmentVariables.ServerBaseUrl}/api/graphql",
             new() { DataObject = new { query = gql } });
         response.Status.ShouldBe(200, $"code was {response.Status} ({response.StatusText})");
@@ -23,9 +23,9 @@ public static class HttpUtils
         return jsonResponse;
     }
 
-    public static Task<JsonObject> DeleteUser(this IPage page, Guid userId)
+    public static Task<JsonObject> DeleteUser(this IAPIRequestContext requestContext, Guid userId)
     {
-        return page.ExecuteGql($$"""
+        return requestContext.ExecuteGql($$"""
             mutation {
                 deleteUserByAdminOrSelf(input: { userId: "{{userId}}" }) {
                     user {
@@ -40,5 +40,10 @@ public static class HttpUtils
             }
             """);
     }
-}
 
+    public static async Task LoginAs(this IAPIRequestContext requestContext, string user, string password)
+    {
+        await requestContext.PostAsync($"{TestingEnvironmentVariables.ServerBaseUrl}/api/login",
+            new() { DataObject = new { password, emailOrUsername = user, preHashedPassword = false } });
+    }
+}

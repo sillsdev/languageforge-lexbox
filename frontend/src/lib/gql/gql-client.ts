@@ -102,7 +102,7 @@ class GqlClient {
       });
     } else {
       /**
-       * We kill vite if we validate each query result and throw in the urql pipeline, but we shouldn't ever need to, because:
+       * We kill node if we validate each query result and throw in the urql pipeline, but we shouldn't ever need to, because:
        * 1) Only the initial result of the query store will ever be fetched server-side
        * 2) If we want to await the initial result server-side, then we should be using `awaitedQueryStore`, where we CAN safely validate the result and throw
        * 3) If we don't await the initial result server-side then there should never be a result OR an error server-side

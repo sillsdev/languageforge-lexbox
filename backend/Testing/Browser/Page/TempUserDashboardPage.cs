@@ -1,5 +1,6 @@
 using Microsoft.Playwright;
 using Testing.Browser.Util;
+using Testing.Services;
 
 namespace Testing.Browser.Page;
 
@@ -14,6 +15,8 @@ public class TempUserDashboardPage : UserDashboardPage, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await Page.DeleteUser(User.Id);
+        var context = await Page.Context.Browser.NewContextAsync();
+        await context.APIRequest.LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
+        await context.APIRequest.DeleteUser(User.Id);
     }
 }

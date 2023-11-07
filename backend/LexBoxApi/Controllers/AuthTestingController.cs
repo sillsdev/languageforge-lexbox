@@ -1,5 +1,6 @@
 ﻿using LexBoxApi.Auth;
 using LexCore.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LexBoxApi.Controllers;
@@ -26,5 +27,12 @@ public class AuthTestingController : ControllerBase
     public OkResult RequiresForgotPasswordAudience()
     {
         return Ok();
+    }
+
+    [HttpGet("403")]
+    [AllowAnonymous]
+    public ForbidResult Forbidden()
+    {
+        return Forbid();
     }
 }
