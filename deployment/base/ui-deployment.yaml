@@ -62,7 +62,10 @@ spec:
                 key: PUBLIC_TURNSTILE_SITE_KEY
                 name: ui
           - name: PUBLIC_ENV_NAME
-            value: dev
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: environment-name
           - name: PUBLIC_TUS_CHUNK_SIZE_MB
             value: "180"
           - name: BACKEND_HOST

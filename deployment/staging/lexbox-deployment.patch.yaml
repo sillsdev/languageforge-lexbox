@@ -12,8 +12,6 @@ spec:
         - name: lexbox-api
 
           env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: "Staging"
             - name: CloudFlare__AllowDomain
               value: "mailinator.com"
             - name: Email__SmtpHost
@@ -25,8 +23,3 @@ spec:
               value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
             - name: Email__BaseUrl
               value: "https://staging.languagedepot.org"
-      initContainers:
-        - name: db-migrations
-          env:
-            - name: DOTNET_ENVIRONMENT
-              value: "Staging"
