@@ -30,8 +30,8 @@
     }
   }
 
-  $: emailResult = useEmailResult();
-  $: requestedEmail = useRequestedEmail();
+  const emailResult = useEmailResult();
+  const requestedEmail = useRequestedEmail();
 
   onNavigate(() => {
     emailResult.set(null);
