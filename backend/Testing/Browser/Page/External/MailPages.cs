@@ -41,6 +41,8 @@ public abstract class MailEmailPage : BasePage<MailEmailPage>
 {
     protected readonly ILocator bodyLocator;
 
+    public ILocator ResetPasswordButton => bodyLocator.GetByRole(AriaRole.Link, new() { Name = "Reset password" });
+
     public MailEmailPage(IPage page, string? url, ILocator bodyLocator) : base(page, url, bodyLocator)
     {
         this.bodyLocator = bodyLocator;
@@ -53,6 +55,6 @@ public abstract class MailEmailPage : BasePage<MailEmailPage>
 
     public Task ClickResetPassword()
     {
-        return bodyLocator.GetByRole(AriaRole.Link, new() { Name = "Reset password" }).ClickAsync();
+        return ResetPasswordButton.ClickAsync();
     }
 }

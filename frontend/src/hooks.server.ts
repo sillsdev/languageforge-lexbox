@@ -70,8 +70,8 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 // eslint-disable-next-line func-style
 export const handleError: HandleServerError = ({ error, event }) => {
   const handler = 'server-error-hook';
-  console.error(handler, error);
   const traceId = ensureErrorIsTraced(error, { event }, { ['app.error.source']: handler });
+  console.error(handler, error, `Trace ID: ${traceId}.`);
   const message = getErrorMessage(error);
   return {
     traceId,

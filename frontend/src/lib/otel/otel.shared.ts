@@ -24,7 +24,7 @@ export function tracer(): Tracer {
   return trace.getTracer(SERVICE_NAME);
 }
 
-type ErrorTracer = ErrorHandler | 'server-gql-error' | 'client-gql-error' | 'client-fetch-error';
+type ErrorTracer = ErrorHandler | 'server-gql-error' | 'client-gql-error' | 'client-fetch-error' | 'jwt-decode-error';
 type ErrorAttributes = Attributes & { ['app.error.source']: ErrorTracer };
 
 interface ErrorContext {

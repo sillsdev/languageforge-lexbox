@@ -24,7 +24,7 @@ export function traceFetch(fetch: () => ReturnType<Fetch>): ReturnType<Fetch> {
       return await fetch();
     } catch (error) {
       if (!isRedirect(error)) {
-        ensureErrorIsTraced(error, {span}, {['app.error.source']: 'client-fetch-error'});
+        ensureErrorIsTraced(error, { span }, { ['app.error.source']: 'client-fetch-error' });
       }
       throw error;
     } finally {
