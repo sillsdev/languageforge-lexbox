@@ -19,8 +19,8 @@
   $: user = data?.user;
   let deleteModal: DeleteUserModal;
 
-  $: emailResult = useEmailResult();
-  $: requestedEmail = useRequestedEmail();
+  const emailResult = useEmailResult();
+  const requestedEmail = useRequestedEmail();
   $: if (data.emailResult) emailResult.set(data.emailResult);
 
   async function openDeleteModal(): Promise<void> {
