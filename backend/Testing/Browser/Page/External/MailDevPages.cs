@@ -14,9 +14,9 @@ public class MailDevInboxPage : MailInboxPage
         return new MailDevEmailPage(Page);
     }
 
-    public override async Task<MailInboxPage> Goto()
+    public override async Task<MailInboxPage> Goto(GotoOptions? options = null)
     {
-        await base.Goto();
+        await base.Goto(options);
         await Page.Locator("input.search-input").FillAsync(MailboxId);
         return this;
     }

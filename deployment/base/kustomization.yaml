@@ -12,3 +12,4 @@ resources:
 - lexbox-deployment.yaml
 - ui-deployment.yaml
 - proxy-deployment.yaml
+- app-config.yaml

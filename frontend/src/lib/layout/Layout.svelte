@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EmailVerificationStatus from '$lib/email/EmailVerificationStatus.svelte';
+  import EmailVerificationStatus, { initEmailResult, initRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
   import { AdminIcon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
@@ -8,6 +8,7 @@
   import { beforeNavigate } from '$app/navigation';
   import { page } from '$app/stores';
   import type { LayoutData } from '../../routes/$types';
+  import { writable } from 'svelte/store';
 
   let menuToggle = false;
   $: data = $page.data as LayoutData;
@@ -28,6 +29,9 @@
     if (user) ensureClientMatchesUser(user);
   });
   beforeNavigate(() => close());
+
+  initRequestedEmail(writable());
+  initEmailResult(writable());
 </script>
 
 <svelte:window on:keydown={closeOnEscape} />

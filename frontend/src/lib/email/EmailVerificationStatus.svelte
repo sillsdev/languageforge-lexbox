@@ -1,8 +1,9 @@
 <script lang="ts" context="module">
-  import { writable, type Writable } from 'svelte/store';
+  import type { Writable } from 'svelte/store';
+  import { defineContext } from '$lib/util/context';
 
-  export let requestedEmail: Writable<string | null> = writable();
-  export let emailResult: Writable<EmailResult | null> = writable();
+  export const { use: useRequestedEmail, init: initRequestedEmail } = defineContext<Writable<string | null>>();
+  export const { use: useEmailResult, init: initEmailResult } = defineContext<Writable<EmailResult | null>>();
 </script>
 
 <script lang="ts">
@@ -28,6 +29,9 @@
       sendingVerificationEmail = false;
     }
   }
+
+  const emailResult = useEmailResult();
+  const requestedEmail = useRequestedEmail();
 
   onNavigate(() => {
     emailResult.set(null);

@@ -15,10 +15,10 @@ public class MailinatorInboxPage : MailInboxPage
         return new MailinatorEmailPage(Page);
     }
 
-    public override async Task<MailInboxPage> Goto()
+    public override async Task<MailInboxPage> Goto(GotoOptions? options = null)
     {
         Url = $"https://www.mailinator.com/v4/public/inboxes.jsp?to={MailboxId}";
-        return await base.Goto();
+        return await base.Goto(options);
     }
 }
 

@@ -18,8 +18,6 @@ spec:
             limits:
                 memory: 1Gi
         env:
-          - name: ASPNETCORE_ENVIRONMENT
-            value: "Development"
           - name: DbConfig__DefaultSeedUserPassword
             value: "pass"
             valueFrom: # don't use secret as defined in base

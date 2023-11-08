@@ -14,8 +14,6 @@ spec:
             limits:
               memory: 350Mi
           env:
-            - name: ASPNETCORE_ENVIRONMENT
-              value: "Production"
             - name: Email__SmtpHost
               value: email-smtp.us-east-1.amazonaws.com
             - name: Email__SmtpPort
@@ -31,8 +29,3 @@ spec:
               value: "https://hg-private.languageforge.org/"
             - name: HgConfig__RedmineHgResumableUrl
               value: "https://hg-resumable.languageforge.org"
-      initContainers:
-        - name: db-migrations
-          env:
-            - name: DOTNET_ENVIRONMENT
-              value: "Production"

@@ -1,3 +1,5 @@
+import { redirect } from '@sveltejs/kit';
+
 const sayWuuuuuuut = 'We\'re not sure what happened.';
 
 export function getErrorMessage(error: unknown): string {
@@ -16,4 +18,24 @@ export function getErrorMessage(error: unknown): string {
       _error.code ??
       sayWuuuuuuut
   );
+}
+
+export function validateFetchResponse(response: Response, isAtLogin: boolean, isHome: boolean): void {
+  if (response.status === 401 && !isAtLogin) {
+    throw redirect(307, '/logout');
+  }
+
+  if (response.status === 403) {
+    if (isHome) {
+      // the user's JWT appears to be invalid
+      throw redirect(307, '/logout');
+    } else {
+      // the user tried to access something they don't have permission for
+      throw redirect(307, '/home');
+    }
+  }
+
+  if (response.status >= 500) {
+    throw new Error(`Unexpected response: ${response.statusText} (${response.status}). URL: ${response.url}.`);
+  }
 }

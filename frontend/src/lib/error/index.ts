@@ -1,22 +1,13 @@
 import { browser, dev } from '$app/environment';
-import { getContext, setContext } from 'svelte';
 import { isObject, isRedirect } from '$lib/util/types';
 
 import type { Writable } from 'svelte/store';
+import { defineContext } from '$lib/util/context';
 import { ensureErrorIsTraced } from '$lib/otel';
 import { getStores } from '$app/stores';
 
-const ERROR_STORE_KEY = 'ERROR_STORE_KEY';
-
-export function initErrorStore(error: Writable<App.Error | null>): Writable<App.Error | null> {
-  setContext(ERROR_STORE_KEY, error);
-  setupGlobalErrorHandlers(error);
-  return error;
-}
-
-export function useError(): Writable<App.Error | null> {
-  return getContext(ERROR_STORE_KEY);
-}
+export const { use: useError, init: initErrorStore } =
+  defineContext<Writable<App.Error | null>>('ERROR_STORE_KEY', setupGlobalErrorHandlers);
 
 //we can't just have a `dismiss` function because we need to be able to call it from the template
 //but we can't use `error()` after a component is created, so we need to define a hook function which is called once

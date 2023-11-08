@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using LexBoxApi.Auth;
 using Shouldly;
@@ -11,19 +12,43 @@ public class JwtHelper
 
     public static async Task<string> GetJwtForUser(SendReceiveAuth auth)
     {
-        var response = await Client.PostAsJsonAsync(
+        var response = await ExecuteLogin(auth, Client);
+        var jwt = GetJwtFromLoginResponse(response);
+        ClearCookies(Handler);
+        return jwt;
+    }
+
+    public static async Task<HttpResponseMessage> ExecuteLogin(SendReceiveAuth auth, HttpClient httpClient)
+    {
+        var response = await httpClient.PostAsJsonAsync(
             $"{TestingEnvironmentVariables.StandardHgBaseUrl}/api/login",
             new Dictionary<string, object>
             {
-                { "password",  auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
+                { "password", auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
             });
         response.EnsureSuccessStatusCode();
-        var authCookie = Handler.CookieContainer.GetAllCookies()
+        return response;
+    }
+
+    public static string GetJwtFromLoginResponse(HttpResponseMessage response)
+    {
+        response.EnsureSuccessStatusCode();
+        var cookies = response.Headers.GetValues("Set-Cookie");
+        var cookieContainer = new CookieContainer();
+        cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
+        var authCookie = cookieContainer.GetAllCookies()
             .FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
         authCookie.ShouldNotBeNull();
         var jwt = authCookie.Value;
         jwt.ShouldNotBeNullOrEmpty();
-        Handler.CookieContainer = new(); // reset the cookies as we're using a shared client
         return jwt;
+    }
+
+    public static void ClearCookies(HttpClientHandler httpClientHandler)
+    {
+        foreach (Cookie cookie in httpClientHandler.CookieContainer.GetAllCookies())
+        {
+            cookie.Expired = true;
+        }
     }
 }

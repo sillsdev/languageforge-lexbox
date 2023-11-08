@@ -66,6 +66,13 @@ public class PageTest : IAsyncLifetime
             {
                 DeferredExceptions.Add(new UnexpectedResponseException(response));
             }
+            else if (response.Request.IsNavigationRequest && response.Status >= (int)HttpStatusCode.BadRequest)
+            {
+                // 400s are client errors that our tests shouldn't trigger under normal circumstances.
+                // And if they're navigation requests SvelteKit/our UI might never see them (e.g. /api/*)
+                // i.e. they won't be handled well i.e. we don't like them.
+                DeferredExceptions.Add(new UnexpectedResponseException(response));
+            }
         };
     }
 
@@ -102,18 +109,22 @@ public class PageTest : IAsyncLifetime
             .ShouldContainKey("Set-Cookie");
         var cookies = responseMessage.Headers.GetValues("Set-Cookie").ToArray();
         cookies.ShouldNotBeEmpty();
+        await SetCookies(cookies);
+    }
+
+    protected async Task SetCookies(string[] cookies)
+    {
         var cookieContainer = new CookieContainer();
         foreach (var cookie in cookies)
         {
             cookieContainer.SetCookies(new($"{TestingEnvironmentVariables.ServerBaseUrl}"), cookie);
         }
-
         await Context.AddCookiesAsync(cookieContainer.GetAllCookies()
             .Select(cookie => new Microsoft.Playwright.Cookie
             {
                 Value = cookie.Value,
                 Domain = cookie.Domain,
-                Expires = (float)cookie.Expires.Subtract(DateTime.UnixEpoch).TotalSeconds,
+                Expires = cookie.Expires == default ? null : (float)cookie.Expires.Subtract(DateTime.UnixEpoch).TotalSeconds,
                 Name = cookie.Name,
                 Path = cookie.Path,
                 Secure = cookie.Secure,
