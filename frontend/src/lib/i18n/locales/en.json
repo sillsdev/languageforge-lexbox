@@ -315,8 +315,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "body": "We're writing to confirm that your password was just changed."
     },
     "shared": {
-      "greeting": "Hello {name}!",
-      "or_nvaigate_to_url": "Or navigate to this URL in your browser:"
+      "greeting": "Hello {name}!"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",

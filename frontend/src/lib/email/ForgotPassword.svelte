@@ -9,5 +9,4 @@
 <Email subject={$t('emails.forgot_password.subject')} {name}>
   <mj-text>{$t('emails.forgot_password.to_reset_click')}</mj-text>
   <mj-button href={resetUrl}>{$t('emails.forgot_password.reset_button')}</mj-button>
-  <mj-text>{$t('emails.shared.or_nvaigate_to_url')} {resetUrl}</mj-text>
 </Email>
