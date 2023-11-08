@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -131,7 +132,8 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error validating token");
+                var traceId = Activity.Current?.TraceId;
+                _logger.LogError(e, "Error validating token. Trace ID: {TraceID}.", traceId);
             }
         }
 

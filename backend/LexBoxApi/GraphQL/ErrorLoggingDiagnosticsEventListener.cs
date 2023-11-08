@@ -72,17 +72,17 @@ public class ErrorLoggingDiagnosticsEventListener : ExecutionDiagnosticEventList
 
     private void LogError(IError error, [CallerMemberName] string source = "")
     {
-        log.LogError(error.Exception, "{Source}: {Message}", source, error.Message);
-        TraceError(error, source);
+        var traceId = TraceError(error, source);
+        log.LogError(error.Exception, "{Source}: {Message}. Trace ID: {TraceId}.", source, error.Message, traceId);
     }
 
     private void LogException(Exception exception, [CallerMemberName] string source = "")
     {
-        log.LogError(exception, "{Source}: {Message}", source, exception.Message);
-        TraceException(exception, source);
+        var traceId = TraceException(exception, source);
+        log.LogError(exception, "{Source}: {Message}. Trace ID: {TraceId}.", source, exception.Message, traceId);
     }
 
-    private void TraceError(IError error, string source)
+    private ActivityTraceId? TraceError(IError error, string source)
     {
         if (error.Exception != null)
         {
@@ -96,9 +96,10 @@ public class ErrorLoggingDiagnosticsEventListener : ExecutionDiagnosticEventList
                 ["error.code"] = error.Code,
             }));
         }
+        return Activity.Current?.TraceId;
     }
 
-    private void TraceException(Exception exception, string source)
+    private ActivityTraceId? TraceException(Exception exception, string source)
     {
         Activity.Current?
             .SetStatus(ActivityStatusCode.Error)
@@ -112,5 +113,7 @@ public class ErrorLoggingDiagnosticsEventListener : ExecutionDiagnosticEventList
         {
             TraceException(exception.InnerException, $"{source} - Inner");
         }
+
+        return Activity.Current?.TraceId;
     }
 }

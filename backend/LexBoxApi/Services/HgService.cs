@@ -187,7 +187,8 @@ public class HgService : IHgService
         var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
         var description =
             $"rsync for project {project.Code} failed with exit code {process.ExitCode}. Error: {error}. Output: {output}";
-        _logger.LogError(description);
+        var traceId = Activity.Current?.TraceId;
+        _logger.LogError("{description}. Trace ID: {TraceId}.", description, traceId);
         activity?.SetStatus(ActivityStatusCode.Error, description);
         return false;
     }

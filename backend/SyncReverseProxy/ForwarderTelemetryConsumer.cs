@@ -91,7 +91,8 @@ public class ForwarderTelemetryConsumer : IForwarderTelemetryConsumer
 
     public void OnForwarderFailed(DateTime timestamp, ForwarderError error)
     {
-        _logger.LogError("Forwarder Failed: {Error}", error.ToString());
+        var traceId = Activity.Current?.TraceId;
+        _logger.LogError("Forwarder Failed: {Error}. Trace ID: {TraceID}.", error.ToString(), traceId);
         Activity.Current?.SetStatus(ActivityStatusCode.Error, "Forwarder failed: " + error.ToString());
         Activity.Current?.AddEvent(new("Forwarder failed", timestamp));
     }
