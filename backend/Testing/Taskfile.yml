@@ -1,0 +1,30 @@
+﻿version: 3
+
+tasks:
+  unit:
+    cmds:
+      - dotnet test --filter=Category!=Integration
+
+  integration-staging:
+    env:
+      TEST_DEFAULT_PASSWORD: '***'
+#      set to enable debug mode, number of ms to delay actions
+      PWDEBUG: 0
+    cmds:
+#      - 'read -p "password: " TEST_DEFAULT_PASSWORD'
+      - dotnet test --filter Category=Integration   -s ./backend/Testing/staging.runsettings
+
+  # Playwright
+  playwright:
+    vars:
+      FILTER: '{{default "." .CLI_ARGS}}'
+    cmds:
+      - dotnet test --filter="Testing.Browser&{{.FILTER}}"
+
+  playwright-env:
+    dotenv: [ local.env ]
+    cmd: task playwright -- {{.CLI_ARGS}}
+
+  traces:
+    cmd: explorer ".\\bin\\Debug\\net7.0\\playwright-traces"
+    ignore_error: true

@@ -10,6 +10,6 @@ riderModule.iml
 backend/Testing/SyncReverseProxy/TestData.cs
 .task
 deployment/local-dev/collector-config.yaml
-deployment/local-dev/local.env
+local.env
 dump.sql
 test-results/

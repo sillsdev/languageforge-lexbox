@@ -21,6 +21,9 @@ includes:
   hgweb:
     taskfile: ./hgweb/Taskfile.yml
     dir: ./hgweb
+  test:
+    taskfile: ./backend/Testing/Taskfile.yml
+    dir: ./backend/Testing
 
 tasks:
   setup:
@@ -52,24 +55,6 @@ tasks:
     interactive: true
     cmds:
       - skaffold dev --cleanup=false --kube-context docker-desktop
-
-  # tests
-  test:
-    dir: '{{.TESTING_DIR}}'
-    cmds:
-      - dotnet test --filter=Category!=Integration
-  test-integration-staging:
-    env:
-      TEST_DEFAULT_PASSWORD: '***'
-#      set to enable debug mode, number of ms to delay actions
-      PWDEBUG: 0
-    cmds:
-#      - 'read -p "password: " TEST_DEFAULT_PASSWORD'
-      - dotnet test --filter Category=Integration   -s ./backend/Testing/staging.runsettings
-  test-playwright:
-    dir: '{{.TESTING_DIR}}'
-    cmds:
-      - dotnet test --filter=Testing.Browser
 
       # dev
   infra-up:
