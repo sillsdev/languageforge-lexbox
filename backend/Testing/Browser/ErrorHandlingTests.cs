@@ -1,5 +1,4 @@
 ﻿using LexBoxApi.Auth;
-using Microsoft.Playwright;
 using Shouldly;
 using Testing.Browser.Base;
 using Testing.Browser.Page;
@@ -37,7 +36,7 @@ public class ErrorHandlingTests : PageTest
     public async Task CatchPageLoad500()
     {
         await new SandboxPage(Page).Goto();
-        await Page.GetByText("Goto page load 500").ClickAsync();
+        await Page.GetByText("Goto page load 500", new() { Exact = true }).ClickAsync();
         ExpectDeferredException();
         await Expect(Page.Locator(":text-matches('Unexpected response:.*(500)', 'g')").First).ToBeVisibleAsync();
     }
@@ -48,11 +47,10 @@ public class ErrorHandlingTests : PageTest
         await new SandboxPage(Page).Goto();
         var newPage = await Context.RunAndWaitForPageAsync(async () =>
         {
-            await Page.GetByText("Goto page load 500").ClickAsync(new()
-            {
-                Modifiers = new[] { KeyboardModifier.Control },
-            });
+            await Page.GetByText("Goto page load 500 new tab").ClickAsync();
         });
+        await newPage.WaitForResponseAsync("**");
+        ExpectDeferredException();
         await Expect(newPage.Locator(":text-matches('Unexpected response:.*(500)', 'g')").First).ToBeVisibleAsync();
     }
 
@@ -121,7 +119,7 @@ public class ErrorHandlingTests : PageTest
     {
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         await new SandboxPage(Page).Goto();
-        await Page.GetByText("Goto page load 403").ClickAsync();
+        await Page.GetByText("Goto page load 403", new() { Exact = true }).ClickAsync();
         await new UserDashboardPage(Page).WaitFor();
     }
 
@@ -132,10 +130,7 @@ public class ErrorHandlingTests : PageTest
         await new SandboxPage(Page).Goto();
         var newPage = await Context.RunAndWaitForPageAsync(async () =>
         {
-            await Page.GetByText("Goto page load 403").ClickAsync(new()
-            {
-                Modifiers = new[] { KeyboardModifier.Control },
-            });
+            await Page.GetByText("Goto page load 403 new tab").ClickAsync();
         });
         await new UserDashboardPage(newPage).WaitFor();
     }

@@ -164,6 +164,7 @@ public class PlaywrightFixture : IAsyncLifetime
         PlaywrightInstance = await Playwright.CreateAsync();
         Browser = await PlaywrightInstance.Chromium.LaunchAsync(new()
         {
+            // Note: Playwright seems to miss navigation requests for new tabs opened with Ctrl + Click 🤷
             // Headless = false,
         }
         );
