@@ -8,7 +8,6 @@
   import { beforeNavigate } from '$app/navigation';
   import { page } from '$app/stores';
   import type { LayoutData } from '../../routes/$types';
-  import { writable } from 'svelte/store';
 
   let menuToggle = false;
   $: data = $page.data as LayoutData;
@@ -30,8 +29,8 @@
   });
   beforeNavigate(() => close());
 
-  initRequestedEmail(writable());
-  initEmailResult(writable());
+  initRequestedEmail();
+  initEmailResult();
 </script>
 
 <svelte:window on:keydown={closeOnEscape} />

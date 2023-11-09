@@ -1,4 +1,4 @@
-import type { Readable, Writable } from 'svelte/store';
+import { writable, type Readable, type Writable } from 'svelte/store';
 
 import { Duration } from '$lib/util/time';
 import { defineContext } from '$lib/util/context';
@@ -9,7 +9,8 @@ export interface Notification {
   duration: number;
 }
 
-export const { use: useNotifications, init: initNotificationService } = defineContext<NotificationService>();
+export const { use: useNotifications, init: initNotificationService } =
+  defineContext<NotificationService>(() => new NotificationService(writable([])));
 
 export class NotificationService {
 

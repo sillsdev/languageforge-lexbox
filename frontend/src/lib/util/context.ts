@@ -1,16 +1,25 @@
 import { getContext, setContext } from 'svelte';
 
-interface ContextDefinition<T> {
-  use: () => T;
-  init: (value: T) => T;
+interface ContextConfig<T> {
+  key: string | symbol,
+  onInit?: (value: T) => void
 }
 
-export function defineContext<T>(key: string | symbol = Symbol(), onInit?: (value: T) => void): ContextDefinition<T> {
+interface ContextDefinition<T, P extends unknown[]> {
+  use: () => T;
+  init: (...args: P) => T;
+}
+
+export function defineContext<T, P extends unknown[] = []>(
+  initializer: (...args: P) => T,
+  { key = Symbol(), onInit }: Partial<ContextConfig<T>> = {},
+): ContextDefinition<T, P> {
   return {
     use(): T {
       return getContext<T>(key);
     },
-    init(value: T): T {
+    init(...args: P): T {
+      const value = initializer(...args);
       setContext(key, value);
       onInit?.(value);
       return value;

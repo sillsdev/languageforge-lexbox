@@ -6,8 +6,7 @@
   import type { LayoutData } from './$types';
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
-  import { writable } from 'svelte/store';
-  import { NotificationService, initNotificationService } from '$lib/notify';
+  import { initNotificationService } from '$lib/notify';
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
@@ -16,9 +15,9 @@
   export let data: LayoutData;
   const { page, updated } = getStores();
 
-  const { notifyWarning } = initNotificationService(new NotificationService(writable([])));
+  const { notifyWarning } = initNotificationService();
 
-  const error = initErrorStore(writable($page.error));
+  const error = initErrorStore($page.error);
   $: $error = $page.error;
   $: {
     if (browser && $updated) {
