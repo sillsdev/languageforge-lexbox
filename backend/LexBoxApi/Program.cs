@@ -33,6 +33,7 @@ if (MySqlMigrationService.IsMySqlMigrationRequest(args))
 }
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.Configure(options => options.ActivityTrackingOptions = ActivityTrackingOptions.TraceId);
 builder.Host.UseConsoleLifetime();
 builder.WebHost.UseKestrel(o =>
 {
