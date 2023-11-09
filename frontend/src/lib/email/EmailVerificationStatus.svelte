@@ -1,9 +1,9 @@
 <script lang="ts" context="module">
-  import type { Writable } from 'svelte/store';
+  import { writable, type Writable } from 'svelte/store';
   import { defineContext } from '$lib/util/context';
 
-  export const { use: useRequestedEmail, init: initRequestedEmail } = defineContext<Writable<string | null>>();
-  export const { use: useEmailResult, init: initEmailResult } = defineContext<Writable<EmailResult | null>>();
+  export const { use: useRequestedEmail, init: initRequestedEmail } = defineContext<Writable<string | null>>(() => writable());
+  export const { use: useEmailResult, init: initEmailResult } = defineContext<Writable<EmailResult | null>>(() => writable());
 </script>
 
 <script lang="ts">
