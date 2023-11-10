@@ -26,6 +26,12 @@ if (DevGqlSchemaWriterService.IsSchemaGenerationRequest(args))
     return;
 }
 
+if (MySqlMigrationService.IsMySqlMigrationRequest(args))
+{
+    await MySqlMigrationService.RunMySqlMigrationRequest(args);
+    return;
+}
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseConsoleLifetime();
 builder.WebHost.UseKestrel(o =>

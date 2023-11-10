@@ -41,6 +41,7 @@ public static class LexBoxKernel
         services.AddScoped<EmailService>();
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
+        services.AddScoped<MySqlMigrationService>();
         services.AddScoped<IHgService, HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<LexboxLinkGenerator>();

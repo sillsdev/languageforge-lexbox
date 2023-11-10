@@ -27,7 +27,7 @@ public static class DataKernel
                 serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.RedmineConnectionString ??
                 throw new ArgumentNullException("RedmineConnectionString");
             options.UseMySql(connectionString, ServerVersion.Parse("11.1.2-mariadb"));
-        });
+        }, dbContextLifeTime);
         services.AddDbContext<PrivateRedmineDbContext>((serviceProvider, options) =>
         {
             options.EnableDetailedErrors();
@@ -36,7 +36,7 @@ public static class DataKernel
                 throw new ArgumentNullException("RedmineConnectionString");
             connectionString = connectionString.Replace("database=languagedepot", "database=languagedepotpvt");
             options.UseMySql(connectionString, ServerVersion.Parse("11.1.2-mariadb"));
-        });
+        }, dbContextLifeTime);
         if (autoApplyMigrations)
             services.AddHostedService<DbStartupService>();
         services.AddOptions<DbConfig>()
