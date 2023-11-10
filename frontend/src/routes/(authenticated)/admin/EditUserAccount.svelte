@@ -9,7 +9,7 @@
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
   import { Button, SystemRoleSelect } from '$lib/forms';
-  import { passwordFormRules } from '$lib/forms/utils';
+  import { emptyString, passwordFormRules } from '$lib/forms/utils';
   import {hash} from '$lib/util/hash';
 
   export let currUser: LexAuthUser;
@@ -18,7 +18,7 @@
   const schema = z.object({
     email: z.string().email(),
     name: z.string(),
-    password: passwordFormRules($t).optional(),
+    password: passwordFormRules($t).or(emptyString()),
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
   type Schema = typeof schema;
@@ -33,7 +33,7 @@
   export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email, role }, async () => {
+    return await formModal.open({ name: user.name, email: user.email, role, password: '' }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,

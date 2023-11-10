@@ -10,7 +10,7 @@
   export let projectId: string;
 
   const schema = z.object({
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager]),
   });
   type Schema = typeof schema;
   let formModal: FormModal<Schema>;
