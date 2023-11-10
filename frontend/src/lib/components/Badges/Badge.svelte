@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   // Add more as necessary. Should be as limited as possible to maximize consistency. https://daisyui.com/components/badge/
-  export type BadgeVariant = 'badge-neutral' | 'badge-info' | 'badge-primary' | 'badge-warning';
+  export type BadgeVariant = 'badge-neutral' | 'badge-info' | 'badge-primary' | 'badge-warning' | 'badge-success';
   export type BadgeSize = 'badge-lg' | 'badge-md';
   export function badgePadding(size: BadgeSize): string {
     return size === 'badge-lg' ? 'p-4' : 'py-2 px-2';

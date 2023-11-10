@@ -13,7 +13,8 @@
   import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
-  import { CircleArrowIcon, TrashIcon } from '$lib/icons';
+  import { CircleArrowIcon, TrashIcon, type IconString } from '$lib/icons';
+  import type { BadgeVariant } from '$lib/components/Badges/Badge.svelte';
   import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import type { ErrorMessage } from '$lib/forms';
@@ -144,6 +145,20 @@
     [ProjectMigrationStatus.PrivateRedmine]: 'Not Migrated (private)',
     [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
   } satisfies Record<ProjectMigrationStatus, string>;
+  const migrationStatusIcon = {
+    [ProjectMigrationStatus.Migrated]: 'i-mdi-check-circle',
+    [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
+    [ProjectMigrationStatus.Unknown]: undefined,
+    [ProjectMigrationStatus.PrivateRedmine]: undefined,
+    [ProjectMigrationStatus.PublicRedmine]: undefined,
+  } satisfies Record<ProjectMigrationStatus, IconString|undefined>;
+  const migrationStatusBadgeVariant = {
+    [ProjectMigrationStatus.Migrated]: 'badge-success',
+    [ProjectMigrationStatus.Migrating]: 'badge-warning',
+    [ProjectMigrationStatus.Unknown]: 'badge-neutral',
+    [ProjectMigrationStatus.PrivateRedmine]: 'badge-neutral',
+    [ProjectMigrationStatus.PublicRedmine]: 'badge-neutral',
+  } satisfies Record<ProjectMigrationStatus, BadgeVariant>;
   onMount(() => {
     migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
     if (migrationStatus === ProjectMigrationStatus.Migrating) {
@@ -153,7 +168,6 @@
 
   async function watchMigrationStatus(): Promise<void> {
     if (!project) return;
-    notifyWarning('This project is currently being migrated. Some features may not work as expected.');
     const result = await fetch(`/api/project/awaitMigrated?projectCode=${project.code}`);
     const response = await result.json();
     if (response) {
@@ -176,6 +190,12 @@
 <Page wide>
   <div class="space-y-4">
     {#if project}
+      {#if migrationStatus === ProjectMigrationStatus.Migrating}
+        <div class="alert alert-warning">
+          <span class="i-mdi-alert text-2xl" />
+          <span>This project is currently being migrated. Some features may not work as expected.</span>
+        </div>
+      {/if}
       <div class="space-y-2 space-x-1">
         <div class="float-right mt-1 sm:mt-2 md:mt-1">
           {#if migrationStatus !== ProjectMigrationStatus.Migrating}
@@ -252,11 +272,9 @@
           <Badge>
             <FormatRetentionPolicy policy={project.retentionPolicy} />
           </Badge>
-          {#if migrationStatus === ProjectMigrationStatus.Migrating}
-            <Badge><span class="loading loading-spinner loading-xs" /> Migrating</Badge>
-          {:else}
-            <Badge>{migrationStatusTable[migrationStatus]}</Badge>
-          {/if}
+          <AdminContent>
+            <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>{migrationStatusTable[migrationStatus]}</Badge>
+          </AdminContent>
           {#if project.resetStatus === ResetStatus.InProgress}
             <button
               class:tooltip={isAdmin(user)}

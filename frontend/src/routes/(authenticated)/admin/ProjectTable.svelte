@@ -11,13 +11,16 @@ import TrashIcon from '$lib/icons/TrashIcon.svelte';
 import FormatDate from '$lib/components/FormatDate.svelte';
 import ProjectTypeSelect from '$lib/forms/ProjectTypeSelect.svelte';
 import FormField from '$lib/forms/FormField.svelte';
+import MigrationStatusSelect from '$lib/forms/MigrationStatusSelect.svelte';
 import {ActiveFilter, FilterBar} from '$lib/components/FilterBar';
 import Badge from '$lib/components/Badges/Badge.svelte';
+import {ProjectMigrationStatus} from '$lib/gql/generated/graphql';
 import AuthenticatedUserIcon from '$lib/icons/AuthenticatedUserIcon.svelte';
 import IconButton from '$lib/components/IconButton.svelte';
 import {bubbleFocusOnDestroy} from '$lib/util/focus';
 import Button from '$lib/forms/Button.svelte';
 import type { QueryParams } from '$lib/util/query-params';
+import type { IconString } from '$lib/icons';
 
 export let projects: Project[];
 
@@ -27,7 +30,17 @@ $: defaultFilters = queryParams.defaultQueryParamValues;
 
 const { notifyWarning } = useNotifications();
 
-const projectFilterKeys = new Set(['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail'] as const) satisfies Set<keyof AdminSearchParams>;
+const projectFilterKeys = new Set(['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'] as const) satisfies Set<keyof AdminSearchParams>;
+function matchMigrationStatus(filter: ProjectMigrationStatus | 'UNMIGRATED' | undefined, status: ProjectMigrationStatus): boolean {
+  return (!filter ||
+    filter === status ||
+    filter === 'UNMIGRATED' && (
+      status === ProjectMigrationStatus.Unknown ||
+      status === ProjectMigrationStatus.PrivateRedmine ||
+      status === ProjectMigrationStatus.PublicRedmine
+    )
+  );
+}
 let projectFilterLimit = _FILTER_PAGE_SIZE;
 let hasActiveProjectFilter: boolean;
 $: projectSearchLower = $filters.projectSearch.toLocaleLowerCase();
@@ -37,7 +50,8 @@ $: filteredProjects = projects.filter(
         (!$filters.projectSearch ||
             p.name.toLocaleLowerCase().includes(projectSearchLower) ||
             p.code.toLocaleLowerCase().includes(projectSearchLower)) &&
-        (!$filters.projectType || p.type === $filters.projectType));
+        (!$filters.projectType || p.type === $filters.projectType) &&
+        matchMigrationStatus($filters.migrationStatus, p.migrationStatus));
 $: shownProjects = filteredProjects.slice(0, projectLimit);
 $: {
     // Reset limit if search is changed
@@ -55,6 +69,18 @@ async function softDeleteProject(project: Project): Promise<void> {
         notifyWarning($t('delete_project_modal.success', {name: project.name, code: project.code}));
     }
 }
+
+  const migrationStatusToIcon = {
+    [ProjectMigrationStatus.Migrated]: 'i-mdi-checkbox-marked-circle-outline',
+    [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
+    [ProjectMigrationStatus.Unknown]: 'i-mdi-help-circle-outline',
+    [ProjectMigrationStatus.PrivateRedmine]: 'i-mdi-checkbox-blank-circle-outline',
+    [ProjectMigrationStatus.PublicRedmine]: 'i-mdi-checkbox-blank-circle-outline',
+  } satisfies Record<ProjectMigrationStatus, IconString>;
+  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus): IconString {
+    migrationStatus = migrationStatus ?? ProjectMigrationStatus.Unknown;
+    return migrationStatusToIcon[migrationStatus] ?? migrationStatusToIcon[ProjectMigrationStatus.Unknown];
+  }
 </script>
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
@@ -137,6 +163,9 @@ async function softDeleteProject(project: Project): Promise<void> {
                                    undefinedOptionLabel={$t('project_type.any')}/>
             </div>
             <div class="form-control">
+                <MigrationStatusSelect bind:value={$filters.migrationStatus} />
+            </div>
+            <div class="form-control">
                 <label class="cursor-pointer label gap-4">
                     <span class="label-text">{$t('admin_dashboard.show_delete_projects')}</span>
                     <input
@@ -161,6 +190,7 @@ async function softDeleteProject(project: Project): Promise<void> {
                     {$t('admin_dashboard.column_last_change')}
                     <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2"/>
                 </th>
+                <th>{$t('admin_dashboard.column_migrated')}</th>
                 <th>{$t('admin_dashboard.column_type')}</th>
                 <th/>
             </tr>
@@ -191,6 +221,7 @@ async function softDeleteProject(project: Project): Promise<void> {
                             <FormatDate date={project.lastCommit}/>
                         {/if}
                     </td>
+                    <td><span class={migrationStatusIcon(project.migrationStatus)} /></td>
                     <td>
                   <span class="tooltip align-bottom" data-tip={$t(getProjectTypeI18nKey(project.type))}>
                     <ProjectTypeIcon type={project.type}/>
