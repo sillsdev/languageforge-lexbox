@@ -41,6 +41,8 @@
     const onSubmit = _onSubmit ?? (valueOrOnSubmit as SubmitCallback);
     const value = _onSubmit ? (valueOrOnSubmit as Partial<FormType>) : undefined;
 
+    reset();
+
     if (value) _form.set(value, { taint: false });
 
     const response = await openModal(onSubmit);
