@@ -30,7 +30,7 @@
 
 
   export async function open(
-    value: Partial<FormType> | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+    value: FormType | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
     onSubmit: SubmitCallback
   ): Promise<FormModalResult<Schema>>;
   export async function open(onSubmit: SubmitCallback): Promise<FormModalResult<Schema>>;

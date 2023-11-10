@@ -16,3 +16,7 @@ export function passwordFormRules($t: Translater): z.ZodString {
     .min(4, $t('form.password.too_short'))
     .regex(/^[^&%+]+$/, $t('form.password.forbidden_characters'));
 }
+
+export function emptyString(): z.ZodString {
+  return z.string().length(0);
+}
