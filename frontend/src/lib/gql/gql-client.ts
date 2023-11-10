@@ -1,4 +1,3 @@
-import {redirect} from '@sveltejs/kit';
 import {
   type Client,
   type AnyVariables,
@@ -6,7 +5,6 @@ import {
   type OperationContext,
   type OperationResult,
   fetchExchange,
-  type CombinedError,
   queryStore,
   type OperationResultSource,
   type OperationResultStore
@@ -97,11 +95,22 @@ class GqlClient {
       context: {fetch, ...context}
     });
 
-    return derived(resultStore, (result) => {
-      this.throwAnyUnexpectedErrors(result);
-      return result;
-    });
+    if (browser) {
+      return derived(resultStore, (result) => {
+        this.throwAnyUnexpectedErrors(result);
+        return result;
+      });
+    } else {
+      /**
+       * We kill node if we validate each query result and throw in the urql pipeline, but we shouldn't ever need to, because:
+       * 1) Only the initial result of the query store will ever be fetched server-side
+       * 2) If we want to await the initial result server-side, then we should be using `awaitedQueryStore`, where we CAN safely validate the result and throw
+       * 3) If we don't await the initial result server-side then there should never be a result OR an error server-side
+       */
+      return resultStore;
+    }
   }
+
   async awaitedQueryStore<Data = unknown, Variables extends AnyVariables = AnyVariables>(
     fetch: Fetch,
     query: TypedDocumentNode<Data, Variables>,
@@ -117,6 +126,8 @@ class GqlClient {
         resolve(value);
       });
     });
+
+    this.throwAnyUnexpectedErrors(results);
 
     const keys = Object.keys(results.data ?? {}) as Array<keyof typeof results.data>;
     const resultData = {} as Record<string, Readable<unknown>>;
@@ -154,13 +165,10 @@ class GqlClient {
   private throwAnyUnexpectedErrors<T extends OperationResult<unknown, AnyVariables>>(result: T): void {
     const error = result.error;
     if (!error) return;
-    if (this.is401(error)) throw redirect(307, '/logout');
-    if (error.networkError) throw error.networkError; // e.g. SvelteKit redirects
+    // unexpected status codes are handled in the fetch hooks
+    // throws there (e.g. SvelteKit redirects) turn into networkErrors that we rethrow here
+    if (error.networkError) throw error.networkError;
     throw error;
-  }
-
-  private is401(error: CombinedError): boolean {
-    return (error.response as Response | undefined)?.status === 401;
   }
 
   private findInputErrors<T extends GenericData>({data}: OperationResult<T, AnyVariables>): LexGqlError<ExtractErrorTypename<T>> | undefined {

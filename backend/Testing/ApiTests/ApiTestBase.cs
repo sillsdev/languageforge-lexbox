@@ -21,35 +21,13 @@ public class ApiTestBase
 
     public async Task<string> LoginAs(string user, string password)
     {
-        var response = await HttpClient.PostAsJsonAsync(
-            $"{BaseUrl}/api/login",
-            new Dictionary<string, object>
-            {
-                { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
-            });
-        response.EnsureSuccessStatusCode();
-
-        return GetJwtFromResponse(response);
+        var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), HttpClient);
+        return JwtHelper.GetJwtFromLoginResponse(response);
     }
 
     public void ClearCookies()
     {
-        foreach (Cookie cookie in _httpClientHandler.CookieContainer.GetAllCookies())
-        {
-            cookie.Expired = true;
-        }
-    }
-
-    private string GetJwtFromResponse(HttpResponseMessage response)
-    {
-        var cookies = response.Headers.GetValues("Set-Cookie");
-        var cookieContainer = new CookieContainer();
-        cookieContainer.SetCookies(response.RequestMessage!.RequestUri!, cookies.Single());
-        var authCookie = cookieContainer.GetAllCookies().FirstOrDefault(c => c.Name == AuthKernel.AuthCookieName);
-        authCookie.ShouldNotBeNull();
-        var jwt = authCookie.Value;
-        jwt.ShouldNotBeNullOrEmpty();
-        return jwt;
+        JwtHelper.ClearCookies(_httpClientHandler);
     }
 
     public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false)

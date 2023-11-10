@@ -10,7 +10,16 @@
 <Subject value={subject} />
 <!--https://documentation.mjml.io/#getting-started-->
 <mjml>
-  <mj-body background-color="white">
+  <mj-head>
+    <mj-style>
+      {`
+      .break-words {
+        word-break: break-word;
+      }
+      `}
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="white" css-class="break-words">
     <mj-section>
       <mj-column>
         <mj-text font-size="20px">

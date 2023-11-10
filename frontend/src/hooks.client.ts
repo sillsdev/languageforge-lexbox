@@ -1,13 +1,13 @@
 import { ensureErrorIsTraced, traceFetch } from '$lib/otel/otel.client';
+import { getErrorMessage, validateFetchResponse } from './hooks.shared';
 
-import { redirect, type HandleClientError } from '@sveltejs/kit';
-import { getErrorMessage } from './hooks.shared';
-import { loadI18n } from '$lib/i18n';
-import { handleFetch } from '$lib/util/fetch-proxy';
-import {invalidate} from '$app/navigation';
-import {USER_LOAD_KEY} from '$lib/user';
-import { updated } from '$app/stores';
 import { APP_VERSION } from '$lib/util/version';
+import type { HandleClientError } from '@sveltejs/kit';
+import { USER_LOAD_KEY } from '$lib/user';
+import { handleFetch } from '$lib/util/fetch-proxy';
+import { invalidate } from '$app/navigation';
+import { loadI18n } from '$lib/i18n';
+import { updated } from '$app/stores';
 
 await loadI18n();
 
@@ -63,11 +63,14 @@ function shouldTryAutoReload(updateDetected: boolean): boolean {
  */
 handleFetch(async ({ fetch, args }) => {
   const response = await traceFetch(() => fetch(...args));
-  if (response.status === 401 && location.pathname !== '/login') {
-    throw redirect(307, '/logout');
-  }
+
+  validateFetchResponse(response,
+    location.pathname === '/login',
+    location.pathname === '/' || location.pathname === '/home' || location.pathname === '/admin');
+
   if (response.headers.get('lexbox-refresh-jwt') == 'true') {
     await invalidate(USER_LOAD_KEY);
   }
+
   return response;
 });

@@ -37,7 +37,7 @@
 
 <div class="hero flex-grow">
   <div class="hero-content flex-col lg:flex-row-reverse gap-16">
-    <div class="prose text-lg">
+    <div class="prose text-lg flex-shrink-0">
       <SvelteMarkdown source={$t('login.welcome')} />
       <div class="flex gap-4 not-prose justify-center">
         <a href="https://software.sil.org/fieldworks/">

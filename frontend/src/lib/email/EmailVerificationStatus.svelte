@@ -1,8 +1,9 @@
 <script lang="ts" context="module">
   import { writable, type Writable } from 'svelte/store';
+  import { defineContext } from '$lib/util/context';
 
-  export let requestedEmail: Writable<string | null> = writable();
-  export let emailResult: Writable<EmailResult | null> = writable();
+  export const { use: useRequestedEmail, init: initRequestedEmail } = defineContext<Writable<string | null>>(() => writable());
+  export const { use: useEmailResult, init: initEmailResult } = defineContext<Writable<EmailResult | null>>(() => writable());
 </script>
 
 <script lang="ts">
@@ -11,8 +12,7 @@
   import type { LexAuthUser } from '$lib/user';
   import { EmailResult } from '.';
   import { Button } from '$lib/forms';
-  import { onDestroy } from 'svelte';
-  import { Duration } from '$lib/util/time';
+  import { onNavigate } from '$app/navigation';
 
   export let user: LexAuthUser;
 
@@ -30,20 +30,12 @@
     }
   }
 
-  const emailResultUnsubscriber = emailResult.subscribe((result) => {
-    if (result) {
-      setTimeout(() => emailResult.set(null), Duration.Medium);
-    }
-  });
-  const requestedEmailUnsubscriber = requestedEmail.subscribe((result) => {
-    if (result) {
-      setTimeout(() => requestedEmail.set(null), Duration.Long);
-    }
-  });
+  const emailResult = useEmailResult();
+  const requestedEmail = useRequestedEmail();
 
-  onDestroy(() => {
-    emailResultUnsubscriber();
-    requestedEmailUnsubscriber();
+  onNavigate(() => {
+    emailResult.set(null);
+    requestedEmail.set(null);
   });
 </script>
 

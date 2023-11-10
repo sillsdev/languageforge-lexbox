@@ -7,7 +7,7 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
-  import { notifySuccess } from '$lib/notify';
+  import { useNotifications } from '$lib/notify';
 
   export let projectId: string;
   const schema = z.object({
@@ -16,6 +16,8 @@
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
+
+  const { notifySuccess } = useNotifications();
 
   async function openModal(): Promise<void> {
     const { response, formState } = await formModal.open(async () => {

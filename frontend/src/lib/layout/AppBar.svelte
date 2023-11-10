@@ -12,7 +12,7 @@
     if (isPlaywright) environmentName = 'playwright';
   });
   let isPlaywright = false;
-  let environmentName = env.PUBLIC_ENV_NAME;
+  let environmentName = env.PUBLIC_ENV_NAME?.toLowerCase();
   const dispatch = createEventDispatcher();
   export let user: LexAuthUser | undefined;
   $: loggedIn = !!user;

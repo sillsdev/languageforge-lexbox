@@ -124,3 +124,30 @@ table tr:nth-last-child(-n + 2) .dropdown {
     transition: background-color 0.5s;
   }
 }
+
+.hydrating {
+  .input,
+  input,
+  button {
+    visibility: hidden;
+  }
+
+  form {
+    & > * {
+      visibility: hidden;
+    }
+
+    position: relative;
+
+    &::before {
+      content: '';
+      @apply loading loading-ring bg-primary;
+      @apply h-32 max-h-full w-auto;
+
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+}

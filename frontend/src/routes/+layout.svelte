@@ -6,22 +6,27 @@
   import type { LayoutData } from './$types';
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
-  import { writable } from 'svelte/store';
-  import { notifyWarning } from '$lib/notify';
+  import { initNotificationService } from '$lib/notify';
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
+  import { onMount } from 'svelte';
 
   export let data: LayoutData;
   const { page, updated } = getStores();
 
-  const error = initErrorStore(writable($page.error));
+  const { notifyWarning } = initNotificationService();
+
+  const error = initErrorStore($page.error);
   $: $error = $page.error;
   $: {
     if (browser && $updated) {
       notifyWarning($t('notifications.update_detected'), Duration.Long);
     }
   }
+
+  let hydrating = true;
+  onMount(() => hydrating = false);
 </script>
 
 <svelte:head>
@@ -34,7 +39,7 @@
   {/if}
 </svelte:head>
 
-<div class="flex flex-col justify-between min-h-full">
+<div class="flex flex-col justify-between min-h-full" class:hydrating>
   <div class="flex flex-col flex-grow">
     <slot />
   </div>

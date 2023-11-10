@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { emailResult, requestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
+  import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
-  import { notifySuccess, notifyWarning } from '$lib/notify';
+  import { useNotifications } from '$lib/notify';
   import z from 'zod';
   import { goto } from '$app/navigation';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
@@ -19,7 +19,11 @@
   $: user = data?.user;
   let deleteModal: DeleteUserModal;
 
+  const emailResult = useEmailResult();
+  const requestedEmail = useRequestedEmail();
   $: if (data.emailResult) emailResult.set(data.emailResult);
+
+  const { notifySuccess, notifyWarning } = useNotifications();
 
   async function openDeleteModal(): Promise<void> {
     let { response } = await deleteModal.open(user);

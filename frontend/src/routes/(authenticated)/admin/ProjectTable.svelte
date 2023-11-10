@@ -4,7 +4,7 @@ import {getProjectTypeI18nKey, ProjectTypeIcon} from '$lib/components/ProjectTyp
 import {_FILTER_PAGE_SIZE, type AdminSearchParams, type Project} from './+page';
 import {_deleteProject} from '$lib/gql/mutations';
 import {DialogResponse} from '$lib/components/modals';
-import {notifyWarning} from '$lib/notify';
+import { useNotifications } from '$lib/notify';
 import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
 import Dropdown from '$lib/components/Dropdown.svelte';
 import TrashIcon from '$lib/icons/TrashIcon.svelte';
@@ -27,6 +27,8 @@ export let projects: Project[];
 export let queryParams: QueryParams<AdminSearchParams>;
 $: filters = queryParams.queryParamValues;
 $: defaultFilters = queryParams.defaultQueryParamValues;
+
+const { notifyWarning } = useNotifications();
 
 const projectFilterKeys = new Set(['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'] as const) satisfies Set<keyof AdminSearchParams>;
 function matchMigrationStatus(filter: ProjectMigrationStatus | 'UNMIGRATED' | undefined, status: ProjectMigrationStatus): boolean {

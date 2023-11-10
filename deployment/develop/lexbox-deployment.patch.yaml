@@ -1,0 +1,24 @@
+﻿#file: noinspection KubernetesMissingKeys
+#file is a patch file that will be applied to the base deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexbox
+  namespace: languagedepot
+spec:
+  template:
+    spec:
+      containers:
+        - name: lexbox-api
+          env:
+            - name: CloudFlare__AllowDomain
+              value: "mailinator.com"
+            - name: Email__SmtpHost
+              value: email-smtp.us-east-1.amazonaws.com
+            - name: Email__SmtpPort
+              value: '587'
+            - name: Email__From
+              # TODO: need to parameterize this
+              value: "Language Depot (Develop) <no-reply@staging.languagedepot.org>"
+            - name: Email__BaseUrl
+              value: "https://staging.languagedepot.org"

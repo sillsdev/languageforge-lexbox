@@ -1,13 +1,17 @@
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using Shouldly;
 
 namespace Testing.Browser.Page;
+
+public record GotoOptions(bool? ExpectRedirect = false);
 
 public abstract class BasePage<T> where T : BasePage<T>
 {
     public IPage Page { get; private set; }
     public string? Url { get; protected set; }
     protected ILocator[] TestLocators { get; }
+    private Regex? UrlPattern => Url is not null ? new Regex($"{Regex.Escape(Url)}($|\\?|#)") : null;
 
     public BasePage(IPage page, string? url, ILocator testLocator)
     : this(page, url, new[] { testLocator })
@@ -20,7 +24,7 @@ public abstract class BasePage<T> where T : BasePage<T>
         TestLocators = testLocators;
     }
 
-    public virtual async Task<T> Goto()
+    public virtual async Task<T> Goto(GotoOptions? options = null)
     {
         if (Url is null)
         {
@@ -29,18 +33,24 @@ public abstract class BasePage<T> where T : BasePage<T>
 
         var response = await Page.GotoAsync(Url);
         response?.Ok.ShouldBeTrue(); // is null if same URL, but different hash
-        return await WaitFor();
+
+        if (options?.ExpectRedirect != true)
+        {
+            await WaitFor();
+        }
+
+        return (T)this;
     }
 
     public async Task<T> WaitFor()
     {
-        if (Url is not null)
+        if (UrlPattern is not null)
         {
-            await Page.WaitForURLAsync(Url, new() { WaitUntil = WaitUntilState.NetworkIdle });
+            await Page.WaitForURLAsync(UrlPattern, new() { WaitUntil = WaitUntilState.Load });
         }
         else
         {
-            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            await Page.WaitForLoadStateAsync(LoadState.Load);
         }
         await Task.WhenAll(TestLocators.Select(l => l.WaitForAsync()));
         return (T)this;

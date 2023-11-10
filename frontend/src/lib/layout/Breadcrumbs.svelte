@@ -47,8 +47,10 @@
       if (name) {
         crumbs.push({ name, href });
       }
-      // If it's not a CrumbConfig, then the loop should be over
       currConfig = currConfig[token] as CrumbConfig;
+      if (!currConfig) {
+        break;
+      }
     }
   }
 

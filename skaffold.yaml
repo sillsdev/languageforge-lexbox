@@ -62,7 +62,7 @@ portForward:
 manifests:
   kustomize:
     paths:
-      - deployment/dev
+      - deployment/local-dev
 
 profiles:
   - name: dev

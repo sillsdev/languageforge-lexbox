@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EmailVerificationStatus from '$lib/email/EmailVerificationStatus.svelte';
+  import EmailVerificationStatus, { initEmailResult, initRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
   import { AdminIcon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
@@ -28,6 +28,9 @@
     if (user) ensureClientMatchesUser(user);
   });
   beforeNavigate(() => close());
+
+  initRequestedEmail();
+  initEmailResult();
 </script>
 
 <svelte:window on:keydown={closeOnEscape} />

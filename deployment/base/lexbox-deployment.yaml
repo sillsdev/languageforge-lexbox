@@ -81,7 +81,10 @@ spec:
           - name: DOTNET_URLS
             value: http://0.0.0.0:5158
           - name: ASPNETCORE_ENVIRONMENT
-            value: Development
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: environment-name
           - name: OTEL_METRIC_EXPORT_INTERVAL
             value: '60000' # 60s
           - name: POSTGRES_DB
@@ -209,3 +212,8 @@ spec:
                 optional: true
           - name: DbConfig__LexBoxConnectionString
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
+          - name: DOTNET_ENVIRONMENT
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: environment-name

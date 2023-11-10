@@ -1,6 +1,7 @@
-import { readonly, writable } from 'svelte/store';
+import { writable, type Readable, type Writable } from 'svelte/store';
 
 import { Duration } from '$lib/util/time';
+import { defineContext } from '$lib/util/context';
 
 export interface Notification {
   message: string;
@@ -8,36 +9,39 @@ export interface Notification {
   duration: number;
 }
 
-const _notifications = writable<Notification[]>([]);
-// _notifications.set([{ message: 'Test notification', duration: 4 }, { message: 'Test notification', duration: 4 }])
+export const { use: useNotifications, init: initNotificationService } =
+  defineContext<NotificationService>(() => new NotificationService(writable([])));
 
-export const notifications = readonly(_notifications);
+export class NotificationService {
 
-export function notifySuccess(
-  message: string,
-  duration = Duration.Default,
-): void {
-  addNotification({ message, duration });
-}
+  get notifications(): Readable<Notification[]> {
+    return this._notifications;
+  }
 
-export function notifyWarning( // in case we need them to be different colors in the future this is its own function
-  message: string,
-  duration = Duration.Default,
-): void {
-  addNotification({ message, duration, category: 'alert-warning' });
-}
+  constructor(private readonly _notifications: Writable<Notification[]>) {
+    // _notifications.set([{ message: 'Test notification', duration: 4 }, { message: 'Test notification', duration: 4 }])
+  }
 
-function addNotification(notification: Notification): void {
-  _notifications.update((currentNotifications) => [...currentNotifications, notification]);
-  setTimeout(() => {
-    removeNotification(notification);
-  }, notification.duration);
-}
+  notifySuccess = (message: string, duration = Duration.Default): void => {
+    this.addNotification({ message, duration });
+  }
 
-export function removeNotification(notification: Notification): void {
-  _notifications.update((currentNotifications) => currentNotifications.filter((n: Notification) => n !== notification));
-}
+  notifyWarning = (message: string, duration = Duration.Default): void => {
+    this.addNotification({ message, duration, category: 'alert-warning' });
+  }
 
-export function removeAllNotifications(): void {
-  _notifications.set([]);
+  removeNotification = (notification: Notification): void => {
+    this._notifications.update((currentNotifications) => currentNotifications.filter((n: Notification) => n !== notification));
+  }
+
+  removeAllNotifications = (): void => {
+    this._notifications.set([]);
+  }
+
+  private addNotification(notification: Notification): void {
+    this._notifications.update((currentNotifications) => [...currentNotifications, notification]);
+    setTimeout(() => {
+      this.removeNotification(notification);
+    }, notification.duration);
+  }
 }

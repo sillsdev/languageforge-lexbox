@@ -11,4 +11,9 @@ public class AuthenticatedBasePage<T> : BasePage<T> where T : AuthenticatedBaseP
     {
         EmailVerificationAlert = new EmailVerificationAlert(Page);
     }
+
+    public async Task GoHome()
+    {
+        await Page.Locator(".breadcrumbs").GetByRole(AriaRole.Link, new() { Name = "Home" }).ClickAsync();
+    }
 }

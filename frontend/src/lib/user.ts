@@ -1,9 +1,9 @@
 import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
-import { removeAllNotifications } from './notify'
 import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
+import { ensureErrorIsTraced } from './otel'
 
 type RegisterResponseErrors = {
   errors: {
@@ -106,7 +106,16 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
     return null
   }
 
-  return jwtToUser(jwtDecode<JwtTokenUser>(token));
+  try {
+    return jwtToUser(jwtDecode<JwtTokenUser>(token));
+  } catch (error) {
+    const traceId = ensureErrorIsTraced(error, undefined, {
+      'app.error.source': 'jwt-decode-error',
+      'app.environment': browser ? 'browser' : 'server',
+    });
+    console.error(error, `Trace ID: ${traceId}.`);
+    return null;
+  }
 }
 
 function jwtToUser(user: JwtTokenUser): LexAuthUser {
@@ -125,7 +134,6 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
 
 export function logout(cookies?: Cookies): void {
   cookies && deleteCookie('.LexBoxAuth', cookies);
-  removeAllNotifications();
   if (browser && window.location.pathname !== '/login') {
     throw redirect(307, '/login');
   }
