@@ -154,8 +154,8 @@ public class ErrorHandlingTests : PageTest
         // - Get JWT from reset password link
         var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
         var emailPage = await inboxPage.OpenEmail();
-        var href = await emailPage.ResetPasswordButton.GetAttributeAsync("href");
-        var forgotPasswordJwt = href.Split("jwt=")[1].Split("&")[0];
+        var url = await emailPage.GetFirstLanguageDepotUrl();
+        var forgotPasswordJwt = url.Split("jwt=")[1].Split("&")[0];
 
         // (2) Get to a non-home page with an empty urql cache
         await LoginAs(email, password);

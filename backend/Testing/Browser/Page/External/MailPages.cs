@@ -57,4 +57,9 @@ public abstract class MailEmailPage : BasePage<MailEmailPage>
     {
         return ResetPasswordButton.ClickAsync();
     }
+
+    public virtual Task<string> GetFirstLanguageDepotUrl()
+    {
+        return bodyLocator.Locator($"a[href*='{TestingEnvironmentVariables.ServerBaseUrl}']").First.GetAttributeAsync("href");
+    }
 }
