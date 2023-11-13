@@ -34,7 +34,7 @@
       "title": "Edit User",
       "email_label": "Email",
       "name_label": "Display name",
-      "password_label": "Password",
+      "password_label": "Change User Password",
       "update_user": "Update User",
       "lock": "Lock User",
       "unlock": "Unlock User",
