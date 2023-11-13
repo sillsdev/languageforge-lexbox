@@ -21,7 +21,7 @@ public class JwtHelper
     public static async Task<HttpResponseMessage> ExecuteLogin(SendReceiveAuth auth, HttpClient httpClient)
     {
         var response = await httpClient.PostAsJsonAsync(
-            $"{TestingEnvironmentVariables.StandardHgBaseUrl}/api/login",
+            $"{TestingEnvironmentVariables.ServerBaseUrl}/api/login",
             new Dictionary<string, object>
             {
                 { "password", auth.Password }, { "emailOrUsername", auth.Username }, { "preHashedPassword", false }
