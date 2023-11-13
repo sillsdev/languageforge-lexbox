@@ -15,7 +15,7 @@ kubectl --context docker-desktop -n languagedepot exec deployment/db -- bash -c 
 prod_context=docker-desktop
 prod_database=import-new
 #import pg db to prod db
-target_pod=$(kubectl --context docker-desktop -n languagedepot get pods -l app=db -o jsonpath='{.items[0].metadata.name}')
+target_pod=$(kubectl --context $prod_context -n languagedepot get pods -l app=db -o jsonpath='{.items[0].metadata.name}')
 echo copying data to $target_pod
 kubectl --context $prod_context -n languagedepot cp out.sql $target_pod:/tmp/out.sql
 echo importing data to $prod_database
