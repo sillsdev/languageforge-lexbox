@@ -21,6 +21,4 @@ public class HgConfig
 
     [Required(AllowEmptyStrings = false)]
     public required string RedmineTrustToken { get; init; }
-    [Required(AllowEmptyStrings = false)]
-    public required string LfMergeTrustToken { get; init; }
 }

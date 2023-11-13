@@ -33,8 +33,7 @@ public class HgServiceTests
             PublicRedmineHgWebUrl = RedminePublic,
             PrivateRedmineHgWebUrl = RedminePrivate,
             RedmineHgResumableUrl = RedmineResumable,
-            RedmineTrustToken = "tt",
-            LfMergeTrustToken = "tt"
+            RedmineTrustToken = "tt"
         };
         _hgService = new HgService(new OptionsWrapper<HgConfig>(_hgConfig),
             Mock.Of<IHttpClientFactory>(),

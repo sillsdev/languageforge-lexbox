@@ -121,11 +121,6 @@ spec:
               secretKeyRef:
                   key: RedmineTrustToken
                   name: lexbox-api
-          - name: HgConfig__LfMergeTrustToken
-            valueFrom:
-              secretKeyRef:
-                  key: LfMergeTrustToken
-                  name: lexbox-api
           - name: CloudFlare__TurnstileKey
             valueFrom:
               secretKeyRef:
