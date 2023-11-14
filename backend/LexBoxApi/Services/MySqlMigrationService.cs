@@ -39,29 +39,31 @@ public class MySqlMigrationService
 
     private async Task Migrate(RedmineDbContext dbContext, DateTimeOffset now)
     {
-        var existingUsers =
+        var existingUsersByEmail =
             await _lexBoxDbContext.Users.ToDictionaryAsync(u => u.Email, u => u, StringComparer.OrdinalIgnoreCase);
+        var existingUsersByLogin = existingUsersByEmail.Values.Where(u => !string.IsNullOrEmpty(u.Username))
+            .ToDictionary(u => (string) u.Username, u => u);
         var projects = await dbContext.Projects.ToArrayAsync();
         //filter out empty login because there's some default redmine accounts without a login
         var users = await dbContext.Users.Where(u => u.Login != "").Include(u => u.EmailAddresses)
             .ToArrayAsync();
         await dbContext.Members.Include(p => p.Role).ToArrayAsync();
         await dbContext.Roles.ToArrayAsync();
-        //todo set based on redmine db
         var migrationStatus = dbContext is PublicRedmineDbContext
             ? ProjectMigrationStatus.PublicRedmine
             : ProjectMigrationStatus.PrivateRedmine;
         var projectIdToGuid = projects.ToDictionary(p => p.Id, p => Guid.NewGuid());
         _lexBoxDbContext.Projects.AddRange(projects.Select(rmProject =>
             MigrateProject(rmProject, now, migrationStatus, projectIdToGuid)));
-        _lexBoxDbContext.Users.AddRange(users.Select(rmUser => MigrateUser(rmUser, projectIdToGuid, now, existingUsers))
+        _lexBoxDbContext.Users.AddRange(users.Select(rmUser => MigrateUser(rmUser, projectIdToGuid, now, existingUsersByEmail, existingUsersByLogin))
             .OfType<User>());
     }
 
     private static User? MigrateUser(RmUser rmUser,
         Dictionary<int, Guid> projectIdToGuid,
         DateTimeOffset now,
-        Dictionary<string, User> existingUsers)
+        Dictionary<string, User> existingUsersByEmail,
+        Dictionary<string, User> existingUsersByLogin)
     {
         var userProjects = rmUser.ProjectMembership?.Where(m => m.Project is not null).Select(m => new ProjectUsers
         {
@@ -77,7 +79,8 @@ public class MySqlMigrationService
         }).ToList() ?? new List<ProjectUsers>();
         var email = rmUser.EmailAddresses.FirstOrDefault()?.Address;
         if (email is null) throw new Exception("no email for user id: " + rmUser.Login);
-        if (existingUsers.TryGetValue(email, out var user))
+        if (existingUsersByEmail.TryGetValue(email, out var user) ||
+            existingUsersByLogin.TryGetValue(rmUser.Login, out user))
         {
             //modify existing user to merge users from public and private
             user.Projects.AddRange(userProjects);
@@ -91,7 +94,7 @@ public class MySqlMigrationService
                 user.CanCreateProjects = true;
             }
 
-            //a new user wasnt added
+            //a new user was not added
             return null;
         }
 
@@ -99,7 +102,7 @@ public class MySqlMigrationService
         {
             CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? now,
             UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? now,
-            LastActive = rmUser.LastLoginOn?.ToUniversalTime() ?? now,
+            LastActive = rmUser.LastLoginOn?.ToUniversalTime() ?? default(DateTimeOffset),
             Username = rmUser.Login,
             LocalizationCode = rmUser.Language ?? LexCore.Entities.User.DefaultLocalizationCode,
             Email = email,
