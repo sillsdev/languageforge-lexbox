@@ -57,5 +57,9 @@
     autofocus
   />
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
+  <div class="alert alert-info gap-2 mt-4">
+    <span class="i-mdi-info-outline text-xl"></span>
+    {$t('project_page.add_user.user_needs_to_relogin')}
+  </div>
   <span slot="submitText">{$t('project_page.add_user.submit_button')}</span>
 </FormModal>

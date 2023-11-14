@@ -155,7 +155,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "modal_title": "Add a Member to this project",
       "submit_button": "Add Member",
       "user_not_found": "No user was found with this email address",
-      "user_not_verified": "User has not verified their email address"
+      "user_not_verified": "User has not verified their email address",
+      "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
     },
     "change_role_modal": {
       "title": "Choose role for {name}"
