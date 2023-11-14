@@ -41,6 +41,7 @@
     <Input
       id="email"
       label={$t('register.label_email')}
+      description={$t('register.description_email')}
       type="email"
       bind:value={$form.email}
       error={$errors.email}
