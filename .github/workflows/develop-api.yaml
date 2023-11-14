@@ -52,6 +52,7 @@ jobs:
   integration-tests:
     name: Integration tests
     uses: ./.github/workflows/integration-test.yaml
+    if: false #disable develop until we can use a self hosted runner for this test
     permissions:
       checks: write
     secrets: inherit

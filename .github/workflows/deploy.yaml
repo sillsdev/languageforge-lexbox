@@ -92,6 +92,7 @@ jobs:
   verify-published:
     name: Verify ${{ matrix.verify.name }} Published
     runs-on: ubuntu-latest
+    if: ${{ inputs.k8s-environment != 'develop' }} #disable develop until we can use a self hosted runner for this test
     needs: deploy
     strategy:
       fail-fast: true
