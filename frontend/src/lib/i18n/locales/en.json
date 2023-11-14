@@ -22,7 +22,6 @@
     "filter_projects": "Filter projects",
     "project_table_title": "Projects",
     "user_table_title": "Users",
-    "username_or_email_required": "You must provide a username or email.",
     "email_used": "An account with this email address already exists",
     "email_not_verified": "Not Verified",
     "notifications": {
