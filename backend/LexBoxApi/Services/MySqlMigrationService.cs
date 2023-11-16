@@ -89,6 +89,11 @@ public class MySqlMigrationService
                 user.IsAdmin = true;
             }
 
+            if (user.LastActive < rmUser.LastLoginOn)
+            {
+                user.LastActive = rmUser.LastLoginOn?.ToUniversalTime() ?? default(DateTimeOffset);
+            }
+
             if (!user.CanCreateProjects && userProjects.Any(p => p.Role == ProjectRole.Manager))
             {
                 user.CanCreateProjects = true;
