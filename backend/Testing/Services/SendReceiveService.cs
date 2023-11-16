@@ -19,7 +19,6 @@ public class SendReceiveService
 {
     private readonly ITestOutputHelper _output;
     private const string fdoDataModelVersion = "7000072";
-    private static string Protocol = TestingEnvironmentVariables.IsDev ? "http" : "https";
 
     public SendReceiveService(ITestOutputHelper output)
     {
@@ -84,7 +83,7 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        var repoUrl = new UriBuilder($"{Protocol}://{baseUrl}/{projectCode}");
+        var repoUrl = new UriBuilder($"{TestingEnvironmentVariables.HttpScheme}{baseUrl}/{projectCode}");
         progress.WriteMessage($"Cloning {repoUrl} with user '{username}' ...");
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
@@ -122,7 +121,7 @@ public class SendReceiveService
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
         var progress = NewProgress();
-        var repoUrl = new UriBuilder($"{Protocol}://{baseUrl}/{projectCode}");
+        var repoUrl = new UriBuilder($"{TestingEnvironmentVariables.HttpScheme}{baseUrl}/{projectCode}");
         progress.WriteMessage($"S/R for {repoUrl} with user '{username}' ...");
         if (String.IsNullOrEmpty(username) && String.IsNullOrEmpty(password))
         {
