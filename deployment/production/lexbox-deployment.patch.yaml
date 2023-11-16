@@ -28,4 +28,4 @@ spec:
             - name: HgConfig__PrivateRedmineHgWebUrl
               value: "https://hg-private-redmine.languagedepot.org/"
             - name: HgConfig__RedmineHgResumableUrl
-              value: "https://resumable-redmine.languageforge.org"
+              value: "https://resumable-redmine.languagedepot.org"
