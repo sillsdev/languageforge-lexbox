@@ -103,7 +103,7 @@ public record LexAuthUser
     public required UserRole Role { get; set; }
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
-    public AuthUserProject[] Projects { get; set; }
+    public AuthUserProject[] Projects { get; set; } = Array.Empty<AuthUserProject>();
 
     [JsonIgnore]
     public string ProjectsJson
