@@ -5,26 +5,37 @@ tasks:
     cmds:
       - dotnet test --filter=Category!=Integration
 
-  integration-staging:
+  integration:
+    vars:
+      FILTER: '{{default "." .CLI_ARGS}}'
+    cmds:
+      - dotnet test --filter="Category=Integration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}"
+
+  integration-env:
+    dotenv: [ local.env ]
     env:
-      TEST_DEFAULT_PASSWORD: '***'
+#      TEST_DEFAULT_PASSWORD: ***
       TEST_SERVER_HOSTNAME: 'staging.languagedepot.org'
       TEST_STANDARD_HG_HOSTNAME: 'hg-staging.languageforge.org'
       TEST_RESUMABLE_HG_HOSTNAME: 'resumable-staging.languagedepot.org'
-#      set to enable debug mode, number of ms to delay actions
-      PWDEBUG: 0
     cmds:
-#      - 'read -p "password: " TEST_DEFAULT_PASSWORD'
-      - dotnet test --filter Category=Integration   -s ./backend/Testing/staging.runsettings
+#     - 'read -p "password: " TEST_DEFAULT_PASSWORD'
+      - task playwright -- {{.CLI_ARGS}}
 
   # Playwright
   playwright:
+    env:
+#     set to enable debug mode, number of ms to delay actions
+      PWDEBUG: 0
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
       - dotnet test --filter="Testing.Browser&{{.FILTER}}"
 
   playwright-env:
+    env:
+#     set to enable debug mode, number of ms to delay actions
+      PWDEBUG: 0
     dotenv: [ local.env ]
     cmd: task playwright -- {{.CLI_ARGS}}
 
