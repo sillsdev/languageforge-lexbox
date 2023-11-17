@@ -3,7 +3,7 @@ import { redirect, type Cookies } from '@sveltejs/kit'
 import jwtDecode from 'jwt-decode'
 import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
-import { ensureErrorIsTraced } from './otel'
+import { ensureErrorIsTraced, errorSourceTag } from './otel'
 
 type RegisterResponseErrors = {
   errors: {
@@ -110,8 +110,7 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
     return jwtToUser(jwtDecode<JwtTokenUser>(token));
   } catch (error) {
     const traceId = ensureErrorIsTraced(error, undefined, {
-      'app.error.source': 'jwt-decode-error',
-      'app.environment': browser ? 'browser' : 'server',
+      'app.error.source': errorSourceTag('jwt-decode'),
     });
     console.error(error, `Trace ID: ${traceId}.`);
     return null;
