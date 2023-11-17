@@ -37,7 +37,7 @@ public class LexAuthUserTests
         var idClaim = new Claim(LexAuthConstants.IdClaimType, _user.Id.ToString());
         var emailClaim = new Claim(LexAuthConstants.EmailClaimType, _user.Email);
         var roleClaim = new Claim(LexAuthConstants.RoleClaimType, _user.Role.ToString());
-        var projectClaim = new Claim("proj", _user.ProjectsJson);
+        var projectClaim = new Claim("proj", JsonSerializer.Serialize(_user.Projects[0]));
         claims.ShouldSatisfyAllConditions(
             () => claims.ShouldContain(idClaim.ToString()),
             () => claims.ShouldContain(emailClaim.ToString()),
@@ -106,7 +106,7 @@ public class LexAuthUserTests
     {
         var user = _user with { Projects = Array.Empty<AuthUserProject>() };
         var projectCode = new string(Enumerable.Range(0, 15).Select(i => (char)('a' + i)).ToArray());
-        for (int projectCount = 0; projectCount < 170; projectCount++)
+        for (int projectCount = 0; projectCount < 60; projectCount++)
         {
             user = user with
             {
