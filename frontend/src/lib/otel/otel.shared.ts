@@ -18,14 +18,18 @@ import { browser } from '$app/environment';
 import { isRedirect } from '$lib/util/types';
 
 export const SERVICE_NAME = browser ? 'LexBox-SvelteKit-Client' : 'LexBox-SvelteKit-Server';
-const GQL_ERROR_SOURCE = browser ? 'client-gql-error' : 'server-gql-error';
 
 export function tracer(): Tracer {
   return trace.getTracer(SERVICE_NAME);
 }
 
-type ErrorTracer = ErrorHandler | 'server-gql-error' | 'client-gql-error' | 'client-fetch-error' | 'jwt-decode-error';
-type ErrorAttributes = Attributes & { ['app.error.source']: ErrorTracer };
+type ErrorType = 'gql' | 'fetch' | 'jwt-decode';
+type ErrorSource = `${'client' | 'server'}-${ErrorType}`;
+type ErrorAttributes = Attributes & { ['app.error.source']: ErrorHandler | ErrorSource };
+
+export function errorSourceTag(errorType: ErrorType): ErrorSource {
+  return `${browser ? 'client' : 'server'}-${errorType}`;
+}
 
 interface ErrorContext {
   event: RequestEvent | NavigationEvent | Event | undefined;
@@ -99,6 +103,25 @@ function traceErrorEvent(
   }
 
   return traceId;
+}
+
+/**
+ * Very minimal instrumentation here, because the auto-instrumentation handles the core stuff,
+ * we just want to make sure that our trace-ID gets used and that we stamp errors with it.
+ */
+export function traceFetch(fetch: () => ReturnType<Fetch>): ReturnType<Fetch> {
+  return tracer().startActiveSpan('fetch', async (span) => {
+    try {
+      return await fetch();
+    } catch (error) {
+      if (!isRedirect(error)) {
+        ensureErrorIsTraced(error, { span }, { ['app.error.source']: errorSourceTag('fetch') });
+      }
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
 }
 
 export function traceHeaders(span: Span, type: 'request' | 'response', headers: Headers): void {
@@ -256,7 +279,7 @@ export const tracingExchange: Exchange = mapExchange({
 
     const error = result.error?.networkError ?? result.error;
     if (error && !isRedirect(error)) {
-      ensureErrorIsTraced(result.error, { span: operationSpan }, { ['app.error.source']: GQL_ERROR_SOURCE });
+      ensureErrorIsTraced(result.error, { span: operationSpan }, { ['app.error.source']: errorSourceTag('gql') });
     }
 
     operationSpan?.end();

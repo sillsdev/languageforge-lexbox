@@ -16,6 +16,7 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import type { MaybePromise, RequestEvent } from '@sveltejs/kit';
 import {
+  traceFetch as _traceFetch,
   traceEventAttributes,
   traceHeaders,
   SERVICE_NAME,
@@ -92,13 +93,13 @@ export async function traceFetch(
     request: Request,
     fetch: () => Promise<Response>,
 ): Promise<Response> {
-  return tracer()
+  return _traceFetch(() => tracer()
       .startActiveSpan(`${request.method} ${request.url}`, async (span) => {
         try {
           span.setAttributes({
             [SemanticAttributes.HTTP_METHOD]: request.method,
             [SemanticAttributes.HTTP_TARGET]: request.url,
-          })
+          });
           traceHeaders(span, 'request', request.headers);
           const traceparent = buildTraceparent(span);
           request.headers.set('Traceparent', traceparent);
@@ -106,7 +107,7 @@ export async function traceFetch(
         } finally {
           span.end();
         }
-      });
+      }));
 }
 
 function traceResponseAttributes(span: Span, response: Response): void {

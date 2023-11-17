@@ -54,15 +54,20 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
     console.log('Skipping cookie forwarding for non-backend request', request.url);
   }
 
-  const response = await traceFetch(request, () => fetch(request));
+  const response = await traceFetch(request, async () => {
+    const response = await fetch(request);
+
+    const routeId = event.route.id ?? '';
+    validateFetchResponse(response,
+      routeId.endsWith('/login'),
+      routeId.endsWith(AUTHENTICATED_ROOT) || routeId.endsWith('/home') || routeId.endsWith('/admin'));
+
+    return response;
+  });
+
   if (response.headers.has('lexbox-version')) {
     apiVersion.value = response.headers.get('lexbox-version');
   }
-
-  const routeId = event.route.id ?? '';
-  validateFetchResponse(response,
-    routeId.endsWith('/login'),
-    routeId.endsWith(AUTHENTICATED_ROOT) || routeId.endsWith('/home') || routeId.endsWith('/admin'));
 
   return response;
 };
