@@ -11,20 +11,20 @@ namespace LexCore.Auth;
 
 public record LexAuthUser
 {
-    private static readonly JsonTypeInfo LexAuthUserTypeInfo = JsonSerializerOptions.Default.GetTypeInfo(typeof(LexAuthUser));
+    private static readonly JsonTypeInfo LexAuthUserTypeInfo =
+        JsonSerializerOptions.Default.GetTypeInfo(typeof(LexAuthUser));
+
     public static LexAuthUser? FromClaimsPrincipal(ClaimsPrincipal principal)
     {
         if (principal.Identity?.IsAuthenticated is not true) return null;
         var jsonObject = new JsonObject();
         foreach (var property in LexAuthUserTypeInfo.Properties)
         {
+            // if (property)
             var isArray = property.PropertyType != typeof(string) &&
                           property.PropertyType.IsAssignableTo(typeof(IEnumerable));
             var array = isArray ? new JsonArray() : null;
-            if (isArray)
-            {
-                jsonObject.Add(property.Name, array);
-            }
+
 
             foreach (var claim in principal.FindAll(property.Name))
             {
@@ -56,6 +56,11 @@ public record LexAuthUser
                 {
                     array.Add(item);
                 }
+            }
+
+            if (array?.Count > 0)
+            {
+                jsonObject.Add(property.Name, array);
             }
         }
 
@@ -96,7 +101,40 @@ public record LexAuthUser
     public required UserRole Role { get; set; }
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
-    public required AuthUserProject[] Projects { get; init; }
+    public AuthUserProject[] Projects { get; set; }
+
+    [JsonIgnore]
+    public string ProjectsJson
+    {
+        get =>
+            string.Join(",",
+                Projects.GroupBy(p => p.Role).Select(roleGroup =>
+                {
+                    var projectRole = roleGroup.Key switch
+                    {
+                        ProjectRole.Manager => "m",
+                        ProjectRole.Editor => "e",
+                        _ => "u"
+                    };
+
+                    var projectString = string.Join("|", roleGroup.Select(p => p.ProjectId.ToString("N")));
+                    return $"{projectRole}{projectString}";
+                }));
+        set
+        {
+            Projects = value.Split(",").SelectMany(p =>
+            {
+                var role = p[0] switch
+                {
+                    'm' => ProjectRole.Manager,
+                    'e' => ProjectRole.Editor,
+                    _ => ProjectRole.Unknown
+                };
+                return p[1..].Split("|").Select(pId => Guid.Parse(pId))
+                    .Select(pId => new AuthUserProject("na", role, pId));
+            }).ToArray();
+        }
+    }
 
     [JsonPropertyName(LexAuthConstants.EmailUnverifiedClaimType)]
     public bool? EmailVerificationRequired { get; init; }
@@ -114,7 +152,13 @@ public record LexAuthUser
                 case JsonValueKind.Array:
                     foreach (var element in jsonProperty.Value.EnumerateArray())
                     {
-                        yield return new Claim(jsonProperty.Name, element.ToString(), JsonClaimValueTypes.Json);
+                        var valueType = element.ValueKind switch
+                        {
+                            JsonValueKind.Array => JsonClaimValueTypes.JsonArray,
+                            JsonValueKind.String => ClaimValueTypes.String,
+                            _ => JsonClaimValueTypes.Json
+                        };
+                        yield return new Claim(jsonProperty.Name, element.ToString(), valueType);
                     }
 
                     break;
@@ -180,7 +224,8 @@ public record LexAuthUser
     public void AssertCanManagerProjectMemberRole(Guid projectId, Guid userId)
     {
         AssertCanManageProject(projectId);
-        if (Role != UserRole.admin && userId == Id) throw new UnauthorizedAccessException("Not allowed to change own project role.");
+        if (Role != UserRole.admin && userId == Id)
+            throw new UnauthorizedAccessException("Not allowed to change own project role.");
     }
 
     public bool HasProjectCreatePermission()
