@@ -68,6 +68,7 @@ jobs:
     name: Deploy Production
     uses: ./.github/workflows/deploy.yaml
     needs: [ integration-tests, set-version ]
+    if: always()
     secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}

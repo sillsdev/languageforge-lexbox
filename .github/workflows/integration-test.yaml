@@ -15,7 +15,6 @@ on:
 
 jobs:
   test:
-    continue-on-error: true
     timeout-minutes: 60
     concurrency: test-${{ inputs.test-domain }}
     name: Test ${{ matrix.os }} on ${{ inputs.test-domain }}
