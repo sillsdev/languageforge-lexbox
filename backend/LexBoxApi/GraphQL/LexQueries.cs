@@ -14,8 +14,8 @@ public class LexQueries
     [UseSorting]
     public IQueryable<Project> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
     {
-        var projectCodes = loggedInContext.User.Projects.Select(p => p.Code);
-        return context.Projects.Where(p => projectCodes.Contains(p.Code));
+        var userId = loggedInContext.User.Id;
+        return context.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId));
     }
 
     [UseProjection]

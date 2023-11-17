@@ -80,7 +80,9 @@ public record LexAuthUser
         Email = user.Email;
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
         Name = user.Name;
-        Projects = user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role, p.ProjectId)).ToArray();
+        Projects = user.IsAdmin
+            ? Array.Empty<AuthUserProject>()
+            : user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role, p.ProjectId)).ToArray();
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
     }
