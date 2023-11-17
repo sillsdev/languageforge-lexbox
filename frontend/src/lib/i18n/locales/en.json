@@ -14,6 +14,7 @@
     "show_delete_projects": "Show deleted projects",
     "filter_placeholder": "Search...",
     "project_filter": {
+      "title": "Project filters",
       "select_user_from_table": "To filter projects for a specific user, select the user from the user table:",
       "project_member": "Project member",
       "all_users": "All users",
@@ -127,7 +128,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   "project": {
     "create": {
       "title": "Create Project",
-      "code": "Project Code",
+      "code": "Code",
+      "type": "Type",
       "code_exists": "Project code already used",
       "code_too_short": "Project code must be at least 4 characters",
       "custom_code": "Custom Code",

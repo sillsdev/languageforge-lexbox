@@ -126,7 +126,7 @@ async function softDeleteProject(project: Project): Promise<void> {
             {/each}
         </svelte:fragment>
         <svelte:fragment slot="filters">
-            <h2 class="card-title">Project filters</h2>
+            <h2 class="card-title">{$t('admin_dashboard.project_filter.title')}</h2>
             <FormField label={$t('admin_dashboard.project_filter.project_member')}>
                 {#if $filters.userEmail}
                     <div class="join" use:bubbleFocusOnDestroy>
