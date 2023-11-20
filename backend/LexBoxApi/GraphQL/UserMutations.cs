@@ -6,6 +6,7 @@ using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.Exceptions;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ public class UserMutations
     [RefreshJwt]
     public Task<User> ChangeUserAccountData(
         LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
@@ -34,7 +36,7 @@ public class UserMutations
     )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
-        return UpdateUser(loggedInContext, input, dbContext, emailService, lexAuthService);
+        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService, lexAuthService);
     }
 
     [Error<NotFoundException>]
@@ -43,17 +45,19 @@ public class UserMutations
     [AdminRequired]
     public Task<User> ChangeUserAccountByAdmin(
         LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         ChangeUserAccountByAdminInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
         LexAuthService lexAuthService
     )
     {
-        return UpdateUser(loggedInContext, input, dbContext, emailService, lexAuthService);
+        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService, lexAuthService);
     }
 
     private static async Task<User> UpdateUser(
         LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
         EmailService emailService,
@@ -70,7 +74,7 @@ public class UserMutations
 
         if (input is ChangeUserAccountByAdminInput adminInput)
         {
-            loggedInContext.User.AssertIsAdmin();
+            permissionService.AssertIsAdmin();
             if (user.Id != loggedInContext.User.Id)
             {
                 user.IsAdmin = adminInput.Role == UserRole.admin;
@@ -106,9 +110,9 @@ public class UserMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [UseMutationConvention]
-    public async Task<User> DeleteUserByAdminOrSelf(DeleteUserByAdminOrSelfInput input, LexBoxDbContext dbContext, LoggedInContext loggedInContext)
+    public async Task<User> DeleteUserByAdminOrSelf(DeleteUserByAdminOrSelfInput input, LexBoxDbContext dbContext, IPermissionService permissionService)
     {
-        loggedInContext.User.AssertCanDeleteAccount(input.UserId);
+        permissionService.AssertCanDeleteAccount(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
         dbContext.Users.Remove(user);

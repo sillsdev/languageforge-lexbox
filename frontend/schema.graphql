@@ -17,7 +17,6 @@ type AlreadyExistsError implements Error {
 }
 
 type AuthUserProject {
-  code: String!
   role: ProjectRole!
   projectId: UUID!
 }
@@ -91,15 +90,13 @@ type IsAdminResponse {
 }
 
 type LexAuthUser {
-  canManageProject(projectId: UUID!): Boolean!
-  canAccessProject(projectCode: String!): Boolean!
-  hasProjectCreatePermission: Boolean!
   id: UUID!
   audience: LexboxAudience!
   email: String!
   name: String!
   role: UserRole!
   projects: [AuthUserProject!]!
+  projectsJson: String!
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
 }

@@ -28,6 +28,7 @@ public static class GraphQlSetupKernel
             .RegisterService<LoggedInContext>()
             .RegisterService<EmailService>()
             .RegisterService<LexAuthService>()
+            .RegisterService<IPermissionService>()
             .AddDataAnnotationsValidator()
             .AddSorting(descriptor =>
             {

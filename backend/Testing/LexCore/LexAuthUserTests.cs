@@ -27,7 +27,7 @@ public class LexAuthUserTests
         Email = "test@test.com",
         Role = UserRole.user,
         Name = "test",
-        Projects = new[] { new AuthUserProject("test-flex", ProjectRole.Manager, Guid.NewGuid()) }
+        Projects = new[] { new AuthUserProject(ProjectRole.Manager, Guid.NewGuid()) }
     };
 
     [Fact]
@@ -37,7 +37,7 @@ public class LexAuthUserTests
         var idClaim = new Claim(LexAuthConstants.IdClaimType, _user.Id.ToString());
         var emailClaim = new Claim(LexAuthConstants.EmailClaimType, _user.Email);
         var roleClaim = new Claim(LexAuthConstants.RoleClaimType, _user.Role.ToString());
-        var projectClaim = new Claim("proj", JsonSerializer.Serialize(_user.Projects[0]));
+        var projectClaim = new Claim("proj", _user.ProjectsJson);
         claims.ShouldSatisfyAllConditions(
             () => claims.ShouldContain(idClaim.ToString()),
             () => claims.ShouldContain(emailClaim.ToString()),
@@ -83,7 +83,17 @@ public class LexAuthUserTests
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.ReadJwtToken(jwt);
 
-        var newUser = JsonSerializer.Deserialize<LexAuthUser>(Base64UrlEncoder.Decode(token.RawPayload));
+        var json = Base64UrlEncoder.Decode(token.RawPayload);
+        LexAuthUser? newUser;
+        try
+        {
+            newUser = JsonSerializer.Deserialize<LexAuthUser>(json);
+        }
+        catch (JsonException e)
+        {
+            throw new JsonException("Could not deserialize user, json: " + json, e);
+        }
+
         _user.ShouldBeEquivalentTo(newUser);
     }
 
@@ -98,25 +108,16 @@ public class LexAuthUserTests
         _user.ShouldBeEquivalentTo(newUser);
     }
 
-    //from testing done in November 2023, we started getting errors at 10,225 chars
-    private const int MaxJwtLength = 9000;
-
     [Fact]
     public void CheckingJwtLength()
     {
-        var user = _user with { Projects = Array.Empty<AuthUserProject>() };
-        var projectCode = new string(Enumerable.Range(0, 15).Select(i => (char)('a' + i)).ToArray());
-        for (int projectCount = 0; projectCount < 60; projectCount++)
+        var user = _user with
         {
-            user = user with
-            {
-                Projects = Enumerable.Range(0, projectCount).Select(i =>
-                    new AuthUserProject(projectCode,
-                        i % 2 == 0 ? ProjectRole.Manager : ProjectRole.Editor,
-                        Guid.NewGuid())).ToArray()
-            };
-            var (jwt, _) = _lexAuthService.GenerateJwt(user);
-            jwt.Length.ShouldBeLessThan(MaxJwtLength, $"project count: {projectCount}, valid size {projectCount - 1}");
-        }
+            Projects = Enumerable.Range(0, LexAuthUser.MaxProjectCount)
+                .Select(i => new AuthUserProject(i % 2 == 0 ? ProjectRole.Manager : ProjectRole.Editor, Guid.NewGuid()))
+                .ToArray()
+        };
+        var (jwt, _) = _lexAuthService.GenerateJwt(user);
+        jwt.Length.ShouldBeLessThan(LexAuthUser.MaxJwtLength);
     }
 }

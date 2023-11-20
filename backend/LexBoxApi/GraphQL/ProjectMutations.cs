@@ -30,11 +30,12 @@ public class ProjectMutations
     [VerifiedEmailRequired]
     public async Task<CreateProjectResponse?> CreateProject(
         LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         CreateProjectInput input,
         [Service] ProjectService projectService,
         [Service] EmailService emailService)
     {
-        if (!loggedInContext.User.HasProjectCreatePermission())
+        if (!permissionService.HasProjectCreatePermission())
         {
             await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
             return new CreateProjectResponse(null, CreateProjectResult.Requested);
@@ -50,11 +51,11 @@ public class ProjectMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Project>> AddProjectMember(LoggedInContext loggedInContext,
+    public async Task<IQueryable<Project>> AddProjectMember(IPermissionService permissionService,
         AddProjectMemberInput input,
         LexBoxDbContext dbContext)
     {
-        loggedInContext.User.AssertCanManageProject(input.ProjectId);
+        permissionService.AssertCanManageProject(input.ProjectId);
         var user = await dbContext.Users.FindByEmail(input.UserEmail);
         if (user is null) throw new NotFoundException("Member not found");
         if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
@@ -72,10 +73,10 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<ProjectUsers>> ChangeProjectMemberRole(
         ChangeProjectMemberRoleInput input,
-        LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        loggedInContext.User.AssertCanManagerProjectMemberRole(input.ProjectId, input.UserId);
+        permissionService.AssertCanManagerProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
             await dbContext.ProjectUsers.Include(r => r.User).FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
@@ -94,10 +95,10 @@ public class ProjectMutations
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> ChangeProjectName(ChangeProjectNameInput input,
-        LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        loggedInContext.User.AssertCanManageProject(input.ProjectId);
+        permissionService.AssertCanManageProject(input.ProjectId);
         if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
 
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
@@ -114,10 +115,10 @@ public class ProjectMutations
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> ChangeProjectDescription(ChangeProjectDescriptionInput input,
-        LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        loggedInContext.User.AssertCanManageProject(input.ProjectId);
+        permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
 
@@ -130,10 +131,10 @@ public class ProjectMutations
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> RemoveProjectMember(RemoveProjectMemberInput input,
-        LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        loggedInContext.User.AssertCanManageProject(input.ProjectId);
+        permissionService.AssertCanManageProject(input.ProjectId);
         await dbContext.ProjectUsers.Where(pu => pu.ProjectId == input.ProjectId && pu.UserId == input.UserId)
             .ExecuteDeleteAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
@@ -147,11 +148,11 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> SoftDeleteProject(
         Guid projectId,
-        LoggedInContext loggedInContext,
+        IPermissionService permissionService,
         LexBoxDbContext dbContext,
         IHgService hgService)
     {
-        loggedInContext.User.AssertCanManageProject(projectId);
+        permissionService.AssertCanManageProject(projectId);
 
         var project = await dbContext.Projects.Include(p => p.Users).FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null) throw new NotFoundException("Project not found");

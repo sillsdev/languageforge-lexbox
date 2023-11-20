@@ -11,7 +11,10 @@ namespace LexCore.Auth;
 
 public record LexAuthUser
 {
-    private static readonly JsonTypeInfo LexAuthUserTypeInfo =
+    //from testing done in November 2023, we started getting errors at 10,225 chars
+    public const int MaxJwtLength = 9000;
+    public const int MaxProjectCount = 170;
+    public static readonly JsonTypeInfo LexAuthUserTypeInfo =
         JsonSerializerOptions.Default.GetTypeInfo(typeof(LexAuthUser));
 
     public static LexAuthUser? FromClaimsPrincipal(ClaimsPrincipal principal)
@@ -81,8 +84,8 @@ public record LexAuthUser
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
         Name = user.Name;
         Projects = user.IsAdmin
-            ? Array.Empty<AuthUserProject>()
-            : user.Projects.Select(p => new AuthUserProject(p.Project.Code, p.Role, p.ProjectId)).ToArray();
+            ? Array.Empty<AuthUserProject>() // admins have access to all projects, so we don't include them to prevent going over the jwt limit
+            : user.Projects.Select(p => new AuthUserProject(p.Role, p.ProjectId)).ToArray();
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
     }
@@ -102,10 +105,10 @@ public record LexAuthUser
     [JsonPropertyName(LexAuthConstants.RoleClaimType)]
     public required UserRole Role { get; set; }
 
-    [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
+    [JsonIgnore]
     public AuthUserProject[] Projects { get; set; } = Array.Empty<AuthUserProject>();
 
-    [JsonIgnore]
+    [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
     public string ProjectsJson
     {
         get =>
@@ -120,26 +123,33 @@ public record LexAuthUser
                     };
 
                     var projectString = string.Join("|", roleGroup.Select(p => p.ProjectId.ToString("N")));
-                    return $"{projectRole}{projectString}";
+                    return $"{projectRole}:{projectString}";
                 }));
         set
         {
+            //will be empty for admins
+            if (string.IsNullOrEmpty(value))
+            {
+                Projects = Array.Empty<AuthUserProject>();
+                return;
+            }
             Projects = value.Split(",").SelectMany(p =>
             {
+                if (string.IsNullOrEmpty(p)) return Array.Empty<AuthUserProject>();
                 var role = p[0] switch
                 {
                     'm' => ProjectRole.Manager,
                     'e' => ProjectRole.Editor,
                     _ => ProjectRole.Unknown
                 };
-                return p[1..].Split("|").Select(pId => Guid.Parse(pId))
-                    .Select(pId => new AuthUserProject("na", role, pId));
+                return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserProject(role, pId));
             }).ToArray();
         }
     }
 
     [JsonPropertyName(LexAuthConstants.EmailUnverifiedClaimType)]
     public bool? EmailVerificationRequired { get; init; }
+
     [JsonPropertyName(LexAuthConstants.CanCreateProjectClaimType)]
     public bool? CanCreateProjects { get; init; }
 
@@ -187,56 +197,9 @@ public record LexAuthUser
             LexAuthConstants.EmailClaimType,
             LexAuthConstants.RoleClaimType));
     }
-
-    public bool CanManageProject(Guid projectId)
-    {
-        return Role == UserRole.admin || Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager);
-    }
-
-    public bool CanManageProject(string projectCode)
-    {
-        return Role == UserRole.admin || Projects.Any(p => p.Code == projectCode && p.Role == ProjectRole.Manager);
-    }
-
-    public void AssertIsAdmin()
-    {
-        if (Role != UserRole.admin) throw new UnauthorizedAccessException();
-    }
-
-    public void AssertCanManageProject(Guid projectId)
-    {
-        if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
-    }
-
-    public void AssertCanAccessProject(string projectCode)
-    {
-        if (!CanAccessProject(projectCode)) throw new UnauthorizedAccessException();
-    }
-
-    public bool CanAccessProject(string projectCode)
-    {
-        return Role == UserRole.admin || Projects.Any(p => p.Code == projectCode);
-    }
-
-    public void AssertCanDeleteAccount(Guid userid)
-    {
-        if (Role != UserRole.admin && Id != userid) throw new UnauthorizedAccessException();
-    }
-
-    public void AssertCanManagerProjectMemberRole(Guid projectId, Guid userId)
-    {
-        AssertCanManageProject(projectId);
-        if (Role != UserRole.admin && userId == Id)
-            throw new UnauthorizedAccessException("Not allowed to change own project role.");
-    }
-
-    public bool HasProjectCreatePermission()
-    {
-        return CanCreateProjects ?? Role == UserRole.admin;
-    }
 }
 
-public record AuthUserProject(string Code, ProjectRole Role, Guid ProjectId);
+public record AuthUserProject(ProjectRole Role, Guid ProjectId);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole

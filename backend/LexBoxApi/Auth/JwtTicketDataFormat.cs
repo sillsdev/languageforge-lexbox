@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -67,7 +68,7 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
             Claims = data.Properties.Items.ToDictionary(kvp => _propsPrefix + kvp.Key, kvp => kvp.Value as object)
         };
         var token = _jwtSecurityTokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
-        FixUpProjectClaims(token);
+        FixUpArrayClaims(token);
         return _jwtSecurityTokenHandler.WriteToken(token);
     }
 
@@ -80,18 +81,25 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         return audienceClaim.Value;
     }
 
-    public static void FixUpProjectClaims(JwtSecurityToken token)
+    public static void FixUpArrayClaims(JwtSecurityToken token)
     {
-        if (!token.Payload.TryGetValue(LexAuthConstants.ProjectsClaimType, out var proj))
+        foreach (var claimName in LexAuthUser.LexAuthUserTypeInfo.Properties
+                     .Where(p => p.PropertyType != typeof(string) && p.PropertyType.IsAssignableTo(typeof(IEnumerable)))
+                     .Select(p => p.Name))
         {
-            return; // no project claims to fix up, so nothing to do
+            if (!token.Payload.TryGetValue(claimName, out var value))
+            {
+                return; // no claim to fix up, so nothing to do
+            }
+
+            // if there's only 1 object it will be a stored in the payload as just an object and not an array.
+            if (value is not IList<object>)
+            {
+                token.Payload[claimName] = new List<object> { value };
+            }
         }
 
-        // if there's only 1 project it will be a stored in the payload as just an object and not an array.
-        if (proj is not IList<object>)
-        {
-            token.Payload[LexAuthConstants.ProjectsClaimType] = new List<object> { proj };
-        }
+
     }
 
     public AuthenticationTicket? Unprotect(string? protectedText)

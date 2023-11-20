@@ -36,6 +36,7 @@ public static class LexBoxKernel
             .ValidateOnStart();
         services.AddHttpClient();
         services.AddScoped<LoggedInContext>();
+        services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<ProjectService>();
         services.AddScoped<UserService>();
         services.AddScoped<EmailService>();

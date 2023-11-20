@@ -1,4 +1,5 @@
 using LexCore.Auth;
+using LexCore.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 
 namespace LexSyncReverseProxy.Auth;
@@ -16,36 +17,28 @@ public class UserHasAccessToProjectRequirementHandler : AuthorizationHandler<Use
         _httpContextAccessor = httpContextAccessor;
     }
 
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
         UserHasAccessToProjectRequirement requirement)
     {
-        var user = LexAuthUser.FromClaimsPrincipal(context.User);
-        if (user is null || _httpContextAccessor.HttpContext is null)
+        if (context.User.Identity?.IsAuthenticated is not true || _httpContextAccessor.HttpContext is null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var projectCode = _httpContextAccessor.HttpContext.Request.GetProjectCode();
         if (string.IsNullOrEmpty(projectCode))
         {
             context.Fail(new AuthorizationFailureReason(this, "No repoId query parameter"));
-            return Task.CompletedTask;
+            return;
         }
 
-        if (user.Role == UserRole.admin)
-        {
-            context.Succeed(requirement);
-            return Task.CompletedTask;
-        }
-
-        var userProject = user.Projects.FirstOrDefault(p => p.Code == projectCode);
-        if (userProject is null)
+        var permissionService = _httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
+        if (!await permissionService.CanAccessProject(projectCode))
         {
             context.Fail(new AuthorizationFailureReason(this, $"User does not have access to project {projectCode}"));
-            return Task.CompletedTask;
+            return;
         }
 
         context.Succeed(requirement);
-        return Task.CompletedTask;
     }
 }
