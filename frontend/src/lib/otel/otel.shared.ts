@@ -16,6 +16,7 @@ import { isTraced, type TraceId, isTraceable, traceIt } from './types';
 import {makeOperation, type Exchange, mapExchange, type OperationContext} from '@urql/svelte';
 import { browser } from '$app/environment';
 import { isRedirect } from '$lib/util/types';
+import {getOperationName} from '$lib/gql/types';
 
 export const SERVICE_NAME = browser ? 'LexBox-SvelteKit-Client' : 'LexBox-SvelteKit-Server';
 
@@ -267,10 +268,11 @@ function getOpContextSpan(context: OperationContext): Span | undefined {
 
 export const tracingExchange: Exchange = mapExchange({
   onOperation: (operation) => {
-    const operationSpan = tracer().startSpan(`operation ${operation.kind}`, {
+    const operationName = getOperationName(operation);
+    const operationSpan = tracer().startSpan(`${operation.kind} ${operationName ?? ''}`, {
       attributes: { 'graphql.operation.kind': operation.kind }
     });
-
+    if (operationName) operationSpan.setAttribute('graphql.operation.name', operationName);
     const operationSpanContext = trace.setSpan(context.active(), operationSpan);
     const opContext = {
       ...operation.context,
