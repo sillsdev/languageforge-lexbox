@@ -1,4 +1,5 @@
 import { isObjectWhere } from '$lib/util/types';
+import type {Operation} from '@urql/core';
 
 export * from './generated/graphql';
 
@@ -50,4 +51,10 @@ export class LexGqlError<Typename extends string> {
     const codeErrors = this.errors.filter(error => error.__typename == typename) as GqlInputError<T>[];
     return codeErrors.length > 0 ? codeErrors : undefined;
   }
+}
+
+export function getOperationName(operation: Operation): string| undefined {
+  const def = operation.query.definitions[0];
+  if ('name' in def) return  def.name?.value;
+  return undefined;
 }
