@@ -69,7 +69,7 @@ jobs:
     uses: ./.github/workflows/deploy.yaml
     needs: [ integration-tests, set-version ]
     # we want to allow deployment even if some tests fail because they are currently flaky
-    if: ${{ needs.integration-tests.result == 'success' || needs.integration-tests.result == 'failure' }}
+    if: ${{ !cancelled() && (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'failure') }}
     secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}
