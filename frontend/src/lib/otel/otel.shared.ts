@@ -96,6 +96,7 @@ function traceErrorEvent(
   }
 
   if (event) traceEventAttributes(span, event);
+  traceUserAttributes(span, event);
 
   const traceId = span.spanContext().traceId;
   if (isTraceable(error)) {
@@ -109,9 +110,12 @@ function traceErrorEvent(
  * Very minimal instrumentation here, because the auto-instrumentation handles the core stuff,
  * we just want to make sure that our trace-ID gets used and that we stamp errors with it.
  */
-export function traceFetch(fetch: () => ReturnType<Fetch>): ReturnType<Fetch> {
+export function traceFetch(fetch: () => ReturnType<Fetch>, event?: RequestEvent | NavigationEvent | Event): ReturnType<Fetch> {
   return tracer().startActiveSpan('fetch', async (span) => {
     try {
+      traceUserAttributes(span, event);
+      if (browser)
+        traceBrowserAttributes(span, window);
       return await fetch();
     } catch (error) {
       if (!isRedirect(error)) {
@@ -133,8 +137,8 @@ export function traceHeaders(span: Span, type: 'request' | 'response', headers: 
   });
 }
 
-function getUser(event: RequestEvent | NavigationEvent | Event): LexAuthUser | null {
-  if (isRequestEvent(event)) {
+function getUser(event?: RequestEvent | NavigationEvent | Event): LexAuthUser | null {
+  if (event && isRequestEvent(event)) {
     return event.locals.getUser();
   } else {
     try {
@@ -145,12 +149,14 @@ function getUser(event: RequestEvent | NavigationEvent | Event): LexAuthUser | n
     }
   }
 }
-
+function traceUserAttributes(span: Span, event?: RequestEvent | NavigationEvent | Event): void {
+    const user = getUser(event);
+    if (user) {
+        span.setAttribute('app.user.id', user.id);
+    }
+}
 export function traceEventAttributes(span: Span, event: RequestEvent | NavigationEvent | Event): void {
-  const user = getUser(event);
-  if (user) {
-    span.setAttribute('app.user.id', user.id);
-  }
+  traceUserAttributes(span, event);
   if (isBrowserEvent(event)) {
     traceBrowserAttributes(span, window);
   } else {
