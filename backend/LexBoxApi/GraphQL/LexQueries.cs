@@ -1,6 +1,7 @@
 using LexBoxApi.Auth;
 using LexCore.Auth;
 using LexCore.Entities;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,9 +37,9 @@ public class LexQueries
 
     [UseSingleOrDefault]
     [UseProjection]
-    public IQueryable<Project> ProjectByCode(LexBoxDbContext context, LoggedInContext loggedInContext, string code)
+    public async Task<IQueryable<Project>> ProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
     {
-        loggedInContext.User.AssertCanAccessProject(code);
+        await permissionService.AssertCanAccessProject(code);
         return context.Projects.Where(p => p.Code == code);
     }
 

@@ -138,7 +138,7 @@ public class LexAuthService
                 SecurityAlgorithms.HmacSha256
             )
         );
-        JwtTicketDataFormat.FixUpProjectClaims(jwt);
+        JwtTicketDataFormat.FixUpArrayClaims(jwt);
         var token = handler.WriteToken(jwt);
         return (token, tokenLifetime);
     }

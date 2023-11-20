@@ -19,18 +19,9 @@ type JwtTokenUser = {
   name: string
   email: string
   role: 'admin' | 'user'
-  proj?: JwtTokenProject[],
+  proj?: string,
   unver: boolean | undefined,
   mkproj: boolean | undefined,
-}
-
-type JwtTokenProject = {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  Code: string,
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  ProjectId: string,
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  Role: 'Manager' | 'Editor',
 }
 
 export type LexAuthUser = {
@@ -42,11 +33,10 @@ export type LexAuthUser = {
   emailVerified: boolean
   canCreateProject: boolean
 }
-
+type UserProjectRole = 'Manager' | 'Editor' | 'Unknown';
 type UserProjects = {
   projectId: string
-  code: string
-  role: 'Manager' | 'Editor'
+  role: UserProjectRole
 }
 export const USER_LOAD_KEY = 'user:current';
 
@@ -118,17 +108,36 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
 }
 
 function jwtToUser(user: JwtTokenUser): LexAuthUser {
-  const { sub: id, name, email, proj: projects, role } = user;
+  const { sub: id, name, email, proj: projectsString, role } = user;
 
   return {
     id,
     name,
     email,
     role,
-    projects: projects?.map(p => ({code: p.Code, role: p.Role, projectId: p.ProjectId})) ?? [],
+    projects: projectsStringToProjects(projectsString),
     emailVerified: !user.unver,
     canCreateProject: user.mkproj === true,
   }
+}
+
+function projectsStringToProjects(projectsString: string | undefined): UserProjects[] {
+  if (!projectsString) return [];
+  const projects: UserProjects[] = [];
+  for (const pString of projectsString.split(',')) {
+    const roleCode = pString[0];
+    let role: UserProjectRole = 'Unknown';
+    switch (roleCode) {
+      case 'm':
+        role = 'Manager';
+        break;
+      case 'e':
+        role = 'Editor';
+        break;
+    }
+    projects.push(...pString.split('|').map(id => ({projectId: id, role})));
+  }
+  return projects;
 }
 
 export function logout(cookies?: Cookies): void {

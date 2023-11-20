@@ -30,7 +30,7 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, Page } from '$lib/layout';
   import SvelteMarkdown from 'svelte-markdown';
-  import { ProjectMigrationStatus, ResetStatus } from '$lib/gql/generated/graphql';
+  import { ProjectMigrationStatus, ProjectRole, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
   import Button from '$lib/forms/Button.svelte';
   import Icon from '$lib/icons/Icon.svelte';
@@ -104,7 +104,7 @@
   }
 
   $: userId = user.id;
-  $: canManage = isAdmin(user) || user.projects.find((p) => p.code == project?.code)?.role == 'Manager';
+  $: canManage = isAdmin(user) || project?.users.some(u => u.user.id == userId && u.role == ProjectRole.Manager);
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 

@@ -15,14 +15,14 @@ public class ProjectController : ControllerBase
     private readonly ProjectService _projectService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHgService _hgService;
-    private readonly LoggedInContext _loggedInContext;
+    private readonly IPermissionService _permissionService;
 
-    public ProjectController(ProjectService projectService, IHgService hgService, LexBoxDbContext lexBoxDbContext, LoggedInContext loggedInContext)
+    public ProjectController(ProjectService projectService, IHgService hgService, LexBoxDbContext lexBoxDbContext, IPermissionService permissionService)
     {
         _projectService = projectService;
         _hgService = hgService;
         _lexBoxDbContext = lexBoxDbContext;
-        _loggedInContext = loggedInContext;
+        _permissionService = permissionService;
     }
 
     [HttpPost("refreshProjectLastChanged")]
@@ -108,15 +108,13 @@ public class ProjectController : ControllerBase
         return project;
     }
 
-
-
     [HttpGet("awaitMigrated")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesDefaultResponseType]
     public async Task<ActionResult<bool>> AwaitMigrated(string projectCode)
     {
-        if (!_loggedInContext.User.CanAccessProject(projectCode))
+        if (!await _permissionService.CanAccessProject(projectCode))
             return Unauthorized();
 
         var token = CancellationTokenSource.CreateLinkedTokenSource(
