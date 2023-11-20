@@ -93,6 +93,26 @@ public class MySqlMigrationService
             {
                 user.LastActive = rmUser.LastLoginOn?.ToUniversalTime() ?? default(DateTimeOffset);
             }
+            if (user.CreatedDate > rmUser.CreatedOn)
+            {
+                user.CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? default(DateTimeOffset);
+            }
+            if (user.UpdatedDate < rmUser.UpdatedOn)
+            {
+                user.UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? default(DateTimeOffset);
+            }
+            if (!user.EmailVerified && rmUser.Status != 2 && user.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            {
+                user.EmailVerified = true;
+            }
+            if (!user.Locked && rmUser.Status == 3)
+            {
+                user.Locked = true;
+            }
+            if (user.LocalizationCode == User.DefaultLocalizationCode && !string.IsNullOrEmpty(rmUser.Language))
+            {
+                user.LocalizationCode = rmUser.Language;
+            }
 
             if (!user.CanCreateProjects && userProjects.Any(p => p.Role == ProjectRole.Manager))
             {
@@ -109,7 +129,7 @@ public class MySqlMigrationService
             UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? now,
             LastActive = rmUser.LastLoginOn?.ToUniversalTime() ?? default(DateTimeOffset),
             Username = rmUser.Login,
-            LocalizationCode = rmUser.Language ?? LexCore.Entities.User.DefaultLocalizationCode,
+            LocalizationCode = rmUser.Language ?? User.DefaultLocalizationCode,
             Email = email,
             Name = rmUser.Firstname + " " + rmUser.Lastname,
             IsAdmin = rmUser.Admin,
