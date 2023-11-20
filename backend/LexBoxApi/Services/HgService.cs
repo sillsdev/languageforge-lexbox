@@ -156,7 +156,7 @@ public class HgService : IHgService
         //rsync data from remote server to /hg-repos
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return false;
         var repoPath = Path.GetFullPath(_options.Value.RepoPath);
-        var remoteHost = "public.languagedepot.org";
+        var remoteHost = _options.Value.MigrationHost;
         var remotePathPart = project.ProjectOrigin == ProjectMigrationStatus.PublicRedmine ? "public" : "private";
         var remotePath = $"/var/vcs/{remotePathPart}/{project.Code}";
         var process = Process.Start(new ProcessStartInfo
