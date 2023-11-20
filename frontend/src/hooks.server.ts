@@ -63,7 +63,7 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
       routeId.endsWith(AUTHENTICATED_ROOT) || routeId.endsWith('/home') || routeId.endsWith('/admin'));
 
     return response;
-  });
+  }, event);
 
   if (response.headers.has('lexbox-version')) {
     apiVersion.value = response.headers.get('lexbox-version');

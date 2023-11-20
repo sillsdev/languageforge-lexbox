@@ -14,7 +14,7 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { Resource } from '@opentelemetry/resources';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { SemanticAttributes, SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import type { MaybePromise, RequestEvent } from '@sveltejs/kit';
+import type { MaybePromise, RequestEvent, NavigationEvent } from '@sveltejs/kit';
 import {
   traceFetch as _traceFetch,
   traceEventAttributes,
@@ -92,6 +92,7 @@ async function traceResponse(
 export async function traceFetch(
     request: Request,
     fetch: () => Promise<Response>,
+    event?: RequestEvent | NavigationEvent | Event
 ): Promise<Response> {
   return _traceFetch(() => tracer()
       .startActiveSpan(`${request.method} ${request.url}`, async (span) => {
@@ -107,7 +108,7 @@ export async function traceFetch(
         } finally {
           span.end();
         }
-      }));
+      }), event);
 }
 
 function traceResponseAttributes(span: Span, response: Response): void {
