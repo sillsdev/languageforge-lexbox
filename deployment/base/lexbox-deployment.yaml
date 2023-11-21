@@ -36,6 +36,7 @@ spec:
   selector:
     matchLabels:
       app: lexbox
+  progressDeadlineSeconds: 60
   strategy:
     rollingUpdate:
       maxSurge: 2
