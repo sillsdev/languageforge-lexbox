@@ -164,10 +164,10 @@ public class HgService : IHgService
             FileName = "/bin/sh",
             CreateNoWindow = true,
             RedirectStandardError = true,
-            RedirectStandardOutput = true,
+            RedirectStandardOutput = false,
             //.hg/cache is excluded since there can be issues reading and it's not required
             Arguments = $"""
-                         -c "rsync -vaxhAXP --del --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
+                         -c "rsync -axhAXP --del --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
                          """,
         });
         if (process is null)
@@ -175,6 +175,7 @@ public class HgService : IHgService
             return false;
         }
 
+        var errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
         await process.WaitForExitAsync(cancellationToken);
         if (process.ExitCode == 0)
         {
@@ -182,11 +183,9 @@ public class HgService : IHgService
             _logger.LogInformation("Migration of repo {Code} finished", project.Code);
             return true;
         }
-
-        var error = await process.StandardError.ReadToEndAsync(cancellationToken);
-        var output = await process.StandardOutput.ReadToEndAsync(cancellationToken);
+        var error = await errorTask;
         var description =
-            $"rsync for project {project.Code} failed with exit code {process.ExitCode}. Error: {error}. Output: {output}";
+            $"rsync for project {project.Code} failed with exit code {process.ExitCode}. Error: {error}.";
         _logger.LogError(description);
         activity?.SetStatus(ActivityStatusCode.Error, description);
         return false;
