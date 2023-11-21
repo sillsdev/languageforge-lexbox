@@ -14,7 +14,15 @@ public class ProxyEventsService
 
     public ValueTask OnResumableRequest(HttpContext context)
     {
-        //todo update project last change
+        if (context.Request.Path.StartsWithSegments("/api/v03/finishPushBundle"))
+        {
+            var projectCode = context.Request.GetProjectCode();
+            if (projectCode is not null)
+            {
+                //discard, we don't care about the result
+                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode));
+            }
+        }
         return ValueTask.CompletedTask;
     }
 
