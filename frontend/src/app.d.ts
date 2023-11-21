@@ -7,7 +7,10 @@ export { }; // for some reason this is required in order to make global changes
 
 declare global {
   interface Window {
-    lexbox: { fetchProxy: Fetch }
+    lexbox: {
+      fetchProxy: Fetch,
+      userId: string | undefined,
+    }
   }
 
   namespace App {

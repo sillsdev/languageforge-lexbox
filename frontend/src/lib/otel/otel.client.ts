@@ -30,6 +30,16 @@ const provider = new WebTracerProvider({
 const exporter = new OTLPTraceExporterBrowserWithXhrRetry({
   url: '/v1/traces'
 });
+
+provider.addSpanProcessor({
+  forceFlush: () => Promise.resolve(),
+  shutdown: () => Promise.resolve(),
+  onEnd: (_) => { },
+  onStart: (span) => {
+    const userId = window.lexbox.userId;
+    if (userId) span.setAttribute('app.user.id', userId);
+  },
+});
 provider.addSpanProcessor(
   new BatchSpanProcessor(exporter, {
     // max number of spans pulled from the qeuue and exported in a single batch

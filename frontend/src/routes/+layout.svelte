@@ -37,6 +37,17 @@
     -->
     <meta name="traceparent" content={data.traceParent} />
   {/if}
+
+  {#if !browser && data.user}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html `
+      <script>
+        window.lexbox = window.lexbox || {};
+        // eslint-disable-next-line svelte/mustache-spacing
+        window.lexbox.userId = '${data.user?.id}';
+      </script>
+    `}
+  {/if}
 </svelte:head>
 
 <div class="flex flex-col justify-between min-h-full" class:hydrating>
