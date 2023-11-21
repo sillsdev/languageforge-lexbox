@@ -55,7 +55,7 @@ public class PermissionService : IPermissionService
         if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
     }
 
-    public void AssertCanManagerProjectMemberRole(Guid projectId, Guid userId)
+    public void AssertCanManageProjectMemberRole(Guid projectId, Guid userId)
     {
         if (User is null) throw new UnauthorizedAccessException();
         AssertCanManageProject(projectId);
@@ -82,7 +82,7 @@ public class PermissionService : IPermissionService
 
     public void AssertCanDeleteAccount(Guid userId)
     {
-        if (User is { Role: UserRole.admin } user && user.Id != userId)
+        if (User is { Role: UserRole.admin } user || user.Id == userId)
             return;
         throw new UnauthorizedAccessException();
     }
