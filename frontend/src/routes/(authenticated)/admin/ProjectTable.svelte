@@ -6,7 +6,6 @@ import {_deleteProject} from '$lib/gql/mutations';
 import {DialogResponse} from '$lib/components/modals';
 import {notifyWarning} from '$lib/notify';
 import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-import Dropdown from '$lib/components/Dropdown.svelte';
 import TrashIcon from '$lib/icons/TrashIcon.svelte';
 import FormatDate from '$lib/components/FormatDate.svelte';
 import ProjectTypeSelect from '$lib/forms/ProjectTypeSelect.svelte';
@@ -18,6 +17,7 @@ import IconButton from '$lib/components/IconButton.svelte';
 import {bubbleFocusOnDestroy} from '$lib/util/focus';
 import Button from '$lib/forms/Button.svelte';
 import type { QueryParams } from '$lib/util/query-params';
+import { overlayTarget } from '$lib/components/overlay';
 
 export let projects: Project[];
 
@@ -196,21 +196,19 @@ async function softDeleteProject(project: Project): Promise<void> {
                     </td>
                     <td class="p-0">
                         {#if !project.deletedDate}
-                            <Dropdown>
-                                <!-- svelte-ignore a11y-label-has-associated-control -->
-                                <label tabindex="-1" class="btn btn-ghost btn-square">
-                                    <span class="i-mdi-dots-vertical text-lg"/>
-                                </label>
-                                <ul slot="content" class="menu">
-                                    <li>
-                                        <button class="text-error whitespace-nowrap"
-                                                on:click={() => softDeleteProject(project)}>
-                                            <TrashIcon/>
-                                            {$t('delete_project_modal.submit')}
-                                        </button>
-                                    </li>
+                            <button use:overlayTarget class="btn btn-ghost btn-square">
+                                <span class="i-mdi-dots-vertical text-lg"/>
+
+                                <ul class="menu overlay-content">
+                                  <li>
+                                    <button class="text-error whitespace-nowrap"
+                                            on:click={() => softDeleteProject(project)}>
+                                        <TrashIcon/>
+                                        {$t('delete_project_modal.submit')}
+                                    </button>
+                                  </li>
                                 </ul>
-                            </Dropdown>
+                            </button>
                         {/if}
                     </td>
                 </tr>

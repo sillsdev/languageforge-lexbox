@@ -10,12 +10,12 @@
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
   import { Icon } from '$lib/icons';
-  import Dropdown from '$lib/components/Dropdown.svelte';
   import { RefineFilterMessage } from '$lib/components/Table';
   import type { AdminSearchParams, User } from './+page';
   import ProjectTable from './ProjectTable.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
+  import { overlayTarget } from '$lib/components/overlay';
 
   export let data: PageData;
   $: allProjects = data.projects;
@@ -129,26 +129,24 @@
                   <FormatDate date={user.createdDate} />
                 </td>
                 <td class="p-0">
-                  <Dropdown let:close>
-                    <!-- svelte-ignore a11y-label-has-associated-control -->
-                    <label tabindex="-1" class="btn btn-ghost btn-square">
+                    <button use:overlayTarget class="btn btn-ghost btn-square">
                       <span class="i-mdi-dots-vertical text-lg" />
-                    </label>
-                    <ul slot="content" class="menu">
-                      <li>
-                        <button class="whitespace-nowrap" on:click={() => openModal(user)}>
-                          <Icon icon="i-mdi-pencil-outline"  />
-                          {$t('admin_dashboard.form_modal.title')}
-                        </button>
-                      </li>
-                      <li>
-                        <button class="whitespace-nowrap" on:click={() => {close();filterProjectsByUser(user);}}>
-                          <Icon icon="i-mdi-filter-outline"  />
-                          {$t('admin_dashboard.filter_projects')}
-                        </button>
-                      </li>
-                    </ul>
-                  </Dropdown>
+
+                      <ul class="menu overlay-content">
+                        <li>
+                          <button class="whitespace-nowrap" on:click={() => openModal(user)}>
+                            <Icon icon="i-mdi-pencil-outline"  />
+                            {$t('admin_dashboard.form_modal.title')}
+                          </button>
+                        </li>
+                        <li>
+                          <button class="whitespace-nowrap" on:click={() => {close(); filterProjectsByUser(user);}}>
+                            <Icon icon="i-mdi-filter-outline"  />
+                            {$t('admin_dashboard.filter_projects')}
+                          </button>
+                        </li>
+                      </ul>
+                    </button>
                 </td>
               </tr>
             {/each}

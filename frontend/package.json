@@ -19,6 +19,7 @@
 	"devDependencies": {
 		"@egoist/tailwindcss-icons": "^1.0.7",
 		"@eslint/js": "^8.48.0",
+		"@floating-ui/dom": "^1.5.3",
 		"@graphql-codegen/cli": "^3.3.1",
 		"@graphql-codegen/client-preset": "^2.1.1",
 		"@graphql-codegen/schema-ast": "^3.0.1",

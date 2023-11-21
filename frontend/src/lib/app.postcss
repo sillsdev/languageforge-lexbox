@@ -85,11 +85,6 @@ input[readonly]:focus {
   @apply flex-nowrap;
 }
 
-/* open dropdowns upwards for the last 2 table rows */
-table tr:nth-last-child(-n + 2) .dropdown {
-  @apply dropdown-top;
-}
-
 .prose :where(a) {
   /* bold is just a bit too loud, especially when there are lots of link (e.g. our login welcome message) */
   @apply font-normal;

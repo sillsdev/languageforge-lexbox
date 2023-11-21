@@ -11,6 +11,7 @@
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
+  import { overlayContentWrapper } from '$lib/components/overlay';
 
   export let data: LayoutData;
   const { page, updated } = getStores();
@@ -47,3 +48,5 @@
 {/if}
 
 <Notify />
+
+<div use:overlayContentWrapper class="dropdown-content bg-base-200 shadow rounded-box z-[2] absolute" />
