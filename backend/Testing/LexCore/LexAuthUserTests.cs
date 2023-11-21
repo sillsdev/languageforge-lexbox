@@ -8,6 +8,7 @@ using LexCore.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Shouldly;
 
@@ -15,6 +16,10 @@ namespace Testing.LexCore;
 
 public class LexAuthUserTests
 {
+    static LexAuthUserTests()
+    {
+        IdentityModelEventSource.ShowPII = true;
+    }
     private readonly LexAuthService _lexAuthService = new LexAuthService(
         new OptionsWrapper<JwtOptions>(JwtOptions.TestingOptions),
         null,
@@ -28,6 +33,12 @@ public class LexAuthUserTests
         Role = UserRole.user,
         Name = "test",
         Projects = new[] { new AuthUserProject("test-flex", ProjectRole.Manager, Guid.NewGuid()) }
+    };
+
+    private static readonly JwtBearerOptions JwtBearerOptions = new()
+    {
+        TokenValidationParameters = LexAuthService.TokenValidationParameters(JwtOptions.TestingOptions),
+        MapInboundClaims = false
     };
 
     [Fact]
@@ -73,11 +84,7 @@ public class LexAuthUserTests
         var jwt = JwtTicketDataFormat.ConvertAuthTicketToJwt(
             new AuthenticationTicket(_user.GetPrincipal("test"), "test"),
             "testing",
-            new JwtBearerOptions
-            {
-                TokenValidationParameters = LexAuthService.TokenValidationParameters(jwtUserOptions),
-                MapInboundClaims = false
-            },
+            JwtBearerOptions,
             jwtUserOptions
         );
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -96,5 +103,26 @@ public class LexAuthUserTests
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
         _user.ShouldBeEquivalentTo(newUser);
+    }
+
+    [Fact]
+    public void CanRoundTripThroughRefresh()
+    {
+        var (forgotJwt, _) = _lexAuthService.GenerateJwt(_user, audience:LexboxAudience.ForgotPassword);
+        //simulate parsing the token into a claims principal
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var forgotPrincipal = new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(forgotJwt).Claims, "Testing"));
+
+        //simulate redirect refreshing the token
+        var redirectJwt = JwtTicketDataFormat.ConvertAuthTicketToJwt(
+            new AuthenticationTicket(forgotPrincipal, "test"),
+            "testing",
+            JwtBearerOptions,
+            JwtOptions.TestingOptions
+        );
+
+        var loggedInPrincipal = new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(redirectJwt).Claims, "Testing"));
+        var newUser = LexAuthUser.FromClaimsPrincipal(loggedInPrincipal);
+        (_user with { Audience = LexboxAudience.ForgotPassword }).ShouldBeEquivalentTo(newUser);
     }
 }
