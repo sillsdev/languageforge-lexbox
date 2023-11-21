@@ -17,9 +17,9 @@ public class LexAuthUserTests
 {
     private readonly LexAuthService _lexAuthService = new LexAuthService(
         new OptionsWrapper<JwtOptions>(JwtOptions.TestingOptions),
-        null,
-        null,
-        null);
+        null!,
+        null!,
+        null!);
 
     private readonly LexAuthUser _user = new()
     {

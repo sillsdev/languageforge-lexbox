@@ -82,7 +82,7 @@ public class PermissionService : IPermissionService
 
     public void AssertCanDeleteAccount(Guid userId)
     {
-        if (User is { Role: UserRole.admin } user || user.Id == userId)
+        if (User is { Role: UserRole.admin } || User?.Id == userId)
             return;
         throw new UnauthorizedAccessException();
     }
