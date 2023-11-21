@@ -76,7 +76,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManagerProjectMemberRole(input.ProjectId, input.UserId);
+        permissionService.AssertCanManageProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
             await dbContext.ProjectUsers.Include(r => r.User).FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
