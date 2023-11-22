@@ -85,9 +85,14 @@ input[readonly]:focus {
   @apply flex-nowrap;
 }
 
-/* open dropdowns upwards for the last 2 table rows */
-table tr:nth-last-child(-n + 2) .dropdown {
+/* open dropdowns upwards for the last 2 table rows as long as they're not the first 2 */
+table tr:nth-last-child(-n + 2):not(:nth-child(-n + 2)) .dropdown {
   @apply dropdown-top;
+}
+
+/* add some padding for dropdowns if the table has less than 3 elements */
+.overflow-x-auto:has(> table .dropdown):not(:has(> table tr:nth-child(3))) {
+    padding-bottom: 80px;
 }
 
 .prose :where(a) {
