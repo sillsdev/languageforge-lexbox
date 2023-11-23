@@ -9,7 +9,7 @@ spec:
       initContainers:
         - name: populate-test-repos
           securityContext:
-            runAsUser: 0
+            runAsUser: 33
             runAsGroup: 33 # www-data
           image: busybox:1.36.1
           command:
@@ -17,12 +17,12 @@ spec:
             - '-c'
             - |
               if [ ! -d /repos/sena-3 ]; then
-                wget -O sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
-                unzip -q sena-3.zip -d /repos/
+                wget -O /tmp/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
+                unzip -q /tmp/sena-3.zip -d /repos/
               fi
               if [ ! -d /repos/elawa-dev-flex ]; then
-                wget -O elawa.zip 'https://drive.google.com/uc?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
-                unzip -q elawa.zip -d /repos/
+                wget -O /tmp/elawa.zip 'https://drive.google.com/uc?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
+                unzip -q /tmp/elawa.zip -d /repos/
               fi
           volumeMounts:
             - name: repos

@@ -9,6 +9,9 @@ resources:
 - db-secrets.yaml
 - api-ssh.secret.yaml
 
+components:
+  - ../init-repos
+
 secretGenerator:
   - name: otel
     namespace: languagedepot

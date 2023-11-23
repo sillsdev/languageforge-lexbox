@@ -11,21 +11,3 @@ spec:
           env:
             - name: APP_VERSION
               value: "dockerDev"
-      initContainers:
-        - name: populate-test-repos
-          image: busybox:1.36.1
-          command:
-            - 'sh'
-            - '-c'
-            - |
-              if [ ! -d /repos/sena-3 ]; then
-                wget -O sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
-                unzip -q sena-3.zip -d /repos/
-              fi
-              if [ ! -d /repos/elawa-dev-flex ]; then
-                wget -O elawa.zip 'https://drive.google.com/uc?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
-                unzip -q elawa.zip -d /repos/
-              fi
-          volumeMounts:
-            - name: repos
-              mountPath: /repos

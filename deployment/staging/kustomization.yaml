@@ -4,10 +4,11 @@ namespace: languagedepot
 
 resources:
   - ../base
+components:
+  - ../init-repos
 patches:
   - path: lexbox-deployment.patch.yaml
   - path: app-config.yaml
-  - path: hg-deployment-patch.yaml
   - path: ingress-config-staging.yaml
     target:
       kind: Ingress
