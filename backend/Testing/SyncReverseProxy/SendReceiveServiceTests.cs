@@ -1,11 +1,14 @@
+using System.ComponentModel.Composition;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using Chorus.VcsDrivers.Mercurial;
 using LexBoxApi.Auth;
 using LexCore.Utils;
+using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using SIL.Progress;
 using Testing.ApiTests;
+using Testing.Fixtures;
 using Testing.Logging;
 using Testing.Services;
 using Xunit.Abstractions;
@@ -13,6 +16,7 @@ using Xunit.Abstractions;
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
+[Collection(nameof(TestingServicesFixture))]
 public class SendReceiveServiceTests
 {
     public SendReceiveAuth ManagerAuth = new("manager", TestingEnvironmentVariables.DefaultPassword);
@@ -25,8 +29,12 @@ public class SendReceiveServiceTests
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
     private SendReceiveService _sendReceiveService;
 
-    public SendReceiveServiceTests(ITestOutputHelper output)
+    private readonly LexData.LexBoxDbContext _dbContext;
+
+    public SendReceiveServiceTests(ITestOutputHelper output, TestingServicesFixture testing)
     {
+        var serviceProvider = testing.ConfigureServices(s => {});
+        _dbContext = serviceProvider.GetDbContext();
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
         CleanUpTempDir();
@@ -135,9 +143,15 @@ public class SendReceiveServiceTests
     }
 
     [Fact]
-    public void ModifyProjectData()
+    public async Task ModifyProjectData()
     {
         var projectCode = TestingEnvironmentVariables.ProjectCode;
+        var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
+        DateTimeOffset? lastCommitDate = null;
+        if (project is not null)
+        {
+            lastCommitDate = project.LastCommit;
+        }
 
         // Clone
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
@@ -152,6 +166,16 @@ public class SendReceiveServiceTests
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
         srResult.ShouldNotContain("abort");
         srResult.ShouldNotContain("error");
+        var projectAfter = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
+        DateTimeOffset? lastCommitDateAfter = null;
+        if (projectAfter is not null)
+        {
+            lastCommitDateAfter = projectAfter.LastCommit;
+        }
+        if (lastCommitDate is not null && lastCommitDateAfter is not null)
+        {
+            lastCommitDateAfter.Value.ShouldBeGreaterThan(lastCommitDate.Value);
+        }
     }
 
     [Fact]
