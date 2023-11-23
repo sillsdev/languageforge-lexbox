@@ -150,7 +150,7 @@ export function logout(cookies?: Cookies): void {
 
 
 export function isAuthn(cookies: Cookies): boolean {
-  return !!cookies.get('.LexBoxAuth')
+  return getUser(cookies) !== null;
 }
 
 export async function refreshJwt(): Promise<void> {
