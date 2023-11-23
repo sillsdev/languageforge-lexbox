@@ -191,8 +191,9 @@ public class HgService : IHgService
         return false;
     }
 
-    public async Task RevertRepo(string code, string revHash)
+    public Task RevertRepo(string code, string revHash)
     {
+        throw new NotImplementedException();
         // Steps:
         // 1. Rename repo to repo-backup-date (verifying first that it does not exist, adding -NNN at the end (001, 002, 003) if it does)
         // 2. Make empty directory (NOT a repo yet) with this project code

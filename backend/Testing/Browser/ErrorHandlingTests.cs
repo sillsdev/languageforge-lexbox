@@ -155,6 +155,7 @@ public class ErrorHandlingTests : PageTest
         var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
         var emailPage = await inboxPage.OpenEmail();
         var url = await emailPage.GetFirstLanguageDepotUrl();
+        url.ShouldNotBeNull().ShouldNotBeEmpty();
         var forgotPasswordJwt = url.Split("jwt=")[1].Split("&")[0];
 
         // (2) Get to a non-home page with an empty urql cache

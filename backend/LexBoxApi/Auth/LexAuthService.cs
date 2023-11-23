@@ -93,7 +93,7 @@ public class LexAuthService
         ArgumentNullException.ThrowIfNull(context);
         await context.SignInAsync(jwtUser.GetPrincipal("Refresh"),
             new AuthenticationProperties { IsPersistent = true });
-        context.Response.Headers.Add(RefreshHeaderName, "true");
+        context.Response.Headers[RefreshHeaderName] = "true";
         return jwtUser;
     }
 

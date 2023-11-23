@@ -42,7 +42,7 @@ public class MySqlMigrationService
         var existingUsersByEmail =
             await _lexBoxDbContext.Users.ToDictionaryAsync(u => u.Email, u => u, StringComparer.OrdinalIgnoreCase);
         var existingUsersByLogin = existingUsersByEmail.Values.Where(u => !string.IsNullOrEmpty(u.Username))
-            .ToDictionary(u => (string) u.Username, u => u);
+            .ToDictionary(u => u.Username!, u => u);
         var projects = await dbContext.Projects.ToArrayAsync();
         //filter out empty login because there's some default redmine accounts without a login
         var users = await dbContext.Users.Where(u => u.Login != "").Include(u => u.EmailAddresses)

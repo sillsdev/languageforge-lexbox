@@ -34,6 +34,9 @@ public class ProjectController : ControllerBase
 
 
     [HttpGet("lastCommitForRepo")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult<DateTimeOffset?>> LastCommitForRepo(string code)
     {
         var migrationStatus = await _lexBoxDbContext.Projects.Where(p => p.Code == code).Select(p => p.MigrationStatus).FirstOrDefaultAsync();
@@ -73,6 +76,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet("backupProject/{code}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [AdminRequired]
     public async Task<IActionResult> BackupProject(string code)
     {

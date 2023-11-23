@@ -15,7 +15,7 @@ public class TempUserDashboardPage : UserDashboardPage, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        var context = await Page.Context.Browser.NewContextAsync();
+        var context = await Page.Context.Browser!.NewContextAsync();
         await context.APIRequest.LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         await context.APIRequest.DeleteUser(User.Id);
     }

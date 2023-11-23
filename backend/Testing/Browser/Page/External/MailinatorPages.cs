@@ -29,7 +29,7 @@ public class MailinatorEmailPage : MailEmailPage
     {
     }
 
-    public override async Task<string> GetFirstLanguageDepotUrl()
+    public override async Task<string?> GetFirstLanguageDepotUrl()
     {
         // Mailinator sometimes swaps links out with its own that and redirect to the original,
         // but the originals are made available in the links tab, which is always in the DOM

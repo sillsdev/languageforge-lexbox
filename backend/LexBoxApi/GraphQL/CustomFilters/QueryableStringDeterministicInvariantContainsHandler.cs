@@ -14,16 +14,14 @@ namespace LexBoxApi.GraphQL.CustomFilters;
 /// </summary>
 public class QueryableStringDeterministicInvariantContainsHandler : QueryableStringOperationHandler
 {
-    private static readonly MethodInfo _ilike = typeof(NpgsqlDbFunctionsExtensions).GetMethod("ILike",
-            new[] { typeof(DbFunctions), typeof(string), typeof(string) });
-    private static readonly MethodInfo _collate = typeof(RelationalDbFunctionsExtensions).GetMethod("Collate")
-        .MakeGenericMethod(typeof(string));
-    private static readonly ConstantExpression _efFunctions = Expression.Constant(EF.Functions);
+    private static readonly MethodInfo Ilike = ((Func<DbFunctions, string, string, bool>)NpgsqlDbFunctionsExtensions.ILike).Method;
+    private static readonly MethodInfo Collate = ((Func<DbFunctions, string, string, string>)RelationalDbFunctionsExtensions.Collate).Method;
+    private static readonly ConstantExpression EfFunctions = Expression.Constant(EF.Functions);
 
     static QueryableStringDeterministicInvariantContainsHandler()
     {
-        ArgumentNullException.ThrowIfNull(_ilike, nameof(_ilike));
-        ArgumentNullException.ThrowIfNull(_collate, nameof(_collate));
+        ArgumentNullException.ThrowIfNull(Ilike, nameof(Ilike));
+        ArgumentNullException.ThrowIfNull(Collate, nameof(Collate));
     }
 
     protected override int Operation => CustomFilterOperations.IContains;
@@ -47,8 +45,8 @@ public class QueryableStringDeterministicInvariantContainsHandler : QueryableStr
 
         var collatedValueExpression = Expression.Call(
             null,
-            _collate,
-            _efFunctions,
+            Collate,
+            EfFunctions,
             property,
             // we have to explicitly use a deterministic collation, because Postgres doesn't support LIKE for non-deterministic collations,
             // which we use for some columns
@@ -60,8 +58,8 @@ public class QueryableStringDeterministicInvariantContainsHandler : QueryableStr
             Expression.NotEqual(property, Expression.Constant(null, typeof(object))),
             Expression.Call(
                 null,
-                _ilike,
-                _efFunctions,
+                Ilike,
+                EfFunctions,
                 collatedValueExpression,
                 Expression.Constant(pattern)
             )

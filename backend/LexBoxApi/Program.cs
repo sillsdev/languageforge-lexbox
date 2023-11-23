@@ -109,7 +109,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 app.Use(async (context, next) =>
 {
-    context.Response.Headers.Add("lexbox-version", AppVersionService.Version);
+    context.Response.Headers["lexbox-version"] = AppVersionService.Version;
     await next();
 });
 app.UseStatusCodePages();

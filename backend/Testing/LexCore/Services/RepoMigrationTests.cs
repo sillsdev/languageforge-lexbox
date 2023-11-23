@@ -61,7 +61,7 @@ public class RepoMigrationTests : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        _migrationServiceToken.Cancel();
+        await _migrationServiceToken.CancelAsync();
         if (!_hgMigrateTaskSource.Task.IsCompleted)
         {
             //service stop will deadlock if this task isn't cancelled.
