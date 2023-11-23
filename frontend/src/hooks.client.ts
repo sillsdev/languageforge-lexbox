@@ -65,7 +65,7 @@ handleFetch(async ({ fetch, args }) => {
   const response = await traceFetch(async () => {
     const response = await fetch(...args);
 
-    validateFetchResponse(response,
+    await validateFetchResponse(response,
       location.pathname === '/login',
       location.pathname === '/' || location.pathname === '/home' || location.pathname === '/admin');
 

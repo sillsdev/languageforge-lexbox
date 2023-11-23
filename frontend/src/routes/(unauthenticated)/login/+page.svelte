@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { PageHeader } from '$lib/layout';
-  import { login, logout } from '$lib/user';
+  import { goHome, login, logout } from '$lib/user';
   import { onMount } from 'svelte';
   import SvelteMarkdown from 'svelte-markdown';
   import flexLogo from '$lib/assets/flex-logo.png';
@@ -20,7 +19,7 @@
     formSchema,
     async () => {
       if (await login($form.email, $form.password)) {
-        await goto('/home');
+        await goHome();
         return;
       }
       $message = $t('login.bad_credentials');

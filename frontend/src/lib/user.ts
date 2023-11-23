@@ -48,6 +48,15 @@ export function getHomePath(user: LexAuthUser | null): string {
   return isAdmin(user) ? '/admin' : '/';
 }
 
+export async function goHome(): Promise<void> {
+  if (browser) {
+    location.pathname = '/home';
+    return new Promise(() => {});
+  } else {
+    throw redirect(307, '/home');
+  }
+}
+
 export async function login(userId: string, password: string): Promise<boolean> {
   const response = await fetch('/api/login', {
     method: 'post',

@@ -1,9 +1,8 @@
-import { isAuthn } from '$lib/user';
-import { redirect } from '@sveltejs/kit';
+import { goHome, isAuthn } from '$lib/user';
 import type { PageServerLoad } from './$types';
 
-export const load = (({ cookies }) => {
+export const load = (async ({ cookies }) => {
   if (isAuthn(cookies)) {
-    throw redirect(307, '/home');
+    await goHome();
   }
 }) satisfies PageServerLoad

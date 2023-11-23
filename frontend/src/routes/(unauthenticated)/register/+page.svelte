@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm } from '$lib/forms';
   import { passwordFormRules } from '$lib/forms/utils';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
-  import { register } from '$lib/user';
+  import { goHome, register } from '$lib/user';
   import { z } from 'zod';
 
   let turnstileToken = '';
@@ -26,7 +25,7 @@
       return;
     }
     if (user) {
-      await goto('/home');
+      await goHome();
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');

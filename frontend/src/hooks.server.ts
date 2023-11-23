@@ -58,7 +58,7 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
     const response = await fetch(request);
 
     const routeId = event.route.id ?? '';
-    validateFetchResponse(response,
+    await validateFetchResponse(response,
       routeId.endsWith('/login'),
       routeId.endsWith(AUTHENTICATED_ROOT) || routeId.endsWith('/home') || routeId.endsWith('/admin'));
 

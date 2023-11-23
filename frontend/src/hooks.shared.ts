@@ -1,3 +1,4 @@
+import { goHome } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
 
 const sayWuuuuuuut = 'We\'re not sure what happened.';
@@ -20,7 +21,7 @@ export function getErrorMessage(error: unknown): string {
   );
 }
 
-export function validateFetchResponse(response: Response, isAtLogin: boolean, isHome: boolean): void {
+export async function validateFetchResponse(response: Response, isAtLogin: boolean, isHome: boolean): Promise<void> {
   if (response.status === 401 && !isAtLogin) {
     throw redirect(307, '/logout');
   }
@@ -31,7 +32,7 @@ export function validateFetchResponse(response: Response, isAtLogin: boolean, is
       throw redirect(307, '/logout');
     } else {
       // the user tried to access something they don't have permission for
-      throw redirect(307, '/home');
+      await goHome();
     }
   }
 
