@@ -38,8 +38,12 @@ public class LexProxyService : ILexProxyService
         return user;
     }
 
-    public async Task RefreshProjectLastChange(string projectCode)
+    public async Task RefreshProjectLastChange(string projectCode, TimeSpan? delay = null)
     {
+        if (delay.HasValue)
+        {
+            await Task.Delay(delay.Value);
+        }
         await _projectService.UpdateLastCommit(projectCode);
     }
 

@@ -20,7 +20,7 @@ public class ProxyEventsService
             if (projectCode is not null)
             {
                 //discard, we don't care about the result
-                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode));
+                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode, TimeSpan.FromSeconds(5)));
             }
         }
         return ValueTask.CompletedTask;
@@ -36,7 +36,7 @@ public class ProxyEventsService
             if (projectCode is not null)
             {
                 //discard, we don't care about the result
-                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode));
+                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode, TimeSpan.FromSeconds(5)));
             }
         }
 
