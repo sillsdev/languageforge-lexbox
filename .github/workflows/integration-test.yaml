@@ -49,7 +49,7 @@ jobs:
         run: dotnet build
       - name: Playwright setup
         working-directory: backend/Testing
-        run: pwsh $(dotnet msbuild --getProperty:OutputPath)playwright.ps1 install
+        run: pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
       - name: Integration tests
         env:
           TEST_SERVER_HOSTNAME: ${{ inputs.test-domain }}
