@@ -90,11 +90,6 @@ table tr:nth-last-child(-n + 2):not(:nth-child(-n + 2)) .dropdown {
   @apply dropdown-top;
 }
 
-/* add some padding for dropdowns if the table has less than 3 elements */
-.overflow-x-auto:has(> table .dropdown):not(:has(> table tr:nth-child(3))) {
-    padding-bottom: 80px;
-}
-
 .prose :where(a) {
   /* bold is just a bit too loud, especially when there are lots of link (e.g. our login welcome message) */
   @apply font-normal;
