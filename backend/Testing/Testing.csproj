@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -10,29 +10,29 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-        <PackageReference Include="Microsoft.Playwright" Version="1.35.0" />
-        <PackageReference Include="Microsoft.Playwright.TestAdapter" Version="1.35.0" />
-        <PackageReference Include="Moq" Version="4.18.4" />
-        <PackageReference Include="Shouldly" Version="4.1.0" />
-        <PackageReference Include="SIL.Chorus.LibChorus" Version="5.2.0-beta0005" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="Microsoft.Playwright" Version="1.39.0" />
+        <PackageReference Include="Microsoft.Playwright.TestAdapter" Version="1.39.0" />
+        <PackageReference Include="Moq" Version="4.20.69" />
+        <PackageReference Include="Shouldly" Version="4.2.1" />
+        <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0041" />
         <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.3.11" />
-        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.0.1" />
-        <PackageReference Include="SIL.Core" Version="12.1.0-beta0031" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.15.1" />
-        <PackageReference Include="xunit" Version="2.4.2" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+        <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.1.0" />
+        <PackageReference Include="SIL.Core" Version="13.0.0-beta0074" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+        <PackageReference Include="xunit" Version="2.6.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="3.1.2">
+        <PackageReference Include="coverlet.collector" Version="6.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="XunitXml.TestLogger" Version="3.0.78" />
+        <PackageReference Include="XunitXml.TestLogger" Version="3.1.17" />
     </ItemGroup>
 
     <ItemGroup>

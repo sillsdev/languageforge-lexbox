@@ -20,9 +20,8 @@ public class BasicAuthHandler : AuthenticationHandler<AuthenticationSchemeOption
     public BasicAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock,
         ILexProxyService lexProxyService,
-        IMemoryCache memoryCache) : base(options, logger, encoder, clock)
+        IMemoryCache memoryCache) : base(options, logger, encoder)
     {
         _lexProxyService = lexProxyService;
         _memoryCache = memoryCache;
