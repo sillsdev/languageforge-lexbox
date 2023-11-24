@@ -122,6 +122,10 @@ async function softDeleteProject(project: Project): Promise<void> {
                         <AuthenticatedUserIcon/>
                         {filter.value}
                     </ActiveFilter>
+                {:else if filter.key === 'migrationStatus'}
+                    <ActiveFilter {filter}>
+                      {filter.value}
+                    </ActiveFilter>
                 {/if}
             {/each}
         </svelte:fragment>
