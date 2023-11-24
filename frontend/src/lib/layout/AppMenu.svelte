@@ -19,7 +19,7 @@
   </header>
 
   <li>
-    <a href="/logout" data-sveltekit-preload-data="tap">
+    <a href="/logout" data-sveltekit-reload>
       {$t('appmenu.log_out')}
       <LogoutIcon />
     </a>
