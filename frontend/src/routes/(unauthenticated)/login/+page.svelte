@@ -20,7 +20,7 @@
     formSchema,
     async () => {
       if (await login($form.email, $form.password)) {
-        await goto('/home');
+        await goto('/home', { invalidateAll: true }); // invalidate so we get the user from SK
         return;
       }
       $message = $t('login.bad_credentials');
