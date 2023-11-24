@@ -14,6 +14,85 @@
   path: /spec/tls/0/hosts
   value:
     - prod.languagedepot.org
+    - languagedepot.org
     - hg-prod.languageforge.org
     - resumable.languagedepot.org
+    - resumable.languageforge.org
+    - hg-public.languagedepot.org
+    - hg-public.languageforge.org
+    - hg-private.languagedepot.org
+    - hg-private.languageforge.org
     - admin.languagedepot.org
+    - admin.languageforge.org
+- op: add
+  path: /spec/rules/-
+  value:
+    host: hg-public.languagedepot.org
+    http: &rule
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
+- op: add
+  path: /spec/rules/-
+  value:
+    host: hg-public.languageforge.org
+    http: *rule
+- op: add
+  path: /spec/rules/-
+  value:
+    host: hg-private.languagedepot.org
+    http: *rule
+- op: add
+  path: /spec/rules/-
+  value:
+    host: hg-private.languageforge.org
+    http: *rule
+- op: add
+  path: /spec/rules/-
+  value:
+    host: resumable.languageforge.org
+    http: *rule
+- op: add
+  path: /spec/rules/-
+  value:
+    host: admin.languageforge.org
+    http: *rule
+- op: add
+  path: /spec/rules/-
+  value:
+    host: languagedepot.org
+    http:
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /hg
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /v1/traces
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: otel
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: ui
+              port:
+                name: sveltekit
