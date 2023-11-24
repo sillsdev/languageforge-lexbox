@@ -54,7 +54,7 @@ public class MySqlMigrationService
             : ProjectMigrationStatus.PrivateRedmine;
         var projectIdToGuid = projects.ToDictionary(p => p.Id, p => Guid.NewGuid());
         _lexBoxDbContext.Projects.AddRange(projects.Select(rmProject =>
-            MigrateProject(rmProject, now, migrationStatus, projectIdToGuid)));
+            MigrateProject(rmProject, migrationStatus, projectIdToGuid)));
         _lexBoxDbContext.Users.AddRange(users.Select(rmUser => MigrateUser(rmUser, projectIdToGuid, now, existingUsersByEmail, existingUsersByLogin))
             .OfType<User>());
     }
@@ -125,8 +125,8 @@ public class MySqlMigrationService
 
         return new User
         {
-            CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? now,
-            UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? now,
+            CreatedDate = rmUser.CreatedOn?.ToUniversalTime() ?? default(DateTimeOffset),
+            UpdatedDate = rmUser.UpdatedOn?.ToUniversalTime() ?? default(DateTimeOffset),
             LastActive = rmUser.LastLoginOn?.ToUniversalTime() ?? default(DateTimeOffset),
             Username = rmUser.Login,
             LocalizationCode = rmUser.Language ?? User.DefaultLocalizationCode,
@@ -143,20 +143,27 @@ public class MySqlMigrationService
     }
 
     private static Project MigrateProject(RmProject rmProject,
-        DateTimeOffset now,
         ProjectMigrationStatus migrationStatus,
         Dictionary<int, Guid> projectIdToGuid)
     {
+        var updatedDate = rmProject.UpdatedOn?.ToUniversalTime() ?? default(DateTimeOffset);
         return new Project
         {
-            CreatedDate = rmProject.CreatedOn?.ToUniversalTime() ?? now,
-            UpdatedDate = rmProject.UpdatedOn?.ToUniversalTime() ?? now,
+            CreatedDate = rmProject.CreatedOn?.ToUniversalTime() ?? default(DateTimeOffset),
+            UpdatedDate = updatedDate,
+            //if the project is not active, set the deleted date to the updated date
+            DeletedDate = rmProject.Status != 1 ? updatedDate : null,
             MigrationStatus = migrationStatus,
             ProjectOrigin = migrationStatus,
             Name = rmProject.Name,
             Code = rmProject.Identifier ?? throw new Exception("no code for project id" + rmProject.Id),
             Description = rmProject.Description,
-            Type = rmProject.Identifier!.EndsWith("-flex") ? ProjectType.FLEx : ProjectType.Unknown,
+            Type =  rmProject.Identifier switch
+            {
+                var c when c.EndsWith("-flex") => ProjectType.FLEx,
+                var c when c.EndsWith("-dictionary") => ProjectType.WeSay,
+                _ => ProjectType.Unknown
+            },
             RetentionPolicy =
                 rmProject.Identifier.Contains("test") ? RetentionPolicy.Test : RetentionPolicy.Unknown,
             LastCommit = null,
