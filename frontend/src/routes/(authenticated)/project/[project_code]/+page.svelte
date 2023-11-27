@@ -29,7 +29,7 @@
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, Page } from '$lib/layout';
-  import SvelteMarkdown from 'svelte-markdown';
+  import SvelteMarkdown from '@myieye/svelte-markdown';
   import { ProjectMigrationStatus, ProjectRole, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
   import Button from '$lib/forms/Button.svelte';

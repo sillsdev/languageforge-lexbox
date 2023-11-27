@@ -5,7 +5,7 @@
   import { PageHeader } from '$lib/layout';
   import { login, logout } from '$lib/user';
   import { onMount } from 'svelte';
-  import SvelteMarkdown from 'svelte-markdown';
+  import SvelteMarkdown from '@myieye/svelte-markdown';
   import flexLogo from '$lib/assets/flex-logo.png';
   import lfLogo from '$lib/assets/lf-logo.png';
   import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.png';
