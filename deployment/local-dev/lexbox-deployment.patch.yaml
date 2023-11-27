@@ -25,6 +25,9 @@ spec:
             value: "dev-secret_but-it-must-be-32-characters-long"
 #            intentionally set this to no value
             valueFrom:
+
+          - name: ForwardedHeadersOptions__KnownNetworks__0
+            value: "10.1.0.0/16"
           - name: CloudFlare__TurnstileKey
             value: "1x0000000000000000000000000000000AA"
             valueFrom:

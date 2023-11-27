@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json.Serialization;
 using LexBoxApi;
 using LexBoxApi.Auth;
@@ -9,10 +10,10 @@ using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.OpenApi.Models;
 using tusdotnet;
+using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
 
 if (DbStartupService.IsMigrationRequest(args))
 {
@@ -92,21 +93,26 @@ builder.Services.AddHttpLogging(options =>
 
 builder.Services.AddLexData(builder.Environment.IsDevelopment());
 builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
+builder.Services.AddOptions<ForwardedHeadersOptions>()
+    .BindConfiguration("ForwardedHeadersOptions")
+    .PostConfigure((ForwardedHeadersOptions options, IConfiguration configuration) =>
+    {
+        //workaround issue that binding won't configure these properties
+        foreach (var knownProxy in configuration.GetSection("ForwardedHeadersOptions:KnownProxies").GetChildren())
+        {
+            options.KnownProxies.Add(IPAddress.Parse(knownProxy.Value!));
+        }
+
+        foreach (var knownNetwork in configuration.GetSection("ForwardedHeadersOptions:KnownNetworks").GetChildren())
+        {
+            options.KnownNetworks.Add(IPNetwork.Parse(knownNetwork.Value!));
+        }
+    });
 
 var app = builder.Build();
 app.Logger.LogInformation("LexBox-api version: {version}", AppVersionService.Version);
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.All,
-    AllowedHosts =
-    {
-        "localhost",
-        "languagedepot.org",
-        "*.languagedepot.org",
-        "*.languageforge.org"
-    }
-});
+app.UseForwardedHeaders();
 app.Use(async (context, next) =>
 {
     context.Response.Headers["lexbox-version"] = AppVersionService.Version;

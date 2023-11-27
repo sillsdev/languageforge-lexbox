@@ -111,6 +111,8 @@ spec:
               secretKeyRef:
                   key: Authentication__Jwt__Secret
                   name: lexbox-api
+          - name: ForwardedHeadersOptions__KnownNetworks__0
+            value: "10.42.0.0/16"
           - name: HgConfig__RepoPath
             value: /hg-repos
           - name: HgConfig__HgWebUrl
