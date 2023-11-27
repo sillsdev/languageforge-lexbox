@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@myieye/svelte-markdown':
+    specifier: ^0.4.1
+    version: 0.4.1(svelte@4.2.0)
   '@opentelemetry/api':
     specifier: ^1.4.1
     version: 1.4.1
@@ -47,9 +50,6 @@ dependencies:
   svelte-intl-precompile:
     specifier: ^0.12.3
     version: 0.12.3(@babel/core@7.22.9)(svelte@4.2.0)
-  svelte-markdown:
-    specifier: ^0.4.0
-    version: 0.4.0(svelte@4.2.0)
   sveltekit-search-params:
     specifier: ^1.0.15
     version: 1.0.15(@sveltejs/kit@1.24.1)(svelte@4.2.0)
@@ -2057,6 +2057,16 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.0
       '@jridgewell/sourcemap-codec': 1.4.14
+
+  /@myieye/svelte-markdown@0.4.1(svelte@4.2.0):
+    resolution: {integrity: sha512-mpk97672V9fQfd8/ubD1yQeM/XKhlmKr2y5ht+IcOT/zeWeo2MnyEhPp1OW+uXoCcb19agZOjtVUDxgOvi+nTA==}
+    peerDependencies:
+      svelte: ^4.0.0
+    dependencies:
+      '@types/marked': 5.0.1
+      marked: 5.1.2
+      svelte: 4.2.0
+    dev: false
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -7824,16 +7834,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - svelte
-    dev: false
-
-  /svelte-markdown@0.4.0(svelte@4.2.0):
-    resolution: {integrity: sha512-d8xYJoPhhiLn/tFrO54V5p22q2+I7It8w3CpTv+O+h99LlgehxK9XwdISVBl2aNcLbLX128Nz/vu7GScWhVZjw==}
-    peerDependencies:
-      svelte: ^4.0.0
-    dependencies:
-      '@types/marked': 5.0.1
-      marked: 5.1.2
-      svelte: 4.2.0
     dev: false
 
   /svelte-preprocess@5.0.4(@babel/core@7.22.9)(postcss@8.4.23)(svelte@4.2.0)(typescript@5.2.2):

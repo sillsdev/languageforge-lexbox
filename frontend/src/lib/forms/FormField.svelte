@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFieldId } from './utils';
-  import SvelteMarkdown from 'svelte-markdown';
+  import SvelteMarkdown from '@myieye/svelte-markdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
 
   export let label: string;
