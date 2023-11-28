@@ -96,7 +96,7 @@
       <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={$queryParamValues.userSearch} debounce />
 
       <div class="divider" />
-      <div class="overflow-x-auto min-h-[255px]">
+      <div class="overflow-x-auto min-h-[300px]">
         <table class="table table-lg">
           <thead>
             <tr class="bg-base-200">

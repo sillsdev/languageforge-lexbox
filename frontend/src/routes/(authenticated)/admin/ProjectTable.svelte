@@ -183,7 +183,7 @@ async function softDeleteProject(project: Project): Promise<void> {
     </FilterBar>
 
     <div class="divider"/>
-    <div class="overflow-x-auto min-h-[225px]">
+    <div class="overflow-x-auto min-h-[270px]">
         <table class="table table-lg">
             <thead>
             <tr class="bg-base-200">
