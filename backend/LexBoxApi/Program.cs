@@ -84,12 +84,19 @@ builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = HttpLoggingFields.RequestPropertiesAndHeaders |
                             HttpLoggingFields.ResponsePropertiesAndHeaders;
-    options.ResponseHeaders.Add("WWW-Authenticate");
-    options.ResponseHeaders.Add("lexbox-version");
-#if DEBUG
-    options.RequestHeaders.Add("Cookie");
-#endif
 });
+builder.Services.AddOptions<HttpLoggingOptions>()
+    .PostConfigure((HttpLoggingOptions options, IConfiguration configuration) =>
+    {
+        foreach (var requestHeader in configuration.GetSection("HttpLoggingOptions:AdditionalRequestHeaders").GetChildren())
+        {
+            options.RequestHeaders.Add(requestHeader.Value!);
+        }
+        foreach (var requestHeader in configuration.GetSection("HttpLoggingOptions:AdditionalResponseHeaders").GetChildren())
+        {
+            options.ResponseHeaders.Add(requestHeader.Value!);
+        }
+    });
 
 builder.Services.AddLexData(builder.Environment.IsDevelopment());
 builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
