@@ -11,7 +11,7 @@ namespace LexCore.Auth;
 
 public record LexAuthUser
 {
-    //from testing done in November 2023, we started getting errors at 10,225 chars
+    // from testing done in November 2023, we started getting errors at 10,200 chars. See HeaderTests.CheckCloudflareHeaderSizeLimit.
     public const int MaxJwtLength = 9000;
     public const int MaxProjectCount = 170;
     public static readonly JsonTypeInfo LexAuthUserTypeInfo =
