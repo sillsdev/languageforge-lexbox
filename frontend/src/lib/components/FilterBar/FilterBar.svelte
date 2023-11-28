@@ -7,16 +7,20 @@
 </script>
 
 <script lang="ts">
+  import { pick } from '$lib/util/object';
+
   import t from '$lib/i18n';
-  import { derived, type Readable, type Writable } from 'svelte/store';
+  import type { Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
 
   type Filters = $$Generic<Record<string, unknown>>;
 
   export let search = '';
   export let autofocus: true | undefined = undefined;
-  export let filters: Writable<Filters>;
-  export let defaultValues: Filters;
+  let allFilters: Writable<Filters>;
+  export { allFilters as filters };
+  let allDefaultValues: Filters;
+  export { allDefaultValues as defaultValues };
   export let hasActiveFilter: boolean;
 
   /**
@@ -24,40 +28,41 @@
    */
   export let filterKeys: Set<keyof Filters> | undefined = undefined;
 
-  const activeFilters = pickActiveFilters(filters, defaultValues);
+  $: filters = Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters);
+  $: defaultValues = Object.freeze(filterKeys ? pick(allDefaultValues, filterKeys) : allDefaultValues);
+  $: activeFilters = pickActiveFilters(filters, defaultValues);
   $: {
-    hasActiveFilter = $activeFilters.length > 0;
+    hasActiveFilter = activeFilters.length > 0;
   }
 
   function reseFilters(): void {
-    $filters = defaultValues;
+    $allFilters = {
+      ...$allFilters,
+      ...defaultValues,
+    }
   }
 
   function resetFilter(key: string): void {
-    $filters = {
-      ...$filters,
+    $allFilters = {
+      ...$allFilters,
       [key]: defaultValues[key],
     };
   }
 
-  function pickActiveFilters(filterStore: Readable<Filters>, defaultValues: Filters): Readable<Filter<Filters>[]> {
-    return derived(filterStore, (values) => {
-      const filters: Filter<Filters>[] = [];
-      for (const key in values) {
-        if (filterKeys && !filterKeys.has(key)) continue;
-
-        const value = values[key];
-        if (value !== defaultValues[key]) {
-          filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
-        }
+  function pickActiveFilters(values: Filters, defaultValues: Filters): Readonly<Filter<Filters>[]> {
+    const filters: Filter<Filters>[] = [];
+    for (const key in values) {
+      const value = values[key];
+      if (value !== defaultValues[key]) {
+        filters.push({ key, value, clear: () => resetFilter(key) } as Filter<Filters>);
       }
-      return filters;
-    });
+    }
+    return Object.freeze(filters);
   }
 </script>
 
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 mt-4 flex-wrap h-[unset] min-h-12">
-  <slot name="activeFilters" activeFilters={$activeFilters} />
+  <slot name="activeFilters" {activeFilters} />
   <div class="flex grow">
     <!-- svelte-ignore a11y-autofocus -->
     <input

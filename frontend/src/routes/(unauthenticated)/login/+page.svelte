@@ -8,7 +8,7 @@
   import SvelteMarkdown from '@myieye/svelte-markdown';
   import flexLogo from '$lib/assets/flex-logo.png';
   import lfLogo from '$lib/assets/lf-logo.png';
-  import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.png';
+  import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.svg';
   import weSayLogo from '$lib/assets/we-say-logo.png';
   import { z } from 'zod';
 
@@ -20,7 +20,7 @@
     formSchema,
     async () => {
       if (await login($form.email, $form.password)) {
-        await goto('/home');
+        await goto('/home', { invalidateAll: true }); // invalidate so we get the user from SK
         return;
       }
       $message = $t('login.bad_credentials');
