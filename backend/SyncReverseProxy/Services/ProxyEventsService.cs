@@ -12,7 +12,7 @@ public class ProxyEventsService
         _lexProxyService = lexProxyService;
     }
 
-    public ValueTask OnResumableRequest(HttpContext context)
+    public async Task OnResumableRequest(HttpContext context)
     {
         if (context.Request.Path.StartsWithSegments("/api/v03/finishPushBundle"))
         {
@@ -20,13 +20,12 @@ public class ProxyEventsService
             if (projectCode is not null)
             {
                 //discard, we don't care about the result
-                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode, TimeSpan.FromSeconds(5)));
+                await Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode/*, TimeSpan.FromSeconds(5)*/));
             }
         }
-        return ValueTask.CompletedTask;
     }
 
-    public ValueTask OnHgRequest(HttpContext context)
+    public async Task OnHgRequest(HttpContext context)
     {
         if (context.Request.Query.TryGetValue("cmd", out var cmd)
             && cmd == "unbundle"
@@ -36,10 +35,8 @@ public class ProxyEventsService
             if (projectCode is not null)
             {
                 //discard, we don't care about the result
-                var _ = Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode, TimeSpan.FromSeconds(5)));
+                await Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode/*, TimeSpan.FromSeconds(5)*/));
             }
         }
-
-        return ValueTask.CompletedTask;
     }
 }
