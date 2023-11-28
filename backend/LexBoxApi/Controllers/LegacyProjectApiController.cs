@@ -24,7 +24,7 @@ public class LegacyProjectApiController : ControllerBase
         _lexProxyService = lexProxyService;
     }
 
-    public record ProjectsInput([Required(AllowEmptyStrings = false)] string Password);
+    public record ProjectsInput([Required] string Password);
 
     [AllowAnonymous]
     [HttpPost("/api/user/{userName}/projects")]
