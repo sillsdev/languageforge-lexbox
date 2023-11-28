@@ -16,7 +16,6 @@ using Xunit.Abstractions;
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
-[Collection(nameof(TestingServicesFixture))]
 public class SendReceiveServiceTests
 {
     public SendReceiveAuth ManagerAuth = new("manager", TestingEnvironmentVariables.DefaultPassword);
@@ -29,12 +28,8 @@ public class SendReceiveServiceTests
     private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
     private SendReceiveService _sendReceiveService;
 
-    private readonly LexData.LexBoxDbContext _dbContext;
-
-    public SendReceiveServiceTests(ITestOutputHelper output, TestingServicesFixture testing)
+    public SendReceiveServiceTests(ITestOutputHelper output)
     {
-        var serviceProvider = testing.ConfigureServices(s => {});
-        _dbContext = serviceProvider.GetDbContext();
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
         CleanUpTempDir();
@@ -146,12 +141,19 @@ public class SendReceiveServiceTests
     public async Task ModifyProjectData()
     {
         var projectCode = TestingEnvironmentVariables.ProjectCode;
-        var project = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
-        DateTimeOffset? lastCommitDate = null;
-        if (project is not null)
-        {
-            lastCommitDate = project.LastCommit;
-        }
+        var apiTester = new ApiTestBase();
+        var auth = AdminAuth;
+        await apiTester.LoginAs(auth.Username, auth.Password);
+        string gqlQuery =
+$$"""
+query projectLastCommit {
+    projectByCode(code: "{{projectCode}}") {
+        lastCommit
+    }
+}
+""";
+        var jsonResult = await apiTester.ExecuteGql(gqlQuery);
+        var lastCommitDate = jsonResult["data"]["projectByCode"]["lastCommit"].ToString();
 
         // Clone
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
@@ -166,16 +168,13 @@ public class SendReceiveServiceTests
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
         srResult.ShouldNotContain("abort");
         srResult.ShouldNotContain("error");
-        var projectAfter = await _dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
-        DateTimeOffset? lastCommitDateAfter = null;
-        if (projectAfter is not null)
-        {
-            lastCommitDateAfter = projectAfter.LastCommit;
-        }
-        if (lastCommitDate is not null && lastCommitDateAfter is not null)
-        {
-            lastCommitDateAfter.Value.ShouldBeGreaterThan(lastCommitDate.Value);
-        }
+        await Task.Delay(6000);
+
+        jsonResult = await apiTester.ExecuteGql(gqlQuery);
+        Console.WriteLine("Second request:");
+        Console.WriteLine(jsonResult.ToString());
+        var lastCommitDateAfter = jsonResult["data"]["projectByCode"]["lastCommit"].ToString();
+        lastCommitDateAfter.ShouldBeGreaterThan(lastCommitDate);
     }
 
     [Fact]
