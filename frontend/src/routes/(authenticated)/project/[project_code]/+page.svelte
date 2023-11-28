@@ -29,7 +29,7 @@
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, Page } from '$lib/layout';
-  import SvelteMarkdown from '@myieye/svelte-markdown';
+  import Markdown from 'svelte-exmarkdown';
   import { ProjectMigrationStatus, ProjectRole, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
   import Button from '$lib/forms/Button.svelte';
@@ -210,8 +210,8 @@
               <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
                 <div class="card-body max-sm:p-4">
                   <div class="prose">
-                    <SvelteMarkdown
-                      source={$t('project_page.get_project.instructions', {
+                    <Markdown
+                      md={$t('project_page.get_project.instructions', {
                         type: _project.type,
                         code: data.code,
                         name: _project.name,
