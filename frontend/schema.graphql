@@ -268,7 +268,7 @@ input ChangeUserAccountDataInput {
 input CreateProjectInput {
   id: UUID
   name: String!
-  description: String
+  description: String!
   code: String!
   type: ProjectType!
   retentionPolicy: RetentionPolicy!

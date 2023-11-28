@@ -6,7 +6,7 @@ namespace LexBoxApi.Models.Project;
 public record CreateProjectInput(
     Guid? Id,
     string Name,
-    string? Description,
+    string Description,
     [property: MinLength(4), RegularExpression(@"[a-z-\d]+")]
     string Code,
     ProjectType Type,

@@ -47,6 +47,10 @@ export function getSearchParams<T extends Record<string, unknown>>(options: Quer
   }
 }
 
+export function getSearchParamValues<T extends Record<string, unknown>>(): T {
+  return Object.fromEntries(new URLSearchParams(location.search).entries()) as T;
+}
+
 function getDefaults<T extends Record<string, unknown>>(
   options: QueryParamConfig<T>): T {
   const defaultValues: Partial<T> = {};
