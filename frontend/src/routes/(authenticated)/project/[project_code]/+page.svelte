@@ -137,6 +137,7 @@
   }
 
   let migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
+  $: isMigrated = migrationStatus === ProjectMigrationStatus.Migrated;
   //no need to translate these since it'll only be temporary
   const migrationStatusTable = {
     [ProjectMigrationStatus.Migrated]: 'Migrated',
@@ -177,6 +178,7 @@
 
   async function migrateProject(): Promise<void> {
     if (!project) return;
+    if (!confirm('Are you sure you want to migrate this project, you can not undo this action?')) return;
     await fetch(`/api/migrate/migrateRepo?projectCode=${project.code}`);
     migrationStatus = ProjectMigrationStatus.Migrating;
     await watchMigrationStatus();
@@ -246,14 +248,6 @@
                 </div>
               </div>
             </Dropdown>
-          {/if}
-          {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
-            <AdminContent>
-              <Button on:click={migrateProject}>
-                Migrate Project
-                <Icon icon="i-mdi-source-branch-sync" />
-              </Button>
-            </AdminContent>
           {/if}
         </div>
         <div class="text-3xl flex items-center gap-3 gap-y-0 flex-wrap">
@@ -380,14 +374,20 @@
         <div class="divider" />
 
         <MoreSettings>
-          <button class="btn btn-error" on:click={softDeleteProject}>
+          <button class="btn btn-error" class:hidden={!isMigrated} on:click={softDeleteProject}>
             {$t('delete_project_modal.submit')}<TrashIcon />
           </button>
           <AdminContent>
-            <button class="btn btn-accent" on:click={resetProject}>
+            <button class="btn btn-accent" class:hidden={!isMigrated} on:click={resetProject}>
               {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
             </button>
             <ResetProjectModal bind:this={resetProjectModal} />
+            {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
+              <Button on:click={migrateProject}>
+                Migrate Project
+                <Icon icon="i-mdi-source-branch-sync"/>
+              </Button>
+            {/if}
           </AdminContent>
         </MoreSettings>
       {/if}
