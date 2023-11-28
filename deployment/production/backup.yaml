@@ -1,0 +1,98 @@
+﻿# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kopia-cache
+  namespace: languagedepot
+  labels:
+    app.kubernetes.io/part-of: languagedepot
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kopia-backup
+  namespace: languagedepot
+spec:
+  schedule: "0 1 * * *"  #every day at 1:00 AM UTC
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+            - name: postgres-dump
+              image: postgres:15-alpine
+              command: [ "/bin/sh" ]
+              args:
+                - -c
+                - "pg_dump -U postgres -v -h db.languagedepot -Z 0 -d $PGDATABASE -F directory -f /dump/postgres-backup"
+              resources:
+                requests:
+                  memory: 100Mi
+                limits:
+                  memory: 150Mi
+              volumeMounts:
+                - name: pg-dump
+                  mountPath: /dump
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: db
+                      key: POSTGRES_PASSWORD
+                - name: PGDATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: db
+                      key: POSTGRES_DB
+          containers:
+            - name: create-snapshots
+              image: kopia/kopia:latest
+              args:
+                - "snapshot"
+                - "create"
+                - "/dump/postgres-backup"
+                - "/hg-repos"
+              resources:
+                requests:
+                  memory: 100Mi
+                limits:
+                  memory: 150Mi
+              env:
+                - name: KOPIA_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: backups
+                      key: KOPIA_PASSWORD
+              volumeMounts:
+                - name: config
+                  mountPath: /app/config
+                - name: kopia-cache
+                  mountPath: /app/cache
+                - name: pg-dump
+                  mountPath: /dump
+                - name: hg-repos
+                  mountPath: /hg-repos
+          restartPolicy: OnFailure
+          volumes:
+            - name: config
+              secret:
+                secretName: backups
+                items:
+                  - key: kopia.config
+                    path: /kopia.config
+            - name: kopia-cache
+              persistentVolumeClaim:
+                claimName: kopia-cache
+            - name: pg-dump
+              emptyDir:
+                sizeLimit: 1Gi
+            - name: hg-repos
+              persistentVolumeClaim:
+                claimName: hg-repos
