@@ -4,12 +4,13 @@
     import type {CreateProjectInput} from '$lib/gql/generated/graphql';
     import {FormatProjectType} from '$lib/components/ProjectType';
     import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
+    import { toSearchParams } from '$lib/util/query-params';
 
     export let name: string;
     export let baseUrl: string;
     export let project: CreateProjectInput;
     export let user: { name: string; email: string };
-    let createUrl = new URL('/project/create', baseUrl);
+    let createUrl = new URL(`/project/create?${toSearchParams(project)}`, baseUrl);
 </script>
 
 <Email subject={$t('emails.create_project_request_email.subject', {projectName: project.name})} {name}>
@@ -20,12 +21,12 @@
             <td>{project.name}</td>
         </tr>
         <tr>
-            <td>{$t('project.create.description')}</td>
-            <td>{project.description}</td>
-        </tr>
-        <tr>
             <td>{$t('project.create.code')}</td>
             <td>{project.code}</td>
+        </tr>
+        <tr>
+            <td>{$t('project.create.description')}</td>
+            <td>{project.description}</td>
         </tr>
         <tr>
             <td>{$t('project.create.type')}</td>

@@ -32,10 +32,26 @@
             baseUrl: 'http://localhost:3000',
             template: EmailTemplate.CreateProjectRequest,
             project: {
-                id: null,
                 name: 'My Project',
-                code: 'MYPROJ',
-                type: ProjectType.FlEx,
+                code: 'myproj-test-onestory',
+                type: ProjectType.OneStoryEditor,
+                description: 'My project description',
+                retentionPolicy: RetentionPolicy.Test
+            },
+            user: {
+                name: 'Bob',
+                email: 'test@test.com'
+            }
+        },
+        {
+            label: 'Create Project Request - custom code',
+            name: 'Admin',
+            baseUrl: 'http://localhost:3000',
+            template: EmailTemplate.CreateProjectRequest,
+            project: {
+                name: 'My Project',
+                code: 'my-proj-custom-onestory',
+                type: ProjectType.WeSay,
                 description: 'My project description',
                 retentionPolicy: RetentionPolicy.Dev
             },

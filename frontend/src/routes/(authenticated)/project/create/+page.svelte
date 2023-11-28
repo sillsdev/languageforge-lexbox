@@ -5,7 +5,7 @@
   import Form from '$lib/forms/Form.svelte';
   import Input from '$lib/forms/Input.svelte';
   import Select from '$lib/forms/Select.svelte';
-  import { CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy } from '$lib/gql/types';
+  import { CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { Page } from '$lib/layout';
   import { z } from 'zod';
@@ -13,8 +13,12 @@
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
   import { Duration } from '$lib/util/time';
+  import { getSearchParamValues } from '$lib/util/query-params';
+  import { isAdmin } from '$lib/user';
+  import { onMount } from 'svelte';
 
   export let data;
+  $: user = data.user;
 
   const { notifySuccess } = useNotifications();
 
@@ -68,15 +72,50 @@
     [RetentionPolicy.Test]: 'test',
     [RetentionPolicy.Dev]: 'dev',
     [RetentionPolicy.Training]: 'train',
+    [RetentionPolicy.Verified]: '',
   };
 
-  $: if (!$form.customCode) {
-    let typeCode = typeCodeMap[$form.type] ?? 'misc';
-    let policyCode = policyCodeMap[$form.retentionPolicy] ?? '';
+  function buildProjectCode(languageCode: string, type?: ProjectType, retentionPolicy?: RetentionPolicy): string {
+    let typeCode = typeCodeMap[type ?? $form.type] ?? 'misc';
+    let policyCode = policyCodeMap[retentionPolicy ?? $form.retentionPolicy];
     if (policyCode) policyCode = `-${policyCode}`;
+
+    return `${languageCode ?? $form.languageCode}${policyCode}-${typeCode}`;
+  }
+
+  onMount(() => { // we want to do this once after the user has been set
+    const urlValues = getSearchParamValues<Partial<Omit<CreateProjectInput, 'id'>>>();
+    form.update((form) => {
+      if (urlValues.name) form.name = urlValues.name;
+      if (urlValues.description) form.description = urlValues.description;
+      if (urlValues.type) form.type = urlValues.type;
+      if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || isAdmin(user))) form.retentionPolicy = urlValues.retentionPolicy;
+      if (urlValues.code) {
+        const dashIndexes = [...urlValues.code.matchAll(/-/g)].map(match => match.index);
+        const languageCode =
+          dashIndexes.length === 0 ? urlValues.code
+          // only the value after the last 2 (out of 1-♾️) dashes can result in a code being "custom"
+          : urlValues.code.substring(0, dashIndexes[Math.max(0, dashIndexes.length - 2)]);
+        form.languageCode = languageCode;
+        const standardProjectCode = buildProjectCode(languageCode, urlValues.type, urlValues.retentionPolicy);
+        const isCustomCode = standardProjectCode !== urlValues.code;
+
+        if (isCustomCode && isAdmin(user)) {
+            form.customCode = true;
+            form.code = urlValues.code;
+        } // otherwise we just let it get calculated automatically
+      }
+      return form;
+    }, { taint: false });
+  });
+
+  $: if (!$form.customCode) {
+    const type = $form.type;
+    const retentionPolicy = $form.retentionPolicy;
+    const languageCode = $form.languageCode;
     form.update(
       (form) => {
-        form.code = `${form.languageCode}${policyCode}-${typeCode}`;
+        form.code = buildProjectCode(languageCode, type, retentionPolicy);
         return form;
       },
       { taint: false }
