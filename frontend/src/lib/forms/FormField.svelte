@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
   import { randomFieldId } from './utils';
-  import SvelteMarkdown from '@myieye/svelte-markdown';
+  import Markdown from 'svelte-exmarkdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
 
   export let label: string;
@@ -34,7 +34,7 @@
   {#if description}
     <label for={id} class="label pb-0">
       <span class="label-text-alt">
-        <SvelteMarkdown source={description} renderers={{ link: NewTabLinkRenderer }}  />
+        <Markdown md={description} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
       </span>
     </label>
   {/if}

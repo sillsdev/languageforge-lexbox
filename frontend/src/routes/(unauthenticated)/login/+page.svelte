@@ -5,7 +5,7 @@
   import { PageHeader } from '$lib/layout';
   import { login, logout } from '$lib/user';
   import { onMount } from 'svelte';
-  import SvelteMarkdown from '@myieye/svelte-markdown';
+  import Markdown from 'svelte-exmarkdown';
   import flexLogo from '$lib/assets/flex-logo.png';
   import lfLogo from '$lib/assets/lf-logo.png';
   import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.svg';
@@ -38,7 +38,7 @@
 <div class="hero flex-grow">
   <div class="hero-content flex-col lg:flex-row-reverse gap-16">
     <div class="prose text-lg flex-shrink-0">
-      <SvelteMarkdown source={$t('login.welcome')} />
+      <Markdown md={$t('login.welcome')} />
       <div class="flex gap-4 not-prose justify-center">
         <a href="https://software.sil.org/fieldworks/">
           <img src={flexLogo} class="h-12" height="48" alt="FLEx Logo">
