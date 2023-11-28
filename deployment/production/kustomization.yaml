@@ -4,6 +4,8 @@ namespace: languagedepot
 
 resources:
   - ../base
+  - backup.yaml
+
 patches:
   - path: lexbox-deployment.patch.yaml
   - path: app-config.yaml
