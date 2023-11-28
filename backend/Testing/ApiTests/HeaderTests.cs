@@ -12,15 +12,26 @@ public class HeaderTests : ApiTestBase
     [Fact]
     public async Task CheckCloudflareHeaderSizeLimit()
     {
-        //from testing done in November 2023, we started getting errors at 10,225 chars
-        int headerSize = 10210;
+        /*
+        From testing done in November 2023, for 300 iterations a header size of:
+        10,210 failed 7 times
+        10,200 failed 1 time
+        10,195 failed 0 times
+        */
+        var headerSize = 10195;
+        var iterations = 10; // a slightly bigger sample set, so we're more confident that we're in the clear
+        var failStatusCodes = new List<HttpStatusCode>();
+        for (var i = 0; i < iterations; i++)
+        {
+            var response = await HttpClient.SendAsync(
+                new HttpRequestMessage(HttpMethod.Get, "https://staging.languagedepot.org/api/healthz")
+                {
+                    Headers = { { "test", RandomString(headerSize) } }
+                });
 
-        var response = await HttpClient.SendAsync(
-            new HttpRequestMessage(HttpMethod.Get, "https://staging.languagedepot.org/api/healthz")
-            {
-                Headers = { { "test", RandomString(headerSize) } }
-            });
-        response.StatusCode.ShouldBe(HttpStatusCode.OK, $"header size: {headerSize}");
+            if (response.StatusCode != HttpStatusCode.OK) failStatusCodes.Add(response.StatusCode);
+        }
+        failStatusCodes.ShouldBeEmpty();
     }
 
     private string RandomString(int length)
