@@ -150,7 +150,7 @@ function getUser(event?: RequestEvent | NavigationEvent | Event): LexAuthUser | 
     }
   }
 }
-function traceUserAttributes(span: Span, event?: RequestEvent | NavigationEvent | Event): void {
+export function traceUserAttributes(span: Span, event?: RequestEvent | NavigationEvent | Event): void {
     const user = getUser(event);
     if (user) {
         span.setAttribute('app.user.id', user.id);
