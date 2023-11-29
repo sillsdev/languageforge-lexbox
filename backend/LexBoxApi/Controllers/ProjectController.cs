@@ -94,6 +94,14 @@ public class ProjectController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("finishResetProject/{code}")]
+    [AdminRequired]
+    public async Task<ActionResult> FinishResetProject(string code)
+    {
+        await _projectService.FinishReset(code);
+        return Ok();
+    }
+
     [HttpDelete("project/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
