@@ -63,14 +63,17 @@ public class ProjectService
         await _hgService.ResetRepo(input.Code);
     }
 
-    public async Task FinishReset(string code, Stream zipFile)
+    public async Task FinishReset(string code, Stream? zipFile = null)
     {
         var project = await _dbContext.Projects.Where(p => p.Code == code).SingleOrDefaultAsync();
         if (project is null) throw new NotFoundException($"project {code} not found");
-        if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.NotReadyForUpload(code);
-        await _hgService.FinishReset(code, zipFile);
+        if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.ResetNotStarted(code);
+        if (zipFile is not null)
+        {
+            await _hgService.FinishReset(code, zipFile);
+            project.LastCommit = await _hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
+        }
         project.ResetStatus = ResetStatus.None;
-        project.LastCommit = await _hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
         await _dbContext.SaveChangesAsync();
     }
 

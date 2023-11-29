@@ -167,6 +167,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "submit": "Reset project",
       "close": "Close",
       "i_have_working_backup": "I have a working backup",
+      "leave_project_empty": "Leave project empty",
       "next": "Next",
       "back": "Back",
       "download_instruction": "First, download a backup of the project that you can use to restore it in step 3:",

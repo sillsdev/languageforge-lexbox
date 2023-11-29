@@ -5,7 +5,7 @@
   import { z } from 'zod';
   import { CircleArrowIcon } from '$lib/icons';
   import Modal from '$lib/components/modals/Modal.svelte';
-  import { lexSuperForm } from '$lib/forms';
+  import { FormError, lexSuperForm, type ErrorMessage } from '$lib/forms';
   import Form from '$lib/forms/Form.svelte';
   import TusUpload from '$lib/components/TusUpload.svelte';
   import { ResetStatus } from '$lib/gql/generated/graphql';
@@ -24,14 +24,17 @@
 
   function nextStep(): void {
     currentStep++;
+    error = undefined;
   }
 
   function previousStep(): void {
     currentStep--;
+    error = undefined;
   }
 
   let code: string;
   let modal: Modal;
+  let error: ErrorMessage | undefined = undefined;
 
   export async function open(_code: string, resetStatus: ResetStatus): Promise<boolean> {
     code = _code;
@@ -63,6 +66,8 @@
     await _refreshProjectMigrationStatusAndRepoInfo(code);
     if (resetResponse.ok) {
       nextStep();
+    } else {
+      error = resetResponse.statusText;
     }
   });
 
@@ -75,9 +80,22 @@
     currentStep = ResetSteps.Download;
     reset();
   }
+
+  async function leaveProjectEmpty(): Promise<void> {
+    const url = `/api/project/finishResetProject/${code}`;
+    const resetResponse = await fetch(url, { method: 'post' });
+    //we should do the reset via a mutation, but this is easier for now
+    //we need to refresh the status, because the project is no longer being reset
+    await _refreshProjectMigrationStatusAndRepoInfo(code);
+    if (resetResponse.ok) {
+      nextStep();
+    } else {
+      error = resetResponse.statusText;
+    }
+  }
 </script>
 
-<div class="reset-modal contents" class:hide-modal-actions={currentStep === ResetSteps.Upload}>
+<div class="reset-modal contents">
   <Modal bind:this={modal} on:close={onClose} showCloseButton={false}>
     <h2 class="text-xl mb-4">{$t('title', { code })}</h2>
     <ul class="steps w-full mb-2">
@@ -138,6 +156,7 @@
     {:else}
       <span>Unknown step</span>
     {/if}
+    <FormError {error} />
     <svelte:fragment slot="extraActions">
       {#if currentStep === ResetSteps.Reset}
         <button class="btn btn-secondary" on:click={previousStep}>
@@ -157,6 +176,11 @@
           {$t('submit')}
           <CircleArrowIcon />
         </button>
+      {:else if currentStep === ResetSteps.Upload}
+        <button class="btn btn-primary" on:click={leaveProjectEmpty}>
+          {$t('leave_project_empty')}
+          <span class="i-mdi-chevron-right text-2xl" />
+        </button>
       {:else if currentStep === ResetSteps.Finished}
         <button class="btn btn-primary" on:click={() => modal.submitModal()}>
           {$t('close')}
@@ -165,9 +189,3 @@
     </svelte:fragment>
   </Modal>
 </div>
-
-<style>
-  :global(.hide-modal-actions .modal-action) {
-    display: none !important;
-  }
-</style>
