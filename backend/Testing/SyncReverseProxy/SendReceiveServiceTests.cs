@@ -137,8 +137,10 @@ public class SendReceiveServiceTests
         fwDataFileInfo.Length.ShouldBe(fwDataFileOriginalLength);
     }
 
-    [Fact]
-    public async Task ModifyProjectData()
+    [Theory]
+    [InlineData(HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Resumable)]
+    public async Task ModifyProjectData(HgProtocol protocol)
     {
         var projectCode = TestingEnvironmentVariables.ProjectCode;
         var apiTester = new ApiTestBase();
@@ -156,8 +158,8 @@ query projectLastCommit {
         var lastCommitDate = jsonResult["data"]["projectByCode"]["lastCommit"].ToString();
 
         // Clone
-        var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
-        var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, AdminAuth);
+        var sendReceiveParams = GetParams(protocol, projectCode);
+        var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);
         cloneResult.ShouldNotContain("abort");
         cloneResult.ShouldNotContain("error");
         var fwDataFileInfo = new FileInfo(sendReceiveParams.FwDataFile);
@@ -165,14 +167,12 @@ query projectLastCommit {
         ModifyProjectHelper.ModifyProject(sendReceiveParams.FwDataFile);
 
         // Send changes
-        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth, "Modify project data automated test");
         srResult.ShouldNotContain("abort");
         srResult.ShouldNotContain("error");
         await Task.Delay(6000);
 
         jsonResult = await apiTester.ExecuteGql(gqlQuery);
-        Console.WriteLine("Second request:");
-        Console.WriteLine(jsonResult.ToString());
         var lastCommitDateAfter = jsonResult["data"]["projectByCode"]["lastCommit"].ToString();
         lastCommitDateAfter.ShouldBeGreaterThan(lastCommitDate);
     }
