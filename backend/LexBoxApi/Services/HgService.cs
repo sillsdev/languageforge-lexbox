@@ -108,13 +108,14 @@ public class HgService : IHgService
         using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
         await DeleteRepo(code);
         var repoPath = Path.Combine(_options.Value.RepoPath, code);
-        Directory.CreateDirectory(repoPath);
+        var dir = Directory.CreateDirectory(repoPath);
         archive.ExtractToDirectory(repoPath);
 
         var hgPath = Path.Join(repoPath, ".hg");
         if (Directory.Exists(hgPath))
         {
             await CleanupRepoFolder(repoPath);
+            SetPermissionsRecursively(dir);
             return;
         }
 
@@ -129,6 +130,7 @@ public class HgService : IHgService
 
         Directory.Move(hgFolder, hgPath);
         await CleanupRepoFolder(repoPath);
+        SetPermissionsRecursively(dir);
     }
 
     /// <summary>
@@ -223,20 +225,34 @@ public class HgService : IHgService
 
     private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
-        foreach (DirectoryInfo dir in source.GetDirectories())
+        foreach (var dir in source.GetDirectories())
         {
             var directoryInfo = target.CreateSubdirectory(dir.Name);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                File.SetUnixFileMode(directoryInfo.FullName, Permissions);
             CopyFilesRecursively(dir, directoryInfo);
         }
 
-        foreach (FileInfo file in source.GetFiles())
+        foreach (var file in source.GetFiles())
         {
             var destFileName = Path.Combine(target.FullName, file.Name);
             file.CopyTo(destFileName);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                File.SetUnixFileMode(destFileName, Permissions);
+        }
+
+        SetPermissionsRecursively(target);
+    }
+
+    private static void SetPermissionsRecursively(DirectoryInfo rootDir)
+    {
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
+
+        foreach (var dir in rootDir.GetDirectories())
+        {
+            File.SetUnixFileMode(dir.FullName, Permissions);
+            SetPermissionsRecursively(dir);
+        }
+
+        foreach (var file in rootDir.GetFiles())
+        {
+            File.SetUnixFileMode(file.FullName, Permissions);
         }
     }
 
