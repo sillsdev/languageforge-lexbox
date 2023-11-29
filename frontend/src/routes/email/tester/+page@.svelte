@@ -5,7 +5,7 @@
     import type {RenderEmailResult} from '$lib/email/emailRenderer.server';
 
     function absoluteUrl(path: string): string {
-      return browser ? `${location.origin}/${path}` : path;
+      return `${location.origin}/${path}`;
     }
 
     let emails: Array<EmailTemplateProps & { label?: string }> = [
@@ -29,7 +29,7 @@
         {
             label: 'Create Project Request',
             name: 'Admin',
-            baseUrl: 'http://localhost:3000',
+            baseUrl: location.origin,
             template: EmailTemplate.CreateProjectRequest,
             project: {
                 name: 'My Project',
@@ -46,7 +46,7 @@
         {
             label: 'Create Project Request - custom code',
             name: 'Admin',
-            baseUrl: 'http://localhost:3000',
+            baseUrl: location.origin,
             template: EmailTemplate.CreateProjectRequest,
             project: {
                 name: 'My Project',
