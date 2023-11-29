@@ -19,8 +19,7 @@ public class ProxyEventsService
             var projectCode = context.Request.GetProjectCode();
             if (projectCode is not null)
             {
-                //discard, we don't care about the result
-                await Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode/*, TimeSpan.FromSeconds(5)*/));
+                await _lexProxyService.RefreshProjectLastChange(projectCode);
             }
         }
     }
@@ -29,14 +28,9 @@ public class ProxyEventsService
     {
         if (context.Request.Query.TryGetValue("cmd", out var cmd)
             && cmd == "unbundle"
-            && context.Request.RouteValues.TryGetValue(ProxyConstants.HgProjectCodeRouteKey, out var projectCodeObj))
+            && context.Request.GetProjectCode() is { } projectCode)
         {
-            var projectCode = projectCodeObj?.ToString() ?? null;
-            if (projectCode is not null)
-            {
-                //discard, we don't care about the result
-                await Task.Run(() => _lexProxyService.RefreshProjectLastChange(projectCode/*, TimeSpan.FromSeconds(5)*/));
-            }
+            await _lexProxyService.RefreshProjectLastChange(projectCode);
         }
     }
 }
