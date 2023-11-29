@@ -3,7 +3,7 @@ import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-
 import { APP_VERSION } from '$lib/util/version';
 import { OTLPTraceExporterBrowserWithXhrRetry } from './trace-exporter-browser-with-xhr-retry';
 import { Resource } from '@opentelemetry/resources'
-import { SERVICE_NAME } from '.'
+import {SERVICE_NAME, traceUserAttributes} from '.';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
@@ -26,6 +26,14 @@ const resource = Resource.default().merge(
 )
 const provider = new WebTracerProvider({
   resource: resource,
+});
+provider.addSpanProcessor({
+forceFlush: () => Promise.resolve(),
+  onStart: (span) => {
+    traceUserAttributes(span);
+  },
+  onEnd: () => {},
+  shutdown: () => Promise.resolve(),
 });
 const exporter = new OTLPTraceExporterBrowserWithXhrRetry({
   url: '/v1/traces'

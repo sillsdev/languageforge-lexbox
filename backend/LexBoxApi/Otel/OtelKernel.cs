@@ -4,6 +4,7 @@ using System.Security.Claims;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using Npgsql;
+using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -28,6 +29,7 @@ public static class OtelKernel
                     configuration.Bind("Otel", options);
                 })
                 .AddSource(ServiceName)
+                .AddProcessor<UserEnricher>()
                 .SetResourceBuilder(appResourceBuilder)
                 // could potentially add baggage to the trace as done in
                 // https://github.com/honeycombio/honeycomb-opentelemetry-dotnet/blob/main/src/Honeycomb.OpenTelemetry.Instrumentation.AspNetCore/TracerProviderBuilderExtensions.cs
@@ -109,6 +111,15 @@ public static class OtelKernel
         {
             activity.SetTag("app.user.role", userRole);
         }
-        activity.SetTag("http.abort", httpContext.RequestAborted.IsCancellationRequested);
+        if (httpContext.RequestAborted.IsCancellationRequested)
+            activity.SetTag("http.abort", true);
+    }
+
+    private class UserEnricher(IHttpContextAccessor contextAccessor) : BaseProcessor<Activity>
+    {
+        public override void OnStart(Activity data)
+        {
+            if (contextAccessor.HttpContext is {} context) data.EnrichWithUser(context);
+        }
     }
 }
