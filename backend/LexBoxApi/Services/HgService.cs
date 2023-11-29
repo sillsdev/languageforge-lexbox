@@ -249,7 +249,7 @@ public class HgService : IHgService
         var json = await response.Content.ReadFromJsonAsync<JsonObject>();
         //format is this: [1678687688, offset] offset is
         var dateArray = json?["entries"]?[0]?["date"].Deserialize<decimal[]>();
-        if (dateArray is null || dateArray.Length != 2)
+        if (dateArray is null || dateArray.Length != 2 || dateArray[0] <= 0)
             return null;
         //offsets are weird. The format we get the offset in is opposite of how we typically represent offsets, eg normally the US has negative
         //offsets because it's behind UTC. But in other cases the US has positive offsets because time needs to be added to reach UTC.
