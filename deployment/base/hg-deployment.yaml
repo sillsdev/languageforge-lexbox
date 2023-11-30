@@ -60,6 +60,13 @@ spec:
         ports:
           - containerPort: 8088
 
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8088
+          failureThreshold: 30
+          periodSeconds: 10
+
         volumeMounts:
           - name: repos
             mountPath: /var/hg/repos
