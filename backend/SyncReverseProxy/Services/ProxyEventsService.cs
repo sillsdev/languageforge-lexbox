@@ -25,14 +25,11 @@ public class ProxyEventsService
                     int.TryParse(offsetStr, out var offset) &&
                     int.TryParse(bundleSizeStr, out var bundleSize))
                 {
-                    if (offset + chunkSize >= bundleSize)
+                    if (offset + chunkSize >= bundleSize &&
+                        context.Request.GetProjectCode() is { } projectCode)
                     {
                         // Last chunk, so record updated last-changed date
-                        var projectCode = context.Request.GetProjectCode();
-                        if (projectCode is not null)
-                        {
-                            await _lexProxyService.RefreshProjectLastChange(projectCode);
-                        }
+                        await _lexProxyService.RefreshProjectLastChange(projectCode);
                     }
                 }
             }
