@@ -2,8 +2,8 @@
   "admin_dashboard": {
     "title": "Admin Dashboard",
     "column_code": "Code",
-    "column_created": "Created",
     "column_email": "Email",
+    "column_login": "Login",
     "column_last_change": "Last Change",
     "column_migrated": "Migrated",
     "column_name": "Name",
