@@ -186,7 +186,7 @@ public class SendReceiveServiceTests
         var stream = await apiTester.HttpClient.GetStreamAsync("https://drive.google.com/uc?export=download&id=1w357T1Ti7bDwEof4HPBUZ5gB7WSKA5O2");
         using var zip = new ZipArchive(stream);
         zip.ExtractToDirectory(sendReceiveParams.DestDir);
-        File.Exists(sendReceiveParams.FwDataFile).ShouldBeTrue();
+        Directory.EnumerateFiles(sendReceiveParams.DestDir).ShouldContain(sendReceiveParams.FwDataFile);
 
         //hack around the fact that our send and receive won't create a repo from scratch.
         var progress = new NullProgress();

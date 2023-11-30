@@ -100,7 +100,8 @@ public class HgService : IHgService
     {
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
         await SoftDeleteRepo(code, $"{timestamp}__reset");
-        await InitRepo(code); // we don't want 404s
+        //we must init the repo as uploading a zip is optional
+        await InitRepo(code);
     }
 
     public async Task FinishReset(string code, Stream zipFile)
