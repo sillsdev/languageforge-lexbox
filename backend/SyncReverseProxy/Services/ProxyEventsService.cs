@@ -14,12 +14,27 @@ public class ProxyEventsService
 
     public async Task OnResumableRequest(HttpContext context)
     {
-        if (context.Request.Path.StartsWithSegments("/api/v03/finishPushBundle"))
+        if (context.Request.Path.StartsWithSegments("/api/v03/pushBundleChunk") &&
+            context.Response.StatusCode == 200)
         {
-            var projectCode = context.Request.GetProjectCode();
-            if (projectCode is not null)
+            if (context.Request.Query.TryGetValue("chunksize", out var chunkSizeStr) &&
+                context.Request.Query.TryGetValue("offset", out var offsetStr) &&
+                context.Request.Query.TryGetValue("bundlesize", out var bundleSizeStr))
             {
-                await _lexProxyService.RefreshProjectLastChange(projectCode);
+                if (int.TryParse(chunkSizeStr, out var chunkSize) &&
+                    int.TryParse(offsetStr, out var offset) &&
+                    int.TryParse(bundleSizeStr, out var bundleSize))
+                {
+                    if (offset + chunkSize >= bundleSize)
+                    {
+                        // Last chunk, so record updated last-changed date
+                        var projectCode = context.Request.GetProjectCode();
+                        if (projectCode is not null)
+                        {
+                            await _lexProxyService.RefreshProjectLastChange(projectCode);
+                        }
+                    }
+                }
             }
         }
     }
