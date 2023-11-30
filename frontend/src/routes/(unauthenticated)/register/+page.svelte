@@ -26,7 +26,7 @@
       return;
     }
     if (user) {
-      await goto('/home');
+      await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
