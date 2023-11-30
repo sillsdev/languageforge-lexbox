@@ -112,23 +112,20 @@ public class HgService : IHgService
         archive.ExtractToDirectory(repoPath);
 
         var hgPath = Path.Join(repoPath, ".hg");
-        if (Directory.Exists(hgPath))
+        if (!Directory.Exists(hgPath))
         {
-            await CleanupRepoFolder(repoPath);
-            SetPermissionsRecursively(dir);
-            return;
+            var hgFolder = Directory.EnumerateDirectories(repoPath, ".hg", SearchOption.AllDirectories)
+                .FirstOrDefault();
+            if (hgFolder is null)
+            {
+                await DeleteRepo(code);
+                await InitRepo(code); // we don't want 404s
+                //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
+                throw ProjectResetException.ZipMissingHgFolder();
+            }
+            //found the .hg folder, move it to the correct location and continue
+            Directory.Move(hgFolder, hgPath);
         }
-
-        var hgFolder = Directory.EnumerateDirectories(repoPath, ".hg", SearchOption.AllDirectories).FirstOrDefault();
-        if (hgFolder is null)
-        {
-            await DeleteRepo(code);
-            await InitRepo(code); // we don't want 404s
-            //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
-            throw ProjectResetException.ZipMissingHgFolder();
-        }
-
-        Directory.Move(hgFolder, hgPath);
         await CleanupRepoFolder(repoPath);
         SetPermissionsRecursively(dir);
     }
@@ -225,34 +222,36 @@ public class HgService : IHgService
 
     private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
-        foreach (var dir in source.GetDirectories())
+        foreach (var dir in source.EnumerateDirectories())
         {
             var directoryInfo = target.CreateSubdirectory(dir.Name);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                directoryInfo.UnixFileMode = Permissions;
             CopyFilesRecursively(dir, directoryInfo);
         }
 
-        foreach (var file in source.GetFiles())
+        foreach (var file in source.EnumerateFiles())
         {
             var destFileName = Path.Combine(target.FullName, file.Name);
-            file.CopyTo(destFileName);
+            var destFile = file.CopyTo(destFileName);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                destFile.UnixFileMode = Permissions;
         }
-
-        SetPermissionsRecursively(target);
     }
 
     private static void SetPermissionsRecursively(DirectoryInfo rootDir)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
 
-        foreach (var dir in rootDir.GetDirectories())
+        foreach (var dir in rootDir.EnumerateDirectories())
         {
-            File.SetUnixFileMode(dir.FullName, Permissions);
+            dir.UnixFileMode = Permissions;
             SetPermissionsRecursively(dir);
         }
 
-        foreach (var file in rootDir.GetFiles())
+        foreach (var file in rootDir.EnumerateFiles())
         {
-            File.SetUnixFileMode(file.FullName, Permissions);
+            file.UnixFileMode = Permissions;
         }
     }
 
