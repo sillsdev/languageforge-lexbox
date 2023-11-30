@@ -80,8 +80,8 @@ export async function load(event: PageLoadEvent) {
                 id
                 name
                 email
+                username
                 isAdmin
-                createdDate
                 emailVerified
                 projects {
                     id

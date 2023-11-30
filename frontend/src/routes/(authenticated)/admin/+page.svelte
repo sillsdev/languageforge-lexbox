@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Badge } from '$lib/components/Badges';
-  import FormatDate from '$lib/components/FormatDate.svelte';
   import Input from '$lib/forms/Input.svelte';
   import t from '$lib/i18n';
   import type { PageData } from './$types';
@@ -103,9 +102,9 @@
               <th>
                 {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
+              <th>{$t('admin_dashboard.column_login')}</th>
               <th>{$t('admin_dashboard.column_email')}</th>
               <th>{$t('admin_dashboard.column_role')}</th>
-              <th>{$t('admin_dashboard.column_created')}</th>
               <th />
             </tr>
           </thead>
@@ -113,6 +112,11 @@
             {#each shownUsers as user}
               <tr>
                 <td>{user.name}</td>
+                <td>
+                  {#if user.username}
+                    {user.username}
+                  {/if}
+                </td>
                 <td>
                   <span class="inline-flex items-center gap-2 text-left">
                     {user.email}
@@ -127,9 +131,6 @@
                 </td>
                 <td class:text-accent={user.isAdmin}>
                   {user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}
-                </td>
-                <td>
-                  <FormatDate date={user.createdDate} />
                 </td>
                 <td class="p-0">
                   <Dropdown let:close>
