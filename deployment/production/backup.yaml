@@ -58,11 +58,14 @@ spec:
               args:
                 - "snapshot"
                 - "create"
+                - "--parallel=1"
                 - "/dump/postgres-backup"
                 - "/hg-repos"
               resources:
+                requests:
+                  memory: 100Mi
                 limits:
-                  memory: 150Mi
+                  memory: 400Mi
               env:
                 - name: KOPIA_PASSWORD
                   valueFrom:
