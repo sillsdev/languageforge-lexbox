@@ -23,6 +23,7 @@ spec:
   schedule: "0 1 * * *"  #every day at 1:00 AM UTC
   jobTemplate:
     spec:
+      backoffLimit: 0
       template:
         spec:
           initContainers:
@@ -60,8 +61,6 @@ spec:
                 - "/dump/postgres-backup"
                 - "/hg-repos"
               resources:
-                requests:
-                  memory: 100Mi
                 limits:
                   memory: 150Mi
               env:
@@ -72,21 +71,22 @@ spec:
                       key: KOPIA_PASSWORD
               volumeMounts:
                 - name: config
-                  mountPath: /app/config
+                  mountPath: /app/config/repository.config
+                  subPath: repository.config
                 - name: kopia-cache
                   mountPath: /app/cache
                 - name: pg-dump
                   mountPath: /dump
                 - name: hg-repos
                   mountPath: /hg-repos
-          restartPolicy: OnFailure
+          restartPolicy: Never
           volumes:
             - name: config
               secret:
                 secretName: backups
                 items:
                   - key: kopia.config
-                    path: /kopia.config
+                    path: repository.config
             - name: kopia-cache
               persistentVolumeClaim:
                 claimName: kopia-cache
