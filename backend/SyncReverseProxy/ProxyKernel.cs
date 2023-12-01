@@ -7,6 +7,7 @@ using LexSyncReverseProxy.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenTelemetry.Trace;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace LexSyncReverseProxy;
@@ -108,14 +109,22 @@ public static class ProxyKernel
         }
 
         await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient);
-        switch (hgType)
+        try
         {
-            case HgType.hgWeb:
-                await eventsService.OnHgRequest(context);
-                break;
-            case HgType.resumable:
-                await eventsService.OnResumableRequest(context);
-                break;
+            switch (hgType)
+            {
+                case HgType.hgWeb:
+                    await eventsService.OnHgRequest(context);
+                    break;
+                case HgType.resumable:
+                    await eventsService.OnResumableRequest(context);
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Activity.Current?.RecordException(e);
+            //we don't want to throw errors from the post process event
         }
     }
 
