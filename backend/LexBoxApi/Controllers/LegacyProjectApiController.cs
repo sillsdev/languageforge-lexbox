@@ -57,7 +57,7 @@ public class LegacyProjectApiController : ControllerBase
                     "http://public.languagedepot.org",
                     RoleToString(member.Role)))
             })
-            .SingleOrDefaultAsync();
+            .FirstOrDefaultAsync();
         if (user == null)
         {
             return NotFound(new LegacyApiError("Unknown user"));

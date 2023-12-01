@@ -80,6 +80,15 @@ password={password}
     }
 
     [Fact]
+    public async Task GetProjectDataWithUppercaseUsername()
+    {
+        var response = await Client.PostAsJsonAsync(
+            $"{_baseUrl}/api/user/{TestData.User.ToUpper()}/projects",
+            new { password = TestData.Password });
+        await ValidateResponse(response);
+    }
+
+    [Fact]
     public async Task TestInvalidPassword()
     {
         var response = await Client.PostAsync(
