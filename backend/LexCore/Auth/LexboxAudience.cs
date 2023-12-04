@@ -12,11 +12,3 @@ public enum LexboxAudience
     ForgotPassword,
     SendAndReceive,
 }
-
-public static class LexboxAudienceHelper
-{
-    public static string PolicyName(this LexboxAudience audience, bool exclusive)
-    {
-        return $"RequireAudience{audience}{(exclusive ? "Exclusive" : "")}Policy";
-    }
-}

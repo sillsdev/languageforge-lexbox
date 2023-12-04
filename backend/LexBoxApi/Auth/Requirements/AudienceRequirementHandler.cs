@@ -1,22 +1,12 @@
 ﻿using LexCore.Auth;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace LexBoxApi.Auth.Requirements;
 
-public class AudienceRequirement : IAuthorizationRequirement
+public class AudienceRequirementHandler : AuthorizationHandler<RequireAudienceAttribute>
 {
-    public LexboxAudience[] ValidAudiences { get; }
-
-    public AudienceRequirement(params LexboxAudience[] validAudiences)
-    {
-        ValidAudiences = validAudiences;
-    }
-}
-
-public class AudienceRequirementHandler : AuthorizationHandler<AudienceRequirement>
-{
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AudienceRequirement requirement)
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+        RequireAudienceAttribute requirement)
     {
         var claim = context.User.FindFirst(LexAuthConstants.AudienceClaimType);
         if (Enum.TryParse<LexboxAudience>(claim?.Value, out var audience) &&
