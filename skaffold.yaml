@@ -32,6 +32,7 @@ build:
         dockerfile: Dockerfile
   local:
     useBuildkit: true
+    concurrency: 2
 portForward:
   # Backend
   - resourceType: Service
