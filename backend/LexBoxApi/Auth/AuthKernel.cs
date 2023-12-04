@@ -25,6 +25,7 @@ public static class AuthKernel
         if (environment.IsDevelopment())
         {
             IdentityModelEventSource.ShowPII = true;
+            IdentityModelEventSource.LogCompleteSecurityArtifact = true;
         }
 
         services.AddScoped<LexAuthService>();
@@ -37,24 +38,11 @@ public static class AuthKernel
             options.FallbackPolicy = options.DefaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireDefaultLexboxAuth()
                 .Build();
-            foreach (var audience in Enum.GetValues<LexboxAudience>())
-            {
-                if (audience == LexboxAudience.Unknown) continue;
-                //for exclusive the endpoint is only accessible for the specified audience
-                options.AddPolicy(audience.PolicyName(true), builder =>
-                {
-                    builder.RequireAuthenticatedUser();
-                    builder.AddRequirements(new AudienceRequirement(audience));
-                });
-                //for non exclusive the endpoint is also accessible for the default audience
-                options.AddPolicy(audience.PolicyName(false), builder =>
-                {
-                    builder.RequireAuthenticatedUser();
-                    builder.AddRequirements(new AudienceRequirement(audience, LexboxAudience.LexboxApi));
-                });
-            }
+
             //don't use RequireDefaultLexboxAuth here because that only allows the default audience
             options.AddPolicy(AllowAnyAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
+            //we still need this policy, without it the default policy is used which requires the default audience
+            options.AddPolicy(RequireAudienceAttribute.PolicyName, builder => builder.RequireAuthenticatedUser());
 
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireDefaultLexboxAuth()
@@ -181,7 +169,7 @@ public static class AuthKernel
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
     {
         return builder.RequireAuthenticatedUser()
-            .AddRequirements(new AudienceRequirement(LexboxAudience.LexboxApi));
+            .AddRequirements(new RequireAudienceAttribute(LexboxAudience.LexboxApi));
     }
 
     public static bool IsJwtRequest(this HttpRequest request)
