@@ -81,7 +81,7 @@ public class UserMutations
                 user.IsAdmin = adminInput.Role == UserRole.admin;
             }
         }
-
+        user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 
         if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))

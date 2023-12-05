@@ -10,6 +10,7 @@ public static class LexAuthConstants
     public const string ProjectsClaimType = "proj";
     public const string EmailUnverifiedClaimType = "unver";
     public const string CanCreateProjectClaimType = "mkproj";
+    public const string UpdatedDateClaimType = "date";
 }
 
 /// <summary>

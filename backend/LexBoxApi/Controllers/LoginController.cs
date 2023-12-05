@@ -143,6 +143,7 @@ public class LoginController : ControllerBase
         var lexAuthUser = _loggedInContext.User;
         var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == lexAuthUser.Id);
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
+        user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();
         await _emailService.SendPasswordChangedEmail(user);
         //the old jwt is only valid for calling forgot password endpoints, we need to generate a new one
