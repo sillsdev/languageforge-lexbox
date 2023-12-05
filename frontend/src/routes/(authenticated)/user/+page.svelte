@@ -46,7 +46,7 @@
       userId: user.id,
     });
     if (data?.changeUserAccountData.errors?.some(e => e.__typename === 'UniqueValueError')) {
-      $errors.email = [$t('admin_dashboard.email_used')];
+      $errors.email = [$t('account_settings.email_taken')];
       return;
     }
     if (error?.message) {

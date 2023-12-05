@@ -11,19 +11,8 @@
     "column_type": "Type",
     "column_users": "Users",
     "column_edit": "Edit",
-    "show_delete_projects": "Show deleted projects",
-    "filter_placeholder": "Search...",
-    "project_filter": {
-      "title": "Project filters",
-      "select_user_from_table": "To filter projects for a specific user, select the user from the user table:",
-      "project_member": "Project member",
-      "all_users": "All users",
-      "show_deleted": "Show deleted",
-    },
-    "filter_projects": "Filter projects",
     "project_table_title": "Projects",
     "user_table_title": "Users",
-    "email_used": "An account with this email address already exists",
     "email_not_verified": "Not Verified",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
@@ -47,7 +36,6 @@
         }
       }
     },
-    "load_more": "Load more"
   },
   "account_settings": {
     "title": "Account Settings",
@@ -56,6 +44,7 @@
     "reset_password": "Reset your password instead?",
     "update_success": "Your account has been updated.",
     "button_update": "Update account info",
+    "email_taken": "An account with this email address already exists",
     "delete_account": {
       "title": "Delete Account",
       "submit": "Delete Account",
@@ -146,7 +135,22 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "submit": "Create Project",
       "requested": "Your request for project {name} has been submitted.",
       "request": "Request Project"
-    }
+    },
+    "table": {
+      "name": "Name",
+      "code": "Code",
+      "last_change": "Last Change",
+      "migrated": "Migrated",
+      "type": "Type",
+      "users": "Users",
+    },
+    "filter": {
+      "title": "Project filters",
+      "show_deleted": "Show deleted",
+      "select_user_from_table": "To filter projects for a specific user, select the user from the user table:",
+      "project_member": "Project member",
+      "filter_user_projects": "Filter projects",
+    },
   },
   "project_page": {
     "project": "Project",
@@ -283,7 +287,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   "user_dashboard": {
     "home_title": "Home",
     "title": "My Projects",
-    "no_projects": "You aren't in any projects yet. You have to verify your email address before you can join or request a project."
+    "not_verified": "You aren't in any projects yet. You have to verify your email address before you can join or request a project.",
+    "no_projects": "You aren't in any projects yet.",
+    "use_view": "Use {mode, select, grid {grid} other {table}} view"
   },
   "user_types": {
     "admin": "Admin",
@@ -363,5 +369,11 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "server_error_codes": {
       "ZIP_MISSING_HG_FOLDER": "The ZIP file does not contain a folder named .hg"
     }
+  },
+  "paging": {
+    "load_more": "Load more",
+  },
+  "filter": {
+    "placeholder": "Search...",
   },
 }

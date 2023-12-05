@@ -10,20 +10,14 @@ import type {
   ChangeUserAccountByAdminMutation,
   ProjectFilterInput,
   UserFilterInput,
-  ProjectType,
-  ProjectMigrationStatus
 } from '$lib/gql/types';
 import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from '$lib/gql/types';
+import type { ProjectFilters } from '$lib/components/Projects';
+import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
 
-export const _FILTER_PAGE_SIZE = 100;
-
-export type AdminSearchParams = {
-  userSearch: string,
-  showDeletedProjects: boolean,
-  projectType: ProjectType | undefined,
-  userEmail: string | undefined,
-  projectSearch: string,
-  migrationStatus: ProjectMigrationStatus | 'UNMIGRATED' | undefined,
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
+export type AdminSearchParams = ProjectFilters & {
+  userSearch: string
 };
 
 export type Project = LoadAdminDashboardProjectsQuery['projects'][number];
@@ -90,7 +84,7 @@ export async function load(event: PageLoadEvent) {
               }
             }
         }
-    `), { filter: userFilter, take: _FILTER_PAGE_SIZE });
+    `), { filter: userFilter, take: DEFAULT_PAGE_SIZE });
 
   const [projectResults, userResults] = await Promise.all([projectResultsPromise, userResultsPromise]);
 
