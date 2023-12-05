@@ -34,9 +34,9 @@ public class AdminController : ControllerBase
     public async Task<ActionResult> ResetPasswordAdmin(ResetPasswordAdminRequest request)
     {
         var passwordHash = request.PasswordHash;
-        var lexAuthUser = _loggedInContext.User;
         var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == request.userId);
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
+        user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();
         await _emailService.SendPasswordChangedEmail(user);
         return Ok();

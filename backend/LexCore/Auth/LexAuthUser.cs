@@ -83,6 +83,7 @@ public record LexAuthUser
         Email = user.Email;
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
         Name = user.Name;
+        UpdatedDate = user.UpdatedDate;
         Projects = user.IsAdmin
             ? Array.Empty<AuthUserProject>() // admins have access to all projects, so we don't include them to prevent going over the jwt limit
             : user.Projects.Select(p => new AuthUserProject(p.Role, p.ProjectId)).ToArray();
@@ -92,7 +93,8 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
     public required Guid Id { get; set; }
-
+    [JsonPropertyName(LexAuthConstants.UpdatedDateClaimType)]
+    public required DateTimeOffset UpdatedDate { get; set; }
     [JsonPropertyName(LexAuthConstants.AudienceClaimType)]
     public LexboxAudience Audience { get; set; } = LexboxAudience.LexboxApi;
 
