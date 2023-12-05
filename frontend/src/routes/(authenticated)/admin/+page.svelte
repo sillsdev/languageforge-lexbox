@@ -12,12 +12,12 @@
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { RefineFilterMessage } from '$lib/components/Table';
   import type { AdminSearchParams, User } from './+page';
-  import ProjectTable from './ProjectTable.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType, ProjectMigrationStatus } from '$lib/gql/types';
+  import AdminProjects from './AdminProjects.svelte';
 
   export let data: PageData;
-  $: allProjects = data.projects;
+  $: projects = data.projects;
   $: userData = data.users;
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -30,7 +30,6 @@
     projectSearch: queryParam.string<string>(''),
     migrationStatus: queryParam.string<ProjectMigrationStatus | 'UNMIGRATED' | undefined>(undefined),
   });
-
   const { queryParamValues } = queryParams;
 
   $: users = $userData?.items ?? [];
@@ -41,7 +40,6 @@
     $queryParamValues.userEmail = user.email;
   }
 
-  let projectsTable: ProjectTable;
   let deleteUserModal: DeleteUserModal;
   let formModal: EditUserAccount;
 
@@ -65,12 +63,11 @@
             name: user.name,
             requestedEmail: formState.email.currentValue,
           }),
-          Duration.Long
+          Duration.Long,
         );
       }
     }
   }
-
 
 </script>
 
@@ -79,7 +76,8 @@
 </svelte:head>
 <main>
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
-    <ProjectTable bind:this={projectsTable} {queryParams} projects={$allProjects} />
+
+    <AdminProjects projects={$projects} {queryParams} />
 
     <div>
       <span class="text-xl flex gap-4">
@@ -92,7 +90,7 @@
           </span>
         </Badge>
       </span>
-      <Input label="" placeholder={$t('admin_dashboard.filter_placeholder')} bind:value={$queryParamValues.userSearch} debounce />
+      <Input label="" placeholder={$t('filter.placeholder')} bind:value={$queryParamValues.userSearch} debounce />
 
       <div class="divider" />
       <div class="overflow-x-auto min-h-[300px]">
@@ -148,7 +146,7 @@
                       <li>
                         <button class="whitespace-nowrap" on:click={() => {closeDropdown();filterProjectsByUser(user);}}>
                           <Icon icon="i-mdi-filter-outline"  />
-                          {$t('admin_dashboard.filter_projects')}
+                          {$t('project.filter.filter_user_projects')}
                         </button>
                       </li>
                     </ul>

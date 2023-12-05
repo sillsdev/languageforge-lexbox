@@ -41,7 +41,7 @@
         role: $form.role,
       });
       if (data?.changeUserAccountByAdmin.errors?.some(e => e.__typename === 'UniqueValueError')) {
-        return {email: [$t('admin_dashboard.email_used')]};
+        return {email: [$t('account_settings.email_taken')]};
       }
       if (error) {
         return error.message;

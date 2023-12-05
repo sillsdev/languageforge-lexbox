@@ -1,16 +1,15 @@
 <script lang="ts">
-  import type { LoadProjectsQuery } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { Badge } from './Badges';
   import { getProjectTypeIcon } from './ProjectType';
+  import type { ProjectItem } from './Projects';
 
-  export let projects: LoadProjectsQuery['myProjects'];
-  export let showCreateButton = true;
+  export let projects: ProjectItem[];
 </script>
 
 <div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
   {#each projects as project}
-    <a class="card bg-base-200 shadow-base-300 group overflow-hidden" href={`/project/${project.code}`}>
+    <a class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden" href={`/project/${project.code}`}>
       <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
       <div class="card-body z-[1]">
         <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
@@ -39,22 +38,7 @@
       </div>
     </a>
   {/each}
-
-  {#if showCreateButton}
-    <a class="card border-4 border-base-200 shadow-base-300" class:in-center-column={!projects.length} href="/project/create">
-      <div class="card-body mx-auto justify-center items-center text-primary">
-        <span class="i-mdi-plus text-4xl"/>
-        <span class="text-xl text-center">{$t('project.create.title')}</span>
-      </div>
-    </a>
-  {/if}
 </div>
-
-{#if !showCreateButton && !projects.length}
-  <div class="text-lg text-secondary flex gap-4 items-center justify-center">
-    <span class="i-mdi-creation-outline text-xl shrink-0" /> {$t('user_dashboard.no_projects')}
-  </div>
-{/if}
 
 <style lang="postcss">
   .card {
@@ -72,22 +56,18 @@
           h-full
           z-0
           bg-no-repeat
-          bottom-[-43%]
-          right-[-55%]
           opacity-50
           transition
           duration-200;
 
       background-size: auto 120px;
+      right: calc(-100% + 100px);
+      bottom: calc(-100% + 120px);
     }
 
 
     &:hover .bg {
       @apply opacity-100;
     }
-  }
-
-  .in-center-column {
-    grid-column: 2;
   }
 </style>

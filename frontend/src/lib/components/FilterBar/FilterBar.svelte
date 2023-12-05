@@ -1,51 +1,62 @@
 <script lang="ts" context="module">
-  export type Filter<T = Record<string, unknown>> = Readonly<
+  export type Filter<T = Record<string, unknown>> = Readonly<NonNullable<
     {
       [K in keyof T]: { value: T[K]; key: K & string, clear: () => void };
     }[keyof T]
-  >;
+  >>;
 </script>
 
 <script lang="ts">
+  import { createEventDispatcher } from 'svelte';
+  import type { ConditionalPick } from 'type-fest';
   import { pick } from '$lib/util/object';
-
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
 
   type Filters = $$Generic<Record<string, unknown>>;
 
-  export let search = '';
+  const dispatch = createEventDispatcher<{
+    change: Readonly<Filter<Filters>[]>;
+  }>();
+
+  export let searchKey: keyof ConditionalPick<Filters, string>;
   export let autofocus: true | undefined = undefined;
   let allFilters: Writable<Filters>;
   export { allFilters as filters };
-  let allDefaultValues: Filters;
-  export { allDefaultValues as defaultValues };
-  export let hasActiveFilter: boolean;
+  let allFilterDefaults: Filters;
+  export { allFilterDefaults as filterDefaults };
+  export let hasActiveFilter: boolean = false;
 
   /**
    * Explicitly specify the filter object keys that should be used from the `filters` (optional)
    */
-  export let filterKeys: Set<keyof Filters> | undefined = undefined;
+  export let filterKeys: (keyof Filters)[] | undefined = undefined;
 
   $: filters = Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters);
-  $: defaultValues = Object.freeze(filterKeys ? pick(allDefaultValues, filterKeys) : allDefaultValues);
-  $: activeFilters = pickActiveFilters(filters, defaultValues);
+  $: filterDefaults = Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults);
+  let activeFilters: Readonly<Filter<Filters>[]>;
   $: {
-    hasActiveFilter = activeFilters.length > 0;
+    const currFilters = activeFilters;
+    const newFilters = pickActiveFilters(filters, filterDefaults);
+    if (JSON.stringify(currFilters) !== JSON.stringify(newFilters)) {
+      activeFilters = newFilters;
+      dispatch('change', activeFilters);
+    }
   }
+  $: hasActiveFilter = activeFilters.length > 0;
 
   function reseFilters(): void {
     $allFilters = {
       ...$allFilters,
-      ...defaultValues,
+      ...filterDefaults,
     }
   }
 
   function resetFilter(key: string): void {
     $allFilters = {
       ...$allFilters,
-      [key]: defaultValues[key],
+      [key]: filterDefaults[key],
     };
   }
 
@@ -61,13 +72,13 @@
   }
 </script>
 
-<div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 mt-4 flex-wrap h-[unset] min-h-12">
+<div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
   <slot name="activeFilters" {activeFilters} />
   <div class="flex grow">
     <!-- svelte-ignore a11y-autofocus -->
     <input
-      bind:value={search}
-      placeholder={$t('admin_dashboard.filter_placeholder')}
+      bind:value={$allFilters[searchKey]}
+      placeholder={$t('filter.placeholder')}
       class="seach-input input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
       {autofocus}
     />
