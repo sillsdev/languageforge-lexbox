@@ -1,4 +1,5 @@
-﻿using LexCore.Auth;
+﻿using LexBoxApi.Auth.Attributes;
+using LexCore.Auth;
 using Microsoft.AspNetCore.Authorization;
 
 namespace LexBoxApi.Auth.Requirements;

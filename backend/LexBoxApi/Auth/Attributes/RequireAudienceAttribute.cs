@@ -1,7 +1,7 @@
 ﻿using LexCore.Auth;
 using Microsoft.AspNetCore.Authorization;
 
-namespace LexBoxApi.Auth;
+namespace LexBoxApi.Auth.Attributes;
 
 public class RequireAudienceAttribute(params LexboxAudience[] audiences)
     : LexboxAuthAttribute(PolicyName), IAuthorizationRequirement, IAuthorizationRequirementData

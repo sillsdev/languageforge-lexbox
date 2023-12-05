@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Text;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
