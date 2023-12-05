@@ -7,9 +7,12 @@
   export let disabled = false;
   export let loading = false;
   export let style: CssClassList<'btn-success', 'btn-ghost' | 'btn-outline'> = 'btn-outline';
+  export let active = false;
+  export let join = false;
+
 </script>
 
-<button class:disabled={disabled || loading} on:click class="btn btn-square {style}">
+<button class:disabled={disabled || loading} on:click class="btn btn-square {style}" class:btn-active={active} class:join-item={join}>
   {#if !loading}
     <span class="{icon} text-lg" />
   {:else}
