@@ -94,5 +94,13 @@ public class EmailWorkflowTests : PageTest
         await loginPage.FillForm(email, newPassword);
         await loginPage.Submit();
         await userDashboardPage.WaitFor();
+
+        // Step: Verify email link has expired
+        inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
+        emailPage = await inboxPage.OpenEmail();
+        //this is never returning a page for some reason
+        newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickResetPassword);
+        loginPage = await new LoginPage(newPage).WaitFor();
+        await Expect(loginPage.Page.GetByText("The email you clicked has expired")).ToBeVisibleAsync();
     }
 }
