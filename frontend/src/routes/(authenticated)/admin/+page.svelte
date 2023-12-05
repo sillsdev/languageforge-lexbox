@@ -133,20 +133,20 @@
                   {user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}
                 </td>
                 <td class="p-0">
-                  <Dropdown let:close>
+                  <Dropdown>
                     <!-- svelte-ignore a11y-label-has-associated-control -->
                     <label tabindex="-1" class="btn btn-ghost btn-square">
                       <span class="i-mdi-dots-vertical text-lg" />
                     </label>
-                    <ul slot="content" class="menu">
+                    <ul slot="content" class="menu" let:closeDropdown>
                       <li>
                         <button class="whitespace-nowrap" on:click={() => openModal(user)}>
-                          <Icon icon="i-mdi-pencil-outline"  />
+                          <Icon icon="i-mdi-pencil-outline" />
                           {$t('admin_dashboard.form_modal.title')}
                         </button>
                       </li>
                       <li>
-                        <button class="whitespace-nowrap" on:click={() => {close();filterProjectsByUser(user);}}>
+                        <button class="whitespace-nowrap" on:click={() => {closeDropdown();filterProjectsByUser(user);}}>
                           <Icon icon="i-mdi-filter-outline"  />
                           {$t('admin_dashboard.filter_projects')}
                         </button>
