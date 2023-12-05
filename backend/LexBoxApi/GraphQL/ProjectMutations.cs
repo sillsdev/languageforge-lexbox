@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;

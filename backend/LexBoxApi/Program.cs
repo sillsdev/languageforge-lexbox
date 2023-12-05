@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json.Serialization;
 using LexBoxApi;
 using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.ErrorHandling;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;

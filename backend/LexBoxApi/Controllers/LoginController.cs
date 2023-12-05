@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;

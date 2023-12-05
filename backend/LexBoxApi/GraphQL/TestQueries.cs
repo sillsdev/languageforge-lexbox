@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexCore.Auth;
 
 namespace LexBoxApi.GraphQL;

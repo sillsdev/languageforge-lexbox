@@ -1,4 +1,4 @@
-﻿namespace LexBoxApi.Auth;
+﻿namespace LexBoxApi.Auth.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class VerifiedEmailRequiredAttribute : LexboxAuthAttribute
