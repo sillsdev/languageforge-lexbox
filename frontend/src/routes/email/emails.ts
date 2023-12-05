@@ -6,10 +6,10 @@ import CreateProjectRequest from '$lib/email/CreateProjectRequest.svelte';
 import type {CreateProjectInput} from '$lib/gql/generated/graphql';
 
 export const enum EmailTemplate {
-    ForgotPassword = 'ForgotPassword',
-    VerifyEmailAddress = 'VerifyEmailAddress',
-    PasswordChanged = 'PasswordChanged',
-    CreateProjectRequest = 'CreateProjectRequest',
+    ForgotPassword = 'FORGOT_PASSWORD',
+    VerifyEmailAddress = 'VERIFY_EMAIL_ADDRESS',
+    PasswordChanged = 'PASSWORD_CHANGED',
+    CreateProjectRequest = 'CREATE_PROJECT_REQUEST',
 }
 
 export const componentMap = {

@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using LexBoxApi.Config;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Otel;
@@ -114,7 +116,11 @@ public class EmailService
         var httpClient = _clientFactory.CreateClient();
         httpClient.BaseAddress = new Uri("http://" + _emailConfig.EmailRenderHost);
         parameters.BaseUrl = _emailConfig.BaseUrl;
-        var response = await httpClient.PostAsJsonAsync("email", parameters);
+        var response = await httpClient.PostAsJsonAsync("email", parameters, new JsonSerializerOptions()
+        {
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper) },
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        });
         response.EnsureSuccessStatusCode();
         var renderResult = await response.Content.ReadFromJsonAsync<RenderResult>();
         if (renderResult is null)
