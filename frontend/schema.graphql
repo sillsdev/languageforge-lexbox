@@ -91,6 +91,7 @@ type IsAdminResponse {
 
 type LexAuthUser {
   id: UUID!
+  updatedDate: DateTime!
   audience: LexboxAudience!
   email: String!
   name: String!

@@ -119,6 +119,7 @@
     "title": "Log in",
     "password_missing": "Password missing",
     "password_reset": "Your password has been reset",
+    "link_expired": "The email you clicked has expired. Please request a new one.",
     "welcome": "### Welcome to Language Depot!\n\
 Language Depot is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://onestory.org/) and [WeSay](https://software.sil.org/wesay/) projects. \

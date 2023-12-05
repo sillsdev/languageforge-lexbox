@@ -53,9 +53,21 @@ public class LoginController : ControllerBase
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
     {
+        var user = _loggedInContext.User;
+        var userUpdatedDate = await _userService.GetUserUpdatedDate(user.Id);
+        if (userUpdatedDate != user.UpdatedDate)
+        {
+            return await EmailLinkExpired();
+        }
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
         return Redirect(returnTo);
+    }
+
+    private async Task<ActionResult> EmailLinkExpired()
+    {
+        await HttpContext.SignOutAsync();
+        return Redirect("/login?message=link_expired");
     }
 
     [HttpGet("verifyEmail")]
@@ -74,9 +86,14 @@ public class LoginController : ControllerBase
         var userId = _loggedInContext.User.Id;
         var user = await _lexBoxDbContext.Users.FindAsync(userId);
         if (user == null) return NotFound();
+        if (user.UpdatedDate != _loggedInContext.User.UpdatedDate)
+        {
+            return await EmailLinkExpired();
+        }
 
         user.Email = _loggedInContext.User.Email;
         user.EmailVerified = true;
+        user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();
         await RefreshJwt();
         return Redirect(returnTo);
@@ -137,11 +154,16 @@ public class LoginController : ControllerBase
 
     [HttpPost("resetPassword")]
     [RequireAudience(LexboxAudience.ForgotPassword)]
+    [RequireCurrentUserInfo]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)
     {
         var passwordHash = request.PasswordHash;
         var lexAuthUser = _loggedInContext.User;
-        var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == lexAuthUser.Id);
+        var user = await _lexBoxDbContext.Users.FindAsync(lexAuthUser.Id);
+        if (user == null) return NotFound();
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
         user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();

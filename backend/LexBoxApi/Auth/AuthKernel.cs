@@ -31,6 +31,7 @@ public static class AuthKernel
 
         services.AddScoped<LexAuthService>();
         services.AddSingleton<IAuthorizationHandler, AudienceRequirementHandler>();
+        services.AddSingleton<IAuthorizationHandler, ValidateUserUpdatedHandler>();
         services.AddAuthorization(options =>
         {
             //fallback policy is used when there's no auth attribute.
