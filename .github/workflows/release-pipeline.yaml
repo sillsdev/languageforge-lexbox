@@ -75,5 +75,5 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
       image: 'ghcr.io/sillsdev/lexbox-*'
       k8s-environment: production
-      deploy-domain: prod.languagedepot.org
+      deploy-domain: languagedepot.org
 

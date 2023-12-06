@@ -24,7 +24,7 @@ spec:
               # TODO: need to parameterize this
               value: "Language Depot <no-reply@languagedepot.org>"
             - name: Email__BaseUrl
-              value: "https://prod.languagedepot.org"
+              value: "https://languagedepot.org"
             - name: HgConfig__PublicRedmineHgWebUrl
               value: "https://hg-public-redmine.languagedepot.org/"
             - name: HgConfig__PrivateRedmineHgWebUrl
