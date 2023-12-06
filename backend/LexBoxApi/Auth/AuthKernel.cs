@@ -171,7 +171,7 @@ public static class AuthKernel
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)
     {
         return builder.RequireAuthenticatedUser()
-            .AddRequirements(new RequireAudienceAttribute(LexboxAudience.LexboxApi));
+            .AddRequirements(new RequireAudienceAttribute(LexboxAudience.LexboxApi, true));
     }
 
     public static bool IsJwtRequest(this HttpRequest request)

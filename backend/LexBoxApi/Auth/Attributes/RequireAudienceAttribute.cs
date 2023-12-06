@@ -9,7 +9,7 @@ public class RequireAudienceAttribute(params LexboxAudience[] audiences)
     public const string PolicyName = "RequireAudiencePolicy";
     /// <param name="audience">audience allowed to access this endpoint</param>
     /// <param name="exclusive">when false the default audience is also allowed, when true the default audience is not allowed</param>
-    public RequireAudienceAttribute(LexboxAudience audience, bool exclusive) : this(exclusive
+    public RequireAudienceAttribute(LexboxAudience audience, bool exclusive = false) : this(exclusive
         ? [audience]
         : [audience, LexboxAudience.LexboxApi])
     {
