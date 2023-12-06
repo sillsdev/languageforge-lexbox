@@ -11,7 +11,9 @@ using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using tusdotnet;
 using IPNetwork = Microsoft.AspNetCore.HttpOverrides.IPNetwork;
@@ -53,6 +55,8 @@ builder.Services.AddControllers(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
 });
+builder.Services.AddSingleton(services =>
+    services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
