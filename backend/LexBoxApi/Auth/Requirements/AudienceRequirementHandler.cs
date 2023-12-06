@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace LexBoxApi.Auth.Requirements;
 
-public class AudienceRequirementHandler : AuthorizationHandler<RequireAudienceAttribute>
+public class AudienceRequirementHandler(ILogger<AudienceRequirementHandler> logger) : AuthorizationHandler<RequireAudienceAttribute>
 {
+
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
         RequireAudienceAttribute requirement)
     {
@@ -17,6 +18,7 @@ public class AudienceRequirementHandler : AuthorizationHandler<RequireAudienceAt
         }
         else
         {
+            logger.LogInformation("Token does not have the required audience: [{Audience}] not in {ValidAudiences}", claim?.Value, string.Join(',', requirement.ValidAudiences));
             context.Fail(new AuthorizationFailureReason(this,
                 $"Token does not have the required audience: {requirement.ValidAudiences}"));
         }

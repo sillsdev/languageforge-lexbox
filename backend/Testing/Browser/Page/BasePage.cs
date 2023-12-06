@@ -46,13 +46,16 @@ public abstract class BasePage<T> where T : BasePage<T>
     {
         if (UrlPattern is not null)
         {
+            //assert to get a good error message
+            await Assertions.Expect(Page).ToHaveURLAsync(UrlPattern);
+            //still wait to make sure we reach the same state we expect
             await Page.WaitForURLAsync(UrlPattern, new() { WaitUntil = WaitUntilState.Load });
         }
         else
         {
             await Page.WaitForLoadStateAsync(LoadState.Load);
         }
-        await Task.WhenAll(TestLocators.Select(l => l.WaitForAsync()));
+        await Task.WhenAll(TestLocators.Select(l => Assertions.Expect(l).ToBeVisibleAsync()));
         return (T)this;
     }
 }
