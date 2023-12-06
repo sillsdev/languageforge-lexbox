@@ -152,8 +152,11 @@ public class PageTest : IAsyncLifetime
     private async Task<Guid> GetCurrentUserId()
     {
         var userResponse = await Page.APIRequest.GetAsync($"{TestingEnvironmentVariables.ServerBaseUrl}/api/user/currentUser");
-        var user = await userResponse.JsonAsync<LexAuthUser>();
-        return user.ShouldNotBeNull().Id;
+
+        //can't configure playwright json deserialize options to set enum serialization
+        //so just use JsonElement and pull out the Id
+        var user = await userResponse.JsonAsync();
+        return user.ShouldNotBeNull().GetProperty(LexAuthConstants.IdClaimType).GetGuid();
     }
 }
 
