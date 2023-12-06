@@ -86,7 +86,7 @@ public class LoginController : ControllerBase
         var userId = _loggedInContext.User.Id;
         var user = await _lexBoxDbContext.Users.FindAsync(userId);
         if (user == null) return NotFound();
-        if (user.UpdatedDate != _loggedInContext.User.UpdatedDate)
+        if (user.UpdatedDate.ToUnixTimeSeconds() != _loggedInContext.User.UpdatedDate)
         {
             return await EmailLinkExpired();
         }
