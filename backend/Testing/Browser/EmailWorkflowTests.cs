@@ -1,4 +1,5 @@
-﻿using Testing.Browser.Base;
+﻿using Shouldly;
+using Testing.Browser.Base;
 using Testing.Browser.Page;
 using Testing.Browser.Page.External;
 
@@ -81,6 +82,8 @@ public class EmailWorkflowTests : PageTest
         // Step: Use reset password link
         var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
         var emailPage = await inboxPage.OpenEmail();
+        var resetPasswordUrl = await emailPage.GetFirstLanguageDepotUrl();
+        resetPasswordUrl.ShouldNotBeNull().ShouldContain("resetpassword");
 
         var newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickResetPassword);
         var resetPasswordPage = await new ResetPasswordPage(newPage).WaitFor();
@@ -96,10 +99,8 @@ public class EmailWorkflowTests : PageTest
         await userDashboardPage.WaitFor();
 
         // Step: Verify email link has expired
-        inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
-        emailPage = await inboxPage.OpenEmail(1); // 0 is the password changed notification
-        newPage = await Page.Context.RunAndWaitForPageAsync(emailPage.ClickResetPassword);
-        loginPage = await new LoginPage(newPage).WaitFor();
+        await Page.GotoAsync(resetPasswordUrl);
+        loginPage = await new LoginPage(Page).WaitFor();
         await Expect(loginPage.Page.GetByText("The email you clicked has expired")).ToBeVisibleAsync();
     }
 }
