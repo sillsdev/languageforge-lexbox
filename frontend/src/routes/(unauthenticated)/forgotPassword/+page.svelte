@@ -3,7 +3,7 @@
   import { ProtectedForm, Input, lexSuperForm, FormError } from '$lib/forms';
   import { SubmitButton } from '$lib/forms';
   import t from '$lib/i18n';
-  import Page from '$lib/layout/Page.svelte';
+  import { TitlePage } from '$lib/layout';
   import { z } from 'zod';
 
   type ForgotPasswordResponseErrors = {
@@ -46,11 +46,7 @@
   });
 </script>
 
-<Page>
-  <svelte:fragment slot="header">
-    {$t('forgot_password.title')}
-  </svelte:fragment>
-
+<TitlePage title={$t('forgot_password.title')}>
   <ProtectedForm {enhance} bind:turnstileToken>
     <Input
       id="email"
@@ -63,4 +59,4 @@
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('forgot_password.send_email')}</SubmitButton>
   </ProtectedForm>
-</Page>
+</TitlePage>

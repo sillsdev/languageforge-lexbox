@@ -7,7 +7,7 @@
   import Select from '$lib/forms/Select.svelte';
   import { CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
-  import { Page } from '$lib/layout';
+  import { TitlePage } from '$lib/layout';
   import { z } from 'zod';
   import { _createProject } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
@@ -123,11 +123,7 @@
   }
 </script>
 
-<Page>
-  <svelte:fragment slot="header">
-    {$t('project.create.title')}
-  </svelte:fragment>
-
+<TitlePage title={$t('project.create.title')}>
   <Form {enhance}>
     <Input
       label={$t('project.create.name')}
@@ -183,4 +179,4 @@
         {/if}
     </SubmitButton>
   </Form>
-</Page>
+</TitlePage>
