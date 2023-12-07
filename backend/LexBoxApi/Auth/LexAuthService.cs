@@ -96,13 +96,11 @@ public class LexAuthService
     }
 
     public (string token, TimeSpan tokenLifetime) GenerateJwt(LexAuthUser user,
-        TimeSpan? lifetime = null,
-        LexboxAudience audience = LexboxAudience.LexboxApi)
+        LexboxAudience audience = LexboxAudience.LexboxApi,
+        bool useEmailLifetime = false)
     {
-        lifetime ??= TimeSpan.MaxValue;
         var options = _userOptions.Value;
-        // use the min lifetime, prevents the caller setting a longer lifetime then is configured in the application.
-        return GenerateToken(user, audience, lifetime.Value > options.Lifetime ? options.Lifetime : lifetime.Value);
+        return GenerateToken(user, audience, useEmailLifetime ? options.EmailJwtLifetime : options.Lifetime);
     }
 
     private (string token, TimeSpan tokenLifetime) GenerateToken(LexAuthUser user,

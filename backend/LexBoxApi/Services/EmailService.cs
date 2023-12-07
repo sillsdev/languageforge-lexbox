@@ -32,7 +32,7 @@ public class EmailService(
         var (lexAuthUser, user) = await lexAuthService.GetUser(emailAddress);
         // we want to silently return if the user doesn't exist, so we don't leak information.
         if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _) = lexAuthService.GenerateJwt(lexAuthUser, audience: LexboxAudience.ForgotPassword);
+        var (jwt, _) = lexAuthService.GenerateJwt(lexAuthUser, LexboxAudience.ForgotPassword, true);
 
         var email = StartUserEmail(user);
         var httpContext = httpContextAccessor.HttpContext;
@@ -58,10 +58,11 @@ public class EmailService(
     public async Task SendVerifyAddressEmail(User user, string? newEmail = null)
     {
         var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser(user)
-        {
-            EmailVerificationRequired = null,
-            Email = newEmail ?? user.Email,
-        });
+            {
+                EmailVerificationRequired = null, Email = newEmail ?? user.Email,
+            },
+            useEmailLifetime: true
+        );
         var email = StartUserEmail(user, newEmail);
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
