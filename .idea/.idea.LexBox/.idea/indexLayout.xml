@@ -7,7 +7,13 @@
       <Path>hg-web</Path>
     </attachedFolders>
     <explicitIncludes>
+      <Path>.github</Path>
+      <Path>deployment</Path>
       <Path>hg-web</Path>
+      <Path>hgresumable</Path>
+      <Path>hgweb</Path>
+      <Path>otel</Path>
+      <Path>proxy</Path>
     </explicitIncludes>
     <explicitExcludes>
       <Path>frontend/.svelte-kit/output</Path>

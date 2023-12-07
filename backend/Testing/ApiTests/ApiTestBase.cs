@@ -10,7 +10,7 @@ namespace Testing.ApiTests;
 
 public class ApiTestBase
 {
-    public readonly string BaseUrl = TestingEnvironmentVariables.ServerBaseUrl;
+    public string BaseUrl => TestingEnvironmentVariables.ServerBaseUrl;
     private readonly HttpClientHandler _httpClientHandler = new();
     public readonly HttpClient HttpClient;
 

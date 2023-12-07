@@ -75,6 +75,7 @@ public class SendReceiveServiceTests
     {
         string version = await _sendReceiveService.GetHgVersion();
         version.ShouldStartWith("Mercurial Distributed SCM");
+        _output.WriteLine("Hg version: " + version);
         HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) {ShowVerbose = true});
         HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
     }

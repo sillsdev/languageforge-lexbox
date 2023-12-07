@@ -40,17 +40,8 @@ public static class GraphQlSetupKernel
                 descriptor.AddDefaults();
                 descriptor.AddDeterministicInvariantContainsFilter();
             })
-            .AddProjections(descriptor =>
-            {
-                descriptor.Provider(new QueryableProjectionProvider(providerDescriptor =>
-                {
-                    //does not work because hot chocolate wants to make this as the select `p => new project { userCount = p.usercount}`
-                    // which doesn't work when using projectable because the field needs to be write only
-                    //shelving it for now
-                    providerDescriptor.RegisterFieldHandler<EfCoreProjectablesFieldHandler>();
-                    providerDescriptor.AddDefaults();
-                }));
-            }).SetPagingOptions(new ()
+            .AddProjections()
+            .SetPagingOptions(new ()
             {
                 DefaultPageSize = 100,
                 MaxPageSize = 1000,

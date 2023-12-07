@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using LexBoxApi.Config;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Otel;
@@ -16,16 +18,19 @@ namespace LexBoxApi.Services;
 public class EmailService
 {
     private readonly EmailConfig _emailConfig;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly IHttpClientFactory _clientFactory;
     private readonly LinkGenerator _linkGenerator;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public EmailService(IOptions<EmailConfig> emailConfig,
+        JsonSerializerOptions jsonSerializerOptions,
         IHttpClientFactory clientFactory,
         LexboxLinkGenerator linkGenerator,
         IHttpContextAccessor httpContextAccessor
     )
     {
+        _jsonSerializerOptions = jsonSerializerOptions;
         _clientFactory = clientFactory;
         _linkGenerator = linkGenerator;
         _httpContextAccessor = httpContextAccessor;
@@ -114,7 +119,7 @@ public class EmailService
         var httpClient = _clientFactory.CreateClient();
         httpClient.BaseAddress = new Uri("http://" + _emailConfig.EmailRenderHost);
         parameters.BaseUrl = _emailConfig.BaseUrl;
-        var response = await httpClient.PostAsJsonAsync("email", parameters);
+        var response = await httpClient.PostAsJsonAsync("email", parameters, _jsonSerializerOptions);
         response.EnsureSuccessStatusCode();
         var renderResult = await response.Content.ReadFromJsonAsync<RenderResult>();
         if (renderResult is null)

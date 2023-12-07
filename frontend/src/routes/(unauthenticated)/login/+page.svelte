@@ -31,7 +31,13 @@
     }
   );
 
-  onMount(logout);
+  onMount(() => {
+    const code = new URLSearchParams(window.location.search).get('message');
+    if (code === 'link_expired') {
+      $message = $t('login.link_expired');
+    }
+    logout();
+  });
   let badCredentials = false;
 </script>
 

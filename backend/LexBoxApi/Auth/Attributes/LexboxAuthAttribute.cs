@@ -3,7 +3,7 @@ using HotChocolate.Types.Descriptors;
 using Microsoft.AspNetCore.Authorization;
 using AuthorizeAttribute = HotChocolate.Authorization.AuthorizeAttribute;
 
-namespace LexBoxApi.Auth;
+namespace LexBoxApi.Auth.Attributes;
 
 public abstract class LexboxAuthAttribute : DescriptorAttribute, IAuthorizeData
 {

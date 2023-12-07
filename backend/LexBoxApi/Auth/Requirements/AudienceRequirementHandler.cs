@@ -1,22 +1,14 @@
-﻿using LexCore.Auth;
+﻿using LexBoxApi.Auth.Attributes;
+using LexCore.Auth;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace LexBoxApi.Auth.Requirements;
 
-public class AudienceRequirement : IAuthorizationRequirement
+public class AudienceRequirementHandler(ILogger<AudienceRequirementHandler> logger) : AuthorizationHandler<RequireAudienceAttribute>
 {
-    public LexboxAudience[] ValidAudiences { get; }
 
-    public AudienceRequirement(params LexboxAudience[] validAudiences)
-    {
-        ValidAudiences = validAudiences;
-    }
-}
-
-public class AudienceRequirementHandler : AuthorizationHandler<AudienceRequirement>
-{
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AudienceRequirement requirement)
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+        RequireAudienceAttribute requirement)
     {
         var claim = context.User.FindFirst(LexAuthConstants.AudienceClaimType);
         if (Enum.TryParse<LexboxAudience>(claim?.Value, out var audience) &&
@@ -26,6 +18,7 @@ public class AudienceRequirementHandler : AuthorizationHandler<AudienceRequireme
         }
         else
         {
+            logger.LogInformation("Token does not have the required audience: [{Audience}] not in {ValidAudiences}", claim?.Value, string.Join(',', requirement.ValidAudiences));
             context.Fail(new AuthorizationFailureReason(this,
                 $"Token does not have the required audience: {requirement.ValidAudiences}"));
         }

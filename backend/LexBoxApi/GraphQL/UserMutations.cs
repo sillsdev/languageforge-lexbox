@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
@@ -80,7 +81,7 @@ public class UserMutations
                 user.IsAdmin = adminInput.Role == UserRole.admin;
             }
         }
-
+        user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 
         if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))

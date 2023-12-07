@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using HotChocolate.Data.Filters;
 using HotChocolate.Data.Filters.Expressions;
 using HotChocolate.Language;
@@ -12,9 +13,10 @@ namespace LexBoxApi.GraphQL.CustomFilters;
 /// Postgres doesn't support substring comparisons on nondeterministic collations, so we offer a
 /// case insensitive filter that explicitly uses a deterministic collation (und-x-icu) instead.
 /// </summary>
-public class QueryableStringDeterministicInvariantContainsHandler : QueryableStringOperationHandler
+public class QueryableStringDeterministicInvariantContainsHandler(InputParser inputParser)
+    : QueryableStringOperationHandler(inputParser)
 {
-    private static readonly MethodInfo Ilike = ((Func<DbFunctions, string, string, bool>)NpgsqlDbFunctionsExtensions.ILike).Method;
+    private static readonly MethodInfo Ilike = ((Func<DbFunctions, string, string, string, bool>)NpgsqlDbFunctionsExtensions.ILike).Method;
     private static readonly MethodInfo Collate = ((Func<DbFunctions, string, string, string>)RelationalDbFunctionsExtensions.Collate).Method;
     private static readonly ConstantExpression EfFunctions = Expression.Constant(EF.Functions);
 
@@ -25,22 +27,19 @@ public class QueryableStringDeterministicInvariantContainsHandler : QueryableStr
     }
 
     protected override int Operation => CustomFilterOperations.IContains;
-
-    public QueryableStringDeterministicInvariantContainsHandler(InputParser inputParser)
-        : base(inputParser)
-    {
-    }
+    private static readonly Regex EscapeLikePatternRegex = new(@"([\\_%])", RegexOptions.Compiled);
 
     public override Expression HandleOperation(
         QueryableFilterContext context,
         IFilterOperationField field,
         IValueNode value,
-        object? search)
+        object? searchObject)
     {
-        if (search is not string)
-            throw new InvalidOperationException($"Expected {nameof(QueryableStringDeterministicInvariantContainsHandler)} to be called with a string, but was {search}.");
+        if (searchObject is not string search)
+            throw new InvalidOperationException($"Expected {nameof(QueryableStringDeterministicInvariantContainsHandler)} to be called with a string, but was {searchObject}.");
 
-        var pattern = $"%{search}%";
+        var escapedString = EscapeLikePatternRegex.Replace(search, @"\$1");
+        var pattern = $"%{escapedString}%";
         var property = context.GetInstance();
 
         var collatedValueExpression = Expression.Call(
@@ -53,6 +52,8 @@ public class QueryableStringDeterministicInvariantContainsHandler : QueryableStr
             Expression.Constant("und-x-icu")
         );
 
+        //this is a bit of a hack to make sure that the pattern is interpreted as a query parameter instead of a string constant. This means queries will be cached.
+        Expression<Func<string>> lambda = () => pattern;
         // property != null && EF.Functions.ILike(EF.Functions.Collate(property, "und-x-icu"), "%search%")
         return Expression.AndAlso(
             Expression.NotEqual(property, Expression.Constant(null, typeof(object))),
@@ -61,7 +62,8 @@ public class QueryableStringDeterministicInvariantContainsHandler : QueryableStr
                 Ilike,
                 EfFunctions,
                 collatedValueExpression,
-                Expression.Constant(pattern)
+                lambda.Body,
+                Expression.Constant(@"\")
             )
         );
     }

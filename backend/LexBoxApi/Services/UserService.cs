@@ -17,4 +17,11 @@ public class UserService
         await _dbContext.Users.Where(u => u.Id == id)
             .ExecuteUpdateAsync(c => c.SetProperty(u => u.LastActive, DateTimeOffset.UtcNow));
     }
+
+    public async Task<long> GetUserUpdatedDate(Guid id)
+    {
+        return (await _dbContext.Users.Where(u => u.Id == id)
+            .Select(u => u.UpdatedDate)
+            .SingleOrDefaultAsync()).ToUnixTimeSeconds();
+    }
 }

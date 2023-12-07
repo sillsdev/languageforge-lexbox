@@ -1,9 +1,9 @@
 ﻿- op: replace
   path: /spec/rules/0/host
-  value: prod.languagedepot.org
+  value: languagedepot.org
 - op: replace
   path: /spec/rules/1/host
-  value: hg-prod.languageforge.org
+  value: hg-public.languageforge.org
 - op: replace
   path: /spec/rules/2/host
   value: resumable.languagedepot.org
@@ -13,9 +13,7 @@
 - op: replace
   path: /spec/tls/0/hosts
   value:
-    - prod.languagedepot.org
     - languagedepot.org
-    - hg-prod.languageforge.org
     - resumable.languagedepot.org
     - resumable.languageforge.org
     - hg-public.languagedepot.org
@@ -40,11 +38,6 @@
 - op: add
   path: /spec/rules/-
   value:
-    host: hg-public.languageforge.org
-    http: *rule
-- op: add
-  path: /spec/rules/-
-  value:
     host: hg-private.languagedepot.org
     http: *rule
 - op: add
@@ -62,37 +55,3 @@
   value:
     host: admin.languageforge.org
     http: *rule
-- op: add
-  path: /spec/rules/-
-  value:
-    host: languagedepot.org
-    http:
-      paths:
-        - path: /api
-          pathType: Prefix
-          backend:
-            service:
-              name: lexbox
-              port:
-                name: http
-        - path: /hg
-          pathType: Prefix
-          backend:
-            service:
-              name: lexbox
-              port:
-                name: http
-        - path: /v1/traces
-          pathType: Prefix
-          backend:
-            service:
-              name: lexbox
-              port:
-                name: otel
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: ui
-              port:
-                name: sveltekit

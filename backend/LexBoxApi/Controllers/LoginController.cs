@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
@@ -52,9 +53,21 @@ public class LoginController : ControllerBase
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
     {
+        var user = _loggedInContext.User;
+        var userUpdatedDate = await _userService.GetUserUpdatedDate(user.Id);
+        if (userUpdatedDate != user.UpdatedDate)
+        {
+            return await EmailLinkExpired();
+        }
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
         return Redirect(returnTo);
+    }
+
+    private async Task<ActionResult> EmailLinkExpired()
+    {
+        await HttpContext.SignOutAsync();
+        return Redirect("/login?message=link_expired");
     }
 
     [HttpGet("verifyEmail")]
@@ -73,9 +86,17 @@ public class LoginController : ControllerBase
         var userId = _loggedInContext.User.Id;
         var user = await _lexBoxDbContext.Users.FindAsync(userId);
         if (user == null) return NotFound();
+        //users can verify their email even if the updated date is out of sync when not changing their email
+        //this is to prevent some edge cases where changing their name and then using an old verify email link would fail
+        if (user.Email != _loggedInContext.User.Email &&
+            user.UpdatedDate.ToUnixTimeSeconds() != _loggedInContext.User.UpdatedDate)
+        {
+            return await EmailLinkExpired();
+        }
 
         user.Email = _loggedInContext.User.Email;
         user.EmailVerified = true;
+        user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();
         await RefreshJwt();
         return Redirect(returnTo);
@@ -136,12 +157,18 @@ public class LoginController : ControllerBase
 
     [HttpPost("resetPassword")]
     [RequireAudience(LexboxAudience.ForgotPassword)]
+    [RequireCurrentUserInfo]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)
     {
         var passwordHash = request.PasswordHash;
         var lexAuthUser = _loggedInContext.User;
-        var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == lexAuthUser.Id);
+        var user = await _lexBoxDbContext.Users.FindAsync(lexAuthUser.Id);
+        if (user == null) return NotFound();
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
+        user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();
         await _emailService.SendPasswordChangedEmail(user);
         //the old jwt is only valid for calling forgot password endpoints, we need to generate a new one

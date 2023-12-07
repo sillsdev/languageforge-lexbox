@@ -32,6 +32,7 @@ public class LexAuthUserTests
         Email = "test@test.com",
         Role = UserRole.user,
         Name = "test",
+        UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
         Projects = new[] { new AuthUserProject(ProjectRole.Manager, Guid.NewGuid()) }
     };
 

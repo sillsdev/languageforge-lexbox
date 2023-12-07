@@ -7,7 +7,7 @@ export async function POST(event: RequestEvent): Promise<Response> {
   const request = await event.request.json() as EmailTemplateProps;
   const {template, ...props} = request;
   const component = componentMap[template];
-  if (!component) throw new Error(`invalid template${template}`);
+  if (!component) throw new Error(`Invalid email template ${template}.}`);
   return json(render(component, props));
 }
 

@@ -39,6 +39,11 @@ public record LexAuthUser
                         case ClaimValueTypes.Boolean:
                             jsonObject.Add(claim.Type, JsonValue.Create(bool.Parse(claim.Value)));
                             continue;
+                        case ClaimValueTypes.Integer:
+                        case ClaimValueTypes.Integer32:
+                        case ClaimValueTypes.Integer64:
+                            jsonObject.Add(claim.Type, JsonValue.Create(int.Parse(claim.Value)));
+                            continue;
                         default:
                             jsonObject.Add(claim.Type, JsonValue.Create(claim.Value));
                             continue;
@@ -83,6 +88,7 @@ public record LexAuthUser
         Email = user.Email;
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
         Name = user.Name;
+        UpdatedDate = user.UpdatedDate.ToUnixTimeSeconds();
         Projects = user.IsAdmin
             ? Array.Empty<AuthUserProject>() // admins have access to all projects, so we don't include them to prevent going over the jwt limit
             : user.Projects.Select(p => new AuthUserProject(p.Role, p.ProjectId)).ToArray();
@@ -92,7 +98,8 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
     public required Guid Id { get; set; }
-
+    [JsonPropertyName(LexAuthConstants.UpdatedDateClaimType)]
+    public required long UpdatedDate { get; set; }
     [JsonPropertyName(LexAuthConstants.AudienceClaimType)]
     public LexboxAudience Audience { get; set; } = LexboxAudience.LexboxApi;
 
@@ -182,6 +189,9 @@ public record LexAuthUser
                     yield return new Claim(jsonProperty.Name, jsonProperty.Value.ToString(), ClaimValueTypes.Boolean);
                     break;
                 case JsonValueKind.Null:
+                    break;
+                case JsonValueKind.Number:
+                    yield return new Claim(jsonProperty.Name, jsonProperty.Value.ToString(), ClaimValueTypes.Integer);
                     break;
                 default:
                     yield return new Claim(jsonProperty.Name, jsonProperty.Value.ToString());
