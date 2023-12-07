@@ -62,14 +62,7 @@ public class LexAuthService
         return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret));
     }
 
-    public async Task ForgotPassword(string email)
-    {
-        var (lexAuthUser, user) = await GetUser(email);
-        // we want to silently return if the user doesn't exist, so we don't leak information.
-        if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _) = GenerateJwt(lexAuthUser, audience: LexboxAudience.ForgotPassword);
-        await _emailService.SendForgotPasswordEmail(jwt, user);
-    }
+
 
     public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
@@ -97,7 +90,7 @@ public class LexAuthService
         return jwtUser;
     }
 
-    private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
+    public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
     {
         var user = await _lexBoxDbContext.Users
             .FilterByEmail(emailOrUsername)
