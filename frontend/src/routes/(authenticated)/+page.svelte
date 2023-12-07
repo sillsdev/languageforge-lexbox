@@ -30,7 +30,7 @@
   let mode: ViewMode;
   $: otherMode = mode === ViewMode.Grid ? ViewMode.Table : ViewMode.Grid;
   $: defaultMode = $projects.length < 10 ? ViewMode.Grid : ViewMode.Table;
-  $: STORAGE_VIEW_MODE_KEY = `${data.user.id}--projectViewMode`;
+  $: STORAGE_VIEW_MODE_KEY = 'projectViewMode';
 
   $: {
     if (!initializedMode) {
