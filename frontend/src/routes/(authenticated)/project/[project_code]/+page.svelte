@@ -39,7 +39,6 @@
   $: user = data.user;
   let projectStore = data.project;
   $: project = $projectStore;
-  $: _project = project as NonNullable<typeof project>;
   $: changesetStore = data.changesets;
 
   $: projectHgUrl = import.meta.env.DEV
@@ -61,14 +60,14 @@
         $t('project_page.notifications.role_change', {
           name: projectUser.user.name,
           role: projectUser.role.toLowerCase(),
-        })
+        }),
       );
     }
   }
 
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
-    await resetProjectModal.open(_project.code, _project.resetStatus);
+    await resetProjectModal.open(project.code, project.resetStatus);
   }
 
   let removeUserModal: DeleteModal;
@@ -76,7 +75,7 @@
   async function deleteProjectUser(projectUser: ProjectUser): Promise<void> {
     userToDelete = projectUser;
     const deleted = await removeUserModal.prompt(async () => {
-      const { error } = await _deleteProjectUser(_project.id, projectUser.user.id);
+      const { error } = await _deleteProjectUser(project.id, projectUser.user.id);
       return error?.message;
     });
     if (deleted) {
@@ -85,7 +84,7 @@
   }
 
   async function updateProjectName(newName: string): Promise<ErrorMessage> {
-    const result = await _changeProjectName({ projectId: _project.id, name: newName });
+    const result = await _changeProjectName({ projectId: project.id, name: newName });
     if (result.error) {
       return result.error.message;
     }
@@ -94,7 +93,7 @@
 
   async function updateProjectDescription(newDescription: string): Promise<ErrorMessage> {
     const result = await _changeProjectDescription({
-      projectId: _project.id,
+      projectId: project.id,
       description: newDescription,
     });
     if (result.error) {
@@ -104,7 +103,7 @@
   }
 
   $: userId = user.id;
-  $: canManage = isAdmin(user) || project?.users.find(u => u.user.id == userId)?.role == ProjectRole.Manager;
+  $: canManage = isAdmin(user) || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 
@@ -126,12 +125,12 @@
   let deleteProjectModal: ConfirmDeleteModal;
 
   async function softDeleteProject(): Promise<void> {
-    const result = await deleteProjectModal.open(_project.name, async () => {
-      const { error } = await _deleteProject(_project.id);
+    const result = await deleteProjectModal.open(project.name, async () => {
+      const { error } = await _deleteProject(project.id);
       return error?.message;
     });
     if (result.response === DialogResponse.Submit) {
-      notifyWarning($t('delete_project_modal.success', { name: _project.name, code: _project.code }));
+      notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
       await goto(data.home);
     }
   }
@@ -152,7 +151,7 @@
     [ProjectMigrationStatus.Unknown]: undefined,
     [ProjectMigrationStatus.PrivateRedmine]: undefined,
     [ProjectMigrationStatus.PublicRedmine]: undefined,
-  } satisfies Record<ProjectMigrationStatus, IconString|undefined>;
+  } satisfies Record<ProjectMigrationStatus, IconString | undefined>;
   const migrationStatusBadgeVariant = {
     [ProjectMigrationStatus.Migrated]: 'badge-success',
     [ProjectMigrationStatus.Migrating]: 'badge-warning',

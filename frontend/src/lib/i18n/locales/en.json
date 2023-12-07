@@ -210,7 +210,6 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "last_commit": "Last Commit",
     "members": "Members",
     "add_description": "Add description...",
-    "not_found": "Project {code} not found!",
     "remove_project_user_title": "Member",
     "remove_user": "Remove",
     "change_role": "Change Role",

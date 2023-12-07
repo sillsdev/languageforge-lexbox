@@ -46,7 +46,6 @@
     "history": "Historia",
     "last_commit": "Última confirmación",
     "members": "Miembros del proyecto",
-    "not_found": "¡Proyecto {code} no encontrado!"
   },
   "project_role": {
     "editor": "Editor",
