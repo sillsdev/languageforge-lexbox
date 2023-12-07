@@ -289,7 +289,6 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "title": "My Projects",
     "not_verified": "You aren't in any projects yet. You have to verify your email address before you can join or request a project.",
     "no_projects": "You aren't in any projects yet.",
-    "use_view": "Use {mode, select, grid {grid} other {table}} view"
   },
   "user_types": {
     "admin": "Admin",

@@ -2,15 +2,15 @@
   import type { PageData } from './$types';
   import t from '$lib/i18n';
   import ProjectList from '$lib/components/ProjectList.svelte';
-  import { Page } from '$lib/layout';
+  import { HeaderPage } from '$lib/layout';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
   import { ProjectFilter, type ProjectFilters, type ProjectItem } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import { Button } from '$lib/forms';
-  import Dropdown from '$lib/components/Dropdown.svelte';
   import { browser } from '$app/environment';
   import { limit } from '$lib/components/Paging';
+  import IconButton from '$lib/components/IconButton.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -28,7 +28,6 @@
 
   let initializedMode = false;
   let mode: ViewMode;
-  $: otherMode = mode === ViewMode.Grid ? ViewMode.Table : ViewMode.Grid;
   $: defaultMode = $projects.length < 10 ? ViewMode.Grid : ViewMode.Table;
   $: STORAGE_VIEW_MODE_KEY = 'projectViewMode';
 
@@ -55,59 +54,42 @@
   $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
 </script>
 
-<Page wide>
-  <svelte:fragment slot="header">
-    {$t('user_dashboard.title')}
-  </svelte:fragment>
-
-  <div class="flex gap-4">
-    <div class="grow">
-      <ProjectFilter
-        {filters}
-        filterDefaults={defaultFilterValues}
-        projects={$projects}
-        bind:filteredProjects
-        bind:hasActiveFilter
-        on:change={() => (limitResults = true)}
-        filterKeys={['projectSearch', 'projectType']}
-      />
+<HeaderPage wide title={$t('user_dashboard.title')}>
+  <svelte:fragment slot="header-content">
+    <div class="flex gap-4 w-full">
+      <div class="grow">
+        <ProjectFilter
+          {filters}
+          filterDefaults={defaultFilterValues}
+          projects={$projects}
+          bind:filteredProjects
+          bind:hasActiveFilter
+          on:change={() => (limitResults = true)}
+          filterKeys={['projectSearch', 'projectType']}
+        />
+      </div>
+      <div class="join">
+        <IconButton
+          icon="i-mdi-grid"
+          join
+          active={mode === ViewMode.Grid}
+          on:click={() => selectMode(ViewMode.Grid)} />
+        <IconButton
+          icon="i-mdi-land-rows-horizontal"
+          join
+          active={mode === ViewMode.Table}
+          on:click={() => selectMode(ViewMode.Table)} />
+      </div>
     </div>
-
-    <Dropdown>
-      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label tabindex="-1" class="btn btn-square">
-        <span class="i-mdi-dots-vertical text-lg" />
-      </label>
-      <ul slot="content" class="menu" let:closeDropdown>
-        {#if data.user.emailVerified}
-          <li>
-            <a href="/project/create" class="text-success whitespace-nowrap">
-              <span class="i-mdi-plus text-2xl" />
-              {$t('project.create.title')}
-            </a>
-          </li>
-        {/if}
-        <li>
-          <button
-            on:click={() => {
-              closeDropdown();
-              selectMode(otherMode);
-            }}
-            class="whitespace-nowrap"
-          >
-            <span
-              class:i-mdi-land-rows-horizontal={otherMode === ViewMode.Table}
-              class:i-mdi-grid={otherMode === ViewMode.Grid}
-              class="text-xl"
-            />
-            {$t('user_dashboard.use_view', { mode: otherMode })}
-          </button>
-        </li>
-      </ul>
-    </Dropdown>
-  </div>
-
-  <div class="divider" />
+  </svelte:fragment>
+  <svelte:fragment slot="actions">
+    {#if data.user.emailVerified}
+      <a href="/project/create" class="btn btn-success">
+        <span class="i-mdi-plus text-2xl" />
+        {$t('project.create.title')}
+      </a>
+    {/if}
+  </svelte:fragment>
 
   {#if !data.user.emailVerified || !$projects.length}
     <div class="text-lg text-secondary flex gap-4 items-center justify-center">
@@ -122,7 +104,7 @@
     {#if mode === ViewMode.Grid}
       <ProjectList projects={shownProjects} />
     {:else}
-      <ProjectTable projects={shownProjects} columns={['name', 'code', 'users', 'type']} />
+      <ProjectTable projects={shownProjects} columns={['name', 'code', 'users', 'type', 'lastChange']} />
     {/if}
 
     {#if shownProjects.length < filteredProjects.length}
@@ -131,4 +113,4 @@
       </Button>
     {/if}
   {/if}
-</Page>
+</HeaderPage>

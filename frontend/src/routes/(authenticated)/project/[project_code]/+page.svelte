@@ -28,7 +28,7 @@
   import { _deleteProject } from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, Page } from '$lib/layout';
+  import { AdminContent, HeaderPage } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { ProjectMigrationStatus, ProjectRole, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
@@ -184,218 +184,208 @@
   }
 </script>
 
-<svelte:head>
-  <title>{project?.name ?? $t('project_page.not_found', { code: data.code })}</title>
-</svelte:head>
-
-<Page wide>
-  <div class="space-y-4">
-    {#if project}
-      {#if migrationStatus === ProjectMigrationStatus.Migrating}
-        <div class="alert alert-warning">
-          <span class="i-mdi-alert text-2xl" />
-          <span>This project is currently being migrated. Some features may not work as expected.</span>
-        </div>
-      {/if}
-      <div class="space-y-2 space-x-1">
-        <div class="float-right mt-1 sm:mt-2 md:mt-1">
-          {#if migrationStatus !== ProjectMigrationStatus.Migrating}
-            <Dropdown>
-              <!-- svelte-ignore a11y-label-has-associated-control -->
-              <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-sm md:btn-md btn-success">
-                {$t('project_page.get_project.label')}
-                <span class="i-mdi-dots-vertical text-2xl" />
-              </label>
-              <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-                <div class="card-body max-sm:p-4">
-                  <div class="prose">
-                    <Markdown
-                      md={$t('project_page.get_project.instructions', {
-                        type: _project.type,
-                        code: data.code,
-                        name: _project.name,
-                      })}
-                    />
-                  </div>
-                  <AdminContent>
-                    <FormField label={$t('project_page.get_project.send_receive_url')}>
-                      <div class="join">
-                        <input
-                          value={projectHgUrl}
-                          class="input input-bordered join-item w-full focus:input-success"
-                          readonly
-                        />
-                        <div
-                          class="join-item tooltip-open"
-                          class:tooltip={copiedToClipboard}
-                          data-tip={$t('clipboard.copied')}
-                        >
-                          {#if copiedToClipboard}
-                            <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
-                          {:else}
-                            <IconButton
-                              loading={copyingToClipboard}
-                              icon="i-mdi-content-copy"
-                              style="btn-outline"
-                              on:click={copyProjectUrlToClipboard}
-                            />
-                          {/if}
-                        </div>
-                      </div>
-                    </FormField>
-                  </AdminContent>
-                </div>
-              </div>
-            </Dropdown>
-          {/if}
-        </div>
-        <div class="text-3xl flex items-center gap-3 gap-y-0 flex-wrap">
-          <span>{$t('project_page.project')}:</span>
-          <span class="text-primary">
-            <EditableText
-              disabled={!canManage}
-              value={project.name}
-              validation={projectNameValidation}
-              saveHandler={updateProjectName}
-            />
-          </span>
-        </div>
-        <BadgeList>
-          <ProjectTypeBadge type={project.type} />
-          <Badge>
-            <FormatRetentionPolicy policy={project.retentionPolicy} />
-          </Badge>
-          <AdminContent>
-            <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>{migrationStatusTable[migrationStatus]}</Badge>
-          </AdminContent>
-          {#if project.resetStatus === ResetStatus.InProgress}
-            <button
-              class:tooltip={isAdmin(user)}
-              data-tip={$t('project_page.reset_project_modal.click_to_continue')}
-              disabled={!isAdmin(user)}
-              on:click={resetProject}
-            >
-              <Badge type="badge-warning">
-                {$t('project_page.reset_project_modal.reset_in_progress')}
-                <span class="i-mdi-warning text-xl mb-[-2px]" />
-              </Badge>
-            </button>
-          {/if}
-        </BadgeList>
-      </div>
-
-      <div class="divider" />
-
-      <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
-
-      <div class="space-y-2">
-        <span class="text-lg">
-          {$t('project_page.project_code')}:
-          <span class="text-secondary">{project.code}</span>
-        </span>
-        <div class="text-lg">
-          {$t('project_page.last_commit')}:
-          <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
-        </div>
-        <div class="text-lg">{$t('project_page.description')}:</div>
-        <span class="text-secondary">
-          <EditableText
-            value={project.description}
-            disabled={!canManage}
-            saveHandler={updateProjectDescription}
-            placeholder={$t('project_page.add_description')}
-            multiline
-          />
-        </span>
-      </div>
-
-      <div>
-        <p class="text-2xl mb-4">
-          {$t('project_page.members')}
-        </p>
-
-        <BadgeList>
-          {#each project.users as member}
-            {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
-            <Dropdown disabled={!canManageMember}>
-              <MemberBadge
-                member={{ name: member.user.name, role: member.role }}
-                canManage={canManageMember} />
-              <ul slot="content" class="menu">
-                <li>
-                  <button on:click={() => changeMemberRole(member)}>
-                    <span class="i-mdi-account-lock text-2xl" />
-                    {$t('project_page.change_role')}
-                  </button>
-                </li>
-                <li>
-                  <button class="text-error" on:click={() => deleteProjectUser(member)}>
-                    <TrashIcon />
-                    {$t('project_page.remove_user')}
-                  </button>
-                </li>
-              </ul>
-            </Dropdown>
-          {/each}
-          {#if canManage}
-            <AddProjectMember projectId={project.id} />
-          {/if}
-
-          <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
-
-          <DeleteModal
-            bind:this={removeUserModal}
-            entityName={$t('project_page.remove_project_user_title')}
-            isRemoveDialog
-          >
-            {$t('project_page.confirm_remove', {
-              userName: userToDelete?.user.name ?? '',
-            })}
-          </DeleteModal>
-        </BadgeList>
-      </div>
-
-      <div class="divider" />
-      <div class="space-y-2">
-        <p class="text-2xl mb-4 flex gap-4 items-baseline">
-          {$t('project_page.history')}
-          <a class="btn btn-sm btn-outline btn-info" href="/hg/{project.code}" target="_blank">
-            {$t('project_page.hg.open_in_hgweb')}<span class="i-mdi-open-in-new text-2xl" />
-          </a>
-        </p>
-
-        <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          <HgLogView logEntries={$changesetStore.changesets} loading={$changesetStore.fetching} />
-        </div>
-      </div>
-
-      {#if canManage}
-        <div class="divider" />
-
-        <MoreSettings>
-          <button class="btn btn-error" class:hidden={!isMigrated} on:click={softDeleteProject}>
-            {$t('delete_project_modal.submit')}<TrashIcon />
-          </button>
-          <AdminContent>
-            <button class="btn btn-accent" class:hidden={!isMigrated} on:click={resetProject}>
-              {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
-            </button>
-            <ResetProjectModal bind:this={resetProjectModal} />
-            {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
-              <Button on:click={migrateProject}>
-                Migrate Project
-                <Icon icon="i-mdi-source-branch-sync"/>
-              </Button>
-            {/if}
-          </AdminContent>
-        </MoreSettings>
-      {/if}
-
-      <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
-    {:else}
-      <div class="text-center text-error">
-        {$t('project_page.not_found', { code: data.code })}
-      </div>
+<HeaderPage wide title={project.name}>
+  <svelte:fragment slot="banner">
+    {#if migrationStatus === ProjectMigrationStatus.Migrating}
+          <div class="alert alert-warning mb-4">
+            <span class="i-mdi-alert text-2xl" />
+            <span>This project is currently being migrated. Some features may not work as expected.</span>
+          </div>
     {/if}
+  </svelte:fragment>
+  <svelte:fragment slot="actions">
+    {#if migrationStatus !== ProjectMigrationStatus.Migrating}
+      <Dropdown>
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-success">
+          {$t('project_page.get_project.label')}
+          <span class="i-mdi-dots-vertical text-2xl" />
+        </label>
+        <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+          <div class="card-body max-sm:p-4">
+            <div class="prose">
+              <Markdown
+                md={$t('project_page.get_project.instructions', {
+                  type: project.type,
+                  code: data.code,
+                  name: project.name,
+                })}
+              />
+            </div>
+            <AdminContent>
+              <FormField label={$t('project_page.get_project.send_receive_url')}>
+                <div class="join">
+                  <input
+                    value={projectHgUrl}
+                    class="input input-bordered join-item w-full focus:input-success"
+                    readonly
+                  />
+                  <div
+                    class="join-item tooltip-open"
+                    class:tooltip={copiedToClipboard}
+                    data-tip={$t('clipboard.copied')}
+                  >
+                    {#if copiedToClipboard}
+                      <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+                    {:else}
+                      <IconButton
+                        loading={copyingToClipboard}
+                        icon="i-mdi-content-copy"
+                        style="btn-outline"
+                        on:click={copyProjectUrlToClipboard}
+                      />
+                    {/if}
+                  </div>
+                </div>
+              </FormField>
+            </AdminContent>
+          </div>
+        </div>
+      </Dropdown>
+    {/if}
+  </svelte:fragment>
+  <svelte:fragment slot="title">
+    <div class="max-w-full flex items-baseline flex-wrap">
+      <span class="mr-2">{$t('project_page.project')}:</span>
+      <span class="text-primary max-w-full">
+        <EditableText
+          disabled={!canManage}
+          value={project.name}
+          validation={projectNameValidation}
+          saveHandler={updateProjectName}
+        />
+      </span>
+    </div>
+  </svelte:fragment>
+  <svelte:fragment slot="header-content">
+    <BadgeList>
+      <ProjectTypeBadge type={project.type} />
+      <Badge>
+        <FormatRetentionPolicy policy={project.retentionPolicy} />
+      </Badge>
+      <AdminContent>
+        <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>
+          {migrationStatusTable[migrationStatus]}
+        </Badge>
+      </AdminContent>
+      {#if project.resetStatus === ResetStatus.InProgress}
+        <button
+          class:tooltip={isAdmin(user)}
+          data-tip={$t('project_page.reset_project_modal.click_to_continue')}
+          disabled={!isAdmin(user)}
+          on:click={resetProject}
+        >
+          <Badge type="badge-warning">
+            {$t('project_page.reset_project_modal.reset_in_progress')}
+            <span class="i-mdi-warning text-xl mb-[-2px]" />
+          </Badge>
+        </button>
+      {/if}
+    </BadgeList>
+  </svelte:fragment>
+  <div class="space-y-4">
+    <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
+    <div class="space-y-2">
+      <span class="text-lg">
+        {$t('project_page.project_code')}:
+        <span class="text-secondary">{project.code}</span>
+      </span>
+      <div class="text-lg">
+        {$t('project_page.last_commit')}:
+        <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
+      </div>
+      <div class="text-lg">{$t('project_page.description')}:</div>
+      <span class="text-secondary">
+        <EditableText
+          value={project.description}
+          disabled={!canManage}
+          saveHandler={updateProjectDescription}
+          placeholder={$t('project_page.add_description')}
+          multiline
+        />
+      </span>
+    </div>
+
+    <div>
+      <p class="text-2xl mb-4">
+        {$t('project_page.members')}
+      </p>
+
+      <BadgeList>
+        {#each project.users as member}
+          {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
+          <Dropdown disabled={!canManageMember}>
+            <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
+            <ul slot="content" class="menu">
+              <li>
+                <button on:click={() => changeMemberRole(member)}>
+                  <span class="i-mdi-account-lock text-2xl" />
+                  {$t('project_page.change_role')}
+                </button>
+              </li>
+              <li>
+                <button class="text-error" on:click={() => deleteProjectUser(member)}>
+                  <TrashIcon />
+                  {$t('project_page.remove_user')}
+                </button>
+              </li>
+            </ul>
+          </Dropdown>
+        {/each}
+        {#if canManage}
+          <AddProjectMember projectId={project.id} />
+        {/if}
+
+        <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
+
+        <DeleteModal
+          bind:this={removeUserModal}
+          entityName={$t('project_page.remove_project_user_title')}
+          isRemoveDialog
+        >
+          {$t('project_page.confirm_remove', {
+            userName: userToDelete?.user.name ?? '',
+          })}
+        </DeleteModal>
+      </BadgeList>
+    </div>
+
+    <div class="divider" />
+    <div class="space-y-2">
+      <p class="text-2xl mb-4 flex gap-4 items-baseline">
+        {$t('project_page.history')}
+        <a class="btn btn-sm btn-outline btn-info" href="/hg/{project.code}" target="_blank">
+          {$t('project_page.hg.open_in_hgweb')}<span class="i-mdi-open-in-new text-2xl" />
+        </a>
+      </p>
+
+      <div class="max-h-[75vh] overflow-auto border-b border-base-200">
+        <HgLogView logEntries={$changesetStore.changesets} loading={$changesetStore.fetching} />
+      </div>
+    </div>
+
+    {#if canManage}
+      <div class="divider" />
+
+      <MoreSettings>
+        <button class="btn btn-error" class:hidden={!isMigrated} on:click={softDeleteProject}>
+          {$t('delete_project_modal.submit')}<TrashIcon />
+        </button>
+        <AdminContent>
+          <button class="btn btn-accent" class:hidden={!isMigrated} on:click={resetProject}>
+            {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
+          </button>
+          <ResetProjectModal bind:this={resetProjectModal} />
+          {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
+            <Button on:click={migrateProject}>
+              Migrate Project
+              <Icon icon="i-mdi-source-branch-sync" />
+            </Button>
+          {/if}
+        </AdminContent>
+      </MoreSettings>
+    {/if}
+
+    <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
   </div>
-</Page>
+</HeaderPage>
