@@ -1,8 +1,9 @@
 <script lang="ts">
   import { Badge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { limit } from '$lib/components/Paging';
+  import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
   import { ProjectFilter, ProjectTable, type ProjectItem } from '$lib/components/Projects';
+  import { RefineFilterMessage } from '$lib/components/Table';
   import { DialogResponse } from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { Button } from '$lib/forms';
@@ -21,7 +22,7 @@
   let filteredProjects: ProjectItem[] = [];
   let limitResults = true;
   let hasActiveFilter = false;
-  $: shownProjects = limitResults ? limit(filteredProjects, hasActiveFilter ? 5 : 2) : filteredProjects;
+  $: shownProjects = limitResults ? limit(filteredProjects, hasActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
   async function softDeleteProject(project: ProjectItem): Promise<void> {
@@ -90,9 +91,13 @@
     </td>
   </ProjectTable>
 
-  {#if hasActiveFilter && shownProjects.length < filteredProjects.length}
-    <Button class="float-right mt-2" on:click={() => (limitResults = false)}>
-      {$t('paging.load_more')}
-    </Button>
+  {#if shownProjects.length < filteredProjects.length}
+    {#if hasActiveFilter}
+      <Button class="float-right mt-2" on:click={() => (limitResults = false)}>
+        {$t('paging.load_more')}
+      </Button>
+    {:else}
+      <RefineFilterMessage total={filteredProjects.length} showing={shownProjects.length} />
+    {/if}
   {/if}
 </div>

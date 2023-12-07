@@ -33,7 +33,7 @@
   const { queryParamValues } = queryParams;
 
   $: users = $userData?.items ?? [];
-  $: totalUsers = $userData?.totalCount ?? 0;
+  $: filteredUserCount = $userData?.totalCount ?? 0;
   $: shownUsers = $queryParamValues.userSearch ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
@@ -86,7 +86,7 @@
           <span class="inline-flex gap-2">
             {shownUsers.length}
             <span>/</span>
-            {totalUsers}
+            {filteredUserCount}
           </span>
         </Badge>
       </span>
@@ -156,7 +156,7 @@
             {/each}
           </tbody>
         </table>
-        <RefineFilterMessage total={totalUsers} showing={shownUsers.length} />
+        <RefineFilterMessage total={filteredUserCount} showing={shownUsers.length} />
       </div>
     </div>
   </div>
