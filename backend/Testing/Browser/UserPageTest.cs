@@ -1,5 +1,6 @@
 using Testing.Browser.Base;
 using Testing.Browser.Page;
+using Testing.Browser.Page.External;
 
 namespace Testing.Browser;
 
@@ -37,7 +38,8 @@ public class UserPageTest : PageTest
     [Fact]
     public async Task CanResetPassword()
     {
-        await using var userDashboardPage = await RegisterUser("Test: Edit account - reset password", $"{Guid.NewGuid()}@mailinator.com", "test_edit_account_reset_password");
+        var mailinatorId = Guid.NewGuid().ToString();
+        await using var userDashboardPage = await RegisterUser("Test: Edit account - reset password", $"{mailinatorId}@mailinator.com", "test_edit_account_reset_password");
         var user = userDashboardPage.User;
         var userPage = await new UserAccountSettingsPage(Page).Goto();
         var resetPasswordPage = await userPage.ClickResetPassword();
@@ -49,5 +51,10 @@ public class UserPageTest : PageTest
         await loginPage.FillForm(userDashboardPage.User.Email, newPassword);
         await loginPage.Submit();
         await new UserDashboardPage(Page).WaitFor();
+
+        //verify password changed email was received
+        var inboxPage = await MailInboxPage.Get(Page, mailinatorId).Goto();
+        var emailPage = await inboxPage.OpenEmail();
+        await Expect(emailPage.Page.GetByText("Your password was changed").First).ToBeVisibleAsync();
     }
 }

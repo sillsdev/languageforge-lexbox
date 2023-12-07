@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Otel;
@@ -15,32 +16,26 @@ using OpenTelemetry.Trace;
 
 namespace LexBoxApi.Services;
 
-public class EmailService
+public class EmailService(
+    IOptions<EmailConfig> emailConfig,
+    JsonSerializerOptions jsonSerializerOptions,
+    IHttpClientFactory clientFactory,
+    LexboxLinkGenerator linkGenerator,
+    IHttpContextAccessor httpContextAccessor,
+    LexAuthService lexAuthService)
 {
-    private readonly EmailConfig _emailConfig;
-    private readonly JsonSerializerOptions _jsonSerializerOptions;
-    private readonly IHttpClientFactory _clientFactory;
-    private readonly LinkGenerator _linkGenerator;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly EmailConfig _emailConfig = emailConfig.Value;
+    private readonly LinkGenerator _linkGenerator = linkGenerator;
 
-    public EmailService(IOptions<EmailConfig> emailConfig,
-        JsonSerializerOptions jsonSerializerOptions,
-        IHttpClientFactory clientFactory,
-        LexboxLinkGenerator linkGenerator,
-        IHttpContextAccessor httpContextAccessor
-    )
+    public async Task SendForgotPasswordEmail(string emailAddress)
     {
-        _jsonSerializerOptions = jsonSerializerOptions;
-        _clientFactory = clientFactory;
-        _linkGenerator = linkGenerator;
-        _httpContextAccessor = httpContextAccessor;
-        _emailConfig = emailConfig.Value;
-    }
+        var (lexAuthUser, user) = await lexAuthService.GetUser(emailAddress);
+        // we want to silently return if the user doesn't exist, so we don't leak information.
+        if (lexAuthUser is null || user?.CanLogin() is not true) return;
+        var (jwt, _) = lexAuthService.GenerateJwt(lexAuthUser, audience: LexboxAudience.ForgotPassword);
 
-    public async Task SendForgotPasswordEmail(string jwt, User user)
-    {
         var email = StartUserEmail(user);
-        var httpContext = _httpContextAccessor.HttpContext;
+        var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         // returnTo is a svelte app url
         var forgotLink = _linkGenerator.GetUriByAction(httpContext,
@@ -52,11 +47,23 @@ public class EmailService
         await SendEmailAsync(email);
     }
 
-    /// <param name="newEmail">If the user is trying to change their address, this is the new one, otherwise null.</param>
-    public async Task SendVerifyAddressEmail(string jwt, User user, string? newEmail = null)
+    /// <summary>
+    /// Sends a verification email to the user for their email address.
+    /// </summary>
+    /// <param name="user">The user to verify the email address for.</param>
+    /// <param name="newEmail">
+    /// If the user is trying to change their address, this is the new email address.
+    /// If null, the verification email will be sent to the current email address of the user.
+    /// </param>
+    public async Task SendVerifyAddressEmail(User user, string? newEmail = null)
     {
+        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser(user)
+        {
+            EmailVerificationRequired = null,
+            Email = newEmail ?? user.Email,
+        });
         var email = StartUserEmail(user, newEmail);
-        var httpContext = _httpContextAccessor.HttpContext;
+        var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryParam = string.IsNullOrEmpty(newEmail) ? "verifiedEmail" : "changedEmail";
         var verifyLink = _linkGenerator.GetUriByAction(httpContext,
@@ -116,10 +123,10 @@ public class EmailService
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag("app.email.template", typeof(T).Name);
 
-        var httpClient = _clientFactory.CreateClient();
+        var httpClient = clientFactory.CreateClient();
         httpClient.BaseAddress = new Uri("http://" + _emailConfig.EmailRenderHost);
         parameters.BaseUrl = _emailConfig.BaseUrl;
-        var response = await httpClient.PostAsJsonAsync("email", parameters, _jsonSerializerOptions);
+        var response = await httpClient.PostAsJsonAsync("email", parameters, jsonSerializerOptions);
         response.EnsureSuccessStatusCode();
         var renderResult = await response.Content.ReadFromJsonAsync<RenderResult>();
         if (renderResult is null)
