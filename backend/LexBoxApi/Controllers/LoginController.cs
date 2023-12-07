@@ -86,7 +86,10 @@ public class LoginController : ControllerBase
         var userId = _loggedInContext.User.Id;
         var user = await _lexBoxDbContext.Users.FindAsync(userId);
         if (user == null) return NotFound();
-        if (user.UpdatedDate.ToUnixTimeSeconds() != _loggedInContext.User.UpdatedDate)
+        //users can verify their email even if the updated date is out of sync when not changing their email
+        //this is to prevent some edge cases where changing their name and then using an old verify email link would fail
+        if (user.Email != _loggedInContext.User.Email &&
+            user.UpdatedDate.ToUnixTimeSeconds() != _loggedInContext.User.UpdatedDate)
         {
             return await EmailLinkExpired();
         }
