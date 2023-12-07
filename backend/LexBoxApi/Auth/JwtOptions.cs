@@ -8,6 +8,7 @@ public class JwtOptions
         {
             Lifetime = TimeSpan.FromMinutes(1),
             RefreshLifetime = TimeSpan.FromMinutes(1),
+            EmailJwtLifetime = TimeSpan.FromMinutes(1),
             Secret = "this is only a test but must be long",
             ClockSkew = TimeSpan.Zero
         };
@@ -17,6 +18,8 @@ public class JwtOptions
 
     [Required]
     public required TimeSpan Lifetime { get; init; }
+    [Required]
+    public required TimeSpan EmailJwtLifetime { get; init; }
 
     [Required]
     public required TimeSpan RefreshLifetime { get; init; }
