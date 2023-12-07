@@ -5,7 +5,16 @@
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5433/lexbox</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost/lexbox</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.host.port" value="5440" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="true" />
+        <property name="com.intellij.clouds.kubernetes.db.resource" value="db" />
+        <property name="com.intellij.clouds.kubernetes.db.context" value="docker-desktop" />
+        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Service" />
+        <property name="com.intellij.clouds.kubernetes.db.namespace" value="languagedepot" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" value="5432" />
+      </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="@localhost" uuid="a5c85238-865f-4de7-934f-1647c2e21296">
@@ -26,7 +35,13 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5434/lexbox</jdbc-url>
       <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+        <property name="com.intellij.clouds.kubernetes.db.host.port" value="5434" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="true" />
+        <property name="com.intellij.clouds.kubernetes.db.resource" value="db" />
+        <property name="com.intellij.clouds.kubernetes.db.context" value="dallas-rke" />
+        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Service" />
+        <property name="com.intellij.clouds.kubernetes.db.namespace" value="languagedepot" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" value="5432" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
@@ -37,7 +52,13 @@
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5435/lexbox</jdbc-url>
       <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+        <property name="com.intellij.clouds.kubernetes.db.host.port" value="5435" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="true" />
+        <property name="com.intellij.clouds.kubernetes.db.resource" value="db" />
+        <property name="com.intellij.clouds.kubernetes.db.context" value="aws-rke" />
+        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Service" />
+        <property name="com.intellij.clouds.kubernetes.db.namespace" value="languagedepot" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" value="5432" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
