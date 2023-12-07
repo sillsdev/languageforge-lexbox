@@ -25,9 +25,3 @@
   <div class="divider" />
   <slot />
 </Page>
-
-<style lang="postcss">
-  :global(.header-actions .btn) {
-    @apply btn-sm sm:btn-md;
-  }
-</style>
