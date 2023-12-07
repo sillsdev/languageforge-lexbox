@@ -149,7 +149,7 @@ public class LoginController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        await _lexAuthService.ForgotPassword(input.Email);
+        await _userService.ForgotPassword(input.Email);
         return Ok();
     }
 
