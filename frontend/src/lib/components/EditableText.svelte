@@ -87,7 +87,7 @@
 
 <span>
   {#if editing || saving}
-    <span class="inline-flex not-prose space-x-2 relative max-sm:flex-col" class:w-full={multiline}>
+    <span class="inline-flex not-prose space-x-2 relative max-sm:flex-col max-w-full max-sm:w-full" class:w-full={multiline}>
       <!-- svelte-ignore a11y-autofocus -->
       <span
         class="tooltip-error tooltip-open tooltip-bottom"
@@ -114,7 +114,7 @@
               autofocus
               bind:value={$form[id]}
               readonly={saving}
-              class="input input-bordered mt-1 mb-0"
+              class="input input-bordered mb-0"
             />
           {/if}
         </Form>

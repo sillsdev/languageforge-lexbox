@@ -13,7 +13,11 @@
         <slot name="actions" />
       </div>
       <div class="text-3xl text-left grow max-w-full flex items-end flex-wrap">
-        <slot name="title" />
+        {#if $$slots.title}
+          <slot name="title" />
+        {:else}
+          {title}
+        {/if}
       </div>
     </div>
     <slot name="header-content" />
