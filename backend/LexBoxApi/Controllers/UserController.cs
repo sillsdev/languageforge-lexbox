@@ -87,7 +87,7 @@ public class UserController : ControllerBase
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
 
-        await SendVerificationEmail(user, userEntity);
+        await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
     }
 
@@ -100,14 +100,8 @@ public class UserController : ControllerBase
         var lexUser = _loggedInContext.User;
         var user = await _lexBoxDbContext.Users.FindAsync(lexUser.Id);
         if (user?.CanLogin() is not true) return NotFound();
-        await SendVerificationEmail(lexUser, user);
+        await _emailService.SendVerifyAddressEmail(user);
         return Ok();
-    }
-
-    private async Task SendVerificationEmail(LexAuthUser lexUser, User user)
-    {
-        var (jwt, _) = _lexAuthService.GenerateJwt(lexUser with { EmailVerificationRequired = null });
-        await _emailService.SendVerifyAddressEmail(jwt, user);
     }
 
     [HttpGet("currentUser")]

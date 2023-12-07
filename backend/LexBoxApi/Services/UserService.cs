@@ -9,11 +9,7 @@ public class UserService(LexBoxDbContext dbContext, EmailService emailService, L
 {
     public async Task ForgotPassword(string email)
     {
-        var (lexAuthUser, user) = await lexAuthService.GetUser(email);
-        // we want to silently return if the user doesn't exist, so we don't leak information.
-        if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _) = lexAuthService.GenerateJwt(lexAuthUser, audience: LexboxAudience.ForgotPassword);
-        await emailService.SendForgotPasswordEmail(jwt, user);
+        await emailService.SendForgotPasswordEmail(email);
     }
     public async Task UpdateUserLastActive(Guid id)
     {

@@ -32,12 +32,11 @@ public class UserMutations
         IPermissionService permissionService,
         ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
-        EmailService emailService,
-        LexAuthService lexAuthService
+        EmailService emailService
     )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
-        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService, lexAuthService);
+        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
     }
 
     [Error<NotFoundException>]
@@ -49,11 +48,10 @@ public class UserMutations
         IPermissionService permissionService,
         ChangeUserAccountByAdminInput input,
         LexBoxDbContext dbContext,
-        EmailService emailService,
-        LexAuthService lexAuthService
+        EmailService emailService
     )
     {
-        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService, lexAuthService);
+        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
     }
 
     private static async Task<User> UpdateUser(
@@ -61,8 +59,7 @@ public class UserMutations
         IPermissionService permissionService,
         ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
-        EmailService emailService,
-        LexAuthService lexAuthService
+        EmailService emailService
     )
     {
         var user = await dbContext.Users.FindAsync(input.UserId);
@@ -86,26 +83,12 @@ public class UserMutations
 
         if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
         {
-            await SendVerifyNewAddressEmail(user, emailService, lexAuthService, dbContext, input.Email);
+            var emailInUse = await dbContext.Users.AnyAsync(u => u.Email == input.Email);
+            if (emailInUse) throw new UniqueValueException("Email");
+            await emailService.SendVerifyAddressEmail(user, input.Email);
         }
 
         return user;
-    }
-
-    private static async Task SendVerifyNewAddressEmail(User user,
-        EmailService emailService,
-        LexAuthService lexAuthService,
-        LexBoxDbContext lexBoxDbContext,
-        string newEmail)
-    {
-        var emailInUse = await lexBoxDbContext.Users.AnyAsync(u => u.Email == newEmail);
-        if (emailInUse) throw new UniqueValueException("Email");
-        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser(user)
-        {
-            EmailVerificationRequired = null,
-            Email = newEmail,
-        });
-        await emailService.SendVerifyAddressEmail(jwt, user, newEmail);
     }
 
     [Error<NotFoundException>]
