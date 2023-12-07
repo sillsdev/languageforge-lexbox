@@ -16,6 +16,11 @@ receivers:
 # https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/README.md#recommended-processors
 # The recommended core processors. The memory limiter probably won't do much, but it certainly doesn't hurt.
 processors:
+  filter/drop-metrics:
+    error_mode: ignore
+    metrics:
+      metric:
+        - HasAttrKeyOnDatapoint("http.connection.state") or HasAttrKeyOnDatapoint("aspnetcore.routing.match_attempts") or HasAttrKeyOnDatapoint("aspnetcore.routing.match_status")
   batch:
     timeout: 1s
   memory_limiter:
@@ -28,7 +33,8 @@ processors:
     summary: debug
 
 exporters:
-  logging:
+  debug: #will dump to console, to enable add it as an exporter on a piple
+    verbosity: detailed
   otlp:
     endpoint: api.honeycomb.io:443
     headers:
@@ -50,15 +56,15 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, redaction, batch]
-      exporters: [otlp, logging]
+      exporters: [otlp]
     metrics:
       receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [otlp/metrics, logging]
+      processors: [memory_limiter, batch, filter/drop-metrics]
+      exporters: [otlp/metrics]
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [otlp, logging]
+      exporters: [otlp]
   telemetry:
     logs:
       #level: "debug"
