@@ -13,7 +13,16 @@ import {createClient} from '@urql/svelte';
 import {browser} from '$app/environment';
 import {isObject} from '../util/types';
 import {tracingExchange} from '$lib/otel';
-import {LexGqlError, isErrorResult, type $OpResult, type GqlInputError, type ExtractErrorTypename, type GenericData} from './types';
+import {
+  LexGqlError,
+  isErrorResult,
+  type $OpResult,
+  type GqlInputError,
+  type ExtractErrorTypename,
+  type GenericData,
+  type DeleteUserByAdminOrSelfMutationVariables,
+  type SoftDeleteProjectMutationVariables
+} from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
@@ -29,12 +38,22 @@ function createGqlClient(_gqlEndpoint?: string): Client {
     exchanges: [
       ...(import.meta.env.DEV ? [devtoolsExchange] : []),
       cacheExchange({
-        keys: {
           /* eslint-disable @typescript-eslint/naming-convention */
+        keys: {
           'Changeset': () => null,
           'UsersCollectionSegment': () => null,
-          /* eslint-enable @typescript-eslint/naming-convention */
+        },
+        updates: {
+          Mutation: {
+            softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
+              cache.invalidate({__typename: 'Project', id: args.input.projectId});
+            },
+            deleteUserByAdminOrSelf: (result, args: DeleteUserByAdminOrSelfMutationVariables, cache, _info) => {
+              cache.invalidate({__typename: 'User', id: args.input.userId});
+            }
+          }
         }
+        /* eslint-enable @typescript-eslint/naming-convention */
       }),
       tracingExchange,
       fetchExchange
