@@ -9,8 +9,6 @@
   export let active = false;
   export let join = false;
   export let style: CssClassList<'btn-success', 'btn-ghost' | 'btn-outline'> = 'btn-outline';
-  export let active = false;
-  export let join = false;
 
 </script>
 
