@@ -25,7 +25,8 @@
       create: 'project.create.title',
       _get: () => {
         const data = $page.data as ProjectPageData;
-        return data.project ? get(data.project)?.name ?? data.code : data.code;
+        // eslint-disable-next-line svelte/require-store-reactive-access
+        return data.project ? get(data.project)?.name ?? $page.params['project_code'] : $page.params['project_code'];
       },
     },
     user: 'account_settings.title',

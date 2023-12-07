@@ -11,10 +11,11 @@ import type {
   DeleteProjectUserMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
+import { derived, get, type Readable } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
-import { derived } from 'svelte/store';
+import { error } from '@sveltejs/kit';
 
 type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -70,9 +71,14 @@ export async function load(event: PageLoadEvent) {
       { projectCode }
   );
 
+  if (!projectResult.projectByCode || !get(projectResult.projectByCode)) {
+    throw error(404);
+  }
+
   event.depends(`project:${projectCode}`);
+
   return {
-    project: projectResult.projectByCode,
+    project: projectResult.projectByCode as Readable<Project>,
     changesets: derived(changesetResultStore, result => ({
       fetching: result.fetching,
       changesets: result.data?.projectByCode?.changesets ?? [],
