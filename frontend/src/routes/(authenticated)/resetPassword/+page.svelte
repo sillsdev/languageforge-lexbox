@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
-  import Page from '$lib/layout/Page.svelte';
+  import { TitlePage } from '$lib/layout';
   import { hash } from '$lib/util/hash';
   import { z } from 'zod';
   import { useNotifications } from '$lib/notify';
@@ -30,10 +30,7 @@
   });
 </script>
 
-<Page>
-  <svelte:fragment slot="header">
-    {$t('reset_password.title')}
-  </svelte:fragment>
+<TitlePage title={$t('reset_password.title')}>
   <Form {enhance}>
     <Input
       bind:value={$form.password}
@@ -45,4 +42,4 @@
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('reset_password.submit')}</SubmitButton>
   </Form>
-</Page>
+</TitlePage>

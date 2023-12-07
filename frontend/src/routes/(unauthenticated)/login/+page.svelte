@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
-  import { PageHeader } from '$lib/layout';
+  import { PageTitle } from '$lib/layout';
   import { login, logout } from '$lib/user';
   import { onMount } from 'svelte';
   import Markdown from 'svelte-exmarkdown';
@@ -56,7 +56,7 @@
     </div>
     <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-200">
       <div class="card-body">
-        <PageHeader>{$t('login.title')}</PageHeader>
+        <PageTitle title={$t('login.title')} />
 
         <Form {enhance}>
           <Input

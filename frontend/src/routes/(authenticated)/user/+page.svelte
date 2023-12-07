@@ -2,7 +2,7 @@
   import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
-  import { Page } from '$lib/layout';
+  import { TitlePage } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
   import { useNotifications } from '$lib/notify';
   import z from 'zod';
@@ -72,10 +72,7 @@
   });
 </script>
 
-<Page>
-  <svelte:fragment slot="header">
-    {$t('account_settings.title')}
-  </svelte:fragment>
+<TitlePage title={$t('account_settings.title')}>
   <Form {enhance}>
     <Input
       id="name"
@@ -105,5 +102,5 @@
       {$t('account_settings.delete_account.submit')}<TrashIcon />
     </button>
   </MoreSettings>
-</Page>
+</TitlePage>
 <DeleteUserModal bind:this={deleteModal} i18nScope="account_settings.delete_account" />

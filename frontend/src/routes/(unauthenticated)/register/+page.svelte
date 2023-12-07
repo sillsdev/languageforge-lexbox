@@ -3,7 +3,7 @@
   import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm } from '$lib/forms';
   import { passwordFormRules } from '$lib/forms/utils';
   import t from '$lib/i18n';
-  import { Page } from '$lib/layout';
+  import { TitlePage } from '$lib/layout';
   import { register } from '$lib/user';
   import { z } from 'zod';
 
@@ -33,9 +33,7 @@
   });
 </script>
 
-<Page>
-  <svelte:fragment slot="header">{$t('register.title')}</svelte:fragment>
-
+<TitlePage title={$t('register.title')}>
   <ProtectedForm {enhance} bind:turnstileToken>
     <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
     <Input
@@ -58,4 +56,4 @@
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
   </ProtectedForm>
-</Page>
+</TitlePage>
