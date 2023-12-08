@@ -20,7 +20,7 @@ processors:
     error_mode: ignore
     metrics:
       metric:
-        - HasAttrKeyOnDatapoint("http.connection.state") or HasAttrKeyOnDatapoint("aspnetcore.routing.match_attempts") or HasAttrKeyOnDatapoint("aspnetcore.routing.match_status")
+        - HasAttrKeyOnDatapoint("http.route") or HasAttrKeyOnDatapoint("http.connection.state")
   batch:
     timeout: 1s
   memory_limiter:
