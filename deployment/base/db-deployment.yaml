@@ -54,10 +54,8 @@ spec:
             timeoutSeconds: 5
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 260Mi
-          limits:
-            memory: 400Mi
+          requests:
+            memory: 100Mi
 
         env:
           - name: PGDATA

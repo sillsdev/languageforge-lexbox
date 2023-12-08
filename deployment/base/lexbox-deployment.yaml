@@ -152,9 +152,7 @@ spec:
         image: otel/opentelemetry-collector-contrib:0.87.0
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 50Mi
-          limits:
+          requests:
             memory: 100Mi
         ports:
           - containerPort: 4318

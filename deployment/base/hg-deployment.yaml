@@ -48,10 +48,8 @@ spec:
         image: ghcr.io/sillsdev/lexbox-hgweb:latest
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
+          requests:
             memory: 260Mi
-          limits:
-            memory: 400Mi
         env:
           - name: CUSTOM_PORT
             value: "8088"
@@ -88,9 +86,7 @@ spec:
         image: ghcr.io/sillsdev/hgresume:v2023-07-12
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 260Mi
-          limits:
+          requests:
             memory: 400Mi
         ports:
           - containerPort: 80

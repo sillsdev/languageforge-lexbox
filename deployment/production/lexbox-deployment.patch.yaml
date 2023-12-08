@@ -13,8 +13,6 @@ spec:
           resources:
             requests:
               memory: 350Mi # based on usage
-            limits:
-              memory: 450Mi
           env:
             - name: Email__SmtpHost
               value: email-smtp.us-east-1.amazonaws.com

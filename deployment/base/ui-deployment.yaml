@@ -48,9 +48,7 @@ spec:
         imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 100Mi
-          limits:
+          requests:
             memory: 150Mi
         ports:
           - containerPort: 3000
