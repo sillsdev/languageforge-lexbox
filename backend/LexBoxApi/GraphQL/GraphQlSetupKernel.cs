@@ -1,15 +1,10 @@
 using DataAnnotatedModelValidations;
-using HotChocolate.Data.Filters;
-using HotChocolate.Data.Filters.Expressions;
-using HotChocolate.Data.Projections.Expressions;
 using HotChocolate.Diagnostics;
 using LexBoxApi.Auth;
-using LexBoxApi.Config;
 using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.Services;
 using LexCore.ServiceInterfaces;
 using LexData;
-using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.GraphQL;
 
@@ -22,6 +17,7 @@ public static class GraphQlSetupKernel
             services.AddHostedService<DevGqlSchemaWriterService>();
 
         services.AddGraphQLServer()
+            .TryAddTypeInterceptor<RefreshProjectMembershipInterceptor>()
             .InitializeOnStartup()
             .RegisterDbContext<LexBoxDbContext>()
             .RegisterService<IHgService>()
@@ -41,7 +37,7 @@ public static class GraphQlSetupKernel
                 descriptor.AddDeterministicInvariantContainsFilter();
             })
             .AddProjections()
-            .SetPagingOptions(new ()
+            .SetPagingOptions(new()
             {
                 DefaultPageSize = 100,
                 MaxPageSize = 1000,
