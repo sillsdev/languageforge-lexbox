@@ -72,7 +72,7 @@ handleFetch(async ({ fetch, args }) => {
     return response;
   });
 
-  if (response.headers.get('lexbox-refresh-jwt') == 'true') {
+  if (response.headers.get('lexbox-jwt-updated') === 'all') {
     await invalidate(USER_LOAD_KEY);
   }
 
