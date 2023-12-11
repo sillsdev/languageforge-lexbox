@@ -18,10 +18,6 @@ public class LexQueries
     {
         var userId = loggedInContext.User.Id;
         var projects = context.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId));
-        if (loggedInContext.User.Role != UserRole.admin && !ProjectsMatch(projects, loggedInContext.User.Projects))
-        {
-            await lexAuthService.RefreshUser(userId, LexAuthConstants.ProjectsClaimType);
-        }
         return projects;
     }
 
@@ -63,12 +59,5 @@ public class LexQueries
     public LexAuthUser Me(LoggedInContext loggedInContext)
     {
         return loggedInContext.User;
-    }
-
-    private static bool ProjectsMatch(IQueryable<Project> dbProjects, AuthUserProject[] jwtProjects)
-    {
-        if (dbProjects.Count() != jwtProjects.Length) return false;
-        var dbProjectIds = dbProjects.Select(p => p.Id).ToHashSet();
-        return jwtProjects.All(p => dbProjectIds.Contains(p.ProjectId));
     }
 }
