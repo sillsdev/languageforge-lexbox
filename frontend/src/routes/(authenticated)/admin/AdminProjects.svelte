@@ -2,7 +2,7 @@
   import { Badge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
-  import { ProjectFilter, ProjectTable, type ProjectItem } from '$lib/components/Projects';
+  import { ProjectFilter, ProjectTable, type ProjectItem, filterProjects } from '$lib/components/Projects';
   import { RefineFilterMessage } from '$lib/components/Table';
   import { DialogResponse } from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
@@ -16,12 +16,15 @@
 
   export let projects: ProjectItem[];
   export let queryParams: QueryParams<AdminSearchParams>;
+  $: filters = queryParams.queryParamValues;
+  $: filterDefaults = queryParams.defaultQueryParamValues;
 
   const { notifyWarning } = useNotifications();
 
   let filteredProjects: ProjectItem[] = [];
   let limitResults = true;
   let hasActiveFilter = false;
+  $: filteredProjects = filterProjects(projects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects, hasActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
@@ -59,10 +62,8 @@
 
   <div class="mt-4">
     <ProjectFilter
-      filters={queryParams.queryParamValues}
-      filterDefaults={queryParams.defaultQueryParamValues}
-      {projects}
-      bind:filteredProjects
+      {filters}
+      {filterDefaults}
       bind:hasActiveFilter
       on:change={() => (limitResults = true)}
     />

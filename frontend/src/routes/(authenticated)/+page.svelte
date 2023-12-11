@@ -5,21 +5,18 @@
   import { HeaderPage } from '$lib/layout';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { ProjectFilter, type ProjectFilters, type ProjectItem } from '$lib/components/Projects';
+  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItem } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import { Button } from '$lib/forms';
-  import { browser } from '$app/environment';
   import { limit } from '$lib/components/Paging';
   import IconButton from '$lib/components/IconButton.svelte';
+  import Cookies from 'js-cookie'
+  import { STORAGE_VIEW_MODE_KEY, ViewMode } from './shared';
 
   export let data: PageData;
   $: projects = data.projects;
 
   type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType'>;
-  enum ViewMode {
-    Table = 'table',
-    Grid = 'grid',
-  }
 
   const { queryParamValues: filters, defaultQueryParamValues: defaultFilterValues } = getSearchParams<Filters>({
     projectSearch: queryParam.string<string>(''),
@@ -29,11 +26,10 @@
   let initializedMode = false;
   let mode: ViewMode;
   $: defaultMode = $projects.length < 10 ? ViewMode.Grid : ViewMode.Table;
-  $: STORAGE_VIEW_MODE_KEY = 'projectViewMode';
 
   $: {
     if (!initializedMode) {
-      const storedMode = browser && localStorage?.getItem(STORAGE_VIEW_MODE_KEY);
+      const storedMode = data.projectViewMode;
       if (storedMode === ViewMode.Table || storedMode === ViewMode.Grid) {
         mode = storedMode;
       } else {
@@ -45,12 +41,12 @@
 
   function selectMode(selectedMode: ViewMode): void {
     mode = selectedMode;
-    localStorage.setItem(STORAGE_VIEW_MODE_KEY, mode);
+    Cookies.set(STORAGE_VIEW_MODE_KEY, mode, { expires: 365 * 10 });
   }
 
   let filteredProjects: ProjectItem[] = [];
   let limitResults = true;
-  let hasActiveFilter = false;
+  $: filteredProjects = filterProjects($projects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
 </script>
 
@@ -61,9 +57,6 @@
         <ProjectFilter
           {filters}
           filterDefaults={defaultFilterValues}
-          projects={$projects}
-          bind:filteredProjects
-          bind:hasActiveFilter
           on:change={() => (limitResults = true)}
           filterKeys={['projectSearch', 'projectType']}
         />

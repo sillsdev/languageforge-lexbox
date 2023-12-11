@@ -35,12 +35,18 @@ dependencies:
   '@opentelemetry/semantic-conventions':
     specifier: ^1.13.0
     version: 1.13.0
+  '@types/js-cookie':
+    specifier: ^3.0.6
+    version: 3.0.6
   '@vitejs/plugin-basic-ssl':
     specifier: ^1.0.1
     version: 1.0.1(vite@4.4.9)
   css-tree:
     specifier: ^2.3.1
     version: 2.3.1
+  js-cookie:
+    specifier: ^3.0.5
+    version: 3.0.5
   mjml:
     specifier: ^4.14.1
     version: 4.14.1
@@ -3651,6 +3657,10 @@ packages:
       '@types/node': 20.4.4
     dev: false
 
+  /@types/js-cookie@3.0.6:
+    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
+    dev: false
+
   /@types/js-yaml@4.0.5:
     resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
     dev: true
@@ -5913,6 +5923,11 @@ packages:
       editorconfig: 0.15.3
       glob: 8.1.0
       nopt: 6.0.0
+    dev: false
+
+  /js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
     dev: false
 
   /js-tokens@4.0.0:
