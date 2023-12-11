@@ -43,13 +43,6 @@ tasks:
     cmds:
       - dotnet run generate-gql-schema
 
-  playwright-install:
-    deps: [ playwright-install-win ]
-
-  playwright-install-win:
-    platforms: [ windows ]
-    cmd: bin/Debug/net7.0/playwright.ps1 install
-
   install-dottrace:
     vars:
       api_pod:

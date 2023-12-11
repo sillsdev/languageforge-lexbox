@@ -1,5 +1,9 @@
 ﻿version: 3
 
+vars:
+  OUTPUT_PATH:
+    sh: dotnet msbuild --getProperty:OutputPath
+
 tasks:
   unit:
     cmds:
@@ -40,5 +44,12 @@ tasks:
     cmd: task playwright -- {{.CLI_ARGS}}
 
   traces:
-    cmd: explorer ".\\bin\\Debug\\net7.0\\playwright-traces"
+    cmd: explorer "{{.OUTPUT_PATH}}playwright-traces"
     ignore_error: true
+
+  playwright-install:
+    deps: [ playwright-install-win ]
+
+  playwright-install-win:
+    platforms: [ windows ]
+    cmd: powershell '{{.OUTPUT_PATH}}playwright.ps1 install'

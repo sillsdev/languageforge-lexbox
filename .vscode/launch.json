@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/backend/LexBoxApi/bin/Debug/net7.0/LexBoxApi.dll",
+            "program": "${workspaceFolder}/backend/LexBoxApi/bin/Debug/net8.0/LexBoxApi.dll",
             "args": [],
             "cwd": "${workspaceFolder}/backend/LexBoxApi",
             "stopAtEntry": false,
