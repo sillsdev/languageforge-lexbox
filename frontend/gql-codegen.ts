@@ -18,7 +18,8 @@ const generationConfig: TypeScriptPluginConfig = {
     'jsonb': 'unknown',
     'uuid': 'string',
     'UUID': 'string',
-    'DateTime': 'string | Date'
+    'DateTime': 'string | Date',
+    'Long': 'number',
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 };
