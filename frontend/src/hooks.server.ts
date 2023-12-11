@@ -1,10 +1,11 @@
-import { getUser, isAuthn } from '$lib/user'
+import { AUTH_COOKIE_NAME, getUser, isAuthn } from '$lib/user'
 import { apiVersion } from '$lib/util/version';
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { loadI18n } from '$lib/i18n';
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
 import { env } from '$env/dynamic/private';
 import { getErrorMessage, validateFetchResponse } from './hooks.shared';
+import * as setCookieParser from 'set-cookie-parser';
 
 const UNAUTHENTICATED_ROOT = '(unauthenticated)';
 const AUTHENTICATED_ROOT = '(authenticated)';
@@ -67,6 +68,18 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 
   if (response.headers.has('lexbox-version')) {
     apiVersion.value = response.headers.get('lexbox-version');
+  }
+
+  const lexBoxSetAuthCookieHeader = response.headers.getSetCookie()
+    .find(h => h.startsWith(`${AUTH_COOKIE_NAME}=`));
+
+  if (lexBoxSetAuthCookieHeader) {
+    const { name, value, ...options } = setCookieParser.parseString(lexBoxSetAuthCookieHeader);
+    event.cookies.set(AUTH_COOKIE_NAME, value, {
+      ...options,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+      sameSite: options.sameSite?.toLocaleLowerCase() as any,
+    });
   }
 
   return response;
