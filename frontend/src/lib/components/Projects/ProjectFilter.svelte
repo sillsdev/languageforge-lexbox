@@ -56,13 +56,9 @@
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   export let filters: Writable<Filters>;
   export let filterDefaults: Filters;
-  export let projects: ProjectItem[];
-  export let filteredProjects: ProjectItem[];
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
   export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'];
-
-  $: filteredProjects = filterProjects(projects, $filters);
 
   function filterEnabled(filter: keyof Filters): boolean {
     return filterKeys.includes(filter);
