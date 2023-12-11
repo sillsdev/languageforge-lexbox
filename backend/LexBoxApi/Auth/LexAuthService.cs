@@ -17,7 +17,7 @@ namespace LexBoxApi.Auth;
 
 public class LexAuthService
 {
-    public const string RefreshHeaderName = "lexbox-refresh-jwt";
+    public const string JwtUpdatedHeader = "lexbox-jwt-updated";
     private readonly IOptions<JwtOptions> _userOptions;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -72,7 +72,7 @@ public class LexAuthService
         return validPassword ? lexAuthUser : null;
     }
 
-    public async Task<LexAuthUser?> RefreshUser(Guid userId)
+    public async Task<LexAuthUser?> RefreshUser(Guid userId, string updatedValue = "all")
     {
         var dbUser = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FirstOrDefaultAsync(user => user.Id == userId);
@@ -82,7 +82,7 @@ public class LexAuthService
         ArgumentNullException.ThrowIfNull(context);
         await context.SignInAsync(jwtUser.GetPrincipal("Refresh"),
             new AuthenticationProperties { IsPersistent = true });
-        context.Response.Headers[RefreshHeaderName] = "true";
+        context.Response.Headers[JwtUpdatedHeader] = updatedValue;
         return jwtUser;
     }
 
