@@ -39,6 +39,7 @@ type UserProjects = {
   role: UserProjectRole
 }
 export const USER_LOAD_KEY = 'user:current';
+export const AUTH_COOKIE_NAME = '.LexBoxAuth';
 
 export function isAdmin(user: LexAuthUser | null): boolean {
   return user?.role === 'admin';
@@ -90,7 +91,7 @@ export async function register(password: string, name: string, email: string, tu
 }
 
 export function getUser(cookies: Cookies): LexAuthUser | null {
-  const token = getCookie('.LexBoxAuth', cookies);
+  const token = getCookie(AUTH_COOKIE_NAME, cookies);
 
   if (!token) {
     return null
@@ -141,7 +142,7 @@ function projectsStringToProjects(projectsString: string | undefined): UserProje
 }
 
 export function logout(cookies?: Cookies): void {
-  cookies && deleteCookie('.LexBoxAuth', cookies);
+  cookies && deleteCookie(AUTH_COOKIE_NAME, cookies);
   if (browser && window.location.pathname !== '/login') {
     throw redirect(307, '/login');
   }
