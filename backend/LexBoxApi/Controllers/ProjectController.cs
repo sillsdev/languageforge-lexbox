@@ -68,6 +68,23 @@ public class ProjectController : ControllerBase
         return updatedCount;
     }
 
+    [HttpPost("updateProjectType/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [AdminRequired]
+    public async Task<ActionResult<Project>> UpdateProjectType(Guid id)
+    {
+        var project = await _lexBoxDbContext.Projects.FindAsync(id);
+        if (project is null) return NotFound();
+        if (project.Type == ProjectType.Unknown)
+        {
+            var hgService = HttpContext.RequestServices.GetRequiredService<IHgService>();
+            project.Type = await hgService.DetermineProjectType(project.Code, project.MigrationStatus);
+            await _lexBoxDbContext.SaveChangesAsync();
+        }
+        return project;
+    }
+
     [HttpPost("addLexboxPostfix")]
     [AdminRequired]
     public async Task<ActionResult<int>> AddLexboxSuffix()
