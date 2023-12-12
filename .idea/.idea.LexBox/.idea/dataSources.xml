@@ -24,7 +24,10 @@
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mariadb://localhost:3306</jdbc-url>
       <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Deployment" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
@@ -47,7 +50,6 @@
     </data-source>
     <data-source source="LOCAL" name="prod" single-connection="true" uuid="4ad562d7-a79c-4c7d-ba8d-7d20321425fb">
       <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
       <auto-commit>false</auto-commit>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
       <jdbc-url>jdbc:postgresql://localhost:5435/lexbox</jdbc-url>
@@ -61,6 +63,7 @@
         <property name="com.intellij.clouds.kubernetes.db.container.port" value="5432" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
+      <auto-close enable="true" />
     </data-source>
   </component>
 </project>
