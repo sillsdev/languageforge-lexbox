@@ -34,7 +34,10 @@ spec:
     matchLabels:
       app: hg
   strategy:
-      type: Recreate
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 2
+        maxUnavailable: 0
   template:
     # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
     metadata:
