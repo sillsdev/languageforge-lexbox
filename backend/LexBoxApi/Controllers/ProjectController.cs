@@ -78,8 +78,7 @@ public class ProjectController : ControllerBase
         if (project is null) return NotFound();
         if (project.Type == ProjectType.Unknown)
         {
-            var hgService = HttpContext.RequestServices.GetRequiredService<IHgService>();
-            project.Type = await hgService.DetermineProjectType(project.Code, project.MigrationStatus);
+            project.Type = await _hgService.DetermineProjectType(project.Code, project.MigrationStatus);
             await _lexBoxDbContext.SaveChangesAsync();
         }
         return project;
