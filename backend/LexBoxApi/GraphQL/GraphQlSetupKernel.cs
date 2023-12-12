@@ -17,7 +17,6 @@ public static class GraphQlSetupKernel
             services.AddHostedService<DevGqlSchemaWriterService>();
 
         services.AddGraphQLServer()
-            .TryAddTypeInterceptor<RefreshProjectMembershipInterceptor>()
             .InitializeOnStartup()
             .RegisterDbContext<LexBoxDbContext>()
             .RegisterService<IHgService>()

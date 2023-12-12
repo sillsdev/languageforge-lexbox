@@ -1,12 +1,9 @@
-using HotChocolate.Configuration;
 using HotChocolate.Resolvers;
-using HotChocolate.Types.Descriptors.Definitions;
-using HotChocolate.Utilities;
 using LexBoxApi.Auth;
 using LexCore.Auth;
 using LexCore.Entities;
 
-namespace LexBoxApi.GraphQL;
+namespace LexBoxApi.GraphQL.CustomTypes;
 
 public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<RefreshJwtProjectMembershipMiddleware> logger)
 {
@@ -43,7 +40,6 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<R
 
         if (context.Result is not IEnumerable<ProjectUsers> projectUsers) return;
 
-
         var sampleProjectUser = projectUsers.FirstOrDefault();
         if (sampleProjectUser is not null && sampleProjectUser.UserId == default && (sampleProjectUser.User == null || sampleProjectUser.User.Id == default))
         {
@@ -65,28 +61,6 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<R
         {
             // The user's role was changed
             await lexAuthService.RefreshUser(user.Id, LexAuthConstants.ProjectsClaimType);
-        }
-    }
-}
-
-public class RefreshProjectMembershipInterceptor : TypeInterceptor
-{
-    private readonly FieldMiddlewareDefinition refreshProjectMembershipMiddleware = new(
-        FieldClassMiddlewareFactory.Create<RefreshJwtProjectMembershipMiddleware>(),
-        false,
-        "jwt-refresh-middleware");
-
-    public override void OnBeforeCompleteType(
-        ITypeCompletionContext completionContext, DefinitionBase definition)
-    {
-        if (definition is ObjectTypeDefinition def && def.Name.Equals(nameof(Project)))
-        {
-            var idField = def.Fields.FirstOrDefault(x => x.Name.EqualsInvariantIgnoreCase(nameof(Project.Id)));
-            if (idField is null) throw new InvalidOperationException("Did not find id field of project type.");
-            idField.MiddlewareDefinitions.Insert(0, refreshProjectMembershipMiddleware);
-            var userField = def.Fields.FirstOrDefault(x => x.Name.EqualsInvariantIgnoreCase(nameof(Project.Users)));
-            if (userField is null) throw new InvalidOperationException("Did not find users field of project type.");
-            userField.MiddlewareDefinitions.Insert(0, refreshProjectMembershipMiddleware);
         }
     }
 }
