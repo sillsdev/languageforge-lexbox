@@ -5,6 +5,7 @@ import { loadI18n } from '$lib/i18n';
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
 import { env } from '$env/dynamic/private';
 import { getErrorMessage, validateFetchResponse } from './hooks.shared';
+import {setViewMode} from './routes/(authenticated)/shared';
 
 const UNAUTHENTICATED_ROOT = '(unauthenticated)';
 const AUTHENTICATED_ROOT = '(authenticated)';
@@ -38,6 +39,10 @@ export const handle: Handle = ({ event, resolve }) => {
       return resolve(event, options);
     } else if (!isAuthn(cookies)) {
       throw redirect(307, '/login');
+    }
+    //when at home
+    if (routeId == `/${AUTHENTICATED_ROOT}`) {
+      setViewMode(event.params, cookies);
     }
 
     return resolve(event, options);
