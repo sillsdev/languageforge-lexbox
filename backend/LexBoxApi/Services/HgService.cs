@@ -291,6 +291,42 @@ public class HgService : IHgService
             throw new ArgumentException($"Invalid repo name: {name}.");
     }
 
+    public async Task<ProjectType> DetermineProjectType(string projectCode, ProjectMigrationStatus migrationStatus)
+    {
+        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/file/tip?style=json");
+        response.EnsureSuccessStatusCode();
+        var parsed = await response.Content.ReadFromJsonAsync<BrowseResponse>();
+        // TODO: Move the heuristics below to a ProjectHeuristics class?
+        foreach (var file in parsed?.Files ?? [])
+        {
+            if (file.Basename is { } name)
+            {
+                const string flexFilename = "FLExProject.ModelVersion";
+                if (name.Equals(flexFilename, StringComparison.Ordinal))
+                {
+                    return ProjectType.FLEx;
+                }
+                const string oseFilename = "OsMetaData.xml";
+                if (name.Equals(oseFilename, StringComparison.Ordinal))
+                {
+                    return ProjectType.OneStoryEditor;
+                }
+                string oseProjectFilename = $"{projectCode}.onestory";
+                if (name.Equals(oseProjectFilename, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ProjectType.OneStoryEditor;
+                }
+                const string wesaySuffix = ".WeSayConfig";
+                if (name.EndsWith(wesaySuffix, StringComparison.Ordinal))
+                {
+                    return ProjectType.WeSay;
+                }
+                // TODO: Determine how to detect ProjectType.OurWord
+            }
+        }
+        return ProjectType.Unknown;
+    }
+
     public static string DetermineProjectUrlPrefix(HgType type,
         string projectCode,
         ProjectMigrationStatus migrationStatus,
@@ -320,4 +356,15 @@ public class LogResponse
     public string? Node { get; set; }
     public int? ChangesetCount { get; set; }
     public Changeset[]? Changesets { get; set; }
+}
+
+public class BrowseFilesResponse
+{
+    public string? Abspath { get; set; }
+    public string? Basename { get; set; }
+}
+
+public class BrowseResponse
+{
+    public BrowseFilesResponse[]? Files { get; set; }
 }
