@@ -43,7 +43,7 @@
 
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
-    : `https://hg-${$page.url.host.replace('depot', 'forge')}/${data.code}`;
+    : `https://hg-public.${$page.url.host.replace('depot', 'forge')}/${data.code}`;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
