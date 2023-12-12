@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
@@ -82,6 +83,29 @@ public class ProjectController : ControllerBase
             await _lexBoxDbContext.SaveChangesAsync();
         }
         return project;
+    }
+
+    [HttpPost("updateProjectTypesForUnknownProjects")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [AdminRequired]
+    public async Task<ActionResult<Tuple<string, ProjectType>>> UpdateProjectTypesForUnknownProjects(int limit = 50, int offset = 0)
+    {
+        var projects =
+            _lexBoxDbContext.Projects
+            .Where(p => p.Type == ProjectType.Unknown)
+            .OrderBy(p => p.Code)
+            .Skip(offset)
+            .Take(limit)
+            as IAsyncEnumerable<Project>;
+        if (projects is null) return NotFound();
+        Tuple<string, ProjectType>[] result = [];
+        await foreach (var project in projects)
+        {
+            await UpdateProjectType(project.Id);
+            result.Append(new Tuple<string, ProjectType>(project.Code, project.Type));
+        }
+        return result.Length == 0 ? NotFound() : Ok(result);
     }
 
     [HttpPost("addLexboxPostfix")]
