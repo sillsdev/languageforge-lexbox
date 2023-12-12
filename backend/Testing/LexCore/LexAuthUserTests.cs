@@ -27,12 +27,12 @@ public class LexAuthUserTests
 
     private readonly LexAuthUser _user = new()
     {
-        Id = Guid.NewGuid(),
+        Id = new Guid("f0db4c5e-9d4b-4121-9dc0-b7070713ae4a"),
         Email = "test@test.com",
         Role = UserRole.user,
         Name = "test",
         UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
-        Projects = new[] { new AuthUserProject(ProjectRole.Manager, Guid.NewGuid()) }
+        Projects = new[] { new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99")) }
     };
 
     private static readonly JwtBearerOptions JwtBearerOptions = new()
@@ -108,10 +108,26 @@ public class LexAuthUserTests
     public void CanRoundTripJwtFromUserThroughLexAuthService()
     {
         var (jwt, _) = _lexAuthService.GenerateJwt(_user);
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var outputJwt = tokenHandler.ReadJwtToken(jwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
+        _user.ShouldBeEquivalentTo(newUser);
+    }
+
+    private const string knownGoodJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyYzEyNDA1NyIsInN1YiI6ImYwZGI0YzVlLTlkNGItNDEyMS05ZGMwLWI3MDcwNzEzYWU0YSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsIm5hbWUiOiJ0ZXN0Iiwicm9sZSI6InVzZXIiLCJwcm9qIjoibTo0MmY1NjZjMGE0ZDI0OGI1YTFlMTU5YzgyMjg5ZmY5OSIsIm5iZiI6MTcwMjM3Mzk2OCwiZXhwIjoxNzAyMzc0MDI4LCJpYXQiOjE3MDIzNzM5NjksImlzcyI6IkxleGJveEFwaSIsImF1ZCI6IkxleGJveEFwaSJ9.YsAkP5oIX4nNkrSNSe-PNMR1pMaJassnNDJ3vmjMYQU";
+
+    [Fact]
+    public void CanParseFromKnownGoodJwt()
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var outputJwt = tokenHandler.ReadJwtToken(knownGoodJwt);
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
+        var newUser = LexAuthUser.FromClaimsPrincipal(principal);
+        newUser.UpdatedDate.ShouldBe(0);
+        //old jwt doesn't have updated date, we're ok with that so we correct the value to make the equivalence work
+        newUser.UpdatedDate = _user.UpdatedDate;
         _user.ShouldBeEquivalentTo(newUser);
     }
 

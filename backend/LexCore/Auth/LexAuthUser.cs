@@ -98,8 +98,9 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
     public required Guid Id { get; set; }
+
     [JsonPropertyName(LexAuthConstants.UpdatedDateClaimType)]
-    public required long UpdatedDate { get; set; }
+    public long UpdatedDate { get; set; }
     [JsonPropertyName(LexAuthConstants.AudienceClaimType)]
     public LexboxAudience Audience { get; set; } = LexboxAudience.LexboxApi;
 
