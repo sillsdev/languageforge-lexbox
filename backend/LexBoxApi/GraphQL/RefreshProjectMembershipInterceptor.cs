@@ -8,17 +8,21 @@ using LexCore.Entities;
 
 namespace LexBoxApi.GraphQL;
 
-public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
+public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<RefreshJwtProjectMembershipMiddleware> logger)
 {
-    private readonly FieldDelegate _next = next;
-
     public async Task InvokeAsync(IMiddlewareContext context)
     {
-        await _next(context);
-        var currUser = context.Service<LoggedInContext>();
-        if (currUser.User == null || currUser.User.Role == UserRole.admin) return;
+        await next(context);
+        var httpContext = context.GetGlobalStateOrDefault<HttpContext>("HttpContext");
+        if (httpContext?.Response.Headers.ContainsKey(LexAuthService.JwtUpdatedHeader) == true)
+        {
+            // The JWT was already updated, skip processing
+            return;
+        }
 
-        var lexAuthService = context.Service<LexAuthService>();
+        var user = context.Service<LoggedInContext>().MaybeUser;
+        if (user is null || user.Role == UserRole.admin) return;
+
         var projectId = context.Parent<Project>().Id;
         if (projectId == default)
         {
@@ -27,39 +31,40 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
             projectId = projectGuid;
         } // we know we have a valid project-ID
 
-        var currUserMembershipJwt = currUser.User.Projects.FirstOrDefault(projects => projects.ProjectId == projectId);
+        var lexAuthService = context.Service<LexAuthService>();
+        var currUserMembershipJwt = user.Projects.FirstOrDefault(projects => projects.ProjectId == projectId);
 
         if (currUserMembershipJwt is null)
         {
             // The user was probably added to the project and it's not in the token yet
-            await lexAuthService.RefreshUser(currUser.User.Id, LexAuthConstants.ProjectsClaimType);
+            await lexAuthService.RefreshUser(user.Id, LexAuthConstants.ProjectsClaimType);
+            return;
         }
-        else
+
+        if (context.Result is not IEnumerable<ProjectUsers> projectUsers) return;
+
+
+        var sampleProjectUser = projectUsers.FirstOrDefault();
+        if (sampleProjectUser is not null && sampleProjectUser.UserId == default && (sampleProjectUser.User == null || sampleProjectUser.User.Id == default))
         {
-            if (context.Result is not IEnumerable<ProjectUsers> projectUsers) return;
+            // User IDs don't seem to have been loaded from the DB, so we can't do anything
+            return;
+        }
 
-            var sampleProjectUser = projectUsers.FirstOrDefault();
-            if (sampleProjectUser is not null && sampleProjectUser.UserId == default && (sampleProjectUser.User == null || sampleProjectUser.User.Id == default))
-            {
-                // User IDs don't seem to have been loaded from the DB, so we can't do anything
-                return;
-            }
-
-            var currUserMembershipDb = projectUsers.FirstOrDefault(projectUser => currUser.User.Id == projectUser.UserId || currUser.User.Id == projectUser.User.Id);
-            if (currUserMembershipDb is null)
-            {
-                // The user was probably removed from the project and it's still in the token
-                await lexAuthService.RefreshUser(currUser.User.Id, LexAuthConstants.ProjectsClaimType);
-            }
-            else if (currUserMembershipDb.Role == default)
-            {
-                return; // Either the role wasn't loaded by the query (so we can't do anything) or the role is actually Unknown which means it definitely has never been changed
-            }
-            else if (currUserMembershipDb.Role != currUserMembershipJwt.Role)
-            {
-                // The user's role was changed
-                await lexAuthService.RefreshUser(currUser.User.Id, LexAuthConstants.ProjectsClaimType);
-            }
+        var currUserMembershipDb = projectUsers.FirstOrDefault(projectUser => user.Id == projectUser.UserId || user.Id == projectUser.User.Id);
+        if (currUserMembershipDb is null)
+        {
+            // The user was probably removed from the project and it's still in the token
+            await lexAuthService.RefreshUser(user.Id, LexAuthConstants.ProjectsClaimType);
+        }
+        else if (currUserMembershipDb.Role == default)
+        {
+            return; // Either the role wasn't loaded by the query (so we can't do anything) or the role is actually Unknown which means it definitely has never been changed
+        }
+        else if (currUserMembershipDb.Role != currUserMembershipJwt.Role)
+        {
+            // The user's role was changed
+            await lexAuthService.RefreshUser(user.Id, LexAuthConstants.ProjectsClaimType);
         }
     }
 }
