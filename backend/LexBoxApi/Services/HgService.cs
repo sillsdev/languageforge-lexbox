@@ -293,7 +293,7 @@ public class HgService : IHgService
 
     public async Task<ProjectType> DetermineProjectType(string projectCode, ProjectMigrationStatus migrationStatus)
     {
-        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/file/tip?style=json");
+        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/file/tip?style=json-lex");
         response.EnsureSuccessStatusCode();
         var parsed = await response.Content.ReadFromJsonAsync<BrowseResponse>();
         // TODO: Move the heuristics below to a ProjectHeuristics class?
