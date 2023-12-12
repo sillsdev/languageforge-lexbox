@@ -12,13 +12,13 @@
       <div class="contents header-actions">
         <slot name="actions" />
       </div>
-      <div class="text-3xl text-left grow max-w-full flex items-end flex-wrap">
+      <h1 class="text-3xl text-left grow max-w-full flex items-end flex-wrap">
         {#if $$slots.title}
           <slot name="title" />
         {:else}
           {title}
         {/if}
-      </div>
+      </h1>
     </div>
     <slot name="header-content" />
   </svelte:fragment>
