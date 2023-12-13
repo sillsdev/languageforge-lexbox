@@ -77,24 +77,28 @@ export function ensureErrorIsTraced(
     metadata: ErrorAttributes,
 ): TraceId {
   if (isTraced(error)) {
+    const foundSpan = getAvailableSpan(context?.span);
+    // If it's already been traced and no span is available, we don't want to create a redundant one
+    if (metadata && foundSpan) {
+      // A more specific source was likely already set
+      const { ['app.error.source']: _, ...restMetadata } = metadata;
+      foundSpan.setAttributes(restMetadata);
+    }
     return error.traceId;
   }
-  return ensureTraced('error', context?.span, (span) =>
-      traceErrorEvent(error, {span, event: context?.event}, metadata),
+
+  return traceOnBestSpan('error', context?.span, metadata, (span) =>
+      traceErrorEvent(error, {span, event: context?.event}),
   );
 }
 
 function traceErrorEvent(
     error: unknown,
     context: ErrorContext,
-    metadata: ErrorAttributes,
 ): TraceId {
   const {span, event} = context;
   span.recordException(error as Exception);
   span.setStatus({code: SpanStatusCode.ERROR});
-  if (metadata) {
-    span.setAttributes(metadata);
-  }
 
   if (event) traceEventAttributes(span, event);
   traceUserAttributes(span, event);
@@ -220,13 +224,16 @@ function traceBrowserAttributes(span: Span, window: Window): void {
  * The action is assumed to do all the necessary tracing and error handling.
  * @returns The trace ID of whatever span ends up being used.
  */
-function ensureTraced(name: string, currSpan: Span | undefined, instrumentedAction: (span: Span) => string): TraceId {
-  const foundSpan = currSpan ?? trace.getActiveSpan();
+function traceOnBestSpan(name: string, currSpan: Span | undefined, metadata: Attributes | undefined,
+  instrumentedAction: (span: Span) => string): TraceId {
+  const foundSpan = getAvailableSpan(currSpan);
   if (foundSpan) {
+    if (metadata) foundSpan.setAttributes(metadata);
     return instrumentedAction(foundSpan);
   } else {
     return tracer().startActiveSpan(name, (span) => {
       try {
+        if (metadata) span.setAttributes(metadata);
         instrumentedAction(span);
         return span.spanContext().traceId;
       } finally {
@@ -234,6 +241,10 @@ function ensureTraced(name: string, currSpan: Span | undefined, instrumentedActi
       }
     });
   }
+}
+
+function getAvailableSpan(currSpan: Span | undefined): Span | undefined {
+  return currSpan ?? trace.getActiveSpan();
 }
 
 function isBrowserEvent(event: RequestEvent | NavigationEvent | Event): event is Event {
