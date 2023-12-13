@@ -65,6 +65,9 @@
       bottom: calc(-100% + 120px);
     }
 
+    *[style*="our-word-logo"] {
+      border-top-left-radius: 4em;
+    }
 
     &:hover .bg {
       @apply opacity-100;
