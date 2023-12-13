@@ -46,7 +46,7 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
             return;
         }
 
-        var currUserMembershipDb = projectUsers.FirstOrDefault(projectUser => user.Id == projectUser.UserId || user.Id == projectUser.User.Id);
+        var currUserMembershipDb = projectUsers.FirstOrDefault(projectUser => user.Id == projectUser.UserId || user.Id == projectUser.User?.Id);
         if (currUserMembershipDb is null)
         {
             // The user was probably removed from the project and it's still in the token
@@ -66,12 +66,12 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
     private static async Task RefreshUser(IMiddlewareContext context, Guid userId)
     {
         var lexAuthService = context.Service<LexAuthService>();
-        context.ScopedContextData = context.ScopedContextData.SetItem(REFRESHED_USER_KEY, true);
+        context.ContextData[REFRESHED_USER_KEY] = true;
         await lexAuthService.RefreshUser(userId, LexAuthConstants.ProjectsClaimType);
     }
 
     private static bool UserAlreadyRefreshed(IMiddlewareContext context)
     {
-        return context.ScopedContextData.ContainsKey(REFRESHED_USER_KEY);
+        return context.ContextData.ContainsKey(REFRESHED_USER_KEY);
     }
 }
