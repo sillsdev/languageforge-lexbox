@@ -5,15 +5,15 @@ using LexCore.Entities;
 
 namespace LexBoxApi.GraphQL.CustomTypes;
 
-public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<RefreshJwtProjectMembershipMiddleware> logger)
+public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
 {
+    private const string REFRESHED_USER_KEY = "RefreshedJwtProjectMembership";
+
     public async Task InvokeAsync(IMiddlewareContext context)
     {
         await next(context);
-        var httpContext = context.GetGlobalStateOrDefault<HttpContext>("HttpContext");
-        if (httpContext?.Response.Headers.ContainsKey(LexAuthService.JwtUpdatedHeader) == true)
+        if (UserAlreadyRefreshed(context))
         {
-            // The JWT was already updated, skip processing
             return;
         }
 
@@ -28,13 +28,12 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<R
             projectId = projectGuid;
         } // we know we have a valid project-ID
 
-        var lexAuthService = context.Service<LexAuthService>();
         var currUserMembershipJwt = user.Projects.FirstOrDefault(projects => projects.ProjectId == projectId);
 
         if (currUserMembershipJwt is null)
         {
             // The user was probably added to the project and it's not in the token yet
-            await lexAuthService.RefreshUser(user.Id, LexAuthConstants.ProjectsClaimType);
+            await RefreshUser(context, user.Id);
             return;
         }
 
@@ -51,7 +50,7 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<R
         if (currUserMembershipDb is null)
         {
             // The user was probably removed from the project and it's still in the token
-            await lexAuthService.RefreshUser(user.Id, LexAuthConstants.ProjectsClaimType);
+            await RefreshUser(context, user.Id);
         }
         else if (currUserMembershipDb.Role == default)
         {
@@ -60,7 +59,19 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next, ILogger<R
         else if (currUserMembershipDb.Role != currUserMembershipJwt.Role)
         {
             // The user's role was changed
-            await lexAuthService.RefreshUser(user.Id, LexAuthConstants.ProjectsClaimType);
+            await RefreshUser(context, user.Id);
         }
+    }
+
+    private static async Task RefreshUser(IMiddlewareContext context, Guid userId)
+    {
+        var lexAuthService = context.Service<LexAuthService>();
+        context.ScopedContextData = context.ScopedContextData.SetItem(REFRESHED_USER_KEY, true);
+        await lexAuthService.RefreshUser(userId, LexAuthConstants.ProjectsClaimType);
+    }
+
+    private static bool UserAlreadyRefreshed(IMiddlewareContext context)
+    {
+        return context.ScopedContextData.ContainsKey(REFRESHED_USER_KEY);
     }
 }

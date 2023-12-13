@@ -14,11 +14,10 @@ public class LexQueries
 
     [UseProjection]
     [UseSorting]
-    public async Task<IQueryable<Project>> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context, LexAuthService lexAuthService)
+    public IQueryable<Project> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
     {
         var userId = loggedInContext.User.Id;
-        var projects = context.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId));
-        return projects;
+        return context.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId));
     }
 
     [UseProjection]
