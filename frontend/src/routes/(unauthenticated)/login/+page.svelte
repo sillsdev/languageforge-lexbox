@@ -80,6 +80,7 @@
             type="password"
             bind:value={$form.password}
             error={$errors.password}
+            autocomplete="current-password"
           />
 
           <FormError error={$message} />
