@@ -41,16 +41,28 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   window.addEventListener('error', async (event: ErrorEvent) => {
     const handler = 'client-error';
+
+    // Try our best to only show the user errors that are from our code
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+    const showToUser = !!event.error && !errorIsFromExtension(event.error);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const eventError = event.error ?? {}; // sometimes null 🤷
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    eventError.message ??= event.message; // just to make sure we don't miss anything
+
     const traceId = ensureErrorIsTraced(
-      event.error,
+      eventError,
       {event},
       {
         ['app.error.source']: handler,
-        ['app.error.traced_by_handler']: true,
+        ['app.error.show_user']: showToUser,
       }
     );
+
+    if (!showToUser) return;
+
     const updateDetected = await updated.check();
-    error.set({message: event.message, traceId, handler, updateDetected});
+    error.set({ message: event.message, traceId, handler, updateDetected });
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/API/PromiseRejectionEvent
@@ -62,6 +74,14 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
 
     const handler = 'client-unhandledrejection';
     const message = isObject(event.reason) ? (event.reason.message as string) : undefined;
+
+    // Try our best to only show the user errors that are from our code
+    const showToUser = !!event.reason &&
+      !errorIsFromExtension(event.reason as Error) &&
+      // The user doesn't care if a few OTEL beacons are failing
+      // (see BatchSpanProcessor configuration in otel\client.ts)
+      !message?.startsWith('sendBeacon - cannot send');
+
     const keysForMissingMessageError = message
       ? undefined
       : isObject(event.reason)
@@ -73,17 +93,19 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
       {
         ['app.error.source']: handler,
         ['app.error.keys']: keysForMissingMessageError,
-        ['app.error.traced_by_handler']: true,
+        ['app.error.show_user']: showToUser,
       }
     );
 
-    if (message?.startsWith('sendBeacon - cannot send')) {
-      // The user doesn't care if a few OTEL beacons are failing
-      // (see BatchSpanProcessor configuration in otel\client.ts)
-      return;
-    }
+    if (!showToUser) return;
 
     const updateDetected = await updated.check();
     error.set({message: message ?? `We're not sure what happened.`, traceId, handler, updateDetected});
   };
+
+  function errorIsFromExtension(error: Error): boolean {
+    return !!error.stack &&
+      // tested on Chrome, Edge, Firefox and Brave
+      (error.stack.includes('chrome-extension://') || error.stack.includes('moz-extension://'));
+  }
 }
