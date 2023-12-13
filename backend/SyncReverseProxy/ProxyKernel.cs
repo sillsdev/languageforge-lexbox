@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy.Auth;
@@ -78,6 +79,7 @@ public static class ProxyKernel
         string projectCode)
     {
         Activity.Current?.AddTag("app.project_code", projectCode);
+        Activity.Current?.AddTag("app.send_receive", true);
         var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
@@ -92,6 +94,7 @@ public static class ProxyKernel
             return;
         }
 
+        Activity.Current?.AddTag("app.project_migrated", requestInfo.Status == ProjectMigrationStatus.Migrated);
         //notify the migration service that this project is being accessed, this will block migrations from starting
         using var sendReceiveTicket = await repoMigrationService.BeginSendReceive(projectCode, requestInfo.Status);
         //if there's a race condition then requestInfo could show that the project is not migrating, when it already is at this time
