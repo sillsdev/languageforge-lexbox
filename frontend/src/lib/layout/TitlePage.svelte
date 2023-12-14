@@ -9,5 +9,7 @@
   <svelte:fragment slot="header">
     <PageTitle {title} />
   </svelte:fragment>
-  <slot />
+  <div class="py-6">
+    <slot />
+  </div>
 </Page>

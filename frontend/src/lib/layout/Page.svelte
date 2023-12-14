@@ -5,7 +5,6 @@
   export let wide = false;
 
   $: maxWidth = wide ? 'md:max-w-4xl' : 'md:max-w-2xl';
-  $: yPadding = !$$slots.header ? 'py-6' : 'pb-6';
 </script>
 
 {#if title}
@@ -16,8 +15,7 @@
   {#if $$slots.header}
     <slot name="header" />
   {/if}
-
-  <main class={yPadding}>
+  <main>
     <slot />
   </main>
 </div>

@@ -23,5 +23,7 @@
     <slot name="header-content" />
   </svelte:fragment>
   <div class="divider" />
-  <slot />
+  <div class="pb-6">
+    <slot />
+  </div>
 </Page>
