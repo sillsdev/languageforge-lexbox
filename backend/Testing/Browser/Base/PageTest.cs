@@ -105,6 +105,7 @@ public class PageTest : IAsyncLifetime
             {
                 { "password", password }, { "emailOrUsername", user }, { "preHashedPassword", false }
             });
+        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
         responseMessage.Headers.ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase)
             .ShouldContainKey("Set-Cookie");
         var cookies = responseMessage.Headers.GetValues("Set-Cookie").ToArray();
