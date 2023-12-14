@@ -89,23 +89,22 @@ public class ProjectController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [AdminRequired]
-    public async Task<ActionResult<Tuple<string, ProjectType>>> UpdateProjectTypesForUnknownProjects(int limit = 50, int offset = 0)
+    public async Task<ActionResult<Dictionary<string, ProjectType>>> UpdateProjectTypesForUnknownProjects(int limit = 50, int offset = 0)
     {
-        var projects =
-            _lexBoxDbContext.Projects
-            .Where(p => p.Type == ProjectType.Unknown)
+        var projects = _lexBoxDbContext.Projects
+            .Where(p => p.Type == ProjectType.Unknown && p.MigrationStatus == ProjectMigrationStatus.Migrated)
             .OrderBy(p => p.Code)
             .Skip(offset)
             .Take(limit)
-            as IAsyncEnumerable<Project>;
-        if (projects is null) return NotFound();
-        Tuple<string, ProjectType>[] result = [];
+            .AsAsyncEnumerable();
+        var result = new Dictionary<string, ProjectType>();
         await foreach (var project in projects)
         {
-            await UpdateProjectType(project.Id);
-            result.Append(new Tuple<string, ProjectType>(project.Code, project.Type));
+            project.Type = await _hgService.DetermineProjectType(project.Code, project.MigrationStatus);
+            result.Add(project.Code, project.Type);
         }
-        return result.Length == 0 ? NotFound() : Ok(result);
+        await _lexBoxDbContext.SaveChangesAsync();
+        return result;
     }
 
     [HttpPost("addLexboxPostfix")]
