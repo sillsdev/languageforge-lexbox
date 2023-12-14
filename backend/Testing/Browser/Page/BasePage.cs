@@ -47,7 +47,7 @@ public abstract class BasePage<T> where T : BasePage<T>
         if (UrlPattern is not null)
         {
             //assert to get a good error message
-            await Assertions.Expect(Page).ToHaveURLAsync(UrlPattern);
+            await Assertions.Expect(Page).ToHaveURLAsync(UrlPattern, new () {Timeout = 10_000});
             //still wait to make sure we reach the same state we expect
             await Page.WaitForURLAsync(UrlPattern, new() { WaitUntil = WaitUntilState.Load });
         }
