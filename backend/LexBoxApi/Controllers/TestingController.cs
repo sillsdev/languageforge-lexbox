@@ -4,7 +4,6 @@ using LexCore.Auth;
 using LexCore.Exceptions;
 using LexData;
 using LexData.Entities;
-using LexData.Redmine;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,17 +17,14 @@ public class TestingController : ControllerBase
     private readonly LexAuthService _lexAuthService;
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly SeedingData _seedingData;
-    private readonly RedmineDbContext _redmineDbContext;
 
     public TestingController(LexAuthService lexAuthService,
         LexBoxDbContext lexBoxDbContext,
-        SeedingData seedingData,
-        PublicRedmineDbContext redmineDbContext)
+        SeedingData seedingData)
     {
         _lexAuthService = lexAuthService;
         _lexBoxDbContext = lexBoxDbContext;
         _seedingData = seedingData;
-        _redmineDbContext = redmineDbContext;
     }
 
 #if DEBUG
@@ -84,12 +80,6 @@ public class TestingController : ControllerBase
     {
         var configurationRoot = (IConfigurationRoot)HttpContext.RequestServices.GetRequiredService<IConfiguration>();
         return Ok(configurationRoot.GetDebugView());
-    }
-
-    [HttpGet("listRedmineUsernames")]
-    public async Task<ActionResult<RmUser[]>> ListRedmineUsernames()
-    {
-        return await _redmineDbContext.Users.Take(100).ToArrayAsync();
     }
 
     public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);
