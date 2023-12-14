@@ -13,7 +13,7 @@ config = b"/var/hg/hgweb.hgrc"
 #import cgitb; cgitb.enable()
 
 # enable demandloading to reduce startup time
-from mercurial import demandimport; demandimport.enable()
+from mercurial import demandimport; demandimport.disable()
 
 from mercurial.hgweb import hgweb
 application = hgweb(config)
