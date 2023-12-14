@@ -10,6 +10,11 @@ spec:
     spec:
       containers:
         - name: lexbox-api
+          resources:
+            requests:
+              memory: 350Mi #matching prod
+            limits:
+              memory: 350Mi
 
           env:
             - name: CloudFlare__AllowDomain
