@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
+using System.Text.Json;
 using LexCore.Auth;
 using Shouldly;
 using Testing.Services;
@@ -19,17 +20,16 @@ public class AuthTests : ApiTestBase
         var managerResponse = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
                 $"{BaseUrl}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
-        var manager = await managerResponse.Content.ReadFromJsonAsync<LexAuthUser>();
-        manager.ShouldNotBeNull();
-        manager.Email.ShouldBe("manager@test.com");
+        managerResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var manager = await managerResponse.Content.ReadFromJsonAsync<JsonElement>();
+        manager.GetProperty("email").GetString().ShouldBe("manager@test.com");
 
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var response = await HttpClient.SendAsync(new HttpRequestMessage(HttpMethod.Get,
                 $"{BaseUrl}/api/user/currentUser"),
             HttpCompletionOption.ResponseContentRead);
-        var admin = await response.Content.ReadFromJsonAsync<LexAuthUser>();
-        admin.ShouldNotBeNull();
-        admin.Email.ShouldBe("admin@test.com");
+        var admin = await response.Content.ReadFromJsonAsync<JsonElement>();
+        admin.GetProperty("email").GetString().ShouldBe("admin@test.com");
     }
 
     [Fact]
