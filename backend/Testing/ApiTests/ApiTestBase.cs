@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json.Nodes;
 using LexBoxApi.Auth;
 using Shouldly;
+using Testing.LexCore.Utils;
 using Testing.Services;
 
 namespace Testing.ApiTests;
@@ -35,11 +36,8 @@ public class ApiTestBase
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql", new { query = gql });
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
         jsonResponse.ShouldNotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
-        if (!expectGqlError)
-        {
-            jsonResponse["errors"].ShouldBeNull();
-            response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
-        }
+        GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);
+        response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         return jsonResponse;
     }
 }

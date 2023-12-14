@@ -186,25 +186,32 @@ query projectLastCommit {
         var auth = AdminAuth;
         var projectCode = "kevin-test-01";
         await apiTester.LoginAs(auth.Username, auth.Password);
-        await apiTester
-            .ExecuteGql($$"""
-                          mutation {
-                              createProject(input: {
-                                  name: "Kevin test 01",
-                                  type: FL_EX,
-                                  id: "{{id}}",
-                                  code: "{{projectCode}}",
-                                  description: "this is a new project created during a unit test to verify we can send a new project for the first time",
-                                  retentionPolicy: DEV
-                              }) {
-                                  createProjectResponse {
-                                      id
-                                      result
-                                  }
-                              }
-                          }
-                          """);
-        await using var deleteProject = Defer.Async( () => apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}"));
+        await apiTester.ExecuteGql($$"""
+            mutation {
+                createProject(input: {
+                    name: "Kevin test 01",
+                    type: FL_EX,
+                    id: "{{id}}",
+                    code: "{{projectCode}}",
+                    description: "this is a new project created during a unit test to verify we can send a new project for the first time",
+                    retentionPolicy: DEV
+                }) {
+                    createProjectResponse {
+                        id
+                        result
+                    }
+                    errors {
+                        __typename
+                        ... on DbError {
+                            code
+                            message
+                        }
+                    }
+                }
+            }
+            """);
+
+        await using var deleteProject = Defer.Async(() => apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}"));
 
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
         var stream = await apiTester.HttpClient.GetStreamAsync("https://drive.google.com/uc?export=download&id=1w357T1Ti7bDwEof4HPBUZ5gB7WSKA5O2");

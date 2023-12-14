@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Nodes;
 using Microsoft.Playwright;
 using Shouldly;
+using Testing.LexCore.Utils;
 using Testing.Services;
 
 namespace Testing.Browser.Util;
@@ -16,10 +17,7 @@ public static class HttpUtils
         response.Status.ShouldBe(200, $"code was {response.Status} ({response.StatusText})");
         var jsonResponse = await response.JsonAsync<JsonObject>();
         jsonResponse.ShouldNotBeNull("for query " + gql);
-        if (!expectGqlError)
-        {
-            jsonResponse["errors"].ShouldBeNull();
-        }
+        GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);
         return jsonResponse;
     }
 
