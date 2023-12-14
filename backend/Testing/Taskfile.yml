@@ -24,7 +24,7 @@ tasks:
       TEST_RESUMABLE_HG_HOSTNAME: 'resumable-staging.languagedepot.org'
     cmds:
 #     - 'read -p "password: " TEST_DEFAULT_PASSWORD'
-      - task playwright -- {{.CLI_ARGS}}
+      - task integration -- {{.CLI_ARGS}}
 
   # Playwright
   playwright:
