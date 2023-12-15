@@ -80,7 +80,7 @@
     <AdminProjects projects={$projects} {queryParams} />
 
     <div>
-      <span class="text-xl flex gap-4">
+      <h2 class="text-2xl flex gap-4 items-end">
         {$t('admin_dashboard.user_table_title')}
         <Badge>
           <span class="inline-flex gap-2">
@@ -89,7 +89,7 @@
             {filteredUserCount}
           </span>
         </Badge>
-      </span>
+      </h2>
       <Input label="" placeholder={$t('filter.placeholder')} bind:value={$queryParamValues.userSearch} debounce />
 
       <div class="divider" />

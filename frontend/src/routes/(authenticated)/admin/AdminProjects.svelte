@@ -42,7 +42,7 @@
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
 <div>
   <div class="flex justify-between items-center">
-    <span class="text-xl flex gap-4">
+    <h2 class="text-2xl flex gap-4 items-end">
       {$t('admin_dashboard.project_table_title')}
       <Badge>
         <span class="inline-flex gap-2">
@@ -51,7 +51,7 @@
           {filteredProjects.length}
         </span>
       </Badge>
-    </span>
+    </h2>
     <a href="/project/create" class="btn btn-sm btn-success">
       <span class="max-sm:hidden">
         {$t('project.create.title')}
