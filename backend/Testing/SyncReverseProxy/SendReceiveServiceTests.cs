@@ -184,12 +184,12 @@ query projectLastCommit {
         var id = Guid.NewGuid();
         var apiTester = new ApiTestBase();
         var auth = AdminAuth;
-        var projectCode = "kevin-test-01";
+        var projectCode = "send-new-project-test-" + id.ToString("N");
         await apiTester.LoginAs(auth.Username, auth.Password);
         await apiTester.ExecuteGql($$"""
             mutation {
                 createProject(input: {
-                    name: "Kevin test 01",
+                    name: "Send new project test",
                     type: FL_EX,
                     id: "{{id}}",
                     code: "{{projectCode}}",
@@ -214,9 +214,12 @@ query projectLastCommit {
         await using var deleteProject = Defer.Async(() => apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}"));
 
         var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
-        var stream = await apiTester.HttpClient.GetStreamAsync("https://drive.google.com/uc?export=download&id=1w357T1Ti7bDwEof4HPBUZ5gB7WSKA5O2");
-        using var zip = new ZipArchive(stream);
-        zip.ExtractToDirectory(sendReceiveParams.DestDir);
+        await using (var stream = await apiTester.HttpClient.GetStreamAsync("https://drive.google.com/uc?export=download&id=1w357T1Ti7bDwEof4HPBUZ5gB7WSKA5O2"))
+        using(var zip = new ZipArchive(stream))
+        {
+            zip.ExtractToDirectory(sendReceiveParams.DestDir);
+        }
+        File.Move(Path.Join(sendReceiveParams.DestDir, "send-new-project-test.fwdata"), sendReceiveParams.FwDataFile);
         Directory.EnumerateFiles(sendReceiveParams.DestDir).ShouldContain(sendReceiveParams.FwDataFile);
 
         //hack around the fact that our send and receive won't create a repo from scratch.
