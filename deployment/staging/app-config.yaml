@@ -4,5 +4,5 @@ metadata:
   name: app-config
 data:
   environment-name: "Staging"
-  hg-otel-enabled: "OFF"
+  hg-otel-enabled: "ON"
 
