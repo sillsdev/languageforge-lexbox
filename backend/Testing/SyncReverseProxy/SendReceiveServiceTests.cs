@@ -219,7 +219,7 @@ query projectLastCommit {
         {
             zip.ExtractToDirectory(sendReceiveParams.DestDir);
         }
-        File.Move(Path.Join(sendReceiveParams.DestDir, "send-new-project-test.fwdata"), sendReceiveParams.FwDataFile);
+        File.Move(Path.Join(sendReceiveParams.DestDir, "kevin-test-01.fwdata"), sendReceiveParams.FwDataFile);
         Directory.EnumerateFiles(sendReceiveParams.DestDir).ShouldContain(sendReceiveParams.FwDataFile);
 
         //hack around the fact that our send and receive won't create a repo from scratch.
