@@ -52,9 +52,9 @@ spec:
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
-            memory: 260Mi
+            memory: 400Mi
           limits:
-            memory: 260Mi
+            memory: 400Mi
         env:
           - name: CUSTOM_PORT
             value: "8088"
@@ -65,6 +65,8 @@ spec:
               configMapKeyRef:
                 name: app-config
                 key: hg-otel-enabled
+          - name: ENABLE_DEMAND_IMPORT
+            value: "false"
         ports:
           - containerPort: 8088
 

@@ -1,3 +1,5 @@
+import os
+import sys
 # An example WSGI for use with mod_wsgi, edit as necessary
 # See https://mercurial-scm.org/wiki/modwsgi for more information
 # mod_wsgi docs: https://modwsgi.readthedocs.io/en/master/
@@ -13,7 +15,13 @@ config = b"/var/hg/hgweb.hgrc"
 #import cgitb; cgitb.enable()
 
 # enable demandloading to reduce startup time
-from mercurial import demandimport; demandimport.enable()
+from mercurial import demandimport;
+
+# enable demandloading to reduce startup time
+if os.getenv('ENABLE_DEMAND_IMPORT', 'false').lower() in ['1', 'true', 'yes']:
+    demandimport.enable()
+else:
+    demandimport.disable()
 
 from mercurial.hgweb import hgweb
 application = hgweb(config)
