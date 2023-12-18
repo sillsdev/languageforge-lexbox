@@ -44,6 +44,23 @@
             }
         },
         {
+            label: 'Create Project Request (Language Project)',
+            name: 'Admin',
+            baseUrl: location.origin,
+            template: EmailTemplate.CreateProjectRequest,
+            project: {
+                name: 'My Project',
+                code: 'myproj-onestory',
+                type: ProjectType.OneStoryEditor,
+                description: 'My project description',
+                retentionPolicy: RetentionPolicy.Verified,
+            },
+            user: {
+                name: 'Bob',
+                email: 'test@test.com'
+            }
+        },
+        {
             label: 'Create Project Request - custom code',
             name: 'Admin',
             baseUrl: location.origin,

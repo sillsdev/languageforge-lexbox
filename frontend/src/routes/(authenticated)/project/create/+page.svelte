@@ -91,19 +91,14 @@
       if (urlValues.type) form.type = urlValues.type;
       if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || isAdmin(user))) form.retentionPolicy = urlValues.retentionPolicy;
       if (urlValues.code) {
-        const dashIndexes = [...urlValues.code.matchAll(/-/g)].map(match => match.index);
-        const languageCode =
-          dashIndexes.length === 0 ? urlValues.code
-          // only the value after the last 2 (out of 1-♾️) dashes can result in a code being "custom"
-          : urlValues.code.substring(0, dashIndexes[Math.max(0, dashIndexes.length - 2)]);
-        form.languageCode = languageCode;
-        const standardProjectCode = buildProjectCode(languageCode, urlValues.type, urlValues.retentionPolicy);
-        const isCustomCode = standardProjectCode !== urlValues.code;
-
+        const standardCodeSuffix = buildProjectCode('', urlValues.type, urlValues.retentionPolicy);
+        const isCustomCode = !urlValues.code.endsWith(standardCodeSuffix);
         if (isCustomCode && isAdmin(user)) {
-            form.customCode = true;
-            form.code = urlValues.code;
-        } // otherwise we just let it get calculated automatically
+          form.customCode = true;
+          form.code = form.languageCode = urlValues.code;
+        } else {
+          form.languageCode = urlValues.code.replace(new RegExp(`${standardCodeSuffix}$`), '');
+        }
       }
       return form;
     }, { taint: false });
