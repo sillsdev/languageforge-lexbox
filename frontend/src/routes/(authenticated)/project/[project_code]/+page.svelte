@@ -22,7 +22,7 @@
   import { CircleArrowIcon, TrashIcon, type IconString } from '$lib/icons';
   import type { BadgeVariant } from '$lib/components/Badges/Badge.svelte';
   import { useNotifications } from '$lib/notify';
-  import { DialogResponse } from '$lib/components/modals';
+  import {DialogResponse, Modal} from '$lib/components/modals';
   import { Button, type ErrorMessage } from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
@@ -178,6 +178,17 @@
     await fetch(`/api/migrate/migrateRepo?projectCode=${project.code}`);
     migrationStatus = ProjectMigrationStatus.Migrating;
     await watchMigrationStatus();
+  }
+
+  let verifyModal: Modal;
+  let verifyResponse = '';
+
+  async function verify(): Promise<void> {
+    verifyResponse = '';
+    void verifyModal.openModal(true, true);
+    let response = await fetch(`/api/project/hgVerify/${project.code}`);
+    let json = await response.json() as { response: string } | undefined;
+    verifyResponse = json?.response ?? 'No response';
   }
 
   let openInFlexModal: OpenInFlexModal;
@@ -371,6 +382,20 @@
                 Migrate Project
                 <Icon icon="i-mdi-source-branch-sync" />
               </Button>
+            {/if}
+            {#if migrationStatus === ProjectMigrationStatus.Migrated}
+              <Button on:click={verify}>Verify Repository</Button>
+              <Modal bind:this={verifyModal} closeOnClickOutside={false}>
+                <div class="card">
+                  <div class="card-body">
+                    {#if verifyResponse === ''}
+                      <span class="loading loading-ring loading-lg"></span>
+                    {:else}
+                      <pre>{verifyResponse}</pre>
+                    {/if}
+                  </div>
+                </div>
+              </Modal>
             {/if}
           </AdminContent>
         </MoreSettings>

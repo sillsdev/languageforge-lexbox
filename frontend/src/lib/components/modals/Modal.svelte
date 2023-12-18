@@ -22,6 +22,8 @@
   $: submitting = $dialogResponse === DialogResponse.Submit && $open;
   export let bottom = false;
   export let showCloseButton = true;
+  export let closeOnClickOutside = true;
+
   export async function openModal(autoCloseOnCancel = true, autoCloseOnSubmit = false): Promise<DialogResponse> {
     $dialogResponse = null;
     $open = true;
@@ -113,8 +115,10 @@
         </div>
       {/if}
     </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>invisible</button>
-    </form>
+    {#if closeOnClickOutside}
+      <form method="dialog" class="modal-backdrop">
+        <button>invisible</button>
+      </form>
+    {/if}
   </dialog>
 {/if}
