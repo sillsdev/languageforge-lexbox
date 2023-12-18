@@ -122,6 +122,8 @@ spec:
                 key: hg-domain
           - name: HgConfig__HgWebUrl
             value: http://hg:8088/hg/
+          - name: HgConfig__HgCommandServer
+            value: http://hg:8088/command/
           - name: HgConfig__HgResumableUrl
             value: http://hg:80/
           - name: HgConfig__RedmineTrustToken

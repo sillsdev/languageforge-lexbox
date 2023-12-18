@@ -10,6 +10,9 @@ public class HgConfig
     public required string SendReceiveDomain { get; init; }
     [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
     public required string HgWebUrl { get; init; }
+
+    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
+    public required string HgCommandServer { get; init; }
     [Required, Url]
     public required string HgResumableUrl { get; init; }
 
