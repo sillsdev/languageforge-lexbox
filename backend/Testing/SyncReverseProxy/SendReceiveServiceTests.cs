@@ -230,7 +230,7 @@ query projectLastCommit {
         HgRunner.Run("""hg commit -m "first commit" """, sendReceiveParams.DestDir, 1, progress);
 
         //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
-        const int totalSizeMb = 150;
+        const int totalSizeMb = 180;
         const int fileCount = 10;
         for (int i = 1; i <= fileCount; i++)
         {
