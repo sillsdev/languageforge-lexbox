@@ -188,4 +188,19 @@ public class ProjectController : ControllerBase
         if (result is null) return NotFound();
         return result.Value;
     }
+
+    public record HgVerifyResult(string Response);
+    [HttpGet("hgVerify/{code}")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<HgVerifyResult>> HgVerify(string code)
+    {
+        var migrationStatus = await _lexBoxDbContext.Projects.Where(p => p.Code == code).Select(p => p.MigrationStatus)
+            .FirstOrDefaultAsync();
+        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        var result = await _hgService.VerifyRepo(code);
+        return new HgVerifyResult(result);
+    }
 }
