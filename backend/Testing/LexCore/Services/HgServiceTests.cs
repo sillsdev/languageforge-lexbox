@@ -29,6 +29,7 @@ public class HgServiceTests
         {
             RepoPath = Path.Join(_basePath, "hg-repos"),
             HgWebUrl = LexboxHgWeb,
+            HgCommandServer = LexboxHgWeb + "/command/",
             HgResumableUrl = LexboxResumable,
             PublicRedmineHgWebUrl = RedminePublic,
             PrivateRedmineHgWebUrl = RedminePrivate,
