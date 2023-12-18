@@ -59,6 +59,11 @@ portForward:
     resourceName: lexbox
     namespace: languagedepot
     port: 1080
+    # hg
+  - resourceType: Service
+    resourceName: hg
+    namespace: languagedepot
+    port: 8088 # web
 
 manifests:
   kustomize:
