@@ -99,7 +99,7 @@
   >
     <div class="modal-box max-w-3xl">
       {#if showCloseButton}
-        <button class="btn btn-sm btn-circle absolute right-2 top-2" aria-label={$t('close')} on:click={cancelModal}
+        <button class="btn btn-sm btn-circle absolute right-2 top-2 z-10" aria-label={$t('close')} on:click={cancelModal}
           >✕
         </button>
       {/if}
