@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Frozen;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -19,8 +20,8 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
 
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOptions<JwtOptions> _userOptions;
-    private static readonly JwtSecurityTokenHandler _jwtSecurityTokenHandler = new();
-    private const string _propsPrefix = "props";
+    private static readonly JwtSecurityTokenHandler JwtSecurityTokenHandler = new();
+    private const string PropsPrefix = "props";
     private readonly ILogger<JwtTicketDataFormat> _logger;
 
     public JwtTicketDataFormat(IHttpContextAccessor httpContextAccessor,
@@ -44,13 +45,14 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         return ConvertAuthTicketToJwt(data, purpose, jwtBearerOptions, _userOptions.Value);
     }
 
+    private static readonly FrozenSet<string> TicketPropertiesToExclude = FrozenSet.ToFrozenSet([".issued", ".expires"]);
     public static string ConvertAuthTicketToJwt(AuthenticationTicket data,
         string? purpose,
         JwtBearerOptions jwtBearerOptions,
         JwtOptions jwtUserOptions)
     {
         var jwtDate = DateTime.UtcNow;
-        _jwtSecurityTokenHandler.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
+        JwtSecurityTokenHandler.MapInboundClaims = jwtBearerOptions.MapInboundClaims;
         var claimsIdentity = new ClaimsIdentity(data.Principal.Claims.Where(c => c.Type != JwtRegisteredClaimNames.Jti), data.Principal.Identity?.AuthenticationType);
         var keyId = Guid.NewGuid().ToString().GetHashCode().ToString("x", CultureInfo.InvariantCulture);
         claimsIdentity.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, keyId));
@@ -60,16 +62,18 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         {
             Issuer = jwtBearerOptions.TokenValidationParameters.ValidIssuer,
             Audience = audience,
+            IssuedAt = data.Properties.IssuedUtc?.UtcDateTime ?? jwtDate,
             NotBefore = data.Properties.IssuedUtc?.UtcDateTime ?? jwtDate,
-            Expires = data.Properties.ExpiresUtc?.UtcDateTime ?? jwtDate + jwtUserOptions.Lifetime,
+            Expires = data.Properties.ExpiresUtc?.UtcDateTime ?? (jwtDate + jwtUserOptions.Lifetime),
             SigningCredentials = new SigningCredentials(jwtBearerOptions.TokenValidationParameters.IssuerSigningKey,
                 SecurityAlgorithms.HmacSha256),
             Subject = claimsIdentity,
-            Claims = data.Properties.Items.ToDictionary(kvp => _propsPrefix + kvp.Key, kvp => kvp.Value as object)
+            Claims = data.Properties.Items.Where(kvp => !TicketPropertiesToExclude.Contains(kvp.Key))
+                .ToDictionary(kvp => PropsPrefix + kvp.Key, kvp => kvp.Value as object)
         };
-        var token = _jwtSecurityTokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
+        var token = JwtSecurityTokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
         FixUpArrayClaims(token);
-        return _jwtSecurityTokenHandler.WriteToken(token);
+        return JwtSecurityTokenHandler.WriteToken(token);
     }
 
     private static string? DetermineAudience(ClaimsIdentity identity)
@@ -98,19 +102,22 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
                 token.Payload[claimName] = new List<object> { value };
             }
         }
-
-
     }
 
     public AuthenticationTicket? Unprotect(string? protectedText)
     {
-        return Unprotect(protectedText, null);
+        return Unprotect(protectedText, (string?) null);
     }
 
     public AuthenticationTicket? Unprotect(string? protectedText, string? purpose)
     {
         var jwtBearerOptions = JwtBearerOptions ??
                                throw new ArgumentNullException(nameof(JwtBearerOptions), "options is null");
+        return ConvertJwtToAuthTicket(protectedText, jwtBearerOptions, _logger);
+    }
+
+    public static AuthenticationTicket? ConvertJwtToAuthTicket(string? protectedText, JwtBearerOptions jwtBearerOptions, ILogger logger)
+    {
         var validationParameters = jwtBearerOptions.TokenValidationParameters.Clone();
         foreach (var validator in jwtBearerOptions.SecurityTokenValidators)
         {
@@ -122,14 +129,16 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
                     out var validatedToken);
                 if (principal == null) continue;
                 var properties = new AuthenticationProperties(
-                    principal.Claims.Where(c => c.Type.StartsWith(_propsPrefix))
-                        .ToDictionary(c => c.Type[_propsPrefix.Length..], c => c.Value)!
+                    principal.Claims.Where(c => c.Type.StartsWith(PropsPrefix))
+                        .ToDictionary(c => c.Type[PropsPrefix.Length..], c => c.Value)!
                 );
+                properties.IssuedUtc = validatedToken.ValidFrom;
+                properties.ExpiresUtc = validatedToken.ValidTo;
                 foreach (var identity in principal.Identities)
                 {
                     foreach (var claim in identity.Claims.ToArray())
                     {
-                        if (claim.Type.StartsWith(_propsPrefix)) identity.TryRemoveClaim(claim);
+                        if (claim.Type.StartsWith(PropsPrefix)) identity.TryRemoveClaim(claim);
                     }
                 }
 
@@ -139,7 +148,7 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error validating token");
+                logger.LogError(e, "Error validating token");
             }
         }
 

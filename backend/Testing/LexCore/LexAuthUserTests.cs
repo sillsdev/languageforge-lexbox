@@ -2,11 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using Humanizer;
 using LexBoxApi.Auth;
 using LexCore.Auth;
 using LexCore.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +22,7 @@ public class LexAuthUserTests
     {
         IdentityModelEventSource.ShowPII = true;
     }
+
     private readonly LexAuthService _lexAuthService = new LexAuthService(
         new OptionsWrapper<JwtOptions>(JwtOptions.TestingOptions),
         null!,
@@ -32,7 +35,10 @@ public class LexAuthUserTests
         Role = UserRole.user,
         Name = "test",
         UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
-        Projects = new[] { new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99")) }
+        Projects = new[]
+        {
+            new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99"))
+        }
     };
 
     private static readonly JwtBearerOptions JwtBearerOptions = new()
@@ -80,15 +86,27 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripClaimsWhenUsingSecurityTokenDescriptor()
     {
+        //truncate milliseconds because the jwt doesn't store them
+        var expires =
+            DateTimeOffset.FromUnixTimeSeconds((DateTimeOffset.UtcNow + TimeSpan.FromDays(1)).ToUnixTimeSeconds());
+        var issuedAt = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         var jwtUserOptions = JwtOptions.TestingOptions;
         var jwt = JwtTicketDataFormat.ConvertAuthTicketToJwt(
-            new AuthenticationTicket(_user.GetPrincipal("test"), "test"),
+            new AuthenticationTicket(_user.GetPrincipal("test"), "test")
+            {
+                Properties = { ExpiresUtc = expires, IssuedUtc = issuedAt }
+            },
             "testing",
             JwtBearerOptions,
             jwtUserOptions
         );
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.ReadJwtToken(jwt);
+        token.ValidTo.ShouldBe(expires.DateTime);
+        token.ValidFrom.ShouldBe(issuedAt.DateTime);
+        token.IssuedAt.ShouldBe(issuedAt.DateTime);
+        //props get converted to claims, but some we want to exclude because they are used elsewhere.
+        token.Claims.ShouldNotContain(c => c.Type == "props.issued" || c.Type == "props.expires");
 
         var json = Base64UrlEncoder.Decode(token.RawPayload);
         LexAuthUser? newUser;
@@ -101,7 +119,42 @@ public class LexAuthUserTests
             throw new JsonException("Could not deserialize user, json: " + json, e);
         }
 
-        _user.ShouldBeEquivalentTo(newUser);
+        newUser.ShouldBeEquivalentTo(_user);
+    }
+
+    [Fact]
+    public void CanRoundTripFromAuthTicketToAuthTicket()
+    {
+        //truncate milliseconds because the jwt doesn't store them
+        var expires = DateTimeOffset.FromUnixTimeSeconds((DateTimeOffset.UtcNow + TimeSpan.FromDays(1)).ToUnixTimeSeconds());
+        var issuedAt = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        var jwtUserOptions = JwtOptions.TestingOptions;
+        var ticket = new AuthenticationTicket(_user.GetPrincipal("test"), "test")
+        {
+            Properties =
+            {
+                Items = { { "test", "test" } },
+                ExpiresUtc = expires,
+                IssuedUtc = issuedAt,
+
+            }
+        };
+        var jwt = JwtTicketDataFormat.ConvertAuthTicketToJwt(
+            ticket,
+            "testing",
+            JwtBearerOptions,
+            jwtUserOptions
+        );
+        var actualTicket = JwtTicketDataFormat.ConvertJwtToAuthTicket(jwt, JwtBearerOptions, NullLogger.Instance);
+        actualTicket.ShouldNotBeNull();
+        actualTicket.Properties.IssuedUtc.ShouldBe(ticket.Properties.IssuedUtc);
+        actualTicket.Properties.ExpiresUtc.ShouldBe(ticket.Properties.ExpiresUtc);
+        //order by is because the order isn't important but the assertion fails if the order is different
+        actualTicket.Properties.Items.OrderBy(kvp => kvp.Key)
+            .ShouldBe(ticket.Properties.Items.OrderBy(kvp => kvp.Key));
+
+        var newUser = LexAuthUser.FromClaimsPrincipal(actualTicket.Principal);
+        newUser.ShouldBeEquivalentTo(_user);
     }
 
     [Fact]
@@ -113,10 +166,11 @@ public class LexAuthUserTests
         var outputJwt = tokenHandler.ReadJwtToken(jwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
-        _user.ShouldBeEquivalentTo(newUser);
+        newUser.ShouldBeEquivalentTo(_user);
     }
 
-    private const string knownGoodJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyYzEyNDA1NyIsInN1YiI6ImYwZGI0YzVlLTlkNGItNDEyMS05ZGMwLWI3MDcwNzEzYWU0YSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsIm5hbWUiOiJ0ZXN0Iiwicm9sZSI6InVzZXIiLCJwcm9qIjoibTo0MmY1NjZjMGE0ZDI0OGI1YTFlMTU5YzgyMjg5ZmY5OSIsIm5iZiI6MTcwMjM3Mzk2OCwiZXhwIjoxNzAyMzc0MDI4LCJpYXQiOjE3MDIzNzM5NjksImlzcyI6IkxleGJveEFwaSIsImF1ZCI6IkxleGJveEFwaSJ9.YsAkP5oIX4nNkrSNSe-PNMR1pMaJassnNDJ3vmjMYQU";
+    private const string knownGoodJwt =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyYzEyNDA1NyIsInN1YiI6ImYwZGI0YzVlLTlkNGItNDEyMS05ZGMwLWI3MDcwNzEzYWU0YSIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsIm5hbWUiOiJ0ZXN0Iiwicm9sZSI6InVzZXIiLCJwcm9qIjoibTo0MmY1NjZjMGE0ZDI0OGI1YTFlMTU5YzgyMjg5ZmY5OSIsIm5iZiI6MTcwMjM3Mzk2OCwiZXhwIjoxNzAyMzc0MDI4LCJpYXQiOjE3MDIzNzM5NjksImlzcyI6IkxleGJveEFwaSIsImF1ZCI6IkxleGJveEFwaSJ9.YsAkP5oIX4nNkrSNSe-PNMR1pMaJassnNDJ3vmjMYQU";
 
     [Fact]
     public void CanParseFromKnownGoodJwt()
@@ -128,7 +182,7 @@ public class LexAuthUserTests
         newUser.UpdatedDate.ShouldBe(0);
         //old jwt doesn't have updated date, we're ok with that so we correct the value to make the equivalence work
         newUser.UpdatedDate = _user.UpdatedDate;
-        _user.ShouldBeEquivalentTo(newUser);
+        newUser.ShouldBeEquivalentTo(_user);
     }
 
     [Fact]
@@ -147,10 +201,11 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripThroughRefresh()
     {
-        var (forgotJwt, _) = _lexAuthService.GenerateJwt(_user, audience:LexboxAudience.ForgotPassword);
+        var (forgotJwt, _) = _lexAuthService.GenerateJwt(_user, audience: LexboxAudience.ForgotPassword);
         //simulate parsing the token into a claims principal
         var tokenHandler = new JwtSecurityTokenHandler();
-        var forgotPrincipal = new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(forgotJwt).Claims, "Testing"));
+        var forgotPrincipal =
+            new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(forgotJwt).Claims, "Testing"));
 
         //simulate redirect refreshing the token
         var redirectJwt = JwtTicketDataFormat.ConvertAuthTicketToJwt(
@@ -160,8 +215,9 @@ public class LexAuthUserTests
             JwtOptions.TestingOptions
         );
 
-        var loggedInPrincipal = new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(redirectJwt).Claims, "Testing"));
+        var loggedInPrincipal =
+            new ClaimsPrincipal(new ClaimsIdentity(tokenHandler.ReadJwtToken(redirectJwt).Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(loggedInPrincipal);
-        (_user with { Audience = LexboxAudience.ForgotPassword }).ShouldBeEquivalentTo(newUser);
+        newUser.ShouldBeEquivalentTo(_user with { Audience = LexboxAudience.ForgotPassword });
     }
 }
