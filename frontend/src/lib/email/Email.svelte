@@ -30,11 +30,12 @@
       </mj-column>
     </mj-section>
     <mj-section>
-      <mj-column vertical-align="middle">
-        <mj-text align="right" font-size="15px"> Language Depot </mj-text>
-      </mj-column>
-      <mj-column vertical-align="middle" width="50px" padding="0px">
-        <mj-image src={silLogo} padding="0px" alt="SIL Logo" height="50px" width="50px" />
+      <mj-column>
+        <mj-social font-size="15px" icon-size="40px" icon-padding="8px">
+          <mj-social-element href="https://languagedepot.org" src={silLogo} alt="SIL Logo">
+            Language Depot
+          </mj-social-element>
+        </mj-social>
       </mj-column>
     </mj-section>
   </mj-body>
