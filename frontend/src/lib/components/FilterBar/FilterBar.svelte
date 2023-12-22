@@ -111,6 +111,6 @@
     outline-style: solid;
     outline-width: 2px;
     outline-offset: 2px;
-    outline-color: hsl(var(--bc) / 0.2);
+    outline-color: oklch(var(--bc) / 0.2);
   }
 </style>
