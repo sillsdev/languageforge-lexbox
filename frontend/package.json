@@ -4,8 +4,8 @@
 	"private": true,
 	"packageManager": "pnpm@8.6.2",
 	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
+		"dev": "dotnet build ./wasm && vite dev",
+		"build": "dotnet build ./wasm && vite build",
 		"preview": "vite preview",
 		"test": "playwright test",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",

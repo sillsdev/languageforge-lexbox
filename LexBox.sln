@@ -1,5 +1,6 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncReverseProxy", "backend\SyncReverseProxy\SyncReverseProxy.csproj", "{5C589976-854A-4CE8-A661-A2E256AC2FC4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LexBoxApi", "backend\LexBoxApi\LexBoxApi.csproj", "{A95FC2AC-2B31-4B40-B4DA-6B951ECE3E28}"
@@ -20,6 +21,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "backend\Testing\Testing.csproj", "{80C52170-E1F2-48D0-88BB-226DBAC20BAA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixFwData", "backend\FixFwData\FixFwData.csproj", "{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "frontend", "frontend", "{703F9333-39C7-4BD7-8A93-E46E69990C7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lexbox-dotnet-wasm", "frontend\wasm\lexbox-dotnet-wasm.csproj", "{66A7A965-CBD8-4F02-A23B-1808E32CE27A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,5 +56,12 @@ Global
 		{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66A7A965-CBD8-4F02-A23B-1808E32CE27A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66A7A965-CBD8-4F02-A23B-1808E32CE27A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66A7A965-CBD8-4F02-A23B-1808E32CE27A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66A7A965-CBD8-4F02-A23B-1808E32CE27A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{66A7A965-CBD8-4F02-A23B-1808E32CE27A} = {703F9333-39C7-4BD7-8A93-E46E69990C7B}
 	EndGlobalSection
 EndGlobal

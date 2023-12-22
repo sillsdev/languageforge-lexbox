@@ -5,7 +5,7 @@
 		<meta name="viewport" content="width=device-width" />
 
         <title>Language Depot</title>
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
 
         <script>
             // Put a proxy in place before svelte assigns it to it's native_fetch variable
@@ -16,7 +16,6 @@
             window.lexbox.fetchProxy = (...args) => _fetch(...args);
             window.fetch = (...args) => window.lexbox.fetchProxy(...args);
         </script>
-
 		%sveltekit.head%
 	</head>
 
