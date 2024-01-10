@@ -85,6 +85,17 @@ public class ProjectController : ControllerBase
         return project;
     }
 
+    [HttpGet("determineProjectType/{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [AdminRequired]
+    public async Task<ActionResult<ProjectType>> DetermineProjectType(Guid id)
+    {
+        var project = await _lexBoxDbContext.Projects.FindAsync(id);
+        if (project is null) return NotFound();
+        return await _hgService.DetermineProjectType(project.Code, project.MigrationStatus);
+    }
+
     [HttpPost("updateProjectTypesForUnknownProjects")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

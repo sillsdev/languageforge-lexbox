@@ -126,6 +126,11 @@
     copiedToClipboard = false;
   }
 
+  async function lookupProject(): Promise<void> {
+    const result = await fetch(`/api/project/determineProjectType/${project.id}`);
+    console.log(await result.text());
+  }
+
   let deleteProjectModal: ConfirmDeleteModal;
 
   async function softDeleteProject(): Promise<void> {
@@ -267,6 +272,7 @@
     <svelte:fragment slot="header-content">
       <BadgeList>
         <ProjectTypeBadge type={project.type} />
+        <button on:click={lookupProject}>Lookup</button>
         <Badge>
           <FormatRetentionPolicy policy={project.retentionPolicy} />
         </Badge>
