@@ -11,6 +11,8 @@
   import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.svg';
   import weSayLogo from '$lib/assets/we-say-logo.png';
   import { z } from 'zod';
+  import { navigating } from '$app/stores';
+  import { AUTHENTICATED_ROOT } from '../..';
 
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
@@ -89,11 +91,10 @@
             {$t('login.forgot_password')}
           </a>
 
-          {#if badCredentials}
-            <SubmitButton loading={$submitting}>{$t('login.button_login_again')}</SubmitButton>
-          {:else}
-            <SubmitButton loading={$submitting}>{$t('login.button_login')}</SubmitButton>
-          {/if}
+          <SubmitButton loading={$submitting || $navigating?.to?.route.id?.includes(AUTHENTICATED_ROOT)}>
+            {badCredentials ? $t('login.button_login_again') : $t('login.button_login')}
+          </SubmitButton>
+
           <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
         </Form>
       </div>
