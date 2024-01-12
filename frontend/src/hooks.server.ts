@@ -7,9 +7,7 @@ import { env } from '$env/dynamic/private';
 import { getErrorMessage, validateFetchResponse } from './hooks.shared';
 import {setViewMode} from './routes/(authenticated)/shared';
 import * as setCookieParser from 'set-cookie-parser';
-
-const UNAUTHENTICATED_ROOT = '(unauthenticated)';
-const AUTHENTICATED_ROOT = '(authenticated)';
+import { AUTHENTICATED_ROOT, UNAUTHENTICATED_ROOT } from './routes';
 
 const PUBLIC_ROUTE_ROOTS = [
   UNAUTHENTICATED_ROOT,
