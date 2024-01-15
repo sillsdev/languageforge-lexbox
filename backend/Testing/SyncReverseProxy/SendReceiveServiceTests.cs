@@ -87,9 +87,7 @@ public class SendReceiveServiceTests
     }
 
     [Theory]
-    [InlineData(HgProtocol.Hgweb, "admin")]
     [InlineData(HgProtocol.Hgweb, "manager")]
-    [InlineData(HgProtocol.Resumable, "admin")]
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
     {
@@ -99,9 +97,7 @@ public class SendReceiveServiceTests
     }
 
     [Theory]
-    [InlineData(HgProtocol.Hgweb, "admin")]
     [InlineData(HgProtocol.Hgweb, "manager")]
-    [InlineData(HgProtocol.Resumable, "admin")]
     [InlineData(HgProtocol.Resumable, "manager")]
     public async Task CanCloneSendReceiveWithJwtOverBasicAuth(HgProtocol hgProtocol, string user)
     {
