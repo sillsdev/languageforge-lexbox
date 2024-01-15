@@ -63,8 +63,8 @@ dependencies:
     specifier: ^0.12.3
     version: 0.12.3(@babel/core@7.23.7)(svelte@4.2.0)
   sveltekit-search-params:
-    specifier: ^1.0.15
-    version: 1.0.15(@sveltejs/kit@1.24.1)(svelte@4.2.0)
+    specifier: ^2.0.0
+    version: 2.0.0(@sveltejs/kit@1.24.1)(svelte@4.2.0)
   tus-js-client:
     specifier: ^3.1.1
     version: 3.1.1
@@ -8460,11 +8460,11 @@ packages:
       magic-string: 0.30.1
       periscopic: 3.1.0
 
-  /sveltekit-search-params@1.0.15(@sveltejs/kit@1.24.1)(svelte@4.2.0):
-    resolution: {integrity: sha512-LLuG961adpMMnyG/5Ixj9Cv++62ol7aSpVpE0qIFzQuOZ/5J3PwSoXu06pBw9DZi5Awj40OXtGLtpyh6WZjqVQ==}
+  /sveltekit-search-params@2.0.0(@sveltejs/kit@1.24.1)(svelte@4.2.0):
+    resolution: {integrity: sha512-2H7PoIrrav98lw4ddlafD5Q7N5rtHonLwnJFrn/8TtpNBoj132Va3eTWtXFIIbICnjp4Md43huoChUiCG9rT9w==}
     peerDependencies:
-      '@sveltejs/kit': ^1.0.0
-      svelte: ^3.55.0 || ^4.0.0
+      '@sveltejs/kit': ^1.0.0 || ^2.0.0
+      svelte: ^3.55.0 || ^4.0.0 || ^5.0.0
     dependencies:
       '@sveltejs/kit': 1.24.1(svelte@4.2.0)(vite@4.4.9)
       svelte: 4.2.0

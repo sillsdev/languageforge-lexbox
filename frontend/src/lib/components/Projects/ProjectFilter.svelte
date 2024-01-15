@@ -59,13 +59,14 @@
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
   export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'];
+  export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
     return filterKeys.includes(filter);
   }
 </script>
 
-<FilterBar on:change searchKey="projectSearch" {autofocus} {filters} {filterDefaults} bind:hasActiveFilter {filterKeys}>
+<FilterBar on:change searchKey="projectSearch" {autofocus} {filters} {filterDefaults} bind:hasActiveFilter {filterKeys} {loading}>
   <svelte:fragment slot="activeFilters" let:activeFilters>
     {#each activeFilters as filter}
       {#if filter.key === 'projectType'}

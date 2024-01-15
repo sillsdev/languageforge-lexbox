@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
-  import Input from '$lib/forms/Input.svelte';
   import t from '$lib/i18n';
   import type { PageData } from './$types';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
@@ -10,10 +10,12 @@
   import { Duration } from '$lib/util/time';
   import { Icon } from '$lib/icons';
   import Dropdown from '$lib/components/Dropdown.svelte';
+  import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
   import { RefineFilterMessage } from '$lib/components/Table';
   import type { AdminSearchParams, User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType, ProjectMigrationStatus } from '$lib/gql/types';
+  import { derived } from 'svelte/store';
   import AdminProjects from './AdminProjects.svelte';
 
   export let data: PageData;
@@ -30,11 +32,22 @@
     projectSearch: queryParam.string<string>(''),
     migrationStatus: queryParam.string<ProjectMigrationStatus | 'UNMIGRATED' | undefined>(undefined),
   });
-  const { queryParamValues } = queryParams;
+
+  const loadingUsers = derived(navigating, (nav) => {
+    const fromUrl = nav?.from?.url;
+    return fromUrl && userFilterKeys.some((key) =>
+      (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key]);
+  });
+
+  const userFilterKeys = ['userSearch'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
+  const { queryParamValues, defaultQueryParamValues } = queryParams;
+  let hasActiveFilter = false;
+  let lastLoadUsedActiveFilter = false;
+  $: if (!$loadingUsers) lastLoadUsedActiveFilter = hasActiveFilter;
 
   $: users = $userData?.items ?? [];
   $: filteredUserCount = $userData?.totalCount ?? 0;
-  $: shownUsers = $queryParamValues.userSearch ? users : users.slice(0, 10);
+  $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.userEmail = user.email;
@@ -68,7 +81,6 @@
       }
     }
   }
-
 </script>
 
 <svelte:head>
@@ -76,7 +88,6 @@
 </svelte:head>
 <main>
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
-
     <AdminProjects projects={$projects} {queryParams} />
 
     <div>
@@ -90,7 +101,17 @@
           </span>
         </Badge>
       </h2>
-      <Input label="" placeholder={$t('filter.placeholder')} bind:value={$queryParamValues.userSearch} debounce />
+      <div class="mt-4">
+        <FilterBar
+          debounce
+          loading={$loadingUsers}
+          searchKey="userSearch"
+          filterKeys={userFilterKeys}
+          filters={queryParamValues}
+          filterDefaults={defaultQueryParamValues}
+          bind:hasActiveFilter
+        />
+      </div>
 
       <div class="divider" />
       <div class="overflow-x-auto min-h-[300px]">
@@ -144,8 +165,14 @@
                         </button>
                       </li>
                       <li>
-                        <button class="whitespace-nowrap" on:click={() => {closeDropdown();filterProjectsByUser(user);}}>
-                          <Icon icon="i-mdi-filter-outline"  />
+                        <button
+                          class="whitespace-nowrap"
+                          on:click={() => {
+                            closeDropdown();
+                            filterProjectsByUser(user);
+                          }}
+                        >
+                          <Icon icon="i-mdi-filter-outline" />
                           {$t('project.filter.filter_user_projects')}
                         </button>
                       </li>
