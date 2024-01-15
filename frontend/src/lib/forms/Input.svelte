@@ -2,6 +2,8 @@
   import { randomFieldId } from './utils';
   import { debounce as _debounce } from '$lib/util/time';
 
+  let input: HTMLInputElement;
+
   export let id = randomFieldId();
   export let value: string | undefined = undefined;
   export let type: 'text' | 'email' | 'password' = 'text';
@@ -18,6 +20,12 @@
   $: undebouncedValue = value;
   export let style: string | undefined = undefined;
 
+  export function clear(): void {
+    debouncer.clear();
+    input.value = ''; // if we cancel the debounce the input and the component can get out of sync
+    undebouncedValue = value = undefined;
+  }
+
   $: debouncer = _debounce((newValue: string | undefined) => (value = newValue), debounce);
   $: debouncingStore = debouncer.debouncing;
   $: debouncing = $debouncingStore;
@@ -32,6 +40,7 @@
 <!-- https://daisyui.com/components/input -->
 <!-- svelte-ignore a11y-autofocus -->
 <input
+  bind:this={input}
   {id}
   {type}
   {value}
