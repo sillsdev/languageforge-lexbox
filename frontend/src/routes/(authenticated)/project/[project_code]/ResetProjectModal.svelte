@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Input from '$lib/forms/Input.svelte';
+  import Input from '$lib/forms/InputFormField.svelte';
   import Checkbox from '$lib/forms/Checkbox.svelte';
   import { tScoped } from '$lib/i18n';
   import { z } from 'zod';
