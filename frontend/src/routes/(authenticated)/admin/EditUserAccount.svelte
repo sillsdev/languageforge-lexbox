@@ -2,14 +2,12 @@
   import { FormModal } from '$lib/components/modals';
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
-  import Input from '$lib/forms/InputFormField.svelte';
+  import { Button, Input, SystemRoleSelect, emptyString, passwordFormRules } from '$lib/forms';
   import { UserRole } from '$lib/gql/types';
   import { _changeUserAccountByAdmin, type User } from './+page';
   import type { LexAuthUser } from '$lib/user';
   import t from '$lib/i18n';
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
-  import { Button, SystemRoleSelect } from '$lib/forms';
-  import { emptyString, passwordFormRules } from '$lib/forms/utils';
   import {hash} from '$lib/util/hash';
 
   export let currUser: LexAuthUser;

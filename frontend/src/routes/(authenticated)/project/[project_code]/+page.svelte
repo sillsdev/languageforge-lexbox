@@ -17,10 +17,9 @@
   import type { BadgeVariant } from '$lib/components/Badges/Badge.svelte';
   import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
-  import type { ErrorMessage } from '$lib/forms';
+  import { Button, type ErrorMessage, FormField } from '$lib/forms';
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { FormField } from '$lib/forms';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
   import { page } from '$app/stores';
@@ -32,7 +31,6 @@
   import Markdown from 'svelte-exmarkdown';
   import { ProjectMigrationStatus, ProjectRole, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
-  import Button from '$lib/forms/Button.svelte';
   import Icon from '$lib/icons/Icon.svelte';
 
   export let data: PageData;

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { FormModal, type FormModalResult } from '$lib/components/modals';
-  import { tryParse } from '$lib/forms';
-  import ProjectRoleSelect from '$lib/forms/ProjectRoleSelect.svelte';
+  import { ProjectRoleSelect, tryParse } from '$lib/forms';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';

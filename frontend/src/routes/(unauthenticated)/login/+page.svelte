@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { SubmitButton, Form, FormError, InputFormField, lexSuperForm } from '$lib/forms';
+  import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { PageTitle } from '$lib/layout';
   import { login, logout } from '$lib/user';
@@ -67,7 +67,7 @@
         <PageTitle title={$t('login.title')} />
 
         <Form {enhance}>
-          <InputFormField
+          <Input
             id="email"
             label={$t('login.label_email')}
             type="text"
@@ -76,7 +76,7 @@
             autofocus
           />
 
-          <InputFormField
+          <Input
             id="password"
             label={$t('login.label_password')}
             type="password"

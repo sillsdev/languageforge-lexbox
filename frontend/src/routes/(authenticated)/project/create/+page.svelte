@@ -1,10 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { FormError, lexSuperForm, ProjectTypeSelect, SubmitButton, TextArea } from '$lib/forms';
-  import Checkbox from '$lib/forms/Checkbox.svelte';
-  import Form from '$lib/forms/Form.svelte';
-  import Input from '$lib/forms/InputFormField.svelte';
-  import Select from '$lib/forms/Select.svelte';
+  import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
   import { CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';

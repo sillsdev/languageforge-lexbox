@@ -1,10 +1,8 @@
 ﻿<script lang="ts">
   import { Upload, type DetailedError } from 'tus-js-client';
-  import Button from '$lib/forms/Button.svelte';
+  import { FormError, FormField, Button } from '$lib/forms';
   import { env } from '$env/dynamic/public';
-  import FormField from '$lib/forms/FormField.svelte';
   import { createEventDispatcher, onDestroy } from 'svelte';
-  import FormError from '$lib/forms/FormError.svelte';
   import t from '$lib/i18n';
 
   enum UploadStatus {
