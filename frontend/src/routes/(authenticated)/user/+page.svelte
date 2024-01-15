@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
-  import { SubmitButton, Form, FormError, InputFormField, lexSuperForm } from '$lib/forms';
+  import { Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
@@ -74,7 +74,7 @@
 
 <TitlePage title={$t('account_settings.title')}>
   <Form {enhance}>
-    <InputFormField
+    <Input
       id="name"
       label={$t('account_settings.name')}
       type="text"
@@ -82,7 +82,7 @@
       bind:value={$form.name}
       autofocus
     />
-    <InputFormField
+    <Input
       id="email"
       label={$t('account_settings.email')}
       type="email"

@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   import Modal, { DialogResponse } from '$lib/components/modals/Modal.svelte';
-  import type {LexFormErrors, LexFormState} from '$lib/forms/superforms';
+  import type { LexFormErrors, LexFormState } from '$lib/forms/superforms';
   import type { AnyZodObject, ZodObject, z } from 'zod';
   import type { ZodValidation } from 'sveltekit-superforms';
   import type { ErrorMessage } from '$lib/forms';
@@ -14,8 +14,7 @@
 </script>
 
 <script lang="ts">
-  import { FormError, lexSuperForm, SubmitButton } from '$lib/forms';
-  import Form from '$lib/forms/Form.svelte';
+  import { Form, FormError, lexSuperForm, SubmitButton } from '$lib/forms';
   import type { Readable } from 'svelte/store';
 
   type Schema = $$Generic<ZodObject>;

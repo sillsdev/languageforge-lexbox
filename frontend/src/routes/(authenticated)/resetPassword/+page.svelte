@@ -1,13 +1,12 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { SubmitButton, Form, FormError, InputFormField, lexSuperForm } from '$lib/forms';
+  import { Form, FormError, Input, SubmitButton, lexSuperForm, passwordFormRules } from '$lib/forms';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { hash } from '$lib/util/hash';
   import { z } from 'zod';
   import { useNotifications } from '$lib/notify';
   import type { PageData } from './$types';
-  import { passwordFormRules } from '$lib/forms/utils';
 
   export let data: PageData;
 
@@ -32,7 +31,7 @@
 
 <TitlePage title={$t('reset_password.title')}>
   <Form {enhance}>
-    <InputFormField
+    <Input
       bind:value={$form.password}
       type="password"
       label={$t('reset_password.new_password')}

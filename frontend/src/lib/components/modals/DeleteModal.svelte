@@ -1,8 +1,7 @@
 <script lang="ts">
   import Modal, { DialogResponse } from './Modal.svelte';
   import t from '$lib/i18n';
-  import FormError from '$lib/forms/FormError.svelte';
-  import type { ErrorMessage } from '$lib/forms';
+  import { type ErrorMessage, FormError } from '$lib/forms';
   import Loader from '../Loader.svelte';
   import { TrashIcon } from '$lib/icons';
 
