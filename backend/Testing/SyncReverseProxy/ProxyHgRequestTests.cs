@@ -24,8 +24,10 @@ public class ProxyHgRequests
         responseMessage.Headers.WwwAuthenticate.ToString().ShouldContain("Basic realm=\"");
     }
 
-    [Fact]
-    public async Task TestGet()
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("manager")]
+    public async Task TestGet(string user)
     {
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
             $"{_baseUrl}/{TestingEnvironmentVariables.ProjectCode}")
@@ -33,7 +35,7 @@ public class ProxyHgRequests
             Headers =
             {
                 Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
+                    Convert.ToBase64String(Encoding.ASCII.GetBytes($"{user}:{TestData.Password}")))
             }
         });
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -54,10 +56,12 @@ public class ProxyHgRequests
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
-    [Fact]
-    public async Task TestGetWithJwtInBasicAuth()
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("manager")]
+    public async Task TestGetWithJwtInBasicAuth(string user)
     {
-        var jwt = await JwtHelper.GetJwtForUser(new(TestData.User, TestData.Password));
+        var jwt = await JwtHelper.GetJwtForUser(new(user, TestData.Password));
         jwt.ShouldNotBeNullOrEmpty();
 
         var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
@@ -65,8 +69,7 @@ public class ProxyHgRequests
         {
             Headers =
             {
-                Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(Encoding.ASCII.GetBytes($"bearer:{jwt}")))
+                Authorization = new ("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"bearer:{jwt}")))
             }
         });
         responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
