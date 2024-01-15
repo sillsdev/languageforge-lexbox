@@ -13,16 +13,40 @@ public class ResumableTests
     private readonly string _baseUrl = TestingEnvironmentVariables.ResumableBaseUrl;
     private static readonly HttpClient Client = new();
 
-    [Fact]
-    public async Task IsAvailable()
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("manager")]
+    public async Task IsAvailable(string user)
     {
-        var responseMessage = await Client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+        var responseMessage = await Client.SendAsync(new(HttpMethod.Get,
             $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
         {
             Headers =
             {
-                Authorization = new AuthenticationHeaderValue("Basic",
-                    Convert.ToBase64String(Encoding.ASCII.GetBytes($"{TestData.User}:{TestData.Password}")))
+                Authorization = new("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"{user}:{TestData.Password}")))
+            }
+        }, HttpCompletionOption.ResponseHeadersRead);
+        var responseString = await responseMessage.Content.ReadAsStringAsync();
+        responseString.ShouldBeNullOrEmpty();
+        responseMessage.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var headers = responseMessage.Headers.ToDictionary(kvp => kvp.Key, kvp => string.Join(',', kvp.Value), StringComparer.OrdinalIgnoreCase);
+        headers.ShouldContainKeyAndValue("X-HgR-Version", "3");
+    }
+
+    [Theory]
+    [InlineData("admin")]
+    [InlineData("manager")]
+    public async Task IsAvailableJwtInBasicAuth(string user)
+    {
+        var jwt = await JwtHelper.GetJwtForUser(new(user, TestData.Password));
+        jwt.ShouldNotBeNullOrEmpty();
+
+        var responseMessage = await Client.SendAsync(new(HttpMethod.Get,
+            $"{_baseUrl}/api/v03/isAvailable?repoId={TestingEnvironmentVariables.ProjectCode}")
+        {
+            Headers =
+            {
+                Authorization = new("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"bearer:{jwt}")))
             }
         }, HttpCompletionOption.ResponseHeadersRead);
         var responseString = await responseMessage.Content.ReadAsStringAsync();
