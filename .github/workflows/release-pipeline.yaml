@@ -77,3 +77,15 @@ jobs:
       k8s-environment: production
       deploy-domain: languagedepot.org
 
+  generate-release:
+    name: Generate Release
+    needs: [ deploy-prod, set-version ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Release
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          tag_name: ${{ needs.set-version.outputs.version }}
+          generate_release_notes: true
