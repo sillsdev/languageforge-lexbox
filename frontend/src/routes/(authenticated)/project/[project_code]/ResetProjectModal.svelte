@@ -1,12 +1,9 @@
 <script lang="ts">
-  import Input from '$lib/forms/InputFormField.svelte';
-  import Checkbox from '$lib/forms/Checkbox.svelte';
+  import { Checkbox, type ErrorMessage, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import { tScoped } from '$lib/i18n';
   import { z } from 'zod';
   import { CircleArrowIcon } from '$lib/icons';
   import Modal from '$lib/components/modals/Modal.svelte';
-  import { FormError, lexSuperForm, type ErrorMessage } from '$lib/forms';
-  import Form from '$lib/forms/Form.svelte';
   import TusUpload from '$lib/components/TusUpload.svelte';
   import { ResetStatus } from '$lib/gql/generated/graphql';
   import { _refreshProjectMigrationStatusAndRepoInfo } from './+page';

@@ -4,7 +4,7 @@
   import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
   import {createEventDispatcher, onMount} from 'svelte';
   import type {LexAuthUser} from '$lib/user';
-  import Button from '$lib/forms/Button.svelte';
+  import { Button } from '$lib/forms';
   import {page} from '$app/stores';
 
   onMount(() => {

@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-  import Input from '$lib/forms/InputFormField.svelte';
+  import { Input } from '$lib/forms';
   import { tTypeScoped, type I18nShapeKey } from '$lib/i18n';
   import { z } from 'zod';
   import { FormModal } from '$lib/components/modals';

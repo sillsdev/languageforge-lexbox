@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-  import { Input } from '$lib/forms';
+  import Input from '$lib/forms/Input.svelte';
 
   import { createEventDispatcher } from 'svelte';
   import type { ConditionalPick } from 'type-fest';
