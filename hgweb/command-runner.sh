@@ -4,9 +4,9 @@
 allowed_commands=("verify")
 
 # Get the project code and command name from the URL
-IFS='/' read -ra PATH_INFO <<< "$PATH_INFO"
-project_code="${PATH_INFO[1]}"
-command_name="${PATH_INFO[2]}"
+IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
+project_code="${PATH_SEGMENTS[1]}"
+command_name="${PATH_SEGMENTS[2]}"
 
 # Ensure the project code and command name are safe to use in a shell command
 if [[ ! $project_code =~ ^[a-z0-9-]+$ ]] || [[ ! $command_name =~ ^[a-zA-Z0-9]+$ ]]; then
