@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
-  import { ProjectFilter, ProjectTable, type ProjectItem, filterProjects } from '$lib/components/Projects';
+  import { ProjectFilter, ProjectTable, type ProjectItem, filterProjects, type ProjectFilters } from '$lib/components/Projects';
   import { RefineFilterMessage } from '$lib/components/Table';
   import { DialogResponse } from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
@@ -12,6 +13,7 @@
   import { TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
   import type { QueryParams } from '$lib/util/query-params';
+  import { derived } from 'svelte/store';
   import type { AdminSearchParams } from './+page';
 
   export let projects: ProjectItem[];
@@ -21,11 +23,19 @@
 
   const { notifyWarning } = useNotifications();
 
+  const loading = derived(navigating, (nav) => {
+    const fromUrl = nav?.from?.url;
+    return fromUrl && serverSideProjectFilterKeys.some((key) =>
+      (fromUrl.searchParams.get(key) ?? filterDefaults[key])?.toString() !== $filters[key]?.toString());
+  });
+
   let filteredProjects: ProjectItem[] = [];
   let limitResults = true;
   let hasActiveFilter = false;
+  let lastLoadUsedActiveFilter = false;
+  $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
   $: filteredProjects = filterProjects(projects, $filters);
-  $: shownProjects = limitResults ? limit(filteredProjects, hasActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
+  $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
   async function softDeleteProject(project: ProjectItem): Promise<void> {
@@ -37,6 +47,8 @@
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
   }
+
+  const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 </script>
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
@@ -66,6 +78,7 @@
       {filterDefaults}
       bind:hasActiveFilter
       on:change={() => (limitResults = true)}
+      loading={$loading}
     />
   </div>
 
@@ -93,7 +106,7 @@
   </ProjectTable>
 
   {#if shownProjects.length < filteredProjects.length}
-    {#if hasActiveFilter}
+    {#if lastLoadUsedActiveFilter}
       <Button class="float-right mt-2" on:click={() => (limitResults = false)}>
         {$t('paging.load_more')}
       </Button>

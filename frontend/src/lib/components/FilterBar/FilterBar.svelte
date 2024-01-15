@@ -7,20 +7,25 @@
 </script>
 
 <script lang="ts">
+  import { Input } from '$lib/forms';
+
   import { createEventDispatcher } from 'svelte';
   import type { ConditionalPick } from 'type-fest';
+  import Loader from '$lib/components/Loader.svelte';
   import { pick } from '$lib/util/object';
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
   import Dropdown from '../Dropdown.svelte';
 
-  type Filters = $$Generic<Record<string, unknown>>;
+  type DumbFilters = $$Generic<Record<string, unknown>>;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  type Filters = DumbFilters & Record<typeof searchKey, string>;
 
   const dispatch = createEventDispatcher<{
     change: Readonly<Filter<Filters>[]>;
   }>();
 
-  export let searchKey: keyof ConditionalPick<Filters, string>;
+  export let searchKey: keyof ConditionalPick<DumbFilters, string>;
   export let autofocus: true | undefined = undefined;
   let allFilters: Writable<Filters>;
   export { allFilters as filters };
@@ -31,7 +36,12 @@
   /**
    * Explicitly specify the filter object keys that should be used from the `filters` (optional)
    */
-  export let filterKeys: (keyof Filters)[] | undefined = undefined;
+  export let filterKeys: Readonly<(keyof Filters)[]> | undefined = undefined;
+
+  export let loading = false;
+  export let debounce: number | boolean = false;
+  export let debouncing = false;
+  let undebouncedSearch: string | undefined = undefined;
 
   $: filters = Object.freeze(filterKeys ? pick($allFilters, filterKeys) : $allFilters);
   $: filterDefaults = Object.freeze(filterKeys ? pick(allFilterDefaults, filterKeys) : allFilterDefaults);
@@ -75,32 +85,41 @@
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
   <slot name="activeFilters" {activeFilters} />
   <div class="flex grow">
-    <!-- svelte-ignore a11y-autofocus -->
-    <input
+    <Input
       bind:value={$allFilters[searchKey]}
+      bind:debounce
+      bind:debouncing
+      bind:undebouncedValue={undebouncedSearch}
       placeholder={$t('filter.placeholder')}
-      class="seach-input input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
+      style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
       {autofocus}
     />
     <div class="ml-auto flex join">
-      {#if hasActiveFilter}
+      {#if loading || debouncing}
+        <div class="flex mr-2">
+          <Loader loading />
+        </div>
+      {/if}
+      {#if hasActiveFilter || !!undebouncedSearch}
         <button class="btn btn-square btn-sm join-item" on:click={reseFilters}>
           <span class="text-lg">✕</span>
         </button>
       {/if}
-      <div class="join-item">
-        <Dropdown>
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label tabindex="-1" class="btn btn-square btn-sm gap-2">
-            <span class="i-mdi-filter-outline text-xl" />
-          </label>
-          <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-            <div class="card-body max-sm:p-4">
-              <slot name="filters" />
+      {#if $$slots.filters}
+        <div class="join-item">
+          <Dropdown>
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label tabindex="-1" class="btn btn-square btn-sm gap-2">
+              <span class="i-mdi-filter-outline text-xl" />
+            </label>
+            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+              <div class="card-body max-sm:p-4">
+                <slot name="filters" />
+              </div>
             </div>
-          </div>
-        </Dropdown>
-      </div>
+          </Dropdown>
+        </div>
+      {/if}
     </div>
   </div>
 </div>
