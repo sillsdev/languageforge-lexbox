@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getStores } from '$app/stores';
+  import { getStores, navigating } from '$app/stores';
   import '$lib/app.postcss';
   import { initErrorStore } from '$lib/error';
   import UnexpectedErrorAlert from '$lib/error/UnexpectedErrorAlert.svelte';
@@ -11,6 +11,7 @@
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
   import { onMount } from 'svelte';
+  import { derived } from 'svelte/store';
 
   export let data: LayoutData;
   const { page, updated } = getStores();
@@ -27,6 +28,12 @@
 
   let hydrating = true;
   onMount(() => hydrating = false);
+
+  const loading = derived(navigating, (nav) => {
+    if (!nav?.to) return false;
+    if (!nav.from) return true;
+    return nav.to.url.pathname !== nav.from.url.pathname;
+  });
 </script>
 
 <svelte:head>
@@ -38,6 +45,10 @@
     <meta name="traceparent" content={data.traceParent} />
   {/if}
 </svelte:head>
+
+{#if $loading}
+  <progress class="progress progress-info block fixed z-50 h-[3px] rounded-none bg-transparent"></progress>
+{/if}
 
 <div class="flex flex-col justify-between min-h-full" class:hydrating>
   <div class="flex flex-col flex-grow">
