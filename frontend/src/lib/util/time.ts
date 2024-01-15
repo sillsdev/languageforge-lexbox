@@ -13,11 +13,18 @@ export async function delay<T>(ms = Duration.Default): Promise<T> {
 const DEFAULT_DEBOUNCE_TIME = 400;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function debounce<P extends any[]>(fn: (...args: P) => void, debounce: number | boolean = DEFAULT_DEBOUNCE_TIME): { debounce: (...args: P) => void, debouncing: Readable<boolean> } {
+interface Debouncer<P extends any[]> {
+  debounce: (...args: P) => void;
+  debouncing: Readable<boolean>;
+  clear: () => void;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounce<P extends any[]>(fn: (...args: P) => void, debounce: number | boolean = DEFAULT_DEBOUNCE_TIME): Debouncer<P> {
   const debouncing = writable(false);
 
   if (!debounce) {
-    return { debounce: fn, debouncing };
+    return { debounce: fn, debouncing, clear: () => { } };
   } else {
     const debounceTime = typeof debounce === 'number' ? debounce : DEFAULT_DEBOUNCE_TIME;
     let timeout: ReturnType<typeof setTimeout>;
@@ -34,6 +41,10 @@ export function debounce<P extends any[]>(fn: (...args: P) => void, debounce: nu
         }, debounceTime);
       },
       debouncing,
+      clear: () => {
+        clearTimeout(timeout);
+        debouncing.set(false);
+      },
     };
   }
 }

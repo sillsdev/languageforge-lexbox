@@ -25,6 +25,8 @@
     change: Readonly<Filter<Filters>[]>;
   }>();
 
+  let searchInput: Input;
+
   export let searchKey: keyof ConditionalPick<DumbFilters, string>;
   export let autofocus: true | undefined = undefined;
   let allFilters: Writable<Filters>;
@@ -57,6 +59,7 @@
   $: hasActiveFilter = activeFilters.length > 0;
 
   function reseFilters(): void {
+    searchInput.clear();
     $allFilters = {
       ...$allFilters,
       ...filterDefaults,
@@ -90,6 +93,7 @@
       bind:debounce
       bind:debouncing
       bind:undebouncedValue={undebouncedSearch}
+      bind:this={searchInput}
       placeholder={$t('filter.placeholder')}
       style="seach-input border-none h-8 px-1 focus:outline-none min-w-[120px] flex-grow"
       {autofocus}
@@ -100,7 +104,7 @@
           <Loader loading />
         </div>
       {/if}
-      {#if hasActiveFilter || !!undebouncedSearch}
+      {#if !!undebouncedSearch || activeFilters.find(f => f.key !== searchKey)}
         <button class="btn btn-square btn-sm join-item" on:click={reseFilters}>
           <span class="text-lg">✕</span>
         </button>
