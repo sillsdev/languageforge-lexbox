@@ -1,7 +1,7 @@
 <script lang="ts">
   import { BadgeButton } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
-  import Input from '$lib/forms/Input.svelte';
+  import Input from '$lib/forms/InputFormField.svelte';
   import ProjectRoleSelect from '$lib/forms/ProjectRoleSelect.svelte';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';

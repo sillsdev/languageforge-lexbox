@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
+  import { SubmitButton, Form, FormError, InputFormField, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { hash } from '$lib/util/hash';
@@ -32,7 +32,7 @@
 
 <TitlePage title={$t('reset_password.title')}>
   <Form {enhance}>
-    <Input
+    <InputFormField
       bind:value={$form.password}
       type="password"
       label={$t('reset_password.new_password')}

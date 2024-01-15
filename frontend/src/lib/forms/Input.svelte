@@ -1,11 +1,8 @@
 <script lang="ts">
   import { randomFieldId } from './utils';
-  import FormField from './FormField.svelte';
   import { debounce as _debounce } from '$lib/util/time';
 
   export let id = randomFieldId();
-  export let label: string;
-  export let description: string | undefined = undefined;
   export let value: string | undefined = undefined;
   export let type: 'text' | 'email' | 'password' = 'text';
   export let autofocus: true | undefined = undefined;
@@ -16,32 +13,33 @@
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
   export let autocomplete: 'new-password' | 'current-password' | undefined = undefined;
   export let debounce: number | boolean = false;
+  export let debouncing = false;
+  export let undebouncedValue: string | undefined = undefined;
+  $: undebouncedValue = value;
+  export let style: string | undefined = undefined;
 
-  const DEFAULT_DEBOUNCE_TIME = 400;
-  $: debounceTime = typeof debounce === 'number' ? debounce : DEFAULT_DEBOUNCE_TIME;
-  $: valueSetter = debounce
-    ? _debounce((newValue: string) => value = newValue, debounceTime)
-    : (newValue: string) => value = newValue;
+  $: debouncer = _debounce((newValue: string | undefined) => (value = newValue), debounce);
+  $: debouncingStore = debouncer.debouncing;
+  $: debouncing = $debouncingStore;
 
   function onInput(event: Event): void {
-    const newValue = (event.target as HTMLInputElement).value;
-    valueSetter(newValue);
+    const currValue = (event.target as HTMLInputElement).value;
+    undebouncedValue = currValue;
+    debouncer.debounce(currValue);
   }
 </script>
 
 <!-- https://daisyui.com/components/input -->
-<FormField {id} {error} {label} {autofocus} {description}>
-  <!-- svelte-ignore a11y-autofocus -->
-  <input
-    {id}
-    {type}
-    {value}
-    class:input-error={error}
-    on:input={onInput}
-    {placeholder}
-    class="input input-bordered"
-    {readonly}
-    {autofocus}
-    {autocomplete}
-  />
-</FormField>
+<!-- svelte-ignore a11y-autofocus -->
+<input
+  {id}
+  {type}
+  {value}
+  class:input-error={error}
+  on:input={onInput}
+  {placeholder}
+  class="input input-bordered {style ?? ''}"
+  {readonly}
+  {autofocus}
+  {autocomplete}
+/>

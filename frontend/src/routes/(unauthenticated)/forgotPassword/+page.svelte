@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { ProtectedForm, Input, lexSuperForm, FormError } from '$lib/forms';
+  import { ProtectedForm, InputFormField, lexSuperForm, FormError } from '$lib/forms';
   import { SubmitButton } from '$lib/forms';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
@@ -48,7 +48,7 @@
 
 <TitlePage title={$t('forgot_password.title')}>
   <ProtectedForm {enhance} bind:turnstileToken>
-    <Input
+    <InputFormField
       id="email"
       label={$t('register.label_email')}
       autofocus

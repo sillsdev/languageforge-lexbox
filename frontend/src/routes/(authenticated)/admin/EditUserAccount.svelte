@@ -2,7 +2,7 @@
   import { FormModal } from '$lib/components/modals';
   import { TrashIcon } from '$lib/icons';
   import { z } from 'zod';
-  import Input from '$lib/forms/Input.svelte';
+  import Input from '$lib/forms/InputFormField.svelte';
   import { UserRole } from '$lib/gql/types';
   import { _changeUserAccountByAdmin, type User } from './+page';
   import type { LexAuthUser } from '$lib/user';
