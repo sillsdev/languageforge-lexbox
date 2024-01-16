@@ -11,7 +11,7 @@
   $: _type = type as unknown as BadgeVariant;
 </script>
 
-<button on:click {disabled} class="button-badge">
+<button on:click {disabled} class="badge btn btn-sm !p-0">
   <Badge type={_type} {icon}>
     <slot />
   </Badge>

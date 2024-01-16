@@ -31,10 +31,6 @@ form {
   overflow: hidden;
 }
 
-.button-badge:not([disabled]) {
-  @apply hover:drop-shadow-xl hover:brightness-105 transition cursor-pointer;
-}
-
 .form-control {
   @apply mb-2;
 
@@ -97,20 +93,6 @@ input[readonly]:focus {
   line-height: 0;
 }
 
-.filter-bar {
-  > * {
-    height: 32px;
-  }
-
-  [class*='i-mdi'] {
-    margin-bottom: -1px;
-  }
-
-  .badge {
-    @apply h-full;
-  }
-}
-
 .file-input {
   /* some make-up for what looks like a Chrome rendering bug */
   border-width: 2px;
@@ -161,4 +143,18 @@ input[readonly]:focus {
   .overlay-container .overlay-content {
     display: revert-layer;
   }
+}
+
+/*
+  Interestingly, btn-sm is larger than every daisy badge size.
+  Because we tend to give badges a status similar to buttons and even use them in combination with buttons,
+  the microscopic size they have by default is not what we're looking for.
+  If we ever want to use badges of different sizes, we can revisit this.
+*/
+.badge {
+  @apply btn-sm;
+}
+
+.btn.badge {
+  border-radius: var(--rounded-badge);
 }
