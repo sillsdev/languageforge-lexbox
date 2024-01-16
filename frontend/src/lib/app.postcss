@@ -31,7 +31,7 @@ form {
   overflow: hidden;
 }
 
-.button-badge[tabindex='-1'] {
+.button-badge:not([disabled]) {
   @apply hover:drop-shadow-xl hover:brightness-105 transition cursor-pointer;
 }
 
@@ -86,11 +86,6 @@ input[readonly]:focus {
 
 .btn {
   @apply flex-nowrap;
-}
-
-/* open dropdowns upwards for the last 2 table rows as long as they're not the first 2 */
-table tr:nth-last-child(-n + 2):not(:nth-child(-n + 2)) .dropdown {
-  @apply dropdown-top;
 }
 
 .prose :where(a) {
@@ -156,4 +151,14 @@ table tr:nth-last-child(-n + 2):not(:nth-child(-n + 2)) .dropdown {
 
 .header-actions .btn {
   @apply btn-sm sm:btn-md;
+}
+
+@layer overlay {
+  .overlay-content {
+    display: none;
+  }
+
+  .overlay-container .overlay-content {
+    display: revert-layer;
+  }
 }

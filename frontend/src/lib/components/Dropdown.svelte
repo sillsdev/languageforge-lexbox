@@ -1,34 +1,12 @@
 <script lang="ts">
-  let dropdownContainer: HTMLElement;
-  export let hover = false;
-  export let right = false;
-  export let open = false;
-  export let disabled = false;
+  import { overlay } from '$lib/overlay';
 
-  /**
-   * Enables closing the dropdown by clicking on the dropdown a second time
-   */
-  function blurIfOpen(): void {
-    if (dropdownContainer.contains(document.activeElement)) {
-      // Wait until the click is over
-      setTimeout(() => (document.activeElement as HTMLElement)?.blur());
-    }
-  }
+  export let disabled = false;
 </script>
 
-<!-- The most "modern" method for creating a dropdown with DaisyUI is using the <details> tag,
-  but they only close when the user explicitly clicks on the toggle button again.
-  We generally want dropdowns to close automatically as the user interacts with the app -->
-<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-<div bind:this={dropdownContainer} tabindex={disabled ? null : -1} class="dropdown dropdown-end"
-  class:dropdown-open={open}
-  class:dropdown-end={!right}
-  class:dropdown-right={right}
-  class:dropdown-hover={hover}>
-  <button class="contents" on:mousedown={blurIfOpen}>
-    <slot closeDropdown={blurIfOpen} />
-  </button>
-  <div class="dropdown-content bg-base-200 shadow rounded-box z-[2]">
-    <slot closeDropdown={blurIfOpen} name="content" />
+<div use:overlay={{disabled}}>
+  <slot />
+  <div class="overlay-content">
+    <slot name="content" />
   </div>
 </div>

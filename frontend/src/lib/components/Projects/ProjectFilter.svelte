@@ -49,7 +49,6 @@
   import FilterBar from '../FilterBar/FilterBar.svelte';
   import { AuthenticatedUserIcon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
-  import { bubbleFocusOnDestroy } from '$lib/util/focus';
   import IconButton from '../IconButton.svelte';
   import MigrationStatusSelect from '$lib/forms/MigrationStatusSelect.svelte';
 
@@ -95,7 +94,7 @@
     {#if filterEnabled('userEmail')}
       <FormField label={$t('project.filter.project_member')}>
         {#if $filters.userEmail}
-          <div class="join" use:bubbleFocusOnDestroy>
+          <div class="join">
             <input
               class="input input-bordered join-item flex-grow"
               readonly

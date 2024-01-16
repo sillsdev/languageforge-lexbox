@@ -7,6 +7,7 @@
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
   import { initNotificationService } from '$lib/notify';
+  import { overlayContainer } from '$lib/overlay';
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
@@ -35,6 +36,8 @@
     return nav.to.url.pathname !== nav.from.url.pathname;
   });
 </script>
+
+<div use:overlayContainer class="bg-base-200 shadow rounded-box z-[2] absolute" />
 
 <svelte:head>
   {#if data.traceParent}

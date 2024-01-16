@@ -31,7 +31,7 @@
   }
 </script>
 
-<div class="overflow-x-auto min-h-[270px]">
+<div class="overflow-x-auto">
   <table class="table table-lg">
     <thead>
       <tr class="bg-base-200">

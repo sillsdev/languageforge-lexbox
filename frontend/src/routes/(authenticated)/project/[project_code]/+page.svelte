@@ -111,13 +111,10 @@
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 
-  var getProjectDropdownTrigger: HTMLElement;
-
   var copyingToClipboard = false;
   var copiedToClipboard = false;
 
   async function copyProjectUrlToClipboard(): Promise<void> {
-    getProjectDropdownTrigger.focus(); // keeps the dropdown open
     copyingToClipboard = true;
     await navigator.clipboard.writeText(projectHgUrl);
     copiedToClipboard = true;
@@ -203,11 +200,10 @@
     <svelte:fragment slot="actions">
       {#if migrationStatus !== ProjectMigrationStatus.Migrating}
         <Dropdown>
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label bind:this={getProjectDropdownTrigger} tabindex="-1" class="btn btn-success">
+          <button class="btn btn-success">
             {$t('project_page.get_project.label')}
             <span class="i-mdi-dots-vertical text-2xl" />
-          </label>
+          </button>
           <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
             <div class="card-body max-sm:p-4">
               <div class="prose">
