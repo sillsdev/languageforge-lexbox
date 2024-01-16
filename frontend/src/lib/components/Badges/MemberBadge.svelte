@@ -7,7 +7,7 @@
   export let canManage = false;
 </script>
 
-<ActionBadge actionIcon="i-mdi-dots-vertical" variant="badge-primary" disabled={!canManage}>
+<ActionBadge actionIcon="i-mdi-dots-vertical" variant="btn-primary" disabled={!canManage}>
   <span class="pr-3 whitespace-nowrap">
     {member.name}
   </span>
