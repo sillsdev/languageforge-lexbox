@@ -114,7 +114,7 @@
       </div>
 
       <div class="divider" />
-      <div class="overflow-x-auto min-h-[300px]">
+      <div class="overflow-x-auto">
         <table class="table table-lg">
           <thead>
             <tr class="bg-base-200">
@@ -153,11 +153,10 @@
                 </td>
                 <td class="p-0">
                   <Dropdown>
-                    <!-- svelte-ignore a11y-label-has-associated-control -->
-                    <label tabindex="-1" class="btn btn-ghost btn-square">
+                    <button class="btn btn-ghost btn-square">
                       <span class="i-mdi-dots-vertical text-lg" />
-                    </label>
-                    <ul slot="content" class="menu" let:closeDropdown>
+                    </button>
+                    <ul slot="content" class="menu">
                       <li>
                         <button class="whitespace-nowrap" on:click={() => openModal(user)}>
                           <Icon icon="i-mdi-pencil-outline" />
@@ -165,13 +164,7 @@
                         </button>
                       </li>
                       <li>
-                        <button
-                          class="whitespace-nowrap"
-                          on:click={() => {
-                            closeDropdown();
-                            filterProjectsByUser(user);
-                          }}
-                        >
+                        <button class="whitespace-nowrap" on:click={() => filterProjectsByUser(user)}>
                           <Icon icon="i-mdi-filter-outline" />
                           {$t('project.filter.filter_user_projects')}
                         </button>

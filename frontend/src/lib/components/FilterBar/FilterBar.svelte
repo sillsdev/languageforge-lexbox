@@ -112,10 +112,9 @@
       {#if $$slots.filters}
         <div class="join-item">
           <Dropdown>
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label tabindex="-1" class="btn btn-square btn-sm gap-2">
+            <button class="btn btn-square btn-sm gap-2">
               <span class="i-mdi-filter-outline text-xl" />
-            </label>
+            </button>
             <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
               <div class="card-body max-sm:p-4">
                 <slot name="filters" />
