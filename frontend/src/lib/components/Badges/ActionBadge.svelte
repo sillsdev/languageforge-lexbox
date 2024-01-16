@@ -22,12 +22,8 @@
   }
 </script>
 
-<!-- https://daisyui.com/components/dropdown/#method-2-using-label-and-css-focus -->
 <!-- eslint-disable-next-line svelte/valid-compile -->
-<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-<!-- DaisyUI suggests using a label here -->
-<label tabindex={!disabled ? -1 : null} class="button-badge group transition" on:click={onAction} on:keypress={onAction}>
+<button {disabled} class="button-badge group transition" on:click={onAction} on:keypress={onAction}>
   <span class="badge {size} {variant} {padding} pr-0 whitespace-nowrap gap-1">
     <slot />
 
@@ -39,7 +35,7 @@
       </span>
     {/if}
   </span>
-</label>
+</button>
 
 <style>
   .badge {
