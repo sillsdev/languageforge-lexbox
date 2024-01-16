@@ -31,12 +31,6 @@ if (DevGqlSchemaWriterService.IsSchemaGenerationRequest(args))
     return;
 }
 
-if (MySqlMigrationService.IsMySqlMigrationRequest(args))
-{
-    await MySqlMigrationService.RunMySqlMigrationRequest(args);
-    return;
-}
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.Configure(options => options.ActivityTrackingOptions = ActivityTrackingOptions.TraceId);
 builder.Host.UseConsoleLifetime();

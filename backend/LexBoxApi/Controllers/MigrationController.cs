@@ -1,10 +1,7 @@
-using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
 using LexCore.Entities;
 using LexData;
-using LexData.Entities;
-using LexData.Redmine;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,12 +20,6 @@ public class MigrationController : ControllerBase
     {
         _lexBoxDbContext = lexBoxDbContext;
         _projectService = projectService;
-    }
-
-    [HttpGet("migrateData")]
-    public async Task<ActionResult<int>> MigrateData(bool dryRun = true)
-    {
-        return await HttpContext.RequestServices.GetRequiredService<MySqlMigrationService>().MigrateData(dryRun);
     }
 
     [HttpGet("migrateRepo")]
