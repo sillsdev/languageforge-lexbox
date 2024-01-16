@@ -20,6 +20,7 @@ public class Project : EntityBase
 
     public required ProjectMigrationStatus ProjectOrigin { get; set; } = ProjectMigrationStatus.Migrated;
     public required ProjectMigrationStatus MigrationStatus { get; set; } = ProjectMigrationStatus.Migrated;
+    public DateTimeOffset? MigratedDate { get; set; } = null;
 
     [NotMapped]
     [Projectable(UseMemberBody = nameof(SqlUserCount))]
