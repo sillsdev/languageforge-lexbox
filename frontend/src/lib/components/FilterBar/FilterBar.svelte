@@ -104,6 +104,7 @@
           <Loader loading />
         </div>
       {/if}
+      <!-- The user sees the "undebounced" search value, so the X button should consider that (and not the debounced value) -->
       {#if !!undebouncedSearch || activeFilters.find(f => f.key !== searchKey)}
         <button class="btn btn-square btn-sm join-item" on:click={reseFilters}>
           <span class="text-lg">✕</span>
