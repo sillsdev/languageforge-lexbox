@@ -7,11 +7,10 @@
 </script>
 
 <script lang="ts">
-  import Input from '$lib/forms/Input.svelte';
-
   import { createEventDispatcher } from 'svelte';
   import type { ConditionalPick } from 'type-fest';
   import Loader from '$lib/components/Loader.svelte';
+  import { PlainInput } from '$lib/forms';
   import { pick } from '$lib/util/object';
   import t from '$lib/i18n';
   import type { Writable } from 'svelte/store';
@@ -25,7 +24,7 @@
     change: Readonly<Filter<Filters>[]>;
   }>();
 
-  let searchInput: Input;
+  let searchInput: PlainInput;
 
   export let searchKey: keyof ConditionalPick<DumbFilters, string>;
   export let autofocus: true | undefined = undefined;
@@ -88,7 +87,7 @@
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
   <slot name="activeFilters" {activeFilters} />
   <div class="flex grow">
-    <Input
+    <PlainInput
       bind:value={$allFilters[searchKey]}
       bind:debounce
       bind:debouncing
