@@ -24,7 +24,7 @@
     if (!response.ok) {
       return response.statusText;
     }
-    notifySuccess($t('login.password_reset'));
+    notifySuccess($t('reset_password.password_reset'));
     await goto(data.home);
   });
 </script>
