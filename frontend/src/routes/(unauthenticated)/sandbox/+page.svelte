@@ -1,11 +1,10 @@
 ﻿<script lang="ts">
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import {Button} from '$lib/forms';
-
+  import { Button } from '$lib/forms';
 
   function uploadFinished(): void {
-      alert('upload done!');
+    alert('upload done!');
   }
 
   async function fetch500(): Promise<Response> {
@@ -42,16 +41,16 @@
 
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
-    <h2 class="card-title">Dropdown Example</h2>
-      <Dropdown>
-        <Button style="btn-primary">Open Me!</Button>
-        <ul slot="content" class="menu bg-info rounded-box">
-          <li><button>First item</button></li>
-          <li><button>Second item</button></li>
-        </ul>
-      </Dropdown>
+      <h2 class="card-title">Dropdown Example</h2>
+      <div>
+        <Dropdown>
+          <Button style="btn-primary">Open Me!</Button>
+          <ul slot="content" class="menu bg-info rounded-box">
+            <li><button>First item</button></li>
+            <li><button>Second item</button></li>
+          </ul>
+        </Dropdown>
+      </div>
     </div>
   </div>
-
 </div>
-
