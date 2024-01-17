@@ -67,7 +67,8 @@ handleFetch(async ({ fetch, args }) => {
 
     validateFetchResponse(response,
       location.pathname === '/login',
-      location.pathname === '/' || location.pathname === '/home' || location.pathname === '/admin');
+      location.pathname === '/' || location.pathname === '/home' || location.pathname === '/admin',
+      args[1]?.lexboxResponseHandlingConfig);
 
     return response;
   });

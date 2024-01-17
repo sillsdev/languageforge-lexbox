@@ -10,6 +10,14 @@ declare global {
     lexbox: { fetchProxy: Fetch }
   }
 
+  type LexboxResponseHandlingConfig = {
+    disableRedirectOnAuthError?: true;
+  }
+
+  interface RequestInit {
+    lexboxResponseHandlingConfig?: LexboxResponseHandlingConfig;
+  }
+
   namespace App {
     interface Locals {
       client: Client;

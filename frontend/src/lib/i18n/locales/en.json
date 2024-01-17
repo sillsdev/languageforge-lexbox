@@ -275,6 +275,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "new_password": "New Password",
     "submit": "Reset Password",
     "password_reset": "Your password has been reset",
+    "failed": "Resetting your password failed. Did you use an expired link? ({statusText})",
   },
   "retention_policy": {
     "dev": "Software Developer",
