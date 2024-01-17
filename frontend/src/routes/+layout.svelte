@@ -46,7 +46,7 @@
   {/if}
 </svelte:head>
 
-{#if $loading}
+{#if $loading || hydrating}
   <progress class="progress progress-info block fixed z-50 h-[3px] rounded-none bg-transparent"></progress>
 {/if}
 
