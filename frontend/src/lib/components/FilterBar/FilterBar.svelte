@@ -112,7 +112,7 @@
       {#if $$slots.filters}
         <div class="join-item">
           <Dropdown>
-            <button class="btn btn-square btn-sm gap-2">
+            <button class="btn btn-square join-item btn-sm gap-2">
               <span class="i-mdi-filter-outline text-xl" />
             </button>
             <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
