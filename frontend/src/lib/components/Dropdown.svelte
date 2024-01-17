@@ -4,7 +4,7 @@
   export let disabled = false;
 </script>
 
-<div class="inline-block" use:overlay={{disabled}}>
+<div class="inline-grid" use:overlay={{disabled}}>
   <slot />
   <div class="overlay-content">
     <slot name="content" />

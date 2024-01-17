@@ -42,6 +42,13 @@
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
       <h2 class="card-title">Dropdown Example</h2>
+      <Dropdown>
+        <Button style="btn-primary">Open Me!</Button>
+        <ul slot="content" class="menu bg-info rounded-box">
+          <li><button>First item</button></li>
+          <li><button>Second item</button></li>
+        </ul>
+      </Dropdown>
       <div>
         <Dropdown>
           <Button style="btn-primary">Open Me!</Button>
