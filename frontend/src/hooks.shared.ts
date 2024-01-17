@@ -20,7 +20,12 @@ export function getErrorMessage(error: unknown): string {
   );
 }
 
-export function validateFetchResponse(response: Response, isAtLogin: boolean, isHome: boolean): void {
+export function validateFetchResponse(
+  response: Response, isAtLogin: boolean, isHome: boolean, config?: LexboxResponseHandlingConfig): void {
+  if (config?.disableRedirectOnAuthError && [401, 403].includes(response.status)) {
+    return;
+  }
+
   if (response.status === 401 && !isAtLogin) {
     throw redirect(307, '/logout');
   }

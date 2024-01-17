@@ -20,9 +20,12 @@
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passwordHash: await hash($form.password) }),
+      lexboxResponseHandlingConfig: {
+        disableRedirectOnAuthError: true,
+      },
     });
     if (!response.ok) {
-      return response.statusText;
+      return $t('reset_password.failed', {statusText: response.statusText});
     }
     notifySuccess($t('reset_password.password_reset'));
     await goto(data.home);
