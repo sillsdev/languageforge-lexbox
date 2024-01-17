@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using LexBoxApi.Otel;
 using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
@@ -74,15 +75,29 @@ public class LexAuthService
 
     public async Task<LexAuthUser?> RefreshUser(Guid userId, string updatedValue = "all")
     {
-        var dbUser = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
+        using var activity = LexBoxActivitySource.Get().StartActivity();
+        var dbUser = await _lexBoxDbContext.Users
+            .Include(u => u.Projects)
+            .ThenInclude(p => p.Project)
             .FirstOrDefaultAsync(user => user.Id == userId);
-        if (dbUser?.CanLogin() is not true) return null;
+        if (dbUser is null)
+        {
+            activity?.AddTag("app.user.refresh", "user-not-found");
+            return null;
+        }
+        if (!dbUser.CanLogin())
+        {
+            activity?.AddTag("app.user.refresh", "user-cannot-login");
+            return null;
+        }
+
         var jwtUser = new LexAuthUser(dbUser);
         var context = _httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(context);
         await context.SignInAsync(jwtUser.GetPrincipal("Refresh"),
             new AuthenticationProperties { IsPersistent = true });
         context.Response.Headers[JwtUpdatedHeader] = updatedValue;
+        activity?.AddTag("app.user.refresh", "success");
         return jwtUser;
     }
 
