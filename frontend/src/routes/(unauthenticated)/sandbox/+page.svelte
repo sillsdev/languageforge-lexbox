@@ -1,5 +1,7 @@
 ﻿<script lang="ts">
   import TusUpload from '$lib/components/TusUpload.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
+  import {Button} from '$lib/forms';
 
 
   function uploadFinished(): void {
@@ -15,8 +17,8 @@
   }
 </script>
 
-<div class="grid gap-2">
-  <h2>Sandbox</h2>
+<span class="text-lg">Sandbox</span>
+<div class="grid gap-2 grid-cols-3">
   <div class="card w-96 bg-base-200 shadow-lg">
     <a rel="external" class="btn" href="/sandbox/403">Goto page load 403</a>
     <a rel="external" target="_blank" class="btn" href="/sandbox/403">Goto page load 403 new tab</a>
@@ -37,5 +39,19 @@
       <TusUpload endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
     </div>
   </div>
+
+  <div class="card w-96 bg-base-200 shadow-lg">
+    <div class="card-body">
+    <h2 class="card-title">Dropdown Example</h2>
+      <Dropdown>
+        <Button style="btn-primary">Open Me!</Button>
+        <ul slot="content" class="menu bg-info rounded-box">
+          <li><button>First item</button></li>
+          <li><button>Second item</button></li>
+        </ul>
+      </Dropdown>
+    </div>
+  </div>
+
 </div>
 
