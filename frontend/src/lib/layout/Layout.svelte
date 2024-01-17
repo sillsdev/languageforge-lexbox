@@ -13,16 +13,12 @@
   $: data = $page.data as LayoutData;
   $: user = data.user;
 
-  function open(): void {
-    menuToggle = true;
-  }
-
   function close(): void {
     menuToggle = false;
   }
 
   function closeOnEscape(event: KeyboardEvent): void {
-    event.key === 'Escape' && close();
+    if (event.key === 'Escape') close();
   }
   onMount(() => {
     if (user) ensureClientMatchesUser(user);
@@ -37,10 +33,10 @@
 
 {#if user}
   <div class="drawer drawer-end">
-    <input type="checkbox" checked={menuToggle} class="drawer-toggle" />
+    <input id="drawer-toggle" type="checkbox" bind:checked={menuToggle} class="drawer-toggle" />
 
     <div class="drawer-content max-w-[100vw]">
-      <AppBar on:menuopen={open} {user} />
+      <AppBar {user} />
       <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center">
         <Breadcrumbs />
         <AdminContent>
@@ -62,7 +58,8 @@
       </Content>
     </div>
     <div class="drawer-side z-10">
-      <button class="drawer-overlay" on:click={close} on:keydown={close} />
+      <!-- using a label means it works before hydration is complete -->
+      <label for="drawer-toggle" class="drawer-overlay" />
       <AppMenu {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />
     </div>
   </div>
