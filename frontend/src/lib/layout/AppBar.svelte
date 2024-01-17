@@ -2,10 +2,9 @@
   import { env } from '$env/dynamic/public';
   import t from '$lib/i18n';
   import { AuthenticatedUserIcon, UserAddOutline } from '$lib/icons';
-  import {createEventDispatcher, onMount} from 'svelte';
-  import type {LexAuthUser} from '$lib/user';
-  import { Button } from '$lib/forms';
-  import {page} from '$app/stores';
+  import { onMount } from 'svelte';
+  import type { LexAuthUser } from '$lib/user';
+  import { page } from '$app/stores';
 
   onMount(() => {
     isPlaywright = localStorage.getItem('isPlaywright') === 'true';
@@ -13,7 +12,6 @@
   });
   let isPlaywright = false;
   let environmentName = env.PUBLIC_ENV_NAME?.toLowerCase();
-  const dispatch = createEventDispatcher();
   export let user: LexAuthUser | undefined;
   $: loggedIn = !!user;
 </script>
@@ -32,10 +30,11 @@
     </a>
     <div>
       {#if user}
-        <Button on:click={() => dispatch('menuopen')} class="btn-primary normal-case px-2">
+        <!-- using a label means it works before hydration is complete -->
+        <label for="drawer-toggle" class="btn btn-primary px-2">
           {user.name}
           <AuthenticatedUserIcon size="text-4xl" />
-        </Button>
+        </label>
       {:else}
         {#if $page.url.pathname !== '/login'}
           <a href="/login" class="btn btn-primary">
