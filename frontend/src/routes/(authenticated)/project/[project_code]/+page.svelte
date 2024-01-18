@@ -15,7 +15,7 @@
     _changeProjectName,
     _deleteProjectUser,
     _refreshProjectMigrationStatusAndRepoInfo,
-    type ProjectUser
+    type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
@@ -183,7 +183,7 @@
     const response = await result.json();
     if (response) {
       migrationStatus = ProjectMigrationStatus.Migrated;
-      await _refreshProjectMigrationStatusAndRepoInfo(project.code)
+      await _refreshProjectMigrationStatusAndRepoInfo(project.code);
     }
   }
 
@@ -201,10 +201,10 @@
   <HeaderPage wide title={project.name}>
     <svelte:fragment slot="banner">
       {#if migrationStatus === ProjectMigrationStatus.Migrating}
-            <div class="alert alert-warning mb-4">
-              <span class="i-mdi-alert text-2xl" />
-              <span>This project is currently being migrated. Some features may not work as expected.</span>
-            </div>
+        <div class="alert alert-warning mb-4">
+          <span class="i-mdi-alert text-2xl" />
+          <span>This project is currently being migrated. Some features may not work as expected.</span>
+        </div>
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="actions">
