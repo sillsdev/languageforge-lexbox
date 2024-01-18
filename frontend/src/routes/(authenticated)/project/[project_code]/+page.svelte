@@ -10,7 +10,13 @@
   import { isAdmin } from '$lib/user';
   import { z } from 'zod';
   import type { PageData } from './$types';
-  import { _changeProjectDescription, _changeProjectName, _deleteProjectUser, type ProjectUser } from './+page';
+  import {
+    _changeProjectDescription,
+    _changeProjectName,
+    _deleteProjectUser,
+    _refreshProjectMigrationStatusAndRepoInfo,
+    type ProjectUser
+  } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon, type IconString } from '$lib/icons';
@@ -170,6 +176,7 @@
     const response = await result.json();
     if (response) {
       migrationStatus = ProjectMigrationStatus.Migrated;
+      await _refreshProjectMigrationStatusAndRepoInfo(project.code)
     }
   }
 

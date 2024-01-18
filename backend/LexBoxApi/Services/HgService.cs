@@ -154,7 +154,16 @@ public class HgService : IHgService
         _logger.LogInformation("Migrating repo {Code}", project.Code);
         activity?.AddTag("app.project_code", project.Code);
         //rsync data from remote server to /hg-repos
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return false;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _logger.LogWarning("Skipping migration of repo {Code} because it's running on Windows," +
+                               " in debug builds this will report the migration as successful", project.Code);
+#if DEBUG
+            return true;
+#else
+            return false;
+#endif
+        }
         var repoPath = Path.GetFullPath(_options.Value.RepoPath);
         var remoteHost = _options.Value.MigrationHost;
         var remotePathPart = project.ProjectOrigin == ProjectMigrationStatus.PublicRedmine ? "public" : "private";
@@ -277,6 +286,9 @@ public class HgService : IHgService
 
     public async Task<Changeset[]> GetChangesets(string projectCode, ProjectMigrationStatus migrationStatus)
     {
+#if DEBUG
+        if (migrationStatus is ProjectMigrationStatus.PublicRedmine or ProjectMigrationStatus.PrivateRedmine) return [];
+#endif
         var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json-lex");
         response.EnsureSuccessStatusCode();
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
