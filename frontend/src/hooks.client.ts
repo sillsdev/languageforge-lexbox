@@ -66,7 +66,6 @@ handleFetch(async ({ fetch, args }) => {
     const response = await fetch(...args);
 
     validateFetchResponse(response,
-      location.pathname === '/login',
       location.pathname === '/' || location.pathname === '/home' || location.pathname === '/admin',
       args[1]?.lexboxResponseHandlingConfig);
 

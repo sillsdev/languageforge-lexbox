@@ -63,7 +63,6 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 
     const routeId = event.route.id ?? '';
     validateFetchResponse(response,
-      routeId.endsWith('/login'),
       routeId.endsWith(AUTHENTICATED_ROOT) || routeId.endsWith('/home') || routeId.endsWith('/admin'));
 
     return response;
