@@ -314,7 +314,7 @@
           {$t('project_page.members')}
         </p>
 
-        <BadgeList>
+        <BadgeList grid>
           {#each project.users as member}
             {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
             <Dropdown disabled={!canManageMember}>
@@ -336,7 +336,9 @@
             </Dropdown>
           {/each}
           {#if canManage}
-            <AddProjectMember projectId={project.id} />
+            <div class="place-self-end" style="grid-column: -2 / -1">
+              <AddProjectMember projectId={project.id} />
+            </div>
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
