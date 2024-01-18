@@ -44,26 +44,9 @@
 </script>
 
 <div class="hero flex-grow">
-  <div class="hero-content flex-col lg:flex-row-reverse gap-16">
-    <div class="prose text-lg flex-shrink-0">
-      <Markdown md={$t('login.welcome')} />
-      <div class="flex gap-4 not-prose justify-center">
-        <a href="https://software.sil.org/fieldworks/">
-          <img src={flexLogo} class="h-12" height="48" alt="FLEx Logo">
-        </a>
-        <a href="https://languageforge.org/">
-          <img src={lfLogo} class="h-12" height="48" alt="Language Forge Logo">
-        </a>
-        <a href="https://software.sil.org/onestoryeditor/">
-          <img src={oneStoryEditorLogo} class="h-12" height="48" alt="OneStory Editor Logo">
-        </a>
-        <a href="https://software.sil.org/wesay/">
-          <img src={weSayLogo} class="h-12" height="48" alt="WeSay Logo">
-        </a>
-      </div>
-    </div>
-    <div class="card flex-shrink-0 w-full max-w-md shadow-2xl bg-base-200">
-      <div class="card-body">
+  <div class="hero-content flex-col lg:flex-row gap-8">
+    <div class="card flex-shrink-0 w-full max-w-md sm:shadow-2xl sm:bg-base-200">
+      <div class="card-body sm-only:p-0">
         <PageTitle title={$t('login.title')} />
 
         <Form {enhance}>
@@ -97,6 +80,28 @@
 
           <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
         </Form>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-8 lg:flex-col-reverse">
+      <div class="flex gap-4 not-prose justify-center">
+        <a href="https://software.sil.org/fieldworks/">
+          <img src={flexLogo} class="h-12" height="48" alt="FLEx Logo">
+        </a>
+        <a href="https://languageforge.org/">
+          <img src={lfLogo} class="h-12" height="48" alt="Language Forge Logo">
+        </a>
+        <a href="https://software.sil.org/onestoryeditor/">
+          <img src={oneStoryEditorLogo} class="h-12" height="48" alt="OneStory Editor Logo">
+        </a>
+        <a href="https://software.sil.org/wesay/">
+          <img src={weSayLogo} class="h-12" height="48" alt="WeSay Logo">
+        </a>
+      </div>
+
+      <div class="prose text-lg">
+        <Markdown md={$t('login.welcome_header')} />
+        <Markdown md={$t('login.welcome')} />
       </div>
     </div>
   </div>

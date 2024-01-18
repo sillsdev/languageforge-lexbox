@@ -13,5 +13,12 @@ module.exports = {
         themes: ['winter', 'business'],
         darkTheme: 'business',
         logs: false
+  },
+  theme: {
+    extend: {
+      screens: {
+        'sm-only': {'max': '639px'},
+      },
     },
+  },
 };
