@@ -308,6 +308,7 @@ public class HgService : IHgService
         var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/file/tip?style=json-lex");
         response.EnsureSuccessStatusCode();
         var parsed = await response.Content.ReadFromJsonAsync<BrowseResponse>();
+        bool hasDotSettingsFolder = false;
         // TODO: Move the heuristics below to a ProjectHeuristics class?
         foreach (var file in parsed?.Files ?? [])
         {
@@ -333,9 +334,17 @@ public class HgService : IHgService
                 {
                     return ProjectType.WeSay;
                 }
-                // TODO: Determine how to detect ProjectType.OurWord
+                //OurWord projects have a .Settings folder, but that might not be super reliable
+                //so we only use it as a last resort if we didn't match any other project type.
+                if (name.Equals(".Settings", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasDotSettingsFolder = true;
+                }
             }
         }
+
+        //if we didn't find any of the above files, check for a .Settings folder
+        if (hasDotSettingsFolder) return ProjectType.OurWord;
         return ProjectType.Unknown;
     }
 
