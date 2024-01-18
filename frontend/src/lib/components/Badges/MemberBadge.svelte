@@ -8,9 +8,12 @@
 </script>
 
 <ActionBadge actionIcon="i-mdi-dots-vertical" variant="btn-primary" disabled={!canManage}>
-  <span class="pr-3 whitespace-nowrap">
+  <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-hidden" title={member.name}>
     {member.name}
   </span>
+
+  <!-- justify the name left and the role right -->
+  <span class="flex-grow" />
 
   <Badge>
     <FormatUserProjectRole projectRole={member.role} />
