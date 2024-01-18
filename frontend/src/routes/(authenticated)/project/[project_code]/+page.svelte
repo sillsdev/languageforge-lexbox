@@ -44,6 +44,16 @@
   let projectStore = data.project;
   $: project = $projectStore;
   $: changesetStore = data.changesets;
+  $: members = project.users.sort((a, b) => {
+    if (a.role !== b.role) {
+      return a.role === ProjectRole.Manager ? -1 : 1;
+    }
+    return a.user.name.localeCompare(b.user.name);
+  });
+
+  const TRUNCATED_MEMBER_COUNT = 5;
+  let showAllMembers = false;
+  $: showMembers = showAllMembers ? members : members.slice(0, TRUNCATED_MEMBER_COUNT);
 
   $: projectHgUrl = import.meta.env.DEV
     ? `http://hg.${$page.url.host}/${data.code}`
@@ -311,11 +321,11 @@
 
       <div>
         <p class="text-2xl mb-4">
-          {$t('project_page.members')}
+          {$t('project_page.members.title')}
         </p>
 
         <BadgeList grid>
-          {#each project.users as member}
+          {#each showMembers as member}
             {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
             <Dropdown disabled={!canManageMember}>
               <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
@@ -335,6 +345,15 @@
               </ul>
             </Dropdown>
           {/each}
+
+          {#if members.length > TRUNCATED_MEMBER_COUNT}
+            <div class="justify-self-start">
+              <Button style="btn-outline" size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
+                {showAllMembers ? $t('project_page.members.show_less') : $t('project_page.members.show_all')}
+              </Button>
+            </div>
+          {/if}
+
           {#if canManage}
             <div class="place-self-end" style="grid-column: -2 / -1">
               <AddProjectMember projectId={project.id} />
