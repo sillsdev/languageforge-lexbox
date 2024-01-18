@@ -3,7 +3,7 @@
   import { createEventDispatcher } from 'svelte';
   export let disabled = false;
   export let actionIcon: IconString;
-  export let variant: 'btn-neutral' | 'btn-primary' = 'btn-neutral';
+  export let variant: 'btn-neutral' | 'btn-primary' | 'btn-secondary' = 'btn-neutral';
   $: iconHoverColor = variant === 'btn-neutral' ? 'group-hover:bg-base-200' : 'group-hover:bg-neutral/50';
 
   const dispatch = createEventDispatcher<{
