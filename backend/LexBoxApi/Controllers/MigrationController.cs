@@ -37,4 +37,12 @@ public class MigrationController : ControllerBase
             .Select(p => p.MigrationStatus)
             .SingleAsync();
     }
+
+    [HttpPost("queueMigrations")]
+    public async Task<ActionResult> QueueMigrations(string[] projectCodes)
+    {
+        await _projectService.MigrateProjects(projectCodes);
+
+        return Ok();
+    }
 }

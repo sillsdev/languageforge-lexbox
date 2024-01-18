@@ -103,6 +103,20 @@ public class ProjectService
         _migrationService.QueueMigration(projectCode);
     }
 
+    public async Task MigrateProjects(string[] projectCodes)
+    {
+        var projects = await _dbContext.Projects.Where(p => p.MigrationStatus != ProjectMigrationStatus.Migrated && projectCodes.Contains(p.Code)).ToArrayAsync();
+        foreach (var project in projects)
+        {
+            project.MigrationStatus = ProjectMigrationStatus.Migrating;
+        }
+        await _dbContext.SaveChangesAsync();
+        foreach (var projectCode in projectCodes)
+        {
+            _migrationService.QueueMigration(projectCode);
+        }
+    }
+
     public async Task<bool?> AwaitMigration(string projectCode, CancellationToken cancellationToken)
     {
         var project = await _dbContext.Projects.SingleOrDefaultAsync(p => p.Code == projectCode, cancellationToken);
