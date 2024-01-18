@@ -60,6 +60,9 @@ export async function login(userId: string, password: string): Promise<boolean> 
       password: await hash(password),
       preHashedPassword: true,
     }),
+    lexboxResponseHandlingConfig: {
+      disableRedirectOnAuthError: true,
+    },
   })
   return response.ok;
 }
