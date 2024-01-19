@@ -38,6 +38,7 @@
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
+  import {isDev} from '$lib/layout/DevContent.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -195,9 +196,9 @@
     </svelte:fragment>
     <svelte:fragment slot="actions">
       {#if migrationStatus !== ProjectMigrationStatus.Migrating}
-        {#if project.type === ProjectType.FlEx}
-          <OpenInFlexModal bind:this={openInFlexModal} {project} />
-          <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open} />
+        {#if project.type === ProjectType.FlEx && $isDev}
+            <OpenInFlexModal bind:this={openInFlexModal} {project}/>
+            <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
         {:else}
           <Dropdown>
             <button class="btn btn-primary">
