@@ -23,7 +23,7 @@ spec:
   schedule: "0 1 * * *"  #every day at 1:00 AM UTC
   jobTemplate:
     spec:
-      backoffLimit: 0
+      backoffLimit: 1
       template:
         spec:
           initContainers:
