@@ -36,4 +36,6 @@ declare global {
   type ErrorHandler =
     'client-error' | 'client-unhandledrejection' |
     'server-error-hook' | 'client-error-hook';
+
+  function enableDevMode(): void;
 }
