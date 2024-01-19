@@ -324,7 +324,7 @@
           {$t('project_page.members.title')}
         </p>
 
-        <BadgeList grid>
+        <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
           {#each showMembers as member}
             {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
             <Dropdown disabled={!canManageMember}>
