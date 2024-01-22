@@ -35,7 +35,7 @@ spec:
                 - "pg_dump -U postgres -v -h db.languagedepot -Z 0 -d $PGDATABASE -F directory -f /dump/postgres-backup"
               resources:
                 requests:
-                  memory: 100Mi
+                  memory: 150Mi
                 limits:
                   memory: 150Mi
               volumeMounts:
@@ -63,9 +63,9 @@ spec:
                 - "/hg-repos"
               resources:
                 requests:
-                  memory: 100Mi
+                  memory: 1Gi
                 limits:
-                  memory: 400Mi
+                  memory: 1Gi
               env:
                 - name: KOPIA_PASSWORD
                   valueFrom:
