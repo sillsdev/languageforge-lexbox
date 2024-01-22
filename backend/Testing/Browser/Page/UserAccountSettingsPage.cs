@@ -11,12 +11,12 @@ public class UserAccountSettingsPage : AuthenticatedBasePage<UserAccountSettings
 
     internal Task FillDisplayName(string name)
     {
-        return Page.GetByLabel("Display name").FillAsync(name);
+        return Page.Locator("form").GetByLabel("Display name").FillAsync(name);
     }
 
     internal Task FillEmail(string email)
     {
-        return Page.GetByLabel("Email").FillAsync(email);
+        return Page.Locator("form").GetByLabel("Email").FillAsync(email);
     }
 
     internal async Task ClickSave()

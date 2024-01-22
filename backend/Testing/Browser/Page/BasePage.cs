@@ -12,6 +12,7 @@ public abstract class BasePage<T> where T : BasePage<T>
     public string? Url { get; protected set; }
     protected ILocator[] TestLocators { get; }
     private Regex? UrlPattern => Url is not null ? new Regex($"{Regex.Escape(Url)}($|\\?|#)") : null;
+    private readonly ILocator HydrationLocator;
 
     public BasePage(IPage page, string? url, ILocator testLocator)
     : this(page, url, new[] { testLocator })
@@ -22,6 +23,7 @@ public abstract class BasePage<T> where T : BasePage<T>
         Page = page;
         Url = url;
         TestLocators = testLocators;
+        HydrationLocator = Page.Locator(".hydrating");
     }
 
     public virtual async Task<T> Goto(GotoOptions? options = null)
@@ -56,6 +58,12 @@ public abstract class BasePage<T> where T : BasePage<T>
             await Page.WaitForLoadStateAsync(LoadState.Load);
         }
         await Task.WhenAll(TestLocators.Select(l => Assertions.Expect(l).ToBeVisibleAsync()));
+        await WaitForHydration(); // we have to wait for (e.g.) on:click handlers to be attached
         return (T)this;
+    }
+
+    private async Task WaitForHydration()
+    {
+        await HydrationLocator.WaitForAsync(new() { State = WaitForSelectorState.Detached });
     }
 }
