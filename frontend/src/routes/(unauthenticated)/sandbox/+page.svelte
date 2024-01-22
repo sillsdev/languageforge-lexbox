@@ -16,7 +16,7 @@
   }
 </script>
 
-<span class="text-lg">Sandbox</span>
+<h2 class="text-lg">Sandbox</h2>
 <div class="grid gap-2 grid-cols-3">
   <div class="card w-96 bg-base-200 shadow-lg">
     <a rel="external" class="btn" href="/sandbox/403">Goto page load 403</a>
