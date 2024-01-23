@@ -318,6 +318,16 @@ public class HgService : IHgService
         return await response.Content.ReadAsStringAsync();
     }
 
+    public async Task<int?> GetLexEntryCount(string code)
+    {
+        var httpClient = _hgClient.Value;
+        httpClient.BaseAddress = new Uri(_options.Value.HgCommandServer);
+        var response = await httpClient.GetAsync($"{code}/lexentrycount");
+        response.EnsureSuccessStatusCode();
+        var str = await response.Content.ReadAsStringAsync();
+        return int.TryParse(str, out int result) ? result : null;
+    }
+
     private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };
 
     private void AssertIsSafeRepoName(string name)
