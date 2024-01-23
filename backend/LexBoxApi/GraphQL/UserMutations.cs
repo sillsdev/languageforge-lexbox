@@ -18,9 +18,9 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class UserMutations
 {
-    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
-    public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, UserRole Role)
-        : ChangeUserAccountDataInput(UserId, Email, Name);
+    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name, string Locale);
+    public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, string Locale, UserRole Role)
+        : ChangeUserAccountDataInput(UserId, Email, Name, Locale);
 
     [Error<NotFoundException>]
     [Error<DbError>]
@@ -68,6 +68,11 @@ public class UserMutations
         if (!input.Name.IsNullOrEmpty())
         {
             user.Name = input.Name;
+        }
+
+        if (!input.Locale.IsNullOrEmpty())
+        {
+            user.LocalizationCode = input.Locale;
         }
 
         if (input is ChangeUserAccountByAdminInput adminInput)

@@ -15,6 +15,7 @@ export * from './utils';
 import SystemRoleSelect from './SystemRoleSelect.svelte';
 import ProjectRoleSelect from './ProjectRoleSelect.svelte';
 import ProjectTypeSelect from './ProjectTypeSelect.svelte';
+import DisplayLanguageSelect from './DisplayLanguageSelect.svelte';
 
 export {
   Button,
@@ -34,4 +35,5 @@ export {
   SystemRoleSelect,
   ProjectRoleSelect,
   ProjectTypeSelect,
+  DisplayLanguageSelect,
 };

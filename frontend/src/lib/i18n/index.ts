@@ -1,23 +1,18 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 import type { DeepPathsToType, DeepPaths, DeepPathsToString, StoreType } from '$lib/type.utils';
-import { addMessages, getLocaleFromNavigator, init, register, t as translate, waitLocale } from 'svelte-intl-precompile';
+import { getLocaleFromNavigator, init, t as translate, waitLocale } from 'svelte-intl-precompile';
 
 import type I18n from '../i18n/locales/en.json';
 import { derived, type Readable } from 'svelte/store';
-// @ts-ignore there's an error here because this is a synthetic path
-import en from '$locales/en';
+import { availableLocales as _availableLocales, registerAll } from '$locales';
 import type { Get } from 'type-fest';
 
-export async function loadI18n(): Promise<void> {
-  addMessages('en', en);
-  //dynamically load the es translation at runtime if the user's browser is set to spanish
-  // @ts-ignore there's an error here because this is a synthetic path
-  register('es', () => import('$locales/es'));
+export const availableLocales = Object.freeze([..._availableLocales].sort()) as readonly [string, ...string[]];
+
+export async function loadI18n(useLocale?: string): Promise<void> {
+  registerAll();
   init({
     fallbackLocale: 'en',
-    initialLocale: getLocaleFromNavigator() || 'en',
+    initialLocale: useLocale ?? getLocaleFromNavigator()?.split('-')[0] ?? 'en',
   });
   await waitLocale();
 }

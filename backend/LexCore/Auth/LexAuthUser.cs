@@ -94,6 +94,7 @@ public record LexAuthUser
             : user.Projects.Select(p => new AuthUserProject(p.Role, p.ProjectId)).ToArray();
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
+        Locale = user.LocalizationCode;
     }
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
@@ -160,6 +161,9 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.CanCreateProjectClaimType)]
     public bool? CanCreateProjects { get; init; }
+
+    [JsonPropertyName(LexAuthConstants.LocaleClaimType)]
+    public string Locale { get; init; }
 
     public IEnumerable<Claim> GetClaims()
     {

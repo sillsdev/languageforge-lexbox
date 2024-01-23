@@ -49,6 +49,13 @@
     "title": "Account Settings",
     "email": "Email",
     "name": "Display name",
+    "language": {
+      "title": "Language",
+      "en": "English",
+      "es": "Español",
+      "fr": "Français",
+      "not_supported": "Not yet supported",
+    },
     "reset_password": "Reset your password instead?",
     "update_success": "Your account has been updated.",
     "button_update": "Update account info",
