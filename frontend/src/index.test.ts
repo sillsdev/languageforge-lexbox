@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import {hash} from '$lib/util/hash';
 
 describe('password hashing', () => {

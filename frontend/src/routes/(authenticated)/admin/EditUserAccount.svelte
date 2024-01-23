@@ -37,6 +37,7 @@
         email: $form.email,
         name: $form.name,
         role: $form.role,
+        locale: currUser.locale,
       });
       if (data?.changeUserAccountByAdmin.errors?.some(e => e.__typename === 'UniqueValueError')) {
         return {email: [$t('account_settings.email_taken')]};

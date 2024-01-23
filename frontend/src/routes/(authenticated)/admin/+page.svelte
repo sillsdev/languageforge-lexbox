@@ -35,14 +35,15 @@
     migrationStatus: queryParam.string<ProjectMigrationStatus | 'UNMIGRATED' | undefined>(undefined),
   });
 
+  const userFilterKeys = ['userSearch'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
+  const { queryParamValues, defaultQueryParamValues } = queryParams;
+
   const loadingUsers = derived(navigating, (nav) => {
     const fromUrl = nav?.from?.url;
     return fromUrl && userFilterKeys.some((key) =>
       (fromUrl.searchParams.get(key) ?? defaultQueryParamValues[key])?.toString() !== $queryParamValues[key]);
   });
 
-  const userFilterKeys = ['userSearch'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
-  const { queryParamValues, defaultQueryParamValues } = queryParams;
   let hasActiveFilter = false;
   let lastLoadUsedActiveFilter = false;
   $: if (!$loadingUsers) lastLoadUsedActiveFilter = hasActiveFilter;

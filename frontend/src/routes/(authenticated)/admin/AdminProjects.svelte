@@ -23,10 +23,12 @@
 
   const { notifyWarning } = useNotifications();
 
+  const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
+
   const loading = derived(navigating, (nav) => {
     const fromUrl = nav?.from?.url;
     return fromUrl && serverSideProjectFilterKeys.some((key) =>
-      (fromUrl.searchParams.get(key) ?? filterDefaults[key])?.toString() !== $filters[key]?.toString());
+      (fromUrl.searchParams.get(key) ?? filterDefaults?.[key])?.toString() !== $filters?.[key]?.toString());
   });
 
   let filteredProjects: ProjectItem[] = [];
@@ -47,8 +49,6 @@
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
   }
-
-  const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 </script>
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />

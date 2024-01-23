@@ -22,6 +22,7 @@ type JwtTokenUser = {
   proj?: string,
   unver: boolean | undefined,
   mkproj: boolean | undefined,
+  loc: string,
 }
 
 export type LexAuthUser = {
@@ -32,6 +33,7 @@ export type LexAuthUser = {
   projects: UserProjects[]
   emailVerified: boolean
   canCreateProject: boolean
+  locale: string
 }
 type UserProjectRole = 'Manager' | 'Editor' | 'Unknown';
 type UserProjects = {
@@ -68,7 +70,7 @@ export async function login(userId: string, password: string): Promise<boolean> 
 }
 
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
-export async function register(password: string, name: string, email: string, turnstileToken: string): Promise<RegisterResponse> {
+export async function register(password: string, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
   const response = await fetch('/api/User/registerAccount', {
     method: 'post',
     headers: {
@@ -77,6 +79,7 @@ export async function register(password: string, name: string, email: string, tu
     body: JSON.stringify({
       name,
       email,
+      locale,
       turnstileToken,
       passwordHash: await hash(password),
     })
@@ -122,6 +125,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     projects: projectsStringToProjects(projectsString),
     emailVerified: !user.unver,
     canCreateProject: user.mkproj === true,
+    locale: user.loc,
   }
 }
 
@@ -150,8 +154,6 @@ export function logout(cookies?: Cookies): void {
     throw redirect(307, '/login');
   }
 }
-
-
 
 export function isAuthn(cookies: Cookies): boolean {
   return getUser(cookies) !== null;

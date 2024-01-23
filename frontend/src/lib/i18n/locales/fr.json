@@ -1,0 +1,389 @@
+{
+  "admin_dashboard": {
+    "title": "Tableau de bord administrateur",
+    "column_code": "Code",
+    "column_email": "E-mail",
+    "column_login": "Connexion",
+    "column_last_change": "Dernière modification",
+    "column_migrated": "Migré",
+    "column_name": "Nom",
+    "column_role": "Rôle",
+    "column_type": "Type",
+    "column_users": "Utilisateurs",
+    "column_edit": "Éditer",
+    "project_table_title": "Projets",
+    "user_table_title": "Utilisateurs",
+    "email_not_verified": "Non vérifié",
+    "notifications": {
+      "user_deleted": "{name} a été supprimé.",
+      "user_updated": "{name} a été mis à jour.",
+      "email_need_verification": "Vous avez demandé de changer l'adresse e-mail de {name} à {requestedEmail}. Le changement prendra effet lorsque l'utilisateur vérifiera la nouvelle adresse. Il peut le faire en utilisant le lien dans l'e-mail que nous venons de lui envoyer."
+    },
+    "form_modal": {
+      "title": "Modifier l'utilisateur",
+      "email_label": "E-mail",
+      "name_label": "Nom d'affichage",
+      "password_label": "Changer le mot de passe de l'utilisateur",
+      "update_user": "Mettre à jour l'utilisateur",
+      "lock": "Verrouiller l'utilisateur",
+      "unlock": "Déverrouiller l'utilisateur",
+      "delete_user": {
+        "title": "Supprimer l'utilisateur",
+        "submit": "Supprimer l'utilisateur",
+        "enter_to_delete": {
+          "label": "Saisissez ''{_value}'' pour confirmer la suppression de l'utilisateur ''{name}''",
+          "value": "SUPPRIMER L'UTILISATEUR"
+        }
+      }
+    }
+  },
+  "account_settings": {
+    "title": "Paramètres du compte",
+    "email": "E-mail",
+    "name": "Nom d'affichage",
+    "language": {
+      "title": "Langue",
+      "en": "English",
+      "fr": "Français",
+      "not_supported": "Pas encore pris en charge",
+    },
+    "reset_password": "Réinitialiser votre mot de passe à la place ?",
+    "update_success": "Votre compte a été mis à jour.",
+    "button_update": "Mettre à jour les informations du compte",
+    "email_taken": "Un compte avec cette adresse e-mail existe déjà",
+    "delete_account": {
+      "title": "Supprimer le compte",
+      "submit": "Supprimer le compte",
+      "enter_to_delete": {
+        "label": "Saisissez ''{_value}'' pour confirmer la suppression de votre compte",
+        "value": "SUPPRIMER LE COMPTE"
+      }
+    },
+    "delete_success": "Votre compte a été supprimé.",
+    "verify_email": {
+      "verify_success": "Vous avez vérifié avec succès votre adresse e-mail.",
+      "change_success": "Vous avez mis à jour avec succès votre adresse e-mail.",
+      "verify_to_change": "Vous avez demandé de changer votre adresse e-mail en {requestedEmail}. Le changement ne prendra effet que lorsque vous aurez vérifié la nouvelle adresse. Vous pouvez le faire en utilisant le lien dans l'e-mail que nous venons de vous envoyer.",
+      "go_to_projects": "Aller à mes projets",
+      "check_inbox": "Veuillez vérifier votre boîte de réception pour l'e-mail de vérification que nous venons de vous envoyer.",
+      "please_verify": "Nous vous avons envoyé un e-mail afin que vous puissiez vérifier votre adresse e-mail. Veuillez le faire dès que possible.",
+      "resend": "Renvoyer l'e-mail de vérification",
+      "you_have_mail": "Vous avez du courrier !"
+    }
+  },
+  "appbar": {
+    "app_name": "Language Depot"
+  },
+  "appmenu": {
+    "log_out": "Déconnexion"
+  },
+  "close": "Fermer",
+  "delete_modal": {
+    "delete": "Supprimer {entityName}",
+    "dont_delete": "Ne pas supprimer",
+    "dont_remove": "Ne pas enlever",
+    "remove": "Enlever {entityName}"
+  },
+  "environment_warning": "Il s'agit d'un environnement {environmentName}. Cliquez ici pour accéder au site public.",
+  "delete_project_modal": {
+    "title": "Supprimer le projet",
+    "submit": "Supprimer le projet",
+    "enter_to_delete": {
+      "label": "Saisissez ''{_value}'' pour confirmer la suppression du projet ''{name}''",
+      "value": "SUPPRIMER LE PROJET"
+    },
+    "success": "Le projet ''{name}'' ({code}) a été supprimé."
+  },
+  "forgot_password": {
+    "title": "Mot de passe oublié",
+    "send_email": "Envoyer un e-mail de réinitialisation",
+    "email_sent": {
+      "title": "Vérifiez votre boîte de réception",
+      "email_sent_message": "Veuillez vérifier votre boîte de réception pour un e-mail contenant un lien pour réinitialiser votre mot de passe. Si vous ne voyez pas d'e-mail, vérifiez vos spams ou confirmez que vous avez utilisé la bonne adresse. Nous ne vous avertirons pas si vous avez saisi une mauvaise adresse.",
+      "back_to_login": "Retour à la page de connexion"
+    }
+  },
+  "login": {
+    "bad_credentials": "Quelque chose s'est mal passé, assurez-vous d'avoir utilisé les informations de compte correctes.",
+    "button_login": "Se connecter",
+    "button_login_again": "Essayer de se reconnecter ?",
+    "forgot_password": "Mot de passe oublié ?",
+    "label_email": "E-mail (ou Connexion/Recevoir)",
+    "label_password": "Mot de passe",
+    "missing_user_info": "Informations utilisateur manquantes",
+    "title": "Se connecter",
+    "password_missing": "Mot de passe manquant",
+    "link_expired": "L'e-mail sur lequel vous avez cliqué a expiré. Veuillez en demander un nouveau.",
+    "welcome_header": "### Bienvenue sur Language Depot\n",
+    "welcome": "Language Depot est un service d'hébergement pour [FieldWorks (FLEx)](https://software.sil.org/fieldworks/),\
+[Language Forge](https://languageforge.org/), [OneStory Editor](https://onestory.org/) et [WeSay](https://software.sil.org/wesay/) projects.\
+Il est fourni en tant que service aux communautés linguistiques par [SIL Language Technology](https://software.sil.org/) et\
+le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chiang Mai, en Thaïlande."
+  },
+  "project": {
+    "create": {
+      "title": "Créer un projet",
+      "code": "Code",
+      "type": "Type",
+      "code_exists": "Le code du projet est déjà utilisé",
+      "code_too_short": "Le code du projet doit comporter au moins 4 caractères",
+      "custom_code": "Code personnalisé",
+      "description_missing": "Description requise",
+      "language_code": "Code de langue",
+      "language_code_description": "De préférence, un [code Ethnologue](https://www.ethnologue.com)",
+      "language_code_too_short": "Le code de langue doit comporter au moins 3 caractères",
+      "language_code_invalid": "Le code de langue ne peut contenir que des minuscules a-z, des chiffres et '-'",
+      "name": "Nom",
+      "name_description": "Par exemple, le nom de la langue sur laquelle vous travaillez",
+      "description": "Description",
+      "name_missing": "Nom du projet requis",
+      "retention_policy": "Objectif",
+      "submit": "Créer le projet",
+      "requested": "Votre demande pour le projet {name} a été soumise.",
+      "request": "Demander le projet"
+    },
+    "table": {
+      "name": "Nom",
+      "code": "Code",
+      "last_change": "Dernière modification",
+      "migrated": "Migré",
+      "type": "Type",
+      "users": "Utilisateurs",
+    },
+    "filter": {
+      "title": "Filtres de projet",
+      "show_deleted": "Afficher les supprimés",
+      "select_user_from_table": "Pour filtrer les projets pour un utilisateur spécifique, sélectionnez l'utilisateur dans la table des utilisateurs :",
+      "project_member": "Membre du projet",
+      "filter_user_projects": "Filtrer les projets",
+    },
+  },
+  "project_page": {
+    "project": "Projet",
+    "add_user": {
+      "add_button": "Ajouter un membre",
+      "email_required": "E-mail requis",
+      "modal_title": "Ajouter un membre à ce projet",
+      "submit_button": "Ajouter un membre",
+      "user_not_found": "Aucun utilisateur n'a été trouvé avec cette adresse e-mail",
+      "user_not_verified": "L'utilisateur n'a pas vérifié son adresse e-mail",
+      "user_needs_to_relogin": "Les membres ajoutés devront se déconnecter et se reconnecter pour voir le nouveau projet."
+    },
+    "change_role_modal": {
+      "title": "Choisir le rôle de {name}"
+    },
+    "reset_project_modal": {
+      "title": "Réinitialiser le projet {code}",
+      "submit": "Réinitialiser le projet",
+      "close": "Fermer",
+      "i_have_working_backup": "J'ai une sauvegarde fonctionnelle",
+      "leave_project_empty": "Laisser le projet vide",
+      "next": "Suivant",
+      "back": "Retour",
+      "download_instruction": "Tout d'abord, téléchargez une sauvegarde du projet que vous pourrez utiliser pour le restaurer à l'étape 3 :",
+      "download_button": "Télécharger la sauvegarde du projet",
+      "confirm_downloaded": "Je confirme avoir téléchargé une sauvegarde du projet et vérifié qu'elle fonctionne. Je suis prêt à réinitialiser/supprimer complètement le contenu du référentiel du projet.",
+      "confirm_downloaded_error": "Veuillez confirmer que vous avez téléchargé une sauvegarde",
+      "confirm_project_code": "Saisissez le code du projet pour confirmer la réinitialisation",
+      "confirm_project_code_error": "Veuillez taper le code du projet pour confirmer la réinitialisation",
+      "reset_project_notification": "Réinitialisation réussie du projet {code}",
+      "upload_instruction": "Le référentiel du projet a été réinitialisé avec succès. Maintenant, téléchargez un fichier zip pour le restaurer :",
+      "upload_project": "Télécharger le projet",
+      "select_zip": "Fichier zip du projet",
+      "should_only_contain_hg": "Devrait contenir uniquement le dossier .hg à la racine",
+      "reset_success": "Réinitialisation du projet réussie.",
+      "backup_step": "Sauvegarde",
+      "reset_step": "Réinitialisation",
+      "restore_step": "Restaurer",
+      "finished_step": "Terminé",
+      "reset_in_progress": "Réinitialisation du projet en cours",
+      "click_to_continue": "Cliquez pour continuer",
+    },
+    "notifications": {
+      "role_change": "Le rôle du projet de {name} a été défini à {role}.",
+      "reset_project": "Le projet {code} a été réinitialisé.",
+      "user_delete": "{name} a été supprimé.",
+      "rename_project": "Le nom du projet a été défini à {name}.",
+      "describe": "La description du projet a été mise à jour.",
+      "add_member": "{email} a été ajouté au projet."
+    },
+    "project_name_empty_error": "Le nom du projet ne peut pas être vide",
+    "confirm_remove": "Souhaitez-vous supprimer {userName} de ce projet ?",
+    "history": "Historique",
+    "project_code": "Code du projet",
+    "summary": "Résumé",
+    "description": "Description",
+    "last_commit": "Dernier commit",
+    "members": {
+      "title": "Membres",
+      "show_all": "Tout afficher...",
+      "show_less": "Afficher moins",
+    },
+    "add_description": "Ajouter une description...",
+    "remove_project_user_title": "Membre",
+    "remove_user": "Supprimer",
+    "change_role": "Changer le rôle",
+    "hg": {
+      "open_in_hgweb": "Ouvrir dans HgWeb",
+      "no_history": "Pas d'historique",
+      "loading": "Chargement de l'historique...",
+      "date_header": "Date",
+      "author_header": "Auteur",
+      "log_header": "Message"
+    },
+    "get_project": {
+    "instructions": "### Pour charger le projet dans{type, select, FL_EX { } other { (par exemple) }}FLEx\n\
+1. Dans le menu \"Envoyer/Recevoir\", cliquez sur \"Obtenir un projet d'un collègue...\"\n\
+1. Dans la boîte de dialogue \"Recevoir le projet\", cliquez sur \"Internet\"\
+1. Dans la boîte de dialogue \"Obtenir un projet depuis Internet\", saisissez votre \"Nom d'utilisateur\" et \"Mot de passe\" pour Language Depot, puis cliquez sur \"Se connecter\".\
+1. Dans le champ \"ID du projet\" qui apparaît, sélectionnez \"{code}\".\
+1. Entrez un \"Nom pour le dossier sur votre ordinateur\" (par exemple, \"{name}\")",
+      "label": "Obtenir le projet",
+      "send_receive_url": "URL d'envoi/réception"
+    }
+  },
+  "project_role": {
+    "label": "Rôle",
+    "editor": "Éditeur",
+    "editor_description": "Éditeur (peut envoyer/recevoir)",
+    "manager": "Responsable",
+    "manager_description": "Responsable (peut envoyer/recevoir et ajouter de nouveaux utilisateurs)"
+  },
+  "system_role": {
+    "label": "Rôle",
+    "admin_description": "Administrateur Système (peut gérer tous les projets et utilisateurs)",
+    "user_description": "Utilisateur (peut créer et gérer ses propres projets)"
+  },
+  "project_type": {
+    "type": "Type de projet",
+    "any": "Tous",
+    "flex": "FLEx",
+    "oneStoryEditor": "Éditeur OneStory",
+    "other": "Autre",
+    "ourWord": "OurWord",
+    "weSay": "WeSay (LIFT)",
+    "logo": "Logo {type}",
+  },
+  "projectlist": {
+    "last_change": "Dernière modification : {lastChange, date, short} {lastChange, time, short}",
+    "no_changes": "Nouveau",
+    "shared_with": "Partagé avec {memberCount, plural, one {personne} other {# personnes}}"
+  },
+  "register": {
+    "title": "S'inscrire",
+    "account_exists": "Un compte avec cette adresse e-mail existe déjà",
+    "button_register": "S'inscrire",
+    "email": "Adresse e-mail requise",
+    "label_email": "E-mail",
+    "description_email": "Ceci sera votre identifiant d'envoi/réception",
+    "label_name": "Nom",
+    "label_password": "Mot de passe",
+    "name_missing": "Nom manquant",
+  },
+  "reset_password": {
+    "title": "Réinitialiser le mot de passe",
+    "new_password": "Nouveau mot de passe",
+    "submit": "Réinitialiser le mot de passe",
+    "password_reset": "Votre mot de passe a été réinitialisé",
+    "failed": "Échec de la réinitialisation du mot de passe. Avez-vous utilisé un lien expiré ? ({statusText})",
+  },
+  "retention_policy": {
+    "dev": "Développeur logiciel",
+    "language_project": "Projet linguistique",
+    "test": "Test",
+    "training": "Formation",
+    "verified": "Vérifié"
+  },
+  "unknown": "Inconnu",
+  "user_dashboard": {
+    "home_title": "Accueil",
+    "title": "Mes projets",
+    "not_verified": "Vous n'êtes dans aucun projet pour le moment. Vous devez vérifier votre adresse e-mail avant de pouvoir rejoindre ou demander un projet.",
+    "no_projects": "Vous n'êtes dans aucun projet pour le moment.",
+  },
+  "user_types": {
+    "admin": "Administrateur",
+    "user": "Utilisateur"
+  },
+  "errors": {
+    "apology": "Oups, quelque chose s'est mal passé de notre côté. Désolé !",
+    "mail_us_at": "Si vous êtes bloqué, faites-le nous savoir à",
+    "please_include": "Veuillez inclure le code d'erreur, une capture d'écran de votre navigateur et un résumé des étapes qui ont conduit à l'erreur.",
+    "error_code": "Code d'erreur",
+    "not_found": "404 - Oups, nous ne trouvons pas cette page. Désolé !",
+    "go_home": "Retour à l'accueil",
+  },
+  "modal": {
+    "dismiss": "Fermer"
+  },
+  "notify": {
+    "close_all": "Fermer tout"
+  },
+  "emails": {
+    "verify_email": {
+      "subject": "Vérifiez votre adresse e-mail",
+      "to_verify_click": "Cliquez sur le bouton ci-dessous pour vérifier votre adresse e-mail.",
+      "to_verify_and_finish_changing_click": "Cliquez sur le bouton ci-dessous pour vérifier votre nouvelle adresse e-mail et la rendre effectivement l'adresse e-mail associée à votre compte.",
+      "verify_button": "Vérifier l'e-mail"
+    },
+    "forgot_password": {
+      "subject": "Mot de passe oublié ?",
+      "to_reset_click": "Cliquez sur le bouton ci-dessous pour réinitialiser votre mot de passe.",
+      "reset_button": "Réinitialiser le mot de passe"
+    },
+    "password_changed": {
+      "subject": "Votre mot de passe a été changé",
+      "body": "Nous vous écrivons pour confirmer que votre mot de passe vient d'être changé."
+    },
+    "shared": {
+      "greeting": "Bonjour {name} !"
+    },
+    "create_project_request_email": {
+      "subject": "Demande de projet : {projectName}",
+      "heading": "L'utilisateur {name} ({email}) a demandé la création d'un projet pour lui. Détails ci-dessous :"
+    }
+  },
+  "footer": {
+    "contact": "Contact",
+    "terms_of_use": "Conditions d'utilisation",
+    "privacy_policy": "Politique de confidentialité"
+  },
+  "more_settings": {
+    "title": "Plus de paramètres"
+  },
+  "clipboard": {
+    "copied": "Copié !"
+  },
+  "form": {
+    "password": {
+      "forbidden_characters": "Les symboles &, +, :, et % ne sont pas autorisés dans les mots de passe",
+      "too_short": "Doit comporter au moins 4 caractères"
+    }
+  },
+  "notifications": {
+    "update_detected": "Une nouvelle version de l'application a été détectée. Vous devrez peut-être recharger la page.",
+  },
+  "table": {
+    "refine_filter": "Affinez votre filtre pour voir {remainingRows} lignes supplémentaires..."
+  },
+  "turnstile": {
+    "invalid": "Erreur de Captcha, réessayez",
+  },
+  "tus": {
+    "upload": "Télécharger",
+    "upload_progress": "Progression du téléchargement",
+    "status": "Statut : {status, select, NoFile {Pas de fichier} Ready {Prêt} Error {Erreur} Uploading {Téléchargement} Paused {En pause} Complete {Complet} other {Inconnu}}",
+    "zip_only": "Seuls les fichiers .zip sont autorisés",
+    "no_file_selected": "Veuillez choisir un fichier",
+    "select_file": "Sélectionner le fichier",
+    "server_error_codes": {
+      "ZIP_MISSING_HG_FOLDER": "Le fichier ZIP ne contient pas de dossier nommé .hg"
+    }
+  },
+  "paging": {
+    "load_more": "Charger plus",
+  },
+  "filter": {
+    "placeholder": "Recherche...",
+  }
+}

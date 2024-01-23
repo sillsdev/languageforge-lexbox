@@ -6,10 +6,7 @@ import type { HandleClientError } from '@sveltejs/kit';
 import { USER_LOAD_KEY } from '$lib/user';
 import { handleFetch } from '$lib/util/fetch-proxy';
 import { invalidate } from '$app/navigation';
-import { loadI18n } from '$lib/i18n';
 import { updated } from '$app/stores';
-
-await loadI18n();
 
 // eslint-disable-next-line func-style
 export const handleError: HandleClientError = async ({ error, event }) => {
