@@ -13,6 +13,7 @@ public class Project : EntityBase
     public string? Description { get; set; }
     public required RetentionPolicy RetentionPolicy { get; set; }
     public required ProjectType Type { get; set; }
+    public FlexProjectMetadata? FlexProjectMetadata { get; set; }
     public required List<ProjectUsers> Users { get; set; }
     public required DateTimeOffset? LastCommit { get; set; }
     public DateTimeOffset? DeletedDate { get; set; }
