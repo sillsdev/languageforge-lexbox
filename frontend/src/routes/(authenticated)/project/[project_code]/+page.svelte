@@ -39,6 +39,7 @@
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
   import {isDev} from '$lib/layout/DevContent.svelte';
+  import UserModal from '$lib/components/Users/UserModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -57,6 +58,8 @@
   $: showMembers = showAllMembers ? members : members.slice(0, TRUNCATED_MEMBER_COUNT);
 
   const { notifySuccess, notifyWarning } = useNotifications();
+
+  let userModal: UserModal;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
@@ -307,6 +310,14 @@
             <Dropdown disabled={!canManageMember}>
               <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
               <ul slot="content" class="menu">
+                <AdminContent>
+                  <li>
+                    <button on:click={() => userModal.open(member.user)}>
+                      <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
+                      {$t('project_page.view_user_details')}
+                    </button>
+                  </li>
+                </AdminContent>
                 <li>
                   <button on:click={() => changeMemberRole(member)}>
                     <span class="i-mdi-account-lock text-2xl" />
@@ -338,6 +349,7 @@
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
+          <UserModal bind:this={userModal}/>
 
           <DeleteModal
             bind:this={removeUserModal}

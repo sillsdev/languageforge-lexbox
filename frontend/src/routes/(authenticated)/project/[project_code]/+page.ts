@@ -44,6 +44,16 @@ export async function load(event: PageLoadEvent) {
 							user {
 								id
 								name
+                locked
+                username
+                createdDate
+                updatedDate
+                email
+                localizationCode
+                lastActive
+                canCreateProjects
+                isAdmin
+                emailVerified
 							}
 						}
 					}
