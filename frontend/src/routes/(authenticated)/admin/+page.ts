@@ -77,6 +77,12 @@ export async function load(event: PageLoadEvent) {
                 username
                 isAdmin
                 emailVerified
+                createdDate
+                locked
+                localizationCode
+                updatedDate
+                lastActive
+                canCreateProjects
                 projects {
                     id
                     projectId

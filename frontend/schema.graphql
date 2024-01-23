@@ -123,19 +123,19 @@ type Project {
   code: String!
   createdDate: DateTime!
   migrationStatus: ProjectMigrationStatus!
+  id: UUID!
+  users: [ProjectUsers!]!
   changesets: [Changeset!]!
   parentId: UUID
   name: String!
   description: String
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
-  users: [ProjectUsers!]!
   lastCommit: DateTime
   deletedDate: DateTime
   resetStatus: ResetStatus!
   projectOrigin: ProjectMigrationStatus!
   userCount: Int!
-  id: UUID!
   updatedDate: DateTime!
 }
 
