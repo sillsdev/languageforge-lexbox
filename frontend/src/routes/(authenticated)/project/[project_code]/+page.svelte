@@ -39,6 +39,7 @@
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
   import {isDev} from '$lib/layout/DevContent.svelte';
+  import { derived } from 'svelte/store';
 
   export let data: PageData;
   $: user = data.user;
@@ -51,6 +52,18 @@
     }
     return a.user.name.localeCompare(b.user.name);
   });
+
+  let lexEntryCount = derived(projectStore, project => {
+    if (project.type !== ProjectType.FlEx) {
+      return Promise.resolve(0);
+    } else {
+      return fetch(`/api/countLexEntries/${project.code}`)
+        .then(x => x.text())
+    }
+  }, new Promise(() => {}));
+
+  // Doesn't work: we get the following error.
+  // Cannot call `fetch` eagerly during server side rendering with relative URL (/api/countLexEntries/sena-3) — put your `fetch` calls inside `onMount` or a `load` function instead
 
   const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = false;
@@ -284,6 +297,16 @@
           {$t('project_page.last_commit')}:
           <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
         </div>
+        {#if project.type === ProjectType.FlEx}
+        <div>
+          {$t('project_page.num_entries:')}:
+          <span class="text-secondary">
+            {#await $lexEntryCount then num_entries}
+              {num_entries}
+            {/await}
+          </span>
+        </div>
+        {/if}
         <div class="text-lg">{$t('project_page.description')}:</div>
         <span class="text-secondary">
           <EditableText
