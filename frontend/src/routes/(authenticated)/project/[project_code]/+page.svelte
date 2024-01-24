@@ -40,6 +40,7 @@
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
   import {isDev} from '$lib/layout/DevContent.svelte';
   import { derived } from 'svelte/store';
+  import { browser } from '$app/environment';
 
   export let data: PageData;
   $: user = data.user;
@@ -57,8 +58,11 @@
     if (project.type !== ProjectType.FlEx) {
       return Promise.resolve(0);
     } else {
-      return fetch(`/api/countLexEntries/${project.code}`)
-        .then(x => x.text())
+      return browser
+        ? fetch(`/api/project/countLexEntries/${project.code}`)
+          .then(x => x.text())
+        : Promise.resolve(0);
+
     }
   }, new Promise(() => {}));
 
@@ -297,7 +301,7 @@
           {$t('project_page.last_commit')}:
           <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
         </div>
-        {#if project.type === ProjectType.FlEx}
+        {#if browser && project.type === ProjectType.FlEx}
         <div>
           {$t('project_page.num_entries:')}:
           <span class="text-secondary">
