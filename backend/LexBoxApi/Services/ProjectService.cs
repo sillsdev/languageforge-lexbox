@@ -94,7 +94,8 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
         if (project?.MigrationStatus is not ProjectMigrationStatus.Migrated) return null;
         if (project?.Type is not ProjectType.FLEx) return null;
-        return await hgService.GetLexEntryCount(projectCode);
+        if (project?.FlexProjectMetadata?.LexEntryCount is int c) return c;
+        return await UpdateLexEntryCount(projectCode);
     }
 
     public async Task<int?> UpdateLexEntryCount(string projectCode)
