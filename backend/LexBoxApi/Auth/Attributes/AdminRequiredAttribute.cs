@@ -9,3 +9,12 @@ public class AdminRequiredAttribute : LexboxAuthAttribute
     {
     }
 }
+
+
+public static class AdminRequiredAttributeExtensions
+{
+    public static IObjectFieldDescriptor AdminRequired(this IObjectFieldDescriptor descriptor)
+    {
+        return descriptor.Authorize(AdminRequiredAttribute.PolicyName);
+    }
+}
