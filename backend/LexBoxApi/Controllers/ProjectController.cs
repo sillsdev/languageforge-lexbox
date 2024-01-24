@@ -210,19 +210,15 @@ public class ProjectController : ControllerBase
     [ProducesDefaultResponseType]
     public async Task<ActionResult<int?>> GetLexEntryCount(string code)
     {
-        var project = await _lexBoxDbContext.Projects.Where(p => p.Code == code).FirstOrDefaultAsync();
-        if (project?.MigrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
-        if (project?.Type is not ProjectType.FLEx) return 0; // Or should be return NotFound() here?
-        var count = await _hgService.GetLexEntryCount(code);
-        // TODO: Cache the value?
-        // if (project.FlexProjectMetadata is null)
-        // {
-        //     project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
-        // }
-        // else
-        // {
-        //     project.FlexProjectMetadata.LexEntryCount = count;
-        // }
-        return count;
+        return await _projectService.GetLexEntryCount(code);
+    }
+
+    [HttpGet("updateLexEntryCount/{code}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<int?>> UpdateLexEntryCount(string code)
+    {
+        return await _projectService.UpdateLexEntryCount(code);
     }
 }
