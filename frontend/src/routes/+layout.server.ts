@@ -4,7 +4,8 @@ import type { LayoutServerLoadEvent } from './$types'
 import { USER_LOAD_KEY } from '$lib/user';
 import { getRootTraceparent } from '$lib/otel/otel.server'
 
-export async function load({ locals, depends, fetch }: LayoutServerLoadEvent) {
+export async function load({ locals, depends, fetch, request }: LayoutServerLoadEvent) {
+  const requestLang = request.headers.get('Accept-Language')?.split(',')[0]?.split(';')[0]?.split('-')[0]?.toLowerCase();
   const user = locals.getUser();
   const traceParent = getRootTraceparent()
 
@@ -17,6 +18,7 @@ export async function load({ locals, depends, fetch }: LayoutServerLoadEvent) {
   }
   return {
     user,
+    locale: user?.locale ?? requestLang,
     traceParent,
     serverVersion: APP_VERSION,
     apiVersion: apiVersion.value

@@ -5,6 +5,6 @@ import { loadI18n } from '$lib/i18n';
 export const ssr = true;
 
 export async function load(event: LayoutLoadEvent) {
-  await loadI18n(event.data.user?.locale);
+  await loadI18n(event.data.locale);
   return event.data;
 }
