@@ -80,6 +80,8 @@ jobs:
   generate-release:
     name: Generate Release
     needs: [ deploy-prod, set-version ]
+    # we want to generate a release when deployment succeeds, by default this would be cancelled if integration tests failed
+    if: ${{ !cancelled() && needs.deploy-prod.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
