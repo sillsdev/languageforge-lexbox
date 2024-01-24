@@ -16,17 +16,19 @@ import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import { error } from '@sveltejs/kit';
+import { isAdmin } from '$lib/user';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
+  const userIsAdmin = isAdmin((await event.parent()).user);
   const projectCode = event.params.project_code;
   const projectResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
-				query projectPage($projectCode: String!) {
+				query projectPage($projectCode: String!, $userIsAdmin: Boolean!) {
 					projectByCode(code: $projectCode) {
 						id
 						name
@@ -44,22 +46,24 @@ export async function load(event: PageLoadEvent) {
 							user {
 								id
 								name
-                locked
-                username
-                createdDate
-                updatedDate
-                email
-                localizationCode
-                lastActive
-                canCreateProjects
-                isAdmin
-                emailVerified
+                ... on User @include(if: $userIsAdmin) {
+                  locked
+                  username
+                  createdDate
+                  updatedDate
+                  email
+                  localizationCode
+                  lastActive
+                  canCreateProjects
+                  isAdmin
+                  emailVerified
+                }
 							}
 						}
 					}
 				}
 			`),
-      { projectCode }
+      { projectCode, userIsAdmin }
     );
   const changesetResultStore = client
     .queryStore(event.fetch,
