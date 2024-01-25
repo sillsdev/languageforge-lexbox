@@ -7,6 +7,8 @@ namespace LexCore.Entities;
 
 public class Project : EntityBase
 {
+
+    public const string ProjectCodeRegex = @"^[a-z-\d]+$";
     public Guid? ParentId { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }

@@ -7,7 +7,7 @@ public record CreateProjectInput(
     Guid? Id,
     string Name,
     string Description,
-    [property: MinLength(4), RegularExpression(@"[a-z-\d]+")]
+    [property: MinLength(4), RegularExpression(LexCore.Entities.Project.ProjectCodeRegex)]
     string Code,
     ProjectType Type,
     RetentionPolicy RetentionPolicy
