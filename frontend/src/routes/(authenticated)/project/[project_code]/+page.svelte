@@ -30,7 +30,7 @@
   import { _deleteProject } from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, HeaderPage } from '$lib/layout';
+  import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { ProjectMigrationStatus, ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
@@ -196,6 +196,8 @@
 
   let openInFlexModal: OpenInFlexModal;
 </script>
+
+<PageBreadcrumb>{$t('project_page.project')}</PageBreadcrumb>
 
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}

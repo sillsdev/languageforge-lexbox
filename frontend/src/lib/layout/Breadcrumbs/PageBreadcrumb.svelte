@@ -6,7 +6,7 @@
   import type {Action} from 'svelte/action';
 
   export let href: string | undefined = undefined;
-  $: disabled = !href ? false : $page.url.pathname == href;
+  $: isCurrentPath = $page.url.pathname === href;
 
   let crumbs: Writable<Element[]> = getContext('breadcrumb-store');
 
@@ -27,12 +27,15 @@
     };
   }
 </script>
-{#if href}
-  <a href={href} class:pointer-events-none={disabled} use:makeBreadCrumb>
-    <slot/>
-  </a>
-{:else}
+
+<div class="hidden">
   <span use:makeBreadCrumb>
-    <slot/>
+    {#if href && !isCurrentPath}
+      <a {href}>
+        <slot/>
+      </a>
+    {:else}
+        <slot/>
+    {/if}
   </span>
-{/if}
+</div>

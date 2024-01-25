@@ -2,8 +2,15 @@
   import { page } from '$app/stores';
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
   import t from '$lib/i18n';
-  import { Layout, Page } from '$lib/layout';
+  import { Layout, Page, PageBreadcrumb } from '$lib/layout';
 </script>
+
+{#if $page.data.user}
+  <PageBreadcrumb href="/">{$t('user_dashboard.home_title')}</PageBreadcrumb>
+  {#each $page.url.pathname.split('/').slice(1) as path}
+    <PageBreadcrumb>{path}</PageBreadcrumb>
+  {/each}
+{/if}
 
 <Layout>
   <Page>

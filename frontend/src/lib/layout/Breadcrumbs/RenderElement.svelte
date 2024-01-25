@@ -4,6 +4,7 @@
   let target: Element;
   $: {
     if (target && el)
+      // eslint-disable-next-line svelte/no-dom-manipulating
       target.replaceChildren(el);
   }
 </script>
