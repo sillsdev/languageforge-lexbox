@@ -42,7 +42,7 @@ type ChangeUserAccountByAdminPayload {
 }
 
 type ChangeUserAccountDataPayload {
-  user: User
+  meDto: MeDto
   errors: [ChangeUserAccountDataError!]
 }
 
@@ -100,6 +100,13 @@ type LexAuthUser {
   projectsJson: String!
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
+  locale: String!
+}
+
+type MeDto {
+  id: UUID!
+  name: String!
+  email: String!
   locale: String!
 }
 
@@ -161,7 +168,8 @@ type Query {
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   projectByCode(code: String!): Project
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
-  me: LexAuthUser!
+  me: MeDto
+  meAuth: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
 

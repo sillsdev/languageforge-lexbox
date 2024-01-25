@@ -27,7 +27,7 @@ public class UserMutations
     [Error<UniqueValueException>]
     [UseMutationConvention]
     [RefreshJwt]
-    public Task<User> ChangeUserAccountData(
+    public async Task<MeDto> ChangeUserAccountData(
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
         ChangeUserAccountDataInput input,
@@ -36,7 +36,14 @@ public class UserMutations
     )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
-        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
+        var user = await UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
+        return new MeDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Locale = user.LocalizationCode
+        };
     }
 
     [Error<NotFoundException>]
