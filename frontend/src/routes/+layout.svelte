@@ -11,13 +11,14 @@
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import t from '$lib/i18n';
-  import { onMount } from 'svelte';
-  import { derived } from 'svelte/store';
+  import {onMount, setContext} from 'svelte';
+  import {derived, writable} from 'svelte/store';
 
   export let data: LayoutData;
   const { page, updated } = getStores();
 
   const { notifyWarning } = initNotificationService();
+  setContext('breadcrumb-store', writable([] as Element[]));
 
   const error = initErrorStore($page.error);
   $: $error = $page.error;

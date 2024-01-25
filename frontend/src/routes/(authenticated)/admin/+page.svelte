@@ -19,6 +19,7 @@
   import AdminProjects from './AdminProjects.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { Button } from '$lib/forms';
+  import PageBreadcrumb from '$lib/layout/Breadcrumbs/PageBreadcrumb.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -89,6 +90,7 @@
 <svelte:head>
   <title>{$t('admin_dashboard.title')}</title>
 </svelte:head>
+<PageBreadcrumb>{$t('admin_dashboard.title')}</PageBreadcrumb>
 <main>
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
     <AdminProjects projects={$projects} {queryParams} />

@@ -3,9 +3,10 @@
 
   export let title: string;
   export let wide = false;
+  export let setBreadcrumb = true;
 </script>
 
-<Page {title} {wide}>
+<Page {title} {wide} {setBreadcrumb}>
   <svelte:fragment slot="header">
     <slot name="banner" />
     <div class="flex flex-row-reverse flex-wrap justify-between mb-4 gap-y-2 gap-x-4">

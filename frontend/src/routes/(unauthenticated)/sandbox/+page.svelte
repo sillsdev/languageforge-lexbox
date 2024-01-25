@@ -2,6 +2,7 @@
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { Button } from '$lib/forms';
+  import PageBreadcrumb from '$lib/layout/Breadcrumbs/PageBreadcrumb.svelte';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -15,7 +16,8 @@
     return fetch('/api/AuthTesting/403');
   }
 </script>
-
+<PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
+<PageBreadcrumb>second value</PageBreadcrumb>
 <h2 class="text-lg">Sandbox</h2>
 <div class="grid gap-2 grid-cols-3">
   <div class="card w-96 bg-base-200 shadow-lg">

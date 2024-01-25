@@ -50,7 +50,7 @@
   $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
 </script>
 
-<HeaderPage wide title={$t('user_dashboard.title')}>
+<HeaderPage wide title={$t('user_dashboard.title')} setBreadcrumb={false}>
   <svelte:fragment slot="header-content">
     <div class="flex gap-4 w-full">
       <div class="grow">
