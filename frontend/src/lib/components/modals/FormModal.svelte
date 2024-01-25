@@ -29,7 +29,7 @@
 
 
   export async function open(
-    value: FormType | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
+    value: Partial<FormType> | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
     onSubmit: SubmitCallback
   ): Promise<FormModalResult<Schema>>;
   export async function open(onSubmit: SubmitCallback): Promise<FormModalResult<Schema>>;
@@ -42,7 +42,8 @@
 
     reset();
 
-    if (value) _form.set(value, { taint: false });
+    //need to use update otherwise some fields might be undefined since value can be a partial
+    if (value) _form.update(f => ({...f, ...value}), { taint: false });
 
     const response = await openModal(onSubmit);
     const _formState = $formState; // we need to read the form state before the modal closes or it will be reset

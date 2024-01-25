@@ -16,7 +16,7 @@
   const schema = z.object({
     email: z.string().email(),
     name: z.string(),
-    password: passwordFormRules($t).or(emptyString()),
+    password: passwordFormRules($t).or(emptyString()).default(''),
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
   type Schema = typeof schema;
@@ -31,7 +31,7 @@
   export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email, role, password: '' }, async () => {
+    return await formModal.open({ name: user.name, email: user.email, role }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
