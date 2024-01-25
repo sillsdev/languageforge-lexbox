@@ -1,8 +1,9 @@
 ﻿<script lang="ts">
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { Button } from '$lib/forms';
+  import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
+  import z from 'zod';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -15,6 +16,20 @@
   async function fetch403(): Promise<Response> {
     return fetch('/api/AuthTesting/403');
   }
+  const formSchema = z.object(
+    {
+      name: z.string().min(3).max(255),
+      lastName: z.string().min(3).max(255),
+    }
+  );
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  let {form, enhance, errors} = lexSuperForm(formSchema, async () => {
+      console.log('submit', $form);
+  });
+function preFillForm(): void {
+  form.update(f => ({...f, name: 'John'}), {taint: false});
+}
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -60,6 +75,31 @@
           </ul>
         </Dropdown>
       </div>
+    </div>
+  </div>
+  <div class="card w-96 bg-base-200 shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title">Form Example</h2>
+      <Form {enhance}>
+        <Input
+          id="name"
+          label="Name"
+          type="text"
+          error={$errors.name}
+          bind:value={$form.name}
+          autofocus
+        />
+        <Input
+          id="lastName"
+          label="Last Name"
+          type="text"
+          error={$errors.lastName}
+          bind:value={$form.lastName}
+          autofocus
+        />
+        <SubmitButton>Submit</SubmitButton>
+        <Button style="btn-outline" on:click={preFillForm}>Pre fill</Button>
+      </Form>
     </div>
   </div>
 </div>
