@@ -60,15 +60,6 @@ public class ProjectController : ControllerBase
         return Ok();
     }
 
-    [HttpPost("autoUpdateUnknownProjectTypes")]
-    [AdminRequired]
-    public async Task<ActionResult<int>> AutoUpdateUnknownProjectTypes()
-    {
-        var updatedCount = await _lexBoxDbContext.Projects.Where(p => p.Code.EndsWith("-flex"))
-            .ExecuteUpdateAsync(_ => _.SetProperty(p => p.Type, ProjectType.FLEx));
-        return updatedCount;
-    }
-
     [HttpPost("updateProjectType/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -116,14 +107,6 @@ public class ProjectController : ControllerBase
         }
         await _lexBoxDbContext.SaveChangesAsync();
         return result;
-    }
-
-    [HttpPost("addLexboxPostfix")]
-    [AdminRequired]
-    public async Task<ActionResult<int>> AddLexboxSuffix()
-    {
-        return await _lexBoxDbContext.Projects.Where(p => !p.Code.EndsWith("-lexbox"))
-            .ExecuteUpdateAsync(_ => _.SetProperty(p => p.Code, p => p.Code + "-lexbox"));
     }
 
     [HttpGet("backupProject/{code}")]
