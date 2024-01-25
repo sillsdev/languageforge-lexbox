@@ -21,7 +21,8 @@ import {
   type ExtractErrorTypename,
   type GenericData,
   type DeleteUserByAdminOrSelfMutationVariables,
-  type SoftDeleteProjectMutationVariables
+  type SoftDeleteProjectMutationVariables,
+  type ChangeUserAccountDataMutationVariables
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -50,7 +51,10 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             },
             deleteUserByAdminOrSelf: (result, args: DeleteUserByAdminOrSelfMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'User', id: args.input.userId});
-            }
+            },
+            changeUserAccountData: (result, args: ChangeUserAccountDataMutationVariables, cache, _info) => {
+              cache.invalidate({__typename: 'User', id: args.input.userId});
+            },
           }
         }
         /* eslint-enable @typescript-eslint/naming-convention */

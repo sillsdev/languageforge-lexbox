@@ -16,7 +16,7 @@
   import { delay } from '$lib/util/time';
 
   export let data: PageData;
-  $: user = data?.user;
+  $: user = data?.account;
   let deleteModal: DeleteUserModal;
 
   const emailResult = useEmailResult();
@@ -26,7 +26,7 @@
   const { notifySuccess, notifyWarning } = useNotifications();
 
   async function openDeleteModal(): Promise<void> {
-    let { response } = await deleteModal.open(user);
+    let { response } = await deleteModal.open($user);
     if (response == DialogResponse.Submit) {
       notifyWarning($t('account_settings.delete_success'));
       await delay();
@@ -45,7 +45,7 @@
       email: $form.email,
       name: $form.name,
       locale: $form.locale,
-      userId: user.id,
+      userId: $user.id,
     });
     if (data?.changeUserAccountData.errors?.some(e => e.__typename === 'UniqueValueError')) {
       $errors.email = [$t('account_settings.email_taken')];
@@ -59,16 +59,16 @@
       requestedEmail.set($form.email);
     }
 
-    if ($formState.name.tainted) {
+    if ($formState.name.tainted || $formState.locale.tainted) {
       notifySuccess($t('account_settings.update_success'));
     }
   });
   onMount(() => {
     form.set(
       {
-        email: user.email,
-        name: user.name,
-        locale: user.locale,
+        email: $user.email,
+        name: $user.name,
+        locale: $user.locale,
       },
       { taint: false }
     );
