@@ -1,6 +1,6 @@
 <script lang="ts">
   import SetTitle from './SetTitle.svelte';
-  import PageBreadcrumb from '$lib/layout/Breadcrumbs/PageBreadcrumb.svelte';
+  import { PageBreadcrumb } from '$lib/layout';
 
   export let title: string | undefined = undefined;
   export let wide = false;

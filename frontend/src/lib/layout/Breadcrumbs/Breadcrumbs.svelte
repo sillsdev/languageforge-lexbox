@@ -1,9 +1,9 @@
 <script lang="ts">
   import {getContext} from 'svelte';
-  import RenderElement from '$lib/layout/Breadcrumbs/RenderElement.svelte';
+  import RenderElement from './RenderElement.svelte';
   import type {Writable} from 'svelte/store';
 
-  let crumbs: Writable<Element[]> = getContext('breadcrumb-store');
+  const crumbs: Writable<Element[]> = getContext('breadcrumb-store');
 
 </script>
 

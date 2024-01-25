@@ -2,7 +2,7 @@
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { Button } from '$lib/forms';
-  import PageBreadcrumb from '$lib/layout/Breadcrumbs/PageBreadcrumb.svelte';
+  import { PageBreadcrumb } from '$lib/layout';
 
   function uploadFinished(): void {
     alert('upload done!');

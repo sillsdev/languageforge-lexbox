@@ -19,7 +19,7 @@
   import AdminProjects from './AdminProjects.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { Button } from '$lib/forms';
-  import PageBreadcrumb from '$lib/layout/Breadcrumbs/PageBreadcrumb.svelte';
+  import { PageBreadcrumb } from '$lib/layout';
 
   export let data: PageData;
   $: projects = data.projects;
