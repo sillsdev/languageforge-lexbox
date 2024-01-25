@@ -31,7 +31,7 @@
 <div class="hidden">
   <span use:makeBreadCrumb>
     {#if href && !isCurrentPath}
-      <a {href}>
+      <a {href} class="hover:border-b">
         <slot/>
       </a>
     {:else}
