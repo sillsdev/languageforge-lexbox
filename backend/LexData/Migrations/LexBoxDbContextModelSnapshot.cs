@@ -23,28 +23,6 @@ namespace LexData.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("LexEntryCount")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId")
-                        .IsUnique();
-
-                    b.ToTable("FlexProjectMetadata");
-                });
-
             modelBuilder.Entity("LexCore.Entities.Project", b =>
                 {
                     b.Property<Guid>("Id")
@@ -214,17 +192,6 @@ namespace LexData.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
-                {
-                    b.HasOne("LexCore.Entities.Project", "Project")
-                        .WithOne("FlexProjectMetadata")
-                        .HasForeignKey("LexCore.Entities.FlexProjectMetadata", "ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
             modelBuilder.Entity("LexCore.Entities.Project", b =>
                 {
                     b.HasOne("LexCore.Entities.Project", null)
@@ -253,8 +220,6 @@ namespace LexData.Migrations
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>
                 {
-                    b.Navigation("FlexProjectMetadata");
-
                     b.Navigation("Users");
                 });
 
