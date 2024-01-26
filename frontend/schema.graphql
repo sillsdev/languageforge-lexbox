@@ -85,6 +85,12 @@ type DeleteUserByAdminOrSelfPayload {
   errors: [DeleteUserByAdminOrSelfError!]
 }
 
+type FlexProjectMetadata {
+  projectId: UUID!
+  project: Project!
+  lexEntryCount: Int
+}
+
 type IsAdminResponse {
   value: Boolean!
 }
@@ -130,10 +136,12 @@ type Project {
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
   users: [ProjectUsers!]!
+  flexProjectMetadata: FlexProjectMetadata
   lastCommit: DateTime
   deletedDate: DateTime
   resetStatus: ResetStatus!
   projectOrigin: ProjectMigrationStatus!
+  migratedDate: DateTime
   userCount: Int!
   id: UUID!
   updatedDate: DateTime!
@@ -294,6 +302,20 @@ input DeleteUserByAdminOrSelfInput {
   userId: UUID!
 }
 
+input FlexProjectMetadataFilterInput {
+  and: [FlexProjectMetadataFilterInput!]
+  or: [FlexProjectMetadataFilterInput!]
+  projectId: UuidOperationFilterInput
+  project: ProjectFilterInput
+  lexEntryCount: IntOperationFilterInput
+}
+
+input FlexProjectMetadataSortInput {
+  projectId: SortEnumType
+  project: ProjectSortInput
+  lexEntryCount: SortEnumType
+}
+
 input IntOperationFilterInput {
   eq: Int
   neq: Int
@@ -325,12 +347,14 @@ input ProjectFilterInput {
   description: StringOperationFilterInput
   retentionPolicy: RetentionPolicyOperationFilterInput
   type: ProjectTypeOperationFilterInput
+  flexProjectMetadata: FlexProjectMetadataFilterInput
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
   migrationStatus: ProjectMigrationStatusOperationFilterInput
+  migratedDate: DateTimeOperationFilterInput
   userCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
@@ -358,11 +382,13 @@ input ProjectSortInput {
   description: SortEnumType
   retentionPolicy: SortEnumType
   type: SortEnumType
+  flexProjectMetadata: FlexProjectMetadataSortInput
   lastCommit: SortEnumType
   deletedDate: SortEnumType
   resetStatus: SortEnumType
   projectOrigin: SortEnumType
   migrationStatus: SortEnumType
+  migratedDate: SortEnumType
   userCount: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
