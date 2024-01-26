@@ -11,6 +11,7 @@ import type {
   DeleteProjectUserMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
+import { ProjectType } from '$lib/gql/generated/graphql';
 import { derived, get, type Readable } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
@@ -46,6 +47,9 @@ export async function load(event: PageLoadEvent) {
 								name
 							}
 						}
+						flexProjectMetadata {
+							lexEntryCount
+						}
 					}
 				}
 			`),
@@ -77,8 +81,19 @@ export async function load(event: PageLoadEvent) {
 
   event.depends(`project:${projectCode}`);
 
+  const project = projectResult.projectByCode as Readable<Project>;
+  const lexEntryCount = derived(project, p => {
+    if (p.type === ProjectType.FlEx) {
+      return event.fetch(`/api/project/countLexEntries/${p.code}`)
+      .then(x => x.text())
+    } else {
+      return Promise.resolve('')
+    }
+  });
+
   return {
-    project: projectResult.projectByCode as Readable<Project>,
+    project,
+    lexEntryCount,
     changesets: derived(changesetResultStore, result => ({
       fetching: result.fetching,
       changesets: result.data?.projectByCode?.changesets ?? [],

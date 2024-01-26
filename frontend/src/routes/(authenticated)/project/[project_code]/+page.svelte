@@ -54,18 +54,7 @@
     return a.user.name.localeCompare(b.user.name);
   });
 
-  let lexEntryCount = derived(projectStore, project => {
-    if (project.type !== ProjectType.FlEx) {
-      return Promise.resolve(0);
-    } else {
-      return browser
-        ? fetch(`/api/project/countLexEntries/${project.code}`)
-          .then(x => x.text())
-        : Promise.resolve(0);
-
-    }
-  }, new Promise(() => {}));
-
+  $: lexEntryCount = data.lexEntryCount;
   // Doesn't work: we get the following error.
   // Cannot call `fetch` eagerly during server side rendering with relative URL (/api/countLexEntries/sena-3) — put your `fetch` calls inside `onMount` or a `load` function instead
 
@@ -301,9 +290,9 @@
           {$t('project_page.last_commit')}:
           <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
         </div>
-        {#if browser && project.type === ProjectType.FlEx}
+        {#if project.type === ProjectType.FlEx}
         <div>
-          {$t('project_page.num_entries:')}:
+          {$t('project_page.num_entries')}:
           <span class="text-secondary">
             {#await $lexEntryCount then num_entries}
               {num_entries}
