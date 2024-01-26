@@ -14,3 +14,8 @@
     {/each}
   </ul>
 </div>
+<style>
+  .breadcrumbs > ul > :global(li + ::before) {
+    --tw-translate-y: 1px;
+  }
+</style>

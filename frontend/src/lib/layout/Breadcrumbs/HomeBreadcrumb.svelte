@@ -6,6 +6,6 @@
 <PageBreadcrumb href="/">
   <span class="inline-flex gap-1 items-center">
     {$t('user_dashboard.home_title')}
-    <span class="i-mdi-home-outline text-sm" />
+    <span class="i-mdi-home-outline text-sm mb-[-1px]" />
   </span>
 </PageBreadcrumb>
