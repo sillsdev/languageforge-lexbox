@@ -9,6 +9,7 @@ resources:
 patches:
   - path: lexbox-deployment.patch.yaml
   - path: app-config.yaml
+  - path: hg-repos-volume.yaml
   - path: ingress-config-prod.yaml
     target:
       kind: Ingress

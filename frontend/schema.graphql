@@ -129,13 +129,14 @@ type Project {
   code: String!
   createdDate: DateTime!
   migrationStatus: ProjectMigrationStatus!
+  id: UUID!
+  users: [ProjectUsers!]!
   changesets: [Changeset!]!
   parentId: UUID
   name: String!
   description: String
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
-  users: [ProjectUsers!]!
   flexProjectMetadata: FlexProjectMetadata
   lastCommit: DateTime
   deletedDate: DateTime
@@ -143,7 +144,6 @@ type Project {
   projectOrigin: ProjectMigrationStatus!
   migratedDate: DateTime
   userCount: Int!
-  id: UUID!
   updatedDate: DateTime!
 }
 
@@ -189,19 +189,16 @@ type UniqueValueError implements Error {
 }
 
 type User {
-  canLogin: Boolean!
+  email: String! @authorize(policy: "AdminRequiredPolicy")
+  emailVerified: Boolean! @authorize(policy: "AdminRequiredPolicy")
+  username: String @authorize(policy: "AdminRequiredPolicy")
+  projects: [ProjectUsers!]! @authorize(policy: "AdminRequiredPolicy")
+  locked: Boolean! @authorize(policy: "AdminRequiredPolicy")
   name: String!
-  email: String!
   localizationCode: String!
   isAdmin: Boolean!
-  passwordHash: String!
-  salt: String!
   lastActive: DateTime!
-  emailVerified: Boolean!
   canCreateProjects: Boolean!
-  locked: Boolean!
-  username: String
-  projects: [ProjectUsers!]!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using LexBoxApi.Otel;
 using LexCore.Config;
 using LexCore.Entities;
@@ -17,7 +18,7 @@ using Path = System.IO.Path;
 
 namespace LexBoxApi.Services;
 
-public class HgService : IHgService
+public partial class HgService : IHgService
 {
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
 
@@ -32,24 +33,28 @@ public class HgService : IHgService
         _hgClient = new(() => clientFactory.CreateClient("HgWeb"));
     }
 
-    /// <summary>
-    /// could cause a race condition if HgService is no longer a scoped service
-    /// </summary>
-    private HttpClient GetClient(ProjectMigrationStatus migrationStatus, string code)
+    [GeneratedRegex(Project.ProjectCodeRegex)]
+    private static partial Regex ProjectCodeRegex();
+
+    private async Task<HttpResponseMessage> GetResponseMessage(ProjectMigrationStatus migrationStatus, string code, string requestPath)
     {
+        if (!ProjectCodeRegex().IsMatch(code))
+            throw new ArgumentException($"Invalid project code: {code}.");
         var client = _hgClient.Value;
-        client.BaseAddress = new Uri(DetermineProjectUrlPrefix(HgType.hgWeb, code, migrationStatus, _options.Value));
+        AuthenticationHeaderValue? authHeader = null;
         if (migrationStatus is ProjectMigrationStatus.PrivateRedmine or ProjectMigrationStatus.PublicRedmine)
         {
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
-                Convert.ToBase64String(Encoding.ASCII.GetBytes($"lexbox:{_options.Value.RedmineTrustToken}")));
-        }
-        else
-        {
-            client.DefaultRequestHeaders.Authorization = null;
+            authHeader = new ("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"lexbox:{_options.Value.RedmineTrustToken}")));
         }
 
-        return client;
+        var urlPrefix = DetermineProjectUrlPrefix(HgType.hgWeb, code, migrationStatus, _options.Value);
+        var requestUri = $"{urlPrefix}{code}/{requestPath}";
+        var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, requestUri)
+        {
+            Headers = { Authorization = authHeader }
+        });
+        response.EnsureSuccessStatusCode();
+        return response;
     }
 
     /// <summary>
@@ -291,9 +296,7 @@ public class HgService : IHgService
         ProjectMigrationStatus migrationStatus,
         string rev)
     {
-        var response = await GetClient(migrationStatus, projectCode)
-            .GetAsync($"{projectCode}/log?style=json-lex&rev={rev}");
-        response.EnsureSuccessStatusCode();
+        var response = await GetResponseMessage(migrationStatus, projectCode, $"log?style=json-lex&rev={rev}");
         return await response.Content.ReadFromJsonAsync<JsonObject>();
     }
 
@@ -302,8 +305,7 @@ public class HgService : IHgService
 #if DEBUG
         if (migrationStatus is ProjectMigrationStatus.PublicRedmine or ProjectMigrationStatus.PrivateRedmine) return [];
 #endif
-        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/log?style=json-lex");
-        response.EnsureSuccessStatusCode();
+        var response = await GetResponseMessage(migrationStatus, projectCode, "log?style=json-lex");
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
     }
@@ -338,8 +340,7 @@ public class HgService : IHgService
 
     public async Task<ProjectType> DetermineProjectType(string projectCode, ProjectMigrationStatus migrationStatus)
     {
-        var response = await GetClient(migrationStatus, projectCode).GetAsync($"{projectCode}/file/tip?style=json-lex");
-        response.EnsureSuccessStatusCode();
+        var response = await GetResponseMessage(migrationStatus, projectCode, "file/tip?style=json-lex");
         var parsed = await response.Content.ReadFromJsonAsync<BrowseResponse>();
         bool hasDotSettingsFolder = false;
         // TODO: Move the heuristics below to a ProjectHeuristics class?
@@ -381,6 +382,10 @@ public class HgService : IHgService
         return ProjectType.Unknown;
     }
 
+    /// <summary>
+    /// returns the url prefix for the given project code and migration status
+    /// will end with a /
+    /// </summary>
     public static string DetermineProjectUrlPrefix(HgType type,
         string projectCode,
         ProjectMigrationStatus migrationStatus,

@@ -1,23 +1,33 @@
-const {iconsPlugin, getIconCollections} = require('@egoist/tailwindcss-icons');
+const { iconsPlugin, getIconCollections } = require('@egoist/tailwindcss-icons');
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    content: ['./src/**/*.{svelte,ts}'],
-    plugins: [
-        require('@tailwindcss/typography'),
-        require('daisyui'),
-        iconsPlugin({
-            collections: getIconCollections(['mdi']),
-        }),
+  content: ['./src/**/*.{svelte,ts}'],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('daisyui'),
+    iconsPlugin({
+      collections: getIconCollections(['mdi']),
+    }),
+  ],
+  daisyui: {
+    themes: [
+      'winter',
+      {
+        'business': {
+          ...require("daisyui/src/theming/themes")["business"],
+          // base colors we had in Daisy 3
+          "base-200": "#0F0F0F",
+          "base-300": "#000",
+        },
+      },
     ],
-    daisyui: {
-        themes: ['winter', 'business'],
-        darkTheme: 'business',
-        logs: false
+    darkTheme: 'business',
+    logs: false,
   },
   theme: {
     extend: {
       screens: {
-        'sm-only': {'max': '639px'},
+        'sm-only': { 'max': '639px' },
       },
     },
   },

@@ -36,6 +36,14 @@
         }
       }
     },
+    "user_details_modal": {
+      "registered": "Registered",
+      "locked": "Locked",
+      "locale": "Locale",
+      "updated": "Updated",
+      "last_active": "Last active",
+      "can_create_projects": "Can create projects",
+    },
   },
   "account_settings": {
     "title": "Account Settings",
@@ -218,6 +226,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "remove_project_user_title": "Member",
     "remove_user": "Remove",
     "change_role": "Change Role",
+    "view_user_details": "View details",
     "hg": {
       "open_in_hgweb": "Open in HgWeb",
       "no_history": "No history",
@@ -387,4 +396,8 @@ If you don't see a dialog or already closed it, click the button below:",
   "filter": {
     "placeholder": "Search...",
   },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+  }
 }

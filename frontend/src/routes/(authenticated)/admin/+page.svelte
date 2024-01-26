@@ -17,6 +17,9 @@
   import type { ProjectType, ProjectMigrationStatus } from '$lib/gql/types';
   import { derived } from 'svelte/store';
   import AdminProjects from './AdminProjects.svelte';
+  import UserModal from '$lib/components/Users/UserModal.svelte';
+  import { Button } from '$lib/forms';
+  import { PageBreadcrumb } from '$lib/layout';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -53,6 +56,7 @@
     $queryParamValues.userEmail = user.email;
   }
 
+  let userModal: UserModal;
   let deleteUserModal: DeleteUserModal;
   let formModal: EditUserAccount;
 
@@ -86,6 +90,7 @@
 <svelte:head>
   <title>{$t('admin_dashboard.title')}</title>
 </svelte:head>
+<PageBreadcrumb>{$t('admin_dashboard.title')}</PageBreadcrumb>
 <main>
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
     <AdminProjects projects={$projects} {queryParams} />
@@ -130,7 +135,12 @@
           <tbody>
             {#each shownUsers as user}
               <tr>
-                <td>{user.name}</td>
+                <td>
+                  <Button style="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
+                    {user.name}
+                    <Icon icon="i-mdi-card-account-details-outline" />
+                  </Button>
+                </td>
                 <td>
                   {#if user.username}
                     {user.username}
@@ -183,4 +193,5 @@
 
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
+  <UserModal bind:this={userModal}/>
 </main>

@@ -30,7 +30,7 @@
   import { _deleteProject } from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, HeaderPage } from '$lib/layout';
+  import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { ProjectMigrationStatus, ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
   import { onMount } from 'svelte';
@@ -39,8 +39,7 @@
   import OpenInFlexButton from './OpenInFlexButton.svelte';
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
   import {isDev} from '$lib/layout/DevContent.svelte';
-  import { derived } from 'svelte/store';
-  import { browser } from '$app/environment';
+  import UserModal from '$lib/components/Users/UserModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -63,6 +62,8 @@
   $: showMembers = showAllMembers ? members : members.slice(0, TRUNCATED_MEMBER_COUNT);
 
   const { notifySuccess, notifyWarning } = useNotifications();
+
+  let userModal: UserModal;
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
@@ -200,6 +201,8 @@
   let openInFlexModal: OpenInFlexModal;
 </script>
 
+<PageBreadcrumb>{$t('project_page.project')}</PageBreadcrumb>
+
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}
   <HeaderPage wide title={project.name}>
@@ -323,6 +326,14 @@
             <Dropdown disabled={!canManageMember}>
               <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
               <ul slot="content" class="menu">
+                <AdminContent>
+                  <li>
+                    <button on:click={() => userModal.open(member.user)}>
+                      <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
+                      {$t('project_page.view_user_details')}
+                    </button>
+                  </li>
+                </AdminContent>
                 <li>
                   <button on:click={() => changeMemberRole(member)}>
                     <span class="i-mdi-account-lock text-2xl" />
@@ -354,6 +365,7 @@
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
+          <UserModal bind:this={userModal}/>
 
           <DeleteModal
             bind:this={removeUserModal}
