@@ -84,10 +84,16 @@ export async function load(event: PageLoadEvent) {
   const project = projectResult.projectByCode as Readable<Project>;
   const lexEntryCount = derived(project, p => {
     if (p.type === ProjectType.FlEx) {
-      return event.fetch(`/api/project/countLexEntries/${p.code}`)
-      .then(x => x.text())
+      if (p.flexProjectMetadata?.lexEntryCount != null) {
+        return Promise.resolve(p.flexProjectMetadata?.lexEntryCount);
+      } else {
+        return event.fetch(`/api/project/countLexEntries/${p.code}`)
+        .then(x => x.text())
+        .then(s => parseInt(s))
+        .catch(() => 0);
+      }
     } else {
-      return Promise.resolve('')
+      return Promise.resolve(0);
     }
   });
 
