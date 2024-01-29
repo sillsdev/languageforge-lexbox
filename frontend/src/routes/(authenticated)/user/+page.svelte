@@ -47,7 +47,7 @@
       locale: $form.locale,
       userId: $user.id,
     });
-    if (data?.changeUserAccountData.errors?.some(e => e.__typename === 'UniqueValueError')) {
+    if (data?.changeUserAccountBySelf.errors?.some(e => e.__typename === 'UniqueValueError')) {
       $errors.email = [$t('account_settings.email_taken')];
       return;
     }

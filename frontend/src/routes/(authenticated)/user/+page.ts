@@ -1,7 +1,7 @@
 import type {
   $OpResult,
-  ChangeUserAccountDataInput,
-  ChangeUserAccountDataMutation,
+  ChangeUserAccountBySelfInput,
+  ChangeUserAccountBySelfMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -33,13 +33,13 @@ export async function load(event: PageLoadEvent) {
   return { emailResult, account: userResult.me };
 }
 
-export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountDataMutation> {
+export async function _changeUserAccountData(input: ChangeUserAccountBySelfInput): $OpResult<ChangeUserAccountBySelfMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
       graphql(`
-        mutation ChangeUserAccountData($input: ChangeUserAccountDataInput!) {
-          changeUserAccountData(input: $input) {
+        mutation ChangeUserAccountBySelf($input: ChangeUserAccountBySelfInput!) {
+          changeUserAccountBySelf(input: $input) {
             meDto {
               id
               name
