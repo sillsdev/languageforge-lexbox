@@ -18,19 +18,21 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class UserMutations
 {
-    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name, string Locale);
-    public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, string Locale, UserRole Role)
-        : ChangeUserAccountDataInput(UserId, Email, Name, Locale);
+    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
+    public record ChangeUserAccountBySelfInput(Guid UserId, string Email, string Name, string Locale)
+        : ChangeUserAccountDataInput(UserId, Email, Name);
+    public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, UserRole Role)
+        : ChangeUserAccountDataInput(UserId, Email, Name);
 
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<UniqueValueException>]
     [UseMutationConvention]
     [RefreshJwt]
-    public async Task<MeDto> ChangeUserAccountData(
+    public async Task<MeDto> ChangeUserAccountBySelf(
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
-        ChangeUserAccountDataInput input,
+        ChangeUserAccountBySelfInput input,
         LexBoxDbContext dbContext,
         EmailService emailService
     )
@@ -77,11 +79,6 @@ public class UserMutations
             user.Name = input.Name;
         }
 
-        if (!input.Locale.IsNullOrEmpty())
-        {
-            user.LocalizationCode = input.Locale;
-        }
-
         if (input is ChangeUserAccountByAdminInput adminInput)
         {
             permissionService.AssertIsAdmin();
@@ -90,6 +87,14 @@ public class UserMutations
                 user.IsAdmin = adminInput.Role == UserRole.admin;
             }
         }
+        else if (input is ChangeUserAccountBySelfInput selfInput)
+        {
+            if (!selfInput.Locale.IsNullOrEmpty())
+            {
+                user.LocalizationCode = selfInput.Locale;
+            }
+        }
+
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 

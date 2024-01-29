@@ -1,4 +1,4 @@
-﻿schema {
+schema {
   query: Query
   mutation: Mutation
 }
@@ -41,9 +41,9 @@ type ChangeUserAccountByAdminPayload {
   errors: [ChangeUserAccountByAdminError!]
 }
 
-type ChangeUserAccountDataPayload {
+type ChangeUserAccountBySelfPayload {
   meDto: MeDto
-  errors: [ChangeUserAccountDataError!]
+  errors: [ChangeUserAccountBySelfError!]
 }
 
 type Changeset {
@@ -118,7 +118,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
-  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
+  changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
 }
@@ -225,7 +225,7 @@ union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
 union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
-union ChangeUserAccountDataError = NotFoundError | DbError | UniqueValueError
+union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 
 union CreateProjectError = DbError | AlreadyExistsError
 
@@ -265,14 +265,13 @@ input ChangeUserAccountByAdminInput {
   userId: UUID!
   email: String!
   name: String!
-  locale: String!
 }
 
-input ChangeUserAccountDataInput {
+input ChangeUserAccountBySelfInput {
+  locale: String!
   userId: UUID!
   email: String!
   name: String!
-  locale: String!
 }
 
 input CreateProjectInput {
