@@ -95,6 +95,7 @@ public record LexAuthUser
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
         Locale = user.LocalizationCode;
+        Locked = user.Locked ? null : true;
     }
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]
@@ -156,6 +157,8 @@ public record LexAuthUser
         }
     }
 
+    [JsonPropertyName(LexAuthConstants.IsLockedClaimType)]
+    public bool? Locked { get; init; }
     [JsonPropertyName(LexAuthConstants.EmailUnverifiedClaimType)]
     public bool? EmailVerificationRequired { get; init; }
 

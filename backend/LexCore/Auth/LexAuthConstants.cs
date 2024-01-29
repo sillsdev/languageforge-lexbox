@@ -8,6 +8,7 @@ public static class LexAuthConstants
     public const string IdClaimType = "sub";
     public const string AudienceClaimType = "aud";
     public const string ProjectsClaimType = "proj";
+    public const string IsLockedClaimType = "lock";
     public const string EmailUnverifiedClaimType = "unver";
     public const string CanCreateProjectClaimType = "mkproj";
     public const string UpdatedDateClaimType = "date";
