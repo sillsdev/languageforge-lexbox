@@ -101,7 +101,7 @@ export async function load(event: PageLoadEvent) {
       if (p.flexProjectMetadata?.lexEntryCount != null) {
         return Promise.resolve(p.flexProjectMetadata?.lexEntryCount);
       } else {
-        return event.fetch(`/api/project/countLexEntries/${p.code}`)
+        return event.fetch(`/api/project/updateLexEntryCount/${p.code}`, {method: 'POST'})
         .then(x => x.text())
         .then(s => parseInt(s))
         .catch(() => 0);

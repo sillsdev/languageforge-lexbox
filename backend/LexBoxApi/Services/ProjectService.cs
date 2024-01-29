@@ -89,15 +89,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         return lastCommitFromHg;
     }
 
-    public async Task<int?> GetLexEntryCount(string projectCode)
-    {
-        var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Code == projectCode);
-        if (project?.MigrationStatus is not ProjectMigrationStatus.Migrated) return null;
-        if (project?.Type is not ProjectType.FLEx) return null;
-        if (project?.FlexProjectMetadata?.LexEntryCount is int c) return c;
-        return await UpdateLexEntryCount(projectCode);
-    }
-
     public async Task<int?> UpdateLexEntryCount(string projectCode)
     {
         var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Code == projectCode);

@@ -187,21 +187,13 @@ public class ProjectController : ControllerBase
         return new HgVerifyResult(result);
     }
 
-    [HttpGet("countLexEntries/{code}")]
+    [HttpPost("updateLexEntryCount/{code}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<int?>> GetLexEntryCount(string code)
+    public async Task<ActionResult<int>> UpdateLexEntryCount(string code)
     {
-        return await _projectService.GetLexEntryCount(code);
-    }
-
-    [HttpGet("updateLexEntryCount/{code}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public async Task<ActionResult<int?>> UpdateLexEntryCount(string code)
-    {
-        return await _projectService.UpdateLexEntryCount(code);
+        var result = await _projectService.UpdateLexEntryCount(code);
+        return result is null ? NotFound() : result;
     }
 }
