@@ -54,8 +54,6 @@
   });
 
   $: lexEntryCount = data.lexEntryCount;
-  // Doesn't work: we get the following error.
-  // Cannot call `fetch` eagerly during server side rendering with relative URL (/api/countLexEntries/sena-3) — put your `fetch` calls inside `onMount` or a `load` function instead
 
   const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = false;
