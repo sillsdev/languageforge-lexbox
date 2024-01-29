@@ -11,6 +11,7 @@ command_name="${PATH_SEGMENTS[2]}"
 # Ensure the project code and command name are safe to use in a shell command
 if [[ ! $project_code =~ ^[a-z0-9-]+$ ]] || [[ ! $command_name =~ ^[a-zA-Z0-9]+$ ]]; then
     echo "Content-type: text/plain"
+    echo "Status: 400 Bad Request"
     echo ""
     echo "Invalid project code or command name."
     echo "Project code: $project_code"
@@ -21,6 +22,7 @@ fi
 # Check if the command is in the list of allowed commands
 if [[ ! " ${allowed_commands[@]} " =~ " ${command_name} " ]]; then
     echo "Content-type: text/plain"
+    echo "Status: 400 Bad Request"
     echo ""
     echo "Invalid command. Allowed commands are: ${allowed_commands[*]}"
     echo "Command name: $command_name"
