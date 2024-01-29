@@ -30,7 +30,7 @@ public class ProxyEventsService
                     {
                         // Last chunk, so record updated last-changed date
                         await _lexProxyService.RefreshProjectLastChange(projectCode);
-                        await _lexProxyService.UpdateLastEntryCount(projectCode);
+                        await _lexProxyService.UpdateLastEntryCountIfAllowed(projectCode);
                     }
                 }
             }
@@ -44,7 +44,7 @@ public class ProxyEventsService
             && context.Request.GetProjectCode() is { } projectCode)
         {
             await _lexProxyService.RefreshProjectLastChange(projectCode);
-            await _lexProxyService.UpdateLastEntryCount(projectCode);
+            await _lexProxyService.UpdateLastEntryCountIfAllowed(projectCode);
         }
     }
 }

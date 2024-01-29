@@ -43,9 +43,11 @@ public class LexProxyService : ILexProxyService
         await _projectService.UpdateLastCommit(projectCode);
     }
 
-    public async Task UpdateLastEntryCount(string projectCode)
+    public async Task UpdateLastEntryCountIfAllowed(string projectCode)
     {
-        await _projectService.UpdateLexEntryCount(projectCode);
+        if (_hgConfig.AutoUpdateLexEntryCountOnSendReceive) {
+            await _projectService.UpdateLexEntryCount(projectCode);
+        }
     }
 
     public async ValueTask<RequestInfo?> GetDestinationPrefix(HgType type, string projectCode)
