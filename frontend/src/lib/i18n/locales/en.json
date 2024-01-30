@@ -19,6 +19,7 @@
       "user_updated": "{name} has been updated.",
       "email_need_verification": "You've requested to change the e-mail address for {name} to {requestedEmail}. The change will only come into effect when the user verifies the new address. They can do so using the link in the e-mail we just sent them."
     },
+    "user_is_locked": "This user is locked",
     "form_modal": {
       "title": "Edit User",
       "email_label": "Email",

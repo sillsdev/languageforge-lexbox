@@ -98,6 +98,7 @@ type LexAuthUser {
   role: UserRole!
   projects: [AuthUserProject!]!
   projectsJson: String!
+  locked: Boolean
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
   locale: String!
@@ -121,6 +122,7 @@ type Mutation {
   changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
+  setUserLocked(input: SetUserLockedInput!): SetUserLockedPayload! @authorize(policy: "AdminRequiredPolicy")
 }
 
 type NotFoundError implements Error {
@@ -181,6 +183,11 @@ type RequiredError implements Error {
   message: String!
 }
 
+type SetUserLockedPayload {
+  user: User
+  errors: [SetUserLockedError!]
+}
+
 type SoftDeleteProjectPayload {
   project: Project
   errors: [SoftDeleteProjectError!]
@@ -230,6 +237,8 @@ union ChangeUserAccountDataError = NotFoundError | DbError | UniqueValueError
 union CreateProjectError = DbError | AlreadyExistsError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
+
+union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
 
@@ -417,6 +426,11 @@ input RetentionPolicyOperationFilterInput {
   neq: RetentionPolicy
   in: [RetentionPolicy!]
   nin: [RetentionPolicy!]
+}
+
+input SetUserLockedInput {
+  userId: UUID!
+  locked: Boolean!
 }
 
 input SoftDeleteProjectInput {

@@ -51,7 +51,12 @@ public class PermissionService(
             throw new UnauthorizedAccessException("Not allowed to change own project role.");
     }
 
-
+    public void AssertCanLockOrUnlockUser(Guid userId)
+    {
+        AssertIsAdmin();
+        if (userId == User?.Id)
+            throw new UnauthorizedAccessException("Not allowed to lock or unlock own account.");
+    }
 
     public void AssertIsAdmin()
     {
