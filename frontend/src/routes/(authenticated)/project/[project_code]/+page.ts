@@ -99,7 +99,7 @@ export async function load(event: PageLoadEvent) {
   const lexEntryCount = derived(project, p => {
     if (p.type === ProjectType.FlEx) {
       if (p.flexProjectMetadata?.lexEntryCount != null) {
-        return Promise.resolve(p.flexProjectMetadata?.lexEntryCount);
+        return p.flexProjectMetadata?.lexEntryCount;
       } else {
         return event.fetch(`/api/project/updateLexEntryCount/${p.code}`, {method: 'POST'})
         .then(x => x.text())
@@ -107,7 +107,7 @@ export async function load(event: PageLoadEvent) {
         .catch(() => 0);
       }
     } else {
-      return Promise.resolve(0);
+      return 0;
     }
   });
 
