@@ -114,10 +114,11 @@
     }
   },
   "login": {
-    "bad_credentials": "Something went wrong, please make sure you have used the correct account information.",
+    "bad_credentials": "The account information you entered is incorrect.",
+    "your_account_is_locked": "Your account is locked. [Contact an administrator](mailto:admin@languagedepot.org) to have it unlocked or deleted.",
     "button_login": "Log in",
     "button_login_again": "Try to log in again?",
-    "forgot_password": "Forgot password?",
+    "forgot_password": "Forgot your password?",
     "label_email": "Email (or Send/Receive login)",
     "label_password": "Password",
     "missing_user_info": "User info missing",

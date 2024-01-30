@@ -61,16 +61,22 @@ public class LexAuthService
 
 
 
-    public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
+    public async Task<(LexAuthUser?, LoginError?)> Login(LoginRequest loginRequest)
     {
         var (lexAuthUser, user) = await GetUser(loginRequest.EmailOrUsername);
-        if (user?.CanLogin() is not true) return null;
+
+        if (user is null) return (null, LoginError.BadCredentials);
 
         var validPassword = PasswordHashing.IsValidPassword(loginRequest.Password,
             user.Salt,
             user.PasswordHash,
             loginRequest.PreHashedPassword);
-        return validPassword ? lexAuthUser : null;
+
+        if (!validPassword) return (null, LoginError.BadCredentials);
+
+        if (user.CanLogin() is false) return (null, LoginError.Locked);
+
+        return (lexAuthUser, null);
     }
 
     public async Task<LexAuthUser?> RefreshUser(Guid userId, string updatedValue = "all")
