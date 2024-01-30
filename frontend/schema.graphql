@@ -1,4 +1,4 @@
-﻿schema {
+schema {
   query: Query
   mutation: Mutation
 }
@@ -41,9 +41,9 @@ type ChangeUserAccountByAdminPayload {
   errors: [ChangeUserAccountByAdminError!]
 }
 
-type ChangeUserAccountDataPayload {
-  user: User
-  errors: [ChangeUserAccountDataError!]
+type ChangeUserAccountBySelfPayload {
+  meDto: MeDto
+  errors: [ChangeUserAccountBySelfError!]
 }
 
 type Changeset {
@@ -106,6 +106,14 @@ type LexAuthUser {
   projectsJson: String!
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
+  locale: String!
+}
+
+type MeDto {
+  id: UUID!
+  name: String!
+  email: String!
+  locale: String!
 }
 
 type Mutation {
@@ -116,7 +124,7 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
-  changeUserAccountData(input: ChangeUserAccountDataInput!): ChangeUserAccountDataPayload!
+  changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
   deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
 }
@@ -167,7 +175,8 @@ type Query {
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   projectByCode(code: String!): Project
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
-  me: LexAuthUser!
+  me: MeDto
+  meAuth: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
 
@@ -223,7 +232,7 @@ union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
 union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
-union ChangeUserAccountDataError = NotFoundError | DbError | UniqueValueError
+union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 
 union CreateProjectError = DbError | AlreadyExistsError
 
@@ -265,7 +274,8 @@ input ChangeUserAccountByAdminInput {
   name: String!
 }
 
-input ChangeUserAccountDataInput {
+input ChangeUserAccountBySelfInput {
+  locale: String!
   userId: UUID!
   email: String!
   name: String!

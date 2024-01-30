@@ -36,16 +36,16 @@ public class AuthTests : ApiTestBase
     public async Task TestGqlVerifyDifferentUsers()
     {
         //language=GraphQL
-        var query = """query testGetMe {  me {    id    email  }}""";
+        var query = """query testGetMe {  meAuth {    id    email  }}""";
         await LoginAs("manager", TestingEnvironmentVariables.DefaultPassword);
         var manager = await ExecuteGql(query);
         manager.ShouldNotBeNull();
-        manager["data"]!["me"]!["email"]!.ToString().ShouldBe("manager@test.com");
+        manager["data"]!["meAuth"]!["email"]!.ToString().ShouldBe("manager@test.com");
 
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var admin = await ExecuteGql(query);
         admin.ShouldNotBeNull();
-        admin["data"]!["me"]!["email"]!.ToString().ShouldBe("admin@test.com");
+        admin["data"]!["meAuth"]!["email"]!.ToString().ShouldBe("admin@test.com");
     }
 
     [Fact]

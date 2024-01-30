@@ -16,7 +16,9 @@ import { derived, get, type Readable } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
+import { derived } from 'svelte/store';
 import { error } from '@sveltejs/kit';
+import { hasValue } from '$lib/util/store';
 import { isAdmin } from '$lib/user';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
@@ -89,7 +91,7 @@ export async function load(event: PageLoadEvent) {
       { projectCode }
   );
 
-  if (!projectResult.projectByCode || !get(projectResult.projectByCode)) {
+  if (!hasValue(projectResult.projectByCode)) {
     throw error(404);
   }
 

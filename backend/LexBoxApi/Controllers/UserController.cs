@@ -71,7 +71,7 @@ public class UserController : ControllerBase
             Id = Guid.NewGuid(),
             Name = accountInput.Name,
             Email = accountInput.Email,
-            //todo determine user localization, defaults to en
+            LocalizationCode = accountInput.Locale,
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false,

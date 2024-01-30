@@ -1,35 +1,50 @@
 import type {
   $OpResult,
-  ChangeUserAccountDataMutation,
-  ChangeUserAccountDataInput,
-
+  ChangeUserAccountBySelfInput,
+  ChangeUserAccountBySelfMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
-import type { PageLoad } from './$types';
+
 import { EmailResult } from '$lib/email';
+import type { PageLoadEvent } from './$types';
+import { error } from '@sveltejs/kit';
+import { hasValue } from '$lib/util/store';
 
 const EMAIL_RESULTS = Object.values(EmailResult);
 
-export const load = (({ url }) => {
-  const emailResult = url.searchParams.get('emailResult') as EmailResult | null;
+export async function load(event: PageLoadEvent) {
+  const emailResult = event.url.searchParams.get('emailResult') as EmailResult | null;
   if (emailResult) {
     if (!EMAIL_RESULTS.includes(emailResult)) throw new Error(`Invalid emailResult: ${emailResult}.`);
   }
-  return { emailResult };
-}) satisfies PageLoad
 
-export async function _changeUserAccountData(input: ChangeUserAccountDataInput): $OpResult<ChangeUserAccountDataMutation> {
+  const userResult = await getClient().awaitedQueryStore(event.fetch, graphql(`
+    query userPage {
+      me {
+        id
+        name
+        email
+        locale
+      }
+    }`), {});
+
+  if (!hasValue(userResult.me)) throw error(404);
+
+  return { emailResult, account: userResult.me };
+}
+
+export async function _changeUserAccountData(input: ChangeUserAccountBySelfInput): $OpResult<ChangeUserAccountBySelfMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
       graphql(`
-        mutation ChangeUserAccountData($input: ChangeUserAccountDataInput!) {
-          changeUserAccountData(input: $input) {
-            user {
+        mutation ChangeUserAccountBySelf($input: ChangeUserAccountBySelfInput!) {
+          changeUserAccountBySelf(input: $input) {
+            meDto {
               id
               name
-              username
               email
+              locale
             }
             errors {
               __typename
@@ -41,8 +56,7 @@ export async function _changeUserAccountData(input: ChangeUserAccountDataInput):
         }
       `),
       { input: input },
-      //invalidates the graphql user cache, but who knows
-      { additionalTypenames: ['Users'] },
-    );
+  );
+
   return result;
 }

@@ -19,6 +19,8 @@ namespace LexBoxApi.GraphQL;
 public class UserMutations
 {
     public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
+    public record ChangeUserAccountBySelfInput(Guid UserId, string Email, string Name, string Locale)
+        : ChangeUserAccountDataInput(UserId, Email, Name);
     public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, UserRole Role)
         : ChangeUserAccountDataInput(UserId, Email, Name);
 
@@ -27,16 +29,23 @@ public class UserMutations
     [Error<UniqueValueException>]
     [UseMutationConvention]
     [RefreshJwt]
-    public Task<User> ChangeUserAccountData(
+    public async Task<MeDto> ChangeUserAccountBySelf(
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
-        ChangeUserAccountDataInput input,
+        ChangeUserAccountBySelfInput input,
         LexBoxDbContext dbContext,
         EmailService emailService
     )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
-        return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
+        var user = await UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
+        return new MeDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Locale = user.LocalizationCode
+        };
     }
 
     [Error<NotFoundException>]
@@ -78,6 +87,14 @@ public class UserMutations
                 user.IsAdmin = adminInput.Role == UserRole.admin;
             }
         }
+        else if (input is ChangeUserAccountBySelfInput selfInput)
+        {
+            if (!selfInput.Locale.IsNullOrEmpty())
+            {
+                user.LocalizationCode = selfInput.Locale;
+            }
+        }
+
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 

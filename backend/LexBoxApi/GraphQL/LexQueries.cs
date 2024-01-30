@@ -1,5 +1,6 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
@@ -55,7 +56,21 @@ public class LexQueries
         return context.Users.OrderBy(u => u.Name);
     }
 
-    public LexAuthUser Me(LoggedInContext loggedInContext)
+    public async Task<MeDto?> Me(LexBoxDbContext context, LoggedInContext loggedInContext)
+    {
+        var userId = loggedInContext.User.Id;
+        var user = await context.Users.FindAsync(userId);
+        if (user == null) return null;
+        return new MeDto
+        {
+            Id = user.Id,
+            Name = user.Name,
+            Email = user.Email,
+            Locale = user.LocalizationCode
+        };
+    }
+
+    public LexAuthUser MeAuth(LoggedInContext loggedInContext)
     {
         return loggedInContext.User;
     }

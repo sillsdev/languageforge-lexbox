@@ -67,6 +67,8 @@ spec:
                 limits:
                   memory: 1Gi
               env:
+                - name: GOMEMLIMIT
+                  value: "900MiB"
                 - name: KOPIA_PASSWORD
                   valueFrom:
                     secretKeyRef:

@@ -2,9 +2,12 @@ import { APP_VERSION, apiVersion } from '$lib/util/version';
 
 import type { LayoutServerLoadEvent } from './$types'
 import { USER_LOAD_KEY } from '$lib/user';
+import { availableLocales } from '$locales';
+import { getLocaleFromAcceptLanguageHeader } from 'svelte-intl-precompile';
 import { getRootTraceparent } from '$lib/otel/otel.server'
 
-export async function load({ locals, depends, fetch }: LayoutServerLoadEvent) {
+export async function load({ locals, depends, fetch, request }: LayoutServerLoadEvent) {
+  const requestLang = getLocaleFromAcceptLanguageHeader(request.headers.get('Accept-Language'), availableLocales);
   const user = locals.getUser();
   const traceParent = getRootTraceparent()
 
@@ -17,6 +20,7 @@ export async function load({ locals, depends, fetch }: LayoutServerLoadEvent) {
   }
   return {
     user,
+    locale: user?.locale ?? requestLang,
     traceParent,
     serverVersion: APP_VERSION,
     apiVersion: apiVersion.value
