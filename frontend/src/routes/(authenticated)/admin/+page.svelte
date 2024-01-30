@@ -137,10 +137,19 @@
             {#each shownUsers as user}
               <tr>
                 <td>
-                  <Button style="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
-                    {user.name}
-                    <Icon icon="i-mdi-card-account-details-outline" />
-                  </Button>
+                  <div class="flex items-center gap-2">
+                    <Button style="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
+                      {user.name}
+                      <Icon icon="i-mdi-card-account-details-outline" />
+                    </Button>
+                    {#if user.locked}
+                    <span
+                        class="tooltip text-warning text-xl leading-0"
+                        data-tip={$t('admin_dashboard.user_is_locked')}>
+                      <Icon icon="i-mdi-lock" />
+                    </span>
+                    {/if}
+                  </div>
                 </td>
                 <td>
                   {#if user.username}

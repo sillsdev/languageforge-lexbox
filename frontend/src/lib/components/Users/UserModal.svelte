@@ -3,6 +3,7 @@
   import { Modal } from '$lib/components/modals/index.js';
   import FormatDate from '$lib/components/FormatDate.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import { Icon } from '$lib/icons';
   type User = {
     id: string;
     name: string;
@@ -28,7 +29,19 @@
 
 <Modal bind:this={userDetailsModal} bottom>
   <div class="p-4">
-    <h2 class="text-secondary text-2xl">{user.name}</h2>
+    <h2 class="text-secondary">
+      <span class="text-2xl">
+        {user.name}
+      </span>
+      {#if user.locked}
+        <span class="inline-flex gap-2 items-center ml-2">
+          <Icon icon="i-mdi-lock-outline" color="text-warning" />
+          <span class="text-warning">
+            {$t('admin_dashboard.user_is_locked')}
+          </span>
+        </span>
+      {/if}
+    </h2>
     <div class="divider" />
     <div class="grid grid-cols-2 gap-4">
       <div>
@@ -65,16 +78,12 @@
         <p class="value"><FormatDate date={user.lastActive} /></p>
       </div>
       <div>
-        <h3>{$t('admin_dashboard.user_details_modal.locked')}</h3>
-        <p class="value" class:text-error={user.locked}>{user.locked ? $t('common.yes') : $t('common.no')}</p>
+        <h3>{$t('admin_dashboard.user_details_modal.can_create_projects')}</h3>
+        <p class="value" class:!text-success={user.canCreateProjects}>{user.canCreateProjects ? $t('common.yes') : $t('common.no')}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.updated')}</h3>
         <p class="value"><FormatDate date={user.updatedDate} /></p>
-      </div>
-      <div>
-        <h3>{$t('admin_dashboard.user_details_modal.can_create_projects')}</h3>
-        <p class="value" class:!text-success={user.canCreateProjects}>{user.canCreateProjects ? $t('common.yes') : $t('common.no')}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.locale')}</h3>
