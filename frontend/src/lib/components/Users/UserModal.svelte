@@ -35,7 +35,7 @@
       </span>
       {#if user.locked}
         <span class="inline-flex gap-2 items-center ml-2">
-          <Icon icon="i-mdi-lock-outline" color="text-warning" />
+          <Icon icon="i-mdi-lock" color="text-warning" />
           <span class="text-warning">
             {$t('admin_dashboard.user_is_locked')}
           </span>

@@ -95,8 +95,17 @@ public class LoginController(
     [AllowAnonymous]
     public async Task<ActionResult<LexAuthUser>> Login(LoginRequest loginRequest)
     {
-        var user = await lexAuthService.Login(loginRequest);
-        if (user == null) return Unauthorized();
+        var (user, error) = await lexAuthService.Login(loginRequest);
+
+        if (error is not null)
+        {
+            return Unauthorized(error.ToString());
+        }
+        else if (user is null)
+        {
+            return Unauthorized();
+        }
+
         await userService.UpdateUserLastActive(user.Id);
         await HttpContext.SignInAsync(user.GetPrincipal("Password"),
             new AuthenticationProperties { IsPersistent = true });

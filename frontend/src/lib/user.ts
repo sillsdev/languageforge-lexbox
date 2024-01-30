@@ -5,6 +5,12 @@ import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
 
+type LoginError = 'BadCredentials' | 'Locked';
+type LoginResult = {
+  error?: LoginError,
+  success: false,
+} | { success: true };
+
 type RegisterResponseErrors = {
   errors: {
     /* eslint-disable @typescript-eslint/naming-convention */
@@ -53,7 +59,7 @@ export function getHomePath(user: LexAuthUser | null): string {
   return isAdmin(user) ? '/admin' : '/';
 }
 
-export async function login(userId: string, password: string): Promise<boolean> {
+export async function login(userId: string, password: string): Promise<LoginResult> {
   const response = await fetch('/api/login', {
     method: 'post',
     headers: {
@@ -68,7 +74,9 @@ export async function login(userId: string, password: string): Promise<boolean> 
       disableRedirectOnAuthError: true,
     },
   })
-  return response.ok;
+  return response.ok
+    ? { success: true }
+    : { success: false, error: await response.text() as LoginError };
 }
 
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
