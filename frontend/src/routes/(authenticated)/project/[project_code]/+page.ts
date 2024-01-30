@@ -12,11 +12,10 @@ import type {
   ProjectPageQuery,
 } from '$lib/gql/types';
 import { ProjectType } from '$lib/gql/generated/graphql';
-import { derived, get, type Readable } from 'svelte/store';
+import { derived, type Readable } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
-import { derived } from 'svelte/store';
 import { error } from '@sveltejs/kit';
 import { hasValue } from '$lib/util/store';
 import { isAdmin } from '$lib/user';
