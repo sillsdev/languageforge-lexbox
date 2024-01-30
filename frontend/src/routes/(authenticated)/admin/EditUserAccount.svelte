@@ -31,6 +31,7 @@
   let _user: User;
   export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
+    userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
     return await formModal.open({ name: user.name, email: user.email, role }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
@@ -56,13 +57,14 @@
     });
   }
 
+  let userIsLocked: boolean;
   let locking = false;
   let lockUserError: string | undefined;
 
   async function onLockedClicked(event: Event): Promise<void> {
     event.preventDefault();
     lockUserError = undefined;
-    const newLocked = !_user.locked;
+    const newLocked = !userIsLocked;
     locking = true;
     const { error, data } = await _setUserLocked({
       userId: _user.id,
@@ -73,15 +75,15 @@
       lockUserError = error?.message;
       return;
     }
-    _user.locked = data?.setUserLocked.user?.locked as boolean;
+    userIsLocked = data!.setUserLocked.user!.locked;
   }
 </script>
 
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title" class="flex items-center gap-2">
     {$t('admin_dashboard.form_modal.title')}
-    {#if _user.locked}
-      <Icon icon="i-mdi-lock-outline" color="text-warning" />
+    {#if userIsLocked}
+      <Icon icon="i-mdi-lock" color="text-warning" />
       <span class="text-warning">
         {$t('admin_dashboard.user_is_locked')}
       </span>
@@ -120,11 +122,11 @@
   </div>
   <FormError error={lockUserError} />
   <svelte:fragment slot="extraActions">
-    <label class="btn btn-warning swap" class:btn-disabled={_user.id === currUser.id} class:btn-outline={!_user.locked}>
+    <label class="btn btn-warning swap" class:btn-disabled={_user.id === currUser.id} class:btn-outline={!userIsLocked}>
       <input
         readonly
         type="checkbox"
-        checked={_user.locked}
+        checked={userIsLocked}
         on:click={onLockedClicked} />
         <span class="swap-on flex gap-2 items-center justify-between">
           {$t('admin_dashboard.form_modal.unlock')}
