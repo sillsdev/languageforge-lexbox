@@ -3,7 +3,8 @@
   import { Modal } from '$lib/components/modals/index.js';
   import FormatDate from '$lib/components/FormatDate.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
-  import { Icon } from '$lib/icons';
+  import UserLockedAlert from './UserLockedAlert.svelte';
+
   type User = {
     id: string;
     name: string;
@@ -33,16 +34,9 @@
       <span class="text-2xl">
         {user.name}
       </span>
-      {#if user.locked}
-        <span class="inline-flex gap-2 items-center ml-2">
-          <Icon icon="i-mdi-lock" color="text-warning" />
-          <span class="text-warning">
-            {$t('admin_dashboard.user_is_locked')}
-          </span>
-        </span>
-      {/if}
     </h2>
     <div class="divider" />
+    <UserLockedAlert locked={user.locked} />
     <div class="grid grid-cols-2 gap-4">
       <div>
         <h3>{$t('admin_dashboard.column_email')}</h3>

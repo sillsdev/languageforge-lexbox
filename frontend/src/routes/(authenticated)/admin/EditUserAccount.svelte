@@ -10,6 +10,7 @@
   import type { FormModalResult } from '$lib/components/modals/FormModal.svelte';
   import { hash } from '$lib/util/hash';
   import Icon from '$lib/icons/Icon.svelte';
+  import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
@@ -80,15 +81,10 @@
 </script>
 
 <FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title" class="flex items-center gap-2">
+  <span slot="title">
     {$t('admin_dashboard.form_modal.title')}
-    {#if userIsLocked}
-      <Icon icon="i-mdi-lock" color="text-warning" />
-      <span class="text-warning">
-        {$t('admin_dashboard.user_is_locked')}
-      </span>
-    {/if}
   </span>
+  <UserLockedAlert locked={userIsLocked} />
   <Input
     id="email"
     type="email"
