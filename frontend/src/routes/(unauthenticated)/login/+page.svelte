@@ -44,8 +44,8 @@
 </script>
 
 <div class="hero flex-grow">
-  <div class="hero-content flex-col lg:flex-row gap-8">
-    <div class="card flex-shrink-0 w-full max-w-md sm:shadow-2xl sm:bg-base-200">
+  <div class="grid lg:grid-cols-2 gap-8 place-items-center">
+    <div class="card w-full max-w-md sm:shadow-2xl sm:bg-base-200">
       <div class="card-body sm-only:p-0">
         <PageTitle title={$t('login.title')} />
 
