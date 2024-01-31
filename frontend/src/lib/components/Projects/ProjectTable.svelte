@@ -47,7 +47,6 @@
         {#if isColumnVisible('lastChange')}
           <th>
             {$t('project.table.last_change')}
-            <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
           </th>
         {/if}
         {#if isColumnVisible('migrated')}

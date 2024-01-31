@@ -39,11 +39,11 @@ export async function load(event: PageLoadEvent) {
 
   //language=GraphQL
   const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
-        query loadAdminDashboardProjects($withDeletedProjects: Boolean, $filter: ProjectFilterInput) {
+        query loadAdminDashboardProjects($withDeletedProjects: Boolean!, $filter: ProjectFilterInput) {
             projects(
               where: $filter,
               orderBy: [
-                {lastCommit: ASC},
+                {createdDate: DESC},
                 {name: ASC}
             ], withDeleted: $withDeletedProjects) {
               code
