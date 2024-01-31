@@ -92,7 +92,7 @@ export async function load(event: PageLoadEvent) {
 
   const nonNullableProject = tryMakeNonNullable(projectResult.projectByCode);
   if (!nonNullableProject) {
-    throw error(404);
+    error(404);
   }
 
   event.depends(`project:${projectCode}`);

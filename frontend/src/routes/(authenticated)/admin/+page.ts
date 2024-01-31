@@ -111,7 +111,7 @@ function isGuid(val: string): boolean {
 
 function requireAdmin(user: LexAuthUser | null): void {
   if (!isAdmin(user)) {
-    throw redirect(307, '/');
+    redirect(307, '/');
   }
 }
 
