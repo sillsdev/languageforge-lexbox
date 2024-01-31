@@ -70,6 +70,10 @@ export default [
           'modifiers': ['requiresQuotes'],
           'format': null,
         },
+        {
+          'selector': 'import',
+          'format': ['camelCase', 'PascalCase'],
+        }
       ],
       '@typescript-eslint/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
       '@typescript-eslint/no-unused-vars': [
