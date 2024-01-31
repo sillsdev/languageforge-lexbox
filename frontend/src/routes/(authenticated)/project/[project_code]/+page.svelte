@@ -224,13 +224,23 @@
             <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
               <div class="card-body max-sm:p-4">
                 <div class="prose">
-                  <h3>{$t('project_page.get_project.instructions_header', { type: project.type, mode: 'normal' })}</h3>
-                  <Markdown
-                    md={$t('project_page.get_project.instructions', {
+                  <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
+                  {#if project.type === ProjectType.WeSay}
+                    <Markdown
+                      md={$t('project_page.get_project.instructions_wesay', {
+                      code: project.code,
+                      login: encodeURIComponent(user.email),
+                      name: project.name,
+                    })}
+                    />
+                  {:else}
+                    <Markdown
+                      md={$t('project_page.get_project.instructions_flex', {
                       code: project.code,
                       name: project.name,
                     })}
-                  />
+                    />
+                  {/if}
                 </div>
                 <SendReceiveUrlField projectCode={project.code} />
               </div>
