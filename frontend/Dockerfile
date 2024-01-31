@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
-FROM node:20.5 AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ ENV VITE_APP_VERSION=$APP_VERSION
 
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
 
-FROM node:20.5-alpine
+FROM node:20-alpine
 # container would not receive SIGTERM from docker when shutting down so Docker would force kill
 # the container after 10s.  This will make shutdown faster because the SIGTERM will be handled appropriately.
 # https://maximorlov.com/process-signals-inside-docker-containers/
