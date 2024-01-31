@@ -148,6 +148,7 @@ app.UseRouting();
 app.UseResumableStatusHack();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapSecurityTxt();
 app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();
 if (app.Environment.IsDevelopment())
     //required for vite to generate types
