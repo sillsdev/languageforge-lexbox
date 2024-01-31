@@ -37,6 +37,10 @@ tasks:
     dir: ./LexBoxApi
     cmd: dotnet {{.CLI_ARGS}}
 
+  setup-playwright:
+    dir: ./Testing
+    cmd: pwsh .\bin\Debug\net8.0\playwright.ps1 install
+
   generate-gql-schema:
     aliases: [ gg ]
     dir: ./LexBoxApi
