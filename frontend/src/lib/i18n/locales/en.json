@@ -249,7 +249,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
-1. Click 'Get Project from Internet'\n\
+1. Click 'Get from Internet'\n\
 1. In the 'Project ID' field type: \"{code}\"\n\
 1. In the 'Login' field type: \"{login}\"\ Note: there is a bug in WeSay that means you can't type the @ symbol for an email, this is a workaround \n\
 1. In the 'Password' field type your password\n\
