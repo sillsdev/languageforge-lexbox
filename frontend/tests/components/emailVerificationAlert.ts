@@ -20,23 +20,23 @@ export class EmailVerificationAlert extends BaseComponent {
   }
 
   assertPleaseVerify(): Promise<void> {
-    return expect(this.locator(PLEASE_VERIFY_SELECTOR, {})).toBeVisible();
+    return expect(this.componentLocator.locator(PLEASE_VERIFY_SELECTOR)).toBeVisible();
   }
 
   assertVerificationSent(): Promise<void> {
-    return expect(this.locator(VERIFICATION_SENT_SELECTOR, {})).toBeVisible();
+    return expect(this.componentLocator.locator(VERIFICATION_SENT_SELECTOR)).toBeVisible();
   }
 
   assertSuccessfullyVerified(): Promise<void> {
-    return expect(this.locator(SUCCESSFULLY_VERIFIED_SELECTOR, {})).toBeVisible();
+    return expect(this.componentLocator.locator(SUCCESSFULLY_VERIFIED_SELECTOR)).toBeVisible();
   }
 
   assertRequestedToChange(): Promise<void> {
-    return expect(this.locator(REQUESTED_TO_CHANGE_SELECTOR, {})).toBeVisible();
+    return expect(this.componentLocator.locator(REQUESTED_TO_CHANGE_SELECTOR)).toBeVisible();
   }
 
   assertSuccessfullyUpdated(): Promise<void> {
-    return expect(this.locator(SUCCESSFULLY_UPDATED_SELECTOR, {})).toBeVisible();
+    return expect(this.componentLocator.locator(SUCCESSFULLY_UPDATED_SELECTOR)).toBeVisible();
   }
 
   public clickResenrEmail(): Promise<void> {
