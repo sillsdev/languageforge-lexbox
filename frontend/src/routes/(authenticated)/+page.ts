@@ -8,7 +8,9 @@ export async function load(event: PageLoadEvent) {
   //language=GraphQL
   const results = await client.awaitedQueryStore(event.fetch, graphql(`
         query loadProjects {
-            myProjects {
+            myProjects(orderBy: [
+                {code: ASC }
+            ]) {
                 code
                 id
                 name
