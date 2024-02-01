@@ -13,6 +13,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
   testDir: './tests',
+  /* Default regex looks for *.test.[tj]s, but we want it to look for test*.[tj]s instead */
+  testMatch: /\/test.*\.[tj]s/,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
