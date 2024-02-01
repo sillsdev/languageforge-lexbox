@@ -9,7 +9,7 @@
 <a
   class="btn btn-primary whitespace-nowrap open-in-flex"
   href={`/api/integration/openWithFlex?projectId=${projectId}`}
-  data-sveltekit-preload-data="off"
+  data-sveltekit-reload
   on:click
 >
   {$t('project_page.open_with_flex.button')}
