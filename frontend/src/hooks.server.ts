@@ -1,11 +1,14 @@
+import { loadI18n } from '$lib/i18n';
 import { AUTH_COOKIE_NAME, getUser, isAuthn } from '$lib/user'
 import { apiVersion } from '$lib/util/version';
 import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
+import { availableLocales } from '$locales';
 import { env } from '$env/dynamic/private';
 import { getErrorMessage, validateFetchResponse } from './hooks.shared';
-import {setViewMode} from './routes/(authenticated)/shared';
+import { setViewMode } from './routes/(authenticated)/shared';
 import * as setCookieParser from 'set-cookie-parser';
+import { getLocaleFromAcceptLanguageHeader } from 'svelte-intl-precompile';
 import { AUTHENTICATED_ROOT, UNAUTHENTICATED_ROOT } from './routes';
 
 const PUBLIC_ROUTE_ROOTS = [
@@ -24,6 +27,10 @@ export const handle: Handle = ({ event, resolve }) => {
   console.log(`HTTP request: ${event.request.method} ${event.request.url}`);
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
+    const user = event.locals.getUser();
+    const requestedLocale = user?.locale
+      ?? getLocaleFromAcceptLanguageHeader(event.request.headers.get('Accept-Language'), availableLocales);
+    await loadI18n(requestedLocale);
 
     const options: ResolveOptions = {
       filterSerializedResponseHeaders: () => true,

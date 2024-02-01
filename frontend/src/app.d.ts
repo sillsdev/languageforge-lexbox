@@ -22,6 +22,7 @@ declare global {
     interface Locals {
       client: Client;
       getUser: (() => LexAuthUser | null);
+      requestedLocale?: string;
     }
 
     interface Error {
