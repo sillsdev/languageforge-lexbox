@@ -41,7 +41,7 @@ export class BasePage {
     return this;
   }
 
-  async waitFor(): Promise<void[]>
+  async waitFor(): Promise<this>
   {
     if (this.urlPattern == null) {
       await this.page.waitForLoadState('load');
@@ -51,7 +51,8 @@ export class BasePage {
       // still wait to ensure we reach the state we expect
       await this.page.waitForURL(this.urlPattern, {waitUntil: 'load'});
     }
-    return Promise.all(this.locators.map(l => expect(l).toBeVisible()));
+    await Promise.all(this.locators.map(l => expect(l).toBeVisible()));
+    return this;
   }
 
   async waitForHydration(): Promise<void> {

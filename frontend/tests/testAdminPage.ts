@@ -8,8 +8,7 @@ test('can navigate to project page', async ({ page }) => {
   await loginPage.fillForm('admin', defaultPassword);
   await loginPage.submit();
   // TODO: Port admin page and finish this test
-  const adminPage = new AdminDashboardPage(page);
-  await adminPage.waitFor();
+  const adminPage = await new AdminDashboardPage(page).waitFor();
   await adminPage.openProject('Sena 3', 'sena-3');
   // Fail on purpose to prove test is running
   expect(1).toBeGreaterThan(2);
