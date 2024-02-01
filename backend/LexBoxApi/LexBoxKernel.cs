@@ -48,6 +48,7 @@ public static class LexBoxKernel
         services.AddSingleton<RepoMigrationService>();
         services.AddSingleton<IRepoMigrationService>(provider => provider.GetRequiredService<RepoMigrationService>());
         services.AddHostedService(provider => provider.GetRequiredService<RepoMigrationService>());
+        services.AddScheduledTasks();
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
