@@ -310,7 +310,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "new_password": "New Password",
     "submit": "Reset Password",
     "password_reset": "Your password has been reset",
-    "failed": "Resetting your password failed. Did you use an expired link? ({statusText})",
+    "failed": "Resetting your password failed. Did you use an expired link? ({errorMessage})",
   },
   "retention_policy": {
     "dev": "Software Developer",
