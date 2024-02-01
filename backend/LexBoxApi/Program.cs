@@ -154,6 +154,8 @@ if (app.Environment.IsDevelopment())
     //required for vite to generate types
     app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
+
+app.MapQuartzUI().RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
