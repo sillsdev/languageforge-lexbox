@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { AuthenticatedBasePage } from './basePage';
+import { AuthenticatedBasePage } from './authenticatedBasePage';
 import { ProjectPage } from './projectPage';
 
 export class AdminDashboardPage extends AuthenticatedBasePage {
