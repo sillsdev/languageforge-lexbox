@@ -1,14 +1,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import FormFieldError from './FormFieldError.svelte';
-  import { randomFieldId } from './utils';
+  import { randomFormId } from './utils';
   import Markdown from 'svelte-exmarkdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
 
   export let label: string;
   export let description: string | undefined = undefined;
   export let error: string | string[] | undefined = undefined;
-  export let id: string = randomFieldId();
+  export let id: string = randomFormId();
   /**
    * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
    * So we allow/support it and disable a11y-autofocus warnings in generic places.
