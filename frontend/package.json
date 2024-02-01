@@ -8,6 +8,8 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "playwright test",
+		"test-flaky": "playwright test --repeat-each=3",
+		"test-report": "playwright show-report",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
