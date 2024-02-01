@@ -48,8 +48,4 @@ tasks:
     ignore_error: true
 
   playwright-install:
-    deps: [ playwright-install-win ]
-
-  playwright-install-win:
-    platforms: [ windows ]
-    cmd: powershell '{{.OUTPUT_PATH}}playwright.ps1 install'
+    cmd: pwsh '{{.OUTPUT_PATH}}playwright.ps1 install'
