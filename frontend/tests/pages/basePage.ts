@@ -27,7 +27,7 @@ export class BasePage {
     this.hydrationLocator = page.locator('.hydrating');
   }
 
-  async goto<T extends BasePage>({ expectRedirect }: {expectRedirect: boolean} = {expectRedirect: false}): Promise<T> {
+  async goto({ expectRedirect }: {expectRedirect: boolean} = {expectRedirect: false}): Promise<this> {
     if (this.url == undefined)
     {
         throw new Error('Can\'t explicitly navigate to page, because it doesn\'t have a configured url.');
@@ -38,7 +38,7 @@ export class BasePage {
     if (!expectRedirect) {
       await this.waitFor();
     }
-    return (this as unknown) as T; // TODO: Figure out how to do this properly in Typescript
+    return this;
   }
 
   async waitFor(): Promise<void[]>
