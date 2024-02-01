@@ -115,13 +115,17 @@ function traceErrorEvent(
  * Very minimal instrumentation here, because the auto-instrumentation handles the core stuff,
  * we just want to make sure that our trace-ID gets used and that we stamp errors with it.
  */
-export function traceFetch(fetch: () => ReturnType<Fetch>, event?: RequestEvent | NavigationEvent | Event): ReturnType<Fetch> {
+export function traceFetch([input]: Parameters<Fetch>, fetch: () => ReturnType<Fetch>, event?: RequestEvent | NavigationEvent | Event): ReturnType<Fetch> {
   return tracer().startActiveSpan('fetch', async (span) => {
     try {
+      const url = isRequest(input) ? input.url : input.toString();
+      span.setAttribute(SemanticAttributes.HTTP_URL, url);
       traceUserAttributes(span, event);
       if (browser)
         traceBrowserAttributes(span, window);
-      return await fetch();
+      const response = await fetch();
+      span.setAttribute(SemanticAttributes.HTTP_STATUS_CODE, response.status);
+      return response;
     } catch (error) {
       if (!isRedirect(error)) {
         ensureErrorIsTraced(error, { span }, { ['app.error.source']: errorSourceTag('fetch') });
@@ -253,6 +257,10 @@ function isBrowserEvent(event: RequestEvent | NavigationEvent | Event): event is
 
 function isRequestEvent(event: RequestEvent | NavigationEvent | Event): event is RequestEvent {
   return 'cookies' in event;
+}
+
+function isRequest(input: Parameters<Fetch>[0]): input is Request {
+  return typeof input === 'object' && 'headers' in input;
 }
 
 
