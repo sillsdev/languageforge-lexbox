@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { test } from '@playwright/test';
 import { LoginPage } from './pages/loginPage';
 import { defaultPassword } from './envVars';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
@@ -10,8 +10,6 @@ test('can navigate to project page', async ({ page }) => {
   // TODO: Port admin page and finish this test
   const adminPage = await new AdminDashboardPage(page).waitFor();
   await adminPage.openProject('Sena 3', 'sena-3');
-  // Fail on purpose to prove test is running
-  expect(1).toBeGreaterThan(2);
 });
 
 /*

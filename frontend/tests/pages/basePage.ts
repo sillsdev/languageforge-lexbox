@@ -13,7 +13,7 @@ export class BasePage {
   readonly hydrationLocator: Locator;
   get urlPattern(): RegExp | undefined {
     if (this.url == null) return undefined;
-    return new RegExp(regexEscape(this.url + '($|\\?|#)'));
+    return new RegExp(regexEscape(this.url) + '($|\\?|#)');
   }
 
   constructor(page: Page, locator: Locator | Locator[], url?: string) {
