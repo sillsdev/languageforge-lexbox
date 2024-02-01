@@ -1,6 +1,8 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 import { defineConfig, devices } from '@playwright/test';
 
+import * as testEnv from './tests/envVars';
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -25,11 +27,30 @@ const config: PlaywrightTestConfig = {
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: process.env.CI
   ? [['github'], ['list']]
+  // Putting the HTML report in a subdirectory of the main output directory results in a warning log
+  // stating that it will "lead to artifact loss" but the warning in this case is not accurate
   : [['html', { outputFolder: 'test-results/_html-report', open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
+    baseURL: testEnv.serverBaseUrl,
+
+    /* Local storage to be populated for every test */
+    storageState:
+    {
+      cookies: [], // TODO: Port login procss from PageTest.cs (but use apiContext as it's faster)
+      origins: [
+        {
+          origin: testEnv.serverHostname,
+          localStorage: [
+            {
+              name: "isPlaywright",
+              value: "true",
+            },
+          ],
+        },
+      ],
+    },
 
     /* See https://playwright.dev/docs/trace-viewer */
     /* not 'on-first-retry', because then you don't have good traces to reference when debugging */
