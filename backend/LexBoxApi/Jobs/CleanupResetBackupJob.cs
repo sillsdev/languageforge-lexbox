@@ -4,20 +4,16 @@ using Quartz;
 
 namespace LexBoxApi.Jobs;
 
-public class CleanupResetBackupJob(IHgService hgService) : IJob
+public class CleanupResetBackupJob(IHgService hgService, ILogger<CleanupResetBackupJob> logger) : LexJob
 {
     public static JobKey Key { get; } = new("CleanupResetBackupJob");
 
-
-    public async Task Execute(IJobExecutionContext context)
+    protected override async Task ExecuteJob(IJobExecutionContext context)
     {
-        try
-        {
+        logger.LogInformation("Starting cleanup reset backup job");
 
-        }
-        catch (Exception e)
-        {
-            throw new JobExecutionException(e);
-        }
+        await Task.Delay(TimeSpan.FromSeconds(1));
+
+        logger.LogInformation("Finished cleanup reset backup job");
     }
 }
