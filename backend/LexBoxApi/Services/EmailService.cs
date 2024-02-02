@@ -88,7 +88,7 @@ public class EmailService(
         var email = new MimeMessage();
         email.To.Add(new MailboxAddress("Admin", _emailConfig.CreateProjectEmailDestination));
         await RenderEmail(email,
-            new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), user.Locale);
+            new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), "en");
         await SendEmailAsync(email);
     }
 
@@ -119,7 +119,7 @@ public class EmailService(
 
     private record RenderResult(string Subject, string Html);
 
-    private async Task RenderEmail<T>(MimeMessage message, T parameters, string locale) where T : EmailTemplateBase
+    private async Task RenderEmail<T>(MimeMessage message, T parameters, string recipientLocale) where T : EmailTemplateBase
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag("app.email.template", typeof(T).Name);
@@ -128,7 +128,7 @@ public class EmailService(
         httpClient.BaseAddress = new Uri("http://" + _emailConfig.EmailRenderHost);
         parameters.BaseUrl = _emailConfig.BaseUrl;
         // Uses TryAddWithoutValidation to work around: https://github.com/cibernox/precompile-intl-runtime/issues/45
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", $"{locale};q=1.0");
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept-Language", $"{recipientLocale};q=1.0");
         var response = await httpClient.PostAsJsonAsync("email", parameters, jsonSerializerOptions);
         response.EnsureSuccessStatusCode();
         var renderResult = await response.Content.ReadFromJsonAsync<RenderResult>();
