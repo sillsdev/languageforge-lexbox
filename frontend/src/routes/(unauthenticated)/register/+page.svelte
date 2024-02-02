@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm, passwordFormRules } from '$lib/forms';
+  import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator } from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { register } from '$lib/user';
@@ -56,9 +56,9 @@
       error={$errors.password}
       autocomplete="new-password"
     />
-    <!-- <DisplayLanguageSelect
+    <DisplayLanguageSelect
       bind:value={$form.locale}
-    /> -->
+    />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
   </ProtectedForm>

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
-  import { Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
+  import { DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
@@ -92,9 +92,9 @@
       error={$errors.email}
       bind:value={$form.email}
     />
-    <!-- <DisplayLanguageSelect
+    <DisplayLanguageSelect
       bind:value={$form.locale}
-    /> -->
+    />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('account_settings.button_update')}</SubmitButton>
   </Form>

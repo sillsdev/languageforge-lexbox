@@ -17,7 +17,7 @@ export async function loadI18n(useLocale?: string): Promise<void> {
   registerAll();
   init({
     fallbackLocale: 'en',
-    initialLocale: /* useLocale ?? getLanguageCodeFromNavigator() ?? */ 'en',
+    initialLocale: useLocale ?? getLanguageCodeFromNavigator() ?? 'en',
   });
   await waitLocale();
 }
