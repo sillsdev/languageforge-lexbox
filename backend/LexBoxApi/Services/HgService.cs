@@ -181,7 +181,7 @@ public partial class HgService : IHgService
             RedirectStandardOutput = false,
             //.hg/cache is excluded since there can be issues reading and it's not required
             Arguments = $"""
-                         -c "rsync -axhAXP --del --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
+                         -c "rsync -axhAXP --del --groupmap=hg:www-data --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
                          """,
         });
         if (process is null)
