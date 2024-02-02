@@ -239,12 +239,11 @@ public partial class HgService : IHgService
 
     private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            target.UnixFileMode = Permissions;
         foreach (var dir in source.EnumerateDirectories())
         {
-            var directoryInfo = target.CreateSubdirectory(dir.Name);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                directoryInfo.UnixFileMode = Permissions;
-            CopyFilesRecursively(dir, directoryInfo);
+            CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
         }
 
         foreach (var file in source.EnumerateFiles())
