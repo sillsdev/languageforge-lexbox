@@ -223,7 +223,9 @@ public partial class HgService : IHgService
         await Task.Run(() =>
         {
             var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
-            Directory.CreateDirectory(deletedRepoPath);
+            var directory = Directory.CreateDirectory(deletedRepoPath);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                directory.UnixFileMode = Permissions;
             Directory.Move(
                 Path.Combine(_options.Value.RepoPath, code),
                 Path.Combine(deletedRepoPath, deletedRepoName));
@@ -257,6 +259,7 @@ public partial class HgService : IHgService
     private static void SetPermissionsRecursively(DirectoryInfo rootDir)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
+        rootDir.UnixFileMode = Permissions;
 
         foreach (var dir in rootDir.EnumerateDirectories())
         {
