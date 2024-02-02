@@ -285,11 +285,7 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
     "new_password": "Nouveau mot de passe",
     "submit": "Réinitialiser le mot de passe",
     "password_reset": "Votre mot de passe a été réinitialisé",
-<<<<<<< Updated upstream
-    "failed": "Échec de la réinitialisation du mot de passe. Avez-vous utilisé un lien expiré ? ({errorMessage})",
-=======
-    "failed": "Échec de la réinitialisation du mot de passe. Avez-vous utilisé un lien expiré? ({statusText})",
->>>>>>> Stashed changes
+    "failed": "Échec de la réinitialisation du mot de passe. Avez-vous utilisé un lien expiré? ({errorMessage})",
   },
   "retention_policy": {
     "dev": "Développeur logiciel",
