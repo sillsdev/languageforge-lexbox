@@ -53,6 +53,8 @@
     return a.user.name.localeCompare(b.user.name);
   });
 
+  $: lexEntryCount = data.lexEntryCount;
+
   const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = false;
   $: showMembers = showAllMembers ? members : members.slice(0, TRUNCATED_MEMBER_COUNT);
@@ -299,6 +301,20 @@
           {$t('project_page.last_commit')}:
           <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
         </div>
+        {#if project.type === ProjectType.FlEx}
+        <div>
+          {$t('project_page.num_entries')}:
+          <span class="text-secondary">
+            {#if ($lexEntryCount instanceof Promise)}
+            {#await $lexEntryCount then num_entries}
+              {num_entries}
+            {/await}
+            {:else}
+              {$lexEntryCount}
+            {/if}
+          </span>
+        </div>
+        {/if}
         <div class="text-lg">{$t('project_page.description')}:</div>
         <span class="text-secondary">
           <EditableText

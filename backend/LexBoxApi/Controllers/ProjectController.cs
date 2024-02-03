@@ -186,4 +186,14 @@ public class ProjectController : ControllerBase
         var result = await _hgService.VerifyRepo(code);
         return new HgVerifyResult(result);
     }
+
+    [HttpPost("updateLexEntryCount/{code}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<int>> UpdateLexEntryCount(string code)
+    {
+        var result = await _projectService.UpdateLexEntryCount(code);
+        return result is null ? NotFound() : result;
+    }
 }

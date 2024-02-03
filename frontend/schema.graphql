@@ -85,6 +85,12 @@ type DeleteUserByAdminOrSelfPayload {
   errors: [DeleteUserByAdminOrSelfError!]
 }
 
+type FlexProjectMetadata {
+  projectId: UUID!
+  project: Project!
+  lexEntryCount: Int
+}
+
 type IsAdminResponse {
   value: Boolean!
 }
@@ -141,6 +147,7 @@ type Project {
   description: String
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
+  flexProjectMetadata: FlexProjectMetadata
   lastCommit: DateTime
   deletedDate: DateTime
   resetStatus: ResetStatus!
@@ -311,6 +318,20 @@ input DeleteUserByAdminOrSelfInput {
   userId: UUID!
 }
 
+input FlexProjectMetadataFilterInput {
+  and: [FlexProjectMetadataFilterInput!]
+  or: [FlexProjectMetadataFilterInput!]
+  projectId: UuidOperationFilterInput
+  project: ProjectFilterInput
+  lexEntryCount: IntOperationFilterInput
+}
+
+input FlexProjectMetadataSortInput {
+  projectId: SortEnumType
+  project: ProjectSortInput
+  lexEntryCount: SortEnumType
+}
+
 input IntOperationFilterInput {
   eq: Int
   neq: Int
@@ -342,6 +363,7 @@ input ProjectFilterInput {
   description: StringOperationFilterInput
   retentionPolicy: RetentionPolicyOperationFilterInput
   type: ProjectTypeOperationFilterInput
+  flexProjectMetadata: FlexProjectMetadataFilterInput
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
@@ -376,6 +398,7 @@ input ProjectSortInput {
   description: SortEnumType
   retentionPolicy: SortEnumType
   type: SortEnumType
+  flexProjectMetadata: FlexProjectMetadataSortInput
   lastCommit: SortEnumType
   deletedDate: SortEnumType
   resetStatus: SortEnumType
