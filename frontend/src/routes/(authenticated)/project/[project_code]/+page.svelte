@@ -295,7 +295,7 @@
         <div>
           {$t('project_page.num_entries')}:
           <span class="text-secondary">
-            {#if ($lexEntryCount instanceof Promise) }
+            {#if ($lexEntryCount instanceof Promise)}
             {#await $lexEntryCount then num_entries}
               {num_entries}
             {/await}

@@ -96,6 +96,8 @@ export async function load(event: PageLoadEvent) {
 
   event.depends(`project:${projectCode}`);
 
+  // eslint thinks this cast is unnecessary, but if it's removed then type-checking on `p.type` below fails
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const project = projectResult.projectByCode as Readable<Project>;
   const lexEntryCount = derived(project, p => {
     if (p.type === ProjectType.FlEx) {
