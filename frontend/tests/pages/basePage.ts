@@ -8,7 +8,7 @@ function regexEscape(s: string): string {
 
 export class BasePage {
   readonly page: Page;
-  readonly url?: string;
+  protected url?: string;
   readonly locators: Locator[];
   readonly hydrationLocator: Locator;
   get urlPattern(): RegExp | undefined {

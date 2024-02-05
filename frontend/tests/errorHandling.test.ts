@@ -1,10 +1,14 @@
-import { expect, test } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from './fixtures';
 import { SandboxPage } from './pages/sandboxPage';
 import * as testEnv from './envVars';
 import { UserDashboardPage } from './pages/userDashboardPage';
 import { LoginPage } from './pages/loginPage';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { loginAs } from './authHelpers';
+import { MailInboxPage } from './pages/mailPages';
+import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
+import { getInbox } from './mailboxHelpers';
 
 test('can catch 500 errors from goto in same tab', async ({ page }) => {
   await new SandboxPage(page).goto();
@@ -112,4 +116,37 @@ test('page load 403 in new tab is redirected to home', async ({ request, browser
   const newPage = await pagePromise;
   // eslint-disable-next-line @typescript-eslint/quotes
   await new UserDashboardPage(newPage).waitFor();
+});
+
+test('page load 403 on home page is redirected to login', async ({ page, tempUser }) => {
+  // (1) Get JWT with only forgot-password audience
+
+  // - Request forgot password email
+  await page.goto('/logout');
+  const loginPage = await new LoginPage(page).goto();
+  const forgotPasswordPage = await loginPage.clickForgotPassword();
+  await forgotPasswordPage.fillForm(tempUser.email);
+  await forgotPasswordPage.submit();
+
+  // - Get JWT from reset password link
+  const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
+  const emailPage = await inboxPage.openEmail();
+  const url = await emailPage.getFirstLanguageDepotUrl();
+  expect(url).not.toBeNull();
+  const forgotPasswordJwt = (url as string).split('jwt=')[1].split('&')[0];
+
+  // (2) Get to a non-home page with an empty urql cache
+  await loginAs(page.request, tempUser.email, tempUser.password);
+  const userAccountPage = await new UserAccountSettingsPage(page).goto();
+
+  // (3) Update cookie with the reset-password JWT and try to go home
+  await page.context().addCookies([{name: testEnv.authCookieName, value: forgotPasswordJwt, url: testEnv.serverBaseUrl}]);
+
+  const responsePromise = page.waitForResponse('/api/graphql');
+  await userAccountPage.goHome();
+  const response = await responsePromise;
+  expect(response.status()).toBe(403);
+
+  // (4) Expect to be redirected to login page
+  await new LoginPage(page).waitFor();
 });

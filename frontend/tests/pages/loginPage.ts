@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { BasePage } from './basePage';
+import { ForgotPasswordPage } from './forgotPasswordPage';
 
 export class LoginPage extends BasePage {
   constructor(page: Page) {
@@ -17,10 +18,9 @@ export class LoginPage extends BasePage {
       return this.page.getByRole('button', { name: 'Log in' }).click();
   }
 
-  // TODO: Convert this after porting the ForgotPassword page
-  // async clickForgotPassword()
-  // {
-  //     await Page.GetByRole(AriaRole.Link, new() { Name = "Forgot password" }).ClickAsync();
-  //     return await new ForgotPasswordPage(Page).WaitFor();
-  // }
+  async clickForgotPassword(): Promise<ForgotPasswordPage>
+  {
+      await this.page.getByRole('link', { name: 'Forgot password' }).click();
+      return await new ForgotPasswordPage(this.page).waitFor();
+  }
 }
