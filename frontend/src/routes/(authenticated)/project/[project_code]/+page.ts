@@ -17,8 +17,8 @@ import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import { error } from '@sveltejs/kit';
-import { hasValue } from '$lib/util/store';
 import { isAdmin } from '$lib/user';
+import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -90,7 +90,8 @@ export async function load(event: PageLoadEvent) {
       { projectCode }
   );
 
-  if (!hasValue(projectResult.projectByCode)) {
+  const nonNullableProject = tryMakeNonNullable(projectResult.projectByCode);
+  if (!nonNullableProject) {
     throw error(404);
   }
 
@@ -115,7 +116,7 @@ export async function load(event: PageLoadEvent) {
   });
 
   return {
-    project,
+    project: nonNullableProject,
     lexEntryCount,
     changesets: derived(changesetResultStore, result => ({
       fetching: result.fetching,

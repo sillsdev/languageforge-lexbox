@@ -8,7 +8,7 @@ import { getClient, graphql } from '$lib/gql';
 import { EmailResult } from '$lib/email';
 import type { PageLoadEvent } from './$types';
 import { error } from '@sveltejs/kit';
-import { hasValue } from '$lib/util/store';
+import { tryMakeNonNullable } from '$lib/util/store';
 
 const EMAIL_RESULTS = Object.values(EmailResult);
 
@@ -28,9 +28,10 @@ export async function load(event: PageLoadEvent) {
       }
     }`), {});
 
-  if (!hasValue(userResult.me)) throw error(404);
+  const nonNullableMe = tryMakeNonNullable(userResult.me);
+  if (!nonNullableMe) throw error(404);
 
-  return { emailResult, account: userResult.me };
+  return { emailResult, account: nonNullableMe };
 }
 
 export async function _changeUserAccountData(input: ChangeUserAccountBySelfInput): $OpResult<ChangeUserAccountBySelfMutation> {
