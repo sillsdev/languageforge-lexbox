@@ -62,21 +62,20 @@ test('server page load 403 is redirected to login', async ({ context }) => {
 });
 
 // Getting 401, not 403. Need to investigate
-test.skip('client page load 403 is redirected to login', async ({ request, browser }) => {
+test('client page load 403 is redirected to login', async ({ page }) => {
   // TODO: Move this to a setup script as recommended by https://playwright.dev/docs/auth
-  await loginAs(request, 'admin', testEnv.defaultPassword);
-  const adminContext = await browser.newContext({storageState: 'admin-storageState.json'});
-  const adminPage = await adminContext.newPage();
-  const adminDashboardPage = await new AdminDashboardPage(adminPage).goto();
+  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  const adminDashboardPage = await new AdminDashboardPage(page).goto();
+  await adminDashboardPage.waitForHydration();
 
   // Now mess up the login cookie and watch the redirect
 
-  await adminContext.addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl, httpOnly: true}]);
-  const responsePromise = adminPage.waitForResponse('/api/graphql');
+  await page.context().addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl}]);
+  const responsePromise = page.waitForResponse('/api/graphql');
   await adminDashboardPage.clickProject('Sena 3');
   const graphqlResponse = await responsePromise;
   expect(graphqlResponse.status()).toBe(403);
-  await new LoginPage(adminPage).waitFor();
+  await new LoginPage(page).waitFor();
 });
 
 test('can catch 403 errors from goto in same tab', async ({ page }) => {
