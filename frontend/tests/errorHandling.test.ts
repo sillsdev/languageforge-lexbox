@@ -61,8 +61,8 @@ test('server page load 403 is redirected to login', async ({ context }) => {
   await new LoginPage(page).waitFor();
 });
 
-// Getting 401, not 403. Need to investigate
-test('client page load 403 is redirected to login', async ({ page }) => {
+// .NET test had 403 in the name but should have been 401
+test('client page load 401 is redirected to login', async ({ page }) => {
   // TODO: Move this to a setup script as recommended by https://playwright.dev/docs/auth
   await loginAs(page.request, 'admin', testEnv.defaultPassword);
   const adminDashboardPage = await new AdminDashboardPage(page).goto();
@@ -74,7 +74,7 @@ test('client page load 403 is redirected to login', async ({ page }) => {
   const responsePromise = page.waitForResponse('/api/graphql');
   await adminDashboardPage.clickProject('Sena 3');
   const graphqlResponse = await responsePromise;
-  expect(graphqlResponse.status()).toBe(403);
+  expect(graphqlResponse.status()).toBe(401);
   await new LoginPage(page).waitFor();
 });
 
