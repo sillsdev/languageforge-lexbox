@@ -223,6 +223,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "history": "History",
     "project_code": "Project Code",
     "summary": "Summary",
+    "num_entries": "Entries",
     "description": "Description",
     "last_commit": "Last Commit",
     "members": {
@@ -244,12 +245,19 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "log_header": "Message"
     },
     "get_project": {
-      "instructions_header": "To open the project with{type, select, FL_EX { } other { (e.g.) }}FLEx{mode, select, manual { manually} other { }}",
-      "instructions": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
+      "instructions_header": "To open the project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
+      "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
 1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" and \"Password\" for Language Depot and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
+      "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
+1. Click 'Get from Internet'\n\
+1. In the 'Project ID' field type: \"{code}\"\n\
+1. In the 'Login' field type: \"{login}\"\ Note: A bug in WeSay means you can't type the @ symbol for an email.  The workaround is to type %40 in place of @. \n\
+1. In the 'Password' field type your password\n\
+1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")\n\
+1. Click 'Download'",
       "label": "Get project",
       "send_receive_url": "Send/Receive URL",
     },
@@ -303,7 +311,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "new_password": "New Password",
     "submit": "Reset Password",
     "password_reset": "Your password has been reset",
-    "failed": "Resetting your password failed. Did you use an expired link? ({statusText})",
+    "failed": "Resetting your password failed. Did you use an expired link? ({errorMessage})",
   },
   "retention_policy": {
     "dev": "Software Developer",

@@ -7,12 +7,17 @@ import { availableLocales as _availableLocales, registerAll } from '$locales';
 import type { Get } from 'type-fest';
 
 export const availableLocales = Object.freeze([..._availableLocales].sort()) as readonly [string, ...string[]];
+export function getLanguageCodeFromNavigator(): string | undefined {
+  // Keep the language code. Discard the country code.
+  return getLocaleFromNavigator()?.split('-')[0];
+}
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function loadI18n(useLocale?: string): Promise<void> {
   registerAll();
   init({
     fallbackLocale: 'en',
-    initialLocale: useLocale ?? getLocaleFromNavigator()?.split('-')[0] ?? 'en',
+    initialLocale: /* useLocale ?? getLanguageCodeFromNavigator() ?? */ 'en',
   });
   await waitLocale();
 }

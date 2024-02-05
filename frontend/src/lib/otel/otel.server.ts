@@ -94,12 +94,12 @@ export async function traceFetch(
     fetch: () => Promise<Response>,
     event?: RequestEvent | NavigationEvent | Event
 ): Promise<Response> {
-  return _traceFetch(() => tracer()
+  return _traceFetch([request], () => tracer()
       .startActiveSpan(`${request.method} ${request.url}`, async (span) => {
         try {
           span.setAttributes({
             [SemanticAttributes.HTTP_METHOD]: request.method,
-            [SemanticAttributes.HTTP_TARGET]: request.url,
+            [SemanticAttributes.HTTP_URL]: request.url,
           });
           traceHeaders(span, 'request', request.headers);
           const traceparent = buildTraceparent(span);

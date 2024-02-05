@@ -15,5 +15,6 @@ public interface IHgService
     Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken);
     Task FinishReset(string code, Stream zipFile);
     Task<string> VerifyRepo(string code);
+    Task<int?> GetLexEntryCount(string code);
     Task<string?> GetRepositoryIdentifier(Project project);
 }

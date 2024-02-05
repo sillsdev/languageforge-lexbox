@@ -181,7 +181,7 @@ public partial class HgService : IHgService
             RedirectStandardOutput = false,
             //.hg/cache is excluded since there can be issues reading and it's not required
             Arguments = $"""
-                         -c "rsync -axhAXP --del --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
+                         -c "rsync -axhAXP --del --groupmap=hg:www-data --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
                          """,
         });
         if (process is null)
@@ -223,7 +223,9 @@ public partial class HgService : IHgService
         await Task.Run(() =>
         {
             var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
-            Directory.CreateDirectory(deletedRepoPath);
+            var directory = Directory.CreateDirectory(deletedRepoPath);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                directory.UnixFileMode = Permissions;
             Directory.Move(
                 Path.Combine(_options.Value.RepoPath, code),
                 Path.Combine(deletedRepoPath, deletedRepoName));
@@ -237,12 +239,11 @@ public partial class HgService : IHgService
 
     private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
     {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            target.UnixFileMode = Permissions;
         foreach (var dir in source.EnumerateDirectories())
         {
-            var directoryInfo = target.CreateSubdirectory(dir.Name);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                directoryInfo.UnixFileMode = Permissions;
-            CopyFilesRecursively(dir, directoryInfo);
+            CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
         }
 
         foreach (var file in source.EnumerateFiles())
@@ -257,6 +258,7 @@ public partial class HgService : IHgService
     private static void SetPermissionsRecursively(DirectoryInfo rootDir)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) return;
+        rootDir.UnixFileMode = Permissions;
 
         foreach (var dir in rootDir.EnumerateDirectories())
         {
@@ -318,6 +320,16 @@ public partial class HgService : IHgService
         var response = await httpClient.GetAsync($"{code}/verify");
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
+    }
+
+    public async Task<int?> GetLexEntryCount(string code)
+    {
+        var httpClient = _hgClient.Value;
+        httpClient.BaseAddress = new Uri(_options.Value.HgCommandServer);
+        var response = await httpClient.GetAsync($"{code}/lexentrycount");
+        response.EnsureSuccessStatusCode();
+        var str = await response.Content.ReadAsStringAsync();
+        return int.TryParse(str, out int result) ? result : null;
     }
 
     private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };

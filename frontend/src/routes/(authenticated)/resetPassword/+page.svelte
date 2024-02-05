@@ -7,6 +7,7 @@
   import { z } from 'zod';
   import { useNotifications } from '$lib/notify';
   import type { PageData } from './$types';
+  import { getAspResponseErrorMessage } from '$lib/util/asp-response';
 
   export let data: PageData;
 
@@ -25,7 +26,8 @@
       },
     });
     if (!response.ok) {
-      return $t('reset_password.failed', {statusText: response.statusText});
+      let errorMessage = await getAspResponseErrorMessage(response);
+      return $t('reset_password.failed', { errorMessage });
     }
     notifySuccess($t('reset_password.password_reset'));
     await goto(data.home);

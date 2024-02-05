@@ -27,4 +27,5 @@ public class HgConfig
     [Required(AllowEmptyStrings = false)]
     public required string RedmineTrustToken { get; init; }
     public string MigrationHost { get; init; } = "sysops.languagedepot.org";
+    public bool AutoUpdateLexEntryCountOnSendReceive { get; init; } = false;
 }
