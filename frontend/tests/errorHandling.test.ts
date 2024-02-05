@@ -43,11 +43,12 @@ test('page load 500 lands on new page', async ({ page, context }) => {
 });
 
 // Locator is wrong, investigate and fix
-test.skip('catch fetch 500 and error dialog', async ({ page }) => {
-  await new SandboxPage(page).goto();
+test('catch fetch 500 and error dialog', async ({ page }) => {
+  const sandboxPage = await new SandboxPage(page).goto();
+  await sandboxPage.waitForHydration();
   // Create promise first before triggering the action
   const responsePromise = page.waitForResponse('/api/testing/test500NoException');
-  await page.getByText('Goto API 500', {exact: true}).click();
+  await page.getByText('Fetch 500').click();
   await responsePromise;
   // eslint-disable-next-line @typescript-eslint/quotes
   await expect(page.locator(":text-matches('Unexpected response:.*(500)', 'g')").first()).toBeVisible();
