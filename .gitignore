@@ -13,3 +13,4 @@ deployment/local-dev/collector-config.yaml
 local.env
 dump.sql
 test-results/
+frontend/**/*-storageState.json
