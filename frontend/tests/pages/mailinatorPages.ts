@@ -8,7 +8,7 @@ export class MailinatorInboxPage extends MailInboxPage {
           page.locator(`[id^='row_']`).first(),
           `https://www.mailinator.com/v4/public/inboxes.jsp?to=${mailboxId}`,
           mailboxId,
-          page.locator(`[id^='row_']`).first());
+          page.locator(`[id^='row_']`));
   }
 
   override getEmailPage(): MailEmailPage {

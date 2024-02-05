@@ -8,7 +8,7 @@ export class MailDevInboxPage extends MailInboxPage {
           page.locator('ul.email-list'),
           'http://localhost:1080/#/',
           mailboxId,
-          page.locator(`[id^='row_']`).first());
+          page.locator('ul.email-list li a'));
   }
 
   override getEmailPage(): MailEmailPage {
