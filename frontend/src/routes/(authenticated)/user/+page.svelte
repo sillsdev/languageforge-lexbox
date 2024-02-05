@@ -37,7 +37,7 @@
   const formSchema = z.object({
     email: z.string().email(),
     name: z.string(),
-    locale: z.string(),
+    locale: z.string().min(2),
   });
 
   let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {

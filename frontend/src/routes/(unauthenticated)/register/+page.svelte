@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm, passwordFormRules } from '$lib/forms';
-  import t, { availableLocales, getLanguageCodeFromNavigator } from '$lib/i18n';
+  import t, { getLanguageCodeFromNavigator } from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { register } from '$lib/user';
   import { locale } from 'svelte-intl-precompile';
@@ -10,12 +10,12 @@
   let turnstileToken = '';
   // $locale is the locale that our i18n picked for them (i.e. the best available option we have for them)
   // getLanguageCodeFromNavigator() gives us the language/locale they probably actually want. Maybe we'll support it in the future.
-  const currLocale = getLanguageCodeFromNavigator() ?? $locale;
+  const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
     name: z.string().min(1, $t('register.name_missing')),
     email: z.string().email($t('register.email')),
     password: passwordFormRules($t),
-    locale: z.enum(availableLocales).default(currLocale),
+    locale: z.string().min(2).default(userLocale),
   });
 
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
