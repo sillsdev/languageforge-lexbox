@@ -150,3 +150,10 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
   // (4) Expect to be redirected to login page
   await new LoginPage(page).waitFor();
 });
+
+test('node survives corrupt jwt', async ({ page }) => {
+  const corruptJwt = 'bla-bla-bla';
+  await page.context().addCookies([{name: testEnv.authCookieName, value: corruptJwt, url: testEnv.serverBaseUrl}]);
+  await new UserDashboardPage(page).goto({expectRedirect: true});
+  await new LoginPage(page).waitFor();
+});
