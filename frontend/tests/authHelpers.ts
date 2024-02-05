@@ -4,6 +4,7 @@ import { RegisterPage } from './pages/registerPage';
 import { UserDashboardPage } from './pages/userDashboardPage';
 import type { UUID } from 'crypto';
 import { executeGql } from './gqlHelpers';
+import { LoginPage } from './pages/loginPage';
 
 export async function loginAs(api: APIRequestContext, user: string, password: string): Promise<void> {
   const loginData = {
@@ -14,6 +15,11 @@ export async function loginAs(api: APIRequestContext, user: string, password: st
   const response = await api.post(`${serverBaseUrl}/api/login`, {data: loginData});
   expect(response.ok()).toBeTruthy();
   await api.storageState({path: `${user}-storageState.json`});
+}
+
+export async function logout(page: Page): Promise<LoginPage> {
+  await page.goto('/logout');
+  return await new LoginPage(page).waitFor();
 }
 
 export async function getCurrentUserId(api: APIRequestContext): Promise<UUID> {
