@@ -1,9 +1,5 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test';
+import { expect, type APIRequestContext } from '@playwright/test';
 import { serverBaseUrl } from './envVars';
-import { RegisterPage } from './pages/registerPage';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import type { UUID } from 'crypto';
-import { boolean } from 'zod';
 
 export function validateGqlErrors(json: {error: unknown, data: unknown}, expectError = false): void {
   if (!expectError) {
