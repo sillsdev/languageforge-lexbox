@@ -39,7 +39,7 @@ export class EmailVerificationAlert extends BaseComponent {
     return expect(this.componentLocator.locator(SUCCESSFULLY_UPDATED_SELECTOR)).toBeVisible();
   }
 
-  public clickResenrEmail(): Promise<void> {
+  public clickResendEmail(): Promise<void> {
     return this.page.getByRole('button', {name: 'Resend verification email'}).click();
   }
 }
