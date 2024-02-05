@@ -4,6 +4,7 @@ import * as testEnv from './envVars';
 import { UserDashboardPage } from './pages/userDashboardPage';
 import { LoginPage } from './pages/loginPage';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
+import { loginAs } from './authHelpers';
 
 test('can catch 500 errors from goto in same tab', async ({ page }) => {
   await new SandboxPage(page).goto();
@@ -55,28 +56,21 @@ test('server page load 403 is redirected to login', async ({ context }) => {
   await new LoginPage(page).waitFor();
 });
 
-test('client page load 403 is redirected to login', async ({ request, browser }) => {
+test.only('client page load 403 is redirected to login', async ({ request, browser }) => {
   // TODO: Move this to a setup script as recommended by https://playwright.dev/docs/auth
-  const loginData = {
-    emailOrUsername: 'admin',
-    password: testEnv.defaultPassword,
-    preHashedPassword: false,
-  }
-  const response = await request.post(`${testEnv.serverBaseUrl}/api/login`, {data: loginData});
-  expect(response.ok()).toBeTruthy();
-  const loggedInState = await request.storageState();
-
-  const loggedInContext = await browser.newContext({storageState: loggedInState});
-  const loggedInPage = await loggedInContext.newPage();
-  const adminDashboardPage = await new AdminDashboardPage(loggedInPage).goto();
+  await loginAs(request, 'admin', testEnv.defaultPassword);
+  const adminContext = await browser.newContext();
+  await adminContext.storageState({path: 'admin-storageState.json'});
+  const adminPage = await adminContext.newPage();
+  const adminDashboardPage = await new AdminDashboardPage(adminPage).goto();
 
   // Now mess up the login cookie and watch the redirect
 
-  await loggedInContext.addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl}]);
-  const responsePromise = loggedInPage.waitForResponse('/api/graphql');
+  await adminContext.addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl}]);
+  const responsePromise = adminPage.waitForResponse('/api/graphql');
   await adminDashboardPage.clickProject('Sena 3');
   const graphqlResponse = await responsePromise;
   expect(graphqlResponse.status()).toBe(403);
-  await new LoginPage(loggedInPage).waitFor();
+  await new LoginPage(adminPage).waitFor();
 });
 
