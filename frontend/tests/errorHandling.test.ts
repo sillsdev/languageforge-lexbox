@@ -6,7 +6,6 @@ import { UserDashboardPage } from './pages/userDashboardPage';
 import { LoginPage } from './pages/loginPage';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { loginAs } from './authHelpers';
-import { MailInboxPage } from './pages/mailPages';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
 import { getInbox } from './mailboxHelpers';
 
