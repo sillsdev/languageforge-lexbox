@@ -15,7 +15,7 @@ export class MailinatorInboxPage extends MailInboxPage {
     return new MailinatorEmailPage(this.page);
   }
 
-  override async goto(options?: {expectRedirect: boolean}) {
+  override async goto(options?: {expectRedirect: boolean}): Promise<this> {
     this.url = `https://www.mailinator.com/v4/public/inboxes.jsp?to=${this.mailboxId}`;
     return super.goto(options);
   }

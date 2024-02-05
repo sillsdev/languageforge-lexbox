@@ -9,7 +9,7 @@ export function validateGqlErrors(json: {error: unknown, data: unknown}, expectE
   }
 }
 
-export async function executeGql(api: APIRequestContext, gql: string, expectError = false): Promise<any> {
+export async function executeGql(api: APIRequestContext, gql: string, expectError = false): Promise<unknown> {
   const response = await api.post(`${serverBaseUrl}/api/graphql`, {data: {query: gql}});
   await expect(response, `code was ${response.status()} (${response.statusText()})`).toBeOK();
   const json: unknown = await response.json();
