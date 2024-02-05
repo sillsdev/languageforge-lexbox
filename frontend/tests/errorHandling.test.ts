@@ -59,14 +59,13 @@ test('server page load 403 is redirected to login', async ({ context }) => {
 test.only('client page load 403 is redirected to login', async ({ request, browser }) => {
   // TODO: Move this to a setup script as recommended by https://playwright.dev/docs/auth
   await loginAs(request, 'admin', testEnv.defaultPassword);
-  const adminContext = await browser.newContext();
-  await adminContext.storageState({path: 'admin-storageState.json'});
+  const adminContext = await browser.newContext({storageState: 'admin-storageState.json'});
   const adminPage = await adminContext.newPage();
   const adminDashboardPage = await new AdminDashboardPage(adminPage).goto();
 
   // Now mess up the login cookie and watch the redirect
 
-  await adminContext.addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl}]);
+  await adminContext.addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl, httpOnly: true}]);
   const responsePromise = adminPage.waitForResponse('/api/graphql');
   await adminDashboardPage.clickProject('Sena 3');
   const graphqlResponse = await responsePromise;
