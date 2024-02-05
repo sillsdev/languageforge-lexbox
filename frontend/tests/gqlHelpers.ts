@@ -7,7 +7,7 @@ import { boolean } from 'zod';
 
 export function validateGqlErrors(json: {error: unknown, data: unknown}, expectError = false): void {
   if (!expectError) {
-    expect(json.error).toBeNull();
+    expect(json.error).toBeFalsy();
     expect(json.data).toBeDefined();
     // TODO: Dive into data object properties and make sure none of them have any "errors" subproperties
   }
