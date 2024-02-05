@@ -34,7 +34,10 @@ export class BasePage {
     }
 
     const response = await this.page.goto(this.url);
-    expect(response?.ok()).toBeTruthy();
+    // response is null if same URL, but different hash - and that's okay
+    if (response != null) {
+      expect(response.ok()).toBeTruthy();
+    }
     if (!expectRedirect) {
       await this.waitFor();
     }
