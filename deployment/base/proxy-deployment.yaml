@@ -13,7 +13,7 @@ spec:
   rules:
 # each host here is patched by index, so don't change the order of them in this file without changing the patch files (ingress-config.yaml)
   - host: localhost
-    http:
+    http: #a copy of this is also in the prod version to support lexbox.org, please keep them in sync :(
       paths:
       - path: /api
         pathType: Prefix
@@ -23,6 +23,20 @@ spec:
             port:
               name: http
       - path: /hg
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
+      - path: /security.txt
+        pathType: Prefix
+        backend:
+          service:
+            name: lexbox
+            port:
+              name: http
+      - path: /.well-known
         pathType: Prefix
         backend:
           service:

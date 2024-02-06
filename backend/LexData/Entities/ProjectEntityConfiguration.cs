@@ -16,6 +16,10 @@ public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>
         builder.HasOne<Project>()
             .WithMany()
             .HasForeignKey(p => p.ParentId);
+        builder.HasOne(p => p.FlexProjectMetadata)
+            .WithOne(metadata => metadata.Project)
+            .HasForeignKey<FlexProjectMetadata>(metadata => metadata.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(project => project.Users)
             .WithOne(projectUser => projectUser.Project)
             .HasForeignKey(projectUser => projectUser.ProjectId)

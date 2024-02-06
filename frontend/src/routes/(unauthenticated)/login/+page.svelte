@@ -21,12 +21,19 @@
   let { form, errors, message, enhance, submitting } = lexSuperForm(
     formSchema,
     async () => {
-      if (await login($form.email, $form.password)) {
+      errors.clear();
+      badCredentials = false;
+
+      const loginResult = await login($form.email, $form.password);
+
+      if (loginResult.success) {
         await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
-        return;
+      } else if (loginResult.error === 'Locked') {
+        $message = $t('login.your_account_is_locked');
+      } else {
+        $message = $t('login.bad_credentials');
+        badCredentials = true;
       }
-      $message = $t('login.bad_credentials');
-      badCredentials = true;
     },
     {
       taintedMessage: null,
@@ -44,8 +51,8 @@
 </script>
 
 <div class="hero flex-grow">
-  <div class="hero-content flex-col lg:flex-row gap-8">
-    <div class="card flex-shrink-0 w-full max-w-md sm:shadow-2xl sm:bg-base-200">
+  <div class="grid lg:grid-cols-2 gap-8 place-items-center">
+    <div class="card w-full max-w-md sm:shadow-2xl sm:bg-base-200">
       <div class="card-body sm-only:p-0">
         <PageTitle title={$t('login.title')} />
 
@@ -68,7 +75,9 @@
             autocomplete="current-password"
           />
 
-          <FormError error={$message} />
+          <div class="markdown-wrapper">
+            <FormError error={$message} markdown />
+          </div>
 
           <a class="link mt-0" href="/forgotPassword">
             {$t('login.forgot_password')}
@@ -106,3 +115,13 @@
     </div>
   </div>
 </div>
+
+<style lang="postcss">
+  :global(.markdown-wrapper a) {
+    @apply link link-hover text-base-content;
+  }
+
+  :global(.markdown-wrapper .label) {
+    @apply p-0 mb-2;
+  }
+</style>

@@ -33,7 +33,7 @@ public class LexProxyService : ILexProxyService
 
     public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
-        var user = await _lexAuthService.Login(loginRequest);
+        var (user, _) = await _lexAuthService.Login(loginRequest);
         if (user is not null) await _userService.UpdateUserLastActive(user.Id);
         return user;
     }
@@ -41,6 +41,13 @@ public class LexProxyService : ILexProxyService
     public async Task RefreshProjectLastChange(string projectCode)
     {
         await _projectService.UpdateLastCommit(projectCode);
+    }
+
+    public async Task UpdateLastEntryCountIfAllowed(string projectCode)
+    {
+        if (_hgConfig.AutoUpdateLexEntryCountOnSendReceive) {
+            await _projectService.UpdateLexEntryCount(projectCode);
+        }
     }
 
     public async ValueTask<RequestInfo?> GetDestinationPrefix(HgType type, string projectCode)

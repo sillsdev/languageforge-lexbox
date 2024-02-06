@@ -15,13 +15,15 @@
       dispatch('action');
     }
   }
+
+  $: pr = disabled ? '!pr-0' : '!pr-1';
+  $: br = disabled ? 'border-r-0' : '';
 </script>
 
 <button
-  {disabled}
   on:click={onAction}
   on:keypress={onAction}
-  class="btn badge !pr-1 {variant} group transition whitespace-nowrap gap-1"
+  class="btn badge {variant} group transition whitespace-nowrap gap-1 {pr} {br}" class:pointer-events-none={disabled}
 >
   <slot />
 

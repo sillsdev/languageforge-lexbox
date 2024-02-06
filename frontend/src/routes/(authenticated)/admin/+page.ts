@@ -9,6 +9,8 @@ import type {
   ChangeUserAccountByAdminInput,
   ChangeUserAccountByAdminMutation,
   ProjectFilterInput,
+  SetUserLockedInput,
+  SetUserLockedMutation,
   UserFilterInput,
 } from '$lib/gql/types';
 import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from '$lib/gql/types';
@@ -39,11 +41,11 @@ export async function load(event: PageLoadEvent) {
 
   //language=GraphQL
   const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
-        query loadAdminDashboardProjects($withDeletedProjects: Boolean, $filter: ProjectFilterInput) {
+        query loadAdminDashboardProjects($withDeletedProjects: Boolean!, $filter: ProjectFilterInput) {
             projects(
               where: $filter,
               orderBy: [
-                {lastCommit: ASC},
+                {createdDate: DESC},
                 {name: ASC}
             ], withDeleted: $withDeletedProjects) {
               code
@@ -125,6 +127,31 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
               name
               email
               isAdmin
+            }
+            errors {
+                __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    )
+  return result;
+}
+
+export async function _setUserLocked(input: SetUserLockedInput): $OpResult<SetUserLockedMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation SetUserLocked($input: SetUserLockedInput!) {
+          setUserLocked(input: $input) {
+            user {
+              id
+              locked
             }
             errors {
                 __typename

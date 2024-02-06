@@ -120,4 +120,19 @@ public class UserMutations
         await dbContext.SaveChangesAsync();
         return user;
     }
+
+    public record SetUserLockedInput(Guid UserId, bool Locked);
+
+    [AdminRequired]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    public async Task<User> SetUserLocked(SetUserLockedInput input, LexBoxDbContext dbContext, IPermissionService permissionService)
+    {
+        permissionService.AssertCanLockOrUnlockUser(input.UserId);
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        if (user is null) throw new NotFoundException("User not found");
+        user.Locked = input.Locked;
+        await dbContext.SaveChangesAsync();
+        return user;
+    }
 }

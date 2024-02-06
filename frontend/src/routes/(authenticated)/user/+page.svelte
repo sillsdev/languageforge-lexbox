@@ -1,6 +1,6 @@
 <script lang="ts">
   import { useEmailResult, useRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
-  import { DisplayLanguageSelect, Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
+  import { Form, FormError, Input, SubmitButton, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { _changeUserAccountData } from './+page';
@@ -37,7 +37,7 @@
   const formSchema = z.object({
     email: z.string().email(),
     name: z.string(),
-    locale: z.string(),
+    locale: z.string().min(2),
   });
 
   let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {
@@ -92,9 +92,9 @@
       error={$errors.email}
       bind:value={$form.email}
     />
-    <DisplayLanguageSelect
+    <!-- <DisplayLanguageSelect
       bind:value={$form.locale}
-    />
+    /> -->
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('account_settings.button_update')}</SubmitButton>
   </Form>

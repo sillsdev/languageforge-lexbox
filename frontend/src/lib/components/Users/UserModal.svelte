@@ -3,6 +3,8 @@
   import { Modal } from '$lib/components/modals/index.js';
   import FormatDate from '$lib/components/FormatDate.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import UserLockedAlert from './UserLockedAlert.svelte';
+
   type User = {
     id: string;
     name: string;
@@ -28,8 +30,13 @@
 
 <Modal bind:this={userDetailsModal} bottom>
   <div class="p-4">
-    <h2 class="text-secondary text-2xl">{user.name}</h2>
+    <h2 class="text-secondary">
+      <span class="text-2xl">
+        {user.name}
+      </span>
+    </h2>
     <div class="divider" />
+    <UserLockedAlert locked={user.locked} />
     <div class="grid grid-cols-2 gap-4">
       <div>
         <h3>{$t('admin_dashboard.column_email')}</h3>
@@ -65,16 +72,12 @@
         <p class="value"><FormatDate date={user.lastActive} /></p>
       </div>
       <div>
-        <h3>{$t('admin_dashboard.user_details_modal.locked')}</h3>
-        <p class="value" class:text-error={user.locked}>{user.locked ? $t('common.yes') : $t('common.no')}</p>
+        <h3>{$t('admin_dashboard.user_details_modal.can_create_projects')}</h3>
+        <p class="value" class:!text-success={user.canCreateProjects}>{user.canCreateProjects ? $t('common.yes') : $t('common.no')}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.updated')}</h3>
         <p class="value"><FormatDate date={user.updatedDate} /></p>
-      </div>
-      <div>
-        <h3>{$t('admin_dashboard.user_details_modal.can_create_projects')}</h3>
-        <p class="value" class:!text-success={user.canCreateProjects}>{user.canCreateProjects ? $t('common.yes') : $t('common.no')}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.locale')}</h3>

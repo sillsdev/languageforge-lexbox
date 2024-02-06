@@ -285,7 +285,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
     "new_password": "Nueva contraseña",
     "submit": "Restablecer contraseña",
     "password_reset": "Se ha restablecido su contraseña",
-    "failed": "Error al restablecer su contraseña. ¿Usó un enlace caducado? ({statusText})",
+    "failed": "Error al restablecer su contraseña. ¿Usó un enlace caducado? ({errorMessage})",
   },
   "retention_policy": {
     "dev": "Desarrollador de software",

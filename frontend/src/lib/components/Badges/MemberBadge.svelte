@@ -6,7 +6,7 @@
   export let member: { name: string; role: ProjectRole };
   export let canManage = false;
 
-  let variant = member.role === ProjectRole.Manager ? 'btn-primary' as const : 'btn-secondary' as const;
+  $: variant = member.role === ProjectRole.Manager ? 'btn-primary' as const : 'btn-secondary' as const;
 </script>
 
 <ActionBadge actionIcon="i-mdi-dots-vertical" {variant} disabled={!canManage}>

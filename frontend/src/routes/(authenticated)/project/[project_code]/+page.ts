@@ -11,13 +11,14 @@ import type {
   DeleteProjectUserMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
+import { ProjectType } from '$lib/gql/generated/graphql';
+import { derived, type Readable } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
-import { derived } from 'svelte/store';
 import { error } from '@sveltejs/kit';
-import { hasValue } from '$lib/util/store';
 import { isAdmin } from '$lib/user';
+import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -61,6 +62,9 @@ export async function load(event: PageLoadEvent) {
                 }
 							}
 						}
+						flexProjectMetadata {
+							lexEntryCount
+						}
 					}
 				}
 			`),
@@ -86,14 +90,34 @@ export async function load(event: PageLoadEvent) {
       { projectCode }
   );
 
-  if (!hasValue(projectResult.projectByCode)) {
+  const nonNullableProject = tryMakeNonNullable(projectResult.projectByCode);
+  if (!nonNullableProject) {
     throw error(404);
   }
 
   event.depends(`project:${projectCode}`);
 
+  // eslint thinks this cast is unnecessary, but if it's removed then type-checking on `p.type` below fails
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const project = projectResult.projectByCode as Readable<Project>;
+  const lexEntryCount = derived(project, p => {
+    if (p.type === ProjectType.FlEx) {
+      if (p.flexProjectMetadata?.lexEntryCount != null) {
+        return p.flexProjectMetadata?.lexEntryCount;
+      } else {
+        return event.fetch(`/api/project/updateLexEntryCount/${p.code}`, {method: 'POST'})
+        .then(x => x.text())
+        .then(s => parseInt(s))
+        .catch(() => 0);
+      }
+    } else {
+      return 0;
+    }
+  });
+
   return {
-    project: projectResult.projectByCode,
+    project: nonNullableProject,
+    lexEntryCount,
     changesets: derived(changesetResultStore, result => ({
       fetching: result.fetching,
       changesets: result.data?.projectByCode?.changesets ?? [],

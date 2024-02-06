@@ -59,7 +59,7 @@ function shouldTryAutoReload(updateDetected: boolean): boolean {
  * This is obviously NOT a SvelteKit handler/feature. It just mimics the `handleFetch` in hooks.server.ts.
  */
 handleFetch(async ({ fetch, args }) => {
-  const response = await traceFetch(async () => {
+  const response = await traceFetch(args, async () => {
     const response = await fetch(...args);
 
     validateFetchResponse(response,

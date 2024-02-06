@@ -8,7 +8,7 @@ const config = {
   },
   kit: {
     version: {
-      pollInterval: 60000 * 3, // 3m
+      pollInterval: 0,
     },
     adapter: adapter({
       precompress: true

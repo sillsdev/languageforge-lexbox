@@ -35,7 +35,7 @@ public class LoginPageTests : PageTest
         await loginPage.Submit();
         await loginPage.WaitFor();
 
-        await Expect(Page.GetByText("Something went wrong, please make sure you have used the correct account informa")).ToBeVisibleAsync();
+        await Expect(Page.GetByText("The account information you entered is incorrect")).ToBeVisibleAsync();
 
         await loginPage.FillForm("admin", TestingEnvironmentVariables.DefaultPassword);
         await loginPage.Submit();

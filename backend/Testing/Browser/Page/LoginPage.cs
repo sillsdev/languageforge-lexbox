@@ -22,7 +22,7 @@ public class LoginPage : BasePage<LoginPage>
 
     public async Task<ForgotPasswordPage> ClickForgotPassword()
     {
-        await Page.GetByRole(AriaRole.Link, new() { Name = "Forgot password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Forgot your password?" }).ClickAsync();
         return await new ForgotPasswordPage(Page).WaitFor();
     }
 }
