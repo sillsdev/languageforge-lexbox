@@ -20,7 +20,7 @@ export class LoginPage extends BasePage {
 
   async clickForgotPassword(): Promise<ForgotPasswordPage>
   {
-      await this.page.getByRole('link', { name: 'Forgot password' }).click();
+      await this.page.getByRole('link', { name: 'Forgot your password?' }).click();
       return await new ForgotPasswordPage(this.page).waitFor();
   }
 }
