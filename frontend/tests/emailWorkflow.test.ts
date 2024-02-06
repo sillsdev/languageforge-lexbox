@@ -29,7 +29,8 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
   await userPage.emailVerificationAlert.assertSuccessfullyVerified();
 
   // Verify verification alert goes away on navigation
-  await userPage.goHome();
+  await userPage.clickHome();
+  await new UserDashboardPage(userPage.page).waitFor();
   await userPage.emailVerificationAlert.assertGone();
 
   // Request new email address

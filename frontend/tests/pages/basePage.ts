@@ -52,8 +52,8 @@ export class BasePage {
       // still wait to ensure we reach the state we expect
       await this.page.waitForURL(this.urlPattern, {waitUntil: 'load'});
     }
-    await Promise.all(this.locators.map(l => expect(l).toBeVisible()));
     await this.waitForHydration(); // wait for, e.g., onclick handlers to be attached
+    await Promise.all(this.locators.map(l => expect(l).toBeVisible()));
     return this;
   }
 

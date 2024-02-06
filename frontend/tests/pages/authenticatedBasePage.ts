@@ -15,7 +15,7 @@ export class AuthenticatedBasePage extends BasePage {
     this.emailVerificationAlert = new EmailVerificationAlert(page);
   }
 
-  goHome(): Promise<void> {
+  clickHome(): Promise<void> {
     return this.page.locator('.breadcrumbs').getByRole('link', {name: 'Home'}).click();
   }
 }

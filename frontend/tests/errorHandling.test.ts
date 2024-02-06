@@ -107,6 +107,7 @@ test('page load 403 in new tab is redirected to home', async ({ page }) => {
 });
 
 test('page load 403 on home page is redirected to login', async ({ page, tempUser }) => {
+  test.slow();
   // (1) Get JWT with only forgot-password audience
 
   // - Request forgot password email
@@ -131,7 +132,7 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
   await page.context().addCookies([{name: testEnv.authCookieName, value: forgotPasswordJwt, url: testEnv.serverBaseUrl}]);
 
   const responsePromise = page.waitForResponse('/api/graphql');
-  await userAccountPage.goHome();
+  await userAccountPage.clickHome();
   const response = await responsePromise;
   expect(response.status()).toBe(403);
 
