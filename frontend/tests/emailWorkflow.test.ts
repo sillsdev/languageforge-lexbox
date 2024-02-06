@@ -10,6 +10,7 @@ import { LoginPage } from './pages/loginPage';
 
 // TODO: Investigate why this test passes on Firefox but fails on Chromium
 test('register, verify, update, verify email address', async ({ page, tempUser }) => {
+  test.slow(); // Checking email and logging in repeatedly takes time
   await loginAs(page.request, tempUser.email, tempUser.password);
   const userDashboardPage = await new UserDashboardPage(page).goto();
   await userDashboardPage.emailVerificationAlert.assertPleaseVerify();
@@ -63,6 +64,7 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
 });
 
 test('forgot password', async ({ page, tempUser }) => {
+  test.slow(); // Checking email and logging in repeatedly takes time
   // Request forgot password email
   let loginPage = await logout(page);
   const forgotPasswordPage = await loginPage.clickForgotPassword();
