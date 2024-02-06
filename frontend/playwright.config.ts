@@ -98,11 +98,12 @@ const config: PlaywrightTestConfig = {
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run build && npm run preview',
-    port: 4173,
-    reuseExistingServer: !process.env.CI,
-  },
+  // Not needed here since we'll pretty much always be doing `task up` before development. 2024-02 RM
+  // webServer: {
+  //   command: 'npm run build && npm run preview',
+  //   port: 4173,
+  //   reuseExistingServer: !process.env.CI,
+  // },
 }
 
 export default defineConfig(config);
