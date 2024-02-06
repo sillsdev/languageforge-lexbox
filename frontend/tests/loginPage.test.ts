@@ -28,7 +28,7 @@ test('can log in after error', async ({ page }) => {
   await loginPage.submit();
   await loginPage.waitFor();
 
-  await expect(page.getByText('Something went wrong, please make sure you have used the correct account informa')).toBeVisible();
+  await expect(page.getByText('The account information you entered is incorrect')).toBeVisible();
 
   // Correct password still works
   await loginPage.fillForm('admin', defaultPassword);
