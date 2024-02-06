@@ -1,11 +1,11 @@
 import { expect, type APIRequestContext } from '@playwright/test';
 import { serverBaseUrl } from './envVars';
 
-export function validateGqlErrors(json: {error: unknown, data: unknown}, expectError = false): void {
+export function validateGqlErrors(json: {errors: unknown, data: unknown}, expectError = false): void {
   if (!expectError) {
-    expect(json.error).toBeFalsy();
+    expect(json.errors).toBeFalsy();
     expect(json.data).toBeDefined();
-    // TODO: Dive into data object properties and make sure none of them have any "errors" subproperties
+    Object.values(json.data as {errors: unknown}[]).forEach(value => expect(value.errors).toBeFalsy());
   }
 }
 
@@ -14,6 +14,6 @@ export async function executeGql(api: APIRequestContext, gql: string, expectErro
   await expect(response, `code was ${response.status()} (${response.statusText()})`).toBeOK();
   const json: unknown = await response.json();
   expect(json, `for query ${gql}`).not.toBeNull();
-  validateGqlErrors(json as {error: unknown, data: unknown}, expectError);
+  validateGqlErrors(json as {errors: unknown, data: unknown}, expectError);
   return json;
 }
