@@ -28,8 +28,7 @@ export class BasePage {
   }
 
   async goto({ expectRedirect }: {expectRedirect: boolean} = {expectRedirect: false}): Promise<this> {
-    if (this.url == undefined)
-    {
+    if (this.url == undefined) {
         throw new Error('Can\'t explicitly navigate to page, because it doesn\'t have a configured url.');
     }
 
@@ -44,8 +43,7 @@ export class BasePage {
     return this;
   }
 
-  async waitFor(): Promise<this>
-  {
+  async waitFor(): Promise<this> {
     if (this.urlPattern == null) {
       await this.page.waitForLoadState('load');
     } else {

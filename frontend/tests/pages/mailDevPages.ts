@@ -2,7 +2,6 @@ import type { Page } from '@playwright/test';
 import { MailEmailPage, MailInboxPage } from './mailPages';
 
 export class MailDevInboxPage extends MailInboxPage {
-
   constructor(page: Page, mailboxId: string) {
     super(page,
           page.locator('ul.email-list'),
@@ -23,7 +22,6 @@ export class MailDevInboxPage extends MailInboxPage {
 }
 
 export class MailDevEmailPage extends MailEmailPage {
-
   constructor(page: Page) {
     super(page, page.frameLocator('.preview-iframe:visible').locator('body'), undefined);
   }

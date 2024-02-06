@@ -2,7 +2,6 @@ import type { Locator, Page } from '@playwright/test';
 import { MailEmailPage, MailInboxPage } from './mailPages';
 
 export class MailinatorInboxPage extends MailInboxPage {
-
   constructor(page: Page, mailboxId: string) {
     super(page,
           page.locator(`[id^='row_']`).first(),
@@ -22,7 +21,6 @@ export class MailinatorInboxPage extends MailInboxPage {
 }
 
 export class MailinatorEmailPage extends MailEmailPage {
-
   constructor(page: Page) {
     super(page, page.frameLocator('#html_msg_body') as Locator, undefined);
   }

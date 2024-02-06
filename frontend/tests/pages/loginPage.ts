@@ -7,19 +7,16 @@ export class LoginPage extends BasePage {
     super(page, page.getByRole('heading', {name: 'Log in'}), '/login');
   }
 
-  async fillForm(emailOrUsername: string, password: string): Promise<void>
-  {
+  async fillForm(emailOrUsername: string, password: string): Promise<void> {
       await this.page.getByLabel('Email').fill(emailOrUsername);
       await this.page.getByLabel('Password').fill(password);
   }
 
-  submit(): Promise<void>
-  {
+  submit(): Promise<void> {
       return this.page.getByRole('button', { name: 'Log in' }).click();
   }
 
-  async clickForgotPassword(): Promise<ForgotPasswordPage>
-  {
+  async clickForgotPassword(): Promise<ForgotPasswordPage> {
       await this.page.getByRole('link', { name: 'Forgot your password?' }).click();
       return await new ForgotPasswordPage(this.page).waitFor();
   }

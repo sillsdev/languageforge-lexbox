@@ -12,14 +12,12 @@ export class ForgotPasswordPage extends BasePage {
     super(page, page.getByRole('heading', {name: 'Forgot Password'}), '/forgotPassword');
   }
 
-  async fillForm(email: string): Promise<void>
-  {
-      await this.page.getByLabel('Email').fill(email);
+  async fillForm(email: string): Promise<void> {
+    await this.page.getByLabel('Email').fill(email);
   }
 
-  async submit(): Promise<ResetPasswordEmailSentPage>
-  {
-      await this.page.getByRole('button', { name: 'Send reset email' }).click();
-      return await new ResetPasswordEmailSentPage(this.page).waitFor();
-    }
+  async submit(): Promise<ResetPasswordEmailSentPage> {
+    await this.page.getByRole('button', { name: 'Send reset email' }).click();
+    return await new ResetPasswordEmailSentPage(this.page).waitFor();
+  }
 }
