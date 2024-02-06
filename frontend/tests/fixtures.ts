@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test';
+import { test as base, expect, type BrowserContext, type BrowserContextOptions } from '@playwright/test';
 import * as testEnv from './envVars';
 import { type UUID, randomUUID } from 'crypto';
 import { deleteUser, loginAs, registerUser } from './utils/authHelpers';
@@ -12,17 +12,34 @@ export interface TempUser {
 }
 
 type Fixtures = {
-  tempUser: TempUser
+  tempUser: TempUser,
+  contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
+}
+
+function addUnexpectedResponseListener(context: BrowserContext) {
+  context.addListener('response', response => {
+    expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(500);
+    if (response.request().isNavigationRequest()) {
+      expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(400);
+    }
+  });
 }
 
 export const test = base.extend<Fixtures>({
-  context: async ({ context }, use) => {
-    context.addListener('response', response => {
-      expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(500);
-      if (response.request().isNavigationRequest()) {
-        expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(400);
-      }
+  contextFactory: async ({ browser }, use) => {
+    const contexts: BrowserContext[] = [];
+    await use(async (options) => {
+      const context = await browser.newContext(options);
+      contexts.push(context);
+      addUnexpectedResponseListener(context);
+      return context;
     });
+    for (const context of contexts) {
+      await context.close();
+    }
+  },
+  context: async ({ context }, use) => {
+    addUnexpectedResponseListener(context);
     await use(context);
   },
   tempUser: async ({ browser, page }, use, testInfo) => {
