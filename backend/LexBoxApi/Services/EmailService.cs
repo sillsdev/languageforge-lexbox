@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LexBoxApi.Auth;
@@ -43,7 +44,7 @@ public class EmailService(
             "Login",
             new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
-        await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink));
+        await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink), user.LocalizationCode);
         await SendEmailAsync(email);
     }
 
@@ -72,14 +73,14 @@ public class EmailService(
             "Login",
             new { jwt, returnTo = $"/user?emailResult={queryParam}", email = newEmail ?? user.Email, });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
-        await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail)));
+        await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail)), user.LocalizationCode);
         await SendEmailAsync(email);
     }
 
     public async Task SendPasswordChangedEmail(User user)
     {
         var email = StartUserEmail(user);
-        await RenderEmail(email, new PasswordChangedEmail(user.Name));
+        await RenderEmail(email, new PasswordChangedEmail(user.Name), user.LocalizationCode);
         await SendEmailAsync(email);
     }
 
@@ -88,7 +89,7 @@ public class EmailService(
         var email = new MimeMessage();
         email.To.Add(new MailboxAddress("Admin", _emailConfig.CreateProjectEmailDestination));
         await RenderEmail(email,
-            new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput));
+            new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), "en");
         await SendEmailAsync(email);
     }
 
@@ -119,7 +120,7 @@ public class EmailService(
 
     private record RenderResult(string Subject, string Html);
 
-    private async Task RenderEmail<T>(MimeMessage message, T parameters) where T : EmailTemplateBase
+    private async Task RenderEmail<T>(MimeMessage message, T parameters, string recipientLocale) where T : EmailTemplateBase
     {
         using var activity = LexBoxActivitySource.Get().StartActivity();
         activity?.AddTag("app.email.template", typeof(T).Name);
@@ -127,6 +128,7 @@ public class EmailService(
         var httpClient = clientFactory.CreateClient();
         httpClient.BaseAddress = new Uri("http://" + _emailConfig.EmailRenderHost);
         parameters.BaseUrl = _emailConfig.BaseUrl;
+        httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(recipientLocale, 1));
         var response = await httpClient.PostAsJsonAsync("email", parameters, jsonSerializerOptions);
         response.EnsureSuccessStatusCode();
         var renderResult = await response.Content.ReadFromJsonAsync<RenderResult>();

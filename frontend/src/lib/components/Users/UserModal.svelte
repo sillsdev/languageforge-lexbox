@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
-  import t from '$lib/i18n/index.js';
-  import { Modal } from '$lib/components/modals/index.js';
+  import t from '$lib/i18n';
+  import { Modal } from '$lib/components/modals';
   import FormatDate from '$lib/components/FormatDate.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
   import UserLockedAlert from './UserLockedAlert.svelte';

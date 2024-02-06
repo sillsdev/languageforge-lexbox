@@ -4,6 +4,9 @@
   import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import z from 'zod';
+  // eslint-disable-next-line no-restricted-imports
+  import { t as otherT } from 'svelte-intl-precompile';
+  import t from '$lib/i18n';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -100,6 +103,15 @@ function preFillForm(): void {
         <SubmitButton>Submit</SubmitButton>
         <Button style="btn-outline" on:click={preFillForm}>Pre fill</Button>
       </Form>
+    </div>
+  </div>
+  <div class="card bg-base-200 shadow-lg col-span-2">
+    <div class="card-body">
+      <h2 class="card-title">Translations of login.title</h2>
+      <div>Current: {$t('login.title')}</div>
+      <div>English: {$otherT('login.title', { locale: 'en'})} (always works, because it's the fallback)</div>
+      <div>French: {$otherT('login.title', { locale: 'fr'})} (only works if it's the current, otherwise uses fallback)</div>
+      <div>Spanish: {$otherT('login.title', { locale: 'es'})} (only works if it's the current, otherwise uses fallback)</div>
     </div>
   </div>
 </div>
