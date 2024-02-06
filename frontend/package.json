@@ -9,7 +9,7 @@
 		"preview": "vite preview",
 		"test": "playwright test",
 		"test-flaky": "playwright test --repeat-each=3",
-		"test-report": "playwright show-report",
+		"test-report": "playwright show-report test-results/_html-report",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
