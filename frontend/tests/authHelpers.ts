@@ -14,7 +14,6 @@ export async function loginAs(api: APIRequestContext, user: string, password: st
   }
   const response = await api.post(`${serverBaseUrl}/api/login`, {data: loginData});
   expect(response.ok()).toBeTruthy();
-  await api.storageState({path: `${user}-storageState.json`});
 }
 
 export async function logout(page: Page): Promise<LoginPage> {

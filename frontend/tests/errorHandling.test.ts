@@ -93,23 +93,19 @@ test('can catch 403 errors from goto in new tab', async ({ page, context }) => {
   expect(response.status()).toBe(403);
 });
 
-test('page load 403 is redirected to home', async ({ request, browser }) => {
-  await loginAs(request, 'manager', testEnv.defaultPassword);
-  const managerContext = await browser.newContext({storageState: 'manager-storageState.json'});
-  const managerPage = await managerContext.newPage();
-  await new SandboxPage(managerPage).goto();
-  await managerPage.getByText('Goto page load 403', {exact: true}).click();
+test('page load 403 is redirected to home', async ({ page }) => {
+  await loginAs(page.request, 'manager', testEnv.defaultPassword);
+  await new SandboxPage(page).goto();
+  await page.getByText('Goto page load 403', {exact: true}).click();
   // eslint-disable-next-line @typescript-eslint/quotes
-  await new UserDashboardPage(managerPage).waitFor();
+  await new UserDashboardPage(page).waitFor();
 });
 
-test('page load 403 in new tab is redirected to home', async ({ request, browser }) => {
-  await loginAs(request, 'manager', testEnv.defaultPassword);
-  const managerContext = await browser.newContext({storageState: 'manager-storageState.json'});
-  const managerPage = await managerContext.newPage();
-  await new SandboxPage(managerPage).goto();
-  const pagePromise = managerContext.waitForEvent('page');
-  await managerPage.getByText('Goto page load 403 new tab').click();
+test('page load 403 in new tab is redirected to home', async ({ page }) => {
+  await loginAs(page.request, 'manager', testEnv.defaultPassword);
+  await new SandboxPage(page).goto();
+  const pagePromise = page.context().waitForEvent('page');
+  await page.getByText('Goto page load 403 new tab').click();
   const newPage = await pagePromise;
   // eslint-disable-next-line @typescript-eslint/quotes
   await new UserDashboardPage(newPage).waitFor();
