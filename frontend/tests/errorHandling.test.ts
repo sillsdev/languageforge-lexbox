@@ -16,6 +16,7 @@ test('can catch 500 errors from goto in same tab', async ({ page }) => {
   await page.getByText('Goto API 500', {exact: true}).click();
   const response = await responsePromise;
   expect(response.status()).toBe(500);
+  test.fail();
 });
 
 test('can catch 500 errors from goto in new tab', async ({ page, context }) => {
@@ -24,12 +25,14 @@ test('can catch 500 errors from goto in new tab', async ({ page, context }) => {
   await page.getByText('Goto API 500 new tab').click();
   const response = await responsePromise;
   expect(response.status()).toBe(500);
+  test.fail();
 });
 
 test('can catch 500 errors in page load', async ({ page }) => {
   await new SandboxPage(page).goto();
   await page.getByText('Goto page load 500', {exact: true}).click();
   await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  test.fail();
 });
 
 test('page load 500 lands on new page', async ({ page, context }) => {
@@ -38,6 +41,7 @@ test('page load 500 lands on new page', async ({ page, context }) => {
   await page.getByText('Goto page load 500 new tab').click();
   const newPage = await pagePromise;
   await expect(newPage.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  test.fail();
 });
 
 // Locator is wrong, investigate and fix
@@ -48,6 +52,7 @@ test('catch fetch 500 and error dialog', async ({ page }) => {
   await page.getByText('Fetch 500').click();
   await responsePromise;
   await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  test.fail();
 });
 
 test('server page load 403 is redirected to login', async ({ context }) => {
@@ -80,6 +85,7 @@ test('can catch 403 errors from goto in same tab', async ({ page }) => {
   await page.getByText('Goto API 403', {exact: true}).click();
   const response = await responsePromise;
   expect(response.status()).toBe(403);
+  test.fail();
 });
 
 test('can catch 403 errors from goto in new tab', async ({ page, context }) => {
@@ -88,6 +94,7 @@ test('can catch 403 errors from goto in new tab', async ({ page, context }) => {
   await page.getByText('Goto API 403 new tab').click();
   const response = await responsePromise;
   expect(response.status()).toBe(403);
+  test.fail();
 });
 
 test('page load 403 is redirected to home', async ({ page }) => {
