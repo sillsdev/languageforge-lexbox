@@ -29,8 +29,7 @@ test('can catch 500 errors from goto in new tab', async ({ page, context }) => {
 test('can catch 500 errors in page load', async ({ page }) => {
   await new SandboxPage(page).goto();
   await page.getByText('Goto page load 500', {exact: true}).click();
-  // eslint-disable-next-line @typescript-eslint/quotes
-  await expect(page.locator(":text-matches('Unexpected response:.*(500)', 'g')").first()).toBeVisible();
+  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
 });
 
 test('page load 500 lands on new page', async ({ page, context }) => {
@@ -38,8 +37,7 @@ test('page load 500 lands on new page', async ({ page, context }) => {
   const pagePromise = context.waitForEvent('page', page => page.url().endsWith('/sandbox/500'));
   await page.getByText('Goto page load 500 new tab').click();
   const newPage = await pagePromise;
-  // eslint-disable-next-line @typescript-eslint/quotes
-  await expect(newPage.locator(":text-matches('Unexpected response:.*(500)', 'g')").first()).toBeVisible();
+  await expect(newPage.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
 });
 
 // Locator is wrong, investigate and fix
@@ -49,8 +47,7 @@ test('catch fetch 500 and error dialog', async ({ page }) => {
   const responsePromise = page.waitForResponse('/api/testing/test500NoException');
   await page.getByText('Fetch 500').click();
   await responsePromise;
-  // eslint-disable-next-line @typescript-eslint/quotes
-  await expect(page.locator(":text-matches('Unexpected response:.*(500)', 'g')").first()).toBeVisible();
+  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
 });
 
 test('server page load 403 is redirected to login', async ({ context }) => {
@@ -97,7 +94,6 @@ test('page load 403 is redirected to home', async ({ page }) => {
   await loginAs(page.request, 'manager', testEnv.defaultPassword);
   await new SandboxPage(page).goto();
   await page.getByText('Goto page load 403', {exact: true}).click();
-  // eslint-disable-next-line @typescript-eslint/quotes
   await new UserDashboardPage(page).waitFor();
 });
 
@@ -107,7 +103,6 @@ test('page load 403 in new tab is redirected to home', async ({ page }) => {
   const pagePromise = page.context().waitForEvent('page');
   await page.getByText('Goto page load 403 new tab').click();
   const newPage = await pagePromise;
-  // eslint-disable-next-line @typescript-eslint/quotes
   await new UserDashboardPage(newPage).waitFor();
 });
 
