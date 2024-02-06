@@ -38,7 +38,7 @@ const config: PlaywrightTestConfig = {
     /* Local storage to be populated for every test */
     storageState:
     {
-      cookies: [], // TODO: Port login procss from PageTest.cs (but use apiContext as it's faster)
+      cookies: [],
       origins: [
         {
           origin: testEnv.serverHostname,

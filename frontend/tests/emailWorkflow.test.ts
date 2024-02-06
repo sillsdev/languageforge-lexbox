@@ -8,7 +8,6 @@ import { ResetPasswordPage } from './pages/resetPasswordPage';
 import { randomUUID } from 'crypto';
 import { LoginPage } from './pages/loginPage';
 
-// TODO: Investigate why this test passes on Firefox but fails on Chromium
 test('register, verify, update, verify email address', async ({ page, tempUser }) => {
   test.slow(); // Checking email and logging in repeatedly takes time
   await loginAs(page.request, tempUser.email, tempUser.password);
@@ -36,9 +35,6 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
   // Request new email address
   const newMailinatorId = randomUUID();
   const newEmail = `${newMailinatorId}@mailinator.com`;
-  // Was:
-  // const newEmail = `newemail-${tempUser.email}`;
-  // const newMailinatorId = newEmail.replace('@mailinator.com', '');
   await userPage.goto();
   await userPage.fillEmail(newEmail);
   await userPage.clickSave();
