@@ -79,6 +79,29 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task UpdateProjectMetadata(string projectCode)
+    {
+        var project = await dbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .FirstOrDefaultAsync(p => p.Code == projectCode);
+        if (project is null) return;
+        if (project is { MigrationStatus: ProjectMigrationStatus.Migrated, Type: ProjectType.FLEx })
+        {
+            var count = await hgService.GetLexEntryCount(projectCode);
+            if (project.FlexProjectMetadata is null)
+            {
+                project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
+            }
+            else
+            {
+                project.FlexProjectMetadata.LexEntryCount = count;
+            }
+        }
+
+        project.LastCommit = await hgService.GetLastCommitTimeFromHg(projectCode, project.MigrationStatus);
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)
     {
         var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);

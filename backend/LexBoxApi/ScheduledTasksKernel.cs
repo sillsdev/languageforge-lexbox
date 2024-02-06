@@ -38,6 +38,7 @@ public static class ScheduledTasksKernel
 
             //Setup jobs
             q.AddJob<CleanupResetBackupJob>(CleanupResetBackupJob.Key);
+            q.AddJob<UpdateProjectMetadataJob>(UpdateProjectMetadataJob.Key, j => j.StoreDurably());
             q.AddTrigger(opts => opts.ForJob(CleanupResetBackupJob.Key)
                 .WithIdentity("WeeklyCleanupTrigger")
                 //every sunday at 2am
