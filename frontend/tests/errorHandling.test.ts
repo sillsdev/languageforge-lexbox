@@ -5,9 +5,9 @@ import * as testEnv from './envVars';
 import { UserDashboardPage } from './pages/userDashboardPage';
 import { LoginPage } from './pages/loginPage';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
-import { loginAs } from './authHelpers';
+import { loginAs } from './utils/authHelpers';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { getInbox } from './mailboxHelpers';
+import { getInbox } from './utils/mailboxHelpers';
 
 test('can catch 500 errors from goto in same tab', async ({ page }) => {
   await new SandboxPage(page).goto();

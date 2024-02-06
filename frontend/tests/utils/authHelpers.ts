@@ -1,10 +1,10 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
-import { serverBaseUrl } from './envVars';
-import { RegisterPage } from './pages/registerPage';
-import { UserDashboardPage } from './pages/userDashboardPage';
+import { serverBaseUrl } from '../envVars';
+import { RegisterPage } from '../pages/registerPage';
+import { UserDashboardPage } from '../pages/userDashboardPage';
 import type { UUID } from 'crypto';
 import { executeGql } from './gqlHelpers';
-import { LoginPage } from './pages/loginPage';
+import { LoginPage } from '../pages/loginPage';
 
 export async function loginAs(api: APIRequestContext, user: string, password: string): Promise<void> {
   const loginData = {

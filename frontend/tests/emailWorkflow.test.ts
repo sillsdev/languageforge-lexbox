@@ -1,8 +1,8 @@
 import { expect } from '@playwright/test';
 import { test } from './fixtures';
 import { UserDashboardPage } from './pages/userDashboardPage';
-import { loginAs, logout } from './authHelpers';
-import { getInbox } from './mailboxHelpers';
+import { loginAs, logout } from './utils/authHelpers';
+import { getInbox } from './utils/mailboxHelpers';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
 import { ResetPasswordPage } from './pages/resetPasswordPage';
 import { randomUUID } from 'crypto';

@@ -1,7 +1,7 @@
 import { test as base } from '@playwright/test';
 import * as testEnv from './envVars';
 import { type UUID, randomUUID } from 'crypto';
-import { deleteUser, loginAs, registerUser } from './authHelpers';
+import { deleteUser, loginAs, registerUser } from './utils/authHelpers';
 
 export interface TempUser {
   id: UUID

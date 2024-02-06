@@ -3,8 +3,8 @@ import { test } from './fixtures';
 import { UserDashboardPage } from './pages/userDashboardPage';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
 import { randomUUID } from 'crypto';
-import { loginAs, logout } from './authHelpers';
-import { getInbox } from './mailboxHelpers';
+import { loginAs, logout } from './utils/authHelpers';
+import { getInbox } from './utils/mailboxHelpers';
 
 test('can update account info', async ({ page, tempUser }) => {
   await loginAs(page.request, tempUser.name, tempUser.password);

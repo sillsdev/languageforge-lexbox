@@ -1,5 +1,5 @@
 import { expect, type APIRequestContext } from '@playwright/test';
-import { serverBaseUrl } from './envVars';
+import { serverBaseUrl } from '../envVars';
 
 export function validateGqlErrors(json: {errors: unknown, data: unknown}, expectError = false): void {
   if (!expectError) {
