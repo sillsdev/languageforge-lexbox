@@ -44,7 +44,7 @@ test('page load 500 lands on new page', async ({ page, context }) => {
 
 // Locator is wrong, investigate and fix
 test('catch fetch 500 and error dialog', async ({ page }) => {
-  const sandboxPage = await new SandboxPage(page).goto();
+  await new SandboxPage(page).goto();
   // Create promise first before triggering the action
   const responsePromise = page.waitForResponse('/api/testing/test500NoException');
   await page.getByText('Fetch 500').click();
