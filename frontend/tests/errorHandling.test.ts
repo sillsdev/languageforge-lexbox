@@ -45,7 +45,6 @@ test('page load 500 lands on new page', async ({ page, context }) => {
 // Locator is wrong, investigate and fix
 test('catch fetch 500 and error dialog', async ({ page }) => {
   const sandboxPage = await new SandboxPage(page).goto();
-  await sandboxPage.waitForHydration();
   // Create promise first before triggering the action
   const responsePromise = page.waitForResponse('/api/testing/test500NoException');
   await page.getByText('Fetch 500').click();
@@ -66,7 +65,6 @@ test('client page load 401 is redirected to login', async ({ page }) => {
   // TODO: Move this to a setup script as recommended by https://playwright.dev/docs/auth
   await loginAs(page.request, 'admin', testEnv.defaultPassword);
   const adminDashboardPage = await new AdminDashboardPage(page).goto();
-  await adminDashboardPage.waitForHydration();
 
   // Now mess up the login cookie and watch the redirect
 

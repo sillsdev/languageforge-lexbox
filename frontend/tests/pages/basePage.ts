@@ -55,6 +55,7 @@ export class BasePage {
       await this.page.waitForURL(this.urlPattern, {waitUntil: 'load'});
     }
     await Promise.all(this.locators.map(l => expect(l).toBeVisible()));
+    await this.waitForHydration(); // wait for, e.g., onclick handlers to be attached
     return this;
   }
 
