@@ -153,4 +153,8 @@
   .edit-icon {
     flex: 1 0 1.125rem;
   }
+
+  .content-wrapper {
+    text-align: initial;
+  }
 </style>
