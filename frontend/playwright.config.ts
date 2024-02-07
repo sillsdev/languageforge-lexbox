@@ -62,12 +62,12 @@ const config: PlaywrightTestConfig = {
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], userAgent: 'Playwright Chrome' },
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { ...devices['Desktop Firefox'], userAgent: 'Playwright Firefox' },
     },
 
     // Disabling testing on WebKit due to race conditions with browser context fixtures. 2024-02-02 RM
