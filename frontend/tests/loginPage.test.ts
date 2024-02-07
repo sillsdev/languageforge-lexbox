@@ -10,7 +10,7 @@ test('can log in', async ({ page }) => {
   await new AdminDashboardPage(page).waitFor();
 });
 
-test('show error withour username', async ({ page }) => {
+test('show error without username', async ({ page }) => {
   const loginPage = await new LoginPage(page).goto();
   await loginPage.fillForm('', defaultPassword);
   await loginPage.submit();
