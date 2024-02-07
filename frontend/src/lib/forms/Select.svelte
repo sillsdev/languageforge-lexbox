@@ -1,10 +1,10 @@
 <script lang="ts">
   import FormField from './FormField.svelte';
-  import { randomFieldId } from './utils';
+  import { randomFormId } from './utils';
 
   export let label: string;
   export let value: string | undefined;
-  export let id = randomFieldId();
+  export let id = randomFormId();
   export let autofocus = false;
   export let error: string | string[] | undefined = undefined;
   export let disabled = false;

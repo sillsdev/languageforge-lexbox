@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Form, lexSuperForm, randomFieldId, type ErrorMessage } from '$lib/forms';
+  import { Form, lexSuperForm, randomFormId, type ErrorMessage } from '$lib/forms';
   import { type ZodString, z } from 'zod';
   import IconButton from './IconButton.svelte';
 
@@ -9,7 +9,7 @@
   export let placeholder: string | undefined = undefined;
   export let multiline = false;
   export let validation: ZodString | undefined = undefined;
-  export const id = randomFieldId();
+  export const id = randomFormId();
 
   let initialValue: string | undefined | null;
   let editing = false;

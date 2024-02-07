@@ -25,7 +25,7 @@ export function getCookie(name: string, cookies: Cookies): string | undefined {
 
 export function deleteCookie(name: string, cookies: Cookies): void {
   const cookie = cookies.get(name);
-  cookies.delete(name);
+  cookies.delete(name, {path: '/'});
 
   if (!cookie) {
     return undefined;
@@ -38,6 +38,6 @@ export function deleteCookie(name: string, cookies: Cookies): void {
 
   const chunkCount = Number.parseInt(chunkMatch[1]);
   for (let i = 1; i <= chunkCount; i++) {
-    cookies.delete(`${name}C${i}`);
+    cookies.delete(`${name}C${i}`, {path: '/'});
   }
 }

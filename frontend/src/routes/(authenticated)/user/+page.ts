@@ -29,7 +29,7 @@ export async function load(event: PageLoadEvent) {
     }`), {});
 
   const nonNullableMe = tryMakeNonNullable(userResult.me);
-  if (!nonNullableMe) throw error(404);
+  if (!nonNullableMe) error(404);
 
   return { emailResult, account: nonNullableMe };
 }

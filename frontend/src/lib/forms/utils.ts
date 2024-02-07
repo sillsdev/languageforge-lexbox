@@ -1,7 +1,7 @@
 import type { Translater } from '$lib/i18n';
 import { z, type ZodDefault, type ZodType } from 'zod';
 
-export function randomFieldId(): string {
+export function randomFormId(): string {
   return crypto.randomUUID().split('-').at(-1) as string;
 }
 export function tryParse<T, ValidT>(zodType: ZodDefault<ZodType<ValidT>>, value: T): ValidT | undefined

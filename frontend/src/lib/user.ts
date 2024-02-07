@@ -1,6 +1,6 @@
 import { browser } from '$app/environment'
 import { redirect, type Cookies } from '@sveltejs/kit'
-import jwtDecode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
@@ -162,7 +162,7 @@ function projectsStringToProjects(projectsString: string | undefined): UserProje
 export function logout(cookies?: Cookies): void {
   cookies && deleteCookie(AUTH_COOKIE_NAME, cookies);
   if (browser && window.location.pathname !== '/login') {
-    throw redirect(307, '/login');
+    redirect(307, '/login');
   }
 }
 

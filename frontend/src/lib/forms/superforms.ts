@@ -5,6 +5,7 @@ import type { SuperValidated, ZodValidation } from 'sveltekit-superforms';
 import { superValidateSync } from 'sveltekit-superforms/client';
 import type { AnyZodObject, z } from 'zod';
 import type { ErrorMessage } from './types';
+import { randomFormId } from '.';
 
 export type LexFormState<S extends ZodValidation<AnyZodObject>> = Required<{ [field in (keyof z.infer<S>)]: {
   tainted: boolean; // has ever been touched/edited
@@ -29,7 +30,7 @@ export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
   onSubmit: LexOnSubmit<S>,
   options: Omit<FormOptions<S, string>, 'validators'> = {},
 ): LexSuperForm<S> {
-  const form = superValidateSync(schema);
+  const form = superValidateSync(schema, { id: options.id ?? randomFormId() });
   const sf: SuperForm<S, string> = superForm<S>(form, {
     validators: schema as any, // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     dataType: 'json',

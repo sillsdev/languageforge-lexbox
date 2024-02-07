@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { randomFieldId } from './utils';
+  import { randomFormId } from './utils';
   import { debounce as _debounce } from '$lib/util/time';
 
   let input: HTMLInputElement;
 
-  export let id = randomFieldId();
+  export let id = randomFormId();
   export let value: string | undefined = undefined;
   export let type: 'text' | 'email' | 'password' = 'text';
   export let autofocus: true | undefined = undefined;

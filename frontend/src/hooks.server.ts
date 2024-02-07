@@ -31,11 +31,11 @@ export const handle: Handle = ({ event, resolve }) => {
 
     const { cookies, route: { id: routeId } } = event;
     if (!routeId) {
-      throw redirect(307, '/');
+      redirect(307, '/');
     } else if (PUBLIC_ROUTE_ROOTS.includes(getRoot(routeId))) {
       return resolve(event, options);
     } else if (!isAuthn(cookies)) {
-      throw redirect(307, '/login');
+      redirect(307, '/login');
     }
     //when at home
     if (routeId == `/${AUTHENTICATED_ROOT}`) {
@@ -75,11 +75,13 @@ export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
 
   if (lexBoxSetAuthCookieHeader) {
     const { name, value, ...options } = setCookieParser.parseString(lexBoxSetAuthCookieHeader);
+    const path = options.path ?? '/';
     event.cookies.set(AUTH_COOKIE_NAME, value, {
-      ...options,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-      sameSite: options.sameSite?.toLocaleLowerCase() as any,
-    });
+            ...options,
+            path,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+            sameSite: options.sameSite?.toLocaleLowerCase() as any,
+          });
   }
 
   return response;

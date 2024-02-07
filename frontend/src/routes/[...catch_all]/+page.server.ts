@@ -11,6 +11,6 @@ import { traceRequest } from '$lib/otel/otel.server';
 export const load = ((event) => {
   return traceRequest(event, (span) => {
     span.setAttribute('app.request.hit-catch-all-page', true);
-    throw error(404);
+    error(404);
   });
 }) satisfies PageServerLoad
