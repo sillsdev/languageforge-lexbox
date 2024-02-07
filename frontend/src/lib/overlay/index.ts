@@ -2,6 +2,8 @@ import type { Action, ActionReturn } from 'svelte/action';
 import { autoUpdate, computePosition } from '@floating-ui/dom';
 import { flip, offset } from '@floating-ui/dom';
 
+import { browser } from '$app/environment';
+
 export const { overlayTarget: overlay, overlayContainer } = buildSharedClickOverlay();
 
 type OverlayParams = { disabled?: boolean } | undefined;
@@ -12,6 +14,17 @@ function buildSharedClickOverlay(): { overlayTarget: OverlayAction; overlayConta
   let activeOverlay: { targetElem: HTMLElement; contentElem: HTMLElement } | undefined;
 
   let cleanup: (() => void) | undefined;
+
+  function closeHandler(event: MouseEvent): void {
+    if (activeOverlay) {
+      const eventPath = event.composedPath();
+      if (!eventPath.includes(activeOverlay.targetElem) && !eventPath.includes(activeOverlay.contentElem)) {
+        closeOverlay();
+      }
+    }
+  }
+
+  if (browser) document.addEventListener('click', closeHandler);
 
   function updateOverlay(): void {
     resetDom();
@@ -61,6 +74,7 @@ function buildSharedClickOverlay(): { overlayTarget: OverlayAction; overlayConta
     return {
       destroy(): void {
         closeOverlay();
+        document.removeEventListener('click', closeHandler);
       }
     };
   }
@@ -83,9 +97,7 @@ function buildSharedClickOverlay(): { overlayTarget: OverlayAction; overlayConta
     }
 
     targetElem.addEventListener('click', function (): void {
-      if (isActive()) {
-        deactivate();
-      } else if (!disabled) {
+      if (!isActive() && !disabled) {
         activeOverlay = { targetElem, contentElem };
         updateOverlay();
       }
@@ -96,13 +108,6 @@ function buildSharedClickOverlay(): { overlayTarget: OverlayAction; overlayConta
       item.addEventListener('click', () => {
         deactivate();
       });
-    });
-
-    document.addEventListener('click', function (event): void {
-      if (isActive()) {
-        const eventPath = event.composedPath();
-        if (!eventPath.includes(targetElem) && !eventPath.includes(contentElem)) deactivate();
-      }
     });
 
     return {
