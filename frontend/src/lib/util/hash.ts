@@ -1,4 +1,4 @@
-﻿export async function hash(password: string): Promise<string> {
+export async function hash(password: string): Promise<string> {
     const msgUint8 = new TextEncoder().encode(password) // encode as (utf-8) Uint8Array
     let hashBuffer: ArrayBuffer;
     const c = typeof crypto !== 'undefined' ? crypto : await import('node:crypto');

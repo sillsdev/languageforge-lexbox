@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { randomFieldId } from './utils';
+  import { randomFormId } from './utils';
   import PlainInput from './PlainInput.svelte';
   import FormField from './FormField.svelte';
 
-  export let id = randomFieldId();
+  export let id = randomFormId();
   export let label: string;
   export let description: string | undefined = undefined;
   export let value: string | undefined = undefined;
