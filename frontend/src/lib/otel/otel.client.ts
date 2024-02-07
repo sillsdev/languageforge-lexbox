@@ -1,9 +1,9 @@
 import { BatchSpanProcessor, WebTracerProvider } from '@opentelemetry/sdk-trace-web'
+import {SERVICE_NAME, traceUserAttributes} from '.';
 
 import { APP_VERSION } from '$lib/util/version';
 import { OTLPTraceExporterBrowserWithXhrRetry } from './trace-exporter-browser-with-xhr-retry';
 import { Resource } from '@opentelemetry/resources'
-import {SERVICE_NAME, traceUserAttributes} from '.';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions'
 import { ZoneContextManager } from '@opentelemetry/context-zone'
 import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web'
@@ -14,7 +14,15 @@ export * from '.';
 
 instrumentGlobalFetch(() => {
   registerInstrumentations({
-    instrumentations: [getWebAutoInstrumentations()],
+    instrumentations: [getWebAutoInstrumentations({
+      '@opentelemetry/instrumentation-document-load': {
+        // note: disabling this makes the traceParent in our root layout meaningless
+        enabled: false,
+      },
+      '@opentelemetry/instrumentation-user-interaction': {
+        enabled: false,
+      },
+    })],
   });
 });
 
