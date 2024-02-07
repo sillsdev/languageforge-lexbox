@@ -7,3 +7,4 @@ playwright.config.js
 build
 node_modules
 tests
+test-results
