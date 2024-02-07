@@ -7,7 +7,7 @@ import { loginAs, logout } from './utils/authHelpers';
 import { getInbox } from './utils/mailboxHelpers';
 
 test('can update account info', async ({ page, tempUser }) => {
-  await loginAs(page.request, tempUser.name, tempUser.password);
+  await loginAs(page.request, tempUser.email, tempUser.password);
   const userPage = await new UserAccountSettingsPage(page).goto();
   const newUuid = randomUUID();
   await userPage.fillDisplayName('Test: Edit account - update - changed');
@@ -18,7 +18,7 @@ test('can update account info', async ({ page, tempUser }) => {
 });
 
 test('display form errors on invalid data', async ({ page, tempUser }) => {
-  await loginAs(page.request, tempUser.name, tempUser.password);
+  await loginAs(page.request, tempUser.email, tempUser.password);
   const userPage = await new UserAccountSettingsPage(page).goto();
   await userPage.fillDisplayName('');
   await userPage.fillEmail('');
@@ -29,7 +29,7 @@ test('display form errors on invalid data', async ({ page, tempUser }) => {
 test('can reset password', async ({ page, tempUser }) => {
   const newPassword = 'test_edit_account_reset_password_changed';
   expect(tempUser.password).not.toBe(newPassword);
-  await loginAs(page.request, tempUser.name, tempUser.password);
+  await loginAs(page.request, tempUser.email, tempUser.password);
   const userPage = await new UserAccountSettingsPage(page).goto();
   const resetPasswordPage = await userPage.clickResetPassword();
   await resetPasswordPage.fillForm(newPassword);

@@ -25,10 +25,10 @@ export const test = base.extend<Fixtures>({
     });
     await use(context);
   },
-  tempUser: async ({ browser, page }, use) => {
+  tempUser: async ({ browser, page }, use, testInfo) => {
     const mailinatorId = randomUUID();
     const email = `${mailinatorId}@mailinator.com`;
-    const name = email;
+    const name = `Test: ${testInfo.title} - ${email}`;
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
     const tempUser: TempUser = {

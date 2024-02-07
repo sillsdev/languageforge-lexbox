@@ -6,9 +6,9 @@ import type { UUID } from 'crypto';
 import { executeGql } from './gqlHelpers';
 import { LoginPage } from '../pages/loginPage';
 
-export async function loginAs(api: APIRequestContext, user: string, password: string): Promise<void> {
+export async function loginAs(api: APIRequestContext, emailOrUsername: string, password: string): Promise<void> {
   const loginData = {
-    emailOrUsername: user,
+    emailOrUsername: emailOrUsername,
     password: password,
     preHashedPassword: false,
   }
