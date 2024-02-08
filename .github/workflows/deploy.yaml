@@ -91,8 +91,7 @@ jobs:
           push: true
   verify-published:
     name: Verify ${{ matrix.verify.name }} Published
-    runs-on: ubuntu-latest
-    if: ${{ inputs.k8s-environment != 'develop' }} #disable develop until we can use a self hosted runner for this test
+    runs-on: self-hosted #only self hosted can access develop, so we should just run all our verify tests on self hosted
     needs: deploy
     strategy:
       fail-fast: true

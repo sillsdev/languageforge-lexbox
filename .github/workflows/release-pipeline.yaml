@@ -57,12 +57,19 @@ jobs:
   integration-tests:
     name: Integration tests
     uses: ./.github/workflows/integration-test.yaml
+    strategy:
+      matrix:
+        runs-on:
+          - ubuntu-latest
+          - windows-latest
     needs: deploy
     permissions:
       checks: write
     secrets: inherit
     with:
+      runs-on: ${{ matrix.runs-on }}
       test-domain: staging.languagedepot.org
+      hg-domain: hg-staging.languageforge.org
 
   deploy-prod:
     name: Deploy Production
