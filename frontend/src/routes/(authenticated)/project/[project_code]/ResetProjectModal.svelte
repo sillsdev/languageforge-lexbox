@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { Checkbox, type ErrorMessage, Form, FormError, Input, lexSuperForm } from '$lib/forms';
+  import { Checkbox, type ErrorMessage, Form, FormError, Input, lexSuperForm, Button } from '$lib/forms';
   import { tScoped } from '$lib/i18n';
   import { z } from 'zod';
   import { CircleArrowIcon } from '$lib/icons';
   import Modal from '$lib/components/modals/Modal.svelte';
-  import TusUpload from '$lib/components/TusUpload.svelte';
+  import TusUpload, { UploadStatus } from '$lib/components/TusUpload.svelte';
   import { ResetStatus } from '$lib/gql/generated/graphql';
   import { _refreshProjectMigrationStatusAndRepoInfo } from './+page';
   import { scale } from 'svelte/transition';
@@ -90,6 +90,9 @@
       error = resetResponse.statusText;
     }
   }
+
+  let tusUpload: TusUpload;
+  let uploadStatus: UploadStatus;
 </script>
 
 <div class="reset-modal contents">
@@ -133,8 +136,9 @@
         {$t('upload_instruction')}
       </div>
       <TusUpload
+        bind:this={tusUpload}
+        on:status={(e) => (uploadStatus = e.detail)}
         endpoint={'/api/project/upload-zip/' + code}
-        uploadLabel={$t('upload_project')}
         inputLabel={$t('select_zip')}
         inputDescription={$t('should_only_contain_hg')}
         accept="application/zip"
@@ -174,10 +178,14 @@
           <CircleArrowIcon />
         </button>
       {:else if currentStep === ResetSteps.Upload}
-        <button class="btn btn-primary" on:click={leaveProjectEmpty}>
-          {$t('leave_project_empty')}
-          <span class="i-mdi-chevron-right text-2xl" />
-        </button>
+        {#if uploadStatus !== UploadStatus.NoFile}
+          <Button disabled={uploadStatus !== UploadStatus.Ready} style="btn-success" on:click={tusUpload.startUpload}>{$t('upload_project')}</Button>
+        {:else}
+          <button class="btn btn-primary" on:click={leaveProjectEmpty}>
+            {$t('leave_project_empty')}
+            <span class="i-mdi-chevron-right text-2xl" />
+          </button>
+        {/if}
       {:else if currentStep === ResetSteps.Finished}
         <button class="btn btn-primary" on:click={() => modal.submitModal()}>
           {$t('close')}

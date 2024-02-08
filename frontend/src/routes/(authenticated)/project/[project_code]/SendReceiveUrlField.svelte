@@ -31,7 +31,7 @@
       <input value={projectHgUrl} class="input input-bordered join-item w-full focus:input-success" readonly />
       <div class="join-item tooltip-open" class:tooltip={copiedToClipboard} data-tip={$t('clipboard.copied')}>
         {#if copiedToClipboard}
-          <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+          <IconButton fake icon="i-mdi-check" style="btn-outline btn-success" />
         {:else}
           <div class="contents">
             <IconButton

@@ -52,7 +52,7 @@ function preFillForm(): void {
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
-      <TusUpload endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
+      <TusUpload internalButton endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
     </div>
   </div>
 
