@@ -70,7 +70,8 @@
                 code: 'my-proj-custom-onestory',
                 type: ProjectType.WeSay,
                 description: 'My project description',
-                retentionPolicy: RetentionPolicy.Dev
+                retentionPolicy: RetentionPolicy.Dev,
+                projectManagerId: '703701a8-005c-4747-91f2-ac7650455118', // manager from seeding data
             },
             user: {
                 name: 'Bob',

@@ -10,7 +10,7 @@ namespace LexBoxApi.Services;
 
 public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRepoMigrationService migrationService, IMemoryCache memoryCache)
 {
-    public async Task<Guid> CreateProject(CreateProjectInput input, Guid userId)
+    public async Task<Guid> CreateProject(CreateProjectInput input)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
@@ -26,7 +26,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
                 Type = input.Type,
                 LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
-                Users = new List<ProjectUsers> { new() { UserId = userId, Role = ProjectRole.Manager } }
+                Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
