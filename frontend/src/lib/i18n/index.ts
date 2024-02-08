@@ -2,7 +2,7 @@ import type { DeepPathsToType, DeepPaths, DeepPathsToString } from '$lib/type.ut
 // eslint-disable-next-line no-restricted-imports
 import { getLocaleFromAcceptLanguageHeader, getLocaleFromNavigator, init, t as translate, waitLocale } from 'svelte-intl-precompile';
 
-import type I18n from '../i18n/locales/en.json';
+import type I18nShape from '../i18n/locales/en.json';
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
 import { availableLocales, registerAll } from '$locales';
 import type { Get } from 'type-fest';
@@ -49,11 +49,22 @@ export const LOCALE_CONTEXT_KEY = Symbol('i18n-locale');
 
 function buildI18n(localeStore: Readable<string>): I18n {
   return derived([translate, localeStore], ([tFunc, locale]) => {
-    return (key: string, values?: InterpolationValues) => tFunc({
-      id: key,
-      values,
-      locale,
-    });
+    return (key: I18nKey | I18nScope, valuesOrSubPath?: InterpolationValues | string, _values?: InterpolationValues) => {
+      let id: string = key;
+      let values = _values;
+
+      if (typeof valuesOrSubPath === 'string') {
+        id = `${key}.${valuesOrSubPath}`;
+      } else {
+        values = valuesOrSubPath;
+      }
+
+      return tFunc({
+        id,
+        values,
+        locale,
+      });
+    }
   });
 }
 
@@ -80,9 +91,9 @@ const t: I18n = {
 }
 export default t;
 
-export function tScoped<Scope extends I18nScope>(scope: Scope): Readable<(key: DeepPathsToString<I18nShape<Scope>>, values?: InterpolationValues) => string> {
+export function tScoped<Scope extends I18nScope>(scope: Scope): Readable<(key: DeepPathsToString<I18nScopedShape<Scope>>, values?: InterpolationValues) => string> {
   // I can't quite figure out why this needs to be cast
-  return tTypeScoped<I18nShape<Scope>>(scope as I18nShapeKey<I18nShape<Scope>>);
+  return tTypeScoped<I18nScopedShape<Scope>>(scope as I18nShapeKey<I18nScopedShape<Scope>>);
 }
 
 export function tTypeScoped<Shape extends object>(scope: I18nShapeKey<Shape>): Readable<(key: DeepPathsToString<Shape>, values?: InterpolationValues) => string> {
@@ -90,9 +101,12 @@ export function tTypeScoped<Shape extends object>(scope: I18nShapeKey<Shape>): R
     tFunc(`${String(scope)}.${String(key)}` as I18nKey, values));
 }
 
-export type Translater = (key: I18nKey, values?: InterpolationValues) => string;
+export type Translater = {
+  (scope: I18nScope, subPath: string, values?: InterpolationValues): string;
+  (key: I18nKey, values?: InterpolationValues): string;
+}
 type I18n = Readable<Translater>;
-type I18nKey = DeepPaths<typeof I18n>;
-type I18nScope = DeepPathsToType<typeof I18n, I18nKey, object>;
-type I18nShape<Scope extends I18nScope> = Get<typeof I18n, Scope>;
-export type I18nShapeKey<Shape> = DeepPathsToType<typeof I18n, I18nKey, Shape>;
+export type I18nKey = DeepPaths<typeof I18nShape>;
+type I18nScope = DeepPathsToType<typeof I18nShape, I18nKey, object>;
+type I18nScopedShape<Scope extends I18nScope> = Get<typeof I18nShape, Scope>;
+export type I18nShapeKey<Shape> = DeepPathsToType<typeof I18nShape, I18nKey, Shape>;
