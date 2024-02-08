@@ -172,19 +172,35 @@ public class ProjectController : ControllerBase
         return result.Value;
     }
 
-    public record HgVerifyResult(string Response);
+    public record HgCommandResponse(string Response);
     [HttpGet("hgVerify/{code}")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<HgVerifyResult>> HgVerify(string code)
+    public async Task<ActionResult<HgCommandResponse>> HgVerify(string code)
     {
-        var migrationStatus = await _lexBoxDbContext.Projects.Where(p => p.Code == code).Select(p => p.MigrationStatus)
+        var migrationStatus = await _lexBoxDbContext.Projects.Where(p => p.Code == code)
+            .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
         if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
         var result = await _hgService.VerifyRepo(code);
-        return new HgVerifyResult(result);
+        return new HgCommandResponse(result);
+    }
+
+    [HttpGet("hgRecover/{code}")]
+    [AdminRequired]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<HgCommandResponse>> HgRecover(string code)
+    {
+        var migrationStatus = await _lexBoxDbContext.Projects.Where(p => p.Code == code)
+            .Select(p => p.MigrationStatus)
+            .FirstOrDefaultAsync();
+        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        var result = await _hgService.ExecuteHgRecover(code);
+        return new HgCommandResponse(result);
     }
 
     [HttpPost("updateLexEntryCount/{code}")]

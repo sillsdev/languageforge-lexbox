@@ -185,15 +185,23 @@
     await watchMigrationStatus();
   }
 
-  let verifyModal: Modal;
-  let verifyResponse = '';
+  let hgCommandResultModal: Modal;
+  let hgCommandResponse = '';
 
   async function verify(): Promise<void> {
-    verifyResponse = '';
-    void verifyModal.openModal(true, true);
-    let response = await fetch(`/api/project/hgVerify/${project.code}`);
+    await hgCommand(async () => fetch(`/api/project/hgVerify/${project.code}`));
+  }
+
+  async function recover(): Promise<void> {
+    await hgCommand(async () => fetch(`/api/project/hgRecover/${project.code}`));
+  }
+
+  async function hgCommand(execute: ()=> Promise<Response>): Promise<void> {
+    hgCommandResponse = '';
+    void hgCommandResultModal.openModal(true, true);
+    let response = await execute();
     let json = await response.json() as { response: string } | undefined;
-    verifyResponse = json?.response ?? 'No response';
+    hgCommandResponse = json?.response ?? 'No response';
   }
 
   let openInFlexModal: OpenInFlexModal;
@@ -425,13 +433,14 @@
             {/if}
             {#if migrationStatus === ProjectMigrationStatus.Migrated}
               <Button on:click={verify}>Verify Repository</Button>
-              <Modal bind:this={verifyModal} closeOnClickOutside={false}>
+              <Button on:click={recover}>HG Recover</Button>
+              <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
                 <div class="card">
                   <div class="card-body">
-                    {#if verifyResponse === ''}
+                    {#if hgCommandResponse === ''}
                       <span class="loading loading-ring loading-lg"></span>
                     {:else}
-                      <pre>{verifyResponse}</pre>
+                      <pre>{hgCommandResponse}</pre>
                     {/if}
                   </div>
                 </div>

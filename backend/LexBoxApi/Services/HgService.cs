@@ -315,21 +315,28 @@ public partial class HgService : IHgService
 
     public async Task<string> VerifyRepo(string code)
     {
-        var httpClient = _hgClient.Value;
-        httpClient.BaseAddress = new Uri(_options.Value.HgCommandServer);
-        var response = await httpClient.GetAsync($"{code}/verify");
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsStringAsync();
+        return await ExecuteHgCommandServerCommand(code, "verify");
+    }
+    public async Task<string> ExecuteHgRecover(string code)
+    {
+        var response = await ExecuteHgCommandServerCommand(code, "recover");
+        if (string.IsNullOrWhiteSpace(response)) return "Nothing to recover";
+        return response;
     }
 
     public async Task<int?> GetLexEntryCount(string code)
     {
+        var str = await ExecuteHgCommandServerCommand(code, "lexentrycount");
+        return int.TryParse(str, out int result) ? result : null;
+    }
+
+    private async Task<string> ExecuteHgCommandServerCommand(string code, string command)
+    {
         var httpClient = _hgClient.Value;
         httpClient.BaseAddress = new Uri(_options.Value.HgCommandServer);
-        var response = await httpClient.GetAsync($"{code}/lexentrycount");
+        var response = await httpClient.GetAsync($"{code}/{command}");
         response.EnsureSuccessStatusCode();
-        var str = await response.Content.ReadAsStringAsync();
-        return int.TryParse(str, out int result) ? result : null;
+        return await response.Content.ReadAsStringAsync();
     }
 
     private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };

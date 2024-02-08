@@ -17,4 +17,5 @@ public interface IHgService
     Task<string> VerifyRepo(string code);
     Task<int?> GetLexEntryCount(string code);
     Task<string?> GetRepositoryIdentifier(Project project);
+    Task<string> ExecuteHgRecover(string code);
 }
