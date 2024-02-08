@@ -102,6 +102,7 @@ type LexAuthUser {
   email: String!
   name: String!
   role: UserRole!
+  isAdmin: Boolean!
   projects: [AuthUserProject!]!
   projectsJson: String!
   locked: Boolean
@@ -297,6 +298,7 @@ input CreateProjectInput {
   code: String!
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
+  projectManagerId: UUID
 }
 
 input DateTimeOperationFilterInput {

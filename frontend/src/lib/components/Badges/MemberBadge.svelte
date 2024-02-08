@@ -6,10 +6,13 @@
   export let member: { name: string; role: ProjectRole };
   export let canManage = false;
 
+  export let type: 'existing' | 'new' = 'existing';
+  $: actionIcon = (type === 'existing' ? 'i-mdi-dots-vertical' as const : 'i-mdi-close' as const);
+
   $: variant = member.role === ProjectRole.Manager ? 'btn-primary' as const : 'btn-secondary' as const;
 </script>
 
-<ActionBadge actionIcon="i-mdi-dots-vertical" {variant} disabled={!canManage}>
+<ActionBadge {actionIcon} {variant} disabled={!canManage} on:action>
   <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={member.name}>
     {member.name}
   </span>

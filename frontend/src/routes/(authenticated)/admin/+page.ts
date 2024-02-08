@@ -4,6 +4,7 @@ import type { PageLoadEvent } from './$types';
 import { isAdmin, type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
 import {getBoolSearchParam, getSearchParam} from '$lib/util/query-params';
+import { isGuid } from '$lib/util/guid';
 import type {
   $OpResult,
   ChangeUserAccountByAdminInput,
@@ -100,13 +101,6 @@ export async function load(event: PageLoadEvent) {
     ...projectResults,
     ...userResults,
   }
-}
-
-const guidRegex = /^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-5][0-9a-f]{3}-?[089ab][0-9a-f]{3}-?[0-9a-f]{12}$/i;
-
-function isGuid(val: string): boolean {
-  // only match strings of the exact length of a GUID, with or without dashes
-  return (val.length == 32 || val.length == 36) && guidRegex.test(val);
 }
 
 function requireAdmin(user: LexAuthUser | null): void {

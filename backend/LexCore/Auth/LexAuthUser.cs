@@ -116,6 +116,9 @@ public record LexAuthUser
     public required UserRole Role { get; set; }
 
     [JsonIgnore]
+    public bool IsAdmin => Role == UserRole.admin;
+
+    [JsonIgnore]
     public AuthUserProject[] Projects { get; set; } = Array.Empty<AuthUserProject>();
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]

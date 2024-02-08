@@ -36,13 +36,20 @@ public class ProjectMutations
         [Service] ProjectService projectService,
         [Service] EmailService emailService)
     {
+        if (!loggedInContext.User.IsAdmin)
+        {
+            // For non-admins we always implicitly set them as the project manager
+            // Only admins can create empty projects or projects for other users
+            input = input with { ProjectManagerId = loggedInContext.User.Id };
+        }
+
         if (!permissionService.HasProjectCreatePermission())
         {
             await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
             return new CreateProjectResponse(null, CreateProjectResult.Requested);
         }
 
-        var projectId = await projectService.CreateProject(input, loggedInContext.User.Id);
+        var projectId = await projectService.CreateProject(input);
         return new CreateProjectResponse(projectId, CreateProjectResult.Created);
     }
 
