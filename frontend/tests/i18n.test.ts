@@ -5,19 +5,19 @@ import { test } from './fixtures';
 
 test('server-side locale does not leak', async ({ contextFactory }) => {
   // Get 2 contexts with different languages
-  var spanishContext = await contextFactory({ locale: 'es' });
-  var spanishPage = await spanishContext.newPage();
-  var englishContext = await contextFactory({ locale: 'en' });
-  var englishPage = await englishContext.newPage();
+  const spanishContext = await contextFactory({ locale: 'es' });
+  const spanishPage = await spanishContext.newPage();
+  const englishContext = await contextFactory({ locale: 'en' });
+  const englishPage = await englishContext.newPage();
 
   // Load a spanish page that pauses between server initialization and rendering
   // we need an ssr-only page so that csr doesn't magically fix the language (which is maybe a nice fallback, but doesn't work for emails)
-  var spanishTask = spanishPage.goto('/sandbox/i18n/ssr-only?delay=5000');
+  const spanishTask = spanishPage.goto('/sandbox/i18n/ssr-only?delay=5000');
   // make sure we've hit the delay i.e. i18n has been initialized server-side for the spanish user/request
   await spanishPage.waitForTimeout(1000);
 
   // Load a page in a different language
-  var englishLoginPage = await new LoginPage(englishPage).goto();
+  const englishLoginPage = await new LoginPage(englishPage).goto();
   await englishLoginPage.page.getByRole('heading', { name: 'Log in' }).waitFor();
 
   // finishing loading the page in the initial language
@@ -33,8 +33,8 @@ test('late subscription to locale works', async ({ contextFactory }) => {
   // However, it seems to work fine and this test demonstrates that. See the page itself for more details.
 
   // Get a context with a locale other than our fallback (en)
-  var frenchContext = await contextFactory({ locale: 'fr' });
-  var frenchPage = await frenchContext.newPage();
+  const frenchContext = await contextFactory({ locale: 'fr' });
+  const frenchPage = await frenchContext.newPage();
 
   // Load a page that only has 1 translation that is performed after a delay (this is a slightly flawed test,
   // because there are other places in the +layout.svelte that get translated,

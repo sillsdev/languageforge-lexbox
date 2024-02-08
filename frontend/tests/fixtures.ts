@@ -16,7 +16,7 @@ type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
 }
 
-function addUnexpectedResponseListener(context: BrowserContext) {
+function addUnexpectedResponseListener(context: BrowserContext): void {
   context.addListener('response', response => {
     expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(500);
     if (response.request().isNavigationRequest()) {

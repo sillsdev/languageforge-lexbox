@@ -5,7 +5,9 @@
   let text: string | undefined = undefined;
 
   onMount(() => {
-    text = $t('login.title');
+    setTimeout(() => {
+      text = $t('login.title');
+    }, 500);
   });
 </script>
 

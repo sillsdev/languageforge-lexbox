@@ -1,10 +1,11 @@
 import type { PageLoadEvent } from './$types';
+import { delay } from '$lib/util/time';
 
 export const csr = false;
 
 export async function load(event: PageLoadEvent) {
-  const delay = Number(event.url.searchParams.get('delay'));
-  if (!isNaN(delay) && delay > 0) {
-    await new Promise(resolve => setTimeout(resolve, delay));
+  const loadDelay = Number(event.url.searchParams.get('delay'));
+  if (!isNaN(loadDelay) && loadDelay > 0) {
+    await delay(loadDelay);
   }
 }
