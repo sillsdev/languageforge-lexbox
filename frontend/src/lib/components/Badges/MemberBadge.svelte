@@ -10,7 +10,7 @@
 </script>
 
 <ActionBadge actionIcon="i-mdi-dots-vertical" {variant} disabled={!canManage}>
-  <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-hidden" title={member.name}>
+  <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={member.name}>
     {member.name}
   </span>
 
