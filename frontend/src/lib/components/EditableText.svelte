@@ -8,7 +8,7 @@
   export let saveHandler: (newValue: string) => Promise<ErrorMessage>;
   export let placeholder: string | undefined = undefined;
   export let multiline = false;
-  export let validation: ZodString | undefined = undefined;
+  export let validation: ZodString = z.string();
   export const id = randomFormId();
 
   let initialValue: string | undefined | null;
@@ -17,7 +17,7 @@
 
   let formElem: Form;
 
-  const formSchema = z.object(validation ? { [id]: validation } : {});
+  const formSchema = z.object({ value: validation });
   let { form, errors, reset, enhance, message } = lexSuperForm(
     formSchema,
     async () => {
