@@ -22,7 +22,8 @@ import {
   type GenericData,
   type DeleteUserByAdminOrSelfMutationVariables,
   type SoftDeleteProjectMutationVariables,
-  type ChangeUserAccountBySelfMutationVariables
+  type ChangeUserAccountBySelfMutationVariables,
+  type FlexProjectMetadata
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -43,6 +44,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
         keys: {
           'Changeset': () => null,
           'UsersCollectionSegment': () => null,
+          'FlexProjectMetadata': (metaData: FlexProjectMetadata) => metaData.projectId,
         },
         updates: {
           Mutation: {
