@@ -43,7 +43,7 @@ case $command_name in
         ;;
 
     *)
-        command_output=$(chg $command_name)
+        command_output=$(chg $command_name 2>&1)
         ;;
 esac
 
