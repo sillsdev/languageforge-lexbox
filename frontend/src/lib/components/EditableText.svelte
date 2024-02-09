@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Form, lexSuperForm, randomFormId, type ErrorMessage } from '$lib/forms';
+  import { Form, lexSuperForm, type ErrorMessage } from '$lib/forms';
   import { type ZodString, z } from 'zod';
   import IconButton from './IconButton.svelte';
 
@@ -9,7 +9,6 @@
   export let placeholder: string | undefined = undefined;
   export let multiline = false;
   export let validation: ZodString = z.string();
-  export const id = randomFormId();
 
   let initialValue: string | undefined | null;
   let editing = false;
@@ -26,7 +25,7 @@
     },
     { taintedMessage: false },
   );
-  $: error = $errors[id]?.join(', ') ?? $message;
+  $: error = $errors.value?.join(', ') ?? $message;
 
   function startEditing(): void {
     if (disabled) {
@@ -35,12 +34,12 @@
 
     initialValue = value;
     reset();
-    form.set({ [id]: value ?? '' }, { taint: false });
+    form.set({ value: value ?? '' }, { taint: false });
     editing = true;
   }
 
   async function save(): Promise<void> {
-    const newValue = $form[id];
+    const newValue = $form.value;
     if (newValue === initialValue) {
       editing = false;
       return;
@@ -98,21 +97,19 @@
         <Form bind:this={formElem} {enhance}>
           {#if multiline}
             <textarea
-              {id}
               on:keydown={onKeydown}
               class:textarea-error={error}
               autofocus
-              bind:value={$form[id]}
+              bind:value={$form.value}
               readonly={saving}
               class="textarea textarea-bordered mt-1 h-48"
             />
           {:else}
             <input
-              {id}
               on:keydown={onKeydown}
               class:input-error={error}
               autofocus
-              bind:value={$form[id]}
+              bind:value={$form.value}
               readonly={saving}
               class="input input-bordered mb-0"
             />
