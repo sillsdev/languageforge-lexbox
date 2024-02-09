@@ -8,6 +8,7 @@ components:
   - ../init-repos
 patches:
   - path: lexbox-deployment.patch.yaml
+  - path: app-config.yaml
   - path: ingress-config.yaml
     target:
       kind: Ingress

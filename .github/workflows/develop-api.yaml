@@ -59,5 +59,6 @@ jobs:
     needs: deploy-api
     with:
       test-domain: develop.lexbox.org
-      hg-domain: hg-develop.languageforge.org
+      hg-domain: hg-develop.lexbox.org
+      http-scheme: http
       runs-on: self-hosted

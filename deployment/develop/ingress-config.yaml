@@ -3,7 +3,7 @@
   value: develop.lexbox.org
 - op: replace
   path: /spec/rules/1/host
-  value: hg-develop.languageforge.org
+  value: hg-develop.lexbox.org
 - op: replace
   path: /spec/rules/2/host
   value: resumable-develop.lexbox.org
@@ -15,4 +15,4 @@
   value:
     - develop.lexbox.org
     - resumable-develop.lexbox.org
-    - hg-develop.languageforge.org
+    - hg-develop.lexbox.org

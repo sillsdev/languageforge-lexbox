@@ -4,7 +4,8 @@ public static class TestingEnvironmentVariables
 {
     public static string ServerHostname = Environment.GetEnvironmentVariable("TEST_SERVER_HOSTNAME") ?? "localhost";
     public static readonly bool IsDev = ServerHostname.StartsWith("localhost");
-    public static string HttpScheme = IsDev ? "http://" : "https://";
+    //scheme like https:// or http://
+    public static string HttpScheme = (Environment.GetEnvironmentVariable("TEST_HTTP_SCHEME") ?? (IsDev ? "http" : "https")) + "://";
     /// <summary>
     /// url like http://localhost
     /// </summary>

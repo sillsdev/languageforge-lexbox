@@ -28,6 +28,10 @@ on:
         description: 'The domain to use for hg'
         required: true
         type: string
+      http-scheme:
+        description: 'The scheme to use for http tests'
+        type: string
+        default: 'https'
 
 jobs:
   test:
@@ -65,6 +69,7 @@ jobs:
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
           TEST_STANDARD_HG_HOSTNAME: ${{ inputs.hg-domain }}
           TEST_RESUMABLE_HG_HOSTNAME: resumable-${{ inputs.test-domain }}
+          TEST_HTTP_SCHEME: ${{ inputs.http-scheme }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
