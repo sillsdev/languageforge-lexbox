@@ -4,8 +4,8 @@
 [web]
 allow_push=*
 push_ssl=False
-# default
-refreshinterval=20
+# default is 20, setting to 5 seconds to alleviate race conditions in unit testing
+refreshinterval=5
 
 # enable old clients to push using the old wire protocol
 [server]
