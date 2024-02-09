@@ -7,6 +7,9 @@ import { ResetProjectModal } from './components/resetProjectModal';
 
 test('reset project and upload .zip file', async ({ page }) => {
   await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await page.goto('http://localhost/hg/sena-3/file/tip');
+  const fileCountBeforeReset = await page.locator('tr.fileline').count()
+  const h3BeforeReset = await page.locator('.main h3').innerText();
   const adminDashboardPage = await new AdminDashboardPage(page).goto();
   await adminDashboardPage.clickProject('Sena 3');
   const projectPage = await new ProjectPage(page, 'Sena 3', 'sena-3').waitFor();
@@ -22,4 +25,8 @@ test('reset project and upload .zip file', async ({ page }) => {
   await expect(page.getByText('Project successfully reset')).toBeVisible();
   await page.getByRole('button', { name: 'Close' }).click();
   await resetProjectModel.assertGone();
+  await page.goto('http://localhost/hg/sena-3/file/tip');
+  const fileCountAfterReset = await page.locator('tr.fileline').count()
+  expect(fileCountAfterReset).toBe(fileCountBeforeReset);
+  await expect(page.locator('.main h3')).toHaveText(h3BeforeReset);
 });
