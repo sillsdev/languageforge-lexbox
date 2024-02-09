@@ -1,19 +1,18 @@
 ﻿- op: replace
   path: /spec/rules/0/host
-  value: staging.languagedepot.org
+  value: develop.lexbox.org
 - op: replace
   path: /spec/rules/1/host
-  value: hg-staging.languageforge.org
+  value: hg-develop.languageforge.org
 - op: replace
   path: /spec/rules/2/host
-  value: resumable-staging.languagedepot.org
+  value: resumable-develop.lexbox.org
 - op: replace
   path: /spec/rules/3/host
-  value: admin-staging.languagedepot.org
+  value: admin-develop.lexbox.org #not actually configured in dns, will not work
 - op: replace
   path: /spec/tls/0/hosts
   value:
-    - staging.languagedepot.org
-    - hg-staging.languageforge.org
-    - resumable-staging.languagedepot.org
-    - admin-staging.languagedepot.org
+    - develop.lexbox.org
+    - resumable-develop.lexbox.org
+    - hg-develop.languageforge.org
