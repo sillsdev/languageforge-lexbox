@@ -20,6 +20,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
+  import { FormatCount } from '$lib/components/Format';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -101,9 +102,9 @@
         {$t('admin_dashboard.user_table_title')}
         <Badge>
           <span class="inline-flex gap-2">
-            {shownUsers.length}
+            <FormatCount value={shownUsers.length} />
             <span>/</span>
-            {filteredUserCount}
+            <FormatCount value={filteredUserCount} />
           </span>
         </Badge>
       </h2>

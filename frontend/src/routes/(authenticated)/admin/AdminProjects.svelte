@@ -2,6 +2,7 @@
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
+  import { FormatCount } from '$lib/components/Format';
   import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
   import { ProjectFilter, ProjectTable, type ProjectItem, filterProjects, type ProjectFilters } from '$lib/components/Projects';
   import { RefineFilterMessage } from '$lib/components/Table';
@@ -58,9 +59,9 @@
       {$t('admin_dashboard.project_table_title')}
       <Badge>
         <span class="inline-flex gap-2">
-          {shownProjects.length}
+          <FormatCount value={shownProjects.length} />
           <span>/</span>
-          {filteredProjects.length}
+          <FormatCount value={filteredProjects.length} />
         </span>
       </Badge>
     </h2>
