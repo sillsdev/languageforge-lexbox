@@ -9,7 +9,7 @@
   export let projectCode: string;
 
   $: projectHgUrl = import.meta.env.DEV
-    ? `http://hg.${$page.url.host}/${projectCode}`
+    ? `http://hg.${$page.url.hostname}/${projectCode}`
     : `https://hg-public.${$page.url.host.replace('depot', 'forge')}/${projectCode}`;
 
   var copyingToClipboard = false;
