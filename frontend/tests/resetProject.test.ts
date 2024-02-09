@@ -1,11 +1,14 @@
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { test } from './fixtures';
 import { loginAs } from './utils/authHelpers';
 import * as testEnv from './envVars';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { ProjectPage } from './pages/projectPage';
 import { ResetProjectModal } from './components/resetProjectModal';
 
-test('reset project and upload .zip file', async ({ page }) => {
+test('reset project and upload .zip file', async ({ page, tempProject }) => {
+  console.log(tempProject.code);
+  expect(1).toBe(2); // Fail on purpose to check project is automatically deleted by fixture
   await loginAs(page.request, 'admin', testEnv.defaultPassword);
   await page.goto('http://localhost/hg/sena-3/file/tip');
   const fileCountBeforeReset = await page.locator('tr.fileline').count()
