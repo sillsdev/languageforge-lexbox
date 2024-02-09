@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginAs } from './authHelpers';
+import { loginAs } from './utils/authHelpers';
 import * as testEnv from './envVars';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { ProjectPage } from './pages/projectPage';
