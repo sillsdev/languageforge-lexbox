@@ -218,6 +218,9 @@ query projectLastCommit {
         // Ensure newly-created project is deleted after test completes
         await using var deleteProject = Defer.Async(() => apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}"));
 
+        // Sleep 5 seconds to ensure hgweb picks up newly-created test project
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
         // Populate new project from original so we're not resetting original test project in E2E tests
         // Note that this time we're cloning via hg clone rather than Chorus, because we don't want a .fwdata file yet
         var progress = new NullProgress();
@@ -233,6 +236,9 @@ query projectLastCommit {
         };
         HgRunner.Run($"hg clone {hgwebUrl}{origProjectCode} {sourceProjectDir}", "", 15, progress);
         HgRunner.Run($"hg push {hgwebUrl}{newProjectCode}", sourceProjectDir, 15, progress);
+
+        // Sleep 5 seconds to ensure hgweb picks up newly-pushed commits
+        await Task.Delay(TimeSpan.FromSeconds(5));
 
         // Now clone again via Chorus so that we'll hvae a .fwdata file
         var sendReceiveParams = GetParams(protocol, newProjectCode);
