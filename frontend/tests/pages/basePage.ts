@@ -10,7 +10,6 @@ export class BasePage {
   readonly page: Page;
   protected url?: string;
   readonly locators: Locator[];
-  readonly hydrationLocator: Locator;
   get urlPattern(): RegExp | undefined {
     if (this.url == null) return undefined;
     return new RegExp(regexEscape(this.url) + '($|\\?|#)');
@@ -24,7 +23,6 @@ export class BasePage {
     } else {
       this.locators = [locator];
     }
-    this.hydrationLocator = page.locator('.hydrating');
   }
 
   async goto({ expectRedirect }: {expectRedirect: boolean} = {expectRedirect: false}): Promise<this> {
@@ -52,12 +50,12 @@ export class BasePage {
       // still wait to ensure we reach the state we expect
       await this.page.waitForURL(this.urlPattern, {waitUntil: 'load'});
     }
-    await this.waitForHydration(); // wait for, e.g., onclick handlers to be attached
+    await BasePage.waitForHydration(this.page); // wait for, e.g., onclick handlers to be attached
     await Promise.all(this.locators.map(l => expect(l).toBeVisible()));
     return this;
   }
 
-  async waitForHydration(): Promise<void> {
-    await this.hydrationLocator.waitFor({state: 'detached'});
+  static async waitForHydration(page: Page): Promise<void> {
+    await page.locator('.hydrating').waitFor({state: 'detached'});
   }
 }

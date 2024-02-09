@@ -33,7 +33,7 @@
       <h3 class="collapse-title my-0 px-0 pb-0">{$t('project_page.get_project.instructions_header', { type: project.type, mode: 'manual' })}...</h3>
       <div class="collapse-content p-0">
         <div class="divider mt-0" />
-        <Markdown md={$t('project_page.get_project.instructions', { code: project.code, name: project.name })} />
+        <Markdown md={$t('project_page.get_project.instructions_flex', { code: project.code, name: project.name })} />
         <SendReceiveUrlField projectCode={project.code} />
       </div>
     </div>

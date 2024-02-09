@@ -27,6 +27,8 @@ test('display form errors on invalid data', async ({ page, tempUser }) => {
 });
 
 test('can reset password', async ({ page, tempUser }) => {
+  test.slow(); // email checking can be slow
+
   const newPassword = 'test_edit_account_reset_password_changed';
   expect(tempUser.password).not.toBe(newPassword);
   await loginAs(page.request, tempUser.email, tempUser.password);

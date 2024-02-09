@@ -60,7 +60,7 @@
         status = UploadStatus.Error;
         const errorCode = getErrorCode(err);
         if (errorCode !== 'unknown') {
-          uploadError = $t('tus.server_error_codes.' + errorCode);
+          uploadError = $t('tus.server_error_codes', errorCode);
           return;
         }
         uploadError = err.message;

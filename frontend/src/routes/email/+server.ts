@@ -8,16 +8,16 @@ export async function POST(event: RequestEvent): Promise<Response> {
   const {template, ...props} = request;
   const component = componentMap[template];
   if (!component) throw new Error(`Invalid email template ${template}.}`);
-  return json(render(component, props));
+  return json(render(component, props, event.locals.activeLocale));
 }
 
 
 // just for testing
-export function GET(_event: RequestEvent): Response {
+export function GET(event: RequestEvent): Response {
   const {type, ...props} = {
     type: EmailTemplate.ForgotPassword,
     name: 'John Doe',
     resetUrl: 'https://example.com/reset'
   };
-  return json(render(componentMap[type], props));
+  return json(render(componentMap[type], props, event.locals.activeLocale));
 }

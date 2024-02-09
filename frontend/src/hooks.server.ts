@@ -1,10 +1,11 @@
+import { loadI18n, pickBestLocale } from '$lib/i18n';
 import { AUTH_COOKIE_NAME, getUser, isAuthn } from '$lib/user'
 import { apiVersion } from '$lib/util/version';
-import { redirect, type Handle, type HandleFetch, type HandleServerError, type ResolveOptions } from '@sveltejs/kit'
+import { redirect, type Handle, type HandleFetch, type HandleServerError, type RequestEvent, type ResolveOptions } from '@sveltejs/kit'
 import { ensureErrorIsTraced, traceRequest, traceFetch } from '$lib/otel/otel.server'
 import { env } from '$env/dynamic/private';
 import { getErrorMessage, validateFetchResponse } from './hooks.shared';
-import {setViewMode} from './routes/(authenticated)/shared';
+import { setViewMode } from './routes/(authenticated)/shared';
 import * as setCookieParser from 'set-cookie-parser';
 import { AUTHENTICATED_ROOT, UNAUTHENTICATED_ROOT } from './routes';
 
@@ -19,11 +20,20 @@ function getRoot(routeId: string): string {
   return root;
 }
 
+async function initI18n(event: RequestEvent): Promise<void> {
+  const user = event.locals.getUser();
+  const acceptLanguageHeader = event.request.headers.get('Accept-Language');
+  // Used for SSR + emails + CSR
+  event.locals.activeLocale = pickBestLocale(user?.locale, acceptLanguageHeader);
+  await loadI18n();
+}
+
 // eslint-disable-next-line func-style
 export const handle: Handle = ({ event, resolve }) => {
   console.log(`HTTP request: ${event.request.method} ${event.request.url}`);
   event.locals.getUser = () => getUser(event.cookies);
   return traceRequest(event, async () => {
+    await initI18n(event);
 
     const options: ResolveOptions = {
       filterSerializedResponseHeaders: () => true,

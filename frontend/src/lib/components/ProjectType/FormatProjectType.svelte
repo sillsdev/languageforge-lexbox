@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
   import { ProjectType } from '$lib/gql/types';
-  import t from '$lib/i18n';
+  import t, { type I18nKey } from '$lib/i18n';
 
-  const types: Record<ProjectType, string | undefined> = {
+  const types: Record<ProjectType, I18nKey | undefined> = {
     [ProjectType.FlEx]: 'project_type.flex',
     [ProjectType.WeSay]: 'project_type.weSay',
     [ProjectType.OneStoryEditor]: 'project_type.oneStoryEditor',
@@ -10,7 +10,7 @@
     [ProjectType.Unknown]: 'project_type.other',
   };
 
-  export function getProjectTypeI18nKey(type: ProjectType): string {
+  export function getProjectTypeI18nKey(type: ProjectType): I18nKey {
     return types[type] ?? 'unknown';
   }
 </script>
