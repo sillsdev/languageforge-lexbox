@@ -127,12 +127,6 @@
       error={$errors.name}
       autofocus
     />
-    <TextArea
-      id="description"
-      label={$t('project.create.description')}
-      bind:value={$form.description}
-      error={$errors.description}
-    />
 
     <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
 
@@ -178,6 +172,14 @@
       error={$errors.code}
       readonly={!$form.customCode}
     />
+
+    <TextArea
+      id="description"
+      label={$t('project.create.description')}
+      bind:value={$form.description}
+      error={$errors.description}
+    />
+
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>
         {#if data.user.canCreateProject || data.user.role === 'admin'}
