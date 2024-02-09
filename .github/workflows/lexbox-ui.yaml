@@ -56,7 +56,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=raw,enable=${{ inputs.label-latest }},value=latest
-            type=raw,enable=${{ inputs.label-latest }},value=${{ inputs.version }}
+            type=raw,value=${{ inputs.version }}
 
       - uses: docker/login-action@v2
         with:
