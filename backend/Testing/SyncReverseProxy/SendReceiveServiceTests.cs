@@ -27,7 +27,7 @@ public class SendReceiveServiceTests
     public SendReceiveAuth UnauthorizedUser = new("user", TestingEnvironmentVariables.DefaultPassword);
 
     private readonly ITestOutputHelper _output;
-    private string _basePath = Path.Join(Path.GetTempPath(), "SendReceiveTests");
+    private string _basePath = Path.Join(Path.GetTempPath(), "SR_Tests");
     private SendReceiveService _sendReceiveService;
 
     public SendReceiveServiceTests(ITestOutputHelper output)
@@ -60,6 +60,7 @@ public class SendReceiveServiceTests
         if (identifier is not null) projectDir = Path.Join(projectDir, identifier);
         //fwdata file containing folder name will be the same as the file name
         projectDir = Path.Join(projectDir, _folderIndex++.ToString(), projectCode);
+        projectDir.Length.ShouldBeLessThan(150, "Path may be too long with mercurial directories");
         return projectDir;
     }
 
@@ -186,7 +187,7 @@ query projectLastCommit {
     {
         // Create new project on server so we don't reset our master test project
         var id = Guid.NewGuid();
-        var newProjectCode = $"send-receive-{protocol.ToString().ToLowerInvariant()}-after-reset-test-{id:N}";
+        var newProjectCode = $"{(protocol == HgProtocol.Hgweb ? "web": "res")}-sr-reset-{id:N}";
         var apiTester = new ApiTestBase();
         var auth = AdminAuth;
         await apiTester.LoginAs(auth.Username, auth.Password);
