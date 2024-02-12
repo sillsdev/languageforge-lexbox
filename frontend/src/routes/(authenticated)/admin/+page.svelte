@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
-  import t from '$lib/i18n';
+  import t, { number } from '$lib/i18n';
   import type { PageData } from './$types';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
@@ -20,7 +20,6 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
-  import { FormatCount } from '$lib/components/Format';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -102,9 +101,9 @@
         {$t('admin_dashboard.user_table_title')}
         <Badge>
           <span class="inline-flex gap-2">
-            <FormatCount value={shownUsers.length} />
+            {$number(shownUsers.length)}
             <span>/</span>
-            <FormatCount value={filteredUserCount} />
+            {$number(filteredUserCount)}
           </span>
         </Badge>
       </h2>

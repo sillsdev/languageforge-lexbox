@@ -1,7 +1,6 @@
 ﻿<script lang="ts">
-  import t from '$lib/i18n';
+  import t, { date } from '$lib/i18n';
   import { Modal } from '$lib/components/modals';
-  import { FormatDate } from '$lib/components/Format';
   import DevContent from '$lib/layout/DevContent.svelte';
   import UserLockedAlert from './UserLockedAlert.svelte';
 
@@ -58,7 +57,7 @@
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.registered')}</h3>
         <p class="value">
-          <FormatDate value={user.createdDate} />
+          {$date(user.createdDate)}
         </p>
       </div>
       <div>
@@ -69,7 +68,7 @@
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.last_active')}</h3>
-        <p class="value"><FormatDate value={user.lastActive} /></p>
+        <p class="value">{$date(user.lastActive)}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.can_create_projects')}</h3>
@@ -77,7 +76,7 @@
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.updated')}</h3>
-        <p class="value"><FormatDate value={user.updatedDate} /></p>
+        <p class="value">{$date(user.updatedDate)}</p>
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.locale')}</h3>

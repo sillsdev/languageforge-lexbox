@@ -4,13 +4,12 @@
 </script>
 
 <script lang="ts">
-  import t from '$lib/i18n';
+  import t, { date } from '$lib/i18n';
 
   import type { Circle, Path } from './TrainTracks.svelte';
   import TrainTracks from './TrainTracks.svelte';
   import Loader from './Loader.svelte';
   import type { ProjectChangesetsQuery } from '$lib/gql/types';
-  import { FormatDate } from '$lib/components/Format';
 
   type LogEntries = NonNullable<ProjectChangesetsQuery['projectByCode']>['changesets'];
   type LogEntry = NonNullable<LogEntries>[0];
@@ -137,7 +136,7 @@
               <TrainTracks {circles} {paths} rowHeights={heights} />
             </td>
           {/if}
-          <td bind:offsetHeight={heights[idx]}><FormatDate value={log.date[0] * 1000} /></td>
+          <td bind:offsetHeight={heights[idx]}>{$date(log.date[0] * 1000)}</td>
           <td>{log.user}</td>
           <td>{log.trimmedLog}</td>
         </tr>

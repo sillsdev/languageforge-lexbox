@@ -2,7 +2,6 @@
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { FormatCount } from '$lib/components/Format';
   import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
   import { ProjectFilter, ProjectTable, type ProjectItem, filterProjects, type ProjectFilters } from '$lib/components/Projects';
   import { RefineFilterMessage } from '$lib/components/Table';
@@ -10,7 +9,7 @@
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { Button } from '$lib/forms';
   import { _deleteProject } from '$lib/gql/mutations';
-  import t from '$lib/i18n';
+  import t, { number } from '$lib/i18n';
   import { TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
   import type { QueryParams } from '$lib/util/query-params';
@@ -59,9 +58,9 @@
       {$t('admin_dashboard.project_table_title')}
       <Badge>
         <span class="inline-flex gap-2">
-          <FormatCount value={shownProjects.length} />
+          {$number(shownProjects.length)}
           <span>/</span>
-          <FormatCount value={filteredProjects.length} />
+          {$number(filteredProjects.length)}
         </span>
       </Badge>
     </h2>

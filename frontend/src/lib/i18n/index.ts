@@ -1,6 +1,6 @@
 import type { DeepPathsToType, DeepPaths, DeepPathsToString } from '$lib/type.utils';
 // eslint-disable-next-line no-restricted-imports
-import { getLocaleFromAcceptLanguageHeader, getLocaleFromNavigator, init, t as translate, waitLocale } from 'svelte-intl-precompile';
+import { date as _date, number as _number, getLocaleFromAcceptLanguageHeader, getLocaleFromNavigator, init, t as translate, waitLocale } from 'svelte-intl-precompile';
 
 import type I18nShape from '../i18n/locales/en.json';
 import { derived, writable, type Readable, type Writable } from 'svelte/store';
@@ -90,6 +90,30 @@ const t: I18n = {
   }
 }
 export default t;
+
+const NULL_LABEL = '–';
+
+export const number = withLocale(_number, (numberFunc, value, options) => numberFunc(Number(value), options));
+
+export const date = withLocale(_date, (dateFunc, value, options) => dateFunc(new Date(value), {
+  dateStyle: 'short',
+  timeStyle: 'short',
+  ...options,
+}));
+
+function withLocale<T, O extends { locale?: string }>(store: Readable<(value: T, options?: O) => string>,
+  formatter: (func: (value: T, options?: O) => string, value: T | string, options: O) => string):
+  Readable<(value: T | string | null | undefined, options?: O & { nullLabel?: string }) => string> {
+  return {
+    subscribe: (run) => {
+      return derived([store, useLocale()], ([storeFunc, locale]) =>
+        (value: T | string | null | undefined, options?: O & { nullLabel?: string }) =>
+          value === null || value === undefined ? options?.nullLabel ?? NULL_LABEL
+            : formatter(storeFunc, value, { ...options, locale } as O)
+      ).subscribe(run);
+    }
+  }
+}
 
 export function tScoped<Scope extends I18nScope>(scope: Scope): Readable<(key: DeepPathsToString<I18nScopedShape<Scope>>, values?: InterpolationValues) => string> {
   // I can't quite figure out why this needs to be cast
