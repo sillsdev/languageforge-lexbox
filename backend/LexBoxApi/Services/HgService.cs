@@ -82,23 +82,17 @@ public partial class HgService : IHgService
         await Task.Run(() => Directory.Delete(Path.Combine(_options.Value.RepoPath, code), true));
     }
 
-    public async Task<string?> BackupRepo(string code)
+    public BackupExecutor? BackupRepo(string code)
     {
         string repoPath = Path.Combine(_options.Value.RepoPath, code);
-        var repoDir = new DirectoryInfo(repoPath);
-        if (!repoDir.Exists)
+        if (!Directory.Exists(repoPath))
         {
-            return null; // Which controller will turn into HTTP 404
+            return null;
         }
-
-        string tempPath = Path.GetTempPath();
-        string timestamp = FileUtils.ToTimestamp(DateTime.UtcNow);
-        string baseName = $"backup-{code}-{timestamp}.zip";
-        string filename = Path.Join(tempPath, baseName);
-        // TODO: Check if a backup has been taken within the past 30 minutes, and return that backup instead of making a new one
-        // This would allow resuming an interrupted download
-        await Task.Run(() => ZipFile.CreateFromDirectory(repoPath, filename));
-        return filename;
+        return new(stream => Task.Run(() =>
+        {
+            ZipFile.CreateFromDirectory(repoPath, stream, CompressionLevel.Fastest, false);
+        }));
     }
 
     public async Task ResetRepo(string code)

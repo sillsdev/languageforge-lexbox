@@ -51,10 +51,13 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         return projectId;
     }
 
-    public async Task<string?> BackupProject(ResetProjectByAdminInput input)
+    public async Task<BackupExecutor?> BackupProject(string code)
     {
-        var backupFile = await hgService.BackupRepo(input.Code);
-        return backupFile;
+        var exists = await dbContext.Projects.Where(p => p.Code == code && p.MigrationStatus == ProjectMigrationStatus.Migrated)
+            .AnyAsync();
+        if (!exists) return null;
+        var backupExecutor = hgService.BackupRepo(code);
+        return backupExecutor;
     }
 
     public async Task ResetProject(ResetProjectByAdminInput input)
