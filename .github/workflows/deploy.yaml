@@ -92,6 +92,7 @@ jobs:
   verify-published:
     name: Verify ${{ matrix.verify.name }} Published
     runs-on: self-hosted #only self hosted can access develop, so we should just run all our verify tests on self hosted
+    if: ${{ inputs.image != 'ghcr.io/sillsdev/lexbox-hgweb' }}
     needs: deploy
     strategy:
       fail-fast: true

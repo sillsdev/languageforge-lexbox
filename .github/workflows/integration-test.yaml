@@ -14,6 +14,10 @@ on:
         description: 'The domain to use for hg'
         required: true
         type: string
+      http-scheme:
+        description: 'The scheme to use for http tests'
+        type: string
+        default: 'https'
   workflow_dispatch:
     inputs:
       test-domain:
