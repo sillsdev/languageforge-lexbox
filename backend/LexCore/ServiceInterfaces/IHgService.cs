@@ -2,6 +2,7 @@
 
 namespace LexCore.ServiceInterfaces;
 
+public record BackupExecutor(Func<Stream, Task> ExecuteBackup);
 public interface IHgService
 {
     Task InitRepo(string code);
@@ -10,7 +11,7 @@ public interface IHgService
     Task<ProjectType> DetermineProjectType(string projectCode, ProjectMigrationStatus migrationStatus);
     Task DeleteRepo(string code);
     Task SoftDeleteRepo(string code, string deletedRepoSuffix);
-    Task<string?> BackupRepo(string code);
+    BackupExecutor? BackupRepo(string code);
     Task ResetRepo(string code);
     Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken);
     Task FinishReset(string code, Stream zipFile);

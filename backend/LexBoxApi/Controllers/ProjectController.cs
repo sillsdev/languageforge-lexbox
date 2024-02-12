@@ -9,6 +9,7 @@ using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using Path = System.IO.Path;
 
 namespace LexBoxApi.Controllers;
 
@@ -110,10 +111,21 @@ public class ProjectController(
     [AdminRequired]
     public async Task<IActionResult> BackupProject(string code)
     {
-        var filename = await projectService.BackupProject(new Models.Project.ResetProjectByAdminInput(code));
-        if (string.IsNullOrEmpty(filename)) return NotFound();
-        var stream = System.IO.File.OpenRead(filename); // Do NOT use "using var stream = ..." as we need to let ASP.NET Core handle the disposal after the download completes
-        return File(stream, "application/zip", filename);
+        var backupExecutor = await projectService.BackupProject(code);
+        if (backupExecutor is null)
+            return NotFound();
+        return new StreamingResponse(backupExecutor.ExecuteBackup, "application/zip", $"{code}_backup.zip");
+    }
+
+    private class StreamingResponse(Func<Stream, Task> execute, string contentType, string fileName): ActionResult
+    {
+        public override async Task ExecuteResultAsync(ActionContext context)
+        {
+            context.HttpContext.Response.ContentType = contentType;
+            context.HttpContext.Response.Headers.Append("Content-Disposition",
+                $"attachment; filename=\"{Path.GetFileName(fileName)}\"");
+            await execute.Invoke(context.HttpContext.Response.BodyWriter.AsStream());
+        }
     }
 
     [HttpPost("resetProject/{code}")]
