@@ -2,7 +2,7 @@
 
 namespace LexCore.ServiceInterfaces;
 
-public record BackupExecutor(Func<Stream, Task> ExecuteBackup);
+public record BackupExecutor(Func<Stream, CancellationToken, Task> ExecuteBackup);
 public interface IHgService
 {
     Task InitRepo(string code);

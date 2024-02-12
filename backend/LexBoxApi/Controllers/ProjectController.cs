@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.Controllers.ActionResults;
 using LexBoxApi.Jobs;
 using LexBoxApi.Services;
 using LexCore.Entities;
@@ -114,18 +115,11 @@ public class ProjectController(
         var backupExecutor = await projectService.BackupProject(code);
         if (backupExecutor is null)
             return NotFound();
-        return new StreamingResponse(backupExecutor.ExecuteBackup, "application/zip", $"{code}_backup.zip");
-    }
-
-    private class StreamingResponse(Func<Stream, Task> execute, string contentType, string fileName): ActionResult
-    {
-        public override async Task ExecuteResultAsync(ActionContext context)
+        return new FileCallbackResult("application/zip",
+            async (stream, context) => await backupExecutor.ExecuteBackup(stream, context.HttpContext.RequestAborted))
         {
-            context.HttpContext.Response.ContentType = contentType;
-            context.HttpContext.Response.Headers.Append("Content-Disposition",
-                $"attachment; filename=\"{Path.GetFileName(fileName)}\"");
-            await execute.Invoke(context.HttpContext.Response.BodyWriter.AsStream());
-        }
+            FileDownloadName = $"{code}_backup.zip"
+        };
     }
 
     [HttpPost("resetProject/{code}")]

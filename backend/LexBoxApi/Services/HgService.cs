@@ -89,10 +89,10 @@ public partial class HgService : IHgService
         {
             return null;
         }
-        return new(stream => Task.Run(() =>
+        return new((stream, token) => Task.Run(() =>
         {
             ZipFile.CreateFromDirectory(repoPath, stream, CompressionLevel.Fastest, false);
-        }));
+        }, token));
     }
 
     public async Task ResetRepo(string code)
