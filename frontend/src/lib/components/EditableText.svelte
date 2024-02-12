@@ -49,6 +49,7 @@
     saving = true;
     try {
       const error = await saveHandler(newValue);
+      console.log(error);
       if (error) {
         $message = error;
       } else {
@@ -80,6 +81,9 @@
   }
 
   function submit(): void {
+    console.log('submitting');
+    console.log($form.value);
+    console.log()
     //triggers callback in superForm with validation
     formElem.requestSubmit();
   }
@@ -135,7 +139,7 @@
       {#if value}
         <span class="mr-2 whitespace-pre-wrap">{value}</span>
       {:else}
-        <span class="mr-2 opacity-75">{placeholder}</span>
+        <span class="mr-2 opacity-75">{placeholder ?? 'None'}</span>
       {/if}
       {#if !disabled}
         <span class="i-mdi-pencil-outline text-lg text-base-content edit-icon mb-1 self-end" />
