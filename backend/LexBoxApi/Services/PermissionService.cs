@@ -74,4 +74,9 @@ public class PermissionService(
     {
         return User is { CanCreateProjects: true } or { Role: UserRole.admin };
     }
+
+    public void AssertHasProjectCreatePermission()
+    {
+        if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
+    }
 }

@@ -40,7 +40,7 @@ export type LexAuthUser = {
   projects: UserProjects[]
   locked: boolean
   emailVerified: boolean
-  canCreateProject: boolean
+  canCreateProjects: boolean
   locale: string
 }
 type UserProjectRole = 'Manager' | 'Editor' | 'Unknown';
@@ -135,7 +135,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     projects: projectsStringToProjects(projectsString),
     locked: user.lock === true,
     emailVerified: !user.unver,
-    canCreateProject: user.mkproj === true,
+    canCreateProjects: user.mkproj === true || role === 'admin',
     locale: user.loc,
   }
 }
