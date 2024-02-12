@@ -11,5 +11,6 @@ public interface IPermissionService
     void AssertIsAdmin();
     void AssertCanDeleteAccount(Guid userId);
     bool HasProjectCreatePermission();
+    void AssertHasProjectCreatePermission();
     void AssertCanLockOrUnlockUser(Guid userId);
 }

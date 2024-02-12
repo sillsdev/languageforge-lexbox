@@ -74,6 +74,13 @@ public class ProjectController(
         return project;
     }
 
+    [HttpGet("projectCodeAvailable/{code}")]
+    public async Task<bool> ProjectCodeAvailable(string code)
+    {
+        permissionService.AssertHasProjectCreatePermission();
+        return !await projectService.ProjectExists(code);
+    }
+
     [HttpGet("determineProjectType/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
