@@ -313,28 +313,28 @@ public partial class HgService : IHgService
     }
 
 
-    public async Task<string> VerifyRepo(string code)
+    public async Task<string> VerifyRepo(string code, CancellationToken token)
     {
-        return await ExecuteHgCommandServerCommand(code, "verify");
+        return await ExecuteHgCommandServerCommand(code, "verify", token);
     }
-    public async Task<string> ExecuteHgRecover(string code)
+    public async Task<string> ExecuteHgRecover(string code, CancellationToken token)
     {
-        var response = await ExecuteHgCommandServerCommand(code, "recover");
+        var response = await ExecuteHgCommandServerCommand(code, "recover", token);
         if (string.IsNullOrWhiteSpace(response)) return "Nothing to recover";
         return response;
     }
 
     public async Task<int?> GetLexEntryCount(string code)
     {
-        var str = await ExecuteHgCommandServerCommand(code, "lexentrycount");
+        var str = await ExecuteHgCommandServerCommand(code, "lexentrycount", default);
         return int.TryParse(str, out int result) ? result : null;
     }
 
-    private async Task<string> ExecuteHgCommandServerCommand(string code, string command)
+    private async Task<string> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
     {
         var httpClient = _hgClient.Value;
         httpClient.BaseAddress = new Uri(_options.Value.HgCommandServer);
-        var response = await httpClient.GetAsync($"{code}/{command}");
+        var response = await httpClient.GetAsync($"{code}/{command}", token);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }

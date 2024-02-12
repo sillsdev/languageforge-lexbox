@@ -184,7 +184,7 @@ public class ProjectController : ControllerBase
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
         if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
-        var result = await _hgService.VerifyRepo(code);
+        var result = await _hgService.VerifyRepo(code, HttpContext.RequestAborted);
         return new HgCommandResponse(result);
     }
 
@@ -199,7 +199,7 @@ public class ProjectController : ControllerBase
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
         if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
-        var result = await _hgService.ExecuteHgRecover(code);
+        var result = await _hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
         return new HgCommandResponse(result);
     }
 
