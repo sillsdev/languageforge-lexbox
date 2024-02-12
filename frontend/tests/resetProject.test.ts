@@ -23,7 +23,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await resetProjectModel.assertGone();
 
   // Step 2: Get tip hash and file list from hgweb, check some known values
-  await page.goto(`http://localhost/hg/${tempProject.code}/file/tip`);
+  await page.goto(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip`);
   await expect(page.locator('tr.fileline')).toHaveCount(1);
   await expect(page.locator('tr.fileline').first()).toHaveText(/hello\.txt/);
   const h3BeforeReset = await page.locator('.main h3').innerText();
@@ -43,7 +43,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await resetProjectModel.assertGone();
 
   // Step 4: confirm it's empty now
-  await page.goto(`http://localhost/hg/${tempProject.code}/file/tip`);
+  await page.goto(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip`);
   await expect(page.locator('tr.fileline')).toHaveCount(0);
   await expect(page.locator('.main h3')).not.toHaveText(h3BeforeReset);
 
@@ -60,7 +60,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await resetProjectModel.assertGone();
 
   // Step 6: confirm hash in <h3> element is same as before reset
-  await page.goto(`http://localhost/hg/${tempProject.code}/file/tip`);
+  await page.goto(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip`);
   await expect(page.locator('tr.fileline')).toHaveCount(1);
   await expect(page.locator('tr.fileline').first()).toHaveText(/hello\.txt/);
   await expect(page.locator('.main h3')).toHaveText(h3BeforeReset);
