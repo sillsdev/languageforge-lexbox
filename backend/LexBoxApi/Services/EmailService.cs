@@ -105,19 +105,17 @@ public class EmailService(
         var email = StartUserEmail(name: "", emailAddress);
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
-        var queryParam = "verifiedEmail";
-        // var verifyLink = new UriBuilder()
-        // {
-        //     Host = "localhost", // TODO
-        //     Path = "/register",
-        //     Query = new QueryBuilder(new { jwt, returnTo = $"/user?emailResult={queryParam}", email = newEmail ?? user.Email, });
-        // }
-        // var verifyLink = _linkGenerator.GetUriByName(httpContext, "/register", new { jwt, returnTo = $"/user?emailResult={queryParam}", email = newEmail ?? user.Email, });
-        // TODO: How do I get LinkGenerator to create a frontend link for me, rather than a backend API link?
-        var verifyLink = $"/register?jwt={jwt}&email={emailAddress}&returnTo=/project/{projectId}";
-        ArgumentException.ThrowIfNullOrEmpty(verifyLink);
+        var queryString = new QueryString();
+        queryString.Add("email", emailAddress);
+        queryString.Add("returnTo", "/register");
+        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.ToString() };
+        var registerLink = _linkGenerator.GetUriByAction(httpContext,
+            "LoginRedirect",
+            "Login",
+            new { jwt, returnTo });
+        ArgumentException.ThrowIfNullOrEmpty(registerLink);
         // TODO: Get project name and include it in the RenderEmail parameters
-        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), verifyLink), language);
+        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), registerLink), language);
         await SendEmailAsync(email);
     }
 
