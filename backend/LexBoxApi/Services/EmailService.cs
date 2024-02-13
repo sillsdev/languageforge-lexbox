@@ -77,6 +77,44 @@ public class EmailService(
         await SendEmailAsync(email);
     }
 
+    /// <summary>
+    /// Sends a project invitation email to a new user, whose account will be created when they accept.
+    /// </summary>
+    /// <param name="name">The name (real name, NOT username) of user to invite.</param>
+    /// <param name="emailAddress">The email address to send the invitation to</param>
+    /// <param name="projectId">The GUID of the project the user is being invited to</param>
+    /// <param name="language">The language in which the invitation email should be sent (default English)</param>
+    public async Task SendCreateAccountEmail(string name, string emailAddress, Guid projectId, ProjectRole role, string language = null)
+    {
+        language = language ?? User.DefaultLocalizationCode;
+        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
+            {
+                Id = new Guid(),
+                Name = name,
+                Email = emailAddress,
+                EmailVerificationRequired = null,
+                Role = UserRole.user,
+                UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                Projects = [new AuthUserProject(role, projectId)],
+                CanCreateProjects = null,
+                Locale = language,
+                Locked = null,
+            },
+            useEmailLifetime: true
+        );
+        var email = StartUserEmail(name, emailAddress);
+        var httpContext = httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+        var queryParam = "verifiedEmail";
+        var verifyLink = _linkGenerator.GetUriByAction(httpContext,
+            "VerifyEmail",
+            "Login",
+            new { jwt, returnTo = $"/user?emailResult={queryParam}", email = emailAddress });
+        ArgumentException.ThrowIfNullOrEmpty(verifyLink);
+        await RenderEmail(email, new VerifyAddressEmail(name, verifyLink, !string.IsNullOrEmpty(emailAddress)), language); // TODO: Write new email text, use VerifyAddress for testing
+        await SendEmailAsync(email);
+    }
+
     public async Task SendPasswordChangedEmail(User user)
     {
         var email = StartUserEmail(user);
@@ -146,6 +184,13 @@ public class EmailService(
     {
         var message = new MimeMessage();
         message.To.Add(new MailboxAddress(user.Name, email ?? user.Email));
+        return message;
+    }
+
+    private static MimeMessage StartUserEmail(string name, string email)
+    {
+        var message = new MimeMessage();
+        message.To.Add(new MailboxAddress(name, email));
         return message;
     }
 }
