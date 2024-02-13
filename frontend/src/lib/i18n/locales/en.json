@@ -367,10 +367,7 @@ If you don't see a dialog or already closed it, click the button below:",
     },
     "create_account_request_email": {
       "subject": "You've been invited to join a language project",
-      // TODO: Have email request provide the projectName to fill in, then use this version instead
-      // "subject": "You've been invited to join the {projectName} project",
-      // TODO also: Better email body
-      "body": "{name} has invited you to join a language project. Click here to join.",
+      "body": "{name} A project manager has invited you to join a language project. Click below to join.",
       "join_button": "Join project"
     },
     "create_project_request_email": {

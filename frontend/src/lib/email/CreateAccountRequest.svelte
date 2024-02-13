@@ -6,6 +6,6 @@
 </script>
 
 <Email subject={$t('emails.create_account_request_email.subject'/*, {projectName: projectName}*/)} name="">
-  <mj-text>{$t('emails.create_account_request_email.body')}</mj-text>
+  <mj-text>{$t('emails.create_account_request_email.body', {name: 'Hello, '})}</mj-text>
   <mj-button href={verifyUrl}>{$t('emails.create_account_request_email.join_button')}</mj-button>
 </Email>
