@@ -105,12 +105,10 @@ public class EmailService(
         var email = StartUserEmail(name: "", emailAddress);
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
-        var queryString = new QueryString();
-        queryString.Add("email", emailAddress);
-        queryString.Add("returnTo", "/register");
-        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.ToString() };
+        var queryString = QueryString.Create("email", emailAddress);
+        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value };
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
-            "LoginRedirect",
+            "VerifyEmail",
             "Login",
             new { jwt, returnTo });
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
