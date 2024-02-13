@@ -1,128 +1,151 @@
-import type { Action, ActionReturn } from 'svelte/action';
-import { autoUpdate, computePosition } from '@floating-ui/dom';
-import { flip, offset } from '@floating-ui/dom';
+import type {Action, ActionReturn} from 'svelte/action';
+import {autoUpdate, computePosition, flip, offset} from '@floating-ui/dom';
+import {browser} from '$app/environment';
 
-import { browser } from '$app/environment';
-
-export const { overlayTarget: overlay, overlayContainer } = buildSharedClickOverlay();
-
-type OverlayParams = { disabled?: boolean } | undefined;
+type OverlayParams = { disabled?: boolean, closeClickSelector?: string } | undefined;
 type OverlayAction = Action<HTMLElement, OverlayParams>;
 
-function buildSharedClickOverlay(): { overlayTarget: OverlayAction; overlayContainer: Action } {
-  let containerElem: HTMLElement | undefined;
-  let activeOverlay: { targetElem: HTMLElement; contentElem: HTMLElement } | undefined;
+class SharedOverlay {
+  private containerElem: HTMLElement | undefined;
+  private activeOverlay: { targetElem: HTMLElement; contentElem: HTMLElement } | undefined;
+  private cleanupOverlay: (() => void) | undefined;
 
-  let cleanup: (() => void) | undefined;
 
-  function closeHandler(event: MouseEvent): void {
-    if (activeOverlay) {
-      const eventPath = event.composedPath();
-      if (!eventPath.includes(activeOverlay.targetElem) && !eventPath.includes(activeOverlay.contentElem)) {
-        closeOverlay();
-      }
-    }
+  constructor() {
+    if (browser) document.addEventListener('click', this.closeHandler.bind(this));
   }
 
-  if (browser) document.addEventListener('click', closeHandler);
-
-  function updateOverlay(): void {
-    resetDom();
-    if (!containerElem) throw new Error('No overlay container has been provided');
-
-    if (activeOverlay) {
-      const { targetElem, contentElem } = activeOverlay;
-      containerElem.replaceChildren(contentElem);
-      cleanup = autoUpdate(
-        targetElem,
-        containerElem,
-        () => {
-          if (!targetElem || !containerElem) return;
-          void computePosition(targetElem, containerElem, {
-            placement: 'bottom-end',
-            middleware: [offset(2), flip()],
-          }).then(({ x, y }) => {
-            if (!containerElem) return;
-            Object.assign(containerElem.style, {
-              left: `${x}px`,
-              top: `${y}px`,
-              display: '',
-            });
+  public openOverlay(targetElem: HTMLElement, contentElem: HTMLElement): void {
+    if (this.isActive(targetElem)) return;
+    if (!this.containerElem) throw new Error('No overlay container has been provided');
+    this.resetDom();
+    this.activeOverlay = {targetElem, contentElem};
+    this.containerElem.replaceChildren(contentElem);
+    this.cleanupOverlay = autoUpdate(
+      targetElem,
+      this.containerElem,
+      () => {
+        if (!this.containerElem) return;
+        void computePosition(targetElem, this.containerElem, {
+          placement: 'bottom-end',
+          middleware: [offset(2), flip()],
+        }).then(({x, y}) => {
+          if (!this.containerElem) return;
+          Object.assign(this.containerElem.style, {
+            left: `${x}px`,
+            top: `${y}px`,
+            display: '',
           });
         });
+      });
+  }
+
+  public closeOverlay(): void {
+    this.resetDom();
+    this.activeOverlay = undefined;
+  }
+
+  private resetDom(): void {
+    this.cleanupOverlay?.();
+    this.cleanupOverlay = undefined;
+    if (this.containerElem) {
+      this.containerElem.style.display = 'none';
+      this.containerElem?.replaceChildren();
     }
   }
 
-  function resetDom(): void {
-    cleanup?.();
-    if (containerElem) {
-      containerElem.style.display = 'none';
-      containerElem?.replaceChildren();
+  private closeHandler(event: MouseEvent): void {
+    if (!this.activeOverlay) return;
+    const eventPath = event.composedPath();
+    if (!eventPath.includes(this.activeOverlay.targetElem) && !eventPath.includes(this.activeOverlay.contentElem)) {
+      this.closeOverlay();
     }
   }
 
-  function closeOverlay(): void {
-    resetDom();
-    activeOverlay = undefined;
-  }
-
-  function overlayContainer(...[element]: Parameters<Action>): ActionReturn {
-    if (containerElem) console.warn('Overlay container is already set');
-    containerElem = element;
-    containerElem.classList.add('overlay-container');
-    resetDom();
+  public overlayContainer(element: HTMLElement): ActionReturn {
+    if (this.containerElem) console.warn('Overlay container is already set');
+    this.containerElem = element;
+    this.containerElem.classList.add('overlay-container');
+    this.resetDom();
     return {
-      destroy(): void {
-        closeOverlay();
-        document.removeEventListener('click', closeHandler);
+      destroy: () => {
+        if (this.containerElem !== element) return;
+        this.closeOverlay();
+        this.containerElem = undefined;
       }
     };
   }
 
-  function overlayTarget(...[targetElem, params]: Parameters<OverlayAction>): ReturnType<OverlayAction> {
-    let disabled = params?.disabled ?? false;
-    const contentElem = targetElem.querySelector<HTMLElement>('.overlay-content') as HTMLElement;
-    if (!contentElem) throw new Error('Overlay target must have a child with class "overlay-content"');
+  public isActive(elem: HTMLElement): boolean {
+    return this.activeOverlay?.targetElem === elem;
+  }
 
-    contentElem.remove();
+  public overlayTarget(...[target, params]: Parameters<OverlayAction>): ReturnType<OverlayAction> {
+    const overlayTarget = new OverlayTarget(target,
+      params?.disabled ?? false,
+      params?.closeClickSelector ?? '',
+      this);
+    return {
+      update: overlayTarget.update.bind(overlayTarget),
+      destroy: overlayTarget.destroy.bind(overlayTarget),
+    };
+  }
+}
 
-    function isActive(): boolean {
-      return activeOverlay?.targetElem === targetElem;
-    }
+class OverlayTarget implements ActionReturn<OverlayParams> {
+  private contentElem: HTMLElement;
+  private abortController = new AbortController();
 
-    function deactivate(): void {
-      if (isActive()) {
-        closeOverlay();
-      }
-    }
+  constructor(private targetElem: HTMLElement,
+              private disabled: boolean,
+              private closeClickSelector: string,
+              private sharedOverlay: SharedOverlay) {
+    this.contentElem = this.targetElem.querySelector<HTMLElement>('.overlay-content') as HTMLElement;
+    if (!this.contentElem) throw new Error('Overlay target must have a child with class "overlay-content"');
+    this.contentElem.remove();
 
-    targetElem.addEventListener('click', function (): void {
-      if (!isActive() && !disabled) {
-        activeOverlay = { targetElem, contentElem };
-        updateOverlay();
-      }
-    });
+    this.targetElem.addEventListener('click',
+      () => this.openOverlay(),
+      {signal: this.abortController.signal});
 
     // clicking on menu items should probably always close the overlay
-    contentElem.querySelectorAll('.menu li').forEach((item) => {
-      item.addEventListener('click', () => {
-        deactivate();
-      });
-    });
-
-    return {
-      destroy(): void {
-        deactivate();
-      },
-      update(newParams): void {
-        if (newParams?.disabled !== undefined) disabled = newParams.disabled;
-        if (disabled) deactivate();
+    this.contentElem.addEventListener('click', (event) => {
+      if (!this.closeClickSelector) return;
+      if (event.target instanceof HTMLElement && event.target.closest(this.closeClickSelector)) {
+        this.closeOverlay();
       }
-    };
+    }, {signal: this.abortController.signal});
   }
 
-  return {
-    overlayContainer,
-    overlayTarget,
-  };
+  public destroy(): void {
+    this.closeOverlay();
+    this.abortController.abort();
+  }
+
+  public update(params: OverlayParams): void {
+    if (params?.disabled !== undefined) this.disabled = params.disabled;
+    if (this.disabled) this.closeOverlay();
+    this.closeClickSelector = params?.closeClickSelector ?? '';
+  }
+
+  private isActive(): boolean {
+    return this.sharedOverlay.isActive(this.targetElem);
+  }
+
+  private openOverlay(): void {
+    if (!this.disabled) {
+      this.sharedOverlay.openOverlay(this.targetElem, this.contentElem);
+    }
+  }
+
+  private closeOverlay(): void {
+    if (this.isActive()) {
+      this.sharedOverlay.closeOverlay();
+    }
+  }
 }
+
+
+const sharedOverlay = new SharedOverlay();
+export const overlay = sharedOverlay.overlayTarget.bind(sharedOverlay);
+export const overlayContainer = sharedOverlay.overlayContainer.bind(sharedOverlay);

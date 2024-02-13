@@ -4,7 +4,7 @@
   export let disabled = false;
 </script>
 
-<div class="dropdown-container inline-flex" use:overlay={{ disabled }}>
+<div class="dropdown-container inline-flex" use:overlay={{ disabled, closeClickSelector: '.menu li' }}>
   <slot />
   <div class="overlay-content">
     <slot name="content" />

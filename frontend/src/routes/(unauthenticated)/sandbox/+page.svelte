@@ -33,6 +33,8 @@
 function preFillForm(): void {
   form.update(f => ({...f, name: 'John'}), {taint: false});
 }
+
+let disableDropdown = false;
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -62,6 +64,7 @@ function preFillForm(): void {
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
       <h2 class="card-title">Dropdown Example</h2>
+      <span>Clicking menu items inside dropdown should cause it to close</span>
       <Dropdown>
         <Button style="btn-primary">Open Me!</Button>
         <ul slot="content" class="menu bg-info rounded-box">
@@ -77,6 +80,20 @@ function preFillForm(): void {
             <li><button>Second item</button></li>
           </ul>
         </Dropdown>
+      </div>
+      <div>
+        <Dropdown disabled={disableDropdown}>
+          <Button style="btn-primary" disabled={disableDropdown}>Open dropdown</Button>
+          <div slot="content" class="bg-neutral p-5">
+            <p>Some content</p>
+            <Button style="btn-outline" on:click={() => disableDropdown = true}>Disable myself</Button>
+          </div>
+        </Dropdown>
+
+        <label class="cursor-pointer label gap-4">
+          <span class="label-text">Disabled</span>
+          <input bind:checked={disableDropdown} type="checkbox" class="toggle toggle-error"/>
+        </label>
       </div>
     </div>
   </div>
