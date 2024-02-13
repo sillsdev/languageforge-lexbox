@@ -61,11 +61,16 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> AddProjectMember(IPermissionService permissionService,
         AddProjectMemberInput input,
-        LexBoxDbContext dbContext)
+        LexBoxDbContext dbContext,
+        [Service] EmailService emailService)
     {
         permissionService.AssertCanManageProject(input.ProjectId);
         var user = await dbContext.Users.FindByEmail(input.UserEmail);
-        if (user is null) throw new NotFoundException("Member not found");
+        if (user is null)
+        {
+            // TODO: Modify input to have an optional name for those times when the user doesn't exist and we're sending an invitation email
+            await emailService.SendCreateAccountEmail(input.UserEmail, input.UserEmail, input.ProjectId, input.Role);
+        }
         if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
