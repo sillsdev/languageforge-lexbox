@@ -27,7 +27,6 @@ export class ResetProjectModal extends BaseComponent {
   }
 
   get projectUploadButton(): Locator {
-    // return this.componentLocator.getByLabel(PROJECT_UPLOAD_BUTTON_LABEL);
     return this.page.getByRole('button', {name: PROJECT_UPLOAD_BUTTON_LABEL});
   }
 
@@ -64,10 +63,6 @@ export class ResetProjectModal extends BaseComponent {
   }
 
   async uploadProjectZipFile(filename: string): Promise<void> {
-    // const somethingPromise = this.page.waitForEvent('filechooser');
-    // await this.projectUploadControl.click();
-    // const fileChooser = await somethingPromise;
-    // await fileChooser.setFiles(filename);
     await this.projectUploadControl.setInputFiles(filename);
     await expect(this.projectUploadButton).toBeVisible();
     await expect(this.projectUploadButton).toBeEnabled();
