@@ -105,7 +105,7 @@ class OverlayTarget implements ActionReturn<OverlayParams> {
     this.contentElem.remove();
 
     this.targetElem.addEventListener('click',
-      () => this.openOverlay(),
+      () => this.isActive() ? this.closeOverlay() : this.openOverlay(),
       {signal: this.abortController.signal});
 
     // clicking on menu items should probably always close the overlay
