@@ -111,6 +111,7 @@ public class EmailService(
             "User",
             new { jwt, returnTo = $"/user?emailResult={queryParam}", email = emailAddress });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
+        // TODO: Get project name and include it in the RenderEmail parameters
         await RenderEmail(email, new ProjectInviteEmail(name, emailAddress, projectId.ToString()), language);
         await SendEmailAsync(email);
     }

@@ -364,6 +364,14 @@ If you don't see a dialog or already closed it, click the button below:",
     "shared": {
       "greeting": "Hello {name}!"
     },
+    "create_account_request_email": {
+      "subject": "You've been invited to join a language project",
+      // TODO: Have email request provide the projectName to fill in, then use this version instead
+      // "subject": "You've been invited to join the {projectName} project",
+      // TODO also: Better email body
+      "body": "{name} has invited you to join a language project. Click here to join.",
+      "join_button": "Join project"
+    }
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
       "heading": "User {name} ({email}) requested that a project be created for them. Details below:"
