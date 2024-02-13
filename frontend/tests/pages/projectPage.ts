@@ -20,7 +20,7 @@ export class ProjectPage extends BasePage {
     await this.deleteProjectButton.click();
   }
 
-  async clickResetProject(): Promise<void> {
+  async clickResetProject(): Promise<ResetProjectModal> {
     await this.openMoreSettings();
     await this.resetProjectButton.click();
   }
