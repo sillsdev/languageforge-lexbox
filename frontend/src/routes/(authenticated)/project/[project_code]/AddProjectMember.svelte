@@ -11,8 +11,6 @@
   export let projectId: string;
   const schema = z.object({
     email: z.string().email($t('project_page.add_user.email_required')),
-    // TODO: Add optional name, required only if user email not found
-    // TODO: Any way of looking that up beforehand?
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;

@@ -68,8 +68,9 @@ public class ProjectMutations
         var user = await dbContext.Users.FindByEmail(input.UserEmail);
         if (user is null)
         {
-            // TODO: Modify input to have an optional name for those times when the user doesn't exist and we're sending an invitation email
-            await emailService.SendCreateAccountEmail(input.UserEmail, input.UserEmail, input.ProjectId, input.Role);
+            await emailService.SendCreateAccountEmail(input.UserEmail, input.ProjectId, input.Role);
+            // TODO: Create new exception to throw here
+            throw new ProjectMembersMustBeVerified("Invitation email sent");
         }
         if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
         user.UpdateCreateProjectsPermission(input.Role);

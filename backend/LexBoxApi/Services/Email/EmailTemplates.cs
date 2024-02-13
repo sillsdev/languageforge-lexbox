@@ -27,7 +27,7 @@ public record ForgotPasswordEmail(string Name, string ResetUrl) : EmailTemplateB
 public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
 
 // TODO: For better email body, will want project name here too, and maybe name of person inviting the user?
-public record ProjectInviteEmail(string Name, string Email, string ProjectId) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
+public record ProjectInviteEmail(string Email, string ProjectId) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
 
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);
 

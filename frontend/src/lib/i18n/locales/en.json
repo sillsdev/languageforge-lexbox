@@ -362,7 +362,8 @@ If you don't see a dialog or already closed it, click the button below:",
       "body": "We're writing to confirm that your password was just changed."
     },
     "shared": {
-      "greeting": "Hello {name}!"
+      "greeting": "Hello {name}!",
+      "greeting_noname": "Hello!"
     },
     "create_account_request_email": {
       "subject": "You've been invited to join a language project",
