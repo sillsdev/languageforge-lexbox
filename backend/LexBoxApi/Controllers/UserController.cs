@@ -86,8 +86,7 @@ public class UserController : ControllerBase
         _lexBoxDbContext.Users.Add(userEntity);
         if (jwtUser is not null && jwtUser.Projects.Length > 0)
         {
-            _lexBoxDbContext.ProjectUsers.AddRange(jwtUser.Projects.Select(p =>
-                new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId, UserId = jwtUser.Id }));
+            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
         }
         await _lexBoxDbContext.SaveChangesAsync();
 
