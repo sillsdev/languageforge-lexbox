@@ -18,12 +18,15 @@ public enum EmailTemplate
     ForgotPassword,
     VerifyEmailAddress,
     PasswordChanged,
+    CreateAccountRequest,
     CreateProjectRequest
 }
 
 public record ForgotPasswordEmail(string Name, string ResetUrl) : EmailTemplateBase(EmailTemplate.ForgotPassword);
 
 public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
+
+public record ProjectInviteEmail(string Name, string Email, string ProjectId) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
 
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);
 

@@ -72,21 +72,7 @@ public class LoginController(
 
         var userId = loggedInContext.User.Id;
         var user = await lexBoxDbContext.Users.FindAsync(userId);
-        if (user == null)
-        {
-            var jwtUser = loggedInContext.User;
-            user = new LexCore.Entities.User
-            {
-                Name = jwtUser.Name,
-                Email = jwtUser.Email,
-                PasswordHash = "", // New users get sent to forgot-password page next
-                Salt = "",
-                EmailVerified = true,
-                CanCreateProjects = false,
-                IsAdmin = false,
-                Locked = false,
-            };
-        }
+        if (user == null) return NotFound();
         //users can verify their email even if the updated date is out of sync when not changing their email
         //this is to prevent some edge cases where changing their name and then using an old verify email link would fail
         if (user.Email != loggedInContext.User.Email &&

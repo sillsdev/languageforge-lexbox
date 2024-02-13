@@ -17,6 +17,7 @@ export const componentMap = {
     [EmailTemplate.VerifyEmailAddress]: VerifyEmailAddress,
     [EmailTemplate.PasswordChanged]: PasswordChanged,
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
+    // TODO: Create ProjectInviteEmail template
 } satisfies Record<EmailTemplate, ComponentType>;
 
 interface EmailTemplatePropsBase<T extends EmailTemplate> {

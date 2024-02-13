@@ -86,7 +86,7 @@ public class EmailService(
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
     public async Task SendCreateAccountEmail(string name, string emailAddress, Guid projectId, ProjectRole role, string language = null)
     {
-        language = language ?? User.DefaultLocalizationCode;
+        language ??= User.DefaultLocalizationCode;
         var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
             {
                 Id = new Guid(),
@@ -107,11 +107,11 @@ public class EmailService(
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryParam = "verifiedEmail";
         var verifyLink = _linkGenerator.GetUriByAction(httpContext,
-            "VerifyEmail",
-            "Login",
+            "RegisterAccount",
+            "User",
             new { jwt, returnTo = $"/user?emailResult={queryParam}", email = emailAddress });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
-        await RenderEmail(email, new VerifyAddressEmail(name, verifyLink, !string.IsNullOrEmpty(emailAddress)), language); // TODO: Write new email text, use VerifyAddress for testing
+        await RenderEmail(email, new ProjectInviteEmail(name, emailAddress, projectId.ToString()), language);
         await SendEmailAsync(email);
     }
 
