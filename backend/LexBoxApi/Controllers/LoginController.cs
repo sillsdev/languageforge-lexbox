@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using LexCore.Entities;
 
 namespace LexBoxApi.Controllers;
 
@@ -74,8 +75,9 @@ public class LoginController(
         var user = await lexBoxDbContext.Users.FindAsync(userId);
         if (user == null)
         {
-            user = new LexCore.Entities.User
+            user = new User
             {
+                Id = userId,
                 Name = "",
                 Email = loggedInContext.User.Email,
                 PasswordHash = "", // New users get sent to forgot-password page next
@@ -85,6 +87,11 @@ public class LoginController(
                 IsAdmin = false,
                 Locked = false,
             };
+            if (loggedInContext.User.Projects.Length > 0)
+            {
+                Console.WriteLine("Adding user to projects...");
+                user.Projects = loggedInContext.User.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+            }
         }
         //users can verify their email even if the updated date is out of sync when not changing their email
         //this is to prevent some edge cases where changing their name and then using an old verify email link would fail

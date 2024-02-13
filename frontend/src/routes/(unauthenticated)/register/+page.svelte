@@ -12,7 +12,6 @@
     name: string;
     email: string;
     locale: string;
-    jwt: string;
   };
   let turnstileToken = '';
   // $locale is the locale that our i18n is using for them (i.e. the best available option we have for them)
@@ -23,11 +22,10 @@
     email: z.string().email($t('register.email')),
     password: passwordFormRules($t),
     locale: z.string().min(2).default(userLocale),
-    jwt: z.string(),
   });
 
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
-    const { user, error } = await register($form.password, $form.name, $form.email, $form.locale, turnstileToken, $form.jwt);
+    const { user, error } = await register($form.password, $form.name, $form.email, $form.locale, turnstileToken);
     if (error) {
       if (error.turnstile) {
         $message = $t('turnstile.invalid');
@@ -49,7 +47,6 @@
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.email) form.email = urlValues.email;
       if (urlValues.locale) form.locale = urlValues.locale;
-      if (urlValues.jwt) form.jwt = urlValues.jwt;
       return form;
     }, { taint: false });
   });
@@ -76,11 +73,6 @@
     />
     <DisplayLanguageSelect
       bind:value={$form.locale}
-    />
-    <input
-      id="jwt"
-      type="hidden"
-      bind:value={$form.jwt}
     />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
