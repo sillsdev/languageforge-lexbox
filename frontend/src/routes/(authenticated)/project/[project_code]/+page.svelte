@@ -1,12 +1,11 @@
 <script lang="ts">
   import { Badge, BadgeList, MemberBadge } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
-  import FormatDate from '$lib/components/FormatDate.svelte';
   import { ProjectTypeBadge } from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import t from '$lib/i18n';
+  import t, { date, number } from '$lib/i18n';
   import { isAdmin } from '$lib/user';
   import { z } from 'zod';
   import type { PageData } from './$types';
@@ -307,10 +306,10 @@
         </span>
         <div class="text-lg">
           {$t('project_page.last_commit')}:
-          <span class="text-secondary"><FormatDate date={project.lastCommit} /></span>
+          <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>
         {#if project.type === ProjectType.FlEx}
-        <div>
+        <div class="text-lg">
           {$t('project_page.num_entries')}:
           <span class="text-secondary">
             {#if ($lexEntryCount instanceof Promise)}
@@ -318,7 +317,7 @@
               {num_entries}
             {/await}
             {:else}
-              {$lexEntryCount}
+              {$number($lexEntryCount)}
             {/if}
           </span>
         </div>
