@@ -56,6 +56,7 @@ public class ProjectMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<ProjectMembersMustBeVerified>]
+    [Error<ProjectMemberInvitedByEmail>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -69,8 +70,7 @@ public class ProjectMutations
         if (user is null)
         {
             await emailService.SendCreateAccountEmail(input.UserEmail, input.ProjectId, input.Role);
-            // TODO: Create new exception to throw here
-            throw new ProjectMembersMustBeVerified("Invitation email sent");
+            throw new ProjectMemberInvitedByEmail("Invitation email sent");
         }
         if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
         user.UpdateCreateProjectsPermission(input.Role);

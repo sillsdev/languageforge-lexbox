@@ -216,7 +216,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_delete": "{name} has been removed.",
       "rename_project": "Project name set to {name}.",
       "describe": "Project description has been updated.",
-      "add_member": "{email} has been added to project."
+      "add_member": "{email} has been added to project.",
+      "member_invited": "{email} has been sent an invitation email to join the project."
     },
     "project_name_empty_error": "Project name cannot be empty",
     "confirm_remove": "Would you like to remove {userName} from this project?",
