@@ -6,6 +6,16 @@ import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { ProjectPage } from './pages/projectPage';
 import { ResetProjectModal } from './components/resetProjectModal';
 
+type HgWebFileJson = {
+  abspath: string
+  basename: string
+}
+
+type HgWebJson = {
+  node: string
+  files: HgWebFileJson[]
+}
+
 test('reset project and upload .zip file', async ({ page, tempProject }) => {
   const allZeroHash = '0000000000000000000000000000000000000000';
 
@@ -26,7 +36,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
 
   // Step 2: Get tip hash and file list from hgweb, check some known values
   const beforeResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
-  const beforeResetJson = await beforeResetResponse.json();
+  const beforeResetJson = await beforeResetResponse.json() as HgWebJson;
   expect(beforeResetJson).toHaveProperty('node');
   expect(beforeResetJson.node).not.toEqual(allZeroHash);
   expect(beforeResetJson).toHaveProperty('files');
@@ -50,7 +60,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
 
   // Step 4: confirm it's empty now
   const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
-  const afterResetJson = await afterResetResponse.json();
+  const afterResetJson = await afterResetResponse.json() as HgWebJson;
   expect(afterResetJson).toHaveProperty('node');
   expect(afterResetJson.node).toEqual(allZeroHash);
   expect(afterResetJson).toHaveProperty('files');
@@ -70,6 +80,6 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
 
   // Step 6: confirm tip hash and contents are same as before reset
   const afterUploadResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
-  const afterUploadJson = await afterUploadResponse.json();
+  const afterUploadJson = await afterUploadResponse.json() as HgWebJson;
   expect(afterUploadJson).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.
 });
