@@ -81,13 +81,11 @@ export async function login(userId: string, password: string): Promise<LoginResu
 
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
 export async function register(password: string, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
-  const headers: Record<string,string> = {
-    'content-type': 'application/json',
-  };
-
   const response = await fetch('/api/User/registerAccount', {
     method: 'post',
-    headers,
+    headers: {
+      'content-type': 'application/json',
+    },
     body: JSON.stringify({
       name,
       email,
