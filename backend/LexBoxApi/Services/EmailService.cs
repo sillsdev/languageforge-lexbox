@@ -112,7 +112,6 @@ public class EmailService(
             "Login",
             new { jwt, returnTo });
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
-        // TODO: Get project name and include it in the RenderEmail parameters
         await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink), language);
         await SendEmailAsync(email);
     }
