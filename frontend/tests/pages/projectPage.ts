@@ -1,5 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './basePage';
+import type { ResetProjectModal } from '../components/resetProjectModal';
 
 export class ProjectPage extends BasePage {
   get moreSettingsDiv(): Locator { return this.page.locator('.collapse').filter({ hasText: 'More settings' }); }
