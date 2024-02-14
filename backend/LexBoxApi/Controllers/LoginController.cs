@@ -109,6 +109,45 @@ public class LoginController(
         return Redirect(returnTo);
     }
 
+    [HttpGet("joinProject")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<LexAuthUser>> JoinProject(
+        string jwt, // This is required because auth looks for a jwt in the query string
+        string returnTo)
+    {
+        var userId = loggedInContext.User.Id;
+        // Ensure we're not registering a user ID twice
+        var user = await lexBoxDbContext.Users.FindAsync(userId);
+        if (user != null) return Unauthorized(); // TODO: Maybe just add them to the project and move on?
+        user = new User
+        {
+            Id = userId,
+            Name = "",
+            Email = loggedInContext.User.Email,
+            PasswordHash = "", // New users get sent to forgot-password page next
+            Salt = "",
+            EmailVerified = true,
+            CanCreateProjects = false,
+            IsAdmin = false,
+            Locked = false,
+        };
+        if (loggedInContext.User.Projects.Length > 0)
+        {
+            Console.WriteLine("Adding user {0} to projects...", userId);
+            user.Projects = loggedInContext.User.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+        }
+
+        user.Email = loggedInContext.User.Email;
+        user.EmailVerified = true;
+        user.UpdateUpdatedDate();
+        await lexBoxDbContext.SaveChangesAsync();
+        await HttpContext.SignInAsync(User,
+            new AuthenticationProperties { IsPersistent = true });
+        return Redirect(returnTo);
+    }
+
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -108,7 +108,7 @@ public class EmailService(
         var queryString = QueryString.Create("email", emailAddress);
         var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value };
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
-            "VerifyEmail",
+            "JoinProject",
             "Login",
             new { jwt, returnTo });
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
