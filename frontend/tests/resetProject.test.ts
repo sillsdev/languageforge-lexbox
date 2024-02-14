@@ -24,8 +24,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   const adminDashboardPage = await new AdminDashboardPage(page).goto();
   await adminDashboardPage.clickProject(tempProject.name);
   const projectPage = await new ProjectPage(page, tempProject.name, tempProject.code).waitFor();
-  await projectPage.clickResetProject();
-  const resetProjectModel = await new ResetProjectModal(page).waitFor();
+  const resetProjectModel = await projectPage.clickResetProject();
   await resetProjectModel.clickNextStepButton('I have a working backup');
   await resetProjectModel.confirmProjectBackupReceived(tempProject.code);
   await resetProjectModel.clickNextStepButton('Reset project');
@@ -47,7 +46,6 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   // Step 3: reset project, do not upload zip file
   await projectPage.goto();
   await projectPage.clickResetProject();
-  await resetProjectModel.waitFor();
   const download = await resetProjectModel.downloadProjectBackup();
   // TODO: Create fixture to use temporary directory and tear it down after test, as of right now this pollutes current working directory
   await download.saveAs('tests/data/reset-project-test-step-1.zip');
@@ -69,7 +67,6 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   // Step 5: reset project again, uploading zip file downloaded from step 1
   await projectPage.goto();
   await projectPage.clickResetProject();
-  await resetProjectModel.waitFor();
   await resetProjectModel.clickNextStepButton('I have a working backup');
   await resetProjectModel.confirmProjectBackupReceived(tempProject.code);
   await resetProjectModel.clickNextStepButton('Reset project');

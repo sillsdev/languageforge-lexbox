@@ -1,6 +1,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { BasePage } from './basePage';
-import type { ResetProjectModal } from '../components/resetProjectModal';
+import { ResetProjectModal } from '../components/resetProjectModal';
 
 export class ProjectPage extends BasePage {
   get moreSettingsDiv(): Locator { return this.page.locator('.collapse').filter({ hasText: 'More settings' }); }
@@ -24,6 +24,7 @@ export class ProjectPage extends BasePage {
   async clickResetProject(): Promise<ResetProjectModal> {
     await this.openMoreSettings();
     await this.resetProjectButton.click();
+    return new ResetProjectModal(this.page).waitFor()
   }
 
   async clickVerifyRepo(): Promise<void> {
