@@ -17,7 +17,7 @@
     password: passwordFormRules($t),
   });
   let { form, errors, enhance, submitting, message } = lexSuperForm(formSchema, async () => {
-    const response = await fetch('api/login/resetPassword', {
+    const response: Response = await fetch('api/login/resetPassword', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passwordHash: await hash($form.password) }),

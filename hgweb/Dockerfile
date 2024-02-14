@@ -4,6 +4,9 @@ FROM debian:bookworm as otel-builder
 WORKDIR /work
 ADD https://github.com/open-telemetry/opentelemetry-cpp-contrib/releases/download/webserver%2Fv1.0.3/opentelemetry-webserver-sdk-x64-linux.tgz otel.tgz
 RUN tar -xvf otel.tgz
+RUN apt-get update  \
+    && apt-get install -y --no-install-recommends python3-pip
+RUN pip3 install --target /work/wsgi-otel opentelemetry-instrumentation-wsgi opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-grpc
 
 
 # https://wiki.mercurial-scm.org/modwsgi
@@ -23,6 +26,7 @@ RUN set -ex && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists
 
+COPY --from=otel-builder /work/wsgi-otel /usr/lib/python3/dist-packages/
 COPY --from=otel-builder /work/opentelemetry-webserver-sdk /opt/opentelemetry-webserver-sdk
 RUN bash -c /opt/opentelemetry-webserver-sdk/install.sh
 

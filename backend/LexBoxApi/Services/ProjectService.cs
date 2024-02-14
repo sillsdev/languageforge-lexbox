@@ -10,7 +10,7 @@ namespace LexBoxApi.Services;
 
 public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRepoMigrationService migrationService, IMemoryCache memoryCache)
 {
-    public async Task<Guid> CreateProject(CreateProjectInput input, Guid userId)
+    public async Task<Guid> CreateProject(CreateProjectInput input)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
@@ -26,7 +26,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
                 Type = input.Type,
                 LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
-                Users = new List<ProjectUsers> { new() { UserId = userId, Role = ProjectRole.Manager } }
+                Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
@@ -51,10 +51,13 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         return projectId;
     }
 
-    public async Task<string?> BackupProject(ResetProjectByAdminInput input)
+    public async Task<BackupExecutor?> BackupProject(string code)
     {
-        var backupFile = await hgService.BackupRepo(input.Code);
-        return backupFile;
+        var exists = await dbContext.Projects.Where(p => p.Code == code && p.MigrationStatus == ProjectMigrationStatus.Migrated)
+            .AnyAsync();
+        if (!exists) return null;
+        var backupExecutor = hgService.BackupRepo(code);
+        return backupExecutor;
     }
 
     public async Task ResetProject(ResetProjectByAdminInput input)
@@ -76,6 +79,29 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
             project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
         }
         project.ResetStatus = ResetStatus.None;
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateProjectMetadata(string projectCode)
+    {
+        var project = await dbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .FirstOrDefaultAsync(p => p.Code == projectCode);
+        if (project is null) return;
+        if (project is { MigrationStatus: ProjectMigrationStatus.Migrated, Type: ProjectType.FLEx })
+        {
+            var count = await hgService.GetLexEntryCount(projectCode);
+            if (project.FlexProjectMetadata is null)
+            {
+                project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
+            }
+            else
+            {
+                project.FlexProjectMetadata.LexEntryCount = count;
+            }
+        }
+
+        project.LastCommit = await hgService.GetLastCommitTimeFromHg(projectCode, project.MigrationStatus);
         await dbContext.SaveChangesAsync();
     }
 

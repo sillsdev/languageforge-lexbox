@@ -1,7 +1,7 @@
 <script lang="ts">
   import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
-  import t from '$lib/i18n';
+  import t, { number } from '$lib/i18n';
   import type { PageData } from './$types';
   import DeleteUserModal from '$lib/components/DeleteUserModal.svelte';
   import EditUserAccount from './EditUserAccount.svelte';
@@ -101,9 +101,9 @@
         {$t('admin_dashboard.user_table_title')}
         <Badge>
           <span class="inline-flex gap-2">
-            {shownUsers.length}
+            {$number(shownUsers.length)}
             <span>/</span>
-            {filteredUserCount}
+            {$number(filteredUserCount)}
           </span>
         </Badge>
       </h2>

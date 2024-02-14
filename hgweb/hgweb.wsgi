@@ -23,5 +23,26 @@ if os.getenv('ENABLE_DEMAND_IMPORT', 'false').lower() in ['1', 'true', 'yes']:
 else:
     demandimport.disable()
 
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+    BatchSpanProcessor,
+    ConsoleSpanExporter,
+)
+
+resource = Resource(attributes={
+    SERVICE_NAME: "hgweb"
+})
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter())
+provider.add_span_processor(processor)
+
+# Sets the global default tracer provider
+trace.set_tracer_provider(provider)
+
+from opentelemetry.instrumentation.wsgi import OpenTelemetryMiddleware
 from mercurial.hgweb import hgweb
 application = hgweb(config)
+application = OpenTelemetryMiddleware(application)

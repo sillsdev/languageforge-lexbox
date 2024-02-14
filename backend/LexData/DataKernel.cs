@@ -7,7 +7,9 @@ namespace LexData;
 
 public static class DataKernel
 {
-    public static void AddLexData(this IServiceCollection services, bool autoApplyMigrations, ServiceLifetime dbContextLifeTime = ServiceLifetime.Scoped)
+    public static void AddLexData(this IServiceCollection services,
+        bool autoApplyMigrations,
+        ServiceLifetime dbContextLifeTime = ServiceLifetime.Scoped)
     {
         services.AddScoped<SeedingData>();
         services.AddDbContext<LexBoxDbContext>((serviceProvider, options) =>
@@ -22,8 +24,14 @@ public static class DataKernel
         if (autoApplyMigrations)
             services.AddHostedService<DbStartupService>();
         services.AddOptions<DbConfig>()
-        .BindConfiguration("DbConfig")
+        .BindConfiguration(nameof(DbConfig))
         .ValidateDataAnnotations()
         .ValidateOnStart();
+    }
+
+    public static void ConfigureDbModel(this IServiceCollection services, Action<ModelBuilder> configureDbModel)
+    {
+
+        services.AddSingleton(new ConfigureDbModel(configureDbModel));
     }
 }

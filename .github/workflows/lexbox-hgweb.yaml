@@ -46,10 +46,11 @@ jobs:
       - name: Set Version
         id: setVersion
         if: ${{ !env.VERSION }}
-        # set version to date in vYYYY-MM-DD format
+        # set version to date in vYYYY-MM-DD-commitSha format
         run: |
-          echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_ENV}
-          echo "VERSION=v$(date --rfc-3339=date)" >> ${GITHUB_OUTPUT}
+          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
+          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
+          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_ENV}
 
       - name: Docker meta
         id: meta
@@ -61,7 +62,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=raw,enable=${{ env.PROD_RELEASE }},value=latest
-            type=raw,enable=${{ env.PROD_RELEASE }},value=${{ env.VERSION }}
+            type=raw,value=${{ env.VERSION }}
       -
         uses: docker/login-action@v2
         with:
@@ -85,5 +86,5 @@ jobs:
       with:
         version: ${{ needs.publish-hgweb.outputs.version }}
         image: 'ghcr.io/sillsdev/lexbox-hgweb'
-        deploy-domain: 'staging.languagedepot.org'
+        deploy-domain: 'develop.lexbox.org'
         k8s-environment: 'develop'

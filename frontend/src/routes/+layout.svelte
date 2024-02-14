@@ -10,12 +10,15 @@
   import { overlayContainer } from '$lib/overlay';
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
-  import t from '$lib/i18n';
   import {onMount, setContext} from 'svelte';
   import {derived, writable} from 'svelte/store';
+  import { initI18n } from '$lib/i18n';
 
   export let data: LayoutData;
   const { page, updated } = getStores();
+
+  const { t, locale } = initI18n(data.activeLocale);
+  $: if (data.activeLocale) locale.set(data.activeLocale);
 
   const { notifyWarning } = initNotificationService();
   setContext('breadcrumb-store', writable([] as Element[]));
@@ -54,7 +57,7 @@
   <progress class="progress progress-info block fixed z-50 h-[3px] rounded-none bg-transparent"></progress>
 {/if}
 
-<div class="flex flex-col justify-between min-h-full" class:hydrating>
+<div class="flex flex-col justify-between min-h-full" class:hydrating={hydrating}>
   <div class="flex flex-col flex-grow">
     <slot />
   </div>

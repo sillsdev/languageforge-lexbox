@@ -1,9 +1,11 @@
 import { parse, walk } from 'svelte/compiler';
 
 import type { ComponentType } from 'svelte';
+import type {EmailTemplateProps} from '../../routes/email/emails';
+import { LOCALE_CONTEXT_KEY } from '$lib/i18n';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces';
 import mjml2html from 'mjml';
-import type {EmailTemplateProps} from '../../routes/email/emails';
+import { readable } from 'svelte/store';
 
 type RenderResult = { head: string, html: string, css: string };
 export type RenderEmailResult = { subject: string, html: string };
@@ -25,9 +27,10 @@ function getSubject(head: string): string {
   return subject;
 }
 
-export function render(emailComponent: ComponentType, props: Omit<EmailTemplateProps, 'template'>): RenderEmailResult {
+export function render(emailComponent: ComponentType, props: Omit<EmailTemplateProps, 'template'>, userLocale: string): RenderEmailResult {
+  const context = new Map([[LOCALE_CONTEXT_KEY, readable(userLocale)]]);
   // eslint-disable-next-line
-  const result: RenderResult = (emailComponent as any).render(props) as RenderResult;
+  const result: RenderResult = (emailComponent as any).render(props, { context }) as RenderResult;
   const mjmlResult = mjml2html(result.html, { validationLevel: 'soft' });
   if (mjmlResult.errors) {
     console.error(mjmlResult.errors);

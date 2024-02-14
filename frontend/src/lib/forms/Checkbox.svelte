@@ -1,10 +1,10 @@
 <script lang="ts">
   import FormFieldError from './FormFieldError.svelte';
-  import { randomFieldId } from './utils';
+  import { randomFormId } from './utils';
 
   export let label: string;
   export let value: boolean;
-  export let id = randomFieldId();
+  export let id = randomFormId();
   export let error: string | string[] | undefined = undefined;
 </script>
 

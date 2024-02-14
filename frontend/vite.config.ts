@@ -2,6 +2,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import codegen from 'vite-plugin-graphql-codegen';
 import { defineConfig } from 'vitest/config';
 import { gqlOptions } from './gql-codegen';
+// eslint-disable-next-line no-restricted-imports
 import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
 import { sveltekit } from '@sveltejs/kit/vite';
 

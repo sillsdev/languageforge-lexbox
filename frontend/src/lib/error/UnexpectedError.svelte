@@ -2,7 +2,7 @@
   /* eslint-disable svelte/no-dom-manipulating */
   import { env } from '$env/dynamic/public';
   import { useError } from '.';
-  import { t } from 'svelte-intl-precompile';
+  import t from '$lib/i18n';
   import { derived } from 'svelte/store';
 
   let alertMessageElem: HTMLElement | undefined;

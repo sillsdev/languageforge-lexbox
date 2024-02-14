@@ -8,6 +8,7 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Quartz;
 
 namespace LexBoxApi.Otel;
 
@@ -78,6 +79,10 @@ public static class OtelKernel
                 })
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddNpgsql()
+                .AddQuartzInstrumentation(options =>
+                {
+                    options.RecordException = true;
+                })
                 .AddHotChocolateInstrumentation()
             );
 

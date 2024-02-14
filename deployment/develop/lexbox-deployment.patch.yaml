@@ -19,6 +19,6 @@ spec:
               value: '587'
             - name: Email__From
               # TODO: need to parameterize this
-              value: "Language Depot (Develop) <no-reply@staging.languagedepot.org>"
+              value: "Language Depot (Develop) <no-reply@develop.languagedepot.org>"
             - name: Email__BaseUrl
-              value: "https://staging.languagedepot.org"
+              value: "https://develop.lexbox.org"

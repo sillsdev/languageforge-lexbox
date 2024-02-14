@@ -27,16 +27,16 @@ export function validateFetchResponse(
   }
 
   if (response.status === 401) {
-    throw redirect(307, '/logout');
+    redirect(307, '/logout');
   }
 
   if (response.status === 403) {
     if (isHome) {
       // the user's JWT appears to be invalid
-      throw redirect(307, '/logout');
+      redirect(307, '/logout');
     } else {
       // the user tried to access something they don't have permission for
-      throw redirect(307, '/home');
+      redirect(307, '/home');
     }
   }
 

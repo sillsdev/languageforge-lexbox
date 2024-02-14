@@ -415,5 +415,6 @@ If you don't see a dialog or already closed it, click the button below:",
   "common": {
     "yes": "Yes",
     "no": "No",
+    "none": "None",
   }
 }

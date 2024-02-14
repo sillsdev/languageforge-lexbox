@@ -1,4 +1,4 @@
-schema {
+﻿schema {
   query: Query
   mutation: Mutation
 }
@@ -102,6 +102,7 @@ type LexAuthUser {
   email: String!
   name: String!
   role: UserRole!
+  isAdmin: Boolean!
   projects: [AuthUserProject!]!
   projectsJson: String!
   locked: Boolean
@@ -297,6 +298,7 @@ input CreateProjectInput {
   code: String!
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
+  projectManagerId: UUID
 }
 
 input DateTimeOperationFilterInput {
@@ -596,14 +598,7 @@ enum UserRole {
   USER
 }
 
-directive @allowAnonymous repeatable on FIELD_DEFINITION
-
 directive @authorize("The name of the authorization policy that determines access to the annotated resource." policy: String "Roles that are allowed to access the annotated resource." roles: [String!] "Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase." apply: ApplyPolicy! = BEFORE_RESOLVER) repeatable on OBJECT | FIELD_DEFINITION
-
-"The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
-directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
-
-directive @tag(name: String!) repeatable on SCHEMA | SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | INTERFACE | UNION | ENUM | ENUM_VALUE | INPUT_OBJECT | INPUT_FIELD_DEFINITION
 
 scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
 

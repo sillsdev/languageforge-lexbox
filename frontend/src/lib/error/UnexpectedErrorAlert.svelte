@@ -1,7 +1,7 @@
 <script lang="ts">
   import { beforeNavigate } from '$app/navigation';
   import {useDismiss, useError} from '.';
-  import { t } from 'svelte-intl-precompile';
+  import t from '$lib/i18n';
   import UnexpectedError from './UnexpectedError.svelte';
 
   let dialog: HTMLDialogElement;

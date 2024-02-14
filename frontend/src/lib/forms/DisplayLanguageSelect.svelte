@@ -16,6 +16,6 @@
     <option {value}>{value} ({$t('account_settings.language.not_supported')})</option>
   {/if}
   {#each availableLocales as locale}
-    <option value={locale}>{$t(`account_settings.language.${locale}`)}</option>
+    <option value={locale}>{$t('account_settings.language', locale)}</option>
   {/each}
 </Select>

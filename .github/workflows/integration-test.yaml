@@ -6,28 +6,46 @@ on:
         description: 'The environment to run the tests in'
         required: true
         type: string
+      runs-on:
+        description: 'The runner to use'
+        required: true
+        type: string
+      hg-domain:
+        description: 'The domain to use for hg'
+        required: true
+        type: string
+      http-scheme:
+        description: 'The scheme to use for http tests'
+        type: string
+        default: 'https'
   workflow_dispatch:
     inputs:
       test-domain:
         description: 'The environment to run the tests in'
         required: true
         type: string
+      runs-on:
+        description: 'The runner to use'
+        required: true
+        type: string
+      hg-domain:
+        description: 'The domain to use for hg'
+        required: true
+        type: string
+      http-scheme:
+        description: 'The scheme to use for http tests'
+        type: string
+        default: 'https'
 
 jobs:
   test:
     timeout-minutes: 60
-    name: Test ${{ matrix.os }} on ${{ inputs.test-domain }}
+    name: Test ${{ inputs.runs-on }} on ${{ inputs.test-domain }}
     permissions:
       checks: write
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
     environment:
       name: staging
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-dotnet@v3
@@ -35,13 +53,13 @@ jobs:
           dotnet-version: '8.x'
       - uses: MatteoH2O1999/setup-python@v3.0.0
         id: python
-        if: ${{ matrix.os == 'ubuntu-latest' && !env.act }}
+        if: ${{ inputs.runs-on == 'ubuntu-latest' && !env.act }}
         with:
           python-version: '2.7.18'
           cache-build: true
           allow-build: allow
       - name: Link python
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ inputs.runs-on == 'ubuntu-latest' }}
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
@@ -53,8 +71,9 @@ jobs:
         env:
           TEST_SERVER_HOSTNAME: ${{ inputs.test-domain }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
-          TEST_STANDARD_HG_HOSTNAME: hg-staging.languageforge.org
+          TEST_STANDARD_HG_HOSTNAME: ${{ inputs.hg-domain }}
           TEST_RESUMABLE_HG_HOSTNAME: resumable-${{ inputs.test-domain }}
+          TEST_HTTP_SCHEME: ${{ inputs.http-scheme }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
@@ -68,11 +87,11 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
         with:
-          check_name: Integration Tests ${{ matrix.os }}
+          check_name: Integration Tests ${{ inputs.runs-on }}
           files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: playwright-traces-${{ matrix.os }}
+          name: playwright-traces-${{ inputs.runs-on }}
           path: ./playwright-traces.7z

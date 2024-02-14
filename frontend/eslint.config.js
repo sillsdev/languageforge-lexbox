@@ -70,6 +70,10 @@ export default [
           'modifiers': ['requiresQuotes'],
           'format': null,
         },
+        {
+          'selector': 'import',
+          'format': ['camelCase', 'PascalCase'],
+        }
       ],
       '@typescript-eslint/quotes': ['error', 'single', { 'allowTemplateLiterals': true }],
       '@typescript-eslint/no-unused-vars': [
@@ -96,7 +100,13 @@ export default [
       'svelte/no-store-async': 'error',
       'svelte/require-store-reactive-access': 'error',
       'svelte/mustache-spacing': 'error',
-      'func-style': ['warn', 'declaration']
+      'func-style': ['warn', 'declaration'],
+      "no-restricted-imports": ["error", {
+        "patterns": [{
+          "group": ["svelte-intl-precompile"],
+          "message": "Use $lib/i18n instead."
+        }]
+      }]
     },
   },
   {

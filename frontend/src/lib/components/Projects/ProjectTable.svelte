@@ -1,8 +1,7 @@
 <script lang="ts">
-  import t from '$lib/i18n';
+  import t, { date } from '$lib/i18n';
   import { getProjectTypeI18nKey, ProjectTypeIcon } from '$lib/components/ProjectType';
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
-  import FormatDate from '$lib/components/FormatDate.svelte';
   import type { ProjectItem } from '$lib/components/Projects';
   import { ProjectMigrationStatus } from '$lib/gql/generated/graphql';
   import type { IconString } from '$lib/icons';
@@ -87,10 +86,10 @@
             <td>
               {#if project.deletedDate}
                 <span class="text-error">
-                  <FormatDate date={project.deletedDate} />
+                  {$date(project.deletedDate)}
                 </span>
               {:else}
-                <FormatDate date={project.lastCommit} />
+                {$date(project.lastCommit)}
               {/if}
             </td>
           {/if}

@@ -60,6 +60,12 @@ spec:
             value: "8088"
           - name: OTEL_ENDPOINT
             value: 'lexbox:4317'
+          - name: OTEL_EXPORTER_OTLP_ENDPOINT
+            value: 'http://lexbox:4317'
+          - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST
+            value: ".*"
+          - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_RESPONSE
+            value: ".*"
           - name: OTEL_ENABLED
             valueFrom:
               configMapKeyRef:

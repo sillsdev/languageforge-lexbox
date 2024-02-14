@@ -12,7 +12,7 @@ import UserAddOutline from './UserAddOutline.svelte';
 
 export {
   Icon,
-  IconSize,
+  type IconSize,
   AuthenticatedUserIcon,
   CircleArrowIcon,
   HamburgerIcon,

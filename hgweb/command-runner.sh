@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "lexentrycount")
+allowed_commands=("verify" "tip" "lexentrycount" "recover")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -43,7 +43,7 @@ case $command_name in
         ;;
 
     *)
-        command_output=$(chg $command_name)
+        command_output=$(chg $command_name 2>&1)
         ;;
 esac
 

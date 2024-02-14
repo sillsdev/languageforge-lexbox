@@ -10,5 +10,6 @@ public record CreateProjectInput(
     [property: MinLength(4), RegularExpression(LexCore.Entities.Project.ProjectCodeRegex)]
     string Code,
     ProjectType Type,
-    RetentionPolicy RetentionPolicy
+    RetentionPolicy RetentionPolicy,
+    Guid? ProjectManagerId
 );

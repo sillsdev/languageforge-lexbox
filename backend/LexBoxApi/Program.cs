@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AppAny.Quartz.EntityFrameworkCore.Migrations;
+using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using LexBoxApi;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -154,6 +156,8 @@ if (app.Environment.IsDevelopment())
     //required for vite to generate types
     app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
 app.MapGraphQLHttp("/api/graphql");
+
+app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))

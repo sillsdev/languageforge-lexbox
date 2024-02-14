@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
-  import { CreateProjectResult, DbErrorCode, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
+  import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { z } from 'zod';
@@ -12,9 +12,11 @@
   import { getSearchParamValues } from '$lib/util/query-params';
   import { isAdmin } from '$lib/user';
   import { onMount } from 'svelte';
+  import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
 
   export let data;
   $: user = data.user;
+  let requestingUser : typeof data.requestingUser;
 
   const { notifySuccess } = useNotifications();
 
@@ -40,6 +42,7 @@
       description: $form.description,
       type: $form.type,
       retentionPolicy: $form.retentionPolicy,
+      projectManagerId: requestingUser?.id,
     });
     if (result.error) {
       if (result.error.byCode(DbErrorCode.Duplicate)) {
@@ -80,7 +83,8 @@
   }
 
   onMount(() => { // we want to do this once after the user has been set
-    const urlValues = getSearchParamValues<Partial<Omit<CreateProjectInput, 'id'>>>();
+    requestingUser = data.requestingUser;
+    const urlValues = getSearchParamValues<CreateProjectInput>();
     form.update((form) => {
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
@@ -131,6 +135,19 @@
     />
 
     <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
+
+    <AdminContent>
+      <div class="form-control">
+        <div class="label">
+          <span class="label-text">{$t('project_page.members.title')}</span>
+        </div>
+        {#if requestingUser}
+          <MemberBadge canManage member={{...requestingUser, role: ProjectRole.Manager}} type="new" on:action={() => requestingUser = undefined} />
+        {:else}
+          <span class="text-secondary mx-2 my-1">{$t('common.none')}</span>
+        {/if}
+      </div>
+    </AdminContent>
 
     <Select
       id="policy"

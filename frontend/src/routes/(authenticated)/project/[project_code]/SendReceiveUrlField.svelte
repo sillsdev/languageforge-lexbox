@@ -9,7 +9,7 @@
   export let projectCode: string;
 
   $: projectHgUrl = import.meta.env.DEV
-    ? `http://hg.${$page.url.host}/${projectCode}`
+    ? `http://hg.${$page.url.hostname}/${projectCode}`
     : `https://hg-public.${$page.url.host.replace('depot', 'forge')}/${projectCode}`;
 
   var copyingToClipboard = false;
@@ -31,7 +31,7 @@
       <input value={projectHgUrl} class="input input-bordered join-item w-full focus:input-success" readonly />
       <div class="join-item tooltip-open" class:tooltip={copiedToClipboard} data-tip={$t('clipboard.copied')}>
         {#if copiedToClipboard}
-          <IconButton disabled icon="i-mdi-check" style="btn-outline btn-success" />
+          <IconButton fake icon="i-mdi-check" style="btn-outline btn-success" />
         {:else}
           <div class="contents">
             <IconButton

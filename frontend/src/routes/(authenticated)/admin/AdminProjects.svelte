@@ -9,7 +9,7 @@
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { Button } from '$lib/forms';
   import { _deleteProject } from '$lib/gql/mutations';
-  import t from '$lib/i18n';
+  import t, { number } from '$lib/i18n';
   import { TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
   import type { QueryParams } from '$lib/util/query-params';
@@ -58,9 +58,9 @@
       {$t('admin_dashboard.project_table_title')}
       <Badge>
         <span class="inline-flex gap-2">
-          {shownProjects.length}
+          {$number(shownProjects.length)}
           <span>/</span>
-          {filteredProjects.length}
+          {$number(filteredProjects.length)}
         </span>
       </Badge>
     </h2>

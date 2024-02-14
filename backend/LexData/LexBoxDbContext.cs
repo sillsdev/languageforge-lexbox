@@ -4,17 +4,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LexData;
 
-public class LexBoxDbContext : DbContext
+public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumerable<ConfigureDbModel> configureDbModels) : DbContext(options)
 {
     public const string CaseInsensitiveCollation = "case_insensitive";
-    public LexBoxDbContext(DbContextOptions<LexBoxDbContext> options) : base(options)
-    {
-    }
+    private readonly ConfigureDbModel[] _configureDbModels = configureDbModels.ToArray();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
         modelBuilder.HasCollation(CaseInsensitiveCollation, locale: "und-u-ks-level2", provider: "icu", deterministic: false);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EntityBaseConfiguration<>).Assembly);
+        foreach (var configureDbModel in _configureDbModels)
+        {
+            configureDbModel.Configure(modelBuilder);
+        }
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)

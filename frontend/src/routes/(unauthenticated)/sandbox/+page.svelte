@@ -4,6 +4,9 @@
   import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import z from 'zod';
+  // eslint-disable-next-line no-restricted-imports
+  import { t as otherT } from 'svelte-intl-precompile';
+  import t from '$lib/i18n';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -30,6 +33,8 @@
 function preFillForm(): void {
   form.update(f => ({...f, name: 'John'}), {taint: false});
 }
+
+let disableDropdown = false;
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -52,13 +57,14 @@ function preFillForm(): void {
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
-      <TusUpload endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
+      <TusUpload internalButton endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
     </div>
   </div>
 
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
       <h2 class="card-title">Dropdown Example</h2>
+      <span>Clicking menu items inside dropdown should cause it to close</span>
       <Dropdown>
         <Button style="btn-primary">Open Me!</Button>
         <ul slot="content" class="menu bg-info rounded-box">
@@ -74,6 +80,20 @@ function preFillForm(): void {
             <li><button>Second item</button></li>
           </ul>
         </Dropdown>
+      </div>
+      <div>
+        <Dropdown disabled={disableDropdown}>
+          <Button style="btn-primary" disabled={disableDropdown}>Open dropdown</Button>
+          <div slot="content" class="bg-neutral p-5">
+            <p>Some content</p>
+            <Button style="btn-outline" on:click={() => disableDropdown = true}>Disable myself</Button>
+          </div>
+        </Dropdown>
+
+        <label class="cursor-pointer label gap-4">
+          <span class="label-text">Disabled</span>
+          <input bind:checked={disableDropdown} type="checkbox" class="toggle toggle-error"/>
+        </label>
       </div>
     </div>
   </div>
@@ -100,6 +120,15 @@ function preFillForm(): void {
         <SubmitButton>Submit</SubmitButton>
         <Button style="btn-outline" on:click={preFillForm}>Pre fill</Button>
       </Form>
+    </div>
+  </div>
+  <div class="card bg-base-200 shadow-lg col-span-2">
+    <div class="card-body">
+      <h2 class="card-title">Translations of login.title</h2>
+      <div>Current: {$t('login.title')}</div>
+      <div>English: {$otherT('login.title', { locale: 'en'})} (always works, because it's the fallback)</div>
+      <div>French: {$otherT('login.title', { locale: 'fr'})} (only works if it's the current, otherwise uses fallback)</div>
+      <div>Spanish: {$otherT('login.title', { locale: 'es'})} (only works if it's the current, otherwise uses fallback)</div>
     </div>
   </div>
 </div>
