@@ -58,6 +58,7 @@ jobs:
     name: Integration tests
     uses: ./.github/workflows/integration-test.yaml
     strategy:
+      fail-fast: false
       matrix:
         runs-on:
           - ubuntu-latest
