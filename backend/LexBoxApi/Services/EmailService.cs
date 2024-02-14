@@ -89,7 +89,7 @@ public class EmailService(
         language ??= User.DefaultLocalizationCode;
         var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 Name = "",
                 Email = emailAddress,
                 EmailVerificationRequired = null,
