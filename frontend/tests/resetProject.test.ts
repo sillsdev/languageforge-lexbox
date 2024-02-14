@@ -7,6 +7,8 @@ import { ProjectPage } from './pages/projectPage';
 import { ResetProjectModal } from './components/resetProjectModal';
 
 test('reset project and upload .zip file', async ({ page, tempProject }) => {
+  const allZeroHash = '0000000000000000000000000000000000000000';
+
   // Step 1: Populate project with known initial state
   await loginAs(page.request, 'admin', testEnv.defaultPassword);
   const adminDashboardPage = await new AdminDashboardPage(page).goto();
@@ -23,10 +25,14 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await resetProjectModel.assertGone();
 
   // Step 2: Get tip hash and file list from hgweb, check some known values
-  await page.goto(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip`);
-  await expect(page.locator('tr.fileline')).toHaveCount(1);
-  await expect(page.locator('tr.fileline').first()).toHaveText(/hello\.txt/);
-  const h3BeforeReset = await page.locator('.main h3').innerText();
+  const beforeResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
+  const beforeResetJson = await beforeResetResponse.json();
+  expect(beforeResetJson).toHaveProperty('node');
+  expect(beforeResetJson.node).not.toEqual(allZeroHash);
+  expect(beforeResetJson).toHaveProperty('files');
+  expect(beforeResetJson.files).toHaveLength(1);
+  expect(beforeResetJson.files[0]).toHaveProperty('basename');
+  expect(beforeResetJson.files[0].basename).toBe('hello.txt');
 
   // Step 3: reset project, do not upload zip file
   await projectPage.goto();
@@ -43,9 +49,12 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await resetProjectModel.assertGone();
 
   // Step 4: confirm it's empty now
-  await page.goto(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip`);
-  await expect(page.locator('tr.fileline')).toHaveCount(0);
-  await expect(page.locator('.main h3')).not.toHaveText(h3BeforeReset);
+  const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
+  const afterResetJson = await afterResetResponse.json();
+  expect(afterResetJson).toHaveProperty('node');
+  expect(afterResetJson.node).toEqual(allZeroHash);
+  expect(afterResetJson).toHaveProperty('files');
+  expect(afterResetJson.files).toHaveLength(0);
 
   // Step 5: reset project again, uploading zip file downloaded from step 1
   await projectPage.goto();
@@ -59,9 +68,8 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await page.getByRole('button', { name: 'Close' }).click();
   await resetProjectModel.assertGone();
 
-  // Step 6: confirm hash in <h3> element is same as before reset
-  await page.goto(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip`);
-  await expect(page.locator('tr.fileline')).toHaveCount(1);
-  await expect(page.locator('tr.fileline').first()).toHaveText(/hello\.txt/);
-  await expect(page.locator('.main h3')).toHaveText(h3BeforeReset);
+  // Step 6: confirm tip hash and contents are same as before reset
+  const afterUploadResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
+  const afterUploadJson = await afterUploadResponse.json();
+  expect(afterUploadJson).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.
 });
