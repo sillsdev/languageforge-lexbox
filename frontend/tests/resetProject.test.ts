@@ -4,7 +4,6 @@ import { loginAs } from './utils/authHelpers';
 import * as testEnv from './envVars';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { ProjectPage } from './pages/projectPage';
-import { ResetProjectModal } from './components/resetProjectModal';
 
 type HgWebFileJson = {
   abspath: string
