@@ -27,7 +27,7 @@ export class ResetProjectModal extends BaseComponent {
   }
 
   get projectUploadButton(): Locator {
-    return this.page.getByRole('button', {name: PROJECT_UPLOAD_BUTTON_LABEL});
+    return this.componentLocator.getByRole('button', {name: PROJECT_UPLOAD_BUTTON_LABEL});
   }
 
   get errorNoBackupDownloaded(): Locator {
