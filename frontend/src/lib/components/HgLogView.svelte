@@ -121,7 +121,8 @@
 <table class="table table-zebra">
   <thead>
     <tr class="sticky top-0 z-[1] bg-base-100">
-      <th></th>
+      <th></th> <!-- No header on train-tracks column -->
+      <th></th> <!-- No header on revision-number column -->
       <th>{$t('project_page.hg.date_header')}</th>
       <th>{$t('project_page.hg.author_header')}</th>
       <th>{$t('project_page.hg.log_header')}</th>
@@ -136,6 +137,7 @@
               <TrainTracks {circles} {paths} rowHeights={heights} />
             </td>
           {/if}
+          <td>{log.rev}</td>
           <td bind:offsetHeight={heights[idx]}>{$date(log.date[0] * 1000)}</td>
           <td>{log.user}</td>
           <td>{log.trimmedLog}</td>

@@ -74,6 +74,7 @@ public enum ProjectType
 public class Changeset
 {
     public string Node { get; set; }
+    public int Rev { get; set; }
     public double[] Date { get; set; }
     public string Desc { get; set; }
 

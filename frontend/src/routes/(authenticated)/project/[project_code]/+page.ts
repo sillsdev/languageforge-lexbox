@@ -79,6 +79,7 @@ export async function load(event: PageLoadEvent) {
             code
             changesets {
               node
+              rev
               parents
               date
               user
