@@ -84,7 +84,7 @@ public class EmailService(
     /// <param name="emailAddress">The email address to send the invitation to</param>
     /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
-    public async Task SendCreateAccountEmail(string emailAddress, Guid projectId, ProjectRole role, string language = null)
+    public async Task SendCreateAccountEmail(string emailAddress, Guid projectId, ProjectRole role, string managerName, string projectName, string language = null)
     {
         language ??= User.DefaultLocalizationCode;
         var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
@@ -113,7 +113,7 @@ public class EmailService(
             new { jwt, returnTo });
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
         // TODO: Get project name and include it in the RenderEmail parameters
-        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), registerLink), language);
+        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink), language);
         await SendEmailAsync(email);
     }
 

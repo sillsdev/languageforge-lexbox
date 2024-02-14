@@ -38,7 +38,8 @@ interface VerifyEmailAddressProps extends EmailTemplatePropsBase<EmailTemplate.V
 }
 
 interface CreateAccountProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequest> {
-  name: string;
+  managerName: string;
+  projectName: string;
   verifyUrl: string;
 }
 
