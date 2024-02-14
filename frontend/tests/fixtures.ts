@@ -75,7 +75,7 @@ export const test = base.extend<Fixtures>({
       .replaceAll(' ','-')
       .replaceAll(/[^a-z-]/g,'');
     const code = `test-${titleForCode}-${testInfo.testId}`;
-    const name = `Temporary project for ${testInfo.title} unit test`;
+    const name = `Temporary project for ${testInfo.title} unit test ${testInfo.testId}`;
     const loginData = {
       emailOrUsername: 'admin',
       password: testEnv.defaultPassword,
