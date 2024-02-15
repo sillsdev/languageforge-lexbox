@@ -90,6 +90,7 @@ public class EmailService(
         var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
             {
                 Id = Guid.NewGuid(),
+                Audience = LexboxAudience.RegisterAccount,
                 Name = "",
                 Email = emailAddress,
                 EmailVerificationRequired = null,
@@ -108,7 +109,7 @@ public class EmailService(
         var queryString = QueryString.Create("email", emailAddress);
         var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value };
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
-            "JoinProject",
+            "LoginRedirect",
             "Login",
             new { jwt, returnTo });
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
