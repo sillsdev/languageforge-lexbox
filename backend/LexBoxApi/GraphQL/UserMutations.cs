@@ -79,12 +79,15 @@ public class UserMutations
             user.Name = input.Name;
         }
 
+        bool wasPromotedToAdmin = false;
         if (input is ChangeUserAccountByAdminInput adminInput)
         {
             permissionService.AssertIsAdmin();
             if (user.Id != loggedInContext.User.Id)
             {
+                var wasAdmin = user.IsAdmin;
                 user.IsAdmin = adminInput.Role == UserRole.admin;
+                wasPromotedToAdmin = user.IsAdmin && !wasAdmin;
             }
         }
         else if (input is ChangeUserAccountBySelfInput selfInput)
@@ -103,6 +106,12 @@ public class UserMutations
             var emailInUse = await dbContext.Users.AnyAsync(u => u.Email == input.Email);
             if (emailInUse) throw new UniqueValueException("Email");
             await emailService.SendVerifyAddressEmail(user, input.Email);
+        }
+
+        if (wasPromotedToAdmin)
+        {
+            var oldAdmins = dbContext.Users.Where(u => u.IsAdmin).AsAsyncEnumerable();
+            await emailService.SendNewAdminEmail(oldAdmins, user.Name, user.Email);
         }
 
         return user;

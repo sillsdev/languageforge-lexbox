@@ -48,6 +48,16 @@ public class EmailService(
         await SendEmailAsync(email);
     }
 
+    public async Task SendNewAdminEmail(IAsyncEnumerable<User> oldAdmins, string newAdminName, string newAdminEmail)
+    {
+        await foreach (var oldAdmin in oldAdmins)
+        {
+            var email = StartUserEmail(oldAdmin);
+            await RenderEmail(email, new NewAdminEmail(oldAdmin.Name, newAdminName, newAdminEmail), oldAdmin.LocalizationCode);
+            await SendEmailAsync(email);
+        }
+    }
+
     /// <summary>
     /// Sends a verification email to the user for their email address.
     /// </summary>
