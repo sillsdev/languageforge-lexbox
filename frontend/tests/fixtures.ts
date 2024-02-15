@@ -115,7 +115,8 @@ export const test = base.extend<Fixtures>({
     const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/project/${id}`);
     expect(deleteResponse.ok()).toBeTruthy();
   },
-  tempDir: async (_ignore, use, testInfo) => {
+  // eslint-disable-next-line no-empty-pattern
+  tempDir: async ({}, use, testInfo) => {
     const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${testInfo.testId}-`));
     await use(dirname);
     await rm(dirname, {recursive: true, force: true});
