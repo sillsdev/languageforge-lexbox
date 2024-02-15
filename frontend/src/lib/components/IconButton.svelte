@@ -13,7 +13,7 @@
 </script>
 
 <!-- type="button" ensures the button doen't act as a submit button when in a form -->
-<button type="button" {disabled} class:pointer-events-none={fake || loading} on:click class="btn btn-square {style}" class:btn-active={active} class:join-item={join}>
+<button type="button" disabled={disabled && !loading} class:pointer-events-none={fake || loading} on:click class="btn btn-square {style}" class:btn-active={active} class:join-item={join}>
   {#if !loading}
     <span class="{icon} text-lg" />
   {:else}

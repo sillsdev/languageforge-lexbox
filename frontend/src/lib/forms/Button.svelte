@@ -9,7 +9,9 @@
 </script>
 
 <!-- https://daisyui.com/components/button -->
-<button on:click {...$$restProps} class="btn whitespace-nowrap {style ?? ''} {$$restProps.class ?? ''} {size ?? ''}" {type} {disabled}>
+<button on:click {...$$restProps} class="btn whitespace-nowrap {style ?? ''} {$$restProps.class ?? ''} {size ?? ''}" {type}
+  disabled={disabled && !loading}
+  class:pointer-events-none={loading}>
   <Loader {loading} />
   <slot />
 </button>
