@@ -9,7 +9,6 @@
   import { z } from 'zod';
 
   type RegisterPageQueryParams = {
-    name: string;
     email: string;
   };
   let turnstileToken = '';
