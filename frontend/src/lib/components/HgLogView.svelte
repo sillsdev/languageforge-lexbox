@@ -21,6 +21,7 @@
 
   export let logEntries: LogEntries;
   export let loading: boolean;
+  export let projectCode: string;
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
@@ -137,7 +138,7 @@
               <TrainTracks {circles} {paths} rowHeights={heights} />
             </td>
           {/if}
-          <td>{log.rev}</td>
+          <td><a href="/hg/{projectCode}/file/{log.node}">{log.rev}</a></td>
           <td bind:offsetHeight={heights[idx]}>{$date(log.date[0] * 1000)}</td>
           <td>{log.user}</td>
           <td>{log.trimmedLog}</td>
