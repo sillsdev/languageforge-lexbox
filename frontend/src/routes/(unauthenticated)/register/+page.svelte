@@ -11,7 +11,6 @@
   type RegisterPageQueryParams = {
     name: string;
     email: string;
-    locale: string;
   };
   let turnstileToken = '';
   // $locale is the locale that our i18n is using for them (i.e. the best available option we have for them)
@@ -48,7 +47,7 @@
       if (urlValues.email) form.email = urlValues.email;
       if (urlValues.locale) form.locale = urlValues.locale;
       return form;
-    }, { taint: false });
+    }, { taint: true });
   });
 </script>
 

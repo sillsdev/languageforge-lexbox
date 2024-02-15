@@ -184,9 +184,7 @@ public class EmailService(
 
     private static MimeMessage StartUserEmail(User user, string? email = null)
     {
-        var message = new MimeMessage();
-        message.To.Add(new MailboxAddress(user.Name, email ?? user.Email));
-        return message;
+        return StartUserEmail(user.Name, email ?? user.Email);
     }
 
     private static MimeMessage StartUserEmail(string name, string email)
