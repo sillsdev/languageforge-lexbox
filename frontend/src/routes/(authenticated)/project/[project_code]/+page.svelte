@@ -6,7 +6,6 @@
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import t, { date, number } from '$lib/i18n';
-  import { isAdmin } from '$lib/user';
   import { z } from 'zod';
   import type { PageData } from './$types';
   import {
@@ -118,7 +117,7 @@
   }
 
   $: userId = user.id;
-  $: canManage = isAdmin(user) || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
+  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
 
   const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
 
@@ -284,9 +283,9 @@
         </AdminContent>
         {#if project.resetStatus === ResetStatus.InProgress}
           <button
-            class:tooltip={isAdmin(user)}
+            class:tooltip={user.isAdmin}
             data-tip={$t('project_page.reset_project_modal.click_to_continue')}
-            disabled={!isAdmin(user)}
+            disabled={!user.isAdmin}
             on:click={resetProject}
           >
             <Badge type="badge-warning">
@@ -341,7 +340,7 @@
 
         <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
           {#each showMembers as member}
-            {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
+            {@const canManageMember = canManage && (member.user.id !== userId || user.isAdmin)}
             <Dropdown disabled={!canManageMember}>
               <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
               <ul slot="content" class="menu">

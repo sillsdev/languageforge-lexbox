@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using LexBoxApi.Models.Project;
 
 namespace LexBoxApi.Services.Email;
@@ -12,7 +11,6 @@ public record EmailTemplateBase(EmailTemplate Template)
     public string? BaseUrl { get; set; }
 }
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum EmailTemplate
 {
     ForgotPassword,

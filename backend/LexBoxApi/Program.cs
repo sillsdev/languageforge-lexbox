@@ -1,8 +1,4 @@
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using AppAny.Quartz.EntityFrameworkCore.Migrations;
-using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
 using LexBoxApi;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -10,6 +6,7 @@ using LexBoxApi.ErrorHandling;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexCore.Exceptions;
+using LexCore.Utils;
 using LexData;
 using LexSyncReverseProxy;
 using Microsoft.AspNetCore.Diagnostics;
@@ -50,7 +47,7 @@ builder.Services.AddControllers(options =>
     options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
 }).AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
+    options.JsonSerializerOptions.Converters.Add(new JsonSnakeCaseUpperStringEnumConverter());
 });
 builder.Services.AddSingleton(services =>
     services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
