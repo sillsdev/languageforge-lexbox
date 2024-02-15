@@ -14,10 +14,11 @@ public class RetryEmailJob(EmailService emailService) : LexJob
     {
         var memory = new MemoryStream();
         await email.WriteToAsync(memory, cancellationToken);
+        var serializedEmail = Convert.ToBase64String(memory.ToArray());
         await QueueJob(schedulerFactory,
             Key,
             new JobDataMap {
-                { nameof(SerializedEmail), memory.ToArray() },
+                { nameof(SerializedEmail), serializedEmail },
                 { nameof(RetryCount), retryCount },
                 { nameof(RetryWaitSeconds), retryWaitSeconds },
             },
@@ -25,14 +26,14 @@ public class RetryEmailJob(EmailService emailService) : LexJob
     }
 
     public static JobKey Key { get; } = new("RetryEmailJob", "RetryingJobs");
-    public byte[]? SerializedEmail { get; set; }
+    public string? SerializedEmail { get; set; }
     public int RetryCount { get; set; }
     public int RetryWaitSeconds { get; set; }
 
     protected override async Task ExecuteJob(IJobExecutionContext context)
     {
-        if (SerializedEmail is null) throw new ArgumentNullException("email");
-        var memory = new MemoryStream(SerializedEmail, writable: false);
+        ArgumentException.ThrowIfNullOrEmpty(SerializedEmail, "email");
+        var memory = new MemoryStream(Convert.FromBase64String(SerializedEmail), writable: false);
         var email = await MimeMessage.LoadAsync(memory);
         while (RetryCount > 0)
         {
