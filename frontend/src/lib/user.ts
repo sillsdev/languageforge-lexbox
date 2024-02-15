@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode'
 import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
+import { type LexboxAudience, type LexAuthUser as ApiLexAuthUser, UserRole, type AuthUserProject, ProjectRole } from './gql/types';
 
 type LoginError = 'BadCredentials' | 'Locked';
 type LoginResult = {
@@ -24,35 +25,23 @@ type JwtTokenUser = {
   sub: string
   name: string
   email: string
-  role: 'admin' | 'user'
+  role: UserRole
   proj?: string,
   lock: boolean | undefined,
   unver: boolean | undefined,
   mkproj: boolean | undefined,
   loc: string,
+  aud: LexboxAudience,
 }
 
-export type LexAuthUser = {
-  id: string
-  name: string
-  email: string
-  role: 'admin' | 'user'
-  projects: UserProjects[]
-  locked: boolean
+export type LexAuthUser = Omit<Required<ApiLexAuthUser>, 'emailVerificationRequired' | 'projectsJson' | 'updatedDate'> & {
   emailVerified: boolean
-  canCreateProject: boolean
-  locale: string
-}
-type UserProjectRole = 'Manager' | 'Editor' | 'Unknown';
-type UserProjects = {
-  projectId: string
-  role: UserProjectRole
 }
 export const USER_LOAD_KEY = 'user:current';
 export const AUTH_COOKIE_NAME = '.LexBoxAuth';
 
 export function isAdmin(user: LexAuthUser | null): boolean {
-  return user?.role === 'admin';
+  return user?.role === UserRole.Admin;
 }
 
 export function getHomePath(user: LexAuthUser | null): string {
@@ -132,26 +121,28 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     name,
     email,
     role,
+    isAdmin: role === UserRole.Admin,
     projects: projectsStringToProjects(projectsString),
     locked: user.lock === true,
     emailVerified: !user.unver,
-    canCreateProject: user.mkproj === true,
+    canCreateProjects: user.mkproj === true,
     locale: user.loc,
+    audience: user.aud,
   }
 }
 
-function projectsStringToProjects(projectsString: string | undefined): UserProjects[] {
+function projectsStringToProjects(projectsString: string | undefined): AuthUserProject[] {
   if (!projectsString) return [];
-  const projects: UserProjects[] = [];
+  const projects: AuthUserProject[] = [];
   for (const pString of projectsString.split(',')) {
     const roleCode = pString[0];
-    let role: UserProjectRole = 'Unknown';
+    let role: ProjectRole = ProjectRole.Unknown;
     switch (roleCode) {
       case 'm':
-        role = 'Manager';
+        role = ProjectRole.Manager;
         break;
       case 'e':
-        role = 'Editor';
+        role = ProjectRole.Editor;
         break;
     }
     projects.push(...pString.split('|').map(id => ({projectId: id, role})));

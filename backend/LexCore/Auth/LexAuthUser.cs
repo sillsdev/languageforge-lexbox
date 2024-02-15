@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using LexCore.Entities;
+using LexCore.Utils;
 
 namespace LexCore.Auth;
 
@@ -222,7 +223,7 @@ public record LexAuthUser
 
 public record AuthUserProject(ProjectRole Role, Guid ProjectId);
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonSnakeCaseUpperStringEnumConverter))]
 public enum UserRole
 {
     admin = 0,

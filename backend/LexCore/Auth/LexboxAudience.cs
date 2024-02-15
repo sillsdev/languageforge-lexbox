@@ -1,8 +1,9 @@
 ﻿using System.Text.Json.Serialization;
+using LexCore.Utils;
 
 namespace LexCore.Auth;
 
-[JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonSnakeCaseUpperStringEnumConverter))]
 public enum LexboxAudience
 {
     //default value of the enum, not a valid audience
@@ -12,4 +13,5 @@ public enum LexboxAudience
     ForgotPassword,
     SendAndReceive,
     SendAndReceiveRefresh,
+    Locked,
 }

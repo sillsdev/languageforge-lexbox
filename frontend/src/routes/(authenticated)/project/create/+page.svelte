@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
-  import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
+  import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput, UserRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { z } from 'zod';
@@ -180,7 +180,7 @@
     />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>
-        {#if data.user.canCreateProject || data.user.role === 'admin'}
+        {#if data.user.canCreateProjects || data.user.role === UserRole.Admin}
             {$t('project.create.submit')}
         {:else}
             {$t('project.create.request')}
