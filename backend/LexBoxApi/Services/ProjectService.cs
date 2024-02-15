@@ -10,7 +10,7 @@ namespace LexBoxApi.Services;
 
 public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRepoMigrationService migrationService, IMemoryCache memoryCache)
 {
-    public async Task<Guid> CreateProject(CreateProjectInput input)
+    public async Task<Guid> CreateProject(CreateProjectInput input, bool createAsDraft = false)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
@@ -25,11 +25,40 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
                 Description = input.Description,
                 Type = input.Type,
                 LastCommit = null,
+                DraftStatus = createAsDraft ? DraftStatus.Draft : DraftStatus.Normal,
                 RetentionPolicy = input.RetentionPolicy,
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
+        await transaction.CommitAsync();
+        return projectId;
+    }
+
+    public async Task<Guid> PromoteDraftProjectToNormal(CreateProjectInput input)
+    {
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        if (input.Id == null)
+        {
+            throw new ArgumentNullException(nameof(input.Id));
+        }
+        var projectId = input.Id.Value;
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project == null)
+        {
+            throw new NotFoundException($"Project ID {projectId} not found");
+        }
+        if (project.DraftStatus != DraftStatus.Draft)
+        {
+            // Do nothing
+        }
+        // Admins may change project code, name, description, and/or retention policy when promoting from draft
+        project.Code = input.Code ?? project.Code;
+        project.Name = input.Name ?? project.Name;
+        project.Description = input.Description ?? project.Description;
+        project.RetentionPolicy = input.RetentionPolicy;
+        project.DraftStatus = DraftStatus.Normal;
+        await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
         return projectId;
     }
