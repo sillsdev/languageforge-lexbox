@@ -42,9 +42,7 @@
   onMount(() => { // query params not available during SSR
     const urlValues = getSearchParamValues<RegisterPageQueryParams>();
     form.update((form) => {
-      if (urlValues.name) form.name = urlValues.name;
       if (urlValues.email) form.email = urlValues.email;
-      if (urlValues.locale) form.locale = urlValues.locale;
       return form;
     }, { taint: true });
   });
