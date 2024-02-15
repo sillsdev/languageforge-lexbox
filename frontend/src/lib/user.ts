@@ -40,12 +40,8 @@ export type LexAuthUser = Omit<Required<ApiLexAuthUser>, 'emailVerificationRequi
 export const USER_LOAD_KEY = 'user:current';
 export const AUTH_COOKIE_NAME = '.LexBoxAuth';
 
-export function isAdmin(user: LexAuthUser | null): boolean {
-  return user?.role === UserRole.Admin;
-}
-
 export function getHomePath(user: LexAuthUser | null): string {
-  return isAdmin(user) ? '/admin' : '/';
+  return user?.isAdmin ? '/admin' : '/';
 }
 
 export async function login(userId: string, password: string): Promise<LoginResult> {

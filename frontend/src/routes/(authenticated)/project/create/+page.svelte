@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
-  import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput, UserRole } from '$lib/gql/types';
+  import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { z } from 'zod';
@@ -10,7 +10,6 @@
   import { useNotifications } from '$lib/notify';
   import { Duration } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { isAdmin } from '$lib/user';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
 
@@ -89,11 +88,11 @@
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;
-      if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || isAdmin(user))) form.retentionPolicy = urlValues.retentionPolicy;
+      if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || user.isAdmin)) form.retentionPolicy = urlValues.retentionPolicy;
       if (urlValues.code) {
         const standardCodeSuffix = buildProjectCode('', urlValues.type, urlValues.retentionPolicy);
         const isCustomCode = !urlValues.code.endsWith(standardCodeSuffix);
-        if (isCustomCode && isAdmin(user)) {
+        if (isCustomCode && user.isAdmin) {
           form.customCode = true;
           form.code = form.languageCode = urlValues.code;
         } else {
@@ -180,7 +179,7 @@
     />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>
-        {#if data.user.canCreateProjects || data.user.role === UserRole.Admin}
+        {#if data.user.canCreateProjects || data.user.isAdmin}
             {$t('project.create.submit')}
         {:else}
             {$t('project.create.request')}

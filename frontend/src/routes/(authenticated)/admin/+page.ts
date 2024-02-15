@@ -1,10 +1,3 @@
-import { getClient, graphql } from '$lib/gql';
-
-import type { PageLoadEvent } from './$types';
-import { isAdmin, type LexAuthUser } from '$lib/user';
-import { redirect } from '@sveltejs/kit';
-import {getBoolSearchParam, getSearchParam} from '$lib/util/query-params';
-import { isGuid } from '$lib/util/guid';
 import type {
   $OpResult,
   ChangeUserAccountByAdminInput,
@@ -15,8 +8,15 @@ import type {
   UserFilterInput,
 } from '$lib/gql/types';
 import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from '$lib/gql/types';
-import type { ProjectFilters } from '$lib/components/Projects';
+import {getBoolSearchParam, getSearchParam} from '$lib/util/query-params';
+import { getClient, graphql } from '$lib/gql';
+
 import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
+import type { LexAuthUser } from '$lib/user';
+import type { PageLoadEvent } from './$types';
+import type { ProjectFilters } from '$lib/components/Projects';
+import { isGuid } from '$lib/util/guid';
+import { redirect } from '@sveltejs/kit';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
 export type AdminSearchParams = ProjectFilters & {
@@ -104,7 +104,7 @@ export async function load(event: PageLoadEvent) {
 }
 
 function requireAdmin(user: LexAuthUser | null): void {
-  if (!isAdmin(user)) {
+  if (!user?.isAdmin) {
     redirect(307, '/');
   }
 }
