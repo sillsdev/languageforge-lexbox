@@ -18,6 +18,8 @@ export interface TempProject {
   name: string
 }
 
+type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id: UUID}}}}
+
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   tempUser: TempUser,
@@ -83,7 +85,7 @@ export const test = base.extend<Fixtures>({
     }
     const response = await page.request.post(`${testEnv.serverBaseUrl}/api/login`, {data: loginData});
     expect(response.ok()).toBeTruthy();
-    const gqlResponse = await executeGql(page.request, `
+    const gqlResponse = await executeGql<CreateProjectResponse>(page.request, `
       mutation {
         createProject(input: {
           name: "${name}",
@@ -106,7 +108,7 @@ export const test = base.extend<Fixtures>({
         }
       }
 `);
-    const id = (gqlResponse as {data: {createProject: {createProjectResponse: {id: UUID}}}}).data.createProject.createProjectResponse.id;
+    const id = gqlResponse.data.createProject.createProjectResponse.id;
     await use({id, code, name});
     const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/project/${id}`);
     expect(deleteResponse.ok()).toBeTruthy();
