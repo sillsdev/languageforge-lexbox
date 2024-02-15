@@ -122,7 +122,7 @@
   <thead>
     <tr class="sticky top-0 z-[1] bg-base-100">
       <th></th> <!-- No header on train-tracks column -->
-      <th></th> <!-- No header on revision-number column -->
+      <th>#</th> <!-- "Revision" is too long -->
       <th>{$t('project_page.hg.date_header')}</th>
       <th>{$t('project_page.hg.author_header')}</th>
       <th>{$t('project_page.hg.log_header')}</th>
