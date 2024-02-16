@@ -17,7 +17,7 @@
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
     name: z.string().min(1, $t('register.name_missing')),
-    email: z.string().email($t('register.email')),
+    email: z.string().email($t('form.invalid_email')),
     password: passwordFormRules($t),
     locale: z.string().min(2).default(userLocale),
   });
