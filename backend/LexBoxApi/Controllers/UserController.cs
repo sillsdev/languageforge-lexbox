@@ -71,7 +71,7 @@ public class UserController : ControllerBase
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
         {
-            Id = jwtUser?.Id ?? Guid.NewGuid(),
+            Id = Guid.NewGuid(),
             Name = accountInput.Name,
             Email = accountInput.Email,
             LocalizationCode = accountInput.Locale,
