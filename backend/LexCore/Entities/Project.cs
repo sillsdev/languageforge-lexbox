@@ -20,7 +20,6 @@ public class Project : EntityBase
     public required DateTimeOffset? LastCommit { get; set; }
     public DateTimeOffset? DeletedDate { get; set; }
     public ResetStatus ResetStatus { get; set; } = ResetStatus.None;
-    public DraftStatus DraftStatus { get; set; } = DraftStatus.Normal;
 
     public required ProjectMigrationStatus ProjectOrigin { get; set; } = ProjectMigrationStatus.Migrated;
     public required ProjectMigrationStatus MigrationStatus { get; set; } = ProjectMigrationStatus.Migrated;
@@ -55,12 +54,6 @@ public enum ProjectMigrationStatus
     Migrating,
     PrivateRedmine,
     PublicRedmine,
-}
-
-public enum DraftStatus
-{
-    Normal = 0,
-    Draft = 1
 }
 
 public enum ResetStatus
