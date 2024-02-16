@@ -4,6 +4,7 @@ import { loginAs } from './utils/authHelpers';
 import * as testEnv from './envVars';
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { ProjectPage } from './pages/projectPage';
+import { join } from 'path';
 
 type HgWebFileJson = {
   abspath: string
@@ -15,7 +16,7 @@ type HgWebJson = {
   files: HgWebFileJson[]
 }
 
-test('reset project and upload .zip file', async ({ page, tempProject }) => {
+test('reset project and upload .zip file', async ({ page, tempProject, tempDir }) => {
   const allZeroHash = '0000000000000000000000000000000000000000';
 
   // Step 1: Populate project with known initial state
@@ -46,8 +47,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await projectPage.goto();
   await projectPage.clickResetProject();
   const download = await resetProjectModel.downloadProjectBackup();
-  // TODO: Create fixture to use temporary directory and tear it down after test, as of right now this pollutes current working directory
-  await download.saveAs('tests/data/reset-project-test-step-1.zip');
+  await download.saveAs(join(tempDir, 'reset-project-test-step-1.zip'));
   await resetProjectModel.clickNextStepButton('I have a working backup');
   await resetProjectModel.confirmProjectBackupReceived(tempProject.code);
   await resetProjectModel.clickNextStepButton('Reset project');
@@ -69,7 +69,7 @@ test('reset project and upload .zip file', async ({ page, tempProject }) => {
   await resetProjectModel.clickNextStepButton('I have a working backup');
   await resetProjectModel.confirmProjectBackupReceived(tempProject.code);
   await resetProjectModel.clickNextStepButton('Reset project');
-  await resetProjectModel.uploadProjectZipFile('tests/data/reset-project-test-step-1.zip');
+  await resetProjectModel.uploadProjectZipFile(join(tempDir, 'reset-project-test-step-1.zip'));
   await expect(page.getByText('Project successfully reset')).toBeVisible();
   await page.getByRole('button', { name: 'Close' }).click();
   await resetProjectModel.assertGone();
