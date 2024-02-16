@@ -138,7 +138,7 @@
               <TrainTracks {circles} {paths} rowHeights={heights} />
             </td>
           {/if}
-          <td><a href="/hg/{projectCode}/file/{log.node}">{log.rev}</a></td>
+          <td><a href="/hg/{projectCode}/file/{log.node}" class="link link-info" target="_blank">{log.rev}</a></td>
           <td bind:offsetHeight={heights[idx]}>{$date(log.date[0] * 1000)}</td>
           <td>{log.user}</td>
           <td>{log.trimmedLog}</td>
