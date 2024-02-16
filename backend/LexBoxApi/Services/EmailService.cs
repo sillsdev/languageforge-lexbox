@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
+using LexBoxApi.Jobs;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Otel;
 using LexBoxApi.Services.Email;
@@ -23,6 +24,7 @@ public class EmailService(
     IHttpClientFactory clientFactory,
     LexboxLinkGenerator linkGenerator,
     IHttpContextAccessor httpContextAccessor,
+    Quartz.ISchedulerFactory schedulerFactory,
     LexAuthService lexAuthService)
 {
     private readonly EmailConfig _emailConfig = emailConfig.Value;
@@ -45,7 +47,7 @@ public class EmailService(
             new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
         await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink), user.LocalizationCode);
-        await SendEmailAsync(email);
+        await SendEmailWithRetriesAsync(email, retryCount:5, retryWaitSeconds:30);
     }
 
     /// <summary>
@@ -74,14 +76,14 @@ public class EmailService(
             new { jwt, returnTo = $"/user?emailResult={queryParam}", email = newEmail ?? user.Email, });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
         await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail)), user.LocalizationCode);
-        await SendEmailAsync(email);
+        await SendEmailWithRetriesAsync(email);
     }
 
     public async Task SendPasswordChangedEmail(User user)
     {
         var email = StartUserEmail(user);
         await RenderEmail(email, new PasswordChangedEmail(user.Name), user.LocalizationCode);
-        await SendEmailAsync(email);
+        await SendEmailWithRetriesAsync(email);
     }
 
     public async Task SendCreateProjectRequestEmail(LexAuthUser user, CreateProjectInput projectInput)
@@ -90,10 +92,10 @@ public class EmailService(
         email.To.Add(new MailboxAddress("Admin", _emailConfig.CreateProjectEmailDestination));
         await RenderEmail(email,
             new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), "en");
-        await SendEmailAsync(email);
+        await SendEmailWithRetriesAsync(email);
     }
 
-    private async Task SendEmailAsync(MimeMessage message)
+    public async Task SendEmailAsync(MimeMessage message)
     {
         message.From.Add(MailboxAddress.Parse(_emailConfig.From));
         using var activity = LexBoxActivitySource.Get().StartActivity();
@@ -115,6 +117,17 @@ public class EmailService(
             activity?.RecordException(e);
             activity?.SetStatus(ActivityStatusCode.Error);
             throw;
+        }
+    }
+     private async Task SendEmailWithRetriesAsync(MimeMessage message, int retryCount = 3, int retryWaitSeconds = 5 * 60)
+    {
+        try
+        {
+            await SendEmailAsync(message);
+        }
+        catch
+        {
+            await RetryEmailJob.Queue(schedulerFactory, message, retryCount, retryWaitSeconds);
         }
     }
 
