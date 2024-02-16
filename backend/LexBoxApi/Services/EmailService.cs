@@ -47,7 +47,7 @@ public class EmailService(
             new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
         await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink), user.LocalizationCode);
-        await SendEmailWithRetriesAsync(email);
+        await SendEmailWithRetriesAsync(email, retryCount:5, retryWaitSeconds:30);
     }
 
     /// <summary>
