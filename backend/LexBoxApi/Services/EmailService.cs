@@ -48,12 +48,12 @@ public class EmailService(
         await SendEmailAsync(email);
     }
 
-    public async Task SendNewAdminEmail(IAsyncEnumerable<User> oldAdmins, string newAdminName, string newAdminEmail)
+    public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail)
     {
-        await foreach (var oldAdmin in oldAdmins)
+        await foreach (var admin in admins)
         {
-            var email = StartUserEmail(oldAdmin);
-            await RenderEmail(email, new NewAdminEmail(oldAdmin.Name, newAdminName, newAdminEmail), oldAdmin.LocalizationCode);
+            var email = StartUserEmail(admin);
+            await RenderEmail(email, new NewAdminEmail(admin.Name, newAdminName, newAdminEmail), admin.LocalizationCode);
             await SendEmailAsync(email);
         }
     }
