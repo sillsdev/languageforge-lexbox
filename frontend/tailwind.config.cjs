@@ -27,7 +27,7 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'sm-only': { 'max': '639px' },
+        'max-sm': { 'max': '639px' },
       },
     },
   },
