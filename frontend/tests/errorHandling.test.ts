@@ -55,6 +55,19 @@ test('catch fetch 500 and error dialog', async ({ page }) => {
   test.fail();
 });
 
+
+//we want to verify that once we get the 500 in GQL we can still navigate to another page
+test('catch gql 500 and go home', async ({ page }) => {
+  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await new SandboxPage(page).goto();
+  // Create promise first before triggering the action
+  const responsePromise = page.waitForResponse('/api/graphql');
+  await page.getByText('GQL 500').click();
+  await responsePromise.catch(() => {});// Ignore the error
+  await page.getByText('Language Depot').click();
+  await new UserDashboardPage(page).waitFor();
+});
+
 test('server page load 403 is redirected to login', async ({ context }) => {
   await context.addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl}]);
   const page = await context.newPage();
