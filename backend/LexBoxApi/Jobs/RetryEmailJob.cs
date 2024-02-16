@@ -19,23 +19,27 @@ public class RetryEmailJob(EmailService emailService) : LexJob
             Key,
             new JobDataMap {
                 { nameof(SerializedEmail), serializedEmail },
-                { nameof(RetryCount), retryCount },
-                { nameof(RetryWaitSeconds), retryWaitSeconds },
+                { nameof(RetryCount), retryCount.ToString() },
+                { nameof(RetryWaitSeconds), retryWaitSeconds.ToString() },
             },
             cancellationToken);
     }
 
     public static JobKey Key { get; } = new("RetryEmailJob", "RetryingJobs");
     public string? SerializedEmail { get; set; }
-    public int RetryCount { get; set; }
-    public int RetryWaitSeconds { get; set; }
+    public string? RetryCount { get; set; }
+    public string? RetryWaitSeconds { get; set; }
 
     protected override async Task ExecuteJob(IJobExecutionContext context)
     {
         ArgumentException.ThrowIfNullOrEmpty(SerializedEmail, "email");
+        ArgumentException.ThrowIfNullOrEmpty(RetryCount, nameof(RetryCount));
+        ArgumentException.ThrowIfNullOrEmpty(RetryWaitSeconds, nameof(RetryWaitSeconds));
+        if (!int.TryParse(RetryCount, out int retryCount)) throw new ArgumentException($"Invalid number {RetryCount}", nameof(RetryCount));
+        if (!int.TryParse(RetryWaitSeconds, out int retryWaitSeconds)) throw new ArgumentException($"Invalid number {RetryWaitSeconds}", nameof(RetryWaitSeconds));
         var memory = new MemoryStream(Convert.FromBase64String(SerializedEmail), writable: false);
         var email = await MimeMessage.LoadAsync(memory);
-        while (RetryCount > 0)
+        while (retryCount > 0)
         {
             try
             {
@@ -43,8 +47,8 @@ public class RetryEmailJob(EmailService emailService) : LexJob
             }
             catch
             {
-                RetryCount -= 1;
-                await Task.Delay(TimeSpan.FromSeconds(RetryWaitSeconds));
+                retryCount -= 1;
+                await Task.Delay(TimeSpan.FromSeconds(retryWaitSeconds));
             }
         }
     }
