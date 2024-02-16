@@ -35,7 +35,7 @@
   }
 
   const formSchema = z.object({
-    email: z.string().email(),
+    email: z.string().email($t('form.invalid_email')),
     name: z.string(),
     locale: z.string().min(2),
   });

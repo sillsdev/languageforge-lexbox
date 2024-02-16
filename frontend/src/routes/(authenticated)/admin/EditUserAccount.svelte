@@ -16,7 +16,7 @@
   export let deleteUser: (user: User) => void;
 
   const schema = z.object({
-    email: z.string().email(),
+    email: z.string().email($t('form.invalid_email')),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
     role: z.enum([UserRole.User, UserRole.Admin]),

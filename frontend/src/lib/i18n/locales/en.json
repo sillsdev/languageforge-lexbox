@@ -173,7 +173,6 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "project": "Project",
     "add_user": {
       "add_button": "Add Member",
-      "email_required": "Email required",
       "modal_title": "Add a Member to this project",
       "submit_button": "Add Member",
       "user_not_found": "No user was found with this email address",
@@ -299,7 +298,6 @@ If you don't see a dialog or already closed it, click the button below:",
     "title": "Register",
     "account_exists": "An account with this email already exists",
     "button_register": "Register",
-    "email": "Email required",
     "label_email": "Email",
     "description_email": "This will be your Send/Receive login",
     "label_name": "Name",
@@ -384,7 +382,9 @@ If you don't see a dialog or already closed it, click the button below:",
     "password": {
       "forbidden_characters": "The symbols &, +, :, and % are not allowed in passwords",
       "too_short": "Must be at least 4 characters"
-    }
+    },
+    "invalid_email": "Invalid email",
+    "value_is_incorrect": "Value is incorrect",
   },
   "notifications": {
     "update_detected": "A new version of the application was detected. You may need to reload the page.",
