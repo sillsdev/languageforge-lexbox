@@ -408,7 +408,7 @@
         </p>
 
         <div class="max-h-[75vh] overflow-auto border-b border-base-200">
-          <HgLogView logEntries={$changesetStore.changesets} loading={$changesetStore.fetching} />
+          <HgLogView logEntries={$changesetStore.changesets} loading={$changesetStore.fetching} projectCode={project.code} />
         </div>
       </div>
 

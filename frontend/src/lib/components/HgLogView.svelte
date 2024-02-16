@@ -21,6 +21,7 @@
 
   export let logEntries: LogEntries;
   export let loading: boolean;
+  export let projectCode: string;
 
   function assignRowsAndColumns(entries: ExpandedLogEntry[]): void {
     // Walk the log top-down (most recent entry first) and assign circle locations for each log entry ("node")
@@ -121,7 +122,8 @@
 <table class="table table-zebra">
   <thead>
     <tr class="sticky top-0 z-[1] bg-base-100">
-      <th></th>
+      <th></th> <!-- No header on train-tracks column -->
+      <th>#</th> <!-- "Revision" is too long -->
       <th>{$t('project_page.hg.date_header')}</th>
       <th>{$t('project_page.hg.author_header')}</th>
       <th>{$t('project_page.hg.log_header')}</th>
@@ -136,6 +138,7 @@
               <TrainTracks {circles} {paths} rowHeights={heights} />
             </td>
           {/if}
+          <td><a href="/hg/{projectCode}/file/{log.node}">{log.rev}</a></td>
           <td bind:offsetHeight={heights[idx]}>{$date(log.date[0] * 1000)}</td>
           <td>{log.user}</td>
           <td>{log.trimmedLog}</td>
