@@ -218,7 +218,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "rename_project": "Project name set to {name}.",
       "describe": "Project description has been updated.",
       "add_member": "{email} has been added to project.",
-      "member_invited": "{email} has been sent an invitation email to join the project."
+      "member_invited": "{email} has been sent an invitation email to register and join the project."
     },
     "project_name_empty_error": "Project name cannot be empty",
     "confirm_remove": "Would you like to remove {userName} from this project?",
@@ -368,7 +368,7 @@ If you don't see a dialog or already closed it, click the button below:",
       "greeting_noname": "Hello!"
     },
     "create_account_request_email": {
-      "subject": "You've been invited to join the {projectName} language project",
+      "subject": "Project invitation: {projectName}",
       "body": "{managerName} has invited you to join the {projectName} language project. Click below to join.",
       "join_button": "Join project"
     },

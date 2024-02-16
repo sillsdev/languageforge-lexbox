@@ -50,15 +50,12 @@ public class UserController : ControllerBase
     {
         using var registerActivity = LexBoxActivitySource.Get().StartActivity("Register");
         var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken, accountInput.Email);
-        var jwtUser = _loggedInContext.MaybeUser;
         registerActivity?.AddTag("app.turnstile_token_valid", validToken);
         if (!validToken)
         {
             ModelState.AddModelError<RegisterAccountInput>(r => r.TurnstileToken, "token invalid");
             return ValidationProblem(ModelState);
         }
-
-        var emailVerified = jwtUser?.Email == accountInput.Email;
 
         var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmail(accountInput.Email).AnyAsync();
         registerActivity?.AddTag("app.email_available", !hasExistingUser);
@@ -67,6 +64,9 @@ public class UserController : ControllerBase
             ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email already in use");
             return ValidationProblem(ModelState);
         }
+
+        var jwtUser = _loggedInContext.MaybeUser;
+        var emailVerified = jwtUser?.Email == accountInput.Email;
 
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
