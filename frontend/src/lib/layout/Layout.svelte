@@ -37,7 +37,7 @@
 
     <div class="drawer-content max-w-[100vw]">
       <AppBar {user} />
-      <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center">
+      <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center gap-2">
         <Breadcrumbs />
         <AdminContent>
           <a href="/admin" class="btn btn-sm btn-accent">
