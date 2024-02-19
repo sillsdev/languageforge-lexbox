@@ -13,6 +13,9 @@ spec:
           env:
             - name: CloudFlare__AllowDomain
               value: "mailinator.com"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Staging" #we don't want to act like dev as that's for local development
+              valueFrom:
             - name: Email__SmtpHost
               value: email-smtp.us-east-1.amazonaws.com
             - name: Email__SmtpPort

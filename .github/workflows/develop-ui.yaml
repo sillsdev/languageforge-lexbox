@@ -43,7 +43,7 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
       image: 'ghcr.io/sillsdev/lexbox-ui'
       k8s-environment: develop
-      deploy-domain: develop.lexbox.org
+      deploy-domain: lexbox.dev.languagetechnology.org
 
   check-and-lint:
     runs-on: ubuntu-latest
