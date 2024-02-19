@@ -23,7 +23,11 @@
     <mj-section>
       <mj-column>
         <mj-text font-size="20px">
-          {$t('emails.shared.greeting', { name })}
+          {#if name}
+            {$t('emails.shared.greeting', { name })}
+          {:else}
+            {$t('emails.shared.greeting_noname')}
+          {/if}
         </mj-text>
         <mj-divider border-color="black" />
         <slot />

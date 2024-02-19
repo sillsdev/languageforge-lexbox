@@ -176,6 +176,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "email_required": "Email required",
       "modal_title": "Add a Member to this project",
       "submit_button": "Add Member",
+      "project_not_found": "Project not found. Please refresh the page.",
       "user_not_found": "No user was found with this email address",
       "user_not_verified": "User has not verified their email address",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
@@ -216,7 +217,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_delete": "{name} has been removed.",
       "rename_project": "Project name set to {name}.",
       "describe": "Project description has been updated.",
-      "add_member": "{email} has been added to project."
+      "add_member": "{email} has been added to project.",
+      "member_invited": "{email} has been sent an invitation email to register and join the project."
     },
     "project_name_empty_error": "Project name cannot be empty",
     "confirm_remove": "Would you like to remove {userName} from this project?",
@@ -362,7 +364,13 @@ If you don't see a dialog or already closed it, click the button below:",
       "body": "We're writing to confirm that your password was just changed."
     },
     "shared": {
-      "greeting": "Hello {name}!"
+      "greeting": "Hello {name}!",
+      "greeting_noname": "Hello!"
+    },
+    "create_account_request_email": {
+      "subject": "Project invitation: {projectName}",
+      "body": "{managerName} has invited you to join the {projectName} language project. Click below to join.",
+      "join_button": "Join project"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",

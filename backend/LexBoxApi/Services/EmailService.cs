@@ -79,6 +79,46 @@ public class EmailService(
         await SendEmailWithRetriesAsync(email);
     }
 
+    /// <summary>
+    /// Sends a project invitation email to a new user, whose account will be created when they accept.
+    /// </summary>
+    /// <param name="name">The name (real name, NOT username) of user to invite.</param>
+    /// <param name="emailAddress">The email address to send the invitation to</param>
+    /// <param name="projectId">The GUID of the project the user is being invited to</param>
+    /// <param name="language">The language in which the invitation email should be sent (default English)</param>
+    public async Task SendCreateAccountEmail(string emailAddress, Guid projectId, ProjectRole role, string managerName, string projectName, string language = null)
+    {
+        language ??= User.DefaultLocalizationCode;
+        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
+            {
+                Id = Guid.NewGuid(),
+                Audience = LexboxAudience.RegisterAccount,
+                Name = "",
+                Email = emailAddress,
+                EmailVerificationRequired = null,
+                Role = UserRole.user,
+                UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                Projects = [new AuthUserProject(role, projectId)],
+                CanCreateProjects = null,
+                Locale = language,
+                Locked = null,
+            },
+            useEmailLifetime: true
+        );
+        var email = StartUserEmail(name: "", emailAddress);
+        var httpContext = httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+        var queryString = QueryString.Create("email", emailAddress);
+        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value };
+        var registerLink = _linkGenerator.GetUriByAction(httpContext,
+            "LoginRedirect",
+            "Login",
+            new { jwt, returnTo });
+        ArgumentException.ThrowIfNullOrEmpty(registerLink);
+        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink), language);
+        await SendEmailAsync(email);
+    }
+
     public async Task SendPasswordChangedEmail(User user)
     {
         var email = StartUserEmail(user);
@@ -157,8 +197,13 @@ public class EmailService(
 
     private static MimeMessage StartUserEmail(User user, string? email = null)
     {
+        return StartUserEmail(user.Name, email ?? user.Email);
+    }
+
+    private static MimeMessage StartUserEmail(string name, string email)
+    {
         var message = new MimeMessage();
-        message.To.Add(new MailboxAddress(user.Name, email ?? user.Email));
+        message.To.Add(new MailboxAddress(name, email));
         return message;
     }
 }

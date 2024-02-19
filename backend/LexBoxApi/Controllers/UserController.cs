@@ -65,6 +65,9 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
+        var jwtUser = _loggedInContext.MaybeUser;
+        var emailVerified = jwtUser?.Email == accountInput.Email;
+
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
         {
@@ -75,19 +78,23 @@ public class UserController : ControllerBase
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
             IsAdmin = false,
-            EmailVerified = false,
+            EmailVerified = emailVerified,
             Locked = false,
             CanCreateProjects = false
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
+        if (jwtUser is not null && jwtUser.Projects.Length > 0)
+        {
+            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+        }
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
 
-        await _emailService.SendVerifyAddressEmail(userEntity);
+        if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
     }
 
