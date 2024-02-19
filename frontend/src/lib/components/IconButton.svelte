@@ -15,12 +15,13 @@
 </script>
 
 <!-- type="button" ensures the button doen't act as a submit button when in a form -->
-<button type="button" on:click {disabled}
-  class="btn btn-square {variant} {size ?? ''} {$$restProps.class ?? ''}"
+<button type="button" on:click
+  disabled={disabled && !loading}
+  class:pointer-events-none={fake || loading}
+  class="btn btn-square {variant ?? ''} {size ?? ''} {$$restProps.class ?? ''}"
   class:btn-outline={outline}
   class:btn-active={active}
-  class:join-item={join}
-  class:pointer-events-none={fake || loading}>
+  class:join-item={join}>
   {#if !loading}
     <span class="{icon} text-lg" />
   {:else}
