@@ -4,6 +4,7 @@ module.exports = {
   content: ['./src/**/*.{svelte,ts}'],
   plugins: [
     require('@tailwindcss/typography'),
+    require('@tailwindcss/container-queries'),
     require('daisyui'),
     iconsPlugin({
       collections: getIconCollections(['mdi']),
@@ -27,8 +28,10 @@ module.exports = {
   theme: {
     extend: {
       screens: {
+        'max-xs': { 'max': '400px' },
         'max-sm': { 'max': '639px' },
         'max-md': { 'max': '767px' },
+        'admin-tabs': { 'max': '1023px' }, /* aka max-lg, but more explicit */
       },
     },
   },
