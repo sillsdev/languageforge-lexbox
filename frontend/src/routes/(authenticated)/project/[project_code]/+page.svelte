@@ -316,18 +316,21 @@
       <div class="space-y-2">
         <span class="text-lg">
           {$t('project_page.project_code')}:
-          <span class="text-secondary">{project.code}
+          <span class="inline-flex items-center gap-1">
+            <span class="text-secondary">{project.code}</span>
             {#if copiedToClipboard}
-              <IconButton fake icon="i-mdi-check" style="btn-ghost btn-success" />
-            {:else}
-              <div class="contents">
-                <IconButton
-                  loading={copyingToClipboard}
-                  icon="i-mdi-content-copy"
-                  style="btn-ghost"
-                  on:click={copyProjectCodeToClipboard}
-                />
+              <div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
+                <IconButton fake icon="i-mdi-check" size="btn-sm" class="text-success" />
               </div>
+            {:else}
+                <IconButton
+                loading={copyingToClipboard}
+                icon="i-mdi-content-copy"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={copyProjectCodeToClipboard}
+              />
             {/if}
           </span>
         </span>
