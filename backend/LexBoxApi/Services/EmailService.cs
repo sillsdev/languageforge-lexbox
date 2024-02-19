@@ -50,12 +50,14 @@ public class EmailService(
 
     public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail)
     {
+        var email = new MimeMessage();
+        email.To.Add(new MailboxAddress("Admins", "nobody@example.com"));
         await foreach (var admin in admins)
         {
-            var email = StartUserEmail(admin);
-            await RenderEmail(email, new NewAdminEmail(admin.Name, newAdminName, newAdminEmail), admin.LocalizationCode);
-            await SendEmailAsync(email);
+            email.Bcc.Add(new MailboxAddress(admin.Name, admin.Email));
         }
+        await RenderEmail(email, new NewAdminEmail("Admin", newAdminName, newAdminEmail), User.DefaultLocalizationCode);
+        await SendEmailAsync(email);
     }
 
     /// <summary>
