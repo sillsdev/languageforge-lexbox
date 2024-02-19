@@ -140,11 +140,14 @@ let disableDropdown = false;
         <Button style="btn-error" on:click={() => alert('hello')}>Error Button</Button>
         <Button style="btn-outline" on:click={() => alert('hello')}>Outline Button</Button>
         <Button style="btn-ghost" on:click={() => alert('hello')}>Ghost Button</Button>
-        <Button style="btn-primary" loading={true} on:click={() => alert('should not fire')}>
-          Loading Primary Button
-        </Button>
         <Button style="btn-primary" disabled on:click={() => alert('should not fire')}>
-          Disabled Primary Button
+          Disabled Button
+        </Button>
+        <Button style="btn-primary" loading on:click={() => alert('should not fire')}>
+          Loading Button
+        </Button>
+        <Button style="btn-primary" disabled loading on:click={() => alert('should not fire')}>
+          Disabled Loading Button
         </Button>
     </div>
   </div>
