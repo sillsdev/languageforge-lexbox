@@ -51,7 +51,6 @@ public class EmailService(
     public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail)
     {
         var email = new MimeMessage();
-        email.To.Add(new MailboxAddress("Admins", "nobody@example.com"));
         await foreach (var admin in admins)
         {
             email.Bcc.Add(new MailboxAddress(admin.Name, admin.Email));
