@@ -9,11 +9,11 @@ export function validateGqlErrors(json: {errors: unknown, data: unknown}, expect
   }
 }
 
-export async function executeGql(api: APIRequestContext, gql: string, expectError = false): Promise<unknown> {
+export async function executeGql<T>(api: APIRequestContext, gql: string, expectError = false): Promise<T> {
   const response = await api.post(`${serverBaseUrl}/api/graphql`, {data: {query: gql}});
   await expect(response, `code was ${response.status()} (${response.statusText()})`).toBeOK();
   const json: unknown = await response.json();
   expect(json, `for query ${gql}`).not.toBeNull();
   validateGqlErrors(json as {errors: unknown, data: unknown}, expectError);
-  return json;
+  return json as T;
 }
