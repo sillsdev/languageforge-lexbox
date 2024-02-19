@@ -226,6 +226,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     },
     "project_name_empty_error": "Project name cannot be empty",
     "confirm_remove": "Would you like to remove {userName} from this project?",
+    "last_to_leave": "You are the last member of this project. It must be deleted.",
     "history": "History",
     "project_code": "Project Code",
     "summary": "Summary",

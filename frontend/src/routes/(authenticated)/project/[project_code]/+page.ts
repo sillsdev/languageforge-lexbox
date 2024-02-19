@@ -8,7 +8,7 @@ import type {
   ChangeProjectMemberRoleMutation,
   ChangeProjectNameInput,
   ChangeProjectNameMutation,
-  DeleteProjectUserMutation,
+  DeleteProjectUserMutation, LeaveProjectMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
 import { derived } from 'svelte/store';
@@ -254,4 +254,27 @@ export async function _refreshProjectRepoInfo(projectCode: string): Promise<void
     // this should be meaningless, but just in case and it makes the linter happy
     throw result.error;
   }
+}
+
+
+export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMutation> {
+//language=GraphQL
+  const result = await getClient()
+  .mutation(
+    graphql(`
+      mutation LeaveProject($projectId: UUID!) {
+        leaveProject(input: {projectId: $projectId}) {
+          project {
+            id
+          }
+          errors {
+            __typename
+          }
+        }
+      }
+    `),
+    {projectId}
+  );
+
+  return result;
 }

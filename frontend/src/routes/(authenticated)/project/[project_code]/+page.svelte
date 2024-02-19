@@ -13,6 +13,7 @@
     _changeProjectDescription,
     _changeProjectName,
     _deleteProjectUser,
+    _leaveProject,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
@@ -24,7 +25,7 @@
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import { _deleteProject } from '$lib/gql/mutations';
+  import {_deleteProject} from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
@@ -38,6 +39,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
+  import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -198,6 +200,20 @@
   }
 
   let openInFlexModal: OpenInFlexModal;
+
+  let leaveModal: ConfirmModal;
+
+  async function leaveProject(): Promise<void> {
+    const left = await leaveModal.open(async () => {
+      const result = await _leaveProject(project.id);
+      if (result.error?.byType('LastMemberCantLeaveError')) {
+        return $t('project_page.last_to_leave');
+      }
+    });
+    if (left) {
+      await goto(data.home);
+    }
+  }
 </script>
 
 <PageBreadcrumb>{$t('project_page.project')}</PageBreadcrumb>
@@ -414,18 +430,31 @@
         </div>
       </div>
 
-      {#if canManage}
-        <div class="divider" />
+      <div class="divider"/>
 
-        <MoreSettings>
+      <MoreSettings>
+        <Button style="btn-outline" on:click={leaveProject}>
+          Leave Project
+          <Icon icon="i-mdi-exit-run"/>
+        </Button>
+        <ConfirmModal bind:this={leaveModal}
+                      title="Leave project?"
+                      submitText="Leave"
+                      submitIcon="i-mdi-exit-run"
+                      cancelText="Don't leave">
+          <p>Are you sure you want to leave this project?</p>
+        </ConfirmModal>
+        {#if canManage}
           <button class="btn btn-error" on:click={softDeleteProject}>
-            {$t('delete_project_modal.submit')}<TrashIcon />
+            {$t('delete_project_modal.submit')}
+            <TrashIcon/>
           </button>
           <AdminContent>
             <button class="btn btn-accent" on:click={resetProject}>
-              {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
+              {$t('project_page.reset_project_modal.submit')}
+              <CircleArrowIcon/>
             </button>
-            <ResetProjectModal bind:this={resetProjectModal} />
+            <ResetProjectModal bind:this={resetProjectModal}/>
             <Button on:click={verify}>Verify Repository</Button>
             <Button on:click={recover}>HG Recover</Button>
             <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
@@ -440,10 +469,10 @@
               </div>
             </Modal>
           </AdminContent>
-        </MoreSettings>
-      {/if}
+          <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
+        {/if}
+      </MoreSettings>
 
-      <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
     </div>
   </HeaderPage>
 {/if}

@@ -108,6 +108,15 @@ type IsAdminResponse {
   value: Boolean!
 }
 
+type LastMemberCantLeaveError implements Error {
+  message: String!
+}
+
+type LeaveProjectPayload {
+  project: Project
+  errors: [LeaveProjectError!]
+}
+
 type LexAuthUser {
   id: UUID!
   updatedDate: Long!
@@ -137,6 +146,7 @@ type Mutation {
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
+  leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
@@ -266,6 +276,8 @@ union CreateProjectError = DbError | AlreadyExistsError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
+union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
+
 union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
@@ -393,6 +405,10 @@ input IntOperationFilterInput {
   nlt: Int
   lte: Int
   nlte: Int
+}
+
+input LeaveProjectInput {
+  projectId: UUID!
 }
 
 input ListFilterInputTypeOfProjectUsersFilterInput {
