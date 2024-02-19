@@ -1,4 +1,5 @@
 import ForgotPassword from '$lib/email/ForgotPassword.svelte';
+import NewAdmin from '$lib/email/NewAdmin.svelte';
 import type {ComponentType} from 'svelte';
 import VerifyEmailAddress from '$lib/email/VerifyEmailAddress.svelte';
 import PasswordChanged from '$lib/email/PasswordChanged.svelte';
@@ -7,6 +8,7 @@ import CreateProjectRequest from '$lib/email/CreateProjectRequest.svelte';
 import type {CreateProjectInput} from '$lib/gql/generated/graphql';
 
 export const enum EmailTemplate {
+    NewAdmin = 'NEW_ADMIN',
     ForgotPassword = 'FORGOT_PASSWORD',
     VerifyEmailAddress = 'VERIFY_EMAIL_ADDRESS',
     PasswordChanged = 'PASSWORD_CHANGED',
@@ -16,6 +18,7 @@ export const enum EmailTemplate {
 
 export const componentMap = {
     [EmailTemplate.ForgotPassword]: ForgotPassword,
+    [EmailTemplate.NewAdmin]: NewAdmin,
     [EmailTemplate.VerifyEmailAddress]: VerifyEmailAddress,
     [EmailTemplate.PasswordChanged]: PasswordChanged,
     [EmailTemplate.CreateAccountRequest]: CreateAccountRequest,
@@ -30,6 +33,11 @@ interface EmailTemplatePropsBase<T extends EmailTemplate> {
 
 interface ForgotPasswordProps extends EmailTemplatePropsBase<EmailTemplate.ForgotPassword> {
     resetUrl: string;
+}
+
+interface NewAdminProps extends EmailTemplatePropsBase<EmailTemplate.NewAdmin> {
+  adminName: string;
+  adminEmail: string;
 }
 
 interface VerifyEmailAddressProps extends EmailTemplatePropsBase<EmailTemplate.VerifyEmailAddress> {
@@ -50,6 +58,7 @@ interface CreateProjectProps extends EmailTemplatePropsBase<EmailTemplate.Create
 
 export type EmailTemplateProps =
     ForgotPasswordProps
+    | NewAdminProps
     | VerifyEmailAddressProps
     | CreateAccountProps
     | CreateProjectProps

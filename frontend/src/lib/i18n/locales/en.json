@@ -348,6 +348,10 @@ If you don't see a dialog or already closed it, click the button below:",
     "close_all": "Close all"
   },
   "emails": {
+    "new_admin": {
+      "subject": "New Language Depot administrator {adminName}",
+      "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."
+    },
     "verify_email": {
       "subject": "Verify your e-mail address",
       "to_verify_click": "Click the button below to verify your e-mail address.",

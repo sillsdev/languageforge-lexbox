@@ -16,6 +16,7 @@ public record EmailTemplateBase(EmailTemplate Template)
 public enum EmailTemplate
 {
     ForgotPassword,
+    NewAdmin,
     VerifyEmailAddress,
     PasswordChanged,
     CreateAccountRequest,
@@ -23,6 +24,8 @@ public enum EmailTemplate
 }
 
 public record ForgotPasswordEmail(string Name, string ResetUrl) : EmailTemplateBase(EmailTemplate.ForgotPassword);
+
+public record NewAdminEmail(string Name, string AdminName, string AdminEmail) : EmailTemplateBase(EmailTemplate.NewAdmin);
 
 public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
 
