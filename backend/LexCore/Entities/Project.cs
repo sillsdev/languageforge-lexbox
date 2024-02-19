@@ -68,7 +68,8 @@ public enum ProjectType
     FLEx = 1,
     WeSay = 2,
     OneStoryEditor = 3,
-    OurWord = 4
+    OurWord = 4,
+    AdaptIt = 5,
 }
 
 public class Changeset

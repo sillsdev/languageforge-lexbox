@@ -8,6 +8,7 @@
     [ProjectType.OneStoryEditor]: 'project_type.oneStoryEditor',
     [ProjectType.OurWord]: 'project_type.ourWord',
     [ProjectType.Unknown]: 'project_type.other',
+    [ProjectType.AdaptIt]: 'project_type.adaptIt',
   };
 
   export function getProjectTypeI18nKey(type: ProjectType): I18nKey {
