@@ -13,5 +13,7 @@ RUN for file in $(ls *.csproj); do dir=${file%.*} mkdir -p ${file%.*}/ && mv $fi
 
 COPY . .
 WORKDIR /src/backend/LexBoxApi
+RUN dotnet build #build and restore, should speed up watch run
 RUN mkdir /src/frontend
-CMD dotnet watch run -lp docker --property:InformationalVersion=dockerDev --no-hot-reload
+# no need to restore because we already restored as part of building the image
+CMD dotnet watch run -lp docker --property:InformationalVersion=dockerDev --no-hot-reload --no-restore

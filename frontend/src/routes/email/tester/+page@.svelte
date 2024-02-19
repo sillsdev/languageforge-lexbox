@@ -27,6 +27,12 @@
             newAddress: true,
         },
         {
+            label: 'Create Account Request',
+            name: 'Bob',
+            template: EmailTemplate.CreateAccountRequest,
+            verifyUrl: absoluteUrl('register?name=Bob'), // TODO: Get correct URL
+        },
+        {
             label: 'Create Project Request',
             name: 'Admin',
             baseUrl: location.origin,

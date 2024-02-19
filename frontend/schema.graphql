@@ -48,6 +48,7 @@ type ChangeUserAccountBySelfPayload {
 
 type Changeset {
   node: String!
+  rev: Int!
   date: [Float!]!
   desc: String!
   branch: String!
@@ -158,6 +159,10 @@ type Project {
   updatedDate: DateTime!
 }
 
+type ProjectMemberInvitedByEmail implements Error {
+  message: String!
+}
+
 type ProjectMembersMustBeVerified implements Error {
   message: String!
 }
@@ -230,7 +235,7 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 

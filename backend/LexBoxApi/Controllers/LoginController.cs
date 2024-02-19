@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
+using LexCore.Entities;
 
 namespace LexBoxApi.Controllers;
 
@@ -41,10 +42,14 @@ public class LoginController(
         string returnTo)
     {
         var user = loggedInContext.User;
-        var userUpdatedDate = await userService.GetUserUpdatedDate(user.Id);
-        if (userUpdatedDate != user.UpdatedDate)
+        // A RegisterAccount token means there's no user account yet, so checking UpdatedDate makes no sense
+        if (user.Audience != LexboxAudience.RegisterAccount)
         {
-            return await EmailLinkExpired();
+            var userUpdatedDate = await userService.GetUserUpdatedDate(user.Id);
+            if (userUpdatedDate != user.UpdatedDate)
+            {
+                return await EmailLinkExpired();
+            }
         }
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });

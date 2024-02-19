@@ -3,6 +3,9 @@ import * as testEnv from './envVars';
 import { type UUID, randomUUID } from 'crypto';
 import { deleteUser, loginAs, registerUser } from './utils/authHelpers';
 import { executeGql } from './utils/gqlHelpers';
+import { mkdtemp, rm } from 'fs/promises';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 export interface TempUser {
   id: UUID
@@ -18,10 +21,13 @@ export interface TempProject {
   name: string
 }
 
+type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id: UUID}}}}
+
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   tempUser: TempUser,
-  tempProject: TempProject
+  tempProject: TempProject,
+  tempDir: string,
 }
 
 function addUnexpectedResponseListener(context: BrowserContext): void {
@@ -83,7 +89,7 @@ export const test = base.extend<Fixtures>({
     }
     const response = await page.request.post(`${testEnv.serverBaseUrl}/api/login`, {data: loginData});
     expect(response.ok()).toBeTruthy();
-    const gqlResponse = await executeGql(page.request, `
+    const gqlResponse = await executeGql<CreateProjectResponse>(page.request, `
       mutation {
         createProject(input: {
           name: "${name}",
@@ -106,9 +112,15 @@ export const test = base.extend<Fixtures>({
         }
       }
 `);
-    const id = (gqlResponse as {data: {createProject: {createProjectResponse: {id: UUID}}}}).data.createProject.createProjectResponse.id;
+    const id = gqlResponse.data.createProject.createProjectResponse.id;
     await use({id, code, name});
     const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/project/${id}`);
     expect(deleteResponse.ok()).toBeTruthy();
+  },
+  // eslint-disable-next-line no-empty-pattern
+  tempDir: async ({}, use, testInfo) => {
+    const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${testInfo.testId}-`));
+    await use(dirname);
+    await rm(dirname, {recursive: true, force: true});
   }
 });
