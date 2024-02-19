@@ -167,7 +167,7 @@ public class ProjectMutations
         if (project is null) throw new NotFoundException("Project not found");
         var member = project.Users.FirstOrDefault(u => u.UserId == loggedInContext.User.Id);
         if (member is null) return project;
-        if (project.Users.Count == 1)
+        if (member.Role == ProjectRole.Manager && project.Users.Count(m => m.Role == ProjectRole.Manager) == 1)
         {
             throw new LastMemberCantLeaveException();
         }
