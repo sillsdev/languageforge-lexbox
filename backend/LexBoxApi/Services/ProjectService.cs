@@ -34,6 +34,24 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         return projectId;
     }
 
+    public async Task<Guid> CreateDraftProject(CreateProjectInput input)
+    {
+        // No need for a transaction if we're just saving a single item
+        var projectId = input.Id ?? Guid.NewGuid();
+        dbContext.DraftProjects.Add(
+            new DraftProject
+            {
+                Id = projectId,
+                Code = input.Code,
+                Name = input.Name,
+                Description = input.Description,
+                Type = input.Type,
+                RetentionPolicy = input.RetentionPolicy,
+            });
+        await dbContext.SaveChangesAsync();
+        return projectId;
+    }
+
     public async Task<bool> ProjectExists(string projectCode)
     {
         return await dbContext.Projects.AnyAsync(p => p.Code == projectCode);

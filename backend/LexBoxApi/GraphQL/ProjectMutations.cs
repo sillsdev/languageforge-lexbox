@@ -45,8 +45,9 @@ public class ProjectMutations
 
         if (!permissionService.HasProjectCreatePermission())
         {
+            var draftProjectId = await projectService.CreateDraftProject(input);
             await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
-            return new CreateProjectResponse(null, CreateProjectResult.Requested);
+            return new CreateProjectResponse(draftProjectId, CreateProjectResult.Requested);
         }
 
         var projectId = await projectService.CreateProject(input);
