@@ -8,6 +8,9 @@
   import {t as otherT} from 'svelte-intl-precompile';
   import t from '$lib/i18n';
   import {_gqlThrows500} from './+page';
+  import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
+  import {delay} from '$lib/util/time';
+  import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -40,6 +43,9 @@ function preFillForm(): void {
   async function gqlThrows500(): Promise<void> {
     await _gqlThrows500();
   }
+
+let modal: ConfirmModal;
+let deleteModal: DeleteModal;
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -155,6 +161,41 @@ function preFillForm(): void {
         <Button style="btn-primary" disabled loading on:click={() => alert('should not fire')}>
           Disabled Loading Button
         </Button>
+    </div>
+  </div>
+
+
+  <div class="card bg-base-200 shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title">Confirm Modal</h2>
+      <ConfirmModal bind:this={modal} title="Confirm?"
+                    submitText="Confirm"
+                    submitIcon="i-mdi-hand-wave"
+                    cancelText="Don't confirm">
+        Would you like to confirm this modal?
+      </ConfirmModal>
+      <Button style="btn-primary" on:click={async () => {
+        const result = await modal.open(async () => delay(2000));
+        if (result) alert('submitted')
+      }}>
+        Open Modal
+      </Button>
+    </div>
+  </div>
+
+  <div class="card bg-base-200 shadow-lg">
+    <div class="card-body">
+      <h2 class="card-title">Delete Modal</h2>
+      <DeleteModal bind:this={deleteModal}
+      entityName="Car">
+        Would you like to delete this car?
+      </DeleteModal>
+      <Button style="btn-primary" on:click={async () => {
+        const result = await deleteModal.prompt(async () => delay(2000));
+        if (result) alert('deleted')
+      }}>
+        Delete Car
+      </Button>
     </div>
   </div>
 </div>
