@@ -72,6 +72,7 @@ jobs:
     secrets: inherit
     with:
       runs-on: ${{ matrix.runs-on }}
+      hg-version: ${{ matrix.hg-version }}
       test-domain: staging.languagedepot.org
       hg-domain: hg-staging.languageforge.org
 
