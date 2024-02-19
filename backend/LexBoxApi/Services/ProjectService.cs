@@ -28,6 +28,8 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
                 RetentionPolicy = input.RetentionPolicy,
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
+        // Also delete draft project, if any
+        await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
