@@ -50,7 +50,7 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    name: Test ${{ inputs.runs-on }} on ${{ inputs.test-domain }}
+    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.test-domain }}
     permissions:
       checks: write
     environment:
@@ -101,7 +101,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
         with:
-          check_name: Integration Tests ${{ inputs.runs-on }}
+          check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()
