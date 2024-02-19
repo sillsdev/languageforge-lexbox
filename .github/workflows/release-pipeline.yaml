@@ -63,6 +63,9 @@ jobs:
         runs-on:
           - ubuntu-latest
           - windows-latest
+        hg-version:
+          - '3'
+          - '6'
     needs: deploy
     permissions:
       checks: write
