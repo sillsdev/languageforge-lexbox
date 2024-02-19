@@ -131,4 +131,21 @@ let disableDropdown = false;
       <div>Spanish: {$otherT('login.title', { locale: 'es'})} (only works if it's the current, otherwise uses fallback)</div>
     </div>
   </div>
+  <div class="card bg-base-200 shadow-lg">
+    <div class="card-body grid-cols-2 grid justify-items-start">
+      <h2 class="card-title col-span-2">Buttons</h2>
+        <Button style="btn-primary" on:click={() => alert('hello')}>Primary Button</Button>
+        <Button style="btn-primary" size="btn-sm" on:click={() => alert('hello')}>Primary Small Button</Button>
+        <Button style="btn-success" on:click={() => alert('hello')}>Success Button</Button>
+        <Button style="btn-error" on:click={() => alert('hello')}>Error Button</Button>
+        <Button style="btn-outline" on:click={() => alert('hello')}>Outline Button</Button>
+        <Button style="btn-ghost" on:click={() => alert('hello')}>Ghost Button</Button>
+        <Button style="btn-primary" loading={true} on:click={() => alert('should not fire')}>
+          Loading Primary Button
+        </Button>
+        <Button style="btn-primary" disabled on:click={() => alert('should not fire')}>
+          Disabled Primary Button
+        </Button>
+    </div>
+  </div>
 </div>
