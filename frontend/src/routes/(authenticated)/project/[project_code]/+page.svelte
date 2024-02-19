@@ -318,13 +318,13 @@
           {$t('project_page.project_code')}:
           <span class="text-secondary">{project.code}
             {#if copiedToClipboard}
-              <IconButton fake icon="i-mdi-check" style="btn-outline btn-success" />
+              <IconButton fake icon="i-mdi-check" style="btn-ghost btn-success" />
             {:else}
               <div class="contents">
                 <IconButton
                   loading={copyingToClipboard}
                   icon="i-mdi-content-copy"
-                  style="btn-outline"
+                  style="btn-ghost"
                   on:click={copyProjectCodeToClipboard}
                 />
               </div>
