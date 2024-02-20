@@ -131,7 +131,7 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
       "description_missing": "Description requise",
       "language_code": "Code de langue",
       "language_code_description": "De préférence, un [code Ethnologue](https://www.ethnologue.com)",
-      "language_code_too_short": "Le code de langue doit comporter au moins 3 caractères",
+      "language_code_too_short": "Le code de langue doit comporter au moins 2 caractères",
       "language_code_invalid": "Le code de langue ne peut contenir que des minuscules a-z, des chiffres et '-'",
       "name": "Nom",
       "name_description": "Par exemple, le nom de la langue sur laquelle vous travaillez",
