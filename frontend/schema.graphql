@@ -553,6 +553,7 @@ enum DbErrorCode {
 enum LexboxAudience {
   UNKNOWN
   LEXBOX_API
+  REGISTER_ACCOUNT
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
   SEND_AND_RECEIVE_REFRESH
@@ -578,6 +579,7 @@ enum ProjectType {
   WE_SAY
   ONE_STORY_EDITOR
   OUR_WORD
+  ADAPT_IT
 }
 
 enum ResetStatus {
