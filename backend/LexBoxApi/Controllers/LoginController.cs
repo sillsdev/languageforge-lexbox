@@ -60,21 +60,51 @@ public class LoginController(
 
     [HttpPost("signin-google")]
     [AllowAnonymous]
-    public async Task<ActionResult> GoogleResponse([FromForm] string credential)
+    public async Task<ActionResult> GoogleResponse([FromForm] string credential, string? returnTo)
     {
         var claimsIdentity = await googleTokenValidator.ValidateGoogleJwt(credential);
-        var email = claimsIdentity?.Claims?.Where(claim => claim.Type == ClaimTypes.Email).FirstOrDefault();
-        // var avatar = claimsPrincipal.FindFirstValue("picture");
-        // var name = claimsPrincipal.FindFirstValue("name");
+        var email = claimsIdentity?.FindFirst(claim => claim.Type == ClaimTypes.Email);
+        var avatar = claimsIdentity?.FindFirst(claim => claim.Type == "picture");
+        var name = claimsIdentity?.FindFirst(claim => claim.Type == "name");
+        var locale = claimsIdentity?.FindFirst(claim => claim.Type == "locale");
         ArgumentNullException.ThrowIfNull(email);
         // ArgumentNullException.ThrowIfNull(avatar);
-        // ArgumentNullException.ThrowIfNull(name);
-        var user = await userService.GetUserByEmail(email.Value);
+        ArgumentNullException.ThrowIfNull(name);
+        // foreach (var claim in claimsIdentity?.Claims ?? [])
+        // {
+        //     Console.WriteLine(claim);
+        // }
+        var userEntity = await userService.GetUserByEmail(email.Value);
+        if (userEntity is null)
+        {
+            var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
+            {
+                Id = Guid.NewGuid(),
+                Audience = LexboxAudience.RegisterAccount,
+                Name = name.Value,
+                Email = email.Value,
+                EmailVerificationRequired = null,
+                Role = UserRole.user,
+                UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                CanCreateProjects = null,
+                Locale = locale?.Value ?? LexCore.Entities.User.DefaultLocalizationCode,
+                Locked = null,
+            });
+            var queryParams = new Dictionary<string, string?>() {
+                {"email", email.Value},
+                {"name", name.Value}
+            };
+            var queryString = QueryString.Create(queryParams);
+            Console.WriteLine($"Redirecting to {queryString}...");
+            var redirect = new UriBuilder() { Path = "/register", Query = queryString.ToString() };
+            return Redirect(redirect.ToString());
+        }
         // TODO: Record Google OAuth ID in user record and use it for future lookups, falling back to email lookup
-        // TODO: Call SignInAsync and redirect, rather than simply console logging the success
-        if (user is not null) Console.WriteLine($"Success! Logged in as {email} which belongs to {user.Name}. Would redirect to home page.");
-        else Console.WriteLine($"Success! Logged in as {email} which does not belong to any known user. Would redirect to register page.");
-        return Ok(email.Value); // For now, just return the email address as JSON so we can see it in the browser
+        var user = new LexAuthUser(userEntity);
+        await HttpContext.SignInAsync(user.GetPrincipal("google"),
+            new AuthenticationProperties { IsPersistent = true });
+        returnTo ??= "/home";
+        return Redirect(returnTo);
     }
     private async Task<ActionResult> EmailLinkExpired()
     {
