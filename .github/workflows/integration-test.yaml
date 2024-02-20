@@ -63,13 +63,13 @@ jobs:
           dotnet-version: '8.x'
       - uses: MatteoH2O1999/setup-python@v3.0.0
         id: python
-        if: ${{ inputs.runs-on == 'ubuntu-latest' && !env.act }}
+        if: ${{ inputs.runs-on != 'windows-latest' && !env.act }}
         with:
           python-version: '2.7.18'
           cache-build: true
           allow-build: allow
       - name: Link python
-        if: ${{ inputs.runs-on == 'ubuntu-latest' }}
+        if: ${{ inputs.runs-on != 'windows-latest' }}
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
