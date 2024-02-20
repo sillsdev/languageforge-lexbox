@@ -136,6 +136,15 @@ public static class AuthKernel
                         return Task.CompletedTask;
                     }
                 };
+            }).AddGoogle(googleOptions =>
+            {
+                var googleConfig = configuration.GetSection("Authentication:Google").Get<GoogleOptions>();
+                // ArgumentNullException.ThrowIfNull(googleOptions); // Eventually we'll throw if google config not found
+                if (googleConfig is not null)
+                {
+                    googleOptions.ClientId = googleConfig.ClientId;
+                    googleOptions.ClientSecret = googleConfig.ClientSecret;
+                }
             });
         services.AddSingleton<JwtTicketDataFormat>();
         //configure cooke auth to use jwt as the ticket format, aka the cookie will be a jwt
