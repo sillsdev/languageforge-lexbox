@@ -14,6 +14,11 @@ on:
         description: 'The domain to use for hg'
         required: true
         type: string
+      hg-version:
+        description: 'The version of hg to test (3 or 6, default 3)'
+        required: false
+        default: '3'
+        type: string
       http-scheme:
         description: 'The scheme to use for http tests'
         type: string
@@ -32,6 +37,11 @@ on:
         description: 'The domain to use for hg'
         required: true
         type: string
+      hg-version:
+        description: 'The version of hg to test (3 or 6, default 3)'
+        required: false
+        default: '3'
+        type: string
       http-scheme:
         description: 'The scheme to use for http tests'
         type: string
@@ -40,7 +50,7 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    name: Test ${{ inputs.runs-on }} on ${{ inputs.test-domain }}
+    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.test-domain }}
     permissions:
       checks: write
     environment:
@@ -67,6 +77,10 @@ jobs:
       - name: Playwright setup
         working-directory: backend/Testing
         run: pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
+      - name: Build for tests
+        run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
+        env:
+          MERCURIAL_VERSION: ${{ inputs.hg-version }}
       - name: Integration tests
         env:
           TEST_SERVER_HOSTNAME: ${{ inputs.test-domain }}
@@ -87,7 +101,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
         with:
-          check_name: Integration Tests ${{ inputs.runs-on }}
+          check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()
