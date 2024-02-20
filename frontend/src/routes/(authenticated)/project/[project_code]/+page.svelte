@@ -39,6 +39,8 @@
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
   import {isDev} from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
+  import IconButton from '$lib/components/IconButton.svelte';
+  import { delay } from '$lib/util/time';
 
   export let data: PageData;
   $: user = data.user;
@@ -61,6 +63,18 @@
   const { notifySuccess, notifyWarning } = useNotifications();
 
   let userModal: UserModal;
+
+  var copyingToClipboard = false;
+  var copiedToClipboard = false;
+
+  async function copyProjectCodeToClipboard(): Promise<void> {
+    copyingToClipboard = true;
+    await navigator.clipboard.writeText(project.code);
+    copiedToClipboard = true;
+    copyingToClipboard = false;
+    await delay();
+    copiedToClipboard = false;
+  }
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
@@ -302,7 +316,23 @@
       <div class="space-y-2">
         <span class="text-lg">
           {$t('project_page.project_code')}:
-          <span class="text-secondary">{project.code}</span>
+          <span class="inline-flex items-center gap-1">
+            <span class="text-secondary">{project.code}</span>
+            {#if copiedToClipboard}
+              <div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
+                <IconButton fake icon="i-mdi-check" size="btn-sm" class="text-success" />
+              </div>
+            {:else}
+                <IconButton
+                loading={copyingToClipboard}
+                icon="i-mdi-content-copy"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={copyProjectCodeToClipboard}
+              />
+            {/if}
+          </span>
         </span>
         <div class="text-lg">
           {$t('project_page.last_commit')}:
