@@ -124,21 +124,22 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         var count = await hgService.GetLexEntryCount(projectCode);
         if (project.FlexProjectMetadata is null)
         {
-            try
-            {
-                project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
-            }
-            catch (DbException)
-            {
-                // Probable race condition with another process that already created the FlexProjectMetadata entry with the correct value
-                return count; // No need to save DB changes since we made none
-            }
+            project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
         }
         else
         {
             project.FlexProjectMetadata.LexEntryCount = count;
         }
-        await dbContext.SaveChangesAsync();
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (DbException e) when (e.SqlState == "23505")
+        {
+            // 23505 is "Duplicate key value violates unique constraint", i.e. another process
+            // already created the FlexProjectMetadata entry with the correct value.
+            // We'll silently ignore it since the other process has already succeeded
+        }
         return count;
     }
 
