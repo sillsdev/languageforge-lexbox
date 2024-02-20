@@ -121,14 +121,23 @@ class GqlClient {
 
     if (browser) {
       return derived(resultStore, (result) => {
-        this.throwAnyUnexpectedErrors(result);
+        // We can't throw errors in the urql pipeline, because they kill the Svelte application
+        // (Node dies no matter where we throw it, hence the `if (browser)`)
+        setTimeout(() => this.throwAnyUnexpectedErrors(result));
+
+        // Should we return a result if there's an error? Or should we call set() only if there's no error?
+        // I think, YES, we should return the result even if there's an error.
+        // Argument for "no": code that is expecting errors to be thrown is likely only capable of handling
+        // good results. So, if we give it an error result, we might just trigger more confusing errors.
+        // Argument for "yes": returning NO result is just as bad, beacuse we're essentially returning null,
+        // which calling code is arguably less prepared to handle than an error result.
         return result;
       });
     } else {
       /**
-       * We kill node if we validate each query result and throw in the urql pipeline, but we shouldn't ever need to, because:
+       * We can't validate and throw errors here, beacuse we'd kill node, but we shouldn't ever need to, because:
        * 1) Only the initial result of the query store will ever be fetched server-side
-       * 2) If we want to await the initial result server-side, then we should be using `awaitedQueryStore`, where we CAN safely validate the result and throw
+       * 2) If we want to await the initial result server-side, then we should be using `awaitedQueryStore`, where we CAN safely validate and throw
        * 3) If we don't await the initial result server-side then there should never be a result OR an error server-side
        */
       return resultStore;
@@ -189,10 +198,14 @@ class GqlClient {
   private throwAnyUnexpectedErrors<T extends OperationResult<unknown, AnyVariables>>(result: T): void {
     const error = result.error;
     if (!error) return;
-    // unexpected status codes are handled in the fetch hooks
-    // throws there (e.g. SvelteKit redirects) turn into networkErrors that we rethrow here
+    // Various status codes are handled in the fetch hooks (see hooks.shared.ts).
+    // throws there (e.g. SvelteKit redirects and 500's) turn into networkErrors that we rethrow here
     if (error.networkError) throw error.networkError;
-    throw error;
+    // These are errors from urql. urql doesn't throw errors, it just sticks them on the result.
+    // An error's stacktrace points to where it was instantiated (i.e. in urql),
+    // but it's far more interesting (particularly when debugging how errors affect our app) to know when and where errors are getting thrown, namely HERE.
+    // So, we new up our own error to get the more useful stacktrace.
+    throw new AggregateError(error.graphQLErrors, error.message ?? error.cause);
   }
 
   private findInputErrors<T extends GenericData>({data}: OperationResult<T, AnyVariables>): LexGqlError<ExtractErrorTypename<T>> | undefined {
