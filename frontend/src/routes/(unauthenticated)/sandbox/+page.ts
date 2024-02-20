@@ -6,7 +6,7 @@ import type {SandboxQueryMyselfQuery} from '$lib/gql/generated/graphql';
 import { browser } from '$app/environment';
 
 export async function load(event: PageLoadEvent) {
-  if (!browser && event.url.searchParams.has('gql-500')) {
+  if (!browser && event.url.searchParams.has('ssr-gql-500')) {
     await _gqlThrows500(event.fetch);
   }
 }
