@@ -4,6 +4,7 @@
   import { useError } from '.';
   import t from '$lib/i18n';
   import { derived } from 'svelte/store';
+  import { onDestroy } from 'svelte';
 
   let alertMessageElem: HTMLElement | undefined;
   let traceIdElem: HTMLElement;
@@ -27,10 +28,16 @@
     const subject = `Language Depot - Unexpected error`;
     return `?subject=${subject}&body=${body}`;
   });
-  $: if ($error) {
-    if (alertMessageElem) alertMessageElem.textContent = $error.message;
-    if (traceIdElem) traceIdElem.textContent = $error.traceId;
-  }
+
+  onDestroy(
+    // subscribe() is more durable than reactive syntax
+    error.subscribe((e) => {
+      if (e) {
+        if (alertMessageElem) alertMessageElem.textContent = e.message;
+        if (traceIdElem) traceIdElem.textContent = e.traceId;
+      }
+    })
+  );
 
   function onTraceIdClick(event: MouseEvent): void {
     if (event.ctrlKey) {
