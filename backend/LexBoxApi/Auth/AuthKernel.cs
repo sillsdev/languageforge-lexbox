@@ -145,6 +145,9 @@ public static class AuthKernel
                     googleOptions.ClientId = googleConfig.ClientId;
                     googleOptions.ClientSecret = googleConfig.ClientSecret;
                 }
+                googleOptions.AuthorizationEndpoint = "/api/login/signin-google";
+                // TODO: We may want other options, e.g.
+                // googleOptions.ClaimsIssuer = "google";
             });
         services.AddSingleton<JwtTicketDataFormat>();
         //configure cooke auth to use jwt as the ticket format, aka the cookie will be a jwt

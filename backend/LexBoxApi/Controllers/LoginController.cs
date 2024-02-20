@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using LexCore.Entities;
+using System.Security.Claims;
 
 namespace LexBoxApi.Controllers;
 
@@ -24,6 +25,7 @@ public class LoginController(
     LexAuthService lexAuthService,
     LexBoxDbContext lexBoxDbContext,
     LoggedInContext loggedInContext,
+    GoogleTokenValidator googleTokenValidator,
     EmailService emailService,
     UserService userService,
     TurnstileService turnstileService,
@@ -56,6 +58,24 @@ public class LoginController(
         return Redirect(returnTo);
     }
 
+    [HttpPost("signin-google")]
+    [AllowAnonymous]
+    public async Task<ActionResult> GoogleResponse([FromForm] string credential)
+    {
+        var claimsIdentity = await googleTokenValidator.ValidateGoogleJwt(credential);
+        var email = claimsIdentity?.Claims?.Where(claim => claim.Type == ClaimTypes.Email).FirstOrDefault();
+        // var avatar = claimsPrincipal.FindFirstValue("picture");
+        // var name = claimsPrincipal.FindFirstValue("name");
+        ArgumentNullException.ThrowIfNull(email);
+        // ArgumentNullException.ThrowIfNull(avatar);
+        // ArgumentNullException.ThrowIfNull(name);
+        var user = await userService.GetUserByEmail(email.Value);
+        // TODO: Record Google OAuth ID in user record and use it for future lookups, falling back to email lookup
+        // TODO: Call SignInAsync and redirect, rather than simply console logging the success
+        if (user is not null) Console.WriteLine($"Success! Logged in as {email} which belongs to {user.Name}. Would redirect to home page.");
+        else Console.WriteLine($"Success! Logged in as {email} which does not belong to any known user. Would redirect to register page.");
+        return Ok(email.Value); // For now, just return the email address as JSON so we can see it in the browser
+    }
     private async Task<ActionResult> EmailLinkExpired()
     {
         await HttpContext.SignOutAsync();
