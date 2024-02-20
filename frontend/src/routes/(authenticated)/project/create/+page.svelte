@@ -35,7 +35,7 @@
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
     languageCode: z
       .string()
-      .min(3, $t('project.create.language_code_too_short'))
+      .min(2, $t('project.create.language_code_too_short'))
       .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
     code: codeValidation,
     customCode: z.boolean().default(false),
