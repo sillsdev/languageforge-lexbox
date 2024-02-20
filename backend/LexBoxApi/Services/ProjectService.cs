@@ -1,3 +1,4 @@
+using System.Data.Common;
 using LexBoxApi.Models.Project;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -123,7 +124,15 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         var count = await hgService.GetLexEntryCount(projectCode);
         if (project.FlexProjectMetadata is null)
         {
-            project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
+            try
+            {
+                project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
+            }
+            catch (DbException)
+            {
+                // Probable race condition with another process that already created the FlexProjectMetadata entry with the correct value
+                return count; // No need to save DB changes since we made none
+            }
         }
         else
         {
