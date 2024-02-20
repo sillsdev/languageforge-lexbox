@@ -38,7 +38,6 @@ function preFillForm(): void {
   let disableDropdown = false;
 
   async function gqlThrows500(): Promise<void> {
-    //after calling this the application is dead, the only way to recover is a page reload
     await _gqlThrows500();
   }
 </script>
