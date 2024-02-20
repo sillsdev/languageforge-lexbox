@@ -31,15 +31,6 @@ export type DeepPathsToType<Base, Path extends string, Type> = OrIfNever<keyof O
  */
 export type DeepPathsToString<Shape extends object> = DeepPathsToType<Shape, DeepPaths<Shape>, string>;
 
-type StringList<Option extends string> = Option
-  | `${Option} ${Option}`;
-
-/**
- * Defines a string type that is a space-separated list of `CssClass's`
- */
-export type CssClassList<CssClass extends string, MutuallyEsclusiveCssClass extends string = string> =
-  IfNever<MutuallyEsclusiveCssClass, StringList<CssClass>, MutuallyEsclusiveCssClass | `${MutuallyEsclusiveCssClass} ${StringList<CssClass>}`>;
-
 export type StoreType<T extends Readable<unknown>> = T extends Readable<infer S> ? S : never;
 
 export type StandardEnum<T> = {
