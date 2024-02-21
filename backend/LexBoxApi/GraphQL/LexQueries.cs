@@ -29,11 +29,11 @@ public class LexQueries
     {
         if (withDeleted)
         {
-            return context.Projects.IgnoreQueryFilters();
+            return context.Projects.Include(p => p.FlexProjectMetadata).IgnoreQueryFilters();
         }
         else
         {
-            return context.Projects;
+            return context.Projects.Include(p => p.FlexProjectMetadata);
         }
     }
 
