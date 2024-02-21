@@ -1,8 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq.Expressions;
-using EntityFrameworkCore.Projectables;
-using LexCore.ServiceInterfaces;
-
 namespace LexCore.Entities;
 
 public class DraftProject : EntityBase
