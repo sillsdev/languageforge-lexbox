@@ -91,8 +91,8 @@ public class LoginController(
                 {"name", name.Value}
             };
             var queryString = QueryString.Create(queryParams);
-            var redirect = new UriBuilder() { Path = "/register", Query = queryString.ToString() };
-            return Redirect(redirect.ToString());
+            var redirect = "/register" + queryString.ToString();
+            return Redirect(redirect);
         }
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
