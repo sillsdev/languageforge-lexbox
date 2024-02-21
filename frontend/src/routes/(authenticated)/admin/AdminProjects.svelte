@@ -75,12 +75,15 @@
           </Badge>
         </div>
       </div>
-      <a href="/project/create" class="btn btn-sm btn-success max-xs:btn-square">
-        <span class="max-sm:hidden">
+      <!-- <a> totally breaks SSR 🙃 -->
+      <svelte:element this={browser ? 'a' : 'div'}
+          class="btn btn-sm btn-success max-xs:btn-square"
+          href="/project/create">
+        <span class="admin-tabs:hidden">
           {$t('project.create.title')}
         </span>
         <span class="i-mdi-plus text-2xl" />
-      </a>
+      </svelte:element>
     </div>
   </AdminTabs>
 
