@@ -49,6 +49,10 @@
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
   }
+
+  async function updateAllLexEntryCounts() {
+    await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
+  }
 </script>
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
@@ -113,4 +117,6 @@
       <RefineFilterMessage total={filteredProjects.length} showing={shownProjects.length} />
     {/if}
   {/if}
+
+  <p><span class="text-bold">TEMPORARY:</span> <button class="btn btn-warning" on:click={updateAllLexEntryCounts}> Update all lex entry counts </button>
 </div>
