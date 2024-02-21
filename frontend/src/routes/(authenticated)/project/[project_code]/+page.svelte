@@ -54,6 +54,7 @@
     return a.user.name.localeCompare(b.user.name);
   });
 
+  let lexEntryCount: number | string | null | undefined = undefined;
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
 
   const TRUNCATED_MEMBER_COUNT = 5;
@@ -74,6 +75,14 @@
     copyingToClipboard = false;
     await delay();
     copiedToClipboard = false;
+  }
+
+  let loadingEntryCount = false;
+  async function updateEntryCount(): Promise<void> {
+    loadingEntryCount = true;
+    const response = await fetch(`/api/project/updateLexEntryCount/${project.code}`, {method: 'POST'});
+    lexEntryCount = await response.text();
+    loadingEntryCount = false;
   }
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
@@ -344,6 +353,16 @@
           <span class="text-secondary">
             {$number(lexEntryCount)}
           </span>
+          <AdminContent>
+            <IconButton
+              loading={loadingEntryCount}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateEntryCount}
+            />
+          </AdminContent>
         </div>
         {/if}
         <div class="text-lg">{$t('project_page.description')}:</div>
