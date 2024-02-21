@@ -61,10 +61,11 @@ jobs:
       - name: Setup powershell
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
-          wget https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
+          wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
           sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
           sudo apt-get install -f
           rm powershell_7.4.1-1.deb_amd64.deb
+          sudo apt-get install -y zlib1g-dev libssl-dev #needed by setup python
           pwsh
       - uses: actions/setup-dotnet@v3
         env:
