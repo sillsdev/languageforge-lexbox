@@ -262,8 +262,8 @@ export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMu
   const result = await getClient()
   .mutation(
     graphql(`
-      mutation LeaveProject($projectId: UUID!) {
-        leaveProject(input: {projectId: $projectId}) {
+      mutation LeaveProject($input: LeaveProjectInput!) {
+        leaveProject(input: $input) {
           project {
             id
           }
@@ -273,7 +273,7 @@ export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMu
         }
       }
     `),
-    {projectId}
+    {input: { projectId } }
   );
 
   return result;

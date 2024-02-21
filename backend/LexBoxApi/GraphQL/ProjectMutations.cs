@@ -156,6 +156,7 @@ public class ProjectMutations
     [Error<NotFoundException>]
     [Error<LastMemberCantLeaveException>]
     [UseMutationConvention]
+    [RefreshJwt]
     public async Task<Project> LeaveProject(
         Guid projectId,
         LoggedInContext loggedInContext,

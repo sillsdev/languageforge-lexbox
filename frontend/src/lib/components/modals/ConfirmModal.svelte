@@ -2,7 +2,6 @@
   import {type IconString, Icon} from '$lib/icons';
   import Modal, {DialogResponse} from './Modal.svelte';
   import {Button, type ErrorMessage, FormError} from '$lib/forms';
-  import Loader from '$lib/components/Loader.svelte';
 
   export let title: string;
   export let submitText: string;
@@ -38,8 +37,7 @@
   <slot/>
   <FormError {error} right/>
   <svelte:fragment slot="actions" let:submitting>
-    <Button style={submitVariant} on:click={() => modal.submitModal()}>
-      <Loader loading={submitting}/>
+    <Button style={submitVariant} loading={submitting} on:click={() => modal.submitModal()}>
       {submitText}
       {#if submitIcon}
         <Icon icon={submitIcon}/>

@@ -207,10 +207,11 @@
     const left = await leaveModal.open(async () => {
       const result = await _leaveProject(project.id);
       if (result.error?.byType('LastMemberCantLeaveError')) {
-        return $t('project_page.last_to_leave');
+        return $t('project_page.leave.last_to_leave');
       }
     });
     if (left) {
+      notifySuccess($t('project_page.leave.leave_success', { projectName: project.name}))
       await goto(data.home);
     }
   }
@@ -434,15 +435,15 @@
 
       <MoreSettings>
         <Button style="btn-outline" on:click={leaveProject}>
-          Leave Project
+          {$t('project_page.leave.leave_project')}
           <Icon icon="i-mdi-exit-run"/>
         </Button>
         <ConfirmModal bind:this={leaveModal}
-                      title="Leave project?"
-                      submitText="Leave"
+                      title={$t('project_page.leave.confirm_title')}
+                      submitText={$t('project_page.leave.leave_action')}
                       submitIcon="i-mdi-exit-run"
-                      cancelText="Don't leave">
-          <p>Are you sure you want to leave this project?</p>
+                      cancelText={$t('project_page.leave.dont_leave')}>
+          <p>{$t('project_page.leave.confirm_leave')}</p>
         </ConfirmModal>
         {#if canManage}
           <button class="btn btn-error" on:click={softDeleteProject}>
