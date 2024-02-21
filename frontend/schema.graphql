@@ -85,6 +85,18 @@ type DeleteUserByAdminOrSelfPayload {
   errors: [DeleteUserByAdminOrSelfError!]
 }
 
+type DraftProject {
+  name: String!
+  description: String!
+  code: String!
+  type: ProjectType!
+  retentionPolicy: RetentionPolicy!
+  projectManagerId: UUID
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
 type FlexProjectMetadata {
   projectId: UUID!
   project: Project!
@@ -176,6 +188,7 @@ type ProjectUsers {
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
+  draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectByCode(code: String!): Project
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
@@ -318,6 +331,32 @@ input DateTimeOperationFilterInput {
 
 input DeleteUserByAdminOrSelfInput {
   userId: UUID!
+}
+
+input DraftProjectFilterInput {
+  and: [DraftProjectFilterInput!]
+  or: [DraftProjectFilterInput!]
+  name: StringOperationFilterInput
+  description: StringOperationFilterInput
+  code: StringOperationFilterInput
+  type: ProjectTypeOperationFilterInput
+  retentionPolicy: RetentionPolicyOperationFilterInput
+  projectManagerId: UuidOperationFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+}
+
+input DraftProjectSortInput {
+  name: SortEnumType
+  description: SortEnumType
+  code: SortEnumType
+  type: SortEnumType
+  retentionPolicy: SortEnumType
+  projectManagerId: SortEnumType
+  id: SortEnumType
+  createdDate: SortEnumType
+  updatedDate: SortEnumType
 }
 
 input FlexProjectMetadataFilterInput {

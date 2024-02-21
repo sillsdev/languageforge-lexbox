@@ -37,6 +37,15 @@ public class LexQueries
         }
     }
 
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    [AdminRequired]
+    public IQueryable<DraftProject> DraftProjects(LexBoxDbContext context)
+    {
+        return context.DraftProjects;
+    }
+
     [UseSingleOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> ProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)

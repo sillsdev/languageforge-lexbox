@@ -3,7 +3,7 @@
   import { Badge } from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
-  import { ProjectFilter, ProjectTable, type ProjectItem, filterProjects, type ProjectFilters } from '$lib/components/Projects';
+  import { ProjectFilter, ProjectTable, type ProjectItem, type ProjectItemWithDraftStatus, filterProjects, type ProjectFilters } from '$lib/components/Projects';
   import { RefineFilterMessage } from '$lib/components/Table';
   import { DialogResponse } from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
@@ -17,6 +17,7 @@
   import type { AdminSearchParams } from './+page';
 
   export let projects: ProjectItem[];
+  export let draftProjects: ProjectItem[];
   export let queryParams: QueryParams<AdminSearchParams>;
   $: filters = queryParams.queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
@@ -31,12 +32,14 @@
       (fromUrl.searchParams.get(key) ?? filterDefaults?.[key])?.toString() !== $filters?.[key]?.toString());
   });
 
-  let filteredProjects: ProjectItem[] = [];
+  let allProjects: ProjectItemWithDraftStatus[] = [];
+  let filteredProjects: ProjectItemWithDraftStatus[] = [];
   let limitResults = true;
   let hasActiveFilter = false;
   let lastLoadUsedActiveFilter = false;
   $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
-  $: filteredProjects = filterProjects(projects, $filters);
+  $: allProjects = [...projects.map(p => ({ ...p, isDraft: false })), ...draftProjects.map(p => ({ ...p, isDraft: true }))];
+  $: filteredProjects = filterProjects(allProjects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;

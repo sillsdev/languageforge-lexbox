@@ -23,6 +23,7 @@
 
   export let data: PageData;
   $: projects = data.projects;
+  $: draftProjects = data.draftProjects;
   $: userData = data.users;
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -94,7 +95,7 @@
 <PageBreadcrumb>{$t('admin_dashboard.title')}</PageBreadcrumb>
 <main>
   <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
-    <AdminProjects projects={$projects} {queryParams} />
+    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
 
     <div>
       <h2 class="text-2xl flex gap-4 items-end">

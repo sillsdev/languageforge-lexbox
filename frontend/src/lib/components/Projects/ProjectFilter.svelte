@@ -2,11 +2,13 @@
   import { type Project, ProjectMigrationStatus, type ProjectType } from '$lib/gql/types';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
+  export type ProjectItemWithDraftStatus = ProjectItem & { isDraft: boolean };
 
   export type ProjectFilters = {
     projectSearch: string;
     projectType: ProjectType | undefined;
     showDeletedProjects: boolean;
+    hideDraftProjects: boolean;
     migrationStatus: ProjectMigrationStatus | 'UNMIGRATED' | undefined;
     userEmail: string | undefined;
   };
@@ -26,9 +28,9 @@
   }
 
   export function filterProjects(
-    projects: ProjectItem[],
+    projects: ProjectItemWithDraftStatus[],
     projectFilters: Partial<ProjectFilters>,
-  ): ProjectItem[] {
+  ): ProjectItemWithDraftStatus[] {
     const searchLower = projectFilters.projectSearch?.toLocaleLowerCase();
     return projects.filter(
       (p) =>
@@ -36,6 +38,7 @@
           p.name.toLocaleLowerCase().includes(searchLower) ||
           p.code.toLocaleLowerCase().includes(searchLower)) &&
         (!projectFilters.projectType || p.type === projectFilters.projectType) &&
+        (!projectFilters.hideDraftProjects || !p.isDraft) &&
         (!p.migrationStatus || matchMigrationStatus(projectFilters.migrationStatus, p.migrationStatus)),
     );
   }

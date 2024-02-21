@@ -2,11 +2,11 @@
   import t, { date } from '$lib/i18n';
   import { getProjectTypeI18nKey, ProjectTypeIcon } from '$lib/components/ProjectType';
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
-  import type { ProjectItem } from '$lib/components/Projects';
+  import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import { ProjectMigrationStatus } from '$lib/gql/generated/graphql';
   import type { IconString } from '$lib/icons';
 
-  export let projects: ProjectItem[];
+  export let projects: ProjectItemWithDraftStatus[];
 
   const allColumns = ['name', 'code', 'users', 'lastChange', 'migrated', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
@@ -27,6 +27,10 @@
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
+  }
+
+  function projectNameClass(project: ProjectItemWithDraftStatus): string {
+    return project.isDraft ? 'italic' : '';
   }
 </script>
 
@@ -65,12 +69,12 @@
           {#if isColumnVisible('name')}
             <td>
               {#if project.deletedDate}
-                <span class="flex gap-2 text-error items-center">
+                <span class="flex gap-2 text-error items-center {projectNameClass(project)}">
                   {project.name}
                   <TrashIcon pale />
                 </span>
               {:else}
-                <a class="link" href={`/project/${project.code}`}>
+                <a class="link {projectNameClass(project)}" href={`/project/${project.code}`}>
                   {project.name}
                 </a>
               {/if}

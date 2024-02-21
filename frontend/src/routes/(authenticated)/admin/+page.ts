@@ -58,6 +58,12 @@ export async function load(event: PageLoadEvent) {
               deletedDate
               userCount
             }
+            draftProjects {
+              code
+              id
+              name
+              type
+            }
         }
     `), { withDeletedProjects, filter: projectFilter });
 
