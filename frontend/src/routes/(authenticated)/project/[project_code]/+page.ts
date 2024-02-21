@@ -11,7 +11,6 @@ import type {
   DeleteProjectUserMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
-import { ProjectType } from '$lib/gql/generated/graphql';
 import { derived } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
@@ -19,7 +18,6 @@ import type { PageLoadEvent } from './$types';
 import { error } from '@sveltejs/kit';
 import { isAdmin } from '$lib/user';
 import { tryMakeNonNullable } from '$lib/util/store';
-import { browser } from '$app/environment';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
@@ -99,24 +97,8 @@ export async function load(event: PageLoadEvent) {
 
   event.depends(`project:${projectCode}`);
 
-  const lexEntryCount = derived(nonNullableProject, p => {
-    if (p.type === ProjectType.FlEx) {
-      if (Number.isInteger(p.flexProjectMetadata?.lexEntryCount)) {
-        return p.flexProjectMetadata?.lexEntryCount;
-      } else {
-        return !browser ? undefined : event.fetch(`/api/project/updateLexEntryCount/${p.code}`, {method: 'POST'})
-        .then(x => x.text())
-        .then(s => parseInt(s))
-        .catch(() => undefined);
-      }
-    } else {
-      return undefined;
-    }
-  });
-
   return {
     project: nonNullableProject,
-    lexEntryCount,
     changesets: derived(changesetResultStore, result => ({
       fetching: result.fetching,
       changesets: result.data?.projectByCode?.changesets ?? [],

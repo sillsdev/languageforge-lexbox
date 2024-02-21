@@ -39,6 +39,7 @@
   import SendReceiveUrlField from './SendReceiveUrlField.svelte';
   import {isDev} from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
+  import { derived, type Readable } from 'svelte/store';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
 
@@ -54,7 +55,7 @@
     return a.user.name.localeCompare(b.user.name);
   });
 
-  $: lexEntryCount = data.lexEntryCount;
+  let lexEntryCount: Readable<number | Promise<number>> | undefined;
 
   const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = false;
@@ -178,6 +179,22 @@
     if (migrationStatus === ProjectMigrationStatus.Migrating) {
       void watchMigrationStatus();
     }
+
+    lexEntryCount = derived(projectStore, p => {
+      if (p.type === ProjectType.FlEx) {
+        if (p.flexProjectMetadata?.lexEntryCount != null) {
+          return p.flexProjectMetadata?.lexEntryCount;
+        } else {
+          return fetch(`/api/project/updateLexEntryCount/${p.code}`, {method: 'POST'})
+          .then(x => x.text())
+          .then(s => parseInt(s))
+          .catch(() => 0);
+        }
+      } else {
+        return 0;
+      }
+    });
+
   });
 
   async function watchMigrationStatus(): Promise<void> {
@@ -341,6 +358,7 @@
         {#if project.type === ProjectType.FlEx}
         <div class="text-lg">
           {$t('project_page.num_entries')}:
+          {#if lexEntryCount}
           <span class="text-secondary">
             {#if ($lexEntryCount instanceof Promise)}
             {#await $lexEntryCount then num_entries}
@@ -350,6 +368,7 @@
               {$number($lexEntryCount)}
             {/if}
           </span>
+          {/if}
         </div>
         {/if}
         <div class="text-lg">{$t('project_page.description')}:</div>
