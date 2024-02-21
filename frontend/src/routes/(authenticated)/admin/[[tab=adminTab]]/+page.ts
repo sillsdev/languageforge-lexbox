@@ -100,6 +100,8 @@ export async function load(event: PageLoadEvent) {
   return {
     ...projectResults,
     ...userResults,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- false positive
+    tab: event.params.tab ?? 'projects',
   }
 }
 

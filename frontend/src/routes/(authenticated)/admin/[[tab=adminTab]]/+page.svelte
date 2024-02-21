@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigating, page } from '$app/stores';
+  import { navigating } from '$app/stores';
   import { Badge } from '$lib/components/Badges';
   import t, { number } from '$lib/i18n';
   import type { PageData } from './$types';
@@ -20,7 +20,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
-  import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
+  import AdminTabs from './AdminTabs.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -87,8 +87,6 @@
       }
     }
   }
-
-  const USER_TAB_HASH: `#${AdminTabId}` = '#users';
 </script>
 
 <svelte:head>
@@ -97,11 +95,11 @@
 <PageBreadcrumb>{$t('admin_dashboard.title')}</PageBreadcrumb>
 <main>
   <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
-    <div class="contents" class:admin-tabs:hidden={$page.url.hash === USER_TAB_HASH}>
+    <div class="contents" class:admin-tabs:hidden={data.tab === 'users'}>
       <AdminProjects projects={$projects} {queryParams} />
     </div>
 
-    <div class:admin-tabs:hidden={$page.url.hash !== USER_TAB_HASH}>
+    <div class:admin-tabs:hidden={data.tab !== 'users'}>
       <AdminTabs activeTab="users">
         {$t('admin_dashboard.user_table_title')}
         <Badge>

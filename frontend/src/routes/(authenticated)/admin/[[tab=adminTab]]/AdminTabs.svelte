@@ -1,12 +1,12 @@
 <script lang="ts" context="module">
   import type { I18nKey } from '$lib/i18n';
 
-  const tabs = ['projects', 'users'] as const;
-  export type AdminTabId = (typeof tabs)[number];
-  const DEFAULT_TAB_I18N = {
+  export const adminTabs = ['projects', 'users'] as const;
+  export type AdminTabId = (typeof adminTabs)[number];
+  const DEFAULT_TAB_I18N: Record<AdminTabId, I18nKey> = {
     projects: 'admin_dashboard.project_table_title',
     users: 'admin_dashboard.user_table_title',
-  } as const satisfies Record<AdminTabId, I18nKey>;
+  };
 </script>
 
 <script lang="ts">
@@ -17,9 +17,9 @@
 
 <div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg">
   <div class="tab tab-divider" />
-  {#each tabs as tab}
+  {#each adminTabs as tab}
     {@const isActiveTab = activeTab === tab}
-    <a href={`#${tab}`} role="tab" class:tab-active={isActiveTab} class="tab grow">
+    <a href={`/admin/${tab}`} data-sveltekit-noscroll data-sveltekit-preload-data="off" role="tab" class:tab-active={isActiveTab} class="tab grow">
       <h2 class="text-lg flex gap-4 items-center">
         {#if isActiveTab}
           <slot>
@@ -40,7 +40,7 @@
   </slot>
 </h2>
 
-<style>
+<style lang="postcss">
   .tab {
     /* https://daisyui.com/docs/themes/#-5 */
     --tab-border: 0.1rem;
