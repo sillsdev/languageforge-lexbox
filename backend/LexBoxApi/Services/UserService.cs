@@ -1,6 +1,4 @@
 ﻿using LexBoxApi.Auth;
-using LexCore.Auth;
-using LexCore.Entities;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,11 +21,5 @@ public class UserService(LexBoxDbContext dbContext, EmailService emailService, L
         return (await dbContext.Users.Where(u => u.Id == id)
             .Select(u => u.UpdatedDate)
             .SingleOrDefaultAsync()).ToUnixTimeSeconds();
-    }
-
-    public async Task<User?> GetUserByEmail(string email)
-    {
-        return await dbContext.Users.Where(u => u.Email == email).SingleOrDefaultAsync();
-        // TODO: Add && u.EmailVerified to the above?
     }
 }

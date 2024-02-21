@@ -64,18 +64,14 @@ public class LoginController(
     {
         var claimsIdentity = await googleTokenValidator.ValidateGoogleJwt(credential);
         var email = claimsIdentity?.FindFirst(claim => claim.Type == ClaimTypes.Email);
-        var avatar = claimsIdentity?.FindFirst(claim => claim.Type == "picture");
+        // If we implement avatars in the future:
+        // var avatar = claimsIdentity?.FindFirst(claim => claim.Type == "picture");
         var name = claimsIdentity?.FindFirst(claim => claim.Type == "name");
         var locale = claimsIdentity?.FindFirst(claim => claim.Type == "locale");
         ArgumentNullException.ThrowIfNull(email);
-        // ArgumentNullException.ThrowIfNull(avatar);
         ArgumentNullException.ThrowIfNull(name);
-        // foreach (var claim in claimsIdentity?.Claims ?? [])
-        // {
-        //     Console.WriteLine(claim);
-        // }
-        var userEntity = await userService.GetUserByEmail(email.Value);
-        if (userEntity is null)
+        var (authUser, userEntity) = await lexAuthService.GetUser(email.Value);
+        if (authUser is null)
         {
             var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
             {
@@ -95,13 +91,10 @@ public class LoginController(
                 {"name", name.Value}
             };
             var queryString = QueryString.Create(queryParams);
-            Console.WriteLine($"Redirecting to {queryString}...");
             var redirect = new UriBuilder() { Path = "/register", Query = queryString.ToString() };
             return Redirect(redirect.ToString());
         }
-        // TODO: Record Google OAuth ID in user record and use it for future lookups, falling back to email lookup
-        var user = new LexAuthUser(userEntity);
-        await HttpContext.SignInAsync(user.GetPrincipal("google"),
+        await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
         returnTo ??= "/home";
         return Redirect(returnTo);
