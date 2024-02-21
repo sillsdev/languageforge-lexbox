@@ -2,7 +2,7 @@
   import type { I18nKey } from '$lib/i18n';
 
   const tabs = ['projects', 'users'] as const;
-  export type AdminTabId = typeof tabs[number];
+  export type AdminTabId = (typeof tabs)[number];
   const DEFAULT_TAB_I18N = {
     projects: 'admin_dashboard.project_table_title',
     users: 'admin_dashboard.user_table_title',
@@ -16,10 +16,11 @@
 </script>
 
 <div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg">
+  <div class="tab tab-divider" />
   {#each tabs as tab}
     {@const isActiveTab = activeTab === tab}
     <a href={`#${tab}`} role="tab" class:tab-active={isActiveTab} class="tab grow">
-      <h2 class="text-lg flex gap-4">
+      <h2 class="text-lg flex gap-4 items-center">
         {#if isActiveTab}
           <slot>
             {$t(DEFAULT_TAB_I18N[tab])}
@@ -29,6 +30,7 @@
         {/if}
       </h2>
     </a>
+    <div class="tab tab-divider" />
   {/each}
 </div>
 
@@ -37,3 +39,29 @@
     {$t(DEFAULT_TAB_I18N[activeTab])}
   </slot>
 </h2>
+
+<style>
+  .tab {
+    /* https://daisyui.com/docs/themes/#-5 */
+    --tab-border: 0.1rem;
+    /* using a tab radius leads to tiny rendering issues at random screen sizes */
+    --tab-radius: 0;
+
+    /* https://daisyui.com/components/tab/#tabs-with-custom-color */
+    --tab-border-color: oklch(var(--bc));
+
+    &:not(.tab-active):not(.tab-divider) {
+      border: var(--tab-border) solid var(--tab-border-color);
+
+      &:hover {
+        @apply bg-base-200;
+      }
+    }
+
+    /* .tab-divider needs .tab so it can access the tab css-variables */
+    &.tab-divider {
+      @apply px-2;
+      border-bottom: var(--tab-border) solid var(--tab-border-color);
+    }
+  }
+</style>

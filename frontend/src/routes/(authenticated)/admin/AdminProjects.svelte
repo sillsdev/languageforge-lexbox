@@ -17,6 +17,7 @@
   import type { AdminSearchParams } from './+page';
   import DevContent from '$lib/layout/DevContent.svelte';
   import AdminTabs from './AdminTabs.svelte';
+  import { browser } from '$app/environment';
 
   export let projects: ProjectItem[];
   export let queryParams: QueryParams<AdminSearchParams>;
@@ -63,7 +64,7 @@
 <div>
   <AdminTabs activeTab="projects">
     <div class="flex gap-4 justify-between grow">
-      <div class="flex gap-4">
+      <div class="flex gap-4 items-center">
         {$t('admin_dashboard.project_table_title')}
         <div class="contents max-xs:hidden">
           <Badge>
