@@ -56,11 +56,6 @@ spec:
           - containerPort: 3000
 
         env:
-          - name: PUBLIC_GOOGLE_OAUTH_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                key: GOOGLE_OAUTH_CLIENT_ID
-                name: google
           - name: PUBLIC_TURNSTILE_SITE_KEY
             valueFrom:
               secretKeyRef:

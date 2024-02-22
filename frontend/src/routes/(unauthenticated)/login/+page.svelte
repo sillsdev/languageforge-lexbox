@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { env } from '$env/dynamic/public';
   import { goto } from '$app/navigation';
   import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
   import t from '$lib/i18n';
@@ -14,8 +13,8 @@
   import { z } from 'zod';
   import { navigating } from '$app/stores';
   import { AUTHENTICATED_ROOT } from '../..';
+  import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
 
-  const googleClientId = env.PUBLIC_GOOGLE_OAUTH_CLIENT_ID;
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
     password: z.string().min(1, $t('login.password_missing')),
@@ -62,25 +61,7 @@
       <div class="card-body sm-only:p-0">
         <PageTitle title={$t('login.title')} />
 
-        <!-- Google signin code looks for these two div IDs in your page -->
-        <!-- NOTE: Valid values for data-context also include "use" or "signup" -->
-        <div id="g_id_onload"
-          data-client_id={googleClientId}
-          data-context="signin"
-          data-ux_mode="popup"
-          data-login_uri="/api/login/signin-google"
-          data-auto_prompt="false">  <!-- If true, this will pop up a login suggestion in upper right corner of page -->
-        </div>
-
-        <div class="g_id_signin"
-          data-type="standard"
-          data-shape="rectangular"
-          data-theme="filled_blue"
-          data-text="signin_with"
-          data-size="large"
-          data-logo_alignment="left">
-        </div>
-
+        <SigninWithGoogleButton href="/api/login/google" />
 
         <Form {enhance}>
           <Input
