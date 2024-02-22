@@ -1,5 +1,6 @@
 <script lang="ts">
   export let href: string;
+  import t from '$lib/i18n';
 </script>
 
 <div class="google-signin-top-level" style="position: relative;">
@@ -23,9 +24,9 @@
 </div>
 </div>
 <span class="visible-label">
-  Sign in with Google</span>
+  $t('login.sign_in_with_google')</span>
 <span class="hidden-label" id="button-label">
-  Sign in with Google</span>
+  $t('login.sign_in_with_google')</span>
 </div>
 </div>
 </a>

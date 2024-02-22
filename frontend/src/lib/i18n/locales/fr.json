@@ -111,6 +111,7 @@
     "label_email": "E-mail (ou Connexion/Recevoir)",
     "label_password": "Mot de passe",
     "missing_user_info": "Informations utilisateur manquantes",
+    "sign_in_with_google": "Connectez-vous avec Google",
     "title": "Se connecter",
     "password_missing": "Mot de passe manquant",
     "link_expired": "L'e-mail sur lequel vous avez cliqué a expiré. Veuillez en demander un nouveau.",
