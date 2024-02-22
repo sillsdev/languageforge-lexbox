@@ -2,7 +2,7 @@
   import { randomFormId } from './utils';
   import PlainInput from './PlainInput.svelte';
   import FormField from './FormField.svelte';
-  import Icon from '$lib/icons/Icon.svelte';
+  import IconButton from '$lib/components/IconButton.svelte';
 
   export let id = randomFormId();
   export let label: string;
@@ -18,15 +18,20 @@
   export let autocomplete: 'new-password' | 'current-password' | undefined = undefined;
 
   let currentType = type;
-  if (type == 'password') console.log('Password field displaying');
+
+  function togglePasswordVisibility(): void {
+    if (type == 'password') {
+      currentType = (currentType == 'password') ? 'text' : 'password';
+    }
+  }
 
 </script>
 
 <FormField {id} {error} {label} {autofocus} {description}>
   {#if (type == 'password')}
   <div class="container">
-    <PlainInput {id} bind:value type={currentType} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
-    <span class="eye"><Icon icon="i-mdi-eye" size="text-md"></Icon></span>
+    <PlainInput {id} bind:value type={currentType} {autofocus} {readonly} {error} {placeholder} {autocomplete} style="w-full" />
+    <span class="eye"><IconButton variant="btn-ghost" icon={currentType == 'password' ? 'i-mdi-eye' : 'i-mdi-eye-off'} on:click={togglePasswordVisibility} /></span>
   </div>
   {:else}
     <PlainInput {id} bind:value {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
