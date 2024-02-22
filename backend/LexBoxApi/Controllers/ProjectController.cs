@@ -159,6 +159,7 @@ public class ProjectController(
         lexBoxDbContext.Projects.Remove(project);
         var hgService = HttpContext.RequestServices.GetRequiredService<IHgService>();
         await hgService.DeleteRepo(project.Code);
+        project.UpdateUpdatedDate();
         await lexBoxDbContext.SaveChangesAsync();
         return project;
     }
