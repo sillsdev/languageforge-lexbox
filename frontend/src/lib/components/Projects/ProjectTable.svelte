@@ -5,6 +5,7 @@
   import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import { ProjectMigrationStatus } from '$lib/gql/generated/graphql';
   import type { IconString } from '$lib/icons';
+  import Icon from '$lib/icons/Icon.svelte';
 
   export let projects: ProjectItemWithDraftStatus[];
 
@@ -27,10 +28,6 @@
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
-  }
-
-  function projectNameClass(project: ProjectItemWithDraftStatus): string {
-    return project.isDraft ? 'italic' : '';
   }
 </script>
 
@@ -69,12 +66,23 @@
           {#if isColumnVisible('name')}
             <td>
               {#if project.deletedDate}
-                <span class="flex gap-2 text-error items-center {projectNameClass(project)}">
+                <span class="flex gap-2 text-error items-center">
                   {project.name}
                   <TrashIcon pale />
                 </span>
+              {:else if !project.isDraft}
+                <span class="flex gap-2 items-center">
+                  <a class="link" href={`/project/${project.code}`}>
+                    {project.name}
+                  </a>
+                  <span
+                    class="tooltip text-warning text-xl shrink-0 leading-0"
+                    data-tip={$t('admin_dashboard.is_draft')}>
+                    <Icon icon="i-mdi-script" />
+                  </span>
+                </span>
               {:else}
-                <a class="link {projectNameClass(project)}" href={`/project/${project.code}`}>
+                <a class="link" href={`/project/${project.code}`}>
                   {project.name}
                 </a>
               {/if}
