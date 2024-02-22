@@ -183,7 +183,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
         if (await hgService.MigrateRepo(project, stoppingToken))
         {
             project.MigrationStatus = ProjectMigrationStatus.Migrated;
-            var migratedAt = DateTimeOffset.UtcNow
+            var migratedAt = DateTimeOffset.UtcNow;
             project.MigratedDate = migratedAt;
             project.UpdatedDate = migratedAt;
             await dbContext.SaveChangesAsync(stoppingToken);
