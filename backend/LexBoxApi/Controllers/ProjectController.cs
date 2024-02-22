@@ -224,14 +224,16 @@ public class ProjectController(
 
     [HttpPost("updateAllLexEntryCounts")]
     [AdminRequired]
-    public async Task<ActionResult> UpdateAllLexEntryCounts(bool onlyUnknown)
+    public async Task<ActionResult<int>> UpdateAllLexEntryCounts(bool onlyUnknown = true, int limit = 100)
     {
-        var projects = lexBoxDbContext.Projects.Where(p => p.Type == ProjectType.FLEx && (!onlyUnknown || p.FlexProjectMetadata == null)).ToArray();
+        var projects = lexBoxDbContext.Projects.Where(p => p.Type == ProjectType.FLEx && (!onlyUnknown || p.FlexProjectMetadata == null)).Take(limit).ToArray();
+        var completed = 0;
         foreach (var project in projects)
         {
             await projectService.UpdateLexEntryCount(project.Code);
+            completed++;
         }
-        return Ok();
+        return Ok(completed);
     }
 
     [HttpPost("queueUpdateProjectMetadataTask")]

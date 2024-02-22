@@ -22,7 +22,7 @@
   $: filters = queryParams.queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
 
-  const { notifyWarning } = useNotifications();
+  const { notifyWarning, notifySuccess } = useNotifications();
 
   const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 
@@ -52,7 +52,8 @@
   }
 
   async function updateAllLexEntryCounts() {
-    await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
+    var count = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
+    notifySuccess(`{count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
   }
 </script>
 
