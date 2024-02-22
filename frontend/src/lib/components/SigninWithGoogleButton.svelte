@@ -5,11 +5,11 @@
   <div class="google-signin-top-level" style="position: relative;">
   <div>
   <div tabindex="0" role="button" aria-labelledby="button-label" class="google-signin-button bg-google-blue text-white-no-border">
-  <div class="google-signin-button-hover-target">
+  <div class="hover-target">
 </div>
-<div class="google-signin-button-flex-container ">
-  <div class="google-signin-button-logo-with-bg">
-  <div class="google-signin-button-logo-alone">
+<div class="flex-container">
+  <div class="logo-with-bg">
+  <div class="logo-alone">
   <!-- Official Google logo, do not modify -->
   <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
   <g>
@@ -22,7 +22,7 @@
   </svg>
 </div>
 </div>
-<span class="google-signin-button-label">
+<span class="visible-label">
   Sign in with Google</span>
 <span class="hidden-label" id="button-label">
   Sign in with Google</span>
@@ -39,7 +39,7 @@
     padding: 0;
   }
 
-  .google-signin-button .google-signin-button-logo-with-bg .google-signin-button-logo-alone {
+  .google-signin-button .logo-with-bg .logo-alone {
     margin: 0;
     padding: 0;
   }
@@ -53,12 +53,12 @@
     color: #fff;
   }
 
-  .google-signin-button.text-white-no-border:hover .google-signin-button-hover-target,
-  .google-signin-button.text-white-no-border:focus .google-signin-button-hover-target {
+  .google-signin-button.text-white-no-border:hover .hover-target,
+  .google-signin-button.text-white-no-border:focus .hover-target {
     background: rgba(255,255,255,.24);
   }
 
-  .google-signin-button.text-white-no-border:active .google-signin-button-hover-target {
+  .google-signin-button.text-white-no-border:active .hover-target {
     background: rgba(255,255,255,.32);
   }
 
@@ -68,11 +68,11 @@
     border-color: #d2e3fc;
     outline: none;
   }
-  .google-signin-button:hover .google-signin-button-hover-target,
-  .google-signin-button:focus .google-signin-button-hover-target {
+  .google-signin-button:hover .hover-target,
+  .google-signin-button:focus .hover-target {
     background: rgba(66,133,244,.04);
   }
-  .google-signin-button:active .google-signin-button-hover-target {
+  .google-signin-button:active .hover-target {
     background: rgba(66,133,244,.1);
   }
 
@@ -108,7 +108,7 @@
     }
   }
 
-  .google-signin-button .google-signin-button-hover-target {
+  .google-signin-button .hover-target {
     transition: background-color .218s;
     position: absolute;
     top: 0;
@@ -117,7 +117,7 @@
     right: 0;
   }
 
-  .google-signin-button .google-signin-button-flex-container {
+  .google-signin-button .flex-container {
     display: -webkit-box;
     display: -moz-box;
     display: -ms-flexbox;
@@ -132,7 +132,7 @@
     width: 100%;
   }
 
-  .google-signin-button .google-signin-button-logo-with-bg {
+  .google-signin-button .logo-with-bg {
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
     display: -webkit-box;
@@ -150,14 +150,14 @@
     width: 36px;
   }
 
-  .google-signin-button .google-signin-button-logo-alone {
+  .google-signin-button .logo-alone {
     height: 18px;
     margin-right: 8px;
     min-width: 18px;
     width: 18px;
   }
 
-  .google-signin-button .google-signin-button-label {
+  .google-signin-button .visible-label {
     flex-grow: 1;
     font-family: "Google Sans",arial,sans-serif;
     font-weight: 500;
