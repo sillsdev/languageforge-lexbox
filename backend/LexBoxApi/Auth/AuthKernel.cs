@@ -145,14 +145,12 @@ public static class AuthKernel
                     googleOptions.ClientId = googleConfig.ClientId;
                     googleOptions.ClientSecret = googleConfig.ClientSecret;
                 }
-                googleOptions.ClaimsIssuer = "google";
                 googleOptions.CallbackPath = "/api/login/signin-google";
                 googleOptions.Events.OnTicketReceived = async context =>
                 {
                     context.HandleResponse();
-                    var loginController = context.HttpContext.RequestServices.GetRequiredService<Controllers.LoginController>();
-                    loginController.ControllerContext.HttpContext = context.HttpContext;
-                    var redirectTo = await loginController.CompleteGoogleLogin(context.Properties);
+                    var lexAuthService = context.HttpContext.RequestServices.GetRequiredService<LexAuthService>();
+                    var redirectTo = await Controllers.LoginController.CompleteGoogleLogin(context.Principal, context.Properties.RedirectUri, context.HttpContext, lexAuthService);
                     context.HttpContext.Response.Redirect(redirectTo);
                 };
             });
