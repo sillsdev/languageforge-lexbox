@@ -12,7 +12,7 @@ namespace LexData.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "DraftProject",
+                name: "DraftProjects",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -27,12 +27,12 @@ namespace LexData.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DraftProject", x => x.Id);
+                    table.PrimaryKey("PK_DraftProjects", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_DraftProject_Code",
-                table: "DraftProject",
+                name: "IX_DraftProjects_Code",
+                table: "DraftProjects",
                 column: "Code",
                 unique: true);
         }
@@ -41,7 +41,7 @@ namespace LexData.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "DraftProject");
+                name: "DraftProjects");
         }
     }
 }

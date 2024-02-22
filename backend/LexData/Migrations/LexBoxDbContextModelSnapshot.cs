@@ -508,7 +508,7 @@ namespace LexData.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("DraftProject");
+                    b.ToTable("DraftProject", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
@@ -521,7 +521,7 @@ namespace LexData.Migrations
 
                     b.HasKey("ProjectId");
 
-                    b.ToTable("FlexProjectMetadata");
+                    b.ToTable("FlexProjectMetadata", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>
@@ -589,7 +589,7 @@ namespace LexData.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.ProjectUsers", b =>
@@ -624,7 +624,7 @@ namespace LexData.Migrations
                     b.HasIndex("UserId", "ProjectId")
                         .IsUnique();
 
-                    b.ToTable("ProjectUsers");
+                    b.ToTable("ProjectUsers", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.User", b =>
@@ -690,7 +690,7 @@ namespace LexData.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzBlobTrigger", b =>

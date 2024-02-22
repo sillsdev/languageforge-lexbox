@@ -511,7 +511,7 @@ namespace LexData.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("DraftProject");
+                    b.ToTable("DraftProjects");
                 });
 
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
