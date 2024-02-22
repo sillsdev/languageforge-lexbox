@@ -15,6 +15,7 @@
   import type { QueryParams } from '$lib/util/query-params';
   import { derived } from 'svelte/store';
   import type { AdminSearchParams } from './+page';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   export let projects: ProjectItem[];
   export let queryParams: QueryParams<AdminSearchParams>;
@@ -118,5 +119,7 @@
     {/if}
   {/if}
 
+<DevContent>
   <p><span class="text-bold">TEMPORARY:</span> <button class="btn btn-warning" on:click={updateAllLexEntryCounts}> Update all lex entry counts </button>
+</DevContent>
 </div>
