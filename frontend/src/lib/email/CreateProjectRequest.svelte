@@ -40,4 +40,5 @@
     </mj-table>
 <!--    todo should have a url here-->
     <mj-button href={createUrl}>{$t('project.create.submit')}</mj-button>
+    <mj-text>{$t('emails.link_expiration_warning')}</mj-text>
 </Email>

@@ -10,4 +10,5 @@
 <Email subject={$t('emails.create_account_request_email.subject', {projectName})} name="">
   <mj-text>{$t('emails.create_account_request_email.body', {managerName, projectName})}</mj-text>
   <mj-button href={verifyUrl}>{$t('emails.create_account_request_email.join_button')}</mj-button>
+  <mj-text>{$t('emails.link_expiration_warning')}</mj-text>
 </Email>
