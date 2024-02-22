@@ -145,6 +145,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
     "table": {
       "name": "Nombre",
       "code": "Código",
+      "created_at": "Creado",
       "last_change": "Último Cambio",
       "migrated": "Migrado",
       "type": "Tipo",
@@ -213,6 +214,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
     "project_code": "Código del Proyecto",
     "summary": "Resumen",
     "description": "Descripción",
+    "created_at": "Creado",
     "last_commit": "Último Commit",
     "members": {
       "title": "Miembros",

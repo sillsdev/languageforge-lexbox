@@ -8,7 +8,7 @@
 
   export let projects: ProjectItem[];
 
-  const allColumns = ['name', 'code', 'users', 'lastChange', 'migrated', 'type', 'actions'] as const;
+  const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'migrated', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
   export let columns: Readonly<ProjectTableColumn[]> = allColumns;
 
@@ -42,6 +42,11 @@
         {/if}
         {#if isColumnVisible('users')}
           <th>{$t('project.table.users')}</th>
+        {/if}
+        {#if isColumnVisible('createdAt')}
+          <th>
+            {$t('project.table.created_at')}
+          </th>
         {/if}
         {#if isColumnVisible('lastChange')}
           <th>
@@ -81,6 +86,9 @@
           {/if}
           {#if isColumnVisible('users')}
             <td>{project.userCount}</td>
+          {/if}
+          {#if isColumnVisible('createdAt')}
+            <td>{$date(project.createdDate)}</td>
           {/if}
           {#if isColumnVisible('lastChange')}
             <td>
