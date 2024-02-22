@@ -145,8 +145,16 @@ public static class AuthKernel
                     googleOptions.ClientId = googleConfig.ClientId;
                     googleOptions.ClientSecret = googleConfig.ClientSecret;
                 }
-                googleOptions.AuthorizationEndpoint = "/api/login/signin-google";
                 googleOptions.ClaimsIssuer = "google";
+                googleOptions.CallbackPath = "/api/login/signin-google";
+                googleOptions.Events.OnTicketReceived = async context =>
+                {
+                    context.HandleResponse();
+                    var loginController = context.HttpContext.RequestServices.GetRequiredService<Controllers.LoginController>();
+                    loginController.ControllerContext.HttpContext = context.HttpContext;
+                    var redirectTo = await loginController.CompleteGoogleLogin(context.Properties);
+                    context.HttpContext.Response.Redirect(redirectTo);
+                };
             });
         services.AddSingleton<JwtTicketDataFormat>();
         //configure cooke auth to use jwt as the ticket format, aka the cookie will be a jwt

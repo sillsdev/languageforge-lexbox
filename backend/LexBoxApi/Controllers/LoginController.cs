@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using LexCore.Entities;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace LexBoxApi.Controllers;
 
@@ -58,47 +59,52 @@ public class LoginController(
         return Redirect(returnTo);
     }
 
-    [HttpPost("signin-google")]
+    [HttpGet("google")]
     [AllowAnonymous]
-    public async Task<ActionResult> GoogleResponse([FromForm] string credential, string? returnTo)
+    public IActionResult GoogleLogin(string? redirectTo = null)
     {
-        var claimsIdentity = await googleTokenValidator.ValidateGoogleJwt(credential);
-        var email = claimsIdentity?.FindFirst(claim => claim.Type == ClaimTypes.Email);
-        // If we implement avatars in the future:
-        // var avatar = claimsIdentity?.FindFirst(claim => claim.Type == "picture");
-        var name = claimsIdentity?.FindFirst(claim => claim.Type == "name");
-        var locale = claimsIdentity?.FindFirst(claim => claim.Type == "locale");
-        ArgumentNullException.ThrowIfNull(email);
-        ArgumentNullException.ThrowIfNull(name);
-        var (authUser, userEntity) = await lexAuthService.GetUser(email.Value);
+        if (string.IsNullOrEmpty(redirectTo)) redirectTo = "/home";
+        var authProps = new AuthenticationProperties { RedirectUri = redirectTo };
+        // If we want, we could look for expired-but-otherwise-valid JWT cookies and extract the user's email address, then:
+        // authProps.SetParameter("login_hint", email);
+        return Challenge(authProps, GoogleDefaults.AuthenticationScheme);
+    }
+
+    public async Task<string> CompleteGoogleLogin(AuthenticationProperties authProperties)
+    {
+        var returnTo = authProperties.RedirectUri ?? "/home";
+        var googleEmail = User.FindFirstValue(ClaimTypes.Email);
+        var googleName = User.FindFirstValue(ClaimTypes.Name);
+        var locale = User.FindFirstValue("locale");
+        var (authUser, _) = await lexAuthService.GetUser(googleEmail);
         if (authUser is null)
         {
-            var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
+            authUser = new LexAuthUser()
             {
                 Id = Guid.NewGuid(),
                 Audience = LexboxAudience.RegisterAccount,
-                Name = name.Value,
-                Email = email.Value,
+                Name = googleName ?? "",
+                Email = googleEmail,
                 EmailVerificationRequired = null,
                 Role = UserRole.user,
                 UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
                 CanCreateProjects = null,
-                Locale = locale?.Value ?? LexCore.Entities.User.DefaultLocalizationCode,
+                Locale = locale ?? LexCore.Entities.User.DefaultLocalizationCode,
                 Locked = null,
-            });
+            };
             var queryParams = new Dictionary<string, string?>() {
-                {"email", email.Value},
-                {"name", name.Value}
+                {"email", googleEmail},
+                {"name", googleName},
+                {"returnTo", returnTo},
             };
             var queryString = QueryString.Create(queryParams);
-            var redirect = "/register" + queryString.ToString();
-            return Redirect(redirect);
+            returnTo = "/register" + queryString.ToString();
         }
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
-        returnTo ??= "/home";
-        return Redirect(returnTo);
+        return returnTo;
     }
+
     private async Task<ActionResult> EmailLinkExpired()
     {
         await HttpContext.SignOutAsync();
