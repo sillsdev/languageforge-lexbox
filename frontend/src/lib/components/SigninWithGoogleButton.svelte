@@ -1,7 +1,9 @@
-<script>
+<script lang="ts">
+  export let href: string;
 </script>
 
 <div class="google-signin-top-level" style="position: relative;">
+<a data-sveltekit-preload-data="false" {href}>
 <div tabindex="0" role="button" aria-labelledby="button-label" class="google-signin-button bg-google-blue text-white-no-border">
 <div class="hover-target">
 </div>
@@ -26,6 +28,7 @@
   Sign in with Google</span>
 </div>
 </div>
+</a>
 </div>
 
 <style>
