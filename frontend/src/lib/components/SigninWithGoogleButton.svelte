@@ -1,9 +1,7 @@
 <script>
 </script>
 
-<div class="g_id_signin s-JDfLTrt3Oc2b" data-type="standard" data-shape="rectangular" data-theme="filled_blue" data-text="signin_with" data-size="large" data-logo_alignment="left" data-svelte-h="svelte-1b6glw7">
   <div class="google-signin-top-level" style="position: relative;">
-  <div>
   <div tabindex="0" role="button" aria-labelledby="button-label" class="google-signin-button bg-google-blue text-white-no-border">
   <div class="hover-target">
 </div>
@@ -26,8 +24,6 @@
   Sign in with Google</span>
 <span class="hidden-label" id="button-label">
   Sign in with Google</span>
-</div>
-</div>
 </div>
 </div>
 </div>
