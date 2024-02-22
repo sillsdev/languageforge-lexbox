@@ -2,15 +2,14 @@
 </script>
 
 <div class="g_id_signin s-JDfLTrt3Oc2b" data-type="standard" data-shape="rectangular" data-theme="filled_blue" data-text="signin_with" data-size="large" data-logo_alignment="left" data-svelte-h="svelte-1b6glw7">
-  <div class="S9gUrf-YoZ4jf" style="position: relative;">
+  <div class="google-signin-top-level" style="position: relative;">
   <div>
-  <div tabindex="0" role="button" aria-labelledby="button-label" class="nsm7Bb-HzV7m-LgbsSe  hJDwNd-SxQuSe MFS4be-v3pZbf-Ia7Qfc MFS4be-Ia7Qfc uaxL4e-RbRzK">
-  <div class="nsm7Bb-HzV7m-LgbsSe-MJoBVe">
-
+  <div tabindex="0" role="button" aria-labelledby="button-label" class="google-signin-button  hJDwNd-SxQuSe bg-google-blue text-white-no-border uaxL4e-RbRzK">
+  <div class="google-signin-button-hover-target">
 </div>
-<div class="nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb ">
-  <div class="nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf">
-  <div class="nsm7Bb-HzV7m-LgbsSe-Bz112c">
+<div class="google-signin-button-flex-container ">
+  <div class="google-signin-button-logo-with-bg">
+  <div class="google-signin-button-logo-alone">
   <!-- Official Google logo, do not modify -->
   <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
   <g>
@@ -23,9 +22,9 @@
   </svg>
 </div>
 </div>
-<span class="nsm7Bb-HzV7m-LgbsSe-BPrWId">
+<span class="google-signin-button-label">
   Sign in with Google</span>
-<span class="L6cTce" id="button-label">
+<span class="hidden-label" id="button-label">
   Sign in with Google</span>
 </div>
 </div>
@@ -34,50 +33,50 @@
 </div>
 
 <style>
-  .S9gUrf-YoZ4jf, .S9gUrf-YoZ4jf * {
+  .google-signin-top-level, .google-signin-top-level * {
     border: none;
     margin: 0;
     padding: 0;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c {
+  .google-signin-button .google-signin-button-logo-with-bg .google-signin-button-logo-alone {
     margin: 0;
     padding: 0;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe.MFS4be-v3pZbf-Ia7Qfc {
+  .google-signin-button.bg-google-blue {
     background-color: #1a73e8;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc {
+  .google-signin-button.text-white-no-border {
     border: none;
     color: #fff;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe,
-  .nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe {
+  .google-signin-button.text-white-no-border:hover .google-signin-button-hover-target,
+  .google-signin-button.text-white-no-border:focus .google-signin-button-hover-target {
     background: rgba(255,255,255,.24);
   }
 
-  .nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe {
+  .google-signin-button.text-white-no-border:active .google-signin-button-hover-target {
     background: rgba(255,255,255,.32);
   }
 
-  .nsm7Bb-HzV7m-LgbsSe:hover,
-  .nsm7Bb-HzV7m-LgbsSe:focus {
+  .google-signin-button:hover,
+  .google-signin-button:focus {
     box-shadow: none;
     border-color: #d2e3fc;
     outline: none;
   }
-  .nsm7Bb-HzV7m-LgbsSe:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe,
-  .nsm7Bb-HzV7m-LgbsSe:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe {
+  .google-signin-button:hover .google-signin-button-hover-target,
+  .google-signin-button:focus .google-signin-button-hover-target {
     background: rgba(66,133,244,.04);
   }
-  .nsm7Bb-HzV7m-LgbsSe:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe {
+  .google-signin-button:active .google-signin-button-hover-target {
     background: rgba(66,133,244,.1);
   }
 
-  .nsm7Bb-HzV7m-LgbsSe {
+  .google-signin-button {
     border-radius: 4px;
     box-sizing: border-box;
     transition: background-color .218s,border-color .218s;
@@ -103,13 +102,13 @@
   }
 
   @media screen and (-ms-high-contrast:active) {
-    .nsm7Bb-HzV7m-LgbsSe {
+    .google-signin-button {
       border: 2px solid windowText;
       color: windowText;
     }
   }
 
-  .nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-MJoBVe {
+  .google-signin-button .google-signin-button-hover-target {
     transition: background-color .218s;
     position: absolute;
     top: 0;
@@ -118,7 +117,7 @@
     right: 0;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb {
+  .google-signin-button .google-signin-button-flex-container {
     display: -webkit-box;
     display: -moz-box;
     display: -ms-flexbox;
@@ -133,7 +132,7 @@
     width: 100%;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf {
+  .google-signin-button .google-signin-button-logo-with-bg {
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
     display: -webkit-box;
@@ -151,14 +150,14 @@
     width: 36px;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c {
+  .google-signin-button .google-signin-button-logo-alone {
     height: 18px;
     margin-right: 8px;
     min-width: 18px;
     width: 18px;
   }
 
-  .nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-BPrWId {
+  .google-signin-button .google-signin-button-label {
     flex-grow: 1;
     font-family: "Google Sans",arial,sans-serif;
     font-weight: 500;
@@ -167,7 +166,7 @@
     vertical-align: top;
   }
 
-  .L6cTce {
+  .hidden-label {
     display: none;
   }
 </style>
