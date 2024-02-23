@@ -73,10 +73,20 @@ public class LoginController(
     public async Task<string> CompleteGoogleLogin(ClaimsPrincipal? principal, string? returnTo)
     {
         returnTo ??= "/home";
+        var googleId = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        var foundGoogleId = false;
         var googleEmail = principal?.FindFirstValue(ClaimTypes.Email);
         var googleName = principal?.FindFirstValue(ClaimTypes.Name);
         var locale = principal?.FindFirstValue("locale");
-        var (authUser, _) = await lexAuthService.GetUser(googleEmail);
+        var (authUser, userEntity) = await lexAuthService.GetUserByGoogleId(googleId);
+        if (authUser is not null)
+        {
+            foundGoogleId = true;
+        }
+        else
+        {
+            (authUser, userEntity) = await lexAuthService.GetUser(googleEmail);
+        }
         if (authUser is null)
         {
             authUser = new LexAuthUser()
@@ -99,6 +109,11 @@ public class LoginController(
             };
             var queryString = QueryString.Create(queryParams);
             returnTo = "/register" + queryString.ToString();
+        }
+        if (userEntity is not null && !foundGoogleId)
+        {
+            userEntity.GoogleId = googleId;
+            await lexBoxDbContext.SaveChangesAsync();
         }
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });

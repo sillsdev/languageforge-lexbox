@@ -116,6 +116,15 @@ public class LexAuthService
         return (user == null ? null : new LexAuthUser(user), user);
     }
 
+    public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUserByGoogleId(string? googleId)
+    {
+        var user = await _lexBoxDbContext.Users
+            .Where(u => u.GoogleId == googleId)
+            .Include(u => u.Projects).ThenInclude(p => p.Project)
+            .FirstOrDefaultAsync();
+        return (user == null ? null : new LexAuthUser(user), user);
+    }
+
     public (string token, DateTime expiresAt) GenerateJwt(LexAuthUser user,
         LexboxAudience audience = LexboxAudience.LexboxApi,
         bool useEmailLifetime = false)
