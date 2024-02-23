@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
+using LexBoxApi.Controllers;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -135,6 +136,24 @@ public static class AuthKernel
 
                         return Task.CompletedTask;
                     }
+                };
+            }).AddGoogle(googleOptions =>
+            {
+                var googleConfig = configuration.GetSection("Authentication:Google").Get<GoogleOptions>();
+                // ArgumentNullException.ThrowIfNull(googleOptions); // Eventually we'll throw if google config not found
+                if (googleConfig is not null)
+                {
+                    googleOptions.ClientId = googleConfig.ClientId;
+                    googleOptions.ClientSecret = googleConfig.ClientSecret;
+                }
+                googleOptions.CallbackPath = "/api/login/signin-google";
+                googleOptions.Events.OnTicketReceived = async context =>
+                {
+                    context.HandleResponse();
+                    var loginController = context.HttpContext.RequestServices.GetRequiredService<LoginController>();
+                    loginController.ControllerContext.HttpContext = context.HttpContext;
+                    var redirectTo = await loginController.CompleteGoogleLogin(context.Principal, context.Properties.RedirectUri);
+                    context.HttpContext.Response.Redirect(redirectTo);
                 };
             });
         services.AddSingleton<JwtTicketDataFormat>();

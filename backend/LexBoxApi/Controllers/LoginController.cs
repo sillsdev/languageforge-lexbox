@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using LexCore.Entities;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace LexBoxApi.Controllers;
 
@@ -54,6 +56,67 @@ public class LoginController(
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
         return Redirect(returnTo);
+    }
+
+    [HttpGet("google")]
+    [AllowAnonymous]
+    public IActionResult GoogleLogin(string? redirectTo = null)
+    {
+        if (string.IsNullOrEmpty(redirectTo)) redirectTo = "/home";
+        var authProps = new AuthenticationProperties { RedirectUri = redirectTo };
+        // If we want, we could look for expired-but-otherwise-valid JWT cookies and extract the user's email address, then:
+        // authProps.SetParameter("login_hint", email);
+        return Challenge(authProps, GoogleDefaults.AuthenticationScheme);
+    }
+
+    public async Task<string> CompleteGoogleLogin(ClaimsPrincipal? principal, string? returnTo)
+    {
+        returnTo ??= "/home";
+        var googleId = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        var foundGoogleId = false;
+        var googleEmail = principal?.FindFirstValue(ClaimTypes.Email);
+        var googleName = principal?.FindFirstValue(ClaimTypes.Name);
+        var locale = principal?.FindFirstValue("locale");
+        var (authUser, userEntity) = await lexAuthService.GetUserByGoogleId(googleId);
+        if (authUser is not null)
+        {
+            foundGoogleId = true;
+        }
+        else
+        {
+            (authUser, userEntity) = await lexAuthService.GetUser(googleEmail);
+        }
+        if (authUser is null)
+        {
+            authUser = new LexAuthUser()
+            {
+                Id = Guid.NewGuid(),
+                Audience = LexboxAudience.RegisterAccount,
+                Name = googleName ?? "",
+                Email = googleEmail,
+                EmailVerificationRequired = null,
+                Role = UserRole.user,
+                UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                CanCreateProjects = null,
+                Locale = locale ?? LexCore.Entities.User.DefaultLocalizationCode,
+                Locked = null,
+            };
+            var queryParams = new Dictionary<string, string?>() {
+                {"email", googleEmail},
+                {"name", googleName},
+                {"returnTo", returnTo},
+            };
+            var queryString = QueryString.Create(queryParams);
+            returnTo = "/register" + queryString.ToString();
+        }
+        if (userEntity is not null && !foundGoogleId)
+        {
+            userEntity.GoogleId = googleId;
+            await lexBoxDbContext.SaveChangesAsync();
+        }
+        await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
+            new AuthenticationProperties { IsPersistent = true });
+        return returnTo;
     }
 
     private async Task<ActionResult> EmailLinkExpired()

@@ -13,6 +13,7 @@
   import { z } from 'zod';
   import { navigating } from '$app/stores';
   import { AUTHENTICATED_ROOT } from '../..';
+  import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
 
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
@@ -50,11 +51,17 @@
   let badCredentials = false;
 </script>
 
+<svelte:head>
+  <script src="https://accounts.google.com/gsi/client" async></script>
+</svelte:head>
+
 <div class="hero flex-grow">
   <div class="grid lg:grid-cols-2 gap-8 place-items-center">
     <div class="card w-full max-w-md sm:shadow-2xl sm:bg-base-200">
       <div class="card-body sm-only:p-0">
         <PageTitle title={$t('login.title')} />
+
+        <SigninWithGoogleButton href="/api/login/google" />
 
         <Form {enhance}>
           <Input

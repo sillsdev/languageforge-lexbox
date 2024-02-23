@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,13 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
 
 public static class UserEntityExtensions
 {
+    public static Expression<Func<User, bool>> FilterByEmail(string email)
+    {
+        return user => user.Email == email || user.Username == email;
+    }
     public static IQueryable<User> FilterByEmail(this IQueryable<User> users, string email)
     {
-        return users.Where(user => user.Email == email || user.Username == email);
+        return users.Where(FilterByEmail(email));
     }
 
     public static async Task<User?> FindByEmail(this IQueryable<User> users, string email)

@@ -111,6 +111,7 @@
     "label_email": "Correo Electrónico (o Inicio/Sesión de Envío/Recibo)",
     "label_password": "Contraseña",
     "missing_user_info": "Falta información del usuario",
+    "sign_in_with_google": "Inicia sesión con Google",
     "title": "Iniciar sesión",
     "password_missing": "Falta la contraseña",
     "link_expired": "El correo electrónico en el que hiciste clic ha caducado. Por favor, solicita uno nuevo.",

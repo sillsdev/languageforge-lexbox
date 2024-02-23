@@ -148,6 +148,16 @@ spec:
               secretKeyRef:
                 key: SMTP_PASSWORD
                 name: email
+          - name: Authentication__Google__ClientId
+            valueFrom:
+              secretKeyRef:
+                key: GOOGLE_OAUTH_CLIENT_ID
+                name: google
+          - name: Authentication__Google__ClientSecret
+            valueFrom:
+              secretKeyRef:
+                key: GOOGLE_OAUTH_CLIENT_SECRET
+                name: google
           - name: Email__BaseUrl
             value: http://localhost
           - name: Tus__TestUploadPath

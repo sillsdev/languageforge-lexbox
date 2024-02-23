@@ -34,6 +34,8 @@ public class User : EntityBase
     /// </summary>
     public string? Username { get; set; }
 
+    public string? GoogleId { get; set; }
+
     public List<ProjectUsers> Projects { get; set; } = new();
 
     public bool CanLogin()

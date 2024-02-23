@@ -18,6 +18,11 @@ secretGenerator:
     behavior: create
     envs:
       - local.env
+  - name: google
+    namespace: languagedepot
+    behavior: create
+    envs:
+      - local.env
   - name: deploy-key
     namespace: deploy-key
     literals:

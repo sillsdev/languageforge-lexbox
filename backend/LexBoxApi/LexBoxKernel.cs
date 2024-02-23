@@ -26,6 +26,10 @@ public static class LexBoxKernel
             .BindConfiguration("CloudFlare")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<GoogleOptions>()
+            .BindConfiguration("Authentication:Google")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddOptions<EmailConfig>()
             .BindConfiguration("Email")
             .ValidateDataAnnotations()

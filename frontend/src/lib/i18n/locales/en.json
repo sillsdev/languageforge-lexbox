@@ -122,6 +122,7 @@
     "label_email": "Email (or Send/Receive login)",
     "label_password": "Password",
     "missing_user_info": "User info missing",
+    "sign_in_with_google": "Sign in with Google",
     "title": "Log in",
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",

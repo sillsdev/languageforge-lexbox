@@ -9,6 +9,7 @@
   import { z } from 'zod';
 
   type RegisterPageQueryParams = {
+    name: string;
     email: string;
   };
   let turnstileToken = '';
@@ -42,6 +43,7 @@
   onMount(() => { // query params not available during SSR
     const urlValues = getSearchParamValues<RegisterPageQueryParams>();
     form.update((form) => {
+      if (urlValues.name) form.name = urlValues.name;
       if (urlValues.email) form.email = urlValues.email;
       return form;
     }, { taint: true });
