@@ -5,7 +5,7 @@ import type { SuperValidated, ZodValidation } from 'sveltekit-superforms';
 import { superValidateSync } from 'sveltekit-superforms/client';
 import type { AnyZodObject, z } from 'zod';
 import type { ErrorMessage } from './types';
-import { randomFormId, type LexboxFieldValidator, concatAll } from '.';
+import { randomFormId } from '.';
 
 export type LexFormState<S extends ZodValidation<AnyZodObject>> = Required<{ [field in (keyof z.infer<S>)]: {
   tainted: boolean; // has ever been touched/edited
@@ -24,15 +24,12 @@ type LexSuperForm<S extends ZodValidation<AnyZodObject>> =
 type LexOnSubmit<S extends ZodValidation<AnyZodObject>> =
   (...args: Parameters<NonNullable<FormOptions<S, string>['onResult']>>) => Promise<ErrorMessage>;
 
-type PerSchemaProps<S extends ZodValidation<AnyZodObject>, T> = { [Property in keyof z.infer<S>]: T }
-
 //we've got to wrap this in our own version because we're not using the server side component, which this expects
 export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
   schema: S,
   onSubmit: LexOnSubmit<S>,
-  options: Omit<FormOptions<S, string>, 'validators'> & { externalValidators?: Partial<PerSchemaProps<S, LexboxFieldValidator>> } = {},
-): Omit<LexSuperForm<S>,  'allErrors'> & { allErrors: typeof allErrors } {
-  const externalValidators = Object.entries(options.externalValidators ?? {});
+  options: Omit<FormOptions<S, string>, 'validators'> = {},
+): LexSuperForm<S> {
   const form = superValidateSync(schema, { id: options.id ?? randomFormId() });
   const sf: SuperForm<S, string> = superForm<S>(form, {
     validators: schema as any, // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
@@ -40,15 +37,6 @@ export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
     SPA: true, // eslint-disable-line @typescript-eslint/naming-convention
     invalidateAll: false,
     ...options,
-    onSubmit: async (event) => {
-      if (options.externalValidators) {
-        const results = await Promise.all(externalValidators
-          .map(([_field, validator]) => validator!.valid()));
-        if (results.includes(false)) {
-          event.cancel();
-        }
-      }
-    },
     onResult: async (event) => {
       await options.onResult?.(event);
       const result = event.result as ActionResult<{ form: SuperValidated<S> }>;
@@ -64,15 +52,8 @@ export function lexSuperForm<S extends ZodValidation<AnyZodObject>>(
     },
   });
 
-  const allErrors = derived([sf.errors, ...externalValidators.map(([_field, validator]) => validator!.error)], ([$errors]) => {
-    return {
-      ...$errors,
-      ...Object.fromEntries(externalValidators.map(([field, validator]) => [field, concatAll($errors[field], get(validator!.error))])),
-    };
-  });
-
   const formState = getFormState(sf);
-  return { formState, ...sf, allErrors };
+  return { formState, ...sf };
 }
 
 function formHasMessageOrErrors<S extends ZodValidation<AnyZodObject>>(form: SuperForm<S, string>): boolean {

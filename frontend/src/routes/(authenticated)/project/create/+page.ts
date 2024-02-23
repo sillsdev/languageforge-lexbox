@@ -60,7 +60,7 @@ export async function _createProject(input: CreateProjectInput): $OpResult<Creat
 }
 
 export async function _projectCodeAvailable(code: string): Promise<boolean> {
-  const result = await fetch(`/api/project/projectCodeAvailable/${encodeURIComponent(code)}`);
+  const result = await fetch(`/api/project/projectCodeAvailable/${code}`);
   if (!result.ok) throw new Error('Failed to check project code availability');
   return await result.json() as boolean;
 }
