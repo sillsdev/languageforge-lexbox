@@ -26,7 +26,6 @@ public class LoginController(
     LexAuthService lexAuthService,
     LexBoxDbContext lexBoxDbContext,
     LoggedInContext loggedInContext,
-    GoogleTokenValidator googleTokenValidator,
     EmailService emailService,
     UserService userService,
     TurnstileService turnstileService,
