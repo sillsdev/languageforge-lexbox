@@ -51,7 +51,7 @@
     }
   }
 
-  async function updateAllLexEntryCounts() {
+  async function updateAllLexEntryCounts(): Promise<void> {
     var count = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
     notifySuccess(`{count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
   }
