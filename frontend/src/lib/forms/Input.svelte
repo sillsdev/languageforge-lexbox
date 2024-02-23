@@ -30,11 +30,11 @@
 <FormField {id} {error} {label} {autofocus} {description}>
   {#if (type == 'password')}
     <div class="container">
-      <PlainInput {id} bind:value type={currentType} {autofocus} {readonly} {error} {placeholder} {autocomplete} style="w-full" />
+      <PlainInput {id} bind:value on:input type={currentType} {autofocus} {readonly} {error} {placeholder} {autocomplete} style="w-full" />
       <span class="eye"><IconButton variant="btn-ghost" icon={currentType == 'password' ? 'i-mdi-eye' : 'i-mdi-eye-off'} on:click={togglePasswordVisibility} /></span>
     </div>
   {:else}
-    <PlainInput {id} bind:value {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
+    <PlainInput {id} bind:value on:input {type} {autofocus} {readonly} {error} {placeholder} {autocomplete} />
   {/if}
 </FormField>
 

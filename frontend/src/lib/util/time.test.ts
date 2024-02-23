@@ -1,0 +1,89 @@
+import { delay, makeAsyncDebouncer } from './time';
+import { describe, expect, it } from 'vitest';
+
+const debounceTime = 100;
+const promiseTime = 50;
+
+describe('AsyncDebouncer', () => {
+  it('handles standard synchronous debouncing', async () => {
+    let reachedPromise = false;
+    let done = false;
+    const debouncer = makeAsyncDebouncer(
+      // the promise resolves immediately, so we're only testing the debounce that happens before awaiting the promise
+      (value: number) => {
+        reachedPromise = true;
+        return new Promise(resolve => resolve(value));
+      },
+      () => (done = true),
+      debounceTime);
+
+    void debouncer.debounce(1);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    await delay(debounceTime * 0.75);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    void debouncer.debounce(2); // restart the debounce
+    await delay(debounceTime * 0.75);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    void debouncer.debounce(3); // restart the debounce
+    await delay(debounceTime * 0.75);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    await delay(debounceTime * 0.25);
+    expect(reachedPromise).toBe(true);
+    expect(done).toBe(true);
+  });
+
+  it('handles asynchronous debouncing', async () => {
+    let reachedPromise = false;
+    let done = false;
+    const debouncer = makeAsyncDebouncer(
+      // the promise resolves after a delay, so it can get debounced before it hits the promise or before the promise has been resolved
+      (value: number) => {
+        reachedPromise = true;
+        return new Promise(resolve => {
+          setTimeout(() => resolve(value), promiseTime);
+        });
+      },
+      () => (done = true),
+      debounceTime);
+
+    void debouncer.debounce(1);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    await delay(debounceTime * 0.75);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    void debouncer.debounce(2); // restart the debounce
+    await delay(debounceTime * 0.75);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    void debouncer.debounce(3); // restart the debounce
+    await delay(debounceTime * 0.75);
+    expect(reachedPromise).toBe(false);
+    expect(done).toBe(false);
+
+    await delay(debounceTime * 0.25);
+    expect(reachedPromise).toBe(true); // we hit the promise
+    expect(done).toBe(false); // but it will only complete if it doesn't get debounced before the promise resolves
+
+    await delay(promiseTime * 0.5);
+    expect(done).toBe(false);
+
+    void debouncer.debounce(3); // restart the debounce
+    await delay(promiseTime * 0.5);
+    expect(done).toBe(false);
+
+    await delay(debounceTime + promiseTime);
+    expect(done).toBe(true);
+  });
+});
