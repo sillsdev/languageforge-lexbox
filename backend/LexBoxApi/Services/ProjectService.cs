@@ -1,3 +1,4 @@
+using System.Data.Common;
 using LexBoxApi.Models.Project;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -129,7 +130,16 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         {
             project.FlexProjectMetadata.LexEntryCount = count;
         }
-        await dbContext.SaveChangesAsync();
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (DbException e) when (e.SqlState == "23505")
+        {
+            // 23505 is "Duplicate key value violates unique constraint", i.e. another process
+            // already created the FlexProjectMetadata entry with the correct value.
+            // We'll silently ignore it since the other process has already succeeded
+        }
         return count;
     }
 

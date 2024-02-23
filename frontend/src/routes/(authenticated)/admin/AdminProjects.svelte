@@ -15,13 +15,14 @@
   import type { QueryParams } from '$lib/util/query-params';
   import { derived } from 'svelte/store';
   import type { AdminSearchParams } from './+page';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   export let projects: ProjectItem[];
   export let queryParams: QueryParams<AdminSearchParams>;
   $: filters = queryParams.queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
 
-  const { notifyWarning } = useNotifications();
+  const { notifyWarning, notifySuccess } = useNotifications();
 
   const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 
@@ -48,6 +49,11 @@
     if (result.response === DialogResponse.Submit) {
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
+  }
+
+  async function updateAllLexEntryCounts(): Promise<void> {
+    var count = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
+    notifySuccess(`{count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
   }
 </script>
 
@@ -113,4 +119,8 @@
       <RefineFilterMessage total={filteredProjects.length} showing={shownProjects.length} />
     {/if}
   {/if}
+
+<DevContent>
+  <p><span class="text-bold">TEMPORARY:</span> <button class="btn btn-warning" on:click={updateAllLexEntryCounts}> Update all lex entry counts </button>
+</DevContent>
 </div>

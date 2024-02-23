@@ -327,8 +327,8 @@ public partial class HgService : IHgService
     private async Task<string> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
     {
         var httpClient = _hgClient.Value;
-        httpClient.BaseAddress = new Uri(_options.Value.HgCommandServer);
-        var response = await httpClient.GetAsync($"{code}/{command}", token);
+        var baseUri = _options.Value.HgCommandServer;
+        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", token);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
