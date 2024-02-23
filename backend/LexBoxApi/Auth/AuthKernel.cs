@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
+using LexBoxApi.Controllers;
 using LexCore.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -149,8 +150,9 @@ public static class AuthKernel
                 googleOptions.Events.OnTicketReceived = async context =>
                 {
                     context.HandleResponse();
-                    var lexAuthService = context.HttpContext.RequestServices.GetRequiredService<LexAuthService>();
-                    var redirectTo = await Controllers.LoginController.CompleteGoogleLogin(context.Principal, context.Properties.RedirectUri, context.HttpContext, lexAuthService);
+                    var loginController = context.HttpContext.RequestServices.GetRequiredService<LoginController>();
+                    loginController.ControllerContext.HttpContext = context.HttpContext;
+                    var redirectTo = await loginController.CompleteGoogleLogin(context.Principal, context.Properties.RedirectUri);
                     context.HttpContext.Response.Redirect(redirectTo);
                 };
             });

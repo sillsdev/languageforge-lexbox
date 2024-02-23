@@ -70,12 +70,7 @@ public class LoginController(
         return Challenge(authProps, GoogleDefaults.AuthenticationScheme);
     }
 
-    public static async Task<string> CompleteGoogleLogin(
-        ClaimsPrincipal? principal,
-        string? returnTo,
-        HttpContext httpContext,
-        LexAuthService lexAuthService
-        )
+    public async Task<string> CompleteGoogleLogin(ClaimsPrincipal? principal, string? returnTo)
     {
         returnTo ??= "/home";
         var googleEmail = principal?.FindFirstValue(ClaimTypes.Email);
@@ -105,7 +100,7 @@ public class LoginController(
             var queryString = QueryString.Create(queryParams);
             returnTo = "/register" + queryString.ToString();
         }
-        await httpContext.SignInAsync(authUser.GetPrincipal("google"),
+        await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
         return returnTo;
     }
