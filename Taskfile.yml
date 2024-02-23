@@ -30,7 +30,10 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
-      - echo HONEYCOMB_API_KEY=__REPLACE__ >> deployment/dev/local.env
+      - echo "HONEYCOMB_API_KEY=__REPLACE__" >> deployment/local-dev/local.env
+      - echo "#OTEL_SDK_DISABLED=true" >> deployment/local-dev/local.env
+      - echo "GOOGLE_OAUTH_CLIENT_ID=__REPLACE__.apps.googleusercontent.com" >> deployment/local-dev/local.env
+      - echo "GOOGLE_OAUTH_CLIENT_SECRET=__REPLACE__" >> deployment/local-dev/local.env
   setup-win:
     platforms: [ windows ]
     cmds:
