@@ -21,6 +21,16 @@ type AuthUserProject {
   projectId: UUID!
 }
 
+type ChangeDraftProjectDescriptionPayload {
+  draftProject: DraftProject
+  errors: [ChangeDraftProjectDescriptionError!]
+}
+
+type ChangeDraftProjectNamePayload {
+  draftProject: DraftProject
+  errors: [ChangeDraftProjectNameError!]
+}
+
 type ChangeProjectDescriptionPayload {
   project: Project
   errors: [ChangeProjectDescriptionError!]
@@ -136,7 +146,9 @@ type Mutation {
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
+  changeDraftProjectName(input: ChangeDraftProjectNameInput!): ChangeDraftProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
+  changeDraftProjectDescription(input: ChangeDraftProjectDescriptionInput!): ChangeDraftProjectDescriptionPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
@@ -253,6 +265,10 @@ type UsersCollectionSegment {
 
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
 
+union ChangeDraftProjectDescriptionError = NotFoundError | DbError
+
+union ChangeDraftProjectNameError = NotFoundError | DbError | RequiredError
+
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
 union ChangeProjectMemberRoleError = NotFoundError | DbError
@@ -280,6 +296,16 @@ input AddProjectMemberInput {
 input BooleanOperationFilterInput {
   eq: Boolean
   neq: Boolean
+}
+
+input ChangeDraftProjectDescriptionInput {
+  projectId: UUID!
+  description: String!
+}
+
+input ChangeDraftProjectNameInput {
+  projectId: UUID!
+  name: String!
 }
 
 input ChangeProjectDescriptionInput {

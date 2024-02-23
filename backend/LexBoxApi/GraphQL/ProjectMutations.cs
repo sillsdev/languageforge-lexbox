@@ -130,6 +130,28 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<RequiredException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<DraftProject>> ChangeDraftProjectName(ChangeDraftProjectNameInput input,
+        IPermissionService permissionService,
+        LexBoxDbContext dbContext)
+    {
+        // Someday we may put draft projects in a manager's JWT, in which case we'll switch to AssertCanManageProject(input.ProjectId)
+        permissionService.AssertIsAdmin();
+        if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
+
+        var draftProject = await dbContext.DraftProjects.FindAsync(input.ProjectId);
+        if (draftProject is null) throw new NotFoundException("Project not found");
+
+        draftProject.Name = input.Name;
+        await dbContext.SaveChangesAsync();
+        return dbContext.DraftProjects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -144,6 +166,25 @@ public class ProjectMutations
         project.Description = input.Description;
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<DraftProject>> ChangeDraftProjectDescription(ChangeDraftProjectDescriptionInput input,
+        IPermissionService permissionService,
+        LexBoxDbContext dbContext)
+    {
+        // Someday we may put draft projects in a manager's JWT, in which case we'll switch to AssertCanManageProject(input.ProjectId)
+        permissionService.AssertIsAdmin();
+        var draftProject = await dbContext.DraftProjects.FindAsync(input.ProjectId);
+        if (draftProject is null) throw new NotFoundException("Project not found");
+
+        draftProject.Description = input.Description;
+        await dbContext.SaveChangesAsync();
+        return dbContext.DraftProjects.Where(p => p.Id == input.ProjectId);
     }
 
     [UseMutationConvention]
