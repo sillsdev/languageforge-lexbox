@@ -70,7 +70,7 @@
                   {project.name}
                   <TrashIcon pale />
                 </span>
-              {:else if !project.isDraft}
+              {:else if project.isDraft}
                 <span class="flex gap-2 items-center">
                   <a class="link" href={`/project/${project.code}`}>
                     {project.name}
