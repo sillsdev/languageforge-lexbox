@@ -24,9 +24,9 @@
 </div>
 </div>
 <span class="visible-label">
-  $t('login.sign_in_with_google')</span>
+  {$t('login.sign_in_with_google')}</span>
 <span class="hidden-label" id="button-label">
-  $t('login.sign_in_with_google')</span>
+  {$t('login.sign_in_with_google')}</span>
 </div>
 </div>
 </a>
