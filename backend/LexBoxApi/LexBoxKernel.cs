@@ -43,7 +43,6 @@ public static class LexBoxKernel
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<ProjectService>();
         services.AddScoped<UserService>();
-        services.AddScoped<GoogleTokenValidator>();
         services.AddScoped<EmailService>();
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
