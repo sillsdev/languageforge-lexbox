@@ -48,6 +48,7 @@ type ChangeUserAccountBySelfPayload {
 
 type Changeset {
   node: String!
+  rev: Int!
   date: [Float!]!
   desc: String!
   branch: String!
@@ -170,6 +171,10 @@ type Project {
   updatedDate: DateTime!
 }
 
+type ProjectMemberInvitedByEmail implements Error {
+  message: String!
+}
+
 type ProjectMembersMustBeVerified implements Error {
   message: String!
 }
@@ -193,6 +198,7 @@ type Query {
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
   meAuth: LexAuthUser!
+  testingThrowsError: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
 
@@ -229,6 +235,7 @@ type User {
   isAdmin: Boolean!
   lastActive: DateTime!
   canCreateProjects: Boolean!
+  googleId: String
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -243,7 +250,7 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
@@ -530,6 +537,7 @@ input UserFilterInput {
   canCreateProjects: BooleanOperationFilterInput
   locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
+  googleId: StringOperationFilterInput
   projects: ListFilterInputTypeOfProjectUsersFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
@@ -548,6 +556,7 @@ input UserSortInput {
   canCreateProjects: SortEnumType
   locked: SortEnumType
   username: SortEnumType
+  googleId: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType
@@ -587,6 +596,7 @@ enum DbErrorCode {
 enum LexboxAudience {
   UNKNOWN
   LEXBOX_API
+  REGISTER_ACCOUNT
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
   SEND_AND_RECEIVE_REFRESH
@@ -612,6 +622,7 @@ enum ProjectType {
   WE_SAY
   ONE_STORY_EDITOR
   OUR_WORD
+  ADAPT_IT
 }
 
 enum ResetStatus {

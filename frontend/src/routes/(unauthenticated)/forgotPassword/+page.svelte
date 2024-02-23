@@ -14,7 +14,7 @@
   }
 
   const formSchema = z.object({
-    email: z.string().email($t('register.email')),
+    email: z.string().email($t('form.invalid_email')),
   });
 
   let turnstileToken = '';

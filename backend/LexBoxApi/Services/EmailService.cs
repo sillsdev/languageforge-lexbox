@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
+using LexBoxApi.Jobs;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Otel;
 using LexBoxApi.Services.Email;
@@ -23,6 +24,7 @@ public class EmailService(
     IHttpClientFactory clientFactory,
     LexboxLinkGenerator linkGenerator,
     IHttpContextAccessor httpContextAccessor,
+    Quartz.ISchedulerFactory schedulerFactory,
     LexAuthService lexAuthService)
 {
     private readonly EmailConfig _emailConfig = emailConfig.Value;
@@ -45,6 +47,17 @@ public class EmailService(
             new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
         await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink), user.LocalizationCode);
+        await SendEmailWithRetriesAsync(email, retryCount:5, retryWaitSeconds:30);
+    }
+
+    public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail)
+    {
+        var email = new MimeMessage();
+        await foreach (var admin in admins)
+        {
+            email.Bcc.Add(new MailboxAddress(admin.Name, admin.Email));
+        }
+        await RenderEmail(email, new NewAdminEmail("Admin", newAdminName, newAdminEmail), User.DefaultLocalizationCode);
         await SendEmailAsync(email);
     }
 
@@ -74,6 +87,46 @@ public class EmailService(
             new { jwt, returnTo = $"/user?emailResult={queryParam}", email = newEmail ?? user.Email, });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
         await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail)), user.LocalizationCode);
+        await SendEmailWithRetriesAsync(email);
+    }
+
+    /// <summary>
+    /// Sends a project invitation email to a new user, whose account will be created when they accept.
+    /// </summary>
+    /// <param name="name">The name (real name, NOT username) of user to invite.</param>
+    /// <param name="emailAddress">The email address to send the invitation to</param>
+    /// <param name="projectId">The GUID of the project the user is being invited to</param>
+    /// <param name="language">The language in which the invitation email should be sent (default English)</param>
+    public async Task SendCreateAccountEmail(string emailAddress, Guid projectId, ProjectRole role, string managerName, string projectName, string language = null)
+    {
+        language ??= User.DefaultLocalizationCode;
+        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
+            {
+                Id = Guid.NewGuid(),
+                Audience = LexboxAudience.RegisterAccount,
+                Name = "",
+                Email = emailAddress,
+                EmailVerificationRequired = null,
+                Role = UserRole.user,
+                UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                Projects = [new AuthUserProject(role, projectId)],
+                CanCreateProjects = null,
+                Locale = language,
+                Locked = null,
+            },
+            useEmailLifetime: true
+        );
+        var email = StartUserEmail(name: "", emailAddress);
+        var httpContext = httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+        var queryString = QueryString.Create("email", emailAddress);
+        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value };
+        var registerLink = _linkGenerator.GetUriByAction(httpContext,
+            "LoginRedirect",
+            "Login",
+            new { jwt, returnTo });
+        ArgumentException.ThrowIfNullOrEmpty(registerLink);
+        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink), language);
         await SendEmailAsync(email);
     }
 
@@ -81,7 +134,7 @@ public class EmailService(
     {
         var email = StartUserEmail(user);
         await RenderEmail(email, new PasswordChangedEmail(user.Name), user.LocalizationCode);
-        await SendEmailAsync(email);
+        await SendEmailWithRetriesAsync(email);
     }
 
     public async Task SendCreateProjectRequestEmail(LexAuthUser user, CreateProjectInput projectInput)
@@ -90,10 +143,10 @@ public class EmailService(
         email.To.Add(new MailboxAddress("Admin", _emailConfig.CreateProjectEmailDestination));
         await RenderEmail(email,
             new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), "en");
-        await SendEmailAsync(email);
+        await SendEmailWithRetriesAsync(email);
     }
 
-    private async Task SendEmailAsync(MimeMessage message)
+    public async Task SendEmailAsync(MimeMessage message)
     {
         message.From.Add(MailboxAddress.Parse(_emailConfig.From));
         using var activity = LexBoxActivitySource.Get().StartActivity();
@@ -115,6 +168,17 @@ public class EmailService(
             activity?.RecordException(e);
             activity?.SetStatus(ActivityStatusCode.Error);
             throw;
+        }
+    }
+     private async Task SendEmailWithRetriesAsync(MimeMessage message, int retryCount = 3, int retryWaitSeconds = 5 * 60)
+    {
+        try
+        {
+            await SendEmailAsync(message);
+        }
+        catch
+        {
+            await RetryEmailJob.Queue(schedulerFactory, message, retryCount, retryWaitSeconds);
         }
     }
 
@@ -144,8 +208,13 @@ public class EmailService(
 
     private static MimeMessage StartUserEmail(User user, string? email = null)
     {
+        return StartUserEmail(user.Name, email ?? user.Email);
+    }
+
+    private static MimeMessage StartUserEmail(string name, string email)
+    {
         var message = new MimeMessage();
-        message.To.Add(new MailboxAddress(user.Name, email ?? user.Email));
+        message.To.Add(new MailboxAddress(name, email));
         return message;
     }
 }

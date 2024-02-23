@@ -123,6 +123,7 @@
     "label_email": "Email (or Send/Receive login)",
     "label_password": "Password",
     "missing_user_info": "User info missing",
+    "sign_in_with_google": "Sign in with Google",
     "title": "Log in",
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
@@ -143,7 +144,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "description_missing": "Description required",
       "language_code": "Language Code",
       "language_code_description": "Preferably an [Ethnologue code](https://www.ethnologue.com)",
-      "language_code_too_short": "Language code must be at least 3 characters",
+      "language_code_too_short": "Language code must be at least 2 characters",
       "language_code_invalid": "Language code can only include lowercase a-z, digits and '-'",
       "name": "Name",
       "name_description": "E.g. the name of the language you're working on",
@@ -174,9 +175,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "project": "Project",
     "add_user": {
       "add_button": "Add Member",
-      "email_required": "Email required",
       "modal_title": "Add a Member to this project",
       "submit_button": "Add Member",
+      "project_not_found": "Project not found. Please refresh the page.",
       "user_not_found": "No user was found with this email address",
       "user_not_verified": "User has not verified their email address",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
@@ -217,7 +218,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_delete": "{name} has been removed.",
       "rename_project": "Project name set to {name}.",
       "describe": "Project description has been updated.",
-      "add_member": "{email} has been added to project."
+      "add_member": "{email} has been added to project.",
+      "member_invited": "{email} has been sent an invitation email to register and join the project."
     },
     "project_name_empty_error": "Project name cannot be empty",
     "confirm_remove": "Would you like to remove {userName} from this project?",
@@ -284,6 +286,7 @@ If you don't see a dialog or already closed it, click the button below:",
   "project_type": {
     "type": "Project type",
     "any": "Any",
+    "adaptIt": "Adapt It",
     "flex": "FLEx",
     "oneStoryEditor": "OneStory Editor",
     "other": "Other",
@@ -300,7 +303,6 @@ If you don't see a dialog or already closed it, click the button below:",
     "title": "Register",
     "account_exists": "An account with this email already exists",
     "button_register": "Register",
-    "email": "Email required",
     "label_email": "Email",
     "description_email": "This will be your Send/Receive login",
     "label_name": "Name",
@@ -347,6 +349,10 @@ If you don't see a dialog or already closed it, click the button below:",
     "close_all": "Close all"
   },
   "emails": {
+    "new_admin": {
+      "subject": "New Language Depot administrator {adminName}",
+      "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."
+    },
     "verify_email": {
       "subject": "Verify your e-mail address",
       "to_verify_click": "Click the button below to verify your e-mail address.",
@@ -363,7 +369,13 @@ If you don't see a dialog or already closed it, click the button below:",
       "body": "We're writing to confirm that your password was just changed."
     },
     "shared": {
-      "greeting": "Hello {name}!"
+      "greeting": "Hello {name}!",
+      "greeting_noname": "Hello!"
+    },
+    "create_account_request_email": {
+      "subject": "Project invitation: {projectName}",
+      "body": "{managerName} has invited you to join the {projectName} language project. Click below to join.",
+      "join_button": "Join project"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
@@ -385,7 +397,9 @@ If you don't see a dialog or already closed it, click the button below:",
     "password": {
       "forbidden_characters": "The symbols &, +, :, and % are not allowed in passwords",
       "too_short": "Must be at least 4 characters"
-    }
+    },
+    "invalid_email": "Invalid email",
+    "value_is_incorrect": "Value is incorrect",
   },
   "notifications": {
     "update_detected": "A new version of the application was detected. You may need to reload the page.",

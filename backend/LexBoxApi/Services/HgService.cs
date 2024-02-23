@@ -371,6 +371,12 @@ public partial class HgService : IHgService
                 {
                     return ProjectType.WeSay;
                 }
+
+                const string adaptItConfigFile = "AI-ProjectConfiguration.aic";
+                if (name.Equals(adaptItConfigFile, StringComparison.Ordinal))
+                {
+                    return ProjectType.AdaptIt;
+                }
                 //OurWord projects have a .Settings folder, but that might not be super reliable
                 //so we only use it as a last resort if we didn't match any other project type.
                 if (name.Equals(".Settings", StringComparison.OrdinalIgnoreCase))

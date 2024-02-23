@@ -1,2 +1,15 @@
 ﻿__base__ = ../json/map
 notfound = '\{"error": "not found"}'
+changelistentry = '\{
+  "node": {node|json},
+  "rev": {rev|json},
+  "date": {date|json},
+  "desc": {desc|utf8|json},
+  "branch": {if(branch, branch%changesetbranch, "default"|json)},
+  "bookmarks": [{join(bookmarks%changelistentryname, ", ")}],
+  "tags": [{join(tags%changelistentryname, ", ")}],
+  "user": {author|utf8|json},
+  "phase": {phase|json},
+  "parents": [{if(allparents, join(allparents%changesetparent, ", "),
+                  join(parent%changesetparent, ", "))}]
+  }'

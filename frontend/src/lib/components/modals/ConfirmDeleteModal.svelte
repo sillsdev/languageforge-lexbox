@@ -17,6 +17,7 @@
   import { FormModal } from '$lib/components/modals';
   import type { FormModalResult, FormSubmitCallback } from '$lib/components/modals/FormModal.svelte';
   import { TrashIcon } from '$lib/icons';
+  import tt from '$lib/i18n';
 
   export let i18nScope: I18nShapeKey<DeleteModalI18nShape>;
   let name: string;
@@ -29,7 +30,7 @@
   $: t = tTypeScoped<DeleteModalI18nShape>(i18nScope);
 
   const verify = z.object({
-    keyphrase: z.string().refine((value) => value.match(`^${$t('enter_to_delete.value')}$`)),
+    keyphrase: z.string().refine((value) => value.match(`^${$t('enter_to_delete.value')}$`), $tt('form.value_is_incorrect')),
   });
 
   type Schema = typeof verify;

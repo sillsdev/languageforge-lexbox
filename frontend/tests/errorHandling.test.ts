@@ -1,13 +1,14 @@
-import { expect } from '@playwright/test';
-import { test } from './fixtures';
-import { SandboxPage } from './pages/sandboxPage';
 import * as testEnv from './envVars';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { LoginPage } from './pages/loginPage';
+
 import { AdminDashboardPage } from './pages/adminDashboardPage';
-import { loginAs } from './utils/authHelpers';
+import { LoginPage } from './pages/loginPage';
+import { SandboxPage } from './pages/sandboxPage';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
+import { UserDashboardPage } from './pages/userDashboardPage';
+import { expect } from '@playwright/test';
 import { getInbox } from './utils/mailboxHelpers';
+import { loginAs } from './utils/authHelpers';
+import { test } from './fixtures';
 
 test('can catch 500 errors from goto in same tab', async ({ page }) => {
   await new SandboxPage(page).goto();
@@ -53,6 +54,30 @@ test('catch fetch 500 and error dialog', async ({ page }) => {
   await responsePromise;
   await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
   test.fail();
+});
+
+//we want to verify that once we get the 500 in GQL we can still navigate to another page
+test('client-side gql 500 does not break the application', async ({ page }) => {
+  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await new SandboxPage(page).goto();
+  // Create promise first before triggering the action
+  const responsePromise = page.waitForResponse('/api/graphql');
+  await page.getByText('GQL 500').click();
+  await responsePromise.catch(() => { });// Ignore the error
+  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Dismiss' }).click();
+  await page.getByText('Language Depot').click();
+  await new UserDashboardPage(page).waitFor();
+  test.fail(); // Everything up to here passed, but we expect a soft 500 response assertion to ultimately fail the test
+});
+
+test('server-side gql 500 does not kill the server', async ({ page }) => {
+  await loginAs(page.request, 'admin', testEnv.defaultPassword);
+  await new SandboxPage(page).goto({ urlEnd: '?ssr-gql-500', expectErrorResponse: true });
+  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  // we've verified that a 500 occured, now we verify that the server is still alive
+  await new AdminDashboardPage(page).goto();
+  test.fail(); // Everything up to here passed, but we expect a soft 500 response assertion to ultimately fail the test
 });
 
 test('server page load 403 is redirected to login', async ({ context }) => {

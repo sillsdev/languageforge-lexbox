@@ -3,20 +3,20 @@
   import {useDismiss, useError} from '.';
   import t from '$lib/i18n';
   import UnexpectedError from './UnexpectedError.svelte';
+  import { onDestroy } from 'svelte';
 
   let dialog: HTMLDialogElement;
   const error = useError();
   const dismiss = useDismiss();
   beforeNavigate(dismiss);
-  $: {
-    if (dialog) {
-      if ($error) {
-        open();
-      } else {
-        close();
-      }
-    }
-  }
+
+  onDestroy(
+    // subscribe() is more durable than reactive syntax
+    error.subscribe((e) => {
+      if (!dialog) return;
+      e ? open() : close();
+    })
+  );
 
   function dismissClick(): void {
     close();

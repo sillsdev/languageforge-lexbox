@@ -10,7 +10,7 @@
 
   export let projectId: string;
   const schema = z.object({
-    email: z.string().email($t('project_page.add_user.email_required')),
+    email: z.string().email($t('form.invalid_email')),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;
@@ -19,6 +19,7 @@
   const { notifySuccess } = useNotifications();
 
   async function openModal(): Promise<void> {
+    let userInvited = false;
     const { response, formState } = await formModal.open(async () => {
       const { error } = await _addProjectMember({
         projectId,
@@ -27,16 +28,21 @@
       });
 
       if (error?.byType('NotFoundError')) {
-        return { email: [$t('project_page.add_user.user_not_found')] };
+        return { email: [$t('project_page.add_user.project_not_found')] };
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
         return { email: [$t('project_page.add_user.user_not_verified')] };
+      }
+      if (error?.byType('ProjectMemberInvitedByEmail')) {
+        userInvited = true;
+        return undefined; // Close modal as if success
       }
 
       return error?.message;
     });
     if (response === DialogResponse.Submit) {
-      notifySuccess($t('project_page.notifications.add_member', { email: formState.email.currentValue }));
+      const message = userInvited ? 'member_invited' : 'add_member';
+      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.email.currentValue }));
     }
   }
 </script>

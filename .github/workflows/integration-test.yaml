@@ -3,7 +3,7 @@ on:
   workflow_call:
     inputs:
       test-domain:
-        description: 'The environment to run the tests in'
+        description: 'Test Domain'
         required: true
         type: string
       runs-on:
@@ -14,14 +14,19 @@ on:
         description: 'The domain to use for hg'
         required: true
         type: string
+      hg-version:
+        description: 'The version of hg to test (3 or 6, default 3)'
+        required: false
+        default: '3'
+        type: string
       http-scheme:
-        description: 'The scheme to use for http tests'
+        description: 'http scheme'
         type: string
         default: 'https'
   workflow_dispatch:
     inputs:
       test-domain:
-        description: 'The environment to run the tests in'
+        description: 'Test Domain'
         required: true
         type: string
       runs-on:
@@ -32,15 +37,20 @@ on:
         description: 'The domain to use for hg'
         required: true
         type: string
+      hg-version:
+        description: 'The version of hg to test (3 or 6, default 3)'
+        required: false
+        default: '3'
+        type: string
       http-scheme:
-        description: 'The scheme to use for http tests'
+        description: 'http scheme'
         type: string
         default: 'https'
 
 jobs:
   test:
     timeout-minutes: 60
-    name: Test ${{ inputs.runs-on }} on ${{ inputs.test-domain }}
+    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.test-domain }}
     permissions:
       checks: write
     environment:
@@ -48,18 +58,30 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3
+      - name: Setup powershell
+        if: ${{ inputs.runs-on == 'self-hosted' }}
+        run: |
+          wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
+          sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
+          sudo apt-get install -f
+          rm powershell_7.4.1-1.deb_amd64.deb
+          sudo apt-get update
+          sudo apt-get install -y zlib1g-dev libssl-dev #needed by setup python
+          pwsh
       - uses: actions/setup-dotnet@v3
+        env:
+          DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
         with:
           dotnet-version: '8.x'
       - uses: MatteoH2O1999/setup-python@v3.0.0
         id: python
-        if: ${{ inputs.runs-on == 'ubuntu-latest' && !env.act }}
+        if: ${{ inputs.runs-on != 'windows-latest' && !env.act }}
         with:
           python-version: '2.7.18'
           cache-build: true
           allow-build: allow
       - name: Link python
-        if: ${{ inputs.runs-on == 'ubuntu-latest' }}
+        if: ${{ inputs.runs-on != 'windows-latest' }}
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
@@ -67,6 +89,10 @@ jobs:
       - name: Playwright setup
         working-directory: backend/Testing
         run: pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
+      - name: Build for tests
+        run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
+        env:
+          MERCURIAL_VERSION: ${{ inputs.hg-version }}
       - name: Integration tests
         env:
           TEST_SERVER_HOSTNAME: ${{ inputs.test-domain }}
@@ -87,7 +113,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
         with:
-          check_name: Integration Tests ${{ inputs.runs-on }}
+          check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()

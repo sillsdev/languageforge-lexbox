@@ -104,7 +104,7 @@
               value={$filters.userEmail}
             />
             <div class="join-item isolate">
-              <IconButton icon="i-mdi-close" style="btn-outline" on:click={() => ($filters.userEmail = undefined)} />
+              <IconButton icon="i-mdi-close" on:click={() => ($filters.userEmail = undefined)} />
             </div>
           </div>
         {:else}

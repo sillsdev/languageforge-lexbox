@@ -83,4 +83,9 @@ public class LexQueries
     {
         return loggedInContext.User;
     }
+
+    public LexAuthUser TestingThrowsError()
+    {
+        throw new Exception("This is a test error");
+    }
 }

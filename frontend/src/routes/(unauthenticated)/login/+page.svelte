@@ -13,6 +13,8 @@
   import { z } from 'zod';
   import { navigating } from '$app/stores';
   import { AUTHENTICATED_ROOT } from '../..';
+  import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
+  import DevContent from '$lib/layout/DevContent.svelte';
 
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
@@ -55,7 +57,9 @@
     <div class="card w-full max-w-md sm:shadow-2xl sm:bg-base-200">
       <div class="card-body sm-only:p-0">
         <PageTitle title={$t('login.title')} />
-
+<DevContent>
+        <SigninWithGoogleButton href="/api/login/google" />
+</DevContent>
         <Form {enhance}>
           <Input
             id="email"

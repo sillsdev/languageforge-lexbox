@@ -1,5 +1,4 @@
 ﻿using LexBoxApi.Auth;
-using LexCore.Auth;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 

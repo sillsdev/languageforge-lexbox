@@ -4,15 +4,21 @@
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { register } from '$lib/user';
+  import { getSearchParamValues } from '$lib/util/query-params';
+  import { onMount } from 'svelte';
   import { z } from 'zod';
 
+  type RegisterPageQueryParams = {
+    name: string;
+    email: string;
+  };
   let turnstileToken = '';
   // $locale is the locale that our i18n is using for them (i.e. the best available option we have for them)
   // getLanguageCodeFromNavigator() gives us the language/locale they probably actually want. Maybe we'll support it in the future.
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
     name: z.string().min(1, $t('register.name_missing')),
-    email: z.string().email($t('register.email')),
+    email: z.string().email($t('form.invalid_email')),
     password: passwordFormRules($t),
     locale: z.string().min(2).default(userLocale),
   });
@@ -33,6 +39,14 @@
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
+  });
+  onMount(() => { // query params not available during SSR
+    const urlValues = getSearchParamValues<RegisterPageQueryParams>();
+    form.update((form) => {
+      if (urlValues.name) form.name = urlValues.name;
+      if (urlValues.email) form.email = urlValues.email;
+      return form;
+    }, { taint: true });
   });
 </script>
 

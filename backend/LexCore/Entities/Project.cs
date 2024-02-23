@@ -68,12 +68,14 @@ public enum ProjectType
     FLEx = 1,
     WeSay = 2,
     OneStoryEditor = 3,
-    OurWord = 4
+    OurWord = 4,
+    AdaptIt = 5,
 }
 
 public class Changeset
 {
     public string Node { get; set; }
+    public int Rev { get; set; }
     public double[] Date { get; set; }
     public string Desc { get; set; }
 

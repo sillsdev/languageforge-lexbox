@@ -47,7 +47,7 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
       image: 'ghcr.io/sillsdev/lexbox-api'
       k8s-environment: develop
-      deploy-domain: develop.lexbox.org
+      deploy-domain: lexbox.dev.languagetechnology.org
 
   integration-tests:
     name: Integration tests
@@ -58,7 +58,7 @@ jobs:
     secrets: inherit
     needs: deploy-api
     with:
-      test-domain: develop.lexbox.org
-      hg-domain: hg-develop.lexbox.org
+      test-domain: lexbox.dev.languagetechnology.org
+      hg-domain: languagedepot-dev.lexbox
       http-scheme: http
       runs-on: self-hosted
