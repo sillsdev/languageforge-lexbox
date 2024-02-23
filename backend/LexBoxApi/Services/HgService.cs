@@ -25,15 +25,12 @@ public partial class HgService : IHgService
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
     private readonly ILogger<HgService> _logger;
-    // TEMPORARY CHANGE, revert this once we finish running the "update all lex entry counts" migration
-    private readonly IHttpClientFactory _clientFactory;
 
     public HgService(IOptions<HgConfig> options, IHttpClientFactory clientFactory, ILogger<HgService> logger)
     {
         _options = options;
         _logger = logger;
         _hgClient = new(() => clientFactory.CreateClient("HgWeb"));
-        _clientFactory = clientFactory;
     }
 
     [GeneratedRegex(Project.ProjectCodeRegex)]
@@ -329,11 +326,9 @@ public partial class HgService : IHgService
 
     private async Task<string> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
     {
-        // var httpClient = _hgClient.Value;
-        // TEMPORARY CHANGE, revert this once we finish running the "update all lex entry counts" migration
-        var httpClient = _clientFactory.CreateClient("HgWeb");
-        httpClient.BaseAddress = new Uri(_options.Value.HgCommandServer);
-        var response = await httpClient.GetAsync($"{code}/{command}", token);
+        var httpClient = _hgClient.Value;
+        var baseUri = _options.Value.HgCommandServer;
+        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", token);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadAsStringAsync();
     }
