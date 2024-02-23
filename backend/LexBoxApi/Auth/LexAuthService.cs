@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 using LexBoxApi.Otel;
@@ -109,17 +110,18 @@ public class LexAuthService
 
     public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
     {
-        var user = await _lexBoxDbContext.Users
-            .FilterByEmail(emailOrUsername)
-            .Include(u => u.Projects).ThenInclude(p => p.Project)
-            .FirstOrDefaultAsync();
-        return (user == null ? null : new LexAuthUser(user), user);
+        return await GetUser(UserEntityExtensions.FilterByEmail(emailOrUsername));
     }
 
     public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUserByGoogleId(string? googleId)
     {
+        return await GetUser(u => u.GoogleId == googleId);
+    }
+
+    private async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(Expression<Func<User, bool>> predicate)
+    {
         var user = await _lexBoxDbContext.Users
-            .Where(u => u.GoogleId == googleId)
+            .Where(predicate)
             .Include(u => u.Projects).ThenInclude(p => p.Project)
             .FirstOrDefaultAsync();
         return (user == null ? null : new LexAuthUser(user), user);
