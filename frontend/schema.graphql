@@ -221,6 +221,7 @@ type User {
   isAdmin: Boolean!
   lastActive: DateTime!
   canCreateProjects: Boolean!
+  googleId: String
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -496,6 +497,7 @@ input UserFilterInput {
   canCreateProjects: BooleanOperationFilterInput
   locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
+  googleId: StringOperationFilterInput
   projects: ListFilterInputTypeOfProjectUsersFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
@@ -514,6 +516,7 @@ input UserSortInput {
   canCreateProjects: SortEnumType
   locked: SortEnumType
   username: SortEnumType
+  googleId: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType
@@ -553,6 +556,7 @@ enum DbErrorCode {
 enum LexboxAudience {
   UNKNOWN
   LEXBOX_API
+  REGISTER_ACCOUNT
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
   SEND_AND_RECEIVE_REFRESH
