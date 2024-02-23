@@ -7,6 +7,7 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
         <InformationalVersion>dev</InformationalVersion>
+        <UserSecretsId>7392cddf-9b3b-441c-9316-203bb5c4a6bc</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
