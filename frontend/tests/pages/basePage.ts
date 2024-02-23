@@ -11,7 +11,7 @@ export class BasePage {
   protected url?: string;
   readonly locators: Locator[];
   get urlPattern(): RegExp | undefined {
-    if (this.url == null) return undefined;
+    if (!this.url) return undefined;
     return new RegExp(regexEscape(this.url) + '($|\\?|#)');
   }
 
@@ -25,24 +25,28 @@ export class BasePage {
     }
   }
 
-  async goto({ expectRedirect }: {expectRedirect: boolean} = {expectRedirect: false}): Promise<this> {
-    if (this.url == undefined) {
+  async goto({ expectRedirect, expectErrorResponse, urlEnd }: {expectRedirect?: boolean, expectErrorResponse?: boolean, urlEnd?: string } = {}): Promise<this> {
+    if (!this.url) {
         throw new Error('Can\'t explicitly navigate to page, because it doesn\'t have a configured url.');
     }
 
-    const response = await this.page.goto(this.url);
+    const response = await this.page.goto(this.url + (urlEnd ?? ''));
     // response is null if same URL, but different hash - and that's okay
-    if (response != null) {
-      expect(response.ok()).toBeTruthy();
+    if (response) {
+      if (expectErrorResponse) {
+        expect(response.ok()).toBeFalsy();
+      } else {
+        expect(response.ok()).toBeTruthy();
+      }
     }
-    if (!expectRedirect) {
+    if (!expectRedirect && !expectErrorResponse) {
       await this.waitFor();
     }
     return this;
   }
 
   async waitFor(): Promise<this> {
-    if (this.urlPattern == null) {
+    if (!this.urlPattern) {
       await this.page.waitForLoadState('load');
     } else {
       // first use expect() so we get a good error message

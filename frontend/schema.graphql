@@ -185,6 +185,7 @@ type Query {
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
   meAuth: LexAuthUser!
+  testingThrowsError: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
 

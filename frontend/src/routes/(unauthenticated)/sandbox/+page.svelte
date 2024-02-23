@@ -2,11 +2,12 @@
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
-  import { PageBreadcrumb } from '$lib/layout';
+  import {PageBreadcrumb} from '$lib/layout';
   import z from 'zod';
   // eslint-disable-next-line no-restricted-imports
-  import { t as otherT } from 'svelte-intl-precompile';
+  import {t as otherT} from 'svelte-intl-precompile';
   import t from '$lib/i18n';
+  import {_gqlThrows500} from './+page';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -34,7 +35,11 @@ function preFillForm(): void {
   form.update(f => ({...f, name: 'John'}), {taint: false});
 }
 
-let disableDropdown = false;
+  let disableDropdown = false;
+
+  async function gqlThrows500(): Promise<void> {
+    await _gqlThrows500();
+  }
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -47,13 +52,14 @@ let disableDropdown = false;
     <a rel="external" target="_blank" class="btn" href="/api/AuthTesting/403">Goto API 403 new tab</a>
     <button class="btn" on:click={fetch403}>Fetch 403</button>
 
-    <div class="divider" />
+    <div class="divider"/>
 
     <a rel="external" class="btn" href="/sandbox/500">Goto page load 500</a>
     <a rel="external" target="_blank" class="btn" href="/sandbox/500">Goto page load 500 new tab</a>
     <a rel="external" class="btn" href="/api/testing/test500NoException">Goto API 500</a>
     <a rel="external" target="_blank" class="btn" href="/api/testing/test500NoException">Goto API 500 new tab</a>
     <button class="btn" on:click={fetch500}>Fetch 500</button>
+    <button class="btn" on:click={gqlThrows500}>GQL 500</button>
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
