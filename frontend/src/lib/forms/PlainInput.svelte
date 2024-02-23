@@ -1,6 +1,11 @@
 <script lang="ts">
   import { randomFormId } from './utils';
-  import { debounce as _debounce } from '$lib/util/time';
+  import { makeDebouncer } from '$lib/util/time';
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher<{
+    input: string | undefined;
+  }>();
 
   let input: HTMLInputElement;
 
@@ -17,8 +22,12 @@
   export let debounce: number | boolean = false;
   export let debouncing = false;
   export let undebouncedValue: string | undefined = undefined;
-  $: undebouncedValue = value;
   export let style: string | undefined = undefined;
+
+  $: {
+    undebouncedValue = value;
+    dispatch('input', value);
+  }
 
   export function clear(): void {
     debouncer.clear();
@@ -26,7 +35,7 @@
     undebouncedValue = value = undefined;
   }
 
-  $: debouncer = _debounce((newValue: string | undefined) => (value = newValue), debounce);
+  $: debouncer = makeDebouncer((newValue: string | undefined) => (value = newValue), debounce);
   $: debouncingStore = debouncer.debouncing;
   $: debouncing = $debouncingStore;
 

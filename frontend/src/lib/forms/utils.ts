@@ -1,5 +1,6 @@
-import { browser } from '$app/environment';
 import { type Translater } from '$lib/i18n';
+import { makeAsyncDebouncer } from '$lib/util/time';
+import { writable, type Readable } from 'svelte/store';
 import { z, type ZodDefault, type ZodType } from 'zod';
 
 export function randomFormId(): string {
@@ -22,29 +23,44 @@ export function emptyString(): z.ZodString {
   return z.string().length(0);
 }
 
-/**
- * Debouncind a refine serves 2 purposes:
- * 1) Debouncing, of course, to avoid (e.g.) making too many requests
- * 2) Ensuring the validation result is consistent. It seems that the last resolve doesn't always "win".
- * By making them all resolve to the same value, it doesn't matter which one wins.
- */
-export function debouncedRefine<T>(refine: (value: T) => Promise<boolean>, debounceTime = 300): (value: T) => Promise<boolean> {
-  // consumers don't expect debounced refines to get called server-side, but they sometimes do,
-  // which can cause problems, e.g. calling fetch with a relative path kills the server
-  if (!browser) return () => Promise.resolve(true);
+export type LexboxFieldValidator = {
+  validate: () => void;
+  error: Readable<string | string[] | undefined>;
+  valid: () => Promise<boolean>;
+}
 
-  let timeout: ReturnType<typeof setTimeout>;
-  let openResolves: ((value: boolean) => void)[] = [];
-  return (value: T) => {
-    clearTimeout(timeout);
-    return new Promise((resolve) => {
-      openResolves.push(resolve);
-      timeout = setTimeout(() => {
-        void refine(value).then((result) => {
-          for (const openResolve of openResolves) openResolve(result);
-          openResolves = [];
-        });
-      }, debounceTime);
-    });
-  };
+
+export function concatAll<T>(...values: (T | T[] | undefined)[]): T[] | undefined {
+  let mergedResult: T[] | undefined;
+  for (const value of values) {
+    if (value === undefined) continue;
+    mergedResult ??= [];
+    mergedResult.push(...(Array.isArray(value) ? value : [value]));
+  }
+  return mergedResult;
+}
+
+export function buildFieldValidator<T extends z.ZodType>(schema: T, valueGetter: () => z.infer<T>, debounce: number | boolean = false): LexboxFieldValidator  {
+  const error = writable<string | string[] | undefined>();
+
+  const debouncer = makeAsyncDebouncer(
+    (value: z.infer<T>) => schema.safeParseAsync(value),
+    (result) => {
+      if (result.success) {
+        error.set(undefined);
+      } else {
+        error.set(result.error.flatten().formErrors);
+      }
+    }, debounce);
+
+  return {
+    validate: () => {
+      void debouncer.debounce(valueGetter());
+    },
+    error: error as Readable<string | string[] | undefined>,
+    valid: async () => {
+      const result = await debouncer.flush(valueGetter());
+      return result.success;
+    }
+  }
 }

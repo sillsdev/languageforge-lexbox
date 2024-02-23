@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, debouncedRefine, lexSuperForm } from '$lib/forms';
+  import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, buildFieldValidator, lexSuperForm, type LexboxFieldValidator } from '$lib/forms';
   import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
@@ -20,14 +20,6 @@
 
   const { notifySuccess } = useNotifications();
 
-  let codeValidation: z.ZodType = z.string().toLowerCase()
-    .min(4, $t('project.create.code_too_short'))
-    .refine(debouncedRefine((code) =>
-      // user is not available when defining the schema
-      // || isAdmin will be redundant soon after new JWTs roll out
-      user.canCreateProjects ? _projectCodeAvailable(code) : Promise.resolve(true)),
-      $t('project.create.code_exists'));
-
   const formSchema = z.object({
     name: z.string().min(1, $t('project.create.name_missing')),
     description: z.string().min(1, $t('project.create.description_missing')),
@@ -37,12 +29,24 @@
       .string()
       .min(2, $t('project.create.language_code_too_short'))
       .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
-    code: codeValidation,
+    code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
     customCode: z.boolean().default(false),
   });
+
+  const codeValidator: LexboxFieldValidator = buildFieldValidator(z.string().refine((code) => {
+    if (!code || !user.canCreateProjects) return true;
+    return new Promise<boolean>(resolve => {
+      void _projectCodeAvailable(code).then((result) => {
+        resolve(result);
+      });
+    });
+  }, $t('project.create.code_exists')),
+  () => $form.code,
+  true);
+
   //random guid
   const projectId = crypto.randomUUID();
-  let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
+  let { form, errors: superFormErrors, message, enhance, submitting, allErrors: errors } = lexSuperForm(formSchema, async () => {
     const result = await _createProject({
       id: projectId,
       name: $form.name,
@@ -54,7 +58,7 @@
     });
     if (result.error) {
       if (result.error.byCode(DbErrorCode.Duplicate)) {
-        $errors.code = [$t('project.create.code_exists')];
+        $superFormErrors.code = [$t('project.create.code_exists')];
       } else {
         $message = result.error.message;
       }
@@ -67,7 +71,12 @@
       notifySuccess($t('project.create.requested', { name: $form.name }), Duration.Long);
       await goto('/');
     }
+  }, {
+    externalValidators: {
+      code: codeValidator,
+    }
   });
+
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
     [ProjectType.WeSay]: 'dictionary',
@@ -179,6 +188,7 @@
       bind:value={$form.code}
       error={$errors.code}
       readonly={!$form.customCode}
+      on:input={() => codeValidator.validate()}
     />
 
     <TextArea
