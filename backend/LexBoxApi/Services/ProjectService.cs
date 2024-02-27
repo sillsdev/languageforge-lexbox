@@ -49,6 +49,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
                 Description = input.Description,
                 Type = input.Type,
                 RetentionPolicy = input.RetentionPolicy,
+                ProjectManagerId = input.ProjectManagerId,
             });
         await dbContext.SaveChangesAsync();
         return projectId;

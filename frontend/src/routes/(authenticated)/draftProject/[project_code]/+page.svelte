@@ -10,6 +10,7 @@
   import {
     _changeDraftProjectDescription,
     _changeDraftProjectName,
+    _promoteDraftProject,
   } from './+page';
   import { useNotifications } from '$lib/notify';
   import { type ErrorMessage } from '$lib/forms';
@@ -20,6 +21,7 @@
   import SendReceiveUrlField from '../../project/[project_code]/SendReceiveUrlField.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
+  import { goto } from '$app/navigation';
 
   // We're certainly not going to use all those imports, but I can delete the redundant ones later
 
@@ -29,7 +31,7 @@
   $: project = $projectStore;
   $: canManage = isAdmin(user);
 
-  const { notifySuccess /*, notifyWarning*/ } = useNotifications();
+  const { notifySuccess, notifyWarning } = useNotifications();
 
   // TODO: This is the third copy of this clipboard-copying code. Time to refactor into a separate component.
   var copyingToClipboard = false;
@@ -65,6 +67,16 @@
     notifySuccess($t('project_page.notifications.describe', { description: newDescription }));
   }
 
+  async function promoteProject(): Promise<void> {
+    const result = await _promoteDraftProject({
+      draftProjectId: project.id,
+    });
+    if (result.error) {
+      notifyWarning(result.error.message);
+    }
+    notifySuccess($t('project_page.notifications.promote_project'));
+    await goto(`/project/${project.code}`);
+  }
 </script>
 
 
@@ -80,36 +92,9 @@
         </div>
     </svelte:fragment>
     <svelte:fragment slot="actions">
-        <Dropdown>
-          <button class="btn btn-primary">
-            {$t('project_page.get_project.label')}
-            <span class="i-mdi-dots-vertical text-2xl" />
-          </button>
-          <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-            <div class="card-body max-sm:p-4">
-              <div class="prose">
-                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
-                {#if project.type === ProjectType.WeSay}
-                  <Markdown
-                    md={$t('project_page.get_project.instructions_wesay', {
-                    code: project.code,
-                    login: encodeURIComponent(user.email),
-                    name: project.name,
-                  })}
-                  />
-                {:else}
-                  <Markdown
-                    md={$t('project_page.get_project.instructions_flex', {
-                    code: project.code,
-                    name: project.name,
-                  })}
-                  />
-                {/if}
-              </div>
-              <SendReceiveUrlField projectCode={project.code} />
-            </div>
-          </div>
-        </Dropdown>
+      <button on:click={promoteProject} class="btn btn-primary">
+        {$t('project_page.promote_project.label')}
+      </button>
     </svelte:fragment>
     <svelte:fragment slot="title">
       <div class="max-w-full flex items-baseline flex-wrap">

@@ -143,6 +143,7 @@ type MeDto {
 
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
+  promoteDraftProject(input: PromoteDraftProjectInput!): PromoteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
@@ -200,6 +201,16 @@ type ProjectUsers {
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
+}
+
+type PromoteDraftProjectPayload {
+  promoteDraftProjectResponse: PromoteDraftProjectResponse
+  errors: [PromoteDraftProjectError!]
+}
+
+type PromoteDraftProjectResponse {
+  id: UUID
+  result: CreateProjectResult!
 }
 
 type Query {
@@ -282,6 +293,8 @@ union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 union CreateProjectError = DbError | AlreadyExistsError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
+
+union PromoteDraftProjectError = NotFoundError | DbError | AlreadyExistsError
 
 union SetUserLockedError = NotFoundError
 
@@ -504,6 +517,10 @@ input ProjectUsersFilterInput {
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
+}
+
+input PromoteDraftProjectInput {
+  draftProjectId: UUID!
 }
 
 input RemoveProjectMemberInput {

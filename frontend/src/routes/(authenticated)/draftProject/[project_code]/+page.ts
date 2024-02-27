@@ -10,6 +10,8 @@ import type {
   ChangeDraftProjectDescriptionMutation,
   ChangeDraftProjectNameInput,
   ChangeDraftProjectNameMutation,
+  PromoteDraftProjectInput,
+  PromoteDraftProjectMutation,
   DraftProjectPageQuery,
 } from '$lib/gql/types';
 
@@ -20,6 +22,31 @@ function requireAdmin(user: LexAuthUser | null): void {
     redirect(307, '/');
   }
 }
+
+export async function _promoteDraftProject(input: PromoteDraftProjectInput): $OpResult<PromoteDraftProjectMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation PromoteDraftProject($input: PromoteDraftProjectInput!) {
+          promoteDraftProject(input: $input) {
+            promoteDraftProjectResponse {
+              id
+              result
+            }
+            errors {
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input }
+    );
+  return result;
+}
+
 export async function _changeDraftProjectName(input: ChangeDraftProjectNameInput): $OpResult<ChangeDraftProjectNameMutation> {
   //language=GraphQL
   const result = await getClient()
