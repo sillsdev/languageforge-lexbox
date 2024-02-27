@@ -1,6 +1,6 @@
 namespace LexCore;
 
-public record LoginRequest(string Password, string EmailOrUsername, bool PreHashedPassword = false, int PasswordStrength = -1);
+public record LoginRequest(string Password, string EmailOrUsername, bool PreHashedPassword = false);
 public enum LoginError
 {
     BadCredentials,

@@ -163,7 +163,7 @@ public class LoginController(
     [AllowAnonymous]
     public async Task<ActionResult<LexAuthUser>> Login(LoginRequest loginRequest)
     {
-        var (user, dbUser, error) = await lexAuthService.Login(loginRequest);
+        var (user, error) = await lexAuthService.Login(loginRequest);
 
         if (error is not null)
         {
@@ -175,10 +175,6 @@ public class LoginController(
         }
 
         await userService.UpdateUserLastActive(user.Id);
-        if (dbUser is not null && dbUser.PasswordStrength is null && loginRequest.PasswordStrength >= 0)
-        {
-            await userService.UpdatePasswordStrength(user.Id, loginRequest.PasswordStrength);
-        }
         await HttpContext.SignInAsync(user.GetPrincipal("Password"),
             new AuthenticationProperties { IsPersistent = true });
         return user;

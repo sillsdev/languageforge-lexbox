@@ -33,12 +33,8 @@ public class LexProxyService : ILexProxyService
 
     public async Task<LexAuthUser?> Login(LoginRequest loginRequest)
     {
-        var (user, dbUser, _) = await _lexAuthService.Login(loginRequest);
+        var (user, _) = await _lexAuthService.Login(loginRequest);
         if (user is not null) await _userService.UpdateUserLastActive(user.Id);
-        if (dbUser is not null && dbUser.PasswordStrength is null && loginRequest.PasswordStrength >= 0)
-        {
-            await _userService.UpdatePasswordStrength(dbUser.Id, loginRequest.PasswordStrength);
-        }
         return user;
     }
 
