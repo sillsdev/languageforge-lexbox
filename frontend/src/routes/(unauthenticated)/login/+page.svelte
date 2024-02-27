@@ -15,6 +15,7 @@
   import { AUTHENTICATED_ROOT } from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
@@ -78,6 +79,8 @@
             error={$errors.password}
             autocomplete="current-password"
           />
+
+          <PasswordStrengthMeter password={$form.password} />
 
           <div class="markdown-wrapper">
             <FormError error={$message} markdown />
