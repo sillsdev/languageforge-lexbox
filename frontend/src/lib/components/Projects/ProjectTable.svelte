@@ -46,6 +46,7 @@
         {#if isColumnVisible('createdAt')}
           <th>
             {$t('project.table.created_at')}
+            <span class="i-mdi-sort-descending" />
           </th>
         {/if}
         {#if isColumnVisible('lastChange')}
