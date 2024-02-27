@@ -220,6 +220,7 @@ type User {
   name: String!
   localizationCode: String!
   isAdmin: Boolean!
+  passwordStrength: Int
   lastActive: DateTime!
   canCreateProjects: Boolean!
   googleId: String
@@ -493,6 +494,7 @@ input UserFilterInput {
   isAdmin: BooleanOperationFilterInput
   passwordHash: StringOperationFilterInput
   salt: StringOperationFilterInput
+  passwordStrength: IntOperationFilterInput
   lastActive: DateTimeOperationFilterInput
   emailVerified: BooleanOperationFilterInput
   canCreateProjects: BooleanOperationFilterInput
@@ -512,6 +514,7 @@ input UserSortInput {
   isAdmin: SortEnumType
   passwordHash: SortEnumType
   salt: SortEnumType
+  passwordStrength: SortEnumType
   lastActive: SortEnumType
   emailVerified: SortEnumType
   canCreateProjects: SortEnumType

@@ -19,6 +19,7 @@ public class User : EntityBase
     public required bool IsAdmin { get; set; }
     public required string PasswordHash { get; set; }
     public required string Salt { get; set; }
+    public int? PasswordStrength { get; set; }
     public DateTimeOffset LastActive { get; set; } = DateTimeOffset.UtcNow;
     public required bool EmailVerified { get; set; }
     public required bool CanCreateProjects { get; set; }
