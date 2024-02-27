@@ -344,6 +344,10 @@
           </span>
         </span>
         <div class="text-lg">
+          {$t('project_page.created_at')}:
+          <span class="text-secondary">{$date(project.createdDate)}</span>
+        </div>
+        <div class="text-lg">
           {$t('project_page.last_commit')}:
           <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>

@@ -157,6 +157,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "table": {
       "name": "Name",
       "code": "Code",
+      "created_at": "Created",
       "last_change": "Last Change",
       "migrated": "Migrated",
       "type": "Type",
@@ -227,6 +228,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "summary": "Summary",
     "num_entries": "Entries",
     "description": "Description",
+    "created_at": "Created",
     "last_commit": "Last Commit",
     "members": {
       "title": "Members",
