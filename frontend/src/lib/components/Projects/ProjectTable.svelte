@@ -3,27 +3,12 @@
   import { getProjectTypeI18nKey, ProjectTypeIcon } from '$lib/components/ProjectType';
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
   import type { ProjectItem } from '$lib/components/Projects';
-  import { ProjectMigrationStatus } from '$lib/gql/generated/graphql';
-  import type { IconString } from '$lib/icons';
 
   export let projects: ProjectItem[];
 
-  const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'migrated', 'type', 'actions'] as const;
+  const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
   export let columns: Readonly<ProjectTableColumn[]> = allColumns;
-
-  const migrationStatusToIcon = {
-    [ProjectMigrationStatus.Migrated]: 'i-mdi-checkbox-marked-circle-outline',
-    [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
-    [ProjectMigrationStatus.Unknown]: 'i-mdi-help-circle-outline',
-    [ProjectMigrationStatus.PrivateRedmine]: 'i-mdi-checkbox-blank-circle-outline',
-    [ProjectMigrationStatus.PublicRedmine]: 'i-mdi-checkbox-blank-circle-outline',
-  } satisfies Record<ProjectMigrationStatus, IconString>;
-
-  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus): IconString {
-    migrationStatus = migrationStatus ?? ProjectMigrationStatus.Unknown;
-    return migrationStatusToIcon[migrationStatus] ?? migrationStatusToIcon[ProjectMigrationStatus.Unknown];
-  }
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
@@ -53,9 +38,6 @@
           <th>
             {$t('project.table.last_change')}
           </th>
-        {/if}
-        {#if isColumnVisible('migrated')}
-          <th>{$t('project.table.migrated')}</th>
         {/if}
         {#if isColumnVisible('type')}
           <th>{$t('project.table.type')}</th>
@@ -101,9 +83,6 @@
                 {$date(project.lastCommit)}
               {/if}
             </td>
-          {/if}
-          {#if isColumnVisible('migrated')}
-            <td><span class={migrationStatusIcon(project.migrationStatus)} /></td>
           {/if}
           {#if isColumnVisible('type')}
             <td>
