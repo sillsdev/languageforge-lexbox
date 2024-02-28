@@ -220,8 +220,13 @@
 
   async function streamHgCommandResponse(body: ReadableStream<Uint8Array> | null): Promise<void> {
     if (body == null) return;
-    const reader = body.getReader();
     const decoder = new TextDecoder();
+    // Would be nice to just do this:
+    // for await (const chunk of body) {
+    //   hgCommandResponse += decoder.decode(chunk, {stream: true});
+    // }
+    // But that only works on Firefox. So until Chrome implements that, we have to do this:
+    const reader = body.getReader();
     await reader.read().then(function handleChunk ({ done, value }): Promise<null> | null {
       // The {stream: true} is important here; without it, in theory the output could be
       // broken in the middle of a UTF-8 byte sequence and get garbled. But with stream: true,
