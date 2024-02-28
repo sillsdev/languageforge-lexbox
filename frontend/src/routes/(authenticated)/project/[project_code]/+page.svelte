@@ -227,15 +227,17 @@
     // }
     // But that only works on Firefox. So until Chrome implements that, we have to do this:
     const reader = body.getReader();
-    await reader.read().then(function handleChunk ({ done, value }): Promise<null> | null {
+    let done = false;
+    while (!done) {
+      let result = await reader.read();
+      done = result.done;
       // The {stream: true} is important here; without it, in theory the output could be
       // broken in the middle of a UTF-8 byte sequence and get garbled. But with stream: true,
       // TextDecoder() will know to expect more output, so if the stream returns a partial
       // UTF-8 sequence, TextDecoder() will return everything except that sequence and wait
       // for more bytes before decoding that sequence.
-      hgCommandResponse += decoder.decode(value, {stream: true});
-      return done ? null : reader.read().then(handleChunk);
-    });
+      if (result.value) hgCommandResponse += decoder.decode(result.value, {stream: true});
+    }
   }
 
   async function hgCommand(execute: ()=> Promise<Response>): Promise<void> {
