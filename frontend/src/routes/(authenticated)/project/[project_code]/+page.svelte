@@ -238,9 +238,8 @@
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
     await streamHgCommandResponse(response.body);
-    // hgCommandResponse = await response.text();
-    // let json = await response.json() as { response: string } | undefined;
-    // hgCommandResponse = json?.response ?? 'No response';
+    // Some commands, like hg recover, return nothing if there's nothing to be done
+    if (hgCommandResponse == '') hgCommandResponse = 'No response';
   }
 
   let openInFlexModal: OpenInFlexModal;
