@@ -199,9 +199,10 @@ public class ProjectController(
         var result = await hgService.VerifyRepo(code, HttpContext.RequestAborted);
         // Response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering(); // This does nothing????
         var writer = Response.BodyWriter;
+        Response.ContentType = "text/plain; charset=utf-8";
         // await Response.StartAsync();
         // await writer.FlushAsync(); // This does nothing????
-        await Response.WriteAsJsonAsync("Why does this work?\n"); // But this works???!!???
+        // await Response.WriteAsJsonAsync("Why does this work?\n"); // But this works???!!???
         await result.CopyToAsync(writer.AsStream());
         // await Response.CompleteAsync();
         // return new HgCommandResponse(result);
