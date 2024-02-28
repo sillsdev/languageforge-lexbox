@@ -46,22 +46,8 @@ case $command_name in
         chg tip --template '{node}'
         ;;
 
-    verify)
-        # Slowly stream a response
-        echo "Line 1/5"
-        sleep 1s
-        echo "Line 2/5"
-        sleep 1s
-        echo "Line 3/5"
-        # sleep 1s
-        echo "Line 4/5"
-        sleep 1s
-        echo "Line 5/5"
-        # sleep 1s
-        echo "Done"
-        ;;
-
     *)
-        chg $command_name 2>&1
+        # Env var PYTHONUNBUFFERED required for commands like verify and recover, so that output can stream back to the project page
+        PYTHONUNBUFFERED=1 chg $command_name
         ;;
 esac
