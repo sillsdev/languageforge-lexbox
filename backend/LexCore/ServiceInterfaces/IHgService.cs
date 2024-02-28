@@ -15,8 +15,8 @@ public interface IHgService
     Task ResetRepo(string code);
     Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken);
     Task FinishReset(string code, Stream zipFile);
-    Task<string> VerifyRepo(string code, CancellationToken token);
+    Task<HttpContent> VerifyRepo(string code, CancellationToken token);
     Task<int?> GetLexEntryCount(string code);
     Task<string?> GetRepositoryIdentifier(Project project);
-    Task<string> ExecuteHgRecover(string code, CancellationToken token);
+    Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token);
 }

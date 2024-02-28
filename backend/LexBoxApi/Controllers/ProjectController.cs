@@ -7,6 +7,8 @@ using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -183,18 +185,26 @@ public class ProjectController(
 
     public record HgCommandResponse(string Response);
     [HttpGet("hgVerify/{code}")]
-    [AdminRequired]
+    // [AdminRequired]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<HgCommandResponse>> HgVerify(string code)
+    public async Task HgVerify(string code)
     {
         var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
-        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        // if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
         var result = await hgService.VerifyRepo(code, HttpContext.RequestAborted);
-        return new HgCommandResponse(result);
+        // Response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering(); // This does nothing????
+        var writer = Response.BodyWriter;
+        // await Response.StartAsync();
+        // await writer.FlushAsync(); // This does nothing????
+        await Response.WriteAsJsonAsync("Why does this work?\n"); // But this works???!!???
+        await result.CopyToAsync(writer.AsStream());
+        // await Response.CompleteAsync();
+        // return new HgCommandResponse(result);
     }
 
     [HttpGet("hgRecover/{code}")]
@@ -202,14 +212,15 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<HgCommandResponse>> HgRecover(string code)
+    public async Task HgRecover(string code)
     {
         var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
-        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        // if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
         var result = await hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
-        return new HgCommandResponse(result);
+        var writer = Response.BodyWriter;
+        await result.CopyToAsync(writer.AsStream());
     }
 
     [HttpPost("updateLexEntryCount/{code}")]

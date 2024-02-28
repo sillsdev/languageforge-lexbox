@@ -218,12 +218,25 @@
     await hgCommand(async () => fetch(`/api/project/hgRecover/${project.code}`));
   }
 
+  async function streamHgCommandResponse(body: ReadableStream<Uint8Array> | null): Promise<void> {
+    if (body == null) return;
+    const reader = body.getReader();
+    const decoder = new TextDecoder();
+    await reader.read().then(function pump ({ done, value }): Promise<null> | null {
+      hgCommandResponse += decoder.decode(value, {stream: true});
+      console.log('Response so far:', hgCommandResponse);
+      return done ? null : reader.read().then(pump);
+    });
+  }
+
   async function hgCommand(execute: ()=> Promise<Response>): Promise<void> {
     hgCommandResponse = '';
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
-    let json = await response.json() as { response: string } | undefined;
-    hgCommandResponse = json?.response ?? 'No response';
+    await streamHgCommandResponse(response.body);
+    // hgCommandResponse = await response.text();
+    // let json = await response.json() as { response: string } | undefined;
+    // hgCommandResponse = json?.response ?? 'No response';
   }
 
   let openInFlexModal: OpenInFlexModal;
