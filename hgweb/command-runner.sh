@@ -46,6 +46,13 @@ case $command_name in
         chg tip --template '{node}'
         ;;
 
+    verify)
+        # Env var PYTHONUNBUFFERED required for commands like verify and recover, so that output can stream back to the project page
+        export PYTHONUNBUFFERED=1
+        # Need a timeout so hg verify won't take forever on the "checking files" step
+        timeout 5 chg verify
+        ;;
+
     *)
         # Env var PYTHONUNBUFFERED required for commands like verify and recover, so that output can stream back to the project page
         PYTHONUNBUFFERED=1 chg $command_name
