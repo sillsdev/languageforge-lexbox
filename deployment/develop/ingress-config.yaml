@@ -16,3 +16,52 @@
     - develop.lexbox.org
     - resumable-develop.lexbox.org
     - hg-develop.lexbox.org
+    - lexbox.dev.languagetechnology.org
+- op: add
+  path: /spec/rules/-
+  value:
+    host: lexbox.dev.languagetechnology.org
+    http:
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /hg
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /security.txt
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /.well-known
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /v1/traces
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: otel
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: ui
+              port:
+                name: sveltekit
