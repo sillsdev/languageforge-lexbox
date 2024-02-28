@@ -29,25 +29,24 @@ if [[ ! " ${allowed_commands[@]} " =~ " ${command_name} " ]]; then
     exit 1
 fi
 
-# Run the hg command
+# Start outputting the result right away so the HTTP connection won't be timed out
+echo "Content-type: text/plain"
+echo ""
+
+# Run the hg command, simply output to stdout
 cd /var/hg/repos/$project_code
 case $command_name in
 
     lexentrycount)
         # The \b for word boundary is necessary to distinguish LexEntry from LexEntryType and similar
-        command_output=$(chg cat -r tip Linguistics/Lexicon/Lexicon_{01,02,03,04,05,06,07,08,09,10}.lexdb | grep -c '<LexEntry\b')
+        chg cat -r tip Linguistics/Lexicon/Lexicon_{01,02,03,04,05,06,07,08,09,10}.lexdb | grep -c '<LexEntry\b'
         ;;
 
     tip)
-        command_output=$(chg tip --template '{node}')
+        chg tip --template '{node}'
         ;;
 
     *)
-        command_output=$(chg $command_name 2>&1)
+        chg $command_name 2>&1
         ;;
 esac
-
-# Output the result
-echo "Content-type: text/plain"
-echo ""
-echo "$command_output"
