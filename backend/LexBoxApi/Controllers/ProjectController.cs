@@ -226,6 +226,7 @@ public class ProjectController(
         }
         var result = await hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
         var writer = Response.BodyWriter;
+        Response.ContentType = "text/plain; charset=utf-8";
         await result.CopyToAsync(writer.AsStream());
     }
 
