@@ -222,14 +222,14 @@
     if (body == null) return;
     const reader = body.getReader();
     const decoder = new TextDecoder();
-    await reader.read().then(function pump ({ done, value }): Promise<null> | null {
+    await reader.read().then(function handleChunk ({ done, value }): Promise<null> | null {
       // The {stream: true} is important here; without it, in theory the output could be
       // broken in the middle of a UTF-8 byte sequence and get garbled. But with stream: true,
       // TextDecoder() will know to expect more output, so if the stream returns a partial
       // UTF-8 sequence, TextDecoder() will return everything except that sequence and wait
       // for more bytes before decoding that sequence.
       hgCommandResponse += decoder.decode(value, {stream: true});
-      return done ? null : reader.read().then(pump);
+      return done ? null : reader.read().then(handleChunk);
     });
   }
 
