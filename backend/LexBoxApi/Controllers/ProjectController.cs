@@ -202,9 +202,7 @@ public class ProjectController(
             return;
         }
         var result = await hgService.VerifyRepo(code, HttpContext.RequestAborted);
-        var writer = Response.BodyWriter;
-        Response.ContentType = "text/plain; charset=utf-8";
-        await result.CopyToAsync(writer.AsStream());
+        await StreamHttpResponse(result);
     }
 
     [HttpGet("hgRecover/{code}")]
@@ -225,9 +223,14 @@ public class ProjectController(
             return;
         }
         var result = await hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
+        await StreamHttpResponse(result);
+    }
+
+    public async Task StreamHttpResponse(HttpContent hgResult)
+    {
         var writer = Response.BodyWriter;
         Response.ContentType = "text/plain; charset=utf-8";
-        await result.CopyToAsync(writer.AsStream());
+        await hgResult.CopyToAsync(writer.AsStream());
     }
 
     [HttpPost("updateLexEntryCount/{code}")]
