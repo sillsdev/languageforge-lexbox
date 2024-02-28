@@ -185,8 +185,7 @@ public class ProjectController(
 
     public record HgCommandResponse(string Response);
     [HttpGet("hgVerify/{code}")]
-    // [AdminRequired]
-    [AllowAnonymous]
+    [AdminRequired]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
@@ -195,17 +194,17 @@ public class ProjectController(
         var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
-        // if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        if (migrationStatus is not ProjectMigrationStatus.Migrated)
+        {
+            // Used to return NotFound() but now we have to write the response manually
+            Response.StatusCode = 404;
+            await Response.CompleteAsync();
+            return;
+        }
         var result = await hgService.VerifyRepo(code, HttpContext.RequestAborted);
-        // Response.HttpContext.Features.Get<IHttpResponseBodyFeature>()?.DisableBuffering(); // This does nothing????
         var writer = Response.BodyWriter;
         Response.ContentType = "text/plain; charset=utf-8";
-        // await Response.StartAsync();
-        // await writer.FlushAsync(); // This does nothing????
-        // await Response.WriteAsJsonAsync("Why does this work?\n"); // But this works???!!???
         await result.CopyToAsync(writer.AsStream());
-        // await Response.CompleteAsync();
-        // return new HgCommandResponse(result);
     }
 
     [HttpGet("hgRecover/{code}")]
@@ -218,7 +217,13 @@ public class ProjectController(
         var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
-        // if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        if (migrationStatus is not ProjectMigrationStatus.Migrated)
+        {
+            // Used to return NotFound() but now we have to write the response manually
+            Response.StatusCode = 404;
+            await Response.CompleteAsync();
+            return;
+        }
         var result = await hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
         var writer = Response.BodyWriter;
         await result.CopyToAsync(writer.AsStream());

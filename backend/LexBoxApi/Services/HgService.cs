@@ -314,6 +314,7 @@ public partial class HgService : IHgService
     public async Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token)
     {
         var response = await ExecuteHgCommandServerCommand(code, "recover", token);
+        // Can't do this with a streamed response, unfortunately. Will have to do it client-side.
         // if (string.IsNullOrWhiteSpace(response)) return "Nothing to recover";
         return response;
     }
