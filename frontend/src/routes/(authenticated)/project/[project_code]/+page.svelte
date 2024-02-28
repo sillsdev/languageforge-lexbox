@@ -229,7 +229,6 @@
       // UTF-8 sequence, TextDecoder() will return everything except that sequence and wait
       // for more bytes before decoding that sequence.
       hgCommandResponse += decoder.decode(value, {stream: true});
-      console.log('Response so far:', hgCommandResponse);
       return done ? null : reader.read().then(pump);
     });
   }
