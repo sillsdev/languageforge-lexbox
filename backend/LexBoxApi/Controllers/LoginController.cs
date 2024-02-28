@@ -69,6 +69,7 @@ public class LoginController(
         return Challenge(authProps, GoogleDefaults.AuthenticationScheme);
     }
 
+    [NonAction]
     public async Task<string> CompleteGoogleLogin(ClaimsPrincipal? principal, string? returnTo)
     {
         returnTo ??= "/home";
