@@ -21,6 +21,16 @@ type AuthUserProject {
   projectId: UUID!
 }
 
+type BulkAddProjectMembersPayload {
+  bulkAddProjectMembersResult: BulkAddProjectMembersResult
+  errors: [BulkAddProjectMembersError!]
+}
+
+type BulkAddProjectMembersResult {
+  createdCount: Int!
+  usernameConflicts: [String!]!
+}
+
 type ChangeProjectDescriptionPayload {
   project: Project
   errors: [ChangeProjectDescriptionError!]
@@ -122,6 +132,7 @@ type MeDto {
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
+  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
@@ -222,6 +233,9 @@ type User {
   isAdmin: Boolean!
   lastActive: DateTime!
   canCreateProjects: Boolean!
+  createdById: UUID
+  createdBy: User
+  usersICreated: [User!]!
   googleId: String
   id: UUID!
   createdDate: DateTime!
@@ -238,6 +252,8 @@ type UsersCollectionSegment {
 }
 
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
+
+union BulkAddProjectMembersError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
@@ -266,6 +282,13 @@ input AddProjectMemberInput {
 input BooleanOperationFilterInput {
   eq: Boolean
   neq: Boolean
+}
+
+input BulkAddProjectMembersInput {
+  projectId: UUID!
+  usernames: [String!]!
+  role: ProjectRole!
+  passwordHash: String!
 }
 
 input ChangeProjectDescriptionInput {
@@ -360,6 +383,13 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput
   none: ProjectUsersFilterInput
   some: ProjectUsersFilterInput
+  any: Boolean
+}
+
+input ListFilterInputTypeOfUserFilterInput {
+  all: UserFilterInput
+  none: UserFilterInput
+  some: UserFilterInput
   any: Boolean
 }
 
@@ -496,6 +526,9 @@ input UserFilterInput {
   lastActive: DateTimeOperationFilterInput
   emailVerified: BooleanOperationFilterInput
   canCreateProjects: BooleanOperationFilterInput
+  createdById: UuidOperationFilterInput
+  createdBy: UserFilterInput
+  usersICreated: ListFilterInputTypeOfUserFilterInput
   locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
   googleId: StringOperationFilterInput
@@ -515,6 +548,8 @@ input UserSortInput {
   lastActive: SortEnumType
   emailVerified: SortEnumType
   canCreateProjects: SortEnumType
+  createdById: SortEnumType
+  createdBy: UserSortInput
   locked: SortEnumType
   username: SortEnumType
   googleId: SortEnumType
