@@ -55,7 +55,6 @@ export async function load(event: PageLoadEvent) {
               id
               name
               lastCommit
-                migrationStatus
               type
               deletedDate
               userCount

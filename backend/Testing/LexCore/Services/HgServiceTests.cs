@@ -16,9 +16,6 @@ public class HgServiceTests
 {
     private const string LexboxHgWeb = "https://hg.lexbox";
     private const string LexboxResumable = "https://resumable.lexbox";
-    private const string RedmineResumable = "https://resumable.redmine";
-    private const string RedminePublic = "https://public.redmine";
-    private const string RedminePrivate = "https://private.redmine";
     private readonly string _basePath = Path.Join(Path.GetTempPath(), "HgServiceTests");
     private readonly HgConfig _hgConfig;
     private readonly HgService _hgService;
@@ -31,10 +28,6 @@ public class HgServiceTests
             HgWebUrl = LexboxHgWeb,
             HgCommandServer = LexboxHgWeb + "/command/",
             HgResumableUrl = LexboxResumable,
-            PublicRedmineHgWebUrl = RedminePublic,
-            PrivateRedmineHgWebUrl = RedminePrivate,
-            RedmineHgResumableUrl = RedmineResumable,
-            RedmineTrustToken = "tt",
             SendReceiveDomain = LexboxHgWeb
         };
         _hgService = new HgService(new OptionsWrapper<HgConfig>(_hgConfig),
@@ -53,16 +46,11 @@ public class HgServiceTests
 
     [Theory]
     //lexbox
-    [InlineData(HgType.hgWeb, ProjectMigrationStatus.Migrated, LexboxHgWeb)]
-    [InlineData(HgType.resumable, ProjectMigrationStatus.Migrated, LexboxResumable)]
-    //redmine
-    [InlineData(HgType.hgWeb, ProjectMigrationStatus.PublicRedmine, RedminePublic)]
-    [InlineData(HgType.hgWeb, ProjectMigrationStatus.PrivateRedmine, RedminePrivate)]
-    [InlineData(HgType.resumable, ProjectMigrationStatus.PublicRedmine, RedmineResumable)]
-    [InlineData(HgType.resumable, ProjectMigrationStatus.PrivateRedmine, RedmineResumable)]
-    public void DetermineProjectPrefixWorks(HgType type, ProjectMigrationStatus status, string expectedUrl)
+    [InlineData(HgType.hgWeb, LexboxHgWeb)]
+    [InlineData(HgType.resumable, LexboxResumable)]
+    public void DetermineProjectPrefixWorks(HgType type, string expectedUrl)
     {
-        HgService.DetermineProjectUrlPrefix(type, "test", status, _hgConfig).ShouldBe(expectedUrl);
+        HgService.DetermineProjectUrlPrefix(type, _hgConfig).ShouldBe(expectedUrl);
     }
 
     [Theory]
@@ -70,8 +58,8 @@ public class HgServiceTests
     [InlineData(HgType.resumable)]
     public void ThrowsIfMigrating(HgType type)
     {
-        var act = () => HgService.DetermineProjectUrlPrefix(type, "test", ProjectMigrationStatus.Migrating, _hgConfig);
-        act.ShouldThrow<ProjectMigratingException>();
+        var act = () => HgService.DetermineProjectUrlPrefix(type, _hgConfig);
+        act.ShouldThrow<ProjectLockedException>();
     }
 
     [Theory]

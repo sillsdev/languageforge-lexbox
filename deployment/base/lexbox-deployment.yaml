@@ -126,11 +126,6 @@ spec:
             value: http://hg:8088/command/
           - name: HgConfig__HgResumableUrl
             value: http://hg:80/
-          - name: HgConfig__RedmineTrustToken
-            valueFrom:
-              secretKeyRef:
-                  key: RedmineTrustToken
-                  name: lexbox-api
           - name: CloudFlare__TurnstileKey
             valueFrom:
               secretKeyRef:

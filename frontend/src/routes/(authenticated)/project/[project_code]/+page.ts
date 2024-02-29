@@ -36,7 +36,6 @@ export async function load(event: PageLoadEvent) {
 						code
 						description
 						type
-            migrationStatus
             resetStatus
 						lastCommit
 						createdDate
@@ -239,7 +238,6 @@ export async function _refreshProjectMigrationStatusAndRepoInfo(projectCode: str
             projectByCode(code: $projectCode) {
                 id
                 resetStatus
-                migrationStatus
                 lastCommit
                 changesets {
                   node

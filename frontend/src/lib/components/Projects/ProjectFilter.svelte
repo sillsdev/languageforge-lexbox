@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import { type Project, ProjectMigrationStatus, type ProjectType } from '$lib/gql/types';
+  import { type Project, type ProjectType } from '$lib/gql/types';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
 
@@ -7,23 +7,8 @@
     projectSearch: string;
     projectType: ProjectType | undefined;
     showDeletedProjects: boolean;
-    migrationStatus: ProjectMigrationStatus | 'UNMIGRATED' | undefined;
     userEmail: string | undefined;
   };
-
-  function matchMigrationStatus(
-    filter: ProjectMigrationStatus | 'UNMIGRATED' | undefined,
-    status: ProjectMigrationStatus,
-  ): boolean {
-    return (
-      !filter ||
-      filter === status ||
-      (filter === 'UNMIGRATED' &&
-        (status === ProjectMigrationStatus.Unknown ||
-          status === ProjectMigrationStatus.PrivateRedmine ||
-          status === ProjectMigrationStatus.PublicRedmine))
-    );
-  }
 
   export function filterProjects(
     projects: ProjectItem[],
@@ -35,8 +20,7 @@
         (!searchLower ||
           p.name.toLocaleLowerCase().includes(searchLower) ||
           p.code.toLocaleLowerCase().includes(searchLower)) &&
-        (!projectFilters.projectType || p.type === projectFilters.projectType) &&
-        (!p.migrationStatus || matchMigrationStatus(projectFilters.migrationStatus, p.migrationStatus)),
+        (!projectFilters.projectType || p.type === projectFilters.projectType),
     );
   }
 </script>
@@ -50,14 +34,13 @@
   import { AuthenticatedUserIcon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
-  import MigrationStatusSelect from '$lib/forms/MigrationStatusSelect.svelte';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   export let filters: Writable<Filters>;
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -80,10 +63,6 @@
       {:else if filter.key === 'userEmail' && filter.value}
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
-          {filter.value}
-        </ActiveFilter>
-      {:else if filter.key === 'migrationStatus'}
-        <ActiveFilter {filter}>
           {filter.value}
         </ActiveFilter>
       {/if}
@@ -125,11 +104,6 @@
     {#if filterEnabled('projectType')}
       <div class="form-control">
         <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('project_type.any')} />
-      </div>
-    {/if}
-    {#if filterEnabled('migrationStatus')}
-      <div class="form-control">
-        <MigrationStatusSelect bind:value={$filters.migrationStatus} />
       </div>
     {/if}
     {#if filterEnabled('showDeletedProjects')}

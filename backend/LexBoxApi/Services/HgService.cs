@@ -36,23 +36,15 @@ public partial class HgService : IHgService
     [GeneratedRegex(Project.ProjectCodeRegex)]
     private static partial Regex ProjectCodeRegex();
 
-    private async Task<HttpResponseMessage> GetResponseMessage(ProjectMigrationStatus migrationStatus, string code, string requestPath)
+    private async Task<HttpResponseMessage> GetResponseMessage(string code, string requestPath)
     {
         if (!ProjectCodeRegex().IsMatch(code))
             throw new ArgumentException($"Invalid project code: {code}.");
         var client = _hgClient.Value;
-        AuthenticationHeaderValue? authHeader = null;
-        if (migrationStatus is ProjectMigrationStatus.PrivateRedmine or ProjectMigrationStatus.PublicRedmine)
-        {
-            authHeader = new ("Basic", Convert.ToBase64String(Encoding.ASCII.GetBytes($"lexbox:{_options.Value.RedmineTrustToken}")));
-        }
 
-        var urlPrefix = DetermineProjectUrlPrefix(HgType.hgWeb, code, migrationStatus, _options.Value);
+        var urlPrefix = DetermineProjectUrlPrefix(HgType.hgWeb, _options.Value);
         var requestUri = $"{urlPrefix}{code}/{requestPath}";
-        var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, requestUri)
-        {
-            Headers = { Authorization = authHeader }
-        });
+        var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, requestUri));
         response.EnsureSuccessStatusCode();
         return response;
     }
@@ -147,57 +139,6 @@ public partial class HgService : IHgService
         });
     }
 
-    public async Task<bool> MigrateRepo(Project project, CancellationToken cancellationToken)
-    {
-        using var activity = LexBoxActivitySource.Get().StartActivity();
-        _logger.LogInformation("Migrating repo {Code}", project.Code);
-        activity?.AddTag("app.project_code", project.Code);
-        //rsync data from remote server to /hg-repos
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            _logger.LogWarning("Skipping migration of repo {Code} because it's running on Windows," +
-                               " in debug builds this will report the migration as successful", project.Code);
-#if DEBUG
-            return true;
-#else
-            return false;
-#endif
-        }
-        var repoPath = Path.GetFullPath(_options.Value.RepoPath);
-        var remoteHost = _options.Value.MigrationHost;
-        var remotePathPart = project.ProjectOrigin == ProjectMigrationStatus.PublicRedmine ? "public" : "private";
-        var remotePath = $"/var/vcs/{remotePathPart}/{project.Code}";
-        var process = Process.Start(new ProcessStartInfo
-        {
-            FileName = "/bin/sh",
-            CreateNoWindow = true,
-            RedirectStandardError = true,
-            RedirectStandardOutput = false,
-            //.hg/cache is excluded since there can be issues reading and it's not required
-            Arguments = $"""
-                         -c "rsync -axhAXP --del --groupmap=hg:www-data --exclude=.hg/cache lexbox@{remoteHost}:{remotePath} {repoPath}"
-                         """,
-        });
-        if (process is null)
-        {
-            return false;
-        }
-
-        var errorTask = process.StandardError.ReadToEndAsync(cancellationToken);
-        await process.WaitForExitAsync(cancellationToken);
-        if (process.ExitCode == 0)
-        {
-            activity?.SetStatus(ActivityStatusCode.Ok);
-            _logger.LogInformation("Migration of repo {Code} finished", project.Code);
-            return true;
-        }
-        var error = await errorTask;
-        var description =
-            $"rsync for project {project.Code} failed with exit code {process.ExitCode}. Error: {error}.";
-        _logger.LogError(description);
-        activity?.SetStatus(ActivityStatusCode.Error, description);
-        return false;
-    }
 
     public Task RevertRepo(string code, string revHash)
     {
@@ -278,14 +219,13 @@ public partial class HgService : IHgService
 
     public async Task<string?> GetRepositoryIdentifier(Project project)
     {
-        var json = await GetCommit(project.Code, project.MigrationStatus, "0");
+        var json = await GetCommit(project.Code, "0");
         return json?["entries"]?.AsArray().FirstOrDefault()?["node"].Deserialize<string>();
     }
 
-    public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode,
-        ProjectMigrationStatus migrationStatus)
+    public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode)
     {
-        var json = await GetCommit(projectCode, migrationStatus, "tip");
+        var json = await GetCommit(projectCode, "tip");
         //format is this: [1678687688, offset] offset is
         var dateArray = json?["entries"]?[0]?["date"].Deserialize<decimal[]>();
         if (dateArray is null || dateArray.Length != 2 || dateArray[0] <= 0)
@@ -298,20 +238,15 @@ public partial class HgService : IHgService
         return date.ToUniversalTime();
     }
 
-    private async Task<JsonObject?> GetCommit(string projectCode,
-        ProjectMigrationStatus migrationStatus,
-        string rev)
+    private async Task<JsonObject?> GetCommit(string projectCode, string rev)
     {
-        var response = await GetResponseMessage(migrationStatus, projectCode, $"log?style=json-lex&rev={rev}");
+        var response = await GetResponseMessage(projectCode, $"log?style=json-lex&rev={rev}");
         return await response.Content.ReadFromJsonAsync<JsonObject>();
     }
 
-    public async Task<Changeset[]> GetChangesets(string projectCode, ProjectMigrationStatus migrationStatus)
+    public async Task<Changeset[]> GetChangesets(string projectCode)
     {
-#if DEBUG
-        if (migrationStatus is ProjectMigrationStatus.PublicRedmine or ProjectMigrationStatus.PrivateRedmine) return [];
-#endif
-        var response = await GetResponseMessage(migrationStatus, projectCode, "log?style=json-lex");
+        var response = await GetResponseMessage(projectCode, "log?style=json-lex");
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
     }
@@ -353,9 +288,9 @@ public partial class HgService : IHgService
             throw new ArgumentException($"Invalid repo name: {name}.");
     }
 
-    public async Task<ProjectType> DetermineProjectType(string projectCode, ProjectMigrationStatus migrationStatus)
+    public async Task<ProjectType> DetermineProjectType(string projectCode)
     {
-        var response = await GetResponseMessage(migrationStatus, projectCode, "file/tip?style=json-lex");
+        var response = await GetResponseMessage(projectCode, "file/tip?style=json-lex");
         var parsed = await response.Content.ReadFromJsonAsync<BrowseResponse>();
         bool hasDotSettingsFolder = false;
         // TODO: Move the heuristics below to a ProjectHeuristics class?
@@ -407,26 +342,14 @@ public partial class HgService : IHgService
     /// returns the url prefix for the given project code and migration status
     /// will end with a /
     /// </summary>
-    public static string DetermineProjectUrlPrefix(HgType type,
-        string projectCode,
-        ProjectMigrationStatus migrationStatus,
-        HgConfig hgConfig)
+    public static string DetermineProjectUrlPrefix(HgType type, HgConfig hgConfig)
     {
-        return (type, migrationStatus) switch
+        return (type) switch
         {
-            (_, ProjectMigrationStatus.Migrating) => throw new ProjectMigratingException(projectCode),
-            //migrated projects
-            (HgType.hgWeb, ProjectMigrationStatus.Migrated) => hgConfig.HgWebUrl,
-            (HgType.resumable, ProjectMigrationStatus.Migrated) => hgConfig.HgResumableUrl,
-
-            //not migrated projects
-            (HgType.hgWeb, ProjectMigrationStatus.PublicRedmine) => hgConfig.PublicRedmineHgWebUrl,
-            (HgType.hgWeb, ProjectMigrationStatus.PrivateRedmine) => hgConfig.PrivateRedmineHgWebUrl,
-            //all resumable redmine go to the same place
-            (HgType.resumable, ProjectMigrationStatus.PublicRedmine) => hgConfig.RedmineHgResumableUrl,
-            (HgType.resumable, ProjectMigrationStatus.PrivateRedmine) => hgConfig.RedmineHgResumableUrl,
+            (HgType.hgWeb) => hgConfig.HgWebUrl,
+            (HgType.resumable) => hgConfig.HgResumableUrl,
             _ => throw new ArgumentException(
-                $"Unknown request, HG request type: {type}, migration status: {migrationStatus}")
+                $"Unknown request, HG request type: {type}")
         };
     }
 }
