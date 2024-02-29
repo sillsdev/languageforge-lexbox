@@ -163,7 +163,7 @@ public class LoginController(
     [AllowAnonymous]
     public async Task<ActionResult<LexAuthUser>> Login(LoginRequest loginRequest)
     {
-        var (user, error) = await lexAuthService.Login(loginRequest);
+        var (user, _, error) = await lexAuthService.Login(loginRequest);
 
         if (error is not null)
         {
