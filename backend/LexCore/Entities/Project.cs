@@ -44,6 +44,11 @@ public class Project : EntityBase
             return await hgService.GetChangesets(Code, MigrationStatus);
         }
     }
+
+    public bool GetHasAbandonedTransactions(IHgService hgService)
+    {
+        return hgService.HasAbandonedTransactions(Code);
+    }
 }
 
 public enum ProjectMigrationStatus

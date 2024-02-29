@@ -266,6 +266,11 @@ public partial class HgService : IHgService
         }
     }
 
+    public bool HasAbandonedTransactions(string projectCode)
+    {
+        return Path.Exists(Path.Combine(_options.Value.RepoPath, projectCode, ".hg", "store", "journal"));
+    }
+
     public async Task<string?> GetRepositoryIdentifier(Project project)
     {
         var json = await GetCommit(project.Code, project.MigrationStatus, "0");

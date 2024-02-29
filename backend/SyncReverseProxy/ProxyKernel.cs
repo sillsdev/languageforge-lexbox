@@ -83,6 +83,7 @@ public static class ProxyKernel
         var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
+        var hgService = context.RequestServices.GetRequiredService<IHgService>();
         var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
         var repoMigrationService = context.RequestServices.GetRequiredService<IRepoMigrationService>();
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
@@ -123,6 +124,9 @@ public static class ProxyKernel
                     await eventsService.OnResumableRequest(context);
                     break;
             }
+
+            if (hgService.HasAbandonedTransactions(projectCode))
+                Activity.Current?.AddTag("app.abandoned_transaction_detected", true);
         }
         catch (Exception e)
         {
