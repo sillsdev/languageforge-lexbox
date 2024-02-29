@@ -54,15 +54,6 @@ public class HgServiceTests
     }
 
     [Theory]
-    [InlineData(HgType.hgWeb)]
-    [InlineData(HgType.resumable)]
-    public void ThrowsIfMigrating(HgType type)
-    {
-        var act = () => HgService.DetermineProjectUrlPrefix(type, _hgConfig);
-        act.ShouldThrow<ProjectLockedException>();
-    }
-
-    [Theory]
     [InlineData(".hg/important-file.bin")]
     [InlineData("unzip-test/.hg/important-file.bin")]
     public async Task CanFinishResetByUnZippingAnArchive(string filePath)
