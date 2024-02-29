@@ -7,6 +7,8 @@ using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -187,14 +189,20 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<HgCommandResponse>> HgVerify(string code)
+    public async Task HgVerify(string code)
     {
         var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
-        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        if (migrationStatus is not ProjectMigrationStatus.Migrated)
+        {
+            // Used to return NotFound() but now we have to write the response manually
+            Response.StatusCode = 404;
+            await Response.CompleteAsync();
+            return;
+        }
         var result = await hgService.VerifyRepo(code, HttpContext.RequestAborted);
-        return new HgCommandResponse(result);
+        await StreamHttpResponse(result);
     }
 
     [HttpGet("hgRecover/{code}")]
@@ -202,14 +210,28 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<HgCommandResponse>> HgRecover(string code)
+    public async Task HgRecover(string code)
     {
         var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
             .Select(p => p.MigrationStatus)
             .FirstOrDefaultAsync();
-        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        if (migrationStatus is not ProjectMigrationStatus.Migrated)
+        {
+            // Used to return NotFound() but now we have to write the response manually
+            Response.StatusCode = 404;
+            await Response.CompleteAsync();
+            return;
+        }
         var result = await hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
-        return new HgCommandResponse(result);
+        await StreamHttpResponse(result);
+    }
+
+    public async Task StreamHttpResponse(HttpContent hgResult)
+    {
+        var writer = Response.BodyWriter;
+        //  Browsers want to see a content type or they won't stream the output of the fetch() call
+        Response.ContentType = "text/plain; charset=utf-8";
+        await hgResult.CopyToAsync(writer.AsStream());
     }
 
     [HttpPost("updateLexEntryCount/{code}")]

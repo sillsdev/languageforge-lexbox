@@ -218,12 +218,35 @@
     await hgCommand(async () => fetch(`/api/project/hgRecover/${project.code}`));
   }
 
+  async function streamHgCommandResponse(body: ReadableStream<Uint8Array> | null): Promise<void> {
+    if (body == null) return;
+    const decoder = new TextDecoder();
+    // Would be nice to just do this:
+    // for await (const chunk of body) {
+    //   hgCommandResponse += decoder.decode(chunk, {stream: true});
+    // }
+    // But that only works on Firefox. So until Chrome implements that, we have to do this:
+    const reader = body.getReader();
+    let done = false;
+    let value;
+    while (!done) {
+      ({done, value} = await reader.read());
+      // The {stream: true} is important here; without it, in theory the output could be
+      // broken in the middle of a UTF-8 byte sequence and get garbled. But with stream: true,
+      // TextDecoder() will know to expect more output, so if the stream returns a partial
+      // UTF-8 sequence, TextDecoder() will return everything except that sequence and wait
+      // for more bytes before decoding that sequence.
+      if (value) hgCommandResponse += decoder.decode(value, {stream: true});
+    }
+  }
+
   async function hgCommand(execute: ()=> Promise<Response>): Promise<void> {
     hgCommandResponse = '';
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
-    let json = await response.json() as { response: string } | undefined;
-    hgCommandResponse = json?.response ?? 'No response';
+    await streamHgCommandResponse(response.body);
+    // Some commands, like hg recover, return nothing if there's nothing to be done
+    if (hgCommandResponse == '') hgCommandResponse = 'No response';
   }
 
   let openInFlexModal: OpenInFlexModal;

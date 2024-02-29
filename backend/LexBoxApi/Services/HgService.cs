@@ -307,30 +307,32 @@ public partial class HgService : IHgService
     }
 
 
-    public async Task<string> VerifyRepo(string code, CancellationToken token)
+    public Task<HttpContent> VerifyRepo(string code, CancellationToken token)
     {
-        return await ExecuteHgCommandServerCommand(code, "verify", token);
+        return ExecuteHgCommandServerCommand(code, "verify", token);
     }
-    public async Task<string> ExecuteHgRecover(string code, CancellationToken token)
+    public async Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token)
     {
         var response = await ExecuteHgCommandServerCommand(code, "recover", token);
-        if (string.IsNullOrWhiteSpace(response)) return "Nothing to recover";
+        // Can't do this with a streamed response, unfortunately. Will have to do it client-side.
+        // if (string.IsNullOrWhiteSpace(response)) return "Nothing to recover";
         return response;
     }
 
     public async Task<int?> GetLexEntryCount(string code)
     {
-        var str = await ExecuteHgCommandServerCommand(code, "lexentrycount", default);
+        var content = await ExecuteHgCommandServerCommand(code, "lexentrycount", default);
+        var str = await content.ReadAsStringAsync();
         return int.TryParse(str, out int result) ? result : null;
     }
 
-    private async Task<string> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
+    private async Task<HttpContent> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
-        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", token);
+        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadAsStringAsync();
+        return response.Content;
     }
 
     private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };
