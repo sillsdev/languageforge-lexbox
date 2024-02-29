@@ -22,6 +22,9 @@ public class User : EntityBase
     public DateTimeOffset LastActive { get; set; } = DateTimeOffset.UtcNow;
     public required bool EmailVerified { get; set; }
     public required bool CanCreateProjects { get; set; }
+    public Guid? CreatedById { get; set; }
+    public User? CreatedBy { get; set; }
+    public List<User> UsersICreated { get; set; } = new(); // TODO: Better name? Or is this good?
 
     public void UpdateCreateProjectsPermission(ProjectRole role)
     {
