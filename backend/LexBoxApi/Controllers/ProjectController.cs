@@ -229,6 +229,7 @@ public class ProjectController(
     public async Task StreamHttpResponse(HttpContent hgResult)
     {
         var writer = Response.BodyWriter;
+        //  Browsers want to see a content type or they won't stream the output of the fetch() call
         Response.ContentType = "text/plain; charset=utf-8";
         await hgResult.CopyToAsync(writer.AsStream());
     }
