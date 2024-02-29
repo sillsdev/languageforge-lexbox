@@ -56,11 +56,13 @@ public class AdminController : ControllerBase
         var project = await _lexBoxDbContext.Projects.FindAsync(request.ProjectId);
         if (project is null) return NotFound();
         List<string> usernameConflicts = [];
+        int count = 0;
         foreach (var username in request.Usernames)
         {
             var user = await _lexBoxDbContext.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
             if (user is null)
             {
+                count++;
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
                 user = new User
                 {
@@ -92,6 +94,6 @@ public class AdminController : ControllerBase
             }
         }
         await _lexBoxDbContext.SaveChangesAsync();
-        return Ok(usernameConflicts);
+        return Ok(new { CreatedCount = count, UsernameConflicts = usernameConflicts });
     }
 }
