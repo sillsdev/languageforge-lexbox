@@ -1,8 +1,10 @@
 ﻿using LexBoxApi.Auth;
+using System.Security.Cryptography;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
+using LexCore;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -82,6 +84,64 @@ public class ProjectMutations
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
+    [Error<ProjectMemberInvitedByEmail>]
+    [AdminRequired]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
+        LoggedInContext loggedInContext,
+        BulkAddProjectMembersInput input,
+        LexBoxDbContext dbContext)
+    {
+        var admin = await dbContext.Users.FindAsync(loggedInContext.User.Id);
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        // if (project is null) return NotFound();
+        List<string> usernameConflicts = [];
+        int count = 0;
+        foreach (var username in input.Usernames)
+        {
+            var user = await dbContext.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
+            if (user is null)
+            {
+                count++;
+                var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+                user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = username,
+                    Name = username,
+                    Email = "",
+                    LocalizationCode = "en", // TODO: input.Locale,
+                    Salt = salt,
+                    PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+                    IsAdmin = false,
+                    EmailVerified = false,
+                    CreatedBy = admin,
+                    Locked = false,
+                    CanCreateProjects = false
+                };
+                user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
+                dbContext.Add(user);
+            }
+            else
+            {
+                usernameConflicts.Add(username);
+                var projectUser = await dbContext.ProjectUsers.FirstOrDefaultAsync(
+                    u => u.ProjectId == input.ProjectId && u.UserId == user.Id);
+                if (projectUser is null)
+                {
+                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
+                }
+            }
+        }
+        await dbContext.SaveChangesAsync();
+        return new BulkAddProjectMembersResult(count, usernameConflicts);
     }
 
     [Error<NotFoundException>]
