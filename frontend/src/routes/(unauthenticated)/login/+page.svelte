@@ -21,13 +21,14 @@
     email: z.string().min(1, $t('login.missing_user_info')),
     password: z.string().min(1, $t('login.password_missing')),
   });
+  let passwordStrength: 0|1|2|3|4;
   let { form, errors, message, enhance, submitting } = lexSuperForm(
     formSchema,
     async () => {
       errors.clear();
       badCredentials = false;
 
-      const loginResult = await login($form.email, $form.password);
+      const loginResult = await login($form.email, $form.password, passwordStrength);
 
       if (loginResult.success) {
         await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
@@ -80,7 +81,7 @@
             autocomplete="current-password"
           />
 
-          <PasswordStrengthMeter password={$form.password} />
+          <PasswordStrengthMeter password={$form.password} bind:score={passwordStrength} />
 
           <div class="markdown-wrapper">
             <FormError error={$message} markdown />

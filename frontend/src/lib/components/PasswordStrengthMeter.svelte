@@ -7,6 +7,8 @@
   export let bad = 0;
   export let poor = 2;
 
+  export let score: 0|1|2|3|4;
+
   function passwordStrengthColor(score: number): 'error' | 'warning' | 'success' {
     if (score <= bad) return 'error';
     if (score <= poor) return 'warning';

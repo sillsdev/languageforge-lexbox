@@ -18,11 +18,20 @@ public class UserService(LexBoxDbContext dbContext, EmailService emailService, L
 
     public async Task UpdatePasswordStrength(Guid id, LexCore.LoginRequest loginRequest)
     {
-        if (!loginRequest.PreHashedPassword && await dbContext.Users.AnyAsync(u => u.Id == id && u.PasswordStrength == null))
+        var canCalculateScore = !loginRequest.PreHashedPassword;
+        var hasScore = loginRequest.PasswordStrength != null;
+        if ((canCalculateScore || hasScore) &&
+            await dbContext.Users.AnyAsync(u => u.Id == id && u.PasswordStrength == null))
         {
-            var strength = Zxcvbn.Core.EvaluatePassword(loginRequest.Password);
-            await dbContext.Users.Where(u => u.Id == id)
-                .ExecuteUpdateAsync(c => c.SetProperty(u => u.PasswordStrength, strength.Score));
+            var score =
+                hasScore ? loginRequest.PasswordStrength :
+                canCalculateScore ? Zxcvbn.Core.EvaluatePassword(loginRequest.Password).Score :
+                null;
+            if (score is not null and >= 0 and <= 4)
+            {
+                await dbContext.Users.Where(u => u.Id == id)
+                    .ExecuteUpdateAsync(c => c.SetProperty(u => u.PasswordStrength, score));
+            }
         }
     }
 

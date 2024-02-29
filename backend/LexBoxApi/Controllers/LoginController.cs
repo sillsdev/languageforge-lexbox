@@ -175,6 +175,7 @@ public class LoginController(
         }
 
         await userService.UpdateUserLastActive(user.Id);
+        await userService.UpdatePasswordStrength(user.Id, loginRequest);
         await HttpContext.SignInAsync(user.GetPrincipal("Password"),
             new AuthenticationProperties { IsPersistent = true });
         return user;
