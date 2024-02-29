@@ -16,13 +16,13 @@ public class UserService(LexBoxDbContext dbContext, EmailService emailService, L
             .ExecuteUpdateAsync(c => c.SetProperty(u => u.LastActive, DateTimeOffset.UtcNow));
     }
 
-    public async Task UpdatePasswordStrength(LexCore.Entities.User user, LexCore.LoginRequest loginRequest)
+    public async Task UpdatePasswordStrength(Guid id, LexCore.LoginRequest loginRequest)
     {
-        if (user.PasswordStrength is null && !loginRequest.PreHashedPassword)
+        if (!loginRequest.PreHashedPassword && await dbContext.Users.AnyAsync(u => u.Id == id && u.PasswordStrength == null))
         {
             var strength = Zxcvbn.Core.EvaluatePassword(loginRequest.Password);
-            user.PasswordStrength = strength.Score;
-            await dbContext.SaveChangesAsync();
+            await dbContext.Users.Where(u => u.Id == id)
+                .ExecuteUpdateAsync(c => c.SetProperty(u => u.PasswordStrength, strength.Score));
         }
     }
 

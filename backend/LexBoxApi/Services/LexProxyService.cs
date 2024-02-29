@@ -37,7 +37,7 @@ public class LexProxyService : ILexProxyService
         if (user is not null)
         {
             await _userService.UpdateUserLastActive(user.Id);
-            if (dbUser is not null) await _userService.UpdatePasswordStrength(dbUser, loginRequest);
+            await _userService.UpdatePasswordStrength(user.Id, loginRequest);
         }
         return user;
     }
