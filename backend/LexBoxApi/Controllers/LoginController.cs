@@ -233,6 +233,7 @@ public class LoginController(
         var user = await lexBoxDbContext.Users.FindAsync(lexAuthUser.Id);
         if (user == null) return NotFound();
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
+        await userService.ResetPasswordStrength(user.Id);
         user.UpdateUpdatedDate();
         await lexBoxDbContext.SaveChangesAsync();
         await emailService.SendPasswordChangedEmail(user);
