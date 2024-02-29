@@ -323,6 +323,7 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
     "close_all": "Fermer tout"
   },
   "emails": {
+    "link_expiration_warning": "Cet e-mail expirera dans 3 jours.",
     "verify_email": {
       "subject": "Vérifiez votre adresse e-mail",
       "to_verify_click": "Cliquez sur le bouton ci-dessous pour vérifier votre adresse e-mail.",

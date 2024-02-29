@@ -350,6 +350,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "close_all": "Close all"
   },
   "emails": {
+    "link_expiration_warning": "This email will expire in 3 days.",
     "new_admin": {
       "subject": "New Language Depot administrator {adminName}",
       "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."
