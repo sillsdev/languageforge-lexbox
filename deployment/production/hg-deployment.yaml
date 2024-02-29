@@ -1,0 +1,15 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hg
+  namespace: languagedepot
+spec:
+  template:
+    spec:
+      containers:
+        - name: hgweb
+          resources:
+            requests:
+              memory: 1000Mi
+            limits:
+              memory: 1000Mi
