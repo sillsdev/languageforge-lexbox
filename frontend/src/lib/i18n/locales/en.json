@@ -182,6 +182,15 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_not_verified": "User has not verified their email address",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
     },
+    "bulk_add_members": {
+      "add_button": "Bulk Add Members",
+      "modal_title": "Add many Members to this project",
+      "submit_button": "Bulk Add Members",
+      "shared_password": "Shared Password",
+      "usernames": "Usernames (one per line)",
+      "project_not_found": "Project not found. Please refresh the page.",
+      "creator_must_have_email": "You must have an email address in order to create a project.",
+    },
     "change_role_modal": {
       "title": "Choose role for {name}"
     },
@@ -219,6 +228,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "rename_project": "Project name set to {name}.",
       "describe": "Project description has been updated.",
       "add_member": "{email} has been added to project.",
+      "bulk_add_members": "{count} new members have been added to project.",
       "member_invited": "{email} has been sent an invitation email to register and join the project."
     },
     "project_name_empty_error": "Project name cannot be empty",

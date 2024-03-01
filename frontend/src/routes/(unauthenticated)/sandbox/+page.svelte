@@ -8,7 +8,6 @@
   import {t as otherT} from 'svelte-intl-precompile';
   import t from '$lib/i18n';
   import {_gqlThrows500} from './+page';
-  import BulkAddUsers from '$lib/components/Users/BulkAddUsers.svelte';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -65,7 +64,6 @@ function preFillForm(): void {
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
       <TusUpload internalButton endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
-      <BulkAddUsers projectId="0ebc5976-058d-4447-aaa7-297f8569f968" />
     </div>
   </div>
 

@@ -17,6 +17,7 @@
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
+  import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon, type IconString } from '$lib/icons';
   import type { BadgeVariant } from '$lib/components/Badges/Badge.svelte';
@@ -425,8 +426,11 @@
           {/if}
 
           {#if canManage}
-            <div class="place-self-end" style="grid-column: -2 / -1">
+            <div class="place-self-end" style="grid-column: -3 / -2">
               <AddProjectMember projectId={project.id} />
+            </div>
+            <div class="place-self-end" style="grid-column: -2 / -1">
+              <BulkAddProjectMembers projectId={project.id} />
             </div>
           {/if}
 
