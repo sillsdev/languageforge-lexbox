@@ -58,7 +58,7 @@ builder.Services.AddSingleton(services =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    options.SwaggerDoc(LexBoxKernel.SwaggerDocumentName, new OpenApiInfo
     {
         Title = "LexBoxApi",
         Description = """

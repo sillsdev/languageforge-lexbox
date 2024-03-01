@@ -226,7 +226,7 @@ public class ProjectController(
         await StreamHttpResponse(result);
     }
 
-    public async Task StreamHttpResponse(HttpContent hgResult)
+    private async Task StreamHttpResponse(HttpContent hgResult)
     {
         var writer = Response.BodyWriter;
         //  Browsers want to see a content type or they won't stream the output of the fetch() call
