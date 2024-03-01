@@ -95,8 +95,6 @@ public class ProjectMutations
     [Error<ProjectMemberInvitedByEmail>]
     [AdminRequired]
     [UseMutationConvention]
-    [UseFirstOrDefault]
-    [UseProjection]
     public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
         LoggedInContext loggedInContext,
         BulkAddProjectMembersInput input,
