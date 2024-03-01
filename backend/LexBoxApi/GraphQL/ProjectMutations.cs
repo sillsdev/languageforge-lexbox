@@ -119,7 +119,7 @@ public class ProjectMutations
                     Id = Guid.NewGuid(),
                     Username = username,
                     Name = username,
-                    Email = "",
+                    Email = null,
                     LocalizationCode = "en", // TODO: input.Locale,
                     Salt = salt,
                     PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
