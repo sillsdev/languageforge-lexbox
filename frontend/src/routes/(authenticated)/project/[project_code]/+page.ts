@@ -2,6 +2,8 @@ import type {
   $OpResult,
   AddProjectMemberInput,
   AddProjectMemberMutation,
+  BulkAddProjectMembersInput,
+  BulkAddProjectMembersMutation,
   ChangeProjectDescriptionInput,
   ChangeProjectDescriptionMutation,
   ChangeProjectMemberRoleInput,
@@ -127,6 +129,30 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
             }
             errors {
               __typename
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
+}
+
+// public record BulkAddProjectMembersInput(Guid ProjectId, string[] Usernames, ProjectRole Role, string PasswordHash);
+
+export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput): $OpResult<BulkAddProjectMembersMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation BulkAddProjectMembers($input: BulkAddProjectMembersInput!) {
+          bulkAddProjectMembers(input: $input) {
+            bulkAddProjectMembersResult {
+              createdCount
+              usernameConflicts
+            }
+            errors {
+            __typename
             }
           }
         }
