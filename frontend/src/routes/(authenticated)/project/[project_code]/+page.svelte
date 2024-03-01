@@ -360,7 +360,6 @@
                 icon="i-mdi-content-copy"
                 size="btn-sm"
                 variant="btn-ghost"
-                outline={false}
                 on:click={copyProjectCodeToClipboard}
               />
             {/if}
@@ -375,7 +374,7 @@
           <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>
         {#if project.type === ProjectType.FlEx}
-        <div class="text-lg">
+        <div class="text-lg inline-flex items-center gap-1">
           {$t('project_page.num_entries')}:
           <span class="text-secondary">
             {$number(lexEntryCount)}

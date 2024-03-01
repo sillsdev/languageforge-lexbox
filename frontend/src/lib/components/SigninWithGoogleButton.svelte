@@ -3,91 +3,69 @@
   import t from '$lib/i18n';
 </script>
 
-<div class="google-signin-top-level" style="position: relative;">
-<a data-sveltekit-preload-data="false" {href}>
-<div tabindex="0" role="button" aria-labelledby="button-label" class="google-signin-button bg-google-blue text-white-no-border">
-<div class="hover-target">
-</div>
-<div class="flex-container">
-<div class="logo-with-bg">
-<div class="logo-alone">
-<!-- Official Google logo, do not modify -->
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-<g>
-<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-<path fill="none" d="M0 0h48v48H0z" />
-</g>
-</svg>
-</div>
-</div>
-<span class="visible-label">
-  {$t('login.sign_in_with_google')}</span>
-<span class="hidden-label" id="button-label">
-  {$t('login.sign_in_with_google')}</span>
-</div>
-</div>
+<!--
+  Markup and style from: https://developers.google.com/identity/branding-guidelines#expandable-1#
+  Changes:
+  - added btn class to root so it animates like our other buttons
+  - unset min-height from .btn, because it results in padding that breaks the guidelines
+  - commented out original transitions (i.e. animations)
+  - commented out overflow: hidden, because it's unnecessary and makes text ugly on click (due to .btn)
+  - added media query for dark mode using colors from the guidelines
+-->
+<a data-sveltekit-preload-data="false" {href} class="gsi-material-button btn">
+  <div class="gsi-material-button-state"></div>
+  <div class="gsi-material-button-content-wrapper">
+    <div class="gsi-material-button-icon">
+      <svg
+        version="1.1"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        style="display: block;"
+      >
+        <path
+          fill="#EA4335"
+          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+        ></path>
+        <path
+          fill="#4285F4"
+          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+        ></path>
+        <path
+          fill="#FBBC05"
+          d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+        ></path>
+        <path
+          fill="#34A853"
+          d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+        ></path>
+        <path fill="none" d="M0 0h48v48H0z"></path>
+      </svg>
+    </div>
+    <span class="gsi-material-button-contents">{$t('login.sign_in_with_google')}</span>
+    <span style="display: none;">{$t('login.sign_in_with_google')}</span>
+  </div>
 </a>
-</div>
 
 <style>
-  .google-signin-top-level, .google-signin-top-level * {
-    border: none;
-    margin: 0;
-    padding: 0;
-  }
+  .gsi-material-button {
+    /* EDIT: */
+    min-height: unset;
 
-  .google-signin-button .logo-with-bg .logo-alone {
-    margin: 0;
-    padding: 0;
-  }
-
-  .google-signin-button.bg-google-blue {
-    background-color: #1a73e8;
-  }
-
-  .google-signin-button.text-white-no-border {
-    border: none;
-    color: #fff;
-  }
-
-  .google-signin-button.text-white-no-border:hover .hover-target,
-  .google-signin-button.text-white-no-border:focus .hover-target {
-    background: rgba(255,255,255,.24);
-  }
-
-  .google-signin-button.text-white-no-border:active .hover-target {
-    background: rgba(255,255,255,.32);
-  }
-
-  .google-signin-button:hover,
-  .google-signin-button:focus {
-    box-shadow: none;
-    border-color: #d2e3fc;
-    outline: none;
-  }
-  .google-signin-button:hover .hover-target,
-  .google-signin-button:focus .hover-target {
-    background: rgba(66,133,244,.04);
-  }
-  .google-signin-button:active .hover-target {
-    background: rgba(66,133,244,.1);
-  }
-
-  .google-signin-button {
-    border-radius: 4px;
-    box-sizing: border-box;
-    transition: background-color .218s,border-color .218s;
     -moz-user-select: none;
-    user-select: none;
-    background-color: #fff;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-appearance: none;
+    background-color: WHITE;
     background-image: none;
-    border: 1px solid #dadce0;
-    color: #3c4043;
+    border: 1px solid #747775;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    color: #1f1f1f;
     cursor: pointer;
-    font-family: "Google Sans",arial,sans-serif;
+    font-family: 'Roboto', arial, sans-serif;
     font-size: 14px;
     height: 40px;
     letter-spacing: 0.25px;
@@ -96,77 +74,120 @@
     padding: 0 12px;
     position: relative;
     text-align: center;
+    /* EDIT:
+    -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+    transition: background-color .218s, border-color .218s, box-shadow .218s;
+    */
     vertical-align: middle;
     white-space: nowrap;
     width: auto;
+    max-width: 400px;
+    min-width: min-content;
   }
 
-  @media screen and (-ms-high-contrast:active) {
-    .google-signin-button {
-      border: 2px solid windowText;
-      color: windowText;
-    }
+  .gsi-material-button .gsi-material-button-icon {
+    height: 20px;
+    margin-right: 12px;
+    min-width: 20px;
+    width: 20px;
   }
 
-  .google-signin-button .hover-target {
-    transition: background-color .218s;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-  }
-
-  .google-signin-button .flex-container {
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    position: relative;
+  .gsi-material-button .gsi-material-button-content-wrapper {
+    -webkit-align-items: center;
     align-items: center;
+    display: flex;
+    -webkit-flex-direction: row;
     flex-direction: row;
-    justify-content: space-between;
+    -webkit-flex-wrap: nowrap;
     flex-wrap: nowrap;
     height: 100%;
+    justify-content: space-between;
+    position: relative;
     width: 100%;
   }
 
-  .google-signin-button .logo-with-bg {
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #fff;
-    height: 36px;
-    margin-left: -10px;
-    margin-right: 12px;
-    min-width: 36px;
-    width: 36px;
-  }
-
-  .google-signin-button .logo-alone {
-    height: 18px;
-    margin-right: 8px;
-    min-width: 18px;
-    width: 18px;
-  }
-
-  .google-signin-button .visible-label {
+  .gsi-material-button .gsi-material-button-contents {
+    -webkit-flex-grow: 1;
     flex-grow: 1;
-    font-family: "Google Sans",arial,sans-serif;
+    font-family: 'Roboto', arial, sans-serif;
     font-weight: 500;
+    /* EDIT:
     overflow: hidden;
+    */
     text-overflow: ellipsis;
     vertical-align: top;
   }
 
-  .hidden-label {
-    display: none;
+  .gsi-material-button .gsi-material-button-state {
+    -webkit-transition: opacity 0.218s;
+    transition: opacity .218s;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .gsi-material-button:disabled {
+    cursor: default;
+    background-color: #ffffff61;
+    border-color: #1f1f1f1f;
+  }
+
+  .gsi-material-button:disabled .gsi-material-button-contents {
+    opacity: 38%;
+  }
+
+  .gsi-material-button:disabled .gsi-material-button-icon {
+    opacity: 38%;
+  }
+
+  .gsi-material-button:not(:disabled):active .gsi-material-button-state,
+  .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+    background-color: #303030;
+    opacity: 12%;
+  }
+
+  /* EDIT:
+  .gsi-material-button:not(:disabled):hover {
+    -webkit-box-shadow:
+      0 1px 2px 0 rgba(60, 64, 67, 0.3),
+      0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    box-shadow:
+      0 1px 2px 0 rgba(60, 64, 67, 0.3),
+      0 1px 3px 1px rgba(60, 64, 67, 0.15);
+  }
+  */
+
+  .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+    background-color: #303030;
+    opacity: 8%;
+  }
+
+  /* EDIT: */
+  @media (prefers-color-scheme: dark) {
+    .gsi-material-button {
+      background-color: #131314;
+      color: #e3e3e3;
+      border-color: #8e918f;
+    }
+
+    .gsi-material-button:disabled {
+      background-color: #13131461;
+      border-color: #8e918f1f;
+    }
+
+    .gsi-material-button:disabled .gsi-material-button-state {
+      background-color: #e3e3e31f;
+    }
+
+    .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+      background-color: white;
+    }
+
+    .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+      background-color: white;
+    }
   }
 </style>
