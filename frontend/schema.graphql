@@ -110,7 +110,7 @@ type LexAuthUser {
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
-  email: String!
+  email: String
   name: String!
   role: UserRole!
   isAdmin: Boolean!
@@ -170,6 +170,10 @@ type Project {
   updatedDate: DateTime!
 }
 
+type ProjectCreatorsMustHaveEmail implements Error {
+  message: String!
+}
+
 type ProjectMemberInvitedByEmail implements Error {
   message: String!
 }
@@ -223,7 +227,7 @@ type UniqueValueError implements Error {
 }
 
 type User {
-  email: String! @authorize(policy: "AdminRequiredPolicy")
+  email: String @authorize(policy: "AdminRequiredPolicy")
   emailVerified: Boolean! @authorize(policy: "AdminRequiredPolicy")
   username: String @authorize(policy: "AdminRequiredPolicy")
   projects: [ProjectUsers!]! @authorize(policy: "AdminRequiredPolicy")
@@ -253,7 +257,7 @@ type UsersCollectionSegment {
 
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
 
-union BulkAddProjectMembersError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
+union BulkAddProjectMembersError = NotFoundError | DbError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
@@ -265,7 +269,7 @@ union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
 union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 
-union CreateProjectError = DbError | AlreadyExistsError
+union CreateProjectError = DbError | AlreadyExistsError | ProjectCreatorsMustHaveEmail
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 

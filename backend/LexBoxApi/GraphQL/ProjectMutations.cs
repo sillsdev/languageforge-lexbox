@@ -91,8 +91,6 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
-    [Error<ProjectMembersMustBeVerified>]
-    [Error<ProjectMemberInvitedByEmail>]
     [AdminRequired]
     [UseMutationConvention]
     public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
@@ -102,7 +100,7 @@ public class ProjectMutations
     {
         var admin = await dbContext.Users.FindAsync(loggedInContext.User.Id);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
-        // if (project is null) return NotFound();
+        if (project is null) throw new NotFoundException("Project not found");
         List<string> usernameConflicts = [];
         int count = 0;
         foreach (var username in input.Usernames)
