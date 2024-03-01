@@ -214,7 +214,7 @@ public class EmailService(
         return StartUserEmail(user.Name, email ?? user.Email);
     }
 
-    private static MimeMessage? StartUserEmail(string name, string email)
+    private static MimeMessage? StartUserEmail(string name, string? email)
     {
         if (string.IsNullOrEmpty(email)) return null;
         var message = new MimeMessage();

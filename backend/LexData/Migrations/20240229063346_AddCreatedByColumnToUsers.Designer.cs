@@ -3,6 +3,7 @@ using System;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    partial class LexBoxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240229063346_AddCreatedByColumnToUsers")]
+    partial class AddCreatedByColumnToUsers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -600,6 +603,7 @@ namespace LexData.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text")
                         .UseCollation("case_insensitive");
 

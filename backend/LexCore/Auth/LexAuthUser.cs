@@ -107,7 +107,7 @@ public record LexAuthUser
     public LexboxAudience Audience { get; set; } = LexboxAudience.LexboxApi;
 
     [JsonPropertyName(LexAuthConstants.EmailClaimType)]
-    public required string Email { get; set; }
+    public string? Email { get; set; }
 
     [JsonPropertyName(LexAuthConstants.NameClaimType)]
     public required string Name { get; set; }

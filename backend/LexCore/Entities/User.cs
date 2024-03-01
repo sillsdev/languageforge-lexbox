@@ -6,7 +6,7 @@ public class User : EntityBase
 {
     public const string DefaultLocalizationCode = "en";
     public required string Name { get; set; }
-    public required string Email { get; set; }
+    public string? Email { get; set; }
     private string _localizationCode = DefaultLocalizationCode;
 
     public string LocalizationCode

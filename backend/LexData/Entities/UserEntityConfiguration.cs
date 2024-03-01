@@ -29,12 +29,15 @@ public static class UserEntityExtensions
     {
         return user => user.Email == email || user.Username == email;
     }
-    public static IQueryable<User> FilterByEmail(this IQueryable<User> users, string email)
+    public static IQueryable<User> FilterByEmail(this IQueryable<User> users, string? email)
     {
+        if (email is null) return Enumerable.Empty<User>().AsQueryable();
+        // TODO: Test that and make sure it works; if Enumerable.Empty doesn't implement IAsyncEnumerable, we'll have to do this instead:
+        // if (email is null) return users.Where(u => false);
         return users.Where(FilterByEmail(email));
     }
 
-    public static async Task<User?> FindByEmail(this IQueryable<User> users, string email)
+    public static async Task<User?> FindByEmail(this IQueryable<User> users, string? email)
     {
         return await users.FilterByEmail(email).FirstOrDefaultAsync();
     }

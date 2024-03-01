@@ -28,6 +28,7 @@ public class ProjectMutations
     public record CreateProjectResponse(Guid? Id, CreateProjectResult Result);
     [Error<DbError>]
     [Error<AlreadyExistsException>]
+    [Error<ProjectCreatorsMustHaveEmail>]
     [UseMutationConvention]
     [RefreshJwt]
     [VerifiedEmailRequired]
@@ -44,6 +45,8 @@ public class ProjectMutations
             // Only admins can create empty projects or projects for other users
             input = input with { ProjectManagerId = loggedInContext.User.Id };
         }
+
+        if (loggedInContext.User.Email == null) throw new ProjectCreatorsMustHaveEmail("Project creators must have an email address");
 
         if (!permissionService.HasProjectCreatePermission())
         {
