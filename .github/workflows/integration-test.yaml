@@ -50,8 +50,8 @@ jobs:
           sudo apt-get install -f
           rm powershell_7.4.1-1.deb_amd64.deb
           sudo apt-get update
-          sudo apt-get install -y zlib1g-dev libssl-dev #needed by setup python
-          pwsh
+          sudo apt-get install -y p7zip-full zlib1g-dev libssl-dev #needed by setup python
+          pwsh #validate that powershell installed correctly
       - uses: actions/setup-dotnet@v3
         env:
           DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
@@ -72,7 +72,9 @@ jobs:
         run: dotnet build
       - name: Playwright setup
         working-directory: backend/Testing
-        run: pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
+        run: |
+          sudo pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install-deps
+          pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
