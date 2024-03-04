@@ -70,7 +70,6 @@ There are various ways to run the project. Here are a few suggestions:
 - `task api:only` starts the api locally
 
 **For developing the SvelteKit UI**
-
 1) In two seperate consoles:
 - `task backend-up` starts all necessary infrastructure + the .NET API in k8s
 - `task ui:only` starts the ui locally
@@ -88,18 +87,18 @@ The SvelteKit UI will be available at http://localhost:3000.
 - `task ui:only` starts the ui locally
 
 **If the k8s deployments are already running**
-
 - `infra-forward` forwards the infrastructure ports for the API
 - `backend-forward` forwards the infrastructure + backend ports for the UI
 
 ---
 ### Project urls
-* http://localhost - k8s ingress / SvelteKit UI
+* http://localhost - k8s ingress
 * http://localhost:3000 - SvelteKit UI
-* http://localhost:5158/api/swagger - Swagger docs for the API
+* http://localhost:5158/api - .NET API
+* http://localhost:5158/api/swagger - .NET Swagger UI
+* http://localhost:5158/api/graphql - GraphQL API
 * http://localhost:5158/api/graphql/ui - GraphQL UI
-* http://localhost:5158/api/graphql - GraphQL endpoint
-* http://localhost:8088/hg - hg web UI add the project code and use the url in FLEx to clone
+* http://localhost:8088/hg - hg web UI (add the project code and use the url in FLEx to clone)
 * http://localhost:1080 - maildev UI
 
 ### Seeded data

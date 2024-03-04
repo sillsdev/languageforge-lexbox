@@ -7,11 +7,18 @@
 - lexbox
   - .net API (GQL API, REST API, hg proxy etc. (see [backend README](../backend/README.md)))
   - OTEL collector
+  - db-migrations (init-container that ensures DB migrations are applied)
 - db (PostgresDB)
 - hg
   - hg
   - hg-resumable
 - ui (SvelteKit app)
+
+### Everything except Production
+
+Same as above plus:
+- hg
+  - populate-test-repos (init-container that provides a test repo)
 
 ### Local development
 
@@ -19,6 +26,8 @@ Same as above plus:
 
 - lexbox
   - maildev
+- hg
+  - ~~db-migrations~~ (Removed: migrations are done at app startup)
 
 ## Hostnames
 
