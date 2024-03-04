@@ -453,9 +453,11 @@
 
       {#if usernameConflicts}
         <div>
-          <h3>Conflicting usernames:</h3>
+          <h3>The following users already existed, and have been added as project members:</h3>
           {#each usernameConflicts as username}
-            {username}<br/>
+            <MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={true} /><br/>
+            <!-- TODO: Get correct role from BulkAdd modal, not just hardcoding it to editor -->
+            <!-- TODO: Get user from username on-demand somehow, then on:action={() => userModal.open(user)} -->
           {/each}
           <button class="btn btn-secondary" on:click={() => usernameConflicts = undefined}>Clear</button>
         </div>
