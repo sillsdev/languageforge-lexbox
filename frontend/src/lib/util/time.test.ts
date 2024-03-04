@@ -8,13 +8,17 @@ describe('AsyncDebouncer', () => {
   it('handles standard synchronous debouncing', async () => {
     let reachedPromise = false;
     let done = false;
+    let valueReceived: number | null = null;
     const debouncer = makeAsyncDebouncer(
       // the promise resolves immediately, so we're only testing the debounce that happens before awaiting the promise
       (value: number) => {
         reachedPromise = true;
-        return new Promise(resolve => resolve(value));
+        return new Promise<number>(resolve => resolve(value));
       },
-      () => (done = true),
+      (value) => {
+        done = true;
+        valueReceived = value;
+      },
       debounceTime);
 
     void debouncer.debounce(1);
@@ -38,20 +42,25 @@ describe('AsyncDebouncer', () => {
     await delay(debounceTime * 0.25);
     expect(reachedPromise).toBe(true);
     expect(done).toBe(true);
+    expect(valueReceived).toBe(3);
   });
 
   it('handles asynchronous debouncing', async () => {
     let reachedPromise = false;
     let done = false;
+    let valueReceived: number | null = null;
     const debouncer = makeAsyncDebouncer(
       // the promise resolves after a delay, so it can get debounced before it hits the promise or before the promise has been resolved
       (value: number) => {
         reachedPromise = true;
-        return new Promise(resolve => {
+        return new Promise<number>(resolve => {
           setTimeout(() => resolve(value), promiseTime);
         });
       },
-      () => (done = true),
+      (value) => {
+        done = true;
+        valueReceived = value;
+      },
       debounceTime);
 
     void debouncer.debounce(1);
@@ -79,11 +88,12 @@ describe('AsyncDebouncer', () => {
     await delay(promiseTime * 0.5);
     expect(done).toBe(false);
 
-    void debouncer.debounce(3); // restart the debounce
+    void debouncer.debounce(4); // restart the debounce
     await delay(promiseTime * 0.5);
     expect(done).toBe(false);
 
     await delay(debounceTime + promiseTime);
     expect(done).toBe(true);
+    expect(valueReceived).toBe(4);
   });
 });
