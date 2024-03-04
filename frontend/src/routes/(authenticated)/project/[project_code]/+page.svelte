@@ -426,12 +426,8 @@
           {/if}
 
           {#if canManage}
-            <div class="place-self-end" style="grid-column: -3 / -2">
               <AddProjectMember projectId={project.id} />
-            </div>
-            <div class="place-self-end" style="grid-column: -2 / -1">
               <BulkAddProjectMembers projectId={project.id} />
-            </div>
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
