@@ -28,8 +28,8 @@
   <slot />
 
   {#if !disabled}
-    <button class="btn btn-circle btn-xs btn-ghost transition {iconHoverColor}">
+    <span class="btn btn-circle btn-xs btn-ghost transition {iconHoverColor}">
       <Icon icon={actionIcon} />
-    </button>
+    </span>
   {/if}
 </button>
