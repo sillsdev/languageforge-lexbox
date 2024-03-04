@@ -105,6 +105,7 @@ public class ProjectMutations
         projectUser.User.UpdateCreateProjectsPermission(input.Role);
         projectUser.User.UpdateUpdatedDate();
         projectUser.Project.UpdateUpdatedDate();
+        projectUser.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 
         return dbContext.ProjectUsers.Where(u => u.Id == projectUser.Id);
