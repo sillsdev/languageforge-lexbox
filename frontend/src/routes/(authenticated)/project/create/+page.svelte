@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, debouncedRefine, lexSuperForm } from '$lib/forms';
+  import { Checkbox, Form, FormError, Input, ProjectTypeSelect, Select, SubmitButton, TextArea, lexSuperForm } from '$lib/forms';
   import { CreateProjectResult, DbErrorCode, ProjectRole, ProjectType, RetentionPolicy, type CreateProjectInput } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
@@ -8,25 +8,20 @@
   import { _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
-  import { Duration } from '$lib/util/time';
+  import { Duration, deriveAsync } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { isAdmin } from '$lib/user';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
+  import { derived, writable } from 'svelte/store';
+  import { concatAll } from '$lib/util/array';
+  import { browser } from '$app/environment';
 
   export let data;
   $: user = data.user;
   let requestingUser : typeof data.requestingUser;
 
   const { notifySuccess } = useNotifications();
-
-  let codeValidation: z.ZodType = z.string().toLowerCase()
-    .min(4, $t('project.create.code_too_short'))
-    .refine(debouncedRefine((code) =>
-      // user is not available when defining the schema
-      // || isAdmin will be redundant soon after new JWTs roll out
-      user.canCreateProjects ? _projectCodeAvailable(code) : Promise.resolve(true)),
-      $t('project.create.code_exists'));
 
   const formSchema = z.object({
     name: z.string().min(1, $t('project.create.name_missing')),
@@ -37,9 +32,10 @@
       .string()
       .min(2, $t('project.create.language_code_too_short'))
       .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
-    code: codeValidation,
+    code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
     customCode: z.boolean().default(false),
   });
+
   //random guid
   const projectId = crypto.randomUUID();
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
@@ -68,6 +64,16 @@
       await goto('/');
     }
   });
+
+  const asyncCodeError = writable<string | undefined>();
+  const codeStore = derived(form, ($form) => $form.code);
+  const codeIsAvailable = deriveAsync(codeStore, async (code) => {
+    if (!browser || !code || !user.canCreateProjects) return true;
+    return _projectCodeAvailable(code);
+  }, true, true);
+  $: $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
+  const codeErrors = derived([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
+
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
     [ProjectType.WeSay]: 'dictionary',
@@ -177,7 +183,7 @@
     <Input
       label={$t('project.create.code')}
       bind:value={$form.code}
-      error={$errors.code}
+      error={$codeErrors}
       readonly={!$form.customCode}
     />
 
