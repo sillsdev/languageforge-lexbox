@@ -19,4 +19,5 @@ public interface IHgService
     Task<int?> GetLexEntryCount(string code);
     Task<string?> GetRepositoryIdentifier(Project project);
     Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token);
+    bool HasAbandonedTransactions(string projectCode);
 }
