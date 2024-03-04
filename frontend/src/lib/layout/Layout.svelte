@@ -37,7 +37,7 @@
 
     <div class="drawer-content max-w-[100vw]">
       <AppBar {user} />
-      <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center">
+      <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center gap-2">
         <Breadcrumbs />
         <AdminContent>
           <a href="/admin" class="btn btn-sm btn-accent">
@@ -57,8 +57,7 @@
         <slot />
       </Content>
     </div>
-    <!-- md:overflow-x-hidden due to: https://github.com/saadeghi/daisyui/issues/2622 -->
-    <div class="drawer-side md:overflow-x-hidden z-10">
+    <div class="drawer-side z-10">
       <!-- using a label means it works before hydration is complete -->
       <label for="drawer-toggle" class="drawer-overlay" />
       <AppMenu {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />

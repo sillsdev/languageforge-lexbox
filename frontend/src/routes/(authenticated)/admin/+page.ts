@@ -17,10 +17,12 @@ import type {
 import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from '$lib/gql/types';
 import type { ProjectFilters } from '$lib/components/Projects';
 import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
+import type { AdminTabId } from './AdminTabs.svelte';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
 export type AdminSearchParams = ProjectFilters & {
   userSearch: string
+  tab: AdminTabId
 };
 
 export type Project = LoadAdminDashboardProjectsQuery['projects'][number];
