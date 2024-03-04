@@ -159,9 +159,10 @@
     }
   }
 
-  function handleBulkAddUsernameConflicts(event: CustomEvent): void {
-    console.log('TODO: Handle these username conflicts in the UI somewhere');
-    console.log(event.detail);
+  let usernameConflicts: string[] | undefined;
+
+  function handleBulkAddUsernameConflicts(event: CustomEvent<string[]>): void {
+    usernameConflicts = event.detail;
   }
 
   let migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
@@ -450,6 +451,15 @@
         </BadgeList>
       </div>
 
+      {#if usernameConflicts}
+        <div>
+          <h3>Conflicting usernames:</h3>
+          {#each usernameConflicts as username}
+            {username}<br/>
+          {/each}
+          <button class="btn btn-secondary" on:click={() => usernameConflicts = undefined}>Clear</button>
+        </div>
+      {/if}
       <div class="divider" />
       <div class="space-y-2">
         <p class="text-2xl mb-4 flex gap-4 items-baseline">
