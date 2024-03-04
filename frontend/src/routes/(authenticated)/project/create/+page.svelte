@@ -8,13 +8,14 @@
   import { _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
-  import { Duration, makeAsyncDebouncer } from '$lib/util/time';
+  import { Duration, deriveAsync } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { isAdmin } from '$lib/user';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
   import { derived, writable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
+  import { browser } from '$app/environment';
 
   export let data;
   $: user = data.user;
@@ -65,15 +66,12 @@
   });
 
   const asyncCodeError = writable<string | undefined>();
-  const { debounce: validateCode } = makeAsyncDebouncer(
-    () => {
-      const code = $form.code;
-      if (!code || !user.canCreateProjects) return Promise.resolve(true);
-      return _projectCodeAvailable(code);
-    },
-    (success) => asyncCodeError.set(success ? undefined : $t('project.create.code_exists')),
-  );
-
+  const codeStore = derived(form, ($form) => $form.code);
+  const codeIsAvailable = deriveAsync(codeStore, async (code) => {
+    if (!browser || !code || !user.canCreateProjects) return true;
+    return _projectCodeAvailable(code);
+  }, true, true);
+  $: $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
   const codeErrors = derived([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
 
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
@@ -187,7 +185,6 @@
       bind:value={$form.code}
       error={$codeErrors}
       readonly={!$form.customCode}
-      on:input={validateCode}
     />
 
     <TextArea

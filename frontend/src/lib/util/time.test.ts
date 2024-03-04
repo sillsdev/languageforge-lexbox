@@ -1,27 +1,34 @@
-import { delay, makeAsyncDebouncer } from './time';
+import { delay, deriveAsync } from './time';
 import { describe, expect, it } from 'vitest';
+
+import { writable } from 'svelte/store';
 
 const debounceTime = 100;
 const promiseTime = 50;
 
-describe('AsyncDebouncer', () => {
+describe('deriveAsync', () => {
   it('handles standard synchronous debouncing', async () => {
     let reachedPromise = false;
     let done = false;
     let valueReceived: number | null = null;
-    const debouncer = makeAsyncDebouncer(
+    const store = writable<number>();
+    const debouncedStore = deriveAsync(
+      store,
       // the promise resolves immediately, so we're only testing the debounce that happens before awaiting the promise
       (value: number) => {
         reachedPromise = true;
         return new Promise<number>(resolve => resolve(value));
       },
-      (value) => {
+      undefined,
+      debounceTime);
+    debouncedStore.subscribe((value) => {
+      if (value !== undefined) {
         done = true;
         valueReceived = value;
-      },
-      debounceTime);
+      }
+    });
 
-    void debouncer.debounce(1);
+    store.set(1);
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
 
@@ -29,12 +36,12 @@ describe('AsyncDebouncer', () => {
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
 
-    void debouncer.debounce(2); // restart the debounce
+    store.set(2); // restart the debounce
     await delay(debounceTime * 0.75);
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
 
-    void debouncer.debounce(3); // restart the debounce
+    store.set(3); // restart the debounce
     await delay(debounceTime * 0.75);
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
@@ -49,7 +56,9 @@ describe('AsyncDebouncer', () => {
     let reachedPromise = false;
     let done = false;
     let valueReceived: number | null = null;
-    const debouncer = makeAsyncDebouncer(
+    const store = writable<number>();
+    const debouncedStore = deriveAsync(
+      store,
       // the promise resolves after a delay, so it can get debounced before it hits the promise or before the promise has been resolved
       (value: number) => {
         reachedPromise = true;
@@ -57,13 +66,16 @@ describe('AsyncDebouncer', () => {
           setTimeout(() => resolve(value), promiseTime);
         });
       },
-      (value) => {
+      undefined,
+      debounceTime);
+    debouncedStore.subscribe((value) => {
+      if (value !== undefined) {
         done = true;
         valueReceived = value;
-      },
-      debounceTime);
+      }
+    });
 
-    void debouncer.debounce(1);
+    store.set(1);
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
 
@@ -71,12 +83,12 @@ describe('AsyncDebouncer', () => {
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
 
-    void debouncer.debounce(2); // restart the debounce
+    store.set(2); // restart the debounce
     await delay(debounceTime * 0.75);
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
 
-    void debouncer.debounce(3); // restart the debounce
+    store.set(3); // restart the debounce
     await delay(debounceTime * 0.75);
     expect(reachedPromise).toBe(false);
     expect(done).toBe(false);
@@ -88,7 +100,7 @@ describe('AsyncDebouncer', () => {
     await delay(promiseTime * 0.5);
     expect(done).toBe(false);
 
-    void debouncer.debounce(4); // restart the debounce
+    store.set(4); // restart the debounce
     await delay(promiseTime * 0.5);
     expect(done).toBe(false);
 

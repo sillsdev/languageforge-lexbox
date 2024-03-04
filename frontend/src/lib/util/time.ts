@@ -1,4 +1,4 @@
-import { writable, type Readable } from 'svelte/store';
+import { writable, type Readable, derived } from 'svelte/store';
 
 export const enum Duration {
   Default = 5000,
@@ -19,6 +19,10 @@ interface Debouncer<P extends any[]> {
   clear: () => void;
 }
 
+function pickDebounceTime(debounce: number | boolean): number {
+  return typeof debounce === 'number' ? debounce : DEFAULT_DEBOUNCE_TIME;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function makeDebouncer<P extends any[]>(fn: Debouncer<P>['debounce'], debounce: number | boolean = DEFAULT_DEBOUNCE_TIME): Debouncer<P> {
   const debouncing = writable(false);
@@ -26,7 +30,7 @@ export function makeDebouncer<P extends any[]>(fn: Debouncer<P>['debounce'], deb
   if (!debounce) {
     return { debounce: fn, debouncing, clear: () => { } };
   } else {
-    const debounceTime = typeof debounce === 'number' ? debounce : DEFAULT_DEBOUNCE_TIME;
+    const debounceTime = pickDebounceTime(debounce);
     let timeout: ReturnType<typeof setTimeout>;
     return {
       debounce: (...args: P) => {
@@ -50,43 +54,26 @@ export function makeDebouncer<P extends any[]>(fn: Debouncer<P>['debounce'], deb
 }
 
 /**
- * @param promiseFn A debounced function that returns a promise
- * @param then A callback that is called after the last active promise has resolved
- * @returns
+ * @param fn A function that maps the store value to an async result
+ * @returns A store that contains the result of the async function, optionally debounced
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function makeAsyncDebouncer<P extends any[], R>(
-  promiseFn: (...args: P) => Promise<R>,
-  then: (result: R) => void,
-  debounce: number | boolean = DEFAULT_DEBOUNCE_TIME): Debouncer<P> {
-  const debouncing = writable(false);
+export function deriveAsync<T, D>(
+  store: Readable<T>,
+  fn: (value: T) => Promise<D>,
+  initialValue?: D,
+  debounce: number | boolean = false): Readable<D> {
 
-  const debounceTime = typeof debounce === 'number' ? debounce
-    : debounce ? DEFAULT_DEBOUNCE_TIME : 0;
-
+  const debounceTime = pickDebounceTime(debounce);
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
-  return {
-    debounce: (...args: P) => {
-      debouncing.set(true);
-      clearTimeout(timeout);
-        timeout = setTimeout(() => {
-          const myTimeout = timeout;
-          void promiseFn(...args).then((result) => {
-            if (myTimeout !== timeout) return; // discard outdated results
-            then(result);
-            debouncing.set(false);
-          }).catch((error) => {
-            if (myTimeout === timeout) debouncing.set(false);
-            throw error;
-          });
-        }, debounceTime);
-    },
-    debouncing,
-    clear: () => {
-      clearTimeout(timeout);
-      timeout = undefined;
-      debouncing.set(false);
-    },
-  };
+  return derived(store, (value, set) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const myTimeout = timeout;
+      void fn(value).then((result) => {
+        if (myTimeout !== timeout) return; // discard outdated results
+        set(result);
+      });
+    }, debounceTime);
+  }, initialValue);
 }
