@@ -9,6 +9,9 @@
   import { useNotifications } from '$lib/notify';
   import { hash } from '$lib/util/hash';
   import { AdminContent } from '$lib/layout';
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
 
   export let projectId: string;
   const schema = z.object({
@@ -21,7 +24,7 @@
   $: form = formModal?.form();
 
   let createdCount: number | undefined = undefined;
-  // let usernameConflicts: string[] = [];
+  let usernameConflicts: string[] = [];
 
   const { notifySuccess } = useNotifications();
 
@@ -51,12 +54,15 @@
       // }
 
       createdCount = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdCount;
-      // usernameConflicts = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.usernameConflicts ?? [];
+      usernameConflicts = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.usernameConflicts ?? [];
       return error?.message;
     });
     if (response === DialogResponse.Submit) {
       // const message = userInvited ? 'member_invited' : 'add_member';
       notifySuccess($t(`project_page.notifications.bulk_add_members`, { count: createdCount ?? 0 }));
+      if (usernameConflicts?.length ?? 0 > 0) {
+        dispatch('usernameConflicts', usernameConflicts);
+      }
       // TODO: Display username conflicts somewhere as well
     }
   }

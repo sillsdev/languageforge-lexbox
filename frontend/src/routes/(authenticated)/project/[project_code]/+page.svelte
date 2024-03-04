@@ -159,6 +159,11 @@
     }
   }
 
+  function handleBulkAddUsernameConflicts(event: CustomEvent): void {
+    console.log('TODO: Handle these username conflicts in the UI somewhere');
+    console.log(event.detail);
+  }
+
   let migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
   $: isMigrated = migrationStatus === ProjectMigrationStatus.Migrated;
   //no need to translate these since it'll only be temporary
@@ -427,7 +432,7 @@
 
           {#if canManage}
               <AddProjectMember projectId={project.id} />
-              <BulkAddProjectMembers projectId={project.id} />
+              <BulkAddProjectMembers projectId={project.id} on:usernameConflicts={handleBulkAddUsernameConflicts} />
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
