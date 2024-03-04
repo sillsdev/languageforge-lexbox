@@ -25,10 +25,19 @@
 
   const { notifySuccess } = useNotifications();
 
+  const usernameRe = /^[a-zA-Z0-9_]+$/;
+
+  function validateUsernames(usernames: string[]): boolean {
+    return usernames.every(s => usernameRe.test(s));
+  }
+
   async function openModal(): Promise<void> {
     const { response, formState } = await formModal.open(async () => {
       const passwordHash = await hash($form.password);
       const usernames = $form.usernamesText.split('\n').map(s => s.trim());
+      if (!validateUsernames(usernames)) {
+        return $t('project_page.bulk_add_members.usernames_alphanum_only');
+      }
       const { error, data } = await _bulkAddProjectMembers({
         projectId,
         passwordHash,

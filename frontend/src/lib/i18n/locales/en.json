@@ -188,6 +188,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "submit_button": "Bulk Add Members",
       "shared_password": "Shared Password",
       "usernames": "Usernames (one per line)",
+      "usernames_alphanum_only": "Usernames must contain only letters, numbers, and underscore (_) characters",
       "project_not_found": "Project not found. Please refresh the page.",
       "creator_must_have_email": "You must have an email address in order to create a project.",
     },
