@@ -11,6 +11,11 @@
 
 <script lang="ts">
   import t from '$lib/i18n';
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher<{
+    clickTab: AdminTabId
+  }>();
 
   export let activeTab: AdminTabId = 'projects';
 </script>
@@ -19,7 +24,7 @@
   <div class="tab tab-divider" />
   {#each adminTabs as tab}
     {@const isActiveTab = activeTab === tab}
-    <a href={`/admin/${tab}`} data-sveltekit-noscroll data-sveltekit-preload-data="off" role="tab" class:tab-active={isActiveTab} class="tab grow">
+    <button on:click={() => dispatch('clickTab', tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
       <h2 class="text-lg flex gap-4 items-center">
         {#if isActiveTab}
           <slot>
@@ -29,7 +34,7 @@
           {$t(DEFAULT_TAB_I18N[tab])}
         {/if}
       </h2>
-    </a>
+    </button>
     <div class="tab tab-divider" />
   {/each}
 </div>

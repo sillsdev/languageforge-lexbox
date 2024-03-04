@@ -20,7 +20,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
-  import AdminTabs from './AdminTabs.svelte';
+  import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -35,10 +35,12 @@
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     migrationStatus: queryParam.string<ProjectMigrationStatus | 'UNMIGRATED' | undefined>(undefined),
+    tab: queryParam.string<AdminTabId>('projects'),
   });
 
   const userFilterKeys = ['userSearch'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
   const { queryParamValues, defaultQueryParamValues } = queryParams;
+  $: tab = $queryParamValues.tab;
 
   const loadingUsers = derived(navigating, (nav) => {
     const fromUrl = nav?.from?.url;
@@ -95,12 +97,12 @@
 <PageBreadcrumb>{$t('admin_dashboard.title')}</PageBreadcrumb>
 <main>
   <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
-    <div class="contents" class:admin-tabs:hidden={data.tab === 'users'}>
+    <div class="contents" class:admin-tabs:hidden={tab === 'users'}>
       <AdminProjects projects={$projects} {queryParams} />
     </div>
 
-    <div class:admin-tabs:hidden={data.tab !== 'users'}>
-      <AdminTabs activeTab="users">
+    <div class:admin-tabs:hidden={tab !== 'users'}>
+      <AdminTabs activeTab="users" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
         {$t('admin_dashboard.user_table_title')}
         <Badge>
           <span class="inline-flex gap-2">

@@ -17,11 +17,11 @@
   import type { AdminSearchParams } from './+page';
   import DevContent from '$lib/layout/DevContent.svelte';
   import AdminTabs from './AdminTabs.svelte';
-  import { browser } from '$app/environment';
 
   export let projects: ProjectItem[];
   export let queryParams: QueryParams<AdminSearchParams>;
-  $: filters = queryParams.queryParamValues;
+  $: queryParamValues = queryParams.queryParamValues;
+  $: filters = queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
 
   const { notifyWarning, notifySuccess } = useNotifications();
@@ -62,7 +62,7 @@
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
 <div>
-  <AdminTabs activeTab="projects">
+  <AdminTabs activeTab="projects" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
     <div class="flex gap-4 justify-between grow">
       <div class="flex gap-4 items-center">
         {$t('admin_dashboard.project_table_title')}
@@ -76,15 +76,13 @@
           </Badge>
         </div>
       </div>
-      <!-- <a> totally breaks SSR 🙃 -->
-      <svelte:element this={browser ? 'a' : 'div'}
-          class="btn btn-sm btn-success max-xs:btn-square"
-          href="/project/create">
+      <a class="btn btn-sm btn-success max-xs:btn-square"
+        href="/project/create">
         <span class="admin-tabs:hidden">
           {$t('project.create.title')}
         </span>
         <span class="i-mdi-plus text-2xl" />
-      </svelte:element>
+      </a>
     </div>
   </AdminTabs>
 
