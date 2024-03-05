@@ -36,7 +36,6 @@ export async function load(event: PageLoadEvent) {
 						code
 						description
 						type
-            migrationStatus
             resetStatus
 						lastCommit
 						createdDate
@@ -233,13 +232,12 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
   return result;
 }
 
-export async function _refreshProjectMigrationStatusAndRepoInfo(projectCode: string): Promise<void> {
+export async function _refreshProjectRepoInfo(projectCode: string): Promise<void> {
     const result = await getClient().query(graphql(`
         query refreshProjectStatus($projectCode: String!) {
             projectByCode(code: $projectCode) {
                 id
                 resetStatus
-                migrationStatus
                 lastCommit
                 changesets {
                   node

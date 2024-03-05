@@ -73,7 +73,7 @@ jobs:
       - name: Playwright setup
         working-directory: backend/Testing
         run: |
-          sudo pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install-deps
+          ${{inputs.runs-on != 'windows-latest' && 'sudo' || '' }} pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install-deps
           pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
@@ -102,7 +102,7 @@ jobs:
           files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}
           path: ./playwright-traces.7z

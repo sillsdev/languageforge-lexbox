@@ -6,7 +6,7 @@
   import Modal from '$lib/components/modals/Modal.svelte';
   import TusUpload, { UploadStatus } from '$lib/components/TusUpload.svelte';
   import { ResetStatus } from '$lib/gql/generated/graphql';
-  import { _refreshProjectMigrationStatusAndRepoInfo } from './+page';
+  import { _refreshProjectRepoInfo } from './+page';
   import { scale } from 'svelte/transition';
   import { bounceIn } from 'svelte/easing';
 
@@ -61,7 +61,7 @@
     const resetResponse = await fetch(url, { method: 'post' });
     //we should do the reset via a mutation, but this is easier for now
     //we need to refresh the status so if the admin closes the dialog they can resume back where they left off.
-    await _refreshProjectMigrationStatusAndRepoInfo(code);
+    await _refreshProjectRepoInfo(code);
     if (resetResponse.ok) {
       nextStep();
     } else {
@@ -72,7 +72,7 @@
   async function uploadComplete(): Promise<void> {
     changingSteps = true;
     try {
-      await _refreshProjectMigrationStatusAndRepoInfo(code);
+      await _refreshProjectRepoInfo(code);
       nextStep();
     } finally {
       changingSteps = false;
@@ -91,7 +91,7 @@
       const resetResponse = await fetch(url, { method: 'post' });
       //we should do the reset via a mutation, but this is easier for now
       //we need to refresh the status, because the project is no longer being reset
-      await _refreshProjectMigrationStatusAndRepoInfo(code);
+      await _refreshProjectRepoInfo(code);
       if (resetResponse.ok) {
         nextStep();
       } else {

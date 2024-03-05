@@ -80,6 +80,8 @@ public class ProjectMutations
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
+        user.UpdateUpdatedDate();
+        project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
@@ -96,11 +98,14 @@ public class ProjectMutations
     {
         permissionService.AssertCanManageProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
-            await dbContext.ProjectUsers.Include(r => r.User).FirstOrDefaultAsync(u =>
+            await dbContext.ProjectUsers.Include(r => r.Project).Include(r => r.User).FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
         if (projectUser is null) throw new NotFoundException("Project member not found");
         projectUser.Role = input.Role;
         projectUser.User.UpdateCreateProjectsPermission(input.Role);
+        projectUser.User.UpdateUpdatedDate();
+        projectUser.Project.UpdateUpdatedDate();
+        projectUser.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 
         return dbContext.ProjectUsers.Where(u => u.Id == projectUser.Id);
@@ -123,6 +128,7 @@ public class ProjectMutations
         if (project is null) throw new NotFoundException("Project not found");
 
         project.Name = input.Name;
+        project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
@@ -141,6 +147,7 @@ public class ProjectMutations
         if (project is null) throw new NotFoundException("Project not found");
 
         project.Description = input.Description;
+        project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
@@ -155,6 +162,11 @@ public class ProjectMutations
         permissionService.AssertCanManageProject(input.ProjectId);
         await dbContext.ProjectUsers.Where(pu => pu.ProjectId == input.ProjectId && pu.UserId == input.UserId)
             .ExecuteDeleteAsync();
+        // Not doing .Include() above because we don't want the project or user removed, just the many-to-many table row
+        var user = await dbContext.Users.FindAsync(input.UserId);
+        if (user is not null) user.UpdateUpdatedDate();
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        if (project is not null) project.UpdateUpdatedDate();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
@@ -179,6 +191,7 @@ public class ProjectMutations
         var deletedAt = DateTimeOffset.UtcNow;
         var timestamp = FileUtils.ToTimestamp(deletedAt);
         project.DeletedDate = deletedAt;
+        project.UpdatedDate = deletedAt;
         var projectCode = project.Code;
         project.Code = $"{project.Code}__{timestamp}";
         project.Users.Clear();

@@ -13,13 +13,11 @@
     _changeProjectDescription,
     _changeProjectName,
     _deleteProjectUser,
-    _refreshProjectMigrationStatusAndRepoInfo,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
-  import { CircleArrowIcon, TrashIcon, type IconString } from '$lib/icons';
-  import type { BadgeVariant } from '$lib/components/Badges/Badge.svelte';
+  import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
   import {DialogResponse, Modal} from '$lib/components/modals';
   import { Button, type ErrorMessage } from '$lib/forms';
@@ -31,8 +29,7 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
-  import { ProjectMigrationStatus, ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
-  import { onMount } from 'svelte';
+  import { ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
@@ -158,55 +155,6 @@
     }
   }
 
-  let migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
-  $: isMigrated = migrationStatus === ProjectMigrationStatus.Migrated;
-  //no need to translate these since it'll only be temporary
-  const migrationStatusTable = {
-    [ProjectMigrationStatus.Migrated]: 'Migrated',
-    [ProjectMigrationStatus.Migrating]: 'Migrating',
-    [ProjectMigrationStatus.Unknown]: 'Unknown',
-    [ProjectMigrationStatus.PrivateRedmine]: 'Not Migrated (private)',
-    [ProjectMigrationStatus.PublicRedmine]: 'Not Migrated (public)',
-  } satisfies Record<ProjectMigrationStatus, string>;
-  const migrationStatusIcon = {
-    [ProjectMigrationStatus.Migrated]: 'i-mdi-check-circle',
-    [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
-    [ProjectMigrationStatus.Unknown]: undefined,
-    [ProjectMigrationStatus.PrivateRedmine]: undefined,
-    [ProjectMigrationStatus.PublicRedmine]: undefined,
-  } satisfies Record<ProjectMigrationStatus, IconString | undefined>;
-  const migrationStatusBadgeVariant = {
-    [ProjectMigrationStatus.Migrated]: 'badge-success',
-    [ProjectMigrationStatus.Migrating]: 'badge-warning',
-    [ProjectMigrationStatus.Unknown]: 'badge-neutral',
-    [ProjectMigrationStatus.PrivateRedmine]: 'badge-neutral',
-    [ProjectMigrationStatus.PublicRedmine]: 'badge-neutral',
-  } satisfies Record<ProjectMigrationStatus, BadgeVariant>;
-  onMount(() => {
-    migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
-    if (migrationStatus === ProjectMigrationStatus.Migrating) {
-      void watchMigrationStatus();
-    }
-  });
-
-  async function watchMigrationStatus(): Promise<void> {
-    if (!project) return;
-    const result = await fetch(`/api/project/awaitMigrated?projectCode=${project.code}`);
-    const response = await result.json();
-    if (response) {
-      migrationStatus = ProjectMigrationStatus.Migrated;
-      await _refreshProjectMigrationStatusAndRepoInfo(project.code);
-    }
-  }
-
-  async function migrateProject(): Promise<void> {
-    if (!project) return;
-    if (!confirm('Are you sure you want to migrate this project, you can not undo this action?')) return;
-    await fetch(`/api/migrate/migrateRepo?projectCode=${project.code}`);
-    migrationStatus = ProjectMigrationStatus.Migrating;
-    await watchMigrationStatus();
-  }
-
   let hgCommandResultModal: Modal;
   let hgCommandResponse = '';
 
@@ -257,51 +205,41 @@
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}
   <HeaderPage wide title={project.name}>
-    <svelte:fragment slot="banner">
-      {#if migrationStatus === ProjectMigrationStatus.Migrating}
-        <div class="alert alert-warning mb-4">
-          <span class="i-mdi-alert text-2xl" />
-          <span>This project is currently being migrated. Some features may not work as expected.</span>
-        </div>
-      {/if}
-    </svelte:fragment>
     <svelte:fragment slot="actions">
-      {#if migrationStatus !== ProjectMigrationStatus.Migrating}
-        {#if project.type === ProjectType.FlEx && $isDev}
-            <OpenInFlexModal bind:this={openInFlexModal} {project}/>
-            <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
-        {:else}
-          <Dropdown>
-            <button class="btn btn-primary">
-              {$t('project_page.get_project.label')}
-              <span class="i-mdi-dots-vertical text-2xl" />
-            </button>
-            <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
-              <div class="card-body max-sm:p-4">
-                <div class="prose">
-                  <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
-                  {#if project.type === ProjectType.WeSay}
-                    <Markdown
-                      md={$t('project_page.get_project.instructions_wesay', {
-                      code: project.code,
-                      login: encodeURIComponent(user.email),
-                      name: project.name,
-                    })}
-                    />
-                  {:else}
-                    <Markdown
-                      md={$t('project_page.get_project.instructions_flex', {
-                      code: project.code,
-                      name: project.name,
-                    })}
-                    />
-                  {/if}
-                </div>
-                <SendReceiveUrlField projectCode={project.code} />
+      {#if project.type === ProjectType.FlEx && $isDev}
+          <OpenInFlexModal bind:this={openInFlexModal} {project}/>
+          <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
+      {:else}
+        <Dropdown>
+          <button class="btn btn-primary">
+            {$t('project_page.get_project.label')}
+            <span class="i-mdi-dots-vertical text-2xl" />
+          </button>
+          <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
+            <div class="card-body max-sm:p-4">
+              <div class="prose">
+                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
+                {#if project.type === ProjectType.WeSay}
+                  <Markdown
+                    md={$t('project_page.get_project.instructions_wesay', {
+                    code: project.code,
+                    login: encodeURIComponent(user.email),
+                    name: project.name,
+                  })}
+                  />
+                {:else}
+                  <Markdown
+                    md={$t('project_page.get_project.instructions_flex', {
+                    code: project.code,
+                    name: project.name,
+                  })}
+                  />
+                {/if}
               </div>
+              <SendReceiveUrlField projectCode={project.code} />
             </div>
-          </Dropdown>
-        {/if}
+          </div>
+        </Dropdown>
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="title">
@@ -323,11 +261,6 @@
         <Badge>
           <FormatRetentionPolicy policy={project.retentionPolicy} />
         </Badge>
-        <AdminContent>
-          <Badge type={migrationStatusBadgeVariant[migrationStatus]} icon={migrationStatusIcon[migrationStatus]}>
-            {migrationStatusTable[migrationStatus]}
-          </Badge>
-        </AdminContent>
         {#if project.resetStatus === ResetStatus.InProgress}
           <button
             class:tooltip={isAdmin(user)}
@@ -360,7 +293,6 @@
                 icon="i-mdi-content-copy"
                 size="btn-sm"
                 variant="btn-ghost"
-                outline={false}
                 on:click={copyProjectCodeToClipboard}
               />
             {/if}
@@ -375,7 +307,7 @@
           <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>
         {#if project.type === ProjectType.FlEx}
-        <div class="text-lg">
+        <div class="text-lg inline-flex items-center gap-1">
           {$t('project_page.num_entries')}:
           <span class="text-secondary">
             {$number(lexEntryCount)}
@@ -486,35 +418,27 @@
         <div class="divider" />
 
         <MoreSettings>
-          <button class="btn btn-error" class:hidden={!isMigrated} on:click={softDeleteProject}>
+          <button class="btn btn-error" on:click={softDeleteProject}>
             {$t('delete_project_modal.submit')}<TrashIcon />
           </button>
           <AdminContent>
-            <button class="btn btn-accent" class:hidden={!isMigrated} on:click={resetProject}>
+            <button class="btn btn-accent" on:click={resetProject}>
               {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
             </button>
             <ResetProjectModal bind:this={resetProjectModal} />
-            {#if migrationStatus === ProjectMigrationStatus.PublicRedmine || migrationStatus === ProjectMigrationStatus.PrivateRedmine}
-              <Button on:click={migrateProject}>
-                Migrate Project
-                <Icon icon="i-mdi-source-branch-sync" />
-              </Button>
-            {/if}
-            {#if migrationStatus === ProjectMigrationStatus.Migrated}
-              <Button on:click={verify}>Verify Repository</Button>
-              <Button on:click={recover}>HG Recover</Button>
-              <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
-                <div class="card">
-                  <div class="card-body">
-                    {#if hgCommandResponse === ''}
-                      <span class="loading loading-ring loading-lg"></span>
-                    {:else}
-                      <pre>{hgCommandResponse}</pre>
-                    {/if}
-                  </div>
+            <Button on:click={verify}>Verify Repository</Button>
+            <Button on:click={recover}>HG Recover</Button>
+            <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
+              <div class="card">
+                <div class="card-body">
+                  {#if hgCommandResponse === ''}
+                    <span class="loading loading-ring loading-lg"></span>
+                  {:else}
+                    <pre>{hgCommandResponse}</pre>
+                  {/if}
                 </div>
-              </Modal>
-            {/if}
+              </div>
+            </Modal>
           </AdminContent>
         </MoreSettings>
       {/if}

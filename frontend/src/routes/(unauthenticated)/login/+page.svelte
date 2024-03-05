@@ -55,11 +55,8 @@
 <div class="hero flex-grow">
   <div class="grid lg:grid-cols-2 gap-8 place-items-center">
     <div class="card w-full max-w-md sm:shadow-2xl sm:bg-base-200">
-      <div class="card-body sm-only:p-0">
+      <div class="card-body max-sm:p-0">
         <PageTitle title={$t('login.title')} />
-<DevContent>
-        <SigninWithGoogleButton href="/api/login/google" />
-</DevContent>
         <Form {enhance}>
           <Input
             id="email"
@@ -93,6 +90,10 @@
 
           <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
         </Form>
+        <DevContent>
+          <div class="divider lowercase">{$t('common.or')}</div>
+          <SigninWithGoogleButton href="/api/login/google" />
+        </DevContent>
       </div>
     </div>
 

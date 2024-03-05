@@ -15,7 +15,7 @@
   }
 </script>
 
-<div class="overflow-x-auto">
+<div class="overflow-x-auto @container">
   <table class="table table-lg">
     <thead>
       <tr class="bg-base-200">
@@ -26,16 +26,16 @@
           <th>{$t('project.table.code')}</th>
         {/if}
         {#if isColumnVisible('users')}
-          <th>{$t('project.table.users')}</th>
+          <th class="hidden @md:table-cell">{$t('project.table.users')}</th>
         {/if}
         {#if isColumnVisible('createdAt')}
-          <th>
+          <th class="hidden @xl:table-cell">
             {$t('project.table.created_at')}
             <span class="i-mdi-sort-descending" />
           </th>
         {/if}
         {#if isColumnVisible('lastChange')}
-          <th>
+          <th class="hidden @2xl:table-cell">
             {$t('project.table.last_change')}
           </th>
         {/if}
@@ -68,13 +68,17 @@
             <td>{project.code}</td>
           {/if}
           {#if isColumnVisible('users')}
-            <td>{project.userCount}</td>
+            <td class="hidden @md:table-cell">
+              {project.userCount}
+            </td>
           {/if}
           {#if isColumnVisible('createdAt')}
-            <td>{$date(project.createdDate)}</td>
+            <td class="hidden @xl:table-cell">
+              {$date(project.createdDate)}
+            </td>
           {/if}
           {#if isColumnVisible('lastChange')}
-            <td>
+            <td class="hidden @2xl:table-cell">
               {#if project.deletedDate}
                 <span class="text-error">
                   {$date(project.deletedDate)}
