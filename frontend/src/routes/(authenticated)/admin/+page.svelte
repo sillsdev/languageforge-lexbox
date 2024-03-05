@@ -32,6 +32,7 @@
   const queryParams = getSearchParams<AdminSearchParams>({
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
+    hideDraftProjects: queryParam.boolean<boolean>(false),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),

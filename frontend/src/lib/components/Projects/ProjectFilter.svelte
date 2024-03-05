@@ -1,10 +1,11 @@
 <script context="module" lang="ts">
-  import { type Project, type ProjectType } from '$lib/gql/types';
+  import { type Project, type DraftProject, type ProjectType } from '$lib/gql/types';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
+  export type DraftProjectItem = Pick<DraftProject, 'id' | 'name' | 'code' | 'type'> & Partial<DraftProject>;
   export type ProjectItemWithDraftStatus =
-    ProjectItem & { isDraft: false } |
-    ProjectItem & { isDraft: true; createUrl: string };
+    ProjectItem & { isDraft?: false } |
+    DraftProjectItem & { isDraft: true; createUrl: string };
 
   export type ProjectFilters = {
     projectSearch: string;

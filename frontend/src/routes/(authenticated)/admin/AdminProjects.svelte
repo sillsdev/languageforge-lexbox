@@ -103,7 +103,7 @@
 
   <ProjectTable projects={shownProjects}>
     <td class="p-0" slot="actions" let:project>
-      {#if !project.deletedDate}
+      {#if !project.isDraft && !project.deletedDate}
         <Dropdown>
           <button class="btn btn-ghost btn-square">
             <span class="i-mdi-dots-vertical text-lg" />
