@@ -65,6 +65,7 @@ export async function load(event: PageLoadEvent) {
               id
               name
               type
+              createdDate
               description
               retentionPolicy
               projectManagerId
