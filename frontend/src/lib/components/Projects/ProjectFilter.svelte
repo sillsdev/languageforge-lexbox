@@ -22,8 +22,8 @@
         (!searchLower ||
           p.name.toLocaleLowerCase().includes(searchLower) ||
           p.code.toLocaleLowerCase().includes(searchLower)) &&
-        (!projectFilters.projectType || p.type === projectFilters.projectType),
-        (!projectFilters.hideDraftProjects || !p.isDraft) &&
+        (!projectFilters.projectType || p.type === projectFilters.projectType) &&
+        (!projectFilters.hideDraftProjects || !p.isDraft)
     );
   }
 </script>
