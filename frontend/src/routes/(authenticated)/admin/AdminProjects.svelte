@@ -12,9 +12,9 @@
   import t, { number } from '$lib/i18n';
   import { TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
-  import type { QueryParams } from '$lib/util/query-params';
+  import { toSearchParams, type QueryParams } from '$lib/util/query-params';
   import { derived } from 'svelte/store';
-  import type { AdminSearchParams } from './+page';
+  import type { AdminSearchParams, DraftProject } from './+page';
   import DevContent from '$lib/layout/DevContent.svelte';
   import AdminTabs from './AdminTabs.svelte';
 
@@ -41,7 +41,7 @@
   let hasActiveFilter = false;
   let lastLoadUsedActiveFilter = false;
   $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
-  $: allProjects = [...projects.map(p => ({ ...p, isDraft: false })), ...draftProjects.map(p => ({ ...p, isDraft: true }))];
+  $: allProjects = [...projects.map(p => ({ ...p, isDraft: false })), ...draftProjects.map(p => ({ ...p, isDraft: true, createUrl: `/project/create?${toSearchParams(p as DraftProject)}` }))];
   $: filteredProjects = filterProjects(allProjects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 

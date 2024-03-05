@@ -60,7 +60,7 @@
                 </span>
               {:else if project.isDraft}
                 <span class="flex gap-2 items-center">
-                  <a class="link" href={`/draftProject/${project.code}`}>
+                  <a class="link" href={project.createUrl}>
                     {project.name}
                   </a>
                   <span
