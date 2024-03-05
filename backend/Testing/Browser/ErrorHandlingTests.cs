@@ -67,7 +67,7 @@ public class ErrorHandlingTests : PageTest
     }
 
     [Fact]
-    public async Task ServerPageLoad403IsRedirectedToLogin()
+    public async Task ServerPageLoad401IsRedirectedToLogin()
     {
         await SetCookies(new[] { $"{AuthKernel.AuthCookieName}={TestConstants.InvalidJwt}" });
         await new UserDashboardPage(Page).Goto(new() { ExpectRedirect = true });
@@ -75,7 +75,7 @@ public class ErrorHandlingTests : PageTest
     }
 
     [Fact]
-    public async Task ClientPageLoad403IsRedirectedToLogin()
+    public async Task ClientPageLoad401IsRedirectedToLogin()
     {
         await LoginAs("admin", TestingEnvironmentVariables.DefaultPassword);
         var adminDashboardPage = await new AdminDashboardPage(Page).Goto();
