@@ -2,7 +2,9 @@
   import { type Project, type ProjectType } from '$lib/gql/types';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
-  export type ProjectItemWithDraftStatus = ProjectItem & { isDraft: boolean };
+  export type ProjectItemWithDraftStatus =
+    ProjectItem & { isDraft: false } |
+    ProjectItem & { isDraft: true; createUrl: string };
 
   export type ProjectFilters = {
     projectSearch: string;
