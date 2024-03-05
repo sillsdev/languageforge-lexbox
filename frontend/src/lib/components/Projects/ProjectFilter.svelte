@@ -37,7 +37,7 @@
   import { ProjectTypeIcon } from '../ProjectType';
   import ActiveFilter from '../FilterBar/ActiveFilter.svelte';
   import FilterBar from '../FilterBar/FilterBar.svelte';
-  import { AuthenticatedUserIcon, TrashIcon } from '$lib/icons';
+  import { AuthenticatedUserIcon, Icon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
 
@@ -46,7 +46,7 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'hideDraftProjects'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -70,6 +70,11 @@
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
           {filter.value}
+        </ActiveFilter>
+      {:else if filter.key === 'hideDraftProjects'}
+        <ActiveFilter {filter}>
+          <Icon icon="i-mdi-script" />
+          {$t('project.filter.hide_drafts')}
         </ActiveFilter>
       {/if}
     {/each}
@@ -117,6 +122,14 @@
         <label class="cursor-pointer label gap-4">
           <span class="label-text">{$t('project.filter.show_deleted')}</span>
           <input bind:checked={$filters.showDeletedProjects} type="checkbox" class="toggle toggle-error" />
+        </label>
+      </div>
+    {/if}
+    {#if filterEnabled('hideDraftProjects')}
+      <div class="form-control">
+        <label class="cursor-pointer label gap-4">
+          <span class="label-text">{$t('project.filter.hide_drafts')}</span>
+          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle" />
         </label>
       </div>
     {/if}

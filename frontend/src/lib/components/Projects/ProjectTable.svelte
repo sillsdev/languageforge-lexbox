@@ -59,7 +59,7 @@
                     {project.name}
                   </a>
                   <span
-                    class="tooltip text-warning text-xl shrink-0 leading-0"
+                    class="tooltip text-xl shrink-0 leading-0"
                     data-tip={$t('admin_dashboard.is_draft')}>
                     <Icon icon="i-mdi-script" />
                   </span>
