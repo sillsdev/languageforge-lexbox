@@ -73,7 +73,7 @@
         </ActiveFilter>
       {:else if filter.key === 'hideDraftProjects'}
         <ActiveFilter {filter}>
-          <Icon icon="i-mdi-script" />
+          <Icon icon="i-mdi-script" color="text-warning" />
           {$t('project.filter.hide_drafts')}
         </ActiveFilter>
       {/if}
