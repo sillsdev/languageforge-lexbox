@@ -37,7 +37,7 @@
   });
 
   //random guid
-  const projectId = crypto.randomUUID();
+  let projectId:string = crypto.randomUUID();
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
     const result = await _createProject({
       id: projectId,
@@ -100,6 +100,7 @@
     requestingUser = data.requestingUser;
     const urlValues = getSearchParamValues<CreateProjectInput>();
     form.update((form) => {
+      if (urlValues.id) projectId = urlValues.id;
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;

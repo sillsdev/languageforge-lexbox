@@ -13,6 +13,7 @@
     "column_edit": "Edit",
     "project_table_title": "Projects",
     "user_table_title": "Users",
+    "is_draft": "Draft",
     "email_not_verified": "Not Verified",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
@@ -166,6 +167,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "filter": {
       "title": "Project filters",
       "show_deleted": "Show deleted",
+      "hide_drafts": "Hide drafts",
       "select_user_from_table": "To filter projects for a specific user, select the user from the user table:",
       "project_member": "Project member",
       "filter_user_projects": "Filter projects",
@@ -217,6 +219,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "reset_project": "Project {code} has been reset.",
       "user_delete": "{name} has been removed.",
       "rename_project": "Project name set to {name}.",
+      "promote_project": "Project has been changed from draft status to real project.",
       "describe": "Project description has been updated.",
       "add_member": "{email} has been added to project.",
       "member_invited": "{email} has been sent an invitation email to register and join the project."
@@ -264,6 +267,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. Click 'Download'",
       "label": "Get project",
       "send_receive_url": "Send/Receive URL",
+    },
+    "promote_project": {
+      "label": "Promote to real project",
     },
     "open_with_flex": {
       "button": "Open with FLEx",

@@ -28,9 +28,30 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
                 RetentionPolicy = input.RetentionPolicy,
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
+        // Also delete draft project, if any
+        await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
+        return projectId;
+    }
+
+    public async Task<Guid> CreateDraftProject(CreateProjectInput input)
+    {
+        // No need for a transaction if we're just saving a single item
+        var projectId = input.Id ?? Guid.NewGuid();
+        dbContext.DraftProjects.Add(
+            new DraftProject
+            {
+                Id = projectId,
+                Code = input.Code,
+                Name = input.Name,
+                Description = input.Description,
+                Type = input.Type,
+                RetentionPolicy = input.RetentionPolicy,
+                ProjectManagerId = input.ProjectManagerId,
+            });
+        await dbContext.SaveChangesAsync();
         return projectId;
     }
 

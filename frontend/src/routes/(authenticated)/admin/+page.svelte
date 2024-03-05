@@ -24,6 +24,7 @@
 
   export let data: PageData;
   $: projects = data.projects;
+  $: draftProjects = data.draftProjects;
   $: userData = data.users;
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -31,6 +32,7 @@
   const queryParams = getSearchParams<AdminSearchParams>({
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
+    hideDraftProjects: queryParam.boolean<boolean>(false),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
@@ -97,7 +99,7 @@
 <main>
   <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
     <div class="contents" class:admin-tabs:hidden={tab === 'users'}>
-      <AdminProjects projects={$projects} {queryParams} />
+    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
