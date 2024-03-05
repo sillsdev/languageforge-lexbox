@@ -56,9 +56,9 @@ public class LexQueries
 
     [UseSingleOrDefault]
     [UseProjection]
+    [AdminRequired]
     public IQueryable<DraftProject> DraftProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
     {
-        permissionService.AssertIsAdmin();
         return context.DraftProjects.Where(p => p.Code == code);
     }
 
