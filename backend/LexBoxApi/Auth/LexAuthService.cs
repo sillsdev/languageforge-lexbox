@@ -102,6 +102,8 @@ public class LexAuthService
         ArgumentNullException.ThrowIfNull(context);
         await context.SignInAsync(jwtUser.GetPrincipal("Refresh"),
             new AuthenticationProperties { IsPersistent = true });
+        dbUser.LastActive = DateTimeOffset.UtcNow;
+        await _lexBoxDbContext.SaveChangesAsync();
         context.Response.Headers[JwtUpdatedHeader] = updatedValue;
         activity?.AddTag("app.user.refresh", "success");
         return jwtUser;
