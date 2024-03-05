@@ -103,7 +103,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         }
 
         project.LastCommit = await hgService.GetLastCommitTimeFromHg(projectCode, project.MigrationStatus);
-        // Not running project.UpdateUpdatedDate() here as only metadata was updated
         await dbContext.SaveChangesAsync();
     }
 
@@ -113,7 +112,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         if (project is null) return null;
         var lastCommitFromHg = await hgService.GetLastCommitTimeFromHg(projectCode, project.MigrationStatus);
         project.LastCommit = lastCommitFromHg;
-        // Not running project.UpdateUpdatedDate() here as only metadata was updated
         await dbContext.SaveChangesAsync();
         return lastCommitFromHg;
     }
@@ -132,7 +130,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         {
             project.FlexProjectMetadata.LexEntryCount = count;
         }
-        // Not running project.UpdateUpdatedDate() here as only metadata was updated
         await dbContext.SaveChangesAsync();
         return count;
     }
@@ -149,7 +146,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
     {
         var project = await dbContext.Projects.SingleAsync(p => p.Code == projectCode);
         project.MigrationStatus = ProjectMigrationStatus.Migrating;
-        // Not running project.UpdateUpdatedDate() as it will be done when migration ends
         await dbContext.SaveChangesAsync();
         migrationService.QueueMigration(projectCode);
     }
@@ -160,7 +156,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         foreach (var project in projects)
         {
             project.MigrationStatus = ProjectMigrationStatus.Migrating;
-            // Not running project.UpdateUpdatedDate() as it will be done when migration ends
         }
         await dbContext.SaveChangesAsync();
         foreach (var projectCode in projectCodes)

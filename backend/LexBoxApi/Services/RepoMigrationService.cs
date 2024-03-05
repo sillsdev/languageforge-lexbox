@@ -183,9 +183,7 @@ public class RepoMigrationService : BackgroundService, IRepoMigrationService
         if (await hgService.MigrateRepo(project, stoppingToken))
         {
             project.MigrationStatus = ProjectMigrationStatus.Migrated;
-            var migratedAt = DateTimeOffset.UtcNow;
-            project.MigratedDate = migratedAt;
-            project.UpdatedDate = migratedAt;
+            project.MigratedDate = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync(stoppingToken);
             //clear the cache that controls routing, needs to be done before we unblock send receive
             proxyService.ClearProjectMigrationInfo(projectCode);
