@@ -1,25 +1,33 @@
 <script lang="ts">
-  import { navigating } from '$app/stores';
-  import { Badge } from '$lib/components/Badges';
+  import {navigating} from '$app/stores';
+  import {Badge} from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
-  import { ProjectFilter, ProjectTable, type ProjectItem, type ProjectItemWithDraftStatus, filterProjects, type ProjectFilters } from '$lib/components/Projects';
-  import { RefineFilterMessage } from '$lib/components/Table';
-  import { DialogResponse } from '$lib/components/modals';
+  import {DEFAULT_PAGE_SIZE, limit} from '$lib/components/Paging';
+  import {
+    filterProjects,
+    ProjectFilter,
+    type ProjectFilters,
+    type ProjectItem,
+    type ProjectItemWithDraftStatus,
+    ProjectTable
+  } from '$lib/components/Projects';
+  import {RefineFilterMessage} from '$lib/components/Table';
+  import {DialogResponse} from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import { Button } from '$lib/forms';
-  import { _deleteProject } from '$lib/gql/mutations';
-  import t, { number } from '$lib/i18n';
-  import { TrashIcon } from '$lib/icons';
-  import { useNotifications } from '$lib/notify';
-  import { toSearchParams, type QueryParams } from '$lib/util/query-params';
-  import { derived } from 'svelte/store';
-  import type { AdminSearchParams, DraftProject } from './+page';
+  import {Button} from '$lib/forms';
+  import {_deleteProject} from '$lib/gql/mutations';
+  import t, {number} from '$lib/i18n';
+  import {TrashIcon} from '$lib/icons';
+  import {useNotifications} from '$lib/notify';
+  import {type QueryParams, toSearchParams} from '$lib/util/query-params';
+  import {derived} from 'svelte/store';
+  import type {AdminSearchParams, DraftProject} from './+page';
   import DevContent from '$lib/layout/DevContent.svelte';
   import AdminTabs from './AdminTabs.svelte';
+  import type {CreateProjectInput} from '$lib/gql/types';
 
   export let projects: ProjectItem[];
-  export let draftProjects: ProjectItem[];
+  export let draftProjects: DraftProject[];
   export let queryParams: QueryParams<AdminSearchParams>;
   $: queryParamValues = queryParams.queryParamValues;
   $: filters = queryParamValues;
@@ -42,8 +50,8 @@
   let lastLoadUsedActiveFilter = false;
   $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
   $: allProjects = [
-    ...draftProjects.map(p => ({ ...p, isDraft: true, createUrl: `/project/create?${toSearchParams(p as DraftProject)}` } as ProjectItemWithDraftStatus)),
-    ...projects.map(p => ({ ...p, isDraft: false } as ProjectItemWithDraftStatus)),
+    ...draftProjects.map(p => ({ ...p, isDraft: true as const, createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p)}` })),
+    ...projects.map(p => ({ ...p, isDraft: false as const })),
   ];
   $: filteredProjects = filterProjects(allProjects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;

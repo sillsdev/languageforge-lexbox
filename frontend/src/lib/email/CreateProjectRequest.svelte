@@ -10,7 +10,7 @@
     export let baseUrl: string;
     export let project: CreateProjectInput;
     export let user: { name: string; email: string };
-    let createUrl = new URL(`/project/create?${toSearchParams(project)}`, baseUrl);
+    let createUrl = new URL(`/project/create?${toSearchParams<CreateProjectInput>(project)}`, baseUrl);
 </script>
 
 <Email subject={$t('emails.create_project_request_email.subject', {projectName: project.name})} {name}>

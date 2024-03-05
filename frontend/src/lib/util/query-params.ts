@@ -66,7 +66,7 @@ function getDefaults<T extends Record<string, unknown>>(
  * new URLSearchParams(params) only allows string values, which seems unnecessarily strict, see e.g.:
  * https://github.com/microsoft/TypeScript-DOM-lib-generator/issues/1568#issuecomment-1587963141
  */
-export function toSearchParams(params: PrimitiveRecord): string {
+export function toSearchParams<T extends PrimitiveRecord>(params: T): string {
   const searchParams = new URLSearchParams(params as unknown as Record<string, string>);
   return searchParams.toString();
 }
