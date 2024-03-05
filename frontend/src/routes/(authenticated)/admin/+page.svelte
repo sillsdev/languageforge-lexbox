@@ -14,7 +14,7 @@
   import { RefineFilterMessage } from '$lib/components/Table';
   import type { AdminSearchParams, User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import type { ProjectType, ProjectMigrationStatus } from '$lib/gql/types';
+  import type { ProjectType } from '$lib/gql/types';
   import { derived } from 'svelte/store';
   import AdminProjects from './AdminProjects.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
@@ -34,7 +34,6 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
-    migrationStatus: queryParam.string<ProjectMigrationStatus | 'UNMIGRATED' | undefined>(undefined),
     tab: queryParam.string<AdminTabId>('projects'),
   });
 

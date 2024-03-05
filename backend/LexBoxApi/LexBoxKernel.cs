@@ -51,10 +51,8 @@ public static class LexBoxKernel
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();
+        services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();
-        services.AddSingleton<RepoMigrationService>();
-        services.AddSingleton<IRepoMigrationService>(provider => provider.GetRequiredService<RepoMigrationService>());
-        services.AddHostedService(provider => provider.GetRequiredService<RepoMigrationService>());
         if (environment.IsDevelopment())
             services.AddHostedService<SwaggerValidationService>();
         services.AddScheduledTasks(configuration);

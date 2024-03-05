@@ -15,17 +15,5 @@ public class HgConfig
     public required string HgCommandServer { get; init; }
     [Required, Url]
     public required string HgResumableUrl { get; init; }
-
-    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
-    public required string PublicRedmineHgWebUrl { get; init; }
-    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
-    public required string PrivateRedmineHgWebUrl { get; init; }
-
-    [Required, Url]
-    public required string RedmineHgResumableUrl { get; init; }
-
-    [Required(AllowEmptyStrings = false)]
-    public required string RedmineTrustToken { get; init; }
-    public string MigrationHost { get; init; } = "sysops.languagedepot.org";
     public bool AutoUpdateLexEntryCountOnSendReceive { get; init; } = false;
 }
