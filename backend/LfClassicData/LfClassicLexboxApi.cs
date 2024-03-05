@@ -1,6 +1,9 @@
-﻿using MiniLcm;
+﻿using LfClassicData.Entities;
+using MiniLcm;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
+using Entry = MiniLcm.Entry;
+using Sense = MiniLcm.Sense;
 
 namespace LfClassicData;
 
@@ -20,15 +23,20 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
 
     public async Task<Entry[]> GetEntries(string exemplar, QueryOptions? options = null)
     {
-        return new Entry[] { };
+        return await Query();
     }
 
     public async Task<Entry[]> GetEntries(QueryOptions? options = null)
     {
-        return new Entry[] { };
+        return await Query();
     }
 
     public async Task<Entry[]> SearchEntries(string query, QueryOptions? options = null)
+    {
+        return await Query();
+    }
+
+    private async Task<Entry[]> Query()
     {
         using var entriesCursor = await Entries.Find(Builders<Entities.Entry>.Filter.Empty).ToCursorAsync();
         var entries = new List<Entry>();
@@ -45,10 +53,46 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
 
     private static Entry ToEntry(Entities.Entry entry)
     {
-        throw new NotImplementedException();
         return new Entry
         {
+            Id = entry.Guid,
+            CitationForm = ToMultiString(entry.CitationForm),
+            LexemeForm = ToMultiString(entry.Lexeme),
+            Note = new(),//todo add note
+            LiteralMeaning = new(),//todo add meaning
+            Senses = entry.Senses?.OfType<Entities.Sense>().Select(ToSense).ToList() ?? []
         };
+    }
+
+    private static Sense ToSense(Entities.Sense sense)
+    {
+        return new Sense
+        {
+            Id = sense.Guid,
+            Gloss = ToMultiString(sense.Gloss),
+            PartOfSpeech = sense.PartOfSpeech?.Value ?? string.Empty,
+            ExampleSentences = sense.Examples?.OfType<Example>().Select(ToExampleSentence).ToList() ?? []
+        };
+    }
+
+    private static ExampleSentence ToExampleSentence(Example example)
+    {
+        return new ExampleSentence
+        {
+            Id = example.Guid,
+        };
+    }
+
+    private static MultiString ToMultiString(Dictionary<string, MultiTextValue>? multiTextValue)
+    {
+        var ms = new MultiString();
+        if (multiTextValue is null) return ms;
+        foreach (var (key, value) in multiTextValue)
+        {
+            ms.Values[key] = value.Value;
+        }
+
+        return ms;
     }
 
     public async Task<Entry> GetEntry(Guid id)

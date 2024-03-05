@@ -12,6 +12,7 @@ using LexBoxApi.Services;
 using LexCore.Exceptions;
 using LexData;
 using LexSyncReverseProxy;
+using LfClassicData;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.Mvc;
@@ -102,6 +103,7 @@ builder.Services.AddOptions<HttpLoggingOptions>()
 
 builder.Services.AddLexData(builder.Environment.IsDevelopment());
 builder.Services.AddLexBoxApi(builder.Configuration, builder.Environment);
+builder.Services.AddLanguageForgeClassicMiniLcm();
 builder.Services.AddOptions<ForwardedHeadersOptions>()
     .BindConfiguration("ForwardedHeadersOptions")
     .PostConfigure((ForwardedHeadersOptions options, IConfiguration configuration) =>
@@ -159,6 +161,7 @@ app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
+app.MapLfClassicApi().AllowAnonymous().WithOpenApi();
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
     .RequireAuthorization(new AdminRequiredAttribute());
