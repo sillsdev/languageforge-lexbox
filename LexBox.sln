@@ -23,9 +23,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixFwData", "backend\FixFwD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LfNext", "LfNext", "{7B6E21C4-5AF4-4505-B7D9-59A3886C5090}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LfClassicData", "LfClassicData\LfClassicData.csproj", "{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LfClassicData", "backend\LfClassicData\LfClassicData.csproj", "{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm", "MiniLcm\MiniLcm.csproj", "{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm", "backend\MiniLcm\MiniLcm.csproj", "{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
