@@ -19,4 +19,4 @@ The LexBox backend is a dotnet core api. With a proxy to route requests for hg a
 | `/api/swagger` | Swagger UI | |
 | `/api/graphql/ui` | GraphQL UI | [Banana Cake Pop](https://chillicream.com/docs/bananacakepop/v2/explore-the-ui) |
 | `/api/quartz`  | Quartz.NET UI (job scheduler)  | [CrystalQuartz](https://github.com/guryanovev/CrystalQuartz) |
-| `/api/security.txt` or `/api/.well-known/security.txt`  | Vulnerability reporting info  | [Security.txt standard](https://securitytxt.org/) |
+| `/security.txt` or `/.well-known/security.txt`  | Vulnerability reporting info  | [Security.txt standard](https://securitytxt.org/) |
