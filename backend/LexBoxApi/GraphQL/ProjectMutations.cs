@@ -54,32 +54,6 @@ public class ProjectMutations
         return new CreateProjectResponse(projectId, CreateProjectResult.Created);
     }
 
-    public record PromoteDraftProjectResponse(Guid? Id, CreateProjectResult Result);
-    [Error<NotFoundException>]
-    [Error<DbError>]
-    [Error<AlreadyExistsException>]
-    [UseMutationConvention]
-    [AdminRequired]
-    public async Task<PromoteDraftProjectResponse?> PromoteDraftProject(
-        Guid draftProjectId,
-        LexBoxDbContext dbContext,
-        [Service] ProjectService projectService)
-    {
-        DraftProject? draftProject = await dbContext.DraftProjects.FindAsync(draftProjectId);
-        if (draftProject is null) throw new NotFoundException("Draft project not found");
-
-        var createProjectInput = new CreateProjectInput(
-            Id: draftProject.Id,
-            Name: draftProject.Name,
-            Description: draftProject.Description,
-            Code: draftProject.Code,
-            Type: draftProject.Type,
-            RetentionPolicy: draftProject.RetentionPolicy,
-            ProjectManagerId: draftProject.ProjectManagerId);
-        var projectId = await projectService.CreateProject(createProjectInput);
-        return new PromoteDraftProjectResponse(projectId, CreateProjectResult.Created);
-    }
-
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<ProjectMembersMustBeVerified>]

@@ -143,7 +143,6 @@ type MeDto {
 
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
-  promoteDraftProject(input: PromoteDraftProjectInput!): PromoteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
@@ -202,22 +201,12 @@ type ProjectUsers {
   updatedDate: DateTime!
 }
 
-type PromoteDraftProjectPayload {
-  promoteDraftProjectResponse: PromoteDraftProjectResponse
-  errors: [PromoteDraftProjectError!]
-}
-
-type PromoteDraftProjectResponse {
-  id: UUID
-  result: CreateProjectResult!
-}
-
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectByCode(code: String!): Project
-  draftProjectByCode(code: String!): DraftProject
+  draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
   meAuth: LexAuthUser!
@@ -292,8 +281,6 @@ union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 union CreateProjectError = DbError | AlreadyExistsError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
-
-union PromoteDraftProjectError = NotFoundError | DbError | AlreadyExistsError
 
 union SetUserLockedError = NotFoundError
 
@@ -514,10 +501,6 @@ input ProjectUsersFilterInput {
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
-}
-
-input PromoteDraftProjectInput {
-  draftProjectId: UUID!
 }
 
 input RemoveProjectMemberInput {
