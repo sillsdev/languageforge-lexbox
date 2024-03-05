@@ -79,6 +79,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
             project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
         }
         project.ResetStatus = ResetStatus.None;
+        project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
     }
 

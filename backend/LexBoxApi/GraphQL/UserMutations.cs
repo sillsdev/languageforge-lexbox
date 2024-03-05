@@ -141,6 +141,7 @@ public class UserMutations
         var user = await dbContext.Users.FindAsync(input.UserId);
         if (user is null) throw new NotFoundException("User not found");
         user.Locked = input.Locked;
+        user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return user;
     }
