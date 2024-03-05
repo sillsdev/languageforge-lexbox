@@ -3,35 +3,20 @@
   import { getProjectTypeI18nKey, ProjectTypeIcon } from '$lib/components/ProjectType';
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
   import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
-  import { ProjectMigrationStatus } from '$lib/gql/generated/graphql';
-  import type { IconString } from '$lib/icons';
   import Icon from '$lib/icons/Icon.svelte';
 
   export let projects: ProjectItemWithDraftStatus[];
 
-  const allColumns = ['name', 'code', 'users', 'lastChange', 'migrated', 'type', 'actions'] as const;
+  const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
   type ProjectTableColumn = typeof allColumns extends Readonly<Array<infer T>> ? T : never;
   export let columns: Readonly<ProjectTableColumn[]> = allColumns;
-
-  const migrationStatusToIcon = {
-    [ProjectMigrationStatus.Migrated]: 'i-mdi-checkbox-marked-circle-outline',
-    [ProjectMigrationStatus.Migrating]: 'loading loading-spinner loading-xs',
-    [ProjectMigrationStatus.Unknown]: 'i-mdi-help-circle-outline',
-    [ProjectMigrationStatus.PrivateRedmine]: 'i-mdi-checkbox-blank-circle-outline',
-    [ProjectMigrationStatus.PublicRedmine]: 'i-mdi-checkbox-blank-circle-outline',
-  } satisfies Record<ProjectMigrationStatus, IconString>;
-
-  function migrationStatusIcon(migrationStatus?: ProjectMigrationStatus): IconString {
-    migrationStatus = migrationStatus ?? ProjectMigrationStatus.Unknown;
-    return migrationStatusToIcon[migrationStatus] ?? migrationStatusToIcon[ProjectMigrationStatus.Unknown];
-  }
 
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
   }
 </script>
 
-<div class="overflow-x-auto">
+<div class="overflow-x-auto @container">
   <table class="table table-lg">
     <thead>
       <tr class="bg-base-200">
@@ -42,15 +27,18 @@
           <th>{$t('project.table.code')}</th>
         {/if}
         {#if isColumnVisible('users')}
-          <th>{$t('project.table.users')}</th>
+          <th class="hidden @md:table-cell">{$t('project.table.users')}</th>
         {/if}
-        {#if isColumnVisible('lastChange')}
-          <th>
-            {$t('project.table.last_change')}
+        {#if isColumnVisible('createdAt')}
+          <th class="hidden @xl:table-cell">
+            {$t('project.table.created_at')}
+            <span class="i-mdi-sort-descending" />
           </th>
         {/if}
-        {#if isColumnVisible('migrated')}
-          <th>{$t('project.table.migrated')}</th>
+        {#if isColumnVisible('lastChange')}
+          <th class="hidden @2xl:table-cell">
+            {$t('project.table.last_change')}
+          </th>
         {/if}
         {#if isColumnVisible('type')}
           <th>{$t('project.table.type')}</th>
@@ -92,10 +80,17 @@
             <td>{project.code}</td>
           {/if}
           {#if isColumnVisible('users')}
-            <td>{project.userCount}</td>
+            <td class="hidden @md:table-cell">
+              {project.userCount}
+            </td>
+          {/if}
+          {#if isColumnVisible('createdAt')}
+            <td class="hidden @xl:table-cell">
+              {$date(project.createdDate)}
+            </td>
           {/if}
           {#if isColumnVisible('lastChange')}
-            <td>
+            <td class="hidden @2xl:table-cell">
               {#if project.deletedDate}
                 <span class="text-error">
                   {$date(project.deletedDate)}
@@ -104,9 +99,6 @@
                 {$date(project.lastCommit)}
               {/if}
             </td>
-          {/if}
-          {#if isColumnVisible('migrated')}
-            <td><span class={migrationStatusIcon(project.migrationStatus)} /></td>
           {/if}
           {#if isColumnVisible('type')}
             <td>

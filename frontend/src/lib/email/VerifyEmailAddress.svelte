@@ -14,4 +14,5 @@
     <mj-text>{$t('emails.verify_email.to_verify_click')}</mj-text>
   {/if}
   <mj-button href={verifyUrl}>{$t('emails.verify_email.verify_button')}</mj-button>
+  <mj-text>{$t('emails.link_expiration_warning')}</mj-text>
 </Email>

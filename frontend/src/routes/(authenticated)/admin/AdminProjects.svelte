@@ -15,14 +15,17 @@
   import type { QueryParams } from '$lib/util/query-params';
   import { derived } from 'svelte/store';
   import type { AdminSearchParams } from './+page';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import AdminTabs from './AdminTabs.svelte';
 
   export let projects: ProjectItem[];
   export let draftProjects: ProjectItem[];
   export let queryParams: QueryParams<AdminSearchParams>;
-  $: filters = queryParams.queryParamValues;
+  $: queryParamValues = queryParams.queryParamValues;
+  $: filters = queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
 
-  const { notifyWarning } = useNotifications();
+  const { notifyWarning, notifySuccess } = useNotifications();
 
   const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 
@@ -52,28 +55,39 @@
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
   }
+
+  async function updateAllLexEntryCounts(): Promise<void> {
+    const result = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
+    const count = await result.text();
+    notifySuccess(`${count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
+  }
 </script>
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
 <div>
-  <div class="flex justify-between items-center">
-    <h2 class="text-2xl flex gap-4 items-end">
-      {$t('admin_dashboard.project_table_title')}
-      <Badge>
-        <span class="inline-flex gap-2">
-          {$number(shownProjects.length)}
-          <span>/</span>
-          {$number(filteredProjects.length)}
+  <AdminTabs activeTab="projects" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
+    <div class="flex gap-4 justify-between grow">
+      <div class="flex gap-4 items-center">
+        {$t('admin_dashboard.project_table_title')}
+        <div class="contents max-xs:hidden">
+          <Badge>
+            <span class="inline-flex gap-2">
+              {$number(shownProjects.length)}
+              <span>/</span>
+              {$number(filteredProjects.length)}
+            </span>
+          </Badge>
+        </div>
+      </div>
+      <a class="btn btn-sm btn-success max-xs:btn-square"
+        href="/project/create">
+        <span class="admin-tabs:hidden">
+          {$t('project.create.title')}
         </span>
-      </Badge>
-    </h2>
-    <a href="/project/create" class="btn btn-sm btn-success">
-      <span class="max-sm:hidden">
-        {$t('project.create.title')}
-      </span>
-      <span class="i-mdi-plus text-2xl" />
-    </a>
-  </div>
+        <span class="i-mdi-plus text-2xl" />
+      </a>
+    </div>
+  </AdminTabs>
 
   <div class="mt-4">
     <ProjectFilter
@@ -116,4 +130,8 @@
       <RefineFilterMessage total={filteredProjects.length} showing={shownProjects.length} />
     {/if}
   {/if}
+
+<DevContent>
+  <p><span class="text-bold">TEMPORARY:</span> <button class="btn btn-warning" on:click={updateAllLexEntryCounts}> Update all lex entry counts </button>
+</DevContent>
 </div>

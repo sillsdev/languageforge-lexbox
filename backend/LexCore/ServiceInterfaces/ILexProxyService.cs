@@ -9,8 +9,7 @@ public interface ILexProxyService
     Task<LexAuthUser?> Login(LoginRequest loginRequest);
     Task RefreshProjectLastChange(string projectCode);
     Task UpdateLastEntryCountIfAllowed(string projectCode);
-    ValueTask<RequestInfo?> GetDestinationPrefix(HgType type, string projectCode);
-    void ClearProjectMigrationInfo(string projectCode);
+    RequestInfo GetDestinationPrefix(HgType type);
 }
 
-public record RequestInfo(string DestinationPrefix, string? TrustToken, ProjectMigrationStatus Status);
+public record RequestInfo(string DestinationPrefix);

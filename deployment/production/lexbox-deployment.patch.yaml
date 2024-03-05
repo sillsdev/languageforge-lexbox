@@ -25,9 +25,3 @@ spec:
               value: "Language Depot <no-reply@languagedepot.org>"
             - name: Email__BaseUrl
               value: "https://languagedepot.org"
-            - name: HgConfig__PublicRedmineHgWebUrl
-              value: "https://hg-public-redmine.languagedepot.org/"
-            - name: HgConfig__PrivateRedmineHgWebUrl
-              value: "https://hg-private-redmine.languagedepot.org/"
-            - name: HgConfig__RedmineHgResumableUrl
-              value: "https://resumable-redmine.languagedepot.org"

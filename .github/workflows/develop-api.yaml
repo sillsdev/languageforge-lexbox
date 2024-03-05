@@ -58,7 +58,5 @@ jobs:
     secrets: inherit
     needs: deploy-api
     with:
-      test-domain: lexbox.dev.languagetechnology.org
-      hg-domain: languagedepot-dev.lexbox
-      http-scheme: http
+      environment: develop
       runs-on: self-hosted

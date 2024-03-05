@@ -7,6 +7,8 @@ using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
 using LexData;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -39,9 +41,9 @@ public class ProjectController(
     [ProducesDefaultResponseType]
     public async Task<ActionResult<DateTimeOffset?>> LastCommitForRepo(string code)
     {
-        var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code).Select(p => p.MigrationStatus).FirstOrDefaultAsync();
-        if (migrationStatus == default) return NotFound();
-        return await hgService.GetLastCommitTimeFromHg(code, migrationStatus);
+        var exists = await lexBoxDbContext.Projects.Where(p => p.Code == code).AnyAsync();
+        if (!exists) return NotFound();
+        return await hgService.GetLastCommitTimeFromHg(code);
     }
 
     [HttpPost("updateAllRepoCommitDates")]
@@ -51,7 +53,7 @@ public class ProjectController(
         var projects = lexBoxDbContext.Projects.Where(p => !onlyUnknown || p.LastCommit == null).AsAsyncEnumerable();
         await foreach (var project in projects)
         {
-            project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
+            project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
         }
         await lexBoxDbContext.SaveChangesAsync();
 
@@ -68,7 +70,7 @@ public class ProjectController(
         if (project is null) return NotFound();
         if (project.Type == ProjectType.Unknown)
         {
-            project.Type = await hgService.DetermineProjectType(project.Code, project.MigrationStatus);
+            project.Type = await hgService.DetermineProjectType(project.Code);
             await lexBoxDbContext.SaveChangesAsync();
         }
         return project;
@@ -89,7 +91,7 @@ public class ProjectController(
     {
         var project = await lexBoxDbContext.Projects.FindAsync(id);
         if (project is null) return NotFound();
-        return await hgService.DetermineProjectType(project.Code, project.MigrationStatus);
+        return await hgService.DetermineProjectType(project.Code);
     }
 
     [HttpPost("updateProjectTypesForUnknownProjects")]
@@ -99,7 +101,7 @@ public class ProjectController(
     public async Task<ActionResult<Dictionary<string, ProjectType>>> UpdateProjectTypesForUnknownProjects(int limit = 50, int offset = 0)
     {
         var projects = lexBoxDbContext.Projects
-            .Where(p => p.Type == ProjectType.Unknown && p.MigrationStatus == ProjectMigrationStatus.Migrated)
+            .Where(p => p.Type == ProjectType.Unknown)
             .OrderBy(p => p.Code)
             .Skip(offset)
             .Take(limit)
@@ -107,7 +109,7 @@ public class ProjectController(
         var result = new Dictionary<string, ProjectType>();
         await foreach (var project in projects)
         {
-            project.Type = await hgService.DetermineProjectType(project.Code, project.MigrationStatus);
+            project.Type = await hgService.DetermineProjectType(project.Code);
             result.Add(project.Code, project.Type);
         }
         await lexBoxDbContext.SaveChangesAsync();
@@ -163,38 +165,24 @@ public class ProjectController(
         return project;
     }
 
-    [HttpGet("awaitMigrated")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesDefaultResponseType]
-    public async Task<ActionResult<bool>> AwaitMigrated(string projectCode)
-    {
-        if (!await permissionService.CanAccessProject(projectCode))
-            return Unauthorized();
-
-        var token = CancellationTokenSource.CreateLinkedTokenSource(
-            new CancellationTokenSource(TimeSpan.FromMinutes(2)).Token,
-            HttpContext.RequestAborted
-        ).Token;
-        var result = await projectService.AwaitMigration(projectCode, token);
-        if (result is null) return NotFound();
-        return result.Value;
-    }
-
     public record HgCommandResponse(string Response);
     [HttpGet("hgVerify/{code}")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<HgCommandResponse>> HgVerify(string code)
+    public async Task HgVerify(string code)
     {
-        var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
-            .Select(p => p.MigrationStatus)
-            .FirstOrDefaultAsync();
-        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        var exists = await lexBoxDbContext.Projects.Where(p => p.Code == code).AnyAsync();
+        if (!exists)
+        {
+            // Used to return NotFound() but now we have to write the response manually
+            Response.StatusCode = 404;
+            await Response.CompleteAsync();
+            return;
+        }
         var result = await hgService.VerifyRepo(code, HttpContext.RequestAborted);
-        return new HgCommandResponse(result);
+        await StreamHttpResponse(result);
     }
 
     [HttpGet("hgRecover/{code}")]
@@ -202,14 +190,26 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
-    public async Task<ActionResult<HgCommandResponse>> HgRecover(string code)
+    public async Task HgRecover(string code)
     {
-        var migrationStatus = await lexBoxDbContext.Projects.Where(p => p.Code == code)
-            .Select(p => p.MigrationStatus)
-            .FirstOrDefaultAsync();
-        if (migrationStatus is not ProjectMigrationStatus.Migrated) return NotFound();
+        var exists = await lexBoxDbContext.Projects.Where(p => p.Code == code).AnyAsync();
+        if (!exists)
+        {
+            // Used to return NotFound() but now we have to write the response manually
+            Response.StatusCode = 404;
+            await Response.CompleteAsync();
+            return;
+        }
         var result = await hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
-        return new HgCommandResponse(result);
+        await StreamHttpResponse(result);
+    }
+
+    private async Task StreamHttpResponse(HttpContent hgResult)
+    {
+        var writer = Response.BodyWriter;
+        //  Browsers want to see a content type or they won't stream the output of the fetch() call
+        Response.ContentType = "text/plain; charset=utf-8";
+        await hgResult.CopyToAsync(writer.AsStream());
     }
 
     [HttpPost("updateLexEntryCount/{code}")]
@@ -220,6 +220,21 @@ public class ProjectController(
     {
         var result = await projectService.UpdateLexEntryCount(code);
         return result is null ? NotFound() : result;
+    }
+
+    [HttpPost("updateAllLexEntryCounts")]
+    [AdminRequired]
+    public async Task<ActionResult<int>> UpdateAllLexEntryCounts(bool onlyUnknown = true, int limit = 100, int delayMs = 10)
+    {
+        var projects = lexBoxDbContext.Projects.Where(p => p.Type == ProjectType.FLEx && (!onlyUnknown || p.FlexProjectMetadata == null)).Take(limit).ToArray();
+        var completed = 0;
+        foreach (var project in projects)
+        {
+            await projectService.UpdateLexEntryCount(project.Code);
+            completed++;
+            if (delayMs > 0) await Task.Delay(delayMs);
+        }
+        return Ok(completed);
     }
 
     [HttpPost("queueUpdateProjectMetadataTask")]

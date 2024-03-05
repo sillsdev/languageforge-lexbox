@@ -158,6 +158,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "table": {
       "name": "Name",
       "code": "Code",
+      "created_at": "Created",
       "last_change": "Last Change",
       "migrated": "Migrated",
       "type": "Type",
@@ -229,6 +230,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "summary": "Summary",
     "num_entries": "Entries",
     "description": "Description",
+    "created_at": "Created",
     "last_commit": "Last Commit",
     "members": {
       "title": "Members",
@@ -353,6 +355,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "close_all": "Close all"
   },
   "emails": {
+    "link_expiration_warning": "This email will expire in 3 days.",
     "new_admin": {
       "subject": "New Language Depot administrator {adminName}",
       "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."

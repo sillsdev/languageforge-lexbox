@@ -165,7 +165,6 @@ type NotFoundError implements Error {
 type Project {
   code: String!
   createdDate: DateTime!
-  migrationStatus: ProjectMigrationStatus!
   id: UUID!
   users: [ProjectUsers!]!
   changesets: [Changeset!]!
@@ -457,7 +456,6 @@ input ProjectFilterInput {
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
-  migrationStatus: ProjectMigrationStatusOperationFilterInput
   migratedDate: DateTimeOperationFilterInput
   userCount: IntOperationFilterInput
   id: UuidOperationFilterInput
@@ -491,7 +489,6 @@ input ProjectSortInput {
   deletedDate: SortEnumType
   resetStatus: SortEnumType
   projectOrigin: SortEnumType
-  migrationStatus: SortEnumType
   migratedDate: SortEnumType
   userCount: SortEnumType
   id: SortEnumType

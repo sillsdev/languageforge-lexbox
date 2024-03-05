@@ -7,7 +7,6 @@ resources:
 #- secrets.yaml
 - ingress-deployment.yaml
 - db-secrets.yaml
-- api-ssh.secret.yaml
 
 components:
   - ../init-repos

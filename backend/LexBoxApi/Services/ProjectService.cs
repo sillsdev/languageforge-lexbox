@@ -1,3 +1,4 @@
+using System.Data.Common;
 using LexBoxApi.Models.Project;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -8,7 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRepoMigrationService migrationService, IMemoryCache memoryCache)
+public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMemoryCache memoryCache)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
@@ -20,7 +21,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
                 Id = projectId,
                 Code = input.Code,
                 Name = input.Name,
-                MigrationStatus = ProjectMigrationStatus.Migrated,
                 ProjectOrigin = ProjectMigrationStatus.Migrated,
                 Description = input.Description,
                 Type = input.Type,
@@ -74,7 +74,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
 
     public async Task<BackupExecutor?> BackupProject(string code)
     {
-        var exists = await dbContext.Projects.Where(p => p.Code == code && p.MigrationStatus == ProjectMigrationStatus.Migrated)
+        var exists = await dbContext.Projects.Where(p => p.Code == code)
             .AnyAsync();
         if (!exists) return null;
         var backupExecutor = hgService.BackupRepo(code);
@@ -97,7 +97,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         if (zipFile is not null)
         {
             await hgService.FinishReset(code, zipFile);
-            project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code, project.MigrationStatus);
+            project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
         }
         project.ResetStatus = ResetStatus.None;
         await dbContext.SaveChangesAsync();
@@ -109,7 +109,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
             .Include(p => p.FlexProjectMetadata)
             .FirstOrDefaultAsync(p => p.Code == projectCode);
         if (project is null) return;
-        if (project is { MigrationStatus: ProjectMigrationStatus.Migrated, Type: ProjectType.FLEx })
+        if (project is { Type: ProjectType.FLEx })
         {
             var count = await hgService.GetLexEntryCount(projectCode);
             if (project.FlexProjectMetadata is null)
@@ -122,7 +122,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
             }
         }
 
-        project.LastCommit = await hgService.GetLastCommitTimeFromHg(projectCode, project.MigrationStatus);
+        project.LastCommit = await hgService.GetLastCommitTimeFromHg(projectCode);
         await dbContext.SaveChangesAsync();
     }
 
@@ -130,7 +130,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
     {
         var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
         if (project is null) return null;
-        var lastCommitFromHg = await hgService.GetLastCommitTimeFromHg(projectCode, project.MigrationStatus);
+        var lastCommitFromHg = await hgService.GetLastCommitTimeFromHg(projectCode);
         project.LastCommit = lastCommitFromHg;
         await dbContext.SaveChangesAsync();
         return lastCommitFromHg;
@@ -139,7 +139,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
     public async Task<int?> UpdateLexEntryCount(string projectCode)
     {
         var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Code == projectCode);
-        if (project?.MigrationStatus is not ProjectMigrationStatus.Migrated) return null;
         if (project?.Type is not ProjectType.FLEx) return null;
         var count = await hgService.GetLexEntryCount(projectCode);
         if (project.FlexProjectMetadata is null)
@@ -150,53 +149,16 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IRe
         {
             project.FlexProjectMetadata.LexEntryCount = count;
         }
-        await dbContext.SaveChangesAsync();
-        return count;
-    }
-
-    public async Task<ProjectMigrationStatus?> GetProjectMigrationStatus(string projectCode)
-    {
-        var migrationStatus = await dbContext.Projects.AsNoTracking()
-            .Where(p => p.Code == projectCode).Select(p => p.MigrationStatus).FirstOrDefaultAsync();
-        if (migrationStatus == default) return null;
-        return migrationStatus;
-    }
-
-    public async Task MigrateProject(string projectCode)
-    {
-        var project = await dbContext.Projects.SingleAsync(p => p.Code == projectCode);
-        project.MigrationStatus = ProjectMigrationStatus.Migrating;
-        await dbContext.SaveChangesAsync();
-        migrationService.QueueMigration(projectCode);
-    }
-
-    public async Task MigrateProjects(string[] projectCodes)
-    {
-        var projects = await dbContext.Projects.Where(p => p.MigrationStatus != ProjectMigrationStatus.Migrated && projectCodes.Contains(p.Code)).ToArrayAsync();
-        foreach (var project in projects)
-        {
-            project.MigrationStatus = ProjectMigrationStatus.Migrating;
-        }
-        await dbContext.SaveChangesAsync();
-        foreach (var projectCode in projectCodes)
-        {
-            migrationService.QueueMigration(projectCode);
-        }
-    }
-
-    public async Task<bool?> AwaitMigration(string projectCode, CancellationToken cancellationToken)
-    {
-        var project = await dbContext.Projects.SingleOrDefaultAsync(p => p.Code == projectCode, cancellationToken);
-        if (project is null) return null;
-        if (project.MigrationStatus == ProjectMigrationStatus.Migrated) return true;
         try
         {
-            await migrationService.WaitMigrationFinishedAsync(projectCode, cancellationToken);
-            return true;
+            await dbContext.SaveChangesAsync();
         }
-        catch (TaskCanceledException)
+        catch (DbException e) when (e.SqlState == "23505")
         {
-            return false;
+            // 23505 is "Duplicate key value violates unique constraint", i.e. another process
+            // already created the FlexProjectMetadata entry with the correct value.
+            // We'll silently ignore it since the other process has already succeeded
         }
+        return count;
     }
 }
