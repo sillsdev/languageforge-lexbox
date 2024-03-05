@@ -102,7 +102,7 @@ jobs:
           files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}
           path: ./playwright-traces.7z
