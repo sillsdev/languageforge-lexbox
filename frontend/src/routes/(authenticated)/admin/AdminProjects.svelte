@@ -42,8 +42,8 @@
   let lastLoadUsedActiveFilter = false;
   $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
   $: allProjects = [
+    ...draftProjects.map(p => ({ ...p, isDraft: true, createUrl: `/project/create?${toSearchParams(p as DraftProject)}` } as ProjectItemWithDraftStatus)),
     ...projects.map(p => ({ ...p, isDraft: false } as ProjectItemWithDraftStatus)),
-    ...draftProjects.map(p => ({ ...p, isDraft: true, createUrl: `/project/create?${toSearchParams(p as DraftProject)}` } as ProjectItemWithDraftStatus))
   ];
   $: filteredProjects = filterProjects(allProjects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
