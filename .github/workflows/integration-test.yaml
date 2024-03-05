@@ -73,7 +73,7 @@ jobs:
       - name: Playwright setup
         working-directory: backend/Testing
         run: |
-          sudo pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install-deps
+          ${{inputs.runs-on == 'windows-latest' && '' || 'sudo' }} pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install-deps
           pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
