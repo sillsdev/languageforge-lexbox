@@ -52,11 +52,6 @@
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 
-      // TODO: Handle this case
-      // if (error?.byType('NotFoundError')) {
-      //   return { email: [$t('project_page.bulk_add_members.project_not_found')] };
-      // }
-
       createdCount = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdCount;
       usernameConflicts = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.usernameConflicts ?? [];
       return error?.message;
@@ -83,6 +78,7 @@
   <FormModal bind:this={formModal} {schema} let:errors>
     <span slot="title">{$t('project_page.bulk_add_members.modal_title')}</span>
     {#if currentStep == BulkAddSteps.Add}
+    <p>{$t('project_page.bulk_add_members.explanation')}</p>
     <Input
       id="password"
       type="password"
