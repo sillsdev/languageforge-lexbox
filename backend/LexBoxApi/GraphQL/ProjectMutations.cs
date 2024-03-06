@@ -82,7 +82,11 @@ public class ProjectMutations
             await emailService.SendCreateAccountEmail(input.UserEmail, input.ProjectId, input.Role, manager.Name, project.Name);
             throw new ProjectMemberInvitedByEmail("Invitation email sent");
         }
-        if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
+        if (user.CreatedBy is null && !user.EmailVerified)
+        {
+            // Users created by admins are automatically trusted
+            throw new ProjectMembersMustBeVerified("Member must verify email first");
+        }
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
