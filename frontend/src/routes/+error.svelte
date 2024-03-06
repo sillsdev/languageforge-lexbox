@@ -26,7 +26,7 @@
         <UnexpectedError />
       {/if}
       <div class="mt-8 text-center">
-        <a class="btn btn-success" href="/">{$t('errors.go_home')} <span class="i-mdi-home-outline text-xl"></span></a>
+        <a class="btn btn-success" href="/" rel="external">{$t('errors.go_home')} <span class="i-mdi-home-outline text-xl"></span></a>
       </div>
     </div>
   </Page>
