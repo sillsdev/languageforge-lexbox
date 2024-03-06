@@ -159,12 +159,6 @@
     }
   }
 
-  let usernameConflicts: string[] | undefined;
-
-  function handleBulkAddUsernameConflicts(event: CustomEvent<string[]>): void {
-    usernameConflicts = event.detail;
-  }
-
   async function handleBulkCreated(event: CustomEvent<number>): Promise<void> {
     if (event.detail ?? 0 > 0) {
       notifySuccess($t(`project_page.notifications.bulk_add_members`, { count: event.detail }));
@@ -440,7 +434,7 @@
 
           {#if canManage}
               <AddProjectMember projectId={project.id} />
-              <BulkAddProjectMembers projectId={project.id} on:usernameConflicts={handleBulkAddUsernameConflicts} on:bulkCreated={handleBulkCreated} />
+              <BulkAddProjectMembers projectId={project.id} on:bulkCreated={handleBulkCreated} />
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
@@ -458,19 +452,6 @@
         </BadgeList>
       </div>
 
-      {#if usernameConflicts}
-        <div>
-          <h3>The following users already existed, and have been added as project members:</h3>
-          <ul>
-          {#each usernameConflicts as username}
-            <li><MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={true} /></li>
-            <!-- TODO: Get correct role from BulkAdd modal, not just hardcoding it to editor -->
-            <!-- TODO: Get user from username on-demand somehow, then on:action={() => userModal.open(user)} -->
-          {/each}
-          </ul>
-          <button class="btn btn-secondary" on:click={() => usernameConflicts = undefined}>Clear</button>
-        </div>
-      {/if}
       <div class="divider" />
       <div class="space-y-2">
         <p class="text-2xl mb-4 flex gap-4 items-baseline">
