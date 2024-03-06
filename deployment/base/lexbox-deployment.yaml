@@ -49,7 +49,6 @@ spec:
         app: lexbox
     spec:
       securityContext:
-#        fsgroup removed as there's a conflict with volume default mode for the ssh secret. https://github.com/kubernetes/kubernetes/issues/57923
         runAsGroup: 33
         runAsUser: 0
       containers:
@@ -75,8 +74,6 @@ spec:
         volumeMounts:
         - name: repos
           mountPath: /hg-repos
-        - name: ssh-config
-          mountPath: /root/.ssh
 
         env:
           - name: DOTNET_URLS
@@ -126,11 +123,6 @@ spec:
             value: http://hg:8088/command/
           - name: HgConfig__HgResumableUrl
             value: http://hg:80/
-          - name: HgConfig__RedmineTrustToken
-            valueFrom:
-              secretKeyRef:
-                  key: RedmineTrustToken
-                  name: lexbox-api
           - name: CloudFlare__TurnstileKey
             valueFrom:
               secretKeyRef:
@@ -192,10 +184,6 @@ spec:
       - name: repos
         persistentVolumeClaim:
           claimName: hg-repos # established in hg-repos-pvc.yaml
-      - name: ssh-config
-        secret:
-          secretName: lexbox-api-ssh
-          defaultMode: 384 # 0600 in octal
       - name: otel-config
         configMap:
           name: otel-config

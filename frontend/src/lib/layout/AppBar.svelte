@@ -21,7 +21,7 @@
   {#if environmentName !== 'production'}
     <a href="https://public.languagedepot.org" class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2 underline">
       {$t('environment_warning', { environmentName })}
-      <span class="i-mdi-open-in-new text-xl" />
+      <span class="i-mdi-open-in-new text-xl shrink-0" />
     </a>
   {/if}
   <div class="navbar justify-between bg-primary text-primary-content md:px-6">

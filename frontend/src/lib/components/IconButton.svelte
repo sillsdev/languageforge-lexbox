@@ -10,8 +10,12 @@
   export let join = false;
   export let variant: 'btn-success' | 'btn-ghost' | undefined = undefined;
   export let size: 'btn-sm' | undefined = undefined;
+  let loadingSize = size === 'btn-sm' ? 'loading-xs' as const : undefined;
   export let outline = variant !== 'btn-ghost';
   export let fake = false; // for display purposes only
+
+  const xlIcons: IconString[] = ['i-mdi-refresh'];
+  $: textSize = xlIcons.includes(icon) ? 'text-xl' : 'text-lg';
 </script>
 
 <!-- type="button" ensures the button doen't act as a submit button when in a form -->
@@ -23,8 +27,8 @@
   class:btn-active={active}
   class:join-item={join}>
   {#if !loading}
-    <span class="{icon} text-lg" />
+    <span class="{icon} {textSize}" />
   {:else}
-    <Loader loading />
+    <Loader loading size={loadingSize} />
   {/if}
 </button>

@@ -3,6 +3,7 @@ using System;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,14 +12,16 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    partial class LexBoxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240216071051_AddDraftProjectsTable")]
+    partial class AddDraftProjectsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -508,7 +511,7 @@ namespace LexData.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("DraftProject", (string)null);
+                    b.ToTable("DraftProjects");
                 });
 
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
@@ -521,7 +524,7 @@ namespace LexData.Migrations
 
                     b.HasKey("ProjectId");
 
-                    b.ToTable("FlexProjectMetadata", (string)null);
+                    b.ToTable("FlexProjectMetadata");
                 });
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>
@@ -550,6 +553,11 @@ namespace LexData.Migrations
 
                     b.Property<DateTimeOffset?>("MigratedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("MigrationStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -584,7 +592,7 @@ namespace LexData.Migrations
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("LexCore.Entities.ProjectUsers", b =>
@@ -619,7 +627,7 @@ namespace LexData.Migrations
                     b.HasIndex("UserId", "ProjectId")
                         .IsUnique();
 
-                    b.ToTable("ProjectUsers", (string)null);
+                    b.ToTable("ProjectUsers");
                 });
 
             modelBuilder.Entity("LexCore.Entities.User", b =>
@@ -631,23 +639,18 @@ namespace LexData.Migrations
                     b.Property<bool>("CanCreateProjects")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid?>("CreatedById")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTimeOffset>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now()");
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text")
                         .UseCollation("case_insensitive");
 
                     b.Property<bool>("EmailVerified")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("GoogleId")
-                        .HasColumnType("text");
 
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("boolean");
@@ -687,12 +690,10 @@ namespace LexData.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
-
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzBlobTrigger", b =>
@@ -787,15 +788,6 @@ namespace LexData.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("LexCore.Entities.User", b =>
-                {
-                    b.HasOne("LexCore.Entities.User", "CreatedBy")
-                        .WithMany("UsersICreated")
-                        .HasForeignKey("CreatedById");
-
-                    b.Navigation("CreatedBy");
-                });
-
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzJobDetail", b =>
                 {
                     b.Navigation("Triggers");
@@ -822,8 +814,6 @@ namespace LexData.Migrations
             modelBuilder.Entity("LexCore.Entities.User", b =>
                 {
                     b.Navigation("Projects");
-
-                    b.Navigation("UsersICreated");
                 });
 #pragma warning restore 612, 618
         }

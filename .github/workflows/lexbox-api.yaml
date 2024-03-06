@@ -60,7 +60,7 @@ jobs:
           files: ./test-results/*.xml
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dotnet-unit-test-results
           path: ./test-results
