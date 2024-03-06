@@ -25,20 +25,20 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
 
 public static class UserEntityExtensions
 {
-    public static Expression<Func<User, bool>> FilterByEmailOrUsername(string email)
+    public static Expression<Func<User, bool>> FilterByEmailOrUsername(string emailOrUsername)
     {
-        return user => user.Email == email || user.Username == email;
+        return user => user.Email == emailOrUsername || user.Username == emailOrUsername;
     }
-    public static IQueryable<User> FilterByEmailOrUsername(this IQueryable<User> users, string? email)
+    public static IQueryable<User> FilterByEmailOrUsername(this IQueryable<User> users, string? emailOrUsername)
     {
-        if (email is null) return Enumerable.Empty<User>().AsQueryable();
+        if (emailOrUsername is null) return Enumerable.Empty<User>().AsQueryable();
         // TODO: Test that and make sure it works; if Enumerable.Empty doesn't implement IAsyncEnumerable, we'll have to do this instead:
         // if (email is null) return users.Where(u => false);
-        return users.Where(FilterByEmailOrUsername(email));
+        return users.Where(FilterByEmailOrUsername(emailOrUsername));
     }
 
-    public static async Task<User?> FindByEmailOrUsername(this IQueryable<User> users, string? email)
+    public static async Task<User?> FindByEmailOrUsername(this IQueryable<User> users, string? emailOrUsername)
     {
-        return await users.FilterByEmailOrUsername(email).FirstOrDefaultAsync();
+        return await users.FilterByEmailOrUsername(emailOrUsername).FirstOrDefaultAsync();
     }
 }
