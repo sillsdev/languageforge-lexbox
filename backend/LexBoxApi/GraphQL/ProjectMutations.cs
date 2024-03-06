@@ -109,13 +109,13 @@ public class ProjectMutations
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
         List<string> usernameConflicts = [];
-        int count = 0;
+        int createdCount = 0;
         foreach (var username in input.Usernames)
         {
             var user = await dbContext.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
             if (user is null)
             {
-                count++;
+                createdCount++;
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
                 user = new User
                 {
@@ -147,7 +147,8 @@ public class ProjectMutations
             }
         }
         await dbContext.SaveChangesAsync();
-        return new BulkAddProjectMembersResult(count, usernameConflicts);
+        var updatedProject = dbContext.Projects.Where(p => p.Id == input.ProjectId);
+        return new BulkAddProjectMembersResult(updatedProject, createdCount, usernameConflicts);
     }
 
     [Error<NotFoundException>]

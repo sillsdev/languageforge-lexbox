@@ -7,6 +7,6 @@ public record AddProjectMemberInput(Guid ProjectId, [property: EmailAddress] str
 
 public record BulkAddProjectMembersInput(Guid ProjectId, string[] Usernames, ProjectRole Role, string PasswordHash);
 
-public record BulkAddProjectMembersResult(int CreatedCount, List<string> UsernameConflicts);
+public record BulkAddProjectMembersResult(IQueryable<LexCore.Entities.Project> project, int CreatedCount, List<string> UsernameConflicts);
 
 public record ChangeProjectMemberRoleInput(Guid ProjectId, Guid UserId, ProjectRole Role);

@@ -27,6 +27,7 @@ type BulkAddProjectMembersPayload {
 }
 
 type BulkAddProjectMembersResult {
+  project: [Project!]!
   createdCount: Int!
   usernameConflicts: [String!]!
 }
