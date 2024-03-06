@@ -24,7 +24,6 @@
   const schema = z.object({
     usernamesText: z.string().min(1, $t('register.name_missing')),
     password: passwordFormRules($t),
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
 
   let formModal: FormModal<typeof schema>;
@@ -50,7 +49,7 @@
         projectId,
         passwordHash,
         usernames,
-        role: $form.role,
+        role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 
       // TODO: Handle this case
@@ -63,16 +62,12 @@
       return error?.message;
     });
     if (response === DialogResponse.Submit) {
-      // TODO: Display username conflicts somewhere as well
       if (currentStep < BulkAddSteps.Results) {
         // Go to next page
         currentStep++;
         await openModal();
       } else {
         currentStep = BulkAddSteps.Add;
-        if (usernameConflicts?.length ?? 0 > 0) {
-          dispatch('usernameConflicts', usernameConflicts);
-        }
         dispatch('bulkCreated', createdCount);
         return;
       }
@@ -95,7 +90,6 @@
       bind:value={$form.password}
       error={errors.password}
     />
-    <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
     <TextArea
       id="usernamesText"
       label={$t('project_page.bulk_add_members.usernames')}
@@ -108,7 +102,7 @@
         <p>{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
         <ul>
           {#each usernameConflicts as username}
-          <li><MemberBadge member={{ name: username, role: $form.role }} canManage={false} /></li>
+          <li><MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={false} /></li>
           {/each}
         </ul>
       {/if}
