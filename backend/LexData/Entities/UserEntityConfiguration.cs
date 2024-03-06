@@ -13,6 +13,7 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
         base.Configure(builder);
         builder.Property(u => u.LocalizationCode).HasDefaultValue(User.DefaultLocalizationCode);
         builder.Property(u => u.Username).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
+        builder.HasIndex(u => u.Username).IsUnique();
         builder.Property(u => u.Email).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
         builder.HasIndex(u => u.Email).IsUnique();
         builder.HasMany(user => user.Projects)
