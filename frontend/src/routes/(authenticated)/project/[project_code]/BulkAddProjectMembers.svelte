@@ -103,7 +103,7 @@
       error={errors.usernamesText}
     />
     {:else if currentStep == BulkAddSteps.Results}
-    <p><Icon icon="i-mdi-cloud-check" color="text-success" /> {createdCount} accounts created.</p>
+    <p><Icon icon="i-mdi-check" color="text-success" /> {createdCount} accounts created.</p>
       {#if usernameConflicts && usernameConflicts.length > 0}
         <p>{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
         <ul>
