@@ -117,12 +117,16 @@ public class ProjectMutations
             {
                 createdCount++;
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+                var isEmailAddress = username.Contains('@');
+                // TODO: In the future we'll want to allow usernames in the form "Real Name <email@example.com>" and extract the real name from them
+                // For now, just:
+                var name = username;
                 user = new User
                 {
                     Id = Guid.NewGuid(),
-                    Username = username,
-                    Name = username,
-                    Email = null,
+                    Username = isEmailAddress ? null : username,
+                    Name = name,
+                    Email = isEmailAddress ? username : null,
                     LocalizationCode = "en", // TODO: input.Locale,
                     Salt = salt,
                     PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
