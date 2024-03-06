@@ -58,9 +58,9 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
             Id = entry.Guid,
             CitationForm = ToMultiString(entry.CitationForm),
             LexemeForm = ToMultiString(entry.Lexeme),
-            Note = new(),//todo add note
-            LiteralMeaning = new(),//todo add meaning
-            Senses = entry.Senses?.OfType<Entities.Sense>().Select(ToSense).ToList() ?? []
+            Note = ToMultiString(entry.Note),
+            LiteralMeaning = ToMultiString(entry.LiteralMeaning),
+            Senses = entry.Senses?.OfType<Entities.Sense>().Select(ToSense).ToList() ?? [],
         };
     }
 
@@ -70,8 +70,10 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
         {
             Id = sense.Guid,
             Gloss = ToMultiString(sense.Gloss),
+            Definition = ToMultiString(sense.Definition),
             PartOfSpeech = sense.PartOfSpeech?.Value ?? string.Empty,
-            ExampleSentences = sense.Examples?.OfType<Example>().Select(ToExampleSentence).ToList() ?? []
+            SemanticDomain = sense.SemanticDomain?.Values ?? [],
+            ExampleSentences = sense.Examples?.OfType<Example>().Select(ToExampleSentence).ToList() ?? [],
         };
     }
 
@@ -80,10 +82,13 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
         return new ExampleSentence
         {
             Id = example.Guid,
+            Reference = (example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty,
+            Sentence = ToMultiString(example.Sentence),
+            Translation = ToMultiString(example.Translation)
         };
     }
 
-    private static MultiString ToMultiString(Dictionary<string, MultiTextValue>? multiTextValue)
+    private static MultiString ToMultiString(Dictionary<string, LexValue>? multiTextValue)
     {
         var ms = new MultiString();
         if (multiTextValue is null) return ms;

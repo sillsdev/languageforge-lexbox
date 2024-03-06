@@ -20,7 +20,7 @@ public static class DataServiceKernel
         services.AddSingleton(provider =>
         {
             var configuration = provider.GetRequiredService<IConfiguration>();
-            return BuildMongoClientSettings("mongodb://localhost:27018", provider);
+            return BuildMongoClientSettings("mongodb://localhost:27017", provider);
         });
         services.AddSingleton(provider => new MongoClient(provider.GetRequiredService<MongoClientSettings>()));
         services.AddSingleton<ILexboxApiProvider, LfClassicLexboxApiProvider>();
