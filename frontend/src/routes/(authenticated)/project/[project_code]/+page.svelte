@@ -28,7 +28,7 @@
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { _deleteProject } from '$lib/gql/mutations';
-  import { goto } from '$app/navigation';
+  import { goto, invalidate } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
@@ -163,6 +163,13 @@
 
   function handleBulkAddUsernameConflicts(event: CustomEvent<string[]>): void {
     usernameConflicts = event.detail;
+  }
+
+  async function handleBulkCreated(event: CustomEvent<number>): Promise<void> {
+    if (event.detail ?? 0 > 0) {
+      notifySuccess($t(`project_page.notifications.bulk_add_members`, { count: event.detail }));
+    }
+    await invalidate(`project:${project.code}`);
   }
 
   let migrationStatus = project?.migrationStatus ?? ProjectMigrationStatus.Unknown;
@@ -433,7 +440,7 @@
 
           {#if canManage}
               <AddProjectMember projectId={project.id} />
-              <BulkAddProjectMembers projectId={project.id} on:usernameConflicts={handleBulkAddUsernameConflicts} />
+              <BulkAddProjectMembers projectId={project.id} on:usernameConflicts={handleBulkAddUsernameConflicts} on:bulkCreated={handleBulkCreated} />
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
@@ -454,11 +461,13 @@
       {#if usernameConflicts}
         <div>
           <h3>The following users already existed, and have been added as project members:</h3>
+          <ul>
           {#each usernameConflicts as username}
-            <MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={true} /><br/>
+            <li><MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={true} /></li>
             <!-- TODO: Get correct role from BulkAdd modal, not just hardcoding it to editor -->
             <!-- TODO: Get user from username on-demand somehow, then on:action={() => userModal.open(user)} -->
           {/each}
+          </ul>
           <button class="btn btn-secondary" on:click={() => usernameConflicts = undefined}>Clear</button>
         </div>
       {/if}

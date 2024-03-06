@@ -1,15 +1,22 @@
 <script lang="ts">
-  import { BadgeButton } from '$lib/components/Badges';
+  import { BadgeButton, MemberBadge } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
   import { Input, ProjectRoleSelect, TextArea, passwordFormRules } from '$lib/forms';
-  import { ProjectRole } from '$lib/gql/types';
+  import { ChangeProjectDescriptionDocument, ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _bulkAddProjectMembers } from './+page';
-  import { useNotifications } from '$lib/notify';
   import { hash } from '$lib/util/hash';
   import { AdminContent } from '$lib/layout';
   import { createEventDispatcher } from 'svelte';
+  import Icon from '$lib/icons/Icon.svelte';
+
+  enum BulkAddSteps {
+    Add,
+    Results,
+  }
+
+  let currentStep = BulkAddSteps.Add;
 
   const dispatch = createEventDispatcher();
 
@@ -25,8 +32,6 @@
 
   let createdCount: number | undefined = undefined;
   let usernameConflicts: string[] = [];
-
-  const { notifySuccess } = useNotifications();
 
   const usernameRe = /^[a-zA-Z0-9_]+$/;
 
@@ -58,12 +63,19 @@
       return error?.message;
     });
     if (response === DialogResponse.Submit) {
-      // const message = userInvited ? 'member_invited' : 'add_member';
-      notifySuccess($t(`project_page.notifications.bulk_add_members`, { count: createdCount ?? 0 }));
-      if (usernameConflicts?.length ?? 0 > 0) {
-        dispatch('usernameConflicts', usernameConflicts);
-      }
       // TODO: Display username conflicts somewhere as well
+      if (currentStep < BulkAddSteps.Results) {
+        // Go to next page
+        currentStep++;
+        await openModal();
+      } else {
+        currentStep = BulkAddSteps.Add;
+        if (usernameConflicts?.length ?? 0 > 0) {
+          dispatch('usernameConflicts', usernameConflicts);
+        }
+        dispatch('bulkCreated', createdCount);
+        return;
+      }
     }
   }
 </script>
@@ -75,6 +87,7 @@
 
   <FormModal bind:this={formModal} {schema} let:errors>
     <span slot="title">{$t('project_page.bulk_add_members.modal_title')}</span>
+    {#if currentStep == BulkAddSteps.Add}
     <Input
       id="password"
       type="password"
@@ -89,6 +102,19 @@
       bind:value={$form.usernamesText}
       error={errors.usernamesText}
     />
-  <span slot="submitText">{$t('project_page.bulk_add_members.submit_button')}</span>
+    {:else if currentStep == BulkAddSteps.Results}
+    <p><Icon icon="i-mdi-cloud-check" color="text-success" /> {createdCount} accounts created.</p>
+      {#if usernameConflicts && usernameConflicts.length > 0}
+        <p>{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
+        <ul>
+          {#each usernameConflicts as username}
+          <li><MemberBadge member={{ name: username, role: $form.role }} canManage={false} /></li>
+          {/each}
+        </ul>
+      {/if}
+    {:else}
+    <p>Internal error: unknown step {currentStep}</p>
+    {/if}
+  <span slot="submitText">{$t(currentStep == BulkAddSteps.Add ? 'project_page.bulk_add_members.submit_button' : 'project_page.bulk_add_members.finish_button')}</span>
   </FormModal>
 </AdminContent>
