@@ -75,7 +75,7 @@ public class ProjectMutations
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
-        var user = await dbContext.Users.FindByEmail(input.UserEmail);
+        var user = await dbContext.Users.FindByEmailOrUsername(input.UserEmail);
         if (user is null)
         {
             var manager = loggedInContext.User;

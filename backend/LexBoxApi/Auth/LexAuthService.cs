@@ -113,7 +113,7 @@ public class LexAuthService
     public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string? emailOrUsername)
     {
         if (emailOrUsername is null) return (null, null);
-        return await GetUser(UserEntityExtensions.FilterByEmail(emailOrUsername));
+        return await GetUser(UserEntityExtensions.FilterByEmailOrUsername(emailOrUsername));
     }
 
     public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUserByGoogleId(string? googleId)
