@@ -132,7 +132,7 @@
           <Icon icon={locking ? 'loading loading-spinner loading-sm' : 'i-mdi-lock-open-outline'} />
         </span>
     </label>
-    <Button style="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
+    <Button variant="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
       {$t('admin_dashboard.form_modal.delete_user.submit')}
       <TrashIcon />
     </Button>

@@ -6,6 +6,6 @@
 </script>
 
 <!-- https://daisyui.com/components/button -->
-<Button type="submit" on:click style="btn-primary" {loading} {form}>
+<Button type="submit" on:click variant="btn-primary" {loading} {form}>
   <slot />
 </Button>

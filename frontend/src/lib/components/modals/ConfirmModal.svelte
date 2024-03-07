@@ -37,7 +37,7 @@
   <slot/>
   <FormError {error} right/>
   <svelte:fragment slot="actions" let:submitting>
-    <Button style={submitVariant} loading={submitting} on:click={() => modal.submitModal()}>
+    <Button variant={submitVariant} loading={submitting} on:click={() => modal.submitModal()}>
       {submitText}
       {#if submitIcon}
         <Icon icon={submitIcon}/>

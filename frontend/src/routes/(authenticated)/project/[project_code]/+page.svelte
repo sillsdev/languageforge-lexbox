@@ -396,7 +396,7 @@
 
           {#if members.length > TRUNCATED_MEMBER_COUNT}
             <div class="justify-self-start">
-              <Button style="btn-outline" size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
+              <Button outline size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
                 {showAllMembers ? $t('project_page.members.show_less') : $t('project_page.members.show_all')}
               </Button>
             </div>
@@ -440,7 +440,7 @@
       <div class="divider"/>
 
       <MoreSettings>
-        <Button style="btn-outline" on:click={leaveProject}>
+        <Button outline on:click={leaveProject}>
           {$t('project_page.leave.leave_project')}
           <Icon icon="i-mdi-exit-run"/>
         </Button>

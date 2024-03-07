@@ -78,7 +78,7 @@ let deleteModal: DeleteModal;
       <h2 class="card-title">Dropdown Example</h2>
       <span>Clicking menu items inside dropdown should cause it to close</span>
       <Dropdown>
-        <Button style="btn-primary">Open Me!</Button>
+        <Button variant="btn-primary">Open Me!</Button>
         <ul slot="content" class="menu bg-info rounded-box">
           <li><button>First item</button></li>
           <li><button>Second item</button></li>
@@ -86,7 +86,7 @@ let deleteModal: DeleteModal;
       </Dropdown>
       <div>
         <Dropdown>
-          <Button style="btn-primary">Open Me!</Button>
+          <Button variant="btn-primary">Open Me!</Button>
           <ul slot="content" class="menu bg-info rounded-box">
             <li><button>First item</button></li>
             <li><button>Second item</button></li>
@@ -95,10 +95,10 @@ let deleteModal: DeleteModal;
       </div>
       <div>
         <Dropdown disabled={disableDropdown}>
-          <Button style="btn-primary" disabled={disableDropdown}>Open dropdown</Button>
+          <Button variant="btn-primary" disabled={disableDropdown}>Open dropdown</Button>
           <div slot="content" class="bg-neutral p-5">
             <p>Some content</p>
-            <Button style="btn-outline" on:click={() => disableDropdown = true}>Disable myself</Button>
+            <Button outline on:click={() => disableDropdown = true}>Disable myself</Button>
           </div>
         </Dropdown>
 
@@ -130,7 +130,7 @@ let deleteModal: DeleteModal;
           autofocus
         />
         <SubmitButton>Submit</SubmitButton>
-        <Button style="btn-outline" on:click={preFillForm}>Pre fill</Button>
+        <Button outline on:click={preFillForm}>Pre fill</Button>
       </Form>
     </div>
   </div>
@@ -146,19 +146,19 @@ let deleteModal: DeleteModal;
   <div class="card bg-base-200 shadow-lg">
     <div class="card-body grid-cols-2 grid justify-items-start">
       <h2 class="card-title col-span-2">Buttons</h2>
-        <Button style="btn-primary" on:click={() => alert('hello')}>Primary Button</Button>
-        <Button style="btn-primary" size="btn-sm" on:click={() => alert('hello')}>Primary Small Button</Button>
-        <Button style="btn-success" on:click={() => alert('hello')}>Success Button</Button>
-        <Button style="btn-error" on:click={() => alert('hello')}>Error Button</Button>
-        <Button style="btn-outline" on:click={() => alert('hello')}>Outline Button</Button>
-        <Button style="btn-ghost" on:click={() => alert('hello')}>Ghost Button</Button>
-        <Button style="btn-primary" disabled on:click={() => alert('should not fire')}>
+        <Button variant="btn-primary" on:click={() => alert('hello')}>Primary Button</Button>
+        <Button variant="btn-primary" size="btn-sm" on:click={() => alert('hello')}>Primary Small Button</Button>
+        <Button variant="btn-success" on:click={() => alert('hello')}>Success Button</Button>
+        <Button variant="btn-error" on:click={() => alert('hello')}>Error Button</Button>
+        <Button outline on:click={() => alert('hello')}>Outline Button</Button>
+        <Button variant="btn-ghost" on:click={() => alert('hello')}>Ghost Button</Button>
+        <Button variant="btn-primary" disabled on:click={() => alert('should not fire')}>
           Disabled Button
         </Button>
-        <Button style="btn-primary" loading on:click={() => alert('should not fire')}>
+        <Button variant="btn-primary" loading on:click={() => alert('should not fire')}>
           Loading Button
         </Button>
-        <Button style="btn-primary" disabled loading on:click={() => alert('should not fire')}>
+        <Button variant="btn-primary" disabled loading on:click={() => alert('should not fire')}>
           Disabled Loading Button
         </Button>
     </div>
@@ -174,7 +174,7 @@ let deleteModal: DeleteModal;
                     cancelText="Don't confirm">
         Would you like to confirm this modal?
       </ConfirmModal>
-      <Button style="btn-primary" on:click={async () => {
+      <Button variant="btn-primary" on:click={async () => {
         const result = await modal.open(async () => delay(2000));
         if (result) alert('submitted')
       }}>
@@ -190,7 +190,7 @@ let deleteModal: DeleteModal;
       entityName="Car">
         Would you like to delete this car?
       </DeleteModal>
-      <Button style="btn-primary" on:click={async () => {
+      <Button variant="btn-primary" on:click={async () => {
         const result = await deleteModal.prompt(async () => delay(2000));
         if (result) alert('deleted')
       }}>
