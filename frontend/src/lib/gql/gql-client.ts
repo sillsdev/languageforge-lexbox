@@ -27,7 +27,7 @@ import {
   type SoftDeleteProjectMutationVariables,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
-import {derived, readable, writable} from 'svelte/store';
+import {derived} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
 import {devtoolsExchange} from '@urql/devtools';
 import type {LexAuthUser} from '$lib/user';
