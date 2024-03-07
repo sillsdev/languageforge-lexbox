@@ -209,6 +209,7 @@ type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
+  projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
