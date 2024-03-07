@@ -30,15 +30,12 @@ public static class UserEntityExtensions
     {
         return user => user.Email == emailOrUsername || user.Username == emailOrUsername;
     }
-    public static IQueryable<User> FilterByEmailOrUsername(this IQueryable<User> users, string? emailOrUsername)
+    public static IQueryable<User> FilterByEmailOrUsername(this IQueryable<User> users, string emailOrUsername)
     {
-        if (emailOrUsername is null) return Enumerable.Empty<User>().AsQueryable();
-        // TODO: Test that and make sure it works; if Enumerable.Empty doesn't implement IAsyncEnumerable, we'll have to do this instead:
-        // if (email is null) return users.Where(u => false);
         return users.Where(FilterByEmailOrUsername(emailOrUsername));
     }
 
-    public static async Task<User?> FindByEmailOrUsername(this IQueryable<User> users, string? emailOrUsername)
+    public static async Task<User?> FindByEmailOrUsername(this IQueryable<User> users, string emailOrUsername)
     {
         return await users.FilterByEmailOrUsername(emailOrUsername).FirstOrDefaultAsync();
     }
