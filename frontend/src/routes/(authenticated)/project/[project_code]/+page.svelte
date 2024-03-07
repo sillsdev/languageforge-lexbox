@@ -38,6 +38,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
+  import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -283,19 +284,7 @@
           {$t('project_page.project_code')}:
           <span class="inline-flex items-center gap-1">
             <span class="text-secondary">{project.code}</span>
-            {#if copiedToClipboard}
-              <div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
-                <IconButton fake icon="i-mdi-check" size="btn-sm" class="text-success" />
-              </div>
-            {:else}
-                <IconButton
-                loading={copyingToClipboard}
-                icon="i-mdi-content-copy"
-                size="btn-sm"
-                variant="btn-ghost"
-                on:click={copyProjectCodeToClipboard}
-              />
-            {/if}
+            <CopyToClipboardButton getTextToCopy={() => project.code} size="btn-sm" outline={false} />
           </span>
         </span>
         <div class="text-lg">
