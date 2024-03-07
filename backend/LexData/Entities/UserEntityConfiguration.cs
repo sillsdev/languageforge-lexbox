@@ -20,6 +20,11 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
             .WithOne(projectUser => projectUser.User)
             .HasForeignKey(projectUser => projectUser.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(user => user.UsersICreated)
+            .WithOne(user => user.CreatedBy)
+            .HasForeignKey(user => user.CreatedById)
+            // We won't allow deleting admin users until their created accounts are  reassigned
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 
