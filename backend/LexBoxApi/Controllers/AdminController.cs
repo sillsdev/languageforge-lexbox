@@ -1,10 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
 using LexCore;
-using LexCore.Entities;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
