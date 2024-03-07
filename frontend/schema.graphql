@@ -132,6 +132,7 @@ type LexAuthUser {
   locked: Boolean
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
+  createdByAdmin: Boolean
   locale: String!
 }
 
