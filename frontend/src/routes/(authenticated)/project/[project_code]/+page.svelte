@@ -205,6 +205,7 @@
 
   async function leaveProject(): Promise<void> {
     projectStore.pause();
+    changesetStore.pause();
     let left = false;
     try {
       left = await leaveModal.open(async () => {
@@ -218,7 +219,10 @@
         await goto(data.home);
       }
     } finally {
-      if (!left) projectStore.resume();
+      if (!left) {
+        projectStore.resume();
+        changesetStore.resume();
+      }
     }
   }
 </script>

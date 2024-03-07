@@ -8,13 +8,14 @@ import type {
   ChangeProjectMemberRoleMutation,
   ChangeProjectNameInput,
   ChangeProjectNameMutation,
-  DeleteProjectUserMutation, LeaveProjectMutation,
+  DeleteProjectUserMutation,
+  LeaveProjectMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
-import { derived } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
+import { derived } from 'svelte/store';
 import { error } from '@sveltejs/kit';
 import { isAdmin } from '$lib/user';
 import { tryMakeNonNullable } from '$lib/util/store';
@@ -98,10 +99,14 @@ export async function load(event: PageLoadEvent) {
 
   return {
     project: nonNullableProject,
-    changesets: derived(changesetResultStore, result => ({
-      fetching: result.fetching,
-      changesets: result.data?.projectByCode?.changesets ?? [],
-    })),
+    changesets: {
+      //this is to ensure that the store is pausable
+      ...changesetResultStore,
+      ...derived(changesetResultStore, result => ({
+        fetching: result.fetching,
+        changesets: result.data?.projectByCode?.changesets ?? [],
+      })),
+    },
     code: projectCode,
   };
 }
