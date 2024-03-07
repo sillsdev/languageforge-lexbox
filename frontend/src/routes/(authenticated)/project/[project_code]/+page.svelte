@@ -156,11 +156,10 @@
     }
   }
 
-  async function handleBulkCreated(event: CustomEvent<number>): Promise<void> {
+  function handleBulkCreated(event: CustomEvent<number>): void {
     if (event.detail ?? 0 > 0) {
       notifySuccess($t(`project_page.notifications.bulk_add_members`, { count: event.detail }));
     }
-    await invalidate(`project:${project.code}`);
   }
 
   let hgCommandResultModal: Modal;
