@@ -94,6 +94,7 @@ public record LexAuthUser
             : user.Projects.Select(p => new AuthUserProject(p.Role, p.ProjectId)).ToArray();
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
+        CreatedByAdmin = user.CreatedById == null ? null : true;
         Locale = user.LocalizationCode;
         Locked = user.Locked ? null : true;
     }
@@ -167,6 +168,9 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.CanCreateProjectClaimType)]
     public bool? CanCreateProjects { get; init; }
+
+    [JsonPropertyName(LexAuthConstants.CreatedByAdminClaimType)]
+    public bool? CreatedByAdmin { get; init; }
 
     [JsonPropertyName(LexAuthConstants.LocaleClaimType)]
     public string Locale { get; init; }

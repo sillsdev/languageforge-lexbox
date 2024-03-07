@@ -12,5 +12,7 @@ public interface IPermissionService
     void AssertCanDeleteAccount(Guid userId);
     bool HasProjectCreatePermission();
     void AssertHasProjectCreatePermission();
+    bool HasProjectRequestPermission();
+    void AssertHasProjectRequestPermission();
     void AssertCanLockOrUnlockUser(Guid userId);
 }

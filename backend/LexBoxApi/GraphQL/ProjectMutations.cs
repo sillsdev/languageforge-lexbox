@@ -46,10 +46,9 @@ public class ProjectMutations
             input = input with { ProjectManagerId = loggedInContext.User.Id };
         }
 
-        if (loggedInContext.User.Email == null) throw new ProjectCreatorsMustHaveEmail("Project creators must have an email address");
-
         if (!permissionService.HasProjectCreatePermission())
         {
+            if (!permissionService.HasProjectRequestPermission()) throw new ProjectCreatorsMustHaveEmail("Project creators must have a valid email address");
             var draftProjectId = await projectService.CreateDraftProject(input);
             await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
             return new CreateProjectResponse(draftProjectId, CreateProjectResult.Requested);

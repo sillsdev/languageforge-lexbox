@@ -79,4 +79,14 @@ public class PermissionService(
     {
         if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
     }
+
+    public bool HasProjectRequestPermission()
+    {
+        return User is not ({ CreatedByAdmin: true } or { Email: null } or { EmailVerificationRequired: true });
+    }
+
+    public void AssertHasProjectRequestPermission()
+    {
+        if (!HasProjectRequestPermission()) throw new UnauthorizedAccessException();
+    }
 }
