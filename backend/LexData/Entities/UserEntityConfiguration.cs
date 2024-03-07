@@ -42,4 +42,13 @@ public static class UserEntityExtensions
     {
         return await users.FilterByEmailOrUsername(emailOrUsername).FirstOrDefaultAsync();
     }
+
+    public static bool HasVerifiedEmailForRole(this User user, ProjectRole forRole = ProjectRole.Unknown)
+    {
+        // Users bulk-created by admins might not have email addresses, and that's okay
+        // BUT if they are to be project managers, they must have verified email addresses
+        if (forRole == ProjectRole.Editor && user.CreatedById is not null) return true;
+        // Otherwise, we can simply use the EmailVerified property
+        return user.Email is not null && user.EmailVerified;
+    }
 }

@@ -77,7 +77,7 @@
 
 <Modal bind:this={modal} on:close={() => reset()} bottom>
   <Form id="modalForm" {enhance}>
-    <p><slot name="title" /></p>
+    <p class="mb-4"><slot name="title" /></p>
     <slot errors={$errors} />
   </Form>
   <FormError error={$message} right />

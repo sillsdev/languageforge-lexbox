@@ -275,7 +275,7 @@ union BulkAddProjectMembersError = NotFoundError | DbError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
-union ChangeProjectMemberRoleError = NotFoundError | DbError
+union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified
 
 union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 

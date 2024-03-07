@@ -82,11 +82,7 @@ public class ProjectMutations
             await emailService.SendCreateAccountEmail(input.UserEmail, input.ProjectId, input.Role, manager.Name, project.Name);
             throw new ProjectMemberInvitedByEmail("Invitation email sent");
         }
-        if (user.CreatedBy is null && !user.EmailVerified)
-        {
-            // Users created by admins are automatically trusted
-            throw new ProjectMembersMustBeVerified("Member must verify email first");
-        }
+        if (!user.HasVerifiedEmailForRole(input.Role)) throw new ProjectMembersMustBeVerified("Member must verify email first");
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
@@ -156,6 +152,7 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -169,6 +166,7 @@ public class ProjectMutations
             await dbContext.ProjectUsers.Include(r => r.Project).Include(r => r.User).FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
         if (projectUser is null) throw new NotFoundException("Project member not found");
+        if (!projectUser.User.HasVerifiedEmailForRole(input.Role)) throw new ProjectMembersMustBeVerified("Member must verify email first");
         projectUser.Role = input.Role;
         projectUser.User.UpdateCreateProjectsPermission(input.Role);
         projectUser.User.UpdateUpdatedDate();

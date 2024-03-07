@@ -10,6 +10,7 @@
   import { AdminContent } from '$lib/layout';
   import { createEventDispatcher } from 'svelte';
   import Icon from '$lib/icons/Icon.svelte';
+  import BadgeList from '$lib/components/Badges/BadgeList.svelte';
 
   enum BulkAddSteps {
     Add,
@@ -29,7 +30,7 @@
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
 
-  let createdCount: number | undefined = undefined;
+  let createdCount: number;
   let usernameConflicts: string[] = [];
 
   const usernameRe = /^[a-zA-Z0-9_]+$/;
@@ -52,7 +53,7 @@
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 
-      createdCount = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdCount;
+      createdCount = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdCount ?? 0;
       usernameConflicts = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.usernameConflicts ?? [];
       return error?.message;
     });
@@ -93,14 +94,14 @@
       error={errors.usernamesText}
     />
     {:else if currentStep == BulkAddSteps.Results}
-    <p><Icon icon="i-mdi-check" color="text-success" /> {createdCount} accounts created.</p>
+    <p class="flex gap-1 items-center mb-4"><Icon icon="i-mdi-check" color="text-success" /> {$t('project_page.bulk_add_members.accounts_created', {createdCount})}</p>
       {#if usernameConflicts && usernameConflicts.length > 0}
-        <p>{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
-        <ul>
+        <p class="mb-2">{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
+        <BadgeList>
           {#each usernameConflicts as username}
-          <li><MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={false} /></li>
+          <MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={false} />
           {/each}
-        </ul>
+        </BadgeList>
       {/if}
     {:else}
     <p>Internal error: unknown step {currentStep}</p>
