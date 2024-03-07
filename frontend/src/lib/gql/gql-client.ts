@@ -27,7 +27,7 @@ import {
   type SoftDeleteProjectMutationVariables,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
-import {derived} from 'svelte/store';
+import {derived, readable, writable} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
 import {devtoolsExchange} from '@urql/devtools';
 import type {LexAuthUser} from '$lib/user';
@@ -181,7 +181,10 @@ class GqlClient {
           const dataValue = value.data ? value.data[key] : undefined;
           return dataValue;
         })
-      };
+        // we're claiming that the store values are always defined, which contradicts our data.value null check, so it's a lie,
+        // but the type of almost every Svelte store is essentially a lie, because they often start as undefined even though they claim to be non-nullable e.g. writable()
+        // we could choose to patch that with our: tryMakeNonNullable()
+      } as QueryStoreReturnType<Data>[typeof key];
     }
 
     return resultData ;
