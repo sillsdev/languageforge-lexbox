@@ -147,8 +147,9 @@ public class ProjectMutations
             }
         }
         await dbContext.SaveChangesAsync();
-        return new BulkAddProjectMembersResult(project, createdCount, usernameConflicts);
+        return new BulkAddProjectMembersResult(createdCount, usernameConflicts);
     }
+    public record BulkAddProjectMembersResult(int CreatedCount, List<string> UsernameConflicts);
 
     [Error<NotFoundException>]
     [Error<DbError>]
