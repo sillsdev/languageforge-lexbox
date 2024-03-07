@@ -211,12 +211,13 @@ public class EmailService(
 
     private static MimeMessage? StartUserEmail(User user, string? email = null)
     {
-        return StartUserEmail(user.Name, email ?? user.Email);
+        var emailAddress = email ?? user.Email;
+        if (emailAddress is null) return null;
+        return StartUserEmail(user.Name, emailAddress);
     }
 
-    private static MimeMessage? StartUserEmail(string name, string? email)
+    private static MimeMessage StartUserEmail(string name, string email)
     {
-        if (string.IsNullOrEmpty(email)) return null;
         var message = new MimeMessage();
         message.To.Add(new MailboxAddress(name, email));
         return message;
