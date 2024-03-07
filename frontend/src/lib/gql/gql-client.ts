@@ -1,34 +1,36 @@
 import {
-  type Client,
   type AnyVariables,
-  type TypedDocumentNode,
+  type Client,
+  createClient,
+  fetchExchange,
   type OperationContext,
   type OperationResult,
-  fetchExchange,
-  queryStore,
   type OperationResultSource,
-  type OperationResultStore
+  type OperationResultStore,
+  type Pausable,
+  queryStore,
+  type TypedDocumentNode
 } from '@urql/svelte';
-import {createClient} from '@urql/svelte';
 import {browser} from '$app/environment';
 import {isObject} from '../util/types';
 import {tracingExchange} from '$lib/otel';
 import {
-  LexGqlError,
-  isErrorResult,
   type $OpResult,
-  type GqlInputError,
+  type ChangeUserAccountBySelfMutationVariables,
+  type DeleteUserByAdminOrSelfMutationVariables,
   type ExtractErrorTypename,
   type GenericData,
-  type DeleteUserByAdminOrSelfMutationVariables,
+  type GqlInputError,
+  isErrorResult,
+  type LeaveProjectMutationVariables,
+  LexGqlError,
   type SoftDeleteProjectMutationVariables,
-  type ChangeUserAccountBySelfMutationVariables, type LeaveProjectMutationVariables,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
 import {devtoolsExchange} from '@urql/devtools';
-import type { LexAuthUser } from '$lib/user';
+import type {LexAuthUser} from '$lib/user';
 
 let globalClient: GqlClient | null = null;
 
@@ -95,7 +97,7 @@ type OperationOptions = Partial<OperationContext>;
 type QueryOperationOptions = OperationOptions; // ensure the sveltekit fetch is always provided
 
 type OperationResultState<Data, Variables extends AnyVariables> = ReturnType<typeof queryStore<Data, Variables>> extends Readable<infer T> ? T : never;
-type QueryStoreReturnType<Data> = { [K in keyof Data]: Readable<Data[K]> };
+type QueryStoreReturnType<Data> = { [K in keyof Data]: Readable<Data[K]> & Pausable };
 
 class GqlClient {
   public ownedByUserId = '';
@@ -114,7 +116,7 @@ class GqlClient {
     fetch: Fetch,
     query: TypedDocumentNode<Data, Variables>,
     variables: Variables,
-    context: QueryOperationOptions = {}): OperationResultStore<Data, Variables> {
+    context: QueryOperationOptions = {}): OperationResultStore<Data, Variables> & Pausable {
     const resultStore = queryStore<Data, Variables>({
       client: this.client,
       query,
@@ -123,19 +125,23 @@ class GqlClient {
     });
 
     if (browser) {
-      return derived(resultStore, (result) => {
-        // We can't throw errors in the urql pipeline, because they kill the Svelte application
-        // (Node dies no matter where we throw it, hence the `if (browser)`)
-        setTimeout(() => this.throwAnyUnexpectedErrors(result));
+      return {
+        //this is to ensure that the store is pausable
+        ...resultStore,
+        ...derived(resultStore, (result) => {
+          // We can't throw errors in the urql pipeline, because they kill the Svelte application
+          // (Node dies no matter where we throw it, hence the `if (browser)`)
+          setTimeout(() => this.throwAnyUnexpectedErrors(result));
 
-        // Should we return a result if there's an error? Or should we call set() only if there's no error?
-        // I think, YES, we should return the result even if there's an error.
-        // Argument for "no": code that is expecting errors to be thrown is likely only capable of handling
-        // good results. So, if we give it an error result, we might just trigger more confusing errors.
-        // Argument for "yes": returning NO result is just as bad, beacuse we're essentially returning null,
-        // which calling code is arguably less prepared to handle than an error result.
-        return result;
-      });
+          // Should we return a result if there's an error? Or should we call set() only if there's no error?
+          // I think, YES, we should return the result even if there's an error.
+          // Argument for "no": code that is expecting errors to be thrown is likely only capable of handling
+          // good results. So, if we give it an error result, we might just trigger more confusing errors.
+          // Argument for "yes": returning NO result is just as bad, beacuse we're essentially returning null,
+          // which calling code is arguably less prepared to handle than an error result.
+          return result;
+        })
+      };
     } else {
       /**
        * We can't validate and throw errors here, beacuse we'd kill node, but we shouldn't ever need to, because:
@@ -165,16 +171,20 @@ class GqlClient {
 
     this.throwAnyUnexpectedErrors(results);
 
-    const keys = Object.keys(results.data ?? {}) as Array<keyof typeof results.data>;
-    const resultData = {} as Record<string, Readable<unknown>>;
+    const keys = Object.keys(results.data ?? {}) as Array<keyof Data>;
+    const resultData = {} as QueryStoreReturnType<Data>;
     for (const key of keys) {
-      resultData[key] = derived(resultStore, value => {
-        const dataValue = value.data ? value.data[key] : undefined;
-        return dataValue;
-      });
+      resultData[key] = {
+        //this is to ensure that the store is pausable
+        ...resultStore,
+        ...derived(resultStore, value => {
+          const dataValue = value.data ? value.data[key] : undefined;
+          return dataValue;
+        })
+      };
     }
 
-    return resultData as QueryStoreReturnType<Data>;
+    return resultData ;
   }
 
   mutation<Data extends GenericData, Variables extends AnyVariables = AnyVariables>(query: TypedDocumentNode<Data, Variables>, variables: Variables, context: OperationOptions = {}): $OpResult<Data> {

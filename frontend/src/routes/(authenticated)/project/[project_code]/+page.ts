@@ -273,7 +273,10 @@ export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMu
         }
       }
     `),
-    {input: { projectId } }
+    {input: { projectId } },
+    //disable invalidate otherwise the page will reload
+    //and the user will be shown that they don't have permission for this project
+    {fetchOptions: {lexboxResponseHandlingConfig: {invalidateUserOnJwtRefresh: false}}}
   );
 
   return result;

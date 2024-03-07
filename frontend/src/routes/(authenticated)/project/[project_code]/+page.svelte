@@ -204,15 +204,21 @@
   let leaveModal: ConfirmModal;
 
   async function leaveProject(): Promise<void> {
-    const left = await leaveModal.open(async () => {
-      const result = await _leaveProject(project.id);
-      if (result.error?.byType('LastMemberCantLeaveError')) {
-        return $t('project_page.leave.last_to_leave');
+    projectStore.pause();
+    let left = false;
+    try {
+      left = await leaveModal.open(async () => {
+        const result = await _leaveProject(project.id);
+        if (result.error?.byType('LastMemberCantLeaveError')) {
+          return $t('project_page.leave.last_to_leave');
+        }
+      });
+      if (left) {
+        notifySuccess($t('project_page.leave.leave_success', {projectName: project.name}))
+        await goto(data.home);
       }
-    });
-    if (left) {
-      notifySuccess($t('project_page.leave.leave_success', { projectName: project.name}))
-      await goto(data.home);
+    } finally {
+      if (!left) projectStore.resume();
     }
   }
 </script>

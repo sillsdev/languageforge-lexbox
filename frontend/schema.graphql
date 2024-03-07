@@ -165,6 +165,7 @@ type Project {
   id: UUID!
   users: [ProjectUsers!]!
   changesets: [Changeset!]!
+  hasAbandonedTransactions: Boolean!
   parentId: UUID
   name: String!
   description: String
