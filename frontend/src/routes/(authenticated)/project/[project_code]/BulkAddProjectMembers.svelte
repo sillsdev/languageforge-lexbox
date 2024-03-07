@@ -1,8 +1,8 @@
 <script lang="ts">
   import { BadgeButton, MemberBadge } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, ProjectRoleSelect, TextArea, passwordFormRules } from '$lib/forms';
-  import { ChangeProjectDescriptionDocument, ProjectRole } from '$lib/gql/types';
+  import { Input, TextArea, passwordFormRules } from '$lib/forms';
+  import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _bulkAddProjectMembers } from './+page';
@@ -41,8 +41,8 @@
 
   async function openModal(): Promise<void> {
     const { response, formState } = await formModal.open(async () => {
-      const passwordHash = await hash($form.password);
-      const usernames = $form.usernamesText
+      const passwordHash = await hash(formState.password.currentValue);
+      const usernames = formState.usernamesText.currentValue
         .split('\n')
         // Remove whitespace
         .map(s => s.trim())
