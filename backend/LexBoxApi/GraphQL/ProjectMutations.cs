@@ -101,14 +101,16 @@ public class ProjectMutations
         BulkAddProjectMembersInput input,
         LexBoxDbContext dbContext)
     {
-        var admin = await dbContext.Users.FindAsync(loggedInContext.User.Id);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
         List<string> usernameConflicts = [];
         int createdCount = 0;
+        var existingUsers = await dbContext.Users.Include(u => u.Projects).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
+        var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
+        var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
         foreach (var username in input.Usernames)
         {
-            var user = await dbContext.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
+            var user = byUsername.GetValueOrDefault(username) ?? byEmail.GetValueOrDefault(username);
             if (user is null)
             {
                 createdCount++;
@@ -128,7 +130,7 @@ public class ProjectMutations
                     PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
                     IsAdmin = false,
                     EmailVerified = false,
-                    CreatedBy = admin,
+                    CreatedById = loggedInContext.User.Id,
                     Locked = false,
                     CanCreateProjects = false
                 };
@@ -138,10 +140,9 @@ public class ProjectMutations
             else
             {
                 usernameConflicts.Add(username);
-                var projectUser = await dbContext.ProjectUsers.FirstOrDefaultAsync(
-                    u => u.ProjectId == input.ProjectId && u.UserId == user.Id);
-                if (projectUser is null)
+                if (!user.Projects.Any(p => p.ProjectId == input.ProjectId))
                 {
+                    // Not yet a member, so add a membership. We don't want to touch existing memberships, which might have other roles
                     user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 }
             }
