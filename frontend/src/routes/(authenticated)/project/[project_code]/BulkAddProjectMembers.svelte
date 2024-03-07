@@ -96,7 +96,7 @@
     {:else if currentStep == BulkAddSteps.Results}
     <p class="flex gap-1 items-center mb-4"><Icon icon="i-mdi-check" color="text-success" /> {$t('project_page.bulk_add_members.accounts_created', {createdCount})}</p>
       {#if usernameConflicts && usernameConflicts.length > 0}
-        <p class="mb-2">{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
+        <p class="alert alert-info mb-4">{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
         <BadgeList>
           {#each usernameConflicts as username}
           <MemberBadge member={{ name: username, role: ProjectRole.Editor }} canManage={false} />
