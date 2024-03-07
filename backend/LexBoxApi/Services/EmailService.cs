@@ -79,7 +79,7 @@ public class EmailService(
             useEmailLifetime: true
         );
         var email = StartUserEmail(user, newEmail);
-        if (email is null) return;
+        if (email is null) throw new ArgumentNullException('emailAddress');
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryParam = string.IsNullOrEmpty(newEmail) ? "verifiedEmail" : "changedEmail";
