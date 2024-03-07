@@ -277,6 +277,15 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "instructions": "To open this project click **Open FieldWorks** in the dialog shown by your browser.\n\n\
 If you don't see a dialog or already closed it, click the button below:",
     },
+    "leave": {
+      "confirm_title": "Leave project?",
+      "leave_action": "Leave",
+      "dont_leave": "Don't leave",
+      "confirm_leave": "Are you sure you want to leave this project?",
+      "last_to_leave": "You are the last manager of this project. To leave you need to delete the project, or add another manager.",
+      "leave_success": "You have left project {projectName}.",
+      "leave_project": "Leave Project"
+    },
   },
   "project_role": {
     "label": "Role",

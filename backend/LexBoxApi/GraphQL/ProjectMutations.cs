@@ -153,6 +153,30 @@ public class ProjectMutations
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
+    [Error<NotFoundException>]
+    [Error<LastMemberCantLeaveException>]
+    [UseMutationConvention]
+    [RefreshJwt]
+    public async Task<Project> LeaveProject(
+        Guid projectId,
+        LoggedInContext loggedInContext,
+        LexBoxDbContext dbContext)
+    {
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Users)
+            .SingleOrDefaultAsync();
+        if (project is null) throw new NotFoundException("Project not found");
+        var member = project.Users.FirstOrDefault(u => u.UserId == loggedInContext.User.Id);
+        if (member is null) return project;
+        if (member.Role == ProjectRole.Manager && project.Users.Count(m => m.Role == ProjectRole.Manager) == 1)
+        {
+            throw new LastMemberCantLeaveException();
+        }
+        project.Users.Remove(member);
+        await dbContext.SaveChangesAsync();
+        return project;
+    }
+
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
