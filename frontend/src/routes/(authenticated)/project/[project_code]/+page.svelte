@@ -440,7 +440,7 @@
       <div class="divider"/>
 
       <MoreSettings>
-        <Button outline on:click={leaveProject}>
+        <Button outline variant="btn-error" on:click={leaveProject}>
           {$t('project_page.leave.leave_project')}
           <Icon icon="i-mdi-exit-run"/>
         </Button>
@@ -448,6 +448,7 @@
                       title={$t('project_page.leave.confirm_title')}
                       submitText={$t('project_page.leave.leave_action')}
                       submitIcon="i-mdi-exit-run"
+                      submitVariant="btn-error"
                       cancelText={$t('project_page.leave.dont_leave')}>
           <p>{$t('project_page.leave.confirm_leave')}</p>
         </ConfirmModal>
