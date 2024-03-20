@@ -4,6 +4,7 @@
 [web]
 allow_push=*
 push_ssl=False
+descend=false
 # default is 20, setting to 5 seconds to alleviate race conditions in unit testing
 refreshinterval=5
 
