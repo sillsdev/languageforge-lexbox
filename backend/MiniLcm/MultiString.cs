@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MiniLcm;
@@ -7,6 +8,8 @@ namespace MiniLcm;
 /// <summary>
 /// map like object with writing system as key and string as value
 /// </summary>
+// convert to a dictionary of string to string
+[JsonConverter(typeof(MultiStringConverter))]
 public class MultiString
 {
     public MultiString()
@@ -64,5 +67,34 @@ public class MultiString
                 throw new ArgumentException("unable to convert key to writing system id", nameof(key));
             }
         }
+    }
+}
+
+public static class MultiStringExtensions
+{
+    public static bool SearchValue(this MultiString ms, string value)
+    {
+        return ms.Values.Values.Any(v => v.Contains(value));
+    }
+}
+
+public class MultiStringConverter : JsonConverter<MultiString>
+{
+    public override MultiString? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(ref reader, options);
+        if (dict is null) return null;
+        var ms = new MultiString();
+        foreach (var (key, value) in dict)
+        {
+            ms.Values[key] = value;
+        }
+
+        return ms;
+    }
+
+    public override void Write(Utf8JsonWriter writer, MultiString value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(writer, value.Values, options);
     }
 }
