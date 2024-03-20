@@ -21,34 +21,38 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
         return new string[] { };
     }
 
-    public async Task<Entry[]> GetEntries(string exemplar, QueryOptions? options = null)
+    public IAsyncEnumerable<Entry> GetEntries(string exemplar, QueryOptions? options = null)
     {
-        return await Query();
+        return Query();
     }
 
-    public async Task<Entry[]> GetEntries(QueryOptions? options = null)
+    public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        return await Query();
+        options ??= QueryOptions.Default;
+        return Query()
+            .Skip(options.Offset)
+            .Take(options.Count);
     }
 
-    public async Task<Entry[]> SearchEntries(string query, QueryOptions? options = null)
+    public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        return await Query();
+        options ??= QueryOptions.Default;
+        return Query()
+            .Where(e => e.MatchesQuery(query))
+            .Skip(options.Offset)
+            .Take(options.Count);
     }
 
-    private async Task<Entry[]> Query()
+    private async IAsyncEnumerable<Entry> Query()
     {
         using var entriesCursor = await Entries.Find(Builders<Entities.Entry>.Filter.Empty).ToCursorAsync();
-        var entries = new List<Entry>();
         while (await entriesCursor.MoveNextAsync())
         {
             foreach (var entry in entriesCursor.Current)
             {
-                entries.Add(ToEntry(entry));
+                yield return ToEntry(entry);
             }
         }
-
-        return entries.ToArray();
     }
 
     private static Entry ToEntry(Entities.Entry entry)
@@ -100,9 +104,11 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
         return ms;
     }
 
-    public async Task<Entry> GetEntry(Guid id)
+    public async Task<Entry?> GetEntry(Guid id)
     {
-        return null;
+        var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
+        if (entry is null) return null;
+        return ToEntry(entry);
     }
 
     public Task<Entry> CreateEntry(Entry entry)

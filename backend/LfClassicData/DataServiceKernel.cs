@@ -1,5 +1,6 @@
 using LfClassicData.Configuration;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -38,11 +39,28 @@ public static class DataServiceKernel
 
     public static IEndpointConventionBuilder MapLfClassicApi(this IEndpointRouteBuilder builder)
     {
-        return builder.MapGet("/api/lfclassic/entries/{projectCode}",
-            async (string projectCode, [FromServices] ILexboxApiProvider provider) =>
+        var group = builder.MapGroup("/api/lfclassic/{projectCode}");
+        group.MapGet("/entries",
+            (string projectCode, [AsParameters] QueryOptions options, [FromServices] ILexboxApiProvider provider) =>
             {
                 var api = provider.GetProjectApi(projectCode);
-                return await api.GetEntries();
-            }).WithName("GetEntries").WithGroupName("LfClassicApi");
+                return api.GetEntries(options);
+            });
+        group.MapGet("/entries/{search}",
+            (string projectCode,
+                string search,
+                [AsParameters] QueryOptions options,
+                [FromServices] ILexboxApiProvider provider) =>
+            {
+                var api = provider.GetProjectApi(projectCode);
+                return api.SearchEntries(search, options);
+            });
+        group.MapGet("/entry/{id:Guid}",
+            (string projectCode, Guid id, [FromServices] ILexboxApiProvider provider) =>
+            {
+                var api = provider.GetProjectApi(projectCode);
+                return api.GetEntry(id);
+            });
+        return group;
     }
 }

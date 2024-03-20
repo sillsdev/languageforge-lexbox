@@ -12,4 +12,9 @@ public class Entry
     public virtual IList<Sense> Senses { get; set; } = [];
 
     public virtual MultiString Note { get; set; } = new();
+
+    public bool MatchesQuery(string query) =>
+        LexemeForm.SearchValue(query)
+        || CitationForm.SearchValue(query)
+        || LiteralMeaning.SearchValue(query);
 }

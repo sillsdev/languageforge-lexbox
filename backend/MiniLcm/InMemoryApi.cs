@@ -163,14 +163,17 @@ public class InMemoryApi : ILexboxApi
         return Task.FromResult(entries);
     }
 
-    public Task<Entry[]> GetEntries(QueryOptions? options = null)
+    public async IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        return Task.FromResult(_entries.OfType<Entry>().ToArray());
+        foreach (var entry in _entries.OfType<Entry>())
+        {
+            yield return entry;
+        }
     }
 
-    public Task<Entry> GetEntry(Guid id)
+    public Task<Entry?> GetEntry(Guid id)
     {
-        var entry = _entries.Single(e => e.Id == id);
+        var entry = _entries.SingleOrDefault(e => e.Id == id);
         return Task.FromResult(entry as Entry);
     }
 
@@ -184,10 +187,14 @@ public class InMemoryApi : ILexboxApi
         return Task.FromResult(_writingSystems);
     }
 
-    public Task<Entry[]> SearchEntries(string query, QueryOptions? options = null)
+    public async IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        var entries = _entries.Where(e => e.LexemeForm.Values["en"].Contains(query)).OfType<Entry>().ToArray();
-        return Task.FromResult(entries);
+        var entries = _entries.Where(e => e.LexemeForm.Values["en"].Contains(query))
+            .OfType<Entry>().ToArray();
+        foreach (var entry in entries)
+        {
+            yield return entry;
+        }
     }
 
     public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class

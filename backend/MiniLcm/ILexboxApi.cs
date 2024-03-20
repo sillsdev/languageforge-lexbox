@@ -7,11 +7,11 @@ namespace MiniLcm;
 public interface ILexboxApi
 {
     Task<WritingSystems> GetWritingSystems();
-    Task<string[]> GetExemplars();
-    Task<Entry[]> GetEntries(string exemplar, QueryOptions? options = null);
-    Task<Entry[]> GetEntries(QueryOptions? options = null);
-    Task<Entry[]> SearchEntries(string query, QueryOptions? options = null);
-    Task<Entry> GetEntry(Guid id);
+    // Task<string[]> GetExemplars();
+    // Task<Entry[]> GetEntries(string exemplar, QueryOptions? options = null);
+    IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
+    IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
+    Task<Entry?> GetEntry(Guid id);
 
     Task<Entry> CreateEntry(Entry entry);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
@@ -33,7 +33,10 @@ public interface ILexboxApi
     UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class;
 }
 
-public record QueryOptions(string Order, int Count = 1000, int Offset = 0);
+public record QueryOptions(string Order, int Count = 1000, int Offset = 0)
+{
+    public static QueryOptions Default { get; } = new QueryOptions("");
+}
 
 public interface UpdateObjectInput<T> where T : class
 {
