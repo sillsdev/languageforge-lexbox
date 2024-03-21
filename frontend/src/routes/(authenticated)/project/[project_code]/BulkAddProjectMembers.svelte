@@ -94,12 +94,12 @@
       />
     {:else if currentStep == BulkAddSteps.Results}
       <p class="flex gap-1 items-center mb-2">
-        <Icon icon="i-mdi-check" color="text-success" />
+        <Icon icon="i-mdi-plus" color="text-success" />
         {$t('project_page.bulk_add_members.members_added', {addedCount})}
       </p>
       <div class="mb-4 ml-8">
         <p class="flex gap-1 items-center mb-2">
-          <Icon icon="i-mdi-plus" color="text-success" />
+          <Icon icon="i-mdi-account-outline" color="text-success" />
           {$t('project_page.bulk_add_members.existing_added_members', {existedCount: addedMembers.length})}
         </p>
         <BadgeList>
