@@ -40,9 +40,10 @@
   }
 
   async function openModal(): Promise<void> {
-    const { response, formState } = await formModal.open(async () => {
-      const passwordHash = await hash(formState.password.currentValue);
-      const usernames = formState.usernamesText.currentValue
+    currentStep = BulkAddSteps.Add;
+    const { response } = await formModal.open(undefined, async (state) => {
+      const passwordHash = await hash(state.password.currentValue);
+      const usernames = state.usernamesText.currentValue
         .split('\n')
         // Remove whitespace
         .map(s => s.trim())
@@ -61,17 +62,10 @@
       createdCount = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdCount ?? 0;
       usernameConflicts = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.usernameConflicts ?? [];
       return error?.message;
-    });
+    }, { keepOpenOnSubmit: true });
     if (response === DialogResponse.Submit) {
-      if (currentStep < BulkAddSteps.Results) {
-        // Go to next page
-        currentStep++;
-        await openModal();
-      } else {
-        currentStep = BulkAddSteps.Add;
-        dispatch('bulkCreated', createdCount);
-        return;
-      }
+      dispatch('bulkCreated', createdCount);
+      currentStep = BulkAddSteps.Results;
     }
   }
 </script>
@@ -84,22 +78,25 @@
   <FormModal bind:this={formModal} {schema} let:errors>
     <span slot="title">{$t('project_page.bulk_add_members.modal_title')}</span>
     {#if currentStep == BulkAddSteps.Add}
-    <p>{$t('project_page.bulk_add_members.explanation')}</p>
-    <Input
-      id="password"
-      type="password"
-      label={$t('project_page.bulk_add_members.shared_password')}
-      bind:value={$form.password}
-      error={errors.password}
-    />
-    <TextArea
-      id="usernamesText"
-      label={$t('project_page.bulk_add_members.usernames')}
-      bind:value={$form.usernamesText}
-      error={errors.usernamesText}
-    />
+      <p>{$t('project_page.bulk_add_members.explanation')}</p>
+      <Input
+        id="password"
+        type="password"
+        label={$t('project_page.bulk_add_members.shared_password')}
+        bind:value={$form.password}
+        error={errors.password}
+      />
+      <TextArea
+        id="usernamesText"
+        label={$t('project_page.bulk_add_members.usernames')}
+        bind:value={$form.usernamesText}
+        error={errors.usernamesText}
+      />
     {:else if currentStep == BulkAddSteps.Results}
-    <p class="flex gap-1 items-center mb-4"><Icon icon="i-mdi-check" color="text-success" /> {$t('project_page.bulk_add_members.accounts_created', {createdCount})}</p>
+      <p class="flex gap-1 items-center mb-4">
+        <Icon icon="i-mdi-check" color="text-success" />
+        {$t('project_page.bulk_add_members.accounts_created', {createdCount})}
+      </p>
       {#if usernameConflicts && usernameConflicts.length > 0}
         <p class="alert alert-info mb-4">{$t('project_page.bulk_add_members.username_conflict_explanation')}</p>
         <BadgeList>
@@ -111,6 +108,7 @@
     {:else}
     <p>Internal error: unknown step {currentStep}</p>
     {/if}
-  <span slot="submitText">{$t(currentStep == BulkAddSteps.Add ? 'project_page.bulk_add_members.submit_button' : 'project_page.bulk_add_members.finish_button')}</span>
+    <span slot="submitText">{$t('project_page.bulk_add_members.submit_button')}</span>
+    <span slot="closeText">{$t('project_page.bulk_add_members.finish_button')}</span>
   </FormModal>
 </AdminContent>

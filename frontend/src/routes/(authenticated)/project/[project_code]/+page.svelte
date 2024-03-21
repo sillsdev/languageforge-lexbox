@@ -387,8 +387,10 @@
           {/if}
 
           {#if canManage}
+            <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
               <AddProjectMember projectId={project.id} />
               <BulkAddProjectMembers projectId={project.id} on:bulkCreated={handleBulkCreated} />
+            </div>
           {/if}
 
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
