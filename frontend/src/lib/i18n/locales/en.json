@@ -195,7 +195,10 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "usernames_alphanum_only": "Logins/usernames must contain only letters, numbers, and underscore (_) characters",
       "username_conflict_explanation": "The following logins/usernames already existed. They have been added to the project but their password has not been changed.",
       "creator_must_have_email": "You must have an email address in order to create a project.",
-      "accounts_created": "{createdCount, plural, one {# account} other {# accounts}} created.",
+      "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to project.",
+      "existing_added_members": "{existedCount} {existedCount, plural, one {user} other {users}} already existed.",
+      "already_members": "{count, plural, one {# user was} other {# users were}} already in the project.",
+      "accounts_created": "{createdCount} new {createdCount, plural, one {user was} other {users were}} created with the provided password.",
     },
     "change_role_modal": {
       "title": "Choose role for {name}"
@@ -235,7 +238,6 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "promote_project": "Project has been changed from draft status to real project.",
       "describe": "Project description has been updated.",
       "add_member": "{email} has been added to project.",
-      "bulk_add_members": "{count} new {count, plural, one {member has} other {members have}} been added to project.",
       "member_invited": "{email} has been sent an invitation email to register and join the project."
     },
     "project_name_empty_error": "Project name cannot be empty",

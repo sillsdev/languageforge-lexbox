@@ -13,10 +13,10 @@ import type {
   DeleteProjectUserMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
-import { derived } from 'svelte/store';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
+import { derived } from 'svelte/store';
 import { error } from '@sveltejs/kit';
 import { isAdmin } from '$lib/user';
 import { tryMakeNonNullable } from '$lib/util/store';
@@ -147,8 +147,18 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
         mutation BulkAddProjectMembers($input: BulkAddProjectMembersInput!) {
           bulkAddProjectMembers(input: $input) {
             bulkAddProjectMembersResult {
-              createdCount
-              usernameConflicts
+              addedMembers {
+                username
+                role
+              }
+              createdMembers {
+                username
+                role
+              }
+              existingMembers {
+                username
+                role
+              }
             }
             errors {
             __typename

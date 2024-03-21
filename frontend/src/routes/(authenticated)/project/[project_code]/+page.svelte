@@ -156,12 +156,6 @@
     }
   }
 
-  function handleBulkCreated(event: CustomEvent<number>): void {
-    if (event.detail ?? 0 > 0) {
-      notifySuccess($t(`project_page.notifications.bulk_add_members`, { count: event.detail }));
-    }
-  }
-
   let hgCommandResultModal: Modal;
   let hgCommandResponse = '';
 
@@ -389,7 +383,7 @@
           {#if canManage}
             <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
               <AddProjectMember projectId={project.id} />
-              <BulkAddProjectMembers projectId={project.id} on:bulkCreated={handleBulkCreated} />
+              <BulkAddProjectMembers projectId={project.id} />
             </div>
           {/if}
 

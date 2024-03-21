@@ -91,6 +91,9 @@ public class ProjectMutations
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
+    public record UserProjectRole(string Username, ProjectRole Role);
+    public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers);
+
     [Error<NotFoundException>]
     [Error<DbError>]
     [AdminRequired]
@@ -102,8 +105,9 @@ public class ProjectMutations
     {
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
-        List<string> usernameConflicts = [];
-        int createdCount = 0;
+        List<UserProjectRole> AddedMembers = [];
+        List<UserProjectRole> CreatedMembers = [];
+        List<UserProjectRole> ExistingMembers = [];
         var existingUsers = await dbContext.Users.Include(u => u.Projects).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
         var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
         var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
@@ -112,7 +116,6 @@ public class ProjectMutations
             var user = byUsername.GetValueOrDefault(username) ?? byEmail.GetValueOrDefault(username);
             if (user is null)
             {
-                createdCount++;
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
                 var isEmailAddress = username.Contains('@');
                 // TODO: In the future we'll want to allow usernames in the form "Real Name <email@example.com>" and extract the real name from them
@@ -133,23 +136,28 @@ public class ProjectMutations
                     Locked = false,
                     CanCreateProjects = false
                 };
+                CreatedMembers.Add(new UserProjectRole(username, input.Role));
                 user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 dbContext.Add(user);
             }
             else
             {
-                usernameConflicts.Add(username);
-                if (!user.Projects.Any(p => p.ProjectId == input.ProjectId))
+                var userProject = user.Projects.FirstOrDefault(p => p.ProjectId == input.ProjectId);
+                if (userProject is not null)
                 {
+                    ExistingMembers.Add(new UserProjectRole(user.Username ?? user.Email!, userProject.Role));
+                }
+                else
+                {
+                    AddedMembers.Add(new UserProjectRole(user.Username ?? user.Email!, input.Role));
                     // Not yet a member, so add a membership. We don't want to touch existing memberships, which might have other roles
                     user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 }
             }
         }
         await dbContext.SaveChangesAsync();
-        return new BulkAddProjectMembersResult(createdCount, usernameConflicts);
+        return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
     }
-    public record BulkAddProjectMembersResult(int CreatedCount, List<string> UsernameConflicts);
 
     [Error<NotFoundException>]
     [Error<DbError>]

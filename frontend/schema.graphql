@@ -27,8 +27,9 @@ type BulkAddProjectMembersPayload {
 }
 
 type BulkAddProjectMembersResult {
-  createdCount: Int!
-  usernameConflicts: [String!]!
+  addedMembers: [UserProjectRole!]!
+  createdMembers: [UserProjectRole!]!
+  existingMembers: [UserProjectRole!]!
 }
 
 type ChangeProjectDescriptionPayload {
@@ -167,6 +168,7 @@ type Project {
   id: UUID!
   users: [ProjectUsers!]!
   changesets: [Changeset!]!
+  hasAbandonedTransactions: Boolean!
   parentId: UUID
   name: String!
   description: String
@@ -259,6 +261,11 @@ type User {
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
+}
+
+type UserProjectRole {
+  username: String!
+  role: ProjectRole!
 }
 
 "A segment of a collection."
