@@ -143,7 +143,7 @@
               <tr>
                 <td>
                   <div class="flex items-center gap-2">
-                    <Button style="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
+                    <Button variant="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
                       {user.name}
                       <Icon icon="i-mdi-card-account-details-outline" />
                     </Button>

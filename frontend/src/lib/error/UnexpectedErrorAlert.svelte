@@ -37,8 +37,15 @@
 <dialog bind:this={dialog} class="modal">
   <div class="modal-box bg-error text-error-content max-w-[95vw] w-[unset]">
     <UnexpectedError />
-    <div class="flex justify-end modal-action">
-      <button on:click={dismissClick} class="btn btn-ghost self-end">{$t('modal.dismiss')}</button>
+    <div class="flex justify-end gap-4 modal-action">
+      <a class="btn btn-outline" href="/" rel="external">
+        {$t('errors.go_home')}
+        <span class="i-mdi-home-outline text-xl"></span>
+      </a>
+      <button on:click={dismissClick} class="btn btn-outline self-end">
+        {$t('modal.dismiss')}
+        <span class="i-mdi-close text-xl"></span>
+      </button>
     </div>
   </div>
 </dialog>

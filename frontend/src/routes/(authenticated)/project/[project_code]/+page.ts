@@ -11,6 +11,7 @@ import type {
   ChangeProjectNameInput,
   ChangeProjectNameMutation,
   DeleteProjectUserMutation,
+  LeaveProjectMutation,
   ProjectPageQuery,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
@@ -100,10 +101,14 @@ export async function load(event: PageLoadEvent) {
 
   return {
     project: nonNullableProject,
-    changesets: derived(changesetResultStore, result => ({
-      fetching: result.fetching,
-      changesets: result.data?.projectByCode?.changesets ?? [],
-    })),
+    changesets: {
+      //this is to ensure that the store is pausable
+      ...changesetResultStore,
+      ...derived(changesetResultStore, result => ({
+        fetching: result.fetching,
+        changesets: result.data?.projectByCode?.changesets ?? [],
+      })),
+    },
     code: projectCode,
   };
 }
@@ -290,4 +295,30 @@ export async function _refreshProjectRepoInfo(projectCode: string): Promise<void
     // this should be meaningless, but just in case and it makes the linter happy
     throw result.error;
   }
+}
+
+
+export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMutation> {
+//language=GraphQL
+  const result = await getClient()
+  .mutation(
+    graphql(`
+      mutation LeaveProject($input: LeaveProjectInput!) {
+        leaveProject(input: $input) {
+          project {
+            id
+          }
+          errors {
+            __typename
+          }
+        }
+      }
+    `),
+    {input: { projectId } },
+    //disable invalidate otherwise the page will reload
+    //and the user will be shown that they don't have permission for this project
+    {fetchOptions: {lexboxResponseHandlingConfig: {invalidateUserOnJwtRefresh: false}}}
+  );
+
+  return result;
 }
