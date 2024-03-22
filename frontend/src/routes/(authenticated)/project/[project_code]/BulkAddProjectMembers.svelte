@@ -10,6 +10,7 @@
   import { AdminContent } from '$lib/layout';
   import Icon from '$lib/icons/Icon.svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
+  import { distinct } from '$lib/util/array';
 
   enum BulkAddSteps {
     Add,
@@ -47,7 +48,8 @@
         // Remove whitespace
         .map(s => s.trim())
         // Remove empty lines before validating, otherwise final newline would count as invalid because empty string
-        .filter(s => s);
+        .filter(s => s)
+        .filter(distinct);
       if (!validateUsernames(usernames)) {
         return $t('project_page.bulk_add_members.usernames_alphanum_only');
       }
@@ -93,41 +95,53 @@
         error={errors.usernamesText}
       />
     {:else if currentStep == BulkAddSteps.Results}
-      <p class="flex gap-1 items-center mb-2">
+      <p class="flex gap-1 items-center mb-4">
         <Icon icon="i-mdi-plus" color="text-success" />
         {$t('project_page.bulk_add_members.members_added', {addedCount})}
       </p>
       <div class="mb-4 ml-8">
-        <p class="flex gap-1 items-center mb-2">
+        <p class="flex gap-1 items-center">
           <Icon icon="i-mdi-account-outline" color="text-success" />
           {$t('project_page.bulk_add_members.existing_added_members', {existedCount: addedMembers.length})}
         </p>
-        <BadgeList>
-          {#each addedMembers as user}
-            <MemberBadge member={{ name: user.username, role: user.role }} />
-          {/each}
-        </BadgeList>
+        {#if addedMembers.length > 0}
+          <div class="mt-2">
+            <BadgeList>
+              {#each addedMembers as user}
+                <MemberBadge member={{ name: user.username, role: user.role }} />
+              {/each}
+            </BadgeList>
+          </div>
+        {/if}
       </div>
       <div class="mb-4 ml-8">
-        <p class="flex gap-1 items-center mb-2">
+        <p class="flex gap-1 items-center">
           <Icon icon="i-mdi-creation-outline" color="text-success" />
           {$t('project_page.bulk_add_members.accounts_created', {createdCount: createdMembers.length})}
         </p>
-        <BadgeList>
-          {#each createdMembers as user}
-            <MemberBadge member={{ name: user.username, role: user.role }} />
-          {/each}
-        </BadgeList>
+        {#if createdMembers.length > 0}
+          <div class="mt-2">
+            <BadgeList>
+              {#each createdMembers as user}
+                <MemberBadge member={{ name: user.username, role: user.role }} />
+              {/each}
+            </BadgeList>
+          </div>
+        {/if}
       </div>
-      <p class="flex gap-1 items-center mb-2">
-        <Icon icon="i-mdi-account-outline" color="text-info" />
-        {$t('project_page.bulk_add_members.already_members', {count: existingMembers.length})}
-      </p>
-      <BadgeList>
-        {#each existingMembers as user}
-          <MemberBadge member={{ name: user.username, role: user.role }} />
-        {/each}
-      </BadgeList>
+      {#if existingMembers.length > 0}
+        <p class="flex gap-1 items-center">
+          <Icon icon="i-mdi-account-outline" color="text-info" />
+          {$t('project_page.bulk_add_members.already_members', {count: existingMembers.length})}
+        </p>
+        <div class="mt-2">
+          <BadgeList>
+            {#each existingMembers as user}
+              <MemberBadge member={{ name: user.username, role: user.role }} />
+            {/each}
+          </BadgeList>
+        </div>
+      {/if}
     {:else}
       <p>Internal error: unknown step {currentStep}</p>
     {/if}
