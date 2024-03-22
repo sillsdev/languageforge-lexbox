@@ -185,10 +185,10 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
     },
     "bulk_add_members": {
-      "add_button": "Bulk Add Members",
+      "add_button": "Bulk Add/Create Members",
       "explanation": "Adds all the provided Send/Receive logins/usernames to this project. New users will be created automatically with the provided password for logins that don't exist.",
-      "modal_title": "Add many Members to this project",
-      "submit_button": "Bulk Add/Create Members",
+      "modal_title": "Add/Create Members",
+      "submit_button": "Add/Create Members",
       "finish_button": "Close",
       "shared_password": "Shared Password",
       "usernames": "Logins/usernames (one per line)",
