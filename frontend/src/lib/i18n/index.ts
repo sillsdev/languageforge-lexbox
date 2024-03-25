@@ -17,10 +17,12 @@ import type { Get } from 'type-fest';
 import { defineContext } from '$lib/util/context';
 import { browser } from '$app/environment';
 
-const englishLocalesInChrome = ['en-US', 'en-GB', 'en-AU', 'en-CA', 'en-IN', 'en-IE', 'en-NZ', 'en-ZA'];
-const frenchLocalesInChrome = ['fr-FR', 'fr-CA', 'fr-CH'];
-const spanishLocalesInChrome = ['es-AR', 'es-CL', 'es-CO', 'es-CR', 'es-HN', 'es-419', 'es-MX', 'es-PE', 'es-ES', 'es-US', 'es-UY', 'es-VE'];
-const supportedLocales = [...availableLocales, ...englishLocalesInChrome, ...frenchLocalesInChrome, ...spanishLocalesInChrome];
+export function buildRegionalLocaleRegex(supportedLocales: string[]): RegExp {
+  return RegExp(`\\b(${supportedLocales.join('|')})[-a-zA-Z0-9]+`, 'g');
+}
+
+const acceptLanguageHeaderSupportedRegionalLocalesRegex = buildRegionalLocaleRegex(availableLocales);
+
 export function getLanguageCodeFromNavigator(): string | undefined {
   // Keep the language code. Discard the country code.
   return getLocaleFromNavigator()?.split('-')[0];
@@ -28,6 +30,9 @@ export function getLanguageCodeFromNavigator(): string | undefined {
 
 function getLocaleFromAcceptLanguageHeader(acceptLanguageHeader?: string | null): string | undefined {
   if (!acceptLanguageHeader) return undefined;
+
+  const regionalLocales = [...acceptLanguageHeader.matchAll(acceptLanguageHeaderSupportedRegionalLocalesRegex)].map(match => match[0]);
+  const supportedLocales = [...availableLocales, ...regionalLocales];
   // replaceAll works around: https://github.com/cibernox/precompile-intl-runtime/issues/45
   return _getLocaleFromAcceptLanguageHeader(acceptLanguageHeader.replaceAll(' ', ''), supportedLocales);
 }
