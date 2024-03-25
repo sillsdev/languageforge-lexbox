@@ -121,7 +121,6 @@ let deleteModal: DeleteModal;
           type="text"
           error={$errors.name}
           bind:value={$form.name}
-          autofocus
         />
         <Input
           id="lastName"
@@ -129,7 +128,6 @@ let deleteModal: DeleteModal;
           type="text"
           error={$errors.lastName}
           bind:value={$form.lastName}
-          autofocus
         />
         <SubmitButton>Submit</SubmitButton>
         <Button outline on:click={preFillForm}>Pre fill</Button>
