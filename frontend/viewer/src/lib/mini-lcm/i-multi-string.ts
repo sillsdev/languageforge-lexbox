@@ -4,5 +4,5 @@
  */
 
 export interface IMultiString {
-    values: { [key: string]: string; };
+    [key: string]: string;
 }

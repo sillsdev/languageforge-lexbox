@@ -2,13 +2,13 @@ import type { IEntry, IMultiString, WritingSystem, WritingSystems } from "./mini
 import type { WritingSystemSelection, WritingSystemType } from "./types";
 
 export function firstVal(multi: IMultiString): string | undefined {
-  return Object.values(multi.values).find(value => !!value);
+  return Object.values(multi).find(value => !!value);
 }
 
 export function firstDefVal(entry: IEntry): string | undefined {
   if (entry.senses.length == 0) return undefined;
   const multi = entry.senses[0].definition;
-  return Object.values(multi.values).find(value => !!value);
+  return Object.values(multi).find(value => !!value);
 }
 
 export function pickWritingSystems(

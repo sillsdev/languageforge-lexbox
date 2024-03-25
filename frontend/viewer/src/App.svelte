@@ -33,11 +33,11 @@
 
   setContext("demoValues", demoValues);
 
-  const lexboxApi = LexboxServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
+  const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
   const entriesPromise: Promise<IEntry[]> = lexboxApi?.GetEntries(undefined) ?? Promise.resolve(mockEntries);
   let wsPromise: Promise<WritingSystems> = lexboxApi?.GetWritingSystems() ?? Promise.resolve(mockWritingSystems);
-  
+
     const writingSystems = writable<WritingSystems>();
   setContext("writingSystems", writingSystems);
   wsPromise.then((ws) => writingSystems.set(ws));
@@ -108,7 +108,7 @@
       >
         {#await Promise.all([entriesPromise, wsPromise])}
           Loading...
-        {:then [entries]} 
+        {:then [entries]}
           <Editor {entries} />
         {/await}
       </div>
@@ -128,7 +128,7 @@
   <div>
     {#await Promise.all([entriesPromise, wsPromise])}
       Loading entries...
-    {:then [entries]} 
+    {:then [entries]}
       {#each entries as entry}
         <ListItem
           title={firstVal(entry.lexemeForm)}

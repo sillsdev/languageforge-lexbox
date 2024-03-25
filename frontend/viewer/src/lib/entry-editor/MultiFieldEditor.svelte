@@ -23,7 +23,7 @@ import type { Readable } from "svelte/store";
   let unsavedChanges: Record<string, boolean> = {};
 
   $: writingSystems = pickWritingSystems(field.ws, $allWritingSystems);
-  $: empty = !writingSystems.some((ws) => value.values[ws.id] || unsavedChanges[ws.id]);
+  $: empty = !writingSystems.some((ws) => value[ws.id] || unsavedChanges[ws.id]);
   $: collapse = empty && writingSystems.length > 1;
 </script>
 
@@ -33,7 +33,7 @@ import type { Readable } from "svelte/store";
     {#each writingSystems as ws (ws.id)}
       <CrdtTextField
         on:change={() => dispatch("change", { value })}
-        bind:value={value.values[ws.id]}
+        bind:value={value[ws.id]}
         bind:unsavedChanges={unsavedChanges[ws.id]}
         label={collapse ? undefined : ws.abbreviation}
         labelPlacement={collapse ? undefined : "left"}

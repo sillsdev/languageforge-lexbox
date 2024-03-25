@@ -1,7 +1,7 @@
 declare global {
 
   interface Lexbox {
-    ServiceProvider: typeof LexboxServiceProvider;
+    ServiceProvider: LexboxServiceProvider;
   }
 
   interface Window {
@@ -13,30 +13,28 @@ export enum LexboxServices {
   LexboxApi = 'LexboxApi',
 }
 
-var SERVICE_KEYS = Object.values(LexboxServices);
+const SERVICE_KEYS = Object.values(LexboxServices);
 
 export class LexboxServiceProvider {
-  static services: Record<string, unknown> = {};
+  private services: Record<string, unknown> = {};
 
-  static setService(key: string, service: unknown) {
+  public setService(key: string, service: unknown): void {
     console.log('set-service', key, service);
     this.validateServiceKey(key);
     this.services[key] = service;
   }
 
-  static getService<T>(key: string): T {
+  public getService<T>(key: string): T {
     console.log('get-service', key, this.services[key]);
     this.validateServiceKey(key);
     return this.services[key] as T;
   }
 
-  private static validateServiceKey(key: string) {
+  private validateServiceKey(key: string): void {
     if (!SERVICE_KEYS.includes(key as LexboxServices)) {
       throw new Error(`Invalid service key: ${key}. Valid vales are: ${SERVICE_KEYS.join(', ')}`);
     }
   }
 }
-
-window.lexbox = {
-  ServiceProvider: LexboxServiceProvider,
-};
+if (!window.lexbox) { window.lexbox = { ServiceProvider: new LexboxServiceProvider()}; }
+else window.lexbox.ServiceProvider = new LexboxServiceProvider();

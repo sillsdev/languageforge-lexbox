@@ -6,6 +6,7 @@ export default defineConfig(({ mode }) => {
   if (mode === 'web-component') {
     return {
       build: {
+        minify: false,
         lib: {
           entry: 'src/web-component.ts',
           formats: ['es'],

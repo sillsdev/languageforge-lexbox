@@ -1,6 +1,6 @@
-import type { IEntry, IExampleSentence, ISense, QueryOptions, WritingSystems } from "../mini-lcm";
-import type { Operation } from "fast-json-patch";
-
+export type { IEntry, IExampleSentence, ISense, QueryOptions, WritingSystems } from '../mini-lcm';
+import type { IEntry, IExampleSentence, ISense, QueryOptions, WritingSystems } from '../mini-lcm';
+import type { Operation } from 'fast-json-patch';
 export type JsonPatch = Operation[];
 
 export interface LexboxApi {
