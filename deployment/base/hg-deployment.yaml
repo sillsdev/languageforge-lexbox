@@ -142,6 +142,24 @@ spec:
           - 'sh'
           - '-c'
           - |
+            cd /repos
+            for folder in /repos/*/; do
+              project=$(basename "$folder")
+              if [[ -L "$project" ]]; then
+                echo "Skipping symlinked folder: $project"
+                continue
+              fi
+              first_letter=$(echo "$project" | head -c1)
+              if [[ "$first_letter" == "_" ]] || [[ "$first_letter" == "$project" ]]; then
+                # skip the deleted project folder or a letter folder
+                continue
+              fi
+
+              mkdir -p /repos/"$first_letter"/
+              mv "$folder" /repos/"$first_letter"/
+              # need to use relative path for symlink to work in multiple pods
+              ln -s "$first_letter"/"$project" "$project"
+            done
             mkdir -p /repos/a /repos/b /repos/c /repos/d /repos/e /repos/f /repos/g /repos/h /repos/i /repos/j /repos/k /repos/l /repos/m /repos/n /repos/o /repos/p /repos/q /repos/r /repos/s /repos/t /repos/u /repos/v /repos/w /repos/x /repos/y /repos/z
             mkdir -p /repos/0 /repos/1 /repos/2 /repos/3 /repos/4 /repos/5 /repos/6 /repos/7 /repos/8 /repos/9
         volumeMounts:
