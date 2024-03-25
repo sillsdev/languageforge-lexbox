@@ -182,6 +182,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "project_not_found": "Project not found. Please refresh the page.",
       "user_not_found": "No user was found with this email address",
       "user_not_verified": "User has not verified their email address",
+      "user_already_member": "User is already a member of this project",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
     },
     "change_role_modal": {

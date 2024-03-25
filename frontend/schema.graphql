@@ -261,7 +261,7 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail | AlreadyExistsError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 

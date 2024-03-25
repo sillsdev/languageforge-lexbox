@@ -33,6 +33,9 @@
       if (error?.byType('ProjectMembersMustBeVerified')) {
         return { usernameOrEmail: [$t('project_page.add_user.user_not_verified')] };
       }
+      if (error?.byType('AlreadyExistsError')) {
+        return { usernameOrEmail: [$t('project_page.add_user.user_already_member')] };
+      }
       if (error?.byType('ProjectMemberInvitedByEmail')) {
         userInvited = true;
         return undefined; // Close modal as if success

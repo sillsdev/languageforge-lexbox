@@ -58,6 +58,7 @@ public class ProjectMutations
     [Error<DbError>]
     [Error<ProjectMembersMustBeVerified>]
     [Error<ProjectMemberInvitedByEmail>]
+    [Error<AlreadyExistsException>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -70,7 +71,7 @@ public class ProjectMutations
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
-        var user = await dbContext.Users.FindByEmail(input.UsernameOrEmail);
+        var user = await dbContext.Users.Include(u => u.Projects).FindByEmail(input.UsernameOrEmail);
         if (user is null && input.UsernameOrEmail.Contains('@'))
         {
             var manager = loggedInContext.User;
@@ -82,6 +83,11 @@ public class ProjectMutations
             throw new NotFoundException("Username not found");
         }
         if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
+        if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
+        {
+            throw new AlreadyExistsException("User is already a member of this project");
+        }
+
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
