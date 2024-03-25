@@ -285,7 +285,7 @@ union SoftDeleteProjectError = NotFoundError | DbError
 
 input AddProjectMemberInput {
   projectId: UUID!
-  userEmail: String!
+  usernameOrEmail: String!
   role: ProjectRole!
 }
 

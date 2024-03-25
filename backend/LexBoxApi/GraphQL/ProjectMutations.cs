@@ -70,12 +70,16 @@ public class ProjectMutations
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
-        var user = await dbContext.Users.FindByEmail(input.UserEmail);
-        if (user is null)
+        var user = await dbContext.Users.FindByEmail(input.UsernameOrEmail);
+        if (user is null && input.UsernameOrEmail.Contains('@'))
         {
             var manager = loggedInContext.User;
-            await emailService.SendCreateAccountEmail(input.UserEmail, input.ProjectId, input.Role, manager.Name, project.Name);
+            await emailService.SendCreateAccountEmail(input.UsernameOrEmail, input.ProjectId, input.Role, manager.Name, project.Name);
             throw new ProjectMemberInvitedByEmail("Invitation email sent");
+        }
+        if (user is null)
+        {
+            throw new NotFoundException("Username not found");
         }
         if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
         user.UpdateCreateProjectsPermission(input.Role);
