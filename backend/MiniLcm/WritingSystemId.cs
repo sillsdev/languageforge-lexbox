@@ -30,6 +30,8 @@ public record WritingSystem
     public string Name { get; set; }
     public string Abbreviation { get; set; }
     public string Font { get; set; }
+
+    public string[] Exemplars { get; set; } = [];
     //todo probably need more stuff here, see wesay for ideas
 }
 

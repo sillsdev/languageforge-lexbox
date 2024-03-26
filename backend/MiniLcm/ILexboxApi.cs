@@ -7,7 +7,6 @@ namespace MiniLcm;
 public interface ILexboxApi
 {
     Task<WritingSystems> GetWritingSystems();
-    // Task<string[]> GetExemplars();
     // Task<Entry[]> GetEntries(string exemplar, QueryOptions? options = null);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
@@ -33,9 +32,19 @@ public interface ILexboxApi
     UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class;
 }
 
-public record QueryOptions(string Order, int Count = 1000, int Offset = 0)
+public record QueryOptions(SortOptions Order, int Count = 1000, int Offset = 0)
 {
-    public static QueryOptions Default { get; } = new QueryOptions("");
+    public static QueryOptions Default { get; } = new(SortOptions.Default);
+}
+
+public record SortOptions(SortField Field, WritingSystemId WritingSystem, bool Ascending = true)
+{
+    public static SortOptions Default { get; } = new(SortField.Headword, "default");
+}
+
+public enum SortField
+{
+    Headword, //citation form -> lexeme form
 }
 
 public interface UpdateObjectInput<T> where T : class
