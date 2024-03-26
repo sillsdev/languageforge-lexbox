@@ -14,7 +14,6 @@
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "is_draft": "Draft",
-    "email_is_null": "No Email",
     "email_not_verified": "Not Verified",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
@@ -183,7 +182,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "submit_button": "Add Member",
       "project_not_found": "Project not found. Please refresh the page.",
       "user_not_found": "No user was found with this email address",
-      "user_not_verified": "User has not verified their email address",
+      "user_must_be_verified": "User needs a verified email address",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
     },
     "bulk_add_members": {
