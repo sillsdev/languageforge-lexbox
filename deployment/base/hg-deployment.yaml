@@ -143,17 +143,13 @@ spec:
           - '-c'
           - |
             cd /repos
-            for folder in /repos/*/; do
+            for folder in /repos/[a-z0-9]?*/; do
               project=$(basename "$folder")
               if [[ -L "$project" ]]; then
                 echo "Skipping symlinked folder: $project"
                 continue
               fi
               first_letter=$(echo "$project" | head -c1)
-              if [[ "$first_letter" == "_" ]] || [[ "$first_letter" == "$project" ]]; then
-                # skip the deleted project folder or a letter folder
-                continue
-              fi
 
               mkdir -p /repos/"$first_letter"/
               mv "$folder" /repos/"$first_letter"/
