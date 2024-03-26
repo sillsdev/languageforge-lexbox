@@ -9,7 +9,7 @@ project_code="${PATH_SEGMENTS[1]}"
 command_name="${PATH_SEGMENTS[2]}"
 
 # Ensure the project code and command name are safe to use in a shell command
-if [[ ! $project_code =~ ^[a-z0-9-]+$ ]] || [[ ! $command_name =~ ^[a-zA-Z0-9]+$ ]]; then
+if [[ ! $project_code =~ ^[a-z0-9][a-z0-9-]*$ ]] || [[ ! $command_name =~ ^[a-zA-Z0-9]+$ ]]; then
     echo "Content-type: text/plain"
     echo "Status: 400 Bad Request"
     echo ""
