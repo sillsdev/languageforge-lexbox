@@ -50,11 +50,11 @@ case $command_name in
         # Env var PYTHONUNBUFFERED required for commands like verify and recover, so that output can stream back to the project page
         export PYTHONUNBUFFERED=1
         # Need a timeout so hg verify won't take forever on the "checking files" step
-        timeout 5 chg verify
+        timeout 5 chg verify 2>&1
         ;;
 
     *)
         # Env var PYTHONUNBUFFERED required for commands like verify and recover, so that output can stream back to the project page
-        PYTHONUNBUFFERED=1 chg $command_name
+        PYTHONUNBUFFERED=1 chg $command_name 2>&1
         ;;
 esac
