@@ -11,14 +11,24 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
 {
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
 
-    public async Task<WritingSystems> GetWritingSystems()
+    public Task<WritingSystems> GetWritingSystems()
     {
-        return null;
-    }
-
-    public async Task<string[]> GetExemplars()
-    {
-        return new string[] { };
+        return Task.FromResult(new WritingSystems
+        {
+            Vernacular =
+            [
+                new WritingSystem { Id = "seh", Font = "Noto Sans", Name = "Sena", Abbreviation = "seh" },
+                new WritingSystem
+                {
+                    Id = "seh-fonipa-x-etic", Font = "Noto Sans", Name = "Sena (phonemic)", Abbreviation = "seh"
+                }
+            ],
+            Analysis =
+            [
+                new WritingSystem { Id = "pt", Font = "Noto Sans", Name = "Portuguese", Abbreviation = "Por" },
+                new WritingSystem { Id = "en", Font = "Noto Sans", Name = "English", Abbreviation = "eng" }
+            ]
+        });
     }
 
     public IAsyncEnumerable<Entry> GetEntries(string exemplar, QueryOptions? options = null)
@@ -28,30 +38,37 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) 
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        options ??= QueryOptions.Default;
-        return Query()
-            .Skip(options.Offset)
-            .Take(options.Count);
+        return Query(options);
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        options ??= QueryOptions.Default;
-        return Query()
-            .Where(e => e.MatchesQuery(query))
-            .Skip(options.Offset)
-            .Take(options.Count);
+        return Query(options)
+            .Where(e => e.MatchesQuery(query));
     }
 
-    private async IAsyncEnumerable<Entry> Query()
+    private async IAsyncEnumerable<Entry> Query(QueryOptions? options = null)
     {
-        using var entriesCursor = await Entries.Find(Builders<Entities.Entry>.Filter.Empty).ToCursorAsync();
-        while (await entriesCursor.MoveNextAsync())
+        options ??= QueryOptions.Default;
+        var ws = await GetWritingSystems();
+        var sortWs = options.Order.WritingSystem;
+        if (sortWs == "default")
         {
-            foreach (var entry in entriesCursor.Current)
-            {
-                yield return ToEntry(entry);
-            }
+            sortWs = ws.Vernacular[0].Id;
+        }
+
+        await foreach (var entry in Entries.ToAsyncEnumerable()
+                           //todo, you can only sort by headword for now
+                           .OrderBy(e => e.CitationForm?.TryGetValue(sortWs, out var val) == true
+                               ? val.Value
+                               : e.Lexeme.TryGetValue(sortWs, out val)
+                                   ? val.Value
+                                   : string.Empty)
+                           .Skip(options.Offset)
+                           .Take(options.Count)
+                           .Select(ToEntry))
+        {
+            yield return entry;
         }
     }
 

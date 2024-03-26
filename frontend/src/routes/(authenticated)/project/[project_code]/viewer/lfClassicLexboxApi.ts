@@ -12,36 +12,8 @@ export class LfClassicLexboxApi implements LexboxApi {
   }
 
   async GetWritingSystems(): Promise<WritingSystems> {
-    return {
-      vernacular: [
-        {
-          id: 'seh',
-          font: 'Noto Sans',
-          name: 'Sena',
-          abbreviation: 'seh'
-        },
-        {
-          id: 'seh-fonipa-x-etic',
-          font: 'Noto Sans',
-          name: 'Sena (phonemic)',
-          abbreviation: 'seh'
-        }
-      ],
-      analysis: [
-        {
-        id: 'pt',
-        font: 'Noto Sans',
-        name: 'Portuguese',
-        abbreviation: 'Por'
-      },
-        {
-        id: 'en',
-        font: 'Noto Sans',
-        name: 'English',
-        abbreviation: 'eng'
-      }
-      ]
-    };
+    const result = await fetch(`/api/lfclassic/${this.projectCode}/writingSystems`);
+    return (await result.json()) as WritingSystems;
   }
 
   GetEntriesForExemplar(exemplar: string, options: QueryOptions | undefined): Promise<IEntry[]> {

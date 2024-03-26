@@ -40,20 +40,31 @@ public static class DataServiceKernel
     public static IEndpointConventionBuilder MapLfClassicApi(this IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/api/lfclassic/{projectCode}");
-        group.MapGet("/entries",
-            (string projectCode, [AsParameters] QueryOptions options, [FromServices] ILexboxApiProvider provider) =>
+        group.MapGet("/writingSystems",
+            (string projectCode, [FromServices] ILexboxApiProvider provider) =>
             {
                 var api = provider.GetProjectApi(projectCode);
-                return api.GetEntries(options);
+                return api.GetWritingSystems();
+            });
+        group.MapGet("/entries",
+            (string projectCode,
+                [FromServices] ILexboxApiProvider provider,
+                int count = 1000,
+                int offset = 0
+                ) =>
+            {
+                var api = provider.GetProjectApi(projectCode);
+                return api.GetEntries(new QueryOptions(SortOptions.Default, count, offset));
             });
         group.MapGet("/entries/{search}",
             (string projectCode,
+                [FromServices] ILexboxApiProvider provider,
                 string search,
-                [AsParameters] QueryOptions options,
-                [FromServices] ILexboxApiProvider provider) =>
+                int count = 1000,
+                int offset = 0) =>
             {
                 var api = provider.GetProjectApi(projectCode);
-                return api.SearchEntries(search, options);
+                return api.SearchEntries(search, new QueryOptions(SortOptions.Default, count, offset));
             });
         group.MapGet("/entry/{id:Guid}",
             (string projectCode, Guid id, [FromServices] ILexboxApiProvider provider) =>
