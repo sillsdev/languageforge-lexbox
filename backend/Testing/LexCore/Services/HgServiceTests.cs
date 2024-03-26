@@ -76,6 +76,15 @@ public class HgServiceTests
             .ShouldHaveSingleItem().ShouldBe(Path.Join(".hg", "important-file.bin"));
     }
 
+    [Theory]
+    [InlineData("-xy")]
+    [InlineData("-x-y-z")]
+    [InlineData("-123")]
+    private async void ProjectCodesMayNotStartWithHyphen(string code)
+    {
+        await Assert.ThrowsAsync<ArgumentException>(() => _hgService.InitRepo(code));
+    }
+
     private void CreateSimpleEntry(ZipArchive zipArchive, string filePath)
     {
         var entry = zipArchive.CreateEntry(filePath);

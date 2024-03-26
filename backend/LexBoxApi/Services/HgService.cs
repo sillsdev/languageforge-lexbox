@@ -286,6 +286,8 @@ public partial class HgService : IHgService
     {
         if (InvalidRepoNames.Contains(name, StringComparer.OrdinalIgnoreCase))
             throw new ArgumentException($"Invalid repo name: {name}.");
+        if (!ProjectCodeRegex().IsMatch(name))
+            throw new ArgumentException($"Invalid repo name: {name}.");
     }
 
     public async Task<ProjectType> DetermineProjectType(string projectCode)
