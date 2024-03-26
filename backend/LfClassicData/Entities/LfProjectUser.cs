@@ -2,10 +2,10 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace LfClassicData.Entities;
 
-internal class ProjectUser
+public class LfProjectUser
 {
     [BsonConstructor(nameof(_roleString))]
-    public ProjectUser(string roleString)
+    public LfProjectUser(string roleString)
     {
         _roleString = roleString;
     }

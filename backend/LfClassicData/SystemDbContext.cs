@@ -3,7 +3,7 @@ using MongoDB.Driver;
 
 namespace LfClassicData;
 
-internal class SystemDbContext
+public class SystemDbContext
 {
     public const string SystemDbName = "scriptureforge";
     private readonly IMongoDatabase _mongoDatabase;
@@ -15,6 +15,6 @@ internal class SystemDbContext
         Projects = _mongoDatabase.GetCollection<LfProject>("projects");
     }
 
-    public IMongoCollection<User> Users { get; }
+    internal IMongoCollection<User> Users { get; }
     public IMongoCollection<LfProject> Projects { get; }
 }

@@ -7,28 +7,35 @@ using Sense = MiniLcm.Sense;
 
 namespace LfClassicData;
 
-public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext) : ILexboxApi
+public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext) : ILexboxApi
 {
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
 
-    public Task<WritingSystems> GetWritingSystems()
+    public async Task<WritingSystems> GetWritingSystems()
     {
-        return Task.FromResult(new WritingSystems
+        var inputSystems = await systemDbContext.Projects.AsQueryable()
+            .Where(p => p.ProjectCode == projectCode)
+            .Select(p => p.InputSystems)
+            .FirstOrDefaultAsync();
+        var vernacular = new List<WritingSystem>();
+        var analysis = new List<WritingSystem>();
+        foreach (var (ws, inputSystem) in inputSystems)
         {
-            Vernacular =
-            [
-                new WritingSystem { Id = "seh", Font = "Noto Sans", Name = "Sena", Abbreviation = "seh" },
-                new WritingSystem
-                {
-                    Id = "seh-fonipa-x-etic", Font = "Noto Sans", Name = "Sena (phonemic)", Abbreviation = "seh"
-                }
-            ],
-            Analysis =
-            [
-                new WritingSystem { Id = "pt", Font = "Noto Sans", Name = "Portuguese", Abbreviation = "Por" },
-                new WritingSystem { Id = "en", Font = "Noto Sans", Name = "English", Abbreviation = "eng" }
-            ]
-        });
+            var writingSystem = new WritingSystem
+            {
+                Id = ws,
+                Font = "???",
+                Name = inputSystem.LanguageName,
+                Abbreviation = inputSystem.Abbreviation
+            };
+            if (inputSystem.AnalysisWS) analysis.Add(writingSystem);
+            if (inputSystem.VernacularWS) vernacular.Add(writingSystem);
+        }
+        return new WritingSystems
+        {
+            Vernacular = vernacular.ToArray(),
+            Analysis = analysis.ToArray()
+        };
     }
 
     public IAsyncEnumerable<Entry> GetEntries(string exemplar, QueryOptions? options = null)

@@ -2,7 +2,7 @@ using MongoDB.Bson;
 
 namespace LfClassicData.Entities;
 
-internal class LfProject : EntityDocument<LfProject>
+public class LfProject : EntityDocument<LfProject>
 {
     public required string ProjectName { get; init; }
     public required string ProjectCode { get; init; }
@@ -11,5 +11,5 @@ internal class LfProject : EntityDocument<LfProject>
     /// <summary>
     /// dictionary of user ids as the key
     /// </summary>
-    public required Dictionary<string, ProjectUser> Users { get; init; }
+    public required Dictionary<string, LfProjectUser> Users { get; init; }
 }
