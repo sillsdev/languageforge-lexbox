@@ -188,6 +188,7 @@ export async function _changeProjectMemberRole(input: ChangeProjectMemberRoleInp
               role
             }
             errors {
+              __typename
               ... on Error {
                 message
               }

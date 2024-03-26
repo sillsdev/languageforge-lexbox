@@ -25,6 +25,9 @@
         userId: member.userId,
         role: $form.role,
       });
+      if (result.error?.byType('ProjectMembersMustBeVerified')) {
+        return { role: [$t('project_page.add_user.user_not_verified')] };
+      }
       return result.error?.message;
     });
   }
