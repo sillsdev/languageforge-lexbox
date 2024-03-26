@@ -14,6 +14,7 @@
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "is_draft": "Draft",
+    "email_is_null": "No Email",
     "email_not_verified": "Not Verified",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
