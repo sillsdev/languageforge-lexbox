@@ -83,6 +83,7 @@
     [ProjectType.WeSay]: 'dictionary',
     [ProjectType.OneStoryEditor]: 'onestory',
     [ProjectType.OurWord]: 'ourword',
+    [ProjectType.AdaptIt]: 'aikb',
   };
 
   const policyCodeMap: Partial<Record<RetentionPolicy, string | undefined>> = {
