@@ -14,29 +14,35 @@
 </script>
 
 <script lang="ts">
-  import { Form, FormError, lexSuperForm, SubmitButton } from '$lib/forms';
+  import { Button, Form, FormError, lexSuperForm, SubmitButton } from '$lib/forms';
   import type { Readable } from 'svelte/store';
 
   type Schema = $$Generic<ZodObject>;
   type FormType = z.infer<Schema>;
   type SubmitCallback = FormSubmitCallback<Schema>;
+  type FormModalOptions = {
+    keepOpenOnSubmit?: boolean;
+  };
 
   export let schema: Schema;
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
   const { form: _form, errors, reset, message, enhance, formState } = superForm;
   let modal: Modal;
-
+  let done = false;
 
   export async function open(
     value: Partial<FormType> | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
-    onSubmit: SubmitCallback
+    onSubmit: SubmitCallback,
+    options?: FormModalOptions,
   ): Promise<FormModalResult<Schema>>;
   export async function open(onSubmit: SubmitCallback): Promise<FormModalResult<Schema>>;
   export async function open(
     valueOrOnSubmit: Partial<FormType> | SubmitCallback | undefined,  //eslint-disable-line @typescript-eslint/no-redundant-type-constituents
-    _onSubmit?: SubmitCallback
+    _onSubmit?: SubmitCallback,
+    options?: FormModalOptions,
   ): Promise<FormModalResult<Schema>> {
+    done = false;
     const onSubmit = _onSubmit ?? (valueOrOnSubmit as SubmitCallback);
     const value = _onSubmit ? (valueOrOnSubmit as Partial<FormType>) : undefined;
 
@@ -47,7 +53,8 @@
 
     const response = await openModal(onSubmit);
     const _formState = $formState; // we need to read the form state before the modal closes or it will be reset
-    modal.close();
+    if (response !== DialogResponse.Submit || !options?.keepOpenOnSubmit)
+      modal.close();
     return { response, formState: _formState };
   }
 
@@ -71,13 +78,15 @@
       return await openModal(onSubmit);
     }
 
+    done = true;
+
     return result;
   }
 </script>
 
 <Modal bind:this={modal} on:close={() => reset()} bottom>
   <Form id="modalForm" {enhance}>
-    <p><slot name="title" /></p>
+    <p class="mb-4"><slot name="title" /></p>
     <slot errors={$errors} />
   </Form>
   <FormError error={$message} right />
@@ -85,8 +94,14 @@
     <slot name="extraActions" />
   </svelte:fragment>
   <svelte:fragment slot="actions" let:submitting>
-    <SubmitButton form="modalForm" loading={submitting}>
-      <slot name="submitText" />
-    </SubmitButton>
+    {#if !done}
+      <SubmitButton form="modalForm" loading={submitting}>
+        <slot name="submitText" />
+      </SubmitButton>
+    {:else}
+      <Button variant="btn-primary" on:click={close}>
+        <slot name="closeText" />
+      </Button>
+    {/if}
   </svelte:fragment>
 </Modal>

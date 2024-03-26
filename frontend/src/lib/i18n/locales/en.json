@@ -14,6 +14,7 @@
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "is_draft": "Draft",
+    "email_is_null": "No Email",
     "email_not_verified": "Not Verified",
     "notifications": {
       "user_deleted": "{name} has been deleted.",
@@ -184,6 +185,21 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_not_found": "No user was found with this email address",
       "user_not_verified": "User has not verified their email address",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
+    },
+    "bulk_add_members": {
+      "add_button": "Bulk Add/Create Members",
+      "explanation": "Adds all the provided Send/Receive logins/usernames to this project. New users will be created automatically with the provided password for logins that don't exist.",
+      "modal_title": "Bulk Add/Create Members",
+      "submit_button": "Add/Create Members",
+      "finish_button": "Close",
+      "shared_password": "Shared Password",
+      "usernames": "Logins/usernames (one per line)",
+      "usernames_alphanum_only": "Logins/usernames must contain only letters, numbers, and underscore (_) characters",
+      "creator_must_have_email": "You must have an email address in order to create a project.",
+      "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to project.",
+      "existing_added_members": "{existedCount} {existedCount, plural, one {user} other {users}} already existed.",
+      "already_members": "{count, plural, one {# user was} other {# users were}} already in the project.",
+      "accounts_created": "{createdCount} new {createdCount, plural, one {user was} other {users were}} created with the provided password.",
     },
     "change_role_modal": {
       "title": "Choose role for {name}"

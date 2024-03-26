@@ -46,7 +46,7 @@ public class LegacyProjectApiController : ControllerBase
     {
         var password = input.Password;
 
-        var user = await _lexBoxDbContext.Users.FilterByEmail(userName)
+        var user = await _lexBoxDbContext.Users.FilterByEmailOrUsername(userName)
             .Select(user => new
             {
                 user.Salt,

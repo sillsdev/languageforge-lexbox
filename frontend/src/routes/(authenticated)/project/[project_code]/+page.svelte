@@ -17,6 +17,7 @@
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
+  import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
@@ -407,8 +408,9 @@
           {/if}
 
           {#if canManage}
-            <div class="place-self-end" style="grid-column: -2 / -1">
+            <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
               <AddProjectMember projectId={project.id} />
+              <BulkAddProjectMembers projectId={project.id} />
             </div>
           {/if}
 

@@ -58,7 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email;
+    $queryParamValues.userEmail = user.email ?? undefined;
   }
 
   let userModal: UserModal;
@@ -170,7 +170,7 @@
                 </td>
                 <td>
                   <span class="inline-flex items-center gap-2 text-left">
-                    {user.email}
+                    {user.email ?? $t('admin_dashboard.email_is_null')}
                     {#if !user.emailVerified}
                       <span
                         class="tooltip text-warning text-xl shrink-0 leading-0"

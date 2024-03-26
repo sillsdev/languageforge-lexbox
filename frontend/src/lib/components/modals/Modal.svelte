@@ -45,6 +45,7 @@
     return response;
   }
   export function cancelModal(): void {
+    $open = false;
     $dialogResponse = DialogResponse.Cancel;
   }
   export function submitModal(): Promise<void> {
