@@ -82,7 +82,7 @@
     {#if currentStep == BulkAddSteps.Add}
       <p>{$t('project_page.bulk_add_members.explanation')}</p>
       <Input
-        id="password"
+        id="shared_password"
         type="password"
         label={$t('project_page.bulk_add_members.shared_password')}
         bind:value={$form.password}
