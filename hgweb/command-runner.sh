@@ -34,7 +34,8 @@ echo "Content-type: text/plain"
 echo ""
 
 # Run the hg command, simply output to stdout
-cd /var/hg/repos/$project_code
+first_char=$(echo $project_code | cut -c1)
+cd /var/hg/repos/$first_char/$project_code
 case $command_name in
 
     lexentrycount)

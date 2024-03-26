@@ -31,6 +31,7 @@ public static class ProxyKernel
             ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
             ConnectTimeout = TimeSpan.FromSeconds(15)
         }));
+        services.AddSingleton(new HgRequestTransformer());
 
         services.AddHttpForwarder();
         services.AddAuthentication()
@@ -71,6 +72,11 @@ public static class ProxyKernel
             {
                 await Forward(context, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
+        app.Map($"/hg/{{first-letter:length(1)}}/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
+            async (HttpContext context, [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
+            {
+                await Forward(context, projectCode);
+            }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
     }
 
 
@@ -84,6 +90,7 @@ public static class ProxyKernel
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
         var hgService = context.RequestServices.GetRequiredService<IHgService>();
+        var transformer = context.RequestServices.GetRequiredService<HgRequestTransformer>();
         var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
         var sendReceiveService = context.RequestServices.GetRequiredService<ISendReceiveService>();
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
@@ -93,12 +100,7 @@ public static class ProxyKernel
         using var sendReceiveTicket = await sendReceiveService.BeginSendReceive(projectCode);
         if (sendReceiveTicket is null) throw new ProjectLockedException(projectCode);
 
-        if (hgType == HgType.hgWeb && context.Request.Path.StartsWithSegments("/hg"))
-        {
-            context.Request.Path = context.Request.Path.Value!["/hg".Length..];
-        }
-
-        await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient);
+        await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient, ForwarderRequestConfig.Empty, transformer);
         try
         {
             switch (hgType)

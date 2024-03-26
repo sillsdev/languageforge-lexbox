@@ -131,3 +131,32 @@ spec:
           items:
           - key: hgweb.hgrc
             path: hgweb.hgrc
+
+      initContainers:
+      - name: init-repo-structure
+        securityContext:
+          runAsUser: 33
+          runAsGroup: 33 # www-data
+        image: busybox:1.36.1
+        command:
+          - 'sh'
+          - '-c'
+          - |
+            cd /repos
+            mkdir -p a b c d e f g h i j k l m n o p q r s t u v w x y z
+            mkdir -p 0 1 2 3 4 5 6 7 8 9
+            find . -maxdepth 1 -type d -name '[a-z0-9]?*' | while IFS= read -r folder; do
+              project=$(basename "$folder")
+              if [[ -L "$project" ]]; then
+                echo "Skipping symlinked folder: $project"
+                continue
+              fi
+              first_letter=$(echo "$project" | head -c1)
+
+              mv "$folder" ./"$first_letter"/
+              # need to use relative path for symlink to work in multiple pods
+              ln -s "$first_letter"/"$project" "$project"
+            done
+        volumeMounts:
+          - name: repos
+            mountPath: /repos
