@@ -5,7 +5,7 @@ namespace LexSyncReverseProxy;
 
 public partial class HgRequestTransformer : HttpTransformer
 {
-    [GeneratedRegex(@"^/hg/[a-z-0-9]/")]
+    [GeneratedRegex(@"^/hg/[a-z0-9]/")]
     private static partial Regex HasFirstLetterPrefix();
 
     public override async ValueTask TransformRequestAsync(HttpContext httpContext,
