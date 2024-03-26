@@ -28,9 +28,9 @@
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
 
-  let addedMembers: BulkAddProjectMembersResult['addedMembers'] = [{username: 'test2', 'role': ProjectRole.Manager}];
-  let createdMembers: BulkAddProjectMembersResult['createdMembers'] = [{username: 'test', 'role': ProjectRole.Editor}];
-  let existingMembers: BulkAddProjectMembersResult['existingMembers'] = [{username: 'test2', 'role': ProjectRole.Manager}];
+  let addedMembers: BulkAddProjectMembersResult['addedMembers'] = [];
+  let createdMembers: BulkAddProjectMembersResult['createdMembers'] = [];
+  let existingMembers: BulkAddProjectMembersResult['existingMembers'] = [];
   $: addedCount = addedMembers.length + createdMembers.length;
 
   const usernameRe = /^[a-zA-Z0-9_]+$/;
