@@ -143,7 +143,9 @@ spec:
           - '-c'
           - |
             cd /repos
-            for folder in /repos/[a-z0-9]?*/; do
+            mkdir -p a b c d e f g h i j k l m n o p q r s t u v w x y z
+            mkdir -p 0 1 2 3 4 5 6 7 8 9
+            find . -maxdepth 1 -type d -name '[a-z0-9]?*' | while IFS= read -r folder; do
               project=$(basename "$folder")
               if [[ -L "$project" ]]; then
                 echo "Skipping symlinked folder: $project"
@@ -151,13 +153,10 @@ spec:
               fi
               first_letter=$(echo "$project" | head -c1)
 
-              mkdir -p /repos/"$first_letter"/
-              mv "$folder" /repos/"$first_letter"/
+              mv "$folder" ./"$first_letter"/
               # need to use relative path for symlink to work in multiple pods
               ln -s "$first_letter"/"$project" "$project"
             done
-            mkdir -p /repos/a /repos/b /repos/c /repos/d /repos/e /repos/f /repos/g /repos/h /repos/i /repos/j /repos/k /repos/l /repos/m /repos/n /repos/o /repos/p /repos/q /repos/r /repos/s /repos/t /repos/u /repos/v /repos/w /repos/x /repos/y /repos/z
-            mkdir -p /repos/0 /repos/1 /repos/2 /repos/3 /repos/4 /repos/5 /repos/6 /repos/7 /repos/8 /repos/9
         volumeMounts:
           - name: repos
             mountPath: /repos
