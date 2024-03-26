@@ -84,6 +84,7 @@
       <Input
         id="shared_password"
         type="password"
+        autocomplete="new-password"
         label={$t('project_page.bulk_add_members.shared_password')}
         bind:value={$form.password}
         error={errors.password}
