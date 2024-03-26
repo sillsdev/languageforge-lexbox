@@ -160,6 +160,7 @@
 
   let hgCommandResultModal: Modal;
   let hgCommandResponse = '';
+  let hgCommandRunning = false;
 
   async function verify(): Promise<void> {
     await hgCommand(async () => fetch(`/api/project/hgVerify/${project.code}`));
@@ -195,9 +196,14 @@
     hgCommandResponse = '';
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
-    await streamHgCommandResponse(response.body);
-    // Some commands, like hg recover, return nothing if there's nothing to be done
-    if (hgCommandResponse == '') hgCommandResponse = 'No response';
+    hgCommandRunning = true;
+    try {
+      await streamHgCommandResponse(response.body);
+      // Some commands, like hg recover, return nothing if there's nothing to be done
+      if (hgCommandResponse == '') hgCommandResponse = 'No response';
+    } finally {
+      hgCommandRunning = false;
+    }
   }
 
   let openInFlexModal: OpenInFlexModal;
@@ -473,11 +479,14 @@
             <Button on:click={recover}>HG Recover</Button>
             <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
               <div class="card">
-                <div class="card-body">
+                <div class="card-body overflow-auto">
                   {#if hgCommandResponse === ''}
                     <span class="loading loading-ring loading-lg"></span>
                   {:else}
                     <pre>{hgCommandResponse}</pre>
+                    {#if hgCommandRunning}
+                      <span class="loading loading-dots loading-xs"></span>
+                    {/if}
                   {/if}
                 </div>
               </div>
