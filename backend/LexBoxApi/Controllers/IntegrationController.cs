@@ -71,7 +71,7 @@ public class IntegrationController(
             user with
             {
                 Projects = user.Projects.Where(p => p.ProjectId == projectId).ToArray(),
-                Audience = LexboxAudience.SendAndReceiveRefresh,
+                Audience = LexboxAudience.SendAndReceive,
             });
 
         //refresh long lived token used to get new tokens
