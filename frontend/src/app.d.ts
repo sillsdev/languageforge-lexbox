@@ -12,6 +12,7 @@ declare global {
 
   type LexboxResponseHandlingConfig = {
     disableRedirectOnAuthError?: true;
+    invalidateUserOnJwtRefresh?: false // default is true
   }
 
   interface RequestInit {

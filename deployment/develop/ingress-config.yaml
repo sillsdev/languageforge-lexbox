@@ -1,18 +1,69 @@
-﻿- op: replace
+﻿- op: add
+  path: /metadata/annotations/cert-manager.io~1cluster-issuer
+  value: le-langtech-cluster-issuer
+- op: replace
   path: /spec/rules/0/host
   value: develop.lexbox.org
 - op: replace
   path: /spec/rules/1/host
-  value: hg-develop.lexbox.org
+  value: hg.lexbox.dev.languagetechnology.org
 - op: replace
   path: /spec/rules/2/host
-  value: resumable-develop.lexbox.org
+  value: resumable.lexbox.dev.languagetechnology.org
 - op: replace
   path: /spec/rules/3/host
   value: admin-develop.lexbox.org #not actually configured in dns, will not work
 - op: replace
   path: /spec/tls/0/hosts
   value:
-    - develop.lexbox.org
-    - resumable-develop.lexbox.org
-    - hg-develop.lexbox.org
+    - lexbox.dev.languagetechnology.org
+    - hg.lexbox.dev.languagetechnology.org
+    - resumable.lexbox.dev.languagetechnology.org
+- op: add
+  path: /spec/rules/-
+  value:
+    host: lexbox.dev.languagetechnology.org
+    http:
+      paths:
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /hg
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /security.txt
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /.well-known
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: http
+        - path: /v1/traces
+          pathType: Prefix
+          backend:
+            service:
+              name: lexbox
+              port:
+                name: otel
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: ui
+              port:
+                name: sveltekit

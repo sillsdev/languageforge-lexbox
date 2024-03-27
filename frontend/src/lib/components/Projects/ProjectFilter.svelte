@@ -1,34 +1,24 @@
 <script context="module" lang="ts">
-  import { type Project, ProjectMigrationStatus, type ProjectType } from '$lib/gql/types';
+  import {type Project, type ProjectType} from '$lib/gql/types';
+  import type {DraftProject} from '../../../routes/(authenticated)/admin/+page';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
+  export type ProjectItemWithDraftStatus =
+    ProjectItem & { isDraft?: false } |
+    DraftProject & { isDraft: true; createUrl: string };
 
   export type ProjectFilters = {
     projectSearch: string;
     projectType: ProjectType | undefined;
     showDeletedProjects: boolean;
-    migrationStatus: ProjectMigrationStatus | 'UNMIGRATED' | undefined;
+    hideDraftProjects: boolean;
     userEmail: string | undefined;
   };
 
-  function matchMigrationStatus(
-    filter: ProjectMigrationStatus | 'UNMIGRATED' | undefined,
-    status: ProjectMigrationStatus,
-  ): boolean {
-    return (
-      !filter ||
-      filter === status ||
-      (filter === 'UNMIGRATED' &&
-        (status === ProjectMigrationStatus.Unknown ||
-          status === ProjectMigrationStatus.PrivateRedmine ||
-          status === ProjectMigrationStatus.PublicRedmine))
-    );
-  }
-
   export function filterProjects(
-    projects: ProjectItem[],
+    projects: ProjectItemWithDraftStatus[],
     projectFilters: Partial<ProjectFilters>,
-  ): ProjectItem[] {
+  ): ProjectItemWithDraftStatus[] {
     const searchLower = projectFilters.projectSearch?.toLocaleLowerCase();
     return projects.filter(
       (p) =>
@@ -36,7 +26,7 @@
           p.name.toLocaleLowerCase().includes(searchLower) ||
           p.code.toLocaleLowerCase().includes(searchLower)) &&
         (!projectFilters.projectType || p.type === projectFilters.projectType) &&
-        (!p.migrationStatus || matchMigrationStatus(projectFilters.migrationStatus, p.migrationStatus)),
+        (!projectFilters.hideDraftProjects || !p.isDraft)
     );
   }
 </script>
@@ -47,17 +37,16 @@
   import { ProjectTypeIcon } from '../ProjectType';
   import ActiveFilter from '../FilterBar/ActiveFilter.svelte';
   import FilterBar from '../FilterBar/FilterBar.svelte';
-  import { AuthenticatedUserIcon, TrashIcon } from '$lib/icons';
+  import { AuthenticatedUserIcon, Icon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
-  import MigrationStatusSelect from '$lib/forms/MigrationStatusSelect.svelte';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   export let filters: Writable<Filters>;
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'migrationStatus', 'showDeletedProjects', 'userEmail'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'hideDraftProjects'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -82,9 +71,10 @@
           <AuthenticatedUserIcon />
           {filter.value}
         </ActiveFilter>
-      {:else if filter.key === 'migrationStatus'}
+      {:else if filter.key === 'hideDraftProjects'}
         <ActiveFilter {filter}>
-          {filter.value}
+          <Icon icon="i-mdi-script" color="text-warning" />
+          {$t('project.filter.hide_drafts')}
         </ActiveFilter>
       {/if}
     {/each}
@@ -127,16 +117,19 @@
         <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('project_type.any')} />
       </div>
     {/if}
-    {#if filterEnabled('migrationStatus')}
-      <div class="form-control">
-        <MigrationStatusSelect bind:value={$filters.migrationStatus} />
-      </div>
-    {/if}
     {#if filterEnabled('showDeletedProjects')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
           <span class="label-text">{$t('project.filter.show_deleted')}</span>
           <input bind:checked={$filters.showDeletedProjects} type="checkbox" class="toggle toggle-error" />
+        </label>
+      </div>
+    {/if}
+    {#if filterEnabled('hideDraftProjects')}
+      <div class="form-control">
+        <label class="cursor-pointer label gap-4">
+          <span class="label-text">{$t('project.filter.hide_drafts')}</span>
+          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle" />
         </label>
       </div>
     {/if}

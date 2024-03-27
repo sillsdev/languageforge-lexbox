@@ -1,25 +1,36 @@
 <script lang="ts">
-  import { navigating } from '$app/stores';
-  import { Badge } from '$lib/components/Badges';
+  import {navigating} from '$app/stores';
+  import {Badge} from '$lib/components/Badges';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { DEFAULT_PAGE_SIZE, limit } from '$lib/components/Paging';
-  import { ProjectFilter, ProjectTable, type ProjectItem, filterProjects, type ProjectFilters } from '$lib/components/Projects';
-  import { RefineFilterMessage } from '$lib/components/Table';
-  import { DialogResponse } from '$lib/components/modals';
+  import {DEFAULT_PAGE_SIZE, limit} from '$lib/components/Paging';
+  import {
+    filterProjects,
+    ProjectFilter,
+    type ProjectFilters,
+    type ProjectItem,
+    type ProjectItemWithDraftStatus,
+    ProjectTable
+  } from '$lib/components/Projects';
+  import {RefineFilterMessage} from '$lib/components/Table';
+  import {DialogResponse} from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import { Button } from '$lib/forms';
-  import { _deleteProject } from '$lib/gql/mutations';
-  import t, { number } from '$lib/i18n';
-  import { TrashIcon } from '$lib/icons';
-  import { useNotifications } from '$lib/notify';
-  import type { QueryParams } from '$lib/util/query-params';
-  import { derived } from 'svelte/store';
-  import type { AdminSearchParams } from './+page';
+  import {Button} from '$lib/forms';
+  import {_deleteProject} from '$lib/gql/mutations';
+  import t, {number} from '$lib/i18n';
+  import {TrashIcon} from '$lib/icons';
+  import {useNotifications} from '$lib/notify';
+  import {type QueryParams, toSearchParams} from '$lib/util/query-params';
+  import {derived} from 'svelte/store';
+  import type {AdminSearchParams, DraftProject} from './+page';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import AdminTabs from './AdminTabs.svelte';
+  import type {CreateProjectInput} from '$lib/gql/types';
 
   export let projects: ProjectItem[];
+  export let draftProjects: DraftProject[];
   export let queryParams: QueryParams<AdminSearchParams>;
-  $: filters = queryParams.queryParamValues;
+  $: queryParamValues = queryParams.queryParamValues;
+  $: filters = queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
 
   const { notifyWarning, notifySuccess } = useNotifications();
@@ -32,12 +43,17 @@
       (fromUrl.searchParams.get(key) ?? filterDefaults?.[key])?.toString() !== $filters?.[key]?.toString());
   });
 
-  let filteredProjects: ProjectItem[] = [];
+  let allProjects: ProjectItemWithDraftStatus[] = [];
+  let filteredProjects: ProjectItemWithDraftStatus[] = [];
   let limitResults = true;
   let hasActiveFilter = false;
   let lastLoadUsedActiveFilter = false;
   $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
-  $: filteredProjects = filterProjects(projects, $filters);
+  $: allProjects = [
+    ...draftProjects.map(p => ({ ...p, isDraft: true as const, createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p)}` })),
+    ...projects.map(p => ({ ...p, isDraft: false as const })),
+  ];
+  $: filteredProjects = filterProjects(allProjects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
@@ -52,31 +68,37 @@
   }
 
   async function updateAllLexEntryCounts(): Promise<void> {
-    var count = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
-    notifySuccess(`{count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
+    const result = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
+    const count = await result.text();
+    notifySuccess(`${count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
   }
 </script>
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
 <div>
-  <div class="flex justify-between items-center">
-    <h2 class="text-2xl flex gap-4 items-end">
-      {$t('admin_dashboard.project_table_title')}
-      <Badge>
-        <span class="inline-flex gap-2">
-          {$number(shownProjects.length)}
-          <span>/</span>
-          {$number(filteredProjects.length)}
+  <AdminTabs activeTab="projects" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
+    <div class="flex gap-4 justify-between grow">
+      <div class="flex gap-4 items-center">
+        {$t('admin_dashboard.project_table_title')}
+        <div class="contents max-xs:hidden">
+          <Badge>
+            <span class="inline-flex gap-2">
+              {$number(shownProjects.length)}
+              <span>/</span>
+              {$number(filteredProjects.length)}
+            </span>
+          </Badge>
+        </div>
+      </div>
+      <a class="btn btn-sm btn-success max-xs:btn-square"
+        href="/project/create">
+        <span class="admin-tabs:hidden">
+          {$t('project.create.title')}
         </span>
-      </Badge>
-    </h2>
-    <a href="/project/create" class="btn btn-sm btn-success">
-      <span class="max-sm:hidden">
-        {$t('project.create.title')}
-      </span>
-      <span class="i-mdi-plus text-2xl" />
-    </a>
-  </div>
+        <span class="i-mdi-plus text-2xl" />
+      </a>
+    </div>
+  </AdminTabs>
 
   <div class="mt-4">
     <ProjectFilter
@@ -92,7 +114,7 @@
 
   <ProjectTable projects={shownProjects}>
     <td class="p-0" slot="actions" let:project>
-      {#if !project.deletedDate}
+      {#if !project.isDraft && !project.deletedDate}
         <Dropdown>
           <button class="btn btn-ghost btn-square">
             <span class="i-mdi-dots-vertical text-lg" />

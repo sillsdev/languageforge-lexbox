@@ -38,7 +38,7 @@ public class TestingController : ControllerBase
         LexboxAudience audience = LexboxAudience.LexboxApi)
     {
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
-            .FindByEmail(usernameOrEmail);
+            .FindByEmailOrUsername(usernameOrEmail);
         if (user is null) return NotFound();
         var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole }, audience: audience);
         return token;

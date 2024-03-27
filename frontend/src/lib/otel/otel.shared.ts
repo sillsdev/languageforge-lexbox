@@ -17,6 +17,7 @@ import {makeOperation, type Exchange, mapExchange, type OperationContext} from '
 import { browser } from '$app/environment';
 import { isRedirect } from '$lib/util/types';
 import {getOperationName} from '$lib/gql/types';
+import { parseUrl } from '@opentelemetry/sdk-trace-web/build/src/utils';
 
 export const SERVICE_NAME = browser ? 'LexBox-SvelteKit-Client' : 'LexBox-SvelteKit-Server';
 
@@ -118,7 +119,8 @@ function traceErrorEvent(
 export function traceFetch([input]: Parameters<Fetch>, fetch: () => ReturnType<Fetch>, event?: RequestEvent | NavigationEvent | Event): ReturnType<Fetch> {
   return tracer().startActiveSpan('fetch', async (span) => {
     try {
-      const url = isRequest(input) ? input.url : input.toString();
+      // Matches: https://github.com/open-telemetry/opentelemetry-js/blob/main/experimental/packages/opentelemetry-instrumentation-fetch/src/fetch.ts#L314-L316
+      const url = parseUrl(isRequest(input) ? input.url : input.toString()).href;
       span.setAttribute(SemanticAttributes.HTTP_URL, url);
       traceUserAttributes(span, event);
       if (browser)

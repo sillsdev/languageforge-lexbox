@@ -8,21 +8,23 @@
   import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
-  import { Icon } from '$lib/icons';
+  import { AdminIcon, Icon } from '$lib/icons';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
   import { RefineFilterMessage } from '$lib/components/Table';
   import type { AdminSearchParams, User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import type { ProjectType, ProjectMigrationStatus } from '$lib/gql/types';
+  import type { ProjectType } from '$lib/gql/types';
   import { derived } from 'svelte/store';
   import AdminProjects from './AdminProjects.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
+  import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
+  $: draftProjects = data.draftProjects;
   $: userData = data.users;
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -30,14 +32,16 @@
   const queryParams = getSearchParams<AdminSearchParams>({
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
+    hideDraftProjects: queryParam.boolean<boolean>(false),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
-    migrationStatus: queryParam.string<ProjectMigrationStatus | 'UNMIGRATED' | undefined>(undefined),
+    tab: queryParam.string<AdminTabId>('projects'),
   });
 
   const userFilterKeys = ['userSearch'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
   const { queryParamValues, defaultQueryParamValues } = queryParams;
+  $: tab = $queryParamValues.tab;
 
   const loadingUsers = derived(navigating, (nav) => {
     const fromUrl = nav?.from?.url;
@@ -54,7 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email;
+    $queryParamValues.userEmail = user.email ?? undefined;
   }
 
   let userModal: UserModal;
@@ -93,11 +97,13 @@
 </svelte:head>
 <PageBreadcrumb>{$t('admin_dashboard.title')}</PageBreadcrumb>
 <main>
-  <div class="grid lg:grid-cols-2 grid-cols-1 gap-10">
-    <AdminProjects projects={$projects} {queryParams} />
+  <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
+    <div class="contents" class:admin-tabs:hidden={tab === 'users'}>
+    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
+    </div>
 
-    <div>
-      <h2 class="text-2xl flex gap-4 items-end">
+    <div class:admin-tabs:hidden={tab !== 'users'}>
+      <AdminTabs activeTab="users" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
         {$t('admin_dashboard.user_table_title')}
         <Badge>
           <span class="inline-flex gap-2">
@@ -106,7 +112,7 @@
             {$number(filteredUserCount)}
           </span>
         </Badge>
-      </h2>
+      </AdminTabs>
       <div class="mt-4">
         <FilterBar
           debounce
@@ -120,16 +126,15 @@
       </div>
 
       <div class="divider" />
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto @container">
         <table class="table table-lg">
           <thead>
             <tr class="bg-base-200">
               <th>
                 {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
-              <th>{$t('admin_dashboard.column_login')}</th>
+              <th class="hidden @xl:table-cell">{$t('admin_dashboard.column_login')}</th>
               <th>{$t('admin_dashboard.column_email')}</th>
-              <th>{$t('admin_dashboard.column_role')}</th>
               <th />
             </tr>
           </thead>
@@ -138,38 +143,46 @@
               <tr>
                 <td>
                   <div class="flex items-center gap-2">
-                    <Button style="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
+                    <Button variant="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
                       {user.name}
                       <Icon icon="i-mdi-card-account-details-outline" />
                     </Button>
                     {#if user.locked}
-                    <span
-                        class="tooltip text-warning text-xl leading-0"
-                        data-tip={$t('admin_dashboard.user_is_locked')}>
-                      <Icon icon="i-mdi-lock" />
-                    </span>
+                      <span
+                          class="tooltip text-warning text-xl leading-0"
+                          data-tip={$t('admin_dashboard.user_is_locked')}>
+                        <Icon icon="i-mdi-lock" />
+                      </span>
+                    {/if}
+                    {#if user.isAdmin}
+                      <span
+                          class="tooltip text-accent text-xl leading-0"
+                          data-tip={$t('user_types.admin')}>
+                          <AdminIcon size="text-xl" />
+                      </span>
                     {/if}
                   </div>
                 </td>
-                <td>
+                <td class="hidden @xl:table-cell">
                   {#if user.username}
                     {user.username}
                   {/if}
                 </td>
                 <td>
                   <span class="inline-flex items-center gap-2 text-left">
-                    {user.email}
-                    {#if !user.emailVerified}
-                      <span
-                        class="tooltip text-warning text-xl shrink-0 leading-0"
-                        data-tip={$t('admin_dashboard.email_not_verified')}>
-                        <span class="i-mdi-help-circle-outline" />
-                      </span>
+                    {#if user.email}
+                      {user.email}
+                      {#if !user.emailVerified}
+                        <span
+                          class="tooltip text-warning text-xl shrink-0 leading-0"
+                          data-tip={$t('admin_dashboard.email_not_verified')}>
+                          <span class="i-mdi-help-circle-outline" />
+                        </span>
+                      {/if}
+                    {:else}
+                      –
                     {/if}
                   </span>
-                </td>
-                <td class:text-accent={user.isAdmin}>
-                  {user.isAdmin ? $t('user_types.admin') : $t('user_types.user')}
                 </td>
                 <td class="p-0">
                   <Dropdown>

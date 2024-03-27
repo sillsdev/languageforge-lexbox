@@ -17,13 +17,16 @@ import type {
 import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from '$lib/gql/types';
 import type { ProjectFilters } from '$lib/components/Projects';
 import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
+import type { AdminTabId } from './AdminTabs.svelte';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
 export type AdminSearchParams = ProjectFilters & {
   userSearch: string
+  tab: AdminTabId
 };
 
 export type Project = LoadAdminDashboardProjectsQuery['projects'][number];
+export type DraftProject = LoadAdminDashboardProjectsQuery['draftProjects'][number];
 export type User = NonNullable<NonNullable<LoadAdminDashboardUsersQuery['users']>['items']>[number];
 
 export async function load(event: PageLoadEvent) {
@@ -53,10 +56,20 @@ export async function load(event: PageLoadEvent) {
               id
               name
               lastCommit
-                migrationStatus
               type
               deletedDate
+              createdDate
               userCount
+            }
+            draftProjects {
+              code
+              id
+              name
+              type
+              createdDate
+              description
+              retentionPolicy
+              projectManagerId
             }
         }
     `), { withDeletedProjects, filter: projectFilter });

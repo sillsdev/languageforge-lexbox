@@ -6,7 +6,7 @@ public class User : EntityBase
 {
     public const string DefaultLocalizationCode = "en";
     public required string Name { get; set; }
-    public required string Email { get; set; }
+    public string? Email { get; set; }
     private string _localizationCode = DefaultLocalizationCode;
 
     public string LocalizationCode
@@ -23,6 +23,9 @@ public class User : EntityBase
     public DateTimeOffset LastActive { get; set; } = DateTimeOffset.UtcNow;
     public required bool EmailVerified { get; set; }
     public required bool CanCreateProjects { get; set; }
+    public Guid? CreatedById { get; set; }
+    public User? CreatedBy { get; set; }
+    public List<User> UsersICreated { get; set; } = new(); // TODO: Better name? Or is this good?
 
     public void UpdateCreateProjectsPermission(ProjectRole role)
     {

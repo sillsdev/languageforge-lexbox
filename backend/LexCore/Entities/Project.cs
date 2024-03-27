@@ -8,7 +8,7 @@ namespace LexCore.Entities;
 public class Project : EntityBase
 {
 
-    public const string ProjectCodeRegex = @"^[a-z-\d]+$";
+    public const string ProjectCodeRegex = @"^[a-z\d][a-z-\d]*$";
     public Guid? ParentId { get; set; }
     public required string Code { get; set; }
     public required string Name { get; set; }
@@ -21,8 +21,8 @@ public class Project : EntityBase
     public DateTimeOffset? DeletedDate { get; set; }
     public ResetStatus ResetStatus { get; set; } = ResetStatus.None;
 
+    //historical reference for if this project originated here (migrated), or came from redmine, public or private
     public required ProjectMigrationStatus ProjectOrigin { get; set; } = ProjectMigrationStatus.Migrated;
-    public required ProjectMigrationStatus MigrationStatus { get; set; } = ProjectMigrationStatus.Migrated;
     public DateTimeOffset? MigratedDate { get; set; } = null;
 
     [NotMapped]
@@ -33,7 +33,7 @@ public class Project : EntityBase
     public async Task<Changeset[]> GetChangesets(IHgService hgService)
     {
         var age = DateTimeOffset.UtcNow.Subtract(CreatedDate);
-        if (age.TotalSeconds < 40 || MigrationStatus == ProjectMigrationStatus.Migrating)
+        if (age.TotalSeconds < 40)
         {
             // The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
             // See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
@@ -41,8 +41,13 @@ public class Project : EntityBase
         }
         else
         {
-            return await hgService.GetChangesets(Code, MigrationStatus);
+            return await hgService.GetChangesets(Code);
         }
+    }
+
+    public bool GetHasAbandonedTransactions(IHgService hgService)
+    {
+        return hgService.HasAbandonedTransactions(Code);
     }
 }
 

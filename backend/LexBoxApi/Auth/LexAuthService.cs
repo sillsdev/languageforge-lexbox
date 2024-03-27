@@ -103,14 +103,17 @@ public class LexAuthService
         ArgumentNullException.ThrowIfNull(context);
         await context.SignInAsync(jwtUser.GetPrincipal("Refresh"),
             new AuthenticationProperties { IsPersistent = true });
+        dbUser.LastActive = DateTimeOffset.UtcNow;
+        await _lexBoxDbContext.SaveChangesAsync();
         context.Response.Headers[JwtUpdatedHeader] = updatedValue;
         activity?.AddTag("app.user.refresh", "success");
         return jwtUser;
     }
 
-    public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string emailOrUsername)
+    public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUser(string? emailOrUsername)
     {
-        return await GetUser(UserEntityExtensions.FilterByEmail(emailOrUsername));
+        if (emailOrUsername is null) return (null, null);
+        return await GetUser(UserEntityExtensions.FilterByEmailOrUsername(emailOrUsername));
     }
 
     public async Task<(LexAuthUser? lexAuthUser, User? user)> GetUserByGoogleId(string? googleId)

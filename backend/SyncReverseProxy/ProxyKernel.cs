@@ -31,6 +31,7 @@ public static class ProxyKernel
             ActivityHeadersPropagator = new ReverseProxyPropagator(DistributedContextPropagator.Current),
             ConnectTimeout = TimeSpan.FromSeconds(15)
         }));
+        services.AddSingleton(new HgRequestTransformer());
 
         services.AddHttpForwarder();
         services.AddAuthentication()
@@ -71,6 +72,11 @@ public static class ProxyKernel
             {
                 await Forward(context, projectCode);
             }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
+        app.Map($"/hg/{{first-letter:length(1)}}/{{{ProxyConstants.HgProjectCodeRouteKey}}}/{{**catch-all}}",
+            async (HttpContext context, [FromRoute(Name = ProxyConstants.HgProjectCodeRouteKey)] string projectCode) =>
+            {
+                await Forward(context, projectCode);
+            }).RequireAuthorization(authorizeAttribute).WithMetadata(HgType.hgWeb);
     }
 
 
@@ -83,35 +89,18 @@ public static class ProxyKernel
         var httpClient = context.RequestServices.GetRequiredService<HttpMessageInvoker>();
         var forwarder = context.RequestServices.GetRequiredService<IHttpForwarder>();
         var eventsService = context.RequestServices.GetRequiredService<ProxyEventsService>();
+        var hgService = context.RequestServices.GetRequiredService<IHgService>();
+        var transformer = context.RequestServices.GetRequiredService<HgRequestTransformer>();
         var lexProxyService = context.RequestServices.GetRequiredService<ILexProxyService>();
-        var repoMigrationService = context.RequestServices.GetRequiredService<IRepoMigrationService>();
+        var sendReceiveService = context.RequestServices.GetRequiredService<ISendReceiveService>();
         var hgType = context.GetEndpoint()?.Metadata.OfType<HgType>().FirstOrDefault() ?? throw new ArgumentException("Unknown HG request type");
 
-        var requestInfo = await lexProxyService.GetDestinationPrefix(hgType, projectCode);
-        if (requestInfo is null)
-        {
-            await Results.NotFound().ExecuteAsync(context);
-            return;
-        }
+        var requestInfo = lexProxyService.GetDestinationPrefix(hgType);
 
-        Activity.Current?.AddTag("app.project_migrated", requestInfo.Status == ProjectMigrationStatus.Migrated);
-        //notify the migration service that this project is being accessed, this will block migrations from starting
-        using var sendReceiveTicket = await repoMigrationService.BeginSendReceive(projectCode, requestInfo.Status);
-        //if there's a race condition then requestInfo could show that the project is not migrating, when it already is at this time
-        if (sendReceiveTicket is null) throw new ProjectMigratingException(projectCode);
+        using var sendReceiveTicket = await sendReceiveService.BeginSendReceive(projectCode);
+        if (sendReceiveTicket is null) throw new ProjectLockedException(projectCode);
 
-        if (hgType == HgType.hgWeb && context.Request.Path.StartsWithSegments("/hg"))
-        {
-            context.Request.Path = context.Request.Path.Value!["/hg".Length..];
-        }
-
-        if (requestInfo.TrustToken is not null && context.User.Identity?.IsAuthenticated == true)
-        {
-            var basicBytes = Encoding.ASCII.GetBytes($"{context.User.Identity.Name}:{requestInfo.TrustToken}");
-            context.Request.Headers.Authorization = $"Basic {Convert.ToBase64String(basicBytes)}";
-        }
-
-        await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient);
+        await forwarder.SendAsync(context, requestInfo.DestinationPrefix, httpClient, ForwarderRequestConfig.Empty, transformer);
         try
         {
             switch (hgType)
@@ -123,6 +112,9 @@ public static class ProxyKernel
                     await eventsService.OnResumableRequest(context);
                     break;
             }
+
+            if (hgService.HasAbandonedTransactions(projectCode))
+                Activity.Current?.AddTag("app.abandoned_transaction_detected", true);
         }
         catch (Exception e)
         {

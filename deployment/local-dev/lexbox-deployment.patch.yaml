@@ -39,12 +39,6 @@ spec:
           - name: Email__SmtpPassword
             value: 'maildev_pass'
             valueFrom:
-          - name: HgConfig__RedmineTrustToken
-            valueFrom:
-              secretKeyRef:
-                key: RedmineTrustToken
-                name: lexbox-api
-                optional: true
           - name: HgConfig__LfMergeTrustToken
             value: 'dummy'
             valueFrom:

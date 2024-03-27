@@ -1,13 +1,14 @@
 <script lang="ts">
   import EmailVerificationStatus, { initEmailResult, initRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
-  import { AdminIcon } from '$lib/icons';
+  import { AdminIcon, Icon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
   import { onMount } from 'svelte';
   import { ensureClientMatchesUser } from '$lib/gql';
   import { beforeNavigate } from '$app/navigation';
   import { page } from '$app/stores';
   import type { LayoutData } from '../../routes/$types';
+  import DevContent from './DevContent.svelte';
 
   let menuToggle = false;
   $: data = $page.data as LayoutData;
@@ -37,16 +38,26 @@
 
     <div class="drawer-content max-w-[100vw]">
       <AppBar {user} />
-      <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center">
+      <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center gap-2">
         <Breadcrumbs />
-        <AdminContent>
-          <a href="/admin" class="btn btn-sm btn-accent">
-            <span class="max-sm:hidden">
-              {$t('admin_dashboard.title')}
-            </span>
-            <AdminIcon />
-          </a>
-        </AdminContent>
+        <div class="flex gap-4 items-center">
+          <DevContent>
+            <a href="/sandbox" class="btn btn-sm btn-secondary">
+              <span class="max-sm:hidden">
+                Sandbox
+              </span>
+              <Icon size="text-2xl" icon="i-mdi-box-variant" />
+            </a>
+          </DevContent>
+          <AdminContent>
+            <a href="/admin" class="btn btn-sm btn-accent">
+              <span class="max-sm:hidden">
+                {$t('admin_dashboard.title')}
+              </span>
+              <AdminIcon />
+            </a>
+          </AdminContent>
+        </div>
       </div>
 
       <div class="max-w-prose mx-auto email-status-container">
@@ -57,8 +68,7 @@
         <slot />
       </Content>
     </div>
-    <!-- md:overflow-x-hidden due to: https://github.com/saadeghi/daisyui/issues/2622 -->
-    <div class="drawer-side md:overflow-x-hidden z-10">
+    <div class="drawer-side z-10">
       <!-- using a label means it works before hydration is complete -->
       <label for="drawer-toggle" class="drawer-overlay" />
       <AppMenu {user} serverVersion={data.serverVersion} apiVersion={data.apiVersion} />

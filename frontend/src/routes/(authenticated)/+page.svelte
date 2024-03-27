@@ -76,7 +76,7 @@
     </div>
   </svelte:fragment>
   <svelte:fragment slot="actions">
-    {#if data.user.emailVerified}
+    {#if data.user.emailVerified && !data.user.createdByAdmin}
       <a href="/project/create" class="btn btn-success">
         {$t('project.create.title')}
         <span class="i-mdi-plus text-2xl" />

@@ -20,26 +20,27 @@ namespace Testing.SyncReverseProxy;
 [Trait("Category", "Integration")]
 public class SendReceiveServiceTests
 {
-    public SendReceiveAuth ManagerAuth = new("manager", TestingEnvironmentVariables.DefaultPassword);
-    public SendReceiveAuth AdminAuth = new("admin", TestingEnvironmentVariables.DefaultPassword);
-    public SendReceiveAuth InvalidPass = new("manager", "incorrect_pass");
-    public SendReceiveAuth InvalidUser = new("invalid_user", TestingEnvironmentVariables.DefaultPassword);
-    public SendReceiveAuth UnauthorizedUser = new("user", TestingEnvironmentVariables.DefaultPassword);
+    private readonly SendReceiveAuth ManagerAuth = new("manager", TestingEnvironmentVariables.DefaultPassword);
+    private readonly SendReceiveAuth AdminAuth = new("admin", TestingEnvironmentVariables.DefaultPassword);
+    private readonly SendReceiveAuth InvalidPass = new("manager", "incorrect_pass");
+    private readonly SendReceiveAuth InvalidUser = new("invalid_user", TestingEnvironmentVariables.DefaultPassword);
+    private readonly SendReceiveAuth UnauthorizedUser = new("user", TestingEnvironmentVariables.DefaultPassword);
 
     private readonly ITestOutputHelper _output;
-    private string _basePath = Path.Join(Path.GetTempPath(), "SR_Tests");
-    private SendReceiveService _sendReceiveService;
+
+    private readonly SendReceiveService _sendReceiveService;
 
     public SendReceiveServiceTests(ITestOutputHelper output)
     {
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
-        CleanUpTempDir();
     }
 
-    private void CleanUpTempDir()
+    private static readonly string BasePath = Path.Join(Path.GetTempPath(), "SR_Tests");
+    private static int _folderIndex = 1;
+    static SendReceiveServiceTests()
     {
-        var dirInfo = new DirectoryInfo(_basePath);
+        var dirInfo = new DirectoryInfo(BasePath);
         try
         {
             dirInfo.Delete(true);
@@ -50,13 +51,12 @@ public class SendReceiveServiceTests
         }
     }
 
-    private static int _folderIndex = 1;
 
     private string GetProjectDir(string projectCode,
         string? identifier = null,
         [CallerMemberName] string testName = "")
     {
-        var projectDir = Path.Join(_basePath, testName);
+        var projectDir = Path.Join(BasePath, testName);
         if (identifier is not null) projectDir = Path.Join(projectDir, identifier);
         //fwdata file containing folder name will be the same as the file name
         projectDir = Path.Join(projectDir, _folderIndex++.ToString(), projectCode);
@@ -282,6 +282,9 @@ query projectLastCommit {
         // Step 1: reset project
         await apiTester.HttpClient.PostAsync($"{apiTester.BaseUrl}/api/project/resetProject/{newProjectCode}", null);
         await apiTester.HttpClient.PostAsync($"{apiTester.BaseUrl}/api/project/finishResetProject/{newProjectCode}", null);
+
+        // Sleep 5 seconds to ensure hgweb picks up newly-reset project
+        await Task.Delay(TimeSpan.FromSeconds(5));
 
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await apiTester.HttpClient.GetAsync(tipUri.Uri);

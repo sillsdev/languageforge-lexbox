@@ -31,6 +31,11 @@ public class PermissionService(
         if (!await CanAccessProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
+    public void AssertCanAccessProject(Guid projectId)
+    {
+        if (!CanAccessProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
     public bool CanManageProject(Guid projectId)
     {
         if (User is null) return false;
@@ -78,5 +83,15 @@ public class PermissionService(
     public void AssertHasProjectCreatePermission()
     {
         if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
+    }
+
+    public bool HasProjectRequestPermission()
+    {
+        return User is not ({ CreatedByAdmin: true } or { Email: null } or { EmailVerificationRequired: true });
+    }
+
+    public void AssertHasProjectRequestPermission()
+    {
+        if (!HasProjectRequestPermission()) throw new UnauthorizedAccessException();
     }
 }

@@ -5,11 +5,14 @@ using LexBoxApi.Services;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace LexBoxApi;
 
 public static class LexBoxKernel
 {
+    public const string SwaggerDocumentName = "v1";
+
     public static void AddLexBoxApi(this IServiceCollection services,
         ConfigurationManager configuration,
         IWebHostEnvironment environment)
@@ -48,13 +51,26 @@ public static class LexBoxKernel
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
         services.AddScoped<ILexProxyService, LexProxyService>();
+        services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();
-        services.AddSingleton<RepoMigrationService>();
-        services.AddSingleton<IRepoMigrationService>(provider => provider.GetRequiredService<RepoMigrationService>());
-        services.AddHostedService(provider => provider.GetRequiredService<RepoMigrationService>());
+        if (environment.IsDevelopment())
+            services.AddHostedService<SwaggerValidationService>();
         services.AddScheduledTasks(configuration);
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
+    }
+
+    private class SwaggerValidationService(IAsyncSwaggerProvider swaggerProvider): IHostedService
+    {
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await swaggerProvider.GetSwaggerAsync(SwaggerDocumentName);
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

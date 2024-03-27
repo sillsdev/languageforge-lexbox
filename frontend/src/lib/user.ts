@@ -29,6 +29,7 @@ type JwtTokenUser = {
   lock: boolean | undefined,
   unver: boolean | undefined,
   mkproj: boolean | undefined,
+  creat: boolean | undefined,
   loc: string,
 }
 
@@ -41,6 +42,7 @@ export type LexAuthUser = {
   locked: boolean
   emailVerified: boolean
   canCreateProjects: boolean
+  createdByAdmin: boolean
   locale: string
 }
 type UserProjectRole = 'Manager' | 'Editor' | 'Unknown';
@@ -137,6 +139,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     locked: user.lock === true,
     emailVerified: !user.unver,
     canCreateProjects: user.mkproj === true || role === 'admin',
+    createdByAdmin: user.creat ?? false,
     locale: user.loc,
   }
 }

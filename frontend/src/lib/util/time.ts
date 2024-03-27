@@ -1,4 +1,4 @@
-import { writable, type Readable } from 'svelte/store';
+import { writable, type Readable, derived } from 'svelte/store';
 
 export const enum Duration {
   Default = 5000,
@@ -6,7 +6,7 @@ export const enum Duration {
   Long = 15000,
 }
 
-export async function delay<T>(ms = Duration.Default): Promise<T> {
+export async function delay<T>(ms: Duration | number = Duration.Default): Promise<T> {
   return new Promise<T>(resolve => setTimeout(resolve, ms));
 }
 
@@ -19,14 +19,18 @@ interface Debouncer<P extends any[]> {
   clear: () => void;
 }
 
+function pickDebounceTime(debounce: number | boolean): number {
+  return typeof debounce === 'number' ? debounce : DEFAULT_DEBOUNCE_TIME;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function debounce<P extends any[]>(fn: (...args: P) => void, debounce: number | boolean = DEFAULT_DEBOUNCE_TIME): Debouncer<P> {
+export function makeDebouncer<P extends any[]>(fn: Debouncer<P>['debounce'], debounce: number | boolean = DEFAULT_DEBOUNCE_TIME): Debouncer<P> {
   const debouncing = writable(false);
 
   if (!debounce) {
     return { debounce: fn, debouncing, clear: () => { } };
   } else {
-    const debounceTime = typeof debounce === 'number' ? debounce : DEFAULT_DEBOUNCE_TIME;
+    const debounceTime = pickDebounceTime(debounce);
     let timeout: ReturnType<typeof setTimeout>;
     return {
       debounce: (...args: P) => {
@@ -47,4 +51,29 @@ export function debounce<P extends any[]>(fn: (...args: P) => void, debounce: nu
       },
     };
   }
+}
+
+/**
+ * @param fn A function that maps the store value to an async result
+ * @returns A store that contains the result of the async function, optionally debounced
+ */
+export function deriveAsync<T, D>(
+  store: Readable<T>,
+  fn: (value: T) => Promise<D>,
+  initialValue?: D,
+  debounce: number | boolean = false): Readable<D> {
+
+  const debounceTime = pickDebounceTime(debounce);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  return derived(store, (value, set) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const myTimeout = timeout;
+      void fn(value).then((result) => {
+        if (myTimeout !== timeout) return; // discard outdated results
+        set(result);
+      });
+    }, debounceTime);
+  }, initialValue);
 }

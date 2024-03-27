@@ -37,12 +37,37 @@ public class LexQueries
         }
     }
 
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    [AdminRequired]
+    public IQueryable<DraftProject> DraftProjects(LexBoxDbContext context)
+    {
+        return context.DraftProjects;
+    }
+
+    [UseSingleOrDefault]
+    [UseProjection]
+    public IQueryable<Project> ProjectById(LexBoxDbContext context, IPermissionService permissionService, Guid projectId)
+    {
+        permissionService.AssertCanAccessProject(projectId);
+        return context.Projects.Where(p => p.Id == projectId);
+    }
+
     [UseSingleOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> ProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
     {
         await permissionService.AssertCanAccessProject(code);
         return context.Projects.Where(p => p.Code == code);
+    }
+
+    [UseSingleOrDefault]
+    [UseProjection]
+    [AdminRequired]
+    public IQueryable<DraftProject> DraftProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
+    {
+        return context.DraftProjects.Where(p => p.Code == code);
     }
 
     [UseOffsetPaging]

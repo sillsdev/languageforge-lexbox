@@ -22,7 +22,6 @@ public class ProjectServiceTest
         var serviceProvider = testing.ConfigureServices(s =>
         {
             s.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
-            s.AddScoped<IRepoMigrationService>(_ => Mock.Of<IRepoMigrationService>());
             s.AddSingleton<IMemoryCache>(_ => Mock.Of<IMemoryCache>());
             s.AddScoped<ProjectService>();
         });

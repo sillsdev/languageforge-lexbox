@@ -2,16 +2,12 @@ name: Integration Tests
 on:
   workflow_call:
     inputs:
-      test-domain:
-        description: 'Test Domain'
+      environment:
+        description: 'The environment to test'
         required: true
         type: string
       runs-on:
         description: 'The runner to use'
-        required: true
-        type: string
-      hg-domain:
-        description: 'The domain to use for hg'
         required: true
         type: string
       hg-version:
@@ -19,22 +15,14 @@ on:
         required: false
         default: '3'
         type: string
-      http-scheme:
-        description: 'http scheme'
-        type: string
-        default: 'https'
   workflow_dispatch:
     inputs:
-      test-domain:
-        description: 'Test Domain'
+      environment:
+        description: 'The environment to test'
         required: true
         type: string
       runs-on:
         description: 'The runner to use'
-        required: true
-        type: string
-      hg-domain:
-        description: 'The domain to use for hg'
         required: true
         type: string
       hg-version:
@@ -42,19 +30,15 @@ on:
         required: false
         default: '3'
         type: string
-      http-scheme:
-        description: 'http scheme'
-        type: string
-        default: 'https'
 
 jobs:
   test:
     timeout-minutes: 60
-    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.test-domain }}
+    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ vars.TEST_SERVER_HOSTNAME }}
     permissions:
       checks: write
     environment:
-      name: staging
+      name: ${{ inputs.environment }}
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3
@@ -66,8 +50,8 @@ jobs:
           sudo apt-get install -f
           rm powershell_7.4.1-1.deb_amd64.deb
           sudo apt-get update
-          sudo apt-get install -y zlib1g-dev libssl-dev #needed by setup python
-          pwsh
+          sudo apt-get install -y p7zip-full zlib1g-dev libssl-dev #needed by setup python
+          pwsh #validate that powershell installed correctly
       - uses: actions/setup-dotnet@v3
         env:
           DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
@@ -75,31 +59,32 @@ jobs:
           dotnet-version: '8.x'
       - uses: MatteoH2O1999/setup-python@v3.0.0
         id: python
-        if: ${{ inputs.runs-on != 'windows-latest' && !env.act }}
+        if: ${{ inputs.runs-on != 'windows-latest' && !env.act && inputs.hg-version == '3' }}
         with:
           python-version: '2.7.18'
           cache-build: true
           allow-build: allow
       - name: Link python
-        if: ${{ inputs.runs-on != 'windows-latest' }}
+        if: ${{ inputs.runs-on != 'windows-latest' && inputs.hg-version == '3' }}
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
         run: dotnet build
       - name: Playwright setup
         working-directory: backend/Testing
-        run: pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
+        run: |
+          ${{inputs.runs-on != 'windows-latest' && 'sudo' || '' }} pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install-deps
+          pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
       - name: Integration tests
         env:
-          TEST_SERVER_HOSTNAME: ${{ inputs.test-domain }}
+          TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
-          TEST_STANDARD_HG_HOSTNAME: ${{ inputs.hg-domain }}
-          TEST_RESUMABLE_HG_HOSTNAME: resumable-${{ inputs.test-domain }}
-          TEST_HTTP_SCHEME: ${{ inputs.http-scheme }}
+          TEST_STANDARD_HG_HOSTNAME: ${{ vars.TEST_STANDARD_HG_HOSTNAME }}
+          TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
@@ -117,7 +102,7 @@ jobs:
           files: ./test-results/*.trx
       - name: Upload playwright results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces-${{ inputs.runs-on }}
+          name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
           path: ./playwright-traces.7z

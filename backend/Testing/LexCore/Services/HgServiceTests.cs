@@ -16,9 +16,6 @@ public class HgServiceTests
 {
     private const string LexboxHgWeb = "https://hg.lexbox";
     private const string LexboxResumable = "https://resumable.lexbox";
-    private const string RedmineResumable = "https://resumable.redmine";
-    private const string RedminePublic = "https://public.redmine";
-    private const string RedminePrivate = "https://private.redmine";
     private readonly string _basePath = Path.Join(Path.GetTempPath(), "HgServiceTests");
     private readonly HgConfig _hgConfig;
     private readonly HgService _hgService;
@@ -31,10 +28,6 @@ public class HgServiceTests
             HgWebUrl = LexboxHgWeb,
             HgCommandServer = LexboxHgWeb + "/command/",
             HgResumableUrl = LexboxResumable,
-            PublicRedmineHgWebUrl = RedminePublic,
-            PrivateRedmineHgWebUrl = RedminePrivate,
-            RedmineHgResumableUrl = RedmineResumable,
-            RedmineTrustToken = "tt",
             SendReceiveDomain = LexboxHgWeb
         };
         _hgService = new HgService(new OptionsWrapper<HgConfig>(_hgConfig),
@@ -53,25 +46,11 @@ public class HgServiceTests
 
     [Theory]
     //lexbox
-    [InlineData(HgType.hgWeb, ProjectMigrationStatus.Migrated, LexboxHgWeb)]
-    [InlineData(HgType.resumable, ProjectMigrationStatus.Migrated, LexboxResumable)]
-    //redmine
-    [InlineData(HgType.hgWeb, ProjectMigrationStatus.PublicRedmine, RedminePublic)]
-    [InlineData(HgType.hgWeb, ProjectMigrationStatus.PrivateRedmine, RedminePrivate)]
-    [InlineData(HgType.resumable, ProjectMigrationStatus.PublicRedmine, RedmineResumable)]
-    [InlineData(HgType.resumable, ProjectMigrationStatus.PrivateRedmine, RedmineResumable)]
-    public void DetermineProjectPrefixWorks(HgType type, ProjectMigrationStatus status, string expectedUrl)
+    [InlineData(HgType.hgWeb, LexboxHgWeb)]
+    [InlineData(HgType.resumable, LexboxResumable)]
+    public void DetermineProjectPrefixWorks(HgType type, string expectedUrl)
     {
-        HgService.DetermineProjectUrlPrefix(type, "test", status, _hgConfig).ShouldBe(expectedUrl);
-    }
-
-    [Theory]
-    [InlineData(HgType.hgWeb)]
-    [InlineData(HgType.resumable)]
-    public void ThrowsIfMigrating(HgType type)
-    {
-        var act = () => HgService.DetermineProjectUrlPrefix(type, "test", ProjectMigrationStatus.Migrating, _hgConfig);
-        act.ShouldThrow<ProjectMigratingException>();
+        HgService.DetermineProjectUrlPrefix(type, _hgConfig).ShouldBe(expectedUrl);
     }
 
     [Theory]
@@ -79,22 +58,34 @@ public class HgServiceTests
     [InlineData("unzip-test/.hg/important-file.bin")]
     public async Task CanFinishResetByUnZippingAnArchive(string filePath)
     {
+        // arrange
         var code = "unzip-test";
         await _hgService.InitRepo(code);
-        var repoPath = Path.GetFullPath(Path.Join(_hgConfig.RepoPath, code));
+
+        // act
         using var stream = new MemoryStream();
         using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
         {
             CreateSimpleEntry(zipArchive, filePath);
             CreateSimpleEntry(zipArchive, "random-subfolder/other-file.txt");
         }
-
         stream.Position = 0;
         await _hgService.FinishReset(code, stream);
 
+        // assert
+        var repoPath = Path.GetFullPath(Path.Join(_hgConfig.RepoPath, "u", code));
         Directory.EnumerateFiles(repoPath, "*", SearchOption.AllDirectories)
             .Select(p => Path.GetRelativePath(repoPath, p))
             .ShouldHaveSingleItem().ShouldBe(Path.Join(".hg", "important-file.bin"));
+    }
+
+    [Theory]
+    [InlineData("-xy")]
+    [InlineData("-x-y-z")]
+    [InlineData("-123")]
+    private async void ProjectCodesMayNotStartWithHyphen(string code)
+    {
+        await Assert.ThrowsAsync<ArgumentException>(() => _hgService.InitRepo(code));
     }
 
     private void CreateSimpleEntry(ZipArchive zipArchive, string filePath)

@@ -21,6 +21,17 @@ type AuthUserProject {
   projectId: UUID!
 }
 
+type BulkAddProjectMembersPayload {
+  bulkAddProjectMembersResult: BulkAddProjectMembersResult
+  errors: [BulkAddProjectMembersError!]
+}
+
+type BulkAddProjectMembersResult {
+  addedMembers: [UserProjectRole!]!
+  createdMembers: [UserProjectRole!]!
+  existingMembers: [UserProjectRole!]!
+}
+
 type ChangeProjectDescriptionPayload {
   project: Project
   errors: [ChangeProjectDescriptionError!]
@@ -86,6 +97,18 @@ type DeleteUserByAdminOrSelfPayload {
   errors: [DeleteUserByAdminOrSelfError!]
 }
 
+type DraftProject {
+  name: String!
+  description: String!
+  code: String!
+  type: ProjectType!
+  retentionPolicy: RetentionPolicy!
+  projectManagerId: UUID
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
 type FlexProjectMetadata {
   projectId: UUID!
   project: Project!
@@ -96,11 +119,20 @@ type IsAdminResponse {
   value: Boolean!
 }
 
+type LastMemberCantLeaveError implements Error {
+  message: String!
+}
+
+type LeaveProjectPayload {
+  project: Project
+  errors: [LeaveProjectError!]
+}
+
 type LexAuthUser {
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
-  email: String!
+  email: String
   name: String!
   role: UserRole!
   isAdmin: Boolean!
@@ -109,6 +141,7 @@ type LexAuthUser {
   locked: Boolean
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
+  createdByAdmin: Boolean
   locale: String!
 }
 
@@ -122,9 +155,11 @@ type MeDto {
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
+  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
+  leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
@@ -140,10 +175,10 @@ type NotFoundError implements Error {
 type Project {
   code: String!
   createdDate: DateTime!
-  migrationStatus: ProjectMigrationStatus!
   id: UUID!
   users: [ProjectUsers!]!
   changesets: [Changeset!]!
+  hasAbandonedTransactions: Boolean!
   parentId: UUID
   name: String!
   description: String
@@ -157,6 +192,10 @@ type Project {
   migratedDate: DateTime
   userCount: Int!
   updatedDate: DateTime!
+}
+
+type ProjectCreatorsMustHaveEmail implements Error {
+  message: String!
 }
 
 type ProjectMemberInvitedByEmail implements Error {
@@ -181,7 +220,10 @@ type ProjectUsers {
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
+  draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
+  projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
+  draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
   meAuth: LexAuthUser!
@@ -212,7 +254,7 @@ type UniqueValueError implements Error {
 }
 
 type User {
-  email: String! @authorize(policy: "AdminRequiredPolicy")
+  email: String @authorize(policy: "AdminRequiredPolicy")
   emailVerified: Boolean! @authorize(policy: "AdminRequiredPolicy")
   username: String @authorize(policy: "AdminRequiredPolicy")
   projects: [ProjectUsers!]! @authorize(policy: "AdminRequiredPolicy")
@@ -223,10 +265,18 @@ type User {
   passwordStrength: Int
   lastActive: DateTime!
   canCreateProjects: Boolean!
+  createdById: UUID
+  createdBy: User
+  usersICreated: [User!]!
   googleId: String
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
+}
+
+type UserProjectRole {
+  username: String!
+  role: ProjectRole!
 }
 
 "A segment of a collection."
@@ -240,9 +290,11 @@ type UsersCollectionSegment {
 
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
 
+union BulkAddProjectMembersError = NotFoundError | DbError
+
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
-union ChangeProjectMemberRoleError = NotFoundError | DbError
+union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified
 
 union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
@@ -250,9 +302,11 @@ union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
 union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 
-union CreateProjectError = DbError | AlreadyExistsError
+union CreateProjectError = DbError | AlreadyExistsError | ProjectCreatorsMustHaveEmail
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
+
+union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union SetUserLockedError = NotFoundError
 
@@ -267,6 +321,13 @@ input AddProjectMemberInput {
 input BooleanOperationFilterInput {
   eq: Boolean
   neq: Boolean
+}
+
+input BulkAddProjectMembersInput {
+  projectId: UUID!
+  usernames: [String!]!
+  role: ProjectRole!
+  passwordHash: String!
 }
 
 input ChangeProjectDescriptionInput {
@@ -328,6 +389,32 @@ input DeleteUserByAdminOrSelfInput {
   userId: UUID!
 }
 
+input DraftProjectFilterInput {
+  and: [DraftProjectFilterInput!]
+  or: [DraftProjectFilterInput!]
+  name: StringOperationFilterInput
+  description: StringOperationFilterInput
+  code: StringOperationFilterInput
+  type: ProjectTypeOperationFilterInput
+  retentionPolicy: RetentionPolicyOperationFilterInput
+  projectManagerId: UuidOperationFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+}
+
+input DraftProjectSortInput {
+  name: SortEnumType
+  description: SortEnumType
+  code: SortEnumType
+  type: SortEnumType
+  retentionPolicy: SortEnumType
+  projectManagerId: SortEnumType
+  id: SortEnumType
+  createdDate: SortEnumType
+  updatedDate: SortEnumType
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
@@ -357,10 +444,21 @@ input IntOperationFilterInput {
   nlte: Int
 }
 
+input LeaveProjectInput {
+  projectId: UUID!
+}
+
 input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput
   none: ProjectUsersFilterInput
   some: ProjectUsersFilterInput
+  any: Boolean
+}
+
+input ListFilterInputTypeOfUserFilterInput {
+  all: UserFilterInput
+  none: UserFilterInput
+  some: UserFilterInput
   any: Boolean
 }
 
@@ -379,7 +477,6 @@ input ProjectFilterInput {
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
   projectOrigin: ProjectMigrationStatusOperationFilterInput
-  migrationStatus: ProjectMigrationStatusOperationFilterInput
   migratedDate: DateTimeOperationFilterInput
   userCount: IntOperationFilterInput
   id: UuidOperationFilterInput
@@ -413,7 +510,6 @@ input ProjectSortInput {
   deletedDate: SortEnumType
   resetStatus: SortEnumType
   projectOrigin: SortEnumType
-  migrationStatus: SortEnumType
   migratedDate: SortEnumType
   userCount: SortEnumType
   id: SortEnumType
@@ -498,6 +594,9 @@ input UserFilterInput {
   lastActive: DateTimeOperationFilterInput
   emailVerified: BooleanOperationFilterInput
   canCreateProjects: BooleanOperationFilterInput
+  createdById: UuidOperationFilterInput
+  createdBy: UserFilterInput
+  usersICreated: ListFilterInputTypeOfUserFilterInput
   locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
   googleId: StringOperationFilterInput
@@ -518,6 +617,8 @@ input UserSortInput {
   lastActive: SortEnumType
   emailVerified: SortEnumType
   canCreateProjects: SortEnumType
+  createdById: SortEnumType
+  createdBy: UserSortInput
   locked: SortEnumType
   username: SortEnumType
   googleId: SortEnumType
