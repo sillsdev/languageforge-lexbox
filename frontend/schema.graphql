@@ -148,7 +148,7 @@ type LexAuthUser {
 type MeDto {
   id: UUID!
   name: String!
-  email: String!
+  email: String
   locale: String!
 }
 
@@ -348,14 +348,14 @@ input ChangeProjectNameInput {
 input ChangeUserAccountByAdminInput {
   role: UserRole!
   userId: UUID!
-  email: String!
+  email: String
   name: String!
 }
 
 input ChangeUserAccountBySelfInput {
   locale: String!
   userId: UUID!
-  email: String!
+  email: String
   name: String!
 }
 

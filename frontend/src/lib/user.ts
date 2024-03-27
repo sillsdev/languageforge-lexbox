@@ -23,7 +23,7 @@ type RegisterResponseErrors = {
 type JwtTokenUser = {
   sub: string
   name: string
-  email: string
+  email?: string
   role: 'admin' | 'user'
   proj?: string,
   lock: boolean | undefined,
@@ -36,7 +36,7 @@ type JwtTokenUser = {
 export type LexAuthUser = {
   id: string
   name: string
-  email: string
+  email?: string
   role: 'admin' | 'user'
   projects: UserProjects[]
   locked: boolean

@@ -16,7 +16,7 @@
   export let deleteUser: (user: User) => void;
 
   const schema = z.object({
-    email: z.string().email($t('form.invalid_email')),
+    email: z.string().email($t('form.invalid_email')).nullable().default(null),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
     role: z.enum([UserRole.User, UserRole.Admin]),
@@ -34,7 +34,7 @@
     _user = user;
     userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email ?? undefined, role }, async () => {
+    return await formModal.open({ name: user.name, email: user.email ?? null, role }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,

@@ -35,7 +35,7 @@
   }
 
   const formSchema = z.object({
-    email: z.string().email($t('form.invalid_email')),
+    email: z.string().email($t('form.invalid_email')).nullable().default(null),
     name: z.string(),
     locale: z.string().min(2),
   });
@@ -66,7 +66,7 @@
   onMount(() => {
     form.set(
       {
-        email: $user.email,
+        email: $user.email ?? null,
         name: $user.name,
         locale: $user.locale,
       },
