@@ -68,5 +68,11 @@
     autofocus
   />
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="submitText">{$t('project_page.add_user.submit_button')}</span>
+  <span slot="submitText">
+    {#if $form.usernameOrEmail.includes('@')}
+      {$t('project_page.add_user.submit_button_email')}
+    {:else}
+      {$t('project_page.add_user.submit_button')}
+    {/if}
+  </span>
 </FormModal>
