@@ -10,3 +10,8 @@ export function concatAll<T>(...values: (T | T[] | undefined)[]): T[] {
   }
   return mergedResult;
 }
+
+// https://stackoverflow.com/a/14438954/2301416
+export function distinct(value: unknown, index: number, array: unknown[]): boolean {
+  return array.indexOf(value) === index;
+}

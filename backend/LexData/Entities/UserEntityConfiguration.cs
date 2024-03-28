@@ -13,29 +13,44 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
         base.Configure(builder);
         builder.Property(u => u.LocalizationCode).HasDefaultValue(User.DefaultLocalizationCode);
         builder.Property(u => u.Username).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
+        builder.HasIndex(u => u.Username).IsUnique();
         builder.Property(u => u.Email).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
         builder.HasIndex(u => u.Email).IsUnique();
         builder.HasMany(user => user.Projects)
             .WithOne(projectUser => projectUser.User)
             .HasForeignKey(projectUser => projectUser.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(user => user.UsersICreated)
+            .WithOne(user => user.CreatedBy)
+            .HasForeignKey(user => user.CreatedById)
+            // We won't allow deleting admin users until their created accounts are  reassigned
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 
 
 public static class UserEntityExtensions
 {
-    public static Expression<Func<User, bool>> FilterByEmail(string email)
+    public static Expression<Func<User, bool>> FilterByEmailOrUsername(string emailOrUsername)
     {
-        return user => user.Email == email || user.Username == email;
+        return user => user.Email == emailOrUsername || user.Username == emailOrUsername;
     }
-    public static IQueryable<User> FilterByEmail(this IQueryable<User> users, string email)
+    public static IQueryable<User> FilterByEmailOrUsername(this IQueryable<User> users, string emailOrUsername)
     {
-        return users.Where(FilterByEmail(email));
+        return users.Where(FilterByEmailOrUsername(emailOrUsername));
     }
 
-    public static async Task<User?> FindByEmail(this IQueryable<User> users, string email)
+    public static async Task<User?> FindByEmailOrUsername(this IQueryable<User> users, string emailOrUsername)
     {
-        return await users.FilterByEmail(email).FirstOrDefaultAsync();
+        return await users.FilterByEmailOrUsername(emailOrUsername).FirstOrDefaultAsync();
+    }
+
+    public static bool HasVerifiedEmailForRole(this User user, ProjectRole forRole = ProjectRole.Unknown)
+    {
+        // Users bulk-created by admins might not have email addresses, and that's okay
+        // BUT if they are to be project managers, they must have verified email addresses
+        if (forRole == ProjectRole.Editor && user.CreatedById is not null) return true;
+        // Otherwise, we can simply use the EmailVerified property
+        return user.Email is not null && user.EmailVerified;
     }
 }

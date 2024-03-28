@@ -24,7 +24,7 @@ public class LegacyProjectApiController : ControllerBase
         _lexProxyService = lexProxyService;
     }
 
-    public record ProjectsInput([Required(AllowEmptyStrings = true)] string Password);
+    public record ProjectsInput(string Password);
 
     [AllowAnonymous]
     [HttpPost("/api/user/{userName}/projects")]
@@ -46,7 +46,7 @@ public class LegacyProjectApiController : ControllerBase
     {
         var password = input.Password;
 
-        var user = await _lexBoxDbContext.Users.FilterByEmail(userName)
+        var user = await _lexBoxDbContext.Users.FilterByEmailOrUsername(userName)
             .Select(user => new
             {
                 user.Salt,

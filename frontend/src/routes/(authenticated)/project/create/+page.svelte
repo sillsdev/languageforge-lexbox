@@ -31,8 +31,12 @@
     languageCode: z
       .string()
       .min(2, $t('project.create.language_code_too_short'))
-      .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
-    code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
+      .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.language_code_invalid')),
+    code: z
+      .string()
+      .toLowerCase()
+      .min(4, $t('project.create.code_too_short'))
+      .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.code_invalid')),
     customCode: z.boolean().default(false),
   });
 
@@ -79,6 +83,7 @@
     [ProjectType.WeSay]: 'dictionary',
     [ProjectType.OneStoryEditor]: 'onestory',
     [ProjectType.OurWord]: 'ourword',
+    [ProjectType.AdaptIt]: 'aikb',
   };
 
   const policyCodeMap: Partial<Record<RetentionPolicy, string | undefined>> = {

@@ -21,6 +21,17 @@ type AuthUserProject {
   projectId: UUID!
 }
 
+type BulkAddProjectMembersPayload {
+  bulkAddProjectMembersResult: BulkAddProjectMembersResult
+  errors: [BulkAddProjectMembersError!]
+}
+
+type BulkAddProjectMembersResult {
+  addedMembers: [UserProjectRole!]!
+  createdMembers: [UserProjectRole!]!
+  existingMembers: [UserProjectRole!]!
+}
+
 type ChangeProjectDescriptionPayload {
   project: Project
   errors: [ChangeProjectDescriptionError!]
@@ -125,7 +136,7 @@ type LexAuthUser {
   id: UUID!
   updatedDate: Long!
   audience: LexboxAudience!
-  email: String!
+  email: String
   name: String!
   role: UserRole!
   isAdmin: Boolean!
@@ -134,6 +145,7 @@ type LexAuthUser {
   locked: Boolean
   emailVerificationRequired: Boolean
   canCreateProjects: Boolean
+  createdByAdmin: Boolean
   locale: String!
 }
 
@@ -147,6 +159,7 @@ type MeDto {
 type Mutation {
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
+  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
@@ -185,6 +198,10 @@ type Project {
   updatedDate: DateTime!
 }
 
+type ProjectCreatorsMustHaveEmail implements Error {
+  message: String!
+}
+
 type ProjectMemberInvitedByEmail implements Error {
   message: String!
 }
@@ -208,6 +225,7 @@ type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
+  projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
@@ -240,7 +258,7 @@ type UniqueValueError implements Error {
 }
 
 type User {
-  email: String! @authorize(policy: "AdminRequiredPolicy")
+  email: String @authorize(policy: "AdminRequiredPolicy")
   emailVerified: Boolean! @authorize(policy: "AdminRequiredPolicy")
   username: String @authorize(policy: "AdminRequiredPolicy")
   projects: [ProjectUsers!]! @authorize(policy: "AdminRequiredPolicy")
@@ -250,10 +268,18 @@ type User {
   isAdmin: Boolean!
   lastActive: DateTime!
   canCreateProjects: Boolean!
+  createdById: UUID
+  createdBy: User
+  usersICreated: [User!]!
   googleId: String
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
+}
+
+type UserProjectRole {
+  username: String!
+  role: ProjectRole!
 }
 
 "A segment of a collection."
@@ -267,9 +293,11 @@ type UsersCollectionSegment {
 
 union AddProjectMemberError = InvalidOperationError | NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail | AlreadyExistsError
 
+union BulkAddProjectMembersError = NotFoundError | DbError
+
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
-union ChangeProjectMemberRoleError = NotFoundError | DbError
+union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified
 
 union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
@@ -277,7 +305,7 @@ union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
 union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 
-union CreateProjectError = DbError | AlreadyExistsError
+union CreateProjectError = DbError | AlreadyExistsError | ProjectCreatorsMustHaveEmail
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
@@ -296,6 +324,13 @@ input AddProjectMemberInput {
 input BooleanOperationFilterInput {
   eq: Boolean
   neq: Boolean
+}
+
+input BulkAddProjectMembersInput {
+  projectId: UUID!
+  usernames: [String!]!
+  role: ProjectRole!
+  passwordHash: String!
 }
 
 input ChangeProjectDescriptionInput {
@@ -420,6 +455,13 @@ input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput
   none: ProjectUsersFilterInput
   some: ProjectUsersFilterInput
+  any: Boolean
+}
+
+input ListFilterInputTypeOfUserFilterInput {
+  all: UserFilterInput
+  none: UserFilterInput
+  some: UserFilterInput
   any: Boolean
 }
 
@@ -554,6 +596,9 @@ input UserFilterInput {
   lastActive: DateTimeOperationFilterInput
   emailVerified: BooleanOperationFilterInput
   canCreateProjects: BooleanOperationFilterInput
+  createdById: UuidOperationFilterInput
+  createdBy: UserFilterInput
+  usersICreated: ListFilterInputTypeOfUserFilterInput
   locked: BooleanOperationFilterInput
   username: StringOperationFilterInput
   googleId: StringOperationFilterInput
@@ -573,6 +618,8 @@ input UserSortInput {
   lastActive: SortEnumType
   emailVerified: SortEnumType
   canCreateProjects: SortEnumType
+  createdById: SortEnumType
+  createdBy: UserSortInput
   locked: SortEnumType
   username: SortEnumType
   googleId: SortEnumType

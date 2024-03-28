@@ -36,6 +36,9 @@ public partial class HgService : IHgService
     [GeneratedRegex(Project.ProjectCodeRegex)]
     private static partial Regex ProjectCodeRegex();
 
+    public static string PrefixRepoRequestPath(string code) => $"{code[0]}/{code}";
+    private string PrefixRepoFilePath(string code) => Path.Combine(_options.Value.RepoPath, code[0].ToString(), code);
+
     private async Task<HttpResponseMessage> GetResponseMessage(string code, string requestPath)
     {
         if (!ProjectCodeRegex().IsMatch(code))
@@ -43,7 +46,7 @@ public partial class HgService : IHgService
         var client = _hgClient.Value;
 
         var urlPrefix = DetermineProjectUrlPrefix(HgType.hgWeb, _options.Value);
-        var requestUri = $"{urlPrefix}{code}/{requestPath}";
+        var requestUri = $"{urlPrefix}{PrefixRepoRequestPath(code)}/{requestPath}";
         var response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, requestUri));
         response.EnsureSuccessStatusCode();
         return response;
@@ -56,27 +59,29 @@ public partial class HgService : IHgService
     public async Task InitRepo(string code)
     {
         AssertIsSafeRepoName(code);
-        if (Directory.Exists(Path.Combine(_options.Value.RepoPath, code)))
+        if (Directory.Exists(PrefixRepoFilePath(code)))
             throw new AlreadyExistsException($"Repo already exists: {code}.");
-        await Task.Run(() => InitRepoAt(_options.Value.RepoPath, code));
+        await Task.Run(() => InitRepoAt(code));
     }
 
-    public static void InitRepoAt(string repoPath, string code)
+    private void InitRepoAt(string code)
     {
+        var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(code));
+        repoDirectory.Create();
         CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
-            new DirectoryInfo(repoPath).CreateSubdirectory(code)
+            repoDirectory
         );
     }
 
     public async Task DeleteRepo(string code)
     {
-        await Task.Run(() => Directory.Delete(Path.Combine(_options.Value.RepoPath, code), true));
+        await Task.Run(() => Directory.Delete(PrefixRepoFilePath(code), true));
     }
 
     public BackupExecutor? BackupRepo(string code)
     {
-        string repoPath = Path.Combine(_options.Value.RepoPath, code);
+        string repoPath = PrefixRepoFilePath(code);
         if (!Directory.Exists(repoPath))
         {
             return null;
@@ -99,7 +104,7 @@ public partial class HgService : IHgService
     {
         using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
         await DeleteRepo(code);
-        var repoPath = Path.Combine(_options.Value.RepoPath, code);
+        var repoPath = PrefixRepoFilePath(code);
         var dir = Directory.CreateDirectory(repoPath);
         archive.ExtractToDirectory(repoPath);
 
@@ -162,7 +167,7 @@ public partial class HgService : IHgService
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 directory.UnixFileMode = Permissions;
             Directory.Move(
-                Path.Combine(_options.Value.RepoPath, code),
+                PrefixRepoFilePath(code),
                 Path.Combine(deletedRepoPath, deletedRepoName));
         });
     }
@@ -209,12 +214,12 @@ public partial class HgService : IHgService
 
     public bool HasAbandonedTransactions(string projectCode)
     {
-        return Path.Exists(Path.Combine(_options.Value.RepoPath, projectCode, ".hg", "store", "journal"));
+        return Path.Exists(Path.Combine(PrefixRepoFilePath(projectCode), ".hg", "store", "journal"));
     }
 
     public bool RepoIsLocked(string projectCode)
     {
-        return Path.Exists(Path.Combine(_options.Value.RepoPath, projectCode, ".hg", "store", "lock"));
+        return Path.Exists(Path.Combine(PrefixRepoFilePath(projectCode), ".hg", "store", "lock"));
     }
 
     public async Task<string?> GetRepositoryIdentifier(Project project)
@@ -285,6 +290,8 @@ public partial class HgService : IHgService
     private void AssertIsSafeRepoName(string name)
     {
         if (InvalidRepoNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+            throw new ArgumentException($"Invalid repo name: {name}.");
+        if (!ProjectCodeRegex().IsMatch(name))
             throw new ArgumentException($"Invalid repo name: {name}.");
     }
 

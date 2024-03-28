@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation';
   import { Form, FormError, Input, SubmitButton, lexSuperForm, passwordFormRules } from '$lib/forms';
   import t from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
+  import { PageBreadcrumb, TitlePage } from '$lib/layout';
   import { hash } from '$lib/util/hash';
   import { z } from 'zod';
   import { useNotifications } from '$lib/notify';
@@ -33,6 +33,8 @@
     await goto(data.home);
   });
 </script>
+
+<PageBreadcrumb href="/user">{$t('account_settings.title')}</PageBreadcrumb>
 
 <TitlePage title={$t('reset_password.title')}>
   <Form {enhance}>

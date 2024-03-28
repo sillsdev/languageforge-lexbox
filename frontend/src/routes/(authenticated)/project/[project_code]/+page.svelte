@@ -17,6 +17,7 @@
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
+  import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
@@ -159,6 +160,7 @@
 
   let hgCommandResultModal: Modal;
   let hgCommandResponse = '';
+  let hgCommandRunning = false;
 
   async function verify(): Promise<void> {
     await hgCommand(async () => fetch(`/api/project/hgVerify/${project.code}`));
@@ -194,9 +196,14 @@
     hgCommandResponse = '';
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
-    await streamHgCommandResponse(response.body);
-    // Some commands, like hg recover, return nothing if there's nothing to be done
-    if (hgCommandResponse == '') hgCommandResponse = 'No response';
+    hgCommandRunning = true;
+    try {
+      await streamHgCommandResponse(response.body);
+      // Some commands, like hg recover, return nothing if there's nothing to be done
+      if (hgCommandResponse == '') hgCommandResponse = 'No response';
+    } finally {
+      hgCommandRunning = false;
+    }
   }
 
   let openInFlexModal: OpenInFlexModal;
@@ -407,8 +414,9 @@
           {/if}
 
           {#if canManage}
-            <div class="place-self-end" style="grid-column: -2 / -1">
+            <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
               <AddProjectMember projectId={project.id} />
+              <BulkAddProjectMembers projectId={project.id} />
             </div>
           {/if}
 
@@ -471,11 +479,14 @@
             <Button on:click={recover}>HG Recover</Button>
             <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
               <div class="card">
-                <div class="card-body">
+                <div class="card-body overflow-auto">
                   {#if hgCommandResponse === ''}
                     <span class="loading loading-ring loading-lg"></span>
                   {:else}
                     <pre>{hgCommandResponse}</pre>
+                    {#if hgCommandRunning}
+                      <span class="loading loading-dots loading-xs"></span>
+                    {/if}
                   {/if}
                 </div>
               </div>

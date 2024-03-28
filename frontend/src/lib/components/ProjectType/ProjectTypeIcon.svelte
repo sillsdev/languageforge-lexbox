@@ -17,7 +17,7 @@
   }
 
   if (browser) {
-    void [flexLogo, oneStoryLogo, weSayLogo, ourWordLogo].map(preloadImage);
+    void [flexLogo, oneStoryLogo, weSayLogo, ourWordLogo, adaptItLogo].map(preloadImage);
   }
 </script>
 

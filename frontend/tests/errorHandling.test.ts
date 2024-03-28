@@ -80,14 +80,13 @@ test('server-side gql 500 does not kill the server', async ({ page }) => {
   test.fail(); // Everything up to here passed, but we expect a soft 500 response assertion to ultimately fail the test
 });
 
-test('server page load 403 is redirected to login', async ({ context }) => {
+test('server page load 401 is redirected to login', async ({ context }) => {
   await context.addCookies([{name: testEnv.authCookieName, value: testEnv.invalidJwt, url: testEnv.serverBaseUrl}]);
   const page = await context.newPage();
   await new UserDashboardPage(page).goto({expectRedirect: true});
   await new LoginPage(page).waitFor();
 });
 
-// .NET test had 403 in the name but should have been 401
 test('client page load 401 is redirected to login', async ({ page }) => {
   // TODO: Move this to a setup script as recommended by https://playwright.dev/docs/auth
   await loginAs(page.request, 'admin', testEnv.defaultPassword);

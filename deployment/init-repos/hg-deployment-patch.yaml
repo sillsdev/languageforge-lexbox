@@ -16,13 +16,13 @@ spec:
             - 'sh'
             - '-c'
             - |
-              if [ ! -d /repos/sena-3 ]; then
+              if [ ! -d /repos/s/sena-3 ] && [ ! -d /repos/sena-3 ]; then
                 wget -O /tmp/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
-                unzip -q /tmp/sena-3.zip -d /repos/
+                unzip -q /tmp/sena-3.zip -d /repos/s/
               fi
-              if [ ! -d /repos/elawa-dev-flex ]; then
+              if [ ! -d /repos/e/elawa-dev-flex ] && [ ! -d /repos/elawa-dev-flex ]; then
                 wget -O /tmp/elawa.zip 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
-                unzip -q /tmp/elawa.zip -d /repos/
+                unzip -q /tmp/elawa.zip -d /repos/e/
               fi
           volumeMounts:
             - name: repos

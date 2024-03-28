@@ -58,7 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email;
+    $queryParamValues.userEmail = user.email ?? undefined;
   }
 
   let userModal: UserModal;
@@ -170,13 +170,17 @@
                 </td>
                 <td>
                   <span class="inline-flex items-center gap-2 text-left">
-                    {user.email}
-                    {#if !user.emailVerified}
-                      <span
-                        class="tooltip text-warning text-xl shrink-0 leading-0"
-                        data-tip={$t('admin_dashboard.email_not_verified')}>
-                        <span class="i-mdi-help-circle-outline" />
-                      </span>
+                    {#if user.email}
+                      {user.email}
+                      {#if !user.emailVerified}
+                        <span
+                          class="tooltip text-warning text-xl shrink-0 leading-0"
+                          data-tip={$t('admin_dashboard.email_not_verified')}>
+                          <span class="i-mdi-help-circle-outline" />
+                        </span>
+                      {/if}
+                    {:else}
+                      –
                     {/if}
                   </span>
                 </td>

@@ -9,7 +9,7 @@ project_code="${PATH_SEGMENTS[1]}"
 command_name="${PATH_SEGMENTS[2]}"
 
 # Ensure the project code and command name are safe to use in a shell command
-if [[ ! $project_code =~ ^[a-z0-9-]+$ ]] || [[ ! $command_name =~ ^[a-zA-Z0-9]+$ ]]; then
+if [[ ! $project_code =~ ^[a-z0-9][a-z0-9-]*$ ]] || [[ ! $command_name =~ ^[a-zA-Z0-9]+$ ]]; then
     echo "Content-type: text/plain"
     echo "Status: 400 Bad Request"
     echo ""
@@ -34,7 +34,8 @@ echo "Content-type: text/plain"
 echo ""
 
 # Run the hg command, simply output to stdout
-cd /var/hg/repos/$project_code
+first_char=$(echo $project_code | cut -c1)
+cd /var/hg/repos/$first_char/$project_code
 case $command_name in
 
     lexentrycount)
@@ -50,11 +51,11 @@ case $command_name in
         # Env var PYTHONUNBUFFERED required for commands like verify and recover, so that output can stream back to the project page
         export PYTHONUNBUFFERED=1
         # Need a timeout so hg verify won't take forever on the "checking files" step
-        timeout 5 chg verify
+        timeout 5 chg verify 2>&1
         ;;
 
     *)
         # Env var PYTHONUNBUFFERED required for commands like verify and recover, so that output can stream back to the project page
-        PYTHONUNBUFFERED=1 chg $command_name
+        PYTHONUNBUFFERED=1 chg $command_name 2>&1
         ;;
 esac

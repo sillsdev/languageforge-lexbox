@@ -201,7 +201,7 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripThroughRefresh()
     {
-        var (forgotJwt, _) = _lexAuthService.GenerateJwt(_user, audience: LexboxAudience.ForgotPassword);
+        var (forgotJwt, _) = _lexAuthService.GenerateJwt(_user with { Audience = LexboxAudience.ForgotPassword });
         //simulate parsing the token into a claims principal
         var tokenHandler = new JwtSecurityTokenHandler();
         var forgotPrincipal =

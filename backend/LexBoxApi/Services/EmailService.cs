@@ -35,9 +35,10 @@ public class EmailService(
         var (lexAuthUser, user) = await lexAuthService.GetUser(emailAddress);
         // we want to silently return if the user doesn't exist, so we don't leak information.
         if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _) = lexAuthService.GenerateJwt(lexAuthUser, LexboxAudience.ForgotPassword, true);
+        var (jwt, _) = lexAuthService.GenerateJwt(lexAuthUser with { Audience = LexboxAudience.ForgotPassword }, true);
 
         var email = StartUserEmail(user);
+        if (email is null) return;
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         // returnTo is a svelte app url
@@ -78,6 +79,7 @@ public class EmailService(
             useEmailLifetime: true
         );
         var email = StartUserEmail(user, newEmail);
+        if (email is null) throw new ArgumentNullException("emailAddress");
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryParam = string.IsNullOrEmpty(newEmail) ? "verifiedEmail" : "changedEmail";
@@ -133,6 +135,7 @@ public class EmailService(
     public async Task SendPasswordChangedEmail(User user)
     {
         var email = StartUserEmail(user);
+        if (email is null) return;
         await RenderEmail(email, new PasswordChangedEmail(user.Name), user.LocalizationCode);
         await SendEmailWithRetriesAsync(email);
     }
@@ -206,9 +209,11 @@ public class EmailService(
         message.Body = new TextPart(TextFormat.Html) { Text = renderResult.Html };
     }
 
-    private static MimeMessage StartUserEmail(User user, string? email = null)
+    private static MimeMessage? StartUserEmail(User user, string? email = null)
     {
-        return StartUserEmail(user.Name, email ?? user.Email);
+        var emailAddress = email ?? user.Email;
+        if (emailAddress is null) return null;
+        return StartUserEmail(user.Name, emailAddress);
     }
 
     private static MimeMessage StartUserEmail(string name, string email)
