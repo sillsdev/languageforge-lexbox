@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "lexentrycount" "recover")
+allowed_commands=("verify" "tip" "lexentrycount" "recover" "healthz")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -27,6 +27,15 @@ if [[ ! " ${allowed_commands[@]} " =~ " ${command_name} " ]]; then
     echo "Invalid command. Allowed commands are: ${allowed_commands[*]}"
     echo "Command name: $command_name"
     exit 1
+fi
+
+if [[ $command_name == "healthz" ]]; then
+    echo "lexbox-version: $APP_VERSION"
+    echo "Status: 200 OK"
+    echo "Content-type: text/plain"
+    echo ""
+    echo "$APP_VERSION"
+    exit 0
 fi
 
 # Start outputting the result right away so the HTTP connection won't be timed out
