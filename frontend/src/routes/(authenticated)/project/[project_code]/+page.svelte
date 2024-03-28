@@ -15,6 +15,7 @@
     _deleteProjectUser,
     type ProjectUser,
   } from './+page';
+  import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
   import AddProjectMember from './AddProjectMember.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
@@ -38,7 +39,6 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
-  import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
 
   export let data: PageData;
   $: user = data.user;
