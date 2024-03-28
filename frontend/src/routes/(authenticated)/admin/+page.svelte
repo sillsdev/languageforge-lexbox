@@ -79,7 +79,7 @@
       if (formState.name.tainted || formState.password.tainted || formState.role.tainted) {
         notifySuccess($t('admin_dashboard.notifications.user_updated', { name: formState.name.currentValue }));
       }
-      if (formState.email.changed) {
+      if (formState.email.changed && formState.email.currentValue) {
         notifySuccess(
           $t('admin_dashboard.notifications.email_need_verification', {
             name: user.name,

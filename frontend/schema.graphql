@@ -133,6 +133,7 @@ type LexAuthUser {
   updatedDate: Long!
   audience: LexboxAudience!
   email: String
+  username: String
   name: String!
   role: UserRole!
   isAdmin: Boolean!

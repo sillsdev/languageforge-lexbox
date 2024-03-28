@@ -35,7 +35,7 @@
   }
 
   const formSchema = z.object({
-    email: z.string().email($t('form.invalid_email')).nullable().default(null),
+    email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string(),
     locale: z.string().min(2),
   });
@@ -55,7 +55,7 @@
       return error.message;
     }
 
-    if ($formState.email.changed) {
+    if ($formState.email.changed && $form.email) {
       requestedEmail.set($form.email);
     }
 
