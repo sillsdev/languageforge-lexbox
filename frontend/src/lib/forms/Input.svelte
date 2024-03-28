@@ -7,7 +7,7 @@
   export let id = randomFormId();
   export let label: string;
   export let description: string | undefined = undefined;
-  export let value: string | undefined = undefined;
+  export let value: string | undefined | null = undefined;
   export let type: 'text' | 'email' | 'password' = 'text';
   export let autofocus: true | undefined = undefined;
   export let readonly = false;

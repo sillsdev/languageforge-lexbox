@@ -18,10 +18,10 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class UserMutations
 {
-    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
-    public record ChangeUserAccountBySelfInput(Guid UserId, string Email, string Name, string Locale)
+    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string? Email, string Name);
+    public record ChangeUserAccountBySelfInput(Guid UserId, string? Email, string Name, string Locale)
         : ChangeUserAccountDataInput(UserId, Email, Name);
-    public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, UserRole Role)
+    public record ChangeUserAccountByAdminInput(Guid UserId, string? Email, string Name, UserRole Role)
         : ChangeUserAccountDataInput(UserId, Email, Name);
 
     [Error<NotFoundException>]
@@ -85,9 +85,14 @@ public class UserMutations
             permissionService.AssertIsAdmin();
             if (user.Id != loggedInContext.User.Id)
             {
-                var wasAdmin = user.IsAdmin;
-                user.IsAdmin = adminInput.Role == UserRole.admin;
-                wasPromotedToAdmin = user.IsAdmin && !wasAdmin;
+                if (!user.IsAdmin && adminInput.Role == UserRole.admin)
+                {
+                    if (!user.EmailVerified)
+                    {
+                        throw new ValidationException("User must have a verified email address to be promoted to admin");
+                    }
+                    wasPromotedToAdmin = user.IsAdmin = true;
+                }
             }
         }
         else if (input is ChangeUserAccountBySelfInput selfInput)
