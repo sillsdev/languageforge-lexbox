@@ -16,7 +16,7 @@
   }
 </script>
 
-<div class="overflow-x-auto @container">
+<div class="overflow-x-auto @container scroll-shadow">
   <table class="table table-lg">
     <thead>
       <tr class="bg-base-200">
