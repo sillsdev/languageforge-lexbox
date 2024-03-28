@@ -12,5 +12,5 @@
 </script>
 
 {#if icon}
-  <span class="{icon} {size} {color ?? ''}" />
+  <span class="{icon} {size} {color ?? ''} shrink-0" />
 {/if}
