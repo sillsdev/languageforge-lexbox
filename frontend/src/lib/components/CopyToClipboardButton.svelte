@@ -6,14 +6,14 @@
   var copyingToClipboard = false;
   var copiedToClipboard = false;
 
-  export let getTextToCopy: () => string;
+  export let textToCopy: string;
   export let delayMs: Duration | number = Duration.Default;
   export let size: 'btn-sm' | undefined = undefined;
   export let outline: boolean = true;
 
   async function copyToClipboard(): Promise<void> {
     copyingToClipboard = true;
-    await navigator.clipboard.writeText(getTextToCopy());
+    await navigator.clipboard.writeText(textToCopy);
     copiedToClipboard = true;
     copyingToClipboard = false;
     await delay(delayMs);

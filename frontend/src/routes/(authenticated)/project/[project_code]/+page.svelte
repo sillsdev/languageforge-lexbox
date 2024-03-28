@@ -284,7 +284,7 @@
           {$t('project_page.project_code')}:
           <span class="inline-flex items-center gap-1">
             <span class="text-secondary">{project.code}</span>
-            <CopyToClipboardButton getTextToCopy={() => project.code} size="btn-sm" outline={false} />
+            <CopyToClipboardButton textToCopy={project.code} size="btn-sm" outline={false} />
           </span>
         </span>
         <div class="text-lg">

@@ -16,7 +16,7 @@
   <FormField label={$t('project_page.get_project.send_receive_url')}>
     <div class="join">
       <input value={projectHgUrl} class="input input-bordered join-item w-full focus:input-success" readonly />
-      <CopyToClipboardButton getTextToCopy={() => projectHgUrl} />
+      <CopyToClipboardButton textToCopy={projectHgUrl} />
     </div>
   </FormField>
 </AdminContent>
