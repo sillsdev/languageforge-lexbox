@@ -145,6 +145,7 @@
           type="file"
           {accept}
           class="file-input file-input-bordered file-input-primary grow"
+          disabled={percent > 0 && !uploadError}
           bind:this={fileInput}
           on:cancel|stopPropagation
           on:change={fileChanged}
