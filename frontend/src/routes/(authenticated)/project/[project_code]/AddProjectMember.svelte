@@ -27,8 +27,11 @@
         role: $form.role,
       });
 
-      if (error?.byType('NotFoundError')) {
+      if (error?.byType('InvalidOperationError')) {
         return { usernameOrEmail: [$t('project_page.add_user.project_not_found')] };
+      }
+      if (error?.byType('NotFoundError')) {
+        return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
         return { usernameOrEmail: [$t('project_page.add_user.user_not_verified')] };
@@ -59,7 +62,7 @@
   <Input
     id="usernameOrEmail"
     type="text"
-    label={$t('admin_dashboard.column_login')}
+    label={$t('login.label_email')}
     bind:value={$form.usernameOrEmail}
     error={errors.usernameOrEmail}
     autofocus
