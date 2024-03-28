@@ -10,7 +10,7 @@
 
   export let projectId: string;
   const schema = z.object({
-    email: z.string().email($t('form.invalid_email')),
+    usernameOrEmail: z.string(),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;
@@ -23,15 +23,21 @@
     const { response, formState } = await formModal.open(async () => {
       const { error } = await _addProjectMember({
         projectId,
-        userEmail: $form.email,
+        usernameOrEmail: $form.usernameOrEmail,
         role: $form.role,
       });
 
+      if (error?.byType('InvalidOperationError')) {
+        return { usernameOrEmail: [$t('project_page.add_user.project_not_found')] };
+      }
       if (error?.byType('NotFoundError')) {
-        return { email: [$t('project_page.add_user.project_not_found')] };
+        return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
-        return { email: [$t('project_page.add_user.user_must_be_verified')] };
+        return { usernameOrEmail: [$t('project_page.add_user.user_must_be_verified')] };
+      }
+      if (error?.byType('AlreadyExistsError')) {
+        return { usernameOrEmail: [$t('project_page.add_user.user_already_member')] };
       }
       if (error?.byType('ProjectMemberInvitedByEmail')) {
         userInvited = true;
@@ -42,7 +48,7 @@
     });
     if (response === DialogResponse.Submit) {
       const message = userInvited ? 'member_invited' : 'add_member';
-      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.email.currentValue }));
+      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue }));
     }
   }
 </script>
@@ -54,13 +60,19 @@
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title">{$t('project_page.add_user.modal_title')}</span>
   <Input
-    id="email"
-    type="email"
-    label={$t('admin_dashboard.column_email')}
-    bind:value={$form.email}
-    error={errors.email}
+    id="usernameOrEmail"
+    type="text"
+    label={$t('login.label_email')}
+    bind:value={$form.usernameOrEmail}
+    error={errors.usernameOrEmail}
     autofocus
   />
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="submitText">{$t('project_page.add_user.submit_button')}</span>
+  <span slot="submitText">
+    {#if $form.usernameOrEmail.includes('@')}
+      {$t('project_page.add_user.submit_button_email')}
+    {:else}
+      {$t('project_page.add_user.submit_button')}
+    {/if}
+  </span>
 </FormModal>
