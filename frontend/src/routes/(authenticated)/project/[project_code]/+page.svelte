@@ -63,18 +63,6 @@
 
   let userModal: UserModal;
 
-  var copyingToClipboard = false;
-  var copiedToClipboard = false;
-
-  async function copyProjectCodeToClipboard(): Promise<void> {
-    copyingToClipboard = true;
-    await navigator.clipboard.writeText(project.code);
-    copiedToClipboard = true;
-    copyingToClipboard = false;
-    await delay();
-    copiedToClipboard = false;
-  }
-
   let loadingEntryCount = false;
   async function updateEntryCount(): Promise<void> {
     loadingEntryCount = true;
