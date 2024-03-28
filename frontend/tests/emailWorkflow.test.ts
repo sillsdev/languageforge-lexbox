@@ -1,5 +1,7 @@
 import { expect } from '@playwright/test';
 import { test } from './fixtures';
+import { defaultPassword } from './envVars';
+import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { UserDashboardPage } from './pages/userDashboardPage';
 import { loginAs, logout } from './utils/authHelpers';
 import { getInbox } from './utils/mailboxHelpers';
@@ -94,4 +96,30 @@ test('forgot password', async ({ page, tempUser }) => {
   await page.goto(resetPasswordUrl!);
   loginPage = await new LoginPage(page).waitFor();
   await expect(loginPage.page.getByText('The email you clicked has expired')).toBeVisible();
+});
+
+test('register via new-user invitation email', async ({ page }) => {
+  await loginAs(page.request, 'admin', defaultPassword);
+  const adminPage = await new AdminDashboardPage(page).goto();
+  const projectPage = await adminPage.openProject('Sena 3', 'sena-3');
+
+  const uuid = randomUUID();
+
+  const newEmail = `${uuid}@mailinator.com`;
+
+  const addMemberModal = await projectPage.clickAddMember();
+  await addMemberModal.emailField.fill(newEmail);
+  await addMemberModal.selectEditorRole();
+  await addMemberModal.submitButton.click();
+
+  // Check invite link returnTo is relative path, not absolute
+  const inboxPage = await getInbox(page, uuid).goto();
+  const emailPage = await inboxPage.openEmail();
+  const invitationUrl = await emailPage.getFirstLanguageDepotUrl();
+  expect(invitationUrl).not.toBeNull();
+  expect(invitationUrl!).toContain('register');
+  expect(invitationUrl!).toContain('returnTo=')
+  expect(invitationUrl!).not.toContain('returnTo=http')
+
+  // No need to clean up temp user account as user was never created
 });
