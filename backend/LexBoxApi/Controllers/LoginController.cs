@@ -176,6 +176,7 @@ public class LoginController(
         }
 
         await userService.UpdateUserLastActive(user.Id);
+        await userService.UpdatePasswordStrength(user.Id, loginRequest);
         await HttpContext.SignInAsync(user.GetPrincipal("Password"),
             new AuthenticationProperties { IsPersistent = true });
         return user;
@@ -233,6 +234,7 @@ public class LoginController(
         var user = await lexBoxDbContext.Users.FindAsync(lexAuthUser.Id);
         if (user == null) return NotFound();
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
+        await userService.ResetPasswordStrength(user.Id);
         user.UpdateUpdatedDate();
         await lexBoxDbContext.SaveChangesAsync();
         await emailService.SendPasswordChangedEmail(user);

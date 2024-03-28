@@ -16,6 +16,31 @@ public class UserService(LexBoxDbContext dbContext, EmailService emailService, L
             .ExecuteUpdateAsync(c => c.SetProperty(u => u.LastActive, DateTimeOffset.UtcNow));
     }
 
+    public async Task UpdatePasswordStrength(Guid id, LexCore.LoginRequest loginRequest)
+    {
+        var canCalculateScore = !loginRequest.PreHashedPassword;
+        var hasScore = loginRequest.PasswordStrength != null;
+        if ((canCalculateScore || hasScore) &&
+            await dbContext.Users.AnyAsync(u => u.Id == id && u.PasswordStrength == null))
+        {
+            var score =
+                hasScore ? loginRequest.PasswordStrength :
+                canCalculateScore ? Zxcvbn.Core.EvaluatePassword(loginRequest.Password).Score :
+                null;
+            if (score is not null and >= 0 and <= 4)
+            {
+                await dbContext.Users.Where(u => u.Id == id)
+                    .ExecuteUpdateAsync(c => c.SetProperty(u => u.PasswordStrength, score));
+            }
+        }
+    }
+
+    public async Task ResetPasswordStrength(Guid id)
+    {
+        await dbContext.Users.Where(u => u.Id == id)
+            .ExecuteUpdateAsync(c => c.SetProperty(u => u.PasswordStrength, null as int?));
+    }
+
     public async Task<long> GetUserUpdatedDate(Guid id)
     {
         return (await dbContext.Users.Where(u => u.Id == id)

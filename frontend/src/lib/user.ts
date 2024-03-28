@@ -61,7 +61,7 @@ export function getHomePath(user: LexAuthUser | null): string {
   return isAdmin(user) ? '/admin' : '/';
 }
 
-export async function login(userId: string, password: string): Promise<LoginResult> {
+export async function login(userId: string, password: string, passwordStrength?: 0|1|2|3|4): Promise<LoginResult> {
   const response = await fetch('/api/login', {
     method: 'post',
     headers: {
@@ -71,6 +71,7 @@ export async function login(userId: string, password: string): Promise<LoginResu
       emailOrUsername: userId,
       password: await hash(password),
       preHashedPassword: true,
+      passwordStrength
     }),
     lexboxResponseHandlingConfig: {
       disableRedirectOnAuthError: true,
