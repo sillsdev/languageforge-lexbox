@@ -4,5 +4,4 @@ metadata:
   name: app-config
 data:
   environment-name: "Staging"
-  hg-otel-enabled: "ON"
   hg-domain: "hg-staging.languageforge.org"
