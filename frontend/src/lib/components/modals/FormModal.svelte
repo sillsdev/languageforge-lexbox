@@ -27,7 +27,7 @@
   export let schema: Schema;
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
-  const { form: _form, errors, reset, message, enhance, formState } = superForm;
+  const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
   let modal: Modal;
   let done = false;
 
@@ -84,7 +84,7 @@
   }
 </script>
 
-<Modal bind:this={modal} on:close={() => reset()} bottom>
+<Modal bind:this={modal} on:close={() => reset()} bottom closeOnClickOutside={!$tainted}>
   <Form id="modalForm" {enhance}>
     <p class="mb-4"><slot name="title" /></p>
     <slot errors={$errors} />
