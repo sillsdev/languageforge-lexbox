@@ -11,6 +11,8 @@ import { SetupSignalR } from './lib/services/service-provider-signalr';
 // await connection.start();
 // SetupSignalR(connection);
 
-export {
-  App
-};
+const app = new App({
+  target: document.getElementById('app')!,
+})
+
+export default app

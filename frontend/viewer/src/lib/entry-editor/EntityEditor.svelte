@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { CustomFieldConfig, EntityFieldConfig, BaseEntityFieldConfig } from "../types";
-  import FieldEditor from "./FieldEditor.svelte";
+  import type { CustomFieldConfig, EntityFieldConfig, BaseEntityFieldConfig } from '../types';
+  import FieldEditor from './FieldEditor.svelte';
 
   type T = $$Generic<unknown>;
   type FC = $$Generic<EntityFieldConfig & BaseEntityFieldConfig<T>>;

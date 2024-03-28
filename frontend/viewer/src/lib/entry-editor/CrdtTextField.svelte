@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { ComponentProps } from "svelte";
-  import CrdtField from "./CrdtField.svelte";
-  import { TextField } from "svelte-ux";
+  import type { ComponentProps } from 'svelte';
+  import CrdtField from './CrdtField.svelte';
+  import { TextField } from 'svelte-ux';
 
   export let value: string;
   export let unsavedChanges = false;
@@ -17,7 +17,7 @@
     on:blur={save}
     value={editorValue}
     class="ws-field"
-    classes={{ input: "field-input", container: "field-container" }}
+    classes={{ input: 'field-input', container: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>

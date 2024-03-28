@@ -3,8 +3,8 @@
  * Any changes made to this file can be lost when this file is regenerated.
  */
 
-import { IMultiString } from "./i-multi-string";
-import { ISense } from "./i-sense";
+import { type IMultiString } from './i-multi-string';
+import { type ISense } from './i-sense';
 
 export interface IEntry {
     id: string;

@@ -3,14 +3,13 @@
     mdiCloudAlertOutline,
     mdiCloudDownloadOutline,
     mdiContentSaveCheckOutline,
-  } from "@mdi/js";
-  import { createEventDispatcher, getContext } from "svelte";
-  import { Button, Notification, Popover, Tooltip, portal } from "svelte-ux";
-  import type { Readable } from "svelte/store";
+  } from '@mdi/js';
+  import { createEventDispatcher, getContext } from 'svelte';
+  import { Button, Notification, Popover, Tooltip, portal } from 'svelte-ux';
+  import type { Readable } from 'svelte/store';
 
-  const demoValues = getContext("demoValues") as Readable<{
-    generateExternalChanges: boolean,
-  }>;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
+  const demoValues = getContext('demoValues') as Readable<any>
 
   // For demo purposes
   let i = 1;
@@ -19,7 +18,7 @@
     clearTimeout(timeout);
     if (unsavedChanges && $demoValues.generateExternalChanges) {
       timeout = setTimeout(() => {
-        if (unsavedChanges && !unacceptedChanges) value = (value ?? "") + i++;
+        if (unsavedChanges && !unacceptedChanges) value = (value ?? '') + i++;
       }, 1000);
     }
   }
@@ -41,7 +40,7 @@
     onExternalChange();
   }
 
-  function onExternalChange() {
+  function onExternalChange(): void {
     if (unsavedChanges) {
       unacceptedChanges = true;
       viewingMerge = true;
@@ -50,25 +49,25 @@
     }
   }
 
-  function acceptChanges() {
+  function acceptChanges(): void {
     editorValue = value;
     unsavedChanges = false;
     unacceptedChanges = false;
   }
 
-  function saveChanges() {
+  function saveChanges(): void {
     value = editorValue;
     unsavedChanges = false;
     unacceptedChanges = false;
-    dispatch("change", { value });
+    dispatch('change', { value });
   }
 
-  function onEditorValueChange(newValue: string | number) {
+  function onEditorValueChange(newValue: string | number): void {
     editorValue = String(newValue);
     unsavedChanges = editorValue !== value;
   }
 
-  function softSave() {
+  function softSave(): void {
     if (!unacceptedChanges) {
       saveChanges();
     }

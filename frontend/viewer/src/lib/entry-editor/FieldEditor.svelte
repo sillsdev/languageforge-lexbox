@@ -1,10 +1,10 @@
 <script lang="ts">
-  import SingleFieldEditor from "./SingleFieldEditor.svelte";
+  import SingleFieldEditor from './SingleFieldEditor.svelte';
 
-  import type { MultiString } from "../mini-lcm";
+  import type { MultiString } from '../mini-lcm';
 
-  import type { FieldConfig } from "../types";
-  import MultiFieldEditor from "./MultiFieldEditor.svelte";
+  import type { FieldConfig } from '../types';
+  import MultiFieldEditor from './MultiFieldEditor.svelte';
 
   type T = $$Generic<unknown>;
 
@@ -12,10 +12,10 @@
   export let field: FieldConfig;
 
   function isMultiString(value: unknown): value is MultiString {
-    return field.type === "multi";
+    return field.type === 'multi';
   }
   function isSingleString(value: unknown): value is string {
-    return field.type === "single";
+    return field.type === 'single';
   }
 </script>
 

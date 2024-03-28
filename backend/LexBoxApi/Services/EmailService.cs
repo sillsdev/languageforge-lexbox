@@ -125,9 +125,11 @@ public class EmailService(
             "LoginRedirect",
             "Login",
             new { jwt, returnTo });
+
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
         await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink), language);
         await SendEmailAsync(email);
+
     }
 
     public async Task SendPasswordChangedEmail(User user)

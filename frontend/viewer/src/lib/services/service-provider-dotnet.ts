@@ -1,5 +1,5 @@
-import type { DotNet } from "@microsoft/dotnet-js-interop";
-import { LexboxServiceProvider } from "./service-provider";
+import type { DotNet } from '@microsoft/dotnet-js-interop';
+import { LexboxServiceProvider } from './service-provider';
 
 declare global {
   interface Lexbox {

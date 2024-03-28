@@ -3,8 +3,8 @@
  * Any changes made to this file can be lost when this file is regenerated.
  */
 
-import { IMultiString } from "./i-multi-string";
-import { IExampleSentence } from "./i-example-sentence";
+import { type IMultiString } from './i-multi-string';
+import { type IExampleSentence } from './i-example-sentence';
 
 export interface ISense {
     id: string;

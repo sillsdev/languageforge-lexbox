@@ -1,25 +1,27 @@
 <script lang="ts">
-  import CrdtTextField from "./CrdtTextField.svelte";
+  import CrdtTextField from './CrdtTextField.svelte';
 
-import type { Readable } from "svelte/store";
-  import { createEventDispatcher, getContext } from "svelte";
+import type { Readable } from 'svelte/store';
+  import { createEventDispatcher, getContext } from 'svelte';
 
-  import { fieldName } from "../i18n";
+  import { fieldName } from '../i18n';
 
-  import type { MultiString, WritingSystems } from "../mini-lcm";
-  import type { FieldConfig } from "../types";
-  import { pickWritingSystems } from "../utils";
+  import type { MultiString, WritingSystems } from '../mini-lcm';
+  import type { FieldConfig } from '../types';
+  import { pickWritingSystems } from '../utils';
 
   const dispatch = createEventDispatcher<{
     change: { value: MultiString };
   }>();
 
   const allWritingSystems =
-    getContext<Readable<WritingSystems>>("writingSystems");
+    getContext<Readable<WritingSystems>>('writingSystems');
 
   type T = $$Generic<{}>;
   export let field: FieldConfig;
   export let value: MultiString;
+
+  $: console.log(value);
   let unsavedChanges: Record<string, boolean> = {};
 
   $: writingSystems = pickWritingSystems(field.ws, $allWritingSystems);
@@ -32,11 +34,11 @@ import type { Readable } from "svelte/store";
   <div class="fields">
     {#each writingSystems as ws (ws.id)}
       <CrdtTextField
-        on:change={() => dispatch("change", { value })}
+        on:change={() => dispatch('change', { value })}
         bind:value={value[ws.id]}
         bind:unsavedChanges={unsavedChanges[ws.id]}
         label={collapse ? undefined : ws.abbreviation}
-        labelPlacement={collapse ? undefined : "left"}
+        labelPlacement={collapse ? undefined : 'left'}
         placeholder={collapse ? ws.abbreviation : undefined} />
     {/each}
   </div>

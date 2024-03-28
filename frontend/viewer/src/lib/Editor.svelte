@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { ListItem, cls } from "svelte-ux";
-  import type { IEntry } from "./mini-lcm";
-  import { firstDefVal, firstVal } from "./utils";
-  import EntryEditor from "./entry-editor/EntryEditor.svelte";
+  import { ListItem, cls } from 'svelte-ux';
+  import type { IEntry } from './mini-lcm';
+  import { firstDefVal, firstVal } from './utils';
+  import EntryEditor from './entry-editor/EntryEditor.svelte';
 
   export let entries: IEntry[];
 
@@ -18,9 +18,9 @@
           subheading={firstDefVal(entry)}
           on:click={() => (selectedEntry = entry)}
           class={cls(
-            "cursor-pointer",
-            "hover:bg-accent-50",
-            selectedEntry == entry ? "bg-accent-50" : ""
+            'cursor-pointer',
+            'hover:bg-surface-300',
+            selectedEntry == entry ? 'bg-surface-200' : ''
           )}
           noShadow
         />
