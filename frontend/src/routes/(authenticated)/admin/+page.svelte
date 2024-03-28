@@ -133,7 +133,9 @@
               <th>
                 {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
-              <th class="hidden @xl:table-cell">{$t('admin_dashboard.column_login')}</th>
+              <th class="hidden @2xl:table-cell">
+                {$t('admin_dashboard.column_login')}
+              </th>
               <th>{$t('admin_dashboard.column_email')}</th>
               <th />
             </tr>
@@ -142,9 +144,11 @@
             {#each shownUsers as user}
               <tr>
                 <td>
-                  <div class="flex items-center gap-2">
-                    <Button variant="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
-                      {user.name}
+                  <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
+                    <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => userModal.open(user)}>
+                      <span class="max-width-full overflow-hidden text-ellipsis" title={user.name}>
+                        {user.name}
+                      </span>
                       <Icon icon="i-mdi-card-account-details-outline" />
                     </Button>
                     {#if user.locked}
@@ -163,15 +167,17 @@
                     {/if}
                   </div>
                 </td>
-                <td class="hidden @xl:table-cell">
+                <td class="hidden @2xl:table-cell">
                   {#if user.username}
                     {user.username}
                   {/if}
                 </td>
                 <td>
-                  <span class="inline-flex items-center gap-2 text-left">
+                  <span class="inline-flex items-center gap-2 text-left max-w-40">
                     {#if user.email}
-                      {user.email}
+                      <span class="max-width-full overflow-hidden text-ellipsis" title={user.email}>
+                        {user.email}
+                      </span>
                       {#if !user.emailVerified}
                         <span
                           class="tooltip text-warning text-xl shrink-0 leading-0"

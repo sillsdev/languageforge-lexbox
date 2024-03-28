@@ -77,7 +77,9 @@
             </td>
           {/if}
           {#if isColumnVisible('code')}
-            <td>{project.code}</td>
+            <td class="max-w-40 overflow-hidden text-ellipsis text-nowrap" title={project.code}>
+              {project.code}
+            </td>
           {/if}
           {#if isColumnVisible('users')}
             <td class="hidden @md:table-cell">
