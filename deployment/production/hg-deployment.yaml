@@ -16,6 +16,6 @@ spec:
         - name: hgresumable
           resources:
             requests:
-              memory: 1000Mi
+              memory: 800Mi
             limits:
-              memory: 1000Mi
+              memory: 800Mi
