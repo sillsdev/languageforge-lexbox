@@ -1,4 +1,5 @@
 <script lang="ts">
+  import t from '$lib/i18n';
   import zxcvbn from 'zxcvbn';
 
   // zxcvbn password strength is an int between 0 and 4 inclusive
@@ -24,3 +25,7 @@
 </script>
 
 <progress class="progress progress-{progressColor} w-100" value={score+0.33} max={4.33} />
+{#if strength?.feedback?.warning}
+  <!-- TODO: This isn't great: if we don't translate some warning, l10n users see something like "login.password_warnings.This is a top-10 password". How can we do this better? -->
+  <span class="text-error w-100">{$t(`login.password_warnings.${strength?.feedback?.warning}`)}</span>
+{/if}
