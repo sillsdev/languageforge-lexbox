@@ -283,6 +283,9 @@ query projectLastCommit {
         await apiTester.HttpClient.PostAsync($"{apiTester.BaseUrl}/api/project/resetProject/{newProjectCode}", null);
         await apiTester.HttpClient.PostAsync($"{apiTester.BaseUrl}/api/project/finishResetProject/{newProjectCode}", null);
 
+        // Sleep 5 seconds to ensure hgweb picks up newly-reset project
+        await Task.Delay(TimeSpan.FromSeconds(5));
+
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await apiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();

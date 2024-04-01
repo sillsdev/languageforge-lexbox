@@ -24,6 +24,7 @@
 
   export let data: PageData;
   $: projects = data.projects;
+  $: draftProjects = data.draftProjects;
   $: userData = data.users;
 
   const { notifySuccess, notifyWarning } = useNotifications();
@@ -31,6 +32,7 @@
   const queryParams = getSearchParams<AdminSearchParams>({
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
+    hideDraftProjects: queryParam.boolean<boolean>(false),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     userEmail: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
@@ -56,7 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email;
+    $queryParamValues.userEmail = user.email ?? undefined;
   }
 
   let userModal: UserModal;
@@ -97,7 +99,7 @@
 <main>
   <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
     <div class="contents" class:admin-tabs:hidden={tab === 'users'}>
-      <AdminProjects projects={$projects} {queryParams} />
+    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
@@ -141,7 +143,7 @@
               <tr>
                 <td>
                   <div class="flex items-center gap-2">
-                    <Button style="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
+                    <Button variant="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
                       {user.name}
                       <Icon icon="i-mdi-card-account-details-outline" />
                     </Button>
@@ -168,13 +170,17 @@
                 </td>
                 <td>
                   <span class="inline-flex items-center gap-2 text-left">
-                    {user.email}
-                    {#if !user.emailVerified}
-                      <span
-                        class="tooltip text-warning text-xl shrink-0 leading-0"
-                        data-tip={$t('admin_dashboard.email_not_verified')}>
-                        <span class="i-mdi-help-circle-outline" />
-                      </span>
+                    {#if user.email}
+                      {user.email}
+                      {#if !user.emailVerified}
+                        <span
+                          class="tooltip text-warning text-xl shrink-0 leading-0"
+                          data-tip={$t('admin_dashboard.email_not_verified')}>
+                          <span class="i-mdi-help-circle-outline" />
+                        </span>
+                      {/if}
+                    {:else}
+                      –
                     {/if}
                   </span>
                 </td>

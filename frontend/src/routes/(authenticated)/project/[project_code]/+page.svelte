@@ -13,9 +13,11 @@
     _changeProjectDescription,
     _changeProjectName,
     _deleteProjectUser,
+    _leaveProject,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
+  import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
@@ -24,7 +26,7 @@
   import ResetProjectModal from './ResetProjectModal.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
-  import { _deleteProject } from '$lib/gql/mutations';
+  import {_deleteProject} from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
@@ -38,6 +40,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import { delay } from '$lib/util/time';
+  import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -157,6 +160,7 @@
 
   let hgCommandResultModal: Modal;
   let hgCommandResponse = '';
+  let hgCommandRunning = false;
 
   async function verify(): Promise<void> {
     await hgCommand(async () => fetch(`/api/project/hgVerify/${project.code}`));
@@ -192,12 +196,42 @@
     hgCommandResponse = '';
     void hgCommandResultModal.openModal(true, true);
     let response = await execute();
-    await streamHgCommandResponse(response.body);
-    // Some commands, like hg recover, return nothing if there's nothing to be done
-    if (hgCommandResponse == '') hgCommandResponse = 'No response';
+    hgCommandRunning = true;
+    try {
+      await streamHgCommandResponse(response.body);
+      // Some commands, like hg recover, return nothing if there's nothing to be done
+      if (hgCommandResponse == '') hgCommandResponse = 'No response';
+    } finally {
+      hgCommandRunning = false;
+    }
   }
 
   let openInFlexModal: OpenInFlexModal;
+
+  let leaveModal: ConfirmModal;
+
+  async function leaveProject(): Promise<void> {
+    projectStore.pause();
+    changesetStore.pause();
+    let left = false;
+    try {
+      left = await leaveModal.open(async () => {
+        const result = await _leaveProject(project.id);
+        if (result.error?.byType('LastMemberCantLeaveError')) {
+          return $t('project_page.leave.last_to_leave');
+        }
+      });
+      if (left) {
+        notifySuccess($t('project_page.leave.leave_success', {projectName: project.name}))
+        await goto(data.home);
+      }
+    } finally {
+      if (!left) {
+        projectStore.resume();
+        changesetStore.resume();
+      }
+    }
+  }
 </script>
 
 <PageBreadcrumb>{$t('project_page.project')}</PageBreadcrumb>
@@ -373,15 +407,16 @@
 
           {#if members.length > TRUNCATED_MEMBER_COUNT}
             <div class="justify-self-start">
-              <Button style="btn-outline" size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
+              <Button outline size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
                 {showAllMembers ? $t('project_page.members.show_less') : $t('project_page.members.show_all')}
               </Button>
             </div>
           {/if}
 
           {#if canManage}
-            <div class="place-self-end" style="grid-column: -2 / -1">
+            <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
               <AddProjectMember projectId={project.id} />
+              <BulkAddProjectMembers projectId={project.id} />
             </div>
           {/if}
 
@@ -414,36 +449,53 @@
         </div>
       </div>
 
-      {#if canManage}
-        <div class="divider" />
+      <div class="divider"/>
 
-        <MoreSettings>
+      <MoreSettings>
+        <Button outline variant="btn-error" on:click={leaveProject}>
+          {$t('project_page.leave.leave_project')}
+          <Icon icon="i-mdi-exit-run"/>
+        </Button>
+        <ConfirmModal bind:this={leaveModal}
+                      title={$t('project_page.leave.confirm_title')}
+                      submitText={$t('project_page.leave.leave_action')}
+                      submitIcon="i-mdi-exit-run"
+                      submitVariant="btn-error"
+                      cancelText={$t('project_page.leave.dont_leave')}>
+          <p>{$t('project_page.leave.confirm_leave')}</p>
+        </ConfirmModal>
+        {#if canManage}
           <button class="btn btn-error" on:click={softDeleteProject}>
-            {$t('delete_project_modal.submit')}<TrashIcon />
+            {$t('delete_project_modal.submit')}
+            <TrashIcon/>
           </button>
           <AdminContent>
             <button class="btn btn-accent" on:click={resetProject}>
-              {$t('project_page.reset_project_modal.submit')}<CircleArrowIcon />
+              {$t('project_page.reset_project_modal.submit')}
+              <CircleArrowIcon/>
             </button>
-            <ResetProjectModal bind:this={resetProjectModal} />
+            <ResetProjectModal bind:this={resetProjectModal}/>
             <Button on:click={verify}>Verify Repository</Button>
             <Button on:click={recover}>HG Recover</Button>
             <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
               <div class="card">
-                <div class="card-body">
+                <div class="card-body overflow-auto">
                   {#if hgCommandResponse === ''}
                     <span class="loading loading-ring loading-lg"></span>
                   {:else}
                     <pre>{hgCommandResponse}</pre>
+                    {#if hgCommandRunning}
+                      <span class="loading loading-dots loading-xs"></span>
+                    {/if}
                   {/if}
                 </div>
               </div>
             </Modal>
           </AdminContent>
-        </MoreSettings>
-      {/if}
+          <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
+        {/if}
+      </MoreSettings>
 
-      <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
     </div>
   </HeaderPage>
 {/if}

@@ -466,6 +466,51 @@ namespace LexData.Migrations
                     b.ToTable("qrtz_triggers", "quartz");
                 });
 
+            modelBuilder.Entity("LexCore.Entities.DraftProject", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("ProjectManagerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("RetentionPolicy")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("DraftProjects");
+                });
+
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
                 {
                     b.Property<Guid>("ProjectId")
@@ -586,13 +631,15 @@ namespace LexData.Migrations
                     b.Property<bool>("CanCreateProjects")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("CreatedById")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("now()");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("text")
                         .UseCollation("case_insensitive");
 
@@ -640,7 +687,12 @@ namespace LexData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedById");
+
                     b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
                         .IsUnique();
 
                     b.ToTable("Users");
@@ -738,6 +790,16 @@ namespace LexData.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("LexCore.Entities.User", b =>
+                {
+                    b.HasOne("LexCore.Entities.User", "CreatedBy")
+                        .WithMany("UsersICreated")
+                        .HasForeignKey("CreatedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CreatedBy");
+                });
+
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzJobDetail", b =>
                 {
                     b.Navigation("Triggers");
@@ -764,6 +826,8 @@ namespace LexData.Migrations
             modelBuilder.Entity("LexCore.Entities.User", b =>
                 {
                     b.Navigation("Projects");
+
+                    b.Navigation("UsersICreated");
                 });
 #pragma warning restore 612, 618
         }

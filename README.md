@@ -4,18 +4,18 @@
 
 ## Repo Structure
 
-* backend - contains dotnet api
-* frontend - contains svelte
-* hasura - contains hasura metadata
-* hgweb - contains hgweb Dockerfile and config
-* otel - contains open telemitry collector config
-* deployment - contains k8s config for staging and prod
+* backend - dotnet API
+* frontend - SvelteKit app
+* hasura - Hasura metadata (currently not in use)
+* hgweb - hgweb Dockerfile and config
+* otel - Open Telemetry collector config
+* deployment - k8s config for production, staging, develop and local development environments
 
 files related to a specific service should be in a folder named after the service.
 There are some exceptions:
 * `LexBox.sln` visual studio expects the sln to be at the root of the repo and can make things difficult otherwise
 
-Other files, like `docker-compose.yaml`, should be at the root of the repo, because they're related to all services.
+Other files, like `skaffold.yaml`, should be at the root of the repo, because they're related to all services.
 
 ## Development
 
@@ -29,11 +29,14 @@ Other files, like `docker-compose.yaml`, should be at the root of the repo, beca
    * linux: `sudo snap install task --classic` or other options on their website
    * mac: `brew install go-task/tap/go-task`
    * via npm: `npm install -g @go-task/cli`
- * install [Skaffold](https://skaffold.dev/docs/install/#standalone-binary) add it to your path
+ * install [Skaffold](https://skaffold.dev/docs/install/#standalone-binary) and add it to your path
  * clone the repo
- * run setup `task setup`
+ * run setup `task setup`, which:
+   * initializes a local.env file
+   * tells Git to use our ignore revs file
+   * downloads the FLEx repo for the project seed data
 
-### Extra setup steps for Windows
+#### Extra setup steps for Windows
 
 If you're running Windows, you may need to add the following lines to your `C:\Windows\system32\drivers\etc\hosts` file:
 
@@ -44,57 +47,58 @@ If you're running Windows, you may need to add the following lines to your `C:\W
 
 On Linux, anything with a `.localhost` domain is automatically mapped to 127.0.0.1 so you don't need to edit your `/etc/hosts` file.
 
-### Optional setup for debugging
-
-If you want to test out Honeycomb traces, you will need to set the `HONEYCOMB_API_KEY` environment variable in
-the `deployment/dev/local.env` file.
-You can get the key from [here](https://ui.honeycomb.io/sil-language-forge/environments/test/api_keys)
-
-#### git note
-this repo uses a ignore revs file. To configure this repo to use it run this command. It should be executed as part of `task setup`
-
-```bash
-git config blame.ignoreRevsFile .git-blame-ignore-revs
-```
-
-#### for local dev also:
- * node version 18+
- * dotnet 7 sdk
-
-### Docker workflow
+### Kubernetes workflow
 
 ```bash
 task up
 ```
-The full app will be running on http://localhost after everything starts.
+The full app will be running at http://localhost after everything starts.
 There are some additional urls below to access specific parts of the system.
 
 ### Local workflow
-you can run the front and back end together (console output will be mixed) or in different terminals. All necessary infrastructure (`task infra`) will be started automatically.
 
-frontend
-```bash
-task ui
-```
-backend
-```bash
-task api
-```
-both
-```bash
-task dev
-```
+#### Prerequisites
+- The SvelteKit UI requires: node v20+
+- The .NET API requires: dotnet sdk v8+
 
-pnpm should be installed automatically using nodejs corepack, if not you can run `corepack enable` to install it.
+#### Running the project
+
+There are various ways to run the project. Here are a few suggestions:
+
+**For developing the .NET API**
+- `task infra-up` starts all necessary infrastructure in k8s
+- `task api:only` starts the api locally
+
+**For developing the SvelteKit UI**
+1) In two seperate consoles:
+- `task backend-up` starts all necessary infrastructure + the .NET API in k8s
+- `task ui:only` starts the ui locally
+1) In a shared console:
+- `task ui-dev`
+
+The SvelteKit UI will be available at http://localhost:3000.
+
+> [!IMPORTANT]
+> The SvelteKit UI is always available in k8s at http://localhost, but will not be reliable unless the entire project is started with `task up`.
+> 
+**For developing the .NET API and the SvelteKit UI**
+- `task infra-up` starts all necessary infrastructure in k8s
+- `task api:only` starts the api locally
+- `task ui:only` starts the ui locally
+
+**If the k8s deployments are already running**
+- `infra-forward` forwards the infrastructure ports for the API
+- `backend-forward` forwards the infrastructure + backend ports for the UI
 
 ---
-### Helpful urls
+### Project urls
 * http://localhost - k8s ingress
-* http://localhost:3000 - sveltekit frontend
-* http://localhost:5158/api/swagger - swagger docs for the api
-* http://localhost:5158/api/graphql/ui - graphiql UI
-* http://localhost:5158/api/graphql - graphiql endpoint
-* http://localhost:8088/hg - hg web UI add the project code and use the url in FLEx to clone
+* http://localhost:3000 - SvelteKit UI
+* http://localhost:5158/api - .NET API
+* http://localhost:5158/api/swagger - .NET Swagger UI
+* http://localhost:5158/api/graphql - GraphQL API
+* http://localhost:5158/api/graphql/ui - GraphQL UI
+* http://localhost:8088/hg - hg web UI (add the project code and use the url in FLEx to clone)
 * http://localhost:1080 - maildev UI
 
 ### Seeded data
@@ -112,6 +116,10 @@ There will not be an hg repository however, see optional setup below if this is 
 
 ---
 ### Hasura workflow
+
+> [!WARNING]
+> Hasura is not currently in use
+
 In order to modify Hasura table relations and permissions in hasura we need to use the hasura console.
 We first will need to install the hasura cli from [here](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) and add it to your path.
 
@@ -132,7 +140,7 @@ so you might try restarting dotnet and wait for it to update the database schema
 Then come back and reload the metadata again.
 
 ---
-### Diagram
+## Architecture
 
 ```mermaid
 flowchart TD
@@ -166,7 +174,7 @@ More info on the frontend and backend can be found in their respective READMEs:
 ```mermaid
 
 flowchart LR
-    FLEx -- "https:(hg-staging|resumable-staging)" --- proxy
+    Chorus(["Chorus (e.g. FLEx)"]) -- "https:(hg-staging|resumable-staging)" --- proxy
     Web -- https://staging.languagedepot.org --- proxy([ingress])
 
     proxy ---|http:5158/api or /hg| api([lexbox-api])
@@ -191,9 +199,13 @@ flowchart LR
 
 ```
 
-## Analytics
+## Monitoring & Analytics
 
 This project is instrumented with OpenTelemetry (OTEL). The exported telemetry data can be viewed in [Honeycomb](https://ui.honeycomb.io/sil-language-forge/).
+
+For your local environment to send traces to Honeycomb, you will need to set the `HONEYCOMB_API_KEY` environment variable in
+the `deployment/local-dev/local.env` file.
+You can get the key from [here](https://ui.honeycomb.io/sil-language-forge/environments/test/api_keys).
 
 Traces can be accessed directly with a URL like this: [https://ui.honeycomb.io/sil-language-forge/environments/[test|staging|prod]/trace?trace_id=_TRACE_ID\_](https://ui.honeycomb.io/sil-language-forge/environments/test/trace?trace_id=). Yes, bookmark it!
 

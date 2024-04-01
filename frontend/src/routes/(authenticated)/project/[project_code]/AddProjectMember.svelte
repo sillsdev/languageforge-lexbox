@@ -31,7 +31,7 @@
         return { email: [$t('project_page.add_user.project_not_found')] };
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
-        return { email: [$t('project_page.add_user.user_not_verified')] };
+        return { email: [$t('project_page.add_user.user_must_be_verified')] };
       }
       if (error?.byType('ProjectMemberInvitedByEmail')) {
         userInvited = true;

@@ -58,22 +58,34 @@ public class HgServiceTests
     [InlineData("unzip-test/.hg/important-file.bin")]
     public async Task CanFinishResetByUnZippingAnArchive(string filePath)
     {
+        // arrange
         var code = "unzip-test";
         await _hgService.InitRepo(code);
-        var repoPath = Path.GetFullPath(Path.Join(_hgConfig.RepoPath, code));
+
+        // act
         using var stream = new MemoryStream();
         using (var zipArchive = new ZipArchive(stream, ZipArchiveMode.Create, true))
         {
             CreateSimpleEntry(zipArchive, filePath);
             CreateSimpleEntry(zipArchive, "random-subfolder/other-file.txt");
         }
-
         stream.Position = 0;
         await _hgService.FinishReset(code, stream);
 
+        // assert
+        var repoPath = Path.GetFullPath(Path.Join(_hgConfig.RepoPath, "u", code));
         Directory.EnumerateFiles(repoPath, "*", SearchOption.AllDirectories)
             .Select(p => Path.GetRelativePath(repoPath, p))
             .ShouldHaveSingleItem().ShouldBe(Path.Join(".hg", "important-file.bin"));
+    }
+
+    [Theory]
+    [InlineData("-xy")]
+    [InlineData("-x-y-z")]
+    [InlineData("-123")]
+    private async void ProjectCodesMayNotStartWithHyphen(string code)
+    {
+        await Assert.ThrowsAsync<ArgumentException>(() => _hgService.InitRepo(code));
     }
 
     private void CreateSimpleEntry(ZipArchive zipArchive, string filePath)

@@ -1,8 +1,10 @@
 ﻿using LexBoxApi.Auth;
+using System.Security.Cryptography;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Services;
+using LexCore;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -26,6 +28,7 @@ public class ProjectMutations
     public record CreateProjectResponse(Guid? Id, CreateProjectResult Result);
     [Error<DbError>]
     [Error<AlreadyExistsException>]
+    [Error<ProjectCreatorsMustHaveEmail>]
     [UseMutationConvention]
     [RefreshJwt]
     [VerifiedEmailRequired]
@@ -45,8 +48,10 @@ public class ProjectMutations
 
         if (!permissionService.HasProjectCreatePermission())
         {
+            if (!permissionService.HasProjectRequestPermission()) throw new ProjectCreatorsMustHaveEmail("Project creators must have a valid email address");
+            var draftProjectId = await projectService.CreateDraftProject(input);
             await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
-            return new CreateProjectResponse(null, CreateProjectResult.Requested);
+            return new CreateProjectResponse(draftProjectId, CreateProjectResult.Requested);
         }
 
         var projectId = await projectService.CreateProject(input);
@@ -69,14 +74,14 @@ public class ProjectMutations
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
-        var user = await dbContext.Users.FindByEmail(input.UserEmail);
+        var user = await dbContext.Users.FindByEmailOrUsername(input.UserEmail);
         if (user is null)
         {
             var manager = loggedInContext.User;
             await emailService.SendCreateAccountEmail(input.UserEmail, input.ProjectId, input.Role, manager.Name, project.Name);
             throw new ProjectMemberInvitedByEmail("Invitation email sent");
         }
-        if (!user.EmailVerified) throw new ProjectMembersMustBeVerified("Member must verify email first");
+        if (!user.HasVerifiedEmailForRole(input.Role)) throw new ProjectMembersMustBeVerified("Member must verify email first");
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
@@ -86,8 +91,77 @@ public class ProjectMutations
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
+    public record UserProjectRole(string Username, ProjectRole Role);
+    public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers);
+
     [Error<NotFoundException>]
     [Error<DbError>]
+    [AdminRequired]
+    [UseMutationConvention]
+    public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
+        LoggedInContext loggedInContext,
+        BulkAddProjectMembersInput input,
+        LexBoxDbContext dbContext)
+    {
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        if (project is null) throw new NotFoundException("Project not found");
+        List<UserProjectRole> AddedMembers = [];
+        List<UserProjectRole> CreatedMembers = [];
+        List<UserProjectRole> ExistingMembers = [];
+        var existingUsers = await dbContext.Users.Include(u => u.Projects).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
+        var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
+        var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
+        foreach (var username in input.Usernames)
+        {
+            var user = byUsername.GetValueOrDefault(username) ?? byEmail.GetValueOrDefault(username);
+            if (user is null)
+            {
+                var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+                var isEmailAddress = username.Contains('@');
+                // TODO: In the future we'll want to allow usernames in the form "Real Name <email@example.com>" and extract the real name from them
+                // For now, just:
+                var name = username;
+                user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Username = isEmailAddress ? null : username,
+                    Name = name,
+                    Email = isEmailAddress ? username : null,
+                    LocalizationCode = "en", // TODO: input.Locale,
+                    Salt = salt,
+                    PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+                    IsAdmin = false,
+                    EmailVerified = false,
+                    CreatedById = loggedInContext.User.Id,
+                    Locked = false,
+                    CanCreateProjects = false
+                };
+                CreatedMembers.Add(new UserProjectRole(username, input.Role));
+                user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
+                dbContext.Add(user);
+            }
+            else
+            {
+                var userProject = user.Projects.FirstOrDefault(p => p.ProjectId == input.ProjectId);
+                if (userProject is not null)
+                {
+                    ExistingMembers.Add(new UserProjectRole(user.Username ?? user.Email!, userProject.Role));
+                }
+                else
+                {
+                    AddedMembers.Add(new UserProjectRole(user.Username ?? user.Email!, input.Role));
+                    // Not yet a member, so add a membership. We don't want to touch existing memberships, which might have other roles
+                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
+                }
+            }
+        }
+        await dbContext.SaveChangesAsync();
+        return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -101,6 +175,7 @@ public class ProjectMutations
             await dbContext.ProjectUsers.Include(r => r.Project).Include(r => r.User).FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
         if (projectUser is null) throw new NotFoundException("Project member not found");
+        if (!projectUser.User.HasVerifiedEmailForRole(input.Role)) throw new ProjectMembersMustBeVerified("Member must verify email first");
         projectUser.Role = input.Role;
         projectUser.User.UpdateCreateProjectsPermission(input.Role);
         projectUser.User.UpdateUpdatedDate();
@@ -150,6 +225,30 @@ public class ProjectMutations
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<LastMemberCantLeaveException>]
+    [UseMutationConvention]
+    [RefreshJwt]
+    public async Task<Project> LeaveProject(
+        Guid projectId,
+        LoggedInContext loggedInContext,
+        LexBoxDbContext dbContext)
+    {
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Users)
+            .SingleOrDefaultAsync();
+        if (project is null) throw new NotFoundException("Project not found");
+        var member = project.Users.FirstOrDefault(u => u.UserId == loggedInContext.User.Id);
+        if (member is null) return project;
+        if (member.Role == ProjectRole.Manager && project.Users.Count(m => m.Role == ProjectRole.Manager) == 1)
+        {
+            throw new LastMemberCantLeaveException();
+        }
+        project.Users.Remove(member);
+        await dbContext.SaveChangesAsync();
+        return project;
     }
 
     [UseMutationConvention]

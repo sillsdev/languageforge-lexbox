@@ -26,6 +26,7 @@ export type AdminSearchParams = ProjectFilters & {
 };
 
 export type Project = LoadAdminDashboardProjectsQuery['projects'][number];
+export type DraftProject = LoadAdminDashboardProjectsQuery['draftProjects'][number];
 export type User = NonNullable<NonNullable<LoadAdminDashboardUsersQuery['users']>['items']>[number];
 
 export async function load(event: PageLoadEvent) {
@@ -57,7 +58,18 @@ export async function load(event: PageLoadEvent) {
               lastCommit
               type
               deletedDate
+              createdDate
               userCount
+            }
+            draftProjects {
+              code
+              id
+              name
+              type
+              createdDate
+              description
+              retentionPolicy
+              projectManagerId
             }
         }
     `), { withDeletedProjects, filter: projectFilter });

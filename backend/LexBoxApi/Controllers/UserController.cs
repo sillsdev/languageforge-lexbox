@@ -57,7 +57,7 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmail(accountInput.Email).AnyAsync();
+        var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
         registerActivity?.AddTag("app.email_available", !hasExistingUser);
         if (hasExistingUser)
         {

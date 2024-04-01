@@ -179,12 +179,12 @@
     </svelte:fragment>
     <svelte:fragment slot="actions">
       {#if currentStep === ResetSteps.Download}
-      <Button style="btn-primary" on:click={nextStep}>
+      <Button variant="btn-primary" on:click={nextStep}>
         {$t('i_have_working_backup')}
         <span class="i-mdi-chevron-right text-2xl" />
       </Button>
       {:else if currentStep === ResetSteps.Reset}
-      <Button style="btn-primary" type="submit" form="reset-form" loading={$submitting}>
+      <Button variant="btn-primary" type="submit" form="reset-form" loading={$submitting}>
         {$t('submit')}
         <CircleArrowIcon />
       </Button>
@@ -192,11 +192,11 @@
         {#if uploadStatus !== UploadStatus.NoFile}
           <Button disabled={uploadStatus !== UploadStatus.Ready && uploadStatus !== UploadStatus.Uploading}
                   loading={uploadStatus === UploadStatus.Uploading || (uploadStatus === UploadStatus.Complete && changingSteps)}
-                  style="btn-success" on:click={tusUpload.startUpload}>
+                  variant="btn-success" on:click={tusUpload.startUpload}>
             {$t('upload_project')}
           </Button>
         {:else}
-          <Button style="btn-primary" on:click={leaveProjectEmpty} loading={changingSteps}>
+          <Button variant="btn-primary" on:click={leaveProjectEmpty} loading={changingSteps}>
             {$t('leave_project_empty')}
             <span class="i-mdi-chevron-right text-2xl" />
           </Button>

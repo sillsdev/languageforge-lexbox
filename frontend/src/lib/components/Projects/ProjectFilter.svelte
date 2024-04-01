@@ -1,26 +1,32 @@
 <script context="module" lang="ts">
-  import { type Project, type ProjectType } from '$lib/gql/types';
+  import {type Project, type ProjectType} from '$lib/gql/types';
+  import type {DraftProject} from '../../../routes/(authenticated)/admin/+page';
 
   export type ProjectItem = Pick<Project, 'id' | 'name' | 'code' | 'type'> & Partial<Project>;
+  export type ProjectItemWithDraftStatus =
+    ProjectItem & { isDraft?: false } |
+    DraftProject & { isDraft: true; createUrl: string };
 
   export type ProjectFilters = {
     projectSearch: string;
     projectType: ProjectType | undefined;
     showDeletedProjects: boolean;
+    hideDraftProjects: boolean;
     userEmail: string | undefined;
   };
 
   export function filterProjects(
-    projects: ProjectItem[],
+    projects: ProjectItemWithDraftStatus[],
     projectFilters: Partial<ProjectFilters>,
-  ): ProjectItem[] {
+  ): ProjectItemWithDraftStatus[] {
     const searchLower = projectFilters.projectSearch?.toLocaleLowerCase();
     return projects.filter(
       (p) =>
         (!searchLower ||
           p.name.toLocaleLowerCase().includes(searchLower) ||
           p.code.toLocaleLowerCase().includes(searchLower)) &&
-        (!projectFilters.projectType || p.type === projectFilters.projectType),
+        (!projectFilters.projectType || p.type === projectFilters.projectType) &&
+        (!projectFilters.hideDraftProjects || !p.isDraft)
     );
   }
 </script>
@@ -31,7 +37,7 @@
   import { ProjectTypeIcon } from '../ProjectType';
   import ActiveFilter from '../FilterBar/ActiveFilter.svelte';
   import FilterBar from '../FilterBar/FilterBar.svelte';
-  import { AuthenticatedUserIcon, TrashIcon } from '$lib/icons';
+  import { AuthenticatedUserIcon, Icon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
 
@@ -40,7 +46,7 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'hideDraftProjects'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -64,6 +70,11 @@
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
           {filter.value}
+        </ActiveFilter>
+      {:else if filter.key === 'hideDraftProjects'}
+        <ActiveFilter {filter}>
+          <Icon icon="i-mdi-script" color="text-warning" />
+          {$t('project.filter.hide_drafts')}
         </ActiveFilter>
       {/if}
     {/each}
@@ -111,6 +122,14 @@
         <label class="cursor-pointer label gap-4">
           <span class="label-text">{$t('project.filter.show_deleted')}</span>
           <input bind:checked={$filters.showDeletedProjects} type="checkbox" class="toggle toggle-error" />
+        </label>
+      </div>
+    {/if}
+    {#if filterEnabled('hideDraftProjects')}
+      <div class="form-control">
+        <label class="cursor-pointer label gap-4">
+          <span class="label-text">{$t('project.filter.hide_drafts')}</span>
+          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle" />
         </label>
       </div>
     {/if}

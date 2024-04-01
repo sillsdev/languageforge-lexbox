@@ -31,13 +31,17 @@
     languageCode: z
       .string()
       .min(2, $t('project.create.language_code_too_short'))
-      .regex(/^[a-z-\d]+$/, $t('project.create.language_code_invalid')),
-    code: z.string().toLowerCase().min(4, $t('project.create.code_too_short')),
+      .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.language_code_invalid')),
+    code: z
+      .string()
+      .toLowerCase()
+      .min(4, $t('project.create.code_too_short'))
+      .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.code_invalid')),
     customCode: z.boolean().default(false),
   });
 
   //random guid
-  const projectId = crypto.randomUUID();
+  let projectId:string = crypto.randomUUID();
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
     const result = await _createProject({
       id: projectId,
@@ -79,6 +83,7 @@
     [ProjectType.WeSay]: 'dictionary',
     [ProjectType.OneStoryEditor]: 'onestory',
     [ProjectType.OurWord]: 'ourword',
+    [ProjectType.AdaptIt]: 'aikb',
   };
 
   const policyCodeMap: Partial<Record<RetentionPolicy, string | undefined>> = {
@@ -100,6 +105,7 @@
     requestingUser = data.requestingUser;
     const urlValues = getSearchParamValues<CreateProjectInput>();
     form.update((form) => {
+      if (urlValues.id) projectId = urlValues.id;
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;
