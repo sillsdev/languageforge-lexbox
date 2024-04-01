@@ -34,7 +34,7 @@
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
-    userEmail: queryParam.string(undefined),
+    userId: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     tab: queryParam.string<AdminTabId>('projects'),
   });
