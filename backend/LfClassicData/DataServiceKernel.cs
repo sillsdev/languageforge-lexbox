@@ -18,10 +18,14 @@ public static class DataServiceKernel
     public static void AddLanguageForgeClassicMiniLcm(this IServiceCollection services)
     {
         BsonConfiguration.Setup();
+        services.AddOptions<LfClassicConfig>()
+            .BindConfiguration(nameof(LfClassicConfig))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddSingleton(provider =>
         {
-            var configuration = provider.GetRequiredService<IConfiguration>();
-            return BuildMongoClientSettings("mongodb://localhost:27017", provider);
+            var config = provider.GetRequiredService<IOptions<LfClassicConfig>>();
+            return BuildMongoClientSettings(config.Value.ConnectionString, provider);
         });
         services.AddSingleton(provider => new MongoClient(provider.GetRequiredService<MongoClientSettings>()));
         services.AddSingleton<ILexboxApiProvider, LfClassicLexboxApiProvider>();
