@@ -130,6 +130,7 @@ public class ProjectMutations
                     LocalizationCode = "en", // TODO: input.Locale,
                     Salt = salt,
                     PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+                    PasswordStrength = 0, // Shared password, so always considered strength 0, we don't call Zxcvbn here
                     IsAdmin = false,
                     EmailVerified = false,
                     CreatedById = loggedInContext.User.Id,
