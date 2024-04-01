@@ -35,7 +35,7 @@
 
   $: console.log(activeView);
 
-  const lexboxApi = undefined; //window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
+  const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
   const entriesPromise: Promise<IEntry[]> = lexboxApi?.GetEntries(undefined) ?? Promise.resolve(mockEntries);
   let wsPromise: Promise<WritingSystems> = lexboxApi?.GetWritingSystems() ?? Promise.resolve(mockWritingSystems);
