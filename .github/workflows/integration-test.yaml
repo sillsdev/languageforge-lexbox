@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3
-      - name: Setup powershell
+      - name: Setup self-hosted dependencies
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
           wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
