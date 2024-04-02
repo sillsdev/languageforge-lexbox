@@ -38,7 +38,6 @@
   import {isDev} from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
-  import { delay } from '$lib/util/time';
 
   export let data: PageData;
   $: user = data.user;
