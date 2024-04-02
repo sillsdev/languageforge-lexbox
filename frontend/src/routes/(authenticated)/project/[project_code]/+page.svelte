@@ -16,6 +16,7 @@
     _leaveProject,
     type ProjectUser,
   } from './+page';
+  import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
   import AddProjectMember from './AddProjectMember.svelte';
   import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
@@ -39,7 +40,6 @@
   import {isDev} from '$lib/layout/DevContent.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
-  import { delay } from '$lib/util/time';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
 
   export let data: PageData;
@@ -64,18 +64,6 @@
   const { notifySuccess, notifyWarning } = useNotifications();
 
   let userModal: UserModal;
-
-  var copyingToClipboard = false;
-  var copiedToClipboard = false;
-
-  async function copyProjectCodeToClipboard(): Promise<void> {
-    copyingToClipboard = true;
-    await navigator.clipboard.writeText(project.code);
-    copiedToClipboard = true;
-    copyingToClipboard = false;
-    await delay();
-    copiedToClipboard = false;
-  }
 
   let loadingEntryCount = false;
   async function updateEntryCount(): Promise<void> {
@@ -317,19 +305,7 @@
           {$t('project_page.project_code')}:
           <span class="inline-flex items-center gap-1">
             <span class="text-secondary">{project.code}</span>
-            {#if copiedToClipboard}
-              <div class="tooltip tooltip-open" data-tip={$t('clipboard.copied')}>
-                <IconButton fake icon="i-mdi-check" size="btn-sm" class="text-success" />
-              </div>
-            {:else}
-                <IconButton
-                loading={copyingToClipboard}
-                icon="i-mdi-content-copy"
-                size="btn-sm"
-                variant="btn-ghost"
-                on:click={copyProjectCodeToClipboard}
-              />
-            {/if}
+            <CopyToClipboardButton textToCopy={project.code} size="btn-sm" outline={false} />
           </span>
         </span>
         <div class="text-lg">
