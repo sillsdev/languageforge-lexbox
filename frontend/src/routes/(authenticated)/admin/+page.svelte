@@ -57,6 +57,16 @@
   $: filteredUserCount = $userData?.totalCount ?? 0;
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
+  let selectedUsers: User[] = [];
+
+  function toggleSelectAllUsers(e): void {
+    if (e.target.checked) {
+      selectedUsers = [...shownUsers];
+    } else {
+      selectedUsers = [];
+    }
+  }
+
   function filterProjectsByUser(user: User): void {
     $queryParamValues.userEmail = user.email ?? undefined;
   }
@@ -130,7 +140,7 @@
         <table class="table table-lg">
           <thead>
             <tr class="bg-base-200">
-              <th class="max-w-4"><input type="checkbox"/></th>
+              <th class="max-w-4"><input type="checkbox" on:change={toggleSelectAllUsers}/></th>
               <th>
                 {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
@@ -142,7 +152,7 @@
           <tbody>
             {#each shownUsers as user}
               <tr>
-                <td class="max-w-4"><input type="checkbox"/></td>
+                <td class="max-w-4"><input type="checkbox" bind:group={selectedUsers} value={user}/></td>
                 <td>
                   <div class="flex items-center gap-2">
                     <Button variant="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
