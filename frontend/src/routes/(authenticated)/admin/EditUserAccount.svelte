@@ -34,7 +34,7 @@
     _user = user;
     userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email, role }, async () => {
+    return await formModal.open({ name: user.name, email: user.email ?? undefined, role }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
@@ -132,7 +132,7 @@
           <Icon icon={locking ? 'loading loading-spinner loading-sm' : 'i-mdi-lock-open-outline'} />
         </span>
     </label>
-    <Button style="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
+    <Button variant="btn-error" on:click={() => deleteUser(_user)} disabled={_user.id === currUser.id}>
       {$t('admin_dashboard.form_modal.delete_user.submit')}
       <TrashIcon />
     </Button>

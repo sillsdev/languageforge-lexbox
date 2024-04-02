@@ -145,6 +145,7 @@
           type="file"
           {accept}
           class="file-input file-input-bordered file-input-primary grow"
+          disabled={status === UploadStatus.Uploading || status === UploadStatus.Complete}
           bind:this={fileInput}
           on:cancel|stopPropagation
           on:change={fileChanged}
@@ -160,7 +161,7 @@
 
 <div class="mt-6 flex items-center gap-6">
   {#if internalButton}
-    <Button style="btn-success" disabled={status > UploadStatus.Ready} on:click={startUpload}>{$t('tus.upload')}</Button>
+    <Button variant="btn-success" disabled={status > UploadStatus.Ready} on:click={startUpload}>{$t('tus.upload')}</Button>
   {/if}
   <div class="flex-1">
     <p class="label label-text py-0">{$t('tus.upload_progress')}</p>

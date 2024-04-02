@@ -58,6 +58,7 @@ export async function load(event: PageLoadEvent) {
               lastCommit
               type
               deletedDate
+              createdDate
               userCount
             }
             draftProjects {

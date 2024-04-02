@@ -4,6 +4,7 @@
 [web]
 allow_push=*
 push_ssl=False
+descend=false
 # default is 20, setting to 5 seconds to alleviate race conditions in unit testing
 refreshinterval=5
 
@@ -14,4 +15,39 @@ bundle1.push=True
 bundle1.pull=True
 
 [paths]
-/ = /var/hg/repos/*
+/a/ = /var/hg/repos/a/*
+/b/ = /var/hg/repos/b/*
+/c/ = /var/hg/repos/c/*
+/d/ = /var/hg/repos/d/*
+/e/ = /var/hg/repos/e/*
+/f/ = /var/hg/repos/f/*
+/g/ = /var/hg/repos/g/*
+/h/ = /var/hg/repos/h/*
+/i/ = /var/hg/repos/i/*
+/j/ = /var/hg/repos/j/*
+/k/ = /var/hg/repos/k/*
+/l/ = /var/hg/repos/l/*
+/m/ = /var/hg/repos/m/*
+/n/ = /var/hg/repos/n/*
+/o/ = /var/hg/repos/o/*
+/p/ = /var/hg/repos/p/*
+/q/ = /var/hg/repos/q/*
+/r/ = /var/hg/repos/r/*
+/s/ = /var/hg/repos/s/*
+/t/ = /var/hg/repos/t/*
+/u/ = /var/hg/repos/u/*
+/v/ = /var/hg/repos/v/*
+/w/ = /var/hg/repos/w/*
+/x/ = /var/hg/repos/x/*
+/y/ = /var/hg/repos/y/*
+/z/ = /var/hg/repos/z/*
+/0/ = /var/hg/repos/0/*
+/1/ = /var/hg/repos/1/*
+/2/ = /var/hg/repos/2/*
+/3/ = /var/hg/repos/3/*
+/4/ = /var/hg/repos/4/*
+/5/ = /var/hg/repos/5/*
+/6/ = /var/hg/repos/6/*
+/7/ = /var/hg/repos/7/*
+/8/ = /var/hg/repos/8/*
+/9/ = /var/hg/repos/9/*

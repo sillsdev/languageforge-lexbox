@@ -45,4 +45,8 @@ export abstract class MailEmailPage extends BasePage {
   getFirstLanguageDepotUrl(): Promise<string | null> {
     return this.bodyLocator.locator(`a[href*='${serverBaseUrl}']`).first().getAttribute('href');
   }
+
+  clickFirstLanguageDepotUrl(): Promise<void> {
+    return this.bodyLocator.locator(`a[href*='${serverBaseUrl}']`).first().click();
+  }
 }

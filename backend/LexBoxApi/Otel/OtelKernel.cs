@@ -67,6 +67,13 @@ public static class OtelKernel
                         {
                             activity.SetTag("http.request.body.size", contentLength.Value);
                         }
+
+                        if (request.RequestUri is not null)
+                        {
+                            activity.SetTag("url.path", request.RequestUri.AbsolutePath);
+                            if (!string.IsNullOrEmpty(request.RequestUri.Query))
+                                activity.SetTag("url.query", request.RequestUri.Query);
+                        }
                     };
                     options.EnrichWithHttpResponseMessage = (activity, response) =>
                     {

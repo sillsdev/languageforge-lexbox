@@ -69,7 +69,8 @@ handleFetch(async ({ fetch, args }) => {
     return response;
   });
 
-  if (response.headers.get('lexbox-jwt-updated') === 'all') {
+  // invalidateUserOnJwtRefresh is considered true by default, so only skip if the value is false
+  if (args[1]?.lexboxResponseHandlingConfig?.invalidateUserOnJwtRefresh !== false && response.headers.get('lexbox-jwt-updated') === 'all') {
     await invalidate(USER_LOAD_KEY);
   }
 
