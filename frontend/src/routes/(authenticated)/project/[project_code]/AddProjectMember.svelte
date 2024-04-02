@@ -28,7 +28,7 @@
       });
 
       if (error?.byType('InvalidOperationError')) {
-        return { usernameOrEmail: [$t('project_page.add_user.project_not_found')] };
+        return $t('project_page.add_user.project_not_found');
       }
       if (error?.byType('NotFoundError')) {
         return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
