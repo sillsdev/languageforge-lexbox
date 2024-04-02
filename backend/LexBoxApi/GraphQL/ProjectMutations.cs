@@ -77,7 +77,7 @@ public class ProjectMutations
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         // We don't use NotFoundException here because that's reserved for username not found further down
         // Furthermore, username not found will happen often, while project not found can only happen if
-        // one admin deleted a project while another admin was submitting the form. Very rare occurrence.
+        // a user deleted a project while another user was submitting the form. Very rare occurrence.
         if (project is null) throw new InvalidOperationException("Project not found");
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
         if (user is null && input.UsernameOrEmail.Contains('@'))
