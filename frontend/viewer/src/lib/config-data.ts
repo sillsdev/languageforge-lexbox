@@ -1,85 +1,114 @@
-import type { BaseEntityFieldConfig, CustomFieldConfig } from './types';
+import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigFieldProps } from './types';
 import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 
-const allFieldConfigs = {
+import type { I18nType } from './i18n';
+
+const allFieldConfigs = ({
   entry: {
-    lexemeForm: { id: 'lexemeForm', type: 'multi', ws: 'vernacular' },
-    citationForm: { id: 'citationForm', type: 'multi', ws: 'vernacular' },
-    literalMeaning: { id: 'literalMeaning', type: 'multi', ws: 'vernacular' },
-    note: { id: 'note', type: 'multi', ws: 'analysis' },
+    lexemeForm: { id: 'lexemeForm', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Lexeme_Form_field.htm' },
+    citationForm: { id: 'citationForm', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Citation_Form_field.htm' },
+    literalMeaning: { id: 'literalMeaning', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Literal_Meaning_field.htm' },
+    note: { id: 'note', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Note_field.htm' },
   },
   customEntry: {
-    custom1: { id: 'entry-custom-001', type: 'multi', ws: 'vernacular', name: 'Custom 1' },
+    custom1: { id: 'entry-custom-001', type: 'multi', ws: 'vernacular', name: 'Custom 1', custom: true },
   },
   sense: {
-    gloss: { id: 'gloss', type: 'multi', ws: 'analysis' },
-    definition: { id: 'definition', type: 'multi', ws: 'analysis' },
-    partOfSpeech: { id: 'partOfSpeech', type: 'option', optionType: 'part-of-speech', ws: 'first-analysis' },
-    semanticDomain: { id: 'semanticDomain', type: 'multi-option', optionType: 'semantic-domain', ws: 'first-analysis' },
+    gloss: { id: 'gloss', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm' },
+    definition: { id: 'definition', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/definition_field.htm' },
+    partOfSpeech: { id: 'partOfSpeech', type: 'option', optionType: 'part-of-speech', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Grammatical_Info_field.htm' },
+    semanticDomain: { id: 'semanticDomain', type: 'multi-option', optionType: 'semantic-domain', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/semantic_domains_field.htm' }
   },
   customSense: {
-    custom1: { id: 'sense-custom-001', type: 'multi', ws: 'first-analysis', name: 'Custom sense' },
+    custom1: { id: 'sense-custom-001', type: 'multi', ws: 'first-analysis', name: 'Custom sense', custom: true },
   },
   example: {
-    sentence: { id: 'sentence', type: 'multi', ws: 'vernacular' },
-    translation: { id: 'translation', type: 'multi', ws: 'analysis' },
-    reference: { id: 'reference', type: 'single', ws: 'first-analysis' },
+    sentence: { id: 'sentence', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/example_field.htm' },
+    translation: { id: 'translation', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Translation_field.htm' },
+    reference: { id: 'reference', type: 'single', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Reference_field.htm' },
   },
   customExample: {
   },
+} as const) satisfies {
+  entry: Record<string, BaseEntityFieldConfig<IEntry>>,
+  customEntry: Record<string, CustomFieldConfig>,
+  sense: Record<string, BaseEntityFieldConfig<ISense>>,
+  customSense: Record<string, CustomFieldConfig>,
+  example: Record<string, BaseEntityFieldConfig<IExampleSentence>>,
+  customExample: Record<string, CustomFieldConfig>,
+};
+
+export function allFields(viewConfig: ViewConfig['value']): FieldConfig[] {
+  return [
+    ...Object.values(viewConfig.entry),
+    ...Object.values(viewConfig.customEntry ?? {}),
+    ...Object.values(viewConfig.sense),
+    ...Object.values(viewConfig.customSense ?? {}),
+    ...Object.values(viewConfig.example),
+    ...Object.values<never>(viewConfig.customExample ?? {}),
+  ];
 }
 
-export const entryFieldConfigs: BaseEntityFieldConfig<IEntry>[] = [
-  { id: 'lexemeForm', type: 'multi', ws: 'vernacular' },
-  { id: 'citationForm', type: 'multi', ws: 'vernacular' },
-  { id: 'literalMeaning', type: 'multi', ws: 'vernacular' },
-  { id: 'note', type: 'multi', ws: 'analysis' },
-];
+type FieldsWithViewConfigProps<T extends Record<string, NonNullable<object>>> =
+  { [K in keyof T]: FieldWithViewConfigProps<T[K]> };
 
-export const customEntryFieldConfigs: CustomFieldConfig[] = [
-  { id: 'entry-custom-001', type: 'multi', ws: 'vernacular', name: 'Custom 1' },
-];
+type FieldWithViewConfigProps<T extends NonNullable<object>> =
+  T & ViewConfigFieldProps;
 
-export const senseFieldConfigs: BaseEntityFieldConfig<ISense>[] = [
-  { id: 'gloss', type: 'multi', ws: 'analysis' },
-  { id: 'definition', type: 'multi', ws: 'analysis' },
-  { id: 'partOfSpeech', type: 'option', optionType: 'part-of-speech', ws: 'first-analysis' },
-  { id: 'semanticDomain', type: 'multi-option', optionType: 'semantic-domain', ws: 'first-analysis' },
-];
+interface ViewConfig {
+  label: string,
+  value: {
+    i18n?: I18nType,
+    entry: Partial<FieldsWithViewConfigProps<typeof allFieldConfigs.entry>>,
+    sense: Partial<typeof allFieldConfigs.sense>,
+    example: Partial<typeof allFieldConfigs.example>,
+    customEntry?: Partial<typeof allFieldConfigs.customEntry>,
+    customSense?: Partial<typeof allFieldConfigs.customSense>,
+    customExample?: Partial<typeof allFieldConfigs.customExample>,
+  },
+}
 
-export const customSenseFieldConfigs: CustomFieldConfig[] = [
-  { id: 'sense-custom-001', type: 'multi', ws: 'first-analysis', name: 'Custom sense' },
-];
+function configure<T extends NonNullable<object>>(fieldConfig: T, props: ViewConfigFieldProps): FieldWithViewConfigProps<T> {
+  return {...fieldConfig, ...props};
+}
 
-export const exampleFieldConfigs: BaseEntityFieldConfig<IExampleSentence>[] = [
-  { id: 'sentence', type: 'multi', ws: 'vernacular' },
-  { id: 'translation', type: 'multi', ws: 'analysis' },
-  { id: 'reference', type: 'single', ws: 'first-analysis' },
-];
-
-export const customExampleFieldConfigs: CustomFieldConfig[] = [
-];
-
-export const allFields = [
-  ...entryFieldConfigs,
-  ...customEntryFieldConfigs,
-  ...senseFieldConfigs,
-  ...customSenseFieldConfigs,
-  ...exampleFieldConfigs,
-  ...customExampleFieldConfigs,
-];
-
-export const views = [
+export const views: ViewConfig[] = [
   {
     label: 'Everything',
-    value: allFieldConfigs,
+    value: {
+      ...allFieldConfigs,
+      entry: {
+        ...allFieldConfigs.entry,
+        literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
+      },
+    }
   },
   {
     label: 'WeSay',
     value: {
+      i18n: 'weSay',
       entry: {
         lexemeForm: allFieldConfigs.entry.lexemeForm,
-        note: allFieldConfigs.entry.note,
+        note: configure(allFieldConfigs.entry.note, { extra: true }),
+      },
+      sense: {
+        gloss: allFieldConfigs.sense.gloss,
+        partOfSpeech: allFieldConfigs.sense.partOfSpeech,
+        semanticDomain: configure(allFieldConfigs.sense.semanticDomain, { extra: true }),
+      },
+      example: {
+        sentence: allFieldConfigs.example.sentence,
+      },
+    },
+  },
+  {
+    label: 'Language Forge',
+    value: {
+      i18n: 'languageForge',
+      entry: {
+        lexemeForm: allFieldConfigs.entry.lexemeForm,
+        note: configure(allFieldConfigs.entry.note, { extra: true }),
+        literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
       },
       sense: {
         gloss: allFieldConfigs.sense.gloss,
@@ -90,6 +119,7 @@ export const views = [
       example: {
         sentence: allFieldConfigs.example.sentence,
         translation: allFieldConfigs.example.translation,
+        reference: configure(allFieldConfigs.example.reference, { extra: true }),
       },
     },
-  }];
+  }] as const;

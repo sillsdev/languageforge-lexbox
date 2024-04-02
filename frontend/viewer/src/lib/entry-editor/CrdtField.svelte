@@ -9,7 +9,7 @@
   import type { Readable } from 'svelte/store';
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
-  const demoValues = getContext('demoValues') as Readable<any>
+  const demoValues = getContext<Readable<any>>('demoValues');
 
   // For demo purposes
   let i = 1;

@@ -4,9 +4,14 @@
 
 html, body {
   @apply h-full;
+  scroll-behavior: smooth;
 }
 
 .dialog {
   height: calc(100vh - 100px);
   @apply flex flex-col;
+}
+
+.Checkbox *, label:has(.Switch) {
+  cursor: pointer;
 }

@@ -5,15 +5,15 @@
     Checkbox,
     Dialog,
     Field,
-    Icon,
     ListItem,
     SelectField,
+    Switch,
     TextField,
     cls,
   } from 'svelte-ux';
   import { mdiMagnify, mdiCog, mdiChevronDown } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import { firstDefVal, firstVal } from './lib/utils';
+  import { firstDefOrGlossVal, firstVal } from './lib/utils';
   import { allFields, views } from './lib/config-data';
   import { fieldName } from './lib/i18n';
   import { LexboxServiceProvider, LexboxServices } from './lib/services/service-provider';
@@ -25,15 +25,19 @@
 
   const demoValues = writable<{
     generateExternalChanges: boolean,
+    showExtraFields: boolean,
+    hideEmptyFields: boolean,
   }>({
     generateExternalChanges: false,
+    showExtraFields: false,
+    hideEmptyFields: false,
   });
 
   const activeView = writable<typeof views[number]['value']>(views[0].value);
   setContext('demoValues', demoValues);
   setContext('activeView', activeView);
 
-  $: console.log(activeView);
+  $: console.log($activeView);
 
   const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
@@ -59,49 +63,59 @@
   let showConfigDialog = false;
   let fieldSearch = '';
 
-  $: filteredFields = allFields.filter(
+  $: filteredFields = allFields($activeView).filter(
     (field) =>
       !fieldSearch || fieldName(field)?.toLocaleLowerCase().includes(fieldSearch.toLocaleLowerCase())
   );
 </script>
 
-<div class="min-h-full_ flex flex-col">
+<!-- svelte-ignore a11y-missing-content -->
+<a id="top"></a>
+
+<div class="flex flex-col">
   <AppBar title="FLEx-Lite" class="bg-surface-300">
     <div class="flex-grow"></div>
     <Field
-    classes={{input: 'my-1'}}
-      on:click={() => (showSearchDialog = true)}
-      class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      icon={mdiMagnify}>Search</Field
-    >
+      classes={{input: 'my-1'}}
+        on:click={() => (showSearchDialog = true)}
+        class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
+        icon={mdiMagnify}>Search</Field
+      >
     <div class="flex-grow"></div>
     <div slot="actions"></div>
   </AppBar>
 
-  <main class="p-8 flex-grow flex flex-col">
+  <main class="p-8 pt-4 flex-grow flex flex-col">
     <div
-      class="grid flex-grow"
+      class="grid flex-grow gap-x-8"
       style="grid-template-columns: 2fr 4fr 1fr; grid-template-rows: auto 1fr;"
     >
-      <h2 class="flex text-2xl font-semibold col-span-2">
-        <div class="flex-grow"></div>
-        <div class="mr-12 flex gap-4">
-          <Checkbox bind:checked={$demoValues.generateExternalChanges}>
-            Test CRDT field
-          </Checkbox>
-          <Field label="View">
-            <select value="all" class="text-sm w-full outline-none appearance-none cursor-pointer bg-surface-100">
-              <option value="all">Everything</option>
-              <option value="WeSay">WeSay</option>
-              <option value="Language Forge">Language Forge</option>
-            </select>
-            <span slot="append">
-              <Icon data={mdiChevronDown} />
-            </span>
-          </Field>
-          <SelectField label="View" clearable={false} labelPlacement="top" bind:value={$activeView} options={views}>
+      <div></div>
+      <h2 class="flex text-2xl font-semibold col-span-1">
+        <div class="flex gap-4 items-end w-full">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class="flex gap-2 items-center text-sm h-10 text-warning">
+            <Switch bind:checked={$demoValues.generateExternalChanges}
+              color="warning" />
+            Simulate conflicting changes
+          </label>
+          <div class="grow" />
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class="flex gap-2 items-center text-sm h-10">
+            <Switch bind:checked={$demoValues.showExtraFields}
+              color="neutral" />
+              Show extra/hidden fields
+          </label>
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class="flex gap-2 items-center text-sm h-10">
+            <Switch bind:checked={$demoValues.hideEmptyFields}
+              color="neutral" />
+              Hide empty fields
+          </label>
+          <SelectField label="View" classes={{root: 'view-select w-auto'}} clearable={false} labelPlacement="top" bind:value={$activeView} options={views}>
           </SelectField>
           <Button
+            classes={{root: 'aspect-square h-10'}}
             on:click={() => (showConfigDialog = true)}
             variant="outline"
             icon={mdiCog}
@@ -138,7 +152,7 @@
       {#each entries as entry}
         <ListItem
           title={firstVal(entry.lexemeForm)}
-          subheading={firstDefVal(entry)}
+          subheading={firstDefOrGlossVal(entry.senses[0])}
           class={cls('cursor-pointer', 'hover:bg-accent-50')}
           noShadow
         />
@@ -163,7 +177,7 @@
     {#each filteredFields as field}
       <label for={field.id} class="contents">
         <ListItem
-          title={fieldName(field)}
+          title={fieldName(field, $activeView?.i18n)}
           subheading={`Type: ${field.type}. WS: ${field.ws}.`}
           class={cls('cursor-pointer', 'hover:bg-accent-50')}
           noShadow>
@@ -181,3 +195,9 @@
   <div class="flex-grow"></div>
   <div slot="actions">actions</div>
 </Dialog>
+
+<style>
+  :global(.view-select input) {
+    cursor: pointer;
+  }
+</style>

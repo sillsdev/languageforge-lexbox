@@ -1,11 +1,8 @@
 <script lang="ts">
+  import FieldTitle from './FieldTitle.svelte';
   import CrdtTextField from './CrdtTextField.svelte';
-
-import type { Readable } from 'svelte/store';
+  import type { Readable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
-
-  import { fieldName } from '../i18n';
-
   import type { MultiString, WritingSystems } from '../mini-lcm';
   import type { FieldConfig } from '../types';
   import { pickWritingSystems } from '../utils';
@@ -14,14 +11,12 @@ import type { Readable } from 'svelte/store';
     change: { value: MultiString };
   }>();
 
-  const allWritingSystems =
-    getContext<Readable<WritingSystems>>('writingSystems');
+  const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
 
   type T = $$Generic<{}>;
   export let field: FieldConfig;
   export let value: MultiString;
 
-  $: console.log(value);
   let unsavedChanges: Record<string, boolean> = {};
 
   $: writingSystems = pickWritingSystems(field.ws, $allWritingSystems);
@@ -29,8 +24,8 @@ import type { Readable } from 'svelte/store';
   $: collapse = empty && writingSystems.length > 1;
 </script>
 
-<div class="multi-field field" class:collapse-field={collapse}>
-  <span class="name w-32" title={field.id}>{fieldName(field)}</span>
+<div class="multi-field field" class:collapse-field={collapse} class:empty>
+  <FieldTitle {field} />
   <div class="fields">
     {#each writingSystems as ws (ws.id)}
       <CrdtTextField
@@ -39,7 +34,8 @@ import type { Readable } from 'svelte/store';
         bind:unsavedChanges={unsavedChanges[ws.id]}
         label={collapse ? undefined : ws.abbreviation}
         labelPlacement={collapse ? undefined : 'left'}
-        placeholder={collapse ? ws.abbreviation : undefined} />
+        placeholder={collapse ? ws.abbreviation : undefined}
+      />
     {/each}
   </div>
 </div>

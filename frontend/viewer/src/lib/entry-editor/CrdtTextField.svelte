@@ -17,7 +17,7 @@
     on:blur={save}
     value={editorValue}
     class="ws-field"
-    classes={{ input: 'field-input', container: 'field-container' }}
+    classes={{ root: editorValue ? '' : 'empty', input: 'field-input', container: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>

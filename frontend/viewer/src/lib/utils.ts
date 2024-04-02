@@ -1,4 +1,4 @@
-import type { IEntry, IMultiString, WritingSystem, WritingSystems } from './mini-lcm';
+import type { IEntry, IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
 
 import type { WritingSystemSelection } from './types';
 
@@ -6,10 +6,11 @@ export function firstVal(multi: IMultiString): string | undefined {
   return Object.values(multi).find(value => !!value);
 }
 
-export function firstDefVal(entry: IEntry): string | undefined {
-  if (entry.senses.length == 0) return undefined;
-  const multi = entry.senses[0].definition;
-  return Object.values(multi).find(value => !!value);
+export function firstDefOrGlossVal(sense: ISense | undefined): string {
+  if (!sense) return '';
+  const definition = Object.values(sense.definition ?? {}).find(value => !!value);
+  if (definition) return definition;
+  return Object.values(sense.gloss ?? {}).find(value => !!value) ?? ''
 }
 
 export function pickWritingSystems(

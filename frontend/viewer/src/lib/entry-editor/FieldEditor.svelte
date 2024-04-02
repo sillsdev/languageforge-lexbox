@@ -38,7 +38,7 @@
     @apply grid grid-cols-subgrid col-span-2;
     gap: 4px;
   }
-  
+
   :global(.multi-field .fields .ws-field-wrapper) {
     @apply grid grid-cols-subgrid col-span-2;
   }

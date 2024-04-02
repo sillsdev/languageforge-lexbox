@@ -43,8 +43,9 @@ module.exports = {
         "surface-100": "oklch(100% 0 0)",
         "surface-200": "#f4f5f6",
         "surface-300": "#d1d5db",
+        "warning": "#ff6c00",
         "--rounded-btn": "1.9rem",
-        "--tab-radius": "0.7rem"
+        "--tab-radius": "0.7rem",
       },
       "dark": {
         "color-scheme": "dark",
@@ -59,8 +60,8 @@ module.exports = {
         "surface-content": "#dca54c",
         "info": "#66c6ff",
         "success": "#87d039",
-        "warning": "#e2d562",
-        "danger": "#ff6f6f"
+        "warning": "#ff6c00",
+        "danger": "#ff6f6f",
       }
     }
   }

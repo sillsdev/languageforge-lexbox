@@ -15,6 +15,7 @@ type BaseFieldConfig = {
 
 export type CustomFieldConfig = BaseFieldConfig & {
   name: string;
+  custom: true;
 }
 
 export type BaseEntityFieldConfig<T> = (({
@@ -34,7 +35,14 @@ export type BaseEntityFieldConfig<T> = (({
   optionType: string;
   id: ConditionalKeys<T, string[]>;
   ws: `first-${WritingSystemType}`;
-}) & BaseFieldConfig & { id: WellKnownFieldId});
+}) & BaseFieldConfig & {
+  id: WellKnownFieldId,
+  helpId: string,
+});
 
 export type EntityFieldConfig = BaseEntityFieldConfig<IEntry> | BaseEntityFieldConfig<ISense> | BaseEntityFieldConfig<IExampleSentence>;
-export type FieldConfig = EntityFieldConfig | CustomFieldConfig;
+export type FieldConfig = (EntityFieldConfig & ViewConfigFieldProps) | CustomFieldConfig;
+
+export type ViewConfigFieldProps = {
+  extra?: true,
+};
