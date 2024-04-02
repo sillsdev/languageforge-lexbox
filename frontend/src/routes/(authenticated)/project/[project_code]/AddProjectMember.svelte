@@ -35,7 +35,7 @@
         }
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
-        return { usernameOrEmail: [$t('project_page.add_user.user_must_be_verified')] };
+        return { role: [$t('project_page.add_user.user_must_be_verified')] };
       }
       if (error?.byType('AlreadyExistsError')) {
         return { usernameOrEmail: [$t('project_page.add_user.user_already_member')] };
