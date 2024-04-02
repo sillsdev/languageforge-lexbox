@@ -13,6 +13,7 @@
     "column_edit": "Edit",
     "project_table_title": "Projects",
     "user_table_title": "Users",
+    "selected_label": "{count} selected",
     "is_draft": "Draft",
     "email_not_verified": "Not Verified",
     "notifications": {

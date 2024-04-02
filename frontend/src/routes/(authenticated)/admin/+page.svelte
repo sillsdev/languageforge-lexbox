@@ -122,6 +122,13 @@
             {$number(filteredUserCount)}
           </span>
         </Badge>
+        {#if (selectedUsers?.length)}
+        <Badge>
+          <span class="inline-flex gap-2">
+            {$t('admin_dashboard.selected_label', {count: selectedUsers.length})}
+          </span>
+        </Badge>
+        {/if}
       </AdminTabs>
       <div class="mt-4">
         <FilterBar
