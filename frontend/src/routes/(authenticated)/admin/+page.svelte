@@ -130,6 +130,7 @@
         <table class="table table-lg">
           <thead>
             <tr class="bg-base-200">
+              <th class="max-w-4"><input type="checkbox"/></th>
               <th>
                 {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
@@ -141,6 +142,7 @@
           <tbody>
             {#each shownUsers as user}
               <tr>
+                <td class="max-w-4"><input type="checkbox"/></td>
                 <td>
                   <div class="flex items-center gap-2">
                     <Button variant="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
