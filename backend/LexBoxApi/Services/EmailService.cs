@@ -122,7 +122,7 @@ public class EmailService(
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryString = QueryString.Create("email", emailAddress);
-        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value };
+        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value }.Uri.PathAndQuery;
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
             "LoginRedirect",
             "Login",
