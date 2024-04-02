@@ -14,6 +14,7 @@
     "project_table_title": "Projects",
     "user_table_title": "Users",
     "selected_label": "{count} selected",
+    "bulk_delete_users": "Delete {count} {count, plural, one {user} other {users}}",
     "is_draft": "Draft",
     "email_not_verified": "Not Verified",
     "notifications": {

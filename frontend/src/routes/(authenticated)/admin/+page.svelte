@@ -67,6 +67,10 @@
     }
   }
 
+  function deleteSelectedUsers(): void {
+    console.log(`Would delete the following ${selectedUsers.length} users`, selectedUsers);
+  }
+
   function filterProjectsByUser(user: User): void {
     $queryParamValues.userEmail = user.email ?? undefined;
   }
@@ -128,6 +132,12 @@
             {$t('admin_dashboard.selected_label', {count: selectedUsers.length})}
           </span>
         </Badge>
+        <button on:click={deleteSelectedUsers} class="btn btn-sm btn-success max-xs:btn-square">
+          <span class="admin-tabs:hidden">
+            {$t('admin_dashboard.bulk_delete_users', {count: selectedUsers.length})}
+          </span>
+          <span class="i-mdi-trash text-2xl" />
+        </button>
         {/if}
       </AdminTabs>
       <div class="mt-4">
