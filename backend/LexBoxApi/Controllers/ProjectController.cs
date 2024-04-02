@@ -76,6 +76,15 @@ public class ProjectController(
         return project;
     }
 
+    [HttpPost("setProjectType")]
+    [AdminRequired]
+    public async Task<ActionResult> SetProjectType(string projectCode, ProjectType projectType, bool overrideKnown = false)
+    {
+        await lexBoxDbContext.Projects.Where(p => p.Code == projectCode && (p.Type == ProjectType.Unknown || overrideKnown))
+            .ExecuteUpdateAsync(u => u.SetProperty(p => p.Type, projectType));
+        return Ok();
+    }
+
     [HttpGet("projectCodeAvailable/{code}")]
     public async Task<bool> ProjectCodeAvailable(string code)
     {
