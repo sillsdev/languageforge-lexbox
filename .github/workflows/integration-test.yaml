@@ -18,7 +18,7 @@ on:
       run-playwright:
         description: 'Whether to run Playwright tests'
         required: false
-        default: false
+        default: true
         type: boolean
   workflow_dispatch:
     inputs:
@@ -82,6 +82,7 @@ jobs:
         run: dotnet build
       - name: Playwright setup
         working-directory: frontend
+        if: ${{ inputs.run-playwright }}
         run: pnpm pretest
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
