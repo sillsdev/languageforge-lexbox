@@ -15,6 +15,11 @@ on:
         required: false
         default: '3'
         type: string
+      run-playwright:
+        description: 'Whether to run Playwright tests'
+        required: false
+        default: false
+        type: boolean
   workflow_dispatch:
     inputs:
       environment:
@@ -30,6 +35,11 @@ on:
         required: false
         default: '3'
         type: string
+      run-playwright:
+        description: 'Whether to run Playwright tests'
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   test:
@@ -78,6 +88,7 @@ jobs:
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
       - name: Integration tests (Playwright)
+        if: ${{ inputs.run-playwright }}
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
