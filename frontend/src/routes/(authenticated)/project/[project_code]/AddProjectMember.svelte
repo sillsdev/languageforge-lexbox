@@ -27,11 +27,12 @@
         role: $form.role,
       });
 
-      if (error?.byType('InvalidOperationError')) {
-        return $t('project_page.add_user.project_not_found');
-      }
       if (error?.byType('NotFoundError')) {
-        return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
+        if (error.message === 'Project not found') {
+          return $t('project_page.add_user.project_not_found');
+        } else {
+          return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
+        }
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
         return { usernameOrEmail: [$t('project_page.add_user.user_must_be_verified')] };

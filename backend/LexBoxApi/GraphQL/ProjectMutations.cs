@@ -58,7 +58,6 @@ public class ProjectMutations
         return new CreateProjectResponse(projectId, CreateProjectResult.Created);
     }
 
-    [Error<InvalidOperationException>]
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<ProjectMembersMustBeVerified>]
@@ -75,10 +74,7 @@ public class ProjectMutations
     {
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
-        // We don't use NotFoundException here because that's reserved for username not found further down
-        // Furthermore, username not found will happen often, while project not found can only happen if
-        // a user deleted a project while another user was submitting the form. Very rare occurrence.
-        if (project is null) throw new InvalidOperationException("Project not found");
+        if (project is null) throw new NotFoundException("Project not found");
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
         if (user is null && input.UsernameOrEmail.Contains('@'))
         {
@@ -86,10 +82,7 @@ public class ProjectMutations
             await emailService.SendCreateAccountEmail(input.UsernameOrEmail, input.ProjectId, input.Role, manager.Name, project.Name);
             throw new ProjectMemberInvitedByEmail("Invitation email sent");
         }
-        if (user is null)
-        {
-            throw new NotFoundException("User not found");
-        }
+        if (user is null) throw new NotFoundException("User not found");
         if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
         {
             throw new AlreadyExistsException("User is already a member of this project");

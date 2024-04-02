@@ -115,10 +115,6 @@ type FlexProjectMetadata {
   lexEntryCount: Int
 }
 
-type InvalidOperationError implements Error {
-  message: String!
-}
-
 type IsAdminResponse {
   value: Boolean!
 }
@@ -291,7 +287,7 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = InvalidOperationError | NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail | AlreadyExistsError
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail | AlreadyExistsError
 
 union BulkAddProjectMembersError = NotFoundError | DbError
 
