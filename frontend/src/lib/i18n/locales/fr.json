@@ -324,6 +324,11 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
   },
   "emails": {
     "link_expiration_warning": "Cet e-mail expirera dans 3 jours.",
+    "link_expiration_days": "Cet e-mail expirera dans {days, plural, one {jour} other {jours}}.",
+    "link_expiration_hours": "Cet e-mail expirera dans {hours, plural, one {heure} other {heures}}.",
+    "link_expiration_minutes": "Cet e-mail expirera dans {minutes, plural, one {minute} other {minutes}}.",
+    "link_expiration_seconds": "Cet e-mail expirera dans {seconds, plural, one {seconde} other {secondes}}.",
+    "link_expiration_ms": "Cet e-mail expirera dans {ms, plural, one {milliseconde} other {millisecondes}}.",
     "verify_email": {
       "subject": "Vérifiez votre adresse e-mail",
       "to_verify_click": "Cliquez sur le bouton ci-dessous pour vérifier votre adresse e-mail.",
