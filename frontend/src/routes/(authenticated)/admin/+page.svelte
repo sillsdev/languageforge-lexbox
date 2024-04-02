@@ -118,27 +118,33 @@
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
       <AdminTabs activeTab="users" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
-        {$t('admin_dashboard.user_table_title')}
-        <Badge>
-          <span class="inline-flex gap-2">
-            {$number(shownUsers.length)}
-            <span>/</span>
-            {$number(filteredUserCount)}
-          </span>
-        </Badge>
+        <div class="flex gap-4 justify-between grow">
+          <div class="flex gap-4 items-center">
+            {$t('admin_dashboard.user_table_title')}
+            <Badge>
+              <span class="inline-flex gap-2">
+                {$number(shownUsers.length)}
+                <span>/</span>
+                {$number(filteredUserCount)}
+              </span>
+            </Badge>
+          </div>
         {#if (selectedUsers?.length)}
-        <Badge>
-          <span class="inline-flex gap-2">
-            {$t('admin_dashboard.selected_label', {count: selectedUsers.length})}
-          </span>
-        </Badge>
-        <button on:click={deleteSelectedUsers} class="btn btn-sm btn-success max-xs:btn-square">
-          <span class="admin-tabs:hidden">
-            {$t('admin_dashboard.bulk_delete_users', {count: selectedUsers.length})}
-          </span>
-          <span class="i-mdi-trash text-2xl" />
-        </button>
+        <div class="flex gap-4 items-center">
+          <Badge>
+            <span class="inline-flex gap-2">
+              {$t('admin_dashboard.selected_label', {count: selectedUsers.length})}
+            </span>
+          </Badge>
+          <button on:click={deleteSelectedUsers} class="btn btn-sm btn-success max-xs:btn-square">
+            <span class="admin-tabs:hidden">
+              {$t('admin_dashboard.bulk_delete_users', {count: selectedUsers.length})}
+            </span>
+            <span class="i-mdi-trash text-2xl" />
+          </button>
+        </div>
         {/if}
+      </div>
       </AdminTabs>
       <div class="mt-4">
         <FilterBar
