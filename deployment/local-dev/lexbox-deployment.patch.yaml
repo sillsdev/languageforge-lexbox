@@ -14,18 +14,17 @@ spec:
         imagePullPolicy: IfNotPresent
         resources:
             requests:
-                memory: 200Mi
+                memory: 2Gi
             limits:
-                memory: 1Gi
+                memory: 2Gi
         env:
           - name: DbConfig__DefaultSeedUserPassword
             value: "pass"
             valueFrom: # don't use secret as defined in base
-          - name: Authentication__Jwt__Secret
-            value: "dev-secret_but-it-must-be-32-characters-long"
-#            intentionally set this to no value
-            valueFrom:
-
+          - $patch: delete
+            name: Authentication__Jwt__Secret
+          - name: LfClassicConfig__ConnectionString
+            value: mongodb://host.docker.internal:27017
           - name: ForwardedHeadersOptions__KnownNetworks__0
             value: "10.1.0.0/16"
           - name: CloudFlare__TurnstileKey

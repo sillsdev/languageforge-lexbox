@@ -161,7 +161,7 @@ app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
-app.MapLfClassicApi().AllowAnonymous().WithOpenApi();
+app.MapLfClassicApi().RequireAuthorization(new AdminRequiredAttribute()).WithOpenApi();
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
     .RequireAuthorization(new AdminRequiredAttribute());
