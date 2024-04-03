@@ -1,6 +1,8 @@
 export type TimespanComponent = 'days' | 'hours' | 'minutes' | 'seconds' | 'ms'
 export type Timespan = [number, TimespanComponent];
-
+export type TimespanI18nKey = `emails.link_expiration_${TimespanComponent}`;
+export type TimespanI18nParam = Record<TimespanComponent, number>;
+export type TimespanI18nKeyAndParam = [TimespanI18nKey, TimespanI18nParam]
 const timespanRe = /^(?:(\d+)\.)?(\d+):(\d+):(\d+)(?:\.(\d+))?$/;
 
 export function parseSimpleTimespan(timespan: string): Timespan {
@@ -23,4 +25,12 @@ export function parseSimpleTimespan(timespan: string): Timespan {
     }
   }
   return [0, 'seconds'];
+}
+
+export function toI18nKey(timespan: string): TimespanI18nKeyAndParam {
+  const [timecount, timetype] = parseSimpleTimespan(timespan);
+  const expirationText: TimespanI18nKey = `emails.link_expiration_${timetype}`;
+  const expirationParam = {} as TimespanI18nParam;
+  expirationParam[timetype] = timecount;
+  return [expirationText, expirationParam];
 }
