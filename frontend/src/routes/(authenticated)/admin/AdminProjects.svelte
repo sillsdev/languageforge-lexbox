@@ -29,7 +29,6 @@
   export let projects: ProjectItem[];
   export let draftProjects: DraftProject[];
   export let queryParams: QueryParams<AdminSearchParams>;
-  export let getUserDisplayName: ((id: string) => string | undefined) | undefined = undefined;
   $: queryParamValues = queryParams.queryParamValues;
   $: filters = queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
@@ -105,7 +104,6 @@
     <ProjectFilter
       {filters}
       {filterDefaults}
-      {getUserDisplayName}
       bind:hasActiveFilter
       on:change={() => (limitResults = true)}
       loading={$loading}

@@ -58,12 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userId = user.id ?? undefined;
-  }
-
-  function getUserDisplayName(id: string): string | undefined {
-    const candidates = users.filter(u => u.id === id);
-    return (candidates?.length) ? candidates[0].name : undefined;
+    $queryParamValues.userEmail = user.email ?? undefined;
   }
 
   let userModal: UserModal;
@@ -104,7 +99,7 @@
 <main>
   <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
     <div class="contents" class:admin-tabs:hidden={tab === 'users'}>
-    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} {getUserDisplayName} />
+    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>

@@ -13,7 +13,6 @@
     showDeletedProjects: boolean;
     hideDraftProjects: boolean;
     userEmail: string | undefined;
-    userId: string | undefined;
   };
 
   export function filterProjects(
@@ -47,26 +46,11 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'userId', 'hideDraftProjects'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'hideDraftProjects'];
   export let loading = false;
-
-  export let getUserDisplayName: ((id: string) => string | undefined) | undefined = undefined;
 
   function filterEnabled(filter: keyof Filters): boolean {
     return filterKeys.includes(filter);
-  }
-
-  const memoizedDisplayNames: Record<string,string> = {};
-  function findDisplayName(id: string): string {
-    if (memoizedDisplayNames[id]) return memoizedDisplayNames[id];
-    if (getUserDisplayName) {
-      const name = getUserDisplayName(id);
-      if (name) {
-        memoizedDisplayNames[id] = name;
-        return name;
-      }
-    }
-    return id;
   }
 </script>
 
@@ -86,11 +70,6 @@
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
           {filter.value}
-        </ActiveFilter>
-      {:else if filter.key === 'userId' && filter.value}
-        <ActiveFilter {filter}>
-          <AuthenticatedUserIcon />
-          {findDisplayName(filter.value)}
         </ActiveFilter>
       {:else if filter.key === 'hideDraftProjects'}
         <ActiveFilter {filter}>
@@ -115,17 +94,6 @@
               <IconButton icon="i-mdi-close" on:click={() => ($filters.userEmail = undefined)} />
             </div>
           </div>
-        {:else if $filters.userId}
-        <div class="join">
-          <input
-            class="input input-bordered join-item flex-grow"
-            readonly
-            value={findDisplayName($filters.userId)}
-          />
-          <div class="join-item isolate">
-            <IconButton icon="i-mdi-close" on:click={() => ($filters.userId = undefined)} />
-          </div>
-        </div>
         {:else}
           <div class="alert alert-info gap-2">
             <span class="i-mdi-info-outline text-xl"></span>
