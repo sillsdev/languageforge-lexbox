@@ -12,6 +12,7 @@
     projectType: ProjectType | undefined;
     showDeletedProjects: boolean;
     hideDraftProjects: boolean;
+    userEmail: string | undefined;
     userId: string | undefined;
   };
 
@@ -46,7 +47,7 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userId', 'hideDraftProjects'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'userId', 'hideDraftProjects'];
   export let loading = false;
 
   export let getUserDisplayName: ((id: string) => string | undefined) | undefined = undefined;
@@ -81,6 +82,11 @@
           <TrashIcon color="text-error" />
           {$t('project.filter.show_deleted')}
         </ActiveFilter>
+      {:else if filter.key === 'userEmail' && filter.value}
+        <ActiveFilter {filter}>
+          <AuthenticatedUserIcon />
+          {filter.value}
+        </ActiveFilter>
       {:else if filter.key === 'userId' && filter.value}
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
@@ -96,9 +102,20 @@
   </svelte:fragment>
   <svelte:fragment slot="filters">
     <h2 class="card-title">{$t('project.filter.title')}</h2>
-    {#if filterEnabled('userId')}
+    {#if filterEnabled('userEmail')}
       <FormField label={$t('project.filter.project_member')}>
-        {#if $filters.userId}
+        {#if $filters.userEmail}
+          <div class="join">
+            <input
+              class="input input-bordered join-item flex-grow"
+              readonly
+              value={$filters.userEmail}
+            />
+            <div class="join-item isolate">
+              <IconButton icon="i-mdi-close" on:click={() => ($filters.userEmail = undefined)} />
+            </div>
+          </div>
+        {:else if $filters.userId}
         <div class="join">
           <input
             class="input input-bordered join-item flex-grow"
