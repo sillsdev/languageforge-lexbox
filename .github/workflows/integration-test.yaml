@@ -67,10 +67,10 @@ jobs:
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@v4
-        if: ${{ inputs.runs-on == 'self-hosted' }}
         with:
-          node-version: '20'
+          node-version-file: 'frontend/package.json'
           cache: 'pnpm'
+          cache-dependency-path: 'frontend/pnpm-lock.yaml'
       - uses: actions/setup-dotnet@v3
         env:
           DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
