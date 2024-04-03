@@ -58,7 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email ?? undefined;
+    $queryParamValues.userEmail = user.email ?? user.username ?? undefined;
   }
 
   let userModal: UserModal;
