@@ -16,7 +16,7 @@
   import { delay } from '$lib/util/time';
 
   export let data: PageData;
-  $: user = data?.account;
+  $: user = data.account;
   let deleteModal: DeleteUserModal;
 
   const emailResult = useEmailResult();
@@ -63,6 +63,11 @@
       notifySuccess($t('account_settings.update_success'));
     }
   });
+
+  // This is a bit of a hack to make sure that the email field is not required if the user has no email
+  // even if the user edited the email field
+  $: if(!$form.email && $user && !$user.email) $form.email = null;
+
   onMount(() => {
     form.set(
       {
