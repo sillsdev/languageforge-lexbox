@@ -40,8 +40,7 @@ export async function load(event: PageLoadEvent) {
   const client = getClient();
 
   const projectFilter: ProjectFilterInput = {
-    ...(memberSearch ? { or: [ { users: { some: { user: { email: { ieq: memberSearch } } } } },
-                               { users: { some: { user: { username: { ieq: memberSearch } } } } } ] }: {})
+    ...(memberSearch ? { users: { some: { user: { or: [ { email: { ieq: memberSearch } }, { username: { ieq: memberSearch } } ] } } } }: {})
   };
 
   //language=GraphQL
