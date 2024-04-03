@@ -62,6 +62,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y p7zip-full zlib1g-dev libssl-dev #needed by setup python
           pwsh #validate that powershell installed correctly
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.runs-on == 'self-hosted' }}
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+      - uses: pnpm/action-setup@v3
+        if: ${{ inputs.runs-on == 'self-hosted' }}
+        with:
+          package_json_file: 'frontend/package.json'
       - uses: actions/setup-dotnet@v3
         env:
           DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
