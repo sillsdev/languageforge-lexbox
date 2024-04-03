@@ -15,6 +15,11 @@ on:
         required: false
         default: '3'
         type: string
+      run-playwright:
+        description: 'Whether to run Playwright tests'
+        required: false
+        default: true
+        type: boolean
   workflow_dispatch:
     inputs:
       environment:
@@ -30,6 +35,11 @@ on:
         required: false
         default: '3'
         type: string
+      run-playwright:
+        description: 'Whether to run Playwright tests'
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   test:
@@ -42,7 +52,7 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v3
-      - name: Setup powershell
+      - name: Setup self-hosted dependencies
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
           wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
@@ -71,15 +81,25 @@ jobs:
       - name: Dotnet build
         run: dotnet build
       - name: Playwright setup
-        working-directory: backend/Testing
-        run: |
-          ${{inputs.runs-on != 'windows-latest' && 'sudo' || '' }} pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install-deps
-          pwsh "$(dotnet msbuild --getProperty:OutputPath)playwright.ps1" install
+        working-directory: frontend
+        if: ${{ inputs.run-playwright }}
+        run: pnpm pretest
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
-      - name: Integration tests
+      - name: Integration tests (Playwright)
+        if: ${{ inputs.run-playwright }}
+        env:
+          TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
+          #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
+          TEST_STANDARD_HG_HOSTNAME: ${{ vars.TEST_STANDARD_HG_HOSTNAME }}
+          TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
+          TEST_PROJECT_CODE: 'sena-3'
+          TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        working-directory: frontend
+        run: pnpm test
+      - name: Integration tests (.NET)
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -93,7 +113,7 @@ jobs:
         shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: 7z a ./playwright-traces.7z ./bin/playwright-traces/*.* -p"$ZIP_PASSWORD"
+        run: 7z a ./playwright-traces.7z ./frontend/test-results -p"$ZIP_PASSWORD"
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
