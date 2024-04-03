@@ -92,7 +92,7 @@ jobs:
       - name: Playwright setup
         working-directory: frontend
         if: ${{ inputs.run-playwright }}
-        run: pnpm pretest
+        run: pnpm install && pnpm pretest
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
