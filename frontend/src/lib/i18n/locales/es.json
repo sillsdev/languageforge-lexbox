@@ -324,11 +324,11 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
   },
   "emails": {
     "link_expiration_warning": "Este correo electrónico caducará en 3 días.",
-    "link_expiration_days": "Este correo electrónico caducará en {days, plural, one {día} other {días}}.",
-    "link_expiration_hours": "Este correo electrónico caducará en {hours, plural, one {hora} other {horas}}.",
-    "link_expiration_minutes": "Este correo electrónico caducará en {minutes, plural, one {minuto} other {minutos}}.",
-    "link_expiration_seconds": "Este correo electrónico caducará en {seconds, plural, one {segundo} other {segundos}}.",
-    "link_expiration_ms": "Este correo electrónico caducará en {ms, plural, one {milisegundo} other {milisegundos}}.",
+    "link_expiration_days": "Este correo electrónico caducará en {days} {days, plural, one {día} other {días}}.",
+    "link_expiration_hours": "Este correo electrónico caducará en {hours} {hours, plural, one {hora} other {horas}}.",
+    "link_expiration_minutes": "Este correo electrónico caducará en {minutes} {minutes, plural, one {minuto} other {minutos}}.",
+    "link_expiration_seconds": "Este correo electrónico caducará en {seconds} {seconds, plural, one {segundo} other {segundos}}.",
+    "link_expiration_ms": "Este correo electrónico caducará en {ms} {ms, plural, one {milisegundo} other {milisegundos}}.",
     "verify_email": {
       "subject": "Verifica tu dirección de correo electrónico",
       "to_verify_click": "Haz clic en el botón de abajo para verificar tu dirección de correo electrónico.",
