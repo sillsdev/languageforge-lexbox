@@ -3,7 +3,7 @@ export type Timespan = [number, TimespanComponent];
 export type TimespanI18nKey = `emails.link_expiration_${TimespanComponent}`;
 export type TimespanI18nParam = Record<TimespanComponent, number>;
 export type TimespanI18nKeyAndParam = [TimespanI18nKey, TimespanI18nParam]
-const timespanRe = /^(?:(\d+)\.)?(\d+):(\d+):(\d+)(?:\.(\d+))?$/;
+const timespanRe = /^(?:(\d+)\.)?(\d+):(\d+):(\d+)(\.\d+)?$/;
 
 export function parseSimpleTimespan(timespan: string): Timespan {
   const m = timespanRe.exec(timespan);
@@ -21,7 +21,7 @@ export function parseSimpleTimespan(timespan: string): Timespan {
       return [Number(m[4]), 'seconds'];
     }
     if (m[5] && Number(m[5])) {
-      return [Number(m[5]), 'ms'];
+      return [Math.floor(Number(m[5])*1000), 'ms'];
     }
   }
   return [0, 'seconds'];
