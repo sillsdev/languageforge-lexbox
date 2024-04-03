@@ -121,6 +121,12 @@ export const test = base.extend<Fixtures>({
   tempDir: async ({}, use, testInfo) => {
     const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${testInfo.testId}-`));
     await use(dirname);
-    await rm(dirname, {recursive: true, force: true});
+    try {
+      await rm(dirname, { recursive: true, force: true });
+    } catch (e) {
+      // This fails frequently for me when running tests in Firefox and it's not critical
+      const error = ((e && typeof e === 'object' && 'message' in e) ? e.message : e) as string;
+      console.warn(`Failed to clean up temporary directory ${dirname}: ${error}.`);
+    }
   }
 });

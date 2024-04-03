@@ -17,6 +17,8 @@ type HgWebJson = {
 }
 
 test('reset project and upload .zip file', async ({ page, tempProject, tempDir }) => {
+  test.slow();
+
   const allZeroHash = '0000000000000000000000000000000000000000';
 
   // Step 1: Populate project with known initial state
