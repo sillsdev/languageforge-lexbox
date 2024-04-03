@@ -35,13 +35,13 @@ export async function load(event: PageLoadEvent) {
 
   const withDeletedProjects = getBoolSearchParam<AdminSearchParams>('showDeletedProjects', event.url.searchParams);
   const userSearch = getSearchParam<AdminSearchParams>('userSearch', event.url.searchParams) ?? '';
-  const userEmail = getSearchParam<AdminSearchParams>('userEmail', event.url.searchParams);
+  const memberSearch = getSearchParam<AdminSearchParams>('memberSearch', event.url.searchParams);
 
   const client = getClient();
 
   const projectFilter: ProjectFilterInput = {
-    ...(userEmail ? { or: [ { users: { some: { user: { email: { ieq: userEmail } } } } },
-                            { users: { some: { user: { username: { ieq: userEmail } } } } } ] }: {})
+    ...(memberSearch ? { or: [ { users: { some: { user: { email: { ieq: memberSearch } } } } },
+                               { users: { some: { user: { username: { ieq: memberSearch } } } } } ] }: {})
   };
 
   //language=GraphQL
