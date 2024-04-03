@@ -578,6 +578,7 @@ input StringOperationFilterInput {
   endsWith: String
   nendsWith: String
   icontains: String
+  ieq: String
 }
 
 input UserFilterInput {
