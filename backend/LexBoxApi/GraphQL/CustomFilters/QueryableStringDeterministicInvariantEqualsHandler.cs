@@ -35,12 +35,16 @@ public class QueryableStringDeterministicInvariantEqualsHandler(InputParser inpu
         IValueNode value,
         object? searchObject)
     {
+        Expression property = context.GetInstance();
+
+        if (searchObject is null)
+            return Expression.Equal(property, Expression.Constant(null));
+
         if (searchObject is not string search)
             throw new InvalidOperationException($"Expected {nameof(QueryableStringDeterministicInvariantEqualsHandler)} to be called with a string, but was {searchObject}.");
 
         var escapedString = EscapeLikePatternRegex.Replace(search, @"\$1");
         var pattern = escapedString;
-        var property = context.GetInstance();
 
         var collatedValueExpression = Expression.Call(
             null,
