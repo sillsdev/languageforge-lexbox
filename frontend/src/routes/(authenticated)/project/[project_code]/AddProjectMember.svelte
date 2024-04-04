@@ -7,23 +7,31 @@
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
   import { useNotifications } from '$lib/notify';
+  import { isAdmin } from '$lib/user';
+  import { page } from '$app/stores'
+  import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
+  import type { SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
 
   export let projectId: string;
   const schema = z.object({
-    email: z.string().email($t('form.invalid_email')),
+    email: z.string().email($t('form.invalid_email')).optional(),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
 
+  export let selectedUser: SingleUserTypeaheadResult;
+
   const { notifySuccess } = useNotifications();
 
   async function openModal(): Promise<void> {
     let userInvited = false;
+    let selectedEmail: string = '';
     const { response, formState } = await formModal.open(async () => {
+      selectedEmail = $form.email ? $form.email : selectedUser.email ?? selectedUser.username ?? '';
       const { error } = await _addProjectMember({
         projectId,
-        userEmail: $form.email,
+        userEmail: selectedEmail,
         role: $form.role,
       });
 
@@ -42,7 +50,7 @@
     });
     if (response === DialogResponse.Submit) {
       const message = userInvited ? 'member_invited' : 'add_member';
-      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.email.currentValue }));
+      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.email.currentValue ?? selectedEmail }));
     }
   }
 </script>
@@ -53,6 +61,15 @@
 
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title">{$t('project_page.add_user.modal_title')}</span>
+{#if isAdmin($page.data.user)}
+  <UserTypeahead
+    id="email"
+    label={$t('admin_dashboard.column_email')}
+    bind:result={selectedUser}
+    error={errors.email}
+    autofocus
+    />
+{:else}
   <Input
     id="email"
     type="email"
@@ -61,6 +78,7 @@
     error={errors.email}
     autofocus
   />
+{/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <span slot="submitText">{$t('project_page.add_user.submit_button')}</span>
 </FormModal>

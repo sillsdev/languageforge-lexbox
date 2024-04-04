@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { FormField, PlainInput } from '$lib/forms';
+  import { FormField, PlainInput, randomFormId } from '$lib/forms';
   import IconButton from '$lib/components/IconButton.svelte';
   import { _typeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
 
   export let label: string;
+  export let error: string | string[] | undefined = undefined;
+  export let id: string = randomFormId();
   export let autofocus = false;
   export let result: SingleUserTypeaheadResult;
 
@@ -12,16 +14,16 @@
 
 </script>
 
-<FormField {label} {autofocus} description={result?.email ?? result?.username ?? ''}>
+<FormField {id} {label} {error} {autofocus} description={result?.email ?? result?.username ?? ''}>
   {#if result}
   <div class="flex items-center gap-2">
-    <PlainInput value={result.name} type="text" readonly />
+    <PlainInput {id} value={result.name} type="text" readonly />
     <IconButton icon="i-mdi-close"
       on:click={() => result = undefined}
       disabled={!result} />
   </div>
   {:else}
-  <PlainInput bind:value={typeaheadInput} type="text" />
+  <PlainInput {id} bind:value={typeaheadInput} type="text" />
   {/if}
 </FormField>
 {#if !result}
