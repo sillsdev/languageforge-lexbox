@@ -11,6 +11,7 @@
   import { hash } from '$lib/util/hash';
   import Icon from '$lib/icons/Icon.svelte';
   import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
@@ -114,6 +115,7 @@
       autocomplete="new-password"
       error={errors.password}
     />
+    <PasswordStrengthMeter password={$form.password} />
   </div>
   <FormError error={lockUserError} />
   <svelte:fragment slot="extraActions">

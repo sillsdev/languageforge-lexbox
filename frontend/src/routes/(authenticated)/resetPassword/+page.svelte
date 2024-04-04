@@ -8,6 +8,7 @@
   import { useNotifications } from '$lib/notify';
   import type { PageData } from './$types';
   import { getAspResponseErrorMessage } from '$lib/util/asp-response';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   export let data: PageData;
 
@@ -45,6 +46,7 @@
       error={$errors.password}
       autofocus
     />
+    <PasswordStrengthMeter password={$form.password} />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('reset_password.submit')}</SubmitButton>
   </Form>

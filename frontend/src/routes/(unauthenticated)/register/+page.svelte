@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
@@ -69,6 +70,7 @@
       error={$errors.password}
       autocomplete="new-password"
     />
+    <PasswordStrengthMeter password={$form.password} />
     <DisplayLanguageSelect
       bind:value={$form.locale}
     />
