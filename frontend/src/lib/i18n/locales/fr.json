@@ -167,7 +167,8 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
       "email_required": "E-mail requis",
       "modal_title": "Ajouter un membre à ce projet",
       "submit_button": "Ajouter un membre",
-      "user_not_verified": "L'utilisateur n'a pas vérifié son adresse e-mail",
+      "user_must_be_verified": "L'utilisateur n'a pas vérifié son adresse e-mail",
+      "manager_must_be_verified": "L'utilisateur doit vérifier son adresse e-mail avant de devenir un responsable du projet",
       "user_needs_to_relogin": "Les membres ajoutés devront se déconnecter et se reconnecter pour voir le nouveau projet."
     },
     "change_role_modal": {
