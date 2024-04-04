@@ -1,7 +1,8 @@
 ﻿<script lang="ts">
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
+  import {Button, Form, FormField, Input, lexSuperForm, PlainInput, SubmitButton} from '$lib/forms';
+  import IconButton from '$lib/components/IconButton.svelte';
   import {PageBreadcrumb} from '$lib/layout';
   import z from 'zod';
   // eslint-disable-next-line no-restricted-imports
@@ -76,24 +77,25 @@ let deleteModal: DeleteModal;
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
-      {#if chosenUser}
-      <!-- TODO: Some style tweaking needed to make the X button line up the way I want it to, but this is close enough for the sandbox page -->
-      <div class="flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
-        <div class="w-90"><Input label="User typeahead" readonly value={chosenUser.name} /></div>
-        <button class="ml-auto flex join btn btn-square btn-sm join-item" on:click={() => chosenUser = undefined}>
-          <span class="text-lg">✕</span>
-        </button>
-      </div>
-      {:else}
-      <Input label="User typeahead" bind:value={typeaheadInput} />
-      {/if}
-      {#if typeaheadResults}
+      <FormField id="" label="User typeahead" description={chosenUser?.email ?? chosenUser?.username ?? ''}>
+        {#if chosenUser}
+        <div class="flex items-center gap-2">
+          <PlainInput id="" value={chosenUser.name} type="text" readonly />
+          <IconButton icon="i-mdi-close"
+            on:click={() => chosenUser = undefined}
+            disabled={!chosenUser} />
+        </div>
+        {:else}
+        <PlainInput id="" bind:value={typeaheadInput} type="text" />
+        {/if}
+      </FormField>
+      {#if typeaheadResults && !chosenUser}
         {#await typeaheadResults}
           <span>awaiting results...</span>
         {:then users}
           <ul>
           {#each users as user}
-            <li><a href="" on:click={() => chosenUser = user}>{user.name} &lt;{user.email}&gt;</a></li>
+            <li><a href="" on:click={() => chosenUser = user}>{user.name} {user.email ? `<${user.email}>` : `(${user.username})`}</a></li>
           {/each}
           </ul>
         {/await}
