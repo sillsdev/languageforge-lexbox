@@ -10,10 +10,10 @@
 
   let score: 0|1|2|3|4;
 
-  function passwordStrengthColor(score: number): 'error' | 'warning' | 'success' {
-    if (score <= bad) return 'error';
-    if (score <= poor) return 'warning';
-    return 'success';
+  function passwordStrengthColor(score: number): 'progress-error' | 'progress-warning' | 'progress-success' {
+    if (score <= bad) return 'progress-error';
+    if (score <= poor) return 'progress-warning';
+    return 'progress-success';
   }
 
   export let password: string = '';
@@ -25,7 +25,7 @@
 </script>
 
 <div class="mb-2">
-  <progress class="progress progress-{progressColor} w-100" value={score+0.33} max={4.33} />
+  <progress class="progress {progressColor} w-100" value={score+0.33} max={4.33} />
   {#if strength?.feedback?.warning}
     <!-- TODO: This isn't great: if we don't translate some warning, l10n users see something like "login.password_warnings.This is a top-10 password". How can we do this better? -->
     <span class="text-error w-100">{$t(`login.password_warnings.${strength?.feedback?.warning}`)}</span>
