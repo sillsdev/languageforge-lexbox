@@ -11,6 +11,7 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import {delay} from '$lib/util/time';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
+  import { _typeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -46,6 +47,10 @@ function preFillForm(): void {
 
 let modal: ConfirmModal;
 let deleteModal: DeleteModal;
+
+  let typeaheadInput = '';
+  $: typeaheadResults = _typeaheadSearch(typeaheadInput);
+  let chosenUser: SingleUserTypeaheadResult | undefined = undefined;
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -71,6 +76,28 @@ let deleteModal: DeleteModal;
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
+      {#if chosenUser}
+      <!-- TODO: Some style tweaking needed to make the X button line up the way I want it to, but this is close enough for the sandbox page -->
+      <div class="flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
+        <div class="w-90"><Input label="User typeahead" readonly value={chosenUser.name} /></div>
+        <button class="ml-auto flex join btn btn-square btn-sm join-item" on:click={() => chosenUser = undefined}>
+          <span class="text-lg">✕</span>
+        </button>
+      </div>
+      {:else}
+      <Input label="User typeahead" bind:value={typeaheadInput} />
+      {/if}
+      {#if typeaheadResults}
+        {#await typeaheadResults}
+          <span>awaiting results...</span>
+        {:then users}
+          <ul>
+          {#each users as user}
+            <li><a href="" on:click={() => chosenUser = user}>{user.name} &lt;{user.email}&gt;</a></li>
+          {/each}
+          </ul>
+        {/await}
+      {/if}
       <TusUpload internalButton endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
     </div>
   </div>
