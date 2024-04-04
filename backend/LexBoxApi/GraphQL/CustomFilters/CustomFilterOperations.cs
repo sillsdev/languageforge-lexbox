@@ -24,7 +24,7 @@ public static class CustomFilterOperations
         descriptor.Configure<StringOperationFilterInputType>(
             x => x.Operation(IEq).Type<StringType>());
         descriptor.AddProviderExtension(new QueryableFilterProviderExtension(y => y
-                    .AddFieldHandler<QueryableStringDeterministicInvariantEqualsHandler>()));
+                    .AddFieldHandler<QueryableStringInvariantEqualsHandler>()));
 
         return descriptor;
     }
