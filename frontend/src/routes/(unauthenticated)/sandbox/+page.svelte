@@ -1,8 +1,7 @@
 ﻿<script lang="ts">
   import TusUpload from '$lib/components/TusUpload.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import {Button, Form, FormField, Input, lexSuperForm, PlainInput, SubmitButton} from '$lib/forms';
-  import IconButton from '$lib/components/IconButton.svelte';
+  import {Button, Form, Input, lexSuperForm, SubmitButton} from '$lib/forms';
   import {PageBreadcrumb} from '$lib/layout';
   import z from 'zod';
   // eslint-disable-next-line no-restricted-imports
@@ -12,7 +11,7 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import {delay} from '$lib/util/time';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import { _typeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
 
   function uploadFinished(): void {

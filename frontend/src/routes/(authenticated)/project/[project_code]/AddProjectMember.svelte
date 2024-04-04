@@ -20,7 +20,7 @@
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
 
-  export let selectedUser: SingleUserTypeaheadResult;
+  let selectedUser: SingleUserTypeaheadResult;
 
   const { notifySuccess } = useNotifications();
 

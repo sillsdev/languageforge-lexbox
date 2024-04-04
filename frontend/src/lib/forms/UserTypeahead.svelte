@@ -7,7 +7,8 @@
   export let error: string | string[] | undefined = undefined;
   export let id: string = randomFormId();
   export let autofocus = false;
-  export let result: SingleUserTypeaheadResult;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  export let result: SingleUserTypeaheadResult | undefined = undefined;
 
   let typeaheadInput = '';
   $: typeaheadResults = _typeaheadSearch(typeaheadInput);
@@ -32,6 +33,7 @@
   {:then users}
     <ul>
     {#each users as user}
+      <!-- svelte-ignore a11y-invalid-attribute -->
       <li><a href="" on:click={() => result = user}>{user.name} {user.email ? `<${user.email}>` : `(${user.username})`}</a></li>
     {/each}
     </ul>
