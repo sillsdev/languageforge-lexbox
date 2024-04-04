@@ -55,7 +55,7 @@ public static class UserEntityExtensions
             // Project editors (basic role) are allowed not to have email addresses
             if (forRole == ProjectRole.Editor) return;
             // BUT if they are to be project managers, they must have email addresses *and* those must be verified
-            throw new ProjectMembersMustBeVerifiedForRole("Member must verify email first", forRole);
+            throw new ProjectMembersMustBeVerifiedForRole("Member must verify email before taking on this role", forRole);
         } else {
             // Users who self-registered must verify email in all cases
             throw new ProjectMembersMustBeVerified("Member must verify email first");
