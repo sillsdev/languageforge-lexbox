@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using LexCore.Entities;
+using LexCore.Exceptions;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -45,12 +46,19 @@ public static class UserEntityExtensions
         return await users.FilterByEmailOrUsername(emailOrUsername).FirstOrDefaultAsync();
     }
 
-    public static bool HasVerifiedEmailForRole(this User user, ProjectRole forRole = ProjectRole.Unknown)
+    public static void AssertHasVerifiedEmailForRole(this User user, ProjectRole forRole = ProjectRole.Unknown)
     {
-        // Users bulk-created by admins might not have email addresses, and that's okay
-        // BUT if they are to be project managers, they must have verified email addresses
-        if (forRole == ProjectRole.Editor && user.CreatedById is not null) return true;
-        // Otherwise, we can simply use the EmailVerified property
-        return user.Email is not null && user.EmailVerified;
+        // Users with verified emails are the most common case, so check that first
+        if (user.Email is not null && user.EmailVerified) return;
+        // Users bulk-created by admins might not have email addresses
+        if (user.CreatedById is not null) {
+            // Project editors (basic role) are allowed not to have email addresses
+            if (forRole == ProjectRole.Editor) return;
+            // BUT if they are to be project managers, they must have email addresses *and* those must be verified
+            throw new ProjectMembersMustBeVerifiedForRole("Member must verify email first", forRole);
+        } else {
+            // Users who self-registered must verify email in all cases
+            throw new ProjectMembersMustBeVerified("Member must verify email first");
+        }
     }
 }

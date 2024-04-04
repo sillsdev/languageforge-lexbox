@@ -60,6 +60,7 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
     [Error<ProjectMembersMustBeVerifiedForRole>]
     [Error<ProjectMemberInvitedByEmail>]
     [Error<AlreadyExistsException>]
@@ -88,7 +89,7 @@ public class ProjectMutations
             throw new AlreadyExistsException("User is already a member of this project");
         }
 
-        if (!user.HasVerifiedEmailForRole(input.Role)) throw new ProjectMembersMustBeVerifiedForRole("Member must verify email first", input.Role);
+        user.AssertHasVerifiedEmailForRole(input.Role);
         user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
             new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
@@ -168,6 +169,7 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
     [Error<ProjectMembersMustBeVerifiedForRole>]
     [UseMutationConvention]
     [UseFirstOrDefault]
@@ -182,7 +184,7 @@ public class ProjectMutations
             await dbContext.ProjectUsers.Include(r => r.Project).Include(r => r.User).FirstOrDefaultAsync(u =>
                 u.ProjectId == input.ProjectId && u.UserId == input.UserId);
         if (projectUser is null) throw new NotFoundException("Project member not found");
-        if (!projectUser.User.HasVerifiedEmailForRole(input.Role)) throw new ProjectMembersMustBeVerifiedForRole("Member must verify email first", input.Role);
+        projectUser.User.AssertHasVerifiedEmailForRole(input.Role);
         projectUser.Role = input.Role;
         projectUser.User.UpdateCreateProjectsPermission(input.Role);
         projectUser.User.UpdateUpdatedDate();
