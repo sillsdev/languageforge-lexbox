@@ -382,6 +382,11 @@ If you don't see a dialog or already closed it, click the button below:",
   },
   "emails": {
     "link_expiration_warning": "This email will expire in 3 days.",
+    "link_expiration_days": "This email will expire in {days} {days, plural, one {day} other {days}}.",
+    "link_expiration_hours": "This email will expire in {hours} {hours, plural, one {hour} other {hours}}.",
+    "link_expiration_minutes": "This email will expire in {minutes} {minutes, plural, one {minute} other {minutes}}.",
+    "link_expiration_seconds": "This email will expire in {seconds} {seconds, plural, one {second} other {seconds}}.",
+    "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
       "subject": "New Language Depot administrator {adminName}",
       "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."

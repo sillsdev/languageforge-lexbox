@@ -13,17 +13,20 @@
             template: EmailTemplate.ForgotPassword,
             name: 'Bob',
             resetUrl: absoluteUrl('resetPassword'),
+            lifetime: '3.00:00:00', // 3 days
         },
         {
             template: EmailTemplate.VerifyEmailAddress,
             name: 'Bob',
             verifyUrl: absoluteUrl('user?emailResult=verifiedEmail'),
+            lifetime: '3.00:00:00', // 3 days
         },
         {
             label: 'Verify New Email Address',
             name: 'Bob',
             template: EmailTemplate.VerifyEmailAddress,
             verifyUrl: absoluteUrl('user?emailResult=changedEmail'),
+            lifetime: '3.00:00:00', // 3 days
             newAddress: true,
         },
         {
@@ -31,6 +34,7 @@
             name: 'Bob',
             template: EmailTemplate.CreateAccountRequest,
             verifyUrl: absoluteUrl('register?name=Bob'), // TODO: Get correct URL
+            lifetime: '3.00:00:00', // 3 days
         },
         {
             label: 'Create Project Request',

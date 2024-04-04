@@ -130,7 +130,7 @@ public class LexAuthService
         return (user == null ? null : new LexAuthUser(user), user);
     }
 
-    public (string token, DateTime expiresAt) GenerateJwt(LexAuthUser user,
+    public (string token, DateTime expiresAt, TimeSpan lifetime) GenerateJwt(LexAuthUser user,
         bool useEmailLifetime = false)
     {
         var options = _userOptions.Value;
@@ -144,7 +144,7 @@ public class LexAuthService
         return GenerateToken(user, user.Audience, lifetime);
     }
 
-    private (string token, DateTime expiresAt) GenerateToken(LexAuthUser user,
+    private (string token, DateTime expiresAt, TimeSpan lifetime) GenerateToken(LexAuthUser user,
         LexboxAudience audience,
         TimeSpan tokenLifetime)
     {
@@ -169,6 +169,6 @@ public class LexAuthService
         JwtTicketDataFormat.FixUpArrayClaims(jwt);
         var token = handler.WriteToken(jwt);
 
-        return (token, jwt.ValidTo.ToUniversalTime());
+        return (token, jwt.ValidTo.ToUniversalTime(), tokenLifetime);
     }
 }

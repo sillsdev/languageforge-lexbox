@@ -160,7 +160,7 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripJwtFromUserThroughLexAuthService()
     {
-        var (jwt, _) = _lexAuthService.GenerateJwt(_user);
+        var (jwt, _, _) = _lexAuthService.GenerateJwt(_user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var outputJwt = tokenHandler.ReadJwtToken(jwt);
@@ -194,14 +194,14 @@ public class LexAuthUserTests
                 .Select(i => new AuthUserProject(i % 2 == 0 ? ProjectRole.Manager : ProjectRole.Editor, Guid.NewGuid()))
                 .ToArray()
         };
-        var (jwt, _) = _lexAuthService.GenerateJwt(user);
+        var (jwt, _, _) = _lexAuthService.GenerateJwt(user);
         jwt.Length.ShouldBeLessThan(LexAuthUser.MaxJwtLength);
     }
 
     [Fact]
     public void CanRoundTripThroughRefresh()
     {
-        var (forgotJwt, _) = _lexAuthService.GenerateJwt(_user with { Audience = LexboxAudience.ForgotPassword });
+        var (forgotJwt, _, _) = _lexAuthService.GenerateJwt(_user with { Audience = LexboxAudience.ForgotPassword });
         //simulate parsing the token into a claims principal
         var tokenHandler = new JwtSecurityTokenHandler();
         var forgotPrincipal =
