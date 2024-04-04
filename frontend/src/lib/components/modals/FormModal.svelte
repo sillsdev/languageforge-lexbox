@@ -62,7 +62,7 @@
     modal.close();
   }
 
-  export function form(): Readable<Readonly<FormType>> {
+  export function form(): Readable<FormType> {
     return superForm.form;
   }
 

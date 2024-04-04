@@ -245,7 +245,7 @@
                   <Markdown
                     md={$t('project_page.get_project.instructions_wesay', {
                     code: project.code,
-                    login: encodeURIComponent(user.email),
+                    login: encodeURIComponent(user.email ?? user.username ?? ''),
                     name: project.name,
                   })}
                   />
