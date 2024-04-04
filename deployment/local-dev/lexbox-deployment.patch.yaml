@@ -16,7 +16,7 @@ spec:
             requests:
                 memory: 200Mi
             limits:
-                memory: 2Gi
+                memory: 1Gi
         env:
           - name: DbConfig__DefaultSeedUserPassword
             value: "pass"
