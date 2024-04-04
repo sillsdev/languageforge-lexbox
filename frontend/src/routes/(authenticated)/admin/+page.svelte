@@ -131,7 +131,8 @@
           <thead>
             <tr class="bg-base-200">
               <th>
-                {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
+                {$t('admin_dashboard.column_name')}
+                <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
               <th class="hidden @2xl:table-cell">
                 {$t('admin_dashboard.column_login')}

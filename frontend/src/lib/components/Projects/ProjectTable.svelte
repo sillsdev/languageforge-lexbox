@@ -32,7 +32,7 @@
         {#if isColumnVisible('createdAt')}
           <th class="hidden @xl:table-cell">
             {$t('project.table.created_at')}
-            <span class="i-mdi-sort-descending" />
+            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2" />
           </th>
         {/if}
         {#if isColumnVisible('lastChange')}
