@@ -16,7 +16,7 @@
   }
 </script>
 
-<div class="overflow-x-auto @container">
+<div class="overflow-x-auto @container scroll-shadow">
   <table class="table table-lg">
     <thead>
       <tr class="bg-base-200">
@@ -32,7 +32,7 @@
         {#if isColumnVisible('createdAt')}
           <th class="hidden @xl:table-cell">
             {$t('project.table.created_at')}
-            <span class="i-mdi-sort-descending" />
+            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2" />
           </th>
         {/if}
         {#if isColumnVisible('lastChange')}
@@ -77,7 +77,9 @@
             </td>
           {/if}
           {#if isColumnVisible('code')}
-            <td>{project.code}</td>
+            <td class="max-w-40 overflow-hidden text-ellipsis text-nowrap" title={project.code}>
+              {project.code}
+            </td>
           {/if}
           {#if isColumnVisible('users')}
             <td class="hidden @md:table-cell">

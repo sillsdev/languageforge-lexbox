@@ -35,7 +35,7 @@ public class EmailService(
         var (lexAuthUser, user) = await lexAuthService.GetUser(emailAddress);
         // we want to silently return if the user doesn't exist, so we don't leak information.
         if (lexAuthUser is null || user?.CanLogin() is not true) return;
-        var (jwt, _) = lexAuthService.GenerateJwt(lexAuthUser with { Audience = LexboxAudience.ForgotPassword }, true);
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(lexAuthUser with { Audience = LexboxAudience.ForgotPassword }, true);
 
         var email = StartUserEmail(user);
         if (email is null) return;
@@ -47,7 +47,7 @@ public class EmailService(
             "Login",
             new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
-        await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink), user.LocalizationCode);
+        await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink, lifetime), user.LocalizationCode);
         await SendEmailWithRetriesAsync(email, retryCount:5, retryWaitSeconds:30);
     }
 
@@ -72,7 +72,7 @@ public class EmailService(
     /// </param>
     public async Task SendVerifyAddressEmail(User user, string? newEmail = null)
     {
-        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser(user)
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser(user)
             {
                 EmailVerificationRequired = null, Email = newEmail ?? user.Email,
             },
@@ -88,7 +88,7 @@ public class EmailService(
             "Login",
             new { jwt, returnTo = $"/user?emailResult={queryParam}", email = newEmail ?? user.Email, });
         ArgumentException.ThrowIfNullOrEmpty(verifyLink);
-        await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail)), user.LocalizationCode);
+        await RenderEmail(email, new VerifyAddressEmail(user.Name, verifyLink, !string.IsNullOrEmpty(newEmail), lifetime), user.LocalizationCode);
         await SendEmailWithRetriesAsync(email);
     }
 
@@ -102,7 +102,7 @@ public class EmailService(
     public async Task SendCreateAccountEmail(string emailAddress, Guid projectId, ProjectRole role, string managerName, string projectName, string language = null)
     {
         language ??= User.DefaultLocalizationCode;
-        var (jwt, _) = lexAuthService.GenerateJwt(new LexAuthUser()
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser()
             {
                 Id = Guid.NewGuid(),
                 Audience = LexboxAudience.RegisterAccount,
@@ -122,14 +122,14 @@ public class EmailService(
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryString = QueryString.Create("email", emailAddress);
-        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value };
+        var returnTo = new UriBuilder() { Path = "/register", Query = queryString.Value }.Uri.PathAndQuery;
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
             "LoginRedirect",
             "Login",
             new { jwt, returnTo });
 
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
-        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink), language);
+        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink, lifetime), language);
         await SendEmailAsync(email);
 
     }

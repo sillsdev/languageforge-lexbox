@@ -133,6 +133,7 @@ type LexAuthUser {
   updatedDate: Long!
   audience: LexboxAudience!
   email: String
+  username: String
   name: String!
   role: UserRole!
   isAdmin: Boolean!
@@ -148,7 +149,7 @@ type LexAuthUser {
 type MeDto {
   id: UUID!
   name: String!
-  email: String!
+  email: String
   locale: String!
 }
 
@@ -348,14 +349,14 @@ input ChangeProjectNameInput {
 input ChangeUserAccountByAdminInput {
   role: UserRole!
   userId: UUID!
-  email: String!
+  email: String
   name: String!
 }
 
 input ChangeUserAccountBySelfInput {
   locale: String!
   userId: UUID!
-  email: String!
+  email: String
   name: String!
 }
 
@@ -578,6 +579,7 @@ input StringOperationFilterInput {
   endsWith: String
   nendsWith: String
   icontains: String
+  ieq: String
 }
 
 input UserFilterInput {

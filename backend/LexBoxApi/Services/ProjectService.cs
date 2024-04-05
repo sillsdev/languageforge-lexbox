@@ -1,15 +1,17 @@
 using System.Data.Common;
 using LexBoxApi.Models.Project;
+using LexCore.Config;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMemoryCache memoryCache)
+public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
@@ -110,7 +112,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
             .Include(p => p.FlexProjectMetadata)
             .FirstOrDefaultAsync(p => p.Code == projectCode);
         if (project is null) return;
-        if (project is { Type: ProjectType.FLEx })
+        if (hgConfig.Value.AutoUpdateLexEntryCountOnSendReceive && project is { Type: ProjectType.FLEx })
         {
             var count = await hgService.GetLexEntryCount(projectCode);
             if (project.FlexProjectMetadata is null)
