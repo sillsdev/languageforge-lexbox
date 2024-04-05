@@ -13,5 +13,4 @@
     serviceProvider.setService('LexboxApi', new LfClassicLexboxApi('sena-3'));
   }
 </script>
-<h1>Hello</h1>
 <lexbox-svelte></lexbox-svelte>
