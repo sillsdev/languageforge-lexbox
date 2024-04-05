@@ -31,10 +31,10 @@
   {#await typeaheadResults}
     <span>awaiting results...</span>
   {:then users}
-    <ul>
+    <ul class="menu p-0">
     {#each users as user}
       <!-- svelte-ignore a11y-invalid-attribute -->
-      <li><a href="" on:click={() => result = user}>{user.name} {user.email ? `<${user.email}>` : `(${user.username})`}</a></li>
+      <li class="p-0"><button class="whitespace-nowrap" on:click={() => result = user}>{user.name} {user.email ? `<${user.email}>` : `(${user.username})`}</button></li>
     {/each}
     </ul>
   {/await}
