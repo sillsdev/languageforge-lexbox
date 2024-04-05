@@ -38,18 +38,18 @@
 
   {#if selectedEntry}
     <div id="entry" class="grid self-start" style="grid-template-columns: 170px 40px 1fr" class:hide-empty-fields={$demoValues.hideEmptyFields}>
-      <div class="col-span-full mb-6 sticky top-4 z-10 bg-neutral text-surface-content p-3 rounded-md">
-        <div class="relative">
-          <div class="overflow-auto" class:max-h-20={!expandDictionaryEntry}>
+      <div class="col-span-full sticky mb-6 top-4 z-10">
+        <div class="bg-neutral text-surface-content overflow-auto rounded-sm shadow-lg shadow-neutral" class:max-h-20={!expandDictionaryEntry}>
+          <div class="px-3 py-2 text-sm">
             <DictionaryEntry entry={selectedEntry} bind:lines={dictionaryEntryLines} />
           </div>
-          {#if dictionaryEntryLines > 3}
+        </div>
+        {#if dictionaryEntryLines > 3}
             <Button on:click={() => expandDictionaryEntry = !expandDictionaryEntry}
                 variant="fill-light"
                 icon={expandDictionaryEntry ? mdiChevronUp : mdiChevronDown}
-                class="p-2 absolute bottom-0 right-6" />
+                class="p-2 absolute bottom-2 {expandDictionaryEntry ? 'right-2' : 'right-6'}" />
           {/if}
-        </div>
       </div>
       <EntryEditor on:change={() => {selectedEntry = selectedEntry; if (selectedEntry) selectedEntry.senses = selectedEntry.senses;}} entry={selectedEntry} />
     </div>
