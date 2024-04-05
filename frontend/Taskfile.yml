@@ -5,7 +5,16 @@ tasks:
     deps: [ install ]
     interactive: true
     cmds:
+      - task --parallel lexbox-ui watch-viewer
+
+  lexbox-ui:
+    cmds:
       - pnpm run dev
+
+  watch-viewer:
+    dir: ./viewer
+    cmds:
+      - pnpm run build:web-component --watch
 
   install:
     method: checksum
