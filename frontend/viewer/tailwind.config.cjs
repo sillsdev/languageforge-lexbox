@@ -16,7 +16,7 @@ module.exports = {
     svelteUx({ colorSpace: 'oklch' }),
   ],
   ux: {
-    themeRoot: ':host',
+    themeRoot: ':root, :host',
     themes: {
       "light": {
         "color-scheme": "light",
