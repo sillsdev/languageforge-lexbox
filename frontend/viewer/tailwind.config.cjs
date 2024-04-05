@@ -33,6 +33,7 @@ module.exports = {
     // }),
   ],
   ux: {
+    themeRoot: ':host',
     themes: {
       "light": {
         "color-scheme": "light",

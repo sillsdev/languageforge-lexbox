@@ -1,6 +1,5 @@
-﻿<script lang="ts">
+<script lang="ts">
   import 'viewer/component';
-  import 'viewer/style';
   import {type LexboxServiceProvider} from 'viewer/service-provider';
   import {LfClassicLexboxApi} from './lfClassicLexboxApi';
 
