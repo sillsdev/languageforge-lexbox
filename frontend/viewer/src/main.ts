@@ -1,8 +1,8 @@
-import './app.postcss';
+// import App from './App.svelte'
+// import { HubConnectionBuilder } from '@microsoft/signalr';
+// import { SetupSignalR } from './lib/services/service-provider-signalr';
 
-import App from './App.svelte'
-import { HubConnectionBuilder } from '@microsoft/signalr';
-import { SetupSignalR } from './lib/services/service-provider-signalr';
+
 
 // const connection = new HubConnectionBuilder()
 //     .withUrl("/api/hub/project")
@@ -11,8 +11,10 @@ import { SetupSignalR } from './lib/services/service-provider-signalr';
 // await connection.start();
 // SetupSignalR(connection);
 
-const app = new App({
-  target: document.getElementById('app')!,
-})
+// const app = new WebComponent({
+//   target: document.getElementById('app')!,
+// });
 
-export default app
+// export default app
+
+import './web-component';

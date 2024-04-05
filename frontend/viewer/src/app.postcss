@@ -2,9 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+:host, :root {
   @apply h-full;
   scroll-behavior: smooth;
+  @apply bg-surface-100;
+  color: var(--base-text);
 }
 
 .dialog {

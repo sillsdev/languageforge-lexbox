@@ -6,7 +6,6 @@ export default defineConfig(({ mode }) => {
   if (mode === 'web-component') {
     return {
       build: {
-        minify: false,
         lib: {
           entry: 'src/web-component.ts',
           formats: ['es'],
@@ -22,7 +21,11 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [svelte()],
+    plugins: [svelte({
+      compilerOptions: {
+        customElement: true,
+      },
+    })],
     server: {
       proxy: {
         '/api': {
