@@ -14,7 +14,7 @@
 
   export let projectId: string;
   const schema = z.object({
-    email: z.string().email($t('form.invalid_email')).optional(),
+    email: z.string().email($t('form.invalid_email')),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;
@@ -65,7 +65,7 @@
   <UserTypeahead
     id="email"
     label={$t('admin_dashboard.column_email')}
-    bind:result={selectedUser}
+    bind:value={$form.email}
     error={errors.email}
     autofocus
     />
