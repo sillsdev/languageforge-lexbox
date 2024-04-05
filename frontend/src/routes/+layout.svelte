@@ -7,7 +7,7 @@
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
   import { initNotificationService } from '$lib/notify';
-  import { overlayContainer } from '$lib/overlay';
+  import { OverlayContainer } from '$lib/overlay';
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import {onMount, setContext} from 'svelte';
@@ -41,7 +41,7 @@
   });
 </script>
 
-<div use:overlayContainer class="bg-base-200 shadow rounded-box z-[2] absolute" />
+<OverlayContainer />
 
 <svelte:head>
   {#if data.traceParent}

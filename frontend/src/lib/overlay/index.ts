@@ -1,11 +1,15 @@
 import type {Action, ActionReturn} from 'svelte/action';
-import {autoUpdate, computePosition, flip, offset} from '@floating-ui/dom';
-import {browser} from '$app/environment';
+import {autoUpdate, computePosition, flip, offset, type Placement} from '@floating-ui/dom';
+
+import { browser } from '$app/environment';
+
+export { default as OverlayContainer } from './OverlayContainer.svelte';
 
 type OverlayParams = { disabled?: boolean, closeClickSelector?: string } | undefined;
 type OverlayAction = Action<HTMLElement, OverlayParams>;
 
 class SharedOverlay {
+  private containerStack: HTMLElement[] = [];
   private containerElem: HTMLElement | undefined;
   private activeOverlay: { targetElem: HTMLElement; contentElem: HTMLElement } | undefined;
   private cleanupOverlay: (() => void) | undefined;
@@ -15,7 +19,7 @@ class SharedOverlay {
     if (browser) document.addEventListener('click', this.closeHandler.bind(this));
   }
 
-  public openOverlay(targetElem: HTMLElement, contentElem: HTMLElement): void {
+  public openOverlay(targetElem: HTMLElement, contentElem: HTMLElement, placement: Placement): void {
     if (this.isActive(targetElem)) return;
     if (!this.containerElem) throw new Error('No overlay container has been provided');
     this.resetDom();
@@ -27,7 +31,7 @@ class SharedOverlay {
       () => {
         if (!this.containerElem) return;
         void computePosition(targetElem, this.containerElem, {
-          placement: 'bottom-end',
+          placement,
           middleware: [offset(2), flip()],
         }).then(({x, y}) => {
           if (!this.containerElem) return;
@@ -63,15 +67,19 @@ class SharedOverlay {
   }
 
   public overlayContainer(element: HTMLElement): ActionReturn {
-    if (this.containerElem) console.warn('Overlay container is already set');
+    if (this.containerElem) {
+      this.containerStack.push(this.containerElem);
+      this.closeOverlay();
+    }
     this.containerElem = element;
     this.containerElem.classList.add('overlay-container');
     this.resetDom();
     return {
       destroy: () => {
+        this.containerStack = this.containerStack.filter((elem) => elem !== element);
         if (this.containerElem !== element) return;
         this.closeOverlay();
-        this.containerElem = undefined;
+        this.containerElem = this.containerStack.pop();
       }
     };
   }
@@ -95,6 +103,7 @@ class SharedOverlay {
 class OverlayTarget implements ActionReturn<OverlayParams> {
   private contentElem: HTMLElement;
   private abortController = new AbortController();
+  private useInputConfig = false;
 
   constructor(private targetElem: HTMLElement,
               private disabled: boolean,
@@ -104,9 +113,17 @@ class OverlayTarget implements ActionReturn<OverlayParams> {
     if (!this.contentElem) throw new Error('Overlay target must have a child with class "overlay-content"');
     this.contentElem.remove();
 
-    this.targetElem.addEventListener('click',
-      () => this.isActive() ? this.closeOverlay() : this.openOverlay(),
-      {signal: this.abortController.signal});
+    this.useInputConfig = this.targetElem.matches('input') || !!this.targetElem.querySelector('input');
+
+    if (this.useInputConfig) {
+      this.targetElem.addEventListener('focusin',
+        () => !this.isActive() && this.openOverlay(),
+        {signal: this.abortController.signal});
+    } else {
+      this.targetElem.addEventListener('click',
+        () => this.isActive() ? this.closeOverlay() : this.openOverlay(),
+        {signal: this.abortController.signal});
+    }
 
     // clicking on menu items should probably always close the overlay
     this.contentElem.addEventListener('click', (event) => {
@@ -134,7 +151,8 @@ class OverlayTarget implements ActionReturn<OverlayParams> {
 
   private openOverlay(): void {
     if (!this.disabled) {
-      this.sharedOverlay.openOverlay(this.targetElem, this.contentElem);
+      this.sharedOverlay.openOverlay(this.targetElem, this.contentElem,
+        this.useInputConfig ? 'bottom-start' : 'bottom-end');
     }
   }
 
