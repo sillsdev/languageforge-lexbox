@@ -12,7 +12,7 @@
     projectType: ProjectType | undefined;
     showDeletedProjects: boolean;
     hideDraftProjects: boolean;
-    userEmail: string | undefined;
+    memberSearch: string | undefined;
   };
 
   export function filterProjects(
@@ -46,7 +46,7 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'hideDraftProjects'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'memberSearch', 'hideDraftProjects'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -66,7 +66,7 @@
           <TrashIcon color="text-error" />
           {$t('project.filter.show_deleted')}
         </ActiveFilter>
-      {:else if filter.key === 'userEmail' && filter.value}
+      {:else if filter.key === 'memberSearch' && filter.value}
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
           {filter.value}
@@ -81,17 +81,17 @@
   </svelte:fragment>
   <svelte:fragment slot="filters">
     <h2 class="card-title">{$t('project.filter.title')}</h2>
-    {#if filterEnabled('userEmail')}
+    {#if filterEnabled('memberSearch')}
       <FormField label={$t('project.filter.project_member')}>
-        {#if $filters.userEmail}
+        {#if $filters.memberSearch}
           <div class="join">
             <input
               class="input input-bordered join-item flex-grow"
               readonly
-              value={$filters.userEmail}
+              value={$filters.memberSearch}
             />
             <div class="join-item isolate">
-              <IconButton icon="i-mdi-close" on:click={() => ($filters.userEmail = undefined)} />
+              <IconButton icon="i-mdi-close" on:click={() => ($filters.memberSearch = undefined)} />
             </div>
           </div>
         {:else}

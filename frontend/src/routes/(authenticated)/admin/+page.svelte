@@ -34,7 +34,7 @@
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
-    userEmail: queryParam.string(undefined),
+    memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     tab: queryParam.string<AdminTabId>('projects'),
   });
@@ -58,7 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email ?? undefined;
+    $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
   }
 
   let userModal: UserModal;
