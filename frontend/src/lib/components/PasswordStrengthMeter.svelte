@@ -1,5 +1,4 @@
 <script lang="ts">
-  import t from '$lib/i18n';
   import zxcvbn from 'zxcvbn';
 
   // zxcvbn password strength is an int between 0 and 4 inclusive
