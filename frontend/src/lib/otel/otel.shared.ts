@@ -26,16 +26,18 @@ export function tracer(): Tracer {
 }
 
 type ErrorType = 'gql' | 'fetch' | 'jwt-decode';
-type ErrorSource = `${'client' | 'server'}-${ErrorType}`;
-type ErrorAttributes = Attributes & { ['app.error.source']: ErrorHandler | ErrorSource };
+type LexBoxErrorSource = `${'client' | 'server'}-${ErrorType}`;
+export type ErrorSource = LexBoxErrorSource | ErrorHandler;
+type ErrorAttributes = Attributes & { ['app.error.source']: ErrorSource };
 
-export function errorSourceTag(errorType: ErrorType): ErrorSource {
+export function errorSourceTag(errorType: ErrorType): LexBoxErrorSource {
   return `${browser ? 'client' : 'server'}-${errorType}`;
 }
 
 interface ErrorContext {
   event: RequestEvent | NavigationEvent | Event | undefined;
   span: Span;
+  errorSource: ErrorSource;
 }
 
 // Span and attribute names and values are based primarily on the OpenTelemetry semantic conventions for HTTP
@@ -73,23 +75,39 @@ const RECORDED_HEADERS_NORMALIZED = [
 ].map(normalizeHeaderName);
 
 export function ensureErrorIsTraced(
-    error: unknown,
-    context: Partial<ErrorContext> | undefined,
-    metadata: ErrorAttributes,
+  error: unknown,
+  context: Partial<ErrorContext> | undefined,
+  metadata: ErrorAttributes,
+  ensureMetadataIsTraced?: boolean,
 ): TraceId {
   if (isTraced(error)) {
+    const updatedMetadata = {
+      ...metadata,
+      // A more specific source was likely already set
+      ['app.error.source']: error.tracer ?? metadata['app.error.source'],
+    };
     const foundSpan = getAvailableSpan(context?.span);
     // If it's already been traced and no span is available, we don't want to create a redundant one
     if (metadata && foundSpan) {
-      // A more specific source was likely already set
-      const { ['app.error.source']: _, ...restMetadata } = metadata;
-      foundSpan.setAttributes(restMetadata);
+      foundSpan.setAttributes(updatedMetadata);
+    } else if (metadata && ensureMetadataIsTraced) {
+      // The error was already traced, but there might be metadata we want to link to the original trace after the fact
+      // The original traceId is still the most valuable one though, so we ignore the new one
+      tracer().startActiveSpan('error-metadata', { links: [{ context: error.spanContext, attributes: updatedMetadata }] }, (span) => {
+        try { traceErrorEventOnBestSpan(error, context, updatedMetadata); }
+        finally { span.end(); }
+      });
     }
-    return error.traceId;
+    return error.spanContext.traceId;
   }
 
+  const traceId = traceErrorEventOnBestSpan(error, context, metadata);
+  return traceId;
+}
+
+function traceErrorEventOnBestSpan(error: unknown, context: Partial<ErrorContext> | undefined, metadata: ErrorAttributes): TraceId {
   return traceOnBestSpan('error', context?.span, metadata, (span) =>
-      traceErrorEvent(error, {span, event: context?.event}),
+      traceErrorEvent(error, {span, event: context?.event, errorSource: metadata['app.error.source']}),
   );
 }
 
@@ -104,12 +122,12 @@ function traceErrorEvent(
   if (event) traceEventAttributes(span, event);
   traceUserAttributes(span, event);
 
-  const traceId = span.spanContext().traceId;
-  if (isTraceable(error)) {
-    traceIt(error, traceId);
+  const spanContext = span.spanContext();
+  if (isTraceable(error) && !isTraced(error)) {
+    traceIt(error, spanContext, context.errorSource);
   }
 
-  return traceId;
+  return spanContext.traceId;
 }
 
 /**
