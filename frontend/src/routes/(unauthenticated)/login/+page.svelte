@@ -20,6 +20,7 @@
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
     password: z.string().min(1, $t('login.password_missing')),
+    _score: z.number(), // Not currently used by API, but PasswordStrengthMeter wants something to bind to
   });
   let { form, errors, message, enhance, submitting } = lexSuperForm(
     formSchema,
@@ -77,7 +78,7 @@
             autocomplete="current-password"
           />
 
-          <PasswordStrengthMeter password={$form.password} />
+          <PasswordStrengthMeter bind:score={$form._score} password={$form.password} />
 
           <div class="markdown-wrapper">
             <FormError error={$message} markdown />

@@ -90,7 +90,7 @@
         bind:value={$form.password}
         error={errors.password}
       />
-      <PasswordStrengthMeter password={$form.password} />
+      <PasswordStrengthMeter score={0} password={$form.password} />
       <TextArea
         id="usernamesText"
         label={$t('project_page.bulk_add_members.usernames')}
