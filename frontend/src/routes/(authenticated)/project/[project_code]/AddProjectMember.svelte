@@ -14,7 +14,7 @@
 
   export let projectId: string;
   const schema = z.object({
-    email: z.string().email($t('form.invalid_email')),
+    usernameOrEmail: z.string(),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;
@@ -28,18 +28,28 @@
     let userInvited = false;
     let selectedEmail: string = '';
     const { response, formState } = await formModal.open(async () => {
-      selectedEmail = $form.email ? $form.email : selectedUser.email ?? selectedUser.username ?? '';
+      selectedEmail = $form.usernameOrEmail ? $form.usernameOrEmail : selectedUser.email ?? selectedUser.username ?? '';
       const { error } = await _addProjectMember({
         projectId,
-        userEmail: selectedEmail,
+        usernameOrEmail: selectedEmail,
         role: $form.role,
       });
 
       if (error?.byType('NotFoundError')) {
-        return { email: [$t('project_page.add_user.project_not_found')] };
+        if (error.message === 'Project not found') {
+          return $t('project_page.add_user.project_not_found');
+        } else {
+          return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
+        }
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
-        return { email: [$t('project_page.add_user.user_must_be_verified')] };
+        return { usernameOrEmail: [$t('project_page.add_user.user_must_be_verified')] };
+      }
+      if (error?.byType('ProjectMembersMustBeVerifiedForRole')) {
+        return { role: [$t('project_page.add_user.manager_must_be_verified')] };
+      }
+      if (error?.byType('AlreadyExistsError')) {
+        return { usernameOrEmail: [$t('project_page.add_user.user_already_member')] };
       }
       if (error?.byType('ProjectMemberInvitedByEmail')) {
         userInvited = true;
@@ -50,7 +60,7 @@
     });
     if (response === DialogResponse.Submit) {
       const message = userInvited ? 'member_invited' : 'add_member';
-      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.email.currentValue ?? selectedEmail }));
+      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue ?? selectedEmail }));
     }
   }
 </script>
@@ -63,22 +73,28 @@
   <span slot="title">{$t('project_page.add_user.modal_title')}</span>
 {#if isAdmin($page.data.user)}
   <UserTypeahead
-    id="email"
-    label={$t('admin_dashboard.column_email')}
-    bind:value={$form.email}
-    error={errors.email}
+    id="usernameOrEmail"
+    label={$t('login.label_email')}
+    bind:value={$form.usernameOrEmail}
+    error={errors.usernameOrEmailail}
     autofocus
     />
 {:else}
   <Input
-    id="email"
-    type="email"
-    label={$t('admin_dashboard.column_email')}
-    bind:value={$form.email}
-    error={errors.email}
+    id="usernameOrEmail"
+    type="text"
+    label={$t('login.label_email')}
+    bind:value={$form.usernameOrEmail}
+    error={errors.usernameOrEmail}
     autofocus
   />
 {/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="submitText">{$t('project_page.add_user.submit_button')}</span>
+  <span slot="submitText">
+    {#if $form.usernameOrEmail.includes('@')}
+      {$t('project_page.add_user.submit_button_email')}
+    {:else}
+      {$t('project_page.add_user.submit_button')}
+    {/if}
+  </span>
 </FormModal>

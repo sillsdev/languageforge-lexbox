@@ -66,7 +66,7 @@
       </div>
       <span class="i-mdi-email-heart-outline" />
     </div>
-  {:else}
+  {:else if user.email}
     <div class="alert alert-warning" transition:slide|local>
       <span>{$t('account_settings.verify_email.please_verify')}</span>
       <Button loading={sendingVerificationEmail} on:click={sendVerificationEmail}>

@@ -34,7 +34,7 @@
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
-    userEmail: queryParam.string(undefined),
+    memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     tab: queryParam.string<AdminTabId>('projects'),
   });
@@ -58,7 +58,7 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email ?? undefined;
+    $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
   }
 
   let userModal: UserModal;
@@ -79,7 +79,7 @@
       if (formState.name.tainted || formState.password.tainted || formState.role.tainted) {
         notifySuccess($t('admin_dashboard.notifications.user_updated', { name: formState.name.currentValue }));
       }
-      if (formState.email.changed) {
+      if (formState.email.changed && formState.email.currentValue) {
         notifySuccess(
           $t('admin_dashboard.notifications.email_need_verification', {
             name: user.name,
@@ -131,7 +131,8 @@
           <thead>
             <tr class="bg-base-200">
               <th>
-                {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
+                {$t('admin_dashboard.column_name')}
+                <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
               <th class="hidden @2xl:table-cell">
                 {$t('admin_dashboard.column_login')}

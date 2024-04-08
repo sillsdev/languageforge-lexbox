@@ -133,6 +133,7 @@ type LexAuthUser {
   updatedDate: Long!
   audience: LexboxAudience!
   email: String
+  username: String
   name: String!
   role: UserRole!
   isAdmin: Boolean!
@@ -148,7 +149,7 @@ type LexAuthUser {
 type MeDto {
   id: UUID!
   name: String!
-  email: String!
+  email: String
   locale: String!
 }
 
@@ -203,6 +204,10 @@ type ProjectMemberInvitedByEmail implements Error {
 }
 
 type ProjectMembersMustBeVerified implements Error {
+  message: String!
+}
+
+type ProjectMembersMustBeVerifiedForRole implements Error {
   message: String!
 }
 
@@ -287,13 +292,13 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | AlreadyExistsError
 
 union BulkAddProjectMembersError = NotFoundError | DbError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
-union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified
+union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
 
 union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
@@ -313,7 +318,7 @@ union SoftDeleteProjectError = NotFoundError | DbError
 
 input AddProjectMemberInput {
   projectId: UUID!
-  userEmail: String!
+  usernameOrEmail: String!
   role: ProjectRole!
 }
 
@@ -348,14 +353,14 @@ input ChangeProjectNameInput {
 input ChangeUserAccountByAdminInput {
   role: UserRole!
   userId: UUID!
-  email: String!
+  email: String
   name: String!
 }
 
 input ChangeUserAccountBySelfInput {
   locale: String!
   userId: UUID!
-  email: String!
+  email: String
   name: String!
 }
 
@@ -578,6 +583,7 @@ input StringOperationFilterInput {
   endsWith: String
   nendsWith: String
   icontains: String
+  ieq: String
 }
 
 input UserFilterInput {

@@ -84,10 +84,10 @@
     {/if}
   </svelte:fragment>
 
-  {#if !data.user.emailVerified || !$projects.length}
+  {#if !$projects.length}
     <div class="text-lg text-secondary flex gap-4 items-center justify-center">
       <span class="i-mdi-creation-outline text-xl shrink-0" />
-      {#if !data.user.emailVerified}
+      {#if !data.user.emailVerified && !data.user.createdByAdmin}
         {$t('user_dashboard.not_verified')}
       {:else}
         {$t('user_dashboard.no_projects')}
