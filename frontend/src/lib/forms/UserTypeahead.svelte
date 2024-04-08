@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _typeaheadSearch } from '$lib/gql/typeahead-queries';
+  import { _typeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { onMount } from 'svelte';
@@ -20,6 +20,14 @@
   let typeaheadResults = deriveAsync(input, _typeaheadSearch, [], debounceMs);
   typeaheadResults.subscribe(console.log);
 
+  function formatResult(user: SingleUserTypeaheadResult): string {
+    const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
+                : user.username ? ` (${user.username})`
+                : user.email ? ` (${user.email})`
+                : '';
+    return `${user.name}${extra}`;
+  }
+
 </script>
 
 <FormField {id} {label} {error} {autofocus} >
@@ -28,7 +36,7 @@
     <div class="overlay-content">
       <ul class="menu p-0">
       {#each $typeaheadResults as user}
-        <li class="p-0"><button class="whitespace-nowrap" on:click={() => setTimeout(() => $input = value = user.email ?? user.username ?? '')}>{user.name} {user.email ? `<${user.email}>` : `(${user.username})`}</button></li>
+        <li class="p-0"><button class="whitespace-nowrap" on:click={() => setTimeout(() => $input = value = user.email ?? user.username ?? '')}>{formatResult(user)}</button></li>
       {/each}
       </ul>
     </div>
