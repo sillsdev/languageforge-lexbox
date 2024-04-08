@@ -34,9 +34,10 @@
   $: addedCount = addedMembers.length + createdMembers.length;
 
   const usernameRe = /^[a-zA-Z0-9_]+$/;
+  const emailRe = /@/;
 
-  function validateUsernames(usernames: string[]): boolean {
-    return usernames.every(s => usernameRe.test(s));
+  function validateBulkAddInput(usernames: string[]): boolean {
+    return usernames.every(s => usernameRe.test(s) || emailRe.test(s));
   }
 
   async function openModal(): Promise<void> {
@@ -50,7 +51,7 @@
         // Remove empty lines before validating, otherwise final newline would count as invalid because empty string
         .filter(s => s)
         .filter(distinct);
-      if (!validateUsernames(usernames)) {
+      if (!validateBulkAddInput(usernames)) {
         return $t('project_page.bulk_add_members.usernames_alphanum_only');
       }
       const { error, data } = await _bulkAddProjectMembers({
