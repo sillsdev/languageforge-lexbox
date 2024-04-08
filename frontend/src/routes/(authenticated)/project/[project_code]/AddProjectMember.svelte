@@ -28,7 +28,7 @@
     let userInvited = false;
     let selectedEmail: string = '';
     const { response, formState } = await formModal.open(async () => {
-      selectedEmail = $form.usernameOrEmail ? $form.usernameOrEmail : selectedUser.email ?? selectedUser.username ?? '';
+      selectedEmail = $form.usernameOrEmail ? $form.usernameOrEmail : selectedUser?.email ?? selectedUser?.username ?? '';
       const { error } = await _addProjectMember({
         projectId,
         usernameOrEmail: selectedEmail,
