@@ -65,7 +65,9 @@ export async function loadI18n(locale?: string): Promise<void> {
   }
 
   if (browser) {
-    await waitLocale(locale); // ensure the current locale (which can change) is loaded
+    // to avoid race conditions (and maybe for this statement to have any effect at all)
+    // we need to wait for a specific locale from availableLocales (e.g. 'en') rather than a regional locale that we only implicitly support
+    await waitLocale(locale?.split('-')[0] ?? 'en'); // ensure the current locale (which can change) is loaded
   }
 }
 
