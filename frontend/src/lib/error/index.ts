@@ -106,6 +106,13 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
   function errorIsFromExtension(error: Error): boolean {
     return !!error.stack &&
       // tested on Chrome, Edge, Firefox and Brave
-      (error.stack.includes('chrome-extension://') || error.stack.includes('moz-extension://'));
+      (error.stack.includes('chrome-extension://') || error.stack.includes('moz-extension://')
+      || originatesFromAnonymousScript(error.stack));
+  }
+
+  function originatesFromAnonymousScript(stack: string): boolean {
+    // VM/anonymous code errors are almost certainly not from our code
+    const lastLine = stack.split('\n').pop() ?? '';
+    return lastLine.includes('at <anonymous>');
   }
 }
