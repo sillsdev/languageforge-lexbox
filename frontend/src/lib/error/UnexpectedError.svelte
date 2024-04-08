@@ -54,6 +54,8 @@
       return 'prod';
     } else if (_env.includes('stag')) {
       return 'staging';
+    } else if (_env.includes('develop')) {
+      return 'develop';
     } else {
       return 'test';
     }
