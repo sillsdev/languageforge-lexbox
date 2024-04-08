@@ -76,7 +76,7 @@
     id="usernameOrEmail"
     label={$t('login.label_email')}
     bind:value={$form.usernameOrEmail}
-    error={errors.usernameOrEmailail}
+    error={errors.usernameOrEmail}
     autofocus
     />
 {:else}
