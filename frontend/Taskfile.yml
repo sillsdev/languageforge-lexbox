@@ -1,13 +1,13 @@
 ﻿version: 3
+output: prefixed
 tasks:
   ui-only:
     aliases: [ o, only ]
-    deps: [ install ]
     interactive: true
-    cmds:
-      - task --parallel lexbox-ui watch-viewer
+    deps: [lexbox-ui, watch-viewer]
 
   lexbox-ui:
+    deps: [ install ]
     cmds:
       - pnpm run dev
 
