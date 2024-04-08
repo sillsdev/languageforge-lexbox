@@ -35,10 +35,13 @@ public class UserService(LexBoxDbContext dbContext, EmailService emailService, L
         }
     }
 
-    public async Task ResetPasswordStrength(Guid id)
+    public async Task SetPasswordStrength(Guid id, int? strength)
     {
+        var clamped = strength;
+        if (clamped is not null and < 0) clamped = 0;
+        if (clamped is not null and > 4) clamped = 4;
         await dbContext.Users.Where(u => u.Id == id)
-            .ExecuteUpdateAsync(c => c.SetProperty(u => u.PasswordStrength, null as int?));
+            .ExecuteUpdateAsync(c => c.SetProperty(u => u.PasswordStrength, clamped));
     }
 
     public async Task<long> GetUserUpdatedDate(Guid id)

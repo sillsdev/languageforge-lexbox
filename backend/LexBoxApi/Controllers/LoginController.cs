@@ -219,7 +219,7 @@ public class LoginController(
         return Ok();
     }
 
-    public record ResetPasswordRequest([Required(AllowEmptyStrings = false)] string PasswordHash);
+    public record ResetPasswordRequest([Required(AllowEmptyStrings = false)] string PasswordHash, int? PasswordStrength);
 
     [HttpPost("resetPassword")]
     [RequireAudience(LexboxAudience.ForgotPassword)]
@@ -234,7 +234,7 @@ public class LoginController(
         var user = await lexBoxDbContext.Users.FindAsync(lexAuthUser.Id);
         if (user == null) return NotFound();
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
-        await userService.ResetPasswordStrength(user.Id);
+        await userService.SetPasswordStrength(user.Id, request.PasswordStrength);
         user.UpdateUpdatedDate();
         await lexBoxDbContext.SaveChangesAsync();
         await emailService.SendPasswordChangedEmail(user);

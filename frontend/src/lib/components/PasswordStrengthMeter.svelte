@@ -7,7 +7,7 @@
   export let bad = 0;
   export let poor = 2;
 
-  let score: 0|1|2|3|4;
+  export let score: number;
 
   function passwordStrengthColor(score: number): 'progress-error' | 'progress-warning' | 'progress-success' {
     if (score <= bad) return 'progress-error';

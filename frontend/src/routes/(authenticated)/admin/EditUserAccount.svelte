@@ -20,6 +20,7 @@
     email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
+    score: z.number(),
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
   type Schema = typeof schema;
@@ -56,7 +57,7 @@
         await fetch('/api/Admin/resetPassword', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
+          body: JSON.stringify({ passwordHash: await hash($form.password), passwordStrength: $form.score, userId: user.id }),
         });
       }
     });

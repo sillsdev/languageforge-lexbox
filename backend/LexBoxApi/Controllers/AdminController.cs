@@ -30,7 +30,7 @@ public class AdminController : ControllerBase
         _emailService = emailService;
     }
 
-    public record ResetPasswordAdminRequest([Required(AllowEmptyStrings = false)] string PasswordHash, Guid userId);
+    public record ResetPasswordAdminRequest([Required(AllowEmptyStrings = false)] string PasswordHash, int? PasswordStrength, Guid userId);
 
     [HttpPost("resetPassword")]
     [AdminRequired]
@@ -39,7 +39,7 @@ public class AdminController : ControllerBase
         var passwordHash = request.PasswordHash;
         var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == request.userId);
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
-        await _userService.ResetPasswordStrength(user.Id);
+        await _userService.SetPasswordStrength(user.Id, request.PasswordStrength);
         user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();
         await _emailService.SendPasswordChangedEmail(user);

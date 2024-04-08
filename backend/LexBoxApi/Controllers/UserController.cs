@@ -68,6 +68,10 @@ public class UserController : ControllerBase
         var jwtUser = _loggedInContext.MaybeUser;
         var emailVerified = jwtUser?.Email == accountInput.Email;
 
+        var passwordStrength = accountInput.PasswordStrength;
+        if (passwordStrength is not null and < 0) passwordStrength = 0;
+        if (passwordStrength is not null and > 4) passwordStrength = 4;
+
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
         {
@@ -77,7 +81,7 @@ public class UserController : ControllerBase
             LocalizationCode = accountInput.Locale,
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
-            PasswordStrength = null, // Will be set when user first logs in
+            PasswordStrength = passwordStrength,
             IsAdmin = false,
             EmailVerified = emailVerified,
             Locked = false,

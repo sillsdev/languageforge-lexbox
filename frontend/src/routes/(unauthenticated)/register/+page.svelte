@@ -21,11 +21,12 @@
     name: z.string().min(1, $t('register.name_missing')),
     email: z.string().email($t('form.invalid_email')),
     password: passwordFormRules($t),
+    score: z.number(),
     locale: z.string().min(2).default(userLocale),
   });
 
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
-    const { user, error } = await register($form.password, $form.name, $form.email, $form.locale, turnstileToken);
+    const { user, error } = await register($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
     if (error) {
       if (error.turnstile) {
         $message = $t('turnstile.invalid');
@@ -70,7 +71,7 @@
       error={$errors.password}
       autocomplete="new-password"
     />
-    <PasswordStrengthMeter password={$form.password} />
+    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
     <DisplayLanguageSelect
       bind:value={$form.locale}
     />
