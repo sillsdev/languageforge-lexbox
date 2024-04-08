@@ -17,6 +17,7 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
             .Where(p => p.ProjectCode == projectCode)
             .Select(p => p.InputSystems)
             .FirstOrDefaultAsync();
+        if (inputSystems is null) return new();
         var vernacular = new List<WritingSystem>();
         var analysis = new List<WritingSystem>();
         foreach (var (ws, inputSystem) in inputSystems)
@@ -58,6 +59,10 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
     {
         options ??= QueryOptions.Default;
         var ws = await GetWritingSystems();
+        if (ws is { Vernacular: [], Analysis: [] })
+        {
+            yield break;
+        }
         var sortWs = options.Order.WritingSystem;
         if (sortWs == "default")
         {
