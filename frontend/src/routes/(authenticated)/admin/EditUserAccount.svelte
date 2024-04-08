@@ -120,7 +120,7 @@
       autocomplete="new-password"
       error={errors.password}
     />
-    <PasswordStrengthMeter password={$form.password} />
+    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
   </div>
   <FormError error={lockUserError} />
   <svelte:fragment slot="extraActions">
