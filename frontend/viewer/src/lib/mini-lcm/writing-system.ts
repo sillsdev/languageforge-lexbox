@@ -8,4 +8,5 @@ export interface WritingSystem {
     name: string;
     abbreviation: string;
     font: string;
+    exemplars: string[];
 }

@@ -16,9 +16,8 @@
   import { firstDefOrGlossVal, firstVal } from './lib/utils';
   import { allFields, views } from './lib/config-data';
   import { fieldName } from './lib/i18n';
-  import { LexboxServiceProvider, LexboxServices } from './lib/services/service-provider';
+  import { LexboxServices } from './lib/services/service-provider';
   import type { LexboxApi } from './lib/services/lexbox-api';
-  import { entries as mockEntries, writingSystems as mockWritingSystems } from './lib/entry-data';
   import type { IEntry, WritingSystems } from './lib/mini-lcm';
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
@@ -41,8 +40,8 @@
 
   const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
-  const entriesPromise: Promise<IEntry[]> = lexboxApi?.GetEntries(undefined) ?? Promise.resolve(mockEntries);
-  let wsPromise: Promise<WritingSystems> = lexboxApi?.GetWritingSystems() ?? Promise.resolve(mockWritingSystems);
+  const entriesPromise: Promise<IEntry[]> = lexboxApi.GetEntries(undefined);
+  let wsPromise: Promise<WritingSystems> = lexboxApi.GetWritingSystems();
 
     const writingSystems = writable<WritingSystems>();
   setContext('writingSystems', writingSystems);

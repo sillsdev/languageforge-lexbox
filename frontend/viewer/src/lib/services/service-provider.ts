@@ -1,3 +1,5 @@
+import {InMemoryApiService} from '../in-memory-api-service';
+
 declare global {
 
   interface Lexbox {
@@ -38,3 +40,4 @@ export class LexboxServiceProvider {
 }
 if (!window.lexbox) { window.lexbox = { ServiceProvider: new LexboxServiceProvider()}; }
 else window.lexbox.ServiceProvider = new LexboxServiceProvider();
+window.lexbox.ServiceProvider.setService(LexboxServices.LexboxApi, new InMemoryApiService());
