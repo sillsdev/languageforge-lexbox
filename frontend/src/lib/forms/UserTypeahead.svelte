@@ -16,7 +16,7 @@
 
 <FormField {id} {label} {error} {autofocus} >
   <div use:overlay={{ closeClickSelector: '.menu li'}}>
-    <PlainInput debounce {id} bind:value type="text" autocomplete="off" />
+    <PlainInput style="w-full" debounce {id} bind:value type="text" autocomplete="off" />
     <div class="overlay-content">
       {#await typeaheadResults}
       <span>awaiting results...</span>
