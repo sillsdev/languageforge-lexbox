@@ -169,7 +169,10 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
               }
             }
             errors {
-            __typename
+              __typename
+              ... on FormatError {
+                message
+              }
             }
           }
         }

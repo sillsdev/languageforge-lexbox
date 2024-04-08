@@ -61,6 +61,10 @@
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 
+      if (error?.byType('FormatError')) {
+        return { usernamesText: [error?.message] };
+      }
+
       addedMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.addedMembers ?? [];
       createdMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdMembers ?? [];
       existingMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.existingMembers ?? [];

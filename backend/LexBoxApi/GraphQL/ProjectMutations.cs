@@ -13,6 +13,7 @@ using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Net.Mail;
 
 namespace LexBoxApi.GraphQL;
 
@@ -103,6 +104,7 @@ public class ProjectMutations
     public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers);
 
     [Error<NotFoundException>]
+    [Error<FormatException>]
     [Error<DbError>]
     [AdminRequired]
     [UseMutationConvention]
@@ -119,22 +121,40 @@ public class ProjectMutations
         var existingUsers = await dbContext.Users.Include(u => u.Projects).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
         var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
         var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
-        foreach (var username in input.Usernames)
+        foreach (var usernameOrEmail in input.Usernames)
         {
-            var user = byUsername.GetValueOrDefault(username) ?? byEmail.GetValueOrDefault(username);
+            var user = byUsername.GetValueOrDefault(usernameOrEmail) ?? byEmail.GetValueOrDefault(usernameOrEmail);
             if (user is null)
             {
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-                var isEmailAddress = username.Contains('@');
-                // TODO: In the future we'll want to allow usernames in the form "Real Name <email@example.com>" and extract the real name from them
-                // For now, just:
-                var name = username;
+                var isEmailAddress = usernameOrEmail.Contains('@');
+                string name;
+                string? username;
+                string? email;
+                if (isEmailAddress)
+                {
+                    try {
+                        var parsed = new MailAddress(usernameOrEmail);
+                        name = parsed.DisplayName;
+                        email = parsed.Address;
+                        username = null;
+                    } catch (FormatException) {
+                        // FormatException message from .NET talks about mail headers, which is confusing here
+                        throw new FormatException($"Invalid email address: {usernameOrEmail}");
+                    }
+                }
+                else
+                {
+                    name = usernameOrEmail;
+                    email = null;
+                    username = usernameOrEmail;
+                }
                 user = new User
                 {
                     Id = Guid.NewGuid(),
-                    Username = isEmailAddress ? null : username,
+                    Username = username,
                     Name = name,
-                    Email = isEmailAddress ? username : null,
+                    Email = email,
                     LocalizationCode = "en", // TODO: input.Locale,
                     Salt = salt,
                     PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
@@ -144,7 +164,7 @@ public class ProjectMutations
                     Locked = false,
                     CanCreateProjects = false
                 };
-                CreatedMembers.Add(new UserProjectRole(username, input.Role));
+                CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
                 user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
                 dbContext.Add(user);
             }
