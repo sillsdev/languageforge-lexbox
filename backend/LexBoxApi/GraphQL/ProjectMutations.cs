@@ -101,7 +101,7 @@ public class ProjectMutations
     }
 
     public record UserProjectRole(string Username, ProjectRole Role);
-    public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers);
+    public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers, List<UserProjectRole> InvitedMembers);
 
     [Error<NotFoundException>]
     [Error<FormatException>]
@@ -111,13 +111,15 @@ public class ProjectMutations
     public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
         LoggedInContext loggedInContext,
         BulkAddProjectMembersInput input,
-        LexBoxDbContext dbContext)
+        LexBoxDbContext dbContext,
+        [Service] EmailService emailService)
     {
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];
         List<UserProjectRole> ExistingMembers = [];
+        List<UserProjectRole> InvitedMembers = [];
         var existingUsers = await dbContext.Users.Include(u => u.Projects).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
         var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
         var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
@@ -128,45 +130,40 @@ public class ProjectMutations
             {
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
                 var isEmailAddress = usernameOrEmail.Contains('@');
-                string name;
-                string? username;
-                string? email;
                 if (isEmailAddress)
                 {
+                    string? email;
                     try {
                         var parsed = new MailAddress(usernameOrEmail);
-                        name = parsed.DisplayName;
                         email = parsed.Address;
-                        username = null;
                     } catch (FormatException) {
                         // FormatException message from .NET talks about mail headers, which is confusing here
                         throw new FormatException($"Invalid email address: {usernameOrEmail}");
                     }
+                    // We don't send the email yet, in case errors show up in usernames later in the list
+                    InvitedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
                 }
                 else
                 {
-                    name = usernameOrEmail;
-                    email = null;
-                    username = usernameOrEmail;
+                    user = new User
+                    {
+                        Id = Guid.NewGuid(),
+                        Username = usernameOrEmail,
+                        Name = usernameOrEmail,
+                        Email = null,
+                        LocalizationCode = "en", // TODO: input.Locale,
+                        Salt = salt,
+                        PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+                        IsAdmin = false,
+                        EmailVerified = false,
+                        CreatedById = loggedInContext.User.Id,
+                        Locked = false,
+                        CanCreateProjects = false
+                    };
+                    CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
+                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
+                    dbContext.Add(user);
                 }
-                user = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Username = username,
-                    Name = name,
-                    Email = email,
-                    LocalizationCode = "en", // TODO: input.Locale,
-                    Salt = salt,
-                    PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
-                    IsAdmin = false,
-                    EmailVerified = false,
-                    CreatedById = loggedInContext.User.Id,
-                    Locked = false,
-                    CanCreateProjects = false
-                };
-                CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
-                user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
-                dbContext.Add(user);
             }
             else
             {
@@ -184,7 +181,16 @@ public class ProjectMutations
             }
         }
         await dbContext.SaveChangesAsync();
-        return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
+        // We made it this far with no errors, so now it's time to send emails to invited users
+        var manager = loggedInContext.User;
+        foreach (var user in InvitedMembers)
+        {
+            var email = user.Username;
+            // We await each email sent rather than colleting the promises and awaiting them all in parallel
+            // That way we hopefully won't overwhelm our email service if we try to bulk-add hundreds of email addresses
+            await emailService.SendCreateAccountEmail(email, input.ProjectId, input.Role, manager.Name, project.Name);
+        }
+        return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers, InvitedMembers);
     }
 
     [Error<NotFoundException>]
