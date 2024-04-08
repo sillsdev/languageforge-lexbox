@@ -56,7 +56,8 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
       {
         ['app.error.source']: handler,
         ['app.error.show_user']: showToUser,
-      }
+      },
+      !showToUser,
     );
 
     if (!showToUser) return;
@@ -94,7 +95,8 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
         ['app.error.source']: handler,
         ['app.error.keys']: keysForMissingMessageError,
         ['app.error.show_user']: showToUser,
-      }
+      },
+      !showToUser,
     );
 
     if (!showToUser) return;
