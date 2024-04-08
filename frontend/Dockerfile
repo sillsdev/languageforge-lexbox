@@ -1,17 +1,26 @@
 # syntax=docker/dockerfile:1
 # TODO: can't use vanilla alpine version since python is needed for gql-codegen stuff.
-FROM node:20 AS builder
-
+FROM node:20 AS builder-base
 WORKDIR /app
+RUN corepack enable
+
+FROM builder-base AS builder-viewer
+WORKDIR /app/viewer
+COPY viewer/package.json viewer/pnpm-lock.yaml viewer/.npmrc /app/viewer/
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
+
+COPY ./viewer /app/viewer
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build:web-component
+
+FROM builder-base AS builder
 
 COPY package.json pnpm-lock.yaml /app/
-
-RUN corepack enable
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
 COPY . /app/
 COPY src /app/src
 COPY static /app/static
+COPY --from=builder-viewer /app/viewer/dist-web-component /app/viewer/dist-web-component
 ARG APP_VERSION
 ENV VITE_APP_VERSION=$APP_VERSION
 
