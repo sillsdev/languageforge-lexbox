@@ -207,6 +207,10 @@ type ProjectMembersMustBeVerified implements Error {
   message: String!
 }
 
+type ProjectMembersMustBeVerifiedForRole implements Error {
+  message: String!
+}
+
 type ProjectUsers {
   userId: UUID!
   projectId: UUID!
@@ -288,13 +292,13 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | AlreadyExistsError
 
 union BulkAddProjectMembersError = NotFoundError | DbError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
-union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified
+union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
 
 union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
@@ -314,7 +318,7 @@ union SoftDeleteProjectError = NotFoundError | DbError
 
 input AddProjectMemberInput {
   projectId: UUID!
-  userEmail: String!
+  usernameOrEmail: String!
   role: ProjectRole!
 }
 

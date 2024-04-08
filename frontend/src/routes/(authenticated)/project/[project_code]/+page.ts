@@ -133,6 +133,9 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
             }
             errors {
               __typename
+              ... on Error {
+                message
+              }
             }
           }
         }
