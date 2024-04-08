@@ -2,6 +2,9 @@
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
   import { _typeaheadSearch } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
+  import { deriveAsync } from '$lib/util/time';
+  import { onMount } from 'svelte';
+  import { writable } from 'svelte/store';
 
   export let label: string;
   export let error: string | string[] | undefined = undefined;
@@ -9,24 +12,25 @@
   export let autofocus = false;
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   export let value: string;
+  export let debounceMs = 200;
 
-  $: typeaheadResults = _typeaheadSearch(value);
+  let input = writable('');
+  onMount(input.subscribe(v => value = v));
+
+  let typeaheadResults = deriveAsync(input, _typeaheadSearch, [], debounceMs);
+  typeaheadResults.subscribe(console.log);
 
 </script>
 
 <FormField {id} {label} {error} {autofocus} >
   <div use:overlay={{ closeClickSelector: '.menu li'}}>
-    <PlainInput style="w-full" debounce {id} bind:value type="text" autocomplete="off" />
+    <PlainInput style="w-full" debounce {id} bind:value={$input} type="text" autocomplete="off" />
     <div class="overlay-content">
-      {#await typeaheadResults}
-      <span>awaiting results...</span>
-    {:then users}
       <ul class="menu p-0">
-      {#each users as user}
-        <li class="p-0"><button class="whitespace-nowrap" on:click={() => setTimeout(() => value = user.email ?? user.username ?? '')}>{user.name} {user.email ? `<${user.email}>` : `(${user.username})`}</button></li>
+      {#each $typeaheadResults as user}
+        <li class="p-0"><button class="whitespace-nowrap" on:click={() => setTimeout(() => $input = value = user.email ?? user.username ?? '')}>{user.name} {user.email ? `<${user.email}>` : `(${user.username})`}</button></li>
       {/each}
       </ul>
-    {/await}
     </div>
   </div>
 </FormField>
