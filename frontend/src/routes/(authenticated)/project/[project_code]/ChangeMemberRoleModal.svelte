@@ -28,6 +28,9 @@
       if (result.error?.byType('ProjectMembersMustBeVerified')) {
         return { role: [$t('project_page.add_user.user_must_be_verified')] };
       }
+      if (result.error?.byType('ProjectMembersMustBeVerifiedForRole')) {
+        return { role: [$t('project_page.add_user.manager_must_be_verified')] };
+      }
       return result.error?.message;
     });
   }
