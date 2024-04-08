@@ -73,7 +73,7 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
                            //todo, you can only sort by headword for now
                            .OrderBy(e => e.CitationForm?.TryGetValue(sortWs, out var val) == true
                                ? val.Value
-                               : e.Lexeme.TryGetValue(sortWs, out val)
+                               : e.Lexeme?.TryGetValue(sortWs, out val) == true
                                    ? val.Value
                                    : string.Empty)
                            .Skip(options.Offset)

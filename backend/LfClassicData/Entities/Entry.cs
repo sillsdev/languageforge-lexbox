@@ -5,7 +5,7 @@ namespace LfClassicData.Entities;
 public class Entry: EntityDocument<Entry>
 {
     public Guid Guid { get; set; }
-    public required Dictionary<string, LexValue> Lexeme { get; set; }
+    public required Dictionary<string, LexValue>? Lexeme { get; set; }
     public required Dictionary<string, LexValue> Note { get; set; }
     public required Dictionary<string, LexValue> LiteralMeaning { get; set; }
     public required Dictionary<string, LexValue>? CitationForm { get; set; }
