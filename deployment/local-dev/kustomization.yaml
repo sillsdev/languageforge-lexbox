@@ -22,10 +22,6 @@ secretGenerator:
     behavior: create
     envs:
       - local.env
-  - name: deploy-key
-    namespace: deploy-key
-    literals:
-      - deploy-key=test
 
 patches:
   - target:

@@ -17,7 +17,7 @@
   export let deleteUser: (user: User) => void;
 
   const schema = z.object({
-    email: z.string().email($t('form.invalid_email')),
+    email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
     role: z.enum([UserRole.User, UserRole.Admin]),
@@ -30,12 +30,16 @@
     formModal.close();
   }
 
+  // This is a bit of a hack to make sure that the email field is not required if the user has no email
+  // even if the user edited the email field
+  $: if(form && $form && !$form.email && _user && !_user.email) $form.email = null;
+
   let _user: User;
   export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
     userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email ?? undefined, role }, async () => {
+    return await formModal.open({ name: user.name, email: user.email ?? null, role }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,

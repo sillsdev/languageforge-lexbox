@@ -9,9 +9,9 @@ export class AdminDashboardPage extends AuthenticatedBasePage {
     super(page, page.locator(`.breadcrumbs :text('Admin Dashboard')`), `/admin`);
   }
 
-  async openProject(projectName: string, projectCode: string): Promise<void> {
+  async openProject(projectName: string, projectCode: string): Promise<ProjectPage> {
     await this.clickProject(projectName);
-    await new ProjectPage(this.page, projectName, projectCode).waitFor();
+    return await new ProjectPage(this.page, projectName, projectCode).waitFor();
   }
 
   async clickProject(projectName: string): Promise<void> {

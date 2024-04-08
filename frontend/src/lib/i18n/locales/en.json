@@ -120,7 +120,7 @@
     "button_login": "Log in",
     "button_login_again": "Try to log in again?",
     "forgot_password": "Forgot your password?",
-    "label_email": "Email (or Send/Receive login)",
+    "label_email": "Email or Send/Receive login",
     "label_password": "Password",
     "missing_user_info": "User info missing",
     "sign_in_with_google": "Sign in with Google",
@@ -177,12 +177,15 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   "project_page": {
     "project": "Project",
     "add_user": {
-      "add_button": "Add Member",
-      "modal_title": "Add a Member to this project",
+      "add_button": "Add/Invite Member",
+      "modal_title": "Add or invite a Member to this project",
       "submit_button": "Add Member",
+      "submit_button_email": "Add or invite Member",
       "project_not_found": "Project not found. Please refresh the page.",
-      "user_not_found": "No user was found with this email address",
+      "username_not_found": "No user was found with this login",
       "user_must_be_verified": "User needs a verified email address",
+      "manager_must_be_verified": "User needs a verified email address in order to be a manager",
+      "user_already_member": "User is already a member of this project",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
     },
     "bulk_add_members": {
@@ -382,6 +385,11 @@ If you don't see a dialog or already closed it, click the button below:",
   },
   "emails": {
     "link_expiration_warning": "This email will expire in 3 days.",
+    "link_expiration_days": "This email will expire in {days} {days, plural, one {day} other {days}}.",
+    "link_expiration_hours": "This email will expire in {hours} {hours, plural, one {hour} other {hours}}.",
+    "link_expiration_minutes": "This email will expire in {minutes} {minutes, plural, one {minute} other {minutes}}.",
+    "link_expiration_seconds": "This email will expire in {seconds} {seconds, plural, one {second} other {seconds}}.",
+    "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
       "subject": "New Language Depot administrator {adminName}",
       "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."

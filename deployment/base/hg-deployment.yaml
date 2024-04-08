@@ -147,8 +147,8 @@ spec:
             mkdir -p 0 1 2 3 4 5 6 7 8 9
             find . -maxdepth 1 -type d -name '[a-z0-9]?*' | while IFS= read -r folder; do
               project=$(basename "$folder")
-              if [[ -L "$project" ]]; then
-                echo "Skipping symlinked folder: $project"
+              if [[ -L "$project" ]] || [[ "$project" == "lost+found" ]]; then
+                echo "Skipping folder: $project"
                 continue
               fi
               first_letter=$(echo "$project" | head -c1)

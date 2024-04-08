@@ -40,7 +40,7 @@ public class TestingController : ControllerBase
         var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FindByEmailOrUsername(usernameOrEmail);
         if (user is null) return NotFound();
-        var (token, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole }, audience: audience);
+        var (token, _, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole, Audience = audience });
         return token;
     }
 

@@ -23,13 +23,13 @@ public enum EmailTemplate
     CreateProjectRequest
 }
 
-public record ForgotPasswordEmail(string Name, string ResetUrl) : EmailTemplateBase(EmailTemplate.ForgotPassword);
+public record ForgotPasswordEmail(string Name, string ResetUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.ForgotPassword);
 
 public record NewAdminEmail(string Name, string AdminName, string AdminEmail) : EmailTemplateBase(EmailTemplate.NewAdmin);
 
-public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
+public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
 
-public record ProjectInviteEmail(string Email, string ProjectId, string ManagerName, string ProjectName, string VerifyUrl) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
+public record ProjectInviteEmail(string Email, string ProjectId, string ManagerName, string ProjectName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
 
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);
 

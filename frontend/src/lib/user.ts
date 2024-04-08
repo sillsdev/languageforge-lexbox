@@ -24,7 +24,8 @@ type RegisterResponseErrors = {
 type JwtTokenUser = {
   sub: string
   name: string
-  email: string
+  email?: string
+  user?: string
   role: 'admin' | 'user'
   proj?: string,
   lock: boolean | undefined,
@@ -37,7 +38,8 @@ type JwtTokenUser = {
 export type LexAuthUser = {
   id: string
   name: string
-  email: string
+  email?: string
+  username?: string
   role: 'admin' | 'user'
   projects: UserProjects[]
   locked: boolean
@@ -130,12 +132,13 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
 }
 
 function jwtToUser(user: JwtTokenUser): LexAuthUser {
-  const { sub: id, name, email, proj: projectsString, role } = user;
+  const { sub: id, name, email, user: username, proj: projectsString, role } = user;
 
   return {
     id,
     name,
     email,
+    username,
     role,
     projects: projectsStringToProjects(projectsString),
     locked: user.lock === true,

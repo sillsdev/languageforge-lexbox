@@ -66,6 +66,11 @@ jobs:
         hg-version:
           - '3'
           - '6'
+        include:
+          - run-playwright: false
+          - runs-on: ubuntu-latest
+            hg-version: '6'
+            run-playwright: true
     needs: deploy
     permissions:
       checks: write
@@ -74,6 +79,7 @@ jobs:
       environment: staging
       runs-on: ${{ matrix.runs-on }}
       hg-version: ${{ matrix.hg-version }}
+      run-playwright: ${{ matrix.run-playwright }}
 
   deploy-prod:
     name: Deploy Production

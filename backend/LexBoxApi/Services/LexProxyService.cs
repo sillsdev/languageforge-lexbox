@@ -1,4 +1,5 @@
 using LexBoxApi.Auth;
+using LexBoxApi.Jobs;
 using LexCore;
 using LexCore.Auth;
 using LexCore.Config;
@@ -13,16 +14,19 @@ public class LexProxyService : ILexProxyService
     private readonly LexAuthService _lexAuthService;
     private readonly ProjectService _projectService;
     private readonly UserService _userService;
+    private readonly Quartz.ISchedulerFactory _schedulerFactory;
     private readonly HgConfig _hgConfig;
 
     public LexProxyService(LexAuthService lexAuthService,
         ProjectService projectService,
         IOptions<HgConfig> options,
+        Quartz.ISchedulerFactory schedulerFactory,
         UserService userService)
     {
         _lexAuthService = lexAuthService;
         _projectService = projectService;
         _userService = userService;
+        _schedulerFactory = schedulerFactory;
         _hgConfig = options.Value;
     }
 
@@ -37,16 +41,9 @@ public class LexProxyService : ILexProxyService
         return user;
     }
 
-    public async Task RefreshProjectLastChange(string projectCode)
+    public async Task QueueProjectMetadataUpdate(string projectCode)
     {
-        await _projectService.UpdateLastCommit(projectCode);
-    }
-
-    public async Task UpdateLastEntryCountIfAllowed(string projectCode)
-    {
-        if (_hgConfig.AutoUpdateLexEntryCountOnSendReceive) {
-            await _projectService.UpdateLexEntryCount(projectCode);
-        }
+        await UpdateProjectMetadataJob.Queue(_schedulerFactory, projectCode);
     }
 
     public RequestInfo GetDestinationPrefix(HgType type)

@@ -67,13 +67,19 @@ public class IntegrationController(
     {
         var user = loggedInContext.User;
         //generates a short lived token only useful for S&R of this one project
-        var (projectToken, projectTokenExpiresAt) = authService.GenerateJwt(
-            user with { Projects = user.Projects.Where(p => p.ProjectId == projectId).ToArray() },
-            LexboxAudience.SendAndReceive);
+        var (projectToken, projectTokenExpiresAt, _) = authService.GenerateJwt(
+            user with
+            {
+                Projects = user.Projects.Where(p => p.ProjectId == projectId).ToArray(),
+                Audience = LexboxAudience.SendAndReceive,
+            });
 
         //refresh long lived token used to get new tokens
-        var (flexToken, flexTokenExpiresAt) =
-            authService.GenerateJwt(user with { Projects = [] }, LexboxAudience.SendAndReceiveRefresh);
+        var (flexToken, flexTokenExpiresAt, _) = authService.GenerateJwt(user with
+        {
+            Projects = [],
+            Audience = LexboxAudience.SendAndReceiveRefresh,
+        });
         return new RefreshResponse(projectToken, projectTokenExpiresAt, flexToken, flexTokenExpiresAt);
     }
 }
