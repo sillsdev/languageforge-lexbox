@@ -10,7 +10,7 @@ COPY viewer/package.json viewer/pnpm-lock.yaml viewer/.npmrc /app/viewer/
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
 COPY ./viewer /app/viewer
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build:web-component
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
 
 FROM builder-base AS builder
 

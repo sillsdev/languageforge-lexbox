@@ -12,8 +12,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build:web-component": "vite build -m web-component",
-    "build": "vite build",
+    "lexbox-dev": "vite build -m web-component --watch",
+    "build": "vite build -m web-component",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
