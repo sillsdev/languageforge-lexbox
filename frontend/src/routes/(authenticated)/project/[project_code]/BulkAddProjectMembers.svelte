@@ -31,7 +31,6 @@
   let addedMembers: BulkAddProjectMembersResult['addedMembers'] = [];
   let createdMembers: BulkAddProjectMembersResult['createdMembers'] = [];
   let existingMembers: BulkAddProjectMembersResult['existingMembers'] = [];
-  let invitedMembers: BulkAddProjectMembersResult['invitedMembers'] = [];
   $: addedCount = addedMembers.length + createdMembers.length;
 
   const usernameRe = /^[a-zA-Z0-9_]+$/;
@@ -70,7 +69,6 @@
       addedMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.addedMembers ?? [];
       createdMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdMembers ?? [];
       existingMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.existingMembers ?? [];
-      invitedMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.invitedMembers ?? [];
       return error?.message;
     }, { keepOpenOnSubmit: true });
 
@@ -132,21 +130,6 @@
           <div class="mt-2">
             <BadgeList>
               {#each createdMembers as user}
-                <MemberBadge member={{ name: user.username, role: user.role }} />
-              {/each}
-            </BadgeList>
-          </div>
-        {/if}
-      </div>
-      <div class="mb-4 ml-8">
-        <p class="flex gap-1 items-center">
-          <Icon icon="i-mdi-email-outline" color="text-success" />
-          {$t('project_page.bulk_add_members.accounts_invited', {invitedCount: invitedMembers.length})}
-        </p>
-        {#if invitedMembers.length > 0}
-          <div class="mt-2">
-            <BadgeList>
-              {#each invitedMembers as user}
                 <MemberBadge member={{ name: user.username, role: user.role }} />
               {/each}
             </BadgeList>

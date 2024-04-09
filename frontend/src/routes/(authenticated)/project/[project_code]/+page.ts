@@ -167,10 +167,6 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
                 username
                 role
               }
-              invitedMembers {
-                username
-                role
-              }
             }
             errors {
               __typename
