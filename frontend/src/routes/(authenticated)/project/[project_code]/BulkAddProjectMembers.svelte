@@ -62,8 +62,9 @@
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 
-      if (error?.byType('FormatError')) {
-        return { usernamesText: [error?.message] };
+      if (error?.byType('InvalidEmailError')) {
+        const email = error?.message;
+        return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', {email})] };
       }
 
       addedMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.addedMembers ?? [];

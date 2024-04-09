@@ -104,7 +104,7 @@ public class ProjectMutations
     public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers, List<UserProjectRole> InvitedMembers);
 
     [Error<NotFoundException>]
-    [Error<FormatException>]
+    [Error<InvalidEmailException>]
     [Error<DbError>]
     [AdminRequired]
     [UseMutationConvention]
@@ -138,7 +138,7 @@ public class ProjectMutations
                         email = parsed.Address;
                     } catch (FormatException) {
                         // FormatException message from .NET talks about mail headers, which is confusing here
-                        throw new FormatException($"Invalid email address: {usernameOrEmail}");
+                        throw new InvalidEmailException(usernameOrEmail);
                     }
                     // We don't send the email yet, in case errors show up in usernames later in the list
                     InvitedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));

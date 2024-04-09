@@ -174,7 +174,7 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
             }
             errors {
               __typename
-              ... on FormatError {
+              ... on InvalidEmailError {
                 message
               }
             }

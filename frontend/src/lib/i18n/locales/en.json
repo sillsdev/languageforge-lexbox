@@ -203,6 +203,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "already_members": "{count, plural, one {# user was} other {# users were}} already in the project.",
       "accounts_created": "{createdCount} new {createdCount, plural, one {user was} other {users were}} created with the provided password.",
       "accounts_invited": "{invitedCount} new {invitedCount, plural, one {user was} other {users were}} invited by email to join the project.",
+      "invalid_email_address": "Invalid email address: {email}",
     },
     "change_role_modal": {
       "title": "Choose role for {name}"
