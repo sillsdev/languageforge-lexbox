@@ -5,8 +5,9 @@
   import t from '$lib/i18n';
   import { derived } from 'svelte/store';
   import { onDestroy } from 'svelte';
+  import { browser } from '$app/environment';
 
-  let alertMessageElem: HTMLElement | undefined;
+  let alertMessageElem: HTMLElement;
   let traceIdElem: HTMLElement;
 
   const error = derived(useError(), (error) => {
@@ -33,7 +34,9 @@
     // subscribe() is more durable than reactive syntax
     error.subscribe((e) => {
       if (e) {
+        alertMessageElem = alertMessageElem ?? (browser ? document.querySelector('.error-message') : undefined) ?? undefined;
         if (alertMessageElem) alertMessageElem.textContent = e.message;
+        traceIdElem = traceIdElem ?? (browser ? document.querySelector('.trace-id') : undefined) ?? undefined;
         if (traceIdElem) traceIdElem.textContent = e.traceId;
       }
     })
@@ -66,7 +69,7 @@
     <span class="text-2xl">{$t('errors.apology')}</span>
   </div>
 
-  <div class="max-w-full whitespace-pre-wrap" style="overflow-wrap: break-word" bind:this={alertMessageElem}>
+  <div class="max-w-full whitespace-pre-wrap error-message" style="overflow-wrap: break-word" bind:this={alertMessageElem}>
     {$error?.message}
   </div>
 
@@ -79,6 +82,6 @@
   <div>
     <span>{$t('errors.error_code')}:</span>
     <!-- svelte-ignore a11y-no-static-element-interactions a11y-click-events-have-key-events -->
-    <span on:click={onTraceIdClick} bind:this={traceIdElem}>{$error?.traceId}</span>
+    <span on:click={onTraceIdClick} class="trace-id" bind:this={traceIdElem}>{$error?.traceId}</span>
   </div>
 </div>
