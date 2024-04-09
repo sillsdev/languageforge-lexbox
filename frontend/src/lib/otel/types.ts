@@ -1,15 +1,21 @@
 import { isObject, isObjectWhere } from '$lib/util/types';
 
+import type { ErrorSource } from './otel.shared';
+import type { SpanContext } from '@opentelemetry/api';
+
 export type TraceId = string;
+export type TracerId = ErrorSource;
 export interface Traceable {
-  traceId: TraceId | undefined;
+  spanContext: SpanContext | undefined;
+  tracer: TracerId;
 }
 export interface Traced {
-  readonly traceId: TraceId;
+  readonly spanContext: SpanContext;
+  readonly tracer: TracerId;
 }
 
 export function isTraced(value: unknown): value is Traced {
-  return isObjectWhere<Traced>(value, traced => traced.traceId !== undefined);
+  return isObjectWhere<Traced>(value, traced => traced.spanContext !== undefined);
 }
 
 export function isTraceable(value: unknown): value is Traceable {
@@ -22,18 +28,19 @@ class TraceItError extends Error {
   }
 }
 
-export function traceIt(traceable: Traceable, traceId: TraceId): void {
-  if (traceable.traceId) {
-    throw new TraceItError(traceable, `Object has already been traced (${traceable.traceId} vs ${traceId}).`);
+export function traceIt(traceable: Traceable, spanContext: SpanContext, tracer: TracerId): void {
+  if (traceable.spanContext) {
+    throw new TraceItError(traceable, `Object has already been traced (${traceable.spanContext.traceId} vs ${spanContext.traceId}).`);
   }
 
-  if (!traceId) {
-    throw new TraceItError(traceable, `No traceId provided.`);
+  if (!spanContext) {
+    throw new TraceItError(traceable, `No spanContext provided.`);
   }
 
-  traceable.traceId = traceId;
+  traceable.spanContext = spanContext;
+  traceable.tracer = tracer;
 
-  if (traceable.traceId != traceId) {
-    throw new TraceItError(traceable, `traceId not writeable.`);
+  if (traceable.spanContext != spanContext) {
+    throw new TraceItError(traceable, `spanContext not writeable.`);
   }
 }
