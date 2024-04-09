@@ -16,44 +16,44 @@ export class LfClassicLexboxApi implements LexboxApi {
     return (await result.json()) as WritingSystems;
   }
 
-  GetEntriesForExemplar(exemplar: string, options: QueryOptions | undefined): Promise<IEntry[]> {
+  GetEntriesForExemplar(_exemplar: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
     throw new Error('Method not implemented.');
   }
 
-  async GetEntries(options: QueryOptions | undefined): Promise<IEntry[]> {
+  async GetEntries(_options: QueryOptions | undefined): Promise<IEntry[]> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries?order=desc&count=100`);
     return (await result.json()) as IEntry[];
   }
 
-  SearchEntries(query: string, options: QueryOptions | undefined): Promise<IEntry[]> {
+  SearchEntries(_query: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
     throw new Error('Method not implemented.');
   }
 
-  GetEntry(guid: string): Promise<IEntry> {
+  GetEntry(_guid: string): Promise<IEntry> {
     throw new Error('Method not implemented.');
   }
 
-  CreateEntry(entry: IEntry): Promise<IEntry> {
+  CreateEntry(_entry: IEntry): Promise<IEntry> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateEntry(guid: string, update: JsonPatch): Promise<IEntry> {
+  UpdateEntry(_guid: string, _update: JsonPatch): Promise<IEntry> {
     throw new Error('Method not implemented.');
   }
 
-  CreateSense(entryGuid: string, sense: ISense): Promise<ISense> {
+  CreateSense(_entryGuid: string, _sense: ISense): Promise<ISense> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateSense(entryGuid: string, senseGuid: string, update: JsonPatch): Promise<ISense> {
+  UpdateSense(_entryGuid: string, _senseGuid: string, _update: JsonPatch): Promise<ISense> {
     throw new Error('Method not implemented.');
   }
 
-  CreateExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
+  CreateExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentence: IExampleSentence): Promise<IExampleSentence> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string, update: JsonPatch): Promise<IExampleSentence> {
+  UpdateExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentenceGuid: string, _update: JsonPatch): Promise<IExampleSentence> {
     throw new Error('Method not implemented.');
   }
 
@@ -61,15 +61,15 @@ export class LfClassicLexboxApi implements LexboxApi {
     throw new Error('Method not implemented.');
   }
 
-  DeleteEntry(guid: string): Promise<void> {
+  DeleteEntry(_guid: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  DeleteSense(entryGuid: string, senseGuid: string): Promise<void> {
+  DeleteSense(_entryGuid: string, _senseGuid: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  DeleteExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string): Promise<void> {
+  DeleteExampleSentence(_entryGuid: string, _senseGuid: string, _exampleSentenceGuid: string): Promise<void> {
     throw new Error('Method not implemented.');
   }
 

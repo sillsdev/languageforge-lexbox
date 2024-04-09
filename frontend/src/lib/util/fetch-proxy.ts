@@ -13,6 +13,7 @@ export function handleFetch(fetchHandler: (input: {
 // Runs instrumentation that operates on the global fetch
 export function instrumentGlobalFetch(instrument: () => void): void {
   const currFetch = window.fetch;
+  if (!window.lexbox.fetchProxy) throw new Error('fetchProxy not set');
   window.fetch = window.lexbox.fetchProxy; // Put our proxy in place to be instrumented
   try {
     instrument();
