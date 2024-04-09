@@ -159,6 +159,11 @@ spec:
 
       - name: otel-collector
         image: otel/opentelemetry-collector-contrib:0.87.0
+        command:
+          - "--config"
+          - "/etc/otelcol-contrib/config.yaml"
+          - "--config"
+          - "env:COLLECTOR_CONFIG_OVERRIDE"
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
@@ -179,6 +184,8 @@ spec:
               secretKeyRef:
                 key: HONEYCOMB_API_KEY
                 name: otel
+          - name: COLLECTOR_CONFIG_OVERRIDE
+            value: '' # should be YAML, will be merged with the base config file
 
       volumes:
       - name: repos

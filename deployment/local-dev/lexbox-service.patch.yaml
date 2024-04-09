@@ -11,3 +11,6 @@ spec:
     - name: maildev-smtp
       port: 1025
       targetPort: 1025
+    - name: aspire
+      port: 18888
+      targetPort: 18888

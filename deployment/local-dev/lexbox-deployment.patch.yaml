@@ -52,6 +52,31 @@ spec:
             value: 'maildev'
           - name: MAILDEV_INCOMING_PASS
             value: 'maildev_pass'
+      - name: otel-collector
+        env:
+          - name: COLLECTOR_CONFIG_OVERRIDE
+            value: |
+              exporters:
+                otlp/aspire:
+                  endpoint: localhost:18889
+                  tls:
+                    insecure: true
+              service:
+                pipelines:
+                  traces:
+                    exporters: [otlp, otlp/aspire]
+                  metrics:
+                    exporters: [otlp/metrics, otlp/aspire]
+                  logs:
+                    exporters: [otlp, otlp/aspire]
+      - name: aspire
+        image: mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest
+        env:
+          - name: DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS
+            value: "true"
+        ports:
+          - containerPort: 18889 # otel port
+          - containerPort: 18888 # ui port
       initContainers:
         - $patch: delete
           name: db-migrations
