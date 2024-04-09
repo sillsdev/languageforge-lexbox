@@ -50,6 +50,14 @@ public static class GraphQlSetupKernel
             {
                 options.IncludeExceptionDetails = true;
             })
+            .AddErrorFilter(error =>
+            {
+                if ((error.Exception?.Data?.Count ?? 0) > 0)
+                {
+                    return error.WithExtensions((IReadOnlyDictionary<string, object?>)error.Exception!.Data);
+                }
+                return error;
+            })
             .AddType<DbErrorCode>()
             .AddType(new DateTimeType("DateTime"))
             .AddType(new UuidType("UUID"))
