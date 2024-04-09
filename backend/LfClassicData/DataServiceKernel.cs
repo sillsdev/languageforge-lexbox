@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using MiniLcm;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Configuration;
+using MongoDB.Driver.Core.Extensions.DiagnosticSources;
 
 namespace LfClassicData;
 
@@ -22,11 +23,7 @@ public static class DataServiceKernel
             .BindConfiguration(nameof(LfClassicConfig))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        services.AddSingleton(provider =>
-        {
-            var config = provider.GetRequiredService<IOptions<LfClassicConfig>>();
-            return BuildMongoClientSettings(config.Value.ConnectionString, provider);
-        });
+        services.AddSingleton(BuildMongoClientSettings);
         services.AddSingleton(provider => new MongoClient(provider.GetRequiredService<MongoClientSettings>()));
         services.AddSingleton<ILexboxApiProvider, LfClassicLexboxApiProvider>();
 
@@ -34,10 +31,13 @@ public static class DataServiceKernel
         services.AddSingleton<ProjectDbContext>();
     }
 
-    public static MongoClientSettings BuildMongoClientSettings(string connectionString, IServiceProvider provider)
+    public static MongoClientSettings BuildMongoClientSettings(IServiceProvider provider)
     {
-        var mongoSettings = MongoClientSettings.FromConnectionString(connectionString);
+        var config = provider.GetRequiredService<IOptions<LfClassicConfig>>();
+        var mongoSettings = MongoClientSettings.FromConnectionString(config.Value.ConnectionString);
         mongoSettings.LoggingSettings = new LoggingSettings(provider.GetRequiredService<ILoggerFactory>());
+        mongoSettings.ClusterConfigurator = cb =>
+            cb.Subscribe(new DiagnosticsActivityEventSubscriber(new() { CaptureCommandText = true }));
         return mongoSettings;
     }
 
