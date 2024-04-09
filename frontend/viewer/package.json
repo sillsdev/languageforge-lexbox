@@ -11,7 +11,8 @@
     "./service-provider": "./src/lib/services/service-provider.ts"
   },
   "scripts": {
-    "dev": "vite",
+    "dev-app": "vite",
+    "dev": "vite build -m web-component --watch",
     "lexbox-dev": "vite build -m web-component --watch",
     "build": "vite build -m web-component",
     "preview": "vite preview",

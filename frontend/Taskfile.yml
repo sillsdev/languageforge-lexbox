@@ -4,17 +4,8 @@ tasks:
   ui-only:
     aliases: [ o, only ]
     interactive: true
-    deps: [lexbox-ui, watch-viewer]
-
-  lexbox-ui:
     deps: [ install ]
-    cmds:
-      - pnpm run dev
-
-  watch-viewer:
-    dir: ./viewer
-    cmds:
-      - pnpm run build:web-component --watch
+    cmd: pnpm run -r --parallel dev
 
   install:
     method: checksum
