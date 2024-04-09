@@ -62,7 +62,7 @@
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 
-      if (error?.byType('InvalidEmailError')) {
+      if (error?.byType('FormatError')) {
         return { usernamesText: [error?.message] };
       }
 
