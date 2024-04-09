@@ -11,8 +11,6 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import {delay} from '$lib/util/time';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import { type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
-  import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -49,8 +47,6 @@ function preFillForm(): void {
 let modal: ConfirmModal;
 let deleteModal: DeleteModal;
 
-  let chosenUser: SingleUserTypeaheadResult;
-  $: if (chosenUser) alert(`Typeahead chose ${chosenUser.name} (${chosenUser.id})`);
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -76,7 +72,6 @@ let deleteModal: DeleteModal;
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
-      <UserTypeahead label="User typeahead demo" bind:result={chosenUser} />
       <TusUpload internalButton endpoint="/api/tus-test" accept="image/*" on:uploadComplete={uploadFinished}/>
     </div>
   </div>

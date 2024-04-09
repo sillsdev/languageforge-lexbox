@@ -3,7 +3,6 @@
   import { _typeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
-  import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
 
   export let label: string;
