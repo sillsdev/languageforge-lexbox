@@ -39,7 +39,7 @@ public class AdminController : ControllerBase
         var passwordHash = request.PasswordHash;
         var user = await _lexBoxDbContext.Users.FirstAsync(u => u.Id == request.userId);
         user.PasswordHash = PasswordHashing.HashPassword(passwordHash, user.Salt, true);
-        await _userService.SetPasswordStrength(user.Id, request.PasswordStrength);
+        user.PasswordStrength = UserService.ClampPasswordStrength(request.PasswordStrength);
         user.UpdateUpdatedDate();
         await _lexBoxDbContext.SaveChangesAsync();
         await _emailService.SendPasswordChangedEmail(user);
