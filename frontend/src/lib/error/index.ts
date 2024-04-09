@@ -109,7 +109,8 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
     return !!error.stack &&
       // tested on Chrome, Edge, Firefox and Brave
       (error.stack.includes('chrome-extension://') || error.stack.includes('moz-extension://')
-      || originatesFromAnonymousScript(error.stack));
+      // We're not entirely sure about the affects of silencing these errors, so we'll show them in dev at least
+      || (!dev && originatesFromAnonymousScript(error.stack)));
   }
 
   function originatesFromAnonymousScript(stack: string): boolean {
