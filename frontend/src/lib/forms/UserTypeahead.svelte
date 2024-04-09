@@ -15,7 +15,7 @@
   export let debounceMs = 200;
 
   let input = writable('');
-  onMount(input.subscribe(v => value = v));
+  $: $input = value;
 
   let typeaheadResults = deriveAsync(input, _typeaheadSearch, [], debounceMs);
   typeaheadResults.subscribe(console.log);
@@ -32,7 +32,7 @@
 
 <FormField {id} {label} {error} {autofocus} >
   <div use:overlay={{ closeClickSelector: '.menu li'}}>
-    <PlainInput style="w-full" debounce {id} bind:value={$input} type="text" autocomplete="off" />
+    <PlainInput style="w-full" debounce {id} bind:value type="text" autocomplete="off" />
     <div class="overlay-content">
       <ul class="menu p-0">
       {#each $typeaheadResults as user}
