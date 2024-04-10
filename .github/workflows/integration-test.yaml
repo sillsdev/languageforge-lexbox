@@ -101,7 +101,11 @@ jobs:
       - name: Playwright setup
         working-directory: frontend
         if: ${{ inputs.run-playwright }}
-        run: pnpm install && pnpm pretest && sudo pnpm exec playwright install-deps
+        run: pnpm install && pnpm pretest
+      - name: Set up Playwright dependencies
+        working-directory: frontend
+        if: ${{ inputs.run-playwright && inputs.runs-on == 'self-hosted' }}
+        run: sudo pnpm exec playwright install-deps
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
