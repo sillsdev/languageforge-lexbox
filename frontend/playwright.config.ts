@@ -54,7 +54,7 @@ const config: PlaywrightTestConfig = {
 
     /* See https://playwright.dev/docs/trace-viewer */
     /* not 'on-first-retry', because then you don't have good traces to reference when debugging */
-    trace: 'on',
+    trace: 'retain-on-failure',
     screenshot: 'on',
   },
 
