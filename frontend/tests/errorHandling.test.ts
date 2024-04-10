@@ -124,8 +124,10 @@ test('can catch 403 errors from goto in new tab', async ({ page, context }) => {
 test('page load 403 is redirected to home', async ({ page }) => {
   await loginAs(page.request, 'manager', testEnv.defaultPassword);
   await new SandboxPage(page).goto();
+  const pagePromise = page.context().waitForEvent('page');
   await page.getByText('Goto page load 403', {exact: true}).click();
-  await new UserDashboardPage(page).waitFor();
+  const newPage = await pagePromise;
+  await new UserDashboardPage(newPage).waitFor();
 });
 
 test('page load 403 in new tab is redirected to home', async ({ page }) => {
