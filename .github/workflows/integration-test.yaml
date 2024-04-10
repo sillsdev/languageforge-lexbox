@@ -95,6 +95,9 @@ jobs:
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
         run: dotnet build
+      # TODO: Set up caching for /home/runner/.cache/ms-playwright so this doesn't take as long
+      # TODO: Ditto for /home/runner/.pnpm-store/v3
+      # TODO: Ditto for /home/runner/.nuget/packages
       - name: Playwright setup
         working-directory: frontend
         if: ${{ inputs.run-playwright }}
