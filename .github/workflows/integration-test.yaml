@@ -146,7 +146,7 @@ jobs:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
       - name: Upload playwright results
-        if: ${{ steps.password_protect_test_results.result == 'success' }}
+        if: ${{ steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
