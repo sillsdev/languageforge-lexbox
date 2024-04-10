@@ -131,7 +131,7 @@ jobs:
         shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: 7z a ./playwright-traces.7z ./frontend/test-results -p"$ZIP_PASSWORD"
+        run: 7z a ./playwright-traces.7z -mx0 ./frontend/test-results -p"$ZIP_PASSWORD"
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always() && !env.act
