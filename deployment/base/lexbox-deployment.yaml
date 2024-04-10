@@ -159,7 +159,7 @@ spec:
 
       - name: otel-collector
         image: otel/opentelemetry-collector-contrib:0.87.0
-        command:
+        args:
           - "--config"
           - "/etc/otelcol-contrib/config.yaml"
           - "--config"
