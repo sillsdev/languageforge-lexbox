@@ -127,7 +127,7 @@ jobs:
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
       - name: Password protect Playwright traces
         id: password_protect_test_results
-        if: always() && ${{ inputs.run-playwright }}
+        if: ${{ always() && inputs.run-playwright }}
         shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
