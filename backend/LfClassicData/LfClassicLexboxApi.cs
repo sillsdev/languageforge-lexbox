@@ -76,6 +76,8 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
                                : e.Lexeme?.TryGetValue(sortWs, out val) == true
                                    ? val.Value
                                    : string.Empty)
+                           .ThenBy(e => e.MorphologyType)
+                           .ThenBy(e => e.Guid)//todo should sort by homograph number
                            .Skip(options.Offset)
                            .Take(options.Count)
                            .Select(ToEntry))
