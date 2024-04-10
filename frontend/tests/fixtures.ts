@@ -114,7 +114,7 @@ export const test = base.extend<Fixtures>({
 `);
     const id = gqlResponse.data.createProject.createProjectResponse.id;
     await use({id, code, name});
-    const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/project/${id}`);
+    const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/${id}`);
     expect(deleteResponse.ok()).toBeTruthy();
   },
   // eslint-disable-next-line no-empty-pattern

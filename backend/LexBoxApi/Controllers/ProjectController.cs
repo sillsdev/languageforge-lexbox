@@ -156,7 +156,7 @@ public class ProjectController(
         return Ok();
     }
 
-    [HttpDelete("project/{id}")]
+    [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
