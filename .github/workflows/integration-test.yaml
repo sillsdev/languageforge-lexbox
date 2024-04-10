@@ -44,7 +44,7 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ vars.TEST_SERVER_HOSTNAME }}
+    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
     permissions:
       checks: write
     environment:
