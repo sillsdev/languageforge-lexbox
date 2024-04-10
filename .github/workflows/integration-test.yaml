@@ -55,12 +55,12 @@ jobs:
       - name: Setup self-hosted dependencies
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full wget zlib1g-dev libssl-dev #needed by setup python
           wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
           sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
           sudo apt-get install -f
           rm powershell_7.4.1-1.deb_amd64.deb
-          sudo apt-get update
-          sudo apt-get install -y p7zip-full zlib1g-dev libssl-dev #needed by setup python
           pwsh #validate that powershell installed correctly
       # First we need to setup Node...
       - uses: actions/setup-node@v4
