@@ -1,4 +1,5 @@
 name: Integration Tests
+run-name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
 on:
   workflow_call:
     inputs:
