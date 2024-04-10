@@ -85,6 +85,12 @@ spec:
                 key: environment-name
           - name: OTEL_METRIC_EXPORT_INTERVAL
             value: '60000' # 60s
+          - name: K8S_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: OTEL_RESOURCE_ATTRIBUTES
+            value: k8s.node.name=$(K8S_NODE_NAME)
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
