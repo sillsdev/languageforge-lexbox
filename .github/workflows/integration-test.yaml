@@ -114,7 +114,8 @@ jobs:
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         working-directory: frontend
-        run: pnpm test
+        # Timeout of 2 minutes instead of 30s, so slow runners will still have a chance to complete their work
+        run: pnpm test -- --timeout=120000
       - name: Integration tests (.NET)
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
