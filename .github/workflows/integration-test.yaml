@@ -98,6 +98,7 @@ jobs:
       # TODO: Set up caching for /home/runner/.cache/ms-playwright so this doesn't take as long
       # TODO: Ditto for /home/runner/.pnpm-store/v3
       # TODO: Ditto for /home/runner/.nuget/packages
+      # TODO: Ditto for /var/cache/apt/archives/
       - name: Playwright setup
         working-directory: frontend
         if: ${{ inputs.run-playwright }}
