@@ -66,6 +66,7 @@ jobs:
         if: ${{ inputs.runs-on == 'self-hosted' }}
         with:
           package_json_file: 'frontend/package.json'
+          standalone: true
       - uses: actions/setup-node@v4
         with:
           node-version-file: 'frontend/package.json'
