@@ -33,27 +33,6 @@ public static class Utils
         return new ProjectConfig(id, projectName, projectCode, dir);
     }
 
-    public static ProjectConfig InitLocalFlexProjectWithRepo([CallerMemberName] string projectName = "")
-    {
-        var projectConfig = GetNewProjectConfig(projectName);
-        InitLocalFlexProjectWithRepo(projectConfig);
-        return projectConfig;
-    }
-
-    public static void InitLocalFlexProjectWithRepo(ProjectPath projectPath)
-    {
-        FileUtils.CopyFilesRecursively(TemplateRepo, new DirectoryInfo(projectPath.Dir));
-        File.Move(Path.Join(projectPath.Dir, "kevin-test-01.fwdata"), projectPath.FwDataFile);
-        Directory.EnumerateFiles(projectPath.Dir).ShouldContain(projectPath.FwDataFile);
-
-        // hack around the fact that our send and receive won't create a repo from scratch.
-        var progress = new NullProgress();
-        HgRunner.Run("hg init", projectPath.Dir, 1, progress);
-        HgRunner.Run("hg branch 7500002.7000072", projectPath.Dir, 1, progress);
-        HgRunner.Run($"hg add Lexicon.fwstub", projectPath.Dir, 1, progress);
-        HgRunner.Run("""hg commit -m "first commit" """, projectPath.Dir, 1, progress);
-    }
-
     public static async Task<LexboxProject> RegisterProjectInLexBox(
         ProjectConfig config,
         ApiTestBase apiTester

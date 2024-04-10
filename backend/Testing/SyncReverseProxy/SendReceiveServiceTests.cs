@@ -19,17 +19,17 @@ namespace Testing.SyncReverseProxy;
 public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
 {
     private readonly ITestOutputHelper _output;
-    private readonly SendReceiveFixture _fixtureOutput;
+    private readonly SendReceiveFixture _srFixture;
     private readonly ApiTestBase _adminApiTester;
 
     private readonly SendReceiveService _sendReceiveService;
 
-    public SendReceiveServiceTests(ITestOutputHelper output, SendReceiveFixture sendReceiveFixture)
+    public SendReceiveServiceTests(ITestOutputHelper output, SendReceiveFixture sendReceiveSrFixture)
     {
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
-        _fixtureOutput = sendReceiveFixture;
-        _adminApiTester = _fixtureOutput.AdminApiTester;
+        _srFixture = sendReceiveSrFixture;
+        _adminApiTester = _srFixture.AdminApiTester;
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
     public async Task ModifyProjectData(HgProtocol protocol)
     {
         // Create a fresh project
-        var projectConfig = InitLocalFlexProjectWithRepo();
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
         // Push the project to the server
@@ -242,7 +242,7 @@ query projectLastCommit {
     [InlineData(10, 1)]
     public async Task SendNewProject(int totalSizeMb, int fileCount)
     {
-        var projectConfig = InitLocalFlexProjectWithRepo();
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
         var sendReceiveParams = new SendReceiveParams(HgProtocol.Hgweb, projectConfig);
 
