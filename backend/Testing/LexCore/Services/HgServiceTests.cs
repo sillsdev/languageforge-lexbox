@@ -83,7 +83,7 @@ public class HgServiceTests
     [InlineData("-xy")]
     [InlineData("-x-y-z")]
     [InlineData("-123")]
-    private async void ProjectCodesMayNotStartWithHyphen(string code)
+    private async Task ProjectCodesMayNotStartWithHyphen(string code)
     {
         await Assert.ThrowsAsync<ArgumentException>(() => _hgService.InitRepo(code));
     }
