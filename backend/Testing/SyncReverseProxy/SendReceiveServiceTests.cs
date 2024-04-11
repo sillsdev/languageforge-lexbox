@@ -235,8 +235,8 @@ query projectLastCommit {
             UserName = auth.Username,
             Password = auth.Password
         };
-        HgRunner.Run($"hg clone {hgwebUrl}{origProjectCode} {sourceProjectDir}", "", 15, progress);
-        HgRunner.Run($"hg push {hgwebUrl}{newProjectCode}", sourceProjectDir, 15, progress);
+        HgRunner.Run($"hg clone {hgwebUrl}{origProjectCode} {sourceProjectDir}", "", 45, progress);
+        HgRunner.Run($"hg push {hgwebUrl}{newProjectCode}", sourceProjectDir, 45, progress);
 
         // Sleep 5 seconds to ensure hgweb picks up newly-pushed commits
         await Task.Delay(TimeSpan.FromSeconds(5));
