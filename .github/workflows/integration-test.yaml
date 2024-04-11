@@ -139,6 +139,10 @@ jobs:
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
+      - name: Set up python3-venv
+        # Needed by publish-unit-test-result-action on ubuntu-22.04
+        run: sudo apt install python3-venv
+        if: ${{ always() && !env.act }}
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: ${{ always() && !env.act }}
