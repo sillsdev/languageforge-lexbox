@@ -57,7 +57,7 @@ jobs:
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y p7zip-full iputils-ping wget zlib1g-dev libssl-dev #needed by setup python
+          sudo apt-get install -y p7zip-full iputils-ping python3-venv wget zlib1g-dev libssl-dev #needed by setup python
           wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
           sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
           sudo apt-get install -f
@@ -139,10 +139,6 @@ jobs:
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
-      - name: Set up python3-venv
-        # Needed by publish-unit-test-result-action on ubuntu-22.04
-        run: sudo apt install -y python3-venv
-        if: ${{ always() && !env.act && inputs.hg-version == '6' }}
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: ${{ always() && !env.act }}
