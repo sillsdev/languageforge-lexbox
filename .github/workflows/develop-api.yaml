@@ -60,3 +60,4 @@ jobs:
     with:
       environment: develop
       runs-on: self-hosted
+      hg-version: 6
