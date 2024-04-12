@@ -172,6 +172,7 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
               __typename
               ... on InvalidEmailError {
                 message
+                address
               }
             }
           }

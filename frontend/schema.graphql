@@ -117,6 +117,7 @@ type FlexProjectMetadata {
 
 type InvalidEmailError implements Error {
   message: String!
+  address: String!
 }
 
 type IsAdminResponse {

@@ -62,7 +62,7 @@
       });
 
       if (error?.byType('InvalidEmailError')) {
-        const email = error?.message;
+        const email = error?.address;
         return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', {email})] };
       }
 

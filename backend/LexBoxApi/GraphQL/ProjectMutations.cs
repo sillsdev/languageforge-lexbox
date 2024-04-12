@@ -185,7 +185,7 @@ public class ProjectMutations
             catch (FormatException)
             {
                 // FormatException message from .NET talks about mail headers, which is confusing here
-                throw new InvalidEmailException(usernameOrEmail);
+                throw new InvalidEmailException("Invalid email address", usernameOrEmail);
             }
         }
         else
