@@ -123,9 +123,9 @@ importers:
       '@types/node':
         specifier: ^20.11.16
         version: 20.11.16
-  '@types/zxcvbn':
-    specifier: ^4.4.4
-    version: 4.4.4
+      '@types/zxcvbn':
+        specifier: ^4.4.4
+        version: 4.4.4
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.20.0
         version: 6.20.0(@typescript-eslint/parser@6.20.0)(eslint@8.56.0)(typescript@5.3.3)
@@ -216,9 +216,9 @@ importers:
       zod:
         specifier: ^3.22.4
         version: 3.22.4
-  zxcvbn:
-    specifier: ^4.4.2
-    version: 4.4.2
+      zxcvbn:
+        specifier: ^4.4.2
+        version: 4.4.2
 
   viewer:
     dependencies:
