@@ -57,7 +57,7 @@ public class TestingController : ControllerBase
             project.Name,
             project.Code,
             project.Users.Select(u =>
-                    new TestingControllerProjectUser(u.User.Username, u.Role.ToString(), u.User.Email, u.UserId))
+                    new TestingControllerProjectUser(u.User!.Username, u.Role.ToString(), u.User.Email, u.UserId))
                 .ToList());
     }
 
@@ -84,7 +84,7 @@ public class TestingController : ControllerBase
 
     public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);
 
-    public record TestingControllerProjectUser(string? Username, string Role, string Email, Guid Id);
+    public record TestingControllerProjectUser(string? Username, string Role, string? Email, Guid Id);
 
 #endif
     [HttpGet("throwsException")]

@@ -116,6 +116,7 @@ public class UserMutations
         if (wasPromotedToAdmin)
         {
             var admins = dbContext.Users.Where(u => u.IsAdmin).AsAsyncEnumerable();
+            ArgumentException.ThrowIfNullOrEmpty(user.Email);
             await emailService.SendNewAdminEmail(admins, user.Name, user.Email);
         }
 

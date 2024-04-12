@@ -177,7 +177,7 @@ public record LexAuthUser
     public bool? CreatedByAdmin { get; init; }
 
     [JsonPropertyName(LexAuthConstants.LocaleClaimType)]
-    public string Locale { get; init; }
+    public required string Locale { get; init; }
 
     public IEnumerable<Claim> GetClaims()
     {

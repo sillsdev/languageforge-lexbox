@@ -51,7 +51,7 @@ public class LegacyProjectApiController : ControllerBase
             {
                 user.Salt,
                 user.PasswordHash,
-                projects = user.Projects.Select(member => new LegacyApiProject(member.Project.Code,
+                projects = user.Projects.Select(member => new LegacyApiProject(member.Project!.Code,
                     member.Project.Name,
                     //it seems this is largely ignored by the client as it uses the LF domain instead
                     "http://public.languagedepot.org",

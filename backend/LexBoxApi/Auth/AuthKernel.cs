@@ -152,7 +152,7 @@ public static class AuthKernel
                     context.HandleResponse();
                     var loginController = context.HttpContext.RequestServices.GetRequiredService<LoginController>();
                     loginController.ControllerContext.HttpContext = context.HttpContext;
-                    var redirectTo = await loginController.CompleteGoogleLogin(context.Principal, context.Properties.RedirectUri);
+                    var redirectTo = await loginController.CompleteGoogleLogin(context.Principal, context.Properties?.RedirectUri);
                     context.HttpContext.Response.Redirect(redirectTo);
                 };
             });
