@@ -77,6 +77,7 @@ public class UserController : ControllerBase
             LocalizationCode = accountInput.Locale,
             Salt = salt,
             PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
+            PasswordStrength = UserService.ClampPasswordStrength(accountInput.PasswordStrength),
             IsAdmin = false,
             EmailVerified = emailVerified,
             Locked = false,

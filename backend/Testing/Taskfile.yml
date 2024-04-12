@@ -6,14 +6,16 @@ vars:
 
 tasks:
   unit:
+    vars:
+      FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
-      - dotnet test --filter=Category!=Integration
+      - dotnet test --filter="Category!=Integration&{{.FILTER}}"
 
   integration:
     vars:
       FILTER: '{{default "." .CLI_ARGS}}'
     cmds:
-      - dotnet test --filter="Category=Integration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}"
+      - dotnet test --filter="Category=Integration&FullyQualifiedName!~Testing.Browser&{{.FILTER}}" --results-directory ./test-results --logger trx
 
   integration-env:
     dotenv: [ local.env ]

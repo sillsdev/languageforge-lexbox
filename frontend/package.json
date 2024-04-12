@@ -43,6 +43,7 @@
 		"@tailwindcss/typography": "^0.5.10",
 		"@types/mjml": "^4.7.4",
 		"@types/node": "^20.11.16",
+		"@types/zxcvbn": "^4.4.4",
 		"@typescript-eslint/eslint-plugin": "^6.20.0",
 		"@typescript-eslint/parser": "^6.20.0",
 		"@urql/core": "^4.2.3",
@@ -72,7 +73,8 @@
 		"vite-plugin-graphql-codegen": "^3.3.6",
 		"vitest": "^1.2.2",
         "viewer": "workspace:*",
-		"zod": "^3.22.4"
+		"zod": "^3.22.4",
+		"zxcvbn": "^4.4.2"
 	},
 	"type": "module",
 	"dependencies": {

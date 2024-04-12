@@ -15,10 +15,12 @@
   import { AUTHENTICATED_ROOT } from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
   import DevContent from '$lib/layout/DevContent.svelte';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
     password: z.string().min(1, $t('login.password_missing')),
+    _score: z.number(), // Not currently used by API, but PasswordStrengthMeter wants something to bind to
   });
   let { form, errors, message, enhance, submitting } = lexSuperForm(
     formSchema,
@@ -75,6 +77,8 @@
             error={$errors.password}
             autocomplete="current-password"
           />
+
+          <PasswordStrengthMeter bind:score={$form._score} password={$form.password} />
 
           <div class="markdown-wrapper">
             <FormError error={$message} markdown />

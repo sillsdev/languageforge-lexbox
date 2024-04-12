@@ -47,6 +47,7 @@
         <PackageReference Include="Quartz.Serialization.Json" Version="3.8.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <PackageReference Include="tusdotnet" Version="2.7.2" />
+        <PackageReference Include="zxcvbn-core" Version="7.0.92" />
     </ItemGroup>
 
     <ItemGroup>
