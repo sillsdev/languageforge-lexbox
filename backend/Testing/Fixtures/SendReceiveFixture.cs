@@ -39,16 +39,17 @@ public class SendReceiveFixture : IAsyncLifetime
         zip.ExtractToDirectory(_templateRepo.FullName);
     }
 
-    public ProjectConfig InitLocalFlexProjectWithRepo([CallerMemberName] string projectName = "")
+    public ProjectConfig InitLocalFlexProjectWithRepo(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
     {
-        var projectConfig = Utils.GetNewProjectConfig(projectName);
+        var projectConfig = Utils.GetNewProjectConfig(protocol, projectName);
         InitLocalFlexProjectWithRepo(projectConfig);
         return projectConfig;
     }
 
     public void InitLocalFlexProjectWithRepo(ProjectPath projectPath)
     {
-        FileUtils.CopyFilesRecursively(_templateRepo, new DirectoryInfo(projectPath.Dir));
+        var projectDir = Directory.CreateDirectory(projectPath.Dir);
+        FileUtils.CopyFilesRecursively(_templateRepo, projectDir);
         File.Move(Path.Join(projectPath.Dir, "kevin-test-01.fwdata"), projectPath.FwDataFile);
         Directory.EnumerateFiles(projectPath.Dir).ShouldContain(projectPath.FwDataFile);
 

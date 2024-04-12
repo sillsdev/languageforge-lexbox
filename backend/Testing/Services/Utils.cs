@@ -1,9 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Chorus.VcsDrivers.Mercurial;
-using LexCore.Utils;
 using Shouldly;
-using SIL.Progress;
 using Testing.ApiTests;
 using static Testing.Services.Constants;
 
@@ -23,9 +20,10 @@ public static class Utils
         return sendReceiveParams;
     }
 
-    public static ProjectConfig GetNewProjectConfig([CallerMemberName] string projectName = "")
+    public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
     {
         var id = Guid.NewGuid();
+        if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
         var projectCode = ToProjectCodeFriendlyString(projectName);
         var shortId = id.ToString().Split("-")[0];
         projectCode = $"{projectCode}-{shortId}-dev-flex";
@@ -76,8 +74,18 @@ public static class Utils
     {
         var dashesBeforeCapitals = Regex.Replace(name, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", "-$1")
             .Trim().ToLower();
-        var onlyLettersNumbersAndDashes = Regex.Replace(dashesBeforeCapitals, @"[^a-zA-Z0-9-]", "-");
+        var onlyLettersNumbersAndDashes = Regex.Replace(dashesBeforeCapitals, @"[^a-zA-Z0-9]+", "-");
         return onlyLettersNumbersAndDashes.Trim('-');
+    }
+
+    public static async Task WaitForHgRefreshIntervalAsync()
+    {
+        await Task.Delay(TestingEnvironmentVariables.HgRefreshInterval);
+    }
+
+    public static async Task WaitForLexboxMetadataUpdateAsync()
+    {
+        await Task.Delay(3000);
     }
 
     private static string GetNewProjectDir(string projectCode,
@@ -88,27 +96,26 @@ public static class Utils
         var randomIndexedId = $"{_folderIndex++}-{Guid.NewGuid().ToString().Split("-")[0]}";
         //fwdata file containing folder name will be the same as the file name
         projectDir = Path.Join(projectDir, randomIndexedId, projectCode);
-        projectDir.Length.ShouldBeLessThan(150, "Path may be too long with mercurial directories");
+        projectDir.Length.ShouldBeLessThan(150, $"Path may be too long with mercurial directories {projectDir}");
         return projectDir;
     }
 }
 
 public record LexboxProject : IAsyncDisposable
 {
-    private readonly Func<Task> delete;
+    private readonly ApiTestBase _apiTester;
+    private readonly Guid _id;
 
     public LexboxProject(ApiTestBase apiTester, Guid id)
     {
-        delete = async () =>
-        {
-            var response = await apiTester.HttpClient.DeleteAsync($"api/project/project/{id}");
-            response.EnsureSuccessStatusCode();
-        };
+        _apiTester = apiTester;
+        _id = id;
     }
 
     public async ValueTask DisposeAsync()
     {
-        await delete();
+        var response = await _apiTester.HttpClient.DeleteAsync($"api/project/project/{_id}");
+        response.EnsureSuccessStatusCode();
     }
 }
 

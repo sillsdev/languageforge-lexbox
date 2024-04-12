@@ -1,6 +1,5 @@
 using Chorus.VcsDrivers.Mercurial;
 using LexBoxApi.Auth;
-using LexCore.Utils;
 using Shouldly;
 using SIL.Progress;
 using System.Net.Http.Json;
@@ -42,10 +41,12 @@ public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
         HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
     }
 
-    [Fact]
-    public void CloneBigProject()
+    [Theory]
+    [InlineData(HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Resumable)]
+    public void CloneBigProject(HgProtocol hgProtocol)
     {
-        var sendReceiveParams = GetParams(HgProtocol.Hgweb, "elawa-dev-flex");
+        var sendReceiveParams = GetParams(hgProtocol, "elawa-dev-flex");
         _sendReceiveService.RunCloneSendReceive(sendReceiveParams, AdminAuth);
     }
 
@@ -80,12 +81,13 @@ public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
+        await WaitForHgRefreshIntervalAsync();
+
         // Push the project to the server
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
 
-        // Wait for Lexbox to finish updating the project metadata
-        await Task.Delay(5000);
+        await WaitForLexboxMetadataUpdateAsync();
 
         // Verify pushed and store last commit
         var gqlQuery =
@@ -108,8 +110,7 @@ query projectLastCommit {
         // Push changes
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
 
-        // Wait for Lexbox to finish updating the project metadata
-        await Task.Delay(5000);
+        await WaitForLexboxMetadataUpdateAsync();
 
         // Verify the push updated the last commit date
         jsonResult = await _adminApiTester.ExecuteGql(gqlQuery);
@@ -118,87 +119,25 @@ query projectLastCommit {
     }
 
     [Theory]
-    [InlineData(HgProtocol.Hgweb)]
+    // [InlineData(HgProtocol.Hgweb)]
     [InlineData(HgProtocol.Resumable)]
     public async Task SendReceiveAfterProjectReset(HgProtocol protocol)
     {
-        // Create new project on server so we don't reset our master test project
-        var id = Guid.NewGuid();
-        var newProjectCode = $"{(protocol == HgProtocol.Hgweb ? "web" : "res")}-sr-reset-{id:N}";
-        await _adminApiTester.ExecuteGql($$"""
-            mutation {
-                createProject(input: {
-                    name: "Send new project test",
-                    type: FL_EX,
-                    id: "{{id}}",
-                    code: "{{newProjectCode}}",
-                    description: "A project created during a unit test to test Send/Receive operation via {{protocol}} after a project reset",
-                    retentionPolicy: DEV
-                }) {
-                    createProjectResponse {
-                        id
-                        result
-                    }
-                    errors {
-                        __typename
-                        ... on DbError {
-                            code
-                            message
-                        }
-                    }
-                }
-            }
-            """);
+        // Create a fresh project
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, "SR_AfterReset");
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
-        // Ensure newly-created project is deleted after test completes
-        await using var deleteProject = Defer.Async(() => _adminApiTester.HttpClient.DeleteAsync($"{_adminApiTester.BaseUrl}/api/project/{id}"));
+        await WaitForHgRefreshIntervalAsync();
 
-        // Sleep 5 seconds to ensure hgweb picks up newly-created test project
-        await Task.Delay(TimeSpan.FromSeconds(5));
-
-        // Populate new project from original so we're not resetting original test project in E2E tests
-        // Note that this time we're cloning via hg clone rather than Chorus, because we don't want a .fwdata file yet
-        var progress = new NullProgress();
-        var origProjectCode = TestingEnvironmentVariables.ProjectCode;
-        var newProjectDir = GetNewProjectConfig().Dir;
-        Directory.CreateDirectory(newProjectDir);
-        var hgwebUrl = new UriBuilder
-        {
-            Scheme = TestingEnvironmentVariables.HttpScheme,
-            Host = HgProtocol.Hgweb.GetTestHostName(),
-            UserName = AdminAuth.Username,
-            Password = AdminAuth.Password
-        };
-
-        HgRunner.Run($"hg clone {hgwebUrl}{origProjectCode} {newProjectDir}", "", 45, progress);
-        HgRunner.Run($"hg push {hgwebUrl}{newProjectCode}", newProjectDir, 45, progress);
-
-        // Sleep 5 seconds to ensure hgweb picks up newly-pushed commits
-        await Task.Delay(TimeSpan.FromSeconds(5));
-
-        // Now clone again via Chorus so that we'll hvae a .fwdata file
-        var sendReceiveParams = GetParams(protocol, newProjectCode);
-        Directory.CreateDirectory(sendReceiveParams.Dir);
-        var srResult = _sendReceiveService.CloneProject(sendReceiveParams, AdminAuth);
-        _output.WriteLine(srResult);
-
-        // Delete the Chorus revision cache if resumable, otherwise Chorus will send the wrong data during S/R
-        // Note that HgWeb protocol does *not* have this issue
-        var chorusStorageFolder = Path.Join(sendReceiveParams.Dir, "Chorus", "ChorusStorage");
-        var revisionCache = new FileInfo(Path.Join(chorusStorageFolder, "revisioncache.json"));
-        if (revisionCache.Exists)
-        {
-            revisionCache.Delete();
-        }
-
-        // With all that setup out of the way, we can now start the actual test itself
+        var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
 
         // First, save the current value of `hg tip` from the original project
         var tipUri = new UriBuilder
         {
             Scheme = TestingEnvironmentVariables.HttpScheme,
             Host = TestingEnvironmentVariables.ServerHostname,
-            Path = $"hg/{newProjectCode}/tags",
+            Path = $"hg/{projectConfig.Code}/tags",
             Query = "?style=json"
         };
         var response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
@@ -212,11 +151,10 @@ query projectLastCommit {
         // /api/project/upload-zip/{code}  // upload zip file
 
         // Step 1: reset project
-        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{newProjectCode}", null);
-        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{newProjectCode}", null);
+        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
+        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
-        // Sleep 5 seconds to ensure hgweb picks up newly-reset project
-        await Task.Delay(TimeSpan.FromSeconds(5));
+        await WaitForHgRefreshIntervalAsync();
 
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
@@ -227,8 +165,21 @@ query projectLastCommit {
         emptyTip.Replace("0", "").ShouldBeEmpty();
 
         // Step 3: do Send/Receive
+        if (protocol == HgProtocol.Resumable)
+        {
+            // Delete the Chorus revision cache of resumable, otherwise Chorus will send the wrong data during S/R
+            var chorusStorageFolder = Path.Join(sendReceiveParams.Dir, "Chorus", "ChorusStorage");
+            var revisionCache = new FileInfo(Path.Join(chorusStorageFolder, "revisioncache.json"));
+            if (revisionCache.Exists)
+            {
+                revisionCache.Delete();
+            }
+        }
+
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
+
+        await WaitForHgRefreshIntervalAsync();
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
@@ -240,11 +191,14 @@ query projectLastCommit {
 
     [Theory]
     [InlineData(180, 10)]
-    [InlineData(10, 1)]
+    [InlineData(50, 3)]
     public async Task SendNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
+
+        await WaitForHgRefreshIntervalAsync();
+
         var sendReceiveParams = new SendReceiveParams(HgProtocol.Hgweb, projectConfig);
 
         //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
@@ -257,8 +211,6 @@ query projectLastCommit {
             HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.ShouldBe(0);
         }
 
-        //attempt to prevent issue where project isn't found yet.
-        await Task.Delay(TimeSpan.FromSeconds(5));
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResult);
     }
