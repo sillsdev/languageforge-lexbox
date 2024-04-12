@@ -79,17 +79,17 @@ public enum ProjectType
 
 public class Changeset
 {
-    public string Node { get; set; }
+    public required string Node { get; set; }
     public int Rev { get; set; }
-    public double[] Date { get; set; }
-    public string Desc { get; set; }
+    public required double[] Date { get; set; }
+    public required string Desc { get; set; }
 
-    public string Branch { get; set; }
+    public required string Branch { get; set; }
 
 // commented out because I'm not sure of the shape and you can't use JsonArray as an output of gql
     // public JsonArray Bookmarks { get; set; }
-    public string[] Tags { get; set; }
-    public string User { get; set; }
-    public string Phase { get; set; }
-    public string[] Parents { get; set; }
+    public required string[] Tags { get; set; }
+    public required string User { get; set; }
+    public required string Phase { get; set; }
+    public required string[] Parents { get; set; }
 }
