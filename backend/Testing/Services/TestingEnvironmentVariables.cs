@@ -25,6 +25,8 @@ public static class TestingEnvironmentVariables
     public static string ProjectCode = Environment.GetEnvironmentVariable("TEST_PROJECT_CODE") ?? "sena-3";
     public static string DefaultPassword = Environment.GetEnvironmentVariable("TEST_DEFAULT_PASSWORD") ?? "pass";
 
+    public static int HgRefreshInterval = 5000;
+
     public static string GetTestHostName(this HgProtocol protocol)
     {
         return protocol switch

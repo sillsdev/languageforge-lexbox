@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using Chorus;
 using Nini.Ini;
+using Shouldly;
 using SIL.Progress;
 using Testing.Logging;
 using Xunit.Abstractions;
@@ -10,9 +10,9 @@ namespace Testing.Services;
 
 public record SendReceiveAuth(string Username, string Password);
 
-public record SendReceiveParams(string ProjectCode, string BaseUrl, string DestDir)
+public record SendReceiveParams(string ProjectCode, string BaseUrl, string Dir) : ProjectPath(ProjectCode, Dir)
 {
-    public string FwDataFile { get; } = Path.Join(DestDir, $"{ProjectCode}.fwdata");
+    public SendReceiveParams(HgProtocol protocol, ProjectPath project) : this(project.Code, protocol.GetTestHostName(), project.Dir) { }
 }
 
 public class SendReceiveService
@@ -78,7 +78,32 @@ public class SendReceiveService
         return output;
     }
 
-    public string CloneProject(SendReceiveParams sendReceiveParams, SendReceiveAuth auth)
+    public string RunCloneSendReceive(SendReceiveParams sendReceiveParams, SendReceiveAuth auth)
+    {
+        var projectDir = sendReceiveParams.Dir;
+        var fwDataFile = sendReceiveParams.FwDataFile;
+
+        // Clone
+        var cloneResult = CloneProject(sendReceiveParams, auth);
+
+        Directory.Exists(projectDir).ShouldBeTrue($"Directory {projectDir} not found. Clone response: {cloneResult}");
+        Directory.EnumerateFiles(projectDir).ShouldContain(fwDataFile);
+        var fwDataFileInfo = new FileInfo(fwDataFile);
+        fwDataFileInfo.Length.ShouldBeGreaterThan(0);
+        var fwDataFileOriginalLength = fwDataFileInfo.Length;
+
+        // SendReceive
+        var srResult = SendReceiveProject(sendReceiveParams, auth);
+
+        srResult.ShouldContain("no changes from others");
+        fwDataFileInfo.Refresh();
+        fwDataFileInfo.Exists.ShouldBeTrue();
+        fwDataFileInfo.Length.ShouldBe(fwDataFileOriginalLength);
+
+        return $"Clone: {cloneResult}{Environment.NewLine}SendReceive: {srResult}";
+    }
+
+    public string CloneProject(SendReceiveParams sendReceiveParams, SendReceiveAuth auth, bool validateOutput = true)
     {
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
@@ -113,10 +138,16 @@ public class SendReceiveService
         string cloneResult;
         LfMergeBridge.LfMergeBridge.Execute("Language_Forge_Clone", progress, flexBridgeOptions, out cloneResult);
         cloneResult += $"{Environment.NewLine}Progress out: {progress.Text}";
+
+        if (validateOutput)
+        {
+            Utils.ValidateSendReceiveOutput(cloneResult);
+        }
+
         return cloneResult;
     }
 
-    public string SendReceiveProject(SendReceiveParams sendReceiveParams, SendReceiveAuth auth, string commitMessage = "Testing")
+    public string SendReceiveProject(SendReceiveParams sendReceiveParams, SendReceiveAuth auth, string commitMessage = "Testing", bool validateOutput = true)
     {
         var (projectCode, baseUrl, destDir) = sendReceiveParams;
         var (username, password) = auth;
@@ -160,6 +191,11 @@ public class SendReceiveService
             out cloneResult);
 
         cloneResult += "Progress out: " + progress.Text;
+
+        if (validateOutput)
+        {
+            Utils.ValidateSendReceiveOutput(cloneResult);
+        }
 
         return cloneResult;
     }
