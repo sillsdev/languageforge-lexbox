@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using HotChocolate.Types.Descriptors;
 using Microsoft.AspNetCore.Authorization;
 using AuthorizeAttribute = HotChocolate.Authorization.AuthorizeAttribute;
@@ -9,10 +10,17 @@ public abstract class LexboxAuthAttribute : DescriptorAttribute, IAuthorizeData
 {
     public LexboxAuthAttribute(string policy)
     {
-        Policy = policy;
+        _policy = policy;
     }
 
-    public string Policy { get; set; }
+    private string _policy;
+
+    [AllowNull]
+    public string Policy
+    {
+        get => _policy;
+        set => _policy = value ?? throw new ArgumentNullException(nameof(value));
+    }
 
     public string? Roles { get; set; }
 
