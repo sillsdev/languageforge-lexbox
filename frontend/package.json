@@ -8,6 +8,7 @@
 	},
 	"scripts": {
 		"dev": "vite dev",
+		"lexbox-dev": "vite dev --port 3000 --host 0.0.0.0",
 		"build": "vite build",
 		"preview": "vite preview",
 		"pretest": "playwright install",
@@ -23,6 +24,9 @@
 		"format": "eslint . --fix",
 		"clean": "rimraf node_modules .svelte-kit"
 	},
+	"workspaces": [
+		"viewer"
+	],
 	"devDependencies": {
 		"@egoist/tailwindcss-icons": "^1.7.4",
 		"@eslint/js": "^8.56.0",
@@ -68,6 +72,7 @@
 		"vite": "^5.0.13",
 		"vite-plugin-graphql-codegen": "^3.3.6",
 		"vitest": "^1.2.2",
+        "viewer": "workspace:*",
 		"zod": "^3.22.4",
 		"zxcvbn": "^4.4.2"
 	},

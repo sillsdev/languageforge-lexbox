@@ -21,6 +21,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "backend\Testing\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixFwData", "backend\FixFwData\FixFwData.csproj", "{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LfNext", "LfNext", "{7B6E21C4-5AF4-4505-B7D9-59A3886C5090}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LfClassicData", "backend\LfClassicData\LfClassicData.csproj", "{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm", "backend\MiniLcm\MiniLcm.csproj", "{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,5 +57,17 @@ Global
 		{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7FC8B93-15A1-4D0B-9EAB-45596DB147F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
+		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 	EndGlobalSection
 EndGlobal

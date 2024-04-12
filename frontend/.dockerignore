@@ -6,5 +6,6 @@ playwright.config.js
 .vscode
 build
 node_modules
+viewer/node_modules
 tests
 test-results

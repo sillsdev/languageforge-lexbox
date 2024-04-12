@@ -84,6 +84,7 @@ public static class OtelKernel
                         }
                     };
                 })
+                .AddSource("MongoDB.Driver.Core.Extensions.DiagnosticSources")
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddNpgsql()
                 .AddQuartzInstrumentation(options =>
