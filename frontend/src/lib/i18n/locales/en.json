@@ -277,6 +277,14 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" and \"Password\" for Language Depot and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
+      "instructions_flex_empty": "1. [Download FLEx](https://software.sil.org/fieldworks/download/) onto your computer.\n\
+1. Open the FLEx application and select \"Create a new project...\".\n\
+1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
+1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
+1. Click on \"OK (I have the master project)\".\n\
+1. Click on \"Settings...\" and enter your LanguageDepot login credentials.\n\
+1. Click Log in, then select the Project ID ({code}) from the drop-down menu.\n\
+1. Click on Internet. This will initiate the first Send/Receive.",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
 1. Click 'Get from Internet'\n\
 1. In the 'Project ID' field type: \"{code}\"\n\
