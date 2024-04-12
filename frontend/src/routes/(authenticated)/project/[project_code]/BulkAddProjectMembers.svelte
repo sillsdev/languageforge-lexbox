@@ -62,7 +62,7 @@
       });
 
       if (error?.byType('InvalidEmailError')) {
-        const email = error?.address;
+        const email = (error as unknown as { address: string })?.address; // Come on, Typescript, stop being dumb
         return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', {email})] };
       }
 
