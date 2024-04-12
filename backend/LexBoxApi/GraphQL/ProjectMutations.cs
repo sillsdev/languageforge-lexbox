@@ -180,7 +180,7 @@ public class ProjectMutations
                 email = parsed.Address;
                 username = null;
                 name = parsed.DisplayName;
-                if (string.IsNullOrEmpty(name)) name = email;
+                if (string.IsNullOrEmpty(name)) name = email.Split('@')[0];
             }
             catch (FormatException)
             {
