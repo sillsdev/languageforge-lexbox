@@ -47,6 +47,9 @@
   let projectStore = data.project;
   $: project = $projectStore;
   $: changesetStore = data.changesets;
+  let isEmpty: boolean = false;
+  $: isEmpty = project?.lastCommit == null;
+  $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
   $: members = project.users.sort((a, b) => {
     if (a.role !== b.role) {
       return a.role === ProjectRole.Manager ? -1 : 1;
@@ -250,12 +253,21 @@
                   })}
                   />
                 {:else}
+                  {#if isEmpty}
+                  <Markdown
+                    md={$t('project_page.get_project.instructions_flex_empty', {
+                    code: project.code,
+                    name: project.name,
+                  })}
+                  />
+                  {:else}
                   <Markdown
                     md={$t('project_page.get_project.instructions_flex', {
                     code: project.code,
                     name: project.name,
                   })}
                   />
+                  {/if}
                 {/if}
               </div>
               <SendReceiveUrlField projectCode={project.code} />
