@@ -119,6 +119,14 @@ class OverlayTarget implements ActionReturn<OverlayParams> {
       this.targetElem.addEventListener('focusin',
         () => !this.isActive() && this.openOverlay(),
         {signal: this.abortController.signal});
+      this.targetElem.addEventListener('focusout',
+        () => {
+          // When clicking on an element in the content, the focus first goes to the body and only then to the element.
+          setTimeout(() => {
+            if (this.isActive() && !this.contentElem.contains(document.activeElement)) this.closeOverlay();
+          });
+        },
+        {signal: this.abortController.signal});
     } else {
       this.targetElem.addEventListener('click',
         () => this.isActive() ? this.closeOverlay() : this.openOverlay(),
