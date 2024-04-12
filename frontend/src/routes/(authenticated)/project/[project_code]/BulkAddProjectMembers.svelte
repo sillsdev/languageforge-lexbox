@@ -11,6 +11,7 @@
   import Icon from '$lib/icons/Icon.svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
   import { distinct } from '$lib/util/array';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   enum BulkAddSteps {
     Add,
@@ -89,6 +90,7 @@
         bind:value={$form.password}
         error={errors.password}
       />
+      <PasswordStrengthMeter score={0} password={$form.password} />
       <TextArea
         id="usernamesText"
         label={$t('project_page.bulk_add_members.usernames')}

@@ -8,6 +8,7 @@
   import { useNotifications } from '$lib/notify';
   import type { PageData } from './$types';
   import { getAspResponseErrorMessage } from '$lib/util/asp-response';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   export let data: PageData;
 
@@ -15,12 +16,13 @@
 
   const formSchema = z.object({
     password: passwordFormRules($t),
+    score: z.number(),
   });
   let { form, errors, enhance, submitting, message } = lexSuperForm(formSchema, async () => {
     const response: Response = await fetch('api/login/resetPassword', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ passwordHash: await hash($form.password) }),
+      body: JSON.stringify({ passwordHash: await hash($form.password), passwordStrength: $form.score }),
       lexboxResponseHandlingConfig: {
         disableRedirectOnAuthError: true,
       },
@@ -45,6 +47,7 @@
       error={$errors.password}
       autofocus
     />
+    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('reset_password.submit')}</SubmitButton>
   </Form>
