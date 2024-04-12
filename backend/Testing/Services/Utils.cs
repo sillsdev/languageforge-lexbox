@@ -114,7 +114,7 @@ public record LexboxProject : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        var response = await _apiTester.HttpClient.DeleteAsync($"api/project/project/{_id}");
+        var response = await _apiTester.HttpClient.DeleteAsync($"api/project/{_id}");
         response.EnsureSuccessStatusCode();
     }
 }

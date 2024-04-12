@@ -119,7 +119,7 @@ query projectLastCommit {
     }
 
     [Theory]
-    // [InlineData(HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Hgweb)]
     [InlineData(HgProtocol.Resumable)]
     public async Task SendReceiveAfterProjectReset(HgProtocol protocol)
     {
