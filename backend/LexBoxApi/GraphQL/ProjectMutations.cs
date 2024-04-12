@@ -127,29 +127,7 @@ public class ProjectMutations
             if (user is null)
             {
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-                var isEmailAddress = usernameOrEmail.Contains('@');
-                string name;
-                string? email;
-                string? username;
-                if (isEmailAddress)
-                {
-                    try {
-                        var parsed = new MailAddress(usernameOrEmail);
-                        email = parsed.Address;
-                        username = null;
-                        name = parsed.DisplayName;
-                        if (string.IsNullOrEmpty(name)) name = email;
-                    } catch (FormatException) {
-                        // FormatException message from .NET talks about mail headers, which is confusing here
-                        throw new InvalidEmailException(usernameOrEmail);
-                    }
-                }
-                else
-                {
-                    username = usernameOrEmail;
-                    email = null;
-                    name = username;
-                }
+                var (name, email, username) = ExtractNameAndAddressFromUsernameOrEmail(usernameOrEmail);
                 user = new User
                 {
                     Id = Guid.NewGuid(),
@@ -186,6 +164,37 @@ public class ProjectMutations
         }
         await dbContext.SaveChangesAsync();
         return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
+    }
+
+    public static (string name, string? email, string? username) ExtractNameAndAddressFromUsernameOrEmail(string usernameOrEmail)
+    {
+        var isEmailAddress = usernameOrEmail.Contains('@');
+        string name;
+        string? email;
+        string? username;
+        if (isEmailAddress)
+        {
+            try
+            {
+                var parsed = new MailAddress(usernameOrEmail);
+                email = parsed.Address;
+                username = null;
+                name = parsed.DisplayName;
+                if (string.IsNullOrEmpty(name)) name = email;
+            }
+            catch (FormatException)
+            {
+                // FormatException message from .NET talks about mail headers, which is confusing here
+                throw new InvalidEmailException(usernameOrEmail);
+            }
+        }
+        else
+        {
+            username = usernameOrEmail;
+            email = null;
+            name = username;
+        }
+        return (name, email, username);
     }
 
     [Error<NotFoundException>]
