@@ -116,7 +116,6 @@ jobs:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
       - name: Integration tests (Playwright)
         if: ${{ inputs.run-playwright }}
-        continue-on-error: true
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -127,6 +126,7 @@ jobs:
         working-directory: frontend
         run: pnpm test
       - name: Integration tests (.NET)
+        if: always()
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
