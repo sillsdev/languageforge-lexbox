@@ -189,10 +189,19 @@ query projectLastCommit {
         postSRTip.ShouldBe(originalTip);
     }
 
-    [Theory]
-    [InlineData(180, 10)]
-    [InlineData(50, 3)]
-    public async Task SendNewProject(int totalSizeMb, int fileCount)
+    [Fact]
+    private async Task SendReceiveNewProject_Big()
+    {
+        await SendReceiveNewProject(180, 10);
+    }
+
+    [Fact]
+    private async Task SendReceiveNewProject_Medium()
+    {
+        await SendReceiveNewProject(90, 5);
+    }
+
+    private async Task SendReceiveNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
