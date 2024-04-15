@@ -100,7 +100,7 @@ The SvelteKit UI will be available at http://localhost:3000.
 * http://localhost:5158/api/graphql/ui - GraphQL UI
 * http://localhost:8088/hg - hg web UI (add the project code and use the url in FLEx to clone)
 * http://localhost:1080 - maildev UI
-* http://localhost:18888 - aspire dashboard (OTEL traces)
+* http://localhost:18888 - [aspire dashboard](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard) (OTEL traces)
 
 ### Seeded data
 
