@@ -29,7 +29,7 @@ const config: PlaywrightTestConfig = {
   ? [['github'], ['list']]
   // Putting the HTML report in a subdirectory of the main output directory results in a warning log
   // stating that it will "lead to artifact loss" but the warning in this case is not accurate
-  : [['html', { outputFolder: 'test-results/_html-report', open: 'never' }]],
+  : [['list'], ['html', { outputFolder: 'test-results/_html-report', open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
