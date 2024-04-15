@@ -106,7 +106,7 @@ public class UserMutations
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 
-        if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
+        if (!string.IsNullOrEmpty(input.Email) && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
         {
             var emailInUse = await dbContext.Users.AnyAsync(u => u.Email == input.Email);
             if (emailInUse) throw new UniqueValueException("Email");

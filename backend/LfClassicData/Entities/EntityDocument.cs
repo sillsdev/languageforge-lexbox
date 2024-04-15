@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace LfClassicData.Entities;
 
-public class EntityDocument<T> : EntityBase
+public class EntityDocument : EntityBase
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
