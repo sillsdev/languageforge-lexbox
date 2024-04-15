@@ -65,14 +65,17 @@ jobs:
           pwsh #validate that powershell installed correctly
       # First we need to setup Node...
       - uses: actions/setup-node@v4
+        if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
       # Then we can set up pnpm...
       - uses: pnpm/action-setup@v3
+        if: ${{ inputs.run-playwright }}
         with:
           package_json_file: 'frontend/package.json'
       # Then we can have Noede set up package caching
       - uses: actions/setup-node@v4
+        if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
           cache: 'pnpm'
