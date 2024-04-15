@@ -55,9 +55,9 @@ public class SendReceiveFixture : IAsyncLifetime
 
         // hack around the fact that our send and receive won't create a repo from scratch.
         var progress = new NullProgress();
-        HgRunner.Run("hg init", projectPath.Dir, 1, progress);
-        HgRunner.Run("hg branch 7500002.7000072", projectPath.Dir, 1, progress);
-        HgRunner.Run($"hg add Lexicon.fwstub", projectPath.Dir, 1, progress);
-        HgRunner.Run("""hg commit -m "first commit" """, projectPath.Dir, 1, progress);
+        HgRunner.Run("hg init", projectPath.Dir, 5, progress);
+        HgRunner.Run("hg branch 7500002.7000072", projectPath.Dir, 5, progress);
+        HgRunner.Run($"hg add Lexicon.fwstub", projectPath.Dir, 5, progress);
+        HgRunner.Run("""hg commit -m "first commit" """, projectPath.Dir, 5, progress);
     }
 }

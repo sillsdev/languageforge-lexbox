@@ -207,7 +207,7 @@ query projectLastCommit {
         {
             var fileName = $"test-file{i}.bin";
             WriteFile(Path.Combine(sendReceiveParams.Dir, fileName), totalSizeMb / fileCount);
-            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 1, progress);
+            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 5, progress);
             HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.ShouldBe(0);
         }
 
