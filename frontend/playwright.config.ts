@@ -1,7 +1,8 @@
-import type { PlaywrightTestConfig } from '@playwright/test';
+import * as testEnv from './tests/envVars';
+
 import { defineConfig, devices } from '@playwright/test';
 
-import * as testEnv from './tests/envVars';
+import type { PlaywrightTestConfig } from '@playwright/test';
 
 /**
  * Read environment variables from file.
@@ -19,6 +20,7 @@ const config: PlaywrightTestConfig = {
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
+  timeout: testEnv.TEST_TIMEOUT,
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
   /* Opt out of parallel tests on CI. */
