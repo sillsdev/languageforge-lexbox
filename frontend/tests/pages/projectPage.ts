@@ -1,14 +1,15 @@
 import type { Locator, Page } from '@playwright/test';
+
+import { AddMemberModal } from '../components/addMemberModal';
 import { BasePage } from './basePage';
 import { ResetProjectModal } from '../components/resetProjectModal';
-import { AddMemberModal } from '../components/addMemberModal';
 
 export class ProjectPage extends BasePage {
   get moreSettingsDiv(): Locator { return this.page.locator('.collapse').filter({ hasText: 'More settings' }); }
   get deleteProjectButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Delete project'}); }
   get resetProjectButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Reset project'}); }
   get verifyRepoButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Verify repository'}); }
-  get addMemberButton(): Locator { return this.page.getByRole('button', {name: 'Add Member'}); }
+  get addMemberButton(): Locator { return this.page.getByRole('button', {name: 'Add/Invite Member'}); }
 
   constructor(page: Page, name: string, code: string) {
     super(page, page.locator(`.breadcrumbs :text('${name}')`), `/project/${code}`);
