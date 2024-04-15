@@ -85,6 +85,12 @@ spec:
                 key: environment-name
           - name: OTEL_METRIC_EXPORT_INTERVAL
             value: '60000' # 60s
+          - name: K8S_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: OTEL_RESOURCE_ATTRIBUTES
+            value: k8s.node.name=$(K8S_NODE_NAME)
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
@@ -161,6 +167,11 @@ spec:
 
       - name: otel-collector
         image: otel/opentelemetry-collector-contrib:0.87.0
+        args:
+          - "--config"
+          - "/etc/otelcol-contrib/config.yaml"
+          - "--config"
+          - "env:COLLECTOR_CONFIG_OVERRIDE"
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
@@ -181,6 +192,8 @@ spec:
               secretKeyRef:
                 key: HONEYCOMB_API_KEY
                 name: otel
+          - name: COLLECTOR_CONFIG_OVERRIDE
+            value: '' # should be YAML, will be merged with the base config file
 
       volumes:
       - name: repos
