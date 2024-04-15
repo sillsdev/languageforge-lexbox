@@ -190,18 +190,18 @@ query projectLastCommit {
     }
 
     [Fact]
-    private async Task SendReceiveNewProject_Big()
+    public async Task SendNewProject_Big()
     {
-        await SendReceiveNewProject(180, 10);
+        await SendNewProject(180, 10);
     }
 
     [Fact]
-    private async Task SendReceiveNewProject_Medium()
+    public async Task SendNewProject_Medium()
     {
-        await SendReceiveNewProject(90, 5);
+        await SendNewProject(90, 5);
     }
 
-    private async Task SendReceiveNewProject(int totalSizeMb, int fileCount)
+    private async Task SendNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
