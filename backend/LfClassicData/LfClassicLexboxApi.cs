@@ -29,8 +29,9 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
                 Name = inputSystem.LanguageName,
                 Abbreviation = inputSystem.Abbreviation
             };
-            if (inputSystem.AnalysisWS) analysis.Add(writingSystem);
-            if (inputSystem.VernacularWS) vernacular.Add(writingSystem);
+            //ws type might not be stored, we will add it anyway, otherwise nothing works
+            if (inputSystem.AnalysisWS is not false) analysis.Add(writingSystem);
+            if (inputSystem.VernacularWS is not false) vernacular.Add(writingSystem);
         }
         return new WritingSystems
         {
