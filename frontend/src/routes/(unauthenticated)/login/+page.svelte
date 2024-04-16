@@ -90,10 +90,8 @@
 
           <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
         </Form>
-        <DevContent>
-          <div class="divider lowercase">{$t('common.or')}</div>
-          <SigninWithGoogleButton href="/api/login/google" />
-        </DevContent>
+        <div class="divider lowercase">{$t('common.or')}</div>
+        <SigninWithGoogleButton href="/api/login/google" />
       </div>
     </div>
 
