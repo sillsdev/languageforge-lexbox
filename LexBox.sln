@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LfClassicData", "backend\Lf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm", "backend\MiniLcm\MiniLcm.csproj", "{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalWebApp", "backend\LocalWebApp\LocalWebApp.csproj", "{2CDF7126-733B-46E8-9B93-7DC31DE39682}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,9 +67,14 @@ Global
 		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CDF7126-733B-46E8-9B93-7DC31DE39682}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CDF7126-733B-46E8-9B93-7DC31DE39682}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CDF7126-733B-46E8-9B93-7DC31DE39682}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CDF7126-733B-46E8-9B93-7DC31DE39682}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 		{6D4062DC-1B1A-4A24-9C61-0F6A18A39882} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
+		{2CDF7126-733B-46E8-9B93-7DC31DE39682} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 	EndGlobalSection
 EndGlobal
