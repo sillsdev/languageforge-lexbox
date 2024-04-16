@@ -45,6 +45,7 @@
     <Input
       id="keyphrase"
       type="text"
+      autofocus
       label={$t(
         'enter_to_delete.label',
         /*
