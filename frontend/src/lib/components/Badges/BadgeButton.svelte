@@ -6,13 +6,12 @@
   type BadgeButtonVariant = 'badge-success' | 'badge-warning' | 'badge-neutral' | undefined;
   export let variant: BadgeButtonVariant = undefined;
   export let icon: IconString | undefined = undefined;
+  export let hoverIcon: IconString | undefined = undefined;
   export let disabled = false;
-
-  $: _type = type as unknown as BadgeVariant;
 </script>
 
-<button on:click {disabled} class="badge btn btn-sm !p-0">
-  <Badge {variant} {icon}>
+<button on:click {disabled} class="badge btn btn-sm !p-0 bright transition-all border-0" class:hover:brightness-90={!disabled}>
+  <Badge {variant} {icon} hoverIcon={disabled ? undefined : hoverIcon}>
     <slot />
   </Badge>
 </button>

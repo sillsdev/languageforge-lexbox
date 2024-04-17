@@ -58,7 +58,7 @@
           {filters}
           filterDefaults={defaultFilterValues}
           on:change={() => (limitResults = true)}
-          filterKeys={['projectSearch', 'projectType']}
+          filterKeys={['projectSearch', 'projectType', 'confidential']}
         />
       </div>
       <div class="join">

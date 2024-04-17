@@ -21,6 +21,7 @@
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
+  import type { Confidentiality } from '$lib/components/Projects';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -33,6 +34,8 @@
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
+    confidential: queryParam.string<Confidentiality | undefined>(undefined),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),

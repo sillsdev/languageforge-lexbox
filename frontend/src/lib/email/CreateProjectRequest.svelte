@@ -36,7 +36,10 @@
             <td>{$t('project.create.retention_policy')}</td>
             <td><FormatRetentionPolicy policy={project.retentionPolicy}/></td>
         </tr>
-
+        <tr>
+            <td>{$t('project.confidential.confidential')}</td>
+            <td>{$t('common.yes_no', {value: project.isConfidential.toString()})}</td>
+        </tr>
     </mj-table>
 <!--    todo should have a url here-->
     <mj-button href={createUrl}>{$t('project.create.submit')}</mj-button>

@@ -50,7 +50,10 @@
   let lastLoadUsedActiveFilter = false;
   $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
   $: allProjects = [
-    ...draftProjects.map(p => ({ ...p, isDraft: true as const, createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p)}` })),
+    ...draftProjects.map(p => ({
+      ...p, isDraft: true as const,
+      createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` /* TODO #737 - Remove unnecessary cast */
+    })),
     ...projects.map(p => ({ ...p, isDraft: false as const })),
   ];
   $: filteredProjects = filterProjects(allProjects, $filters);

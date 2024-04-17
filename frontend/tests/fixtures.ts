@@ -97,7 +97,8 @@ export const test = base.extend<Fixtures>({
           type: FL_EX,
           code: "${code}",
           description: "temporary project created during the ${testInfo.title} unit test",
-          retentionPolicy: DEV
+          retentionPolicy: DEV,
+          isConfidential: false
         }) {
           createProjectResponse {
             id
