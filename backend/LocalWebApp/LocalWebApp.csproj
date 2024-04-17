@@ -5,10 +5,14 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4"/>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.4" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
@@ -20,6 +24,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="..\..\frontend\viewer\dist\**\*" />
     </ItemGroup>
 
 </Project>
