@@ -197,7 +197,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "finish_button": "Close",
       "shared_password": "Shared Password",
       "usernames": "Logins/usernames (one per line)",
-      "usernames_alphanum_only": "Logins/usernames must contain only letters, numbers, and underscore (_) characters",
+      "invalid_username": "Invalid login/username: {username}. Can only use letters, numbers, and underscore (_) characters.",
       "empty_user_field": "Please enter email addresses and/or logins",
       "creator_must_have_email": "You must have an email address in order to create a project.",
       "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to project.",
@@ -205,7 +205,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "already_members": "{count, plural, one {# user was} other {# users were}} already in the project.",
       "accounts_created": "{createdCount} new {createdCount, plural, one {user was} other {users were}} created with the provided password.",
       "accounts_invited": "{invitedCount} new {invitedCount, plural, one {user was} other {users were}} invited by email to join the project.",
-      "invalid_email_address": "Invalid email address: {email}",
+      "invalid_email_address": "Invalid email address: {email}.",
     },
     "change_role_modal": {
       "title": "Choose role for {name}"

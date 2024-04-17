@@ -10,7 +10,8 @@
     formState: LexFormState<S>;
   };
 
-  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<ErrorMessage | Partial<LexFormErrors<Schema>>>;
+  export type FormSubmitReturn<Schema extends ZodValidation<AnyZodObject>> = ErrorMessage | Partial<LexFormErrors<Schema>>;
+  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<FormSubmitReturn<Schema>>;
 </script>
 
 <script lang="ts">
