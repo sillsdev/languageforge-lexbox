@@ -7,9 +7,12 @@
     ProjectItem & { isDraft?: false } |
     DraftProject & { isDraft: true; createUrl: string };
 
+  export type Confidentiality = `${boolean}` | 'unset';
+
   export type ProjectFilters = {
     projectSearch: string;
     projectType: ProjectType | undefined;
+    confidential: Confidentiality | undefined;
     showDeletedProjects: boolean;
     hideDraftProjects: boolean;
     memberSearch: string | undefined;
@@ -26,7 +29,10 @@
           p.name.toLocaleLowerCase().includes(searchLower) ||
           p.code.toLocaleLowerCase().includes(searchLower)) &&
         (!projectFilters.projectType || p.type === projectFilters.projectType) &&
-        (!projectFilters.hideDraftProjects || !p.isDraft)
+        (!projectFilters.hideDraftProjects || !p.isDraft) &&
+        (projectFilters.confidential === undefined ||
+          (projectFilters.confidential === p.isConfidential?.toString()) ||
+          (projectFilters.confidential === 'unset' && (p.isConfidential ?? undefined) === undefined))
     );
   }
 </script>
@@ -40,13 +46,14 @@
   import { AuthenticatedUserIcon, Icon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
+  import ProjectConfidentialityFilterSelect from './ProjectConfidentialityFilterSelect.svelte';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   export let filters: Writable<Filters>;
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'memberSearch', 'hideDraftProjects'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'confidential', 'showDeletedProjects', 'memberSearch', 'hideDraftProjects'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -61,7 +68,20 @@
         <ActiveFilter {filter}>
           <ProjectTypeIcon type={filter.value} />
         </ActiveFilter>
-      {:else if filter.key === 'showDeletedProjects'}
+      {:else if filter.key === 'confidential' && filter.value}
+        <ActiveFilter {filter}>
+          {#if filter.value === 'true'}
+            <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
+            {$t('project.confidential.confidential')}
+          {:else if filter.value === 'false'}
+            <Icon icon="i-mdi-shield-lock-open-outline" />
+            {$t('project.confidential.not_confidential')}
+          {:else}
+            <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
+            {$t('project.confidential.unspecified')}
+          {/if}
+        </ActiveFilter>
+      {:else if filter.key === 'showDeletedProjects' && filter.value}
         <ActiveFilter {filter}>
           <TrashIcon color="text-error" />
           {$t('project.filter.show_deleted')}
@@ -71,7 +91,7 @@
           <AuthenticatedUserIcon />
           {filter.value}
         </ActiveFilter>
-      {:else if filter.key === 'hideDraftProjects'}
+      {:else if filter.key === 'hideDraftProjects' && filter.value}
         <ActiveFilter {filter}>
           <Icon icon="i-mdi-script" color="text-warning" />
           {$t('project.filter.hide_drafts')}
@@ -115,6 +135,11 @@
     {#if filterEnabled('projectType')}
       <div class="form-control">
         <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('common.any')} includeUnknown />
+      </div>
+    {/if}
+    {#if filterEnabled('confidential')}
+      <div class="form-control">
+        <ProjectConfidentialityFilterSelect bind:value={$filters.confidential} />
       </div>
     {/if}
     {#if filterEnabled('showDeletedProjects')}

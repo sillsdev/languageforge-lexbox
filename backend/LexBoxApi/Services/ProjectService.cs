@@ -17,6 +17,11 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
+        /* TODO #737 - Remove this draftProject/isConfidentialIsUntrustworthy stuff and just trust input.IsConfidential */
+        var draftProject = await dbContext.DraftProjects.FindAsync(projectId);
+        // There could be draft projects from before we introduced the IsConfidential field. (i.e. where draftProject.IsConfidential is null)
+        // In those cases we can't trust input.IsConfidential == false, because that is the default, but the user will never have had the chance to pick it.
+        var isConfidentialIsUntrustworthy = draftProject is not null && draftProject.IsConfidential is null && !input.IsConfidential;
         dbContext.Projects.Add(
             new Project
             {
@@ -28,6 +33,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 Type = input.Type,
                 LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
+                IsConfidential = isConfidentialIsUntrustworthy ? null : input.IsConfidential,
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         // Also delete draft project, if any
@@ -56,6 +62,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 Name = input.Name,
                 Description = input.Description,
                 Type = input.Type,
+                IsConfidential = input.IsConfidential,
                 RetentionPolicy = input.RetentionPolicy,
                 ProjectManagerId = input.ProjectManagerId,
             });

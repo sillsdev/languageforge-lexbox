@@ -8,13 +8,19 @@
 
   export let variant: BadgeVariant = 'badge-neutral';
   export let icon: IconString | undefined = undefined;
+  export let hoverIcon: IconString | undefined = undefined;
   export let outline = false;
 </script>
 
 <span
-  class="badge {variant ?? ''} whitespace-nowrap inline-flex gap-2 items-center"
+  class="badge {variant ?? ''} whitespace-nowrap inline-flex gap-2 items-center group"
   class:badge-outline={outline}
 >
   <slot />
-  <Icon {icon} />
+  <span class="contents" class:group-hover:hidden={!!hoverIcon}>
+    <Icon {icon} />
+  </span>
+  <span class="hidden" class:group-hover:contents={!!hoverIcon}>
+    <Icon icon={hoverIcon} />
+  </span>
 </span>

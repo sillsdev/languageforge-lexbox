@@ -17,6 +17,7 @@ export async function load(event: PageLoadEvent) {
                 lastCommit
                 userCount
                 type
+                isConfidential
             }
         }
   `), {});
