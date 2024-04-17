@@ -198,6 +198,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "shared_password": "Shared Password",
       "usernames": "Logins/usernames (one per line)",
       "usernames_alphanum_only": "Logins/usernames must contain only letters, numbers, and underscore (_) characters",
+      "empty_user_field": "Please enter email addresses and/or logins",
       "creator_must_have_email": "You must have an email address in order to create a project.",
       "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to project.",
       "existing_added_members": "{existedCount} {existedCount, plural, one {user} other {users}} already existed.",
