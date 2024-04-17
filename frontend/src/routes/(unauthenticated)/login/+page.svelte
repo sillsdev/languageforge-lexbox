@@ -17,7 +17,7 @@
   import DevContent from '$lib/layout/DevContent.svelte';
 
   const formSchema = z.object({
-    email: z.string().min(1, $t('login.missing_user_info')),
+    email: z.string().trim().min(1, $t('login.missing_user_info')),
     password: z.string().min(1, $t('login.password_missing')),
   });
   let { form, errors, message, enhance, submitting } = lexSuperForm(
