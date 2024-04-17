@@ -131,7 +131,7 @@
   $: userId = user.id;
   $: canManage = isAdmin(user) || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
 
-  const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
+  const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
   let deleteProjectModal: ConfirmDeleteModal;
 
