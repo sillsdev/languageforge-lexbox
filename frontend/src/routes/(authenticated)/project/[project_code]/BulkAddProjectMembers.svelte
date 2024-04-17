@@ -22,7 +22,7 @@
 
   export let projectId: string;
   const schema = z.object({
-    usernamesText: z.string().min(1, $t('register.name_missing')),
+    usernamesText: z.string().trim().min(1, $t('project_page.bulk_add_members.empty_user_field')),
     password: passwordFormRules($t),
   });
 
