@@ -180,6 +180,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "add_button": "Add/Invite Member",
       "modal_title": "Add or invite a Member to this project",
       "submit_button": "Add Member",
+      "empty_user_field": "Please enter an email address or login",
       "submit_button_email": "Add or invite Member",
       "project_not_found": "Project not found. Please refresh the page.",
       "username_not_found": "No user was found with this login",
