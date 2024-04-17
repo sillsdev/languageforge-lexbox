@@ -1,7 +1,7 @@
 <script lang="ts">
   import { BadgeButton } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, ProjectRoleSelect } from '$lib/forms';
+  import { Input, ProjectRoleSelect, isEmail } from '$lib/forms';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -10,7 +10,9 @@
 
   export let projectId: string;
   const schema = z.object({
-    usernameOrEmail: z.string(),
+    usernameOrEmail: z.string().trim()
+      .min(1, $t('project_page.add_user.empty_user_field'))
+      .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;
