@@ -14,7 +14,6 @@
   import { navigating } from '$app/stores';
   import { AUTHENTICATED_ROOT } from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
-  import DevContent from '$lib/layout/DevContent.svelte';
 
   const formSchema = z.object({
     email: z.string().min(1, $t('login.missing_user_info')),
