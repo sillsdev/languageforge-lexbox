@@ -33,5 +33,5 @@
 {#if src}
   <img {src} alt={$t('project_type.logo', { type: type ?? ProjectType.Unknown })} class={size}>
 {:else if type}
-  <span class="i-mdi-help-circle-outline text-xl mb-[-2px]" />
+  <span class="i-mdi-help-circle-outline text-2xl" />
 {/if}

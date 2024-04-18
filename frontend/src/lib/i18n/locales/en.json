@@ -323,7 +323,6 @@ If you don't see a dialog or already closed it, click the button below:",
   },
   "project_type": {
     "type": "Project type",
-    "any": "Any",
     "adaptIt": "Adapt It",
     "flex": "FLEx",
     "oneStoryEditor": "OneStory Editor",
@@ -476,5 +475,6 @@ If you don't see a dialog or already closed it, click the button below:",
     "no": "No",
     "none": "None",
     "or": "Or",
+    "any": "Any",
   }
 }

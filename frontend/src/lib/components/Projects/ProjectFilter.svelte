@@ -114,7 +114,7 @@
     {/if}
     {#if filterEnabled('projectType')}
       <div class="form-control">
-        <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('project_type.any')} />
+        <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('common.any')} includeUnknown />
       </div>
     {/if}
     {#if filterEnabled('showDeletedProjects')}
