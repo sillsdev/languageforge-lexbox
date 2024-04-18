@@ -17,7 +17,7 @@ export function userFilter(userSearch: string): UserFilterInput {
 export type UserTypeaheadResult = NonNullable<NonNullable<LoadAdminUsersTypeaheadQuery['users']>['items']>;
 export type SingleUserTypeaheadResult = UserTypeaheadResult[number];
 
-export async function _typeaheadSearch(userSearch: string, limit = DEFAULT_PAGE_SIZE): Promise<UserTypeaheadResult> {
+export async function _typeaheadSearch(userSearch: string, limit = 10): Promise<UserTypeaheadResult> {
   if (!userSearch) return Promise.resolve([]);
   const client = getClient();
   const result = client.query(graphql(`
