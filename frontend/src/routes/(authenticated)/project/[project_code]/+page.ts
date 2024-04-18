@@ -136,6 +136,9 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
               ... on Error {
                 message
               }
+              ... on InvalidEmailError {
+                address
+              }
             }
           }
         }

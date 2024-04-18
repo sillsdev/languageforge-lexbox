@@ -64,6 +64,7 @@ public class ProjectMutations
     [Error<ProjectMembersMustBeVerified>]
     [Error<ProjectMembersMustBeVerifiedForRole>]
     [Error<ProjectMemberInvitedByEmail>]
+    [Error<InvalidEmailException>]
     [Error<AlreadyExistsException>]
     [UseMutationConvention]
     [UseFirstOrDefault]
@@ -78,13 +79,21 @@ public class ProjectMutations
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         if (project is null) throw new NotFoundException("Project not found");
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
-        if (user is null && input.UsernameOrEmail.Contains('@'))
+        if (user is null)
         {
-            var manager = loggedInContext.User;
-            await emailService.SendCreateAccountEmail(input.UsernameOrEmail, input.ProjectId, input.Role, manager.Name, project.Name);
-            throw new ProjectMemberInvitedByEmail("Invitation email sent");
+            var (_, email, _) = ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail);
+            // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
+            if (email is null)
+            {
+                throw new NotFoundException("User not found");
+            }
+            else
+            {
+                var manager = loggedInContext.User;
+                await emailService.SendCreateAccountEmail(email, input.ProjectId, input.Role, manager.Name, project.Name);
+                throw new ProjectMemberInvitedByEmail("Invitation email sent");
+            }
         }
-        if (user is null) throw new NotFoundException("User not found");
         if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
         {
             throw new AlreadyExistsException("User is already a member of this project");
