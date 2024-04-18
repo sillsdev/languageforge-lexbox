@@ -17,7 +17,6 @@
   $: $input = value;
 
   let typeaheadResults = deriveAsync(input, _typeaheadSearch, [], debounceMs);
-  typeaheadResults.subscribe(console.log);
 
   function formatResult(user: SingleUserTypeaheadResult): string {
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
