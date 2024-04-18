@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { IconString } from '$lib/icons';
-  import Badge, { type BadgeVariant } from './Badge.svelte';
+  import Badge from './Badge.svelte';
 
   // Add more as necessary. Should be as limited as possible to maximize consistency.
-  type BadgeButtonType = 'badge-success' | '';
-  export let type: BadgeButtonType = '';
+  type BadgeButtonVariant = 'badge-success' | 'badge-warning' | 'badge-neutral' | undefined;
+  export let variant: BadgeButtonVariant = undefined;
   export let icon: IconString | undefined = undefined;
   export let disabled = false;
 
@@ -12,7 +12,7 @@
 </script>
 
 <button on:click {disabled} class="badge btn btn-sm !p-0">
-  <Badge type={_type} {icon}>
+  <Badge {variant} {icon}>
     <slot />
   </Badge>
 </button>
