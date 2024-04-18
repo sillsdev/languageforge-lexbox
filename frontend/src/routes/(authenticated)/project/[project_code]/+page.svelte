@@ -318,7 +318,7 @@
             disabled={!user.isAdmin}
             on:click={resetProject}
           >
-            <Badge type="badge-warning">
+            <Badge variant="badge-warning">
               {$t('project_page.reset_project_modal.reset_in_progress')}
               <span class="i-mdi-warning text-xl mb-[-2px]" />
             </Badge>
