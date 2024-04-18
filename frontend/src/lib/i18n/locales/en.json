@@ -187,6 +187,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "manager_must_be_verified": "User needs a verified email address in order to be a manager",
       "user_already_member": "User is already a member of this project",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
+      "invalid_email_address": "Invalid email address: {email}",
     },
     "bulk_add_members": {
       "add_button": "Bulk Add/Create Members",
