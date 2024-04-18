@@ -69,8 +69,9 @@
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
 
-      if (error?.byType('InvalidEmailError')) {
-        const email = (error as unknown as { address: string })?.address; // Come on, Typescript, stop being dumb
+      const invalidEmailError = error?.byType('InvalidEmailError');
+      if (invalidEmailError) {
+        const email = invalidEmailError[0].address!;
         return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', {email})] };
       }
 

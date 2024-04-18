@@ -37,8 +37,7 @@
         }
       }
       if (error?.byType('InvalidEmailError')) {
-        const email = (error as unknown as {address: string})?.address;
-        return { usernameOrEmail: [$t('project_page.add_user.invalid_email_address', {email})] };
+        return { usernameOrEmail: [$t('form.invalid_email')] };
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
         return { usernameOrEmail: [$t('project_page.add_user.user_must_be_verified')] };
