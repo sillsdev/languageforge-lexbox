@@ -1,0 +1,53 @@
+﻿name: Deploy to Develop
+run-name: Deploy ${{ github.ref_name }} to Develop
+on:
+  workflow_dispatch:
+
+
+jobs:
+  set-version:
+    name: Set Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.setVersion.outputs.VERSION }}
+    steps:
+      - name: Set Version
+        id: setVersion
+        # set version to date in vYYYY-MM-DD-commitSha format
+        run: |
+          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
+          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
+  build-api:
+    name: Build API
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-api.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: true
+
+  build-ui:
+    name: Build UI
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-ui.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: true
+
+  build-hgweb:
+    name: Build hgweb
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-hgweb.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: true
+
+  deploy:
+    name: Deploy Develop
+    uses: ./.github/workflows/deploy.yaml
+    needs: [ build-api, build-ui, build-hgweb, set-version ]
+    secrets: inherit
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      image: 'ghcr.io/sillsdev/lexbox-*'
+      k8s-environment: develop
+      deploy-domain: lexbox.dev.languagetechnology.org

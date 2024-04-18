@@ -15,8 +15,8 @@
     <Choose>
         <When Condition=" '$(MercurialVersion)' == '6' ">
             <ItemGroup>
-                <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0043" />
-                <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.22" />
+                <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0044" />
+                <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.25" />
             </ItemGroup>
         </When>
         <Otherwise>
@@ -29,7 +29,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
         <PackageReference Include="Microsoft.Playwright" Version="1.41.2" />
         <PackageReference Include="Microsoft.Playwright.TestAdapter" Version="1.41.2" />

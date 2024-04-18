@@ -41,6 +41,11 @@
   });
 </script>
 
+<!-- We don't want the alert as well if we're heading to +error.svelte -->
+{#if !$page.error}
+  <UnexpectedErrorAlert />
+{/if}
+
 <div use:overlayContainer class="bg-base-200 shadow rounded-box z-[2] absolute" />
 
 <svelte:head>
@@ -63,10 +68,5 @@
   </div>
   <Footer />
 </div>
-
-<!-- We don't want the alert as well if we're heading to +error.svelte -->
-{#if !$page.error}
-  <UnexpectedErrorAlert />
-{/if}
 
 <Notify />

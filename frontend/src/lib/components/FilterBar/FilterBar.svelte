@@ -57,12 +57,13 @@
   }
   $: hasActiveFilter = activeFilters.length > 0;
 
-  function reseFilters(): void {
+  function onClearFiltersClick(): void {
     searchInput.clear();
     $allFilters = {
       ...$allFilters,
       ...filterDefaults,
-    }
+    };
+    searchInput.focus();
   }
 
   function resetFilter(key: string): void {
@@ -105,7 +106,7 @@
       {/if}
       <!-- The user sees the "undebounced" search value, so the X button should consider that (and not the debounced value) -->
       {#if !!undebouncedSearch || activeFilters.find(f => f.key !== searchKey)}
-        <button class="btn btn-square btn-sm join-item" on:click={reseFilters}>
+        <button class="btn btn-square btn-sm join-item" on:click={onClearFiltersClick}>
           <span class="text-lg">✕</span>
         </button>
       {/if}

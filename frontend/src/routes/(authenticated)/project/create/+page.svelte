@@ -24,8 +24,8 @@
   const { notifySuccess } = useNotifications();
 
   const formSchema = z.object({
-    name: z.string().min(1, $t('project.create.name_missing')),
-    description: z.string().min(1, $t('project.create.description_missing')),
+    name: z.string().trim().min(1, $t('project.create.name_missing')),
+    description: z.string().trim().min(1, $t('project.create.description_missing')),
     type: z.nativeEnum(ProjectType).default(ProjectType.FlEx),
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
     languageCode: z

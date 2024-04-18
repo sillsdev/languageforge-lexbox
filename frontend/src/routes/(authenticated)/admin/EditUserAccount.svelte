@@ -11,6 +11,7 @@
   import { hash } from '$lib/util/hash';
   import Icon from '$lib/icons/Icon.svelte';
   import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
@@ -19,6 +20,7 @@
     email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
+    score: z.number(),
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
   type Schema = typeof schema;
@@ -55,7 +57,7 @@
         await fetch('/api/Admin/resetPassword', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
+          body: JSON.stringify({ passwordHash: await hash($form.password), passwordStrength: $form.score, userId: user.id }),
         });
       }
     });
@@ -118,6 +120,7 @@
       autocomplete="new-password"
       error={errors.password}
     />
+    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
   </div>
   <FormError error={lockUserError} />
   <svelte:fragment slot="extraActions">

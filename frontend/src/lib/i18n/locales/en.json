@@ -295,6 +295,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "promote_project": {
       "label": "Promote to real project",
     },
+    "open_with_viewer": "Browse",
     "open_with_flex": {
       "button": "Open with FLEx",
       "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.?](https://software.sil.org/fieldworks/download/).",

@@ -62,6 +62,12 @@ spec:
             value: 'lexbox:4317'
           - name: OTEL_EXPORTER_OTLP_ENDPOINT
             value: 'http://lexbox:4317'
+          - name: K8S_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: OTEL_RESOURCE_ATTRIBUTES
+            value: k8s.node.name=$(K8S_NODE_NAME)
           - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST
             value: ".*"
           - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_RESPONSE
@@ -145,18 +151,6 @@ spec:
             cd /repos
             mkdir -p a b c d e f g h i j k l m n o p q r s t u v w x y z
             mkdir -p 0 1 2 3 4 5 6 7 8 9
-            find . -maxdepth 1 -type d -name '[a-z0-9]?*' | while IFS= read -r folder; do
-              project=$(basename "$folder")
-              if [[ -L "$project" ]] || [[ "$project" == "lost+found" ]]; then
-                echo "Skipping folder: $project"
-                continue
-              fi
-              first_letter=$(echo "$project" | head -c1)
-
-              mv "$folder" ./"$first_letter"/
-              # need to use relative path for symlink to work in multiple pods
-              ln -s "$first_letter"/"$project" "$project"
-            done
         volumeMounts:
           - name: repos
             mountPath: /repos

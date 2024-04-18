@@ -672,6 +672,9 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("PasswordStrength")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Salt")
                         .IsRequired()
                         .HasColumnType("text");

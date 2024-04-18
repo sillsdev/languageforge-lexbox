@@ -1,4 +1,5 @@
 name: Integration Tests
+run-name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
 on:
   workflow_call:
     inputs:
@@ -43,8 +44,8 @@ on:
 
 jobs:
   test:
-    timeout-minutes: 60
-    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ vars.TEST_SERVER_HOSTNAME }}
+    timeout-minutes: 120
+    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
     permissions:
       checks: write
     environment:
@@ -55,13 +56,30 @@ jobs:
       - name: Setup self-hosted dependencies
         if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full iputils-ping python3-venv wget zlib1g-dev libssl-dev #needed by setup python
           wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
           sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
           sudo apt-get install -f
           rm powershell_7.4.1-1.deb_amd64.deb
-          sudo apt-get update
-          sudo apt-get install -y p7zip-full zlib1g-dev libssl-dev #needed by setup python
           pwsh #validate that powershell installed correctly
+      # First we need to setup Node...
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.run-playwright }}
+        with:
+          node-version-file: 'frontend/package.json'
+      # Then we can set up pnpm...
+      - uses: pnpm/action-setup@v3
+        if: ${{ inputs.run-playwright }}
+        with:
+          package_json_file: 'frontend/package.json'
+      # Then we can have Noede set up package caching
+      - uses: actions/setup-node@v4
+        if: ${{ inputs.run-playwright }}
+        with:
+          node-version-file: 'frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: 'frontend/pnpm-lock.yaml'
       - uses: actions/setup-dotnet@v3
         env:
           DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
@@ -80,10 +98,18 @@ jobs:
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
         run: dotnet build
+      # TODO: Set up caching for /home/runner/.cache/ms-playwright so this doesn't take as long
+      # TODO: Ditto for /home/runner/.pnpm-store/v3
+      # TODO: Ditto for /home/runner/.nuget/packages
+      # TODO: Ditto for /var/cache/apt/archives/
       - name: Playwright setup
         working-directory: frontend
         if: ${{ inputs.run-playwright }}
-        run: pnpm pretest
+        run: pnpm install && pnpm pretest
+      - name: Set up Playwright dependencies
+        working-directory: frontend
+        if: ${{ inputs.run-playwright && inputs.runs-on == 'self-hosted' }}
+        run: sudo pnpm exec playwright install-deps
       - name: Build for tests
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
@@ -100,6 +126,7 @@ jobs:
         working-directory: frontend
         run: pnpm test
       - name: Integration tests (.NET)
+        if: always()
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -109,19 +136,20 @@ jobs:
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
       - name: Password protect Playwright traces
-        if: always()
+        id: password_protect_test_results
+        if: ${{ always() && inputs.run-playwright }}
         shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-        run: 7z a ./playwright-traces.7z ./frontend/test-results -p"$ZIP_PASSWORD"
+        run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        if: always() && !env.act
+        if: ${{ always() && !env.act }}
         with:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
       - name: Upload playwright results
-        if: always()
+        if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}

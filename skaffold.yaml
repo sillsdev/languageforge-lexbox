@@ -44,6 +44,10 @@ portForward:
     resourceName: lexbox
     namespace: languagedepot
     port: 4318
+  - resourceType: Service
+    resourceName: lexbox
+    namespace: languagedepot
+    port: 18888
   # Svelte-Kit frontend
   - resourceType: Service
     resourceName: ui
@@ -91,6 +95,10 @@ profiles:
         resourceName: lexbox
         namespace: languagedepot
         port: 4317 # grpc
+      - resourceType: Service
+        resourceName: lexbox
+        namespace: languagedepot
+        port: 18888
       # hg
       - resourceType: Service
         resourceName: hg
@@ -129,6 +137,10 @@ profiles:
       resourceName: lexbox
       namespace: languagedepot
       port: 4318
+    - resourceType: Service
+      resourceName: lexbox
+      namespace: languagedepot
+      port: 18888
   #    maildev
     - resourceType: Service
       resourceName: lexbox
