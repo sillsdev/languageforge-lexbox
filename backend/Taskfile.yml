@@ -43,6 +43,17 @@ tasks:
     cmds:
       - dotnet run generate-gql-schema
 
+  build-docker:
+    desc: "Builds the docker image for the LexBoxApi"
+    dir: .
+    cmds:
+      - docker build -f Dockerfile .
+  build-docker-dev:
+    desc: "Builds the docker image for the LexBoxApi"
+    dir: .
+    cmds:
+      - docker build -f LexBoxApi/dev.Dockerfile .
+
   install-dottrace:
     vars:
       api_pod:
@@ -75,3 +86,18 @@ tasks:
   staging-mongo-db-forward:
     cmds:
       - kubectl port-forward service/db 27018:27017 -n languageforge --context dallas-rke
+
+  publish-local-all:
+    cmds:
+    - task: publish-local-win
+    - task: publish-local-linux
+    - task: publish-local-osx
+  publish-local-win:
+    dir: ./LocalWebApp
+    cmd: dotnet publish -r win-x64
+  publish-local-linux:
+    dir: ./LocalWebApp
+    cmd: dotnet publish -r linux-x64
+  publish-local-osx:
+    dir: ./LocalWebApp
+    cmd: dotnet publish -r osx-x64
