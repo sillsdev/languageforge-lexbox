@@ -14,4 +14,4 @@ COPY . /app/
 COPY src /app/src
 COPY static /app/static
 ENV DockerDev=true
-CMD [ "pnpm", "run", "-r", "--parallel", "--include-workspace-root", "lexbox-dev" ]
+CMD [ "pnpm", "run", "-r", "--include-workspace-root", "lexbox-dev" ]

@@ -13,7 +13,7 @@
   "scripts": {
     "dev-app": "vite",
     "dev": "vite build -m web-component --watch",
-    "lexbox-dev": "vite build -m web-component --watch",
+    "lexbox-dev": "vite build -m web-component",
     "build": "vite build -m web-component",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
