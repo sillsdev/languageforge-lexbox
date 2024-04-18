@@ -92,8 +92,11 @@ public class UserController : ControllerBase
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
-        await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
-            new AuthenticationProperties { IsPersistent = true });
+        if (accountInput.AutoLogin)
+        {
+            await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
+                new AuthenticationProperties { IsPersistent = true });
+        }
 
         if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);

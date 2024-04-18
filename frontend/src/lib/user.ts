@@ -87,7 +87,7 @@ export async function login(userId: string, password: string): Promise<LoginResu
 }
 
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
-export async function register(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
+export async function register(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
   const response = await fetch('/api/User/registerAccount', {
     method: 'post',
     headers: {
@@ -99,6 +99,7 @@ export async function register(password: string, passwordStrength: number, name:
       locale,
       turnstileToken,
       passwordStrength,
+      autoLogin,
       passwordHash: await hash(password),
     })
   });

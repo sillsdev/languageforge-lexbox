@@ -9,6 +9,8 @@
   import { onMount } from 'svelte';
   import { z } from 'zod';
 
+  export let autoLogin = true;
+
   type RegisterPageQueryParams = {
     name: string;
     email: string;
@@ -26,7 +28,7 @@
   });
 
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
-    const { user, error } = await register($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
+    const { user, error } = await register($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken, autoLogin);
     if (error) {
       if (error.turnstile) {
         $message = $t('turnstile.invalid');
@@ -37,7 +39,7 @@
       return;
     }
     if (user) {
-      await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
+      if (autoLogin) await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
