@@ -2,7 +2,6 @@ import type { LoadAdminUsersTypeaheadQuery, UserFilterInput } from './types';
 
 import { getClient } from './gql-client';
 import { graphql } from './generated';
-import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
 
 export function userFilter(userSearch: string): UserFilterInput {
   return {
