@@ -33,6 +33,10 @@
     undebouncedValue = value = undefined;
   }
 
+  export function focus(): void {
+    input.focus();
+  }
+
   $: debouncer = makeDebouncer((newValue: string | undefined) => (value = newValue), debounce);
   $: debouncingStore = debouncer.debouncing;
   $: debouncing = $debouncingStore;

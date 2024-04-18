@@ -9,8 +9,9 @@
   export let icon: IconString | undefined = undefined;
   export let size: IconSize = 'text-lg';
   export let color: `text-${string}` | undefined = undefined;
+  export let pale = false;
 </script>
 
 {#if icon}
-  <span class="{icon} {size} {color ?? ''} shrink-0" />
+  <span class="{icon} {size} {color ?? ''} shrink-0" class:pale />
 {/if}

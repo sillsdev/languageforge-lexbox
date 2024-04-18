@@ -8,6 +8,7 @@
 	},
 	"scripts": {
 		"dev": "vite dev",
+		"lexbox-dev": "vite dev --port 3000 --host 0.0.0.0",
 		"build": "vite build",
 		"preview": "vite preview",
 		"pretest": "playwright install",
@@ -23,6 +24,9 @@
 		"format": "eslint . --fix",
 		"clean": "rimraf node_modules .svelte-kit"
 	},
+	"workspaces": [
+		"viewer"
+	],
 	"devDependencies": {
 		"@egoist/tailwindcss-icons": "^1.7.4",
 		"@eslint/js": "^8.56.0",
@@ -39,6 +43,7 @@
 		"@tailwindcss/typography": "^0.5.10",
 		"@types/mjml": "^4.7.4",
 		"@types/node": "^20.11.16",
+		"@types/zxcvbn": "^4.4.4",
 		"@typescript-eslint/eslint-plugin": "^6.20.0",
 		"@typescript-eslint/parser": "^6.20.0",
 		"@urql/core": "^4.2.3",
@@ -64,10 +69,12 @@
 		"tslib": "^2.6.2",
 		"type-fest": "^4.10.2",
 		"typescript": "^5.3.3",
-		"vite": "^5.0.13",
+		"viewer": "workspace:*",
+		"vite": "^5.2.9",
 		"vite-plugin-graphql-codegen": "^3.3.6",
 		"vitest": "^1.2.2",
-		"zod": "^3.22.4"
+		"zod": "^3.22.4",
+		"zxcvbn": "^4.4.2"
 	},
 	"type": "module",
 	"dependencies": {

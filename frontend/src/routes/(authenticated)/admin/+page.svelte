@@ -59,6 +59,10 @@
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
+    // Clear other filters that might hide the user's projects
+    $queryParamValues.projectSearch = '';
+    $queryParamValues.projectType = undefined;
+    $queryParamValues.tab = 'projects';
   }
 
   let userModal: UserModal;

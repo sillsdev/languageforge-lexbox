@@ -26,6 +26,7 @@ Same as above plus:
 
 - lexbox
   - maildev
+  - aspire
 - hg
   - ~~db-migrations~~ (Removed: migrations are done at app startup)
 
@@ -60,6 +61,7 @@ Same as above plus:
 | `localhost:{4317,4318}` | OTEL Collector (exposed for Vite proxy) |
 | `localhost:1080` | Maildev UI |
 | `localhost:1025` | Maildev SMTP |
+| `localhost:18888` | [Aspire dashboard](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard) |
 | `hg.localhost`<br>`resumable.localhost`<br>`admin.localhost` | route everything to `lexbox/` |
 
 [^1]: Well known paths include: `/api`, `/hg` (see [backend README](../backend/README.md)), `/traces/v1` (OpenTelemetry trace export) etc.

@@ -68,9 +68,10 @@ public partial class HgService : IHgService
     {
         var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(code));
         repoDirectory.Create();
-        CopyFilesRecursively(
+        FileUtils.CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
-            repoDirectory
+            repoDirectory,
+            Permissions
         );
     }
 
@@ -176,24 +177,6 @@ public partial class HgService : IHgService
                                              UnixFileMode.GroupExecute | UnixFileMode.SetGroup |
                                              UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                                              UnixFileMode.SetUser;
-
-    private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            target.UnixFileMode = Permissions;
-        foreach (var dir in source.EnumerateDirectories())
-        {
-            CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
-        }
-
-        foreach (var file in source.EnumerateFiles())
-        {
-            var destFileName = Path.Combine(target.FullName, file.Name);
-            var destFile = file.CopyTo(destFileName);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                destFile.UnixFileMode = Permissions;
-        }
-    }
 
     private static void SetPermissionsRecursively(DirectoryInfo rootDir)
     {

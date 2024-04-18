@@ -56,7 +56,8 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
       {
         ['app.error.source']: handler,
         ['app.error.show_user']: showToUser,
-      }
+      },
+      !showToUser,
     );
 
     if (!showToUser) return;
@@ -94,7 +95,8 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
         ['app.error.source']: handler,
         ['app.error.keys']: keysForMissingMessageError,
         ['app.error.show_user']: showToUser,
-      }
+      },
+      !showToUser,
     );
 
     if (!showToUser) return;
@@ -106,6 +108,14 @@ function setupGlobalErrorHandlers(error: Writable<App.Error | null>): void {
   function errorIsFromExtension(error: Error): boolean {
     return !!error.stack &&
       // tested on Chrome, Edge, Firefox and Brave
-      (error.stack.includes('chrome-extension://') || error.stack.includes('moz-extension://'));
+      (error.stack.includes('chrome-extension://') || error.stack.includes('moz-extension://')
+      // We're not entirely sure about the affects of silencing these errors, so we'll show them in dev at least
+      || (!dev && originatesFromAnonymousScript(error.stack)));
+  }
+
+  function originatesFromAnonymousScript(stack: string): boolean {
+    // VM/anonymous code errors are almost certainly not from our code
+    const lastLine = stack.split('\n').pop() ?? '';
+    return lastLine.includes('at <anonymous>');
   }
 }

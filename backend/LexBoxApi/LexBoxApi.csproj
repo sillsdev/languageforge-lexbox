@@ -47,11 +47,13 @@
         <PackageReference Include="Quartz.Serialization.Json" Version="3.8.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <PackageReference Include="tusdotnet" Version="2.7.2" />
+        <PackageReference Include="zxcvbn-core" Version="7.0.92" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
       <ProjectReference Include="..\LexData\LexData.csproj" />
+      <ProjectReference Include="..\LfClassicData\LfClassicData.csproj" />
       <ProjectReference Include="..\SyncReverseProxy\SyncReverseProxy.csproj" />
     </ItemGroup>
 

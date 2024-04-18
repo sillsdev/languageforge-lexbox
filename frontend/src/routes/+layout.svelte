@@ -7,7 +7,7 @@
   import Notify from '$lib/notify/Notify.svelte';
   import { Footer } from '$lib/layout';
   import { initNotificationService } from '$lib/notify';
-  import { OverlayContainer } from '$lib/overlay';
+  import { overlayContainer } from '$lib/overlay';
   import { Duration } from '$lib/util/time';
   import { browser } from '$app/environment';
   import {onMount, setContext} from 'svelte';
@@ -41,7 +41,12 @@
   });
 </script>
 
-<OverlayContainer />
+<!-- We don't want the alert as well if we're heading to +error.svelte -->
+{#if !$page.error}
+  <UnexpectedErrorAlert />
+{/if}
+
+<div use:overlayContainer class="bg-base-200 shadow rounded-box z-[2] absolute" />
 
 <svelte:head>
   {#if data.traceParent}
@@ -63,10 +68,5 @@
   </div>
   <Footer />
 </div>
-
-<!-- We don't want the alert as well if we're heading to +error.svelte -->
-{#if !$page.error}
-  <UnexpectedErrorAlert />
-{/if}
 
 <Notify />
