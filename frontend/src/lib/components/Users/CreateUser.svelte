@@ -10,6 +10,7 @@
   import { z } from 'zod';
 
   export let autoLogin = true;
+  export let onSubmit: (() => void) | undefined = undefined;
 
   type RegisterPageQueryParams = {
     name: string;
@@ -39,6 +40,7 @@
       return;
     }
     if (user) {
+      if (onSubmit) onSubmit();
       if (autoLogin) await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
       return;
     }

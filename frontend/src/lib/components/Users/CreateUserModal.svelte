@@ -10,5 +10,5 @@
 </script>
 
 <Modal bind:this={createUserModal} bottom>
-  <CreateUser autoLogin={false} />
+  <CreateUser autoLogin={false} onSubmit={() => createUserModal.submitModal()} />
 </Modal>
