@@ -21,6 +21,7 @@
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
+  import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -62,6 +63,7 @@
   }
 
   let userModal: UserModal;
+  let createUserModal: CreateUserModal;
   let deleteUserModal: DeleteUserModal;
   let formModal: EditUserAccount;
 
@@ -115,9 +117,10 @@
               </span>
             </Badge>
           </div>
-          <button class="btn btn-sm btn-success max-xs:btn-square">
+          <button class="btn btn-sm btn-success max-xs:btn-square"
+            on:click={() => createUserModal.open()}>
             <span class="admin-tabs:hidden">
-              {$t('admin_dashboard.create_user')}
+              {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
             <span class="i-mdi-plus text-2xl" />
           </button>
@@ -234,4 +237,5 @@
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
   <UserModal bind:this={userModal}/>
+  <CreateUserModal bind:this={createUserModal}/>
 </main>

@@ -13,7 +13,6 @@
     "column_edit": "Edit",
     "project_table_title": "Projects",
     "user_table_title": "Users",
-    "create_user": "Create User",
     "is_draft": "Draft",
     "email_not_verified": "Not Verified",
     "notifications": {
@@ -38,6 +37,9 @@
           "value": "DELETE USER"
         }
       }
+    },
+    "create_user_modal": {
+      "create_user": "Create User",
     },
     "user_details_modal": {
       "registered": "Registered",
