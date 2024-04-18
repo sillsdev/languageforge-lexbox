@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _typeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { _userTypeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { writable } from 'svelte/store';
@@ -16,7 +16,7 @@
   let input = writable('');
   $: $input = value;
 
-  let typeaheadResults = deriveAsync(input, _typeaheadSearch, [], debounceMs);
+  let typeaheadResults = deriveAsync(input, _userTypeaheadSearch, [], debounceMs);
 
   function formatResult(user: SingleUserTypeaheadResult): string {
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
