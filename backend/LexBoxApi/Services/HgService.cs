@@ -75,6 +75,39 @@ public partial class HgService : IHgService
         );
     }
 
+    public async Task PrepareEmptyRepo(string code, string tempRepoSuffix)
+    {
+        var tempRepoName = $"{code}__{tempRepoSuffix}";
+        await Task.Run(() =>
+        {
+            var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
+            var directory = Directory.CreateDirectory(deletedRepoPath);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                directory.UnixFileMode = Permissions;
+            var dest = Directory.CreateDirectory(Path.Combine(directory.FullName, tempRepoName));
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                dest.UnixFileMode = Permissions;
+            FileUtils.CopyFilesRecursively(
+                new DirectoryInfo("Services/HgEmptyRepo"),
+                dest,
+                Permissions
+            );
+        });
+    }
+
+    public async Task MoveEmptyRepoIntoPlace(string code, string tempRepoSuffix)
+    {
+        var tempRepoName = $"{code}__{tempRepoSuffix}";
+        await Task.Run(() =>
+        {
+            var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
+            Directory.Move(
+                Path.Combine(deletedRepoPath, tempRepoName),
+                PrefixRepoFilePath(code)
+            );
+        });
+    }
+
     public async Task DeleteRepo(string code)
     {
         await Task.Run(() => Directory.Delete(PrefixRepoFilePath(code), true));
@@ -96,9 +129,10 @@ public partial class HgService : IHgService
     public async Task ResetRepo(string code)
     {
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
+        await PrepareEmptyRepo(code, $"{timestamp}__empty");
         await SoftDeleteRepo(code, $"{timestamp}__reset");
         //we must init the repo as uploading a zip is optional
-        await InitRepo(code);
+        await MoveEmptyRepoIntoPlace(code, $"{timestamp}__empty");
     }
 
     public async Task FinishReset(string code, Stream zipFile)
