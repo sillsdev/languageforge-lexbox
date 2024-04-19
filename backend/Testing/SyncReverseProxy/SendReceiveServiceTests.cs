@@ -154,8 +154,6 @@ query projectLastCommit {
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
-        await WaitForHgRefreshIntervalAsync();
-
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -178,8 +176,6 @@ query projectLastCommit {
 
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
-
-        await WaitForHgRefreshIntervalAsync();
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
