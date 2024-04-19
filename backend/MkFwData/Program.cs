@@ -1,3 +1,4 @@
+using Chorus.VcsDrivers.Mercurial;
 using SIL.Progress;
 using System.CommandLine;
 
@@ -25,17 +26,26 @@ class Program
         );
         rootCommand.Add(file);
 
-        rootCommand.SetHandler(Run, file, verboseOption, quietOption);
+        var hgRevOption = new Option<string>(
+            ["--rev", "-r"],
+            "Revision to check out (default \"tip\")"
+        );
+        hgRevOption.SetDefaultValue("tip");
+        rootCommand.Add(hgRevOption);
+
+        rootCommand.SetHandler(Run, file, verboseOption, quietOption, hgRevOption);
 
         await rootCommand.InvokeAsync(args);
     }
 
-    static void Run(FileSystemInfo file, bool verbose, bool quiet)
+    static void Run(FileSystemInfo file, bool verbose, bool quiet, string rev)
     {
         IProgress progress = quiet ? new NullProgress() : new ConsoleProgress();
         progress.ShowVerbose = verbose;
         bool isDir = file.Exists && (file.Attributes & FileAttributes.Directory) != 0;
         string name = isDir ? Path.Join(file.FullName, file.Name + ".fwdata") : file.FullName;
+        string dir = isDir ? file.FullName : new FileInfo(file.FullName).Directory!.FullName;
+        HgRunner.Run($"hg checkout {rev}", dir, 30, progress);
         progress.WriteVerbose("Creating {0} ...", name);
         LfMergeBridge.LfMergeBridge.PutHumptyTogetherAgain(progress, writeVerbose: true, name);
         progress.WriteMessage("Created {0}", name);

@@ -6,12 +6,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <Mercurial4ChorusDestDir>$(MSBuildProjectDirectory)</Mercurial4ChorusDestDir>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- TODO: Change to PackageReference once LfMergeBridge has a release with the necessary code included -->
     <ProjectReference Include="..\..\..\flexbridge\src\LfMergeBridge\LfMergeBridge.csproj" />
+    <!-- <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.x.x" /> TODO: Uncomment once we know what the version will be -->
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0045" />
+    <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.29" />
   </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
+      <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
+    </ItemGroup>
 
 </Project>
