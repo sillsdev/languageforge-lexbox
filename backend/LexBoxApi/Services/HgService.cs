@@ -137,29 +137,36 @@ public partial class HgService : IHgService
 
     public async Task FinishReset(string code, Stream zipFile)
     {
-        using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
-        await DeleteRepo(code);
-        var repoPath = PrefixRepoFilePath(code);
-        var dir = Directory.CreateDirectory(repoPath);
-        archive.ExtractToDirectory(repoPath);
+        string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
+        var tempRepoName = $"{code}__${timestamp}__upload";
+        var tempRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER, tempRepoName);
+        var tempRepo = Directory.CreateDirectory(tempRepoPath);
+        // TODO: Is Task.Run superfluous here? Or a good idea? Don't know the ins and outs of what happens before the first await in an async method in ASP.NET Core...
+        await Task.Run(() =>
+        {
+            using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
+            archive.ExtractToDirectory(tempRepoPath);
+        });
 
-        var hgPath = Path.Join(repoPath, ".hg");
+        var hgPath = Path.Join(tempRepoPath, ".hg");
         if (!Directory.Exists(hgPath))
         {
-            var hgFolder = Directory.EnumerateDirectories(repoPath, ".hg", SearchOption.AllDirectories)
+            var hgFolder = Directory.EnumerateDirectories(tempRepoPath, ".hg", SearchOption.AllDirectories)
                 .FirstOrDefault();
             if (hgFolder is null)
             {
-                await DeleteRepo(code);
-                await InitRepo(code); // we don't want 404s
                 //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
                 throw ProjectResetException.ZipMissingHgFolder();
             }
             //found the .hg folder, move it to the correct location and continue
             Directory.Move(hgFolder, hgPath);
         }
-        await CleanupRepoFolder(repoPath);
-        SetPermissionsRecursively(dir);
+        await CleanupRepoFolder(tempRepoPath);
+        SetPermissionsRecursively(tempRepo);
+        // Now we're ready to move the new repo into place, replacing the old one
+        var realRepoPath = PrefixRepoFilePath(code);
+        await DeleteRepo(code); // Do this as late as possible
+        Directory.Move(tempRepoPath, realRepoPath);
     }
 
     /// <summary>
