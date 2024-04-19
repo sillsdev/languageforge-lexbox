@@ -1,7 +1,7 @@
 <script lang="ts">
   import { BadgeButton, MemberBadge } from '$lib/components/Badges';
-  import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, TextArea, passwordFormRules } from '$lib/forms';
+  import { DialogResponse, FormModal, type FormSubmitReturn } from '$lib/components/modals';
+  import { Input, TextArea, isEmail, passwordFormRules } from '$lib/forms';
   import { ProjectRole, type BulkAddProjectMembersResult } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -36,8 +36,16 @@
 
   const usernameRe = /^[a-zA-Z0-9_]+$/;
 
-  function validateUsernames(usernames: string[]): boolean {
-    return usernames.every(s => usernameRe.test(s));
+  function validateBulkAddInput(usernames: string[]): FormSubmitReturn<typeof schema> {
+    if (usernames.length === 0) return { usernamesText: [$t('project_page.bulk_add_members.empty_user_field')] };
+
+    for (const username of usernames) {
+      if (username.includes('@')) {
+        if (!isEmail(username)) return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', { email: username })] };
+      } else if (!usernameRe.test(username)) {
+        return { usernamesText: [$t('project_page.bulk_add_members.invalid_username', { username })] };
+      }
+    }
   }
 
   async function openModal(): Promise<void> {
@@ -51,15 +59,22 @@
         // Remove empty lines before validating, otherwise final newline would count as invalid because empty string
         .filter(s => s)
         .filter(distinct);
-      if (!validateUsernames(usernames)) {
-        return $t('project_page.bulk_add_members.usernames_alphanum_only');
-      }
+
+      const bulkErrors = validateBulkAddInput(usernames);
+      if (bulkErrors) return bulkErrors;
+
       const { error, data } = await _bulkAddProjectMembers({
         projectId,
         passwordHash,
         usernames,
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
+
+      const invalidEmailError = error?.byType('InvalidEmailError');
+      if (invalidEmailError) {
+        const email = invalidEmailError[0].address!;
+        return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', {email})] };
+      }
 
       addedMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.addedMembers ?? [];
       createdMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdMembers ?? [];

@@ -36,6 +36,9 @@
           return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
         }
       }
+      if (error?.byType('InvalidEmailError')) {
+        return { usernameOrEmail: [$t('form.invalid_email')] };
+      }
       if (error?.byType('ProjectMembersMustBeVerified')) {
         return { usernameOrEmail: [$t('project_page.add_user.user_must_be_verified')] };
       }
