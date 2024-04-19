@@ -155,6 +155,8 @@ public partial class HgService : IHgService
                 .FirstOrDefault();
             if (hgFolder is null)
             {
+                // Don't want to leave invalid .zip contents lying around as they may have been quite large
+                Directory.Delete(tempRepoPath, true);
                 //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
                 throw ProjectResetException.ZipMissingHgFolder();
             }
