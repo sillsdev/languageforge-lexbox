@@ -9,6 +9,7 @@ import type {
   $OpResult,
   ChangeUserAccountByAdminInput,
   ChangeUserAccountByAdminMutation,
+  DraftProjectFilterInput,
   ProjectFilterInput,
   SetUserLockedInput,
   SetUserLockedMutation,
@@ -43,12 +44,15 @@ export async function load(event: PageLoadEvent) {
   const projectFilter: ProjectFilterInput = {
     ...(memberSearch ? { users: { some: { user: { or: [ { email: { eq: memberSearch } }, { username: { eq: memberSearch } } ] } } } }: {})
   };
+  const draftFilter: DraftProjectFilterInput = {
+    ...(memberSearch ? { projectManager: { or: [ { email: { eq: memberSearch } }, { username: { eq: memberSearch } } ] } } : {})
+  };
 
   //language=GraphQL
   const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
-        query loadAdminDashboardProjects($withDeletedProjects: Boolean!, $filter: ProjectFilterInput, $includeDrafts: Boolean!) {
+        query loadAdminDashboardProjects($withDeletedProjects: Boolean!, $projectFilter: ProjectFilterInput, $draftFilter: DraftProjectFilterInput) {
             projects(
-              where: $filter,
+              where: $projectFilter,
               orderBy: [
                 {createdDate: DESC},
                 {name: ASC}
@@ -62,20 +66,20 @@ export async function load(event: PageLoadEvent) {
               createdDate
               userCount
             }
-            ... on Query @include(if: $includeDrafts) {
-              draftProjects {
-                code
-                id
-                name
-                type
-                createdDate
-                description
-                retentionPolicy
-                projectManagerId
-              }
+            draftProjects(
+              where: $draftFilter
+            ) {
+              code
+              id
+              name
+              type
+              createdDate
+              description
+              retentionPolicy
+              projectManagerId
             }
         }
-    `), { withDeletedProjects, filter: projectFilter, includeDrafts: !memberSearch });
+    `), { withDeletedProjects, projectFilter, draftFilter });
 
   const userFilter: UserFilterInput = isGuid(userSearch) ? {id: {eq: userSearch}} : {
     or: [
