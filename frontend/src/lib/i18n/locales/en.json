@@ -298,9 +298,11 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. Add some words if you want\n\
 1. Click \"Send/Receive\"\n\
 1. Click on \"Settings...\"\n\
+1. In the \"Name to show in change history\" field make sure your name is spelled correctly\n\
 1. In the \"Project ID\" field type: \"{code}\"\n\
 1. In the \"Login\" field type: \"{login}\"\ Note: A bug in WeSay means you can't type the @ symbol for an email.  The workaround is to type %40 in place of @. \n\
 1. In the \"Password\" field type your password\n\
+1. Click on \"OK\" to close the \"Settings...\" dialog\n\
 1. Click on \"Internet\". This will initiate the first Send/Receive.",
       "label": "Get project",
       "send_receive_url": "Send/Receive URL",
