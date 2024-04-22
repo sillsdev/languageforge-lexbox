@@ -136,6 +136,9 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
               ... on Error {
                 message
               }
+              ... on InvalidEmailError {
+                address
+              }
             }
           }
         }
@@ -169,7 +172,11 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
               }
             }
             errors {
-            __typename
+              __typename
+              ... on InvalidEmailError {
+                message
+                address
+              }
             }
           }
         }

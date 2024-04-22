@@ -104,7 +104,7 @@
           {/if}
           {#if isColumnVisible('type')}
             <td>
-              <span class="tooltip align-bottom" data-tip={$t(getProjectTypeI18nKey(project.type))}>
+              <span class="tooltip align-bottom shrink-0 leading-0" data-tip={$t(getProjectTypeI18nKey(project.type))}>
                 <ProjectTypeIcon type={project.type} />
               </span>
             </td>

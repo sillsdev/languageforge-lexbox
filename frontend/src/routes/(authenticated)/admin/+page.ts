@@ -18,6 +18,7 @@ import type {LoadAdminDashboardProjectsQuery, LoadAdminDashboardUsersQuery} from
 import type { ProjectFilters } from '$lib/components/Projects';
 import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
 import type { AdminTabId } from './AdminTabs.svelte';
+import { derived, readable } from 'svelte/store';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
 export type AdminSearchParams = ProjectFilters & {
@@ -25,8 +26,8 @@ export type AdminSearchParams = ProjectFilters & {
   tab: AdminTabId
 };
 
-export type Project = LoadAdminDashboardProjectsQuery['projects'][number];
-export type DraftProject = LoadAdminDashboardProjectsQuery['draftProjects'][number];
+export type Project = NonNullable<LoadAdminDashboardProjectsQuery['projects']>[number];
+export type DraftProject = NonNullable<LoadAdminDashboardProjectsQuery['draftProjects']>[number];
 export type User = NonNullable<NonNullable<LoadAdminDashboardUsersQuery['users']>['items']>[number];
 
 export async function load(event: PageLoadEvent) {
@@ -45,7 +46,7 @@ export async function load(event: PageLoadEvent) {
 
   //language=GraphQL
   const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
-        query loadAdminDashboardProjects($withDeletedProjects: Boolean!, $filter: ProjectFilterInput) {
+        query loadAdminDashboardProjects($withDeletedProjects: Boolean!, $filter: ProjectFilterInput, $includeDrafts: Boolean!) {
             projects(
               where: $filter,
               orderBy: [
@@ -61,18 +62,20 @@ export async function load(event: PageLoadEvent) {
               createdDate
               userCount
             }
-            draftProjects {
-              code
-              id
-              name
-              type
-              createdDate
-              description
-              retentionPolicy
-              projectManagerId
+            ... on Query @include(if: $includeDrafts) {
+              draftProjects {
+                code
+                id
+                name
+                type
+                createdDate
+                description
+                retentionPolicy
+                projectManagerId
+              }
             }
         }
-    `), { withDeletedProjects, filter: projectFilter });
+    `), { withDeletedProjects, filter: projectFilter, includeDrafts: !memberSearch });
 
   const userFilter: UserFilterInput = isGuid(userSearch) ? {id: {eq: userSearch}} : {
     or: [
@@ -111,7 +114,8 @@ export async function load(event: PageLoadEvent) {
   const [projectResults, userResults] = await Promise.all([projectResultsPromise, userResultsPromise]);
 
   return {
-    ...projectResults,
+    projects: derived(projectResults.projects ?? readable([]), (projects) => projects ?? []),
+    draftProjects: derived(projectResults.draftProjects ?? readable([]), (draftProjects) => draftProjects ?? []),
     ...userResults,
   }
 }

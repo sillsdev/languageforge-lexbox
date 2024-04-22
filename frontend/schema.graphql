@@ -115,6 +115,11 @@ type FlexProjectMetadata {
   lexEntryCount: Int
 }
 
+type InvalidEmailError implements Error {
+  message: String!
+  address: String!
+}
+
 type IsAdminResponse {
   value: Boolean!
 }
@@ -293,9 +298,9 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | AlreadyExistsError
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
 
-union BulkAddProjectMembersError = NotFoundError | DbError
+union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
