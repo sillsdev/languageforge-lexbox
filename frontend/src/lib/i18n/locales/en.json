@@ -292,6 +292,16 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. In the 'Password' field type your password\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")\n\
 1. Click 'Download'",
+      "instructions_wesay_empty": "1. [Download WeSay](https://software.sil.org/wesay/download/) onto your computer.\n\
+1. Open WeSay and select \"Create a new blank project...\".\n\
+1. Fill in the required information: project language and name of project (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
+1. Add some words if you want\n\
+1. Click \"Send/Receive\"\n\
+1. Click on \"Settings...\"\n\
+1. In the \"Project ID\" field type: \"{code}\"\n\
+1. In the \"Login\" field type: \"{login}\"\ Note: A bug in WeSay means you can't type the @ symbol for an email.  The workaround is to type %40 in place of @. \n\
+1. In the \"Password\" field type your password\n\
+1. Click on \"Internet\". This will initiate the first Send/Receive.",
       "label": "Get project",
       "send_receive_url": "Send/Receive URL",
     },
