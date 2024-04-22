@@ -245,13 +245,23 @@
               <div class="prose">
                 <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
                 {#if project.type === ProjectType.WeSay}
-                  <Markdown
-                    md={$t('project_page.get_project.instructions_wesay', {
-                    code: project.code,
-                    login: encodeURIComponent(user.email ?? user.username ?? ''),
-                    name: project.name,
-                  })}
-                  />
+                  {#if isEmpty}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay_empty', {
+                        code: project.code,
+                        login: encodeURIComponent(user.email ?? user.username ?? ''),
+                        name: project.name,
+                      })}
+                    />
+                  {:else}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay', {
+                        code: project.code,
+                        login: encodeURIComponent(user.email ?? user.username ?? ''),
+                        name: project.name,
+                      })}
+                    />
+                  {/if}
                 {:else}
                   {#if isEmpty}
                   <Markdown
