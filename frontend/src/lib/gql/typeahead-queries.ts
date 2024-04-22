@@ -32,7 +32,7 @@ export async function _userTypeaheadSearch(userSearch: string, limit = 10): Prom
         }
       }
     }
-  `), { filter: userFilter(userSearch), take: limit+1 });
+  `), { filter: userFilter(userSearch), take: limit });
   // NOTE: If more properties are needed, copy from loadAdminDashboardUsers to save time
 
   const users = result.then(users => {
