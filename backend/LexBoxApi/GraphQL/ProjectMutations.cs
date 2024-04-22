@@ -333,7 +333,21 @@ public class ProjectMutations
         permissionService.AssertCanManageProject(projectId);
 
         var project = await dbContext.Projects.Include(p => p.Users).FirstOrDefaultAsync(p => p.Id == projectId);
-        if (project is null) throw new NotFoundException("Project not found");
+        if (project is null)
+        {
+            // Draft projects, if any, are deleted immediately, not soft-deleted
+            var deletedDraftCount = await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
+            if (deletedDraftCount == 0)
+            {
+                // No draft project either, so return standard project not found error
+                throw new NotFoundException("Project not found");
+            }
+            else
+            {
+                // Return an empty project list to indicate success
+                return dbContext.Projects.Where(p => p.Id == projectId);
+            }
+        }
         if (project.DeletedDate is not null) throw new InvalidOperationException("Project already deleted");
 
         var deletedAt = DateTimeOffset.UtcNow;
