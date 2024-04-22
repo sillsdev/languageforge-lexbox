@@ -46,6 +46,7 @@ function preFillForm(): void {
 
 let modal: ConfirmModal;
 let deleteModal: DeleteModal;
+
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>

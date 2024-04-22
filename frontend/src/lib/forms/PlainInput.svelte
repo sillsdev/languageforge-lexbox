@@ -18,7 +18,7 @@
   export let placeholder = '';
   // Despite the compatibility table, 'new-password' seems to work well in Chrome, Edge & Firefox
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete#browser_compatibility
-  export let autocomplete: 'new-password' | 'current-password' | undefined = undefined;
+  export let autocomplete: 'new-password' | 'current-password' | 'off' | undefined = undefined;
   export let debounce: number | boolean = false;
   export let debouncing = false;
   export let undebouncedValue: string | undefined | null = undefined;

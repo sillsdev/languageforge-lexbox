@@ -7,6 +7,10 @@
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
   import { useNotifications } from '$lib/notify';
+  import { isAdmin } from '$lib/user';
+  import { page } from '$app/stores'
+  import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
+  import type { SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
 
   export let projectId: string;
   const schema = z.object({
@@ -18,14 +22,18 @@
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
 
+  let selectedUser: SingleUserTypeaheadResult;
+
   const { notifySuccess } = useNotifications();
 
   async function openModal(): Promise<void> {
     let userInvited = false;
+    let selectedEmail: string = '';
     const { response, formState } = await formModal.open(async () => {
+      selectedEmail = $form.usernameOrEmail ? $form.usernameOrEmail : selectedUser?.email ?? selectedUser?.username ?? '';
       const { error } = await _addProjectMember({
         projectId,
-        usernameOrEmail: $form.usernameOrEmail,
+        usernameOrEmail: selectedEmail,
         role: $form.role,
       });
 
@@ -57,7 +65,7 @@
     });
     if (response === DialogResponse.Submit) {
       const message = userInvited ? 'member_invited' : 'add_member';
-      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue }));
+      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue ?? selectedEmail }));
     }
   }
 </script>
@@ -68,6 +76,15 @@
 
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title">{$t('project_page.add_user.modal_title')}</span>
+{#if isAdmin($page.data.user)}
+  <UserTypeahead
+    id="usernameOrEmail"
+    label={$t('login.label_email')}
+    bind:value={$form.usernameOrEmail}
+    error={errors.usernameOrEmail}
+    autofocus
+    />
+{:else}
   <Input
     id="usernameOrEmail"
     type="text"
@@ -76,6 +93,7 @@
     error={errors.usernameOrEmail}
     autofocus
   />
+{/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}
