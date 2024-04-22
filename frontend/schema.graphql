@@ -103,6 +103,7 @@ type DraftProject {
   code: String!
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
+  projectManager: User
   projectManagerId: UUID
   id: UUID!
   createdDate: DateTime!
@@ -407,6 +408,7 @@ input DraftProjectFilterInput {
   code: StringOperationFilterInput
   type: ProjectTypeOperationFilterInput
   retentionPolicy: RetentionPolicyOperationFilterInput
+  projectManager: UserFilterInput
   projectManagerId: UuidOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
@@ -419,6 +421,7 @@ input DraftProjectSortInput {
   code: SortEnumType
   type: SortEnumType
   retentionPolicy: SortEnumType
+  projectManager: UserSortInput
   projectManagerId: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
