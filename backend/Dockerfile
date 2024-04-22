@@ -28,4 +28,5 @@ RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:Informatio
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER 33:33
 ENTRYPOINT ["dotnet", "LexBoxApi.dll"]
