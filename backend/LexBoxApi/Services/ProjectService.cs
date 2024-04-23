@@ -32,6 +32,12 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             });
         // Also delete draft project, if any
         await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
+        if (input.ProjectManagerId.HasValue)
+        {
+            var manager = await dbContext.Users.FindAsync(input.ProjectManagerId.Value);
+            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
+
+        }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
