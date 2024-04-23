@@ -23,6 +23,7 @@
             <ItemGroup>
                 <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0041" />
                 <PackageReference Include="SIL.Chorus.Mercurial" Version="3.0.3.11" />
+                <PackageReference Include="TusDotNetClient" Version="1.2.0" />
             </ItemGroup>
         </Otherwise>
     </Choose>

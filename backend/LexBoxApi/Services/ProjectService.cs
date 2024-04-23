@@ -86,7 +86,9 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     public async Task ResetProject(ResetProjectByAdminInput input)
     {
         var rowsAffected = await dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
-            .ExecuteUpdateAsync(u => u.SetProperty(p => p.ResetStatus, ResetStatus.InProgress));
+            .ExecuteUpdateAsync(u => u
+                .SetProperty(p => p.ResetStatus, ResetStatus.InProgress)
+                .SetProperty(p => p.LastCommit, null as DateTimeOffset?));
         if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found");
         await hgService.ResetRepo(input.Code);
     }

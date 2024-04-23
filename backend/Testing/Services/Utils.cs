@@ -22,11 +22,10 @@ public static class Utils
 
     public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
     {
-        var id = Guid.NewGuid();
         if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
-        var projectCode = ToProjectCodeFriendlyString(projectName);
+        var id = Guid.NewGuid();
         var shortId = id.ToString().Split("-")[0];
-        projectCode = $"{projectCode}-{shortId}-dev-flex";
+        var projectCode = $"{ToProjectCodeFriendlyString(projectName)}-{shortId}-dev-flex";
         var dir = GetNewProjectDir(projectCode, projectName);
         return new ProjectConfig(id, projectName, projectCode, dir);
     }
@@ -72,7 +71,7 @@ public static class Utils
 
     public static string ToProjectCodeFriendlyString(string name)
     {
-        var dashesBeforeCapitals = Regex.Replace(name, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", "-$1")
+        var dashesBeforeCapitals = Regex.Replace(name, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9]|(?<=[0-9])[A-Z])", "-$1")
             .Trim().ToLower();
         var onlyLettersNumbersAndDashes = Regex.Replace(dashesBeforeCapitals, @"[^a-zA-Z0-9]+", "-");
         return onlyLettersNumbersAndDashes.Trim('-');
