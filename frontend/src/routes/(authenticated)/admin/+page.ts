@@ -1,7 +1,7 @@
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
-import { isAdmin, type LexAuthUser } from '$lib/user';
+import { type LexAuthUser } from '$lib/user';
 import { redirect } from '@sveltejs/kit';
 import {getBoolSearchParam, getSearchParam} from '$lib/util/query-params';
 import { isGuid } from '$lib/util/guid';
@@ -125,7 +125,7 @@ export async function load(event: PageLoadEvent) {
 }
 
 function requireAdmin(user: LexAuthUser | null): void {
-  if (!isAdmin(user)) {
+  if (!user?.isAdmin) {
     redirect(307, '/');
   }
 }
