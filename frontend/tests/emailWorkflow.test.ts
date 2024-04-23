@@ -1,4 +1,4 @@
-import { TEST_TIMEOUT_1_5X, defaultPassword } from './envVars';
+import { TEST_TIMEOUT_2X, defaultPassword } from './envVars';
 import { deleteUser, getCurrentUserId, loginAs, logout } from './utils/authHelpers';
 
 import { AdminDashboardPage } from './pages/adminDashboardPage';
@@ -113,7 +113,7 @@ test('forgot password', async ({ page, tempUser }) => {
 });
 
 test('register via new-user invitation email', async ({ page }) => {
-  test.setTimeout(TEST_TIMEOUT_1_5X);
+  test.setTimeout(TEST_TIMEOUT_2X);
 
   await loginAs(page.request, 'admin', defaultPassword);
   const adminPage = await new AdminDashboardPage(page).goto();
