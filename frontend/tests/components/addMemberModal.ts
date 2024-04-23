@@ -3,7 +3,7 @@ import { BaseComponent } from './baseComponent';
 
 const EMAIL_LABEL = 'Email';
 const ROLE_LABEL = 'Role';
-const SUBMIT_BUTTON_LABEL = 'Add Member';
+const SUBMIT_BUTTON_LABEL = new RegExp(`(Add Member)|(Add or invite Member)`);
 
 export class AddMemberModal extends BaseComponent {
   get emailField(): Locator {
@@ -27,6 +27,6 @@ export class AddMemberModal extends BaseComponent {
   }
 
   constructor(page: Page) {
-    super(page, page.locator('dialog.modal').filter({hasText: 'Add a Member to this project'}));
+    super(page, page.locator('dialog.modal').filter({hasText: 'Add or invite a Member to this project'}));
   }
 }

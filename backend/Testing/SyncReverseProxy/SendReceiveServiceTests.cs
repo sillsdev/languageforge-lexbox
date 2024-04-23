@@ -175,10 +175,19 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         postSRTip.ShouldBe(originalTip);
     }
 
-    [Theory]
-    [InlineData(180, 10)]
-    [InlineData(50, 3)]
-    public async Task SendNewProject(int totalSizeMb, int fileCount)
+    [Fact]
+    public async Task SendNewProject_Big()
+    {
+        await SendNewProject(180, 10);
+    }
+
+    [Fact]
+    public async Task SendNewProject_Medium()
+    {
+        await SendNewProject(90, 5);
+    }
+
+    private async Task SendNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
@@ -193,7 +202,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         {
             var fileName = $"test-file{i}.bin";
             WriteFile(Path.Combine(sendReceiveParams.Dir, fileName), totalSizeMb / fileCount);
-            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 1, progress);
+            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 5, progress);
             HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.ShouldBe(0);
         }
 

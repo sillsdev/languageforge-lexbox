@@ -1,29 +1,39 @@
 <script lang="ts">
   import { BadgeButton } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, ProjectRoleSelect } from '$lib/forms';
+  import { Input, ProjectRoleSelect, isEmail } from '$lib/forms';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
   import { useNotifications } from '$lib/notify';
+  import { isAdmin } from '$lib/user';
+  import { page } from '$app/stores'
+  import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
+  import type { SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
 
   export let projectId: string;
   const schema = z.object({
-    usernameOrEmail: z.string(),
+    usernameOrEmail: z.string().trim()
+      .min(1, $t('project_page.add_user.empty_user_field'))
+      .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
 
+  let selectedUser: SingleUserTypeaheadResult;
+
   const { notifySuccess } = useNotifications();
 
   async function openModal(): Promise<void> {
     let userInvited = false;
+    let selectedEmail: string = '';
     const { response, formState } = await formModal.open(async () => {
+      selectedEmail = $form.usernameOrEmail ? $form.usernameOrEmail : selectedUser?.email ?? selectedUser?.username ?? '';
       const { error } = await _addProjectMember({
         projectId,
-        usernameOrEmail: $form.usernameOrEmail,
+        usernameOrEmail: selectedEmail,
         role: $form.role,
       });
 
@@ -33,6 +43,9 @@
         } else {
           return { usernameOrEmail: [$t('project_page.add_user.username_not_found')] };
         }
+      }
+      if (error?.byType('InvalidEmailError')) {
+        return { usernameOrEmail: [$t('form.invalid_email')] };
       }
       if (error?.byType('ProjectMembersMustBeVerified')) {
         return { usernameOrEmail: [$t('project_page.add_user.user_must_be_verified')] };
@@ -52,7 +65,7 @@
     });
     if (response === DialogResponse.Submit) {
       const message = userInvited ? 'member_invited' : 'add_member';
-      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue }));
+      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue ?? selectedEmail }));
     }
   }
 </script>
@@ -63,6 +76,15 @@
 
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title">{$t('project_page.add_user.modal_title')}</span>
+{#if isAdmin($page.data.user)}
+  <UserTypeahead
+    id="usernameOrEmail"
+    label={$t('login.label_email')}
+    bind:value={$form.usernameOrEmail}
+    error={errors.usernameOrEmail}
+    autofocus
+    />
+{:else}
   <Input
     id="usernameOrEmail"
     type="text"
@@ -71,6 +93,7 @@
     error={errors.usernameOrEmail}
     autofocus
   />
+{/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}

@@ -53,6 +53,7 @@
     <ItemGroup>
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
       <ProjectReference Include="..\LexData\LexData.csproj" />
+      <ProjectReference Include="..\LfClassicData\LfClassicData.csproj" />
       <ProjectReference Include="..\SyncReverseProxy\SyncReverseProxy.csproj" />
     </ItemGroup>
 

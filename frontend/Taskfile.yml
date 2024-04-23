@@ -1,11 +1,11 @@
 ﻿version: 3
+output: prefixed
 tasks:
   ui-only:
     aliases: [ o, only ]
-    deps: [ install ]
     interactive: true
-    cmds:
-      - pnpm run dev
+    deps: [ install ]
+    cmd: pnpm run -r --parallel dev
 
   install:
     method: checksum

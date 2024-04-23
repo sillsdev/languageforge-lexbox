@@ -1,5 +1,6 @@
+import { isNotEmpty, type NonEmptyArray } from '$lib/type.utils';
+import type { Operation } from '@urql/core';
 import { isObjectWhere } from '$lib/util/types';
-import type {Operation} from '@urql/core';
 
 export * from './generated/graphql';
 
@@ -22,6 +23,7 @@ export interface GqlInputError<Typename extends string> {
   __typename: Typename;
   message: string;
   code?: string;
+  address?: string;
 }
 
 interface ErrorResult {
@@ -42,14 +44,14 @@ export class LexGqlError<Typename extends string> {
     if (this.message === '') this.message = 'Unknown error';
   }
 
-  byCode(code: string): GqlInputError<Typename>[] | undefined {
+  byCode(code: string): NonEmptyArray<GqlInputError<Typename>> | undefined {
     const codeErrors = this.errors.filter(error => error.code == code);
-    return codeErrors.length > 0 ? codeErrors : undefined;
+    return isNotEmpty(codeErrors) ? codeErrors : undefined;
   }
 
-  byType<T extends Typename>(typename: T): GqlInputError<T>[] | undefined {
+  byType<T extends Typename>(typename: T): NonEmptyArray<GqlInputError<T>> | undefined {
     const codeErrors = this.errors.filter(error => error.__typename == typename) as GqlInputError<T>[];
-    return codeErrors.length > 0 ? codeErrors : undefined;
+    return isNotEmpty(codeErrors) ? codeErrors : undefined;
   }
 }
 

@@ -23,7 +23,15 @@ tasks:
 
   infra-forward:
     interactive: true
-    deps: [local-db-forward, local-otel-http-forward, local-otel-grpc-forward, local-hgweb-forward, local-resumable-forward, local-maildev-forward, local-maildev-smtp-forward]
+    deps:
+      - local-db-forward
+      - local-otel-http-forward
+      - local-otel-grpc-forward
+      - local-hgweb-forward
+      - local-resumable-forward
+      - local-maildev-forward
+      - local-maildev-smtp-forward
+      - local-aspire-ui-forward
   backend-forward:
     interactive: true
     deps: [infra-forward, local-api-forward]
@@ -39,6 +47,10 @@ tasks:
     internal: true
     cmds:
       - kubectl port-forward service/lexbox 4317:4317 -n languagedepot --context docker-desktop
+  local-aspire-ui-forward:
+    internal: true
+    cmds:
+      - kubectl port-forward service/lexbox 18888:18888 -n languagedepot --context docker-desktop
   local-hgweb-forward:
     internal: true
     cmds:

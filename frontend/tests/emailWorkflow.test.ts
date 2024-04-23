@@ -1,15 +1,16 @@
-import { expect } from '@playwright/test';
-import { test } from './fixtures';
-import { defaultPassword } from './envVars';
-import { AdminDashboardPage } from './pages/adminDashboardPage';
-import { UserDashboardPage } from './pages/userDashboardPage';
+import { TEST_TIMEOUT_1_5X, defaultPassword } from './envVars';
 import { deleteUser, getCurrentUserId, loginAs, logout } from './utils/authHelpers';
-import { getInbox } from './utils/mailboxHelpers';
-import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { ResetPasswordPage } from './pages/resetPasswordPage';
-import { randomUUID } from 'crypto';
+
+import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { LoginPage } from './pages/loginPage';
 import { RegisterPage } from './pages/registerPage';
+import { ResetPasswordPage } from './pages/resetPasswordPage';
+import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
+import { UserDashboardPage } from './pages/userDashboardPage';
+import { expect } from '@playwright/test';
+import { getInbox } from './utils/mailboxHelpers';
+import { randomUUID } from 'crypto';
+import { test } from './fixtures';
 
 const userIdsToDelete: string[] = [];
 
@@ -112,6 +113,8 @@ test('forgot password', async ({ page, tempUser }) => {
 });
 
 test('register via new-user invitation email', async ({ page }) => {
+  test.setTimeout(TEST_TIMEOUT_1_5X);
+
   await loginAs(page.request, 'admin', defaultPassword);
   const adminPage = await new AdminDashboardPage(page).goto();
   const projectPage = await adminPage.openProject('Sena 3', 'sena-3');

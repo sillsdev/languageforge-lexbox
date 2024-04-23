@@ -42,9 +42,9 @@ public class LegacyProjectApiController : ControllerBase
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, ProjectsInput input)
+    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, ProjectsInput? input)
     {
-        var password = input.Password;
+        var password = input?.Password ?? string.Empty;
 
         var user = await _lexBoxDbContext.Users.FilterByEmailOrUsername(userName)
             .Select(user => new

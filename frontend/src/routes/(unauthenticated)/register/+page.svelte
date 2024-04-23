@@ -18,11 +18,11 @@
   // getLanguageCodeFromNavigator() gives us the language/locale they probably actually want. Maybe we'll support it in the future.
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
-    name: z.string().min(1, $t('register.name_missing')),
+    name: z.string().trim().min(1, $t('register.name_missing')),
     email: z.string().email($t('form.invalid_email')),
     password: passwordFormRules($t),
     score: z.number(),
-    locale: z.string().min(2).default(userLocale),
+    locale: z.string().trim().min(2).default(userLocale),
   });
 
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
