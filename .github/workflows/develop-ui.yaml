@@ -65,7 +65,7 @@ jobs:
       - run: pnpm run check --output machine
       - run: pnpm run lint:report
       - name: Annotate Code Linting REsults
-        uses: ataylorme/eslint-annotate-action@2.2.0  # TODO: d57a1193d4c59cbfbf3f86c271f42612f9dbd9e9 (v3.0.0) has breaking changes, update in separate commit
+        uses: ataylorme/eslint-annotate-action@d57a1193d4c59cbfbf3f86c271f42612f9dbd9e9 # v3.0.0
         if: always()
         with:
           report-json: ./frontend/eslint_report.json
