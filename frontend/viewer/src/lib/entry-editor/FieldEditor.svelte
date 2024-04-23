@@ -1,9 +1,9 @@
 <script lang="ts">
-  import SingleFieldEditor from './SingleFieldEditor.svelte';
-
   import type { MultiString } from '../mini-lcm';
-
   import type { FieldConfig } from '../types';
+  import MultiOptionEditor from './MultiOptionEditor.svelte';
+  import SingleOptionEditor from './SingleOptionEditor.svelte';
+  import SingleFieldEditor from './SingleFieldEditor.svelte';
   import MultiFieldEditor from './MultiFieldEditor.svelte';
 
   type T = $$Generic<unknown>;
@@ -17,12 +17,22 @@
   function isSingleString(value: unknown): value is string {
     return field.type === 'single';
   }
+  function isSingleOption(value: unknown): value is string {
+    return field.type === 'option';
+  }
+  function isMultiOption(value: unknown): value is string {
+    return field.type === 'multi-option';
+  }
 </script>
 
 {#if isMultiString(value)}
   <MultiFieldEditor on:change {field} {value} />
 {:else if isSingleString(value)}
   <SingleFieldEditor on:change {field} {value} />
+{:else if isSingleOption(value)}
+  <SingleOptionEditor on:change {field} {value} />
+{:else if isMultiOption(value)}
+  <MultiOptionEditor on:change {field} {value} />
 {/if}
 
 <style lang="postcss">

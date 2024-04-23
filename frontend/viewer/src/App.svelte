@@ -111,7 +111,15 @@
               color="neutral" />
               Hide empty fields
           </label>
-          <SelectField label="View" classes={{root: 'view-select w-auto'}} clearable={false} labelPlacement="top" bind:value={$activeView} options={views}>
+          <SelectField
+            label="View"
+            options={views}
+            bind:value={$activeView}
+            classes={{root: 'view-select w-auto'}}
+            clearable={false}
+            labelPlacement="top"
+            clearSearchOnOpen={false}
+            search={() => /* a hack to always show all options */ Promise.resolve()}>
           </SelectField>
           <Button
             classes={{root: 'aspect-square h-10'}}
@@ -121,7 +129,7 @@
           />
         </div>
       </h2>
-      <div class="ml-4 self-end">Overview</div>
+      <div class="ml-8 self-end">Overview</div>
       <div
         class="my-4 h-full grid grid-cols-subgrid flex-grow row-start-2 col-span-3"
       >
