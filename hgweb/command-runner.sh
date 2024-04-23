@@ -43,6 +43,13 @@ case $command_name in
         chg cat -r tip Linguistics/Lexicon/Lexicon_{01,02,03,04,05,06,07,08,09,10}.lexdb | grep -c '<LexEntry\b'
         ;;
 
+    wesaylexentrycount)
+        # Can't predict .lift filename, but we can ask Mercurial for it
+        LIFTFILE=$(chg manifest -r tip | grep '\.lift$' | head -n 1)
+        # The \b for word boundary is not necessary for .lift files
+        [ -n "${LIFTFILE}" ] && chg cat -r tip "${LIFTFILE}" | grep -c '<entry'
+        ;;
+
     tip)
         chg tip --template '{node}'
         ;;
