@@ -96,7 +96,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
 
     public async Task FinishReset(string code, Stream? zipFile = null)
     {
-        var project = await dbContext.Projects.Where(p => p.Code == code).SingleOrDefaultAsync();
+        var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).Where(p => p.Code == code).SingleOrDefaultAsync();
         if (project is null) throw new NotFoundException($"project {code} not found");
         if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.ResetNotStarted(code);
         if (zipFile is not null)
