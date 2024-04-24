@@ -47,7 +47,7 @@ class Program
         string dir = isDir ? file.FullName : new FileInfo(file.FullName).Directory!.FullName;
         HgRunner.Run($"hg checkout {rev}", dir, 30, progress);
         progress.WriteVerbose("Creating {0} ...", name);
-        LfMergeBridge.LfMergeBridge.PutHumptyTogetherAgain(progress, writeVerbose: true, name);
+        LfMergeBridge.LfMergeBridge.ReassembleFwdataFile(progress, writeVerbose: true, name);
         progress.WriteMessage("Created {0}", name);
     }
 }
