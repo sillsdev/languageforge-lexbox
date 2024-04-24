@@ -7,16 +7,17 @@
   import { createEventDispatcher, getContext } from 'svelte';
   import { Button, Notification, Popover, Tooltip, portal } from 'svelte-ux';
   import type { Readable } from 'svelte/store';
+  import type { ViewConfig } from '../config-types';
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
-  const demoValues = getContext<Readable<any>>('demoValues');
+  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
   // For demo purposes
   let i = 1;
   let timeout: number;
   $: {
     clearTimeout(timeout);
-    if (unsavedChanges && $demoValues.generateExternalChanges) {
+    if (unsavedChanges && $viewConfig.generateExternalChanges) {
       timeout = setTimeout(() => {
         if (unsavedChanges && !unacceptedChanges) value = (value ?? '') + i++;
       }, 1000);

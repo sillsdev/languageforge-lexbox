@@ -6,17 +6,17 @@
   import EntityEditor from './EntityEditor.svelte';
   import { getContext } from 'svelte';
   import type { Readable } from 'svelte/store';
+  import type { ViewConfig } from '../config-types';
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  const activeView = getContext('activeView') as Readable<typeof views[number]['value']>;
+  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
   export let entry: IEntry;
 </script>
 
 <EntityEditor
   entity={entry}
-  fieldConfigs={Object.values($activeView?.entry ?? [])}
-  customFieldConfigs={Object.values($activeView?.customEntry ?? [])}
+  fieldConfigs={Object.values($viewConfig.activeView.entry ?? [])}
+  customFieldConfigs={Object.values($viewConfig.activeView?.customEntry ?? [])}
   on:change
 />
 
@@ -28,8 +28,8 @@
 
   <EntityEditor
     entity={sense}
-    fieldConfigs={Object.values($activeView?.sense ?? [])}
-    customFieldConfigs={Object.values($activeView?.customSense ?? [])}
+    fieldConfigs={Object.values($viewConfig.activeView?.sense ?? [])}
+    customFieldConfigs={Object.values($viewConfig.activeView?.customSense ?? [])}
     on:change
   />
 
@@ -41,8 +41,8 @@
 
     <EntityEditor
       entity={example}
-      fieldConfigs={Object.values($activeView?.example ?? [])}
-      customFieldConfigs={Object.values($activeView?.customExample ?? [])}
+      fieldConfigs={Object.values($viewConfig.activeView?.example ?? [])}
+      customFieldConfigs={Object.values($viewConfig.activeView?.customExample ?? [])}
       on:change
     />
   {/each}

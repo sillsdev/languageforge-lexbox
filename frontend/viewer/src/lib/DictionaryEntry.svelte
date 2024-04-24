@@ -19,10 +19,10 @@
     <br />
     <strong>{i + 1})</strong>
   {/if}
-  <i>{sense.partOfSpeech}</i>
-  {firstDefOrGlossVal(sense)}
+  <i>{sense.partOfSpeech ?? ''}</i>
+  {firstDefOrGlossVal(sense) ?? ''}
   {#each sense.exampleSentences as example (example.id)}
-    <i>{firstVal(example.sentence)}</i>
-    {firstVal(example.translation)}&nbsp;
+    <i>{firstVal(example.sentence) ?? ''}</i>
+    {firstVal(example.translation) ?? ''}&nbsp;
   {/each}
 {/each}

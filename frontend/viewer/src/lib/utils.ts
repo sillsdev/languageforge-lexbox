@@ -1,4 +1,4 @@
-import type { IEntry, IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
+import type { IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
 
 import type { WritingSystemSelection } from './config-types';
 

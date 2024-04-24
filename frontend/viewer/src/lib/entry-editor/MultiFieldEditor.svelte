@@ -4,7 +4,6 @@
   import type { Readable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import type { MultiString, WritingSystems } from '../mini-lcm';
-  import type { AppWritingSystems } from '../app-types';
   import type { FieldConfig } from '../config-types';
   import { pickWritingSystems } from '../utils';
 
@@ -12,7 +11,7 @@
     change: { value: MultiString };
   }>();
 
-  const allWritingSystems = getContext<AppWritingSystems>('writingSystems');
+  const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
 
   type T = $$Generic<{}>;
   export let field: FieldConfig;

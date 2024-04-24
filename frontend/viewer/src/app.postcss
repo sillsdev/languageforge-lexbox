@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-:host, :root {
+:host, :root, html, body {
   @apply h-full;
   scroll-behavior: smooth;
   @apply bg-surface-100;
@@ -16,4 +16,10 @@
 
 .Checkbox *, label:has(.Switch) {
   cursor: pointer;
+}
+
+.side-scroller {
+  max-height: calc(100vh - 32px);
+  position: sticky;
+  top: 16px;
 }
