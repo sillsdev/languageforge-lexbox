@@ -47,7 +47,7 @@ case $command_name in
         # Can't predict .lift filename, but we can ask Mercurial for it
         LIFTFILE=$(chg manifest -r tip | grep '\.lift$' | head -n 1)
         # The \b for word boundary is not necessary for .lift files
-        [ -n "${LIFTFILE}" ] && chg cat -r tip "${LIFTFILE}" | grep -c '<entry'
+        [ -n "${LIFTFILE}" ] && (chg cat -r tip "${LIFTFILE}" | grep -c '<entry') || echo 0
         ;;
 
     tip)
