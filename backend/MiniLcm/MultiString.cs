@@ -50,7 +50,7 @@ public class MultiString
 
         // this method gets called by json patch when applying to an object.
         // however the default dictionary implementation fails when trying to cast so we need to override it
-        void IDictionary.Add(object key, object value)
+        void IDictionary.Add(object key, object? value)
         {
             var valStr = value as string ??
                          throw new ArgumentException("unable to convert value to string", nameof(value));

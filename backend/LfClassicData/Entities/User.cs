@@ -3,7 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace LfClassicData.Entities;
 
-internal class User : EntityDocument<User>
+internal class User : EntityDocument
 {
     [BsonConstructor(nameof(_roleString))]
     public User(string role)

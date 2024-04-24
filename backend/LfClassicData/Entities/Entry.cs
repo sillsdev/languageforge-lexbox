@@ -2,7 +2,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace LfClassicData.Entities;
 
-public class Entry: EntityDocument<Entry>
+public class Entry: EntityDocument
 {
     public Guid Guid { get; set; }
     public required Dictionary<string, LexValue>? Lexeme { get; set; }

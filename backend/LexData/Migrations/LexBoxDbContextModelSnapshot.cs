@@ -770,13 +770,11 @@ namespace LexData.Migrations
 
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
                 {
-                    b.HasOne("LexCore.Entities.Project", "Project")
+                    b.HasOne("LexCore.Entities.Project", null)
                         .WithOne("FlexProjectMetadata")
                         .HasForeignKey("LexCore.Entities.FlexProjectMetadata", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>

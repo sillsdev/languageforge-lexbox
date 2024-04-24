@@ -4,6 +4,5 @@ namespace LexCore.Entities;
 public class FlexProjectMetadata
 {
     public Guid ProjectId { get; set; }
-    public Project Project { get; set; }
     public int? LexEntryCount { get; set; }
 }

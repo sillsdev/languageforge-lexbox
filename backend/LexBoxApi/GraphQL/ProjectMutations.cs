@@ -221,9 +221,11 @@ public class ProjectMutations
     {
         permissionService.AssertCanManageProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
-            await dbContext.ProjectUsers.Include(r => r.Project).Include(r => r.User).FirstOrDefaultAsync(u =>
-                u.ProjectId == input.ProjectId && u.UserId == input.UserId);
-        if (projectUser is null) throw new NotFoundException("Project member not found");
+            await dbContext.ProjectUsers
+                .Include(r => r.Project)
+                .Include(r => r.User)
+                .FirstOrDefaultAsync(u => u.ProjectId == input.ProjectId && u.UserId == input.UserId);
+        if (projectUser?.User is null || projectUser.Project is null) throw new NotFoundException("Project member not found");
         projectUser.User.AssertHasVerifiedEmailForRole(input.Role);
         projectUser.Role = input.Role;
         projectUser.User.UpdateCreateProjectsPermission(input.Role);
