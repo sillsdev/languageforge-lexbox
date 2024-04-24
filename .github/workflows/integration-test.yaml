@@ -97,7 +97,8 @@ jobs:
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
-        run: dotnet build
+        # limit cpu count for self-hosted due to memory constraints
+        run: dotnet build ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
       # TODO: Set up caching for /home/runner/.cache/ms-playwright so this doesn't take as long
       # TODO: Ditto for /home/runner/.pnpm-store/v3
       # TODO: Ditto for /home/runner/.nuget/packages
@@ -114,6 +115,7 @@ jobs:
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
+
       - name: Integration tests (Playwright)
         if: ${{ inputs.run-playwright }}
         env:
@@ -125,6 +127,7 @@ jobs:
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         working-directory: frontend
         run: pnpm test
+
       - name: Integration tests (.NET)
         if: always()
         env:
@@ -135,6 +138,7 @@ jobs:
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
+
       - name: Password protect Playwright traces
         id: password_protect_test_results
         if: ${{ always() && inputs.run-playwright }}
