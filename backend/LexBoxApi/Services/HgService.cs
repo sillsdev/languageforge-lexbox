@@ -39,6 +39,7 @@ public partial class HgService : IHgService
 
     public static string PrefixRepoRequestPath(string code) => $"{code[0]}/{code}";
     private string PrefixRepoFilePath(string code) => Path.Combine(_options.Value.RepoPath, code[0].ToString(), code);
+    private string GetTempRepoPath(string code, string reason) => Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER, $"{code}__{reason}__{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}");
 
     private async Task<HttpResponseMessage> GetResponseMessage(string code, string requestPath)
     {
@@ -62,13 +63,10 @@ public partial class HgService : IHgService
         AssertIsSafeRepoName(code);
         if (Directory.Exists(PrefixRepoFilePath(code)))
             throw new AlreadyExistsException($"Repo already exists: {code}.");
-        await Task.Run(() => InitRepoForCode(code));
-    }
-
-    private void InitRepoForCode(string code)
-    {
-        var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(code));
-        InitRepoAt(repoDirectory);
+        await Task.Run(() =>
+        {
+            InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
+        });
     }
 
     private void InitRepoAt(DirectoryInfo repoDirectory)
@@ -78,31 +76,6 @@ public partial class HgService : IHgService
             new DirectoryInfo("Services/HgEmptyRepo"),
             repoDirectory,
             Permissions
-        );
-    }
-
-    public async Task PrepareEmptyRepo(string code, string tempRepoSuffix)
-    {
-        var tempRepoName = $"{code}__{tempRepoSuffix}";
-        await Task.Run(() =>
-        {
-            var tempRepoPath = Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER);
-            var directory = Directory.CreateDirectory(tempRepoPath);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                directory.UnixFileMode = Permissions;
-            var dest = new DirectoryInfo(Path.Combine(directory.FullName, tempRepoName));
-            InitRepoAt(dest);
-        });
-    }
-
-    public void MoveEmptyRepoIntoPlace(string code, string tempRepoSuffix)
-    {
-        // No Task.Run as: 1) it's the last step in the ResetRepo process, and 2) we want to shave milliseconds off
-        var tempRepoName = $"{code}__{tempRepoSuffix}";
-        var tempRepoPath = Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER);
-        Directory.Move(
-            Path.Combine(tempRepoPath, tempRepoName),
-            PrefixRepoFilePath(code)
         );
     }
 
@@ -126,19 +99,16 @@ public partial class HgService : IHgService
 
     public async Task ResetRepo(string code)
     {
-        string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
-        var emptyRepoName = $"{timestamp}__empty";
-        await PrepareEmptyRepo(code, emptyRepoName);
-        await SoftDeleteRepo(code, $"{timestamp}__reset");
+        var tmpRepo = new DirectoryInfo(GetTempRepoPath(code, "reset"));
+        InitRepoAt(tmpRepo);
+        await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
-        MoveEmptyRepoIntoPlace(code, emptyRepoName);
+        tmpRepo.MoveTo(PrefixRepoFilePath(code));
     }
 
     public async Task FinishReset(string code, Stream zipFile)
     {
-        string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
-        var tempRepoName = $"{code}__${timestamp}__upload";
-        var tempRepoPath = Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER, tempRepoName);
+        var tempRepoPath = GetTempRepoPath(code, "upload");
         var tempRepo = Directory.CreateDirectory(tempRepoPath);
         // TODO: Is Task.Run superfluous here? Or a good idea? Don't know the ins and outs of what happens before the first await in an async method in ASP.NET Core...
         await Task.Run(() =>
@@ -162,21 +132,18 @@ public partial class HgService : IHgService
             //found the .hg folder, move it to the correct location and continue
             Directory.Move(hgFolder, hgPath);
         }
-        await CleanupRepoFolder(tempRepoPath);
+        await CleanupRepoFolder(tempRepo);
         SetPermissionsRecursively(tempRepo);
         // Now we're ready to move the new repo into place, replacing the old one
-        var realRepoPath = PrefixRepoFilePath(code);
-        await DeleteRepo(code); // Do this as late as possible
-        // Note that on Linux, moving a directory is not a copy-and-delete, but an actual *move*, preserving permissions
-        Directory.Move(tempRepoPath, realRepoPath);
+        await DeleteRepo(code);
+        tempRepo.MoveTo(PrefixRepoFilePath(code));
     }
 
     /// <summary>
     /// deletes all files and folders in the repo folder except for .hg
     /// </summary>
-    private async Task CleanupRepoFolder(string path)
+    private async Task CleanupRepoFolder(DirectoryInfo repoDir)
     {
-        var repoDir = new DirectoryInfo(path);
         await Task.Run(() =>
         {
             foreach (var info in repoDir.EnumerateFileSystemInfos())
