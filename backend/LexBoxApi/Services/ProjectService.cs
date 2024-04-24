@@ -90,6 +90,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 .SetProperty(p => p.ResetStatus, ResetStatus.InProgress)
                 .SetProperty(p => p.LastCommit, null as DateTimeOffset?));
         if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found");
+        await ResetLexEntryCount(input.Code);
         await hgService.ResetRepo(input.Code);
     }
 
@@ -101,22 +102,28 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         if (zipFile is not null)
         {
             await hgService.FinishReset(code, zipFile);
-            project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
+            await UpdateProjectMetadata(project);
         }
         project.ResetStatus = ResetStatus.None;
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateProjectMetadata(string projectCode)
+    public async Task UpdateProjectMetadataForCode(string projectCode)
     {
         var project = await dbContext.Projects
             .Include(p => p.FlexProjectMetadata)
             .FirstOrDefaultAsync(p => p.Code == projectCode);
         if (project is null) return;
+        await UpdateProjectMetadata(project);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateProjectMetadata(Project project)
+    {
         if (hgConfig.Value.AutoUpdateLexEntryCountOnSendReceive && project is { Type: ProjectType.FLEx })
         {
-            var count = await hgService.GetLexEntryCount(projectCode);
+            var count = await hgService.GetLexEntryCount(project.Code);
             if (project.FlexProjectMetadata is null)
             {
                 project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
@@ -127,8 +134,21 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             }
         }
 
-        project.LastCommit = await hgService.GetLastCommitTimeFromHg(projectCode);
-        await dbContext.SaveChangesAsync();
+        project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
+        // Caller is responsible for caling dbContext.SaveChangesAsync()
+    }
+
+    public async Task ResetLexEntryCount(string projectCode)
+    {
+        var project = await dbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .FirstOrDefaultAsync(p => p.Code == projectCode);
+        if (project is null) return;
+        if (project.FlexProjectMetadata is not null)
+        {
+            project.FlexProjectMetadata.LexEntryCount = null;
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)

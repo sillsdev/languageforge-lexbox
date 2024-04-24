@@ -21,6 +21,7 @@ namespace LexBoxApi.Services;
 public partial class HgService : IHgService
 {
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
+    private const string TEMP_REPO_FOLDER = "_____temp_____";
 
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
@@ -61,13 +62,18 @@ public partial class HgService : IHgService
         AssertIsSafeRepoName(code);
         if (Directory.Exists(PrefixRepoFilePath(code)))
             throw new AlreadyExistsException($"Repo already exists: {code}.");
-        await Task.Run(() => InitRepoAt(code));
+        await Task.Run(() => InitRepoForCode(code));
     }
 
-    private void InitRepoAt(string code)
+    private void InitRepoForCode(string code)
     {
         var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(code));
         repoDirectory.Create();
+        InitRepoAt(repoDirectory);
+    }
+
+    private void InitRepoAt(DirectoryInfo repoDirectory)
+    {
         FileUtils.CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
             repoDirectory,
@@ -80,32 +86,24 @@ public partial class HgService : IHgService
         var tempRepoName = $"{code}__{tempRepoSuffix}";
         await Task.Run(() =>
         {
-            var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
-            var directory = Directory.CreateDirectory(deletedRepoPath);
+            var tempRepoPath = Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER);
+            var directory = Directory.CreateDirectory(tempRepoPath);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 directory.UnixFileMode = Permissions;
             var dest = Directory.CreateDirectory(Path.Combine(directory.FullName, tempRepoName));
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                dest.UnixFileMode = Permissions;
-            FileUtils.CopyFilesRecursively(
-                new DirectoryInfo("Services/HgEmptyRepo"),
-                dest,
-                Permissions
-            );
+            InitRepoAt(dest);
         });
     }
 
-    public async Task MoveEmptyRepoIntoPlace(string code, string tempRepoSuffix)
+    public void MoveEmptyRepoIntoPlace(string code, string tempRepoSuffix)
     {
+        // No Task.Run as: 1) it's the last step in the ResetRepo process, and 2) we want to shave milliseconds off
         var tempRepoName = $"{code}__{tempRepoSuffix}";
-        await Task.Run(() =>
-        {
-            var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
-            Directory.Move(
-                Path.Combine(deletedRepoPath, tempRepoName),
-                PrefixRepoFilePath(code)
-            );
-        });
+        var tempRepoPath = Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER);
+        Directory.Move(
+            Path.Combine(tempRepoPath, tempRepoName),
+            PrefixRepoFilePath(code)
+        );
     }
 
     public async Task DeleteRepo(string code)
@@ -129,17 +127,18 @@ public partial class HgService : IHgService
     public async Task ResetRepo(string code)
     {
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
-        await PrepareEmptyRepo(code, $"{timestamp}__empty");
+        var emptyRepoName = $"{timestamp}__empty";
+        await PrepareEmptyRepo(code, emptyRepoName);
         await SoftDeleteRepo(code, $"{timestamp}__reset");
         //we must init the repo as uploading a zip is optional
-        await MoveEmptyRepoIntoPlace(code, $"{timestamp}__empty");
+        MoveEmptyRepoIntoPlace(code, emptyRepoName);
     }
 
     public async Task FinishReset(string code, Stream zipFile)
     {
         string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
         var tempRepoName = $"{code}__${timestamp}__upload";
-        var tempRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER, tempRepoName);
+        var tempRepoPath = Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER, tempRepoName);
         var tempRepo = Directory.CreateDirectory(tempRepoPath);
         // TODO: Is Task.Run superfluous here? Or a good idea? Don't know the ins and outs of what happens before the first await in an async method in ASP.NET Core...
         await Task.Run(() =>
@@ -168,6 +167,7 @@ public partial class HgService : IHgService
         // Now we're ready to move the new repo into place, replacing the old one
         var realRepoPath = PrefixRepoFilePath(code);
         await DeleteRepo(code); // Do this as late as possible
+        // Note that on Linux, moving a directory is not a copy-and-delete, but an actual *move*, preserving permissions
         Directory.Move(tempRepoPath, realRepoPath);
     }
 
@@ -311,7 +311,7 @@ public partial class HgService : IHgService
         return response.Content;
     }
 
-    private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };
+    private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, TEMP_REPO_FOLDER, "api" };
 
     private void AssertIsSafeRepoName(string name)
     {
