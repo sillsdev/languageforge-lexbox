@@ -271,7 +271,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "log_header": "Message"
     },
     "get_project": {
-      "instructions_header": "To open the project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
+      "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
 1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" and \"Password\" for Language Depot and click \"Log in\"\n\
@@ -282,7 +282,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
 1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
 1. Click on \"OK (I have the master project)\".\n\
-1. Click on \"Settings...\" and enter your LanguageDepot login credentials.\n\
+1. Click on \"Settings...\" and enter your Language Depot login credentials.\n\
 1. Click Log in, then select the Project ID ({code}) from the drop-down menu.\n\
 1. Click on Internet. This will initiate the first Send/Receive.",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
@@ -304,7 +304,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. In the \"Password\" field type your password\n\
 1. Click on \"OK\" to close the \"Settings...\" dialog\n\
 1. Click on \"Internet\". This will initiate the first Send/Receive.",
-      "label": "Get project",
+      "label": "{isEmpty, select, true { Set up } other { Get } } project",
       "send_receive_url": "Send/Receive URL",
     },
     "promote_project": {

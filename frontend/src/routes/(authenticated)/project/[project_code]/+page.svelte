@@ -49,6 +49,7 @@
   $: changesetStore = data.changesets;
   let isEmpty: boolean = false;
   $: isEmpty = project?.lastCommit == null;
+  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
   $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
   $: members = project.users.sort((a, b) => {
     if (a.role !== b.role) {
@@ -237,13 +238,13 @@
       {:else}
         <Dropdown>
           <button class="btn btn-primary">
-            {$t('project_page.get_project.label')}
+            {$t('project_page.get_project.label', {isEmpty: isEmpty ? 'true' : 'false'})}
             <span class="i-mdi-dots-vertical text-2xl" />
           </button>
           <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
             <div class="card-body max-sm:p-4">
               <div class="prose">
-                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
+                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal', isEmpty: isEmpty ? 'true' : 'false'})}</h3>
                 {#if project.type === ProjectType.WeSay}
                   {#if isEmpty}
                     <Markdown
