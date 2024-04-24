@@ -68,12 +68,12 @@ public partial class HgService : IHgService
     private void InitRepoForCode(string code)
     {
         var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(code));
-        repoDirectory.Create();
         InitRepoAt(repoDirectory);
     }
 
     private void InitRepoAt(DirectoryInfo repoDirectory)
     {
+        repoDirectory.Create();
         FileUtils.CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
             repoDirectory,
@@ -90,7 +90,7 @@ public partial class HgService : IHgService
             var directory = Directory.CreateDirectory(tempRepoPath);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 directory.UnixFileMode = Permissions;
-            var dest = Directory.CreateDirectory(Path.Combine(directory.FullName, tempRepoName));
+            var dest = new DirectoryInfo(Path.Combine(directory.FullName, tempRepoName));
             InitRepoAt(dest);
         });
     }
