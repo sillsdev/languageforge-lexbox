@@ -47,6 +47,10 @@
   let projectStore = data.project;
   $: project = $projectStore;
   $: changesetStore = data.changesets;
+  let isEmpty: boolean = false;
+  $: isEmpty = project?.lastCommit == null;
+  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
+  $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
   $: members = project.users.sort((a, b) => {
     if (a.role !== b.role) {
       return a.role === ProjectRole.Manager ? -1 : 1;
@@ -238,28 +242,47 @@
       {:else}
         <Dropdown>
           <button class="btn btn-primary">
-            {$t('project_page.get_project.label')}
+            {$t('project_page.get_project.label', {isEmpty: isEmpty.toString()})}
             <span class="i-mdi-dots-vertical text-2xl" />
           </button>
           <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
             <div class="card-body max-sm:p-4">
               <div class="prose">
-                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
+                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal', isEmpty: isEmpty.toString()})}</h3>
                 {#if project.type === ProjectType.WeSay}
+                  {#if isEmpty}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay_empty', {
+                        code: project.code,
+                        login: encodeURIComponent(user.email ?? user.username ?? ''),
+                        name: project.name,
+                      })}
+                    />
+                  {:else}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay', {
+                        code: project.code,
+                        login: encodeURIComponent(user.email ?? user.username ?? ''),
+                        name: project.name,
+                      })}
+                    />
+                  {/if}
+                {:else}
+                  {#if isEmpty}
                   <Markdown
-                    md={$t('project_page.get_project.instructions_wesay', {
+                    md={$t('project_page.get_project.instructions_flex_empty', {
                     code: project.code,
-                    login: encodeURIComponent(user.email ?? user.username ?? ''),
                     name: project.name,
                   })}
                   />
-                {:else}
+                  {:else}
                   <Markdown
                     md={$t('project_page.get_project.instructions_flex', {
                     code: project.code,
                     name: project.name,
                   })}
                   />
+                  {/if}
                 {/if}
               </div>
               <SendReceiveUrlField projectCode={project.code} />
