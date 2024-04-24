@@ -38,7 +38,8 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          namespace: languagedepot
+          # You'd think namespace: languagedepot would work, but no, that's not valid syntax for NetworkPolicy
+          kubernetes.io/metadata.name: languagedepot
     # Do NOT put a hyphen in front of podSelector on the next line
       podSelector:
         matchLabels:
