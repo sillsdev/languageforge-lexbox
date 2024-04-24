@@ -20,19 +20,23 @@
 <div class="grid grid-cols-subgrid col-span-3 flex-grow gap-8">
   <div class="min-w-48 pr-8 border-r-2">
     <div class="entry-list grid border rounded-md">
-      {#each entries as entry}
-        <ListItem
-          title={firstVal(entry.lexemeForm)}
-          subheading={firstDefOrGlossVal(entry.senses[0])}
-          on:click={() => (selectedEntry = entry)}
-          class={cls(
-            'cursor-pointer',
-            'hover:bg-surface-300',
-            selectedEntry == entry ? 'bg-surface-200' : ''
-          )}
-          noShadow
-        />
-      {/each}
+      {#if entries.length == 0}
+        <div class="p-4 text-center">No entries found</div>
+      {:else}
+        {#each entries as entry (entry.id)}
+          <ListItem
+            title={firstVal(entry.lexemeForm)}
+            subheading={firstDefOrGlossVal(entry.senses[0])}
+            on:click={() => (selectedEntry = entry)}
+            class={cls(
+              'cursor-pointer',
+              'hover:bg-surface-300',
+              selectedEntry == entry ? 'bg-surface-200' : ''
+            )}
+            noShadow
+          />
+        {/each}
+      {/if}
     </div>
   </div>
 
@@ -57,9 +61,9 @@
     <div class="h-full min-w-48 flex flex-col flex-grow self-start pl-8 border-l-2">
       <div class="overview border flex flex-col rounded-md">
         <a class="toc-item" href="#top">Entry: {firstVal(selectedEntry.lexemeForm)}</a>
-        {#each selectedEntry.senses as sense, i}
+        {#each selectedEntry.senses as sense, i (sense.id)}
           <a class="toc-item" href="#sense{i + 1}">Sense: {firstVal(sense.gloss)}</a>
-          {#each sense.exampleSentences as example, j}
+          {#each sense.exampleSentences as example, j (example.id)}
             <a class="toc-item" href="#example{i + 1}.{j + 1}">Example: {firstVal(example.sentence)}</a>
           {/each}
         {/each}
@@ -86,7 +90,7 @@
 
   .entry-list, .overview {
     max-height: calc(100vh - 32px);
-    overflow: overflow-auto;
+    overflow: auto;
     position: sticky;
     top: 16px;
   }

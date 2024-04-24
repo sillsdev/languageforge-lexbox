@@ -1,4 +1,4 @@
-import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigFieldProps } from './types';
+import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigFieldProps } from './config-types';
 import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 
 import type { I18nType } from './i18n';

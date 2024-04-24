@@ -6,7 +6,7 @@
   import type { Readable } from 'svelte/store';
   import { getContext } from 'svelte';
   import { pickWritingSystems } from '../utils';
-  import type { FieldConfig } from '../types';
+  import type { FieldConfig } from '../config-types';
 
   type T = $$Generic<{}>;
   export let field: FieldConfig;

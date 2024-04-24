@@ -21,7 +21,6 @@
   let demoOptions: MenuOption[] | undefined;
   $: demoOptions = demoOptions ?? [...value.map(v => ({label: v, value: v})), {label: 'Another option', value: 'Another option'}];
 
-  type Option = { label: string; value: string };
   function asOption(value: any): MenuOption {
     if (!(typeof value === 'object' && 'label' in value && 'value' in value)) {
       throw new Error('Invalid option');
@@ -32,16 +31,16 @@
   function asOptions(values: any[]): MenuOption[] {
     return values?.map(asOption) ?? [];
   }
-
-  $: console.log(value);
 </script>
 
 <CrdtField on:change bind:value={stringValue} bind:unsavedChanges let:editorValue let:save let:onEditorValueChange viewMergeButtonPortal={append}>
   <MultiSelectField
     on:change={(e) => onEditorValueChange(asOptions(e.detail.value).map((o) => o.value).join(','))}
     on:blur={save}
-    value={editorValue.split(',').map((v) => ({ label: v, value: v }))}
+    value={editorValue.split(',')}
     options={demoOptions ?? []}
+    valueProp="value"
+    labelProp="label"
     formatSelected={({ options }) =>
       options.map((o) => o.label).join(", ") || "None"}
     clearSearchOnOpen={false}

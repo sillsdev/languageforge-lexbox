@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { MultiString } from '../mini-lcm';
-  import type { FieldConfig } from '../types';
+  import type { FieldConfig } from '../config-types';
   import MultiOptionEditor from './MultiOptionEditor.svelte';
   import SingleOptionEditor from './SingleOptionEditor.svelte';
   import SingleFieldEditor from './SingleFieldEditor.svelte';

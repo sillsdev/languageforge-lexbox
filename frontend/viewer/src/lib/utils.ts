@@ -1,6 +1,6 @@
 import type { IEntry, IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
 
-import type { WritingSystemSelection } from './types';
+import type { WritingSystemSelection } from './config-types';
 
 export function firstVal(multi: IMultiString): string | undefined {
   return Object.values(multi).find(value => !!value);

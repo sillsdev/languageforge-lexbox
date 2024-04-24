@@ -20,7 +20,7 @@
   on:change
 />
 
-{#each entry.senses as sense, i}
+{#each entry.senses as sense, i (sense.id)}
   <div class="col-span-full flex items-center gap-4 my-4">
     <h2 class="text-lg text-surface-content" id="sense{i + 1}">Sense {i + 1}</h2>
     <hr class="grow border-t-4">
@@ -33,7 +33,7 @@
     on:change
   />
 
-  {#each sense.exampleSentences as example, j}
+  {#each sense.exampleSentences as example, j (example.id)}
     <div class="col-span-full flex items-center gap-4 my-4">
       <h3 class="text-surface-content" id="example{i + 1}.{j + 1}">Example {j + 1}</h3>
       <hr class="grow">

@@ -14,14 +14,14 @@
     .filter((value) => !!value)
     .join(' / ')}
 </strong>
-{#each entry.senses as sense, i}
+{#each entry.senses as sense, i (sense.id)}
   {#if entry.senses.length > 1}
     <br />
     <strong>{i + 1})</strong>
   {/if}
   <i>{sense.partOfSpeech}</i>
   {firstDefOrGlossVal(sense)}
-  {#each sense.exampleSentences as example}
+  {#each sense.exampleSentences as example (example.id)}
     <i>{firstVal(example.sentence)}</i>
     {firstVal(example.translation)}&nbsp;
   {/each}

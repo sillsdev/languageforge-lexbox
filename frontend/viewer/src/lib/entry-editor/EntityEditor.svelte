@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { CustomFieldConfig, EntityFieldConfig, BaseEntityFieldConfig, ViewConfigFieldProps } from '../types';
+  import type { CustomFieldConfig, EntityFieldConfig, BaseEntityFieldConfig, ViewConfigFieldProps } from '../config-types';
   import FieldEditor from './FieldEditor.svelte';
 
   type T = $$Generic<unknown>;

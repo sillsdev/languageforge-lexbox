@@ -1,7 +1,7 @@
 <script lang="ts">
   import { mdiEyeOffOutline } from '@mdi/js';
   import { Icon, Tooltip } from 'svelte-ux';
-  import type { FieldConfig } from '../types';
+  import type { FieldConfig } from '../config-types';
   import { fieldName } from '../i18n';
   import { getContext } from 'svelte';
   import type { Readable } from 'svelte/store';

@@ -11,16 +11,17 @@
     TextField,
     cls,
   } from 'svelte-ux';
-  import { mdiMagnify, mdiCog, mdiChevronDown } from '@mdi/js';
+  import { mdiMagnify, mdiCog } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import { firstDefOrGlossVal, firstVal } from './lib/utils';
   import { allFields, views } from './lib/config-data';
   import { fieldName } from './lib/i18n';
   import { LexboxServices } from './lib/services/service-provider';
-  import type { LexboxApi } from './lib/services/lexbox-api';
-  import type { IEntry, WritingSystems } from './lib/mini-lcm';
+  import type { IEntry, LexboxApi, WritingSystems } from './lib/services/lexbox-api';
   import { setContext } from 'svelte';
-  import { writable } from 'svelte/store';
+  import { derived, writable } from 'svelte/store';
+  import { deriveInitializedValue, type Initializable } from './lib/app-types';
+  import { deriveAsync } from './lib/utils/time';
 
   const demoValues = writable<{
     generateExternalChanges: boolean,
@@ -36,27 +37,18 @@
   setContext('demoValues', demoValues);
   setContext('activeView', activeView);
 
-  $: console.log($activeView);
-
   const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
-  const entriesPromise: Promise<IEntry[]> = lexboxApi.GetEntries(undefined);
-  let wsPromise: Promise<WritingSystems> = lexboxApi.GetWritingSystems();
+  // const entries = writable<Initializable<IEntry[]>>({ initialized: false });
+  const search = writable<string>('bara');
+  const entries = deriveAsync(search, (s) => lexboxApi.SearchEntries(s ?? '', { offset: 0, count: Infinity, order: '' }), undefined, 200);
 
-    const writingSystems = writable<WritingSystems>();
-  setContext('writingSystems', writingSystems);
-
-  /* eslint-disable @typescript-eslint/no-floating-promises */
-  wsPromise.then((ws) => writingSystems.set(ws));
-
-  entriesPromise.then((entries) => {
-    console.log(entries);
-  });
-
-  wsPromise.then((ws) => {
-    console.log(ws);
-  });
-  /* eslint-enable @typescript-eslint/no-floating-promises */
+  const writingSystems = writable<Initializable<WritingSystems>>({ initialized: false });
+  setContext('writingSystems', deriveInitializedValue(writingSystems));
+  lexboxApi.GetWritingSystems().then((ws) => writingSystems.set({
+    value: ws,
+    initialized: true,
+  }));
 
   let showSearchDialog = false;
   let showConfigDialog = false;
@@ -89,7 +81,13 @@
       class="grid flex-grow gap-x-8"
       style="grid-template-columns: 2fr 4fr 1fr; grid-template-rows: auto 1fr;"
     >
-      <div></div>
+      <div class="flex items-end mr-8">
+        <TextField
+          bind:value={$search}
+          placeholder="Filter..."
+          class="flex-grow"
+          icon={mdiMagnify} />
+      </div>
       <h2 class="flex text-2xl font-semibold col-span-1">
         <div class="flex gap-4 items-end w-full">
           <!-- svelte-ignore a11y-label-has-associated-control -->
@@ -133,11 +131,11 @@
       <div
         class="my-4 h-full grid grid-cols-subgrid flex-grow row-start-2 col-span-3"
       >
-        {#await Promise.all([entriesPromise, wsPromise])}
-          Loading...
-        {:then [entries]}
-          <Editor {entries} />
-        {/await}
+        {#if !$entries || !$writingSystems.initialized}
+            Loading...
+        {:else}
+            <Editor entries={$entries} />
+        {/if}
       </div>
     </div>
   </main>
@@ -153,18 +151,18 @@
     />
   </div>
   <div>
-    {#await Promise.all([entriesPromise, wsPromise])}
-      Loading entries...
-    {:then [entries]}
-      {#each entries as entry}
+    {#if !$entries || !$writingSystems.initialized}
+        Loading entries...
+    {:else}
+      {#each $entries as entry}
         <ListItem
-          title={firstVal(entry.lexemeForm)}
-          subheading={firstDefOrGlossVal(entry.senses[0])}
-          class={cls('cursor-pointer', 'hover:bg-accent-50')}
-          noShadow
-        />
+        title={firstVal(entry.lexemeForm)}
+        subheading={firstDefOrGlossVal(entry.senses[0])}
+        class={cls('cursor-pointer', 'hover:bg-accent-50')}
+        noShadow
+      />
       {/each}
-    {/await}
+    {/if}
   </div>
   <div class="flex-grow"></div>
   <div slot="actions">actions</div>
