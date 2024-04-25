@@ -41,6 +41,7 @@ public class User : EntityBase
     public string? GoogleId { get; set; }
 
     public List<ProjectUsers> Projects { get; set; } = new();
+    public List<OrgMember> Organizations { get; set; } = [];
 
     public bool CanLogin()
     {

@@ -94,4 +94,9 @@ public class PermissionService(
     {
         if (!HasProjectRequestPermission()) throw new UnauthorizedAccessException();
     }
+
+    public void AssertCanCreateOrg()
+    {
+        if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
+    }
 }

@@ -11,6 +11,8 @@ public class SeedingData
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly IOptions<DbConfig> _dbConfig;
+    private static readonly Guid MangerId = new Guid("703701a8-005c-4747-91f2-ac7650455118");
+    private static readonly Guid EditorId = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb");
 
     public SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig)
     {
@@ -80,7 +82,7 @@ public class SeedingData
                     Role = ProjectRole.Manager,
                     User = new()
                     {
-                        Id = new Guid("703701a8-005c-4747-91f2-ac7650455118"),
+                        Id = MangerId,
                         Email = "manager@test.com",
                         Name = "Test Manager",
                         Username = "manager",
@@ -97,7 +99,7 @@ public class SeedingData
                     Role = ProjectRole.Editor,
                     User = new()
                     {
-                        Id = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb"),
+                        Id = EditorId,
                         Email = "editor@test.com",
                         Name = "Test Editor",
                         Username = "editor",
@@ -120,7 +122,24 @@ public class SeedingData
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
-            Users = new()
+            Users = []
+        });
+
+        _lexBoxDbContext.Attach(new Organization
+        {
+            Id = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6"),
+            Name = "Test Org",
+            Members =
+            [
+                new OrgMember
+                {
+                    Id = new Guid("d8e4fb61-6a39-421b-b852-4bdba658d345"), Role = OrgRole.Admin, UserId = MangerId,
+                },
+                new OrgMember
+                {
+                    Id = new Guid("1f8bbfd2-1502-456c-94ee-c982650ba325"), Role = OrgRole.User, UserId = EditorId,
+                }
+            ]
         });
 
         foreach (var entry in _lexBoxDbContext.ChangeTracker.Entries())

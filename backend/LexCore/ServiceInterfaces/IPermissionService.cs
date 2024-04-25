@@ -16,4 +16,5 @@ public interface IPermissionService
     bool HasProjectRequestPermission();
     void AssertHasProjectRequestPermission();
     void AssertCanLockOrUnlockUser(Guid userId);
+    void AssertCanCreateOrg();
 }
