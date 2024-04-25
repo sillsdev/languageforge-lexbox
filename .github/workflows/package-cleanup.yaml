@@ -12,7 +12,7 @@ jobs:
           - 'lexbox-api'
           - 'lexbox-hgweb'
     steps:
-      - uses: actions/delete-package-versions@ve5bc658cc4c965c472efe991f8beea3981499c55 # v5.0.0
+      - uses: actions/delete-package-versions@v5
         with:
           package-name: ${{ matrix.package-name }}
           package-type: 'container'

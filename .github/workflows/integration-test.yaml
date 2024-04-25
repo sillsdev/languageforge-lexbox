@@ -52,7 +52,7 @@ jobs:
       name: ${{ inputs.environment }}
     runs-on: ${{ inputs.runs-on }}
     steps:
-      - uses: actions/checkout@1d96c772d19495a3b5c517cd2bc0cb401ea0529f # v4.1.3
+      - uses: actions/checkout@v4
       - uses: testspace-com/setup-testspace@v1.0.6
         with:
           domain: ${{ github.repository_owner }}
@@ -67,7 +67,7 @@ jobs:
           rm powershell_7.4.1-1.deb_amd64.deb
           pwsh #validate that powershell installed correctly
       # First we need to setup Node...
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+      - uses: actions/setup-node@v4
         if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
@@ -77,13 +77,13 @@ jobs:
         with:
           package_json_file: 'frontend/package.json'
       # Then we can have Noede set up package caching
-      - uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+      - uses: actions/setup-node@v4
         if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
           cache: 'pnpm'
           cache-dependency-path: 'frontend/pnpm-lock.yaml'
-      - uses: actions/setup-dotnet@4d6c8fcf3c8f7a60068d26b594648e99df24cee3 # v4.0.0
+      - uses: actions/setup-dotnet@v4
         env:
           DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
         with:
@@ -164,7 +164,7 @@ jobs:
         run: testspace "[.Net Integration]./test-results/*.trx" "[Playwright]./frontend/test-results/*.xml"
       - name: Upload playwright results
         if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
-        uses: actions/upload-artifact@1746f4ab65b179e0ea60a494b83293b640dd5bba # v4.3.2
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
           path: ./playwright-traces.7z
