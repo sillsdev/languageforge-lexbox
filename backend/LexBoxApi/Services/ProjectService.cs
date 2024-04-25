@@ -93,14 +93,14 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     {
         var rowsAffected = await dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
             .ExecuteUpdateAsync(u => u.SetProperty(p => p.ResetStatus, ResetStatus.InProgress));
-        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found");
+        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found", nameof(Project));
         await hgService.ResetRepo(input.Code);
     }
 
     public async Task FinishReset(string code, Stream? zipFile = null)
     {
         var project = await dbContext.Projects.Where(p => p.Code == code).SingleOrDefaultAsync();
-        if (project is null) throw new NotFoundException($"project {code} not found");
+        if (project is null) throw new NotFoundException($"project {code} not found", nameof(Project));
         if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.ResetNotStarted(code);
         if (zipFile is not null)
         {
