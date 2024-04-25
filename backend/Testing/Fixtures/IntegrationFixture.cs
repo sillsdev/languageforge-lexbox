@@ -14,8 +14,8 @@ namespace Testing.Fixtures;
 public class IntegrationFixture : IAsyncLifetime
 {
     private readonly string _templateRepoName = "test-template-repo.zip";
-    private readonly FileInfo _templateRepoZip = new(Path.Join(BasePath, "_template-repo_.zip"));
-    private readonly DirectoryInfo _templateRepo = new(Path.Join(BasePath, "_template-repo_"));
+    public FileInfo TemplateRepoZip { get; } = new(Path.Join(BasePath, "_template-repo_.zip"));
+    public DirectoryInfo TemplateRepo { get; } = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; } = new();
     private string AdminJwt = string.Empty;
 
@@ -41,9 +41,9 @@ public class IntegrationFixture : IAsyncLifetime
     {
         var assembly = Assembly.GetExecutingAssembly();
         var templatePath = Path.Join(Path.GetDirectoryName(assembly.Location), _templateRepoName);
-        File.Copy(templatePath, _templateRepoZip.FullName);
-        using var stream = _templateRepoZip.OpenRead();
-        ZipFile.ExtractToDirectory(stream, _templateRepo.FullName);
+        File.Copy(templatePath, TemplateRepoZip.FullName);
+        using var stream = TemplateRepoZip.OpenRead();
+        ZipFile.ExtractToDirectory(stream, TemplateRepo.FullName);
     }
 
     public ProjectConfig InitLocalFlexProjectWithRepo(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
@@ -56,14 +56,14 @@ public class IntegrationFixture : IAsyncLifetime
     public void InitLocalFlexProjectWithRepo(ProjectPath projectPath)
     {
         var projectDir = Directory.CreateDirectory(projectPath.Dir);
-        FileUtils.CopyFilesRecursively(_templateRepo, projectDir);
+        FileUtils.CopyFilesRecursively(TemplateRepo, projectDir);
         File.Move(Path.Join(projectPath.Dir, "kevin-test-01.fwdata"), projectPath.FwDataFile);
         Directory.EnumerateFiles(projectPath.Dir).ShouldContain(projectPath.FwDataFile);
     }
 
     public async Task FinishLexboxProjectResetWithTemplateRepo(string projectCode)
     {
-        await FinishLexboxProjectResetWithRepo(projectCode, _templateRepoZip);
+        await FinishLexboxProjectResetWithRepo(projectCode, TemplateRepoZip);
     }
 
     public async Task FinishLexboxProjectResetWithRepo(string projectCode, FileInfo repo)
