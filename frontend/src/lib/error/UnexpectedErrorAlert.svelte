@@ -26,12 +26,12 @@
   }
 
   function open(): void {
-    dialog.showModal();
+    dialog.showModal?.call(dialog);
     dialog.classList.add('modal-open');
   }
 
   function close(): void {
-    dialog.close();
+    dialog.close?.call(dialog);
     dialog.classList.remove('modal-open');
   }
 </script>
