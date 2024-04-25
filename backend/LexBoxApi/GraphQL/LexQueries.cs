@@ -86,6 +86,13 @@ public class LexQueries
         return context.Orgs.Where(o => o.Members.Any(m => m.UserId == userId));
     }
 
+    [UseSingleOrDefault]
+    [UseProjection]
+    public IQueryable<Organization> OrgById(LexBoxDbContext context, Guid orgId)
+    {
+        return context.Orgs.Where(o => o.Id == orgId);
+    }
+
     [UseOffsetPaging]
     [UseProjection]
     [UseFiltering]
