@@ -140,6 +140,10 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          # 1.5gb max heap size, must be in hex https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector#heap-limit
+          # the self hosted runner only has 2gb so this should prevent it from running out of memory
+          DOTNET_GCHeapHardLimit: '0x2CB417800'
+
         run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
 
       - name: Password protect Playwright traces
