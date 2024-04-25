@@ -112,7 +112,6 @@ type DraftProject {
 
 type FlexProjectMetadata {
   projectId: UUID!
-  project: Project!
   lexEntryCount: Int
 }
 
@@ -218,11 +217,11 @@ type ProjectMembersMustBeVerifiedForRole implements Error {
 }
 
 type ProjectUsers {
+  user: User!
+  project: Project!
   userId: UUID!
   projectId: UUID!
   role: ProjectRole!
-  user: User!
-  project: Project!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -432,13 +431,11 @@ input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
   projectId: UuidOperationFilterInput
-  project: ProjectFilterInput
   lexEntryCount: IntOperationFilterInput
 }
 
 input FlexProjectMetadataSortInput {
   projectId: SortEnumType
-  project: ProjectSortInput
   lexEntryCount: SortEnumType
 }
 
