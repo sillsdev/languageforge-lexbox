@@ -73,8 +73,7 @@ public class IntegrationFixture : IAsyncLifetime
         client.AdditionalHeaders.Add("Cookie", $".LexBoxAuth={AdminJwt}");
         var fileUrl = await client.CreateAsync($"{AdminApiTester.BaseUrl}/api/project/upload-zip/{projectCode}", repo.Length, [("filetype", "application/zip")]);
         var responses = await client.UploadAsync(fileUrl, repo, chunkSize: 20);
-        responses.Select(r => r.StatusCode.ToString())
-            .ForEach((codeName) => codeName.ShouldBe(nameof(HttpStatusCode.NoContent)));
+        responses.ShouldAllBe(r => r.StatusCode.ToString() == nameof(HttpStatusCode.NoContent));
     }
 
     private static void InitRepoInDirectory(string projectDir)
