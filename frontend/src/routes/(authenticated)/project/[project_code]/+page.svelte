@@ -344,7 +344,7 @@
           {$t('project_page.last_commit')}:
           <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>
-        {#if project.type === ProjectType.FlEx}
+        {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <div class="text-lg inline-flex items-center gap-1">
           {$t('project_page.num_entries')}:
           <span class="text-secondary">

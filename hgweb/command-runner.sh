@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "lexentrycount" "recover")
+allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "recover")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -41,6 +41,13 @@ case $command_name in
     lexentrycount)
         # The \b for word boundary is necessary to distinguish LexEntry from LexEntryType and similar
         chg cat -r tip Linguistics/Lexicon/Lexicon_{01,02,03,04,05,06,07,08,09,10}.lexdb | grep -c '<LexEntry\b'
+        ;;
+
+    wesaylexentrycount)
+        # Can't predict .lift filename, but we can ask Mercurial for it
+        LIFTFILE=$(chg manifest -r tip | grep '\.lift$' | head -n 1)
+        # The \b for word boundary is not necessary for .lift files
+        [ -n "${LIFTFILE}" ] && (chg cat -r tip "${LIFTFILE}" | grep -c '<entry') || echo 0
         ;;
 
     tip)

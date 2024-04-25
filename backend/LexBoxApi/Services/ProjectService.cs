@@ -118,9 +118,9 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             .Include(p => p.FlexProjectMetadata)
             .FirstOrDefaultAsync(p => p.Code == projectCode);
         if (project is null) return;
-        if (hgConfig.Value.AutoUpdateLexEntryCountOnSendReceive && project is { Type: ProjectType.FLEx })
+        if (hgConfig.Value.AutoUpdateLexEntryCountOnSendReceive && project is { Type: ProjectType.FLEx } or { Type: ProjectType.WeSay })
         {
-            var count = await hgService.GetLexEntryCount(projectCode);
+            var count = await hgService.GetLexEntryCount(projectCode, project.Type);
             if (project.FlexProjectMetadata is null)
             {
                 project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
@@ -148,8 +148,8 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     public async Task<int?> UpdateLexEntryCount(string projectCode)
     {
         var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Code == projectCode);
-        if (project?.Type is not ProjectType.FLEx) return null;
-        var count = await hgService.GetLexEntryCount(projectCode);
+        if (project?.Type is not (ProjectType.FLEx or ProjectType.WeSay)) return null;
+        var count = await hgService.GetLexEntryCount(projectCode, project.Type);
         if (project.FlexProjectMetadata is null)
         {
             project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
