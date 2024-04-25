@@ -63,6 +63,7 @@
     <ItemGroup>
       <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
       <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
+      <Content Include="test-template-repo.zip" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
   <Target Name="CreateFixFwDataExe" AfterTargets="Build" Condition="Exists('$(OutputPath)/FixFwData') And !Exists('$(OutputPath)/FixFwData.exe')">
