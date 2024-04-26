@@ -13,8 +13,8 @@ namespace Testing.Fixtures;
 
 public class IntegrationFixture : IAsyncLifetime
 {
-    private readonly string _templateRepoName = "test-template-repo.zip";
-    public FileInfo TemplateRepoZip { get; } = new(Path.Join(BasePath, "_template-repo_.zip"));
+    private static readonly string _templateRepoName = "test-template-repo.zip";
+    public FileInfo TemplateRepoZip { get; } = new(Path.Join(Path.GetDirectoryName(Assembly.GetAssembly(typeof(IntegrationFixture))?.Location), _templateRepoName));
     public DirectoryInfo TemplateRepo { get; } = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; } = new();
     private string AdminJwt = string.Empty;
@@ -39,9 +39,6 @@ public class IntegrationFixture : IAsyncLifetime
 
     private void InitTemplateRepo()
     {
-        var assembly = Assembly.GetExecutingAssembly();
-        var templatePath = Path.Join(Path.GetDirectoryName(assembly.Location), _templateRepoName);
-        File.Copy(templatePath, TemplateRepoZip.FullName);
         using var stream = TemplateRepoZip.OpenRead();
         ZipFile.ExtractToDirectory(stream, TemplateRepo.FullName);
     }
