@@ -1,13 +1,14 @@
 <script lang="ts" context="module">
   const vernacularColors = [
-    'text-blue-600',
-    'text-rose-600',
+    'text-blue-500 dark:text-blue-300',
+    'text-emerald-400 dark:text-emerald-300',
+    'text-yellow-500 dark:text-yellow-200',
   ] as const;
 
   const analysisColors = [
-    'text-emerald-600',
-    'text-fuchsia-600',
-    'text-orange-600',
+    'text-rose-400 dark:text-rose-400',
+    'text-fuchsia-500 dark:text-fuchsia-300',
+    'text-lime-600 dark:text-lime-200',
   ] as const;
 </script>
 

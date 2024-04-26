@@ -30,7 +30,7 @@
     showExtraFields: false,
     hideEmptyFields: false,
     activeView: views[0],
-    readonly: true,
+    readonly: undefined,
   });
 
   setContext('viewConfig', derived(viewConfig, (config) => ({
