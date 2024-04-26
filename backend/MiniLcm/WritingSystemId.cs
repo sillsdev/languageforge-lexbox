@@ -7,7 +7,8 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 {
     public override WritingSystemId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return WritingSystemId.Parse(reader.GetString(), null);
+        return WritingSystemId.Parse(reader.GetString() ??
+                                     throw new NullReferenceException("can't convert null to a writing system"), null);
     }
 
     public override void Write(Utf8JsonWriter writer, WritingSystemId value, JsonSerializerOptions options)
@@ -16,7 +17,7 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
     }
 
     public override WritingSystemId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => WritingSystemId.Parse(reader.GetString(), null);
+        => WritingSystemId.Parse(reader.GetString() ?? throw new NullReferenceException("can't convert null to a writing system"), null);
 
     public override void WriteAsPropertyName(Utf8JsonWriter writer, WritingSystemId value, JsonSerializerOptions options)
     {
@@ -26,10 +27,10 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 
 public record WritingSystem
 {
-    public WritingSystemId Id { get; set; }
-    public string Name { get; set; }
-    public string Abbreviation { get; set; }
-    public string Font { get; set; }
+    public required WritingSystemId Id { get; set; }
+    public required string Name { get; set; }
+    public required string Abbreviation { get; set; }
+    public required string Font { get; set; }
 
     public string[] Exemplars { get; set; } = [];
     //todo probably need more stuff here, see wesay for ideas

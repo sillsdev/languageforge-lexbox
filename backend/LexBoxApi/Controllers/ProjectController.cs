@@ -236,7 +236,7 @@ public class ProjectController(
     [AdminRequired]
     public async Task<ActionResult<int>> UpdateAllLexEntryCounts(bool onlyUnknown = true, int limit = 100, int delayMs = 10)
     {
-        var projects = lexBoxDbContext.Projects.Where(p => p.Type == ProjectType.FLEx && (!onlyUnknown || p.FlexProjectMetadata == null)).Take(limit).ToArray();
+        var projects = lexBoxDbContext.Projects.Where(p => (p.Type == ProjectType.FLEx || p.Type == ProjectType.WeSay) && (!onlyUnknown || p.FlexProjectMetadata == null)).Take(limit).ToArray();
         var completed = 0;
         foreach (var project in projects)
         {

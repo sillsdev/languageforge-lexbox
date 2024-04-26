@@ -10,7 +10,6 @@
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { isAdmin } from '$lib/user';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
   import { derived, writable } from 'svelte/store';
@@ -24,8 +23,8 @@
   const { notifySuccess } = useNotifications();
 
   const formSchema = z.object({
-    name: z.string().min(1, $t('project.create.name_missing')),
-    description: z.string().min(1, $t('project.create.description_missing')),
+    name: z.string().trim().min(1, $t('project.create.name_missing')),
+    description: z.string().trim().min(1, $t('project.create.description_missing')),
     type: z.nativeEnum(ProjectType).default(ProjectType.FlEx),
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
     languageCode: z
@@ -109,11 +108,11 @@
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;
-      if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || isAdmin(user))) form.retentionPolicy = urlValues.retentionPolicy;
+      if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || user.isAdmin)) form.retentionPolicy = urlValues.retentionPolicy;
       if (urlValues.code) {
         const standardCodeSuffix = buildProjectCode('', urlValues.type, urlValues.retentionPolicy);
         const isCustomCode = !urlValues.code.endsWith(standardCodeSuffix);
-        if (isCustomCode && isAdmin(user)) {
+        if (isCustomCode && user.isAdmin) {
           form.customCode = true;
           form.code = form.languageCode = urlValues.code;
         } else {

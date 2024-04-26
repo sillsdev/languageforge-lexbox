@@ -21,6 +21,6 @@ public class UpdateProjectMetadataJob(ProjectService projectService) : LexJob
     protected override async Task ExecuteJob(IJobExecutionContext context)
     {
         ArgumentException.ThrowIfNullOrEmpty(ProjectCode);
-        await projectService.UpdateProjectMetadata(ProjectCode);
+        await projectService.UpdateProjectMetadataForCode(ProjectCode);
     }
 }

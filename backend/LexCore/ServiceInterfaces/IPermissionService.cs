@@ -1,4 +1,6 @@
-﻿namespace LexCore.ServiceInterfaces;
+﻿using LexCore.Entities;
+
+namespace LexCore.ServiceInterfaces;
 
 public interface IPermissionService
 {
@@ -16,4 +18,6 @@ public interface IPermissionService
     bool HasProjectRequestPermission();
     void AssertHasProjectRequestPermission();
     void AssertCanLockOrUnlockUser(Guid userId);
+    void AssertCanCreateOrg();
+    void AssertCanEditOrg(Organization org);
 }

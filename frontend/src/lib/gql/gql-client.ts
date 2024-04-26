@@ -53,6 +53,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
           Mutation: {
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              cache.invalidate({__typename: 'DraftProject', id: args.input.projectId});
             },
             deleteUserByAdminOrSelf: (result, args: DeleteUserByAdminOrSelfMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'User', id: args.input.userId});

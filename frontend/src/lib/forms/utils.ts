@@ -20,3 +20,7 @@ export function passwordFormRules($t: Translater): z.ZodString {
 export function emptyString(): z.ZodString {
   return z.string().length(0);
 }
+
+export function isEmail(value: string): boolean {
+  return !!tryParse(z.string().email(), value);
+}

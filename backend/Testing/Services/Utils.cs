@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Quartz.Util;
 using Shouldly;
 using Testing.ApiTests;
 using static Testing.Services.Constants;
@@ -22,12 +23,11 @@ public static class Utils
 
     public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
     {
-        var id = Guid.NewGuid();
         if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
-        var projectCode = ToProjectCodeFriendlyString(projectName);
+        var id = Guid.NewGuid();
         var shortId = id.ToString().Split("-")[0];
-        projectCode = $"{projectCode}-{shortId}-dev-flex";
-        var dir = GetNewProjectDir(projectCode, projectName);
+        var projectCode = $"{ToProjectCodeFriendlyString(projectName)}-{shortId}-dev-flex";
+        var dir = GetNewProjectDir(projectCode, "");
         return new ProjectConfig(id, projectName, projectCode, dir);
     }
 
@@ -72,7 +72,7 @@ public static class Utils
 
     public static string ToProjectCodeFriendlyString(string name)
     {
-        var dashesBeforeCapitals = Regex.Replace(name, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])", "-$1")
+        var dashesBeforeCapitals = Regex.Replace(name, "(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z0-9]|(?<=[0-9])[A-Z])", "-$1")
             .Trim().ToLower();
         var onlyLettersNumbersAndDashes = Regex.Replace(dashesBeforeCapitals, @"[^a-zA-Z0-9]+", "-");
         return onlyLettersNumbersAndDashes.Trim('-');
@@ -91,7 +91,7 @@ public static class Utils
     private static string GetNewProjectDir(string projectCode,
         [CallerMemberName] string projectName = "")
     {
-        var projectDir = Path.Join(BasePath, projectName);
+        var projectDir = projectName.IsNullOrWhiteSpace() ? BasePath : Path.Join(BasePath, projectName);
         // Add a random id to the path to be certain we prevent naming clashes
         var randomIndexedId = $"{_folderIndex++}-{Guid.NewGuid().ToString().Split("-")[0]}";
         //fwdata file containing folder name will be the same as the file name

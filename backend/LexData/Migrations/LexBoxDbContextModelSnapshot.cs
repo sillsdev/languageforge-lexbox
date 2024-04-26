@@ -508,6 +508,8 @@ namespace LexData.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
+                    b.HasIndex("ProjectManagerId");
+
                     b.ToTable("DraftProjects");
                 });
 
@@ -522,6 +524,69 @@ namespace LexData.Migrations
                     b.HasKey("ProjectId");
 
                     b.ToTable("FlexProjectMetadata");
+                });
+
+            modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("OrgId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrgId");
+
+                    b.HasIndex("UserId", "OrgId")
+                        .IsUnique();
+
+                    b.ToTable("OrgMembers", (string)null);
+                });
+
+            modelBuilder.Entity("LexCore.Entities.Organization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Orgs", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>
@@ -756,15 +821,42 @@ namespace LexData.Migrations
                     b.Navigation("JobDetail");
                 });
 
+            modelBuilder.Entity("LexCore.Entities.DraftProject", b =>
+                {
+                    b.HasOne("LexCore.Entities.User", "ProjectManager")
+                        .WithMany()
+                        .HasForeignKey("ProjectManagerId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("ProjectManager");
+                });
+
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
                 {
-                    b.HasOne("LexCore.Entities.Project", "Project")
+                    b.HasOne("LexCore.Entities.Project", null)
                         .WithOne("FlexProjectMetadata")
                         .HasForeignKey("LexCore.Entities.FlexProjectMetadata", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
 
-                    b.Navigation("Project");
+            modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
+                {
+                    b.HasOne("LexCore.Entities.Organization", "Organization")
+                        .WithMany("Members")
+                        .HasForeignKey("OrgId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LexCore.Entities.User", "User")
+                        .WithMany("Organizations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>
@@ -819,6 +911,11 @@ namespace LexData.Migrations
                     b.Navigation("SimpleTriggers");
                 });
 
+            modelBuilder.Entity("LexCore.Entities.Organization", b =>
+                {
+                    b.Navigation("Members");
+                });
+
             modelBuilder.Entity("LexCore.Entities.Project", b =>
                 {
                     b.Navigation("FlexProjectMetadata");
@@ -828,6 +925,8 @@ namespace LexData.Migrations
 
             modelBuilder.Entity("LexCore.Entities.User", b =>
                 {
+                    b.Navigation("Organizations");
+
                     b.Navigation("Projects");
 
                     b.Navigation("UsersICreated");

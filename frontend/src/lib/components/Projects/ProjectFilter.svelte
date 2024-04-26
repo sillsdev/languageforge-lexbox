@@ -114,13 +114,16 @@
     {/if}
     {#if filterEnabled('projectType')}
       <div class="form-control">
-        <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('project_type.any')} />
+        <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('common.any')} includeUnknown />
       </div>
     {/if}
     {#if filterEnabled('showDeletedProjects')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
-          <span class="label-text">{$t('project.filter.show_deleted')}</span>
+          <span class="label-text inline-flex items-center gap-2">
+            {$t('project.filter.show_deleted')}
+            <TrashIcon color="text-error" />
+          </span>
           <input bind:checked={$filters.showDeletedProjects} type="checkbox" class="toggle toggle-error" />
         </label>
       </div>
@@ -128,8 +131,11 @@
     {#if filterEnabled('hideDraftProjects')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
-          <span class="label-text">{$t('project.filter.hide_drafts')}</span>
-          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle" />
+          <span class="label-text inline-flex items-center gap-2">
+            {$t('project.filter.hide_drafts')}
+            <Icon icon="i-mdi-script" color="text-warning" />
+          </span>
+          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle toggle-warning" />
         </label>
       </div>
     {/if}

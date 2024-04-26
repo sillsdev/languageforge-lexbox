@@ -13,7 +13,7 @@
   "scripts": {
     "dev-app": "vite",
     "dev": "vite build -m web-component --watch",
-    "lexbox-dev": "vite build -m web-component --watch",
+    "lexbox-dev": "vite build -m web-component",
     "build": "vite build -m web-component",
     "build-app": "vite build",
     "preview": "vite preview",
@@ -31,7 +31,7 @@
     "tslib": "^2.6.2",
     "tw-colors": "^3.3.1",
     "typescript": "^5.3.3",
-    "vite": "^5.1.2"
+    "vite": "^5.2.9"
   },
   "dependencies": {
     "@microsoft/dotnet-js-interop": "^8.0.0",

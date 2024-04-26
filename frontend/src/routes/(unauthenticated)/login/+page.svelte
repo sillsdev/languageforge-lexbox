@@ -14,10 +14,9 @@
   import { navigating } from '$app/stores';
   import { AUTHENTICATED_ROOT } from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
-  import DevContent from '$lib/layout/DevContent.svelte';
 
   const formSchema = z.object({
-    email: z.string().min(1, $t('login.missing_user_info')),
+    email: z.string().trim().min(1, $t('login.missing_user_info')),
     password: z.string().min(1, $t('login.password_missing')),
   });
   let { form, errors, message, enhance, submitting } = lexSuperForm(
@@ -90,10 +89,8 @@
 
           <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
         </Form>
-        <DevContent>
-          <div class="divider lowercase">{$t('common.or')}</div>
-          <SigninWithGoogleButton href="/api/login/google" />
-        </DevContent>
+        <div class="divider lowercase">{$t('common.or')}</div>
+        <SigninWithGoogleButton href="/api/login/google" />
       </div>
     </div>
 

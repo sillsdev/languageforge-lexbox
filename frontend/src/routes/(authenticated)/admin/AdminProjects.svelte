@@ -57,7 +57,7 @@
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
-  async function softDeleteProject(project: ProjectItem): Promise<void> {
+  async function softDeleteProject(project: ProjectItemWithDraftStatus): Promise<void> {
     const result = await deleteProjectModal.open(project.name, async () => {
       const { error } = await _deleteProject(project.id);
       return error?.message;
@@ -114,7 +114,7 @@
 
   <ProjectTable projects={shownProjects}>
     <td class="p-0" slot="actions" let:project>
-      {#if !project.isDraft && !project.deletedDate}
+      {#if project.isDraft || !project.deletedDate}
         <Dropdown>
           <button class="btn btn-ghost btn-square">
             <span class="i-mdi-dots-vertical text-lg" />

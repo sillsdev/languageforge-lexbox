@@ -24,9 +24,6 @@
 		"format": "eslint . --fix",
 		"clean": "rimraf node_modules .svelte-kit"
 	},
-	"workspaces": [
-		"viewer"
-	],
 	"devDependencies": {
 		"@egoist/tailwindcss-icons": "^1.7.4",
 		"@eslint/js": "^8.56.0",
@@ -69,10 +66,9 @@
 		"tslib": "^2.6.2",
 		"type-fest": "^4.10.2",
 		"typescript": "^5.3.3",
-		"vite": "^5.0.13",
+		"vite": "^5.2.9",
 		"vite-plugin-graphql-codegen": "^3.3.6",
 		"vitest": "^1.2.2",
-        "viewer": "workspace:*",
 		"zod": "^3.22.4",
 		"zxcvbn": "^4.4.2"
 	},
@@ -100,6 +96,7 @@
 		"svelte-exmarkdown": "^3.0.3",
 		"svelte-intl-precompile": "^0.12.3",
 		"sveltekit-search-params": "^2.1.0",
-		"tus-js-client": "^4.0.1"
+		"tus-js-client": "^4.0.1",
+		"viewer": "workspace:*"
 	}
 }
