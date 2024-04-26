@@ -32,6 +32,12 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             });
         // Also delete draft project, if any
         await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
+        if (input.ProjectManagerId.HasValue)
+        {
+            var manager = await dbContext.Users.FindAsync(input.ProjectManagerId.Value);
+            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
+
+        }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
@@ -121,9 +127,9 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
 
     public async Task UpdateProjectMetadata(Project project)
     {
-        if (hgConfig.Value.AutoUpdateLexEntryCountOnSendReceive && project is { Type: ProjectType.FLEx })
+        if (hgConfig.Value.AutoUpdateLexEntryCountOnSendReceive && project is { Type: ProjectType.FLEx } or { Type: ProjectType.WeSay })
         {
-            var count = await hgService.GetLexEntryCount(project.Code);
+            var count = await hgService.GetLexEntryCount(project.Code, project.Type);
             if (project.FlexProjectMetadata is null)
             {
                 project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
@@ -164,8 +170,8 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     public async Task<int?> UpdateLexEntryCount(string projectCode)
     {
         var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Code == projectCode);
-        if (project?.Type is not ProjectType.FLEx) return null;
-        var count = await hgService.GetLexEntryCount(projectCode);
+        if (project?.Type is not (ProjectType.FLEx or ProjectType.WeSay)) return null;
+        var count = await hgService.GetLexEntryCount(project.Code, project.Type);
         if (project.FlexProjectMetadata is null)
         {
             project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };

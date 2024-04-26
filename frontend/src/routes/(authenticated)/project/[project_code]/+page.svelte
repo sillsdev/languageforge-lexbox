@@ -6,7 +6,6 @@
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import t, { date, number } from '$lib/i18n';
-  import { isAdmin } from '$lib/user';
   import { z } from 'zod';
   import type { PageData } from './$types';
   import {
@@ -47,6 +46,10 @@
   let projectStore = data.project;
   $: project = $projectStore;
   $: changesetStore = data.changesets;
+  let isEmpty: boolean = false;
+  $: isEmpty = project?.lastCommit == null;
+  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
+  $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
   $: members = project.users.sort((a, b) => {
     if (a.role !== b.role) {
       return a.role === ProjectRole.Manager ? -1 : 1;
@@ -129,7 +132,7 @@
   }
 
   $: userId = user.id;
-  $: canManage = isAdmin(user) || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
+  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
@@ -238,28 +241,49 @@
       {:else}
         <Dropdown>
           <button class="btn btn-primary">
-            {$t('project_page.get_project.label')}
+            {$t('project_page.get_project.label', {isEmpty: isEmpty.toString()})}
             <span class="i-mdi-dots-vertical text-2xl" />
           </button>
           <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
             <div class="card-body max-sm:p-4">
               <div class="prose">
-                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
+                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal', isEmpty: isEmpty.toString()})}</h3>
                 {#if project.type === ProjectType.WeSay}
+                  {#if isEmpty}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay_empty', {
+                        code: project.code,
+                        login: encodeURIComponent(user.emailOrUsername),
+                        name: project.name,
+                      })}
+                    />
+                  {:else}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay', {
+                        code: project.code,
+                        login: encodeURIComponent(user.emailOrUsername),
+                        name: project.name,
+                      })}
+                    />
+                  {/if}
+                {:else}
+                  {#if isEmpty}
                   <Markdown
-                    md={$t('project_page.get_project.instructions_wesay', {
+                    md={$t('project_page.get_project.instructions_flex_empty', {
                     code: project.code,
-                    login: encodeURIComponent(user.email ?? user.username ?? ''),
+                    login: user.emailOrUsername,
                     name: project.name,
                   })}
                   />
-                {:else}
+                  {:else}
                   <Markdown
                     md={$t('project_page.get_project.instructions_flex', {
                     code: project.code,
+                    login: user.emailOrUsername,
                     name: project.name,
                   })}
                   />
+                  {/if}
                 {/if}
               </div>
               <SendReceiveUrlField projectCode={project.code} />
@@ -289,9 +313,9 @@
         </Badge>
         {#if project.resetStatus === ResetStatus.InProgress}
           <button
-            class:tooltip={isAdmin(user)}
+            class:tooltip={user.isAdmin}
             data-tip={$t('project_page.reset_project_modal.click_to_continue')}
-            disabled={!isAdmin(user)}
+            disabled={!user.isAdmin}
             on:click={resetProject}
           >
             <Badge type="badge-warning">
@@ -320,7 +344,7 @@
           {$t('project_page.last_commit')}:
           <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>
-        {#if project.type === ProjectType.FlEx}
+        {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <div class="text-lg inline-flex items-center gap-1">
           {$t('project_page.num_entries')}:
           <span class="text-secondary">
@@ -357,7 +381,7 @@
 
         <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
           {#each showMembers as member}
-            {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
+            {@const canManageMember = canManage && (member.user.id !== userId || user.isAdmin)}
             <Dropdown disabled={!canManageMember}>
               <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
               <ul slot="content" class="menu">

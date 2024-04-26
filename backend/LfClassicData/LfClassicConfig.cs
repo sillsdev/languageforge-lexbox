@@ -1,6 +1,9 @@
-﻿namespace LfClassicData;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LfClassicData;
 
 public class LfClassicConfig
 {
-    public string ConnectionString { get; set; }
+    [Required]
+    public required string ConnectionString { get; set; }
 }

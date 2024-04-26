@@ -7,7 +7,6 @@
   import { z } from 'zod';
   import { _addProjectMember } from './+page';
   import { useNotifications } from '$lib/notify';
-  import { isAdmin } from '$lib/user';
   import { page } from '$app/stores'
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import type { SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
@@ -76,24 +75,24 @@
 
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title">{$t('project_page.add_user.modal_title')}</span>
-{#if isAdmin($page.data.user)}
-  <UserTypeahead
-    id="usernameOrEmail"
-    label={$t('login.label_email')}
-    bind:value={$form.usernameOrEmail}
-    error={errors.usernameOrEmail}
-    autofocus
+  {#if $page.data.user?.isAdmin}
+    <UserTypeahead
+      id="usernameOrEmail"
+      label={$t('login.label_email')}
+      bind:value={$form.usernameOrEmail}
+      error={errors.usernameOrEmail}
+      autofocus
+      />
+  {:else}
+    <Input
+      id="usernameOrEmail"
+      type="text"
+      label={$t('login.label_email')}
+      bind:value={$form.usernameOrEmail}
+      error={errors.usernameOrEmail}
+      autofocus
     />
-{:else}
-  <Input
-    id="usernameOrEmail"
-    type="text"
-    label={$t('login.label_email')}
-    bind:value={$form.usernameOrEmail}
-    error={errors.usernameOrEmail}
-    autofocus
-  />
-{/if}
+  {/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}

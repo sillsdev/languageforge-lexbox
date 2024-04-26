@@ -19,7 +19,6 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { derived } from 'svelte/store';
 import { error } from '@sveltejs/kit';
-import { isAdmin } from '$lib/user';
 import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
@@ -27,7 +26,7 @@ export type ProjectUser = Project['users'][number];
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
-  const userIsAdmin = isAdmin((await event.parent()).user);
+  const userIsAdmin = (await event.parent()).user.isAdmin;
   const projectCode = event.params.project_code;
   const projectResult = await client
     .awaitedQueryStore(event.fetch,

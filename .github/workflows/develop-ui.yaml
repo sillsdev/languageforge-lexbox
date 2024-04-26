@@ -51,8 +51,8 @@ jobs:
       run:
         working-directory: ./frontend
     steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
         with:
           package_json_file: 'frontend/package.json'
       - uses: actions/setup-node@v4
@@ -65,7 +65,7 @@ jobs:
       - run: pnpm run check --output machine
       - run: pnpm run lint:report
       - name: Annotate Code Linting REsults
-        uses: ataylorme/eslint-annotate-action@2.2.0
+        uses: ataylorme/eslint-annotate-action@d57a1193d4c59cbfbf3f86c271f42612f9dbd9e9 # v3.0.0
         if: always()
         with:
           report-json: ./frontend/eslint_report.json

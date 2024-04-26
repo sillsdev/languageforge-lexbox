@@ -3,6 +3,7 @@ using System;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    partial class LexBoxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240422130904_Make DraftFilter.ProjectMangerId a FK")]
+    partial class MakeDraftFilterProjectMangerIdaFK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -770,11 +773,13 @@ namespace LexData.Migrations
 
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
                 {
-                    b.HasOne("LexCore.Entities.Project", null)
+                    b.HasOne("LexCore.Entities.Project", "Project")
                         .WithOne("FlexProjectMetadata")
                         .HasForeignKey("LexCore.Entities.FlexProjectMetadata", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>

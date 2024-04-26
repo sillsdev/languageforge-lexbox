@@ -262,9 +262,16 @@ public partial class HgService : IHgService
         return response;
     }
 
-    public async Task<int?> GetLexEntryCount(string code)
+    public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)
     {
-        var content = await ExecuteHgCommandServerCommand(code, "lexentrycount", default);
+        var command = projectType switch
+        {
+            ProjectType.FLEx => "lexentrycount",
+            ProjectType.WeSay => "wesaylexentrycount",
+            _ => null
+        };
+        if (command is null) return null;
+        var content = await ExecuteHgCommandServerCommand(code, command, default);
         var str = await content.ReadAsStringAsync();
         return int.TryParse(str, out int result) ? result : null;
     }

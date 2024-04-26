@@ -2,7 +2,7 @@ using MongoDB.Bson;
 
 namespace LfClassicData.Entities;
 
-public class LfProject : EntityDocument<LfProject>
+public class LfProject : EntityDocument
 {
     public required string ProjectName { get; init; }
     public required string ProjectCode { get; init; }
