@@ -59,9 +59,10 @@
       classes={{input: 'my-1'}}
         on:click={() => (showSearchDialog = true)}
         class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-        icon={mdiMagnify}>Search</Field
-      >
-    <div class="flex-grow"></div>
+        icon={mdiMagnify}>
+        Search
+    </Field>
+    <div class="flex-grow-[0.25]"></div>
     <div slot="actions" class="flex items-center gap-4 whitespace-nowrap">
       <Button
         on:click={() => (showOptionsDialog = true)}
