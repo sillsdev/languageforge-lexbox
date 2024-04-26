@@ -16,8 +16,14 @@ public class IntegrationFixture : IAsyncLifetime
     private static readonly string _templateRepoName = "test-template-repo.zip";
     public FileInfo TemplateRepoZip { get; } = new(_templateRepoName);
     public DirectoryInfo TemplateRepo { get; } = new(Path.Join(BasePath, "_template-repo_"));
-    public ApiTestBase AdminApiTester { get; } = new();
+    public ApiTestBase AdminApiTester { get; private set; } = new();
     private string AdminJwt = string.Empty;
+
+    public async Task InitializeAsync(ApiTestBase apiTester)
+    {
+        AdminApiTester = apiTester;
+        await InitializeAsync();
+    }
 
     public async Task InitializeAsync()
     {

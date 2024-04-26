@@ -1,4 +1,6 @@
-﻿using Shouldly;
+﻿using Moq;
+using Shouldly;
+using Testing.ApiTests;
 using Testing.Services;
 
 namespace Testing.Fixtures;
@@ -12,7 +14,7 @@ public class IntegrationFixtureTests
     public async Task InitCreatesARepoWithTheProject()
     {
         var fixture = new IntegrationFixture();
-        await fixture.InitializeAsync();
+        await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         fixture.TemplateRepo.EnumerateFiles()
             .Select(f => f.Name)
             .ShouldContain("kevin-test-01.fwdata");
@@ -22,7 +24,7 @@ public class IntegrationFixtureTests
     public async Task CanFindTheProjectZipFile()
     {
         var fixture = new IntegrationFixture();
-        await fixture.InitializeAsync();
+        await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         fixture.TemplateRepoZip
             .Directory!.EnumerateFiles().Select(f => f.Name)
             .ShouldContain(fixture.TemplateRepoZip.Name);
@@ -32,7 +34,7 @@ public class IntegrationFixtureTests
     public async Task CanInitFlexProjectRepo()
     {
         var fixture = new IntegrationFixture();
-        await fixture.InitializeAsync();
+        await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         var projectConfig = fixture.InitLocalFlexProjectWithRepo();
         Directory.EnumerateFiles(projectConfig.Dir)
             .ShouldContain(projectConfig.FwDataFile);
@@ -42,7 +44,7 @@ public class IntegrationFixtureTests
     public async Task InitCleansUpPreviousRun()
     {
         var fixture = new IntegrationFixture();
-        await fixture.InitializeAsync();
+        await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         var filePath = Path.Join(Constants.BasePath, "test.txt");
         await File.WriteAllTextAsync(filePath, "test");
         Directory.EnumerateFiles(Constants.BasePath).ShouldContain(filePath);

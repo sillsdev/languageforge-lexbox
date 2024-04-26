@@ -21,7 +21,7 @@ public class ApiTestBase
         };
     }
 
-    public async Task<string> LoginAs(string user, string password)
+    public virtual async Task<string> LoginAs(string user, string password)
     {
         var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), HttpClient);
         return JwtHelper.GetJwtFromLoginResponse(response);
