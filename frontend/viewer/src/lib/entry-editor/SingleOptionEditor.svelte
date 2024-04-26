@@ -1,11 +1,12 @@
 <script lang="ts">
+  import CrdtOptionField from './CrdtOptionField.svelte';
+
   import FieldTitle from './FieldTitle.svelte';
   import type { WritingSystems } from '../mini-lcm';
   import type { Readable } from 'svelte/store';
   import { getContext } from 'svelte';
   import { pickWritingSystems } from '../utils';
   import type { FieldConfig, ViewConfig } from '../config-types';
-  import CrdtTextField from './CrdtTextField.svelte';
 
   type T = $$Generic<{}>;
   export let field: FieldConfig;
@@ -21,6 +22,6 @@
 <div class="single-field field" class:empty class:extra={'extra' in field && field.extra}>
   <FieldTitle {field} />
   <div class="fields">
-    <CrdtTextField on:change bind:value placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
+    <CrdtOptionField on:change bind:value placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
   </div>
 </div>

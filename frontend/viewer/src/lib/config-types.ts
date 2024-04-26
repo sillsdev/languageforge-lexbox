@@ -1,6 +1,7 @@
 import type { IEntry, IExampleSentence, IMultiString, ISense } from './mini-lcm';
 
 import type { ConditionalKeys } from 'type-fest';
+import type { views } from './config-data';
 
 export type WritingSystemType = 'vernacular' | 'analysis';
 export type WritingSystemSelection = WritingSystemType | `first-${WritingSystemType}` | 'vernacular-analysis' | 'analysis-vernacular';
@@ -11,6 +12,7 @@ type BaseFieldConfig = {
   type: FieldType;
   id: string;
   ws: WritingSystemSelection;
+  readonly?: true;
 }
 
 export type CustomFieldConfig = BaseFieldConfig & {
@@ -46,3 +48,11 @@ export type FieldConfig = (EntityFieldConfig & ViewConfigFieldProps) | CustomFie
 export type ViewConfigFieldProps = {
   extra?: true,
 };
+
+export type ViewConfig = {
+  generateExternalChanges: boolean,
+  showExtraFields: boolean,
+  hideEmptyFields: boolean,
+  activeView: typeof views[number],
+  readonly?: true,
+}

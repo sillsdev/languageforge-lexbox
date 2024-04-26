@@ -6,21 +6,21 @@
   import EntityEditor from './EntityEditor.svelte';
   import { getContext } from 'svelte';
   import type { Readable } from 'svelte/store';
+  import type { ViewConfig } from '../config-types';
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  const activeView = getContext('activeView') as Readable<typeof views[number]['value']>;
+  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
   export let entry: IEntry;
 </script>
 
 <EntityEditor
   entity={entry}
-  fieldConfigs={Object.values($activeView?.entry ?? [])}
-  customFieldConfigs={Object.values($activeView?.customEntry ?? [])}
+  fieldConfigs={Object.values($viewConfig.activeView.entry ?? [])}
+  customFieldConfigs={Object.values($viewConfig.activeView?.customEntry ?? [])}
   on:change
 />
 
-{#each entry.senses as sense, i}
+{#each entry.senses as sense, i (sense.id)}
   <div class="col-span-full flex items-center gap-4 my-4">
     <h2 class="text-lg text-surface-content" id="sense{i + 1}">Sense {i + 1}</h2>
     <hr class="grow border-t-4">
@@ -28,12 +28,12 @@
 
   <EntityEditor
     entity={sense}
-    fieldConfigs={Object.values($activeView?.sense ?? [])}
-    customFieldConfigs={Object.values($activeView?.customSense ?? [])}
+    fieldConfigs={Object.values($viewConfig.activeView?.sense ?? [])}
+    customFieldConfigs={Object.values($viewConfig.activeView?.customSense ?? [])}
     on:change
   />
 
-  {#each sense.exampleSentences as example, j}
+  {#each sense.exampleSentences as example, j (example.id)}
     <div class="col-span-full flex items-center gap-4 my-4">
       <h3 class="text-surface-content" id="example{i + 1}.{j + 1}">Example {j + 1}</h3>
       <hr class="grow">
@@ -41,8 +41,8 @@
 
     <EntityEditor
       entity={example}
-      fieldConfigs={Object.values($activeView?.example ?? [])}
-      customFieldConfigs={Object.values($activeView?.customExample ?? [])}
+      fieldConfigs={Object.values($viewConfig.activeView?.example ?? [])}
+      customFieldConfigs={Object.values($viewConfig.activeView?.customExample ?? [])}
       on:change
     />
   {/each}

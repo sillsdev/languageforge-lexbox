@@ -2,201 +2,141 @@
   import {
     AppBar,
     Button,
-    Checkbox,
     Dialog,
     Field,
     ListItem,
-    SelectField,
-    Switch,
+    ProgressCircle,
     TextField,
     cls,
   } from 'svelte-ux';
-  import { mdiMagnify, mdiCog, mdiChevronDown } from '@mdi/js';
+  import { mdiCog, mdiMagnify } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import { firstDefOrGlossVal, firstVal } from './lib/utils';
-  import { allFields, views } from './lib/config-data';
-  import { fieldName } from './lib/i18n';
+  import { views } from './lib/config-data';
   import { LexboxServices } from './lib/services/service-provider';
-  import type { LexboxApi } from './lib/services/lexbox-api';
-  import type { IEntry, WritingSystems } from './lib/mini-lcm';
+  import type { IEntry, LexboxApi, WritingSystems } from './lib/services/lexbox-api';
   import { setContext } from 'svelte';
-  import { writable } from 'svelte/store';
+  import { derived, writable } from 'svelte/store';
+  import { deriveAsync } from './lib/utils/time';
+  import type { ViewConfig } from './lib/config-types';
+  import ViewOptions from './lib/layout/ViewOptions.svelte';
+  import EntryList from './lib/layout/EntryList.svelte';
+  import Toc from './lib/layout/Toc.svelte';
+  import { fade } from 'svelte/transition';
+  import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
 
-  const demoValues = writable<{
-    generateExternalChanges: boolean,
-    showExtraFields: boolean,
-    hideEmptyFields: boolean,
-  }>({
+  const viewConfig = writable<ViewConfig>({
     generateExternalChanges: false,
     showExtraFields: false,
     hideEmptyFields: false,
+    activeView: views[0],
+    readonly: undefined,
   });
 
-  const activeView = writable<typeof views[number]['value']>(views[0].value);
-  setContext('demoValues', demoValues);
-  setContext('activeView', activeView);
-
-  $: console.log($activeView);
+  setContext('viewConfig', derived(viewConfig, (config) => ({
+    ...config,
+    hideEmptyFields: config.hideEmptyFields || config.readonly,
+  })));
 
   const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
-  const entriesPromise: Promise<IEntry[]> = lexboxApi.GetEntries(undefined);
-  let wsPromise: Promise<WritingSystems> = lexboxApi.GetWritingSystems();
+  const search = writable<string>('');
+  const entries = deriveAsync(search, (s) => lexboxApi.SearchEntries(s ?? '', { offset: 0, count: Infinity, order: '' }), undefined, 200);
 
-    const writingSystems = writable<WritingSystems>();
+  const writingSystems = writable<WritingSystems>();
   setContext('writingSystems', writingSystems);
-
-  /* eslint-disable @typescript-eslint/no-floating-promises */
-  wsPromise.then((ws) => writingSystems.set(ws));
-
-  entriesPromise.then((entries) => {
-    console.log(entries);
-  });
-
-  wsPromise.then((ws) => {
-    console.log(ws);
-  });
-  /* eslint-enable @typescript-eslint/no-floating-promises */
+  lexboxApi.GetWritingSystems().then((ws) => writingSystems.set(ws));
 
   let showSearchDialog = false;
-  let showConfigDialog = false;
-  let fieldSearch = '';
-
-  $: filteredFields = allFields($activeView).filter(
-    (field) =>
-      !fieldSearch || fieldName(field)?.toLocaleLowerCase().includes(fieldSearch.toLocaleLowerCase())
-  );
+  let showOptionsDialog = false;
+  let selectedEntry: IEntry | undefined;
 </script>
 
-<!-- svelte-ignore a11y-missing-content -->
-<a id="top"></a>
-
-<div class="flex flex-col">
-  <AppBar title="FLEx-Lite" class="bg-surface-300">
+<div class="flex flex-col h-full">
+  <AppBar title="FLEx-Lite" class="bg-surface-300 min-h-12" menuIcon=''>
     <div class="flex-grow"></div>
     <Field
       classes={{input: 'my-1'}}
         on:click={() => (showSearchDialog = true)}
         class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-        icon={mdiMagnify}>Search</Field
-      >
-    <div class="flex-grow"></div>
-    <div slot="actions"></div>
+        icon={mdiMagnify}>
+        Search
+    </Field>
+    <div class="flex-grow-[0.25]"></div>
+    <div slot="actions" class="flex items-center gap-4 whitespace-nowrap">
+      <Button
+        on:click={() => (showOptionsDialog = true)}
+        size="sm"
+        variant="outline"
+        icon={mdiCog}>Configure</Button>
+    </div>
   </AppBar>
 
-  <main class="p-8 pt-4 flex-grow flex flex-col">
-    <div
-      class="grid flex-grow gap-x-8"
-      style="grid-template-columns: 2fr 4fr 1fr; grid-template-rows: auto 1fr;"
-    >
-      <div></div>
-      <h2 class="flex text-2xl font-semibold col-span-1">
-        <div class="flex gap-4 items-end w-full">
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label class="flex gap-2 items-center text-sm h-10 text-warning">
-            <Switch bind:checked={$demoValues.generateExternalChanges}
-              color="warning" />
-            Simulate conflicting changes
-          </label>
-          <div class="grow" />
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label class="flex gap-2 items-center text-sm h-10">
-            <Switch bind:checked={$demoValues.showExtraFields}
-              color="neutral" />
-              Show extra/hidden fields
-          </label>
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label class="flex gap-2 items-center text-sm h-10">
-            <Switch bind:checked={$demoValues.hideEmptyFields}
-              color="neutral" />
-              Hide empty fields
-          </label>
-          <SelectField label="View" classes={{root: 'view-select w-auto'}} clearable={false} labelPlacement="top" bind:value={$activeView} options={views}>
-          </SelectField>
-          <Button
-            classes={{root: 'aspect-square h-10'}}
-            on:click={() => (showConfigDialog = true)}
-            variant="outline"
-            icon={mdiCog}
-          />
-        </div>
-      </h2>
-      <div class="ml-4 self-end">Overview</div>
-      <div
-        class="my-4 h-full grid grid-cols-subgrid flex-grow row-start-2 col-span-3"
-      >
-        {#await Promise.all([entriesPromise, wsPromise])}
-          Loading...
-        {:then [entries]}
-          <Editor {entries} />
-        {/await}
+  {#if !$entries || !$writingSystems}
+    <div class="absolute w-full h-full z-10 bg-surface-100 flex grow items-center justify-center" out:fade={{duration: 800}}>
+      <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75">
+        Loading... <ProgressCircle class="text-surface-content" />
       </div>
     </div>
-  </main>
-</div>
+  {:else}
+    <main class="p-4">
+      <div
+        class="grid flex-grow gap-x-6"
+        style="grid-template-columns: 2fr 4fr 1fr;"
+      >
+        <EntryList bind:search={$search} entries={$entries} bind:selectedEntry />
+        {#if selectedEntry}
+          <div>
+            <div class="mb-6">
+              <DictionaryEntryViewer entry={selectedEntry} />
+            </div>
+            <Editor bind:entry={selectedEntry} />
+          </div>
+          <div class="h-full min-w-48 pl-6 border-l-2 gap-4 flex flex-col">
+            <div class="side-scroller h-full flex flex-col gap-4">
+              <Toc entry={selectedEntry} />
+            </div>
+            <span class="text-surface-content text-sm fixed bottom-3 right-3 inline-flex gap-2 items-center">
+              {$viewConfig.activeView.label}
+              <Button
+                on:click={() => (showOptionsDialog = true)}
+                size="sm"
+                variant="text"
+                iconOnly
+                icon={mdiCog} />
+            </span>
+          </div>
+        {:else}
+          <div class="w-full h-full z-10 bg-surface-100 flex grow items-center justify-center text-2xl opacity-75">
+            No entry selected
+          </div>
+        {/if}
+      </div>
+    </main>
 
-<Dialog bind:open={showSearchDialog} class="w-[700px]">
-  <div slot="title">
-    <TextField
-      autofocus
-      placeholder="Search entries"
-      class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      icon={mdiMagnify}
-    />
-  </div>
-  <div>
-    {#await Promise.all([entriesPromise, wsPromise])}
-      Loading entries...
-    {:then [entries]}
-      {#each entries as entry}
-        <ListItem
+    <ViewOptions bind:open={showOptionsDialog} {viewConfig} />
+
+    <Dialog bind:open={showSearchDialog} class="w-[700px]">
+      <div slot="title">
+        <TextField
+          autofocus
+          placeholder="Search entries"
+          class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
+          icon={mdiMagnify}
+        />
+      </div>
+      <div>
+        {#each $entries as entry}
+          <ListItem
           title={firstVal(entry.lexemeForm)}
           subheading={firstDefOrGlossVal(entry.senses[0])}
           class={cls('cursor-pointer', 'hover:bg-accent-50')}
           noShadow
         />
-      {/each}
-    {/await}
-  </div>
-  <div class="flex-grow"></div>
-  <div slot="actions">actions</div>
-</Dialog>
-
-<Dialog bind:open={showConfigDialog} class="w-[700px]">
-  <div slot="title">
-    <TextField
-      bind:value={fieldSearch}
-      autofocus
-      placeholder="Search fields"
-      class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      icon={mdiMagnify}
-    />
-  </div>
-  <div>
-    {#each filteredFields as field}
-      <label for={field.id} class="contents">
-        <ListItem
-          title={fieldName(field, $activeView?.i18n)}
-          subheading={`Type: ${field.type}. WS: ${field.ws}.`}
-          class={cls('cursor-pointer', 'hover:bg-accent-50')}
-          noShadow>
-          <div slot="actions">
-            <Checkbox id={field.id} circle dense />
-          </div>
-        </ListItem>
-      </label>
-        {:else}
-        <div class="mx-8 my-4">
-          No matching fields
-        </div>
-    {/each}
-  </div>
-  <div class="flex-grow"></div>
-  <div slot="actions">actions</div>
-</Dialog>
-
-<style>
-  :global(.view-select input) {
-    cursor: pointer;
-  }
-</style>
+        {/each}
+      </div>
+      <div class="flex-grow"></div>
+      <div slot="actions">actions</div>
+    </Dialog>
+  {/if}
+</div>

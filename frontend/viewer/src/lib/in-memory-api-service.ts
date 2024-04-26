@@ -11,7 +11,7 @@ import {entries, writingSystems} from './entry-data';
 
 export class InMemoryApiService implements LexboxApi {
   GetEntries(options: QueryOptions | undefined): Promise<IEntry[]> {
-    return Promise.resolve(entries);
+    return Promise.resolve(this.ApplyQueryOptions(entries, options));
   }
 
   GetWritingSystems(): Promise<WritingSystems> {
@@ -19,7 +19,17 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   SearchEntries(query: string, options: QueryOptions | undefined): Promise<IEntry[]> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(this.ApplyQueryOptions(entries.filter(entry =>
+      [
+        ...Object.values(entry.lexemeForm ?? {}),
+        ...Object.values(entry.citationForm ?? {}),
+        ...Object.values(entry.literalMeaning ?? {}),
+      ].some(value => value?.toLowerCase().includes(query.toLowerCase()))), options));
+  }
+
+  private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
+    if (!options) return entries;
+    return entries.slice(options.offset, options.offset + options.count);
   }
 
   GetEntriesForExemplar(exemplar: string, options: QueryOptions | undefined): Promise<IEntry[]> {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ComponentProps } from 'svelte';
   import CrdtField from './CrdtField.svelte';
-  import { TextField } from 'svelte-ux';
+  import { SelectField, TextField, type MenuOption } from 'svelte-ux';
 
   export let value: string;
   export let unsavedChanges = false;
@@ -10,21 +10,27 @@
   export let placeholder: string | undefined = undefined;
   export let readonly: true | undefined = undefined;
   let append: HTMLElement;
+
+  let demoOptions: MenuOption[] | undefined;
+  $: demoOptions = demoOptions ?? [{label: value, value: value}, {label: 'Another option', value: 'Another option'}];
 </script>
 
-<CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:save let:onEditorValueChange viewMergeButtonPortal={append}>
-  <TextField
-    on:change={(e) => onEditorValueChange(e.detail.inputValue)}
-    on:blur={save}
+<CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
+  <SelectField
+    on:change={(e) => onEditorValueChange(e.detail.value, true)}
     value={editorValue}
     disabled={readonly}
+    options={demoOptions ?? []}
+    clearSearchOnOpen={false}
+    clearable={false}
+    search={() => Promise.resolve()}
     class="ws-field"
-    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, input: 'field-input', container: 'field-container' }}
+    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>
     <span bind:this={append} slot="append" />
-  </TextField>
+  </SelectField>
 </CrdtField>
 
 <style>
