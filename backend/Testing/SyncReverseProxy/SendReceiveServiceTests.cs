@@ -15,15 +15,15 @@ using static Testing.Services.Utils;
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
-public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
+public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 {
     private readonly ITestOutputHelper _output;
-    private readonly SendReceiveFixture _srFixture;
+    private readonly IntegrationFixture _srFixture;
     private readonly ApiTestBase _adminApiTester;
 
     private readonly SendReceiveService _sendReceiveService;
 
-    public SendReceiveServiceTests(ITestOutputHelper output, SendReceiveFixture sendReceiveSrFixture)
+    public SendReceiveServiceTests(ITestOutputHelper output, IntegrationFixture sendReceiveSrFixture)
     {
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
@@ -90,16 +90,7 @@ public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
         await WaitForLexboxMetadataUpdateAsync();
 
         // Verify pushed and store last commit
-        var gqlQuery =
-$$"""
-query projectLastCommit {
-    projectByCode(code: "{{projectConfig.Code}}") {
-        lastCommit
-    }
-}
-""";
-        var jsonResult = await _adminApiTester.ExecuteGql(gqlQuery);
-        var lastCommitDate = jsonResult?["data"]?["projectByCode"]?["lastCommit"]?.ToString();
+        var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
         lastCommitDate.ShouldNotBeNullOrEmpty();
 
         // Modify
@@ -113,8 +104,7 @@ query projectLastCommit {
         await WaitForLexboxMetadataUpdateAsync();
 
         // Verify the push updated the last commit date
-        jsonResult = await _adminApiTester.ExecuteGql(gqlQuery);
-        var lastCommitDateAfter = jsonResult?["data"]?["projectByCode"]?["lastCommit"]?.ToString();
+        var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
         lastCommitDateAfter.ShouldBeGreaterThan(lastCommitDate);
     }
 
@@ -154,8 +144,6 @@ query projectLastCommit {
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
-        await WaitForHgRefreshIntervalAsync();
-
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -178,8 +166,6 @@ query projectLastCommit {
 
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
-
-        await WaitForHgRefreshIntervalAsync();
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);

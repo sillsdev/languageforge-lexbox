@@ -1,4 +1,5 @@
 using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Exceptions;
@@ -12,21 +13,12 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/[controller]")]
-public class TestingController : ControllerBase
+public class TestingController(
+    LexAuthService lexAuthService,
+    LexBoxDbContext lexBoxDbContext,
+    SeedingData seedingData)
+    : ControllerBase
 {
-    private readonly LexAuthService _lexAuthService;
-    private readonly LexBoxDbContext _lexBoxDbContext;
-    private readonly SeedingData _seedingData;
-
-    public TestingController(LexAuthService lexAuthService,
-        LexBoxDbContext lexBoxDbContext,
-        SeedingData seedingData)
-    {
-        _lexAuthService = lexAuthService;
-        _lexBoxDbContext = lexBoxDbContext;
-        _seedingData = seedingData;
-    }
-
 #if DEBUG
     [AllowAnonymous]
     [HttpGet("makeJwt")]
@@ -37,34 +29,17 @@ public class TestingController : ControllerBase
         UserRole userRole,
         LexboxAudience audience = LexboxAudience.LexboxApi)
     {
-        var user = await _lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
+        var user = await lexBoxDbContext.Users.Include(u => u.Projects).ThenInclude(p => p.Project)
             .FindByEmailOrUsername(usernameOrEmail);
         if (user is null) return NotFound();
-        var (token, _, _) = _lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole, Audience = audience });
+        var (token, _, _) = lexAuthService.GenerateJwt(new LexAuthUser(user) { Role = userRole, Audience = audience });
         return token;
-    }
-
-    [HttpPost("seedDatabase")]
-    public async Task<ActionResult<TestingControllerProject>> SeedDatabase()
-    {
-        await _seedingData.SeedDatabase();
-        var project = await _lexBoxDbContext.Projects
-            .Include(p => p.Users)
-            .ThenInclude(u => u.User)
-            .FirstOrDefaultAsync(p => p.Code == "sena-3");
-        ArgumentNullException.ThrowIfNull(project);
-        return new TestingControllerProject(project.Id,
-            project.Name,
-            project.Code,
-            project.Users.Select(u =>
-                    new TestingControllerProjectUser(u.User!.Username, u.Role.ToString(), u.User.Email, u.UserId))
-                .ToList());
     }
 
     [HttpPost("cleanupSeedData")]
     public async Task<ActionResult> CleanupSeedData()
     {
-        await _seedingData.CleanUpSeedData();
+        await seedingData.CleanUpSeedData();
         return Ok();
     }
 
@@ -82,11 +57,16 @@ public class TestingController : ControllerBase
         return Ok(configurationRoot.GetDebugView());
     }
 
-    public record TestingControllerProject(Guid Id, string Name, string Code, List<TestingControllerProjectUser> Users);
-
-    public record TestingControllerProjectUser(string? Username, string Role, string? Email, Guid Id);
-
 #endif
+
+    [HttpPost("seedDatabase")]
+    [AdminRequired]
+    public async Task<ActionResult> SeedDatabase()
+    {
+        await seedingData.SeedDatabase();
+        return Ok();
+    }
+
     [HttpGet("throwsException")]
     [AllowAnonymous]
     public ActionResult ThrowsException()

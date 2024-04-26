@@ -27,6 +27,7 @@
         </Otherwise>
     </Choose>
     <ItemGroup>
+        <PackageReference Include="TusDotNetClient" Version="1.2.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
@@ -62,6 +63,7 @@
     <ItemGroup>
       <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
       <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
+      <Content Include="test-template-repo.zip" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
   <Target Name="CreateFixFwDataExe" AfterTargets="Build" Condition="Exists('$(OutputPath)/FixFwData') And !Exists('$(OutputPath)/FixFwData.exe')">
