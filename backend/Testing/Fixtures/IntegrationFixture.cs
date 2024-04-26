@@ -45,6 +45,7 @@ public class IntegrationFixture : IAsyncLifetime
 
     private void InitTemplateRepo()
     {
+        if (TemplateRepo.Exists) return;
         using var stream = TemplateRepoZip.OpenRead();
         ZipFile.ExtractToDirectory(stream, TemplateRepo.FullName);
     }
