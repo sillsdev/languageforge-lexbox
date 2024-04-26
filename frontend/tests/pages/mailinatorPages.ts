@@ -15,7 +15,7 @@ export class MailinatorInboxPage extends MailInboxPage {
   }
 
   override async refreshEmails(): Promise<void> {
-    await this.goto(); // TODO Is there a better way, say a refresh button like mailDev has?
+    return Promise.resolve(); // Mailinator auto-refreshes
   }
 
   override async goto(options?: {expectRedirect: boolean}): Promise<this> {

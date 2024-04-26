@@ -2,6 +2,13 @@ import { type Locator, type Page, expect } from '@playwright/test';
 import { BasePage } from './basePage';
 import { serverBaseUrl } from '../envVars';
 
+export enum EmailSubjects {
+  VerifyEmail = 'Verify your e-mail address',
+  ForgotPassword = 'Forgot your password?',
+  PasswordChanged = 'Your password was changed',
+  ProjectInvitation = 'Project invitation:',
+}
+
 export abstract class MailInboxPage extends BasePage {
   public mailboxId: string;
   readonly emailLocator: Locator;
@@ -20,14 +27,15 @@ export abstract class MailInboxPage extends BasePage {
     return await this.goto();
   }
 
-  async openEmail(index = 0): Promise<MailEmailPage> {
+  async openEmail(subject: EmailSubjects, index = 0): Promise<MailEmailPage> {
+    const email = this.emailLocator.locator(`:text("${subject}")`).nth(index);
     // Emails may not be immediately available, so if they aren't, refresh the email list until they show up
     await expect(async () => {
-      if (! await this.emailLocator.nth(index).isVisible()) {
+      if (!await email.isVisible()) {
         await this.refreshEmails();
       }
-      await this.emailLocator.nth(index).click();
-    }).toPass({timeout: 10_000}); // This auto-retries on a reasonable schedule
+      await email.click();
+    }, `Failed to find email: ${subject} (${index})`).toPass({timeout: 5_000}); // This auto-retries on a reasonable schedule
     return await this.getEmailPage().waitFor();
   }
 }

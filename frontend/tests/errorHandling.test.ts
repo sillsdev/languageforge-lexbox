@@ -1,6 +1,7 @@
 import * as testEnv from './envVars';
 
 import { AdminDashboardPage } from './pages/adminDashboardPage';
+import { EmailSubjects } from './pages/mailPages';
 import { LoginPage } from './pages/loginPage';
 import { SandboxPage } from './pages/sandboxPage';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
@@ -150,7 +151,7 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
 
   // - Get JWT from reset password link
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail();
+  const emailPage = await inboxPage.openEmail(EmailSubjects.ForgotPassword);
   const url = await emailPage.getFirstLanguageDepotUrl();
   expect(url).not.toBeNull();
   const forgotPasswordJwt = (url as string).split('jwt=')[1].split('&')[0];
