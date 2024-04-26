@@ -11,6 +11,8 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
 {
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
+    private static readonly Guid MangerId = new Guid("703701a8-005c-4747-91f2-ac7650455118");
+    private static readonly Guid EditorId = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb");
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
@@ -90,7 +92,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
                     Role = ProjectRole.Manager,
                     User = new()
                     {
-                        Id = new Guid("703701a8-005c-4747-91f2-ac7650455118"),
+                        Id = MangerId,
                         Email = "manager@test.com",
                         Name = "Test Manager",
                         Username = "manager",
@@ -107,7 +109,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
                     Role = ProjectRole.Editor,
                     User = new()
                     {
-                        Id = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb"),
+                        Id = EditorId,
                         Email = "editor@test.com",
                         Name = "Test Editor",
                         Username = "editor",
@@ -130,7 +132,24 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
-            Users = new()
+            Users = []
+        });
+
+        lexBoxDbContext.Attach(new Organization
+        {
+            Id = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6"),
+            Name = "Test Org",
+            Members =
+            [
+                new OrgMember
+                {
+                    Id = new Guid("d8e4fb61-6a39-421b-b852-4bdba658d345"), Role = OrgRole.Admin, UserId = MangerId,
+                },
+                new OrgMember
+                {
+                    Id = new Guid("1f8bbfd2-1502-456c-94ee-c982650ba325"), Role = OrgRole.User, UserId = EditorId,
+                }
+            ]
         });
 
         foreach (var entry in lexBoxDbContext.ChangeTracker.Entries())

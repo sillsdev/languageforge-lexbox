@@ -95,7 +95,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             .ExecuteUpdateAsync(u => u
                 .SetProperty(p => p.ResetStatus, ResetStatus.InProgress)
                 .SetProperty(p => p.LastCommit, null as DateTimeOffset?));
-        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found");
+        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found", nameof(Project));
         await ResetLexEntryCount(input.Code);
         await hgService.ResetRepo(input.Code);
     }
@@ -103,7 +103,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     public async Task FinishReset(string code, Stream? zipFile = null)
     {
         var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).Where(p => p.Code == code).SingleOrDefaultAsync();
-        if (project is null) throw new NotFoundException($"project {code} not found");
+        if (project is null) throw new NotFoundException($"project {code} not found", nameof(Project));
         if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.ResetNotStarted(code);
         if (zipFile is not null)
         {
