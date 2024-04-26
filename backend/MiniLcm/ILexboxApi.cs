@@ -42,6 +42,7 @@ public record SortOptions(SortField Field, WritingSystemId WritingSystem, bool A
     public static SortOptions Default { get; } = new(SortField.Headword, "default");
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SortField
 {
     Headword, //citation form -> lexeme form

@@ -2,8 +2,7 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import { type IStreamResult, Subject } from '@microsoft/signalr';
-import type { WritingSystems, QueryOptions, Entry, Sense, ExampleSentence } from '../lexboxClientContracts';
+import type {WritingSystems, QueryOptions, Entry, Sense, ExampleSentence} from '../../mini-lcm';
 import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
 
 export type ILexboxApiHub = {

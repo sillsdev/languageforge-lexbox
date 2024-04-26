@@ -41,7 +41,7 @@
   const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
   const search = writable<string>('');
-  const entries = deriveAsync(search, (s) => lexboxApi.SearchEntries(s ?? '', { offset: 0, count: Infinity, order: '' }), undefined, 200);
+  const entries = deriveAsync(search, (s) => lexboxApi.SearchEntries(s ?? '', { offset: 0, count: 1000, order: {field: 'headword', writingSystem: 'default'} }), undefined, 200);
 
   const writingSystems = writable<WritingSystems>();
   setContext('writingSystems', writingSystems);
