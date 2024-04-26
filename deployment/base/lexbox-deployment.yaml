@@ -107,6 +107,12 @@ spec:
                   key: SEED_USER_PASSWORD
                   name: db
                   optional: true
+          - name: DbConfig__QaAdminEmail
+            valueFrom:
+              secretKeyRef:
+                  key: QA_ADMIN_EMAIL
+                  name: db
+                  optional: true
           - name: DbConfig__LexBoxConnectionString
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
           - name: LfClassicConfig__ConnectionString
