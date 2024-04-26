@@ -5,13 +5,15 @@ EXPOSE 443
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
   --mount=type=cache,target=/var/lib/apt,sharing=locked \
   apt update && apt-get --no-install-recommends install -y rsync ssh
+RUN mkdir -p /var/www && chown -R www-data:www-data /var/www
+USER www-data:www-data
 WORKDIR /src/backend
 # Copy the main source project files
 COPY */*.csproj *.sln ./
 # move them into the proper sub folders, based on the name of the project
 RUN for file in $(ls *.csproj); do dir=${file%.*} mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done; dotnet restore FixFwData/FixFwData.csproj; dotnet restore LexBoxApi/LexBoxApi.csproj
 
-COPY . .
+COPY --chown=www-data . .
 WORKDIR /src/backend/LexBoxApi
 RUN dotnet build #build and restore, should speed up watch run
 RUN mkdir /src/frontend

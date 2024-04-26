@@ -50,7 +50,8 @@ spec:
     spec:
       securityContext:
         runAsGroup: 33
-        runAsUser: 0
+        runAsUser: 33
+        runAsNonRoot: true
       containers:
       - name: lexbox-api
         # TODO: need to parameterize this tag
