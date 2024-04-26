@@ -6,7 +6,7 @@
 </script>
 
 {#if entry}
-  <div class="side-scroller border flex flex-col rounded-md">
+  <div class="border flex flex-col rounded-md">
     <a class="toc-item" href="#entry"><span class="opacity-80 mr-1">Entry:</span>{firstVal(entry.lexemeForm) ?? ''}</a>
     {#each entry.senses as sense, i (sense.id)}
       <a class="toc-item" href="#sense{i + 1}"><span class="opacity-80 mr-1">Sense:</span>{firstVal(sense.gloss) ?? ''}</a>

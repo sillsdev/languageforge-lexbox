@@ -11,7 +11,8 @@
 </script>
 
 <div class="relative">
-  <div class="bg-neutral text-surface-content overflow-auto rounded-sm shadow shadow-neutral" class:max-h-14={!expandDictionaryEntry}>
+  <!-- rounded-sm shadow shadow-surface-content -->
+  <div class="text-surface-content overflow-auto fancy-border" class:max-h-14={!expandDictionaryEntry}>
     <div class="px-3 py-2 text-sm">
       <DictionaryEntry entry={entry} bind:lines={dictionaryEntryLines} />
     </div>
@@ -25,3 +26,10 @@
         class="p-2 absolute bottom-2 {expandDictionaryEntry ? 'right-2' : 'right-6'}" />
     {/if}
 </div>
+
+<style lang="postcss">
+  .fancy-border {
+    border: 1px solid;
+    border-image: radial-gradient(circle, oklch(var(--color-surface-content) / var(--tw-text-opacity)) 0%, oklch(var(--color-surface-content) / 20%) 100%) 1 0 1 0;
+  }
+</style>

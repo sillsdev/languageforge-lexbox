@@ -5,6 +5,7 @@
   import SingleOptionEditor from './SingleOptionEditor.svelte';
   import SingleFieldEditor from './SingleFieldEditor.svelte';
   import MultiFieldEditor from './MultiFieldEditor.svelte';
+  import './field.postcss';
 
   type T = $$Generic<unknown>;
 
@@ -20,7 +21,7 @@
   function isSingleOption(value: unknown): value is string {
     return field.type === 'option';
   }
-  function isMultiOption(value: unknown): value is string {
+  function isMultiOption(value: unknown): value is string[] {
     return field.type === 'multi-option';
   }
 </script>
@@ -34,31 +35,3 @@
 {:else if isMultiOption(value)}
   <MultiOptionEditor on:change {field} {value} />
 {/if}
-
-<style lang="postcss">
-  :global(.field) {
-    @apply grid grid-cols-subgrid col-span-3;
-  }
-
-  :global(.field:not(:last-child)) {
-    @apply mb-4;
-  }
-
-  :global(.field .fields) {
-    @apply grid grid-cols-subgrid col-span-2;
-    gap: 4px;
-  }
-
-  :global(.multi-field .fields .ws-field-wrapper) {
-    @apply grid grid-cols-subgrid col-span-2;
-  }
-
-  :global(.multi-field .fields .ws-field) {
-    @apply grid grid-cols-subgrid col-span-2;
-  }
-
-  :global(.single-field .fields) {
-    @apply grid grid-cols-subgrid;
-    grid-column-start: 3;
-  }
-</style>

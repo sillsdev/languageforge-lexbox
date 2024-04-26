@@ -12,6 +12,7 @@ type BaseFieldConfig = {
   type: FieldType;
   id: string;
   ws: WritingSystemSelection;
+  readonly?: true;
 }
 
 export type CustomFieldConfig = BaseFieldConfig & {
@@ -53,4 +54,5 @@ export type ViewConfig = {
   showExtraFields: boolean,
   hideEmptyFields: boolean,
   activeView: typeof views[number],
+  readonly?: true,
 }

@@ -38,7 +38,7 @@ const allFieldConfigs = ({
   customExample: Record<string, CustomFieldConfig>,
 };
 
-export function allFields(viewConfig: ViewConfig['value']): FieldConfig[] {
+export function allFields(viewConfig: ViewConfig): FieldConfig[] {
   return [
     ...Object.values(viewConfig.entry),
     ...Object.values(viewConfig.customEntry ?? {}),

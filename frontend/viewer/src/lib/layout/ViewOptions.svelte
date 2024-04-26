@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { getContext } from "svelte";
-  import { Button, Drawer, SelectField, Switch } from "svelte-ux";
+  import { Drawer, SelectField, Switch } from "svelte-ux";
   import type { Writable } from "svelte/store";
   import { views } from "../config-data";
   import type { ViewConfig } from "../config-types";
 
+  export let viewConfig: Writable<ViewConfig>;
   export let open = false;
-
-  const viewConfig = getContext<Writable<ViewConfig>>('viewConfig');
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px]' }}>
@@ -20,6 +18,7 @@
       clearable={false}
       labelPlacement="top"
       clearSearchOnOpen={false}
+      fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
     <!-- svelte-ignore a11y-label-has-associated-control -->
@@ -37,6 +36,11 @@
     <div class="grow"></div>
     <div class="flex flex-col gap-4">
       Debug
+      <!-- svelte-ignore a11y-label-has-associated-control -->
+      <label class="flex gap-2 items-center text-sm h-10 text-warning">
+        <Switch bind:checked={$viewConfig.readonly} />
+        Readonly
+      </label>
       <!-- svelte-ignore a11y-label-has-associated-control -->
       <label class="flex gap-2 items-center text-sm h-10 text-warning">
         <Switch bind:checked={$viewConfig.generateExternalChanges}

@@ -16,6 +16,7 @@
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
+  export let readonly: true | undefined = undefined;
   let append: HTMLElement;
 
   let demoOptions: MenuOption[] | undefined;
@@ -38,6 +39,7 @@
     on:change={(e) => onEditorValueChange(asOptions(e.detail.value).map((o) => o.value).join(','))}
     on:blur={save}
     value={editorValue.split(',')}
+    disabled={readonly}
     options={demoOptions ?? []}
     valueProp="value"
     labelProp="label"
@@ -47,7 +49,7 @@
     clearable={false}
     search={() => Promise.resolve()}
     class="ws-field"
-    classes={{ root: editorValue ? '' : 'empty', field: 'field-container' }}
+    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>
@@ -55,7 +57,7 @@
   </MultiSelectField>
 </CrdtField>
 
-<style>
+<style lang="postcss">
   :global(.unresolved-merge .field-container) {
     @apply !border-warning;
   }

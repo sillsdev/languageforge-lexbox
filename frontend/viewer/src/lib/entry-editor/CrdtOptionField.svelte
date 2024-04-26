@@ -8,6 +8,7 @@
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
+  export let readonly: true | undefined = undefined;
   let append: HTMLElement;
 
   let demoOptions: MenuOption[] | undefined;
@@ -19,12 +20,13 @@
     on:change={(e) => onEditorValueChange(e.detail.value)}
     on:blur={save}
     value={editorValue}
+    disabled={readonly}
     options={demoOptions ?? []}
     clearSearchOnOpen={false}
     clearable={false}
     search={() => Promise.resolve()}
     class="ws-field"
-    classes={{ root: editorValue ? '' : 'empty', field: 'field-container' }}
+    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>

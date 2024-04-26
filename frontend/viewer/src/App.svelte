@@ -4,20 +4,19 @@
     Button,
     Dialog,
     Field,
-    Icon,
     ListItem,
     ProgressCircle,
     TextField,
     cls,
   } from 'svelte-ux';
-  import { mdiCog, mdiEyeOutline, mdiMagnify } from '@mdi/js';
+  import { mdiCog, mdiMagnify } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import { firstDefOrGlossVal, firstVal } from './lib/utils';
   import { views } from './lib/config-data';
   import { LexboxServices } from './lib/services/service-provider';
   import type { IEntry, LexboxApi, WritingSystems } from './lib/services/lexbox-api';
   import { setContext } from 'svelte';
-  import { writable } from 'svelte/store';
+  import { derived, writable } from 'svelte/store';
   import { deriveAsync } from './lib/utils/time';
   import type { ViewConfig } from './lib/config-types';
   import ViewOptions from './lib/layout/ViewOptions.svelte';
@@ -31,9 +30,13 @@
     showExtraFields: false,
     hideEmptyFields: false,
     activeView: views[0],
+    readonly: true,
   });
 
-  setContext('viewConfig', viewConfig);
+  setContext('viewConfig', derived(viewConfig, (config) => ({
+    ...config,
+    hideEmptyFields: config.hideEmptyFields || config.readonly,
+  })));
 
   const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
 
@@ -89,10 +92,18 @@
             <Editor bind:entry={selectedEntry} />
           </div>
           <div class="h-full min-w-48 pl-6 border-l-2 gap-4 flex flex-col">
-            <div class="side-scroller flex flex-col gap-4">
-              Overview
+            <div class="side-scroller h-full flex flex-col gap-4">
               <Toc entry={selectedEntry} />
             </div>
+            <span class="text-surface-content text-sm fixed bottom-3 right-3 inline-flex gap-2 items-center">
+              {$viewConfig.activeView.label}
+              <Button
+                on:click={() => (showOptionsDialog = true)}
+                size="sm"
+                variant="text"
+                iconOnly
+                icon={mdiCog} />
+            </span>
           </div>
         {:else}
           <div class="w-full h-full z-10 bg-surface-100 flex grow items-center justify-center text-2xl opacity-75">
@@ -102,20 +113,7 @@
       </div>
     </main>
 
-    <div class="fixed bottom-0 right-0 flex gap-2 items-center justify-end bg-surface-200 py-1 px-2">
-      <div>
-        <span class="opacity-75 text-xs">Active view:</span>
-        <span class="text-surface-content text-sm">{$viewConfig.activeView.label}</span>
-      </div>
-      <Button
-        on:click={() => (showOptionsDialog = true)}
-        size="sm"
-        variant="outline"
-        iconOnly
-        icon={mdiCog} />
-    </div>
-
-    <ViewOptions bind:open={showOptionsDialog} />
+    <ViewOptions bind:open={showOptionsDialog} {viewConfig} />
 
     <Dialog bind:open={showSearchDialog} class="w-[700px]">
       <div slot="title">
