@@ -63,9 +63,12 @@
     dispatch('change', { value });
   }
 
-  function onEditorValueChange(newValue: string | number): void {
+  function onEditorValueChange(newValue: string | number, save = false): void {
     editorValue = String(newValue);
     unsavedChanges = editorValue !== value;
+    if (save) {
+      saveChanges();
+    }
   }
 
   function softSave(): void {

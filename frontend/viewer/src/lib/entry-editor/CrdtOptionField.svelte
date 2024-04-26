@@ -15,10 +15,9 @@
   $: demoOptions = demoOptions ?? [{label: value, value: value}, {label: 'Another option', value: 'Another option'}];
 </script>
 
-<CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:save let:onEditorValueChange viewMergeButtonPortal={append}>
+<CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
   <SelectField
-    on:change={(e) => onEditorValueChange(e.detail.value)}
-    on:blur={save}
+    on:change={(e) => onEditorValueChange(e.detail.value, true)}
     value={editorValue}
     disabled={readonly}
     options={demoOptions ?? []}

@@ -27,11 +27,11 @@
 </script>
 
 {#if isMultiString(value)}
-  <MultiFieldEditor on:change {field} {value} />
+  <MultiFieldEditor on:change {field} bind:value />
 {:else if isSingleString(value)}
-  <SingleFieldEditor on:change {field} {value} />
+  <SingleFieldEditor on:change {field} bind:value />
 {:else if isSingleOption(value)}
-  <SingleOptionEditor on:change {field} {value} />
+  <SingleOptionEditor on:change {field} bind:value />
 {:else if isMultiOption(value)}
-  <MultiOptionEditor on:change {field} {value} />
+  <MultiOptionEditor on:change {field} bind:value />
 {/if}

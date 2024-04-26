@@ -34,10 +34,9 @@
   }
 </script>
 
-<CrdtField on:change bind:value={stringValue} bind:unsavedChanges let:editorValue let:save let:onEditorValueChange viewMergeButtonPortal={append}>
+<CrdtField on:change bind:value={stringValue} bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
   <MultiSelectField
-    on:change={(e) => onEditorValueChange(asOptions(e.detail.value).map((o) => o.value).join(','))}
-    on:blur={save}
+    on:change={(e) => onEditorValueChange(asOptions(e.detail.value).map((o) => o.value).join(','), true)}
     value={editorValue.split(',')}
     disabled={readonly}
     options={demoOptions ?? []}

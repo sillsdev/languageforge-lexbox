@@ -15,7 +15,7 @@
 
 {#each fieldConfigs as fieldConfig}
   {#if !fieldConfig.extra || $viewConfig.showExtraFields}
-    <FieldEditor on:change value={entity[fieldConfig.id]} field={fieldConfig} />
+    <FieldEditor on:change bind:value={entity[fieldConfig.id]} field={fieldConfig} />
   {/if}
 {/each}
 
