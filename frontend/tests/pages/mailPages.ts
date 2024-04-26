@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { type Locator, type Page, expect } from '@playwright/test';
 import { BasePage } from './basePage';
 import { serverBaseUrl } from '../envVars';
 
@@ -13,6 +13,7 @@ export abstract class MailInboxPage extends BasePage {
   }
 
   abstract getEmailPage(): MailEmailPage;
+  abstract refreshEmails(): Promise<void>;
 
   async gotoMailbox(mailboxId: string): Promise<MailInboxPage> {
     this.mailboxId = mailboxId;
@@ -20,7 +21,13 @@ export abstract class MailInboxPage extends BasePage {
   }
 
   async openEmail(index = 0): Promise<MailEmailPage> {
-    await this.emailLocator.nth(index).click();
+    // Emails may not be immediately available, so if they aren't, refresh the email list until they show up
+    await expect(async () => {
+      if (! await this.emailLocator.nth(index).isVisible()) {
+        await this.refreshEmails();
+      }
+      await this.emailLocator.nth(index).click();
+    }).toPass({timeout: 10_000}); // This auto-retries on a reasonable schedule
     return await this.getEmailPage().waitFor();
   }
 }
