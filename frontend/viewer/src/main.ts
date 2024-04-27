@@ -5,17 +5,21 @@ import {HubConnectionBuilder} from '@microsoft/signalr';
 import {SetupSignalR} from './lib/services/service-provider-signalr';
 import App from './App.svelte'
 
-const connection = new HubConnectionBuilder()
-  .withUrl("/api/hub/project")
-  .withAutomaticReconnect()
-  .build();
-await connection.start();
-SetupSignalR(connection);
+async function run() {
 
-new App({
-  target: document.getElementById('app')!,
-});
+  const connection = new HubConnectionBuilder()
+    .withUrl("/api/hub/project")
+    .withAutomaticReconnect()
+    .build();
+  await connection.start();
+  SetupSignalR(connection);
 
+  new App({
+    target: document.getElementById('app')!,
+  });
+}
+
+run();
 /*/// v2 Run with web-component in shadow dom
 
 import './web-component';
