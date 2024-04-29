@@ -15,7 +15,7 @@
 <CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:save let:onEditorValueChange viewMergeButtonPortal={append}>
   <TextField
     on:change={(e) => onEditorValueChange(e.detail.inputValue)}
-    on:blur={save}
+    on:blur={(e) => {if (e.target) save()}}
     value={editorValue}
     disabled={readonly}
     class="ws-field"
