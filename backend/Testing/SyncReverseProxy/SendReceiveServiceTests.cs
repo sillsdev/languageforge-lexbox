@@ -117,7 +117,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, "SR_AfterReset");
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
-        await WaitForHgRefreshIntervalAsync();
+        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
@@ -144,6 +144,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
+        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
+
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -166,6 +168,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
+
+        await WaitForHgRefreshIntervalAsync();
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);

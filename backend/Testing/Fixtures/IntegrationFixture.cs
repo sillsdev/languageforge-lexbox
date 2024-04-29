@@ -4,9 +4,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using LexCore.Utils;
 using Shouldly;
+using Squidex.Assets;
 using Testing.ApiTests;
 using Testing.Services;
-using TusDotNetClient;
 using static Testing.Services.Constants;
 
 namespace Testing.Fixtures;
@@ -72,10 +72,20 @@ public class IntegrationFixture : IAsyncLifetime
 
     public async Task FinishLexboxProjectResetWithRepo(string projectCode, FileInfo repo)
     {
-        var client = new TusClient();
-        client.AdditionalHeaders.Add("Cookie", $".LexBoxAuth={AdminJwt}");
-        var fileUrl = await client.CreateAsync($"{AdminApiTester.BaseUrl}/api/project/upload-zip/{projectCode}", repo.Length, [("filetype", "application/zip")]);
-        var responses = await client.UploadAsync(fileUrl, repo, chunkSize: 20);
-        responses.ShouldAllBe(r => r.StatusCode.ToString() == nameof(HttpStatusCode.NoContent));
+        Exception? failureException = null;
+        await AdminApiTester.HttpClient.UploadWithProgressAsync(new Uri($"{AdminApiTester.BaseUrl}/api/project/upload-zip/{projectCode}"),
+            UploadFile.FromFile(repo, "application/zip"), new UploadOptions
+            {
+                Metadata = new Dictionary<string, string> { ["filetype"] = "application/zip" },
+                ProgressHandler = new DelegatingProgressHandler
+                {
+                    OnFailedAsync = (e, ct) =>
+                    {
+                        failureException = e.Exception;
+                        return Task.CompletedTask;
+                    }
+                },
+            });
+        if (failureException is not null) throw failureException;
     }
 }
