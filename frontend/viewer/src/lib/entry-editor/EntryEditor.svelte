@@ -1,12 +1,15 @@
 <script lang="ts">
-  import type { IEntry } from '../mini-lcm';
+  import type {IEntry, IExampleSentence, ISense, MultiString} from '../mini-lcm';
   import {
     type views,
   } from '../config-data';
   import EntityEditor from './EntityEditor.svelte';
-  import { getContext } from 'svelte';
+  import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
   import type { ViewConfig } from '../config-types';
+  const dispatch = createEventDispatcher<{
+    change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
+  }>();
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
@@ -17,7 +20,7 @@
   entity={entry}
   fieldConfigs={Object.values($viewConfig.activeView.entry ?? [])}
   customFieldConfigs={Object.values($viewConfig.activeView?.customEntry ?? [])}
-  on:change
+  on:change={() => dispatch('change', {entry})}
 />
 
 {#each entry.senses as sense, i (sense.id)}
@@ -30,7 +33,7 @@
     entity={sense}
     fieldConfigs={Object.values($viewConfig.activeView?.sense ?? [])}
     customFieldConfigs={Object.values($viewConfig.activeView?.customSense ?? [])}
-    on:change
+    on:change={() => dispatch('change', {entry, sense})}
   />
 
   {#each sense.exampleSentences as example, j (example.id)}
@@ -43,7 +46,7 @@
       entity={example}
       fieldConfigs={Object.values($viewConfig.activeView?.example ?? [])}
       customFieldConfigs={Object.values($viewConfig.activeView?.customExample ?? [])}
-      on:change
+      on:change={() => dispatch('change', {entry, sense, example})}
     />
   {/each}
 {/each}
