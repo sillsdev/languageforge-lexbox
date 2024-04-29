@@ -87,6 +87,11 @@ tasks:
     cmds:
       - kubectl port-forward service/db 27018:27017 -n languageforge --context dallas-rke
 
+  local-web-app:
+    label: dotnet
+    dir: ./LocalWebApp
+    cmd: dotnet watch --no-hot-reload
+
   publish-local-all:
     cmds:
     - task: publish-local-win
