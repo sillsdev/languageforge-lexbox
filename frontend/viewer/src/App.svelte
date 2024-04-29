@@ -13,7 +13,7 @@
   import Editor from './lib/Editor.svelte';
   import { firstDefOrGlossVal, firstVal } from './lib/utils';
   import { views } from './lib/config-data';
-  import { LexboxServices } from './lib/services/service-provider';
+  import { useLexboxApi } from './lib/services/service-provider';
   import type { IEntry, LexboxApi, WritingSystems } from './lib/services/lexbox-api';
   import { setContext } from 'svelte';
   import { derived, writable } from 'svelte/store';
@@ -38,7 +38,7 @@
     hideEmptyFields: config.hideEmptyFields || config.readonly,
   })));
 
-  const lexboxApi = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
+  const lexboxApi = useLexboxApi();
 
   const search = writable<string>('');
   const entries = deriveAsync(search, (s) => lexboxApi.SearchEntries(s ?? '', { offset: 0, count: 1000, order: {field: 'headword', writingSystem: 'default'} }), undefined, 200);

@@ -1,4 +1,5 @@
 import {InMemoryApiService} from '../in-memory-api-service';
+import type {LexboxApi} from './lexbox-api';
 
 declare global {
 
@@ -41,3 +42,7 @@ export class LexboxServiceProvider {
 if (!window.lexbox) { window.lexbox = { ServiceProvider: new LexboxServiceProvider()}; }
 else window.lexbox.ServiceProvider = new LexboxServiceProvider();
 window.lexbox.ServiceProvider.setService(LexboxServices.LexboxApi, new InMemoryApiService());
+
+export function useLexboxApi() {
+  return window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
+}
