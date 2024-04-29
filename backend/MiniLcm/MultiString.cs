@@ -10,17 +10,17 @@ namespace MiniLcm;
 /// </summary>
 // convert to a dictionary of string to string
 [JsonConverter(typeof(MultiStringConverter))]
-public class MultiString
+public class MultiString: IDictionary
 {
     public MultiString()
     {
-        Values = new MultiStringDict();
+        _values = new MultiStringDict();
     }
 
     [JsonConstructor]
     public MultiString(IDictionary<WritingSystemId, string> values)
     {
-        Values = new MultiStringDict(values);
+        _values = new MultiStringDict(values);
     }
 
     public virtual MultiString Copy()
@@ -28,7 +28,8 @@ public class MultiString
         return new(Values);
     }
 
-    public virtual IDictionary<WritingSystemId, string> Values { get; }
+    private readonly MultiStringDict _values;
+    public virtual IDictionary<WritingSystemId, string> Values => _values;
 
     private class MultiStringDict : Dictionary<WritingSystemId, string>,
         IDictionary<WritingSystemId, string>,
@@ -68,6 +69,61 @@ public class MultiString
             }
         }
     }
+
+    void IDictionary.Add(object key, object? value)
+    {
+        ((IDictionary)_values).Add(key, value);
+    }
+
+    void IDictionary.Clear()
+    {
+        ((IDictionary)_values).Clear();
+    }
+
+    bool IDictionary.Contains(object key)
+    {
+        return ((IDictionary)_values).Contains(key);
+    }
+
+    IDictionaryEnumerator IDictionary.GetEnumerator()
+    {
+        return ((IDictionary)_values).GetEnumerator();
+    }
+
+    void IDictionary.Remove(object key)
+    {
+        ((IDictionary)_values).Remove(key);
+    }
+
+    bool IDictionary.IsFixedSize => ((IDictionary)_values).IsFixedSize;
+
+    bool IDictionary.IsReadOnly => ((IDictionary)_values).IsReadOnly;
+
+    object? IDictionary.this[object key]
+    {
+        get => ((IDictionary)_values)[key];
+        set => ((IDictionary)_values)[key] = value;
+    }
+
+    ICollection IDictionary.Keys => ((IDictionary)_values).Keys;
+
+    ICollection IDictionary.Values => ((IDictionary)_values).Values;
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable)Values).GetEnumerator();
+    }
+
+    void ICollection.CopyTo(Array array, int index)
+    {
+        ((IDictionary)_values).CopyTo(array, index);
+    }
+
+    int ICollection.Count => ((IDictionary)_values).Count;
+
+    bool ICollection.IsSynchronized => ((IDictionary)_values).IsSynchronized;
+
+    object ICollection.SyncRoot => ((IDictionary)_values).SyncRoot;
 }
 
 public static class MultiStringExtensions
