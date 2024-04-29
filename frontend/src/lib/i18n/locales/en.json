@@ -471,7 +471,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "update_detected": "A new version of the application was detected. You may need to reload the page.",
   },
   "table": {
-    "refine_filter": "Refine your filter to see {remainingRows} more rows..."
+    "refine_filter": "Refine your filter to see {remainingRows, number} more rows..."
   },
   "turnstile": {
     "invalid": "Captcha Error, try again",
