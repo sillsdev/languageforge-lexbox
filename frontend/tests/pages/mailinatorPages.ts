@@ -4,7 +4,7 @@ import { MailEmailPage, MailInboxPage } from './mailPages';
 export class MailinatorInboxPage extends MailInboxPage {
   constructor(page: Page, mailboxId: string) {
     super(page,
-          page.locator(`[id^='row_']`).first(),
+          page.locator(':text("Public Messages")'),
           `https://www.mailinator.com/v4/public/inboxes.jsp?to=${mailboxId}`,
           mailboxId,
           page.locator(`[id^='row_']`));

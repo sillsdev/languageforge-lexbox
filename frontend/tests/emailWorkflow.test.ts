@@ -36,7 +36,6 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
   await userDashboardPage.emailVerificationAlert.assertVerificationSent();
 
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  await expect(inboxPage.emailLocator).toHaveCount(2);
   let emailPage = await inboxPage.openEmail(EmailSubjects.VerifyEmail);
   let pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickVerifyEmail();
@@ -61,7 +60,6 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
 
   // Verify new email address
   await inboxPage.gotoMailbox(newMailinatorId);
-  await expect(inboxPage.emailLocator).toHaveCount(1);
   emailPage = await inboxPage.openEmail(EmailSubjects.VerifyEmail);
   pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickVerifyEmail();

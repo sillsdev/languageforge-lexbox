@@ -16,6 +16,8 @@
 		"test-flaky": "playwright test --retries=3 -j 30%",
 		"test-hard": "playwright test --repeat-each=3 -j 30%",
 		"test-report": "playwright show-report test-results/_html-report",
+    "_env-comment": "Run any command with .env.local loaded: (e.g. `pnpm run env test-flaky`)",
+		"env": "dotenvx run --env-file=.env.local -- pnpm",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
@@ -25,6 +27,7 @@
 		"clean": "rimraf node_modules .svelte-kit"
 	},
 	"devDependencies": {
+		"@dotenvx/dotenvx": "^0.37.0",
 		"@egoist/tailwindcss-icons": "^1.7.4",
 		"@eslint/js": "^8.56.0",
 		"@graphql-codegen/cli": "^5.0.0",

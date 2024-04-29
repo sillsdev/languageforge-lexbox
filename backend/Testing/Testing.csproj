@@ -27,7 +27,7 @@
         </Otherwise>
     </Choose>
     <ItemGroup>
-        <PackageReference Include="TusDotNetClient" Version="1.2.0" />
+        <PackageReference Include="Squidex.Assets.TusClient" Version="6.6.4" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />

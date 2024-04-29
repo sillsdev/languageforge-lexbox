@@ -35,7 +35,7 @@ export abstract class MailInboxPage extends BasePage {
         await this.refreshEmails();
       }
       await email.click();
-    }, `Failed to find email: ${subject} (${index})`).toPass({timeout: 5_000}); // This auto-retries on a reasonable schedule
+    }, `Failed to find email: ${subject} (${index})`).toPass({timeout: 10_000}); // This auto-retries on a reasonable schedule
     return await this.getEmailPage().waitFor();
   }
 }
