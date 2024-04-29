@@ -1,6 +1,4 @@
 using System.IO.Compression;
-using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using LexCore.Utils;
 using Shouldly;
@@ -13,9 +11,9 @@ namespace Testing.Fixtures;
 
 public class IntegrationFixture : IAsyncLifetime
 {
-    private static readonly string _templateRepoName = "test-template-repo.zip";
-    public FileInfo TemplateRepoZip { get; } = new(_templateRepoName);
-    public DirectoryInfo TemplateRepo { get; } = new(Path.Join(BasePath, "_template-repo_"));
+    private const string TemplateRepoZipName = "test-template-repo.zip";
+    public static readonly FileInfo TemplateRepoZip = new(TemplateRepoZipName);
+    public static readonly DirectoryInfo TemplateRepo = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; private set; } = new();
     private string AdminJwt = string.Empty;
 
@@ -45,9 +43,12 @@ public class IntegrationFixture : IAsyncLifetime
 
     private void InitTemplateRepo()
     {
-        if (TemplateRepo.Exists) return;
-        using var stream = TemplateRepoZip.OpenRead();
-        ZipFile.ExtractToDirectory(stream, TemplateRepo.FullName);
+        lock (TemplateRepo)
+        {
+            if (TemplateRepo.Exists) return;
+            using var stream = TemplateRepoZip.OpenRead();
+            ZipFile.ExtractToDirectory(stream, TemplateRepo.FullName);
+        }
     }
 
     public ProjectConfig InitLocalFlexProjectWithRepo(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
