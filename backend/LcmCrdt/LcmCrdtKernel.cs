@@ -64,6 +64,8 @@ public static class LcmCrdtKernel
                         builder.Properties<MultiString>()
                             .HaveColumnType("jsonb")
                             .HaveConversion<MultiStringDbConverter>();
+                        builder.Properties<WritingSystemId>()
+                            .HaveConversion<WritingSystemIdConverter>();
                     })
                     .Add<Entry>(builder =>
                     {
@@ -88,17 +90,28 @@ public static class LcmCrdtKernel
                         builder.HasOne<Sense>()
                             .WithMany()
                             .HasForeignKey(e => e.SenseId);
+                    })
+                    .Add<WritingSystem>(builder =>
+                    {
+                        builder.Property(w => w.Exemplars)
+                            .HasColumnType("jsonb")
+                            .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                                json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ??
+                                        Array.Empty<string>());
                     });
 
                 config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
                     .Add<JsonPatchChange<Sense>>()
                     .Add<JsonPatchChange<ExampleSentence>>()
+                    .Add<JsonPatchChange<WritingSystem>>()
                     .Add<DeleteChange<Entry>>()
                     .Add<DeleteChange<Sense>>()
                     .Add<DeleteChange<ExampleSentence>>()
+                    .Add<DeleteChange<WritingSystem>>()
                     .Add<CreateEntryChange>()
                     .Add<CreateSenseChange>()
-                    .Add<CreateExampleSentenceChange>();
+                    .Add<CreateExampleSentenceChange>()
+                    .Add<CreateWritingSystemChange>();
             }
         );
         services.AddScoped<ILexboxApi, CrdtLexboxApi>();
@@ -113,6 +126,9 @@ public static class LcmCrdtKernel
     private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
         mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
         json => JsonSerializer.Deserialize<MultiString>(json, (JsonSerializerOptions?)null) ?? new());
+    private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
+        id => id.Code,
+        code => new WritingSystemId(code));
 
     private class StartupService(IServiceProvider services) : IHostedService
     {

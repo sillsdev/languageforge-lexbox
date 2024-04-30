@@ -34,27 +34,51 @@ public class BackgroundSyncService(ISyncHttp remoteSyncServer, IServiceProvider 
     {
         //id is fixed to prevent duplicates
         var id = new Guid("c7328f18-118a-4f83-9d88-c408778b7f63");
-        if (await lexboxApi.GetEntry(id) is not null) return;
-        await lexboxApi.CreateEntry(new()
+        if (await lexboxApi.GetEntry(id) is null)
         {
-            Id = id,
-            LexemeForm = { Values = { { "en", "Kevin" } } },
-            Note = { Values = { { "en", "this is a test note from Kevin" } } },
-            CitationForm = { Values = { { "en", "Kevin" } } },
-            LiteralMeaning = { Values = { { "en", "Kevin" } } },
-            Senses =
-            [
-                new()
-                {
-                    Gloss = { Values = { { "en", "Kevin" } } },
-                    Definition = { Values = { { "en", "Kevin" } } },
-                    SemanticDomain = ["Person"],
-                    ExampleSentences =
-                    [
-                        new() { Sentence = { Values = { { "en", "Kevin is a good guy" } } } }
-                    ]
-                }
-            ]
-        });
+            await lexboxApi.CreateEntry(new()
+            {
+                Id = id,
+                LexemeForm = { Values = { { "en", "Kevin" } } },
+                Note = { Values = { { "en", "this is a test note from Kevin" } } },
+                CitationForm = { Values = { { "en", "Kevin" } } },
+                LiteralMeaning = { Values = { { "en", "Kevin" } } },
+                Senses =
+                [
+                    new()
+                    {
+                        Gloss = { Values = { { "en", "Kevin" } } },
+                        Definition = { Values = { { "en", "Kevin" } } },
+                        SemanticDomain = ["Person"],
+                        ExampleSentences =
+                        [
+                            new() { Sentence = { Values = { { "en", "Kevin is a good guy" } } } }
+                        ]
+                    }
+                ]
+            });
+        }
+
+        var writingSystems = await lexboxApi.GetWritingSystems();
+        if (writingSystems.Analysis.Length == 0)
+        {
+            await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis, new()
+            {
+                Id = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial"
+            });
+        }
+        if (writingSystems.Vernacular.Length == 0)
+        {
+            await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular, new()
+            {
+                Id = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial"
+            });
+        }
     }
 }

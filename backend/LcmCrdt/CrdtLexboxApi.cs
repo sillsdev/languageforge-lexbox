@@ -11,10 +11,6 @@ using LinqToDB.EntityFrameworkCore;
 
 namespace LcmCrdt;
 
-using Entry = Objects.Entry;
-using ExampleSentence = Objects.ExampleSentence;
-using Sense = Objects.Sense;
-
 public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOptions, IHybridDateTimeProvider timeProvider) : ILexboxApi
 {
     //todo persist somewhere
@@ -23,20 +19,39 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>().ToLinqToDB();
     private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>().ToLinqToDB();
     private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>().ToLinqToDB();
+    private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>().ToLinqToDB();
 
-    public Task<WritingSystems> GetWritingSystems()
+    public async Task<WritingSystems> GetWritingSystems()
     {
-        return Task.FromResult(new WritingSystems()
+        var systems = await WritingSystems.ToArrayAsync();
+        return new WritingSystems
         {
-            Analysis =
-            [
-                new WritingSystem { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
-            ],
-            Vernacular =
-            [
-                new WritingSystem { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
-            ]
-        });
+            Analysis = systems.Where(ws => ws.Type == WritingSystemType.Analysis)
+                .Select(w => ((MiniLcm.WritingSystem)w)).ToArray(),
+            Vernacular = systems.Where(ws => ws.Type == WritingSystemType.Vernacular)
+                .Select(w => ((MiniLcm.WritingSystem)w)).ToArray()
+        };
+    }
+
+    public async Task<MiniLcm.WritingSystem> CreateWritingSystem(WritingSystemType type, MiniLcm.WritingSystem writingSystem)
+    {
+        var entityId = Guid.NewGuid();
+        await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId));
+        return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
+    }
+
+    public async Task<MiniLcm.WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<MiniLcm.WritingSystem> update)
+    {
+        var ws = await GetWritingSystem(id, type);
+        if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
+        var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch, jsonOptions);
+        await dataModel.AddChange(ClientId, patchChange);
+        return await dataModel.GetLatest<WritingSystem>(ws.Id) ?? throw new NullReferenceException();
+    }
+
+    private async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
+    {
+        return await WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
     }
 
     public Task<string[]> GetExemplars()
