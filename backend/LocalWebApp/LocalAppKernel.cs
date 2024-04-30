@@ -31,5 +31,6 @@ public static class LocalAppKernel
                 })
             })
             .ConfigureHttpClient(client => client.BaseAddress = new Uri("http://localhost:5158/"));
+        services.AddSingleton<CrdtHttpSync>();
     }
 }

@@ -2,7 +2,7 @@
 
 namespace LocalWebApp;
 
-public class SyncService(DataModel dataModel, ISyncHttp remoteSyncServer)
+public class SyncService(DataModel dataModel, CrdtHttpSync remoteSyncServer)
 {
     public async Task ExecuteSync()
     {

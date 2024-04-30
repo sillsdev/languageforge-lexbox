@@ -8,8 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CrdtLib;
 
-public record SyncResults(List<Commit> MissingFromLocal, List<Commit> MissingFromRemote);
-public record ChangesResult(List<Commit> MissingFromClient, SyncState ServerSyncState);
+public record SyncResults(List<Commit> MissingFromLocal, List<Commit> MissingFromRemote, bool IsSynced);
+
+public record ChangesResult(List<Commit> MissingFromClient, SyncState ServerSyncState)
+{
+    public static ChangesResult Empty => new([], new SyncState([]));
+}
 public interface ISyncable
 {
     Task AddRangeFromSync(IEnumerable<Commit> commits);
@@ -17,6 +21,7 @@ public interface ISyncable
     Task<ChangesResult> GetChanges(SyncState otherHeads);
     Task<SyncResults> SyncWith(ISyncable remoteModel);
     Task SyncMany(ISyncable[] remotes);
+    ValueTask<bool> ShouldSync();
 }
 
 public record SyncState(Dictionary<Guid, long> ClientHeads);
@@ -71,6 +76,11 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         commits = commits.ToArray();
         timeProvider.TakeLatestTime(commits.Select(c => c.HybridDateTime));
         await AddRange(commits, true);
+    }
+
+    ValueTask<bool> ISyncable.ShouldSync()
+    {
+        return ValueTask.FromResult(true);
     }
 
     public async Task AddRange(IEnumerable<Commit> commits, bool forceValidate = false)
@@ -170,7 +180,7 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
     {
         var repository = crdtRepository.GetScopedRepository(dateTime);
         var (snapshots, pendingCommits) = await repository.GetCurrentSnapshotsAndPendingCommits();
-        
+
         if (pendingCommits.Length != 0)
         {
             snapshots = await SnapshotWorker.ApplyCommitsToSnapshots(snapshots, repository, pendingCommits);

@@ -15,6 +15,7 @@ public static class SyncHelper
         ISyncable remoteModel,
         JsonSerializerOptions serializerOptions)
     {
+        if (!await localModel.ShouldSync() || !await remoteModel.ShouldSync()) return new SyncResults([], [], false);
         var localSyncState = await localModel.GetSyncState();
 
         var (missingFromLocal, remoteSyncState) = await remoteModel.GetChanges(localSyncState);
@@ -31,7 +32,7 @@ public static class SyncHelper
             await localModel.AddRangeFromSync(missingFromLocal);
         if (missingFromRemote.Count > 0)
             await remoteModel.AddRangeFromSync(missingFromRemote);
-        return new SyncResults(missingFromLocal, missingFromRemote);
+        return new SyncResults(missingFromLocal, missingFromRemote, true);
     }
 
     internal static async Task SyncMany(ISyncable localModel, ISyncable[] remotes, JsonSerializerOptions serializerOptions)
