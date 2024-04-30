@@ -66,12 +66,6 @@
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
   }
-
-  async function updateAllLexEntryCounts(): Promise<void> {
-    const result = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
-    const count = await result.text();
-    notifySuccess(`${count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
-  }
 </script>
 
 <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal" />
@@ -141,8 +135,4 @@
       <RefineFilterMessage total={filteredProjects.length} showing={shownProjects.length} />
     {/if}
   {/if}
-
-<DevContent>
-  <p><span class="text-bold">TEMPORARY:</span> <button class="btn btn-warning" on:click={updateAllLexEntryCounts}> Update all lex entry counts </button>
-</DevContent>
 </div>
