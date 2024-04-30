@@ -109,6 +109,35 @@ public class InMemoryApi : ILexboxApi
         ]
     };
 
+
+    public Task<WritingSystems> GetWritingSystems()
+    {
+        return Task.FromResult(_writingSystems);
+    }
+
+    public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    {
+        if (type == WritingSystemType.Analysis)
+        {
+            _writingSystems.Analysis = [.._writingSystems.Analysis, writingSystem];
+        }
+        else
+        {
+            _writingSystems.Vernacular = [.._writingSystems.Vernacular, writingSystem];
+        }
+        return Task.FromResult(writingSystem);
+    }
+
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
+    {
+        var ws = type == WritingSystemType.Analysis
+            ? _writingSystems.Analysis.Single(w => w.Id == id)
+            : _writingSystems.Vernacular.Single(w => w.Id == id);
+        if (ws is null) throw new KeyNotFoundException($"unable to find writing system with id {id}");
+        update.Apply(ws);
+        return Task.FromResult(ws);
+    }
+
     private readonly string[] _exemplars = Enumerable.Range('a', 'z').Select(c => ((char)c).ToString()).ToArray();
 
     public Task<Entry> CreateEntry(Entry entry)
@@ -180,11 +209,6 @@ public class InMemoryApi : ILexboxApi
     public Task<string[]> GetExemplars()
     {
         return Task.FromResult(_exemplars);
-    }
-
-    public Task<WritingSystems> GetWritingSystems()
-    {
-        return Task.FromResult(_writingSystems);
     }
 
     public async IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)

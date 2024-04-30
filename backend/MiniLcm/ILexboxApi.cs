@@ -7,6 +7,10 @@ namespace MiniLcm;
 public interface ILexboxApi
 {
     Task<WritingSystems> GetWritingSystems();
+    Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem);
+    Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
+        WritingSystemType type,
+        UpdateObjectInput<WritingSystem> update);
     // Task<Entry[]> GetEntries(string exemplar, QueryOptions? options = null);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);

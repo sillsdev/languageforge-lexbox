@@ -42,6 +42,12 @@ public record WritingSystems
     public WritingSystem[] Vernacular { get; set; } = [];
 }
 
+public enum WritingSystemType
+{
+    Vernacular,
+    Analysis
+}
+
 [JsonConverter(typeof(WritingSystemIdJsonConverter))]
 public readonly record struct WritingSystemId(string Code): ISpanFormattable, ISpanParsable<WritingSystemId>
 {
