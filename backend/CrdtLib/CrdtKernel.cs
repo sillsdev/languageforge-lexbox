@@ -29,7 +29,7 @@ public static class CrdtKernel
             }
         });
         services.AddSingleton(TimeProvider.System);
-        services.AddSingleton<IHybridDateTimeProvider>(provider =>
+        services.AddScoped<IHybridDateTimeProvider>(provider =>
         {
             //todo, if this causes issues getting the order correct, we can update the last date time after the db is created
             //as long as it's before we get a date time from the provider
@@ -45,9 +45,9 @@ public static class CrdtKernel
                     .EnableDetailedErrors()
                     .EnableSensitiveDataLogging();
             },
-            ServiceLifetime.Singleton);
-        services.AddSingleton<CrdtRepository>();
-        services.AddSingleton<DataModel>();
+            ServiceLifetime.Scoped);
+        services.AddScoped<CrdtRepository>();
+        services.AddScoped<DataModel>();
         return services;
     }
 }

@@ -14,7 +14,7 @@ public interface ILexboxClient
     Task OnEntryUpdated(Entry entry);
 }
 
-public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOptions) : Hub<ILexboxClient>
+public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOptions, BackgroundSyncService syncService) : Hub<ILexboxClient>
 {
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -62,12 +62,16 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
 
     public async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
-        return await lexboxApi.CreateSense(entryId, sense);
+        var createdSense = await lexboxApi.CreateSense(entryId, sense);
+        syncService.TriggerSync();
+        return createdSense;
     }
 
     public async Task<Sense> UpdateSense(Guid entryId, Guid senseId, JsonOperation[] update)
     {
-        return await lexboxApi.UpdateSense(entryId, senseId, FromOperations<Sense>(update));
+        var sense = await lexboxApi.UpdateSense(entryId, senseId, FromOperations<Sense>(update));
+        syncService.TriggerSync();
+        return sense;
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
@@ -79,7 +83,9 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
         Guid senseId,
         ExampleSentence exampleSentence)
     {
-        return await lexboxApi.CreateExampleSentence(entryId, senseId, exampleSentence);
+        var createdSentence = await lexboxApi.CreateExampleSentence(entryId, senseId, exampleSentence);
+        syncService.TriggerSync();
+        return createdSentence;
     }
 
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -87,10 +93,12 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
         Guid exampleSentenceId,
         JsonOperation[] update)
     {
-        return await lexboxApi.UpdateExampleSentence(entryId,
+        var sentence = await lexboxApi.UpdateExampleSentence(entryId,
             senseId,
             exampleSentenceId,
             FromOperations<ExampleSentence>(update));
+        syncService.TriggerSync();
+        return sentence;
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
@@ -109,5 +117,6 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
     private async Task NotifyEntryUpdated(Entry entry)
     {
         await Clients.Others.OnEntryUpdated(entry);
+        syncService.TriggerSync();
     }
 }

@@ -15,24 +15,34 @@ public class CrdtConfig
 
     public Action<JsonTypeInfo> MakeJsonTypeModifier()
     {
-        return typeInfo =>
-        {
-            if (typeInfo.Type == typeof(IChange))
-            {
-                foreach (var type in ChangeTypeListBuilder.Types)
-                {
-                    typeInfo.PolymorphismOptions!.DerivedTypes.Add(type);
-                }
-            }
+        return JsonTypeModifier;
+    }
 
-            if (typeInfo.Type == typeof(IObjectBase))
-            {
-                foreach (var type in ObjectTypeListBuilder.Types)
-                {
-                    typeInfo.PolymorphismOptions!.DerivedTypes.Add(type);
-                }
-            }
+    public IJsonTypeInfoResolver MakeJsonTypeResolver()
+    {
+        return new DefaultJsonTypeInfoResolver
+        {
+            Modifiers = { MakeJsonTypeModifier() }
         };
+    }
+
+    private void JsonTypeModifier(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Type == typeof(IChange))
+        {
+            foreach (var type in ChangeTypeListBuilder.Types)
+            {
+                typeInfo.PolymorphismOptions!.DerivedTypes.Add(type);
+            }
+        }
+
+        if (typeInfo.Type == typeof(IObjectBase))
+        {
+            foreach (var type in ObjectTypeListBuilder.Types)
+            {
+                typeInfo.PolymorphismOptions!.DerivedTypes.Add(type);
+            }
+        }
     }
 }
 
@@ -54,7 +64,7 @@ public class ObjectTypeListBuilder
 
     internal List<Action<ModelBuilder, CrdtConfig>> ModelConfigurations { get; } = [];
     public List<Action<ModelConfigurationBuilder>> ModelConventions { get; } = [];
-    
+
     public ObjectTypeListBuilder AddDbModelConvention(Action<ModelConfigurationBuilder> modelConvention)
     {
         ModelConventions.Add(modelConvention);
@@ -85,7 +95,7 @@ public class ObjectTypeListBuilder
             entity.HasOne<ObjectSnapshot>()
                 .WithOne()
                 .HasForeignKey<TDerived>(ObjectSnapshot.ShadowRefName)
-            //set null otherwise it will cascade delete, which would happen whenever snapshots are deleted 
+            //set null otherwise it will cascade delete, which would happen whenever snapshots are deleted
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.Property(e => e.DeletedAt);

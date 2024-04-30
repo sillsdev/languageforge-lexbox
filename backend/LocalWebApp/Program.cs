@@ -15,22 +15,7 @@ if (!builder.Environment.IsDevelopment())
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR().AddJsonProtocol();
-builder.Services.AddLcmCrdtClient("tmp.sqlite", builder.Services.BuildServiceProvider().GetService<ILoggerFactory>());
-builder.Services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
-{
-    jsonOptions.SerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
-    {
-        Modifiers = { crdtConfig.Value.MakeJsonTypeModifier() }
-    };
-});
-builder.Services.AddOptions<JsonHubProtocolOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
-{
-    jsonOptions.PayloadSerializerOptions.TypeInfoResolver = new DefaultJsonTypeInfoResolver
-    {
-        Modifiers = { crdtConfig.Value.MakeJsonTypeModifier() }
-    };
-});
-
+builder.Services.AddLocalAppServices();
 
 var app = builder.Build();
 

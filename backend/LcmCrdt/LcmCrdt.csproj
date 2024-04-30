@@ -17,4 +17,10 @@
       <ProjectReference Include="..\CrdtLib\CrdtLib.csproj" />
       <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Microsoft.AspNetCore.Http.Extensions">
+        <HintPath>..\LocalWebApp\bin\Debug\net8.0\win-x64\Microsoft.AspNetCore.Http.Extensions.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>

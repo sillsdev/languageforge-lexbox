@@ -12,11 +12,13 @@ using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace LcmCrdt;
 
@@ -99,8 +101,12 @@ public static class LcmCrdtKernel
                     .Add<CreateExampleSentenceChange>();
             }
         );
-        services.AddSingleton<ILexboxApi, CrdtLexboxApi>();
+        services.AddScoped<ILexboxApi, CrdtLexboxApi>();
         services.AddSingleton<IHostedService, StartupService>();
+        services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
+        {
+            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
+        });
         return services;
     }
 
@@ -108,37 +114,15 @@ public static class LcmCrdtKernel
         mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
         json => JsonSerializer.Deserialize<MultiString>(json, (JsonSerializerOptions?)null) ?? new());
 
-    private class StartupService(CrdtDbContext dbContext, IServiceProvider services) : IHostedService
+    private class StartupService(IServiceProvider services) : IHostedService
     {
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            using var serviceScope = services.CreateScope();
+            var crdtDbContext = serviceScope.ServiceProvider.GetRequiredService<CrdtDbContext>();
             //todo use migrations before releasing
             // await dbContext.Database.MigrateAsync(cancellationToken);
-            await dbContext.Database.EnsureCreatedAsync(cancellationToken);
-            var lexboxApi = services.GetRequiredService<ILexboxApi>();
-            var id = new Guid("c7328f18-118a-4f83-9d88-c408778b7f63");
-            if (await lexboxApi.GetEntry(id) is not null) return;
-            await lexboxApi.CreateEntry(new()
-            {
-                Id = id,
-                LexemeForm = { Values = { { "en", "Kevin" } } },
-                Note = { Values = { { "en", "this is a test note from Kevin" } } },
-                CitationForm = { Values = { { "en", "Kevin" } } },
-                LiteralMeaning = { Values = { { "en", "Kevin" } } },
-                Senses =
-                [
-                    new()
-                    {
-                        Gloss = { Values = { { "en", "Kevin" } } },
-                        Definition = { Values = { { "en", "Kevin" } } },
-                        SemanticDomain = ["Person"],
-                        ExampleSentences =
-                        [
-                            new() { Sentence = { Values = { { "en", "Kevin is a good guy" } } } }
-                        ]
-                    }
-                ]
-            });
+            await crdtDbContext.Database.EnsureCreatedAsync(cancellationToken);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
