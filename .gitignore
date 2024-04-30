@@ -14,3 +14,4 @@ local.env
 cookies.txt
 dump.sql
 test-results/
+**/*.sqlite
