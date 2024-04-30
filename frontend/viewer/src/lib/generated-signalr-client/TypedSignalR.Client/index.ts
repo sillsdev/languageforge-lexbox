@@ -4,8 +4,9 @@
 
 import { HubConnection, type IStreamResult, Subject } from '@microsoft/signalr';
 import type { ILexboxApiHub, ILexboxClient } from './Lexbox.ClientServer.Hubs';
-import type { WritingSystems, QueryOptions, Entry, Sense, ExampleSentence } from '../../mini-lcm';
+import type {WritingSystems, QueryOptions, Entry, Sense, ExampleSentence, WritingSystem} from '../../mini-lcm';
 import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
+import type {WritingSystemType} from '../../services/lexbox-api';
 
 
 // components
@@ -83,6 +84,14 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
 
     public readonly GetWritingSystems = async (): Promise<WritingSystems> => {
         return await this.connection.invoke("GetWritingSystems");
+    }
+
+    public readonly CreateWritingSystem = async (type: WritingSystemType, writingSystem: WritingSystem): Promise<void> => {
+        return await this.connection.invoke("CreateWritingSystem", type, writingSystem);
+    }
+
+    public readonly UpdateWritingSystem = async (wsId: string, type: WritingSystemType, update: JsonOperation[]): Promise<WritingSystem> => {
+        return await this.connection.invoke("UpdateWritingSystem", wsId, type, update);
     }
 
     public readonly GetExemplars = async (): Promise<string[]> => {

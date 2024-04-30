@@ -44,8 +44,8 @@ public record WritingSystems
 
 public enum WritingSystemType
 {
-    Vernacular,
-    Analysis
+    Vernacular = 0,
+    Analysis = 1
 }
 
 [JsonConverter(typeof(WritingSystemIdJsonConverter))]

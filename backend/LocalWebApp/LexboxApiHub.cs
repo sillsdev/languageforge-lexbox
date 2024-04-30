@@ -21,6 +21,20 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
         return await lexboxApi.GetWritingSystems();
     }
 
+    public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    {
+        var newWritingSystem = await lexboxApi.CreateWritingSystem(type, writingSystem);
+        syncService.TriggerSync();
+        return newWritingSystem;
+    }
+
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, JsonOperation[] update)
+    {
+        var writingSystem = await lexboxApi.UpdateWritingSystem(id, type, FromOperations<WritingSystem>(update));
+        syncService.TriggerSync();
+        return writingSystem;
+    }
+
     public IAsyncEnumerable<Entry> GetEntriesForExemplar(string exemplar, QueryOptions? options = null)
     {
         throw new NotImplementedException();

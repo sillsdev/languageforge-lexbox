@@ -2,14 +2,17 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import type {WritingSystems, QueryOptions, Entry, Sense, ExampleSentence} from '../../mini-lcm';
+import type {WritingSystems, QueryOptions, Entry, Sense, ExampleSentence, WritingSystem} from '../../mini-lcm';
 import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
+import type {WritingSystemType} from '../../services/lexbox-api';
 
 export type ILexboxApiHub = {
     /**
     * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.WritingSystems>
     */
     GetWritingSystems(): Promise<WritingSystems>;
+    CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void>;
+    UpdateWritingSystem(wsId: string, type: WritingSystemType, update: JsonOperation[]): Promise<WritingSystem>;
     /**
     * @returns Transpiled from System.Threading.Tasks.Task<string[]>
     */
