@@ -27,7 +27,7 @@ public class WritingSystemIdJsonConverter : JsonConverter<WritingSystemId>
 
 public record WritingSystem
 {
-    public required WritingSystemId Id { get; set; }
+    public required WritingSystemId Id { get; init; }
     public required string Name { get; set; }
     public required string Abbreviation { get; set; }
     public required string Font { get; set; }

@@ -17,10 +17,11 @@ public class WritingSystem : IObjectBase<WritingSystem>
 
     public Guid Id { get; init; }
     public DateTimeOffset? DeletedAt { get; set; }
-    public required WritingSystemId WsId { get; set; }
+    public required WritingSystemId WsId { get; init; }
     public required WritingSystemType Type { get; set; }
     public required string Name { get; set; }
     public required string Abbreviation { get; set; }
+    //todo need to accommodate font features too
     public required string Font { get; set; }
 
     public string[] Exemplars { get; set; } = [];
