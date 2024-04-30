@@ -151,7 +151,7 @@
                 <td>
                   <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
                     <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => userModal.open(user)}>
-                      <span class="max-width-full overflow-hidden text-ellipsis" title={user.name}>
+                      <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
                         {user.name}
                       </span>
                       <Icon icon="i-mdi-card-account-details-outline" />
