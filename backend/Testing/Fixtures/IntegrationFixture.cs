@@ -16,6 +16,11 @@ public class IntegrationFixture : IAsyncLifetime
     public static readonly DirectoryInfo TemplateRepo = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; private set; } = new();
 
+    static IntegrationFixture()
+    {
+        DeletePreviousTestFiles();
+    }
+
     public async Task InitializeAsync(ApiTestBase apiTester)
     {
         AdminApiTester = apiTester;
@@ -24,7 +29,6 @@ public class IntegrationFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        DeletePreviousTestFiles();
         Directory.CreateDirectory(BasePath);
         InitTemplateRepo();
         await AdminApiTester.LoginAs(AdminAuth.Username, AdminAuth.Password);
