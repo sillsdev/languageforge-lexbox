@@ -13,6 +13,7 @@ public static class LocalAppKernel
     public static void AddLocalAppServices(this IServiceCollection services)
     {
         services.AddSingleton<BackgroundSyncService>();
+        services.AddScoped<SyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient("tmp.sqlite",
             services.BuildServiceProvider().GetService<ILoggerFactory>());

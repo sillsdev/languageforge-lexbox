@@ -14,8 +14,17 @@ public interface ILexboxClient
     Task OnEntryUpdated(Entry entry);
 }
 
-public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOptions, BackgroundSyncService syncService) : Hub<ILexboxClient>
+public class LexboxApiHub(
+    ILexboxApi lexboxApi,
+    IOptions<JsonOptions> jsonOptions,
+    BackgroundSyncService backgroundSyncService,
+    SyncService syncService) : Hub<ILexboxClient>
 {
+    public override async Task OnConnectedAsync()
+    {
+        await syncService.ExecuteSync();
+    }
+
     public async Task<WritingSystems> GetWritingSystems()
     {
         return await lexboxApi.GetWritingSystems();
@@ -24,14 +33,14 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
     public async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
         var newWritingSystem = await lexboxApi.CreateWritingSystem(type, writingSystem);
-        syncService.TriggerSync();
+        backgroundSyncService.TriggerSync();
         return newWritingSystem;
     }
 
     public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, JsonOperation[] update)
     {
         var writingSystem = await lexboxApi.UpdateWritingSystem(id, type, FromOperations<WritingSystem>(update));
-        syncService.TriggerSync();
+        backgroundSyncService.TriggerSync();
         return writingSystem;
     }
 
@@ -77,14 +86,14 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
     public async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         var createdSense = await lexboxApi.CreateSense(entryId, sense);
-        syncService.TriggerSync();
+        backgroundSyncService.TriggerSync();
         return createdSense;
     }
 
     public async Task<Sense> UpdateSense(Guid entryId, Guid senseId, JsonOperation[] update)
     {
         var sense = await lexboxApi.UpdateSense(entryId, senseId, FromOperations<Sense>(update));
-        syncService.TriggerSync();
+        backgroundSyncService.TriggerSync();
         return sense;
     }
 
@@ -98,7 +107,7 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
         ExampleSentence exampleSentence)
     {
         var createdSentence = await lexboxApi.CreateExampleSentence(entryId, senseId, exampleSentence);
-        syncService.TriggerSync();
+        backgroundSyncService.TriggerSync();
         return createdSentence;
     }
 
@@ -111,7 +120,7 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
             senseId,
             exampleSentenceId,
             FromOperations<ExampleSentence>(update));
-        syncService.TriggerSync();
+        backgroundSyncService.TriggerSync();
         return sentence;
     }
 
@@ -131,6 +140,6 @@ public class LexboxApiHub(ILexboxApi lexboxApi, IOptions<JsonOptions> jsonOption
     private async Task NotifyEntryUpdated(Entry entry)
     {
         await Clients.Others.OnEntryUpdated(entry);
-        syncService.TriggerSync();
+        backgroundSyncService.TriggerSync();
     }
 }

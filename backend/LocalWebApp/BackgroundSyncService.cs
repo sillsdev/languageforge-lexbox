@@ -4,7 +4,7 @@ using MiniLcm;
 
 namespace LocalWebApp;
 
-public class BackgroundSyncService(ISyncHttp remoteSyncServer, IServiceProvider serviceProvider) : BackgroundService
+public class BackgroundSyncService(IServiceProvider serviceProvider) : BackgroundService
 {
     private readonly Channel<object> _syncResultsChannel = Channel.CreateUnbounded<object>();
 
@@ -19,14 +19,14 @@ public class BackgroundSyncService(ISyncHttp remoteSyncServer, IServiceProvider 
         using var serviceScope = serviceProvider.CreateScope();
 
 
-        var dataModel = serviceScope.ServiceProvider.GetRequiredService<DataModel>();
-        await dataModel.SyncWith(remoteSyncServer);
+        var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
+        await syncService.ExecuteSync();
         //try to seed after sync so we don't create duplicates
         await SeedDb(serviceScope.ServiceProvider.GetRequiredService<ILexboxApi>());
         await foreach (var o in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
         {
             await Task.Delay(100, stoppingToken);
-            await dataModel.SyncWith(remoteSyncServer);
+            await syncService.ExecuteSync();
         }
     }
 
