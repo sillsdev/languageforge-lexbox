@@ -15,7 +15,6 @@ public class IntegrationFixture : IAsyncLifetime
     public static readonly FileInfo TemplateRepoZip = new(TemplateRepoZipName);
     public static readonly DirectoryInfo TemplateRepo = new(Path.Join(BasePath, "_template-repo_"));
     public ApiTestBase AdminApiTester { get; private set; } = new();
-    private string AdminJwt = string.Empty;
 
     public async Task InitializeAsync(ApiTestBase apiTester)
     {
@@ -28,7 +27,7 @@ public class IntegrationFixture : IAsyncLifetime
         DeletePreviousTestFiles();
         Directory.CreateDirectory(BasePath);
         InitTemplateRepo();
-        AdminJwt = await AdminApiTester.LoginAs(AdminAuth.Username, AdminAuth.Password);
+        await AdminApiTester.LoginAs(AdminAuth.Username, AdminAuth.Password);
     }
 
     public Task DisposeAsync()
@@ -41,13 +40,14 @@ public class IntegrationFixture : IAsyncLifetime
         if (Directory.Exists(BasePath)) Directory.Delete(BasePath, true);
     }
 
-    private void InitTemplateRepo()
+    private static void InitTemplateRepo()
     {
         lock (TemplateRepo)
         {
             if (TemplateRepo.Exists) return;
             using var stream = TemplateRepoZip.OpenRead();
             ZipFile.ExtractToDirectory(stream, TemplateRepo.FullName);
+            TemplateRepo.Refresh();
         }
     }
 

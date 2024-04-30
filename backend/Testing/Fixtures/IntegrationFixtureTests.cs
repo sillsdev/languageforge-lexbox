@@ -15,7 +15,7 @@ public class IntegrationFixtureTests
     {
         var fixture = new IntegrationFixture();
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
-        fixture.TemplateRepo.EnumerateFiles()
+        IntegrationFixture.TemplateRepo.EnumerateFiles()
             .Select(f => f.Name)
             .ShouldContain("kevin-test-01.fwdata");
     }
@@ -25,9 +25,9 @@ public class IntegrationFixtureTests
     {
         var fixture = new IntegrationFixture();
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
-        fixture.TemplateRepoZip
+        IntegrationFixture.TemplateRepoZip
             .Directory!.EnumerateFiles().Select(f => f.Name)
-            .ShouldContain(fixture.TemplateRepoZip.Name);
+            .ShouldContain(IntegrationFixture.TemplateRepoZip.Name);
     }
 
     [Fact]
