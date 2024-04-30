@@ -22,7 +22,6 @@
   import {type QueryParams, toSearchParams} from '$lib/util/query-params';
   import {derived} from 'svelte/store';
   import type {AdminSearchParams, DraftProject} from './+page';
-  import DevContent from '$lib/layout/DevContent.svelte';
   import AdminTabs from './AdminTabs.svelte';
   import type {CreateProjectInput} from '$lib/gql/types';
 
@@ -33,7 +32,7 @@
   $: filters = queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
 
-  const { notifyWarning, notifySuccess } = useNotifications();
+  const { notifyWarning } = useNotifications();
 
   const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 
