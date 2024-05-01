@@ -1,5 +1,6 @@
 using System.Runtime.Serialization;
 using System.Text.Json;
+using Crdt.Core;
 using CrdtLib.Changes;
 using CrdtLib.Entities;
 using CrdtLib.Helpers;
@@ -51,7 +52,7 @@ public class CrdtDbContext(
                 entry =>  JsonSerializer.Serialize(entry, jsonSerializerOptions),
                 json => DeserializeObject(json)
             );
-        var changeEntity = builder.Entity<ChangeEntity>();
+        var changeEntity = builder.Entity<ChangeEntity<IChange>>();
         changeEntity.HasKey(c => new {c.CommitId, c.Index});
         changeEntity.Property(c => c.Change)
             .HasColumnType("jsonb")
@@ -79,20 +80,12 @@ public class CrdtDbContext(
     }
 
     public DbSet<Commit> Commits { get; set; } = null!;
-    public DbSet<ChangeEntity> ChangeEntities { get; set; } = null!;
+    public DbSet<ChangeEntity<IChange>> ChangeEntities { get; set; } = null!;
     public DbSet<ObjectSnapshot> Snapshots { get; set; } = null!;
 }
 
 public static class DbSetExtensions
 {
-    public static IQueryable<Commit> DefaultOrder(this IQueryable<Commit> queryable)
-    {
-        return queryable
-            .OrderBy(c => c.HybridDateTime.DateTime)
-            .ThenBy(c => c.HybridDateTime.Counter)
-            .ThenBy(c => c.Id);
-    }
-
     public static IQueryable<ObjectSnapshot> DefaultOrder(this IQueryable<ObjectSnapshot> queryable)
     {
         return queryable

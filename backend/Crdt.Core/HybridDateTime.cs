@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Internal;
-
-namespace CrdtLib.Helpers;
+﻿
+namespace Crdt.Core;
 
 public record HybridDateTime : IComparable<HybridDateTime>
 {

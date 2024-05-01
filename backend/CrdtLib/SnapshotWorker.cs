@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Crdt.Core;
 using CrdtLib.Changes;
 using CrdtLib.Db;
 using CrdtLib.Entities;

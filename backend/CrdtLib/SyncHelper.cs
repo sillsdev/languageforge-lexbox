@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Crdt.Core;
 
 namespace CrdtLib;
 
@@ -28,9 +29,9 @@ public static class SyncHelper
             missingFromRemote = Clone(missingFromRemote, serializerOptions);
         }
 
-        if (missingFromLocal.Count > 0)
+        if (missingFromLocal.Length > 0)
             await localModel.AddRangeFromSync(missingFromLocal);
-        if (missingFromRemote.Count > 0)
+        if (missingFromRemote.Length > 0)
             await remoteModel.AddRangeFromSync(missingFromRemote);
         return new SyncResults(missingFromLocal, missingFromRemote, true);
     }

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
+using Crdt.Core;
 using CrdtLib.Changes;
 using CrdtLib.Db;
 using CrdtLib.Entities;

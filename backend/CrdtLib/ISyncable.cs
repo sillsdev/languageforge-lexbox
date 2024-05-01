@@ -1,12 +1,13 @@
-﻿using CrdtLib.Db;
-
+﻿using Crdt.Core;
+using CrdtLib.Changes;
+using CrdtLib.Db;
 namespace CrdtLib;
 
 public interface ISyncable
 {
     Task AddRangeFromSync(IEnumerable<Commit> commits);
     Task<SyncState> GetSyncState();
-    Task<ChangesResult> GetChanges(SyncState otherHeads);
+    Task<ChangesResult<Commit>> GetChanges(SyncState otherHeads);
     Task<SyncResults> SyncWith(ISyncable remoteModel);
     Task SyncMany(ISyncable[] remotes);
     ValueTask<bool> ShouldSync();
@@ -26,9 +27,9 @@ public class NullSyncable : ISyncable
         return Task.FromResult(new SyncState([]));
     }
 
-    public Task<ChangesResult> GetChanges(SyncState otherHeads)
+    public Task<ChangesResult<Commit>> GetChanges(SyncState otherHeads)
     {
-        return Task.FromResult(ChangesResult.Empty);
+        return Task.FromResult(ChangesResult<Commit>.Empty);
     }
 
     public Task<SyncResults> SyncWith(ISyncable remoteModel)

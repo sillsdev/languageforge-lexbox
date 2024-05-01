@@ -1,4 +1,6 @@
 ﻿using System.Linq.Expressions;
+using Crdt.Core;
+using CrdtLib.Changes;
 using CrdtLib.Entities;
 using CrdtLib.Helpers;
 using Microsoft.EntityFrameworkCore;
@@ -14,8 +16,8 @@ public class CrdtRepository(CrdtDbContext _dbContext, IOptions<CrdtConfig> crdtC
     {
         return _dbContext.Database.BeginTransactionAsync();
     }
-    
-    
+
+
     public async Task<bool> HasCommit(Guid commitId)
     {
         return await _dbContext.Commits.AnyAsync(c => c.Id == commitId);
@@ -77,7 +79,7 @@ public class CrdtRepository(CrdtDbContext _dbContext, IOptions<CrdtConfig> crdtC
         ArgumentNullException.ThrowIfNull(lastCommit);
         var newCommits = await CurrentCommits()
             .Include(c => c.ChangeEntities)
-            .Where(c => lastCommit.HybridDateTime.DateTime < c.HybridDateTime.DateTime 
+            .Where(c => lastCommit.HybridDateTime.DateTime < c.HybridDateTime.DateTime
                         || (lastCommit.HybridDateTime.DateTime == c.HybridDateTime.DateTime && lastCommit.HybridDateTime.Counter < c.HybridDateTime.Counter))
             .ToArrayAsync();
         return (snapshots, newCommits);
@@ -132,36 +134,15 @@ public class CrdtRepository(CrdtDbContext _dbContext, IOptions<CrdtConfig> crdtC
 
     public async Task<SyncState> GetCurrentSyncState()
     {
-        return new(await _dbContext.Commits.Where(c => currentTime == null || c.HybridDateTime.DateTime <= currentTime).GroupBy(c => c.ClientId)
-            .Select(g => new { ClientId = g.Key, DateTime = g.Max(c => c.HybridDateTime.DateTime) })
-            .ToDictionaryAsync(c => c.ClientId, c => c.DateTime.Ticks));
+        return await _dbContext.Commits
+            .Where(c => currentTime == null || c.HybridDateTime.DateTime <= currentTime)
+            .GetSyncState();
     }
 
-    public async Task<ChangesResult> GetChanges(SyncState remoteState)
+    public async Task<ChangesResult<Commit>> GetChanges(SyncState remoteState)
     {
-        var newHistory = new List<Commit>();
-        var localSyncState = await GetCurrentSyncState();
-        foreach (var (clientId, localTimestamp) in localSyncState.ClientHeads)
-        {
-            if (!remoteState.ClientHeads.TryGetValue(clientId, out var otherTimestamp))
-            {
-                //todo slow, it would be better if we could query on client id and get latest changes per client
-                //client is new to the other history
-                newHistory.AddRange(await _dbContext.Commits.Include(c => c.ChangeEntities).DefaultOrder().Where(c => c.ClientId == clientId)
-                    .ToArrayAsync());
-            }
-            else if (localTimestamp > otherTimestamp)
-            {
-                var otherDt = new DateTimeOffset(otherTimestamp, TimeSpan.Zero);
-                //todo even slower we want to also filter out changes that are already in the other history
-                //client has newer history than the other history
-                newHistory.AddRange(await _dbContext.Commits.Include(c => c.ChangeEntities).DefaultOrder()
-                    .Where(c => c.ClientId == clientId && c.HybridDateTime.DateTime > otherDt)
-                    .ToArrayAsync());
-            }
-        }
-
-        return new (newHistory, localSyncState);
+        var dbContextCommits = _dbContext.Commits;
+        return await dbContextCommits.GetChanges<Commit, IChange>(remoteState);
     }
 
     public async Task AddSnapshots(IEnumerable<ObjectSnapshot> snapshots)
@@ -212,14 +193,14 @@ public class CrdtRepository(CrdtDbContext _dbContext, IOptions<CrdtConfig> crdtC
         existingEntry.CurrentValues.SetValues(objectSnapshot.Entity);
         existingEntry.Property(ObjectSnapshot.ShadowRefName).CurrentValue = objectSnapshot.Id;
     }
-    
+
     private async ValueTask<EntityEntry?> GetEntityEntry(Type entityType, Guid entityId)
     {
         if (!crdtConfig.Value.EnableProjectedTables) return null;
         var entity = await _dbContext.FindAsync(entityType, entityId);
         return entity is not null ? _dbContext.Entry(entity) : null;
     }
-    
+
     public CrdtRepository GetScopedRepository(DateTimeOffset newCurrentTime)
     {
         return new CrdtRepository(_dbContext, crdtConfig, newCurrentTime);

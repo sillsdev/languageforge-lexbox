@@ -1,4 +1,5 @@
-﻿using CrdtLib;
+﻿using Crdt.Core;
+using CrdtLib;
 using CrdtLib.Db;
 using LcmCrdt;
 using Refit;
@@ -65,7 +66,7 @@ public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, string or
         await restSyncClient.AddRange(projectId, commits);
     }
 
-    async Task<ChangesResult> ISyncable.GetChanges(SyncState otherHeads)
+    async Task<ChangesResult<Commit>> ISyncable.GetChanges(SyncState otherHeads)
     {
         var changes = await restSyncClient.GetChanges(projectId, otherHeads);
         ArgumentNullException.ThrowIfNull(changes);
@@ -102,5 +103,5 @@ public interface ISyncHttp
     internal Task<SyncState> GetSyncState(Guid id);
 
     [Post("/api/sync/{id}/changes")]
-    internal Task<ChangesResult> GetChanges(Guid id, SyncState otherHeads);
+    internal Task<ChangesResult<Commit>> GetChanges(Guid id, SyncState otherHeads);
 }

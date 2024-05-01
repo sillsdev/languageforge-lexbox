@@ -1,15 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO.Hashing;
 using System.Text.Json.Serialization;
-using CrdtLib.Changes;
-using CrdtLib.Helpers;
 
-namespace CrdtLib.Db;
+namespace Crdt.Core;
 
-public class Commit
+public class CommitBase
 {
     [JsonConstructor]
-    protected Commit(Guid id, string hash, string parentHash, HybridDateTime hybridDateTime)
+    protected CommitBase(Guid id, string hash, string parentHash, HybridDateTime hybridDateTime)
     {
         Id = id;
         Hash = hash;
@@ -17,14 +15,14 @@ public class Commit
         HybridDateTime = hybridDateTime;
     }
 
-    public Commit(Guid id)
+    public CommitBase(Guid id)
     {
         Id = id;
         Hash = GenerateHash("");
         ParentHash = "";
     }
 
-    public Commit() : this(Guid.NewGuid())
+    public CommitBase() : this(Guid.NewGuid())
     {
     }
 
@@ -53,47 +51,25 @@ public class Commit
 
     public required Guid ClientId { get; init; }
 
-    public List<ChangeEntity> ChangeEntities { get; init; } = new();
-    [JsonIgnore]
-    public List<ObjectSnapshot> Snapshots { get; init; } = [];
-
     public override string ToString()
     {
         return $"{Id} [{DateTime}]";
     }
 }
 
-public class ChangeEntity
+public class CommitBase<TChange> : CommitBase
 {
-    [SetsRequiredMembers]
-    public ChangeEntity(IChange change, int index)
-    {
-        Change = change;
-        Index = index;
-        CommitId = change.CommitId;
-        EntityId = change.EntityId;
-    }
-
-    [JsonConstructor]
-    private ChangeEntity()
+    protected CommitBase(Guid id, string hash, string parentHash, HybridDateTime hybridDateTime) : base(id, hash, parentHash, hybridDateTime)
     {
     }
 
-    public required int Index { get; set; }
-    public Guid CommitId { get; set; }
-    public Guid EntityId { get; set; }
-    private IChange _change;
-
-    public required IChange Change
+    public CommitBase(Guid id) : base(id)
     {
-        get => _change;
-        [MemberNotNull(nameof(_change))]
-        set
-        {
-            _change = value;
-            _change.CommitId = CommitId;
-            if (_change.EntityId != Guid.Empty) EntityId = _change.EntityId;
-            _change.EntityId = EntityId;
-        }
     }
+
+    public CommitBase()
+    {
+    }
+
+    public List<ChangeEntity<TChange>> ChangeEntities { get; init; } = new();
 }

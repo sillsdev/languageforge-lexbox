@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using Crdt.Core;
 using CrdtLib.Db;
 using CrdtLib.Entities;
 
@@ -8,6 +10,16 @@ namespace CrdtLib.Changes;
 [JsonPolymorphic]
 public interface IChange
 {
+    public ChangeEntity<IChange> ToChangeEntity(int index)
+    {
+        return new ChangeEntity<IChange>
+        {
+            Change = this,
+            Index = index,
+            CommitId = CommitId,
+            EntityId = EntityId
+        };
+    }
     [JsonIgnore]
     Guid CommitId { get; set; }
 

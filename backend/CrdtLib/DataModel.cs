@@ -1,21 +1,16 @@
 using System.Linq.Expressions;
 using System.Text.Json;
+using Crdt.Core;
 using CrdtLib.Db;
 using CrdtLib.Entities;
 using CrdtLib.Changes;
 using CrdtLib.Helpers;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace CrdtLib;
 
-public record SyncResults(List<Commit> MissingFromLocal, List<Commit> MissingFromRemote, bool IsSynced);
-
-public record ChangesResult(List<Commit> MissingFromClient, SyncState ServerSyncState)
-{
-    public static ChangesResult Empty => new([], new SyncState([]));
-}
-
-public record SyncState(Dictionary<Guid, long> ClientHeads);
+public record SyncResults(Commit[] MissingFromLocal, Commit[] MissingFromRemote, bool IsSynced);
 
 public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions serializerOptions, IHybridDateTimeProvider timeProvider) : ISyncable
 {
@@ -43,7 +38,7 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         {
             ClientId = clientId,
             HybridDateTime = timeProvider.GetDateTime(),
-            ChangeEntities = {new ChangeEntity(change, 0)}
+            ChangeEntities = {change.ToChangeEntity(0)}
         };
         await Add(commit);
         return commit;
@@ -56,7 +51,7 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         {
             ClientId = clientId,
             HybridDateTime = timeProvider.GetDateTime(),
-            ChangeEntities = [..change.Select((c, i) => new ChangeEntity(c, i))]
+            ChangeEntities = [..change.Select((c, i) => c.ToChangeEntity(i))]
         };
         await Add(commit);
         return commit;
@@ -198,7 +193,7 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         return await crdtRepository.GetCurrentSyncState();
     }
 
-    public async Task<ChangesResult> GetChanges(SyncState remoteState)
+    public async Task<ChangesResult<Commit>> GetChanges(SyncState remoteState)
     {
         return await crdtRepository.GetChanges(remoteState);
     }
