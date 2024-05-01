@@ -53,11 +53,6 @@ public class Commit
 
     public required Guid ClientId { get; init; }
 
-    public void AddChange(IChange change)
-    {
-        ChangeEntities.Add(new ChangeEntity(change));
-    }
-
     public List<ChangeEntity> ChangeEntities { get; init; } = new();
     [JsonIgnore]
     public List<ObjectSnapshot> Snapshots { get; init; } = [];
@@ -71,10 +66,10 @@ public class Commit
 public class ChangeEntity
 {
     [SetsRequiredMembers]
-    public ChangeEntity(IChange change)
+    public ChangeEntity(IChange change, int index)
     {
-        Id = change.Id;
         Change = change;
+        Index = index;
         CommitId = change.CommitId;
         EntityId = change.EntityId;
     }
@@ -84,7 +79,7 @@ public class ChangeEntity
     {
     }
 
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public required int Index { get; set; }
     public Guid CommitId { get; set; }
     public Guid EntityId { get; set; }
     private IChange _change;
@@ -96,7 +91,6 @@ public class ChangeEntity
         set
         {
             _change = value;
-            _change.Id = Id;
             _change.CommitId = CommitId;
             if (_change.EntityId != Guid.Empty) EntityId = _change.EntityId;
             _change.EntityId = EntityId;

@@ -52,7 +52,7 @@ public class CrdtDbContext(
                 json => DeserializeObject(json)
             );
         var changeEntity = builder.Entity<ChangeEntity>();
-        changeEntity.HasKey(c => c.Id);
+        changeEntity.HasKey(c => new {c.CommitId, c.Index});
         changeEntity.Property(c => c.Change)
             .HasColumnType("jsonb")
             .HasConversion(

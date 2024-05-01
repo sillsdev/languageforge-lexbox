@@ -43,7 +43,7 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         {
             ClientId = clientId,
             HybridDateTime = timeProvider.GetDateTime(),
-            ChangeEntities = {new ChangeEntity(change)}
+            ChangeEntities = {new ChangeEntity(change, 0)}
         };
         await Add(commit);
         return commit;
@@ -56,7 +56,7 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         {
             ClientId = clientId,
             HybridDateTime = timeProvider.GetDateTime(),
-            ChangeEntities = [..change.Select(c => new ChangeEntity(c))]
+            ChangeEntities = [..change.Select((c, i) => new ChangeEntity(c, i))]
         };
         await Add(commit);
         return commit;

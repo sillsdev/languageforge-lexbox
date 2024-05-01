@@ -9,9 +9,6 @@ namespace CrdtLib.Changes;
 public interface IChange
 {
     [JsonIgnore]
-    Guid Id { get; set; }
-
-    [JsonIgnore]
     Guid CommitId { get; set; }
 
     [JsonIgnore]
@@ -28,12 +25,8 @@ public abstract class Change<T> : IChange where T : IObjectBase
 {
     protected Change(Guid entityId)
     {
-        Id = Guid.NewGuid();
         EntityId = entityId;
     }
-
-    [JsonIgnore]
-    public Guid Id { get; set; }
 
     [JsonIgnore]
     public Guid CommitId { get; set; }

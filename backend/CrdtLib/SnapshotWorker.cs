@@ -51,11 +51,11 @@ public class SnapshotWorker
                 || (c.HybridDateTime.DateTime == _oldestSnapshot.HybridDateTime.DateTime &&
                     c.Id > _oldestSnapshot.CommitId)
                 || c.HybridDateTime.DateTime > _oldestSnapshot.HybridDateTime.DateTime
-                || (c.HybridDateTime.DateTime == _oldestSnapshot.HybridDateTime.DateTime 
+                || (c.HybridDateTime.DateTime == _oldestSnapshot.HybridDateTime.DateTime
                 && c.HybridDateTime.Counter > _oldestSnapshot.HybridDateTime.Counter))
             .Include(c => c.ChangeEntities).ToArrayAsync();
         await ApplyCommitChanges(commits, true);
-        
+
         //intermediate snapshots should be added first, as the last snapshot added for an entity will be used in the projected tables
         await _crdtRepository.AddIfNew(_newIntermediateSnapshots);
         await _crdtRepository.AddSnapshots(_pendingSnapshots.Values);
@@ -75,7 +75,7 @@ public class SnapshotWorker
 
             previousCommitHash = commit.Hash;
             commitIndex++;
-            foreach (var commitChange in commit.ChangeEntities)
+            foreach (var commitChange in commit.ChangeEntities.OrderBy(c => c.Index))
             {
                 IObjectBase entity;
                 var snapshot = await GetSnapshot(commitChange.EntityId);
@@ -105,7 +105,7 @@ public class SnapshotWorker
                 if (hasBeenApplied) continue;
 
                 //to get the state in a point in time we would have to find a snapshot before that time, then apply any commits that came after that snapshot but still before the point in time.
-                //we would probably want the most recent snapshot to always follow current, so we might need to track the number of changes a given snapshot represents so we can 
+                //we would probably want the most recent snapshot to always follow current, so we might need to track the number of changes a given snapshot represents so we can
                 //decide when to create a new snapshot instead of replacing one inline. This would be done by using the current snapshots parent, instead of the snapshot itself.
                 // s0 -> s1 -> sCurrent
                 // if always taking snapshots would become
@@ -182,7 +182,7 @@ public class SnapshotWorker
 
         return null;
     }
-    
+
     public void AddSnapshot(ObjectSnapshot snapshot)
     {
         //if there was already a pending snapshot there's no need to store it as both may point to the same commit
