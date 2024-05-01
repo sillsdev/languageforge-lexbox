@@ -13,24 +13,26 @@ public static class LocalAppKernel
     public static void AddLocalAppServices(this IServiceCollection services)
     {
         services.AddSingleton<BackgroundSyncService>();
+        services.AddHttpContextAccessor();
+        services.AddScoped(typeof(IHubActivator<>), typeof(ProjectHubActivator<>));
         services.AddScoped<SyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
-        services.AddLcmCrdtClient("tmp.sqlite",
-            services.BuildServiceProvider().GetService<ILoggerFactory>());
+        services.AddLcmCrdtClient();
 
         services.AddOptions<JsonHubProtocolOptions>().PostConfigure<IOptions<CrdtConfig>>(
             (jsonOptions, crdtConfig) =>
             {
                 jsonOptions.PayloadSerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
             });
-        services.AddRefitClient<ISyncHttp>(provider => new RefitSettings
+        services.AddHttpClient();
+        services.AddSingleton<RefitSettings>(provider => new RefitSettings
+        {
+            ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
             {
-                ContentSerializer = new SystemTextJsonContentSerializer(new(JsonSerializerDefaults.Web)
-                {
-                    TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value.MakeJsonTypeResolver()
-                })
+                TypeInfoResolver = provider.GetRequiredService<IOptions<CrdtConfig>>().Value
+                    .MakeJsonTypeResolver()
             })
-            .ConfigureHttpClient(client => client.BaseAddress = new Uri("http://localhost:5158/"));
-        services.AddSingleton<CrdtHttpSync>();
+        });
+        services.AddSingleton<CrdtHttpSyncService>();
     }
 }

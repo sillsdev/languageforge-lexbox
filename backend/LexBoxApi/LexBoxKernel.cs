@@ -63,7 +63,8 @@ public static class LexBoxKernel
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
 
-        services.AddLcmCrdtClient("server.sqlite");
+        services.AddLcmCrdtClient();
+        services.AddSingleton<IProjectProvider<Guid>, CrdtSyncApi.LexboxProjectProvider>();
     }
 
     private class SwaggerValidationService(IAsyncSwaggerProvider swaggerProvider): BackgroundService

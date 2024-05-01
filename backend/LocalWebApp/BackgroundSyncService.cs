@@ -1,33 +1,57 @@
 ﻿using System.Threading.Channels;
 using CrdtLib;
+using LcmCrdt;
 using MiniLcm;
 
 namespace LocalWebApp;
 
-public class BackgroundSyncService(IServiceProvider serviceProvider) : BackgroundService
+public class BackgroundSyncService(
+    IServiceProvider serviceProvider,
+    ProjectsService projectsService,
+    ProjectContext projectContext) : BackgroundService
 {
-    private readonly Channel<object> _syncResultsChannel = Channel.CreateUnbounded<object>();
+    private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
 
     public void TriggerSync()
     {
-        _syncResultsChannel.Writer.TryWrite(new());
+        _syncResultsChannel.Writer.TryWrite(projectContext.Project ??
+                                            throw new InvalidOperationException("No project selected"));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await Task.Delay(1_000, stoppingToken);
-        using var serviceScope = serviceProvider.CreateScope();
+        var crdtProjects = await projectsService.ListProjects();
+        foreach (var crdtProject in crdtProjects)
+        {
+            await SyncProject(crdtProject);
+        }
 
+        if (!projectsService.ProjectExists("sena-3"))
+        {
+            await projectsService.CreateProject("sena-3",
+                new Guid("a8c49503-b3d7-4cfa-b20f-03cf2d9fa100"),
+                "http://localhost:5158",
+                async (provider, project) =>
+                {
+                    var (_, _, isSynced) = await SyncProject(project);
+                    if (isSynced) return;//skip seeding if already synced, this means the project exists in the remote server
+                    await SeedDb(provider.GetRequiredService<ILexboxApi>());
+                });
+        }
 
-        var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
-        await syncService.ExecuteSync();
-        //try to seed after sync so we don't create duplicates
-        await SeedDb(serviceScope.ServiceProvider.GetRequiredService<ILexboxApi>());
-        await foreach (var o in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
+        await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
         {
             await Task.Delay(100, stoppingToken);
-            await syncService.ExecuteSync();
+            await SyncProject(project);
         }
+    }
+
+    private async Task<SyncResults> SyncProject(CrdtProject crdtProject)
+    {
+        using var serviceScope = projectsService.CreateProjectScope(crdtProject);
+        var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
+        return await syncService.ExecuteSync();
     }
 
     private async Task SeedDb(ILexboxApi lexboxApi)
@@ -62,23 +86,14 @@ public class BackgroundSyncService(IServiceProvider serviceProvider) : Backgroun
         var writingSystems = await lexboxApi.GetWritingSystems();
         if (writingSystems.Analysis.Length == 0)
         {
-            await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis, new()
-            {
-                Id = "en",
-                Name = "English",
-                Abbreviation = "en",
-                Font = "Arial"
-            });
+            await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
+                new() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
         }
+
         if (writingSystems.Vernacular.Length == 0)
         {
-            await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular, new()
-            {
-                Id = "en",
-                Name = "English",
-                Abbreviation = "en",
-                Font = "Arial"
-            });
+            await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
+                new() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
         }
     }
 }

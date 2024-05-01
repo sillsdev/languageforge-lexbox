@@ -1,11 +1,16 @@
-﻿ using CrdtLib;
+﻿using CrdtLib;
+using LcmCrdt;
 
 namespace LocalWebApp;
 
-public class SyncService(DataModel dataModel, CrdtHttpSync remoteSyncServer)
+public class SyncService(
+    DataModel dataModel,
+    CrdtHttpSyncService remoteSyncServiceServer,
+    CurrentProjectService currentProjectService)
 {
-    public async Task ExecuteSync()
+    public async Task<SyncResults> ExecuteSync()
     {
-        await dataModel.SyncWith(remoteSyncServer);
+        var remoteModel = remoteSyncServiceServer.CreateProjectSyncable(await currentProjectService.GetProjectData());
+        return await dataModel.SyncWith(remoteModel);
     }
 }

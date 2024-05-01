@@ -8,7 +8,7 @@ import App from './App.svelte'
 async function run() {
 
   const connection = new HubConnectionBuilder()
-    .withUrl("/api/hub/project")
+    .withUrl("/api/hub/sena-3/lexbox")
     .withAutomaticReconnect()
     .build();
   await connection.start();

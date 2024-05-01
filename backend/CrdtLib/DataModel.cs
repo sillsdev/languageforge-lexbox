@@ -14,15 +14,6 @@ public record ChangesResult(List<Commit> MissingFromClient, SyncState ServerSync
 {
     public static ChangesResult Empty => new([], new SyncState([]));
 }
-public interface ISyncable
-{
-    Task AddRangeFromSync(IEnumerable<Commit> commits);
-    Task<SyncState> GetSyncState();
-    Task<ChangesResult> GetChanges(SyncState otherHeads);
-    Task<SyncResults> SyncWith(ISyncable remoteModel);
-    Task SyncMany(ISyncable[] remotes);
-    ValueTask<bool> ShouldSync();
-}
 
 public record SyncState(Dictionary<Guid, long> ClientHeads);
 

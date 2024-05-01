@@ -17,6 +17,13 @@ public static class CrdtKernel
         Action<DbContextOptionsBuilder> configureOptions,
         Action<CrdtConfig> configureCrdt)
     {
+        return AddCrdtData(services, (_, builder) => configureOptions(builder), configureCrdt);
+    }
+
+    public static IServiceCollection AddCrdtData(this IServiceCollection services,
+        Action<IServiceProvider, DbContextOptionsBuilder> configureOptions,
+        Action<CrdtConfig> configureCrdt)
+    {
         services.AddOptions<CrdtConfig>().Configure(configureCrdt);
         services.AddSingleton(sp => new JsonSerializerOptions(JsonSerializerDefaults.General)
         {
@@ -39,7 +46,7 @@ public static class CrdtKernel
         });
         services.AddDbContext<CrdtDbContext>((provider, builder) =>
             {
-                configureOptions(builder);
+                configureOptions(provider, builder);
                 builder
                     .AddInterceptors(provider.GetServices<IInterceptor>().ToArray())
                     .EnableDetailedErrors()
