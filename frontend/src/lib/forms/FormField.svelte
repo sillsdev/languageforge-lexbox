@@ -33,7 +33,7 @@
   <slot />
   {#if description}
     <label for={id} class="label pb-0">
-      <span class="label-text-alt">
+      <span class="label-text-alt description">
         <Markdown md={description} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
       </span>
     </label>

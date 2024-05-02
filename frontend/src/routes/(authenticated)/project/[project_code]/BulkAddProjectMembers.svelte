@@ -96,22 +96,26 @@
   <FormModal bind:this={formModal} {schema} let:errors>
     <span slot="title">{$t('project_page.bulk_add_members.modal_title')}</span>
     {#if currentStep == BulkAddSteps.Add}
-      <p>{$t('project_page.bulk_add_members.explanation')}</p>
+      <p class="mb-2">{$t('project_page.bulk_add_members.explanation')}</p>
       <Input
         id="shared_password"
         type="password"
         autocomplete="new-password"
         label={$t('project_page.bulk_add_members.shared_password')}
+        description={$t('project_page.bulk_add_members.shared_password_description')}
         bind:value={$form.password}
         error={errors.password}
       />
       <PasswordStrengthMeter score={0} password={$form.password} />
-      <TextArea
-        id="usernamesText"
-        label={$t('project_page.bulk_add_members.usernames')}
-        bind:value={$form.usernamesText}
-        error={errors.usernamesText}
-      />
+      <div class="contents usernames">
+        <TextArea
+          id="usernamesText"
+          label={$t('project_page.bulk_add_members.usernames')}
+          description={$t('project_page.bulk_add_members.usernames_description')}
+          bind:value={$form.usernamesText}
+          error={errors.usernamesText}
+        />
+      </div>
     {:else if currentStep == BulkAddSteps.Results}
       <p class="flex gap-1 items-center mb-4">
         <Icon icon="i-mdi-plus" color="text-success" />
@@ -167,3 +171,9 @@
     <span slot="closeText">{$t('project_page.bulk_add_members.finish_button')}</span>
   </FormModal>
 </AdminContent>
+
+<style lang="postcss">
+  .usernames :global(.description) {
+    @apply text-success;
+  }
+</style>

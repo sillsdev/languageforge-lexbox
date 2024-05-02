@@ -278,7 +278,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
     "button_register": "Registrarse",
     "email": "Correo electrónico requerido",
     "label_email": "Correo electrónico",
-    "description_email": "Este será su inicio de sesión para enviar/recibir",
+    "description_email": "Este será su inicio de sesión para **enviar/recibir**",
     "label_name": "Nombre",
     "label_password": "Contraseña",
     "name_missing": "Falta el nombre",

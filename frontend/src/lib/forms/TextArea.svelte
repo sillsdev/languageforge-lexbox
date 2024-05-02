@@ -3,6 +3,7 @@
   import FormField from './FormField.svelte';
 
   export let label: string;
+  export let description: string | undefined = undefined;
   export let value: string | undefined = undefined;
   export let id = randomFormId();
   export let autofocus = false;
@@ -12,7 +13,7 @@
 </script>
 
 <!-- https://daisyui.com/components/input -->
-<FormField {id} {error} {label} {autofocus}>
+<FormField {id} {error} {label} {autofocus} {description}>
   <!-- svelte-ignore a11y-autofocus -->
   <textarea
     {id}
