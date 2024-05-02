@@ -13,6 +13,7 @@
     "column_edit": "Edit",
     "project_table_title": "Projects",
     "user_table_title": "Users",
+    "how_to_create_users": "How to Create Users",
     "is_draft": "Draft",
     "email_not_verified": "Not Verified",
     "notifications": {
@@ -86,7 +87,8 @@
     "app_name": "Language Depot"
   },
   "appmenu": {
-    "log_out": "Log out"
+    "log_out": "Log out",
+    "help": "Help"
   },
   "close": "Close",
   "delete_modal": {
@@ -181,7 +183,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "unspecified": "Unspecified",
       "confidentiality_unspecified": "Confidentiality unspecified",
       "label": "This project is confidential. The safety of project members is a security concern.",
-      "description": "Only project members and administrators will be able to see this project.",
+      "description": "Only project members and administrators will be able to see this project. For more information see [Project Confidentiality](https://scribehow.com/shared/Project_Confidentiality__s6TX8_wFQ1ejVpH1s5Bsmw?referrer=documents).",
       "suggestions": "Consider using an alias for the project, project members and any other identifying information in the project. (For similar reasons to those mentioned for [confidential Paratext projects](https://paratext.org/paratext-help-and-support/registry-training-and-help/confidential-projects/).)",
       "modal": {
         "title": "Project confidentiality",

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Select } from '$lib/forms';
   import t, { type I18nKey } from '$lib/i18n';
+  import { helpLinks } from '../help';
   import type { Confidentiality } from './ProjectFilter.svelte';
 
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive
@@ -13,7 +14,7 @@
 </script>
 
 <div class="relative">
-  <Select label={$t('project.confidential.confidentiality')} bind:value on:change>
+  <Select label={$t('project.confidential.confidentiality')} helpLink={helpLinks.confidentiality} bind:value on:change>
     <option value={undefined}>{$t('common.any')}</option>
     {#each Object.entries(options) as [value, label]}
       <option value={value}>{$t(label)}</option>

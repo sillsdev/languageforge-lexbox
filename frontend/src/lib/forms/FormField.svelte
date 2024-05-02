@@ -4,11 +4,14 @@
   import { randomFormId } from './utils';
   import Markdown from 'svelte-exmarkdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
+  import type { HelpLink } from '$lib/components/help';
+  import SupHelp from '$lib/components/help/SupHelp.svelte';
 
   export let label: string;
   export let description: string | undefined = undefined;
   export let error: string | string[] | undefined = undefined;
   export let id: string = randomFormId();
+  export let helpLink: HelpLink | undefined = undefined;
   /**
    * For login pages, EditableText, admin pages etc. auto focus is not a real accessibility problem.
    * So we allow/support it and disable a11y-autofocus warnings in generic places.
@@ -28,6 +31,9 @@
   <label for={id} class="label">
     <span class="label-text">
       {label}
+      {#if helpLink}
+        <SupHelp {helpLink} />
+      {/if}
     </span>
   </label>
   <slot />

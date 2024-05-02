@@ -12,6 +12,7 @@
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
   import { distinct } from '$lib/util/array';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
+  import { SupHelp, helpLinks } from '$lib/components/help';
 
   enum BulkAddSteps {
     Add,
@@ -94,7 +95,10 @@
   </BadgeButton>
 
   <FormModal bind:this={formModal} {schema} let:errors>
-    <span slot="title">{$t('project_page.bulk_add_members.modal_title')}</span>
+    <span slot="title">
+      {$t('project_page.bulk_add_members.modal_title')}
+      <SupHelp helpLink={helpLinks.bulkAddCreate} />
+    </span>
     {#if currentStep == BulkAddSteps.Add}
       <p class="mb-2">{$t('project_page.bulk_add_members.explanation')}</p>
       <Input
