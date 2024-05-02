@@ -43,6 +43,7 @@ If you're running Windows, you may need to add the following lines to your `C:\W
 ```
 127.0.0.1 resumable.localhost
 127.0.0.1 hg.localhost
+127.0.0.1 admin.localhost
 ```
 
 On Linux, anything with a `.localhost` domain is automatically mapped to 127.0.0.1 so you don't need to edit your `/etc/hosts` file.
