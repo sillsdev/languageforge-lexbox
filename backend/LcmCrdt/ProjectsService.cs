@@ -38,13 +38,14 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         Guid? id = null,
         string? domain = null,
         Func<IServiceProvider, CrdtProject, Task>? afterCreate = null,
-        string? sqliteFile = null)
+        string? sqliteFile = null,
+        CrdtDbContext? db = null)
     {
         sqliteFile ??= $"{name}.sqlite";
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
         using var serviceScope = CreateProjectScope(crdtProject);
-        var db = serviceScope.ServiceProvider.GetRequiredService<CrdtDbContext>();
+        db ??= serviceScope.ServiceProvider.GetRequiredService<CrdtDbContext>();
         await db.Database.EnsureCreatedAsync();
         db.Set<ProjectData>().Add(new ProjectData(name, id ?? Guid.NewGuid(), domain));
         await db.SaveChangesAsync();

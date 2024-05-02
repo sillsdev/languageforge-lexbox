@@ -31,6 +31,11 @@ public class MultiString: IDictionary
     private readonly MultiStringDict _values;
     public virtual IDictionary<WritingSystemId, string> Values => _values;
 
+    public string this[WritingSystemId key]
+    {
+        get => _values[key];
+        set => _values[key] = value;
+    }
     private class MultiStringDict : Dictionary<WritingSystemId, string>,
 #pragma warning disable CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.
         IDictionary<WritingSystemId, string>,
