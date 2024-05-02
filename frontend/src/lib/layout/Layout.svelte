@@ -9,6 +9,7 @@
   import { page } from '$app/stores';
   import type { LayoutData } from '../../routes/$types';
   import DevContent from './DevContent.svelte';
+  import { helpLinks } from '$lib/components/help';
 
   let menuToggle = false;
   $: data = $page.data as LayoutData;
@@ -49,6 +50,11 @@
               <Icon size="text-2xl" icon="i-mdi-box-variant" />
             </a>
           </DevContent>
+          <a href={helpLinks.helpList} target="_blank" rel="external"
+            class="btn btn-sm btn-info btn-outline max-sm:hidden">
+            {$t('appmenu.help')}
+            <Icon icon="i-mdi-open-in-new" size="text-lg" />
+          </a>
           <AdminContent>
             <a href="/admin" class="btn btn-sm btn-accent">
               <span class="max-sm:hidden">

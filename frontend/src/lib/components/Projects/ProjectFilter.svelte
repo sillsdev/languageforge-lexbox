@@ -47,6 +47,8 @@
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
   import ProjectConfidentialityFilterSelect from './ProjectConfidentialityFilterSelect.svelte';
+  import SupHelp from '../help/SupHelp.svelte';
+  import { helpLinks } from '../help';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   export let filters: Writable<Filters>;
@@ -157,7 +159,10 @@
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
           <span class="label-text inline-flex items-center gap-2">
-            {$t('project.filter.hide_drafts')}
+            <span>
+              {$t('project.filter.hide_drafts')}
+              <SupHelp helpLink={helpLinks.projectRequest} />
+            </span>
             <Icon icon="i-mdi-script" color="text-warning" />
           </span>
           <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle toggle-warning" />

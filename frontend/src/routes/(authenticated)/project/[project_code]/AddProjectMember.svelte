@@ -10,6 +10,7 @@
   import { page } from '$app/stores'
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import type { SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { SupHelp, helpLinks } from '$lib/components/help';
 
   export let projectId: string;
   const schema = z.object({
@@ -74,7 +75,10 @@
 </BadgeButton>
 
 <FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{$t('project_page.add_user.modal_title')}</span>
+  <span slot="title">
+    {$t('project_page.add_user.modal_title')}
+    <SupHelp helpLink={helpLinks.addProjectMember} />
+  </span>
   {#if $page.data.user?.isAdmin}
     <UserTypeahead
       id="usernameOrEmail"

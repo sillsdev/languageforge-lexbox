@@ -10,6 +10,7 @@
 </script>
 
 <Checkbox
+  id="confidentiality"
   label={$t('project.confidential.label')}
   description={$t('project.confidential.description')}
   variant="checkbox-warning"
