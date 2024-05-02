@@ -52,7 +52,7 @@
   let selectedEntry: IEntry | undefined;
 </script>
 
-<div class="flex flex-col h-full">
+<div class="app flex flex-col h-full">
   <AppBar title="FLEx-Lite" class="bg-surface-300 min-h-12" menuIcon=''>
     <div class="flex-grow"></div>
     <Field

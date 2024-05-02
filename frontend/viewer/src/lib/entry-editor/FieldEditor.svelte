@@ -5,7 +5,6 @@
   import SingleOptionEditor from './SingleOptionEditor.svelte';
   import SingleFieldEditor from './SingleFieldEditor.svelte';
   import MultiFieldEditor from './MultiFieldEditor.svelte';
-  import './field.postcss';
 
   type T = $$Generic<unknown>;
 
@@ -35,3 +34,7 @@
 {:else if isMultiOption(value)}
   <MultiOptionEditor on:change {field} bind:value />
 {/if}
+
+<style global>
+  @import './field.postcss';
+</style>
