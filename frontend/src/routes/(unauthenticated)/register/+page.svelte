@@ -55,14 +55,16 @@
 <TitlePage title={$t('register.title')}>
   <ProtectedForm {enhance} bind:turnstileToken>
     <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
-    <Input
-      id="email"
-      label={$t('register.label_email')}
-      description={$t('register.description_email')}
-      type="email"
-      bind:value={$form.email}
-      error={$errors.email}
-    />
+    <div class="contents email">
+      <Input
+        id="email"
+        label={$t('register.label_email')}
+        description={$t('register.description_email')}
+        type="email"
+        bind:value={$form.email}
+        error={$errors.email}
+      />
+    </div>
     <Input
       id="password"
       label={$t('register.label_password')}
@@ -79,3 +81,9 @@
     <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
   </ProtectedForm>
 </TitlePage>
+
+<style lang="postcss">
+  .email :global(.description) {
+    @apply text-success;
+  }
+</style>
