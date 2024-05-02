@@ -21,7 +21,7 @@ public static class CrdtSyncApi
                 foreach (var commit in commits)
                 {
                     commit.ProjectId = id;
-                    dbContext.Add(commit);
+                    dbContext.Add(commit);//todo should only add if not exists, based on commit id
                 }
 
                 await dbContext.SaveChangesAsync();

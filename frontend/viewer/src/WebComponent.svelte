@@ -1,5 +1,5 @@
 <script>
-  import App from './App.svelte';
+  import ProjectView from './ProjectView.svelte';
 
 </script>
 <svelte:options customElement={{ tag: 'lexbox-svelte' }} />
@@ -8,4 +8,4 @@
   @import './app.postcss';
 </style>
 
-<App />
+<ProjectView isConnected />
