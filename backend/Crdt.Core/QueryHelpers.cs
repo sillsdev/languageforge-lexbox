@@ -8,7 +8,8 @@ public static class QueryHelpers
     {
         var dict = await commits.GroupBy(c => c.ClientId)
             .Select(g => new { ClientId = g.Key, DateTime = g.Max(c => c.HybridDateTime.DateTime) })
-            .ToDictionaryAsync(c => c.ClientId, c => c.DateTime.Ticks);
+            .AsAsyncEnumerable()//this is so the ticks are calculated server side instead of the db
+            .ToDictionaryAsync(c => c.ClientId, c => c.DateTime.ToUnixTimeMilliseconds());
         return new SyncState(dict);
     }
 
@@ -28,7 +29,7 @@ public static class QueryHelpers
             }
             else if (localTimestamp > otherTimestamp)
             {
-                var otherDt = new DateTimeOffset(otherTimestamp, TimeSpan.Zero);
+                var otherDt = DateTimeOffset.FromUnixTimeMilliseconds(otherTimestamp);
                 //todo even slower we want to also filter out changes that are already in the other history
                 //client has newer history than the other history
                 newHistory.AddRange(await commits.Include(c => c.ChangeEntities).DefaultOrder()
