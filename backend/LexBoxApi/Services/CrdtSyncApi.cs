@@ -1,7 +1,6 @@
-﻿using CrdtLib;
-using CrdtLib.Db;
-using LcmCrdt;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Crdt.Core;
+using LexData;
+using LexData.Entities;
 
 namespace LexBoxApi.Services;
 
@@ -12,36 +11,28 @@ public static class CrdtSyncApi
     {
         var group = endpoints.MapGroup(path);
         group.MapGet("/get",
-            async (Guid id, DataModelProvider<Guid> provider) =>
+            async (Guid id, LexBoxDbContext dbContext) =>
             {
-                var dataModel = await provider.GetDataModel(id);
-                return await dataModel.GetSyncState();
+                return await dbContext.Set<CrdtCommit>().Where(c => c.ProjectId == id).GetSyncState();
             });
         group.MapPost("/add",
-            async (Guid id, DataModelProvider<Guid> provider, Commit[] commits) =>
+            async (Guid id, CrdtCommit[] commits, LexBoxDbContext dbContext) =>
             {
-                var dataModel = await provider.GetDataModel(id);
-                await ((ISyncable)dataModel).AddRangeFromSync(commits);
+                foreach (var commit in commits)
+                {
+                    commit.ProjectId = id;
+                    dbContext.Add(commit);
+                }
+
+                await dbContext.SaveChangesAsync();
             });
         group.MapPost("/changes",
-            async (Guid id, DataModelProvider<Guid> provider, SyncState clientHeads) =>
+            async (Guid id, SyncState clientHeads, LexBoxDbContext dbContext) =>
             {
-                ArgumentNullException.ThrowIfNull(clientHeads);
-                var dataModel = await provider.GetDataModel(id);
-                return await dataModel.GetChanges(clientHeads);
+                var commits = dbContext.Set<CrdtCommit>().Where(c => c.ProjectId == id);
+                return await commits.GetChanges<CrdtCommit, JsonChange>(clientHeads);
             });
 
         return group;
-    }
-
-    public class LexboxProjectProvider(ProjectsService projectsService) : IProjectProvider<Guid>
-    {
-        public async ValueTask<CrdtProject> GetProject(Guid id)
-        {
-            //todo get project by identifier
-            var project = projectsService.GetProject("Sena 3");
-            if (project is null) project = await projectsService.CreateProject("Sena 3", id, null);
-            return project;
-        }
     }
 }

@@ -30,12 +30,12 @@ public class BackgroundSyncService(
         if (!projectsService.ProjectExists("sena-3"))
         {
             await projectsService.CreateProject("sena-3",
-                new Guid("a8c49503-b3d7-4cfa-b20f-03cf2d9fa100"),
+                new Guid("0ebc5976-058d-4447-aaa7-297f8569f968"), //same as sena 3 project id in SeedDatabase
                 "http://localhost:5158",
                 async (provider, project) =>
                 {
                     var (_, _, isSynced) = await SyncProject(project);
-                    if (isSynced) return;//skip seeding if already synced, this means the project exists in the remote server
+                    //seed will only create if missing, so seed anyway since the project should exist on the server always
                     await SeedDb(provider.GetRequiredService<ILexboxApi>());
                 });
         }

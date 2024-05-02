@@ -1,4 +1,3 @@
-using LcmCrdt;
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
@@ -62,9 +61,6 @@ public static class LexBoxKernel
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
-
-        services.AddLcmCrdtClient();
-        services.AddSingleton<IProjectProvider<Guid>, CrdtSyncApi.LexboxProjectProvider>();
     }
 
     private class SwaggerValidationService(IAsyncSwaggerProvider swaggerProvider): BackgroundService
