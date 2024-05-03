@@ -11,6 +11,7 @@ backend/Testing/SyncReverseProxy/TestData.cs
 .task
 deployment/local-dev/collector-config.yaml
 local.env
+.env.local
 cookies.txt
 dump.sql
 test-results/

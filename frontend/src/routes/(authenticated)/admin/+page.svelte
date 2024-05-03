@@ -21,6 +21,7 @@
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
+  import type { Confidentiality } from '$lib/components/Projects';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -33,6 +34,8 @@
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
+    confidential: queryParam.string<Confidentiality | undefined>(undefined),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
@@ -151,7 +154,7 @@
                 <td>
                   <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
                     <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => userModal.open(user)}>
-                      <span class="max-width-full overflow-hidden text-ellipsis" title={user.name}>
+                      <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
                         {user.name}
                       </span>
                       <Icon icon="i-mdi-card-account-details-outline" />

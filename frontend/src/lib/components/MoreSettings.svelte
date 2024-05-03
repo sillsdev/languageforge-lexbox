@@ -1,5 +1,7 @@
 <script>
   import t from '$lib/i18n';
+
+  export let column = false;
 </script>
 
 <div class="collapse border-2 border-base-200 collapse-arrow mt-4">
@@ -7,7 +9,7 @@
   <div class="collapse-title text-lg">{$t('more_settings.title')}</div>
   <div class="collapse-content">
     <div class="divider mt-0" />
-    <div class="flex justify-end gap-4 max-sm:flex-col">
+    <div class="flex justify-end gap-4 max-sm:flex-col" class:flex-col={column} class:sm:items-end={column}>
       <slot />
     </div>
   </div>

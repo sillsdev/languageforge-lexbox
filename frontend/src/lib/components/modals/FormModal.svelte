@@ -15,6 +15,7 @@
 </script>
 
 <script lang="ts">
+  import type { SubmitVariant } from '$lib/forms/SubmitButton.svelte';
   import { Button, Form, FormError, lexSuperForm, SubmitButton } from '$lib/forms';
   import type { Readable } from 'svelte/store';
 
@@ -26,6 +27,7 @@
   };
 
   export let schema: Schema;
+  export let submitVariant: SubmitVariant = 'btn-primary';
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
@@ -96,7 +98,7 @@
   </svelte:fragment>
   <svelte:fragment slot="actions" let:submitting>
     {#if !done}
-      <SubmitButton form="modalForm" loading={submitting}>
+      <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
         <slot name="submitText" />
       </SubmitButton>
     {:else}

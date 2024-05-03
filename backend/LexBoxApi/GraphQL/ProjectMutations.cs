@@ -279,6 +279,25 @@ public class ProjectMutations
     }
 
     [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> SetProjectConfidentiality(SetProjectConfidentialityInput input,
+        IPermissionService permissionService,
+        LexBoxDbContext dbContext)
+    {
+        permissionService.AssertCanManageProject(input.ProjectId);
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        NotFoundException.ThrowIfNull(project);
+
+        project.IsConfidential = input.IsConfidential;
+        project.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
     [Error<LastMemberCantLeaveException>]
     [UseMutationConvention]
     [RefreshJwt]

@@ -13,6 +13,8 @@ import type {
   DeleteProjectUserMutation,
   LeaveProjectMutation,
   ProjectPageQuery,
+  SetProjectConfidentialityInput,
+  SetProjectConfidentialityMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -42,6 +44,7 @@ export async function load(event: PageLoadEvent) {
 						lastCommit
 						createdDate
 						retentionPolicy
+						isConfidential
 						users {
 							id
 							role
@@ -89,7 +92,7 @@ export async function load(event: PageLoadEvent) {
         }
       `),
       { projectCode }
-  );
+    );
 
   const nonNullableProject = tryMakeNonNullable(projectResult.projectByCode);
   if (!nonNullableProject) {
@@ -258,6 +261,30 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
   return result;
 }
 
+export async function _setProjectConfidentiality(input: SetProjectConfidentialityInput): $OpResult<SetProjectConfidentialityMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation SetProjectConfidentiality($input: SetProjectConfidentialityInput!) {
+          setProjectConfidentiality(input: $input) {
+            project {
+              id
+              isConfidential
+            }
+            errors {
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
+}
+
 export async function _deleteProjectUser(projectId: string, userId: string): $OpResult<DeleteProjectUserMutation> {
   const result = await getClient()
     .mutation(
@@ -284,7 +311,7 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
 }
 
 export async function _refreshProjectRepoInfo(projectCode: string): Promise<void> {
-    const result = await getClient().query(graphql(`
+  const result = await getClient().query(graphql(`
         query refreshProjectStatus($projectCode: String!) {
             projectByCode(code: $projectCode) {
                 id
@@ -309,10 +336,10 @@ export async function _refreshProjectRepoInfo(projectCode: string): Promise<void
 
 
 export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMutation> {
-//language=GraphQL
+  //language=GraphQL
   const result = await getClient()
-  .mutation(
-    graphql(`
+    .mutation(
+      graphql(`
       mutation LeaveProject($input: LeaveProjectInput!) {
         leaveProject(input: $input) {
           project {
@@ -324,11 +351,11 @@ export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMu
         }
       }
     `),
-    {input: { projectId } },
-    //disable invalidate otherwise the page will reload
-    //and the user will be shown that they don't have permission for this project
-    {fetchOptions: {lexboxResponseHandlingConfig: {invalidateUserOnJwtRefresh: false}}}
-  );
+      { input: { projectId } },
+      //disable invalidate otherwise the page will reload
+      //and the user will be shown that they don't have permission for this project
+      { fetchOptions: { lexboxResponseHandlingConfig: { invalidateUserOnJwtRefresh: false } } }
+    );
 
   return result;
 }

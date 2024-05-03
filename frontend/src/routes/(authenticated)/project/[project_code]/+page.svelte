@@ -40,6 +40,8 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
+  import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
+  import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -197,8 +199,8 @@
     }
   }
 
+  let projectConfidentialityModal: ProjectConfidentialityModal;
   let openInFlexModal: OpenInFlexModal;
-
   let leaveModal: ConfirmModal;
 
   async function leaveProject(): Promise<void> {
@@ -307,6 +309,7 @@
     </svelte:fragment>
     <svelte:fragment slot="header-content">
       <BadgeList>
+        <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
         <ProjectTypeBadge type={project.type} />
         <Badge>
           <FormatRetentionPolicy policy={project.retentionPolicy} />
@@ -318,13 +321,14 @@
             disabled={!user.isAdmin}
             on:click={resetProject}
           >
-            <Badge type="badge-warning">
+            <Badge variant="badge-warning">
               {$t('project_page.reset_project_modal.reset_in_progress')}
               <span class="i-mdi-warning text-xl mb-[-2px]" />
             </Badge>
           </button>
         {/if}
       </BadgeList>
+      <ProjectConfidentialityModal bind:this={projectConfidentialityModal} projectId={project.id} isConfidential={project.isConfidential ?? undefined} />
     </svelte:fragment>
     <div class="space-y-4">
       <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
@@ -345,33 +349,35 @@
           <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>
         {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
-        <div class="text-lg inline-flex items-center gap-1">
-          {$t('project_page.num_entries')}:
-          <span class="text-secondary">
-            {$number(lexEntryCount)}
-          </span>
-          <AdminContent>
-            <IconButton
-              loading={loadingEntryCount}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateEntryCount}
-            />
-          </AdminContent>
-        </div>
+          <div class="text-lg flex items-center gap-1">
+            {$t('project_page.num_entries')}:
+            <span class="text-secondary">
+              {$number(lexEntryCount)}
+            </span>
+            <AdminContent>
+              <IconButton
+                loading={loadingEntryCount}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={updateEntryCount}
+              />
+            </AdminContent>
+          </div>
         {/if}
-        <div class="text-lg">{$t('project_page.description')}:</div>
-        <span class="text-secondary">
-          <EditableText
-            value={project.description}
-            disabled={!canManage}
-            saveHandler={updateProjectDescription}
-            placeholder={$t('project_page.add_description')}
-            multiline
-          />
-        </span>
+        <div>
+          <div class="text-lg">{$t('project_page.description')}:</div>
+          <span class="text-secondary">
+            <EditableText
+              value={project.description}
+              disabled={!canManage}
+              saveHandler={updateProjectDescription}
+              placeholder={$t('project_page.add_description')}
+              multiline
+            />
+          </span>
+        </div>
       </div>
 
       <div>
@@ -455,32 +461,39 @@
 
       <div class="divider"/>
 
-      <MoreSettings>
-        <Button outline variant="btn-error" on:click={leaveProject}>
-          {$t('project_page.leave.leave_project')}
-          <Icon icon="i-mdi-exit-run"/>
-        </Button>
-        <ConfirmModal bind:this={leaveModal}
-                      title={$t('project_page.leave.confirm_title')}
-                      submitText={$t('project_page.leave.leave_action')}
-                      submitIcon="i-mdi-exit-run"
-                      submitVariant="btn-error"
-                      cancelText={$t('project_page.leave.dont_leave')}>
-          <p>{$t('project_page.leave.confirm_leave')}</p>
-        </ConfirmModal>
-        {#if canManage}
-          <button class="btn btn-error" on:click={softDeleteProject}>
-            {$t('delete_project_modal.submit')}
-            <TrashIcon/>
-          </button>
-          <AdminContent>
+      <MoreSettings column>
+        <div class="flex gap-4 max-sm:flex-col-reverse">
+          {#if canManage}
+            <button class="btn btn-error" on:click={softDeleteProject}>
+              {$t('delete_project_modal.submit')}
+              <TrashIcon/>
+            </button>
+            <Button outline variant="btn-warning" on:click={projectConfidentialityModal.openModal}>
+              {$t('project.confidential.set_confidentiality')}
+              <Icon icon="i-mdi-shield-lock-outline"/>
+            </Button>
+            {/if}
+          <Button outline variant="btn-error" on:click={leaveProject}>
+            {$t('project_page.leave.leave_project')}
+            <Icon icon="i-mdi-exit-run"/>
+          </Button>
+          <ConfirmModal bind:this={leaveModal}
+                        title={$t('project_page.leave.confirm_title')}
+                        submitText={$t('project_page.leave.leave_action')}
+                        submitIcon="i-mdi-exit-run"
+                        submitVariant="btn-error"
+                        cancelText={$t('project_page.leave.dont_leave')}>
+            <p>{$t('project_page.leave.confirm_leave')}</p>
+          </ConfirmModal>
+        </div>
+        <AdminContent>
+          <div class="divider m-0" />
+          <div class="flex gap-4 max-sm:flex-col-reverse">
             <button class="btn btn-accent" on:click={resetProject}>
               {$t('project_page.reset_project_modal.submit')}
               <CircleArrowIcon/>
             </button>
             <ResetProjectModal bind:this={resetProjectModal}/>
-            <Button on:click={verify}>Verify Repository</Button>
-            <Button on:click={recover}>HG Recover</Button>
             <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
               <div class="card">
                 <div class="card-body overflow-auto">
@@ -495,9 +508,11 @@
                 </div>
               </div>
             </Modal>
-          </AdminContent>
-          <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
-        {/if}
+            <Button on:click={recover}>HG Recover</Button>
+            <Button on:click={verify}>HG Verify</Button>
+          </div>
+        </AdminContent>
+        <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
       </MoreSettings>
 
     </div>

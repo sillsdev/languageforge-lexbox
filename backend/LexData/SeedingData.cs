@@ -88,6 +88,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
             {
                 LexEntryCount = -1
             },
+            IsConfidential = null,
             Users = new()
             {
                 new()
@@ -136,7 +137,8 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
-            Users = []
+            IsConfidential = false,
+            Users = [],
         });
 
         lexBoxDbContext.Attach(new Organization

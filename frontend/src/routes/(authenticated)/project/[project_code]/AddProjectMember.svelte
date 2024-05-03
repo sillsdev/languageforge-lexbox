@@ -69,7 +69,7 @@
   }
 </script>
 
-<BadgeButton type="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
+<BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
   {$t('project_page.add_user.add_button')}
 </BadgeButton>
 

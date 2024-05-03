@@ -48,6 +48,8 @@ export async function load(event: PageLoadEvent) {
     ...(memberSearch ? { projectManager: { or: [ { email: { eq: memberSearch } }, { username: { eq: memberSearch } } ] } } : {})
   };
 
+
+
   //language=GraphQL
   const projectResultsPromise = client.awaitedQueryStore(event.fetch, graphql(`
         query loadAdminDashboardProjects($withDeletedProjects: Boolean!, $projectFilter: ProjectFilterInput, $draftFilter: DraftProjectFilterInput) {
@@ -62,6 +64,7 @@ export async function load(event: PageLoadEvent) {
               name
               lastCommit
               type
+              isConfidential
               deletedDate
               createdDate
               userCount
@@ -76,6 +79,7 @@ export async function load(event: PageLoadEvent) {
               createdDate
               description
               retentionPolicy
+              isConfidential
               projectManagerId
             }
         }
