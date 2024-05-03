@@ -14,9 +14,21 @@ public class ProjectHubActivator<THub>(
 
     private bool? _created;
 
+    private CrdtProject? GetProject()
+    {
+        if (contextAccessor.HttpContext is null) return null;
+        var projectNameObj = contextAccessor.HttpContext.Request.RouteValues.GetValueOrDefault(LexboxApiHub.ProjectRouteKey, null);
+        if (projectNameObj is null) return null;
+        var projectName = projectNameObj.ToString();
+        if (string.IsNullOrWhiteSpace(projectName)) return null;
+        return projectsService.GetProject(projectName);
+    }
+
     public THub Create()
     {
-        projectContext.Project = projectsService.GetProject(contextAccessor.HttpContext);
+        // Project must be set before creating the hub, this is because the db context depends on the project to get its connection string
+        projectContext.Project = GetProject();
+
         _created = false;
         var hub = serviceProvider.GetService<THub>();
         if (hub == null)

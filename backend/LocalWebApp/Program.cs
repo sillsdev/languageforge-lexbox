@@ -24,7 +24,7 @@ if (app.Environment.IsDevelopment())
 var sharedOptions = new SharedOptions() { FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly) };
 app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
 app.UseStaticFiles(new StaticFileOptions(sharedOptions));
-app.MapHub<LexboxApiHub>("/api/hub/{project}/lexbox");
+app.MapHub<LexboxApiHub>($"/api/hub/{{{LexboxApiHub.ProjectRouteKey}}}/lexbox");
 app.MapGet("/api/projects", (ProjectsService projectService) => projectService.ListProjects());
 app.MapPost("/api/project",
     async (ProjectsService projectService, string name) =>
