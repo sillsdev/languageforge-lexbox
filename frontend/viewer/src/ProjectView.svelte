@@ -16,6 +16,8 @@
   import {fade} from 'svelte/transition';
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
 
+  export let loading = false;
+
   const viewConfig = writable<ViewConfig>({
     generateExternalChanges: false,
     showExtraFields: false,
@@ -53,6 +55,8 @@
   let showSearchDialog = false;
   let showOptionsDialog = false;
   let selectedEntry: IEntry | undefined;
+
+  $: _loading = !$entries || !$writingSystems || loading;
 </script>
 
 <div class="app flex flex-col h-full">
@@ -75,7 +79,7 @@
     </div>
   </AppBar>
 
-  {#if !$entries || !$writingSystems}
+  {#if _loading}
     <div class="absolute w-full h-full z-10 bg-surface-100 flex grow items-center justify-center" out:fade={{duration: 800}}>
       <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75">
         Loading... <ProgressCircle class="text-surface-content" />
