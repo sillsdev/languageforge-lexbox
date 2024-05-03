@@ -76,7 +76,6 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
             sortWs = ws.Vernacular[0].Id;
         }
 
-        LexValue? val;
         await foreach (var entry in Entries.AsQueryable()
                            //todo, you can only sort by headword for now
                            .Select(entry => new {entry, headword = entry.CitationForm![sortWs].Value ?? entry.Lexeme![sortWs].Value ?? string.Empty})
