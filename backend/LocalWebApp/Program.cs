@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using LcmCrdt;
 using LocalWebApp;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
@@ -26,11 +27,16 @@ app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
 app.UseStaticFiles(new StaticFileOptions(sharedOptions));
 app.MapHub<LexboxApiHub>($"/api/hub/{{{LexboxApiHub.ProjectRouteKey}}}/lexbox");
 app.MapGet("/api/projects", (ProjectsService projectService) => projectService.ListProjects());
+Regex alphaNumericRegex = new Regex("^[a-zA-Z0-9]*$");
 app.MapPost("/api/project",
     async (ProjectsService projectService, string name) =>
     {
+        if (string.IsNullOrWhiteSpace(name))
+            return Results.BadRequest("Project name is required");
         if (projectService.ProjectExists(name))
             return Results.BadRequest("Project already exists");
+        if (!alphaNumericRegex.IsMatch(name))
+            return Results.BadRequest("Project name must be alphanumeric");
         await projectService.CreateProject(name, afterCreate: async (provider, project) =>
         {
             var lexboxApi = provider.GetRequiredService<ILexboxApi>();
