@@ -39,10 +39,15 @@ export class LexboxServiceProvider {
     }
   }
 }
-if (!window.lexbox) { window.lexbox = { ServiceProvider: new LexboxServiceProvider()}; }
-else window.lexbox.ServiceProvider = new LexboxServiceProvider();
-window.lexbox.ServiceProvider.setService(LexboxServices.LexboxApi, new InMemoryApiService());
+
+if (!window.lexbox) {
+  window.lexbox = {ServiceProvider: new LexboxServiceProvider()};
+} else window.lexbox.ServiceProvider = new LexboxServiceProvider();
 
 export function useLexboxApi() {
-  return window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
+  let api = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
+  if (!api) {
+    throw new Error('LexboxApi service not found');
+  }
+  return api;
 }
