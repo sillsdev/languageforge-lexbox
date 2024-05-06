@@ -59,7 +59,7 @@
   $: _loading = !$entries || !$writingSystems || loading;
 </script>
 
-<div class="app flex flex-col h-full">
+<div class="app flex flex-col h-full PortalTarget">
   <AppBar title="FLEx-Lite" class="bg-surface-300 min-h-12" menuIcon=''>
     <div class="flex-grow"></div>
     <Field

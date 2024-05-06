@@ -247,8 +247,8 @@ importers:
         specifier: ^2.12.0
         version: 2.12.0
       svelte-ux:
-        specifier: ^0.62.8
-        version: 0.62.8(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.15)
+        specifier: ^0.62.10
+        version: 0.62.10(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.15)
       type-fest:
         specifier: ^4.10.2
         version: 4.10.2
@@ -9408,8 +9408,8 @@ packages:
       turnstile-types: 1.2.0
     dev: true
 
-  /svelte-ux@0.62.8(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.15):
-    resolution: {integrity: sha512-M+FbcMtNpJVN4zhLc54Ks2ClKfTPmF3eNzoA4CuHGGog4RwJ/Xd1d/Wn4BXCxEjSZZT5SRQzws95f78S3ZDu3w==}
+  /svelte-ux@0.62.10(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.15):
+    resolution: {integrity: sha512-ugKMRfTXiMWe8dPgsP4cayu1OXRIUigxs4LhaQjmSq+5iMYDldY6E7xFf4fn/4kq4iw0bZdGJhPACI9/RcQGzw==}
     peerDependencies:
       svelte: ^3.56.0 || ^4.0.0
     dependencies:
