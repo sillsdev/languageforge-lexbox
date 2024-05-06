@@ -18,7 +18,7 @@
 <Modal bind:this={modal}>
   <div class="prose open-with-flex-modal max-w-none">
     <h3>{$t('project_page.open_with_flex.button')}</h3>
-    <div class="alert alert-info mb-4">
+    <div class="alert alert-info mb-4 not-prose">
       <span class="i-mdi-info-outline text-xl"></span>
       <Markdown md={$t('project_page.open_with_flex.supported_version')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
     </div>
@@ -42,10 +42,6 @@
 
 <style>
   :global(.open-with-flex-modal .collapse-content > *) {
-    margin: 0;
-  }
-
-  :global(.open-with-flex-modal .alert p) {
     margin: 0;
   }
 </style>

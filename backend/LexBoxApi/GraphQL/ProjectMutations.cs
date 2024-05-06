@@ -77,7 +77,7 @@ public class ProjectMutations
     {
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
-        if (project is null) throw new NotFoundException("Project not found");
+        NotFoundException.ThrowIfNull(project);
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
         if (user is null)
         {
@@ -85,7 +85,7 @@ public class ProjectMutations
             // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
             if (email is null)
             {
-                throw new NotFoundException("User not found");
+                throw NotFoundException.ForType<User>();
             }
             else
             {
@@ -123,7 +123,7 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
-        if (project is null) throw new NotFoundException("Project not found");
+        if (project is null) throw new NotFoundException("Project not found", "project");
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];
         List<UserProjectRole> ExistingMembers = [];
@@ -225,7 +225,7 @@ public class ProjectMutations
                 .Include(r => r.Project)
                 .Include(r => r.User)
                 .FirstOrDefaultAsync(u => u.ProjectId == input.ProjectId && u.UserId == input.UserId);
-        if (projectUser?.User is null || projectUser.Project is null) throw new NotFoundException("Project member not found");
+        if (projectUser?.User is null || projectUser.Project is null) throw NotFoundException.ForType<ProjectUsers>();
         projectUser.User.AssertHasVerifiedEmailForRole(input.Role);
         projectUser.Role = input.Role;
         projectUser.User.UpdateCreateProjectsPermission(input.Role);
@@ -251,7 +251,7 @@ public class ProjectMutations
         if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
 
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
-        if (project is null) throw new NotFoundException("Project not found");
+        NotFoundException.ThrowIfNull(project);
 
         project.Name = input.Name;
         project.UpdateUpdatedDate();
@@ -270,9 +270,28 @@ public class ProjectMutations
     {
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
-        if (project is null) throw new NotFoundException("Project not found");
+        NotFoundException.ThrowIfNull(project);
 
         project.Description = input.Description;
+        project.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> SetProjectConfidentiality(SetProjectConfidentialityInput input,
+        IPermissionService permissionService,
+        LexBoxDbContext dbContext)
+    {
+        permissionService.AssertCanManageProject(input.ProjectId);
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        NotFoundException.ThrowIfNull(project);
+
+        project.IsConfidential = input.IsConfidential;
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
@@ -290,7 +309,7 @@ public class ProjectMutations
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
             .Include(p => p.Users)
             .SingleOrDefaultAsync();
-        if (project is null) throw new NotFoundException("Project not found");
+        NotFoundException.ThrowIfNull(project);
         var member = project.Users.FirstOrDefault(u => u.UserId == loggedInContext.User.Id);
         if (member is null) return project;
         if (member.Role == ProjectRole.Manager && project.Users.Count(m => m.Role == ProjectRole.Manager) == 1)
@@ -342,7 +361,7 @@ public class ProjectMutations
             if (deletedDraftCount == 0)
             {
                 // No draft project either, so return standard project not found error
-                throw new NotFoundException("Project not found");
+                throw NotFoundException.ForType<Project>();
             }
             else
             {

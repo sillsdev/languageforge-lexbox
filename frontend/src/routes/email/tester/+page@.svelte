@@ -46,12 +46,13 @@
                 code: 'myproj-test-onestory',
                 type: ProjectType.OneStoryEditor,
                 description: 'My project description',
-                retentionPolicy: RetentionPolicy.Test
+                retentionPolicy: RetentionPolicy.Test,
+                isConfidential: false,
             },
             user: {
                 name: 'Bob',
                 email: 'test@test.com'
-            }
+            },
         },
         {
             label: 'Create Project Request (Language Project)',
@@ -64,6 +65,7 @@
                 type: ProjectType.OneStoryEditor,
                 description: 'My project description',
                 retentionPolicy: RetentionPolicy.Verified,
+                isConfidential: true,
             },
             user: {
                 name: 'Bob',
@@ -82,6 +84,7 @@
                 description: 'My project description',
                 retentionPolicy: RetentionPolicy.Dev,
                 projectManagerId: '703701a8-005c-4747-91f2-ac7650455118', // manager from seeding data
+                isConfidential: true,
             },
             user: {
                 name: 'Bob',

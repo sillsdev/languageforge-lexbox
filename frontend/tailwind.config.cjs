@@ -12,7 +12,12 @@ module.exports = {
   ],
   daisyui: {
     themes: [
-      'winter',
+      {
+        'winter': {
+          ...require("daisyui/src/theming/themes")["winter"],
+          "warning": "#FFBE00", // warning color from corporate, because it has much better contrast
+        },
+      },
       {
         'business': {
           ...require("daisyui/src/theming/themes")["business"],

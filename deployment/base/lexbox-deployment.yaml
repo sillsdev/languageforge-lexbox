@@ -50,7 +50,8 @@ spec:
     spec:
       securityContext:
         runAsGroup: 33
-        runAsUser: 0
+        runAsUser: 33
+        runAsNonRoot: true
       containers:
       - name: lexbox-api
         # TODO: need to parameterize this tag
@@ -105,6 +106,12 @@ spec:
             valueFrom:
               secretKeyRef:
                   key: SEED_USER_PASSWORD
+                  name: db
+                  optional: true
+          - name: DbConfig__QaAdminEmail
+            valueFrom:
+              secretKeyRef:
+                  key: QA_ADMIN_EMAIL
                   name: db
                   optional: true
           - name: DbConfig__LexBoxConnectionString

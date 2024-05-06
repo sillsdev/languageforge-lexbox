@@ -3,6 +3,7 @@ using System;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    partial class LexBoxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240425220400_AddOrgs")]
+    partial class AddOrgs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -485,9 +488,6 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool?>("IsConfidential")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -612,9 +612,6 @@ namespace LexData.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
-
-                    b.Property<bool?>("IsConfidential")
-                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LastCommit")
                         .HasColumnType("timestamp with time zone");

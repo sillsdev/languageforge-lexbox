@@ -173,6 +173,24 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "project_member": "Project member",
       "filter_user_projects": "Filter projects",
     },
+    "confidential": {
+      "confidential": "Confidential",
+      "confidentiality": "Confidentiality",
+      "not_confidential": "Not confidential",
+      "set_confidentiality": "Set project confidentiality",
+      "unspecified": "Unspecified",
+      "confidentiality_unspecified": "Confidentiality unspecified",
+      "label": "This project is confidential. The safety of project members is a security concern.",
+      "description": "Only project members and administrators will be able to see this project.",
+      "suggestions": "Consider using an alias for the project, project members and any other identifying information in the project. (For similar reasons to those mentioned for [confidential Paratext projects](https://paratext.org/paratext-help-and-support/registry-training-and-help/confidential-projects/).)",
+      "modal": {
+        "title": "Project confidentiality",
+        "submit_button_confidential": "Project is confidential",
+        "submit_button_not_confidential": "Project is not confidential",
+        "project_now_confidential": "Project is now confidential.",
+        "project_now_not_confidential": "Project is now not confidential.",
+      }
+    },
   },
   "project_page": {
     "project": "Project",
@@ -471,7 +489,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "update_detected": "A new version of the application was detected. You may need to reload the page.",
   },
   "table": {
-    "refine_filter": "Refine your filter to see {remainingRows} more rows..."
+    "refine_filter": "Refine your filter to see {remainingRows, number} more rows..."
   },
   "turnstile": {
     "invalid": "Captcha Error, try again",
@@ -498,6 +516,8 @@ If you don't see a dialog or already closed it, click the button below:",
     "no": "No",
     "none": "None",
     "or": "Or",
+    "any": "Any",
+    "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
     "any": "Any",
   }
 }

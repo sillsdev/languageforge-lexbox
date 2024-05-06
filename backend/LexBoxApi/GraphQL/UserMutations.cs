@@ -72,7 +72,7 @@ public class UserMutations
     )
     {
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
 
         if (!input.Name.IsNullOrEmpty())
         {
@@ -130,7 +130,7 @@ public class UserMutations
     {
         permissionService.AssertCanDeleteAccount(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
         dbContext.Users.Remove(user);
         await dbContext.SaveChangesAsync();
         return user;
@@ -145,7 +145,7 @@ public class UserMutations
     {
         permissionService.AssertCanLockOrUnlockUser(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
         user.Locked = input.Locked;
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();

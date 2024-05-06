@@ -32,7 +32,7 @@ public class ProjectServiceTest
     public async Task CanCreateProject()
     {
         var projectId = await _projectService.CreateProject(
-            new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test, null));
+            new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test, false, null));
         projectId.ShouldNotBe(default);
     }
 
@@ -41,10 +41,10 @@ public class ProjectServiceTest
     {
         //first project should be created
         await _projectService.CreateProject(
-            new(null, "TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test, null));
+            new(null, "TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test, false, null));
 
         var exception = await _projectService.CreateProject(
-            new(null, "Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev, null)
+            new(null, "Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev, false, null)
         ).ShouldThrowAsync<DbUpdateException>();
 
         exception.InnerException.ShouldBeOfType<PostgresException>()

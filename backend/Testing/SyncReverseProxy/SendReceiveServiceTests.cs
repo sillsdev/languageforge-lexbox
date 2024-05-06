@@ -169,7 +169,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
 
-        await WaitForHgRefreshIntervalAsync();
+        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
