@@ -170,6 +170,18 @@ public class DataModelSimpleChanges : DataModelTestBase
         snapshot.Entity.DeletedAt.Should().Be(deleteCommit.DateTime);
     }
 
+    [Fact]
+    public async Task CanModifyAnEntryAfterDelete()
+    {
+        await WriteNextChange(SetWord(_entity1Id, "test-value"));
+        var deleteCommit = await WriteNextChange(new DeleteChange<Word>(_entity1Id));
+        await WriteNextChange(SetWord(_entity1Id, "after-delete"));
+        var snapshot = await DbContext.Snapshots.DefaultOrder().LastAsync();
+        var word = snapshot.Entity.Is<Word>();
+        word.Text.Should().Be("after-delete");
+        word.DeletedAt.Should().Be(deleteCommit.DateTime);
+    }
+
 
     [Fact]
     public async Task CanGetEntryLinq2Db()
