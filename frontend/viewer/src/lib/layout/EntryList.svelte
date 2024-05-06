@@ -3,6 +3,7 @@
   import type { IEntry } from "../mini-lcm";
   import { firstDefOrGlossVal, firstVal } from "../utils";
   import { mdiMagnify } from "@mdi/js";
+  import NewEntryDialog from '../entry-editor/NewEntryDialog.svelte';
 
   export let entries: IEntry[] | undefined;
   export let selectedEntry: IEntry | undefined;
@@ -21,6 +22,7 @@
         placeholder="Filter {entries?.length} entries..."
         icon={mdiMagnify} />
     </div>
+    <NewEntryDialog/>
   </div>
   <div class="border rounded-md overflow-auto">
     {#if !entries || entries.length == 0}
