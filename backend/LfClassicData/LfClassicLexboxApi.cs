@@ -30,8 +30,13 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
                 Abbreviation = inputSystem.Abbreviation
             };
             //ws type might not be stored, we will add it anyway, otherwise nothing works
-            if (inputSystem.AnalysisWS is not false) analysis.Add(writingSystem);
-            if (inputSystem.VernacularWS is not false) vernacular.Add(writingSystem);
+            if (inputSystem is { AnalysisWS: null, VernacularWS: null })
+            {
+                analysis.Add(writingSystem);
+                vernacular.Add(writingSystem);
+            }
+            if (inputSystem.AnalysisWS is true) analysis.Add(writingSystem);
+            if (inputSystem.VernacularWS is true) vernacular.Add(writingSystem);
         }
         return new WritingSystems
         {
@@ -59,29 +64,28 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
     private async IAsyncEnumerable<Entry> Query(QueryOptions? options = null)
     {
         options ??= QueryOptions.Default;
-        var ws = await GetWritingSystems();
-        if (ws is { Vernacular: [], Analysis: [] })
-        {
-            yield break;
-        }
+
         var sortWs = options.Order.WritingSystem;
         if (sortWs == "default")
         {
+            var ws = await GetWritingSystems();
+            if (ws is { Vernacular: [], Analysis: [] })
+            {
+                yield break;
+            }
             sortWs = ws.Vernacular[0].Id;
         }
 
-        await foreach (var entry in Entries.ToAsyncEnumerable()
+        await foreach (var entry in Entries.AsQueryable()
                            //todo, you can only sort by headword for now
-                           .OrderBy(e => e.CitationForm?.TryGetValue(sortWs, out var val) == true
-                               ? val.Value
-                               : e.Lexeme?.TryGetValue(sortWs, out val) == true
-                                   ? val.Value
-                                   : string.Empty)
-                           .ThenBy(e => e.MorphologyType)
-                           .ThenBy(e => e.Guid)//todo should sort by homograph number
+                           .Select(entry => new {entry, headword = entry.CitationForm![sortWs].Value ?? entry.Lexeme![sortWs].Value ?? string.Empty})
+                           .OrderBy(e => e.headword)
+                           .ThenBy(e => e.entry.MorphologyType)
+                           .ThenBy(e => e.entry.Guid) //todo should sort by homograph number
                            .Skip(options.Offset)
                            .Take(options.Count)
-                           .Select(ToEntry))
+                           .ToAsyncEnumerable()
+                           .Select(e => ToEntry(e.entry)))
         {
             yield return entry;
         }
