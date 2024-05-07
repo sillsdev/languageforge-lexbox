@@ -63,10 +63,24 @@ app.MapPost("/api/project",
             });
 
             await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
-                new() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
+                new()
+                {
+                    Id = "en",
+                    Name = "English",
+                    Abbreviation = "en",
+                    Font = "Arial",
+                    Exemplars = WritingSystem.LatinExemplars
+                });
 
             await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
-                new() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
+                new()
+                {
+                    Id = "en",
+                    Name = "English",
+                    Abbreviation = "en",
+                    Font = "Arial",
+                    Exemplars = WritingSystem.LatinExemplars
+                });
         });
         return TypedResults.Ok();
     });

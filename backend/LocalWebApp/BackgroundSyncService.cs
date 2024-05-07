@@ -87,13 +87,27 @@ public class BackgroundSyncService(
         if (writingSystems.Analysis.Length == 0)
         {
             await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
-                new() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
+                new()
+                {
+                    Id = "en",
+                    Name = "English",
+                    Abbreviation = "en",
+                    Font = "Arial",
+                    Exemplars = WritingSystem.LatinExemplars
+                });
         }
 
         if (writingSystems.Vernacular.Length == 0)
         {
             await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
-                new() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
+                new()
+                {
+                    Id = "en",
+                    Name = "English",
+                    Abbreviation = "en",
+                    Font = "Arial",
+                    Exemplars = WritingSystem.LatinExemplars
+                });
         }
     }
 }

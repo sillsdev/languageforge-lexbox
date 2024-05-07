@@ -9,6 +9,8 @@ public record WritingSystem
 
     public string[] Exemplars { get; set; } = [];
     //todo probably need more stuff here, see wesay for ideas
+
+    public static string[] LatinExemplars => Enumerable.Range('A', 'Z' - 'A' + 1).Select(c => ((char)c).ToString()).ToArray();
 }
 
 public record WritingSystems
