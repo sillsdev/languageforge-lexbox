@@ -37,7 +37,8 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     public async Task<MiniLcm.WritingSystem> CreateWritingSystem(WritingSystemType type, MiniLcm.WritingSystem writingSystem)
     {
         var entityId = Guid.NewGuid();
-        await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId));
+        var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
+        await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
         return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
     }
 
@@ -50,8 +51,19 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         return await dataModel.GetLatest<WritingSystem>(ws.Id) ?? throw new NullReferenceException();
     }
 
+    private WritingSystem? _defaultVernacularWs;
+    private WritingSystem? _defaultAnalysisWs;
     private async Task<WritingSystem?> GetWritingSystem(WritingSystemId id, WritingSystemType type)
     {
+        if (id == "default")
+        {
+            return type switch
+            {
+                WritingSystemType.Analysis => _defaultAnalysisWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
+                WritingSystemType.Vernacular => _defaultVernacularWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
         return await WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
     }
 
@@ -81,19 +93,42 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
+        options ??= QueryOptions.Default;
         //todo filter on exemplar options and limit results, and sort
         var queryable = Entries;
         if (predicate is not null) queryable = queryable.Where(predicate);
+        if (options.Exemplar is not null)
+        {
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Analysis))?.WsId;
+            if (ws is null)
+                throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
+            queryable = queryable.Where(e => e.Headword(ws.Value).StartsWith(options.Exemplar.Value));
+        }
+
+        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Analysis))?.WsId;
+        if (sortWs is null)
+            throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
+        queryable = queryable.OrderBy(e => e.Headword(sortWs.Value))
+            // .ThenBy(e => e.Id)
+            .Skip(options.Offset)
+            .Take(options.Count);
         var entries = await queryable.ToArrayAsyncLinqToDB();
+        await LoadSenses(entries);
+
+        return entries;
+    }
+
+    private async Task LoadSenses(Entry[] entries)
+    {
         var allSenses = (await Senses
-            .Where(s => entries.Select(e => e.Id).Contains(s.EntryId))
-            .ToArrayAsync())
+                .Where(s => entries.Select(e => e.Id).Contains(s.EntryId))
+                .ToArrayAsync())
             .ToLookup(s => s.EntryId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         var allSenseIds = allSenses.Values.SelectMany(s => s, (_, sense) => sense.Id);
         var allExampleSentences = (await ExampleSentences
-            .Where(e => allSenseIds.Contains(e.SenseId))
-            .ToArrayAsync())
+                .Where(e => allSenseIds.Contains(e.SenseId))
+                .ToArrayAsync())
             .ToLookup(s => s.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         foreach (var entry in entries)
@@ -106,8 +141,6 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
                     : [];
             }
         }
-
-        return entries;
     }
 
     public async Task<MiniLcm.Entry?> GetEntry(Guid id)

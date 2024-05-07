@@ -1,10 +1,11 @@
-﻿using CrdtLib.Db;
+﻿using CrdtLib.Changes;
+using CrdtLib.Db;
 using CrdtLib.Entities;
 using MiniLcm;
 
 namespace LcmCrdt.Objects;
 
-public class WritingSystem : IObjectBase<WritingSystem>
+public class WritingSystem : IObjectBase<WritingSystem>, IOrderableCrdt
 {
     public WritingSystem()
     {
@@ -25,6 +26,8 @@ public class WritingSystem : IObjectBase<WritingSystem>
     public required string Font { get; set; }
 
     public string[] Exemplars { get; set; } = [];
+    public double Order { get; set; }
+
     public Guid[] GetReferences()
     {
         return [];

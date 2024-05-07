@@ -1,5 +1,8 @@
-﻿using CrdtLib.Db;
+﻿using System.Linq.Expressions;
+using CrdtLib.Db;
 using CrdtLib.Entities;
+using LinqToDB;
+using MiniLcm;
 
 namespace LcmCrdt.Objects;
 
@@ -20,6 +23,18 @@ public class Entry : MiniLcm.Entry, IObjectBase<Entry>, INewableObject<Entry>
     }
 
     public DateTimeOffset? DeletedAt { get; set; }
+
+
+    [ExpressionMethod(nameof(HeadwordExpression))]
+    public string Headword(WritingSystemId ws)
+    {
+        var word = CitationForm[ws];
+        if (string.IsNullOrEmpty(word)) word = LexemeForm[ws];
+        return word;
+    }
+
+    protected static Expression<Func<Entry, WritingSystemId, string?>> HeadwordExpression() =>
+        (e, ws) => Json.Value(e.CitationForm, ms => ms[ws]) ?? Json.Value(e.LexemeForm, ms => ms[ws]);
 
     public Guid[] GetReferences()
     {

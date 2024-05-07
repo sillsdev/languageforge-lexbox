@@ -15,9 +15,10 @@ public class CreateWritingSystemChange : Change<WritingSystem>, ISelfNamedType<C
     public required string Font { get; init; }
     public required string[] Exemplars { get; init; } = [];
     public required WritingSystemType Type { get; init; }
+    public required double Order { get; init; }
 
     [SetsRequiredMembers]
-    public CreateWritingSystemChange(MiniLcm.WritingSystem writingSystem, WritingSystemType type, Guid entityId) :
+    public CreateWritingSystemChange(MiniLcm.WritingSystem writingSystem, WritingSystemType type, Guid entityId, double order) :
         base(entityId)
     {
         WsId = writingSystem.Id;
@@ -26,6 +27,7 @@ public class CreateWritingSystemChange : Change<WritingSystem>, ISelfNamedType<C
         Font = writingSystem.Font;
         Exemplars = writingSystem.Exemplars;
         Type = type;
+        Order = order;
     }
 
     [JsonConstructor]
@@ -42,7 +44,8 @@ public class CreateWritingSystemChange : Change<WritingSystem>, ISelfNamedType<C
             Abbreviation = Abbreviation,
             Font = Font,
             Exemplars = Exemplars,
-            Type = Type
+            Type = Type,
+            Order = Order
         };
     }
 
@@ -53,6 +56,7 @@ public class CreateWritingSystemChange : Change<WritingSystem>, ISelfNamedType<C
         entity.Font = Font;
         entity.Exemplars = Exemplars;
         entity.Type = Type;
+        entity.Order = Order;
         return ValueTask.CompletedTask;
     }
 }

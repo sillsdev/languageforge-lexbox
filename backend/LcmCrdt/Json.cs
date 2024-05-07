@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 using MiniLcm;
 using LinqToDB;
@@ -105,7 +106,7 @@ public static class Json
         Precedence = Precedence.Primary,
         ServerSideOnly = true,
         CanBeNull = true)]
-    public static TValue Value<TProp, TValue>(TProp prop, Func<TProp, TValue> valueAccess)
+    public static TValue? Value<TProp, TValue>(TProp prop, Func<TProp, TValue> valueAccess)
     {
         return valueAccess(prop);
     }
