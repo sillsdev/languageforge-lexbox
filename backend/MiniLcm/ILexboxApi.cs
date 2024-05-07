@@ -11,7 +11,6 @@ public interface ILexboxApi
     Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
-    // Task<Entry[]> GetEntries(string exemplar, QueryOptions? options = null);
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);
@@ -36,14 +35,21 @@ public interface ILexboxApi
     UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class;
 }
 
-public record QueryOptions(SortOptions Order, int Count = 1000, int Offset = 0)
+public record QueryOptions(SortOptions? Order = null, ExemplarOptions? Exemplar = null, int Count = 1000, int Offset = 0)
 {
-    public static QueryOptions Default { get; } = new(SortOptions.Default);
+    public static QueryOptions Default { get; } = new();
+    public ExemplarOptions? Exemplar { get; init; } = Exemplar ?? ExemplarOptions.Default;
+    public SortOptions Order { get; init; } = Order ?? SortOptions.Default;
 }
 
 public record SortOptions(SortField Field, WritingSystemId WritingSystem, bool Ascending = true)
 {
     public static SortOptions Default { get; } = new(SortField.Headword, "default");
+}
+
+public record ExemplarOptions(string Value, WritingSystemId WritingSystem)
+{
+    public static ExemplarOptions Default { get; } = new("", "default");
 }
 
 [JsonConverter(typeof(JsonStringEnumConverter))]

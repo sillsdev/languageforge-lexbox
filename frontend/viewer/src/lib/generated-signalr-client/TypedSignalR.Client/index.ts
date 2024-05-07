@@ -2,7 +2,7 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import { HubConnection, type IStreamResult, Subject } from '@microsoft/signalr';
+import { HubConnection } from '@microsoft/signalr';
 import type { ILexboxApiHub, ILexboxClient } from './Lexbox.ClientServer.Hubs';
 import type {WritingSystems, QueryOptions, Entry, Sense, ExampleSentence, WritingSystem} from '../../mini-lcm';
 import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
@@ -92,10 +92,6 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
 
     public readonly UpdateWritingSystem = async (wsId: string, type: WritingSystemType, update: JsonOperation[]): Promise<WritingSystem> => {
         return await this.connection.invoke("UpdateWritingSystem", wsId, type, update);
-    }
-
-    public readonly GetEntriesForExemplar = async (exemplar: string, options: QueryOptions): Promise<Entry[]> => {
-        return await this.connection.invoke("GetEntriesForExemplar", exemplar, options);
     }
 
     public readonly GetEntries = async (options: QueryOptions): Promise<Entry[]> => {

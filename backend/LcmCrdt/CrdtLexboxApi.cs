@@ -55,16 +55,6 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         return await WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
     }
 
-    public Task<string[]> GetExemplars()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<MiniLcm.Entry[]> GetEntries(string exemplar, QueryOptions? options = null)
-    {
-        throw new NotImplementedException();
-    }
-
     public IAsyncEnumerable<MiniLcm.Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);
@@ -91,6 +81,7 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
+        //todo filter on exemplar options and limit results, and sort
         var queryable = Entries;
         if (predicate is not null) queryable = queryable.Where(predicate);
         var entries = await queryable.ToArrayAsyncLinqToDB();

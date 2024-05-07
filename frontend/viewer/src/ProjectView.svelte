@@ -62,17 +62,11 @@
 
   function fetchEntries(s: string, isConnected: boolean, exemplar: string | undefined) {
     if (!isConnected) return Promise.resolve([]);
-    if (false) {
-      return lexboxApi.GetEntriesForExemplar(exemplar, {
-        offset: 0,
-        count: 1000,
-        order: {field: 'headword', writingSystem: 'default'}
-      }).then(entries => s ? filterEntries(entries, s) : entries);
-    }
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
       count: 1000,
-      order: {field: 'headword', writingSystem: 'default'}
+      order: {field: 'headword', writingSystem: 'default'},
+      exemplar: exemplar ? {value: exemplar, writingSystem: 'default'} : undefined
     });
   }
 

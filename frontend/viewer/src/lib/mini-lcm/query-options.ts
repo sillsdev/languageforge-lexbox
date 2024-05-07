@@ -4,11 +4,12 @@
  */
 
 export interface QueryOptions {
-    order: {
-      field: 'headword',
-      writingSystem: string | 'default',
-      ascending?: boolean
-    }
-    count: number;
-    offset: number;
+  order: {
+    field: 'headword',
+    writingSystem: string | 'default',
+    ascending?: boolean
+  };
+  count: number;
+  offset: number;
+  exemplar?: { value: string, writingSystem: string | 'default' };
 }

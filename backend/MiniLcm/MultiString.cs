@@ -61,7 +61,7 @@ public class MultiString: IDictionary
         void IDictionary.Add(object key, object? value)
         {
             var valStr = value as string ??
-                         throw new ArgumentException("unable to convert value to string", nameof(value));
+                         throw new ArgumentException($"unable to convert value {value?.GetType().Name ?? "null"} to string", nameof(value));
             if (key is WritingSystemId keyWs)
             {
                 Add(keyWs, valStr);

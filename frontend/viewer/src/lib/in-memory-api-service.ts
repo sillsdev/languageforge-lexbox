@@ -29,7 +29,17 @@ export class InMemoryApiService implements LexboxApi {
   private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
     if (!options) return entries;
     let sortWs = options.order.writingSystem;
-    if (sortWs === 'default') sortWs = writingSystems.vernacular[0].id;
+    const defaultWs = writingSystems.vernacular[0].id;
+    if (sortWs === 'default') sortWs = defaultWs;
+    if (options.exemplar?.value) {
+      const lowerExemplar = options.exemplar?.value.toLowerCase();
+      let ws = options.exemplar?.writingSystem;
+      if (ws === 'default') ws = defaultWs;
+      entries = entries.filter(entry =>
+        (entry.citationForm[ws] ?? entry.lexemeForm[ws] ?? '')
+          ?.toLocaleLowerCase()
+          ?.startsWith(lowerExemplar));
+    }
 
     return entries
       .sort((e1, e2) => {
@@ -42,15 +52,6 @@ export class InMemoryApiService implements LexboxApi {
         return e1.id.localeCompare(e2.id);
       })
       .slice(options.offset, options.offset + options.count);
-  }
-
-  GetEntriesForExemplar(exemplar: string, options: QueryOptions | undefined): Promise<IEntry[]> {
-    const lowerExemplar = exemplar.toLowerCase();
-    return Promise.resolve(this.ApplyQueryOptions(entries.filter(entry =>
-      (firstVal(entry.citationForm) ?? firstVal(entry.lexemeForm))
-        ?.toLocaleLowerCase()
-        ?.startsWith(lowerExemplar)),
-      options));
   }
 
   GetEntry(guid: string): Promise<IEntry> {
