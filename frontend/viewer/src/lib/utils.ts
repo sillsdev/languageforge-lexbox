@@ -45,7 +45,7 @@ export function filterEntries(entries: IEntry[], query: string) {
       ...Object.values(entry.literalMeaning ?? {}),
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
 }
-
+export const emptyId = '00000000-0000-0000-0000-000000000000';
 export function defaultEntry(): IEntry {
   return {
     id: crypto.randomUUID(),
@@ -59,7 +59,7 @@ export function defaultEntry(): IEntry {
 
 export function defaultSense(): ISense {
   return {
-    id: crypto.randomUUID(),
+    id: emptyId,
     definition: {},
     gloss: {},
     partOfSpeech: '',
@@ -70,7 +70,7 @@ export function defaultSense(): ISense {
 
 export function defaultExampleSentence(): IExampleSentence {
   return {
-    id: crypto.randomUUID(),
+    id: emptyId,
     sentence: {},
     translation: {},
     reference: '',

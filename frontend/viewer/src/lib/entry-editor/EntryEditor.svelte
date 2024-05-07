@@ -6,19 +6,30 @@
   import type { ViewConfig } from '../config-types';
   import { mdiPlus } from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
-  import { defaultExampleSentence, defaultSense } from '../utils';
   import EntityListItemActions from './EntityListItemActions.svelte';
+  import {defaultExampleSentence, defaultSense} from '../utils';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
-    create: { entry: IEntry, sense: ISense, example?: IExampleSentence};
   }>();
 
   export let entry: IEntry;
+
+  function addSense() {
+    const sense = defaultSense();
+    newEntity = sense;
+    entry.senses = [...entry.senses, sense];
+  }
+
+  function addExample(sense: ISense) {
+    const sentence = defaultExampleSentence();
+    newEntity = sentence;
+    sense.exampleSentences = [...sense.exampleSentences, sentence];
+  }
   export let modalMode = false;
 
   let newEntity: IExampleSentence | ISense | undefined;
-  let editorElem: HTMLDivElement;
+  let editorElem: HTMLDivElement | undefined;
   let newEntityTimeout: ReturnType<typeof setTimeout>;
 
   $: {
@@ -27,10 +38,10 @@
       newEntityTimeout = setTimeout(() => newEntity = undefined, 3000);
       // wait for rendering
       setTimeout(() => {
-        const newEntitiyElem = editorElem?.querySelector('.new-entity');
-        if (newEntitiyElem) {
-          if (!isBottomInViewport(newEntitiyElem))
-            newEntitiyElem?.scrollIntoView({block: 'center', behavior: 'smooth'});
+        const newEntityElem = editorElem?.querySelector('.new-entity');
+        if (newEntityElem) {
+          if (!isBottomInViewport(newEntityElem))
+            newEntityElem?.scrollIntoView({block: 'center', behavior: 'smooth'});
         }
       });
     }
@@ -95,11 +106,7 @@
       {/each}
       {#if !$viewConfig.readonly}
         <div class="col-span-full flex justify-end mt-4">
-          <Button on:click={() => {
-            const example = defaultExampleSentence();
-            newEntity = example;
-            dispatch('create', {entry, sense, example});
-          }} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
+          <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
         </div>
       {/if}
     </div>
@@ -107,22 +114,14 @@
   {#if !$viewConfig.readonly}
     <hr class="col-span-full grow border-t-4 my-4">
     <div class="col-span-full flex justify-end">
-      <Button on:click={() => {
-        const sense = defaultSense();
-        newEntity = sense;
-        dispatch('create', {entry, sense});
-      }} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
+      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
     </div>
   {/if}
 </div>
 
 {#if !modalMode}
   <div class="contents" use:portal={{ target: $entryActionsPortal}}>
-    <Button on:click={() => {
-      const sense = defaultSense();
-      newEntity = sense;
-      dispatch('create', {entry, sense});
-    }} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
+    <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
   </div>
 {/if}
 

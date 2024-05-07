@@ -6,6 +6,7 @@
   import type {ViewConfig} from './config-types';
   import jsonPatch from 'fast-json-patch';
   import {useLexboxApi} from './services/service-provider';
+  import {emptyId} from './utils';
 
   let lexboxApi = useLexboxApi();
 
@@ -36,16 +37,6 @@
     entry = entry;//trigger initial entry update
   }
 
-  async function onCreate(e: { entry: IEntry, sense: ISense, example?: IExampleSentence }) {
-    if (e.example) {
-      await lexboxApi.CreateExampleSentence(entry.id, e.sense.id, e.example);
-    } else {
-      await lexboxApi.CreateSense(entry.id, e.sense);
-    }
-
-    entry = entry;//trigger entry update
-  }
-
   async function updateEntry(updatedEntry: IEntry) {
     if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
     let operations = jsonPatch.compare(withoutSenses(initialEntry), withoutSenses(updatedEntry));
@@ -54,6 +45,11 @@
   }
 
   async function updateSense(updatedSense: ISense) {
+    if (updatedSense.id === emptyId) {
+      updatedSense.id = crypto.randomUUID();
+      await lexboxApi.CreateSense(entry.id, updatedSense);
+      return;
+    }
     const initialSense = initialEntry.senses.find(s => s.id === updatedSense.id);
     if (!initialSense) throw new Error('Sense not found in initial entry');
     let operations = jsonPatch.compare(withoutExamples(initialSense), withoutExamples(updatedSense));
@@ -64,6 +60,11 @@
   async function updateExample(senseId: string, updatedExample: IExampleSentence) {
     const initialSense = initialEntry.senses.find(s => s.id === senseId);
     if (!initialSense) throw new Error('Sense not found in initial entry');
+    if (updatedExample.id === emptyId) {
+      updatedExample.id = crypto.randomUUID();
+      await lexboxApi.CreateExampleSentence(entry.id, senseId, updatedExample);
+      return;
+    }
     const initialExample = initialSense.exampleSentences.find(e => e.id === updatedExample.id);
     if (!initialExample) throw new Error('Example not found in initial sense');
     let operations = jsonPatch.compare(initialExample, updatedExample);
@@ -73,7 +74,7 @@
 </script>
 
 <div id="entry" class="editor" class:hide-empty-fields={$viewConfig.hideEmptyFields}>
-  <EntryEditor on:change={e =>onChange(e.detail)} on:create={e => onCreate(e.detail)} entry={entry}/>
+  <EntryEditor on:change={e => onChange(e.detail)} entry={entry}/>
 </div>
 
 <style lang="postcss">
