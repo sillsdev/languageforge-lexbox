@@ -107,8 +107,9 @@ public class CrdtRepository(CrdtDbContext _dbContext, IOptions<CrdtConfig> crdtC
 
     public async Task<Commit[]> GetCommitsAfter(Commit? commit)
     {
-        if (commit is null) return await _dbContext.Commits.DefaultOrder().ToArrayAsync();
-        return await _dbContext.Commits
+        var dbContextCommits = _dbContext.Commits.Include(c => c.ChangeEntities);
+        if (commit is null) return await dbContextCommits.DefaultOrder().ToArrayAsync();
+        return await dbContextCommits
             .Where(c => c.HybridDateTime.DateTime > commit.HybridDateTime.DateTime
                         || (c.HybridDateTime.DateTime == commit.HybridDateTime.DateTime &&
                             c.HybridDateTime.Counter > commit.HybridDateTime.Counter)
@@ -121,7 +122,7 @@ public class CrdtRepository(CrdtDbContext _dbContext, IOptions<CrdtConfig> crdtC
 
     public async Task<ObjectSnapshot?> FindSnapshot(Guid id)
     {
-        return await _dbContext.Snapshots.FindAsync(id);
+        return await _dbContext.Snapshots.Include(s => s.Commit).SingleOrDefaultAsync(s => s.Id == id);
     }
 
     public async Task<ObjectSnapshot> GetCurrentSnapshotByObjectId(Guid objectId)
