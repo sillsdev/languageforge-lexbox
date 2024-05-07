@@ -22,13 +22,11 @@ export class LexboxServiceProvider {
   private services: Record<string, unknown> = {};
 
   public setService(key: string, service: unknown): void {
-    console.log('set-service', key, service);
     this.validateServiceKey(key);
     this.services[key] = service;
   }
 
   public getService<T>(key: string): T {
-    console.log('get-service', key, this.services[key]);
     this.validateServiceKey(key);
     return this.services[key] as T;
   }
