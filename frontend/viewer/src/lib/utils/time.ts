@@ -67,7 +67,6 @@ export function deriveAsync<T, D>(
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
   return derived(store, (value, set) => {
-    console.log(value);
     clearTimeout(timeout);
     timeout = setTimeout(() => {
       const myTimeout = timeout;

@@ -28,7 +28,20 @@ export class InMemoryApiService implements LexboxApi {
 
   private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
     if (!options) return entries;
-    return entries.slice(options.offset, options.offset + options.count);
+    let sortWs = options.order.writingSystem;
+    if (sortWs === 'default') sortWs = writingSystems.vernacular[0].id;
+
+    return entries
+      .sort((e1, e2) => {
+        const v1 = firstVal(e1.citationForm) ?? firstVal(e1.lexemeForm);
+        const v2 = firstVal(e2.citationForm) ?? firstVal(e2.lexemeForm);
+        if (!v2) return -1;
+        if (!v1) return 1;
+        let compare = v1.localeCompare(v2, sortWs);
+        if (compare !== 0) return compare;
+        return e1.id.localeCompare(e2.id);
+      })
+      .slice(options.offset, options.offset + options.count);
   }
 
   GetEntriesForExemplar(exemplar: string, options: QueryOptions | undefined): Promise<IEntry[]> {
@@ -45,7 +58,8 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   CreateEntry(entry: IEntry): Promise<IEntry> {
-    throw new Error('Method not implemented.');
+    entries.push(entry);
+    return Promise.resolve(entry);
   }
 
   UpdateEntry(guid: string, update: JsonPatch): Promise<IEntry> {
@@ -53,7 +67,8 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   CreateSense(entryGuid: string, sense: ISense): Promise<ISense> {
-    throw new Error('Method not implemented.');
+    entries.find(e => e.id === entryGuid)?.senses.push(sense);
+    return Promise.resolve(sense);
   }
 
   UpdateSense(entryGuid: string, senseGuid: string, update: JsonPatch): Promise<ISense> {
@@ -61,7 +76,8 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   CreateExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
-    throw new Error('Method not implemented.');
+    entries.find(e => e.id === entryGuid)?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
+    return Promise.resolve(exampleSentence);
   }
 
   UpdateExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string, update: JsonPatch): Promise<IExampleSentence> {
@@ -87,8 +103,8 @@ export class InMemoryApiService implements LexboxApi {
   CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
   UpdateWritingSystem(wsId: string, type: WritingSystemType, update: JsonPatch): Promise<WritingSystem> {
     throw new Error('Method not implemented.');
   }
-
 }

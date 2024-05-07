@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { IEntry } from "../mini-lcm";
-  import { firstVal } from "../utils";
+  import { firstVal, headword } from "../utils";
 
   export let entry: IEntry | undefined;
 </script>
 
 {#if entry}
   <div class="border flex flex-col rounded-md">
-    <a class="toc-item" href="#entry"><span class="opacity-80 mr-1">Entry:</span>{firstVal(entry.lexemeForm) ?? ''}</a>
+    <a class="toc-item" href="#entry"><span class="opacity-80 mr-1">Entry:</span>{headword(entry) ?? ''}</a>
     {#each entry.senses as sense, i (sense.id)}
       <a class="toc-item" href="#sense{i + 1}"><span class="opacity-80 mr-1">Sense:</span>{firstVal(sense.gloss) ?? ''}</a>
       {#each sense.exampleSentences as example, j (example.id)}

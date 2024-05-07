@@ -2,7 +2,7 @@
   import {AppBar, Button, cls, Dialog, Field, ListItem, ProgressCircle, TextField,} from 'svelte-ux';
   import {mdiEyeSettingsOutline, mdiMagnify} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import {filterEntries, firstDefOrGlossVal, firstVal} from './lib/utils';
+  import {filterEntries, firstDefOrGlossVal, firstVal, headword} from './lib/utils';
   import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
@@ -46,7 +46,12 @@
   setContext('indexExamplars', indexExamplars);
   setContext('selectedIndexExamplars', selectedIndexExemplar);
 
-  const entries = deriveAsync(derived([search, connected, selectedIndexExemplar], s => s), ([s, isConnected, exemplar]) => {
+  const trigger = writable(0);
+  function refreshEntries(): void {
+    trigger.update(t => t + 1);
+  }
+
+  const entries = deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
     if (!isConnected) return Promise.resolve([]);
     if (exemplar) {
       return lexboxApi.GetEntriesForExemplar(exemplar, {
@@ -70,12 +75,16 @@
 
   let showSearchDialog = false;
   let showOptionsDialog = false;
-  let selectedEntry: IEntry | undefined;
+  const selectedEntry = writable<IEntry | undefined>(undefined);
+  setContext('selectedEntry', selectedEntry);
 
   $: _loading = !$entries || !$writingSystems || loading;
+
+  const entryActionsElem = writable<HTMLDivElement>();
+  setContext('entryActionsPortal', entryActionsElem);
 </script>
 
-<div class="app flex flex-col h-full PortalTarget">
+<div class="app flex flex-col PortalTarget">
   <AppBar title="FLEx-Lite" class="bg-surface-300 min-h-12" menuIcon=''>
     <div class="flex-grow"></div>
     <Field
@@ -107,34 +116,47 @@
         class="grid flex-grow gap-x-6"
         style="grid-template-columns: 2fr 4fr 1fr;"
       >
-        <EntryList bind:search={$search} entries={$entries} bind:selectedEntry />
-        {#if selectedEntry}
+        <EntryList bind:search={$search} entries={$entries} />
+        {#if $selectedEntry}
           <div>
             <div class="mb-6">
-              <DictionaryEntryViewer entry={selectedEntry} />
+              <DictionaryEntryViewer entry={$selectedEntry} />
             </div>
-            <Editor bind:entry={selectedEntry} />
+            <Editor bind:entry={$selectedEntry} />
           </div>
           <div class="h-full min-w-48 pl-6 border-l-2 gap-4 flex flex-col">
             <div class="side-scroller h-full flex flex-col gap-4">
               {#if !$viewConfig.readonly}
-                <NewEntryDialog />
+                <div class="contents" bind:this={$entryActionsElem}>
+                  <NewEntryDialog on:created={e => {
+                    $selectedEntry = e.detail.entry;
+                    $selectedIndexExemplar = headword(e.detail.entry).charAt(0).toLocaleUpperCase() || undefined;
+                    refreshEntries();
+                  }} />
+                </div>
               {/if}
-              <Toc entry={selectedEntry} />
+              <Toc entry={$selectedEntry} />
             </div>
             <span class="text-surface-content text-sm fixed bottom-3 right-3 inline-flex gap-2 items-center">
               {$viewConfig.activeView.label}
               <Button
                 on:click={() => (showOptionsDialog = true)}
                 size="sm"
-                variant="text"
+                variant="default"
                 iconOnly
                 icon={mdiEyeSettingsOutline} />
             </span>
           </div>
         {:else}
-          <div class="w-full h-full z-10 bg-surface-100 flex grow items-center justify-center text-2xl opacity-75">
+          <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
+            {#if !$viewConfig.readonly}
+              <NewEntryDialog on:created={e => {
+                $selectedEntry = e.detail.entry;
+                $selectedIndexExemplar = headword(e.detail.entry).charAt(0).toLocaleUpperCase() || undefined;
+                refreshEntries();
+              }} />
+            {/if}
           </div>
         {/if}
       </div>

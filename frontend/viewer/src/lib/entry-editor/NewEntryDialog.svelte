@@ -4,37 +4,35 @@
   import EntryEditor from './EntryEditor.svelte';
   import type {IEntry} from '../mini-lcm';
   import {useLexboxApi} from '../services/service-provider';
-  import { mdiPlus } from '@mdi/js';
+  import { mdiBookPlusOutline } from '@mdi/js';
+  import { defaultEntry } from '../utils';
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher<{
+    created: { entry: IEntry};
+  }>();
 
   let loading = false;
   let entry: IEntry = defaultEntry();
 
-  function defaultEntry(): IEntry {
-    return {
-      id: crypto.randomUUID(),
-      citationForm: {},
-      lexemeForm: {},
-      note: {},
-      literalMeaning: {},
-      senses: []
-    };
-  }
   const lexboxApi = useLexboxApi();
 
   async function createEntry(e: Event, closeDialog: () => void) {
     e.preventDefault();
     loading = true;
-    await lexboxApi.CreateEntry(entry)
+    await lexboxApi.CreateEntry(entry);
+    dispatch('created', {entry});
     loading = false;
     closeDialog();
   }
 </script>
-<Toggle let:on={open} let:toggleOn let:toggleOff>
-  <Button on:click={toggleOn} icon={mdiPlus} variant="fill-outline" color="success" size="sm">New Entry</Button>
+
+<Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={() => entry = defaultEntry()}>
+  <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">New Entry</Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
     <div slot="title">New Entry</div>
     <div class="m-6">
-      <EntryEditor {entry}/>
+      <EntryEditor {entry} modalMode/>
     </div>
     <div class="flex-grow"></div>
     <div slot="actions">

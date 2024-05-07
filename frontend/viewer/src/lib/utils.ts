@@ -1,9 +1,13 @@
-import type { IEntry, IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
+import type { IEntry, IExampleSentence, IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
 
 import type { WritingSystemSelection } from './config-types';
 
 export function firstVal(multi: IMultiString): string | undefined {
   return Object.values(multi).find(value => !!value);
+}
+
+export function headword(entry: IEntry): string {
+  return firstVal(entry.citationForm) ?? firstVal(entry.lexemeForm) ?? '';
 }
 
 export function firstDefOrGlossVal(sense: ISense | undefined): string {
@@ -40,4 +44,35 @@ export function filterEntries(entries: IEntry[], query: string) {
       ...Object.values(entry.citationForm ?? {}),
       ...Object.values(entry.literalMeaning ?? {}),
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
+}
+
+export function defaultEntry(): IEntry {
+  return {
+    id: crypto.randomUUID(),
+    citationForm: {},
+    lexemeForm: {},
+    note: {},
+    literalMeaning: {},
+    senses: []
+  };
+}
+
+export function defaultSense(): ISense {
+  return {
+    id: crypto.randomUUID(),
+    definition: {},
+    gloss: {},
+    partOfSpeech: '',
+    semanticDomain: [],
+    exampleSentences: []
+  };
+}
+
+export function defaultExampleSentence(): IExampleSentence {
+  return {
+    id: crypto.randomUUID(),
+    sentence: {},
+    translation: {},
+    reference: '',
+  };
 }

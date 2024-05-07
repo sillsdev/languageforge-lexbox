@@ -23,6 +23,7 @@
     let {exampleSentences, ...rest} = sense;
     return rest;
   }
+
   async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     await updateEntry(e.entry);
     if (e.sense !== undefined) {
@@ -33,6 +34,16 @@
     }
 
     entry = entry;//trigger initial entry update
+  }
+
+  async function onCreate(e: { entry: IEntry, sense: ISense, example?: IExampleSentence }) {
+    if (e.example) {
+      await lexboxApi.CreateExampleSentence(entry.id, e.sense.id, e.example);
+    } else {
+      await lexboxApi.CreateSense(entry.id, e.sense);
+    }
+
+    entry = entry;//trigger entry update
   }
 
   async function updateEntry(updatedEntry: IEntry) {
@@ -61,12 +72,8 @@
   }
 </script>
 
-<div class="editor grid" style="grid-template-columns: 170px 40px 1fr"
-     class:hide-empty-fields={$viewConfig.hideEmptyFields}>
-  <div id="entry"></div>
-  <div class="contents">
-    <EntryEditor on:change={e =>onChange(e.detail)} entry={entry}/>
-  </div>
+<div id="entry" class="editor" class:hide-empty-fields={$viewConfig.hideEmptyFields}>
+  <EntryEditor on:change={e =>onChange(e.detail)} on:create={e => onCreate(e.detail)} entry={entry}/>
 </div>
 
 <style lang="postcss">
@@ -74,7 +81,9 @@
     display: none !important;
   }
 
-  #entry, :global(.editor :is(h2, h3)) {
-    scroll-margin-top: 1rem;
+  .editor {
+    &, & :global(:is(h2, h3)) {
+      scroll-margin-top: 1rem;
+    }
   }
 </style>
