@@ -87,7 +87,7 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         await crdtRepository.DeleteStaleSnapshots(oldestAddedCommit);
         var modelSnapshot = await GetProjectSnapshot(true);
         var snapshotWorker = new SnapshotWorker(modelSnapshot.Snapshots, crdtRepository);
-        await snapshotWorker.UpdateSnapshots();
+        await snapshotWorker.UpdateSnapshots(oldestAddedCommit);
     }
 
     public async Task ValidateCommits()

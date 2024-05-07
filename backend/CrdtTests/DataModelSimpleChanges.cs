@@ -92,6 +92,18 @@ public class DataModelSimpleChanges : DataModelTestBase
     }
 
     [Fact]
+    public async Task CanWriteChangesWhenAnUnchangedWordExists()
+    {
+        await WriteNextChange(SetWord(_entity2Id, "word-2"));
+
+        await WriteNextChange(SetWord(_entity1Id, "word-1"));
+        await WriteNextChange(SetWord(_entity1Id, "second"));
+        await WriteNextChange(SetWord(_entity1Id, "third"));
+        var snapshot = await DbContext.Snapshots.DefaultOrder().LastAsync();
+        snapshot.Entity.Is<Word>().Text.Should().Be("third");
+    }
+
+    [Fact]
     public async Task Writing2ChangesSecondOverwritesFirstWithLocalFirst()
     {
         var firstDate = DateTimeOffset.Now;
