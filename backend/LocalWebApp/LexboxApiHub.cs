@@ -3,11 +3,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using SystemTextJsonPatch;
-using SystemTextJsonPatch.Operations;
 
 namespace LocalWebApp;
-
-public record JsonOperation(string Op, string Path, object? Value = null, string? From = null);
 
 public interface ILexboxClient
 {
@@ -38,9 +35,9 @@ public class LexboxApiHub(
         return newWritingSystem;
     }
 
-    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, JsonOperation[] update)
+    public async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, JsonPatchDocument<WritingSystem> update)
     {
-        var writingSystem = await lexboxApi.UpdateWritingSystem(id, type, FromOperations<WritingSystem>(update));
+        var writingSystem = await lexboxApi.UpdateWritingSystem(id, type, new JsonPatchUpdateInput<WritingSystem>(update));
         backgroundSyncService.TriggerSync();
         return writingSystem;
     }
@@ -72,9 +69,9 @@ public class LexboxApiHub(
         return newEntry;
     }
 
-    public async Task<Entry> UpdateEntry(Guid id, JsonOperation[] update)
+    public async Task<Entry> UpdateEntry(Guid id, JsonPatchDocument<Entry> update)
     {
-        var entry = await lexboxApi.UpdateEntry(id, FromOperations<Entry>(update));
+        var entry = await lexboxApi.UpdateEntry(id, new JsonPatchUpdateInput<Entry>(update));
         await NotifyEntryUpdated(entry);
         return entry;
     }
@@ -91,9 +88,9 @@ public class LexboxApiHub(
         return createdSense;
     }
 
-    public async Task<Sense> UpdateSense(Guid entryId, Guid senseId, JsonOperation[] update)
+    public async Task<Sense> UpdateSense(Guid entryId, Guid senseId, JsonPatchDocument<Sense> update)
     {
-        var sense = await lexboxApi.UpdateSense(entryId, senseId, FromOperations<Sense>(update));
+        var sense = await lexboxApi.UpdateSense(entryId, senseId, new JsonPatchUpdateInput<Sense>(update));
         backgroundSyncService.TriggerSync();
         return sense;
     }
@@ -115,12 +112,12 @@ public class LexboxApiHub(
     public async Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
-        JsonOperation[] update)
+        JsonPatchDocument<ExampleSentence> update)
     {
         var sentence = await lexboxApi.UpdateExampleSentence(entryId,
             senseId,
             exampleSentenceId,
-            FromOperations<ExampleSentence>(update));
+            new JsonPatchUpdateInput<ExampleSentence>(update));
         backgroundSyncService.TriggerSync();
         return sentence;
     }
@@ -128,14 +125,6 @@ public class LexboxApiHub(
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         await lexboxApi.DeleteExampleSentence(entryId, senseId, exampleSentenceId);
-    }
-
-    private JsonPatchUpdateInput<T> FromOperations<T>(JsonOperation[] operations) where T : class
-    {
-        return new JsonPatchUpdateInput<T>(
-            new JsonPatchDocument<T>(operations.Select(o => new Operation<T>(o.Op, o.Path, o.From, o.Value)).ToList(),
-                jsonOptions.Value.SerializerOptions)
-        );
     }
 
     private async Task NotifyEntryUpdated(Entry entry)
