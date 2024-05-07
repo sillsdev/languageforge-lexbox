@@ -1,12 +1,12 @@
 <script lang="ts">
   import {AppBar, Button, cls, Dialog, Field, ListItem, ProgressCircle, TextField,} from 'svelte-ux';
-  import {mdiCog, mdiMagnify} from '@mdi/js';
+  import {mdiEyeSettingsOutline, mdiMagnify} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import {firstDefOrGlossVal, firstVal} from './lib/utils';
+  import {filterEntries, firstDefOrGlossVal, firstVal} from './lib/utils';
   import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
-  import type {IEntry, WritingSystems} from './lib/mini-lcm';
-  import {onDestroy, setContext} from 'svelte';
+  import type {IEntry} from './lib/mini-lcm';
+  import {setContext} from 'svelte';
   import {derived, writable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
   import type {ViewConfig} from './lib/config-types';
@@ -15,6 +15,7 @@
   import Toc from './lib/layout/Toc.svelte';
   import {fade} from 'svelte/transition';
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
+  import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
 
   export let loading = false;
 
@@ -37,8 +38,23 @@
   const connected = writable(false);
   const search = writable<string>('');
 
-  const entries = deriveAsync(derived([search, connected], s => s), ([s, isConnected]) => {
+  const indexExamplars = deriveAsync(connected, isConnected => {
+    if (!isConnected) return Promise.resolve(null);
+    return lexboxApi.GetExemplars();
+  });
+  const selectedIndexExemplar = writable<string | undefined>(undefined);
+  setContext('indexExamplars', indexExamplars);
+  setContext('selectedIndexExamplars', selectedIndexExemplar);
+
+  const entries = deriveAsync(derived([search, connected, selectedIndexExemplar], s => s), ([s, isConnected, exemplar]) => {
     if (!isConnected) return Promise.resolve([]);
+    if (exemplar) {
+      return lexboxApi.GetEntriesForExemplar(exemplar, {
+        offset: 0,
+        count: 1000,
+        order: {field: 'headword', writingSystem: 'default'}
+      }).then(entries => s ? filterEntries(entries, s) : entries);
+    }
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
       count: 1000,
@@ -63,11 +79,11 @@
   <AppBar title="FLEx-Lite" class="bg-surface-300 min-h-12" menuIcon=''>
     <div class="flex-grow"></div>
     <Field
-      classes={{input: 'my-1'}}
+      classes={{input: 'my-1 justify-center opacity-60'}}
         on:click={() => (showSearchDialog = true)}
         class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
         icon={mdiMagnify}>
-        Search
+        Search... 🚀
     </Field>
     <div class="flex-grow-[0.25]"></div>
     <div slot="actions" class="flex items-center gap-4 whitespace-nowrap">
@@ -75,11 +91,11 @@
         on:click={() => (showOptionsDialog = true)}
         size="sm"
         variant="outline"
-        icon={mdiCog}>Configure</Button>
+        icon={mdiEyeSettingsOutline}>Configure</Button>
     </div>
   </AppBar>
 
-  {#if _loading}
+  {#if _loading || !$entries}
     <div class="absolute w-full h-full z-10 bg-surface-100 flex grow items-center justify-center" out:fade={{duration: 800}}>
       <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75">
         Loading... <ProgressCircle class="text-surface-content" />
@@ -101,6 +117,9 @@
           </div>
           <div class="h-full min-w-48 pl-6 border-l-2 gap-4 flex flex-col">
             <div class="side-scroller h-full flex flex-col gap-4">
+              {#if !$viewConfig.readonly}
+                <NewEntryDialog />
+              {/if}
               <Toc entry={selectedEntry} />
             </div>
             <span class="text-surface-content text-sm fixed bottom-3 right-3 inline-flex gap-2 items-center">
@@ -110,7 +129,7 @@
                 size="sm"
                 variant="text"
                 iconOnly
-                icon={mdiCog} />
+                icon={mdiEyeSettingsOutline} />
             </span>
           </div>
         {:else}

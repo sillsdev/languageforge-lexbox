@@ -4,6 +4,7 @@
   import EntryEditor from './EntryEditor.svelte';
   import type {IEntry} from '../mini-lcm';
   import {useLexboxApi} from '../services/service-provider';
+  import { mdiPlus } from '@mdi/js';
 
   let loading = false;
   let entry: IEntry = defaultEntry();
@@ -29,15 +30,16 @@
   }
 </script>
 <Toggle let:on={open} let:toggleOn let:toggleOff>
-  <Button on:click={toggleOn} variant="fill-outline">Create Entry</Button>
-  <Dialog {open} on:close={toggleOff} {loading} persistent={loading}>
+  <Button on:click={toggleOn} icon={mdiPlus} variant="fill-outline" color="success" size="sm">New Entry</Button>
+  <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
     <div slot="title">New Entry</div>
     <div class="m-6">
       <EntryEditor {entry}/>
     </div>
+    <div class="flex-grow"></div>
     <div slot="actions">
-      <Button variant="fill" color="primary" on:click={e => createEntry(e, toggleOff)}>Save Entry</Button>
       <Button>Cancel</Button>
+      <Button variant="fill-light" color="success" on:click={e => createEntry(e, toggleOff)}>Create Entry</Button>
     </div>
   </Dialog>
 </Toggle>

@@ -1,4 +1,4 @@
-import type { IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
+import type { IEntry, IMultiString, ISense, WritingSystem, WritingSystems } from './mini-lcm';
 
 import type { WritingSystemSelection } from './config-types';
 
@@ -31,4 +31,13 @@ export function pickWritingSystems(
     case 'analysis':
       return allWs.analysis;
   }
+}
+
+export function filterEntries(entries: IEntry[], query: string) {
+  return entries.filter(entry =>
+    [
+      ...Object.values(entry.lexemeForm ?? {}),
+      ...Object.values(entry.citationForm ?? {}),
+      ...Object.values(entry.literalMeaning ?? {}),
+    ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
 }
