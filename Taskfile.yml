@@ -37,7 +37,7 @@ tasks:
   setup-win:
     platforms: [ windows ]
     cmds:
-      - cmd: powershell if (test-path {{.HG_REPO_DIR}}/sena-3) { rm -r {{.HG_REPO_DIR}}/sena-3 }
+      - cmd: powershell "if (test-path {{.HG_REPO_DIR}}/sena-3) { rm -r {{.HG_REPO_DIR}}/sena-3 }"
         ignore_error: true
         silent: true
       - powershell -Command "Invoke-WebRequest 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' -OutFile sena-3.zip"
