@@ -7,14 +7,14 @@ export const writingSystems: WritingSystems = {
       'name': 'English',
       'abbreviation': 'Eng',
       'font': '???',
-      'exemplars': []
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     },
     {
       'id': 'pt',
       'name': 'Portuguese',
       'abbreviation': 'Por',
       'font': '???',
-      'exemplars': []
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     }
   ],
   'vernacular': [
@@ -23,14 +23,14 @@ export const writingSystems: WritingSystems = {
       'name': 'Sena',
       'abbreviation': 'Sen',
       'font': '???',
-      'exemplars': []
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     },
     {
       'id': 'seh-fonipa-x-etic',
       'name': 'Sena',
       'abbreviation': 'seh',
       'font': '???',
-      'exemplars': []
+      'exemplars': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     }
   ]
 };

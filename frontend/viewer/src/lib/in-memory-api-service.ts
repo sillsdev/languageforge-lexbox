@@ -84,10 +84,6 @@ export class InMemoryApiService implements LexboxApi {
     throw new Error('Method not implemented.');
   }
 
-  GetExemplars(): Promise<string[]> {
-    return Promise.resolve(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']);
-  }
-
   DeleteEntry(guid: string): Promise<void> {
     throw new Error('Method not implemented.');
   }

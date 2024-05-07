@@ -12,8 +12,6 @@ export interface LexboxApi {
   CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void>;
   UpdateWritingSystem(wsId: string, type: WritingSystemType, update: JsonPatch): Promise<WritingSystem>;
 
-  GetExemplars(): Promise<string[]>;
-
   GetEntriesForExemplar(exemplar: string, options: QueryOptions | undefined): Promise<IEntry[]>;
   GetEntries(options: QueryOptions | undefined): Promise<IEntry[]>;
   SearchEntries(query: string, options: QueryOptions | undefined): Promise<IEntry[]>;

@@ -94,10 +94,6 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
         return await this.connection.invoke("UpdateWritingSystem", wsId, type, update);
     }
 
-    public readonly GetExemplars = async (): Promise<string[]> => {
-        return await this.connection.invoke("GetExemplars");
-    }
-
     public readonly GetEntriesForExemplar = async (exemplar: string, options: QueryOptions): Promise<Entry[]> => {
         return await this.connection.invoke("GetEntriesForExemplar", exemplar, options);
     }

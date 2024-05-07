@@ -14,10 +14,6 @@ export type ILexboxApiHub = {
     CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void>;
     UpdateWritingSystem(wsId: string, type: WritingSystemType, update: JsonOperation[]): Promise<WritingSystem>;
     /**
-    * @returns Transpiled from System.Threading.Tasks.Task<string[]>
-    */
-    GetExemplars(): Promise<string[]>;
-    /**
     * @param exemplar Transpiled from string
     * @param options Transpiled from lexboxClientContracts.QueryOptions?
     * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Entry[]>

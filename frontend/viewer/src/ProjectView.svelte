@@ -38,14 +38,19 @@
   const connected = writable(false);
   const search = writable<string>('');
 
-  const indexExamplars = deriveAsync(connected, isConnected => {
-    if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.GetExemplars();
-  });
+
   const selectedIndexExemplar = writable<string | undefined>(undefined);
-  setContext('indexExamplars', indexExamplars);
   setContext('selectedIndexExamplars', selectedIndexExemplar);
 
+  const writingSystems = deriveAsync(connected, isConnected => {
+    if (!isConnected) return Promise.resolve(null);
+    return lexboxApi.GetWritingSystems();
+  });
+  setContext('writingSystems', writingSystems);
+  const indexExamplars = derived(writingSystems, wsList => {
+    return wsList?.vernacular[0].exemplars;
+  });
+  setContext('indexExamplars', indexExamplars);
   const trigger = writable(0);
   function refreshEntries(): void {
     trigger.update(t => t + 1);
@@ -67,11 +72,6 @@
     });
   }, undefined, 200);
 
-  const writingSystems = deriveAsync(connected, isConnected => {
-    if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.GetWritingSystems();
-  });
-  setContext('writingSystems', writingSystems);
 
   let showSearchDialog = false;
   let showOptionsDialog = false;
