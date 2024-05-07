@@ -2,7 +2,7 @@
   import type {IEntry, IExampleSentence, ISense} from './mini-lcm';
   import EntryEditor from './entry-editor/EntryEditor.svelte';
   import type {Readable} from 'svelte/store';
-  import {getContext} from 'svelte';
+  import {createEventDispatcher, getContext} from 'svelte';
   import type {ViewConfig} from './config-types';
   import jsonPatch from 'fast-json-patch';
   import {useLexboxApi} from './services/service-provider';
@@ -10,8 +10,16 @@
 
   let lexboxApi = useLexboxApi();
 
+  const dispatch = createEventDispatcher<{
+    delete: { entry: IEntry };
+  }>();
+
   export let entry: IEntry;
-  $: initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+  let initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+  function updateInitialEntry() {
+    initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+  }
+
 
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
@@ -34,7 +42,20 @@
       }
     }
 
-    entry = entry;//trigger initial entry update
+    updateInitialEntry();
+  }
+
+  async function onDelete(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
+    if (e.example !== undefined && e.sense !== undefined) {
+      await lexboxApi.DeleteExampleSentence(e.entry.id, e.sense.id, e.example.id);
+    } else if (e.sense !== undefined) {
+      await lexboxApi.DeleteSense(e.entry.id, e.sense.id);
+    } else {
+      await lexboxApi.DeleteEntry(e.entry.id);
+      dispatch('delete', {entry: e.entry});
+      return;
+    }
+    updateInitialEntry();
   }
 
   async function updateEntry(updatedEntry: IEntry) {
@@ -74,7 +95,10 @@
 </script>
 
 <div id="entry" class="editor" class:hide-empty-fields={$viewConfig.hideEmptyFields}>
-  <EntryEditor on:change={e => onChange(e.detail)} entry={entry}/>
+  <EntryEditor
+    on:change={e => onChange(e.detail)}
+    on:delete={e => onDelete(e.detail)}
+    entry={entry}/>
 </div>
 
 <style lang="postcss">

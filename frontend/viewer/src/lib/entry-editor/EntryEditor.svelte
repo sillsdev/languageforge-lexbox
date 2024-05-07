@@ -4,13 +4,14 @@
   import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
   import type { ViewConfig } from '../config-types';
-  import { mdiPlus } from '@mdi/js';
+  import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from './EntityListItemActions.svelte';
   import {defaultExampleSentence, defaultSense} from '../utils';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
+    delete: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
   }>();
 
   export let entry: IEntry;
@@ -25,6 +26,18 @@
     const sentence = defaultExampleSentence();
     newEntity = sentence;
     sense.exampleSentences = [...sense.exampleSentences, sentence];
+  }
+  function deleteEntry() {
+    dispatch('delete', {entry});
+  }
+
+  function deleteSense(sense: ISense) {
+    entry.senses = entry.senses.filter(s => s !== sense);
+    dispatch('delete', {entry, sense});
+  }
+  function deleteExample(sense: ISense, example: IExampleSentence) {
+    sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
+    dispatch('delete', {entry, sense, example});
   }
   export let modalMode = false;
 
@@ -71,7 +84,7 @@
         <h2 class="text-lg text-surface-content" id="sense{i + 1}">Sense {i + 1}</h2>
         <hr class="grow border-t-4">
         {#if !$viewConfig.readonly}
-          <EntityListItemActions {i} count={entry.senses.length} />
+          <EntityListItemActions {i} count={entry.senses.length} on:delete={() => deleteSense(sense)} />
         {/if}
       </div>
 
@@ -90,7 +103,7 @@
             <h3 class="text-surface-content" id="example{i + 1}.{j + 1}">Example {j + 1}</h3>
             <hr class="grow">
             {#if !$viewConfig.readonly}
-              <EntityListItemActions i={j} count={entry.senses.length} />
+              <EntityListItemActions i={j} count={sense.exampleSentences.length} on:delete={() => deleteExample(sense, example)} />
             {/if}
           </div>
 
@@ -122,6 +135,7 @@
 {#if !modalMode}
   <div class="contents" use:portal={{ target: $entryActionsPortal}}>
     <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
+    <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">Delete Entry</Button>
   </div>
 {/if}
 

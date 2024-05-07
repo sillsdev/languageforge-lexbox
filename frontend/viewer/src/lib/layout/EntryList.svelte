@@ -11,10 +11,6 @@
   export let search: string;
 
   $: {
-    if (!$selectedEntry) $selectedEntry = entries?.[0];
-  }
-
-  $: {
     entries;
     // wait until the new entries have been rendered
     setTimeout(() => {

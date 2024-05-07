@@ -57,8 +57,12 @@
   }
 
   const entries = deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
+    return fetchEntries(s, isConnected, exemplar);
+  }, undefined, 200);
+
+  function fetchEntries(s: string, isConnected: boolean, exemplar: string | undefined) {
     if (!isConnected) return Promise.resolve([]);
-    if (exemplar) {
+    if (false) {
       return lexboxApi.GetEntriesForExemplar(exemplar, {
         offset: 0,
         count: 1000,
@@ -70,15 +74,35 @@
       count: 1000,
       order: {field: 'headword', writingSystem: 'default'}
     });
-  }, undefined, 200);
+  }
 
 
   let showSearchDialog = false;
   let showOptionsDialog = false;
   const selectedEntry = writable<IEntry | undefined>(undefined);
   setContext('selectedEntry', selectedEntry);
+  //selection handling, make sure the selected entry is always in the list of entries
+  $: if ($entries) {
+    let currentEntry = $selectedEntry;
+    if (currentEntry !== undefined) {
+      const entry = $entries.find(e => e.id === currentEntry.id);
+      if (entry !== currentEntry) {
+        $selectedEntry = entry;
+      }
+    }
+    if (!$selectedEntry && $entries.length > 0)
+      $selectedEntry = $entries[0];
+  }
+
 
   $: _loading = !$entries || !$writingSystems || loading;
+
+  function onEntryCreated(entry: IEntry) {
+    $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
+    $selectedEntry = entry;
+    $selectedIndexExemplar = headword(entry).charAt(0).toLocaleUpperCase() || undefined;
+    refreshEntries();
+  }
 
   const entryActionsElem = writable<HTMLDivElement>();
   setContext('entryActionsPortal', entryActionsElem);
@@ -122,17 +146,16 @@
             <div class="mb-6">
               <DictionaryEntryViewer entry={$selectedEntry} />
             </div>
-            <Editor bind:entry={$selectedEntry} />
+            <Editor entry={$selectedEntry} on:delete={e => {
+              $selectedEntry = undefined;
+              refreshEntries();
+            }} />
           </div>
           <div class="h-full min-w-48 pl-6 border-l-2 gap-4 flex flex-col">
             <div class="side-scroller h-full flex flex-col gap-4">
               {#if !$viewConfig.readonly}
                 <div class="contents" bind:this={$entryActionsElem}>
-                  <NewEntryDialog on:created={e => {
-                    $selectedEntry = e.detail.entry;
-                    $selectedIndexExemplar = headword(e.detail.entry).charAt(0).toLocaleUpperCase() || undefined;
-                    refreshEntries();
-                  }} />
+                  <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
                 </div>
               {/if}
               <Toc entry={$selectedEntry} />
@@ -151,11 +174,7 @@
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
             {#if !$viewConfig.readonly}
-              <NewEntryDialog on:created={e => {
-                $selectedEntry = e.detail.entry;
-                $selectedIndexExemplar = headword(e.detail.entry).charAt(0).toLocaleUpperCase() || undefined;
-                refreshEntries();
-              }} />
+              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
             {/if}
           </div>
         {/if}
