@@ -104,8 +104,8 @@ public partial class HgService : IHgService
         await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
-        // Force NFS to refresh its directory cache. Discard return value as we don't actually want it.
-        _ = Directory.GetFiles(PrefixRepoFilePath(code));
+        // Force NFS to refresh its directory cache.
+        Process.Start("ls", [PrefixRepoFilePath(code)]);
     }
 
     public async Task FinishReset(string code, Stream zipFile)
@@ -139,8 +139,8 @@ public partial class HgService : IHgService
         // Now we're ready to move the new repo into place, replacing the old one
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
-        // Force NFS to refresh its directory cache. Discard return value as we don't actually want it.
-        _ = Directory.GetFiles(PrefixRepoFilePath(code));
+        // Force NFS to refresh its directory cache.
+        Process.Start("ls", [PrefixRepoFilePath(code)]);
     }
 
     /// <summary>
