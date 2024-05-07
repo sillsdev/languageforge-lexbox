@@ -40,6 +40,7 @@ public class NewProjectRaceCondition : ApiTestBase
                     type: FL_EX,
                     id: "{{id}}",
                     code: "{{id}}",
+                    isConfidential: false,
                     description: "this is just a testing project for testing a race condition",
                     retentionPolicy: DEV
                 }) {
