@@ -5,7 +5,7 @@ using Entry = LcmCrdt.Objects.Entry;
 using Sense = LcmCrdt.Objects.Sense;
 using ExampleSentence = LcmCrdt.Objects.ExampleSentence;
 
-namespace Tests.LcmModelTests;
+namespace LcmCrdt.Tests;
 
 public class SerializationTests(ITestOutputHelper output)
 {

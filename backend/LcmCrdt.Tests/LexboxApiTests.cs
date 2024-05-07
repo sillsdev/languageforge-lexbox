@@ -1,7 +1,5 @@
-﻿using System.Text.Json;
-using CrdtLib;
+﻿using CrdtLib;
 using CrdtLib.Db;
-using LcmCrdt;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
@@ -9,7 +7,7 @@ using Entry = MiniLcm.Entry;
 using ExampleSentence = MiniLcm.ExampleSentence;
 using Sense = MiniLcm.Sense;
 
-namespace Tests.LcmModelTests;
+namespace LcmCrdt.Tests;
 
 public class BasicApiTests: IAsyncLifetime
 {
@@ -135,17 +133,10 @@ public class BasicApiTests: IAsyncLifetime
         writingSystems.Analysis.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "not implemented")]
-    public async Task GetExemplars()
-    {
-        var exemplars = await _api.GetExemplars();
-        exemplars.Should().NotBeEmpty();
-    }
-
-    [Fact(Skip = "not implemented")]
+    [Fact]
     public async Task GetEntriesByExemplar()
     {
-        var entries = await _api.GetEntries("a");
+        var entries = await _api.GetEntries(new QueryOptions(SortOptions.Default, new("a", "default"))).ToArrayAsync();
         entries.Should().NotBeEmpty();
     }
 
