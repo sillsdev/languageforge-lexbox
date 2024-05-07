@@ -8,6 +8,7 @@ namespace LocalWebApp;
 
 public class CrdtHttpSyncService(IHttpClientFactory clientFactory, ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
 {
+    //todo replace with a IMemoryCache check
     private bool? _isHealthy;
     private DateTimeOffset _lastHealthCheck = DateTimeOffset.MinValue;
 
