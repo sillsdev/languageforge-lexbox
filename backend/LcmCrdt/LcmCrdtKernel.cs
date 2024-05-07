@@ -1,11 +1,8 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Crdt.Core;
 using CrdtLib;
 using CrdtLib.Changes;
 using CrdtLib.Db;
-using CrdtLib.Entities;
-using CrdtLib.Helpers;
 using LcmCrdt.Changes;
 using MiniLcm;
 using LinqToDB;
@@ -13,11 +10,9 @@ using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -40,12 +35,7 @@ public static class LcmCrdtKernel
         services.AddScoped<ILexboxApi, CrdtLexboxApi>();
         services.AddScoped<CurrentProjectService>();
         services.AddSingleton<ProjectContext>();
-        services.AddSingleton(typeof(DataModelProvider<>));
         services.AddSingleton<ProjectsService>();
-        services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
-        {
-            jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
-        });
         return services;
     }
 

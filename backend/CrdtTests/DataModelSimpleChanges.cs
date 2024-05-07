@@ -92,6 +92,18 @@ public class DataModelSimpleChanges : DataModelTestBase
     }
 
     [Fact]
+    public async Task CanWriteChangesWhenAnUnchangedWordExists()
+    {
+        await WriteNextChange(SetWord(_entity2Id, "word-2"));
+
+        await WriteNextChange(SetWord(_entity1Id, "word-1"));
+        await WriteNextChange(SetWord(_entity1Id, "second"));
+        await WriteNextChange(SetWord(_entity1Id, "third"));
+        var snapshot = await DbContext.Snapshots.DefaultOrder().LastAsync();
+        snapshot.Entity.Is<Word>().Text.Should().Be("third");
+    }
+
+    [Fact]
     public async Task Writing2ChangesSecondOverwritesFirstWithLocalFirst()
     {
         var firstDate = DateTimeOffset.Now;
@@ -168,6 +180,18 @@ public class DataModelSimpleChanges : DataModelTestBase
         var deleteCommit = await WriteNextChange(new DeleteChange<Word>(_entity1Id));
         var snapshot = await DbContext.Snapshots.DefaultOrder().LastAsync();
         snapshot.Entity.DeletedAt.Should().Be(deleteCommit.DateTime);
+    }
+
+    [Fact]
+    public async Task CanModifyAnEntryAfterDelete()
+    {
+        await WriteNextChange(SetWord(_entity1Id, "test-value"));
+        var deleteCommit = await WriteNextChange(new DeleteChange<Word>(_entity1Id));
+        await WriteNextChange(SetWord(_entity1Id, "after-delete"));
+        var snapshot = await DbContext.Snapshots.DefaultOrder().LastAsync();
+        var word = snapshot.Entity.Is<Word>();
+        word.Text.Should().Be("after-delete");
+        word.DeletedAt.Should().Be(deleteCommit.DateTime);
     }
 
 

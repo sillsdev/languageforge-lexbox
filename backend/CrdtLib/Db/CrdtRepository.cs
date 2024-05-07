@@ -90,9 +90,39 @@ public class CrdtRepository(CrdtDbContext _dbContext, IOptions<CrdtConfig> crdtC
         return await _dbContext.Commits.SingleOrDefaultAsync(c => c.Hash == hash);
     }
 
+    public async Task<Commit?> FindPreviousCommit(Commit commit)
+    {
+        if (!string.IsNullOrWhiteSpace(commit.ParentHash)) return await FindCommitByHash(commit.ParentHash);
+        return await _dbContext.Commits.Where(c => c.HybridDateTime.DateTime < commit.HybridDateTime.DateTime
+                                                   || c.HybridDateTime.DateTime == commit.HybridDateTime.DateTime &&
+                                                   c.HybridDateTime.Counter < commit.HybridDateTime.Counter
+                                                   || c.HybridDateTime.DateTime == commit.HybridDateTime.DateTime &&
+                                                   c.HybridDateTime.Counter == commit.HybridDateTime.Counter &&
+                                                   c.Id < commit.Id)
+            .OrderByDescending(c => c.HybridDateTime.DateTime)
+            .ThenByDescending(c => c.HybridDateTime.Counter)
+            .ThenByDescending(c => c.Id)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Commit[]> GetCommitsAfter(Commit? commit)
+    {
+        var dbContextCommits = _dbContext.Commits.Include(c => c.ChangeEntities);
+        if (commit is null) return await dbContextCommits.DefaultOrder().ToArrayAsync();
+        return await dbContextCommits
+            .Where(c => c.HybridDateTime.DateTime > commit.HybridDateTime.DateTime
+                        || (c.HybridDateTime.DateTime == commit.HybridDateTime.DateTime &&
+                            c.HybridDateTime.Counter > commit.HybridDateTime.Counter)
+                        || (c.HybridDateTime.DateTime == commit.HybridDateTime.DateTime &&
+                            c.HybridDateTime.Counter == commit.HybridDateTime.Counter &&
+                            c.Id > commit.Id))
+            .DefaultOrder()
+            .ToArrayAsync();
+    }
+
     public async Task<ObjectSnapshot?> FindSnapshot(Guid id)
     {
-        return await _dbContext.Snapshots.FindAsync(id);
+        return await _dbContext.Snapshots.Include(s => s.Commit).SingleOrDefaultAsync(s => s.Id == id);
     }
 
     public async Task<ObjectSnapshot> GetCurrentSnapshotByObjectId(Guid objectId)

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace LcmCrdt;
+﻿namespace LcmCrdt;
 
 public class ProjectContext
 {
@@ -8,6 +6,7 @@ public class ProjectContext
     {
         public CrdtProject? Project;
     }
+
     private static readonly AsyncLocal<ProjectHolder> _projectHolder = new();
 
     public CrdtProject? Project

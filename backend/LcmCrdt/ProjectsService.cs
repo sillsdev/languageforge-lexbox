@@ -1,5 +1,4 @@
 ﻿using CrdtLib.Db;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LcmCrdt;
@@ -25,13 +24,6 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
     public bool ProjectExists(string name)
     {
         return GetProject(name) is not null;
-    }
-
-    public CrdtProject? GetProject(HttpContext? httpContext)
-    {
-        if (httpContext is null) return null;
-        if (!httpContext.Request.RouteValues.TryGetValue("project", out var project) || project is null) return null;
-        return GetProject(project?.ToString() ?? "");
     }
 
     public async Task<CrdtProject> CreateProject(string name,

@@ -42,6 +42,7 @@ public class CrdtDbContext(
             .HasForeignKey(c => c.CommitId);
         var snapshotObject = builder.Entity<ObjectSnapshot>();
         snapshotObject.HasKey(s => s.Id);
+        snapshotObject.HasIndex(s => new { s.CommitId, s.EntityId }).IsUnique();
         snapshotObject
             .HasOne(s => s.Commit)
             .WithMany(c => c.Snapshots)

@@ -14,7 +14,6 @@ public class SnapshotWorker
 {
     private readonly IReadOnlyDictionary<Guid, SimpleSnapshot>? _snapshots;
     private readonly CrdtRepository _crdtRepository;
-    private readonly SimpleSnapshot? _oldestSnapshot;
     private readonly Dictionary<Guid, ObjectSnapshot> _pendingSnapshots  = [];
     private readonly List<ObjectSnapshot> _newIntermediateSnapshots = [];
 
@@ -22,7 +21,6 @@ public class SnapshotWorker
     {
         _pendingSnapshots = snapshots;
         var oldestSnapshot = snapshots.Values.MinBy(s => s.Commit.CompareKey);
-        _oldestSnapshot = oldestSnapshot is null ? null : new SimpleSnapshot(oldestSnapshot);
         _crdtRepository = crdtRepository;
     }
 
@@ -32,7 +30,7 @@ public class SnapshotWorker
     {
         //we need to pass in the snapshots because we expect it to be modified, this is intended.
         //if the constructor makes a copy in the future this will need to be updated
-        await new SnapshotWorker(snapshots, crdtRepository).ApplyCommitChanges(commits, false);
+        await new SnapshotWorker(snapshots, crdtRepository).ApplyCommitChanges(commits, false, null);
         return snapshots;
     }
 
@@ -40,32 +38,22 @@ public class SnapshotWorker
     {
         _snapshots = snapshots;
         _crdtRepository = crdtRepository;
-        _oldestSnapshot = snapshots.Values.MinBy(s => (s.HybridDateTime.DateTime, s.HybridDateTime.Counter, s.CommitId));
     }
 
-    public async Task UpdateSnapshots()
+    public async Task UpdateSnapshots(Commit oldestAddedCommit)
     {
-        //need to use oldestCommitAppliedToAllSnapshots because some snapshots might not have changes that are newer
-        //but before the oldestAddedCommit
-        var commits = await _crdtRepository.CurrentCommits().Where(c =>
-                _oldestSnapshot == null
-                || (c.HybridDateTime.DateTime == _oldestSnapshot.HybridDateTime.DateTime &&
-                    c.Id > _oldestSnapshot.CommitId)
-                || c.HybridDateTime.DateTime > _oldestSnapshot.HybridDateTime.DateTime
-                || (c.HybridDateTime.DateTime == _oldestSnapshot.HybridDateTime.DateTime
-                && c.HybridDateTime.Counter > _oldestSnapshot.HybridDateTime.Counter))
-            .Include(c => c.ChangeEntities).ToArrayAsync();
-        await ApplyCommitChanges(commits, true);
+        var previousCommit = await _crdtRepository.FindPreviousCommit(oldestAddedCommit);
+        var commits = await _crdtRepository.GetCommitsAfter(previousCommit);
+        await ApplyCommitChanges(commits, true, previousCommit?.Hash);
 
         //intermediate snapshots should be added first, as the last snapshot added for an entity will be used in the projected tables
         await _crdtRepository.AddIfNew(_newIntermediateSnapshots);
         await _crdtRepository.AddSnapshots(_pendingSnapshots.Values);
     }
 
-    public async ValueTask ApplyCommitChanges(ICollection<Commit> commits, bool updateCommitHash)
+    public async ValueTask ApplyCommitChanges(ICollection<Commit> commits, bool updateCommitHash, string? previousCommitHash)
     {
         var commitIndex = 0;
-        var previousCommitHash = _oldestSnapshot?.CommitHash;
         foreach (var commit in commits)
         {
             if (updateCommitHash && previousCommitHash is not null)
@@ -80,7 +68,8 @@ public class SnapshotWorker
             {
                 IObjectBase entity;
                 var snapshot = await GetSnapshot(commitChange.EntityId);
-                var hasBeenApplied = snapshot?.CommitId == commit.Id;
+                var hasBeenApplied = snapshot is not null && (snapshot.CommitId == commit.Id ||
+                                                              snapshot.Commit.HybridDateTime > commit.HybridDateTime);
                 var changeContext = new ChangeContext(commit, this, _crdtRepository);
                 bool wasDeleted;
                 if (snapshot is not null)

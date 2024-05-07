@@ -85,9 +85,9 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
     private async Task UpdateSnapshots(Commit oldestAddedCommit)
     {
         await crdtRepository.DeleteStaleSnapshots(oldestAddedCommit);
-        var modelSnapshot = await GetProjectSnapshot();
+        var modelSnapshot = await GetProjectSnapshot(true);
         var snapshotWorker = new SnapshotWorker(modelSnapshot.Snapshots, crdtRepository);
-        await snapshotWorker.UpdateSnapshots();
+        await snapshotWorker.UpdateSnapshots(oldestAddedCommit);
     }
 
     public async Task ValidateCommits()
@@ -126,9 +126,9 @@ public class DataModel(CrdtRepository crdtRepository, JsonSerializerOptions seri
         return await crdtRepository.GetCurrent<T>(objectId);
     }
 
-    public async Task<ModelSnapshot> GetProjectSnapshot()
+    public async Task<ModelSnapshot> GetProjectSnapshot(bool includeDeleted = false)
     {
-        return new ModelSnapshot(await GetEntitySnapshots());
+        return new ModelSnapshot(await GetEntitySnapshots(includeDeleted));
     }
 
     public IQueryable<T> GetLatestObjects<T>() where T : class, IObjectBase

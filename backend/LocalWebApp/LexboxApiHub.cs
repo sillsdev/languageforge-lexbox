@@ -20,6 +20,7 @@ public class LexboxApiHub(
     BackgroundSyncService backgroundSyncService,
     SyncService syncService) : Hub<ILexboxClient>
 {
+    public const string ProjectRouteKey = "project";
     public override async Task OnConnectedAsync()
     {
         await syncService.ExecuteSync();

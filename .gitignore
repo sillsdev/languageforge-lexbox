@@ -16,3 +16,4 @@ cookies.txt
 dump.sql
 test-results/
 **/*.sqlite
+**/*.sqlite-*
