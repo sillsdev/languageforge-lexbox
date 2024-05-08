@@ -4,7 +4,7 @@ using LexData.Entities;
 
 namespace LexBoxApi.Services;
 
-public static class CrdtSyncApi
+public static class CrdtSyncRoutes
 {
     public static IEndpointConventionBuilder MapSyncApi(this IEndpointRouteBuilder endpoints,
         string path = "/api/sync/{id}")
