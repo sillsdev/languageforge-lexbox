@@ -2,6 +2,7 @@
   import { mdiArrowDownBold, mdiArrowUpBold, mdiArrowUpDownBold, mdiChevronDoubleLeft, mdiPlaylistPlus, mdiTrashCanOutline } from "@mdi/js";
   import { createEventDispatcher } from "svelte";
   import { Button, ButtonGroup, Icon, Popover, Toggle } from "svelte-ux";
+  import HistoryView from '../history/HistoryView.svelte';
 
   const dispatch = createEventDispatcher<{
     move: number;
@@ -10,6 +11,7 @@
 
   export let i: number;
   export let items: string[];
+  export let id: string | undefined = undefined;
 
   $: displayItems = items;
   $: count = items.length;
@@ -70,6 +72,9 @@
         {/if}
       </Toggle>
     </div>
+  {/if}
+  {#if id}
+    <HistoryView small {id}/>
   {/if}
   <Button on:click={() => dispatch('delete')} variant="fill-light" rounded icon={mdiTrashCanOutline} color="danger" size="sm"></Button>
 </ButtonGroup>

@@ -16,10 +16,7 @@ public class ProjectHubActivator<THub>(
 
     private CrdtProject? GetProject()
     {
-        if (contextAccessor.HttpContext is null) return null;
-        var projectNameObj = contextAccessor.HttpContext.Request.RouteValues.GetValueOrDefault(LexboxApiHub.ProjectRouteKey, null);
-        if (projectNameObj is null) return null;
-        var projectName = projectNameObj.ToString();
+        var projectName = contextAccessor.HttpContext.GetProjectName();
         if (string.IsNullOrWhiteSpace(projectName)) return null;
         return projectsService.GetProject(projectName);
     }

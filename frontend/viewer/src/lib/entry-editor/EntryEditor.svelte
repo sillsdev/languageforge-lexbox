@@ -9,6 +9,8 @@
   import EntityListItemActions from './EntityListItemActions.svelte';
   import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../utils';
   import HistoryView from '../history/HistoryView.svelte';
+  import SenseEditor from './SenseEditor.svelte';
+  import ExampleEditor from './ExampleEditor.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -56,6 +58,10 @@
     entry = entry; // examples are not updated without this
   }
   export let modalMode = false;
+  export let readonly = false;
+  $: if (!readonly) {
+    readonly = $viewConfig.readonly ?? false;
+  }
 
   let editorElem: HTMLDivElement | undefined;
   let highlightedEntity: IExampleSentence | ISense | undefined;
@@ -112,20 +118,15 @@
       <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
         <h2 class="text-lg text-surface-content">Sense {i + 1}</h2>
         <hr class="grow border-t-4">
-        {#if !$viewConfig.readonly}
+        {#if !readonly}
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
             on:move={(e) => moveSense(sense, e.detail)}
-            on:delete={() => deleteSense(sense)} />
+            on:delete={() => deleteSense(sense)} id={sense.id} />
         {/if}
       </div>
 
       <div class="grid-layer">
-        <EntityEditor
-          entity={sense}
-          fieldConfigs={Object.values($viewConfig.activeView?.sense ?? [])}
-          customFieldConfigs={Object.values($viewConfig.activeView?.customSense ?? [])}
-          on:change={() => dispatch('change', {entry, sense})}
-        />
+        <SenseEditor {sense} on:change={() => dispatch('change', {entry, sense})}/>
       </div>
 
       <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
@@ -139,33 +140,33 @@
                 collapse/expand toggle
               -->
               <hr class="grow">
-              {#if !$viewConfig.readonly}
-                <EntityListItemActions i={j} items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+              {#if !readonly}
+              <EntityListItemActions i={j}
+                                     items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
                   on:move={(e) => moveExample(sense, example, e.detail)}
-                  on:delete={() => deleteExample(sense, example)}
-                  />
+                                     on:delete={() => deleteExample(sense, example)}
+                                     id={example.id}
+              />
               {/if}
             </div>
 
             <div class="grid-layer">
-              <EntityEditor
-                entity={example}
-                fieldConfigs={Object.values($viewConfig.activeView?.example ?? [])}
-                customFieldConfigs={Object.values($viewConfig.activeView?.customExample ?? [])}
+            <ExampleEditor
+              {example}
                 on:change={() => dispatch('change', {entry, sense, example})}
               />
             </div>
           </div>
         {/each}
       </div>
-      {#if !$viewConfig.readonly}
+      {#if !readonly}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
         </div>
       {/if}
     </div>
   {/each}
-  {#if !$viewConfig.readonly}
+  {#if !readonly}
     <hr class="col-span-full grow border-t-4 my-4">
     <div class="col-span-full flex justify-end">
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
