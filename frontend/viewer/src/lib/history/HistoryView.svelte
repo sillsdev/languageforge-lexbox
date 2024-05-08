@@ -17,6 +17,7 @@
   let record: typeof history[number] | undefined;
   let projectName = getContext<string>('project-name');
   let history: Array<{
+    commitId: string,
     timestamp: string,
     previousTimestamp?: string,
     snapshotId: string,
@@ -42,7 +43,12 @@
   }
 
   async function showEntry(row: typeof history[number]) {
-    record = row;
+    if (!row.entity || !row.snapshotId) {
+      const data = await fetch(`/api/history/${projectName}/snapshot/at/${new Date(row.timestamp).toISOString()}?entityId=${id}`).then(res => res.json());
+      record = {...row, entity: data.entity, entityName: data.typeName};
+    } else {
+      record = row;
+    }
   }
 </script>
 <Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={load}>
@@ -69,7 +75,7 @@
                   class={cls(
               'cursor-pointer',
               'hover:bg-surface-300',
-              record?.snapshotId === row.snapshotId ? 'bg-surface-200 selected-entry' : ''
+              record?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : ''
             )}>
                   <div slot="subheading" class="text-sm text-surface-content/50">
                     {#if row.previousTimestamp}

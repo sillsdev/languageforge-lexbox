@@ -1,4 +1,5 @@
-﻿using Crdt;
+﻿using System.ComponentModel.DataAnnotations;
+using Crdt;
 using Crdt.Changes;
 using Crdt.Core;
 using Crdt.Db;
@@ -27,10 +28,17 @@ public static class HistoryRoutes
             await next(context);
         });
         var group = app.MapGroup("/api/history/{project}").WithOpenApi();
-        group.MapGet("/snapshot/{snapshotId}",
+        group.MapGet("/snapshot/{snapshotId:guid}",
             async (Guid snapshotId, CrdtDbContext dbcontext) =>
             {
                 return await dbcontext.Snapshots.Where(s => s.Id == snapshotId).SingleOrDefaultAsync();
+            });
+        group.MapGet("/snapshot/at/{timestamp}",
+            async (DateTime timestamp, Guid entityId, DataModel dataModel) =>
+            {
+                //todo investigate why filtering on datetimes isn't working as expected in sqlite
+                //will return changes that happened after the timestamp
+                return await dataModel.GetEntitySnapshotAtTime(new DateTimeOffset(timestamp), entityId);
             });
         group.MapGet("/{entityId}",
             (Guid entityId, CrdtDbContext dbcontext) =>
@@ -39,7 +47,8 @@ public static class HistoryRoutes
                     from snapshot in dbcontext.Snapshots.LeftJoin(s => s.CommitId == commit.Id && s.EntityId == entityId)
                     from change in dbcontext.ChangeEntities.LeftJoin(c => c.CommitId == commit.Id && c.EntityId == entityId)
                     where snapshot.Id != null || change.EntityId != null
-                    select new HistoryLineItem(entityId,
+                    select new HistoryLineItem(commit.Id,
+                        entityId,
                         commit.HybridDateTime.DateTime,
                         snapshot.Id,
                         change.Change,
@@ -50,6 +59,7 @@ public static class HistoryRoutes
     }
 
     public record HistoryLineItem(
+        Guid CommitId,
         Guid EntityId,
         DateTimeOffset Timestamp,
         Guid? SnapshotId,
@@ -58,12 +68,13 @@ public static class HistoryRoutes
         string? EntityName)
     {
         public HistoryLineItem(
+            Guid commitId,
             Guid entityId,
             DateTimeOffset timestamp,
             Guid? snapshotId,
             IChange? change,
-            IObjectBase? entity) : this(entityId,
-            timestamp,
+            IObjectBase? entity) : this(commitId, entityId,
+            new DateTimeOffset(timestamp.Ticks, TimeSpan.Zero),//todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
             snapshotId,
             change?.GetType().Name,
             entity,
