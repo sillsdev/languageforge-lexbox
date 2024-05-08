@@ -51,6 +51,8 @@ public class NewProjectRaceCondition : ApiTestBase
             }
             """);
 
+        await InvalidateDirCache($"{id}");
+
         var project = response["data"]!["createProject"]!["createProjectResponse"].ShouldBeOfType<JsonObject>();
         project["id"]!.GetValue<string>().ShouldBe(id.ToString());
 
