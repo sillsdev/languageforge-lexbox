@@ -1,5 +1,5 @@
-﻿using CrdtLib;
-using CrdtLib.Db;
+﻿using Crdt;
+using Crdt.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;

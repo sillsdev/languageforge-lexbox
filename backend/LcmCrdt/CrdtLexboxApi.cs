@@ -1,10 +1,8 @@
 ﻿using System.Linq.Expressions;
 using System.Text.Json;
 using Crdt.Core;
-using CrdtLib;
-using CrdtLib.Changes;
-using CrdtLib.Db;
-using CrdtLib.Helpers;
+using Crdt;
+using Crdt.Changes;
 using LcmCrdt.Changes;
 using MiniLcm;
 using LinqToDB;

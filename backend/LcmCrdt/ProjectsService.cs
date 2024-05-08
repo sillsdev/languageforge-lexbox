@@ -1,4 +1,4 @@
-﻿using CrdtLib.Db;
+﻿using Crdt.Db;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LcmCrdt;

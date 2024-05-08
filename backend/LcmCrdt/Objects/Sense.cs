@@ -1,5 +1,6 @@
-﻿using CrdtLib.Db;
-using CrdtLib.Entities;
+﻿using Crdt;
+using Crdt.Db;
+using Crdt.Entities;
 
 namespace LcmCrdt.Objects;
 

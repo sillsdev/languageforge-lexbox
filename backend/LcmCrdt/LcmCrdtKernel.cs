@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
+using Crdt;
 using Crdt.Core;
-using CrdtLib;
-using CrdtLib.Changes;
-using CrdtLib.Db;
+using Crdt;
+using Crdt.Changes;
 using LcmCrdt.Changes;
 using MiniLcm;
 using LinqToDB;
@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace LcmCrdt;
 

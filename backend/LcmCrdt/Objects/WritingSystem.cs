@@ -1,6 +1,7 @@
-﻿using CrdtLib.Changes;
-using CrdtLib.Db;
-using CrdtLib.Entities;
+﻿using Crdt;
+using Crdt.Changes;
+using Crdt.Db;
+using Crdt.Entities;
 using MiniLcm;
 
 namespace LcmCrdt.Objects;

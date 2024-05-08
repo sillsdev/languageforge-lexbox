@@ -1,6 +1,6 @@
 ﻿using Crdt.Core;
-using CrdtLib;
-using CrdtLib.Db;
+using Crdt;
+using Crdt.Db;
 using LcmCrdt;
 using Refit;
 

@@ -20,7 +20,7 @@
     <ItemGroup>
         <Using Include="Xunit"/>
         <Using Include="FluentAssertions"/>
-        <Using Include="CrdtLib"/>
+        <Using Include="Crdt"/>
     </ItemGroup>
 
     <ItemGroup>

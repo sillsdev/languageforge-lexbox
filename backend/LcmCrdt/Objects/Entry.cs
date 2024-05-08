@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
-using CrdtLib.Db;
-using CrdtLib.Entities;
+using Crdt;
+using Crdt.Entities;
 using LinqToDB;
 using MiniLcm;
 
