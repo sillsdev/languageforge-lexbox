@@ -81,13 +81,11 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
-        await WaitForHgRefreshIntervalAsync();
-
         // Push the project to the server
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
 
-        await WaitForLexboxMetadataUpdateAsync();
+        await _adminApiTester.InvalidateDirCache(projectConfig.Code);
 
         // Verify pushed and store last commit
         var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
@@ -101,7 +99,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         // Push changes
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
 
-        await WaitForLexboxMetadataUpdateAsync();
+        await _adminApiTester.InvalidateDirCache(projectConfig.Code);
 
         // Verify the push updated the last commit date
         var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
@@ -116,8 +114,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         // Create a fresh project
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, "SR_AfterReset");
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
-
-        await _adminApiTester.InvalidateDirCache(projectConfig.Code);
 
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);

@@ -61,6 +61,7 @@ public static class Utils
                 }
             }
             """);
+        await apiTester.InvalidateDirCache(config.Code); // Ensure newly-created project is available right away
         return new LexboxProject(apiTester, config.Id);
     }
 
@@ -82,11 +83,6 @@ public static class Utils
     public static async Task WaitForHgRefreshIntervalAsync()
     {
         await Task.Delay(TestingEnvironmentVariables.HgRefreshInterval);
-    }
-
-    public static async Task WaitForLexboxMetadataUpdateAsync()
-    {
-        await Task.Delay(3000);
     }
 
     private static string GetNewProjectDir(string projectCode,
