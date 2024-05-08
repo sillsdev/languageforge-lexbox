@@ -8,6 +8,7 @@
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from './EntityListItemActions.svelte';
   import {defaultExampleSentence, defaultSense} from '../utils';
+  import HistoryView from '../history/HistoryView.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -136,6 +137,7 @@
   <div class="contents" use:portal={{ target: $entryActionsPortal}}>
     <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
     <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">Delete Entry</Button>
+    <HistoryView id={entry.id}/>
   </div>
 {/if}
 

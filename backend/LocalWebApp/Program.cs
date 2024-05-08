@@ -26,6 +26,7 @@ var sharedOptions = new SharedOptions() { FileProvider = new ManifestEmbeddedFil
 app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
 app.UseStaticFiles(new StaticFileOptions(sharedOptions));
 app.MapHub<LexboxApiHub>($"/api/hub/{{{LexboxApiHub.ProjectRouteKey}}}/lexbox");
+app.MapHistoryRoutes();
 app.MapGet("/api/projects", (ProjectsService projectService) => projectService.ListProjects());
 Regex alphaNumericRegex = new Regex("^[a-zA-Z0-9]*$");
 app.MapPost("/api/project",
