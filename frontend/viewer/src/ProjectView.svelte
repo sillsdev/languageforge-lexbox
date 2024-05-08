@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {AppBar, Button, cls, Dialog, Field, ListItem, ProgressCircle, TextField,} from 'svelte-ux';
+  import {AppBar, Button, cls, Dialog, Field, ListItem, Popover, ProgressCircle, TextField,} from 'svelte-ux';
   import {mdiEyeSettingsOutline, mdiMagnify} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import {firstDefOrGlossVal, firstVal, headword} from './lib/utils';
@@ -16,6 +16,7 @@
   import {fade} from 'svelte/transition';
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
+  import SearchBar from './lib/search-bar/SearchBar.svelte';
 
   export let loading = false;
 
@@ -64,19 +65,24 @@
     if (!isConnected) return Promise.resolve([]);
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
-      count: 1000,
+      // we always load full exampelar lists for now, so we can guaruntee that the selected entry is in the list
+      count: exemplar ? Infinity : 1000,
       order: {field: 'headword', writingSystem: 'default'},
       exemplar: exemplar ? {value: exemplar, writingSystem: 'default'} : undefined
     });
   }
 
-
-  let showSearchDialog = false;
   let showOptionsDialog = false;
   const selectedEntry = writable<IEntry | undefined>(undefined);
   setContext('selectedEntry', selectedEntry);
+
+  $: {
+    $entries;
+    refreshSelection();
+  }
+
   //selection handling, make sure the selected entry is always in the list of entries
-  $: if ($entries) {
+  function refreshSelection() {
     let currentEntry = $selectedEntry;
     if (currentEntry !== undefined) {
       const entry = $entries.find(e => e.id === currentEntry.id);
@@ -84,7 +90,7 @@
         $selectedEntry = entry;
       }
     }
-    if (!$selectedEntry && $entries.length > 0)
+    if (!$selectedEntry && $entries?.length > 0)
       $selectedEntry = $entries[0];
   }
 
@@ -93,6 +99,10 @@
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
+    selectEntry(entry);
+  }
+
+  function selectEntry(entry: IEntry) {
     $selectedEntry = entry;
     $selectedIndexExemplar = headword(entry).charAt(0).toLocaleUpperCase() || undefined;
     refreshEntries();
@@ -105,13 +115,9 @@
 <div class="app flex flex-col PortalTarget">
   <AppBar title="FLEx-Lite" class="bg-surface-300 min-h-12" menuIcon=''>
     <div class="flex-grow"></div>
-    <Field
-      classes={{input: 'my-1 justify-center opacity-60'}}
-        on:click={() => (showSearchDialog = true)}
-        class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-        icon={mdiMagnify}>
-        Search... 🚀
-    </Field>
+    <div class="flex-grow-[2]">
+      <SearchBar on:entrySelected={(e) => selectEntry(e.detail)} />
+    </div>
     <div class="flex-grow-[0.25]"></div>
     <div slot="actions" class="flex items-center gap-4 whitespace-nowrap">
       <Button
@@ -181,27 +187,5 @@
 
     <ViewOptions bind:open={showOptionsDialog} {viewConfig} />
 
-    <Dialog bind:open={showSearchDialog} class="w-[700px]">
-      <div slot="title">
-        <TextField
-          autofocus
-          placeholder="Search entries"
-          class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-          icon={mdiMagnify}
-        />
-      </div>
-      <div>
-        {#each $entries as entry}
-          <ListItem
-          title={firstVal(entry.lexemeForm)}
-          subheading={firstDefOrGlossVal(entry.senses[0])}
-          class={cls('cursor-pointer', 'hover:bg-accent-50')}
-          noShadow
-        />
-        {/each}
-      </div>
-      <div class="flex-grow"></div>
-      <div slot="actions">actions</div>
-    </Dialog>
   {/if}
 </div>

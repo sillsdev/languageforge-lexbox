@@ -14,7 +14,7 @@
 
   // For demo purposes
   let i = 1;
-  let timeout: number;
+  let timeout: ReturnType<typeof setTimeout>;
   $: {
     clearTimeout(timeout);
     if (unsavedChanges && $viewConfig.generateExternalChanges) {
