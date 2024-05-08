@@ -9,12 +9,14 @@
 </script>
 
 <Toggle let:on={open} let:toggle let:toggleOff>
-  <Popover {open} on:close={toggleOff} placement="bottom-start" offset={4} padding={6}>
+  <Popover {open} let:close on:close={toggleOff} placement="bottom-start" offset={4} padding={6}>
     <div class="flex flex-row flex-wrap justify-evenly gap-2 p-3 rounded bg-surface-100 border shadow-lg overflow-auto max-w-56">
       {#each $characters ?? [] as character}
+        <!-- for some reason the web-component only gets clicks this way :( -->
         <button class="contents" on:mouseup={() => {
             if ($selectedCharacter === character) $selectedCharacter = undefined;
             else $selectedCharacter = character;
+            close();
           }}>
           <Button
             class="aspect-square w-8"
@@ -26,7 +28,11 @@
         </button>
       {/each}
       {#if $selectedCharacter}
-        <button class="contents" on:mouseup={() => $selectedCharacter = undefined}>
+        <!-- for some reason the web-component only gets clicks this way :( -->
+        <button class="contents" on:mouseup={() => {
+          $selectedCharacter = undefined;
+          close();
+        }}>
           <Button
             fullWidth
             icon={mdiClose}

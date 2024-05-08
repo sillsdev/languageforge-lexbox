@@ -17,6 +17,7 @@
 
   import type { IEntry, WritingSystems } from './mini-lcm';
   import { getContext } from 'svelte';
+  import { headword } from './utils';
 
   export let entry: IEntry;
   export let lines: number;
@@ -38,10 +39,14 @@
       return colors[ws];
     };
   });
+
+  $: headwords = $allWritingSystems.vernacular
+    .map(ws => ({ws: ws.id, value: headword(entry, ws.id)}))
+    .filter(({value}) => !!value);
 </script>
 
 <strong class="inline-flex gap-1">
-  {#each Object.entries(entry.lexemeForm) as [ws, value], i}
+  {#each headwords as {ws, value}, i}
     {#if value}
       {#if i > 0}/{/if}
       <span class={$wsColor(ws, 'vernacular')}>{value}</span>

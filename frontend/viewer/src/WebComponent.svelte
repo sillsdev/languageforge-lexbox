@@ -12,7 +12,7 @@
     fixBrokenNestedGlobalStyles(shadowRoot);
 
     const abortController = new AbortController();
-    window.addEventListener('hashchange', (event) => {
+    window.addEventListener('popstate', () => {
       const hashTarget = shadowRoot.querySelector(location.hash);
       if (hashTarget) {
         hashTarget.scrollIntoView({

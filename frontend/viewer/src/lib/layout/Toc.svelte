@@ -1,27 +1,36 @@
 <script lang="ts">
   import type { IEntry } from "../mini-lcm";
-  import { firstVal, headword } from "../utils";
+  import { firstDefOrGlossVal, firstSentenceOrTranslationVal, firstVal, headword } from "../utils";
 
   export let entry: IEntry | undefined;
 </script>
 
 {#if entry}
-  <div class="border flex flex-col rounded-md">
-    <a class="toc-item" href="#entry"><span class="opacity-80 mr-1">Entry:</span>{headword(entry) ?? ''}</a>
+  {@const _headword = headword(entry) ?? ''}
+  <div class="border flex flex-col rounded-md overflow-auto">
+    <a class="toc-item px-2" href="#entry" title={_headword}><span class="opacity-80 mr-1">Entry:</span>{_headword || '—'}</a>
     {#each entry.senses as sense, i (sense.id)}
-      <a class="toc-item" href="#sense{i + 1}"><span class="opacity-80 mr-1">Sense:</span>{firstVal(sense.gloss) ?? ''}</a>
+      {@const _sense = firstDefOrGlossVal(sense) ?? ''}
+      <a class="toc-item px-2 pl-4" href="#sense{i + 1}" title={_sense}><span class="opacity-80 mr-1">Sense:</span>{_sense || '—'}</a>
       {#each sense.exampleSentences as example, j (example.id)}
-        <a class="toc-item" href="#example{i + 1}.{j + 1}"><span class="opacity-80 mr-1">Example:</span>{firstVal(example.sentence) ?? ''}</a>
+        {@const _example = firstSentenceOrTranslationVal(example) ?? ''}
+        <a class="toc-item px-2 pl-6 text-sm" href="#example{i + 1}-{j + 1}" title={_example}><span class="opacity-80 mr-1">Example:</span>{_example || '—'}</a>
       {/each}
     {/each}
   </div>
-  {/if}
+{/if}
 
 <style lang="postcss">
   .toc-item {
-    padding: 4px 8px;
+    @apply py-1;
+    flex-shrink: 0;
+
     &:hover {
       @apply bg-surface-300;
     }
+
+    white-space: nowrap;
+    overflow-x: clip;
+    text-overflow: ellipsis;
   }
 </style>

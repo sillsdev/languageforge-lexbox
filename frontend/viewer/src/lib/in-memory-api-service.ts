@@ -10,12 +10,18 @@
 } from './services/lexbox-api';
 import {entries, writingSystems} from './entry-data';
 
-import { ExampleSentence, type WritingSystem } from './mini-lcm';
+import { type WritingSystem } from './mini-lcm';
 import { filterEntries, firstVal } from './utils';
 
 export class InMemoryApiService implements LexboxApi {
+
+  private _entries = entries;
+  private _Entries(): IEntry[] {
+    return JSON.parse(JSON.stringify(this._entries));
+  }
+
   GetEntries(options: QueryOptions | undefined): Promise<IEntry[]> {
-    return Promise.resolve(this.ApplyQueryOptions(entries, options));
+    return Promise.resolve(this.ApplyQueryOptions(this._Entries(), options));
   }
 
   GetWritingSystems(): Promise<WritingSystems> {
@@ -23,7 +29,7 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   SearchEntries(query: string, options: QueryOptions | undefined): Promise<IEntry[]> {
-    return Promise.resolve(this.ApplyQueryOptions(filterEntries(entries, query), options));
+    return Promise.resolve(this.ApplyQueryOptions(filterEntries(this._Entries(), query), options));
   }
 
   private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
@@ -55,11 +61,11 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   GetEntry(guid: string): Promise<IEntry> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(entries.find(e => e.id === guid)!);
   }
 
   CreateEntry(entry: IEntry): Promise<IEntry> {
-    entries.push(entry);
+    this._entries.push(entry);
     return Promise.resolve(entry);
   }
 
@@ -68,7 +74,7 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   CreateSense(entryGuid: string, sense: ISense): Promise<ISense> {
-    entries.find(e => e.id === entryGuid)?.senses.push(sense);
+    this._entries.find(e => e.id === entryGuid)?.senses.push(sense);
     return Promise.resolve(sense);
   }
 
@@ -77,7 +83,7 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   CreateExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
-    entries.find(e => e.id === entryGuid)?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
+    this._entries.find(e => e.id === entryGuid)?.senses.find(s => s.id === senseGuid)?.exampleSentences.push(exampleSentence);
     return Promise.resolve(exampleSentence);
   }
 
@@ -86,15 +92,21 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   DeleteEntry(guid: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    entries.slice(entries.findIndex(e => e.id === guid), 1);
+    return Promise.resolve();
   }
 
   DeleteSense(entryGuid: string, senseGuid: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    const entry = this._entries.find(e => e.id === entryGuid)!;
+    entry.senses.slice(entry.senses.findIndex(s => s.id === senseGuid), 1);
+    return Promise.resolve();
   }
 
   DeleteExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string): Promise<void> {
-    throw new Error('Method not implemented.');
+    const entry = this._entries.find(e => e.id === entryGuid)!;
+    const sense = entry.senses.find(s => s.id === senseGuid)!;
+    sense.exampleSentences.slice(sense.exampleSentences.findIndex(es => es.id === exampleSentenceGuid), 1);
+    return Promise.resolve();
   }
 
   CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void> {

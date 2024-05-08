@@ -7,7 +7,7 @@
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from './EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense} from '../utils';
+  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../utils';
   import HistoryView from '../history/HistoryView.svelte';
 
   const dispatch = createEventDispatcher<{
@@ -19,14 +19,15 @@
 
   function addSense() {
     const sense = defaultSense();
-    newEntity = sense;
+    highlightedEntity = sense;
     entry.senses = [...entry.senses, sense];
   }
 
   function addExample(sense: ISense) {
     const sentence = defaultExampleSentence();
-    newEntity = sentence;
+    highlightedEntity = sentence;
     sense.exampleSentences = [...sense.exampleSentences, sentence];
+    entry = entry; // examples counts are not updated without this
   }
   function deleteEntry() {
     dispatch('delete', {entry});
@@ -36,36 +37,62 @@
     entry.senses = entry.senses.filter(s => s !== sense);
     dispatch('delete', {entry, sense});
   }
+  function moveSense(sense: ISense, i: number) {
+    entry.senses.splice(entry.senses.indexOf(sense), 1);
+    entry.senses.splice(i, 0, sense);
+    dispatch('change', {entry, sense});
+    highlightedEntity = sense;
+  }
   function deleteExample(sense: ISense, example: IExampleSentence) {
     sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
     dispatch('delete', {entry, sense, example});
+    entry = entry; // examples are not updated without this
+  }
+  function moveExample(sense: ISense, example: IExampleSentence, i: number) {
+    sense.exampleSentences.splice(sense.exampleSentences.indexOf(example), 1);
+    sense.exampleSentences.splice(i, 0, example);
+    dispatch('change', {entry, sense, example});
+    highlightedEntity = example;
+    entry = entry; // examples are not updated without this
   }
   export let modalMode = false;
 
-  let newEntity: IExampleSentence | ISense | undefined;
   let editorElem: HTMLDivElement | undefined;
-  let newEntityTimeout: ReturnType<typeof setTimeout>;
+  let highlightedEntity: IExampleSentence | ISense | undefined;
+  let highlightTimeout: ReturnType<typeof setTimeout>;
 
   $: {
-    if (newEntity) {
-      clearTimeout(newEntityTimeout);
-      newEntityTimeout = setTimeout(() => newEntity = undefined, 3000);
+    if (highlightedEntity) {
+      clearTimeout(highlightTimeout);
+      highlightTimeout = setTimeout(() => highlightedEntity = undefined, 3000);
       // wait for rendering
       setTimeout(() => {
-        const newEntityElem = editorElem?.querySelector('.new-entity');
+        const newEntityElem = editorElem?.querySelector('.highlight');
         if (newEntityElem) {
-          if (!isBottomInViewport(newEntityElem))
+          const _isBottomInViewport = isBottomInView(newEntityElem);
+          const _isTopInViewport = isTopInView(newEntityElem);
+          if (!_isBottomInViewport && !_isTopInViewport)
+            newEntityElem?.scrollIntoView({block: 'start', behavior: 'smooth'});
+          else if (!_isTopInViewport)
+            newEntityElem?.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+          else if (!_isBottomInViewport)
             newEntityElem?.scrollIntoView({block: 'center', behavior: 'smooth'});
         }
       });
     }
   }
 
-  function isBottomInViewport(element: Element): boolean {
+  function isBottomInView(element: Element): boolean {
     const elementRect = element.getBoundingClientRect();
     const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    return elementRect.bottom <= viewportHeight;
-}
+    // + 40 = simply way to make the check forgiving for if e.g. there's a sticky footer
+    return (elementRect.bottom + 40) <= viewportHeight;
+  }
+
+  function isTopInView(element: Element): boolean {
+    const elementRect = element.getBoundingClientRect();
+    return elementRect.top >= 0;
+  }
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
   const entryActionsPortal = getContext<Readable<HTMLElement>>('entryActionsPortal');
@@ -80,12 +107,15 @@
   />
 
   {#each entry.senses as sense, i (sense.id)}
-    <div class="grid-layer" class:new-entity={sense.id === newEntity?.id}>
-      <div class="col-span-full flex items-center gap-4 my-4 sticky top-[-1px] bg-surface-100 z-1">
-        <h2 class="text-lg text-surface-content" id="sense{i + 1}">Sense {i + 1}</h2>
+    <div class="grid-layer" class:highlight={sense === highlightedEntity}>
+      <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
+      <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
+        <h2 class="text-lg text-surface-content">Sense {i + 1}</h2>
         <hr class="grow border-t-4">
         {#if !$viewConfig.readonly}
-          <EntityListItemActions {i} count={entry.senses.length} on:delete={() => deleteSense(sense)} />
+          <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
+            on:move={(e) => moveSense(sense, e.detail)}
+            on:delete={() => deleteSense(sense)} />
         {/if}
       </div>
 
@@ -98,26 +128,36 @@
         />
       </div>
 
-      {#each sense.exampleSentences as example, j (example.id)}
-        <div class="grid-layer" class:new-entity={example.id === newEntity?.id}>
-          <div class="col-span-full flex items-center gap-4 my-4">
-            <h3 class="text-surface-content" id="example{i + 1}.{j + 1}">Example {j + 1}</h3>
-            <hr class="grow">
-            {#if !$viewConfig.readonly}
-              <EntityListItemActions i={j} count={sense.exampleSentences.length} on:delete={() => deleteExample(sense, example)} />
-            {/if}
-          </div>
+      <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+        {#each sense.exampleSentences as example, j (example.id)}
+          <div class="grid-layer" class:highlight={example === highlightedEntity}>
+            <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
+            <div class="col-span-full flex items-center gap-4 mb-4">
+              <h3 class="text-surface-content">Example {j + 1}</h3>
+              <!--
+                <hr class="grow">
+                collapse/expand toggle
+              -->
+              <hr class="grow">
+              {#if !$viewConfig.readonly}
+                <EntityListItemActions i={j} items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                  on:move={(e) => moveExample(sense, example, e.detail)}
+                  on:delete={() => deleteExample(sense, example)}
+                  />
+              {/if}
+            </div>
 
-          <div class="grid-layer">
-            <EntityEditor
-              entity={example}
-              fieldConfigs={Object.values($viewConfig.activeView?.example ?? [])}
-              customFieldConfigs={Object.values($viewConfig.activeView?.customExample ?? [])}
-              on:change={() => dispatch('change', {entry, sense, example})}
-            />
+            <div class="grid-layer">
+              <EntityEditor
+                entity={example}
+                fieldConfigs={Object.values($viewConfig.activeView?.example ?? [])}
+                customFieldConfigs={Object.values($viewConfig.activeView?.customExample ?? [])}
+                on:change={() => dispatch('change', {entry, sense, example})}
+              />
+            </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      </div>
       {#if !$viewConfig.readonly}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
@@ -133,7 +173,7 @@
   {/if}
 </div>
 
-{#if !modalMode}
+{#if !modalMode && !$viewConfig.readonly}
   <div class="contents" use:portal={{ target: $entryActionsPortal}}>
     <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
     <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">Delete Entry</Button>
@@ -142,7 +182,7 @@
 {/if}
 
 <style lang="postcss">
-  .new-entity {
+  .highlight {
     & :is(h2, h3) {
       @apply text-info-500;
     }

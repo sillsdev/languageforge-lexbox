@@ -2,7 +2,7 @@
   import {AppBar, Button, cls, Dialog, Field, ListItem, ProgressCircle, TextField,} from 'svelte-ux';
   import {mdiEyeSettingsOutline, mdiMagnify} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import {filterEntries, firstDefOrGlossVal, firstVal, headword} from './lib/utils';
+  import {firstDefOrGlossVal, firstVal, headword} from './lib/utils';
   import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
@@ -140,10 +140,14 @@
             <div class="mb-6">
               <DictionaryEntryViewer entry={$selectedEntry} />
             </div>
-            <Editor entry={$selectedEntry} on:delete={e => {
-              $selectedEntry = undefined;
-              refreshEntries();
-            }} />
+            <Editor entry={$selectedEntry}
+              on:change={e => {
+                $selectedEntry = $selectedEntry;
+              }}
+              on:delete={e => {
+                $selectedEntry = undefined;
+                refreshEntries();
+              }} />
           </div>
           <div class="h-full min-w-48 pl-6 border-l-2 gap-4 flex flex-col">
             <div class="side-scroller h-full flex flex-col gap-4">
@@ -154,7 +158,7 @@
               {/if}
               <Toc entry={$selectedEntry} />
             </div>
-            <span class="text-surface-content text-sm fixed bottom-3 right-3 inline-flex gap-2 items-center">
+            <span class="text-surface-content bg-surface-100/75 text-sm fixed bottom-0 right-0 p-2 inline-flex gap-2 items-center">
               {$viewConfig.activeView.label}
               <Button
                 on:click={() => (showOptionsDialog = true)}

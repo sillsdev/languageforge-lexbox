@@ -6,12 +6,13 @@
   import type {ViewConfig} from './config-types';
   import jsonPatch from 'fast-json-patch';
   import {useLexboxApi} from './services/service-provider';
-  import {emptyId} from './utils';
+  import {isEmptyId} from './utils';
 
   let lexboxApi = useLexboxApi();
 
   const dispatch = createEventDispatcher<{
     delete: { entry: IEntry };
+    change: { entry: IEntry };
   }>();
 
   export let entry: IEntry;
@@ -42,6 +43,7 @@
       }
     }
 
+    dispatch('change', {entry: e.entry});
     updateInitialEntry();
   }
 
@@ -66,7 +68,7 @@
   }
 
   async function updateSense(updatedSense: ISense) {
-    if (updatedSense.id === emptyId) {
+    if (isEmptyId(updatedSense.id)) {
       updatedSense.id = crypto.randomUUID();
       await lexboxApi.CreateSense(entry.id, updatedSense);
       return;
@@ -81,7 +83,7 @@
   async function updateExample(senseId: string, updatedExample: IExampleSentence) {
     const initialSense = initialEntry.senses.find(s => s.id === senseId);
     if (!initialSense) throw new Error('Sense not found in initial entry');
-    if (updatedExample.id === emptyId) {
+    if (isEmptyId(updatedExample.id)) {
       updatedExample.id = crypto.randomUUID();
       await lexboxApi.CreateExampleSentence(entry.id, senseId, updatedExample);
       return;
@@ -94,7 +96,7 @@
   }
 </script>
 
-<div id="entry" class="editor" class:hide-empty-fields={$viewConfig.hideEmptyFields}>
+<div id="entry" class:hide-empty={$viewConfig.hideEmptyFields}>
   <EntryEditor
     on:change={e => onChange(e.detail)}
     on:delete={e => onDelete(e.detail)}
@@ -102,13 +104,7 @@
 </div>
 
 <style lang="postcss">
-  :global(.hide-empty-fields .empty) {
+  :global(.hide-empty .empty) {
     display: none !important;
-  }
-
-  .editor {
-    &, & :global(:is(h2, h3)) {
-      scroll-margin-top: 1rem;
-    }
   }
 </style>

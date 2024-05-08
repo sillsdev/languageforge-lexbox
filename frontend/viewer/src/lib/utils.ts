@@ -6,8 +6,12 @@ export function firstVal(multi: IMultiString): string | undefined {
   return Object.values(multi).find(value => !!value);
 }
 
-export function headword(entry: IEntry): string {
-  return firstVal(entry.citationForm) ?? firstVal(entry.lexemeForm) ?? '';
+export function headword(entry: IEntry, ws?: string): string {
+  if (ws) {
+    return entry.citationForm[ws] ?? entry.lexemeForm[ws] ?? '';
+  } else {
+    return firstVal(entry.citationForm) ?? firstVal(entry.lexemeForm) ?? '';
+  }
 }
 
 export function firstDefOrGlossVal(sense: ISense | undefined): string {
@@ -15,6 +19,13 @@ export function firstDefOrGlossVal(sense: ISense | undefined): string {
   const definition = Object.values(sense.definition ?? {}).find(value => !!value);
   if (definition) return definition;
   return Object.values(sense.gloss ?? {}).find(value => !!value) ?? ''
+}
+
+export function firstSentenceOrTranslationVal(example: IExampleSentence | undefined): string {
+  if (!example) return '';
+  const sentence = Object.values(example.sentence ?? {}).find(value => !!value);
+  if (sentence) return sentence;
+  return Object.values(example.translation ?? {}).find(value => !!value) ?? ''
 }
 
 export function pickWritingSystems(
@@ -45,7 +56,15 @@ export function filterEntries(entries: IEntry[], query: string) {
       ...Object.values(entry.literalMeaning ?? {}),
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
 }
-export const emptyId = '00000000-0000-0000-0000-000000000000';
+
+const emptyIdPrefix = '00000000-0000-0000-0000-';
+export function emptyId(): string {
+  return emptyIdPrefix + crypto.randomUUID().slice(emptyIdPrefix.length);
+}
+export function isEmptyId(id: string): boolean {
+  return id.startsWith(emptyIdPrefix);
+}
+
 export function defaultEntry(): IEntry {
   return {
     id: crypto.randomUUID(),
@@ -59,7 +78,7 @@ export function defaultEntry(): IEntry {
 
 export function defaultSense(): ISense {
   return {
-    id: emptyId,
+    id: emptyId(),
     definition: {},
     gloss: {},
     partOfSpeech: '',
@@ -70,7 +89,7 @@ export function defaultSense(): ISense {
 
 export function defaultExampleSentence(): IExampleSentence {
   return {
-    id: emptyId,
+    id: emptyId(),
     sentence: {},
     translation: {},
     reference: '',

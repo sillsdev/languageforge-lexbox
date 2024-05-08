@@ -12,6 +12,13 @@
 .dialog {
   height: calc(100vh - 100px);
   @apply flex flex-col;
+
+  .actions {
+    @apply bg-surface-200;
+    position: sticky;
+    bottom: -1px;
+    z-index: 2;
+  }
 }
 
 .Checkbox *, label:has(.Switch) {
@@ -22,4 +29,16 @@
   max-height: calc(100vh - 32px);
   position: sticky;
   top: 16px;
+}
+
+
+[id^=entry], [id^=sense] {
+  scroll-margin-top: 1rem;
+  scroll-margin-bottom: 4rem;
+}
+
+[id^=example] {
+  /* under the sticky sense header */
+  scroll-margin-top: 4rem;
+  scroll-margin-bottom: 4rem;
 }
