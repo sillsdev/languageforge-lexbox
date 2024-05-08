@@ -12,7 +12,7 @@
 
 {#if href}
   <sup>
-    <a class="link-text text-info" target="_blank" {href}>
+    <a class="link-text text-info" tabindex="-1" target="_blank" {href}>
       <Icon data={mdiHelpCircleOutline} size="1em" />
     </a>
   </sup>
