@@ -59,6 +59,7 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 4: confirm it's empty now
+  await page.request.get(`${testEnv.serverBaseUrl}/hg/command/${tempProject.code}/tip`); // Force an NFS cache clear, ignore result
   const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
   const afterResetJson = await afterResetResponse.json() as HgWebJson;
   expect(afterResetJson.node).toEqual(allZeroHash);
