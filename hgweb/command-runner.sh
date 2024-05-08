@@ -35,6 +35,8 @@ echo ""
 
 # Run the hg command, simply output to stdout
 first_char=$(echo $project_code | cut -c1)
+# Ensure NFS cache is refreshed in case project repo changed in another pod (e.g., project reset)
+ls /var/hg/repos/$first_char/$project_code > /dev/null  # Don't need output; this is enough to refresh NFS dir cache
 cd /var/hg/repos/$first_char/$project_code
 case $command_name in
 
