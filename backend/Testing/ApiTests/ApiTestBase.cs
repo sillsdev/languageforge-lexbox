@@ -60,4 +60,10 @@ query projectLastCommit {
         var response = await HttpClient.PostAsync($"{BaseUrl}/api/project/resetProject/{projectCode}", null);
         response.EnsureSuccessStatusCode();
     }
+
+    public async Task InvalidateDirCache(string projectCode)
+    {
+        var response = await HttpClient.PostAsync($"{BaseUrl}/hg/command/{projectCode}/invalidatedircache", null);
+        response.EnsureSuccessStatusCode();
+    }
 }

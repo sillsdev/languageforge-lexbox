@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "recover")
+allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "recover", "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -61,6 +61,10 @@ case $command_name in
         export PYTHONUNBUFFERED=1
         # Need a timeout so hg verify won't take forever on the "checking files" step
         timeout 5 chg verify 2>&1
+        ;;
+
+    invalidatedircache)
+        # Do nothing; the ls before the case was the whole point of this command
         ;;
 
     *)

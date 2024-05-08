@@ -59,7 +59,7 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 4: confirm it's empty now
-  await page.request.get(`${testEnv.serverBaseUrl}/hg/command/${tempProject.code}/tip`); // Force an NFS cache clear, ignore result
+  await page.request.get(`${testEnv.serverBaseUrl}/hg/command/${tempProject.code}/invalidatedircache`); // Force an NFS cache clear
   const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
   const afterResetJson = await afterResetResponse.json() as HgWebJson;
   expect(afterResetJson.node).toEqual(allZeroHash);
@@ -78,12 +78,8 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 6: confirm tip hash and contents are same as before reset
-  // It can take a while for the server to pick up the new repo
-  await expect(async () => {
-    const afterUploadResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
-    const afterResetJSon = await afterUploadResponse.json() as HgWebJson;
-    expect(afterResetJSon).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.
-  }).toPass({
-    intervals: [1_000, 3_000, 5_000],
-  });
+  await page.request.get(`${testEnv.serverBaseUrl}/hg/command/${tempProject.code}/invalidatedircache`); // Force an NFS cache clear
+  const afterUploadResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
+  const afterResetJSon = await afterUploadResponse.json() as HgWebJson;
+  expect(afterResetJSon).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.
 });
