@@ -67,6 +67,7 @@ public partial class HgService : IHgService
         {
             InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
         });
+        await InvalidateDirCache(code);
     }
 
     private void InitRepoAt(DirectoryInfo repoDirectory)
@@ -82,6 +83,7 @@ public partial class HgService : IHgService
     public async Task DeleteRepo(string code)
     {
         await Task.Run(() => Directory.Delete(PrefixRepoFilePath(code), true));
+        await InvalidateDirCache(code);
     }
 
     public BackupExecutor? BackupRepo(string code)
@@ -104,6 +106,7 @@ public partial class HgService : IHgService
         await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
+        await InvalidateDirCache(code);
     }
 
     public async Task FinishReset(string code, Stream zipFile)
@@ -137,6 +140,7 @@ public partial class HgService : IHgService
         // Now we're ready to move the new repo into place, replacing the old one
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
+        await InvalidateDirCache(code);
     }
 
     /// <summary>
@@ -181,6 +185,7 @@ public partial class HgService : IHgService
                 PrefixRepoFilePath(code),
                 Path.Combine(deletedRepoPath, deletedRepoName));
         });
+        await InvalidateDirCache(code);
     }
 
     private const UnixFileMode Permissions = UnixFileMode.GroupRead | UnixFileMode.GroupWrite |
@@ -260,6 +265,11 @@ public partial class HgService : IHgService
         // Can't do this with a streamed response, unfortunately. Will have to do it client-side.
         // if (string.IsNullOrWhiteSpace(response)) return "Nothing to recover";
         return response;
+    }
+
+    public async Task InvalidateDirCache(string code)
+    {
+        await ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
     }
 
     public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)

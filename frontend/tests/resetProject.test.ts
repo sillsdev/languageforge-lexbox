@@ -59,7 +59,6 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 4: confirm it's empty now
-  await page.request.get(`${testEnv.serverBaseUrl}/hg/command/${tempProject.code}/invalidatedircache`); // Force an NFS cache clear
   const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
   const afterResetJson = await afterResetResponse.json() as HgWebJson;
   expect(afterResetJson.node).toEqual(allZeroHash);
@@ -78,7 +77,6 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 6: confirm tip hash and contents are same as before reset
-  await page.request.get(`${testEnv.serverBaseUrl}/hg/command/${tempProject.code}/invalidatedircache`); // Force an NFS cache clear
   const afterUploadResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
   const afterResetJSon = await afterUploadResponse.json() as HgWebJson;
   expect(afterResetJSon).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.

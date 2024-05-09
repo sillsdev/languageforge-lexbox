@@ -85,8 +85,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
 
-        await _adminApiTester.InvalidateDirCache(projectConfig.Code);
-
         // Verify pushed and store last commit
         var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
         lastCommitDate.ShouldNotBeNullOrEmpty();
@@ -98,8 +96,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         // Push changes
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
-
-        await _adminApiTester.InvalidateDirCache(projectConfig.Code);
 
         // Verify the push updated the last commit date
         var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
@@ -140,8 +136,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
-        await _adminApiTester.InvalidateDirCache(projectConfig.Code);
-
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -164,8 +158,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
-
-        await _adminApiTester.InvalidateDirCache(projectConfig.Code);
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);

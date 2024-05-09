@@ -61,7 +61,6 @@ public static class Utils
                 }
             }
             """);
-        await apiTester.InvalidateDirCache(config.Code); // Ensure newly-created project is available right away
         return new LexboxProject(apiTester, config.Id);
     }
 
