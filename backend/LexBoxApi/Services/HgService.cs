@@ -23,6 +23,8 @@ public partial class HgService : IHgService
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
     private const string TEMP_REPO_FOLDER = "_____temp_____";
 
+    private const string AllZeroHash = "0000000000000000000000000000000000000000";
+
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
     private readonly ILogger<HgService> _logger;
@@ -67,7 +69,7 @@ public partial class HgService : IHgService
         {
             InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
         });
-        await InvalidateDirCache(code);
+        await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
     private void InitRepoAt(DirectoryInfo repoDirectory)
@@ -83,7 +85,6 @@ public partial class HgService : IHgService
     public async Task DeleteRepo(string code)
     {
         await Task.Run(() => Directory.Delete(PrefixRepoFilePath(code), true));
-        await InvalidateDirCache(code);
     }
 
     public BackupExecutor? BackupRepo(string code)
@@ -106,7 +107,8 @@ public partial class HgService : IHgService
         await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
-        await InvalidateDirCache(code);
+        // await InvalidateDirCache(code); // TODO 789: Sometimes NFS hasn't finished the MoveTo above! So we need to find a way to wait until InvalidateDirCache sees an *empty* repo...
+        await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
     public async Task FinishReset(string code, Stream zipFile)
@@ -140,7 +142,8 @@ public partial class HgService : IHgService
         // Now we're ready to move the new repo into place, replacing the old one
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
-        await InvalidateDirCache(code);
+        // await InvalidateDirCache(code);
+        await WaitForRepoEmptyState(code, RepoEmptyState.NonEmpty); // TODO: Either catch the case where someone uploaded a .zip of an empty .hg repo, or set a timeout in WaitForRepoEmptyState
     }
 
     /// <summary>
@@ -185,7 +188,6 @@ public partial class HgService : IHgService
                 PrefixRepoFilePath(code),
                 Path.Combine(deletedRepoPath, deletedRepoName));
         });
-        await InvalidateDirCache(code);
     }
 
     private const UnixFileMode Permissions = UnixFileMode.GroupRead | UnixFileMode.GroupWrite |
@@ -270,6 +272,28 @@ public partial class HgService : IHgService
     public Task<HttpContent> InvalidateDirCache(string code)
     {
         return ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
+    }
+
+    public async Task<string> GetTipHash(string code)
+    {
+        var content = await ExecuteHgCommandServerCommand(code, "tip", default);
+        return await content.ReadAsStringAsync();
+    }
+
+    public async Task WaitForRepoEmptyState(string code, RepoEmptyState expectedState)
+    {
+        // TODO: Set timeout so uploading a zip of an empty .hg repo doesn't cause infinite loop here
+        var done = false;
+        while (!done)
+        {
+            var hash = await GetTipHash(code);
+            var isEmpty = hash == AllZeroHash;
+            done = expectedState switch
+            {
+                RepoEmptyState.Empty => isEmpty,
+                RepoEmptyState.NonEmpty => !isEmpty
+            };
+        }
     }
 
     public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)
@@ -387,4 +411,10 @@ public class BrowseFilesResponse
 public class BrowseResponse
 {
     public BrowseFilesResponse[]? Files { get; set; }
+}
+
+public enum RepoEmptyState
+{
+    Empty,
+    NonEmpty
 }
