@@ -286,11 +286,13 @@ public partial class HgService : IHgService
         return int.TryParse(str, out int result) ? result : null;
     }
 
-    private async Task<HttpContent> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
+    private async Task<HttpContent> ExecuteHgCommandServerCommand(string code, string command, CancellationToken? token)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
-        var response = await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token);
+        var response = token == null
+            ? await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead)
+            : await httpClient.GetAsync($"{baseUri}{code}/{command}", HttpCompletionOption.ResponseHeadersRead, token.Value);
         response.EnsureSuccessStatusCode();
         return response.Content;
     }
