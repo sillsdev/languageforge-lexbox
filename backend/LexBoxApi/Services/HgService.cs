@@ -267,9 +267,9 @@ public partial class HgService : IHgService
         return response;
     }
 
-    public async Task InvalidateDirCache(string code)
+    public Task<HttpContent> InvalidateDirCache(string code)
     {
-        await ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
+        return ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
     }
 
     public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)

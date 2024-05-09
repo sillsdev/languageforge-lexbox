@@ -18,6 +18,6 @@ public interface IHgService
     Task<int?> GetLexEntryCount(string code, ProjectType projectType);
     Task<string?> GetRepositoryIdentifier(Project project);
     Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token);
-    Task InvalidateDirCache(string code);
+    Task<HttpContent> InvalidateDirCache(string code);
     bool HasAbandonedTransactions(string projectCode);
 }
