@@ -89,6 +89,7 @@
     try {
       const url = `/api/project/finishResetProject/${code}`;
       const resetResponse = await fetch(url, { method: 'post' });
+      console.log(new Date(), resetResponse.ok ? 'finishResetProject succeeded' : 'finishResetProject failed')
       //we should do the reset via a mutation, but this is easier for now
       //we need to refresh the status, because the project is no longer being reset
       await _refreshProjectRepoInfo(code);
