@@ -148,6 +148,7 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
   const forgotPasswordPage = await loginPage.clickForgotPassword();
   await forgotPasswordPage.fillForm(tempUser.email);
   await forgotPasswordPage.submit();
+  await page.locator(':text("Check Your Inbox")').first().waitFor();
 
   // - Get JWT from reset password link
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
