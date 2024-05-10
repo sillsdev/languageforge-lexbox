@@ -1,6 +1,6 @@
 <script lang="ts">
-  import {AppBar, Button, cls, Dialog, Field, ListItem, Popover, ProgressCircle, TextField,} from 'svelte-ux';
-  import {mdiEyeSettingsOutline, mdiMagnify} from '@mdi/js';
+  import {AppBar, Button, ProgressCircle} from 'svelte-ux';
+  import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiEyeSettingsOutline} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import {firstDefOrGlossVal, firstVal, headword} from './lib/utils';
   import {views} from './lib/config-data';
@@ -108,8 +108,14 @@
     refreshEntries();
   }
 
-  const entryActionsElem = writable<HTMLDivElement>();
-  setContext('entryActionsPortal', entryActionsElem);
+  let expandList = false;
+  let collapseActionBar = false;
+
+  let entryActionsElem: HTMLDivElement;
+  const entryActionsPortal = writable<{target: HTMLDivElement, collapsed: boolean}>();
+  setContext('entryActionsPortal', entryActionsPortal);
+  $: entryActionsPortal.set({target: entryActionsElem, collapsed: collapseActionBar});
+
 </script>
 
 <div class="app flex flex-col PortalTarget">
@@ -120,6 +126,9 @@
     </div>
     <div class="flex-grow-[0.25]"></div>
     <div slot="actions" class="flex items-center gap-4 whitespace-nowrap">
+      {#if !$viewConfig.readonly}
+        <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
+      {/if}
       <Button
         on:click={() => (showOptionsDialog = true)}
         size="sm"
@@ -137,12 +146,12 @@
   {:else}
     <main class="p-4">
       <div
-        class="grid flex-grow gap-x-6"
-        style="grid-template-columns: 2fr 4fr 1fr;"
+        class="grid flex-grow" class:gap-x-6={!expandList}
+        style="grid-template-columns: 2fr minmax(0, min-content) minmax(0, min-content);"
       >
-        <EntryList bind:search={$search} entries={$entries} />
-        {#if $selectedEntry}
-          <div>
+        <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} />
+        <div class="w-[65vw] max-w-[65vw] collapsible" class:collapse={expandList}>
+          {#if $selectedEntry}
             <div class="mb-6">
               <DictionaryEntryViewer entry={$selectedEntry} />
             </div>
@@ -154,32 +163,41 @@
                 $selectedEntry = undefined;
                 refreshEntries();
               }} />
-          </div>
-          <div class="h-full min-w-48 pl-6 border-l-2 gap-4 flex flex-col">
-            <div class="side-scroller h-full flex flex-col gap-4">
+          {:else}
+            <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
+              No entry selected
               {#if !$viewConfig.readonly}
-                <div class="contents" bind:this={$entryActionsElem}>
-                  <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
-                </div>
+                <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
               {/if}
-              <Toc entry={$selectedEntry} />
             </div>
-            <span class="text-surface-content bg-surface-100/75 text-sm fixed bottom-0 right-0 p-2 inline-flex gap-2 items-center">
-              {$viewConfig.activeView.label}
-              <Button
-                on:click={() => (showOptionsDialog = true)}
-                size="sm"
-                variant="default"
-                iconOnly
-                icon={mdiEyeSettingsOutline} />
-            </span>
-          </div>
-        {:else}
-          <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
-            No entry selected
-            {#if !$viewConfig.readonly}
-              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
+          {/if}
+        </div>
+        {#if $selectedEntry && !expandList}
+          <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3">
+            {#if !expandList}
+              <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
             {/if}
+            <div class="w-[15vw] max-w-60 collapsible max-sm:self-center max-sm:w-min" class:self-center={collapseActionBar} class:collapse={expandList} class:w-min={collapseActionBar}>
+              <div class="h-full flex flex-col gap-4 justify-stretch">
+                {#if !$viewConfig.readonly}
+                  <div class="contents" bind:this={entryActionsElem}>
+
+                  </div>
+                {/if}
+                <div class="contents" class:hidden={collapseActionBar}>
+                  <Toc entry={$selectedEntry} />
+                </div>
+              </div>
+              <span class="text-surface-content bg-surface-100/75 text-sm fixed bottom-0 right-0 p-2 inline-flex gap-2 items-center">
+                {$viewConfig.activeView.label}
+                <Button
+                  on:click={() => (showOptionsDialog = true)}
+                  size="sm"
+                  variant="default"
+                  iconOnly
+                  icon={mdiEyeSettingsOutline} />
+              </span>
+            </div>
           </div>
         {/if}
       </div>

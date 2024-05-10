@@ -101,7 +101,7 @@
   }
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
-  const entryActionsPortal = getContext<Readable<HTMLElement>>('entryActionsPortal');
+  const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
 </script>
 
 <div bind:this={editorElem} class="editor-grid">
@@ -175,10 +175,20 @@
 </div>
 
 {#if !modalMode && !$viewConfig.readonly}
-  <div class="contents" use:portal={{ target: $entryActionsPortal}}>
-    <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
-    <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">Delete Entry</Button>
-    <HistoryView id={entry.id}/>
+  <div class="hidden">
+    <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
+      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+        {#if !$entryActionsPortal.collapsed}
+          Add Sense
+        {/if}
+      </Button>
+      <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
+        {#if !$entryActionsPortal.collapsed}
+          Delete Entry
+        {/if}
+      </Button>
+      <HistoryView id={entry.id} small={$entryActionsPortal.collapsed} />
+    </div>
   </div>
 {/if}
 

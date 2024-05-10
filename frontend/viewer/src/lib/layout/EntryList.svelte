@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { InfiniteScroll, ListItem, TextField, cls } from "svelte-ux";
+  import { Button, InfiniteScroll, ListItem, TextField, cls } from "svelte-ux";
   import type { IEntry } from "../mini-lcm";
   import { firstDefOrGlossVal, firstVal, headword } from "../utils";
-  import { mdiMagnify } from "@mdi/js";
+  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookAlphabet, mdiBookOpenVariantOutline, mdiFormatListText, mdiMagnify } from "@mdi/js";
   import IndexCharacters from "./IndexCharacters.svelte";
   import type { Writable } from "svelte/store";
   import { getContext } from "svelte";
+  import DictionaryEntry from "../DictionaryEntry.svelte";
 
   export let entries: IEntry[] | undefined;
   export let search: string;
+  export let expand: boolean;
 
   $: {
     entries;
@@ -31,16 +33,35 @@
   $: perPage = (!$selectedEntry || !entries)
     ? standardPageSize
     : Math.max(50, entries.indexOf($selectedEntry) + Math.ceil(standardPageSize / 2));
+
+  function selectEntry(entry: IEntry) {
+    $selectedEntry = entry;
+    expand = false;
+  }
+
+  let dictionaryMode = false;
 </script>
 
-<div class="side-scroller flex flex-col gap-4">
-  <div class="flex gap-3">
+<div class="entry-list flex flex-col gap-4 w-full max-w-[1000px] min-w-[400px] justify-self-center side-scroller">
+  <div class="flex gap-3 w-full self-center">
     <IndexCharacters />
     <div class="grow">
       <TextField
         bind:value={search}
         placeholder="Filter {entries?.length} entries..."
         icon={mdiMagnify} />
+    </div>
+    <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
+      class="text-field-sibling-button"
+      rounded
+      on:click={() => dictionaryMode = !dictionaryMode}>
+    </Button>
+    <div class="hidden sm:contents">
+      <Button icon={expand ? mdiArrowExpandLeft : mdiArrowExpandRight} variant="outline" iconOnly
+        class="text-field-sibling-button"
+        rounded
+        on:click={() => expand = !expand}>
+      </Button>
     </div>
   </div>
   <div bind:this={scrollContainerElem} class="border rounded-md overflow-auto">
@@ -49,19 +70,37 @@
     {:else}
       <InfiniteScroll {perPage} items={entries} let:visibleItems>
         {#each visibleItems as entry (entry.id)}
-          <ListItem
-            title={headword(entry)}
-            subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '-')}
-            on:click={() => ($selectedEntry = entry)}
-            class={cls(
-              'cursor-pointer',
-              'hover:bg-surface-300',
-              $selectedEntry == entry ? 'bg-surface-200 selected-entry' : ''
-            )}
-            noShadow
-          />
+          <div class="entry" class:selected-entry={$selectedEntry == entry}>
+            {#if dictionaryMode}
+              <button class="p-2 w-full text-left"
+                on:click={() => selectEntry(entry)}>
+                <DictionaryEntry entry={entry} />
+              </button>
+            {:else}
+                <ListItem
+                  title={headword(entry)}
+                  subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '-')}
+                  on:click={() => selectEntry(entry)}
+                  noShadow
+                />
+            {/if}
+          </div>
         {/each}
       </InfiniteScroll>
     {/if}
   </div>
 </div>
+
+<style lang="postcss">
+  .entry {
+    cursor: pointer;
+
+    &.selected-entry > :global(*) {
+      @apply bg-surface-200;
+    }
+
+    &:hover > :global(*) {
+      @apply bg-surface-300;
+    }
+  }
+</style>

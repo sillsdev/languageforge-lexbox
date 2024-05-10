@@ -47,3 +47,19 @@
   scroll-margin-top: 4rem;
   scroll-margin-bottom: 4rem;
 }
+
+.collapse {
+  max-height: 0;
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+}
+
+.collapsible {
+  overflow-x: hidden;
+  transition: width 0.2s ease-out, max-width 0.2s ease-out;
+}
+
+.text-field-sibling-button {
+  @apply h-[37.6px] p-1.5 aspect-square text-[0.9em] text-surface-content;
+}

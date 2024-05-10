@@ -45,8 +45,7 @@
     </div>
   </Popover>
   <Button icon={$selectedCharacter ? undefined : mdiBookAlphabet} variant={$selectedCharacter ? 'fill-outline' : open ? 'outline' : undefined} iconOnly
-    class="border h-[37.6px] p-1.5 aspect-square"
-    classes={{icon: 'text-[0.9em]'}}
+    class="border text-field-sibling-button"
     rounded on:click={toggle}>
     {#if $selectedCharacter}
       {$selectedCharacter}

@@ -51,5 +51,15 @@ module.exports = {
         "danger": "#ff6f6f",
       }
     }
-  }
+  },
+  theme: {
+    extend: {
+      screens: {
+        'max-xs': { 'max': '400px' },
+        'max-sm': { 'max': '639px' },
+        'max-md': { 'max': '767px' },
+        'max-lg': { 'max': '1023px' },
+      },
+    },
+  },
 };
