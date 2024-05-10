@@ -69,6 +69,7 @@ public partial class HgService : IHgService
         {
             InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
         });
+        await Process.Start("sync").WaitForExitAsync();  // TODO: Put behind an OS check so we don't break Windows
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
@@ -107,6 +108,7 @@ public partial class HgService : IHgService
         await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
+        await Process.Start("sync").WaitForExitAsync();  // TODO: Put behind an OS check so we don't break Windows
         // await InvalidateDirCache(code); // TODO 789: Sometimes NFS hasn't finished the MoveTo above! So we need to find a way to wait until InvalidateDirCache sees an *empty* repo...
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
@@ -143,6 +145,7 @@ public partial class HgService : IHgService
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
         // await InvalidateDirCache(code);
+        await Process.Start("sync").WaitForExitAsync();  // TODO: Put behind an OS check so we don't break Windows
         await WaitForRepoEmptyState(code, RepoEmptyState.NonEmpty); // TODO: Either catch the case where someone uploaded a .zip of an empty .hg repo, or set a timeout in WaitForRepoEmptyState
     }
 
