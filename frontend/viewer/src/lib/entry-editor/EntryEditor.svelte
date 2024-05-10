@@ -104,7 +104,7 @@
   const entryActionsPortal = getContext<Readable<HTMLElement>>('entryActionsPortal');
 </script>
 
-<div bind:this={editorElem} class="grid" style="grid-template-columns: 170px 40px 1fr">
+<div bind:this={editorElem} class="editor-grid">
   <EntityEditor
     entity={entry}
     fieldConfigs={Object.values($viewConfig.activeView.entry ?? [])}
