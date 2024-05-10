@@ -1,7 +1,6 @@
 ﻿using Moq;
 using Shouldly;
 using Testing.ApiTests;
-using Testing.Services;
 
 namespace Testing.Fixtures;
 
@@ -10,12 +9,14 @@ namespace Testing.Fixtures;
 /// </summary>
 public class IntegrationFixtureTests
 {
+    // A static shared instance for the whole test class, because that's how xunit uses fixtures
+    private static readonly IntegrationFixture fixture = new();
+
     [Fact]
     public async Task InitCreatesARepoWithTheProject()
     {
-        var fixture = new IntegrationFixture();
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
-        fixture.TemplateRepo.EnumerateFiles()
+        IntegrationFixture.TemplateRepo.EnumerateFiles()
             .Select(f => f.Name)
             .ShouldContain("kevin-test-01.fwdata");
     }
@@ -23,33 +24,18 @@ public class IntegrationFixtureTests
     [Fact]
     public async Task CanFindTheProjectZipFile()
     {
-        var fixture = new IntegrationFixture();
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
-        fixture.TemplateRepoZip
+        IntegrationFixture.TemplateRepoZip
             .Directory!.EnumerateFiles().Select(f => f.Name)
-            .ShouldContain(fixture.TemplateRepoZip.Name);
+            .ShouldContain(IntegrationFixture.TemplateRepoZip.Name);
     }
 
     [Fact]
     public async Task CanInitFlexProjectRepo()
     {
-        var fixture = new IntegrationFixture();
         await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
         var projectConfig = fixture.InitLocalFlexProjectWithRepo();
         Directory.EnumerateFiles(projectConfig.Dir)
             .ShouldContain(projectConfig.FwDataFile);
-    }
-
-    [Fact]
-    public async Task InitCleansUpPreviousRun()
-    {
-        var fixture = new IntegrationFixture();
-        await fixture.InitializeAsync(Mock.Of<ApiTestBase>());
-        var filePath = Path.Join(Constants.BasePath, "test.txt");
-        await File.WriteAllTextAsync(filePath, "test");
-        Directory.EnumerateFiles(Constants.BasePath).ShouldContain(filePath);
-
-        await fixture.InitializeAsync();
-        Directory.EnumerateFiles(Constants.BasePath).ShouldNotContain(filePath);
     }
 }

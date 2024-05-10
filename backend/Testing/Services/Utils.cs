@@ -43,6 +43,7 @@ public static class Utils
                     type: FL_EX,
                     id: "{{config.Id}}",
                     code: "{{config.Code}}",
+                    isConfidential: false,
                     description: "Project created by an integration test",
                     retentionPolicy: DEV
                 }) {

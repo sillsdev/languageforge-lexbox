@@ -15,4 +15,15 @@ public static class MongoExtensions
             }
         }
     }
+    public static async IAsyncEnumerable<T> ToAsyncEnumerable<T>(this IAsyncCursorSource<T> cursorSource)
+    {
+        using var entriesCursor = await cursorSource.ToCursorAsync();
+        while (await entriesCursor.MoveNextAsync())
+        {
+            foreach (var entry in entriesCursor.Current)
+            {
+                yield return entry;
+            }
+        }
+    }
 }

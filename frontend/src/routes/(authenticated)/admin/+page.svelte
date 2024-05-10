@@ -22,6 +22,7 @@
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
   import type { Confidentiality } from '$lib/components/Projects';
+  import { helpLinks } from '$lib/components/help';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -111,14 +112,28 @@
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
       <AdminTabs activeTab="users" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
-        {$t('admin_dashboard.user_table_title')}
-        <Badge>
-          <span class="inline-flex gap-2">
-            {$number(shownUsers.length)}
-            <span>/</span>
-            {$number(filteredUserCount)}
-          </span>
-        </Badge>
+        <div class="flex gap-4 justify-between grow">
+          <div class="flex gap-4 items-center">
+            {$t('admin_dashboard.user_table_title')}
+            <div class="contents max-xs:hidden">
+              <Badge>
+                <span class="inline-flex gap-2">
+                  {$number(shownUsers.length)}
+                  <span>/</span>
+                  {$number(filteredUserCount)}
+                </span>
+              </Badge>
+            </div>
+          </div>
+          <a class="btn btn-sm btn-success btn-outline max-xs:btn-square group"
+            href={helpLinks.bulkAddCreate}
+            target="_blank" rel="external">
+            <span class="admin-tabs:hidden">
+              {$t('admin_dashboard.how_to_create_users')}
+            </span>
+            <span class="i-mdi-plus text-2xl group-hover:i-mdi-open-in-new" />
+          </a>
+        </div>
       </AdminTabs>
       <div class="mt-4">
         <FilterBar
