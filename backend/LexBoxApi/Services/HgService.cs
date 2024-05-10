@@ -293,7 +293,7 @@ public partial class HgService : IHgService
                 RepoEmptyState.Empty => isEmpty,
                 RepoEmptyState.NonEmpty => !isEmpty
             };
-            if (!done) await Task.Delay(650);
+            if (!done) await Task.Delay(2500);
         }
     }
 
