@@ -67,6 +67,7 @@ public class UserController : ControllerBase
 
         var jwtUser = _loggedInContext.MaybeUser;
         var emailVerified = jwtUser?.Email == accountInput.Email;
+        var createdByAdmin = jwtUser?.IsAdmin ?? false;
 
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
@@ -80,12 +81,13 @@ public class UserController : ControllerBase
             PasswordStrength = UserService.ClampPasswordStrength(accountInput.PasswordStrength),
             IsAdmin = false,
             EmailVerified = emailVerified,
+            CreatedById = createdByAdmin ? jwtUser?.Id : null,
             Locked = false,
             CanCreateProjects = false
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
-        if (jwtUser is not null && jwtUser.Projects.Length > 0)
+        if (jwtUser is not null && !createdByAdmin && jwtUser.Projects.Length > 0)
         {
             userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
         }
