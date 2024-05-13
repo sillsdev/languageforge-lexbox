@@ -10,6 +10,7 @@
 
   export let autoLogin = true;
   export let onSubmit: (() => void) | undefined = undefined;
+  export let submitButtonText = $t('register.button_register');
 
   type RegisterPageQueryParams = {
     name: string;
@@ -80,7 +81,7 @@
     bind:value={$form.locale}
   />
   <FormError error={$message} />
-  <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
+  <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>
 </ProtectedForm>
 
 <style lang="postcss">

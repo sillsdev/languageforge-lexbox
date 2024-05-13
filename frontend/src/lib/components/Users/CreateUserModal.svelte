@@ -17,5 +17,5 @@
   <Markdown md={$t('admin_dashboard.create_user_modal.help_create_single_guest_user', helpLinks)} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
   <Markdown md={$t('admin_dashboard.create_user_modal.help_create_bulk_guest_users', helpLinks)} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
   <h1 class="text-center text-xl">{$t('admin_dashboard.create_user_modal.create_user')}</h1>
-  <CreateUser autoLogin={false} onSubmit={() => createUserModal.submitModal()} />
+  <CreateUser autoLogin={false} onSubmit={() => createUserModal.submitModal()} submitButtonText={$t('admin_dashboard.create_user_modal.create_user')} />
 </Modal>
