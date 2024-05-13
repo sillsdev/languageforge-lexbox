@@ -55,33 +55,33 @@
   });
 </script>
 
-  <ProtectedForm {enhance} bind:turnstileToken>
-    <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
-    <div class="contents email">
-      <Input
-        id="email"
-        label={$t('register.label_email')}
-        description={$t('register.description_email')}
-        type="email"
-        bind:value={$form.email}
-        error={$errors.email}
-      />
-    </div>
+<ProtectedForm {enhance} bind:turnstileToken>
+  <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
+  <div class="contents email">
     <Input
-      id="password"
-      label={$t('register.label_password')}
-      type="password"
-      bind:value={$form.password}
-      error={$errors.password}
-      autocomplete="new-password"
+      id="email"
+      label={$t('register.label_email')}
+      description={$t('register.description_email')}
+      type="email"
+      bind:value={$form.email}
+      error={$errors.email}
     />
-    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
-    <DisplayLanguageSelect
-      bind:value={$form.locale}
-    />
-    <FormError error={$message} />
-    <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
-  </ProtectedForm>
+  </div>
+  <Input
+    id="password"
+    label={$t('register.label_password')}
+    type="password"
+    bind:value={$form.password}
+    error={$errors.password}
+    autocomplete="new-password"
+  />
+  <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
+  <DisplayLanguageSelect
+    bind:value={$form.locale}
+  />
+  <FormError error={$message} />
+  <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
+</ProtectedForm>
 
 <style lang="postcss">
   .email :global(.description) {
