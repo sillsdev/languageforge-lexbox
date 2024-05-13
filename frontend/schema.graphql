@@ -214,6 +214,7 @@ type Project {
   users: [ProjectUsers!]!
   changesets: [Changeset!]!
   hasAbandonedTransactions: Boolean!
+  isLanguageForgeProject: Boolean!
   parentId: UUID
   name: String!
   description: String
