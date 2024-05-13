@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { mdiMagnify } from '@mdi/js';
-  import { Dialog, Field, ListItem, TextField, cls } from 'svelte-ux';
-  import { firstDefOrGlossVal, firstVal, headword } from '../utils';
+  import { mdiBookSearchOutline, mdiMagnifyRemoveOutline } from '@mdi/js';
+  import { Dialog, Field, Icon, ListItem, TextField, cls } from 'svelte-ux';
+  import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
   import { derived, writable } from 'svelte/store';
   import { deriveAsync } from '../utils/time';
@@ -17,28 +17,28 @@
   const lexboxApi = useLexboxApi();
   const search = writable<string | undefined>(undefined);
   const fetchCount = 105;
-  const entries = deriveAsync(search, (s) => {
-    if (!s) return Promise.resolve([]);
+  const result = deriveAsync(search, async (s) => {
+    if (!s) return Promise.resolve({ entries: [], search: undefined });
 
     const exemplar = s.charAt(0);
-    return lexboxApi.SearchEntries(s ?? '', {
+    const entries = await lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
       count: fetchCount,
       order: {field: 'headword', writingSystem: 'default'},
       exemplar: exemplar ? {value: exemplar, writingSystem: 'default'} : undefined
-    })
-  }, [], 200);
-  const displayedEntries = derived(entries, (entries) => {
-    return entries?.slice(0, 5) ?? [];
+    });
+    return { entries, search: s};
+  }, {entries: [], search: undefined}, 200);
+  const displayedEntries = derived(result, (result) => {
+    return result?.entries.slice(0, 5) ?? [];
   });
 </script>
 
 <Field
   classes={{ input: 'my-1 justify-center opacity-60' }}
   on:click={() => (showSearchDialog = true)}
-  class="cursor-pointer opacity-80 hover:opacity-100"
-  icon={mdiMagnify}>
-  Search... 🚀
+  class="cursor-pointer opacity-80 hover:opacity-100">
+  Find entry... 🚀
 </Field>
 
 <Dialog bind:open={showSearchDialog} class="w-[700px]" classes={{root: 'items-start mt-4', title: 'p-2'}}>
@@ -47,9 +47,10 @@
       autofocus
       clearable
       bind:value={$search}
-      placeholder="Search entries"
+      placeholder="Find entry..."
       class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      icon={mdiMagnify}
+      classes={{ prepend: 'text-sm'}}
+      icon={mdiBookSearchOutline}
     />
   </div>
   <div>
@@ -68,17 +69,17 @@
     {/each}
     {#if $displayedEntries.length === 0}
       <div class="p-4 text-center opacity-75">
-        {#if $search}
-          No entries found
+        {#if $result.search}
+          No entries found <Icon data={mdiMagnifyRemoveOutline} />
         {:else}
-          Search for an entry...
+          Search for an entry <Icon data={mdiBookSearchOutline} />
         {/if}
       </div>
     {/if}
-    {#if $entries.length > $displayedEntries.length}
+    {#if $result.entries.length > $displayedEntries.length}
       <div class="p-4 text-center opacity-75">
-        {$entries.length - $displayedEntries.length}
-        {#if $entries.length === fetchCount}+{/if}
+        {$result.entries.length - $displayedEntries.length}
+        {#if $result.entries.length === fetchCount}+{/if}
         more matching entries...
       </div>
     {/if}

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Button, InfiniteScroll, ListItem, TextField, cls } from "svelte-ux";
+  import { Button, InfiniteScroll, ListItem, TextField } from "svelte-ux";
   import type { IEntry } from "../mini-lcm";
-  import { firstDefOrGlossVal, firstVal, headword } from "../utils";
-  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookAlphabet, mdiBookOpenVariantOutline, mdiFormatListText, mdiMagnify } from "@mdi/js";
+  import { firstDefOrGlossVal, headword } from "../utils";
+  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiFormatListText } from "@mdi/js";
   import IndexCharacters from "./IndexCharacters.svelte";
   import type { Writable } from "svelte/store";
   import { getContext } from "svelte";
@@ -48,8 +48,8 @@
     <div class="grow">
       <TextField
         bind:value={search}
-        placeholder="Filter {entries?.length} entries..."
-        icon={mdiMagnify} />
+        placeholder="Filter entries..."
+        icon={mdiBookSearchOutline} />
     </div>
     <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
       class="text-field-sibling-button"
