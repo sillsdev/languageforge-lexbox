@@ -127,14 +127,6 @@
               </Badge>
             </div>
           </div>
-          <a class="btn btn-sm btn-success btn-outline max-xs:btn-square group"
-            href={helpLinks.bulkAddCreate}
-            target="_blank" rel="external">
-            <span class="admin-tabs:hidden">
-              {$t('admin_dashboard.how_to_create_users')}
-            </span>
-            <span class="i-mdi-plus text-2xl group-hover:i-mdi-open-in-new" />
-          </a>
           <button class="btn btn-sm btn-success max-xs:btn-square"
             on:click={() => createUserModal.open()}>
             <span class="admin-tabs:hidden">
