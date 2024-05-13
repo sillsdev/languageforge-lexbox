@@ -15,7 +15,7 @@
   import {DialogResponse} from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import {Button} from '$lib/forms';
-  import {_deleteProject} from '$lib/gql/mutations';
+  import {_deleteProject, _deleteDraftProject} from '$lib/gql/mutations';
   import t, {number} from '$lib/i18n';
   import {TrashIcon} from '$lib/icons';
   import {useNotifications} from '$lib/notify';
@@ -59,13 +59,29 @@
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
-  async function softDeleteProject(project: ProjectItemWithDraftStatus): Promise<void> {
+  async function softDeleteProject(project: ProjectItem): Promise<void> {
     const result = await deleteProjectModal.open(project.name, async () => {
       const { error } = await _deleteProject(project.id);
       return error?.message;
     });
     if (result.response === DialogResponse.Submit) {
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
+    }
+  }
+  async function deleteDraftProject(project: DraftProject): Promise<void> {
+    const result = await deleteProjectModal.open(project.name, async () => {
+      const { error } = await _deleteDraftProject(project.id);
+      return error?.message;
+    });
+    if (result.response === DialogResponse.Submit) {
+      notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
+    }
+  }
+  function deleteProjectOrDraft(project: ProjectItemWithDraftStatus): Promise<void> {
+    if (project.isDraft) {
+      return deleteDraftProject(project)
+    } else {
+      return softDeleteProject(project);
     }
   }
 </script>
@@ -117,7 +133,7 @@
           </button>
           <ul slot="content" class="menu">
             <li>
-              <button class="text-error whitespace-nowrap" on:click={() => softDeleteProject(project)}>
+              <button class="text-error whitespace-nowrap" on:click={() => deleteProjectOrDraft(project)}>
                 <TrashIcon />
                 {$t('delete_project_modal.submit')}
               </button>
