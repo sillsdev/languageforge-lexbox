@@ -5,8 +5,12 @@
   import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiFormatListText } from "@mdi/js";
   import IndexCharacters from "./IndexCharacters.svelte";
   import type { Writable } from "svelte/store";
-  import { getContext } from "svelte";
+  import { createEventDispatcher, getContext } from "svelte";
   import DictionaryEntry from "../DictionaryEntry.svelte";
+
+  const dispatch = createEventDispatcher<{
+    entrySelected: IEntry;
+  }>();
 
   export let entries: IEntry[] | undefined;
   export let search: string;
@@ -37,12 +41,13 @@
   function selectEntry(entry: IEntry) {
     $selectedEntry = entry;
     expand = false;
+    dispatch('entrySelected', entry);
   }
 
   let dictionaryMode = false;
 </script>
 
-<div class="entry-list flex flex-col gap-4 w-full max-w-[1000px] min-w-[400px] justify-self-center side-scroller">
+<div class="entry-list flex flex-col gap-4 w-full justify-self-center side-scroller">
   <div class="flex gap-3 w-full self-center">
     <IndexCharacters />
     <div class="grow">
@@ -56,7 +61,7 @@
       rounded
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
-    <div class="hidden sm:contents">
+    <div class="hidden md:contents">
       <Button icon={expand ? mdiArrowExpandLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded

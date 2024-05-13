@@ -28,7 +28,11 @@
 </script>
 
 <Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={() => entry = defaultEntry()}>
-  <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">New Entry</Button>
+  <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
+    <div class="hidden sm:contents">
+      New Entry
+    </div>
+  </Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
     <div slot="title">New Entry</div>
     <div class="m-6">

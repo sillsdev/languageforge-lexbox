@@ -38,7 +38,12 @@
   classes={{ input: 'my-1 justify-center opacity-60' }}
   on:click={() => (showSearchDialog = true)}
   class="cursor-pointer opacity-80 hover:opacity-100">
-  Find entry... 🚀
+  <div class="hidden sm:contents">
+    Find entry... 🚀
+  </div>
+  <div class="contents sm:hidden">
+    <Icon data={mdiBookSearchOutline} />
+  </div>
 </Field>
 
 <Dialog bind:open={showSearchDialog} class="w-[700px]" classes={{root: 'items-start mt-4', title: 'p-2'}}>

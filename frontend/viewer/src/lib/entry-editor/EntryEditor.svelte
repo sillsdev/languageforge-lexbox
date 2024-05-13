@@ -178,14 +178,14 @@
   <div class="hidden">
     <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        {#if !$entryActionsPortal.collapsed}
+        <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
           Add Sense
-        {/if}
+        </div>
       </Button>
       <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
-        {#if !$entryActionsPortal.collapsed}
+        <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
           Delete Entry
-        {/if}
+        </div>
       </Button>
       <HistoryView id={entry.id} small={$entryActionsPortal.collapsed} />
     </div>

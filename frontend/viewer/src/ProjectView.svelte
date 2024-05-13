@@ -1,8 +1,8 @@
 <script lang="ts">
   import {AppBar, Button, ProgressCircle} from 'svelte-ux';
-  import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiEyeSettingsOutline} from '@mdi/js';
+  import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiEyeSettingsOutline} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import {firstDefOrGlossVal, firstVal, headword} from './lib/utils';
+  import {headword} from './lib/utils';
   import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
@@ -106,10 +106,12 @@
     $selectedEntry = entry;
     $selectedIndexExemplar = headword(entry).charAt(0).toLocaleUpperCase() || undefined;
     refreshEntries();
+    pickedEntry = true;
   }
 
   let expandList = false;
   let collapseActionBar = false;
+  let pickedEntry = false;
 
   let entryActionsElem: HTMLDivElement;
   const entryActionsPortal = writable<{target: HTMLDivElement, collapsed: boolean}>();
@@ -119,13 +121,16 @@
 </script>
 
 <div class="app flex flex-col PortalTarget">
-  <AppBar title="FLEx-Lite" class="bg-surface-300 min-h-12" menuIcon=''>
-    <div class="flex-grow"></div>
-    <div class="flex-grow-[2]">
+  <AppBar title="FLEx-Lite" class="bg-secondary min-h-12" menuIcon=''>
+    <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
+      <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
+    </div>
+    <div class="sm:flex-grow"></div>
+    <div class="flex-grow-[2] mx-2">
       <SearchBar on:entrySelected={(e) => selectEntry(e.detail)} />
     </div>
     <div class="flex-grow-[0.25]"></div>
-    <div slot="actions" class="flex items-center gap-4 whitespace-nowrap">
+    <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
       {#if !$viewConfig.readonly}
         <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
       {/if}
@@ -133,7 +138,11 @@
         on:click={() => (showOptionsDialog = true)}
         size="sm"
         variant="outline"
-        icon={mdiEyeSettingsOutline}>Configure</Button>
+        icon={mdiEyeSettingsOutline}>
+        <div class="hidden sm:contents">
+          Configure
+        </div>
+      </Button>
     </div>
   </AppBar>
 
@@ -146,11 +155,13 @@
   {:else}
     <main class="p-4">
       <div
-        class="grid flex-grow" class:gap-x-6={!expandList}
-        style="grid-template-columns: 2fr minmax(0, min-content) minmax(0, min-content);"
+        class="grid flex-grow items-start justify-center" class:md:gap-x-6={!expandList}
+        style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
       >
-        <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} />
-        <div class="w-[65vw] max-w-[65vw] collapsible" class:collapse={expandList}>
+        <div class="w-screen max-w-full md:w-[400px] collapsible-col" class:md:!w-[1024px]={expandList} class:max-md:collapse-col={pickedEntry}>
+          <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
+        </div>
+        <div class="max-w-full w-screen md:w-[65vw] collapsible-col" class:max-md:pr-6={pickedEntry} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
           {#if $selectedEntry}
             <div class="mb-6">
               <DictionaryEntryViewer entry={$selectedEntry} />
@@ -173,18 +184,18 @@
           {/if}
         </div>
         {#if $selectedEntry && !expandList}
-          <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3">
-            {#if !expandList}
+          <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:max-md:hidden={!pickedEntry}>
+            <div class="hidden" class:sm:hidden={expandList}>
               <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
-            {/if}
-            <div class="w-[15vw] max-w-60 collapsible max-sm:self-center max-sm:w-min" class:self-center={collapseActionBar} class:collapse={expandList} class:w-min={collapseActionBar}>
+            </div>
+            <div class="sm:w-[15vw] max-w-60 collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 {#if !$viewConfig.readonly}
                   <div class="contents" bind:this={entryActionsElem}>
 
                   </div>
                 {/if}
-                <div class="contents" class:hidden={collapseActionBar}>
+                <div class="contents max-sm:hidden" class:hidden={collapseActionBar}>
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>
