@@ -3,7 +3,6 @@
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
-  import { TitlePage } from '$lib/layout';
   import { register } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
@@ -56,7 +55,6 @@
   });
 </script>
 
-<TitlePage title={$t('register.title')}>
   <ProtectedForm {enhance} bind:turnstileToken>
     <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
     <div class="contents email">
@@ -84,7 +82,6 @@
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>{$t('register.button_register')}</SubmitButton>
   </ProtectedForm>
-</TitlePage>
 
 <style lang="postcss">
   .email :global(.description) {
