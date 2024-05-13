@@ -232,21 +232,6 @@ public class ProjectController(
         return result is null ? NotFound() : result;
     }
 
-    [HttpPost("updateAllLexEntryCounts")]
-    [AdminRequired]
-    public async Task<ActionResult<int>> UpdateAllLexEntryCounts(bool onlyUnknown = true, int limit = 100, int delayMs = 10)
-    {
-        var projects = lexBoxDbContext.Projects.Where(p => p.Type == ProjectType.FLEx && (!onlyUnknown || p.FlexProjectMetadata == null)).Take(limit).ToArray();
-        var completed = 0;
-        foreach (var project in projects)
-        {
-            await projectService.UpdateLexEntryCount(project.Code);
-            completed++;
-            if (delayMs > 0) await Task.Delay(delayMs);
-        }
-        return Ok(completed);
-    }
-
     [HttpPost("queueUpdateProjectMetadataTask")]
     public async Task<ActionResult> QueueUpdateProjectMetadataTask(string projectCode)
     {

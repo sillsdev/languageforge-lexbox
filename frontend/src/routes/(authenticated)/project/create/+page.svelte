@@ -10,12 +10,12 @@
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { isAdmin } from '$lib/user';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
   import { derived, writable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
+  import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
 
   export let data;
   $: user = data.user;
@@ -24,8 +24,8 @@
   const { notifySuccess } = useNotifications();
 
   const formSchema = z.object({
-    name: z.string().min(1, $t('project.create.name_missing')),
-    description: z.string().min(1, $t('project.create.description_missing')),
+    name: z.string().trim().min(1, $t('project.create.name_missing')),
+    description: z.string().trim().min(1, $t('project.create.description_missing')),
     type: z.nativeEnum(ProjectType).default(ProjectType.FlEx),
     retentionPolicy: z.nativeEnum(RetentionPolicy).default(RetentionPolicy.Training),
     languageCode: z
@@ -38,6 +38,7 @@
       .min(4, $t('project.create.code_too_short'))
       .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.code_invalid')),
     customCode: z.boolean().default(false),
+    isConfidential: z.boolean().default(false),
   });
 
   //random guid
@@ -50,6 +51,7 @@
       description: $form.description,
       type: $form.type,
       retentionPolicy: $form.retentionPolicy,
+      isConfidential: $form.isConfidential,
       projectManagerId: requestingUser?.id,
     });
     if (result.error) {
@@ -109,11 +111,12 @@
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;
-      if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || isAdmin(user))) form.retentionPolicy = urlValues.retentionPolicy;
+      if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || user.isAdmin)) form.retentionPolicy = urlValues.retentionPolicy;
+      if (urlValues.isConfidential === 'true') form.isConfidential = true;
       if (urlValues.code) {
         const standardCodeSuffix = buildProjectCode('', urlValues.type, urlValues.retentionPolicy);
         const isCustomCode = !urlValues.code.endsWith(standardCodeSuffix);
-        if (isCustomCode && isAdmin(user)) {
+        if (isCustomCode && user.isAdmin) {
           form.customCode = true;
           form.code = form.languageCode = urlValues.code;
         } else {
@@ -199,6 +202,11 @@
       bind:value={$form.description}
       error={$errors.description}
     />
+
+    <div class="mt-4 mb-2">
+      <!-- It feels appropriate to give this option a bit more real estate -->
+      <ProjectConfidentialityCombobox bind:value={$form.isConfidential} />
+    </div>
 
     <FormError error={$message} />
     <SubmitButton loading={$submitting}>

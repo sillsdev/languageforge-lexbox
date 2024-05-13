@@ -39,8 +39,11 @@ on:
 
 jobs:
   deploy:
-    # deploy checks out the fleet repo, we don't want more than one just running at once to avoid conflicts
-    concurrency: deploy
+    # deploy checks out the fleet repo, we may run into conflicts if we try to run multiple deploys at the same time
+    # however due to how concurrency works with environment approvals we don't want to block all deploys
+    # see discussion here: https://github.com/orgs/community/discussions/17401
+    # this could result in our push failing if we try to push at the same time as another deploy
+    concurrency: ${{ inputs.k8s-environment }}
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.k8s-environment }}
@@ -50,7 +53,7 @@ jobs:
       ui-version: ${{ steps.get-ui-version.outputs.result }}
     steps:
       - name: Checkout lexbox repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: lexbox
       - name: Run kustomize
@@ -58,7 +61,7 @@ jobs:
         run: |
           kubectl kustomize . -o resources.yaml
       - name: Checkout fleet repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ vars.FLEET_REPO }}
           ssh-key: ${{ secrets.FLEET_REPO_SSH_KEY }}
@@ -68,16 +71,16 @@ jobs:
           cp lexbox/deployment/${{ inputs.k8s-environment }}/resources.yaml fleet/${{ inputs.k8s-environment }}/
       #        this kustomization file is in the fleet repo and only modifies the image versions being used.
       - name: Update image version in fleet kustomization.yaml
-        uses: mikefarah/yq@v4.34.2
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         with:
           cmd: yq eval -i '(.images.[] | select(.name == "${{ inputs.image }}").newTag) = "${{ inputs.version }}"' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
       - name: Get API version
-        uses: mikefarah/yq@v4.34.2
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         id: get-api-version
         with:
           cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
       - name: Get UI version
-        uses: mikefarah/yq@v4.34.2
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         id: get-ui-version
         with:
           cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"

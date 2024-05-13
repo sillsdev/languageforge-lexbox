@@ -99,7 +99,12 @@ public class EmailService(
     /// <param name="emailAddress">The email address to send the invitation to</param>
     /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
-    public async Task SendCreateAccountEmail(string emailAddress, Guid projectId, ProjectRole role, string managerName, string projectName, string language = null)
+    public async Task SendCreateAccountEmail(string emailAddress,
+        Guid projectId,
+        ProjectRole role,
+        string managerName,
+        string projectName,
+        string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
         var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser()
@@ -127,9 +132,11 @@ public class EmailService(
             "LoginRedirect",
             "Login",
             new { jwt, returnTo });
+
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
         await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink, lifetime), language);
         await SendEmailAsync(email);
+
     }
 
     public async Task SendPasswordChangedEmail(User user)
@@ -144,6 +151,7 @@ public class EmailService(
     {
         var email = new MimeMessage();
         email.To.Add(new MailboxAddress("Admin", _emailConfig.CreateProjectEmailDestination));
+        ArgumentException.ThrowIfNullOrEmpty(user.Email);
         await RenderEmail(email,
             new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), "en");
         await SendEmailWithRetriesAsync(email);

@@ -21,6 +21,39 @@ spec:
 
 ---
 
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hg-network-policy
+  namespace: languagedepot
+  labels:
+    app: hg
+spec:
+  podSelector:
+    matchLabels:
+      app: hg
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          # You'd think namespace: languagedepot would work, but no, that's not valid syntax for NetworkPolicy
+          kubernetes.io/metadata.name: languagedepot
+    # Do NOT put a hyphen in front of podSelector on the next line
+      podSelector:
+        matchLabels:
+          app: lexbox
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: languagedepot-dev
+    # Do NOT put a hyphen in front of podSelector on the next line
+      podSelector:
+        matchLabels:
+          app: lexbox
+
+---
+
 # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#writing-a-deployment-spec
 apiVersion: apps/v1
 kind: Deployment
@@ -62,6 +95,12 @@ spec:
             value: 'lexbox:4317'
           - name: OTEL_EXPORTER_OTLP_ENDPOINT
             value: 'http://lexbox:4317'
+          - name: K8S_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: OTEL_RESOURCE_ATTRIBUTES
+            value: k8s.node.name=$(K8S_NODE_NAME)
           - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_REQUEST
             value: ".*"
           - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_RESPONSE

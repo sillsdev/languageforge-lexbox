@@ -70,6 +70,12 @@ spec:
             value: "90" #frontend requests go through a free Cloudflare tier, so the max request size is 100MB
           - name: BACKEND_HOST
             value: http://lexbox:5158
+          - name: K8S_NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: OTEL_RESOURCE_ATTRIBUTES
+            value: k8s.node.name=$(K8S_NODE_NAME)
           - name: OTEL_ENDPOINT
             value: http://lexbox:4318
 

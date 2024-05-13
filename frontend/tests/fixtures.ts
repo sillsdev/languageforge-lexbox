@@ -32,9 +32,10 @@ type Fixtures = {
 
 function addUnexpectedResponseListener(context: BrowserContext): void {
   context.addListener('response', response => {
-    expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(500);
+    const traceparent = response.request().headers()['Traceparent'];
+    expect.soft(response.status(), `Unexpected response status: ${response.status()}. (${traceparent})`).toBeLessThan(500);
     if (response.request().isNavigationRequest()) {
-      expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(400);
+      expect.soft(response.status(), `Unexpected response status: ${response.status()}. (${traceparent})`).toBeLessThan(400);
     }
   });
 }
@@ -96,7 +97,8 @@ export const test = base.extend<Fixtures>({
           type: FL_EX,
           code: "${code}",
           description: "temporary project created during the ${testInfo.title} unit test",
-          retentionPolicy: DEV
+          retentionPolicy: DEV,
+          isConfidential: false
         }) {
           createProjectResponse {
             id

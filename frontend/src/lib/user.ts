@@ -5,6 +5,7 @@ import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
 import zxcvbn from 'zxcvbn';
+import { type AuthUserProject, ProjectRole, UserRole } from './gql/types';
 
 type LoginError = 'BadCredentials' | 'Locked';
 type LoginResult = {
@@ -40,28 +41,22 @@ export type LexAuthUser = {
   name: string
   email?: string
   username?: string
-  role: 'admin' | 'user'
-  projects: UserProjects[]
+  emailOrUsername: string
+  role: UserRole
+  isAdmin: boolean
+  projects: AuthUserProject[]
   locked: boolean
   emailVerified: boolean
   canCreateProjects: boolean
   createdByAdmin: boolean
   locale: string
 }
-type UserProjectRole = 'Manager' | 'Editor' | 'Unknown';
-type UserProjects = {
-  projectId: string
-  role: UserProjectRole
-}
+
 export const USER_LOAD_KEY = 'user:current';
 export const AUTH_COOKIE_NAME = '.LexBoxAuth';
 
-export function isAdmin(user: LexAuthUser | null): boolean {
-  return user?.role === 'admin';
-}
-
 export function getHomePath(user: LexAuthUser | null): string {
-  return isAdmin(user) ? '/admin' : '/';
+  return user?.isAdmin ? '/admin' : '/';
 }
 
 export async function login(userId: string, password: string): Promise<LoginResult> {
@@ -134,7 +129,8 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
 }
 
 function jwtToUser(user: JwtTokenUser): LexAuthUser {
-  const { sub: id, name, email, user: username, proj: projectsString, role } = user;
+  const { sub: id, name, email, user: username, proj: projectsString, role: jwtRole } = user;
+  const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
 
   return {
     id,
@@ -142,27 +138,29 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     email,
     username,
     role,
+    isAdmin: role === UserRole.Admin,
     projects: projectsStringToProjects(projectsString),
     locked: user.lock === true,
     emailVerified: !user.unver,
-    canCreateProjects: user.mkproj === true || role === 'admin',
+    canCreateProjects: user.mkproj === true || role === UserRole.Admin,
     createdByAdmin: user.creat ?? false,
     locale: user.loc,
+    emailOrUsername: (email ?? username) as string,
   }
 }
 
-function projectsStringToProjects(projectsString: string | undefined): UserProjects[] {
+function projectsStringToProjects(projectsString: string | undefined): AuthUserProject[] {
   if (!projectsString) return [];
-  const projects: UserProjects[] = [];
+  const projects: AuthUserProject[] = [];
   for (const pString of projectsString.split(',')) {
     const roleCode = pString[0];
-    let role: UserProjectRole = 'Unknown';
+    let role = ProjectRole.Unknown;
     switch (roleCode) {
       case 'm':
-        role = 'Manager';
+        role = ProjectRole.Manager;
         break;
       case 'e':
-        role = 'Editor';
+        role = ProjectRole.Editor;
         break;
     }
     projects.push(...pString.split('|').map(id => ({projectId: id, role})));

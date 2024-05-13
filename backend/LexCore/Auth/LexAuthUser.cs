@@ -72,6 +72,8 @@ public record LexAuthUser
             }
         }
 
+        if (!jsonObject.ContainsKey(LexAuthConstants.LocaleClaimType)) jsonObject.Add(LexAuthConstants.LocaleClaimType, "en");
+
         var user = jsonObject.Deserialize<LexAuthUser>();
         if (user is null) throw new Exception("Could not deserialize user");
         return user;
@@ -177,7 +179,7 @@ public record LexAuthUser
     public bool? CreatedByAdmin { get; init; }
 
     [JsonPropertyName(LexAuthConstants.LocaleClaimType)]
-    public string Locale { get; init; }
+    public required string Locale { get; init; }
 
     public IEnumerable<Claim> GetClaims()
     {

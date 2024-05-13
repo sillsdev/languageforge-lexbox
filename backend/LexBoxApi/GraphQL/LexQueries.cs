@@ -12,7 +12,6 @@ namespace LexBoxApi.GraphQL;
 [QueryType]
 public class LexQueries
 {
-
     [UseProjection]
     [UseSorting]
     public IQueryable<Project> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
@@ -68,6 +67,30 @@ public class LexQueries
     public IQueryable<DraftProject> DraftProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
     {
         return context.DraftProjects.Where(p => p.Code == code);
+    }
+
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public IQueryable<Organization> Orgs(LexBoxDbContext context)
+    {
+        return context.Orgs;
+    }
+
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public IQueryable<Organization> MyOrgs(LexBoxDbContext context, LoggedInContext loggedInContext)
+    {
+        var userId = loggedInContext.User.Id;
+        return context.Orgs.Where(o => o.Members.Any(m => m.UserId == userId));
+    }
+
+    [UseSingleOrDefault]
+    [UseProjection]
+    public IQueryable<Organization> OrgById(LexBoxDbContext context, Guid orgId)
+    {
+        return context.Orgs.Where(o => o.Id == orgId);
     }
 
     [UseOffsetPaging]

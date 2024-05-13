@@ -15,7 +15,13 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['**/*js', 'playwright.config.ts', '.svelte-kit/**', '**/generated/**'],
+    ignores: [
+      '**/*js',
+      'playwright.config.ts',
+      '.svelte-kit/**',
+      '**/generated/**',
+      'viewer/'
+    ],
   },
   js.configs.recommended,
   // TypeScript and Svelte plugins don't seem to support the new config format yet

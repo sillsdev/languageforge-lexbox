@@ -36,8 +36,8 @@
 
   const formSchema = z.object({
     email: z.string().email($t('form.invalid_email')).nullish(),
-    name: z.string(),
-    locale: z.string().min(2),
+    name: z.string().trim().min(1, $t('register.name_missing')),
+    locale: z.string().trim().min(2),
   });
 
   let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {

@@ -4,7 +4,12 @@ import { defineConfig } from 'vitest/config';
 import { gqlOptions } from './gql-codegen';
 // eslint-disable-next-line no-restricted-imports
 import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
+import {searchForWorkspaceRoot} from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
+
+
+
+
 
 const exposeServer = false;
 
@@ -36,6 +41,11 @@ export default defineConfig({
     port: 3000,
     host: exposeServer,
     strictPort: true,
+    fs: {
+      allow: [
+        searchForWorkspaceRoot(process.cwd())
+      ]
+    },
     proxy: process.env['DockerDev'] ? undefined : {
       '/v1/traces': {
         target: 'http://localhost:4318'

@@ -8,6 +8,7 @@
 	},
 	"scripts": {
 		"dev": "vite dev",
+		"lexbox-dev": "vite dev --port 3000 --host 0.0.0.0",
 		"build": "vite build",
 		"preview": "vite preview",
 		"pretest": "playwright install",
@@ -15,6 +16,8 @@
 		"test-flaky": "playwright test --retries=3 -j 30%",
 		"test-hard": "playwright test --repeat-each=3 -j 30%",
 		"test-report": "playwright show-report test-results/_html-report",
+    "_env-comment": "Run any command with .env.local loaded: (e.g. `pnpm run env run test -g \"test name\")",
+		"env": "dotenvx run --env-file=.env.local -- pnpm",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test:unit": "vitest",
@@ -24,6 +27,7 @@
 		"clean": "rimraf node_modules .svelte-kit"
 	},
 	"devDependencies": {
+		"@dotenvx/dotenvx": "^0.37.0",
 		"@egoist/tailwindcss-icons": "^1.7.4",
 		"@eslint/js": "^8.56.0",
 		"@graphql-codegen/cli": "^5.0.0",
@@ -65,7 +69,7 @@
 		"tslib": "^2.6.2",
 		"type-fest": "^4.10.2",
 		"typescript": "^5.3.3",
-		"vite": "^5.0.13",
+		"vite": "^5.2.9",
 		"vite-plugin-graphql-codegen": "^3.3.6",
 		"vitest": "^1.2.2",
 		"zod": "^3.22.4",
@@ -95,6 +99,7 @@
 		"svelte-exmarkdown": "^3.0.3",
 		"svelte-intl-precompile": "^0.12.3",
 		"sveltekit-search-params": "^2.1.0",
-		"tus-js-client": "^4.0.1"
+		"tus-js-client": "^4.0.1",
+		"viewer": "workspace:*"
 	}
 }

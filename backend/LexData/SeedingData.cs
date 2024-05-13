@@ -2,25 +2,21 @@ using LexCore;
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace LexData;
 
-public class SeedingData
+public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment)
 {
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
-    private readonly LexBoxDbContext _lexBoxDbContext;
-    private readonly IOptions<DbConfig> _dbConfig;
-
-    public SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig)
-    {
-        _lexBoxDbContext = lexBoxDbContext;
-        _dbConfig = dbConfig;
-    }
+    public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
+    private static readonly Guid MangerId = new Guid("703701a8-005c-4747-91f2-ac7650455118");
+    private static readonly Guid EditorId = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb");
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
-        if (await _lexBoxDbContext.Users.CountAsync(cancellationToken) > 0)
+        if (await lexBoxDbContext.Users.CountAsync(cancellationToken) > 0)
         {
             return;
         }
@@ -32,12 +28,13 @@ public class SeedingData
 
     public async Task SeedDatabase(CancellationToken cancellationToken = default)
     {
+        if (environment.IsProduction()) return;
         //NOTE: When seeding make sure you provide a constant Id like I have done here,
         // this will allow us to call seed multiple times without creating new entities each time.
-        if (string.IsNullOrEmpty(_dbConfig.Value.DefaultSeedUserPassword))
+        if (string.IsNullOrEmpty(dbConfig.Value.DefaultSeedUserPassword))
             throw new Exception("DefaultSeedUserPassword is not set");
-        var passwordHash = PasswordHashing.HashPassword(_dbConfig.Value.DefaultSeedUserPassword, PwSalt, false);
-        _lexBoxDbContext.Attach(new User
+        var passwordHash = PasswordHashing.HashPassword(dbConfig.Value.DefaultSeedUserPassword, PwSalt, false);
+        lexBoxDbContext.Attach(new User
         {
             Id = TestAdminId,
             Email = "admin@test.com",
@@ -49,8 +46,23 @@ public class SeedingData
             EmailVerified = true,
             CanCreateProjects = true,
         });
+        if (!string.IsNullOrEmpty(dbConfig.Value.QaAdminEmail))
+        {
+            lexBoxDbContext.Attach(new User
+            {
+                Id = QaAdminId,
+                Email = dbConfig.Value.QaAdminEmail,
+                Name = "Qa Admin",
+                Username = null,
+                Salt = PwSalt,
+                PasswordHash = passwordHash,
+                IsAdmin = true,
+                EmailVerified = true,
+                CanCreateProjects = true
+            });
+        }
 
-        _lexBoxDbContext.Attach(new User
+        lexBoxDbContext.Attach(new User
         {
             Id = new Guid("79198d79-3f69-4de5-914f-96c336e58f94"),
             Email = "user@test.com",
@@ -63,7 +75,7 @@ public class SeedingData
             CanCreateProjects = false,
         });
 
-        _lexBoxDbContext.Attach(new Project
+        lexBoxDbContext.Attach(new Project
         {
             Id = new Guid("0ebc5976-058d-4447-aaa7-297f8569f968"),
             Name = "Sena 3",
@@ -72,6 +84,7 @@ public class SeedingData
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
+            IsConfidential = null,
             Users = new()
             {
                 new()
@@ -80,7 +93,7 @@ public class SeedingData
                     Role = ProjectRole.Manager,
                     User = new()
                     {
-                        Id = new Guid("703701a8-005c-4747-91f2-ac7650455118"),
+                        Id = MangerId,
                         Email = "manager@test.com",
                         Name = "Test Manager",
                         Username = "manager",
@@ -97,7 +110,7 @@ public class SeedingData
                     Role = ProjectRole.Editor,
                     User = new()
                     {
-                        Id = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb"),
+                        Id = EditorId,
                         Email = "editor@test.com",
                         Name = "Test Editor",
                         Username = "editor",
@@ -110,7 +123,7 @@ public class SeedingData
                 },
             }
         });
-        _lexBoxDbContext.Attach(new Project
+        lexBoxDbContext.Attach(new Project
         {
             Id = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507"),
             Name = "Elawa",
@@ -120,21 +133,39 @@ public class SeedingData
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
-            Users = new()
+            IsConfidential = false,
+            Users = [],
         });
 
-        foreach (var entry in _lexBoxDbContext.ChangeTracker.Entries())
+        lexBoxDbContext.Attach(new Organization
+        {
+            Id = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6"),
+            Name = "Test Org",
+            Members =
+            [
+                new OrgMember
+                {
+                    Id = new Guid("d8e4fb61-6a39-421b-b852-4bdba658d345"), Role = OrgRole.Admin, UserId = MangerId,
+                },
+                new OrgMember
+                {
+                    Id = new Guid("1f8bbfd2-1502-456c-94ee-c982650ba325"), Role = OrgRole.User, UserId = EditorId,
+                }
+            ]
+        });
+
+        foreach (var entry in lexBoxDbContext.ChangeTracker.Entries())
         {
             var exists = await entry.GetDatabaseValuesAsync(cancellationToken) is not null;
             entry.State = exists ? EntityState.Modified : EntityState.Added;
         }
 
-        await _lexBoxDbContext.SaveChangesAsync(cancellationToken);
+        await lexBoxDbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task CleanUpSeedData()
     {
-        await _lexBoxDbContext.Users.Where(u => u.Salt == PwSalt).ExecuteDeleteAsync();
-        await _lexBoxDbContext.Projects.Where(p => p.Code == "sena-3").ExecuteDeleteAsync();
+        await lexBoxDbContext.Users.Where(u => u.Salt == PwSalt).ExecuteDeleteAsync();
+        await lexBoxDbContext.Projects.Where(p => p.Code == "sena-3").ExecuteDeleteAsync();
     }
 }

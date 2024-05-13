@@ -22,6 +22,8 @@
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
+  import type { Confidentiality } from '$lib/components/Projects';
+  import { helpLinks } from '$lib/components/help';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -34,6 +36,8 @@
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
+    confidential: queryParam.string<Confidentiality | undefined>(undefined),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
@@ -60,6 +64,10 @@
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
+    // Clear other filters that might hide the user's projects
+    $queryParamValues.projectSearch = '';
+    $queryParamValues.projectType = undefined;
+    $queryParamValues.tab = 'projects';
   }
 
   let userModal: UserModal;
@@ -109,22 +117,31 @@
         <div class="flex gap-4 justify-between grow">
           <div class="flex gap-4 items-center">
             {$t('admin_dashboard.user_table_title')}
-            <Badge>
-              <span class="inline-flex gap-2">
-                {$number(shownUsers.length)}
-                <span>/</span>
-                {$number(filteredUserCount)}
-              </span>
-            </Badge>
+            <div class="contents max-xs:hidden">
+              <Badge>
+                <span class="inline-flex gap-2">
+                  {$number(shownUsers.length)}
+                  <span>/</span>
+                  {$number(filteredUserCount)}
+                </span>
+              </Badge>
+            </div>
           </div>
+          <a class="btn btn-sm btn-success btn-outline max-xs:btn-square group"
+            href={helpLinks.bulkAddCreate}
+            target="_blank" rel="external">
+            <span class="admin-tabs:hidden">
+              {$t('admin_dashboard.how_to_create_users')}
+            </span>
+            <span class="i-mdi-plus text-2xl group-hover:i-mdi-open-in-new" />
+          </a>
           <button class="btn btn-sm btn-success max-xs:btn-square"
             on:click={() => createUserModal.open()}>
             <span class="admin-tabs:hidden">
               {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
             <span class="i-mdi-plus text-2xl" />
-          </button>
-        </div>
+          </button>        </div>
       </AdminTabs>
       <div class="mt-4">
         <FilterBar
@@ -160,7 +177,7 @@
                 <td>
                   <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
                     <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => userModal.open(user)}>
-                      <span class="max-width-full overflow-hidden text-ellipsis" title={user.name}>
+                      <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
                         {user.name}
                       </span>
                       <Icon icon="i-mdi-card-account-details-outline" />

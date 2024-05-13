@@ -1,6 +1,7 @@
 import * as testEnv from './envVars';
 
 import { AdminDashboardPage } from './pages/adminDashboardPage';
+import { EmailSubjects } from './pages/mailPages';
 import { LoginPage } from './pages/loginPage';
 import { SandboxPage } from './pages/sandboxPage';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
@@ -124,10 +125,8 @@ test('can catch 403 errors from goto in new tab', async ({ page, context }) => {
 test('page load 403 is redirected to home', async ({ page }) => {
   await loginAs(page.request, 'manager', testEnv.defaultPassword);
   await new SandboxPage(page).goto();
-  const pagePromise = page.context().waitForEvent('page');
   await page.getByText('Goto page load 403', {exact: true}).click();
-  const newPage = await pagePromise;
-  await new UserDashboardPage(newPage).waitFor();
+  await new UserDashboardPage(page).waitFor();
 });
 
 test('page load 403 in new tab is redirected to home', async ({ page }) => {
@@ -149,10 +148,11 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
   const forgotPasswordPage = await loginPage.clickForgotPassword();
   await forgotPasswordPage.fillForm(tempUser.email);
   await forgotPasswordPage.submit();
+  await page.locator(':text("Check Your Inbox")').first().waitFor();
 
   // - Get JWT from reset password link
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail();
+  const emailPage = await inboxPage.openEmail(EmailSubjects.ForgotPassword);
   const url = await emailPage.getFirstLanguageDepotUrl();
   expect(url).not.toBeNull();
   const forgotPasswordJwt = (url as string).split('jwt=')[1].split('&')[0];

@@ -36,3 +36,14 @@ export type StoreType<T extends Readable<unknown>> = T extends Readable<infer S>
 export type StandardEnum<T> = {
   [id: string]: T;
 }
+
+export type NonEmptyArray<T> = [T, ...T[]];
+
+export function isNotEmpty<T>(value: T[]): value is NonEmptyArray<T> {
+  return value.length > 0;
+}
+
+export type StringifyValues<T> = {
+  [K in keyof T]:
+    T[K] extends string ? T[K]
+  : T[K] extends boolean ? 'true' | 'false' : string };

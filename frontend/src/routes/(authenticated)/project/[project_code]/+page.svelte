@@ -6,7 +6,6 @@
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import t, { date, number } from '$lib/i18n';
-  import { isAdmin } from '$lib/user';
   import { z } from 'zod';
   import type { PageData } from './$types';
   import {
@@ -41,12 +40,18 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
+  import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
+  import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
   let projectStore = data.project;
   $: project = $projectStore;
   $: changesetStore = data.changesets;
+  let isEmpty: boolean = false;
+  $: isEmpty = project?.lastCommit == null;
+  // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
+  $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
   $: members = project.users.sort((a, b) => {
     if (a.role !== b.role) {
       return a.role === ProjectRole.Manager ? -1 : 1;
@@ -129,9 +134,9 @@
   }
 
   $: userId = user.id;
-  $: canManage = isAdmin(user) || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
+  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
 
-  const projectNameValidation = z.string().min(1, $t('project_page.project_name_empty_error'));
+  const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
   let deleteProjectModal: ConfirmDeleteModal;
 
@@ -194,8 +199,8 @@
     }
   }
 
+  let projectConfidentialityModal: ProjectConfidentialityModal;
   let openInFlexModal: OpenInFlexModal;
-
   let leaveModal: ConfirmModal;
 
   async function leaveProject(): Promise<void> {
@@ -229,33 +234,58 @@
   <HeaderPage wide title={project.name}>
     <svelte:fragment slot="actions">
       {#if project.type === ProjectType.FlEx && $isDev}
+          <a href="./{project.code}/viewer" class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
+            {$t('project_page.open_with_viewer')}
+            <span class="i-mdi-dictionary text-2xl" />
+          </a>
           <OpenInFlexModal bind:this={openInFlexModal} {project}/>
           <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}
         <Dropdown>
           <button class="btn btn-primary">
-            {$t('project_page.get_project.label')}
+            {$t('project_page.get_project.label', {isEmpty: isEmpty.toString()})}
             <span class="i-mdi-dots-vertical text-2xl" />
           </button>
           <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
             <div class="card-body max-sm:p-4">
               <div class="prose">
-                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal'})}</h3>
+                <h3>{$t('project_page.get_project.instructions_header', {type: project.type, mode: 'normal', isEmpty: isEmpty.toString()})}</h3>
                 {#if project.type === ProjectType.WeSay}
+                  {#if isEmpty}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay_empty', {
+                        code: project.code,
+                        login: encodeURIComponent(user.emailOrUsername),
+                        name: project.name,
+                      })}
+                    />
+                  {:else}
+                    <Markdown
+                        md={$t('project_page.get_project.instructions_wesay', {
+                        code: project.code,
+                        login: encodeURIComponent(user.emailOrUsername),
+                        name: project.name,
+                      })}
+                    />
+                  {/if}
+                {:else}
+                  {#if isEmpty}
                   <Markdown
-                    md={$t('project_page.get_project.instructions_wesay', {
+                    md={$t('project_page.get_project.instructions_flex_empty', {
                     code: project.code,
-                    login: encodeURIComponent(user.email ?? user.username ?? ''),
+                    login: user.emailOrUsername,
                     name: project.name,
                   })}
                   />
-                {:else}
+                  {:else}
                   <Markdown
                     md={$t('project_page.get_project.instructions_flex', {
                     code: project.code,
+                    login: user.emailOrUsername,
                     name: project.name,
                   })}
                   />
+                  {/if}
                 {/if}
               </div>
               <SendReceiveUrlField projectCode={project.code} />
@@ -279,24 +309,26 @@
     </svelte:fragment>
     <svelte:fragment slot="header-content">
       <BadgeList>
+        <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
         <ProjectTypeBadge type={project.type} />
         <Badge>
           <FormatRetentionPolicy policy={project.retentionPolicy} />
         </Badge>
         {#if project.resetStatus === ResetStatus.InProgress}
           <button
-            class:tooltip={isAdmin(user)}
+            class:tooltip={user.isAdmin}
             data-tip={$t('project_page.reset_project_modal.click_to_continue')}
-            disabled={!isAdmin(user)}
+            disabled={!user.isAdmin}
             on:click={resetProject}
           >
-            <Badge type="badge-warning">
+            <Badge variant="badge-warning">
               {$t('project_page.reset_project_modal.reset_in_progress')}
               <span class="i-mdi-warning text-xl mb-[-2px]" />
             </Badge>
           </button>
         {/if}
       </BadgeList>
+      <ProjectConfidentialityModal bind:this={projectConfidentialityModal} projectId={project.id} isConfidential={project.isConfidential ?? undefined} />
     </svelte:fragment>
     <div class="space-y-4">
       <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
@@ -316,34 +348,36 @@
           {$t('project_page.last_commit')}:
           <span class="text-secondary">{$date(project.lastCommit)}</span>
         </div>
-        {#if project.type === ProjectType.FlEx}
-        <div class="text-lg inline-flex items-center gap-1">
-          {$t('project_page.num_entries')}:
-          <span class="text-secondary">
-            {$number(lexEntryCount)}
-          </span>
-          <AdminContent>
-            <IconButton
-              loading={loadingEntryCount}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateEntryCount}
-            />
-          </AdminContent>
-        </div>
+        {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
+          <div class="text-lg flex items-center gap-1">
+            {$t('project_page.num_entries')}:
+            <span class="text-secondary">
+              {$number(lexEntryCount)}
+            </span>
+            <AdminContent>
+              <IconButton
+                loading={loadingEntryCount}
+                icon="i-mdi-refresh"
+                size="btn-sm"
+                variant="btn-ghost"
+                outline={false}
+                on:click={updateEntryCount}
+              />
+            </AdminContent>
+          </div>
         {/if}
-        <div class="text-lg">{$t('project_page.description')}:</div>
-        <span class="text-secondary">
-          <EditableText
-            value={project.description}
-            disabled={!canManage}
-            saveHandler={updateProjectDescription}
-            placeholder={$t('project_page.add_description')}
-            multiline
-          />
-        </span>
+        <div>
+          <div class="text-lg">{$t('project_page.description')}:</div>
+          <span class="text-secondary">
+            <EditableText
+              value={project.description}
+              disabled={!canManage}
+              saveHandler={updateProjectDescription}
+              placeholder={$t('project_page.add_description')}
+              multiline
+            />
+          </span>
+        </div>
       </div>
 
       <div>
@@ -353,7 +387,7 @@
 
         <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
           {#each showMembers as member}
-            {@const canManageMember = canManage && (member.user.id !== userId || isAdmin(user))}
+            {@const canManageMember = canManage && (member.user.id !== userId || user.isAdmin)}
             <Dropdown disabled={!canManageMember}>
               <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
               <ul slot="content" class="menu">
@@ -427,32 +461,39 @@
 
       <div class="divider"/>
 
-      <MoreSettings>
-        <Button outline variant="btn-error" on:click={leaveProject}>
-          {$t('project_page.leave.leave_project')}
-          <Icon icon="i-mdi-exit-run"/>
-        </Button>
-        <ConfirmModal bind:this={leaveModal}
-                      title={$t('project_page.leave.confirm_title')}
-                      submitText={$t('project_page.leave.leave_action')}
-                      submitIcon="i-mdi-exit-run"
-                      submitVariant="btn-error"
-                      cancelText={$t('project_page.leave.dont_leave')}>
-          <p>{$t('project_page.leave.confirm_leave')}</p>
-        </ConfirmModal>
-        {#if canManage}
-          <button class="btn btn-error" on:click={softDeleteProject}>
-            {$t('delete_project_modal.submit')}
-            <TrashIcon/>
-          </button>
-          <AdminContent>
+      <MoreSettings column>
+        <div class="flex gap-4 max-sm:flex-col-reverse">
+          {#if canManage}
+            <button class="btn btn-error" on:click={softDeleteProject}>
+              {$t('delete_project_modal.submit')}
+              <TrashIcon/>
+            </button>
+            <Button outline variant="btn-warning" on:click={projectConfidentialityModal.openModal}>
+              {$t('project.confidential.set_confidentiality')}
+              <Icon icon="i-mdi-shield-lock-outline"/>
+            </Button>
+            {/if}
+          <Button outline variant="btn-error" on:click={leaveProject}>
+            {$t('project_page.leave.leave_project')}
+            <Icon icon="i-mdi-exit-run"/>
+          </Button>
+          <ConfirmModal bind:this={leaveModal}
+                        title={$t('project_page.leave.confirm_title')}
+                        submitText={$t('project_page.leave.leave_action')}
+                        submitIcon="i-mdi-exit-run"
+                        submitVariant="btn-error"
+                        cancelText={$t('project_page.leave.dont_leave')}>
+            <p>{$t('project_page.leave.confirm_leave')}</p>
+          </ConfirmModal>
+        </div>
+        <AdminContent>
+          <div class="divider m-0" />
+          <div class="flex gap-4 max-sm:flex-col-reverse">
             <button class="btn btn-accent" on:click={resetProject}>
               {$t('project_page.reset_project_modal.submit')}
               <CircleArrowIcon/>
             </button>
             <ResetProjectModal bind:this={resetProjectModal}/>
-            <Button on:click={verify}>Verify Repository</Button>
-            <Button on:click={recover}>HG Recover</Button>
             <Modal bind:this={hgCommandResultModal} closeOnClickOutside={false}>
               <div class="card">
                 <div class="card-body overflow-auto">
@@ -467,9 +508,11 @@
                 </div>
               </div>
             </Modal>
-          </AdminContent>
-          <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
-        {/if}
+            <Button on:click={recover}>HG Recover</Button>
+            <Button on:click={verify}>HG Verify</Button>
+          </div>
+        </AdminContent>
+        <ConfirmDeleteModal bind:this={deleteProjectModal} i18nScope="delete_project_modal"/>
       </MoreSettings>
 
     </div>

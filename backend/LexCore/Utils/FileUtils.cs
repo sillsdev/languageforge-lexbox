@@ -14,8 +14,8 @@ public static class FileUtils
 
     public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target, UnixFileMode? permissions = null)
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            target.UnixFileMode = permissions ?? source.UnixFileMode;
+        if (permissions.HasValue && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            target.UnixFileMode = permissions.Value;
         foreach (var dir in source.EnumerateDirectories())
         {
             CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name), permissions);
@@ -25,8 +25,8 @@ public static class FileUtils
         {
             var destFileName = Path.Combine(target.FullName, file.Name);
             var destFile = file.CopyTo(destFileName);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                destFile.UnixFileMode = permissions ?? file.UnixFileMode;
+            if (permissions.HasValue && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                destFile.UnixFileMode = permissions.Value;
         }
     }
 }

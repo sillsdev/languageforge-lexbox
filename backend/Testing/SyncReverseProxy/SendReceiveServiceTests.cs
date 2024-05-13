@@ -15,15 +15,15 @@ using static Testing.Services.Utils;
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
-public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
+public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 {
     private readonly ITestOutputHelper _output;
-    private readonly SendReceiveFixture _srFixture;
+    private readonly IntegrationFixture _srFixture;
     private readonly ApiTestBase _adminApiTester;
 
     private readonly SendReceiveService _sendReceiveService;
 
-    public SendReceiveServiceTests(ITestOutputHelper output, SendReceiveFixture sendReceiveSrFixture)
+    public SendReceiveServiceTests(ITestOutputHelper output, IntegrationFixture sendReceiveSrFixture)
     {
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
@@ -90,16 +90,7 @@ public class SendReceiveServiceTests : IClassFixture<SendReceiveFixture>
         await WaitForLexboxMetadataUpdateAsync();
 
         // Verify pushed and store last commit
-        var gqlQuery =
-$$"""
-query projectLastCommit {
-    projectByCode(code: "{{projectConfig.Code}}") {
-        lastCommit
-    }
-}
-""";
-        var jsonResult = await _adminApiTester.ExecuteGql(gqlQuery);
-        var lastCommitDate = jsonResult?["data"]?["projectByCode"]?["lastCommit"]?.ToString();
+        var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
         lastCommitDate.ShouldNotBeNullOrEmpty();
 
         // Modify
@@ -113,8 +104,7 @@ query projectLastCommit {
         await WaitForLexboxMetadataUpdateAsync();
 
         // Verify the push updated the last commit date
-        jsonResult = await _adminApiTester.ExecuteGql(gqlQuery);
-        var lastCommitDateAfter = jsonResult?["data"]?["projectByCode"]?["lastCommit"]?.ToString();
+        var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
         lastCommitDateAfter.ShouldBeGreaterThan(lastCommitDate);
     }
 
@@ -154,7 +144,7 @@ query projectLastCommit {
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
-        await WaitForHgRefreshIntervalAsync();
+        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
@@ -179,7 +169,7 @@ query projectLastCommit {
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
 
-        await WaitForHgRefreshIntervalAsync();
+        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
@@ -189,10 +179,19 @@ query projectLastCommit {
         postSRTip.ShouldBe(originalTip);
     }
 
-    [Theory]
-    [InlineData(180, 10)]
-    [InlineData(50, 3)]
-    public async Task SendNewProject(int totalSizeMb, int fileCount)
+    [Fact]
+    public async Task SendNewProject_Big()
+    {
+        await SendNewProject(180, 10);
+    }
+
+    [Fact]
+    public async Task SendNewProject_Medium()
+    {
+        await SendNewProject(90, 5);
+    }
+
+    private async Task SendNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
@@ -207,7 +206,7 @@ query projectLastCommit {
         {
             var fileName = $"test-file{i}.bin";
             WriteFile(Path.Combine(sendReceiveParams.Dir, fileName), totalSizeMb / fileCount);
-            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 1, progress);
+            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 5, progress);
             HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.ShouldBe(0);
         }
 

@@ -7,8 +7,9 @@
 
   export let projectCode: string;
 
-  $: projectHgUrl = import.meta.env.DEV
-    ? `http://hg.${$page.url.hostname}/${projectCode}`
+  $: projectHgUrl = import.meta.env.DEV ? `http://hg.${$page.url.hostname}/${projectCode}`
+    : $page.url.host.includes('develop') || $page.url.host.includes('.dev') ? `https://hg-develop.lexbox.org/${projectCode}`
+    : $page.url.host.includes('staging') ? `https://hg-staging.${$page.url.host.replace('depot', 'forge')}/${projectCode}`
     : `https://hg-public.${$page.url.host.replace('depot', 'forge')}/${projectCode}`;
 </script>
 

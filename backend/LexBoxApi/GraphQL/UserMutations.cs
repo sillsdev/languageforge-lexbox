@@ -72,7 +72,7 @@ public class UserMutations
     )
     {
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
 
         if (!input.Name.IsNullOrEmpty())
         {
@@ -106,7 +106,7 @@ public class UserMutations
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 
-        if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
+        if (!string.IsNullOrEmpty(input.Email) && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
         {
             var emailInUse = await dbContext.Users.AnyAsync(u => u.Email == input.Email);
             if (emailInUse) throw new UniqueValueException("Email");
@@ -116,6 +116,7 @@ public class UserMutations
         if (wasPromotedToAdmin)
         {
             var admins = dbContext.Users.Where(u => u.IsAdmin).AsAsyncEnumerable();
+            ArgumentException.ThrowIfNullOrEmpty(user.Email);
             await emailService.SendNewAdminEmail(admins, user.Name, user.Email);
         }
 
@@ -129,7 +130,7 @@ public class UserMutations
     {
         permissionService.AssertCanDeleteAccount(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
         dbContext.Users.Remove(user);
         await dbContext.SaveChangesAsync();
         return user;
@@ -144,7 +145,7 @@ public class UserMutations
     {
         permissionService.AssertCanLockOrUnlockUser(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
         user.Locked = input.Locked;
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
