@@ -41,6 +41,8 @@
     },
     "create_user_modal": {
       "create_user": "Create User",
+      "help_create_single_guest_user": "Did you know you can also [create users on a project page]({addProjectMember})? That also allows you to make those users members of the project in one step; users created here will not be members of any project and will need a second step to add them to a project.",
+      "help_create_bulk_guest_users": "If you want to create multiple users at once, the best way is probably to use the [Bulk Add/Create Project Members]({bulkAddCreate}) tool.",
     },
     "user_details_modal": {
       "registered": "Registered",
