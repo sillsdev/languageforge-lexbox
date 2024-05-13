@@ -97,6 +97,11 @@ type DbError implements Error {
   code: DbErrorCode!
 }
 
+type DeleteDraftProjectPayload {
+  draftProject: DraftProject
+  errors: [DeleteDraftProjectError!]
+}
+
 type DeleteUserByAdminOrSelfPayload {
   user: User
   errors: [DeleteUserByAdminOrSelfError!]
@@ -176,6 +181,7 @@ type Mutation {
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
   leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
+  deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload!
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
@@ -360,6 +366,8 @@ union CreateOrganizationError = DbError
 
 union CreateProjectError = DbError | AlreadyExistsError | ProjectCreatorsMustHaveEmail
 
+union DeleteDraftProjectError = NotFoundError | DbError
+
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
@@ -448,6 +456,10 @@ input DateTimeOperationFilterInput {
   nlt: DateTime
   lte: DateTime
   nlte: DateTime
+}
+
+input DeleteDraftProjectInput {
+  draftProjectId: UUID!
 }
 
 input DeleteUserByAdminOrSelfInput {

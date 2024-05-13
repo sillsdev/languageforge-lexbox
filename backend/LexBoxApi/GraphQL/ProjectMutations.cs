@@ -339,6 +339,26 @@ public class ProjectMutations
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<DraftProject>> DeleteDraftProject(
+        Guid draftProjectId,
+        IPermissionService permissionService,
+        LexBoxDbContext dbContext)
+    {
+        permissionService.AssertCanManageProject(draftProjectId);
+
+        // Draft projects are deleted immediately, not soft-deleted
+        var deletedDraftCount = await dbContext.DraftProjects.Where(dp => dp.Id == draftProjectId).ExecuteDeleteAsync();
+        if (deletedDraftCount == 0)
+        {
+            throw NotFoundException.ForType<DraftProject>();
+        }
+        return dbContext.DraftProjects.Where(p => p.Id == draftProjectId);
+    }
 
     [Error<NotFoundException>]
     [Error<DbError>]
