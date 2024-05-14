@@ -5,7 +5,7 @@
   import { z } from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';
   import type { ErrorMessage } from '$lib/forms';
-  import { Badge, BadgeList } from '$lib/components/Badges';
+  import { Badge } from '$lib/components/Badges';
 
   export let name = 'No-name Org';
 
@@ -45,17 +45,15 @@
       </span>
     </div>
   </svelte:fragment>
-  <svelte:fragment slot="header-content">
-    <BadgeList>
-      <Badge>
-        123 members
-      </Badge>
-      <Badge>
-        45 projects
-      </Badge>
-      <Badge>
-        Any other badges?
-      </Badge>
-    </BadgeList>
+  <svelte:fragment slot="badges">
+    <Badge>
+      123 members
+    </Badge>
+    <Badge>
+      45 projects
+    </Badge>
+    <Badge>
+      Any other badges?
+    </Badge>
   </svelte:fragment>
 </DetailsPage>
