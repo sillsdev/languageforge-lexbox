@@ -23,7 +23,6 @@
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
   import type { Confidentiality } from '$lib/components/Projects';
-  import { helpLinks } from '$lib/components/help';
 
   export let data: PageData;
   $: projects = data.projects;
