@@ -17,6 +17,7 @@
   import DictionaryEntryViewer from './lib/layout/DictionaryEntryViewer.svelte';
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
+  import ActivityView from './lib/activity/ActivityView.svelte';
 
   export let loading = false;
 
@@ -143,6 +144,7 @@
           Configure
         </div>
       </Button>
+      <ActivityView/>
     </div>
   </AppBar>
 

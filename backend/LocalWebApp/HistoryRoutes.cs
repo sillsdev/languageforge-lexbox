@@ -8,6 +8,7 @@ using Crdt.Helpers;
 using LcmCrdt;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
 namespace LocalWebApp;
 
@@ -15,19 +16,14 @@ public static class HistoryRoutes
 {
     public static IEndpointConventionBuilder MapHistoryRoutes(this WebApplication app)
     {
-        app.Use(async (context, next) =>
+        var group = app.MapGroup("/api/history/{project}").WithOpenApi(operation =>
         {
-            var projectName = context.GetProjectName();
-            if (!string.IsNullOrWhiteSpace(projectName))
+            operation.Parameters.Add(new OpenApiParameter()
             {
-                var projectsService = context.RequestServices.GetRequiredService<ProjectsService>();
-                projectsService.SetProjectScope(projectsService.GetProject(projectName) ??
-                                                throw new InvalidOperationException($"Project {projectName} not found"));
-            }
-
-            await next(context);
+                Name = LexboxApiHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
+            });
+            return operation;
         });
-        var group = app.MapGroup("/api/history/{project}").WithOpenApi();
         group.MapGet("/snapshot/{snapshotId:guid}",
             async (Guid snapshotId, CrdtDbContext dbcontext) =>
             {
@@ -44,8 +40,10 @@ public static class HistoryRoutes
             (Guid entityId, CrdtDbContext dbcontext) =>
             {
                 var query = from commit in dbcontext.Commits.DefaultOrder()
-                    from snapshot in dbcontext.Snapshots.LeftJoin(s => s.CommitId == commit.Id && s.EntityId == entityId)
-                    from change in dbcontext.ChangeEntities.LeftJoin(c => c.CommitId == commit.Id && c.EntityId == entityId)
+                    from snapshot in dbcontext.Snapshots.LeftJoin(
+                        s => s.CommitId == commit.Id && s.EntityId == entityId)
+                    from change in dbcontext.ChangeEntities.LeftJoin(c =>
+                        c.CommitId == commit.Id && c.EntityId == entityId)
                     where snapshot.Id != null || change.EntityId != null
                     select new HistoryLineItem(commit.Id,
                         entityId,
@@ -73,8 +71,10 @@ public static class HistoryRoutes
             DateTimeOffset timestamp,
             Guid? snapshotId,
             IChange? change,
-            IObjectBase? entity) : this(commitId, entityId,
-            new DateTimeOffset(timestamp.Ticks, TimeSpan.Zero),//todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
+            IObjectBase? entity) : this(commitId,
+            entityId,
+            new DateTimeOffset(timestamp.Ticks,
+                TimeSpan.Zero), //todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
             snapshotId,
             change?.GetType().Name,
             entity,
