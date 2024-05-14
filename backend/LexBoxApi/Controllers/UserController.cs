@@ -87,7 +87,7 @@ public class UserController : ControllerBase
         };
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
-        if (jwtUser is not null && !createdByAdmin && jwtUser.Projects.Length > 0)
+        if (jwtUser?.Audience == LexboxAudience.RegisterAccount)
         {
             userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
         }
