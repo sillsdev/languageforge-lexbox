@@ -20,6 +20,7 @@ public static class GraphQlSetupKernel
             .InitializeOnStartup()
             .RegisterDbContext<LexBoxDbContext>()
             .RegisterService<IHgService>()
+            .RegisterService<IIsLanguageForgeProjectDataLoader>()
             .RegisterService<LoggedInContext>()
             .RegisterService<EmailService>()
             .RegisterService<LexAuthService>()

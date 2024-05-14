@@ -234,12 +234,14 @@
   <HeaderPage wide title={project.name}>
     <svelte:fragment slot="actions">
       {#if project.type === ProjectType.FlEx && $isDev}
+        {#if project.isLanguageForgeProject}
           <a href="./{project.code}/viewer" class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
             {$t('project_page.open_with_viewer')}
             <span class="i-mdi-dictionary text-2xl" />
           </a>
-          <OpenInFlexModal bind:this={openInFlexModal} {project}/>
-          <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
+        {/if}
+        <OpenInFlexModal bind:this={openInFlexModal} {project}/>
+        <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}
         <Dropdown>
           <button class="btn btn-primary">
