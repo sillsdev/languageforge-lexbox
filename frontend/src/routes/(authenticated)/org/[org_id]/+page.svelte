@@ -6,8 +6,13 @@
   import EditableText from '$lib/components/EditableText.svelte';
   import type { ErrorMessage } from '$lib/forms';
   import { Badge } from '$lib/components/Badges';
+  import DetailItem from '$lib/layout/DetailItem.svelte';
+  import IconButton from '$lib/components/IconButton.svelte';
 
   export let name = 'No-name Org';
+  export let description = 'Describe this org here';
+
+  let loadingExtraButton = false;
 
   // TODO: Implement canManage logic (org managers only? Site admins also?)
   let canManage = true;
@@ -56,4 +61,25 @@
       Any other badges?
     </Badge>
   </svelte:fragment>
+  <DetailItem title="project_page.created_at" text="typos are impossible" copyToClipboard={true} />
+  <DetailItem title="project.table.last_change" text="extra button">
+    <IconButton
+    slot="extraButton"
+    loading={loadingExtraButton}
+    icon="i-mdi-refresh"
+    size="btn-sm"
+    variant="btn-ghost"
+    outline={false}
+    on:click={() => alert('Button clicked')}
+  />
+  </DetailItem>
+  <DetailItem
+    title="project_page.description"
+    text={description}
+    editable={true}
+    placeholder="desc goes here"
+    saveHandler={(newval) => { description = newval; return Promise.resolve(undefined); }}
+    disabled={false}
+    multiline={true}
+    />
 </DetailsPage>
