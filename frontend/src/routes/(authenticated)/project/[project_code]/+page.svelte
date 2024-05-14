@@ -15,7 +15,6 @@
     _leaveProject,
     type ProjectUser,
   } from './+page';
-  import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
   import AddProjectMember from './AddProjectMember.svelte';
   import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
   import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
@@ -42,6 +41,7 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
+  import { DetailItem } from '$lib/layout';
 
   export let data: PageData;
   $: user = data.user;
@@ -335,28 +335,12 @@
     <div class="space-y-4">
       <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
       <div class="space-y-2">
-        <span class="text-lg">
-          {$t('project_page.project_code')}:
-          <span class="inline-flex items-center gap-1">
-            <span class="text-secondary">{project.code}</span>
-            <CopyToClipboardButton textToCopy={project.code} size="btn-sm" outline={false} />
-          </span>
-        </span>
-        <div class="text-lg">
-          {$t('project_page.created_at')}:
-          <span class="text-secondary">{$date(project.createdDate)}</span>
-        </div>
-        <div class="text-lg">
-          {$t('project_page.last_commit')}:
-          <span class="text-secondary">{$date(project.lastCommit)}</span>
-        </div>
+        <DetailItem title="project_page.project_code" text={project.code} copyToClipboard={true} />
+        <DetailItem title="project_page.created_at" text={$date(project.createdDate)} />
+        <DetailItem title="project_page.last_commit" text={$date(project.lastCommit)} />
         {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
-          <div class="text-lg flex items-center gap-1">
-            {$t('project_page.num_entries')}:
-            <span class="text-secondary">
-              {$number(lexEntryCount)}
-            </span>
-            <AdminContent>
+          <DetailItem title="project_page.num_entries" text={$number(lexEntryCount)}>
+            <AdminContent slot="extraButton">
               <IconButton
                 loading={loadingEntryCount}
                 icon="i-mdi-refresh"
@@ -366,19 +350,18 @@
                 on:click={updateEntryCount}
               />
             </AdminContent>
-          </div>
+          </DetailItem>
         {/if}
         <div>
-          <div class="text-lg">{$t('project_page.description')}:</div>
-          <span class="text-secondary">
-            <EditableText
-              value={project.description}
-              disabled={!canManage}
-              saveHandler={updateProjectDescription}
-              placeholder={$t('project_page.add_description')}
-              multiline
-            />
-          </span>
+          <DetailItem
+            title="project_page.description"
+            text={project.description}
+            editable
+            disabled={!canManage}
+            saveHandler={updateProjectDescription}
+            placeholder={$t('project_page.add_description')}
+            multiline
+          />
         </div>
       </div>
 

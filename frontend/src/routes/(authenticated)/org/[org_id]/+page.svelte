@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { DetailsPage } from '$lib/layout';
+  import { DetailsPage, DetailItem } from '$lib/layout';
 
   import t from '$lib/i18n';
   import { z } from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';
   import type { ErrorMessage } from '$lib/forms';
   import { Badge } from '$lib/components/Badges';
-  import DetailItem from '$lib/layout/DetailItem.svelte';
   import IconButton from '$lib/components/IconButton.svelte';
 
   export let name = 'No-name Org';
