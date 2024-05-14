@@ -11,6 +11,7 @@
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName } from './+page';
+  // import MembersList from '$lib/components/MembersList.svelte';
 
   // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
   export let description = 'Fake description since orgs don\'t currently have descriptions';
@@ -90,3 +91,6 @@
     multiline={true}
     />
 </DetailsPage>
+
+<!-- TODO: Add members list component once I figure out how to unify ProjectRole and OrgRole types -->
+<!-- <MembersList members={org.members}/> -->
