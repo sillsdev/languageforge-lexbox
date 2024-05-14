@@ -44,7 +44,7 @@
 
   async function showEntry(row: typeof history[number]) {
     if (!row.entity || !row.snapshotId) {
-      const data = await fetch(`/api/history/${projectName}/snapshot/at/${new Date(row.timestamp).toISOString()}?entityId=${id}`).then(res => res.json());
+      const data = await fetch(`/api/history/${projectName}/snapshot/at/${row.timestamp}?entityId=${id}`).then(res => res.json());
       record = {...row, entity: data.entity, entityName: data.typeName};
     } else {
       record = row;

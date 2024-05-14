@@ -36,8 +36,8 @@ public static class HistoryRoutes
         group.MapGet("/snapshot/at/{timestamp}",
             async (DateTime timestamp, Guid entityId, DataModel dataModel) =>
             {
-                //todo investigate why filtering on datetimes isn't working as expected in sqlite
-                //will return changes that happened after the timestamp
+                //todo requires the timestamp to be exact, otherwise the change made on that timestamp will not be included
+                //consider using a commitId and looking up the timestamp, but then we should be exact to the commit which we aren't right now.
                 return await dataModel.GetEntitySnapshotAtTime(new DateTimeOffset(timestamp), entityId);
             });
         group.MapGet("/{entityId}",
