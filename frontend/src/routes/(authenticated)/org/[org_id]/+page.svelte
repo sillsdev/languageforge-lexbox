@@ -12,8 +12,8 @@
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName } from './+page';
 
-  export let name = 'No-name Org';
-  export let description = 'Describe this org here';
+  // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
+  export let description = 'Fake description since orgs don\'t currently have descriptions';
 
   export let data: PageData;
   $: user = data.user;
@@ -22,7 +22,7 @@
 
   let loadingExtraButton = false;
 
-  let canManage = user.isAdmin || org.members.find((m) => m.user?.id == user.id)?.role == OrgRole.Admin;
+  $: canManage = user?.isAdmin || org?.members?.find((m) => m.user?.id == user.id)?.role == OrgRole.Admin;
 
   const { notifySuccess/*, notifyWarning*/ } = useNotifications();
 
@@ -40,7 +40,7 @@
   }
 </script>
 
-<DetailsPage wide title={name}>
+<DetailsPage wide title={org.name}>
   <svelte:fragment slot="actions">
     Action buttons will go here
   </svelte:fragment>
@@ -50,7 +50,7 @@
       <span class="text-primary max-w-full">
         <EditableText
           disabled={!canManage}
-          value={name}
+          value={org.name}
           validation={orgNameValidation}
           saveHandler={updateOrgName}
         />
@@ -68,8 +68,8 @@
       Any other badges?
     </Badge>
   </svelte:fragment>
-  <DetailItem title="project_page.created_at" text="typos are impossible" copyToClipboard={true} />
-  <DetailItem title="project.table.last_change" text="extra button">
+  <DetailItem title="project_page.created_at" text="example with copy button" copyToClipboard={true} />
+  <DetailItem title="project.table.last_change" text="example with refresh button">
     <IconButton
     slot="extraButton"
     loading={loadingExtraButton}

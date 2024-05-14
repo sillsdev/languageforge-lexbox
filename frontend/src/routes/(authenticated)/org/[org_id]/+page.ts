@@ -16,14 +16,16 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
+import type { UUID } from 'crypto';
 
 export type Org = NonNullable<OrgPageQuery['orgById']>;
 export type OrgUser = Org['members'][number];
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
-  const userIsAdmin = (await event.parent()).user.isAdmin;
-  const orgId = event.params.org_id;
+  const user = (await event.parent()).user;
+  const userIsAdmin = user.isAdmin;
+  const orgId = event.params.org_id as UUID;
   const orgResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
@@ -57,6 +59,7 @@ export async function load(event: PageLoadEvent) {
       { orgId, userIsAdmin }
     );
 
+  // TODO: Troubleshoot why this is giving a Typescript error
   const nonNullableOrg = tryMakeNonNullable(orgResult.orgById);
   if (!nonNullableOrg) {
     error(404);
@@ -67,11 +70,12 @@ export async function load(event: PageLoadEvent) {
   return {
     org: nonNullableOrg,
     id: orgId,
+    user,
   };
 }
 
 
-export async function _addOrgMember(orgId: string, emailOrUsername: string, role: OrgRole): $OpResult<AddOrgMemberMutation> {
+export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole): $OpResult<AddOrgMemberMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
@@ -140,7 +144,7 @@ export async function _addOrgMember(orgId: string, emailOrUsername: string, role
 //   return result;
 // }
 
-export async function _changeOrgMemberRole(orgId: string, emailOrUsername: string, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {
+export async function _changeOrgMemberRole(orgId: UUID, emailOrUsername: string, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
@@ -221,7 +225,7 @@ export async function _changeOrgName(input: ChangeOrgNameInput): $OpResult<Chang
 //   return result;
 // }
 
-export async function _deleteOrgUser(orgId: string, emailOrUsername: string): $OpResult<DeleteOrgUserMutation> {
+export async function _deleteOrgUser(orgId: UUID, emailOrUsername: string): $OpResult<DeleteOrgUserMutation> {
   const result = await getClient()
     .mutation(
       graphql(`
