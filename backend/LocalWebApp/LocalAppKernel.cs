@@ -14,7 +14,6 @@ public static class LocalAppKernel
     {
         services.AddSingleton<BackgroundSyncService>();
         services.AddHttpContextAccessor();
-        services.AddScoped(typeof(IHubActivator<>), typeof(ProjectHubActivator<>));
         services.AddScoped<SyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient();
