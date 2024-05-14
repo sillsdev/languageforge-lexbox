@@ -7,28 +7,36 @@
   import type { ErrorMessage } from '$lib/forms';
   import { Badge } from '$lib/components/Badges';
   import IconButton from '$lib/components/IconButton.svelte';
+  import type { PageData } from './$types';
+  import { OrgRole } from '$lib/gql/types';
+  import { useNotifications } from '$lib/notify';
+  import { _changeOrgName } from './+page';
 
   export let name = 'No-name Org';
   export let description = 'Describe this org here';
 
+  export let data: PageData;
+  $: user = data.user;
+  let orgStore = data.org;
+  $: org = $orgStore;
+
   let loadingExtraButton = false;
 
-  // TODO: Implement canManage logic (org managers only? Site admins also?)
-  let canManage = true;
+  let canManage = user.isAdmin || org.members.find((m) => m.user?.id == user.id)?.role == OrgRole.Admin;
+
+  const { notifySuccess/*, notifyWarning*/ } = useNotifications();
 
   const orgNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
+  // TODO: const orgNameValidation = z.string().trim().min(1, $t('org_page.org_name_empty_error'));
 
-  function updateOrgName(newName: string): Promise<ErrorMessage> {
+  async function updateOrgName(newName: string): Promise<ErrorMessage> {
     // TODO: Eventually this will look something like the following:
-    // const result = await _changeOrgName({ orgId: org.id, name: newName });
-    // if (result.error) {
-    //   return result.error.message;
-    // }
-    // notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
-
-    // TODO: Implement that, then remove this:
-    name = newName;
-    return Promise.resolve(undefined);
+    const result = await _changeOrgName({ orgId: org.id, name: newName });
+    if (result.error) {
+      return result.error.message;
+    }
+    notifySuccess($t('project_page.notifications.rename_project', { name: newName }));
+    // TODO: notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
   }
 </script>
 
