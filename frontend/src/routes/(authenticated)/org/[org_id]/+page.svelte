@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { HeaderPage } from '$lib/layout';
+  import { DetailsPage } from '$lib/layout';
 
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -28,7 +28,7 @@
   }
 </script>
 
-<HeaderPage wide title={name}>
+<DetailsPage wide title={name}>
   <svelte:fragment slot="actions">
     Action buttons will go here
   </svelte:fragment>
@@ -58,4 +58,4 @@
       </Badge>
     </BadgeList>
   </svelte:fragment>
-</HeaderPage>
+</DetailsPage>

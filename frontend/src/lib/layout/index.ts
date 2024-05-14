@@ -1,6 +1,7 @@
 import AdminContent from './AdminContent.svelte'
 import AppBar from './AppBar.svelte'
 import AppMenu from './AppMenu.svelte'
+import DetailsPage from './DetailsPage.svelte'
 import Content from './Content.svelte'
 import Footer from './Footer.svelte'
 import HeaderPage from './HeaderPage.svelte'
@@ -20,6 +21,7 @@ export {
   PageTitle,
   TitlePage,
   HeaderPage,
+  DetailsPage,
 }
 
 export * from './Breadcrumbs'
