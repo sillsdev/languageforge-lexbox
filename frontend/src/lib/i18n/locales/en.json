@@ -41,8 +41,8 @@
     },
     "create_user_modal": {
       "create_user": "Create User",
-      "help_create_single_guest_user": "Did you know you can also [create users on a project page]({addProjectMember})? That also allows you to make those users members of the project in one step; users created here will not be members of any project and will need a second step to add them to a project.",
-      "help_create_bulk_guest_users": "If you want to create multiple users at once, the best way is probably to use the [Bulk Add/Create Project Members]({bulkAddCreate}) tool.",
+      "help_create_single_guest_user": "You can invite users to register and join a project by themselves with the **Add Project Member** button. See [Add Project Member]({helpLink}) for details.",
+      "help_create_bulk_guest_users": "You can also create and add users to a project in bulk. Look for the **Bulk Add/Create Members** button or see [Bulk Add/Create Project Members]({helpLink}) for details.",
     },
     "user_details_modal": {
       "registered": "Registered",
@@ -528,5 +528,6 @@ If you don't see a dialog or already closed it, click the button below:",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
     "any": "Any",
+    "did_you_know": "Did you know?",
   }
 }
