@@ -1,10 +1,5 @@
-﻿<script lang="ts">
-  import t, { date } from '$lib/i18n';
-  import { Modal } from '$lib/components/modals';
-  import DevContent from '$lib/layout/DevContent.svelte';
-  import UserLockedAlert from './UserLockedAlert.svelte';
-
-  type User = {
+﻿<script context="module" lang="ts">
+  export type User = {
     id: string;
     name: string;
     email?: string | null;
@@ -18,6 +13,13 @@
     lastActive: string | Date
     canCreateProjects: boolean
   };
+</script>
+<script lang="ts">
+  import t, { date } from '$lib/i18n';
+  import { Modal } from '$lib/components/modals';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import UserLockedAlert from './UserLockedAlert.svelte';
+
   let userDetailsModal: Modal;
   let user: User;
 

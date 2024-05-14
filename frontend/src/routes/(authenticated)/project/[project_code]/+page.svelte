@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge, BadgeList, MemberBadge } from '$lib/components/Badges';
+  import { Badge, BadgeList } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import { ProjectTypeBadge } from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
@@ -42,6 +42,7 @@
   import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
   import { DetailItem } from '$lib/layout';
+  import MembersList from '$lib/components/MembersList.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -61,10 +62,6 @@
 
   let lexEntryCount: number | string | null | undefined = undefined;
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
-
-  const TRUNCATED_MEMBER_COUNT = 5;
-  let showAllMembers = false;
-  $: showMembers = showAllMembers ? members : members.slice(0, TRUNCATED_MEMBER_COUNT);
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -365,56 +362,21 @@
         </div>
       </div>
 
-      <div>
-        <p class="text-2xl mb-4">
-          {$t('project_page.members.title')}
-        </p>
-
-        <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
-          {#each showMembers as member}
-            {@const canManageMember = canManage && (member.user.id !== userId || user.isAdmin)}
-            <Dropdown disabled={!canManageMember}>
-              <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
-              <ul slot="content" class="menu">
-                <AdminContent>
-                  <li>
-                    <button on:click={() => userModal.open(member.user)}>
-                      <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
-                      {$t('project_page.view_user_details')}
-                    </button>
-                  </li>
-                </AdminContent>
-                <li>
-                  <button on:click={() => changeMemberRole(member)}>
-                    <span class="i-mdi-account-lock text-2xl" />
-                    {$t('project_page.change_role')}
-                  </button>
-                </li>
-                <li>
-                  <button class="text-error" on:click={() => deleteProjectUser(member)}>
-                    <TrashIcon />
-                    {$t('project_page.remove_user')}
-                  </button>
-                </li>
-              </ul>
-            </Dropdown>
-          {/each}
-
-          {#if members.length > TRUNCATED_MEMBER_COUNT}
-            <div class="justify-self-start">
-              <Button outline size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
-                {showAllMembers ? $t('project_page.members.show_less') : $t('project_page.members.show_all')}
-              </Button>
-            </div>
-          {/if}
-
-          {#if canManage}
-            <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
-              <AddProjectMember projectId={project.id} />
-              <BulkAddProjectMembers projectId={project.id} />
-            </div>
-          {/if}
-
+      <MembersList
+        {members}
+        canManageMember={(member) => canManage && (member.user.id !== userId || user.isAdmin)}
+        openUserModal={(member) => userModal.open(member.user)}
+        changeMemberRole={(member) => changeMemberRole(member)}
+        deleteProjectUser={(member) => deleteProjectUser(member)}
+        >
+          <svelte:fragment slot="extraButtons">
+            <!-- Would like the {#if canManage} one line earlier, but svelte:fragment must be direct child of component -->
+            <!-- TODO: Figure out a better way to handle this, maybe with a div rather than a svelte:fragment. Check if visual layout looks right. -->
+            {#if canManage}
+            <AddProjectMember projectId={project.id} />
+            <BulkAddProjectMembers projectId={project.id} />
+            {/if}
+          </svelte:fragment>
           <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
           <UserModal bind:this={userModal}/>
 
@@ -427,8 +389,7 @@
               userName: userToDelete?.user.name ?? '',
             })}
           </DeleteModal>
-        </BadgeList>
-      </div>
+      </MembersList>
 
       <div class="divider" />
       <div class="space-y-2">
