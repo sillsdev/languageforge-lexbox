@@ -91,7 +91,15 @@
     roleType="org"
     projectOrOrgId={org.id}
     members={org.members}
-    canManageMember={(member) => member?.role === OrgRole.Admin || user.isAdmin}
-    />
+    canManageMember={(member) => canManage && (member.user?.id !== user.id || user.isAdmin)}
+    canManageList={canManage}
+  >
+    <svelte:fragment slot="extraButtons">
+    <!-- TODO: Implement something like AddProjectMember for orgs, then add it here
+      <AddProjectMember projectId={project.id} />
+      <BulkAddProjectMembers projectId={project.id} />
+    -->
+    </svelte:fragment>
+  </MembersList>
 </DetailsPage>
 

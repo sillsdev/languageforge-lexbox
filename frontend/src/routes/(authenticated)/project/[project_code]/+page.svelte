@@ -348,16 +348,13 @@
         projectOrOrgId={project.id}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
+        canManageList={canManage}
         on:openUserModal={(event) => userModal.open(event.detail.user)}
         on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
         >
           <svelte:fragment slot="extraButtons">
-            <!-- Would like the {#if canManage} one line earlier, but svelte:fragment must be direct child of component -->
-            <!-- TODO: Figure out a better way to handle this, maybe with a div rather than a svelte:fragment. Check if visual layout looks right. -->
-            {#if canManage}
             <AddProjectMember projectId={project.id} />
             <BulkAddProjectMembers projectId={project.id} />
-            {/if}
           </svelte:fragment>
           <UserModal bind:this={userModal}/>
 

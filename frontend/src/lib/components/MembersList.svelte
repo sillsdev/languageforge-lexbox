@@ -22,6 +22,7 @@
 
   export let members: Member[] = [];
   export let canManageMember: (member: Member) => boolean;
+  export let canManageList: boolean;
   type RoleType = 'project' | 'org'
   export let roleType: RoleType;
   export let projectOrOrgId: string;
@@ -106,7 +107,7 @@
       </div>
     {/if}
 
-    {#if $$slots.extraButtons}
+    {#if canManageList}
       <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
         <slot name="extraButtons" />
       </div>
