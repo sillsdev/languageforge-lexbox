@@ -75,6 +75,7 @@
     loadingEntryCount = false;
   }
 
+  // TODO: Move inside MembersList now that ChangeMemberRoleModal is generic (handles both org and project roles)
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
     const { response } = await changeMemberRoleModal.open({
@@ -364,10 +365,10 @@
 
       <MembersList
         {members}
-        canManageMember={(member) => canManage && (member.user.id !== userId || user.isAdmin)}
-        openUserModal={(member) => userModal.open(member.user)}
-        changeMemberRole={(member) => changeMemberRole(member)}
-        deleteProjectUser={(member) => deleteProjectUser(member)}
+        canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
+        on:openUserModal={(event) => userModal.open(event.detail.user)}
+        on:changeMemberRole={(event) => changeMemberRole(event.detail)}
+        on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
         >
           <svelte:fragment slot="extraButtons">
             <!-- Would like the {#if canManage} one line earlier, but svelte:fragment must be direct child of component -->

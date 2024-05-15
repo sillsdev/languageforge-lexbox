@@ -360,6 +360,13 @@ If you don't see a dialog or already closed it, click the button below:",
       "leave_project": "Leave Project"
     },
   },
+  "org_role": {
+    "label": "Role",
+    "user": "Member",
+    "user_description": "Member (can join projects)",
+    "admin": "Admin",
+    "admin_description": "Admin (can join projects & add new members)"
+  },
   "project_role": {
     "label": "Role",
     "editor": "Editor",

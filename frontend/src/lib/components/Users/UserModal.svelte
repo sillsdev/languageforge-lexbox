@@ -1,4 +1,5 @@
 ﻿<script context="module" lang="ts">
+  // TODO: Pretty sure this is no longer exported
   export type User = {
     id: string;
     name: string;

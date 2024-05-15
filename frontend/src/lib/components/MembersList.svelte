@@ -1,11 +1,8 @@
 <script context="module" lang="ts">
-  import type { User } from './Users/UserModal.svelte'; // TODO: Mode this somewhere shared
-  import type { ProjectRole } from '$lib/gql/types';
-
   export type Member = {
     id: string
-    user: User
-    role: ProjectRole
+    user?: { id: string; name: string } | null
+    role: ProjectRole | OrgRole
   };
 </script>
 
@@ -16,12 +13,13 @@
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import { Button } from '$lib/forms';
+  import type { OrgRole, ProjectRole } from '$lib/gql/types';
+  import { createEventDispatcher } from 'svelte';
 
   export let members: Member[] = [];
   export let canManageMember: (member: Member) => boolean;
-  export let openUserModal: (member: Member) => Promise<void>;
-  export let changeMemberRole: (member: Member) => Promise<void>;
-  export let deleteProjectUser: (member: Member) => Promise<void>;
+
+  let dispatch = createEventDispatcher();
 
   const DEFAULT_TRUNCATED_MEMBER_COUNT = 5;
   export let truncatedMemberCount = DEFAULT_TRUNCATED_MEMBER_COUNT;
@@ -39,24 +37,25 @@
     {#each showMembers as member}
       {@const canManage = canManageMember(member)}
       <Dropdown disabled={!canManage}>
-        <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManage} />
+        <!-- TODO: Handle the "no name" case better -->
+        <MemberBadge member={{ name: member?.user?.name ?? '(no name)', role: member.role }} canManage={canManage} />
         <ul slot="content" class="menu">
           <AdminContent>
             <li>
-              <button on:click={() => openUserModal(member)}>
+              <button on:click={() => dispatch('openUserModal', member)}>
                 <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
                 {$t('project_page.view_user_details')}
               </button>
             </li>
           </AdminContent>
           <li>
-            <button on:click={() => changeMemberRole(member)}>
+            <button on:click={() => dispatch('changeMemberRole', member)}>
               <span class="i-mdi-account-lock text-2xl" />
               {$t('project_page.change_role')}
             </button>
           </li>
           <li>
-            <button class="text-error" on:click={() => deleteProjectUser(member)}>
+            <button class="text-error" on:click={() => dispatch('deleteProjectUser', member)}>
               <TrashIcon />
               {$t('project_page.remove_user')}
             </button>
