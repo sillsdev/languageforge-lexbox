@@ -59,7 +59,6 @@ export async function load(event: PageLoadEvent) {
       { orgId, userIsAdmin }
     );
 
-  // TODO: Troubleshoot why this is giving a Typescript error
   const nonNullableOrg = tryMakeNonNullable(orgResult.orgById);
   if (!nonNullableOrg) {
     error(404);
