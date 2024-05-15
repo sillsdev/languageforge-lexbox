@@ -5,12 +5,17 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Controllers;
 using LexCore.Auth;
+using LexData;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using OpenIddict.Abstractions;
+using OpenIddict.Server;
+using OpenIddict.Server.AspNetCore;
+using OpenIddict.Validation.AspNetCore;
 
 namespace LexBoxApi.Auth;
 
@@ -78,7 +83,12 @@ public static class AuthKernel
                 {
                     options.ForwardDefaultSelector = context =>
                     {
-
+                        if (context.Request.Headers.ContainsKey("Authorization") &&
+                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer"))
+                        {
+                            //fow now this will use oauth
+                            return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+                        }
                         if (context.Request.IsJwtRequest())
                         {
                             return JwtBearerDefaults.AuthenticationScheme;
@@ -101,9 +111,9 @@ public static class AuthKernel
             .AddCookie(options =>
             {
                 configuration.Bind("Authentication:Cookie", options);
-                options.LoginPath = "/api/login";
+                options.LoginPath = "/login";
                 options.Cookie.Name = AuthCookieName;
-                options.ForwardChallenge = JwtBearerDefaults.AuthenticationScheme;
+                // options.ForwardChallenge = JwtBearerDefaults.AuthenticationScheme;
                 options.ForwardForbid = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
@@ -185,6 +195,67 @@ public static class AuthKernel
                 }
             });
         });
+
+        services.Add(ScopeRequestFixer.Descriptor.ServiceDescriptor);
+
+        //openid server
+        services.AddOpenIddict()
+            .AddCore(options =>
+            {
+                options.UseEntityFrameworkCore().UseDbContext<LexBoxDbContext>();
+                options.UseQuartz();
+            })
+            .AddServer(options =>
+            {
+                options.RegisterScopes("openid", "profile", "email");
+                options.RegisterClaims("aud", "email", "exp", "iss", "iat", "sub", "name");
+                options.SetAuthorizationEndpointUris("api/login/open-id-auth");
+                options.SetTokenEndpointUris("api/connect/token");
+                options.SetIntrospectionEndpointUris("api/connect/introspect");
+                options.SetUserinfoEndpointUris("api/connect/userinfo");
+                options.Configure(serverOptions => serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor));
+
+                options.AllowAuthorizationCodeFlow()
+                    .AllowImplicitFlow()//implicit flow used for response type token
+                    .AllowRefreshTokenFlow();
+
+                options.IgnoreResponseTypePermissions();
+                options.IgnoreScopePermissions();
+
+                //todo setup encryption
+                options.AddDevelopmentEncryptionCertificate().AddEphemeralSigningKey();
+
+                options.UseAspNetCore()
+                    .EnableAuthorizationEndpointPassthrough();
+            })
+            .AddValidation(options =>
+            {
+                options.UseLocalServer();
+                options.UseAspNetCore();
+                options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());
+                options.EnableAuthorizationEntryValidation();
+            });
+    }
+
+    public sealed class ScopeRequestFixer : IOpenIddictServerHandler<OpenIddictServerEvents.ValidateTokenRequestContext>
+    {
+        public static OpenIddictServerHandlerDescriptor Descriptor { get; }
+            = OpenIddictServerHandlerDescriptor.CreateBuilder<OpenIddictServerEvents.ValidateTokenRequestContext>()
+                .UseSingletonHandler<ScopeRequestFixer>()
+                .SetOrder(OpenIddictServerHandlers.Exchange.ValidateResourceOwnerCredentialsParameters.Descriptor.Order + 1)
+                .SetType(OpenIddictServerHandlerType.Custom)
+                .Build();
+
+        public ValueTask HandleAsync(OpenIddictServerEvents.ValidateTokenRequestContext context)
+        {
+            if (!string.IsNullOrEmpty(context.Request.Scope) && (context.Request.IsAuthorizationCodeGrantType() ||
+                                                                 context.Request.IsDeviceCodeGrantType()))
+            {
+                context.Request.Scope = null;
+            }
+
+            return default;
+        }
     }
 
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)

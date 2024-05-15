@@ -4,10 +4,11 @@ using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenIddict.Abstractions;
 
 namespace LexData;
 
-public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment)
+public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment, IOpenIddictApplicationManager applicationManager)
 {
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
@@ -16,6 +17,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
+        await SeedOpenId(cancellationToken);
         if (await lexBoxDbContext.Users.CountAsync(cancellationToken) > 0)
         {
             return;
@@ -161,6 +163,34 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
         }
 
         await lexBoxDbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task SeedOpenId(CancellationToken cancellationToken = default)
+    {
+        if (await applicationManager.FindByClientIdAsync("becf2856-0690-434b-b192-a4032b72067f", cancellationToken) is null)
+        {
+            await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+                {
+                    ClientId = "becf2856-0690-434b-b192-a4032b72067f",//must be guid for MSAL
+                    ClientType = OpenIddictConstants.ClientTypes.Public,
+                    ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+                    // ClientSecret = "test-secret",
+                    Permissions =
+                    {
+                        OpenIddictConstants.Permissions.Endpoints.Authorization,
+                        OpenIddictConstants.Permissions.Endpoints.Token,
+                        OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                        OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                        OpenIddictConstants.Permissions.ResponseTypes.Code,
+                        OpenIddictConstants.Permissions.ResponseTypes.Token,
+                        OpenIddictConstants.Permissions.Scopes.Email,
+                        OpenIddictConstants.Permissions.Scopes.Profile
+                    },
+                    RedirectUris = { new Uri("https://openidconnect.net/callback"), new Uri("http://localhost:9999") },
+
+                },
+                cancellationToken);
+        }
     }
 
     public async Task CleanUpSeedData()

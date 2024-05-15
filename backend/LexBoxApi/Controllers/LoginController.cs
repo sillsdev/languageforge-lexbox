@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -16,7 +17,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using LexCore.Entities;
 using System.Security.Claims;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
+using OpenIddict.Abstractions;
+using OpenIddict.Server.AspNetCore;
 
 namespace LexBoxApi.Controllers;
 
@@ -38,7 +45,6 @@ public class LoginController(
     /// </summary>
     [HttpGet("loginRedirect")]
     [AllowAnyAudience]
-
     public async Task<ActionResult> LoginRedirect(
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
@@ -53,6 +59,7 @@ public class LoginController(
                 return await EmailLinkExpired();
             }
         }
+
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
         return Redirect(returnTo);
@@ -87,6 +94,7 @@ public class LoginController(
         {
             (authUser, userEntity) = await lexAuthService.GetUser(googleEmail);
         }
+
         if (authUser is null)
         {
             authUser = new LexAuthUser()
@@ -102,19 +110,20 @@ public class LoginController(
                 Locale = locale ?? LexCore.Entities.User.DefaultLocalizationCode,
                 Locked = null,
             };
-            var queryParams = new Dictionary<string, string?>() {
-                {"email", googleEmail},
-                {"name", googleName},
-                {"returnTo", returnTo},
+            var queryParams = new Dictionary<string, string?>()
+            {
+                { "email", googleEmail }, { "name", googleName }, { "returnTo", returnTo },
             };
             var queryString = QueryString.Create(queryParams);
             returnTo = "/register" + queryString.ToString();
         }
+
         if (userEntity is not null && !foundGoogleId)
         {
             userEntity.GoogleId = googleId;
             await lexBoxDbContext.SaveChangesAsync();
         }
+
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
         return returnTo;
@@ -156,6 +165,150 @@ public class LoginController(
         await lexBoxDbContext.SaveChangesAsync();
         await RefreshJwt();
         return Redirect(returnTo);
+    }
+
+    [HttpGet("open-id-auth")]
+    [HttpPost("open-id-auth")]
+    public async Task<ActionResult> Authorize(string? returnUrl = null)
+    {
+        var request = HttpContext.GetOpenIddictServerRequest();
+        if (request is null)
+        {
+            return BadRequest();
+        }
+
+        // Retrieve the user principal stored in the authentication cookie.
+        // If a max_age parameter was provided, ensure that the cookie is not too old.
+        // If the user principal can't be extracted or the cookie is too old, redirect the user to the login page.
+        var result = await HttpContext.AuthenticateAsync();
+        if (!result.Succeeded || (request.MaxAge != null && result.Properties?.IssuedUtc != null &&
+                                  DateTimeOffset.UtcNow - result.Properties.IssuedUtc >
+                                  TimeSpan.FromSeconds(request.MaxAge.Value)))
+        {
+            // If the client application requested promptless authentication,
+            // return an error indicating that the user is not logged in.
+            if (request.HasPrompt(OpenIddictConstants.Prompts.None))
+            {
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] =
+                            OpenIddictConstants.Errors.LoginRequired,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                            "The user is not logged in."
+                    }));
+            }
+
+            return Challenge(
+                authenticationSchemes: CookieAuthenticationDefaults.AuthenticationScheme,
+                properties: new AuthenticationProperties
+                {
+                    RedirectUri = Request.PathBase + Request.Path + QueryString.Create(
+                        Request.HasFormContentType ? [.. Request.Form] : [.. Request.Query])
+                });
+        }
+
+        // If prompt=login was specified by the client application,
+        // immediately return the user agent to the login page.
+        if (request.HasPrompt(OpenIddictConstants.Prompts.Login))
+        {
+            // To avoid endless login -> authorization redirects, the prompt=login flag
+            // is removed from the authorization request payload before redirecting the user.
+            var prompt = string.Join(" ", request.GetPrompts().Remove(OpenIddictConstants.Prompts.Login));
+
+            var parameters = Request.HasFormContentType
+                ? Request.Form.Where(parameter => parameter.Key != OpenIddictConstants.Parameters.Prompt).ToList()
+                : Request.Query.Where(parameter => parameter.Key != OpenIddictConstants.Parameters.Prompt).ToList();
+
+            parameters.Add(KeyValuePair.Create(OpenIddictConstants.Parameters.Prompt, new StringValues(prompt)));
+
+            return Challenge(
+                authenticationSchemes: CookieAuthenticationDefaults.AuthenticationScheme,
+                properties: new AuthenticationProperties
+                {
+                    RedirectUri = Request.PathBase + Request.Path + QueryString.Create(parameters)
+                });
+        }
+
+        //todo create identity from db
+        // Create the claims-based identity that will be used by OpenIddict to generate tokens.
+        var identity = new ClaimsIdentity(result.Principal!.Claims,
+            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+            nameType: OpenIddictConstants.Claims.Name,
+            roleType: OpenIddictConstants.Claims.Role);
+        identity.SetScopes(new[]
+        {
+            OpenIddictConstants.Scopes.OfflineAccess,
+            OpenIddictConstants.Scopes.OpenId,
+            OpenIddictConstants.Scopes.Email,
+            OpenIddictConstants.Scopes.Profile
+        }.Intersect(request.GetScopes()));
+        identity.SetAudiences(LexboxAudience.LexboxApi.ToString());
+        identity.SetDestinations(claim => claim.Type switch
+        {
+            // Note: always include acr and auth_time in the identity token as they must be flowed
+            // from the authorization endpoint to the identity token returned from the token endpoint.
+            OpenIddictConstants.Claims.AuthenticationContextReference or
+                OpenIddictConstants.Claims.AuthenticationTime
+                => ImmutableArray.Create(OpenIddictConstants.Destinations.IdentityToken),
+
+            // Note: when an authorization code or access token is returned, don't add the profile, email,
+            // phone and address claims to the identity tokens as they are returned from the userinfo endpoint.
+            OpenIddictConstants.Claims.Subject or
+                OpenIddictConstants.Claims.Name or
+                OpenIddictConstants.Claims.Gender or
+                OpenIddictConstants.Claims.GivenName or
+                OpenIddictConstants.Claims.MiddleName or
+                OpenIddictConstants.Claims.FamilyName or
+                OpenIddictConstants.Claims.Nickname or
+                OpenIddictConstants.Claims.PreferredUsername or
+                OpenIddictConstants.Claims.Birthdate or
+                OpenIddictConstants.Claims.Profile or
+                OpenIddictConstants.Claims.Picture or
+                OpenIddictConstants.Claims.Website or
+                OpenIddictConstants.Claims.Locale or
+                OpenIddictConstants.Claims.Zoneinfo or
+                OpenIddictConstants.Claims.UpdatedAt when
+                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Profile) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
+                [
+                    OpenIddictConstants.Destinations.AccessToken,
+                    OpenIddictConstants.Destinations.IdentityToken
+                ],
+
+            OpenIddictConstants.Claims.Email when
+                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Email) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
+                [
+                    OpenIddictConstants.Destinations.AccessToken,
+                    OpenIddictConstants.Destinations.IdentityToken
+                ],
+
+            OpenIddictConstants.Claims.PhoneNumber when
+                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Phone) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
+                [
+                    OpenIddictConstants.Destinations.AccessToken,
+                    OpenIddictConstants.Destinations.IdentityToken
+                ],
+
+            OpenIddictConstants.Claims.Address when
+                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Address) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
+                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
+                [
+                    OpenIddictConstants.Destinations.AccessToken,
+                    OpenIddictConstants.Destinations.IdentityToken
+                ],
+
+            _ => [OpenIddictConstants.Destinations.AccessToken]
+        });
+
+        return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
 
     [HttpPost]
@@ -219,7 +372,9 @@ public class LoginController(
         return Ok();
     }
 
-    public record ResetPasswordRequest([Required(AllowEmptyStrings = false)] string PasswordHash, int? PasswordStrength);
+    public record ResetPasswordRequest(
+        [Required(AllowEmptyStrings = false)] string PasswordHash,
+        int? PasswordStrength);
 
     [HttpPost("resetPassword")]
     [RequireAudience(LexboxAudience.ForgotPassword)]

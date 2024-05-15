@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 import { gqlOptions } from './gql-codegen';
 // eslint-disable-next-line no-restricted-imports
 import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
-import {searchForWorkspaceRoot} from 'vite';
+import {type ProxyOptions, searchForWorkspaceRoot} from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 
@@ -12,6 +12,10 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 
 const exposeServer = false;
+const lexboxServer: ProxyOptions = {
+  target: 'https://localhost:7075',
+  secure: false
+};
 
 export default defineConfig({
   build: {
@@ -30,7 +34,7 @@ export default defineConfig({
     codegen(gqlOptions),
     precompileIntl('src/lib/i18n/locales'),
     sveltekit(),
-    exposeServer ? basicSsl() : null, // crypto.subtle is only availble on secure connections
+    basicSsl()
   ],
   optimizeDeps: {
   },
@@ -40,6 +44,9 @@ export default defineConfig({
   server: {
     port: 3000,
     host: exposeServer,
+    https: {
+
+    },
     strictPort: true,
     fs: {
       allow: [
@@ -47,15 +54,10 @@ export default defineConfig({
       ]
     },
     proxy: process.env['DockerDev'] ? undefined : {
-      '/v1/traces': {
-        target: 'http://localhost:4318'
-      },
-      '/api': {
-        target: 'http://localhost:5158'
-      },
-      '/hg': {
-        target: 'http://localhost:5158'
-      }
+      '/v1/traces': lexboxServer,
+      '/api': lexboxServer,
+      '/hg': lexboxServer,
+      '/.well-known': lexboxServer
     }
   },
 });
