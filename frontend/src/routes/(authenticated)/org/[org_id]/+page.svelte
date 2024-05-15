@@ -30,7 +30,6 @@
   const orgNameValidation = z.string().trim().min(1, $t('org_page.org_name_empty_error'));
 
   async function updateOrgName(newName: string): Promise<ErrorMessage> {
-    // TODO: Eventually this will look something like the following:
     const result = await _changeOrgName({ orgId: org.id, name: newName });
     if (result.error) {
       return result.error.message;
