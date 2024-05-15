@@ -10,7 +10,7 @@
   import MemberRoleSelect from '$lib/forms/MemberRoleSelect.svelte';
 
   export let roleType: 'project' | 'org' = 'project';
-  export let projectId: string; // TODO: Rename to projectOrOrgId
+  export let projectOrOrgId: string;
 
   $: schema = z.object({
     role: roleType === 'project'
@@ -29,12 +29,12 @@
       const result =
         roleType === 'project'
         ? await _changeProjectMemberRole({
-            projectId,
+            projectId: projectOrOrgId,
             userId: member.userId,
             role: $form.role as ProjectRole,
           })
         : await _changeOrgMemberRole(
-            projectId as UUID,
+            projectOrOrgId as UUID,
             member.userId,
             $form.role as OrgRole
           );

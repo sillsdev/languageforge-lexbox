@@ -114,5 +114,5 @@
     <slot />
 
   </BadgeList>
-  <ChangeMemberRoleModal {roleType} projectId={projectOrOrgId} bind:this={changeMemberRoleModal} />
+  <ChangeMemberRoleModal {roleType} {projectOrOrgId} bind:this={changeMemberRoleModal} />
 </div>
