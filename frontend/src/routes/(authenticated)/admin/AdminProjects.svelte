@@ -59,29 +59,14 @@
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
-  async function softDeleteProject(project: ProjectItem): Promise<void> {
+  async function deleteProjectOrDraft(project: ProjectItemWithDraftStatus): Promise<void> {
+    const deleteFn = project.isDraft ? _deleteProject : _deleteDraftProject;
     const result = await deleteProjectModal.open(project.name, async () => {
-      const { error } = await _deleteProject(project.id);
+      const { error } = await deleteFn(project.id);
       return error?.message;
     });
     if (result.response === DialogResponse.Submit) {
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
-    }
-  }
-  async function deleteDraftProject(project: DraftProject): Promise<void> {
-    const result = await deleteProjectModal.open(project.name, async () => {
-      const { error } = await _deleteDraftProject(project.id);
-      return error?.message;
-    });
-    if (result.response === DialogResponse.Submit) {
-      notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
-    }
-  }
-  function deleteProjectOrDraft(project: ProjectItemWithDraftStatus): Promise<void> {
-    if (project.isDraft) {
-      return deleteDraftProject(project)
-    } else {
-      return softDeleteProject(project);
     }
   }
 </script>
