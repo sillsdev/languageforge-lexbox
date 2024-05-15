@@ -17,7 +17,6 @@
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
   import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
-  import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
   import {DialogResponse, Modal} from '$lib/components/modals';
@@ -43,7 +42,6 @@
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
   import { DetailItem } from '$lib/layout';
   import MembersList from '$lib/components/MembersList.svelte';
-  import type { UUID } from 'crypto';
 
   export let data: PageData;
   $: user = data.user;
@@ -74,25 +72,6 @@
     const response = await fetch(`/api/project/updateLexEntryCount/${project.code}`, {method: 'POST'});
     lexEntryCount = await response.text();
     loadingEntryCount = false;
-  }
-
-  // TODO: Move inside MembersList now that ChangeMemberRoleModal is generic (handles both org and project roles)
-  let changeMemberRoleModal: ChangeMemberRoleModal;
-  async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
-    const { response } = await changeMemberRoleModal.open({
-      userId: projectUser.user.id as UUID,
-      name: projectUser.user.name,
-      role: projectUser.role,
-    });
-
-    if (response === DialogResponse.Submit) {
-      notifySuccess(
-        $t('project_page.notifications.role_change', {
-          name: projectUser.user.name,
-          role: projectUser.role.toLowerCase(),
-        }),
-      );
-    }
   }
 
   let resetProjectModal: ResetProjectModal;
@@ -365,10 +344,11 @@
       </div>
 
       <MembersList
+        roleType="project"
+        projectOrOrgId={project.id}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         on:openUserModal={(event) => userModal.open(event.detail.user)}
-        on:changeMemberRole={(event) => changeMemberRole(event.detail)}
         on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
         >
           <svelte:fragment slot="extraButtons">
@@ -379,7 +359,6 @@
             <BulkAddProjectMembers projectId={project.id} />
             {/if}
           </svelte:fragment>
-          <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
           <UserModal bind:this={userModal}/>
 
           <DeleteModal

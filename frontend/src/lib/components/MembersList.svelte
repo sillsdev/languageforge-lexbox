@@ -15,9 +15,16 @@
   import { Button } from '$lib/forms';
   import type { OrgRole, ProjectRole } from '$lib/gql/types';
   import { createEventDispatcher } from 'svelte';
+  import ChangeMemberRoleModal from '../../routes/(authenticated)/project/[project_code]/ChangeMemberRoleModal.svelte';
+  import { DialogResponse } from './modals';
+  import { useNotifications } from '$lib/notify';
+  import type { UUID } from 'crypto';
 
   export let members: Member[] = [];
   export let canManageMember: (member: Member) => boolean;
+  type RoleType = 'project' | 'org'
+  export let roleType: RoleType;
+  export let projectOrOrgId: string;
 
   let dispatch = createEventDispatcher();
 
@@ -25,6 +32,33 @@
   export let truncatedMemberCount = DEFAULT_TRUNCATED_MEMBER_COUNT;
   let showAllMembers = false;
   $: showMembers = showAllMembers ? members : members.slice(0, truncatedMemberCount);
+
+  const { notifySuccess/*, notifyWarning*/ } = useNotifications();
+
+  let changeMemberRoleModal: ChangeMemberRoleModal;
+  async function changeMemberRole(member: Member): Promise<void> {
+    if (!member.user) return;
+    console.log('About to change member role for', member);
+    const { response, formState } = await changeMemberRoleModal.open({
+      userId: member.user.id as UUID,
+      name: member.user.name ?? '', // TODO: Fall back to email address if name missing? Would require adding `email: string` to Member definition above
+      role: member.role,
+    });
+
+    if (response === DialogResponse.Submit) {
+      const notification: `${RoleType}_page.notifications.role_change` = `${roleType}_page.notifications.role_change`;
+      const role = formState.role.currentValue.toLowerCase();
+      // @ts-expect-error Typescript will always warn that "admin" isn't in the project roles list, or "manager" isn't in the org roles list. Ignore.
+      const roleText = $t(`${roleType}_role.${role}`);
+      notifySuccess(
+        $t(notification, {
+          name: member.user?.name ?? '',
+          role: roleText,
+        }),
+      );
+    }
+  }
+
 
 </script>
 
@@ -49,7 +83,7 @@
             </li>
           </AdminContent>
           <li>
-            <button on:click={() => dispatch('changeMemberRole', member)}>
+            <button on:click={() => changeMemberRole(member)}>
               <span class="i-mdi-account-lock text-2xl" />
               {$t('project_page.change_role')}
             </button>
@@ -80,4 +114,5 @@
     <slot />
 
   </BadgeList>
+  <ChangeMemberRoleModal {roleType} projectId={projectOrOrgId} bind:this={changeMemberRoleModal} />
 </div>

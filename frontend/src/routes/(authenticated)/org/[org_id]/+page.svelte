@@ -12,9 +12,6 @@
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName } from './+page';
   import MembersList from '$lib/components/MembersList.svelte';
-  import ChangeMemberRoleModal from '../../project/[project_code]/ChangeMemberRoleModal.svelte';
-  import { DialogResponse } from '$lib/components/modals';
-  import type { UUID } from 'crypto';
 
   // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
   export let description = 'Fake description since orgs don\'t currently have descriptions';
@@ -23,7 +20,6 @@
   $: user = data.user;
   let orgStore = data.org;
   $: org = $orgStore;
-  type Member = typeof org.members[number];
 
   let loadingExtraButton = false;
 
@@ -43,28 +39,6 @@
     notifySuccess($t('project_page.notifications.rename_project', { name: newName }));
     // TODO: notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
   }
-
-  // TODO: Duplicated with project page.
-  // Move inside MembersList now that ChangeMemberRoleModal is generic (handles both org and project roles)
-  let changeMemberRoleModal: ChangeMemberRoleModal;
-  async function changeMemberRole(member: Member): Promise<void> {
-    if (!member.user) return;
-    const { response } = await changeMemberRoleModal.open({
-      userId: member.user.id as UUID,
-      name: member.user.name ?? member.user.email ?? '',
-      role: member.role,
-    });
-
-    if (response === DialogResponse.Submit) {
-      notifySuccess(
-        $t('project_page.notifications.role_change', { // TODO: org_page.notifications.role_change
-          name: member.user?.name ?? member.user?.email ?? '',
-          role: member.role.toLowerCase(),
-        }),
-      );
-    }
-  }
-
 </script>
 
 <DetailsPage wide title={org.name}>
@@ -117,10 +91,10 @@
     multiline={true}
     />
   <MembersList
+    roleType="org"
+    projectOrOrgId={org.id}
     members={org.members}
     canManageMember={(member) => member?.role === OrgRole.Admin || user.isAdmin}
-    on:changeMemberRole={(event) => changeMemberRole(event.detail)}
     />
-    <ChangeMemberRoleModal roleType="org" projectId={org.id} bind:this={changeMemberRoleModal} />
 </DetailsPage>
 
