@@ -204,7 +204,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "notifications": {
       "role_change": "Organizational role of {name} set to {role}.",
       "user_delete": "{name} has been removed.",
-      "rename_project": "Organization name set to {name}.",
+      "rename_org": "Organization name set to {name}.",
       "describe": "Organization description has been updated.",
       "add_member": "{email} has been added to organization.",
       "member_invited": "{email} has been sent an invitation email to register and join the organization."

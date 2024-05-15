@@ -36,8 +36,7 @@
     if (result.error) {
       return result.error.message;
     }
-    notifySuccess($t('project_page.notifications.rename_project', { name: newName }));
-    // TODO: notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
+    notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
   }
 </script>
 
