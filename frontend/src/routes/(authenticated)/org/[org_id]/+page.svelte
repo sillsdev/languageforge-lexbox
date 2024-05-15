@@ -27,8 +27,7 @@
 
   const { notifySuccess/*, notifyWarning*/ } = useNotifications();
 
-  const orgNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
-  // TODO: const orgNameValidation = z.string().trim().min(1, $t('org_page.org_name_empty_error'));
+  const orgNameValidation = z.string().trim().min(1, $t('org_page.org_name_empty_error'));
 
   async function updateOrgName(newName: string): Promise<ErrorMessage> {
     // TODO: Eventually this will look something like the following:
