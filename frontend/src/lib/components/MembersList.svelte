@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
   export type Member = {
     id: string
-    user?: { id: string; name: string } | null
+    user?: { id: string; name: string; email?: string | null } | null
     role: ProjectRole | OrgRole
   };
 </script>
@@ -38,10 +38,11 @@
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(member: Member): Promise<void> {
     if (!member.user) return;
+    const nameOrEmail = member.user.name ? member.user.name : member.user.email ?? '';
     console.log('About to change member role for', member);
     const { response, formState } = await changeMemberRoleModal.open({
       userId: member.user.id as UUID,
-      name: member.user.name ?? '', // TODO: Fall back to email address if name missing? Would require adding `email: string` to Member definition above
+      name: nameOrEmail,
       role: member.role,
     });
 
@@ -71,8 +72,7 @@
     {#each showMembers as member}
       {@const canManage = canManageMember(member)}
       <Dropdown disabled={!canManage}>
-        <!-- TODO: Handle the "no name" case better -->
-        <MemberBadge member={{ name: member?.user?.name ?? '(no name)', role: member.role }} canManage={canManage} />
+        <MemberBadge member={{ name: member.user?.name ?? member.user?.email ?? member.user?.id ?? '', role: member.role }} canManage={canManage} />
         <ul slot="content" class="menu">
           <AdminContent>
             <li>
