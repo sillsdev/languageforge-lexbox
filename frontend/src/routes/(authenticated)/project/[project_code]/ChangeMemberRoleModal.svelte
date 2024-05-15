@@ -23,7 +23,7 @@
 
   let name: string;
 
-  export async function open(member: { userId: string; name: string; role: ProjectRole | OrgRole }): Promise<FormModalResult<Schema>> {
+  export async function open(member: { userId: UUID; name: string; role: ProjectRole | OrgRole }): Promise<FormModalResult<Schema>> {
     name = member.name;
     return await formModal.open(tryParse(schema, member), async () => {
       const result =
@@ -35,7 +35,7 @@
           })
         : await _changeOrgMemberRole(
             projectId as UUID,
-            member.userId, // TODO: This is wrong, _changeOrgMemberRole uses emailorusername. Or change the GQL mutation to take a GUID instead.
+            member.userId,
             $form.role as OrgRole
           );
       // @ts-expect-error Errors could be from either the Project or Org GQL mutations

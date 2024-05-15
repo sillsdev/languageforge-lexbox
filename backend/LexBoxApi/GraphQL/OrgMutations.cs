@@ -57,13 +57,36 @@ public class OrgMutations
         OrgRole? role,
         string emailOrUsername)
     {
+        var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
+        NotFoundException.ThrowIfNull(user); // TODO: Implement inviting user
+        return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+    }
+
+    /// <summary>
+    /// Change the role of an existing member in an organization
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="permissionService"></param>
+    /// <param name="orgId"></param>
+    /// <param name="userId">ID (GUID) of the user whose membership should be updated</param>
+    /// <param name="role">set to null to remove the member</param>
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> ChangeOrgMemberRole(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid userId,
+        OrgRole? role)
+    {
         var org = await dbContext.Orgs.Include(o => o.Members).FirstOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
-        var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
-        NotFoundException.ThrowIfNull(user);
 
         permissionService.AssertCanEditOrg(org);
-        await UpdateOrgMemberRole(dbContext, org, role, user.Id);
+        await UpdateOrgMemberRole(dbContext, org, role, userId);
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
 

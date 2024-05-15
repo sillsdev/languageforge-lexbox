@@ -43,6 +43,7 @@
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
   import { DetailItem } from '$lib/layout';
   import MembersList from '$lib/components/MembersList.svelte';
+  import type { UUID } from 'crypto';
 
   export let data: PageData;
   $: user = data.user;
@@ -79,7 +80,7 @@
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
     const { response } = await changeMemberRoleModal.open({
-      userId: projectUser.user.id,
+      userId: projectUser.user.id as UUID,
       name: projectUser.user.name,
       role: projectUser.role,
     });

@@ -14,6 +14,7 @@
   import MembersList from '$lib/components/MembersList.svelte';
   import ChangeMemberRoleModal from '../../project/[project_code]/ChangeMemberRoleModal.svelte';
   import { DialogResponse } from '$lib/components/modals';
+  import type { UUID } from 'crypto';
 
   // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
   export let description = 'Fake description since orgs don\'t currently have descriptions';
@@ -47,9 +48,10 @@
   // Move inside MembersList now that ChangeMemberRoleModal is generic (handles both org and project roles)
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(member: Member): Promise<void> {
+    if (!member.user) return;
     const { response } = await changeMemberRoleModal.open({
-      userId: member.user.id,
-      name: member.user?.name ?? member.user?.email ?? '',
+      userId: member.user.id as UUID,
+      name: member.user.name ?? member.user.email ?? '',
       role: member.role,
     });
 
@@ -119,6 +121,6 @@
     canManageMember={(member) => member?.role === OrgRole.Admin || user.isAdmin}
     on:changeMemberRole={(event) => changeMemberRole(event.detail)}
     />
-    <ChangeMemberRoleModal projectId={org.id} bind:this={changeMemberRoleModal} />
+    <ChangeMemberRoleModal roleType="org" projectId={org.id} bind:this={changeMemberRoleModal} />
 </DetailsPage>
 

@@ -32,6 +32,11 @@ type BulkAddProjectMembersResult {
   existingMembers: [UserProjectRole!]!
 }
 
+type ChangeOrgMemberRolePayload {
+  organization: Organization
+  errors: [ChangeOrgMemberRoleError!]
+}
+
 type ChangeOrgNamePayload {
   organization: Organization
   errors: [ChangeOrgNameError!]
@@ -182,6 +187,7 @@ type MeDto {
 type Mutation {
   createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
+  changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
@@ -365,6 +371,8 @@ union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVeri
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
+union ChangeOrgMemberRoleError = DbError | NotFoundError
+
 union ChangeOrgNameError = NotFoundError | DbError | RequiredError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
@@ -413,6 +421,12 @@ input BulkAddProjectMembersInput {
   usernames: [String!]!
   role: ProjectRole!
   passwordHash: String!
+}
+
+input ChangeOrgMemberRoleInput {
+  orgId: UUID!
+  userId: UUID!
+  role: OrgRole
 }
 
 input ChangeOrgNameInput {
