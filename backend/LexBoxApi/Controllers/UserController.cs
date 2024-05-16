@@ -42,7 +42,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("registerAccount")]
-    [AllowAnonymous]
+    [AllowAnonymous] // Is there a RequireAnonymous attribute?
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
     [ProducesDefaultResponseType]
@@ -57,6 +57,13 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
+        var jwtUser = _loggedInContext.MaybeUser;
+        if (jwtUser is not null)
+        {
+            // TODO: Figure out how to register this error (AddModelError<RegisterAccountInput> isn't correct, obviously)
+            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "must not access register flow while logged in");
+        }
+
         var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
         registerActivity?.AddTag("app.email_available", !hasExistingUser);
         if (hasExistingUser)
@@ -65,22 +72,16 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var jwtUser = _loggedInContext.MaybeUser;
-        var emailVerified = jwtUser?.Email == accountInput.Email;
-        var createdByAdmin = jwtUser?.IsAdmin ?? false;
-        var userEntity = CreateUserEntity(accountInput, emailVerified, createdByAdmin ? jwtUser?.Id : null);
+        var userEntity = CreateUserEntity(accountInput, emailVerified: false);
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
-        if (accountInput.AutoLogin)
-        {
-            await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
-                new AuthenticationProperties { IsPersistent = true });
-        }
+        await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
+            new AuthenticationProperties { IsPersistent = true });
 
-        if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
+        await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
     }
 
