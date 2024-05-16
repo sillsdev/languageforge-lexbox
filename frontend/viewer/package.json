@@ -30,7 +30,7 @@
     "tslib": "^2.6.2",
     "tw-colors": "^3.3.1",
     "typescript": "^5.3.3",
-    "vite": "^5.1.7"
+    "vite": "^5.2.11"
   },
   "dependencies": {
     "@microsoft/dotnet-js-interop": "^8.0.0",
