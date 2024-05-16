@@ -1,25 +1,27 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { SubmitButton, Form, FormError, Input, lexSuperForm } from '$lib/forms';
+  import {goto} from '$app/navigation';
+  import {SubmitButton, Form, FormError, Input, lexSuperForm} from '$lib/forms';
   import t from '$lib/i18n';
-  import { PageTitle } from '$lib/layout';
-  import { login, logout } from '$lib/user';
-  import { onMount } from 'svelte';
+  import {PageTitle} from '$lib/layout';
+  import {login, logout} from '$lib/user';
+  import {onMount} from 'svelte';
   import Markdown from 'svelte-exmarkdown';
   import flexLogo from '$lib/assets/flex-logo.png';
   import lfLogo from '$lib/assets/lf-logo.png';
   import oneStoryEditorLogo from '$lib/assets/onestory-editor-logo.svg';
   import weSayLogo from '$lib/assets/we-say-logo.png';
-  import { z } from 'zod';
-  import { navigating } from '$app/stores';
-  import { AUTHENTICATED_ROOT } from '../..';
+  import {z} from 'zod';
+  import {navigating} from '$app/stores';
+  import {AUTHENTICATED_ROOT} from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
+
+  let returnUrl: string = '';
 
   const formSchema = z.object({
     email: z.string().trim().min(1, $t('login.missing_user_info')),
     password: z.string().min(1, $t('login.password_missing')),
   });
-  let { form, errors, message, enhance, submitting } = lexSuperForm(
+  let {form, errors, message, enhance, submitting} = lexSuperForm(
     formSchema,
     async () => {
       errors.clear();
@@ -28,7 +30,11 @@
       const loginResult = await login($form.email, $form.password);
 
       if (loginResult.success) {
-        await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
+        if (returnUrl) {
+          window.location.assign(returnUrl);
+        } else {
+          await goto('/home', {invalidateAll: true}); // invalidate so we get the user from the server
+        }
       } else if (loginResult.error === 'Locked') {
         $message = $t('login.your_account_is_locked');
       } else {
@@ -42,12 +48,30 @@
   );
 
   onMount(() => {
-    const code = new URLSearchParams(window.location.search).get('message');
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    returnUrl = parseReturnUrl(urlSearchParams.get('ReturnUrl'));
+    const code = urlSearchParams.get('message');
     if (code === 'link_expired') {
       $message = $t('login.link_expired');
     }
     logout();
   });
+
+  function parseReturnUrl(value: string | null): string {
+    if (!value) return '';
+    try {
+      const url = new URL(value, window.location.origin);
+      //protect against open redirect attacks
+      if (url.origin === window.location.origin) {
+        return url.pathname + url.search;
+      }
+    } catch (e) {
+      console.error(e);
+      return '';
+    }
+    return '';
+  }
+
   let badCredentials = false;
 </script>
 
@@ -55,7 +79,7 @@
   <div class="grid lg:grid-cols-2 gap-8 place-items-center">
     <div class="card w-full max-w-md sm:shadow-2xl sm:bg-base-200">
       <div class="card-body max-sm:p-0">
-        <PageTitle title={$t('login.title')} />
+        <PageTitle title={$t('login.title')}/>
         <Form {enhance}>
           <Input
             id="email"
@@ -76,7 +100,7 @@
           />
 
           <div class="markdown-wrapper">
-            <FormError error={$message} markdown />
+            <FormError error={$message} markdown/>
           </div>
 
           <a class="link mt-0" href="/forgotPassword">
@@ -90,7 +114,7 @@
           <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
         </Form>
         <div class="divider lowercase">{$t('common.or')}</div>
-        <SigninWithGoogleButton href="/api/login/google" />
+        <SigninWithGoogleButton href="/api/login/google"/>
       </div>
     </div>
 
@@ -111,8 +135,8 @@
       </div>
 
       <div class="prose text-lg">
-        <Markdown md={$t('login.welcome_header')} />
-        <Markdown md={$t('login.welcome')} />
+        <Markdown md={$t('login.welcome_header')}/>
+        <Markdown md={$t('login.welcome')}/>
       </div>
     </div>
   </div>
