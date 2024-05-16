@@ -278,7 +278,7 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
     "button_register": "S'inscrire",
     "email": "Adresse e-mail requise",
     "label_email": "E-mail",
-    "description_email": "Ceci sera votre identifiant d'envoi/réception",
+    "description_email": "Ceci sera votre identifiant **d'envoi/réception**",
     "label_name": "Nom",
     "label_password": "Mot de passe",
     "name_missing": "Nom manquant",

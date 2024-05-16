@@ -16,7 +16,7 @@
 		"test-flaky": "playwright test --retries=3 -j 30%",
 		"test-hard": "playwright test --repeat-each=3 -j 30%",
 		"test-report": "playwright show-report test-results/_html-report",
-    "_env-comment": "Run any command with .env.local loaded: (e.g. `pnpm run env test-flaky`)",
+    "_env-comment": "Run any command with .env.local loaded: (e.g. `pnpm run env run test -g \"test name\")",
 		"env": "dotenvx run --env-file=.env.local -- pnpm",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",

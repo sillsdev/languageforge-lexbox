@@ -1,6 +1,7 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
@@ -52,6 +53,7 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();

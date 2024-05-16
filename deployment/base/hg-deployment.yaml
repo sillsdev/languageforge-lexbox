@@ -44,6 +44,13 @@ spec:
       podSelector:
         matchLabels:
           app: lexbox
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: languagedepot-dev
+    # Do NOT put a hyphen in front of podSelector on the next line
+      podSelector:
+        matchLabels:
+          app: lexbox
 
 ---
 

@@ -82,6 +82,7 @@ test('forgot password', async ({ page, tempUser }) => {
   const forgotPasswordPage = await loginPage.clickForgotPassword();
   await forgotPasswordPage.fillForm(tempUser.email);
   await forgotPasswordPage.submit();
+  await page.locator(':text("Check Your Inbox")').first().waitFor();
 
   // Use reset password link
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
@@ -126,6 +127,7 @@ test('register via new-user invitation email', async ({ page }) => {
   await addMemberModal.emailField.fill(newEmail);
   await addMemberModal.selectEditorRole();
   await addMemberModal.submitButton.click();
+  await page.locator(':text("has been sent an invitation email")').waitFor();
 
   // Check invite link returnTo is relative path, not absolute
   const inboxPage = await getInbox(page, uuid).goto();
