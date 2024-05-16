@@ -167,26 +167,27 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
 
     private async Task SeedOpenId(CancellationToken cancellationToken = default)
     {
-        if (await applicationManager.FindByClientIdAsync("becf2856-0690-434b-b192-a4032b72067f", cancellationToken) is null)
+        const string clientId = "becf2856-0690-434b-b192-a4032b72067f";
+        if (await applicationManager.FindByClientIdAsync(clientId, cancellationToken) is null)
         {
             await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
                 {
-                    ClientId = "becf2856-0690-434b-b192-a4032b72067f",//must be guid for MSAL
+                    ClientId = clientId,//must be guid for MSAL
                     ClientType = OpenIddictConstants.ClientTypes.Public,
                     ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
-                    // ClientSecret = "test-secret",
                     Permissions =
                     {
                         OpenIddictConstants.Permissions.Endpoints.Authorization,
                         OpenIddictConstants.Permissions.Endpoints.Token,
                         OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
                         OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                        OpenIddictConstants.Permissions.GrantTypes.Implicit,
                         OpenIddictConstants.Permissions.ResponseTypes.Code,
                         OpenIddictConstants.Permissions.ResponseTypes.Token,
                         OpenIddictConstants.Permissions.Scopes.Email,
                         OpenIddictConstants.Permissions.Scopes.Profile
                     },
-                    RedirectUris = { new Uri("https://openidconnect.net/callback"), new Uri("http://localhost:9999") },
+                    RedirectUris = { new Uri("https://oidcdebugger.com/debug")}
 
                 },
                 cancellationToken);

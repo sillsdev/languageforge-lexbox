@@ -255,33 +255,24 @@ public class LoginController(
 
             // Note: when an authorization code or access token is returned, don't add the profile, email,
             // phone and address claims to the identity tokens as they are returned from the userinfo endpoint.
-            OpenIddictConstants.Claims.Subject or
+                OpenIddictConstants.Claims.Subject or
                 OpenIddictConstants.Claims.Name or
-                OpenIddictConstants.Claims.Gender or
-                OpenIddictConstants.Claims.GivenName or
-                OpenIddictConstants.Claims.MiddleName or
-                OpenIddictConstants.Claims.FamilyName or
-                OpenIddictConstants.Claims.Nickname or
-                OpenIddictConstants.Claims.PreferredUsername or
-                OpenIddictConstants.Claims.Birthdate or
-                OpenIddictConstants.Claims.Profile or
-                OpenIddictConstants.Claims.Picture or
-                OpenIddictConstants.Claims.Website or
                 OpenIddictConstants.Claims.Locale or
-                OpenIddictConstants.Claims.Zoneinfo or
                 OpenIddictConstants.Claims.UpdatedAt when
-                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Profile) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
+                identity.HasScope(OpenIddictConstants.Scopes.Profile)
+                //todo consider if this should be enabled or not. It prevents the name from ending up in the ID token, but I guess that's supposed to be handled with the userinfo endpoint
+                // && !request.HasResponseType(OpenIddictConstants.ResponseTypes.Code)
+                // && !request.HasResponseType(OpenIddictConstants.ResponseTypes.Token)
+                =>
                 [
                     OpenIddictConstants.Destinations.AccessToken,
                     OpenIddictConstants.Destinations.IdentityToken
                 ],
 
             OpenIddictConstants.Claims.Email when
-                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Email) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
+                identity.HasScope(OpenIddictConstants.Scopes.Email) &&
+                !request.HasResponseType(OpenIddictConstants.ResponseTypes.Code) &&
+                !request.HasResponseType(OpenIddictConstants.ResponseTypes.Token) =>
                 [
                     OpenIddictConstants.Destinations.AccessToken,
                     OpenIddictConstants.Destinations.IdentityToken
