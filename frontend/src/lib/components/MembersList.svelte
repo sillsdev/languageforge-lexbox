@@ -19,6 +19,7 @@
   import { DialogResponse } from './modals';
   import { useNotifications } from '$lib/notify';
   import type { UUID } from 'crypto';
+  import PlainInput from '$lib/forms/PlainInput.svelte';
 
   export let members: Member[] = [];
   export let canManageMember: (member: Member) => boolean;
@@ -32,7 +33,18 @@
   const DEFAULT_TRUNCATED_MEMBER_COUNT = 5;
   export let truncatedMemberCount = DEFAULT_TRUNCATED_MEMBER_COUNT;
   let showAllMembers = false;
-  $: showMembers = showAllMembers ? members : members.slice(0, truncatedMemberCount);
+
+  let memberSearch = '';
+  let filteredMembers: Member[] = members;
+  $: {
+    const search = memberSearch?.trim().toLowerCase();
+    if (!search) {
+      filteredMembers = members;
+    } else {
+      filteredMembers = members.filter((m) => m.user?.name?.toLowerCase().includes(search) || m.user?.email?.toLowerCase().includes(search));
+    }
+  }
+  $: showMembers = showAllMembers ? filteredMembers : filteredMembers.slice(0, truncatedMemberCount);
 
   const { notifySuccess/*, notifyWarning*/ } = useNotifications();
 
@@ -58,17 +70,22 @@
       );
     }
   }
-
-
 </script>
 
 <div>
-  <p class="text-2xl mb-4">
+  <p class="text-2xl mb-4 flex items-baseline gap-4 max-sm:flex-col">
     {$t('project_page.members.title')}
+    {#if members?.length > truncatedMemberCount || true}
+      <div class="form-control max-w-full w-96">
+        <PlainInput
+          placeholder={$t('project_page.members.filter_members_placeholder')}
+          bind:value={memberSearch} />
+      </div>
+    {/if}
   </p>
 
   <BadgeList grid={showMembers.length > DEFAULT_TRUNCATED_MEMBER_COUNT}>
-    {#each showMembers as member}
+    {#each showMembers as member (member.id)}
       {@const canManage = canManageMember(member)}
       <Dropdown disabled={!canManage}>
         <MemberBadge member={{ name: member.user?.name ?? member.user?.email ?? member.user?.id ?? '', role: member.role }} canManage={canManage} />
