@@ -54,7 +54,7 @@ export default defineConfig({
       ]
     },
     proxy: process.env['DockerDev'] ? undefined : {
-      '/v1/traces': lexboxServer,
+      '/v1/traces': 'http://localhost:4318',
       '/api': lexboxServer,
       '/hg': lexboxServer,
       '/.well-known': lexboxServer
