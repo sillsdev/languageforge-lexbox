@@ -201,6 +201,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     },
   },
   "org_page": {
+    "organisation": "Organization",
     "notifications": {
       "role_change": "Organizational role of {name} set to {role}.",
       "user_delete": "{name} has been removed.",

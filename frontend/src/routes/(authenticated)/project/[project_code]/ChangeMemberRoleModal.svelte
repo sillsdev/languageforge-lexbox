@@ -26,27 +26,29 @@
   export async function open(member: { userId: UUID; name: string; role: ProjectRole | OrgRole }): Promise<FormModalResult<Schema>> {
     name = member.name;
     return await formModal.open(tryParse(schema, member), async () => {
-      const result =
-        roleType === 'project'
-        ? await _changeProjectMemberRole({
-            projectId: projectOrOrgId,
-            userId: member.userId,
-            role: $form.role as ProjectRole,
-          })
-        : await _changeOrgMemberRole(
-            projectOrOrgId as UUID,
-            member.userId,
-            $form.role as OrgRole
-          );
-      // @ts-expect-error Errors could be from either the Project or Org GQL mutations
-      if (result.error?.byType('ProjectMembersMustBeVerified')) {
-        return { role: [$t('project_page.add_user.user_must_be_verified')] };
+      if (roleType === 'project') {
+        const result = await _changeProjectMemberRole({
+          projectId: projectOrOrgId,
+          userId: member.userId,
+          role: $form.role as ProjectRole,
+        });
+        if (result.error?.byType('ProjectMembersMustBeVerified')) {
+          return { role: [$t('project_page.add_user.user_must_be_verified')] };
+        }
+        if (result.error?.byType('ProjectMembersMustBeVerifiedForRole')) {
+          return { role: [$t('project_page.add_user.manager_must_be_verified')] };
+        }
+        return result.error?.message;
+      } else if (roleType === 'org') {
+        const result = await _changeOrgMemberRole(
+          projectOrOrgId as UUID,
+          member.userId,
+          $form.role as OrgRole
+        );
+        return result.error?.message;
       }
-      // @ts-expect-error Errors could be from either the Project or Org GQL mutations
-      if (result.error?.byType('ProjectMembersMustBeVerifiedForRole')) {
-        return { role: [$t('project_page.add_user.manager_must_be_verified')] };
-      }
-      return result.error?.message;
+
+      throw new Error(`Invalid role type: ${roleType as string}.`);
     });
   }
 </script>

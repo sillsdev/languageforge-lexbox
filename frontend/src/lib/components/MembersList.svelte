@@ -48,14 +48,12 @@
     });
 
     if (response === DialogResponse.Submit) {
-      const notification: `${RoleType}_page.notifications.role_change` = `${roleType}_page.notifications.role_change`;
-      const role = formState.role.currentValue.toLowerCase();
-      // @ts-expect-error Typescript will always warn that "admin" isn't in the project roles list, or "manager" isn't in the org roles list. Ignore.
-      const roleText = $t(`${roleType}_role.${role}`);
+      const notification = `${roleType}_page.notifications.role_change` as const;
+      const role = formState.role.currentValue;
       notifySuccess(
         $t(notification, {
           name: member.user?.name ?? '',
-          role: roleText,
+          role: role.toLowerCase(),
         }),
       );
     }

@@ -52,7 +52,7 @@
   </svelte:fragment>
   <svelte:fragment slot="title">
     <div class="max-w-full flex items-baseline flex-wrap">
-      <span class="mr-2">{$t('project_page.project')}:</span>
+      <span class="mr-2">{$t('org_page.organisation')}:</span>
       <span class="text-primary max-w-full">
         <EditableText
           disabled={!canManage}
