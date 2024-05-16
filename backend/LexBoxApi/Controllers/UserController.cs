@@ -68,29 +68,9 @@ public class UserController : ControllerBase
         var jwtUser = _loggedInContext.MaybeUser;
         var emailVerified = jwtUser?.Email == accountInput.Email;
         var createdByAdmin = jwtUser?.IsAdmin ?? false;
-
-        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-        var userEntity = new User
-        {
-            Id = Guid.NewGuid(),
-            Name = accountInput.Name,
-            Email = accountInput.Email,
-            LocalizationCode = accountInput.Locale,
-            Salt = salt,
-            PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
-            PasswordStrength = UserService.ClampPasswordStrength(accountInput.PasswordStrength),
-            IsAdmin = false,
-            EmailVerified = emailVerified,
-            CreatedById = createdByAdmin ? jwtUser?.Id : null,
-            Locked = false,
-            CanCreateProjects = false
-        };
+        var userEntity = CreateUserEntity(accountInput, emailVerified, createdByAdmin ? jwtUser?.Id : null);
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
-        if (jwtUser?.Audience == LexboxAudience.RegisterAccount)
-        {
-            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
-        }
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
@@ -104,7 +84,6 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    // TODO: Refactor common code between this and RegisterAccount
     [HttpPost("acceptInvitation")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
@@ -136,22 +115,7 @@ public class UserController : ControllerBase
         }
 
         var emailVerified = jwtUser.Email == accountInput.Email;
-
-        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-        var userEntity = new User
-        {
-            Id = Guid.NewGuid(),
-            Name = accountInput.Name,
-            Email = accountInput.Email,
-            LocalizationCode = accountInput.Locale,
-            Salt = salt,
-            PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
-            PasswordStrength = UserService.ClampPasswordStrength(accountInput.PasswordStrength),
-            IsAdmin = false,
-            EmailVerified = emailVerified,
-            Locked = false,
-            CanCreateProjects = false
-        };
+        var userEntity = CreateUserEntity(accountInput, emailVerified);
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
@@ -166,6 +130,27 @@ public class UserController : ControllerBase
 
         if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
+    }
+
+    public User CreateUserEntity(RegisterAccountInput input, bool emailVerified, Guid? creatorId = null)
+    {
+        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+        var userEntity = new User
+        {
+            Id = Guid.NewGuid(),
+            Name = input.Name,
+            Email = input.Email,
+            LocalizationCode = input.Locale,
+            Salt = salt,
+            PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+            PasswordStrength = UserService.ClampPasswordStrength(input.PasswordStrength),
+            IsAdmin = false,
+            EmailVerified = emailVerified,
+            CreatedById = creatorId,
+            Locked = false,
+            CanCreateProjects = false
+        };
+        return userEntity;
     }
 
     [HttpPost("sendVerificationEmail")]
