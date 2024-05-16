@@ -104,6 +104,70 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    // TODO: Refactor common code between this and RegisterAccount
+    [HttpPost("acceptInvitation")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<LexAuthUser>> AcceptEmailInvitation(RegisterAccountInput accountInput)
+    {
+        using var acceptActivity = LexBoxActivitySource.Get().StartActivity("AcceptInvitation");
+        var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken, accountInput.Email);
+        acceptActivity?.AddTag("app.turnstile_token_valid", validToken);
+        if (!validToken)
+        {
+            ModelState.AddModelError<RegisterAccountInput>(r => r.TurnstileToken, "token invalid");
+            return ValidationProblem(ModelState);
+        }
+
+        var jwtUser = _loggedInContext.User;
+        if (jwtUser.Audience != LexboxAudience.RegisterAccount)
+        {
+            // TODO: Figure out how to register this error (AddModelError<RegisterAccountInput> isn't correct, obviously)
+            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "invitation page accessed via invalid JWT");
+        }
+
+        var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
+        acceptActivity?.AddTag("app.email_available", !hasExistingUser);
+        if (hasExistingUser)
+        {
+            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email already in use");
+            return ValidationProblem(ModelState);
+        }
+
+        var emailVerified = jwtUser.Email == accountInput.Email;
+
+        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+        var userEntity = new User
+        {
+            Id = Guid.NewGuid(),
+            Name = accountInput.Name,
+            Email = accountInput.Email,
+            LocalizationCode = accountInput.Locale,
+            Salt = salt,
+            PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
+            PasswordStrength = UserService.ClampPasswordStrength(accountInput.PasswordStrength),
+            IsAdmin = false,
+            EmailVerified = emailVerified,
+            Locked = false,
+            CanCreateProjects = false
+        };
+        acceptActivity?.AddTag("app.user.id", userEntity.Id);
+        _lexBoxDbContext.Users.Add(userEntity);
+        if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
+        {
+            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+        }
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        var user = new LexAuthUser(userEntity);
+        await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
+            new AuthenticationProperties { IsPersistent = true });
+
+        if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
+        return Ok(user);
+    }
+
     [HttpPost("sendVerificationEmail")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
