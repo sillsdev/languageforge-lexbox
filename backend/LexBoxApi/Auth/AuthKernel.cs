@@ -12,9 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
-using OpenIddict.Abstractions;
-using OpenIddict.Server;
-using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 
 namespace LexBoxApi.Auth;
@@ -71,6 +68,8 @@ public static class AuthKernel
             .BindConfiguration("Authentication:Jwt")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<OpenIdOptions>()
+            .BindConfiguration("Authentication:OpenId");
         services.AddAuthentication(options =>
             {
                 options.DefaultScheme = DefaultScheme;
@@ -84,7 +83,8 @@ public static class AuthKernel
                     options.ForwardDefaultSelector = context =>
                     {
                         if (context.Request.Headers.ContainsKey("Authorization") &&
-                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer"))
+                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer") &&
+                            context.RequestServices.GetService<IOptions<OpenIdOptions>>()?.Value.Enable == true)
                         {
                             //fow now this will use oauth
                             return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
@@ -196,6 +196,12 @@ public static class AuthKernel
             });
         });
 
+        var openIdOptions = configuration.GetSection("Authentication:OpenId").Get<OpenIdOptions>();
+        if (openIdOptions?.Enable == true) AddOpenId(services, environment);
+    }
+
+    private static void AddOpenId(IServiceCollection services, IWebHostEnvironment environment)
+    {
         services.Add(ScopeRequestFixer.Descriptor.ServiceDescriptor);
 
         //openid server
@@ -221,9 +227,16 @@ public static class AuthKernel
 
                 options.IgnoreResponseTypePermissions();
                 options.IgnoreScopePermissions();
-
-                //todo setup encryption
-                options.AddDevelopmentEncryptionCertificate().AddEphemeralSigningKey();
+                if (environment.IsDevelopment())
+                {
+                    options.AddDevelopmentEncryptionCertificate();
+                    options.AddDevelopmentSigningCertificate();
+                }
+                else
+                {
+                    //see docs: https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html
+                    throw new NotImplementedException("need to implement loading keys from a file");
+                }
 
                 options.UseAspNetCore()
                     .EnableAuthorizationEndpointPassthrough();
@@ -235,27 +248,6 @@ public static class AuthKernel
                 options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());
                 options.EnableAuthorizationEntryValidation();
             });
-    }
-
-    public sealed class ScopeRequestFixer : IOpenIddictServerHandler<OpenIddictServerEvents.ValidateTokenRequestContext>
-    {
-        public static OpenIddictServerHandlerDescriptor Descriptor { get; }
-            = OpenIddictServerHandlerDescriptor.CreateBuilder<OpenIddictServerEvents.ValidateTokenRequestContext>()
-                .UseSingletonHandler<ScopeRequestFixer>()
-                .SetOrder(OpenIddictServerHandlers.Exchange.ValidateResourceOwnerCredentialsParameters.Descriptor.Order + 1)
-                .SetType(OpenIddictServerHandlerType.Custom)
-                .Build();
-
-        public ValueTask HandleAsync(OpenIddictServerEvents.ValidateTokenRequestContext context)
-        {
-            if (!string.IsNullOrEmpty(context.Request.Scope) && (context.Request.IsAuthorizationCodeGrantType() ||
-                                                                 context.Request.IsDeviceCodeGrantType()))
-            {
-                context.Request.Scope = null;
-            }
-
-            return default;
-        }
     }
 
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)

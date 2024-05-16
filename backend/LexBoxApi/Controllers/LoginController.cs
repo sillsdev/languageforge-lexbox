@@ -287,24 +287,6 @@ public class LoginController(
                     OpenIddictConstants.Destinations.IdentityToken
                 ],
 
-            OpenIddictConstants.Claims.PhoneNumber when
-                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Phone) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
-                [
-                    OpenIddictConstants.Destinations.AccessToken,
-                    OpenIddictConstants.Destinations.IdentityToken
-                ],
-
-            OpenIddictConstants.Claims.Address when
-                identity.HasScope(OpenIddictConstants.Permissions.Scopes.Address) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Code) &&
-                !request.HasResponseType(OpenIddictConstants.Permissions.ResponseTypes.Token) =>
-                [
-                    OpenIddictConstants.Destinations.AccessToken,
-                    OpenIddictConstants.Destinations.IdentityToken
-                ],
-
             _ => [OpenIddictConstants.Destinations.AccessToken]
         });
 
