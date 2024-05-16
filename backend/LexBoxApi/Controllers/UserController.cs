@@ -42,7 +42,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("registerAccount")]
-    [AllowAnonymous] // Is there a RequireAnonymous attribute?
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
     [ProducesDefaultResponseType]
@@ -55,13 +55,6 @@ public class UserController : ControllerBase
         {
             ModelState.AddModelError<RegisterAccountInput>(r => r.TurnstileToken, "token invalid");
             return ValidationProblem(ModelState);
-        }
-
-        var jwtUser = _loggedInContext.MaybeUser;
-        if (jwtUser is not null)
-        {
-            // TODO: Figure out how to register this error (AddModelError<RegisterAccountInput> isn't correct, obviously)
-            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "must not access register flow while logged in");
         }
 
         var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
