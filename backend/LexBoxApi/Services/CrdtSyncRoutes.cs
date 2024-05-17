@@ -1,4 +1,5 @@
 ﻿using Crdt.Core;
+using LexBoxApi.Auth.Attributes;
 using LexData;
 using LexData.Entities;
 
@@ -9,7 +10,8 @@ public static class CrdtSyncRoutes
     public static IEndpointConventionBuilder MapSyncApi(this IEndpointRouteBuilder endpoints,
         string path = "/api/sync/{id}")
     {
-        var group = endpoints.MapGroup(path);
+        //todo determine if the user has permission to access the project, for now lock down to admin only
+        var group = endpoints.MapGroup(path).RequireAuthorization(new AdminRequiredAttribute());
         group.MapGet("/get",
             async (Guid id, LexBoxDbContext dbContext) =>
             {
