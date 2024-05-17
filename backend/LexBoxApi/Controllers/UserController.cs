@@ -126,7 +126,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    public User CreateUserEntity(RegisterAccountInput input, bool emailVerified, Guid? creatorId = null)
+    private User CreateUserEntity(RegisterAccountInput input, bool emailVerified, Guid? creatorId = null)
     {
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User

@@ -393,7 +393,7 @@ input BooleanOperationFilterInput {
 }
 
 input BulkAddProjectMembersInput {
-  projectId: UUID!
+  projectId: UUID
   usernames: [String!]!
   role: ProjectRole!
   passwordHash: String!
