@@ -8,7 +8,7 @@ using OpenIddict.Abstractions;
 
 namespace LexData;
 
-public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment, IOpenIddictApplicationManager applicationManager)
+public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment, IOpenIddictApplicationManager? applicationManager = null)
 {
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
@@ -167,6 +167,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
 
     private async Task SeedOpenId(CancellationToken cancellationToken = default)
     {
+        if (applicationManager is null) return;
         const string clientId = "becf2856-0690-434b-b192-a4032b72067f";
         if (await applicationManager.FindByClientIdAsync(clientId, cancellationToken) is null)
         {
