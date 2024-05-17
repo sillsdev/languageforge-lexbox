@@ -7,5 +7,4 @@ public record RegisterAccountInput([Required(AllowEmptyStrings = false)] string 
     [Required(AllowEmptyStrings = false)] string Locale,
     [Required(AllowEmptyStrings = false)] string PasswordHash,
     int? PasswordStrength,
-    string TurnstileToken,
-    bool AutoLogin = true);
+    string TurnstileToken);

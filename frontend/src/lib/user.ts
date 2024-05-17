@@ -84,7 +84,7 @@ export async function login(userId: string, password: string): Promise<LoginResu
 }
 
 type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean, invalidInput: boolean }, user?: LexAuthUser };
-export async function createUser(endpoint: string, password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
+export async function createUser(endpoint: string, password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
   const response = await fetch(endpoint, {
     method: 'post',
     headers: {
@@ -96,7 +96,6 @@ export async function createUser(endpoint: string, password: string, passwordStr
       locale,
       turnstileToken,
       passwordStrength,
-      autoLogin,
       passwordHash: await hash(password),
     })
   });
@@ -111,13 +110,13 @@ export async function createUser(endpoint: string, password: string, passwordStr
   const userJson: LexAuthUser = jwtToUser(responseJson);
   return { user: userJson };
 }
-export function register(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
-  return createUser('/api/User/registerAccount', password, passwordStrength, name, email, locale, turnstileToken, autoLogin);
+export function register(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
+  return createUser('/api/User/registerAccount', password, passwordStrength, name, email, locale, turnstileToken);
 }
-export function acceptInvitation(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
-  return createUser('/api/User/acceptInvitation', password, passwordStrength, name, email, locale, turnstileToken, autoLogin);
+export function acceptInvitation(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
+  return createUser('/api/User/acceptInvitation', password, passwordStrength, name, email, locale, turnstileToken);
 }
-export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string, _autoLogin: boolean): Promise<RegisterResponse> {
+export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string): Promise<RegisterResponse> {
   const passwordHash = await hash(password);
   const gqlInput: CreateGuestUserByAdminInput = {
     passwordHash,

@@ -35,7 +35,7 @@
       : endpoint === 'register' ? register
       : endpoint === 'createGuestUserByAdmin' ? createGuestUserByAdmin
       : () => { throw new Error(`CreateUser doesn't know how to handle endpoint type ${endpoint}`) };
-    const { user, error } = await endpointHandler($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken, autoLogin);
+    const { user, error } = await endpointHandler($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
     if (error) {
       if (error.turnstile) {
         $message = $t('turnstile.invalid');
