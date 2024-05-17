@@ -50,6 +50,15 @@ public class Project : EntityBase
     {
         return hgService.HasAbandonedTransactions(Code);
     }
+
+    public Task<bool> GetIsLanguageForgeProject(IIsLanguageForgeProjectDataLoader loader)
+    {
+        if (Type is ProjectType.Unknown or ProjectType.FLEx)
+        {
+            return loader.LoadAsync(Code);
+        }
+        return Task.FromResult(false);
+    }
 }
 
 public enum ProjectMigrationStatus
