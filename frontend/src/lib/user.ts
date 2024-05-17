@@ -122,9 +122,13 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     passwordHash,
     passwordStrength,
     name,
-    email,
     locale,
   };
+  if (email.includes('@')) {
+    gqlInput.email = email;
+  } else {
+    gqlInput.username = email;
+  }
   const gqlResponse = await _createGuestUserByAdmin(gqlInput);
   // const registerResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
   if (gqlResponse.error?.byType('UniqueValueError')) {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
-  import { SubmitButton, FormError, Input, ProtectedForm, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
+  import { SubmitButton, FormError, Input, ProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { register, acceptInvitation, createGuestUserByAdmin } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
@@ -9,6 +9,7 @@
   import { z } from 'zod';
 
   export let autoLogin = true;
+  export let allowUsernames = false;
   export let onSubmit: (() => void) | undefined = undefined;
   export let submitButtonText = $t('register.button_register');
   export let endpoint: 'register' | 'acceptInvitation' | 'createGuestUserByAdmin';
@@ -23,7 +24,9 @@
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
   const formSchema = z.object({
     name: z.string().trim().min(1, $t('register.name_missing')),
-    email: z.string().email($t('form.invalid_email')),
+    email: z.string().trim()
+      .min(1, $t('project_page.add_user.empty_user_field'))
+      .refine((value) => (allowUsernames && !value.includes('@')) || isEmail(value), { message: $t('form.invalid_email') }),
     password: passwordFormRules($t),
     score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),
@@ -71,9 +74,9 @@
   <div class="contents email">
     <Input
       id="email"
-      label={$t('register.label_email')}
+      label={$t(allowUsernames ? 'register.label_email_or_username' : 'register.label_email')}
       description={$t('register.description_email')}
-      type="email"
+      type={allowUsernames ? 'text' : 'email'}
       bind:value={$form.email}
       error={$errors.email}
     />
