@@ -21,6 +21,7 @@ namespace LexData.Migrations
                     HybridDateTime_DateTime = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Hash = table.Column<string>(type: "text", nullable: false),
                     ParentHash = table.Column<string>(type: "text", nullable: false),
+                    Metadata = table.Column<string>(type: "text", nullable: false),
                     ClientId = table.Column<Guid>(type: "uuid", nullable: false),
                     ChangeEntities = table.Column<string>(type: "jsonb", nullable: true)
                 },

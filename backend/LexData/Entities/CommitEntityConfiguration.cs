@@ -19,6 +19,10 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<CrdtCommit>
         builder.HasOne<FlexProjectMetadata>().WithMany()
             .HasPrincipalKey(f => f.ProjectId)
             .HasForeignKey(c => c.ProjectId);
+        builder.Property(c => c.Metadata).HasConversion(
+            m => JsonSerializer.Serialize(m, (JsonSerializerOptions?)null),
+            json => JsonSerializer.Deserialize<CommitMetadata>(json, (JsonSerializerOptions?)null) ?? new()
+        );
         builder.OwnsMany(c => c.ChangeEntities,
             b => b.ToJson().Property(c => c.Change).HasConversion(
                 change => Serialize(change),
