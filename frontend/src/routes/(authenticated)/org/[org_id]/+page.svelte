@@ -12,6 +12,7 @@
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName } from './+page';
   import MembersList from '$lib/components/MembersList.svelte';
+  import AddOrgMember from './AddOrgMember.svelte';
 
   // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
   export let description = 'Fake description since orgs don\'t currently have descriptions';
@@ -95,10 +96,8 @@
     canManageList={canManage}
   >
     <svelte:fragment slot="extraButtons">
-    <!-- TODO: Implement something like AddProjectMember for orgs, then add it here
-      <AddProjectMember projectId={project.id} />
-      <BulkAddProjectMembers projectId={project.id} />
-    -->
+      <AddOrgMember orgId={org.id} />
+      <!-- TODO: Implement <BulkAddOrgMembers orgId={org.id} /> -->
     </svelte:fragment>
   </MembersList>
 </DetailsPage>
