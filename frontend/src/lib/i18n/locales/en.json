@@ -389,12 +389,16 @@ If you don't see a dialog or already closed it, click the button below:",
   "register": {
     "title": "Register",
     "account_exists": "An account with this email already exists",
+    "invalid_input": "Please specify an email address",
     "button_register": "Register",
     "label_email": "Email",
     "description_email": "This will be your **Send/Receive login**",
     "label_name": "Name",
     "label_password": "Password",
     "name_missing": "Name missing",
+  },
+  "accept_invitation": {
+    "title": "Accept Invitation",
   },
   "reset_password": {
     "title": "Reset Password",

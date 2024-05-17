@@ -4,6 +4,6 @@
   import CreateUser from '$lib/components/Users/CreateUser.svelte';
 </script>
 
-<TitlePage title={$t('register.title')}>
-  <CreateUser endpoint="register" />
+<TitlePage title={$t('accept_invitation.title')}>
+  <CreateUser endpoint="acceptInvitation" />
 </TitlePage>

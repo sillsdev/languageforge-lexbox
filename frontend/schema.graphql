@@ -78,7 +78,7 @@ type CollectionSegmentInfo {
 }
 
 type CreateGuestUserByAdminPayload {
-  user: User
+  lexAuthUser: LexAuthUser
   errors: [CreateGuestUserByAdminError!]
 }
 

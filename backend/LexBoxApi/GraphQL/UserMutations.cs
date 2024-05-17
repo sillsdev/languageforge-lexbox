@@ -79,7 +79,7 @@ public class UserMutations
     [Error<UniqueValueException>]
     [Error<RequiredException>]
     [AdminRequired]
-    public async Task<User> CreateGuestUserByAdmin(
+    public async Task<LexAuthUser> CreateGuestUserByAdmin(
         LoggedInContext loggedInContext,
         CreateGuestUserByAdminInput input,
         LexBoxDbContext dbContext
@@ -115,7 +115,7 @@ public class UserMutations
         createGuestUserActivity?.AddTag("app.user.id", userEntity.Id);
         dbContext.Users.Add(userEntity);
         await dbContext.SaveChangesAsync();
-        return userEntity;
+        return new LexAuthUser(userEntity);
     }
 
     private static async Task<User> UpdateUser(

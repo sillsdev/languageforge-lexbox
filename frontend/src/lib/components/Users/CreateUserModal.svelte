@@ -8,6 +8,7 @@
   import Icon from '$lib/icons/Icon.svelte';
 
   let createUserModal: Modal;
+  export let endpoint: 'register' | 'acceptInvitation' | 'createGuestUserByAdmin';
 
   export async function open(): Promise<void> {
     await createUserModal.openModal(true, true);
@@ -32,7 +33,7 @@
     </div>
   </div>
   <h1 class="text-center text-xl">{$t('admin_dashboard.create_user_modal.create_user')}</h1>
-  <CreateUser autoLogin={false}
+  <CreateUser {endpoint} autoLogin={false}
     onSubmit={() => createUserModal.submitModal()}
     submitButtonText={$t('admin_dashboard.create_user_modal.create_user')}
   />

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
@@ -79,6 +80,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("acceptInvitation")]
+    [RequireAudience(LexboxAudience.RegisterAccount, true)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
     [ProducesDefaultResponseType]
@@ -94,11 +96,6 @@ public class UserController : ControllerBase
         }
 
         var jwtUser = _loggedInContext.User;
-        if (jwtUser.Audience != LexboxAudience.RegisterAccount)
-        {
-            // TODO: Figure out how to register this error (AddModelError<RegisterAccountInput> isn't correct, obviously)
-            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "invitation page accessed via invalid JWT");
-        }
 
         var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
         acceptActivity?.AddTag("app.email_available", !hasExistingUser);
@@ -112,6 +109,7 @@ public class UserController : ControllerBase
         var userEntity = CreateUserEntity(accountInput, emailVerified);
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
+        // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
         if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
         {
             userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();

@@ -245,5 +245,5 @@
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
   <UserModal bind:this={userModal}/>
-  <CreateUserModal bind:this={createUserModal}/>
+  <CreateUserModal endpoint="createGuestUserByAdmin" bind:this={createUserModal}/>
 </main>

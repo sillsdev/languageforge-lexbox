@@ -5,7 +5,8 @@ import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
 import zxcvbn from 'zxcvbn';
-import { type AuthUserProject, ProjectRole, UserRole } from './gql/types';
+import { type AuthUserProject, ProjectRole, UserRole, type CreateGuestUserByAdminInput } from './gql/types';
+import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
 type LoginResult = {
@@ -18,6 +19,7 @@ type RegisterResponseErrors = {
     /* eslint-disable @typescript-eslint/naming-convention */
     TurnstileToken?: unknown,
     Email?: unknown,
+    Required?: unknown,
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 }
@@ -81,9 +83,9 @@ export async function login(userId: string, password: string): Promise<LoginResu
     : { success: false, error: await response.text() as LoginError };
 }
 
-type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
-export async function register(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
-  const response = await fetch('/api/User/registerAccount', {
+type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean, invalidInput: boolean }, user?: LexAuthUser };
+export async function createUser(endpoint: string, password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
+  const response = await fetch(endpoint, {
     method: 'post',
     headers: {
       'content-type': 'application/json',
@@ -102,12 +104,51 @@ export async function register(password: string, passwordStrength: number, name:
   if (!response.ok) {
     const { errors } = await response.json() as RegisterResponseErrors;
     if (!errors) throw new Error('Missing error on non-ok response');
-    return { error: { turnstile: 'TurnstileToken' in errors, accountExists: 'Email' in errors } };
+    return { error: { turnstile: 'TurnstileToken' in errors, accountExists: 'Email' in errors, invalidInput: 'Required' in errors } };
   }
 
   const responseJson = await response.json() as JwtTokenUser;
   const userJson: LexAuthUser = jwtToUser(responseJson);
   return { user: userJson };
+}
+export function register(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
+  return createUser('/api/User/registerAccount', password, passwordStrength, name, email, locale, turnstileToken, autoLogin);
+}
+export function acceptInvitation(password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string, autoLogin: boolean): Promise<RegisterResponse> {
+  return createUser('/api/User/acceptInvitation', password, passwordStrength, name, email, locale, turnstileToken, autoLogin);
+}
+export async function createGuestUserByAdmin(password: string, passwordStrength: number, name: string, email: string, locale: string, _turnstileToken: string, _autoLogin: boolean): Promise<RegisterResponse> {
+  const passwordHash = await hash(password);
+  const gqlInput: CreateGuestUserByAdminInput = {
+    passwordHash,
+    passwordStrength,
+    name,
+    email,
+    locale,
+  };
+  const gqlResponse = await _createGuestUserByAdmin(gqlInput);
+  // const registerResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
+  if (gqlResponse.error?.byType('UniqueValueError')) {
+    return { error: { invalidInput: false, turnstile: false, accountExists: true }};
+  }
+  if (gqlResponse.error?.byType('RequiredError')) {
+    return { error: { invalidInput: true, turnstile: false, accountExists: false }};
+  }
+  if (!gqlResponse.data?.createGuestUserByAdmin.lexAuthUser ) {
+    return { error: { invalidInput: true, turnstile: false, accountExists: false }};
+  }
+  const responseUser = gqlResponse.data?.createGuestUserByAdmin.lexAuthUser;
+  const user: LexAuthUser = {
+    ...responseUser,
+    email: responseUser.email ?? undefined,
+    username: responseUser.username ?? undefined,
+    locked: responseUser.locked ?? false,
+    emailVerified: responseUser.emailVerificationRequired ?? false,
+    canCreateProjects: responseUser.canCreateProjects ?? false,
+    createdByAdmin: responseUser.createdByAdmin ?? false,
+    emailOrUsername: (responseUser.email ?? responseUser.username) as string,
+  }
+  return { user }
 }
 
 export function getUser(cookies: Cookies): LexAuthUser | null {
