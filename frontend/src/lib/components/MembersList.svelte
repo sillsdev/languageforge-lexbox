@@ -20,6 +20,7 @@
   import { useNotifications } from '$lib/notify';
   import type { UUID } from 'crypto';
   import PlainInput from '$lib/forms/PlainInput.svelte';
+  import UserTable from '$lib/components/Users/UserTable.svelte';
 
   export let members: Member[] = [];
   export let canManageMember: (member: Member) => boolean;
@@ -33,6 +34,9 @@
   const DEFAULT_TRUNCATED_MEMBER_COUNT = 5;
   export let truncatedMemberCount = DEFAULT_TRUNCATED_MEMBER_COUNT;
   let showAllMembers = false;
+  let displayTable = false;
+
+  $: shownUsers = members.map(m => m.user);
 
   let memberSearch = '';
   let filteredMembers: Member[] = members;
@@ -82,7 +86,16 @@
           bind:value={memberSearch} />
       </div>
     {/if}
-  </p>
+    <label class="cursor-pointer label">
+      <span class="label-text">Table view &nbsp;</span>
+      <input class="toggle" type="checkbox" bind:checked={displayTable} />
+    </label>
+</p>
+  {#if displayTable}
+  <UserTable
+    {shownUsers}
+  />
+{:else}
 
   <BadgeList grid={showMembers.length > DEFAULT_TRUNCATED_MEMBER_COUNT}>
     {#each showMembers as member (member.id)}
@@ -130,5 +143,6 @@
     <slot />
 
   </BadgeList>
+  {/if}
   <ChangeMemberRoleModal {roleType} {projectOrOrgId} bind:this={changeMemberRoleModal} />
 </div>

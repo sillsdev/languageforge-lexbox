@@ -5,7 +5,7 @@
   import { createEventDispatcher } from 'svelte';
   import Dropdown from '../Dropdown.svelte';
 
-  export let shownUsers;
+  export let shownUsers; // TODO: Typescript wants a type here
 
   const dispatch = createEventDispatcher();
 </script>

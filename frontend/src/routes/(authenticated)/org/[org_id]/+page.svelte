@@ -12,7 +12,6 @@
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName } from './+page';
   import MembersList from '$lib/components/MembersList.svelte';
-  import UserTable from '$lib/components/Users/UserTable.svelte';
 
   // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
   export let description = 'Fake description since orgs don\'t currently have descriptions';
@@ -25,10 +24,6 @@
   let loadingExtraButton = false;
 
   $: canManage = user?.isAdmin || org?.members?.find((m) => m.user?.id == user.id)?.role == OrgRole.Admin;
-
-  $: shownUsers = org.members.map(m => m.user);
-
-  let displayTable = false;
 
   const { notifySuccess/*, notifyWarning*/ } = useNotifications();
 
@@ -45,10 +40,7 @@
 
 <DetailsPage wide title={org.name}>
   <svelte:fragment slot="actions">
-    <label class="cursor-pointer label">
-      <span class="label-text">Table view &nbsp;</span>
-      <input class="toggle" type="checkbox" bind:checked={displayTable} />
-    </label>
+    <!-- No action buttons currently -->
   </svelte:fragment>
   <svelte:fragment slot="title">
     <div class="max-w-full flex items-baseline flex-wrap">
@@ -95,11 +87,6 @@
     disabled={false}
     multiline={true}
     />
-{#if displayTable}
-  <UserTable
-    {shownUsers}
-  />
-{:else}
   <MembersList
     roleType="org"
     projectOrOrgId={org.id}
@@ -114,6 +101,5 @@
     -->
     </svelte:fragment>
   </MembersList>
-{/if}
 </DetailsPage>
 
