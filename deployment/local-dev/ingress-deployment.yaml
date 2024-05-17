@@ -1,12 +1,4 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
-  name: ingress-nginx
----
-apiVersion: v1
 automountServiceAccountToken: true
 kind: ServiceAccount
 metadata:
@@ -17,7 +9,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx
-  namespace: ingress-nginx
+  namespace: languagedepot
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -29,7 +21,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-admission
-  namespace: ingress-nginx
+  namespace: languagedepot
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -41,7 +33,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx
-  namespace: ingress-nginx
+  namespace: languagedepot
 rules:
 - apiGroups:
   - ""
@@ -131,7 +123,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-admission
-  namespace: ingress-nginx
+  namespace: languagedepot
 rules:
 - apiGroups:
   - ""
@@ -251,7 +243,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx
-  namespace: ingress-nginx
+  namespace: languagedepot
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -259,7 +251,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ingress-nginx
-  namespace: ingress-nginx
+  namespace: languagedepot
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -271,7 +263,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-admission
-  namespace: ingress-nginx
+  namespace: languagedepot
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -279,7 +271,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ingress-nginx-admission
-  namespace: ingress-nginx
+  namespace: languagedepot
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -297,7 +289,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ingress-nginx
-  namespace: ingress-nginx
+  namespace: languagedepot
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -316,7 +308,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: ingress-nginx-admission
-  namespace: ingress-nginx
+  namespace: languagedepot
 ---
 apiVersion: v1
 data:
@@ -334,7 +326,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-controller
-  namespace: ingress-nginx
+  namespace: languagedepot
 ---
 apiVersion: v1
 kind: Service
@@ -346,7 +338,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-controller
-  namespace: ingress-nginx
+  namespace: languagedepot
 spec:
   externalTrafficPolicy: Local
   ipFamilies:
@@ -379,7 +371,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-controller-admission
-  namespace: ingress-nginx
+  namespace: languagedepot
 spec:
   ports:
   - appProtocol: https
@@ -402,7 +394,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-controller
-  namespace: ingress-nginx
+  namespace: languagedepot
 spec:
   minReadySeconds: 0
   revisionHistoryLimit: 10
@@ -516,7 +508,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-admission-create
-  namespace: ingress-nginx
+  namespace: languagedepot
 spec:
   template:
     metadata:
@@ -563,7 +555,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx
     app.kubernetes.io/version: 1.8.0
   name: ingress-nginx-admission-patch
-  namespace: ingress-nginx
+  namespace: languagedepot
 spec:
   template:
     metadata:
@@ -631,7 +623,7 @@ webhooks:
   clientConfig:
     service:
       name: ingress-nginx-controller-admission
-      namespace: ingress-nginx
+      namespace: languagedepot
       path: /networking/v1/ingresses
   failurePolicy: Fail
   matchPolicy: Equivalent
