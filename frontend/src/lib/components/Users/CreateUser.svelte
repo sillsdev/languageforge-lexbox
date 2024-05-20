@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
-  import { SubmitButton, FormError, Input, ProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
+  import { SubmitButton, FormError, Input, Form, ProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { register, acceptInvitation, createGuestUserByAdmin } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
@@ -10,6 +10,7 @@
   import { z } from 'zod';
 
   export let allowUsernames = false;
+  export let skipTurnstile = false;
   export let submitButtonText = $t('register.button_register');
   export let endpoint: 'register' | 'acceptInvitation' | 'createGuestUserByAdmin';
 
@@ -68,7 +69,7 @@
   });
 </script>
 
-<ProtectedForm {enhance} bind:turnstileToken>
+<svelte:component this={skipTurnstile ? Form : ProtectedForm} {enhance} bind:turnstileToken>
   <Input autofocus id="name" label={$t('register.label_name')} bind:value={$form.name} error={$errors.name} />
   <div class="contents email">
     <Input
@@ -94,7 +95,7 @@
   />
   <FormError error={$message} />
   <SubmitButton loading={$submitting}>{submitButtonText}</SubmitButton>
-</ProtectedForm>
+</svelte:component>
 
 <style lang="postcss">
   .email :global(.description) {
