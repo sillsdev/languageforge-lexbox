@@ -13,6 +13,7 @@
   import { distinct } from '$lib/util/array';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
+  import { usernameRe } from '$lib/user';
 
   enum BulkAddSteps {
     Add,
@@ -34,8 +35,6 @@
   let createdMembers: BulkAddProjectMembersResult['createdMembers'] = [];
   let existingMembers: BulkAddProjectMembersResult['existingMembers'] = [];
   $: addedCount = addedMembers.length + createdMembers.length;
-
-  const usernameRe = /^[a-zA-Z0-9_]+$/;
 
   function validateBulkAddInput(usernames: string[]): FormSubmitReturn<typeof schema> {
     if (usernames.length === 0) return { usernamesText: [$t('project_page.bulk_add_members.empty_user_field')] };

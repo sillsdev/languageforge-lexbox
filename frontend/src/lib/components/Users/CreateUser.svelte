@@ -6,6 +6,7 @@
   import { register, acceptInvitation, createGuestUserByAdmin } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
+  import { usernameRe } from '$lib/user';
   import { z } from 'zod';
 
   export let autoLogin = true;
@@ -26,7 +27,7 @@
     name: z.string().trim().min(1, $t('register.name_missing')),
     email: z.string().trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
-      .refine((value) => (allowUsernames && !value.includes('@')) || isEmail(value), { message: $t('form.invalid_email') }),
+      .refine((value) => (allowUsernames && !value.includes('@') && usernameRe.test(value)) || isEmail(value), { message: $t('register.invalid_input') }),
     password: passwordFormRules($t),
     score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),

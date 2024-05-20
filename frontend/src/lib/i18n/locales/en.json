@@ -389,7 +389,7 @@ If you don't see a dialog or already closed it, click the button below:",
   "register": {
     "title": "Register",
     "account_exists": "An account with this email already exists",
-    "invalid_input": "Please specify an email address",
+    "invalid_input": "Please specify an email address or a valid username",
     "button_register": "Register",
     "label_email": "Email",
     "label_email_or_username": "Email or login/username",

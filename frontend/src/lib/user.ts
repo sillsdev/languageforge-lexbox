@@ -57,6 +57,8 @@ export type LexAuthUser = {
 export const USER_LOAD_KEY = 'user:current';
 export const AUTH_COOKIE_NAME = '.LexBoxAuth';
 
+export const usernameRe = /^[a-zA-Z0-9_]+$/;
+
 export function getHomePath(user: LexAuthUser | null): string {
   return user?.isAdmin ? '/admin' : '/';
 }
