@@ -49,7 +49,6 @@
       }
       if (error.invalidInput) {
         $errors.email = [$t('register.invalid_input')];
-        // If we later allow username-only accounts to be created, add error message to $errors.username as well and change message to "specify email or username"
       }
       return;
     }
