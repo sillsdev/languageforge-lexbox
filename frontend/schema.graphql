@@ -431,7 +431,7 @@ input ChangeUserAccountBySelfInput {
 
 input CreateGuestUserByAdminInput {
   email: String
-  name: String
+  name: String!
   username: String
   locale: String!
   passwordHash: String!

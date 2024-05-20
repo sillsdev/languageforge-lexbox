@@ -29,7 +29,7 @@ public class UserMutations
         : ChangeUserAccountDataInput(UserId, Email, Name);
     public record CreateGuestUserByAdminInput(
         string? Email,
-        string? Name,
+        string Name,
         string? Username,
         string Locale,
         string PasswordHash,
@@ -99,7 +99,7 @@ public class UserMutations
         var userEntity = new User
         {
             Id = Guid.NewGuid(),
-            Name = input.Name ?? input.Username ?? input.Email!,
+            Name = input.Name,
             Email = input.Email,
             Username = input.Username,
             LocalizationCode = input.Locale,
