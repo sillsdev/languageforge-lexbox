@@ -27,7 +27,7 @@
     name: z.string().trim().min(1, $t('register.name_missing')),
     email: z.string().trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
-      .refine((value) => (allowUsernames && !value.includes('@') && usernameRe.test(value)) || isEmail(value), { message: $t('register.invalid_input') }),
+      .refine((value) => isEmail(value) || (allowUsernames && usernameRe.test(value)), { message: $t('register.invalid_input') }),
     password: passwordFormRules($t),
     score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),
