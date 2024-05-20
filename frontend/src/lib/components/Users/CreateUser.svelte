@@ -2,7 +2,7 @@
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SubmitButton, FormError, Input, Form, ProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
-  import { register, acceptInvitation, createGuestUserByAdmin } from '$lib/user';
+  import { type RegisterResponse } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { createEventDispatcher, onMount } from 'svelte';
   import { usernameRe } from '$lib/user';
@@ -11,7 +11,7 @@
   export let allowUsernames = false;
   export let skipTurnstile = false;
   export let submitButtonText = $t('register.button_register');
-  export let endpoint: 'register' | 'acceptInvitation' | 'createGuestUserByAdmin';
+  export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
 
   const dispatch = createEventDispatcher();
 
@@ -34,12 +34,7 @@
   });
 
   let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
-    const endpointHandler =
-        endpoint === 'acceptInvitation' ? acceptInvitation
-      : endpoint === 'register' ? register
-      : endpoint === 'createGuestUserByAdmin' ? createGuestUserByAdmin
-      : () => { throw new Error(`CreateUser doesn't know how to handle endpoint type ${endpoint}`) };
-    const { user, error } = await endpointHandler($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
+    const { user, error } = await handleSubmit($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
     if (error) {
       if (error.turnstile) {
         $message = $t('turnstile.invalid');

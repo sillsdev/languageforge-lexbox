@@ -2,13 +2,14 @@
   import { Modal } from '$lib/components/modals';
   import t from '$lib/i18n';
   import { helpLinks } from '$lib/components/help';
+  import { type RegisterResponse } from '$lib/user';
   import CreateUser from '$lib/components/Users/CreateUser.svelte';
   import Markdown from 'svelte-exmarkdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
   import Icon from '$lib/icons/Icon.svelte';
 
   let createUserModal: Modal;
-  export let endpoint: 'register' | 'acceptInvitation' | 'createGuestUserByAdmin';
+  export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
 
   export async function open(): Promise<void> {
     await createUserModal.openModal(true, true);
@@ -33,7 +34,7 @@
     </div>
   </div>
   <h1 class="text-center text-xl">{$t('admin_dashboard.create_user_modal.create_user')}</h1>
-  <CreateUser {endpoint} allowUsernames skipTurnstile
+  <CreateUser {handleSubmit} allowUsernames skipTurnstile
     on:submitted={() => createUserModal.submitModal()}
     submitButtonText={$t('admin_dashboard.create_user_modal.create_user')}
   />

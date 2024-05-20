@@ -85,7 +85,7 @@ export async function login(userId: string, password: string): Promise<LoginResu
     : { success: false, error: await response.text() as LoginError };
 }
 
-type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean, invalidInput: boolean }, user?: LexAuthUser };
+export type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean, invalidInput: boolean }, user?: LexAuthUser };
 export async function createUser(endpoint: string, password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
   const response = await fetch(endpoint, {
     method: 'post',
