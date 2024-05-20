@@ -183,6 +183,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
                     ClientType = OpenIddictConstants.ClientTypes.Public,
                     ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
                     DisplayName = "Oidc Debugger",
+                    //explicit requires the user to consent, Implicit does not, External requires an admin to approve, not currently supported
                     ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
                     Permissions =
                     {

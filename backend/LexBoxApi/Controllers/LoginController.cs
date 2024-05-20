@@ -17,13 +17,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using LexCore.Entities;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
+using OpenIddict.EntityFrameworkCore.Models;
 using OpenIddict.Server.AspNetCore;
+using Org.BouncyCastle.Ocsp;
 
 namespace LexBoxApi.Controllers;
 
@@ -171,6 +174,8 @@ public class LoginController(
 
     [HttpGet("open-id-auth")]
     [HttpPost("open-id-auth")]
+    [ProducesResponseType(400)]
+    [ProducesDefaultResponseType]
     public async Task<ActionResult> Authorize(string? returnUrl = null)
     {
         var request = HttpContext.GetOpenIddictServerRequest();
@@ -179,13 +184,22 @@ public class LoginController(
             return BadRequest();
         }
 
+        if (IsAcceptRequest())
+        {
+            var lexAuthUser1 = loggedInContext.User;
+            var request1 = HttpContext.GetOpenIddictServerRequest() ??
+                           throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
+            return await FinishSignIn(lexAuthUser1, request1);
+        }
+
         // Retrieve the user principal stored in the authentication cookie.
-        // If a max_age parameter was provided, ensure that the cookie is not too old.
         // If the user principal can't be extracted or the cookie is too old, redirect the user to the login page.
         var result = await HttpContext.AuthenticateAsync();
-        if (!result.Succeeded || (request.MaxAge != null && result.Properties?.IssuedUtc != null &&
-                                  DateTimeOffset.UtcNow - result.Properties.IssuedUtc >
-                                  TimeSpan.FromSeconds(request.MaxAge.Value)))
+        var lexAuthUser = result.Succeeded ? LexAuthUser.FromClaimsPrincipal(result.Principal) : null;
+        if (!result.Succeeded ||
+            lexAuthUser is null ||
+            request.HasPrompt(OpenIddictConstants.Prompts.Login) ||
+            IsExpired(request, result))
         {
             // If the client application requested promptless authentication,
             // return an error indicating that the user is not logged in.
@@ -202,19 +216,6 @@ public class LoginController(
                     }));
             }
 
-            return Challenge(
-                authenticationSchemes: CookieAuthenticationDefaults.AuthenticationScheme,
-                properties: new AuthenticationProperties
-                {
-                    RedirectUri = Request.PathBase + Request.Path + QueryString.Create(
-                        Request.HasFormContentType ? [.. Request.Form] : [.. Request.Query])
-                });
-        }
-
-        // If prompt=login was specified by the client application,
-        // immediately return the user agent to the login page.
-        if (request.HasPrompt(OpenIddictConstants.Prompts.Login))
-        {
             // To avoid endless login -> authorization redirects, the prompt=login flag
             // is removed from the authorization request payload before redirecting the user.
             var prompt = string.Join(" ", request.GetPrompts().Remove(OpenIddictConstants.Prompts.Login));
@@ -233,57 +234,83 @@ public class LoginController(
                 });
         }
 
-        //todo create identity from db
-        // Create the claims-based identity that will be used by OpenIddict to generate tokens.
-        var identity = new ClaimsIdentity(result.Principal!.Claims,
-            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
-            nameType: OpenIddictConstants.Claims.Name,
-            roleType: OpenIddictConstants.Claims.Role);
-        identity.SetScopes(new[]
+        var userId = lexAuthUser.Id.ToString();
+        var requestClientId = request.ClientId;
+        ArgumentException.ThrowIfNullOrEmpty(requestClientId);
+        var application = await applicationManager.FindByClientIdAsync(requestClientId) ??
+                          throw new InvalidOperationException(
+                              "Details concerning the calling client application cannot be found.");
+        var applicationId = await applicationManager.GetIdAsync(application) ??
+                            throw new InvalidOperationException("The calling client application could not be found.");
+
+        // Retrieve the permanent authorizations associated with the user and the calling client application.
+        var authorizations = await authorizationManager.FindAsync(
+            subject: userId,
+            client: applicationId,
+            status: OpenIddictConstants.Statuses.Valid,
+            type: OpenIddictConstants.AuthorizationTypes.Permanent,
+            scopes: request.GetScopes()).ToListAsync();
+
+        switch (await applicationManager.GetConsentTypeAsync(application))
         {
-            OpenIddictConstants.Scopes.OfflineAccess,
-            OpenIddictConstants.Scopes.OpenId,
-            OpenIddictConstants.Scopes.Email,
-            OpenIddictConstants.Scopes.Profile
-        }.Intersect(request.GetScopes()));
-        identity.SetAudiences(LexboxAudience.LexboxApi.ToString());
-        identity.SetDestinations(claim => claim.Type switch
-        {
-            // Note: always include acr and auth_time in the identity token as they must be flowed
-            // from the authorization endpoint to the identity token returned from the token endpoint.
-            OpenIddictConstants.Claims.AuthenticationContextReference or
-                OpenIddictConstants.Claims.AuthenticationTime
-                => ImmutableArray.Create(OpenIddictConstants.Destinations.IdentityToken),
+            // If the consent is implicit or if an authorization was found,
+            // return an authorization response without displaying the consent form.
+            case OpenIddictConstants.ConsentTypes.Implicit:
+            case OpenIddictConstants.ConsentTypes.External when authorizations.Count is not 0:
+            case OpenIddictConstants.ConsentTypes.Explicit when authorizations.Count is not 0 && !request.HasPrompt(OpenIddictConstants.Prompts.Consent):
 
-            // Note: when an authorization code or access token is returned, don't add the profile, email,
-            // phone and address claims to the identity tokens as they are returned from the userinfo endpoint.
-                OpenIddictConstants.Claims.Subject or
-                OpenIddictConstants.Claims.Name or
-                OpenIddictConstants.Claims.Locale or
-                OpenIddictConstants.Claims.UpdatedAt when
-                identity.HasScope(OpenIddictConstants.Scopes.Profile)
-                //todo consider if this should be enabled or not. It prevents the name from ending up in the ID token, but I guess that's supposed to be handled with the userinfo endpoint
-                // && !request.HasResponseType(OpenIddictConstants.ResponseTypes.Code)
-                // && !request.HasResponseType(OpenIddictConstants.ResponseTypes.Token)
-                =>
-                [
-                    OpenIddictConstants.Destinations.AccessToken,
-                    OpenIddictConstants.Destinations.IdentityToken
-                ],
+                return await FinishSignIn(lexAuthUser, request, applicationId, authorizations);
 
-            OpenIddictConstants.Claims.Email when
-                identity.HasScope(OpenIddictConstants.Scopes.Email) &&
-                !request.HasResponseType(OpenIddictConstants.ResponseTypes.Code) &&
-                !request.HasResponseType(OpenIddictConstants.ResponseTypes.Token) =>
-                [
-                    OpenIddictConstants.Destinations.AccessToken,
-                    OpenIddictConstants.Destinations.IdentityToken
-                ],
+            // If the consent is external (e.g when authorizations are granted by a sysadmin),
+            // immediately return an error if no authorization can be found in the database.
+            case OpenIddictConstants.ConsentTypes.External when authorizations.Count is 0:
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.ConsentRequired,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                            "The logged in user is not allowed to access this client application."
+                    }));
 
-            _ => [OpenIddictConstants.Destinations.AccessToken]
-        });
+            // At this point, no authorization was found in the database and an error must be returned
+            // if the client application specified prompt=none in the authorization request.
+            case OpenIddictConstants.ConsentTypes.Explicit when request.HasPrompt(OpenIddictConstants.Prompts.None):
+            case OpenIddictConstants.ConsentTypes.Systematic when request.HasPrompt(OpenIddictConstants.Prompts.None):
+                return Forbid(
+                    authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                    properties: new AuthenticationProperties(new Dictionary<string, string?>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.ConsentRequired,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                            "Interactive user consent is required."
+                    }));
 
-        return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            // In every other case, send user to consent page
+            default:
+                var parameters = Request.HasFormContentType
+                    ? Request.Form.ToList()
+                    : Request.Query.ToList();
+                var data = JsonSerializer.Serialize(parameters.ToDictionary(pair => pair.Key, pair => pair.Value.ToString()));
+                var queryString = new QueryString()
+                    .Add("appName", await applicationManager.GetDisplayNameAsync(application) ?? "Unknown app")
+                    .Add("scope", request.Scope ?? "")
+                    .Add("postback", data);
+                return Redirect($"/authorize{queryString.Value}");
+        }
+    }
+
+    private static bool IsExpired(OpenIddictRequest request, AuthenticateResult result)
+    {
+        // If a max_age parameter was provided, ensure that the cookie is not too old.
+        return (request.MaxAge != null && result.Properties?.IssuedUtc != null &&
+                DateTimeOffset.UtcNow - result.Properties.IssuedUtc >
+                TimeSpan.FromSeconds(request.MaxAge.Value));
+    }
+
+    private bool IsAcceptRequest()
+    {
+        return Request.Method == "POST" && Request.Form.ContainsKey("submit.accept") && User.Identity?.IsAuthenticated == true;
     }
 
     [HttpPost("token")]
@@ -306,26 +333,35 @@ public class LoginController(
                         "The token is no longer valid."
                 }));
         }
+
+        return await FinishSignIn(lexAuthUser, request);
+    }
+
+    private async Task<ActionResult> FinishSignIn(LexAuthUser lexAuthUser, OpenIddictRequest request)
+    {
         var requestClientId = request.ClientId;
         ArgumentException.ThrowIfNullOrEmpty(requestClientId);
         var application = await applicationManager.FindByClientIdAsync(requestClientId) ??
-                          throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
-        var userId = lexAuthUser.Id.ToString();
+                          throw new InvalidOperationException(
+                              "Details concerning the calling client application cannot be found.");
         // Retrieve the permanent authorizations associated with the user and the calling client application.
+        var applicationId = await applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException("The calling client application could not be found.");
         var authorizations = await authorizationManager.FindAsync(
-            subject: userId,
-            client : requestClientId,
-            status : OpenIddictConstants.Statuses.Valid,
-            type   : OpenIddictConstants.AuthorizationTypes.Permanent,
-            scopes : request.GetScopes()).ToListAsync();
+            subject: lexAuthUser.Id.ToString(),
+            client: applicationId,
+            status: OpenIddictConstants.Statuses.Valid,
+            type: OpenIddictConstants.AuthorizationTypes.Permanent,
+            scopes: request.GetScopes()).ToListAsync();
 
         //allow cors response for redirect hosts
         var redirectUrisAsync = await applicationManager.GetRedirectUrisAsync(application);
-        Response.Headers.AccessControlAllowOrigin = redirectUrisAsync.Select(uri => new Uri(uri).GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)).ToArray();
+        Response.Headers.AccessControlAllowOrigin = redirectUrisAsync
+            .Select(uri => new Uri(uri).GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)).ToArray();
 
         // Note: this check is here to ensure a malicious user can't abuse this POST-only endpoint and
         // force it to return a valid response without the external authorization.
-        if (authorizations.Count is 0 && await applicationManager.HasConsentTypeAsync(application, OpenIddictConstants.ConsentTypes.External))
+        if (authorizations.Count is 0 &&
+            await applicationManager.HasConsentTypeAsync(application, OpenIddictConstants.ConsentTypes.External))
         {
             return Forbid(
                 authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
@@ -337,6 +373,11 @@ public class LoginController(
                 }));
         }
 
+        return await FinishSignIn(lexAuthUser, request, applicationId, authorizations);
+    }
+    private async Task<ActionResult> FinishSignIn(LexAuthUser lexAuthUser, OpenIddictRequest request, string applicationId, List<object> authorizations)
+    {
+        var userId = lexAuthUser.Id.ToString();
         // Create the claims-based identity that will be used by OpenIddict to generate tokens.
         var identity = new ClaimsIdentity(
             authenticationType: TokenValidationParameters.DefaultAuthenticationType,
@@ -345,9 +386,9 @@ public class LoginController(
 
         // Add the claims that will be persisted in the tokens.
         identity.SetClaim(OpenIddictConstants.Claims.Subject, userId)
-                .SetClaim(OpenIddictConstants.Claims.Email, lexAuthUser.Email)
-                .SetClaim(OpenIddictConstants.Claims.Name, lexAuthUser.Name)
-                .SetClaim(OpenIddictConstants.Claims.Role, lexAuthUser.Role.ToString());
+            .SetClaim(OpenIddictConstants.Claims.Email, lexAuthUser.Email)
+            .SetClaim(OpenIddictConstants.Claims.Name, lexAuthUser.Name)
+            .SetClaim(OpenIddictConstants.Claims.Role, lexAuthUser.Role.ToString());
 
         // Note: in this sample, the granted scopes match the requested scope
         // but you may want to allow the user to uncheck specific scopes.
@@ -362,7 +403,7 @@ public class LoginController(
         authorization ??= await authorizationManager.CreateAsync(
             identity: identity,
             subject : userId,
-            client  : requestClientId,
+            client  : applicationId,
             type    : OpenIddictConstants.AuthorizationTypes.Permanent,
             scopes  : identity.GetScopes());
 
