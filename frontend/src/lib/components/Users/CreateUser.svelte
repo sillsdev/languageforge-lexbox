@@ -5,15 +5,15 @@
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
   import { register, acceptInvitation, createGuestUserByAdmin } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
-  import { onMount } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { usernameRe } from '$lib/user';
   import { z } from 'zod';
 
-  export let autoLogin = true;
   export let allowUsernames = false;
-  export let onSubmit: (() => void) | undefined = undefined;
   export let submitButtonText = $t('register.button_register');
   export let endpoint: 'register' | 'acceptInvitation' | 'createGuestUserByAdmin';
+
+  const dispatch = createEventDispatcher();
 
   type RegisterPageQueryParams = {
     name: string;
@@ -53,8 +53,7 @@
       return;
     }
     if (user) {
-      if (onSubmit) onSubmit();
-      if (autoLogin) await goto('/home', { invalidateAll: true }); // invalidate so we get the user from the server
+      dispatch('submitted');
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
