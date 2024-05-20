@@ -34,7 +34,7 @@ export default defineConfig({
     codegen(gqlOptions),
     precompileIntl('src/lib/i18n/locales'),
     sveltekit(),
-    basicSsl()
+    // basicSsl()
   ],
   optimizeDeps: {
   },
@@ -44,9 +44,6 @@ export default defineConfig({
   server: {
     port: 3000,
     host: exposeServer,
-    https: {
-
-    },
     strictPort: true,
     fs: {
       allow: [

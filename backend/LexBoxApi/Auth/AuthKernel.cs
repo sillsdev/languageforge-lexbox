@@ -216,14 +216,15 @@ public static class AuthKernel
                 options.RegisterScopes("openid", "profile", "email");
                 options.RegisterClaims("aud", "email", "exp", "iss", "iat", "sub", "name");
                 options.SetAuthorizationEndpointUris("api/login/open-id-auth");
-                options.SetTokenEndpointUris("api/connect/token");
+                options.SetTokenEndpointUris("api/login/token");
                 options.SetIntrospectionEndpointUris("api/connect/introspect");
                 options.SetUserinfoEndpointUris("api/connect/userinfo");
                 options.Configure(serverOptions => serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor));
 
                 options.AllowAuthorizationCodeFlow()
-                    .AllowImplicitFlow()//implicit flow used for response type token
                     .AllowRefreshTokenFlow();
+
+                options.RequireProofKeyForCodeExchange();//best practice to use PKCE with auth code flow and no implicit flow
 
                 options.IgnoreResponseTypePermissions();
                 options.IgnoreScopePermissions();
@@ -238,8 +239,13 @@ public static class AuthKernel
                     throw new NotImplementedException("need to implement loading keys from a file");
                 }
 
-                options.UseAspNetCore()
-                    .EnableAuthorizationEndpointPassthrough();
+                var aspnetCoreBuilder = options.UseAspNetCore()
+                    .EnableAuthorizationEndpointPassthrough()
+                    .EnableTokenEndpointPassthrough();
+                if (environment.IsDevelopment())
+                {
+                    aspnetCoreBuilder.DisableTransportSecurityRequirement();
+                }
             })
             .AddValidation(options =>
             {

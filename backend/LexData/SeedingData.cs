@@ -23,12 +23,18 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
             return;
         }
 
-        await SeedDatabase(cancellationToken);
+        await SeedUserData(cancellationToken);
+    }
+
+    public async Task SeedDatabase(CancellationToken cancellationToken = default)
+    {
+        await SeedOpenId(cancellationToken);
+        await SeedUserData(cancellationToken);
     }
 
     private const string PwSalt = "password-salt";
 
-    public async Task SeedDatabase(CancellationToken cancellationToken = default)
+    private async Task SeedUserData(CancellationToken cancellationToken = default)
     {
         if (environment.IsProduction()) return;
         //NOTE: When seeding make sure you provide a constant Id like I have done here,
@@ -176,20 +182,19 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
                     ClientId = clientId,//must be guid for MSAL
                     ClientType = OpenIddictConstants.ClientTypes.Public,
                     ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+                    DisplayName = "Oidc Debugger",
+                    ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
                     Permissions =
                     {
                         OpenIddictConstants.Permissions.Endpoints.Authorization,
                         OpenIddictConstants.Permissions.Endpoints.Token,
                         OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
                         OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
-                        OpenIddictConstants.Permissions.GrantTypes.Implicit,
                         OpenIddictConstants.Permissions.ResponseTypes.Code,
-                        OpenIddictConstants.Permissions.ResponseTypes.Token,
                         OpenIddictConstants.Permissions.Scopes.Email,
                         OpenIddictConstants.Permissions.Scopes.Profile
                     },
                     RedirectUris = { new Uri("https://oidcdebugger.com/debug")}
-
                 },
                 cancellationToken);
         }

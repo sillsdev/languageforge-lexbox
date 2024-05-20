@@ -36,7 +36,9 @@ public class LoginController(
     EmailService emailService,
     UserService userService,
     TurnstileService turnstileService,
-    ProjectService projectService)
+    ProjectService projectService,
+    IOpenIddictApplicationManager applicationManager,
+    IOpenIddictAuthorizationManager authorizationManager)
     : ControllerBase
 {
     /// <summary>
@@ -282,6 +284,136 @@ public class LoginController(
         });
 
         return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    [HttpPost("token")]
+    [AllowAnonymous]
+    public async Task<ActionResult> Exchange()
+    {
+        var request = HttpContext.GetOpenIddictServerRequest() ??
+                      throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
+        // Retrieve the claims principal stored in the authorization code/refresh token.
+        var result = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        var lexAuthUser = result.Succeeded ? LexAuthUser.FromClaimsPrincipal(result.Principal) : null;
+        if (!result.Succeeded || lexAuthUser is null)
+        {
+            return Forbid(
+                authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                properties: new AuthenticationProperties(new Dictionary<string, string?>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.InvalidGrant,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                        "The token is no longer valid."
+                }));
+        }
+        var requestClientId = request.ClientId;
+        ArgumentException.ThrowIfNullOrEmpty(requestClientId);
+        var application = await applicationManager.FindByClientIdAsync(requestClientId) ??
+                          throw new InvalidOperationException("Details concerning the calling client application cannot be found.");
+        var userId = lexAuthUser.Id.ToString();
+        // Retrieve the permanent authorizations associated with the user and the calling client application.
+        var authorizations = await authorizationManager.FindAsync(
+            subject: userId,
+            client : requestClientId,
+            status : OpenIddictConstants.Statuses.Valid,
+            type   : OpenIddictConstants.AuthorizationTypes.Permanent,
+            scopes : request.GetScopes()).ToListAsync();
+
+        //allow cors response for redirect hosts
+        var redirectUrisAsync = await applicationManager.GetRedirectUrisAsync(application);
+        Response.Headers.AccessControlAllowOrigin = redirectUrisAsync.Select(uri => new Uri(uri).GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)).ToArray();
+
+        // Note: this check is here to ensure a malicious user can't abuse this POST-only endpoint and
+        // force it to return a valid response without the external authorization.
+        if (authorizations.Count is 0 && await applicationManager.HasConsentTypeAsync(application, OpenIddictConstants.ConsentTypes.External))
+        {
+            return Forbid(
+                authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                properties: new AuthenticationProperties(new Dictionary<string, string?>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.ConsentRequired,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                        "The logged in user is not allowed to access this client application."
+                }));
+        }
+
+        // Create the claims-based identity that will be used by OpenIddict to generate tokens.
+        var identity = new ClaimsIdentity(
+            authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+            nameType: OpenIddictConstants.Claims.Name,
+            roleType: OpenIddictConstants.Claims.Role);
+
+        // Add the claims that will be persisted in the tokens.
+        identity.SetClaim(OpenIddictConstants.Claims.Subject, userId)
+                .SetClaim(OpenIddictConstants.Claims.Email, lexAuthUser.Email)
+                .SetClaim(OpenIddictConstants.Claims.Name, lexAuthUser.Name)
+                .SetClaim(OpenIddictConstants.Claims.Role, lexAuthUser.Role.ToString());
+
+        // Note: in this sample, the granted scopes match the requested scope
+        // but you may want to allow the user to uncheck specific scopes.
+        // For that, simply restrict the list of scopes before calling SetScopes.
+        identity.SetScopes(request.GetScopes());
+        identity.SetAudiences(LexboxAudience.LexboxApi.ToString());
+        // identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
+
+        // Automatically create a permanent authorization to avoid requiring explicit consent
+        // for future authorization or token requests containing the same scopes.
+        var authorization = authorizations.LastOrDefault();
+        authorization ??= await authorizationManager.CreateAsync(
+            identity: identity,
+            subject : userId,
+            client  : requestClientId,
+            type    : OpenIddictConstants.AuthorizationTypes.Permanent,
+            scopes  : identity.GetScopes());
+
+        identity.SetAuthorizationId(await authorizationManager.GetIdAsync(authorization));
+        identity.SetDestinations(GetDestinations);
+
+        // Returning a SignInResult will ask OpenIddict to issue the appropriate access/identity tokens.
+        return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    private static IEnumerable<string> GetDestinations(Claim claim)
+    {
+        // Note: by default, claims are NOT automatically included in the access and identity tokens.
+        // To allow OpenIddict to serialize them, you must attach them a destination, that specifies
+        // whether they should be included in access tokens, in identity tokens or in both.
+
+        var claimsIdentity = claim.Subject;
+        ArgumentNullException.ThrowIfNull(claimsIdentity);
+        switch (claim.Type)
+        {
+            case OpenIddictConstants.Claims.Name:
+                yield return OpenIddictConstants.Destinations.AccessToken;
+
+                if (claimsIdentity.HasScope(OpenIddictConstants.Scopes.Profile))
+                    yield return OpenIddictConstants.Destinations.IdentityToken;
+
+                yield break;
+
+            case OpenIddictConstants.Claims.Email:
+                yield return OpenIddictConstants.Destinations.AccessToken;
+
+                if (claimsIdentity.HasScope(OpenIddictConstants.Scopes.Email))
+                    yield return OpenIddictConstants.Destinations.IdentityToken;
+
+                yield break;
+
+            case OpenIddictConstants.Claims.Role:
+                yield return OpenIddictConstants.Destinations.AccessToken;
+
+                if (claimsIdentity.HasScope(OpenIddictConstants.Scopes.Roles))
+                    yield return OpenIddictConstants.Destinations.IdentityToken;
+
+                yield break;
+
+            // Never include the security stamp in the access and identity tokens, as it's a secret value.
+            case "AspNet.Identity.SecurityStamp": yield break;
+
+            default:
+                yield return OpenIddictConstants.Destinations.AccessToken;
+                yield break;
+        }
     }
 
     [HttpPost]
