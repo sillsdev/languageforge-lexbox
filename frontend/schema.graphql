@@ -435,7 +435,7 @@ input CreateGuestUserByAdminInput {
   username: String
   locale: String!
   passwordHash: String!
-  passwordStrength: Int
+  passwordStrength: Int!
 }
 
 input CreateOrganizationInput {

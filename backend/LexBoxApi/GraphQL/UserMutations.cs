@@ -33,7 +33,7 @@ public class UserMutations
         string? Username,
         string Locale,
         string PasswordHash,
-        int? PasswordStrength);
+        int PasswordStrength);
 
     [Error<NotFoundException>]
     [Error<DbError>]
