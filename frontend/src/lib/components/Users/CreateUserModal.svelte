@@ -33,7 +33,7 @@
     </div>
   </div>
   <h1 class="text-center text-xl">{$t('admin_dashboard.create_user_modal.create_user')}</h1>
-  <CreateUser {endpoint} autoLogin={false} allowUsernames={true}
+  <CreateUser {endpoint} autoLogin={false} allowUsernames
     onSubmit={() => createUserModal.submitModal()}
     submitButtonText={$t('admin_dashboard.create_user_modal.create_user')}
   />
