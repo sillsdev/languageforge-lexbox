@@ -13,7 +13,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 const exposeServer = false;
 const lexboxServer: ProxyOptions = {
-  target: 'https://localhost:7075',
+  target: 'http://localhost:5158',
   secure: false
 };
 
