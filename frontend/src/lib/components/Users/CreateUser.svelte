@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SubmitButton, FormError, Input, Form, ProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
