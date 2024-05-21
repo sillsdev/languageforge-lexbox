@@ -15,6 +15,7 @@
   import {AUTHENTICATED_ROOT} from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
 
+  //return url should be a relative path, or empty string
   let returnUrl: string = '';
 
   const formSchema = z.object({
@@ -114,7 +115,7 @@
           <a class="btn btn-primary" href="/register">{$t('register.title')}</a>
         </Form>
         <div class="divider lowercase">{$t('common.or')}</div>
-        <SigninWithGoogleButton href="/api/login/google"/>
+        <SigninWithGoogleButton href={`/api/login/google?redirectTo=${encodeURIComponent(returnUrl)}`}/>
       </div>
     </div>
 
