@@ -522,6 +522,5 @@ If you don't see a dialog or already closed it, click the button below:",
     "or": "Or",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
-    "any": "Any",
   }
 }
