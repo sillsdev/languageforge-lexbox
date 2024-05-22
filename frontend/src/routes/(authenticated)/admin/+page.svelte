@@ -21,6 +21,8 @@
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
+  import type { Confidentiality } from '$lib/components/Projects';
+  import { helpLinks } from '$lib/components/help';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -33,8 +35,10 @@
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
+    confidential: queryParam.string<Confidentiality | undefined>(undefined),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
-    userEmail: queryParam.string(undefined),
+    memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     tab: queryParam.string<AdminTabId>('projects'),
   });
@@ -58,7 +62,11 @@
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
-    $queryParamValues.userEmail = user.email ?? undefined;
+    $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
+    // Clear other filters that might hide the user's projects
+    $queryParamValues.projectSearch = '';
+    $queryParamValues.projectType = undefined;
+    $queryParamValues.tab = 'projects';
   }
 
   let userModal: UserModal;
@@ -79,7 +87,7 @@
       if (formState.name.tainted || formState.password.tainted || formState.role.tainted) {
         notifySuccess($t('admin_dashboard.notifications.user_updated', { name: formState.name.currentValue }));
       }
-      if (formState.email.changed) {
+      if (formState.email.changed && formState.email.currentValue) {
         notifySuccess(
           $t('admin_dashboard.notifications.email_need_verification', {
             name: user.name,
@@ -104,14 +112,28 @@
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
       <AdminTabs activeTab="users" on:clickTab={(event) => $queryParamValues.tab = event.detail}>
-        {$t('admin_dashboard.user_table_title')}
-        <Badge>
-          <span class="inline-flex gap-2">
-            {$number(shownUsers.length)}
-            <span>/</span>
-            {$number(filteredUserCount)}
-          </span>
-        </Badge>
+        <div class="flex gap-4 justify-between grow">
+          <div class="flex gap-4 items-center">
+            {$t('admin_dashboard.user_table_title')}
+            <div class="contents max-xs:hidden">
+              <Badge>
+                <span class="inline-flex gap-2">
+                  {$number(shownUsers.length)}
+                  <span>/</span>
+                  {$number(filteredUserCount)}
+                </span>
+              </Badge>
+            </div>
+          </div>
+          <a class="btn btn-sm btn-success btn-outline max-xs:btn-square group"
+            href={helpLinks.bulkAddCreate}
+            target="_blank" rel="external">
+            <span class="admin-tabs:hidden">
+              {$t('admin_dashboard.how_to_create_users')}
+            </span>
+            <span class="i-mdi-plus text-2xl group-hover:i-mdi-open-in-new" />
+          </a>
+        </div>
       </AdminTabs>
       <div class="mt-4">
         <FilterBar
@@ -126,14 +148,17 @@
       </div>
 
       <div class="divider" />
-      <div class="overflow-x-auto @container">
+      <div class="overflow-x-auto @container scroll-shadow">
         <table class="table table-lg">
           <thead>
             <tr class="bg-base-200">
               <th>
-                {$t('admin_dashboard.column_name')}<span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
+                {$t('admin_dashboard.column_name')}
+                <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
               </th>
-              <th class="hidden @xl:table-cell">{$t('admin_dashboard.column_login')}</th>
+              <th class="hidden @2xl:table-cell">
+                {$t('admin_dashboard.column_login')}
+              </th>
               <th>{$t('admin_dashboard.column_email')}</th>
               <th />
             </tr>
@@ -142,9 +167,11 @@
             {#each shownUsers as user}
               <tr>
                 <td>
-                  <div class="flex items-center gap-2">
-                    <Button variant="btn-ghost" size="btn-sm" on:click={() => userModal.open(user)}>
-                      {user.name}
+                  <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
+                    <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => userModal.open(user)}>
+                      <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
+                        {user.name}
+                      </span>
                       <Icon icon="i-mdi-card-account-details-outline" />
                     </Button>
                     {#if user.locked}
@@ -163,15 +190,17 @@
                     {/if}
                   </div>
                 </td>
-                <td class="hidden @xl:table-cell">
+                <td class="hidden @2xl:table-cell">
                   {#if user.username}
                     {user.username}
                   {/if}
                 </td>
                 <td>
-                  <span class="inline-flex items-center gap-2 text-left">
+                  <span class="inline-flex items-center gap-2 text-left max-w-40">
                     {#if user.email}
-                      {user.email}
+                      <span class="max-width-full overflow-hidden text-ellipsis" title={user.email}>
+                        {user.email}
+                      </span>
                       {#if !user.emailVerified}
                         <span
                           class="tooltip text-warning text-xl shrink-0 leading-0"

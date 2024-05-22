@@ -43,6 +43,7 @@ If you're running Windows, you may need to add the following lines to your `C:\W
 ```
 127.0.0.1 resumable.localhost
 127.0.0.1 hg.localhost
+127.0.0.1 admin.localhost
 ```
 
 On Linux, anything with a `.localhost` domain is automatically mapped to 127.0.0.1 so you don't need to edit your `/etc/hosts` file.
@@ -100,6 +101,7 @@ The SvelteKit UI will be available at http://localhost:3000.
 * http://localhost:5158/api/graphql/ui - GraphQL UI
 * http://localhost:8088/hg - hg web UI (add the project code and use the url in FLEx to clone)
 * http://localhost:1080 - maildev UI
+* http://localhost:18888 - [aspire dashboard](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/dashboard) (OTEL traces)
 
 ### Seeded data
 

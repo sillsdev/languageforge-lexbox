@@ -13,6 +13,7 @@
     "column_edit": "Edit",
     "project_table_title": "Projects",
     "user_table_title": "Users",
+    "how_to_create_users": "How to Create Users",
     "is_draft": "Draft",
     "email_not_verified": "Not Verified",
     "notifications": {
@@ -86,7 +87,8 @@
     "app_name": "Language Depot"
   },
   "appmenu": {
-    "log_out": "Log out"
+    "log_out": "Log out",
+    "help": "Help"
   },
   "close": "Close",
   "delete_modal": {
@@ -120,7 +122,7 @@
     "button_login": "Log in",
     "button_login_again": "Try to log in again?",
     "forgot_password": "Forgot your password?",
-    "label_email": "Email (or Send/Receive login)",
+    "label_email": "Email or Send/Receive login",
     "label_password": "Password",
     "missing_user_info": "User info missing",
     "sign_in_with_google": "Sign in with Google",
@@ -173,32 +175,60 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "project_member": "Project member",
       "filter_user_projects": "Filter projects",
     },
+    "confidential": {
+      "confidential": "Confidential",
+      "confidentiality": "Confidentiality",
+      "not_confidential": "Not confidential",
+      "set_confidentiality": "Set project confidentiality",
+      "unspecified": "Unspecified",
+      "confidentiality_unspecified": "Confidentiality unspecified",
+      "label": "This project is confidential. The safety of project members is a security concern.",
+      "description": "Only project members and administrators will be able to see this project. For more information see [Project Confidentiality](https://scribehow.com/shared/Project_Confidentiality__s6TX8_wFQ1ejVpH1s5Bsmw?referrer=documents).",
+      "suggestions": "Consider using an alias for the project, project members and any other identifying information in the project. (For similar reasons to those mentioned for [confidential Paratext projects](https://paratext.org/paratext-help-and-support/registry-training-and-help/confidential-projects/).)",
+      "modal": {
+        "title": "Project confidentiality",
+        "submit_button_confidential": "Project is confidential",
+        "submit_button_not_confidential": "Project is not confidential",
+        "project_now_confidential": "Project is now confidential.",
+        "project_now_not_confidential": "Project is now not confidential.",
+      }
+    },
   },
   "project_page": {
     "project": "Project",
     "add_user": {
-      "add_button": "Add Member",
-      "modal_title": "Add a Member to this project",
+      "add_button": "Add/Invite Member",
+      "modal_title": "Add or invite a Member to this project",
       "submit_button": "Add Member",
+      "empty_user_field": "Please enter an email address or login",
+      "submit_button_email": "Add or invite Member",
       "project_not_found": "Project not found. Please refresh the page.",
-      "user_not_found": "No user was found with this email address",
+      "username_not_found": "No user was found with this login",
       "user_must_be_verified": "User needs a verified email address",
+      "manager_must_be_verified": "User needs a verified email address in order to be a manager",
+      "user_already_member": "User is already a member of this project",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
+      "invalid_email_address": "Invalid email address: {email}",
     },
     "bulk_add_members": {
       "add_button": "Bulk Add/Create Members",
-      "explanation": "Adds all the provided Send/Receive logins/usernames to this project. New users will be created automatically with the provided password for logins that don't exist.",
+      "explanation": "Adds all the entered logins and emails to this project. New accounts will be created automatically for users that don't have one yet.",
       "modal_title": "Bulk Add/Create Members",
       "submit_button": "Add/Create Members",
       "finish_button": "Close",
       "shared_password": "Shared Password",
-      "usernames": "Logins/usernames (one per line)",
-      "usernames_alphanum_only": "Logins/usernames must contain only letters, numbers, and underscore (_) characters",
+      "shared_password_description": "For new users",
+      "usernames": "Logins or emails (one per line)",
+      "usernames_description": "This will be the **Send/Receive login** for new users",
+      "invalid_username": "Invalid login/username: {username}. Can only use letters, numbers, and underscore (_) characters.",
+      "empty_user_field": "Please enter email addresses and/or logins",
       "creator_must_have_email": "You must have an email address in order to create a project.",
       "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to project.",
       "existing_added_members": "{existedCount} {existedCount, plural, one {user} other {users}} already existed.",
       "already_members": "{count, plural, one {# user was} other {# users were}} already in the project.",
       "accounts_created": "{createdCount} new {createdCount, plural, one {user was} other {users were}} created with the provided password.",
+      "accounts_invited": "{invitedCount} new {invitedCount, plural, one {user was} other {users were}} invited by email to join the project.",
+      "invalid_email_address": "Invalid email address: {email}.",
     },
     "change_role_modal": {
       "title": "Choose role for {name}"
@@ -268,25 +298,46 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "log_header": "Message"
     },
     "get_project": {
-      "instructions_header": "To open the project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
+      "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
-1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" and \"Password\" for Language Depot and click \"Log in\"\n\
+1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Language Depot and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
+      "instructions_flex_empty": "1. [Download FLEx](https://software.sil.org/fieldworks/download/) onto your computer.\n\
+1. Open the FLEx application and select \"Create a new project...\".\n\
+1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
+1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
+1. Click on \"OK (I have the master project)\".\n\
+1. Click on \"Settings...\" and enter your Language Depot \"Login\" ({login}) and \"Password\".\n\
+1. Click Log in, then select the Project ID ({code}) from the drop-down menu.\n\
+1. Click on Internet. This will initiate the first Send/Receive.",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
 1. Click 'Get from Internet'\n\
 1. In the 'Project ID' field type: \"{code}\"\n\
-1. In the 'Login' field type: \"{login}\"\ Note: A bug in WeSay means you can't type the @ symbol for an email.  The workaround is to type %40 in place of @. \n\
+1. In the 'Login' field type: \"{login}\".\ Note: A bug in WeSay means you can't type the @ symbol for an email.  The workaround is to type %40 in place of @. \n\
 1. In the 'Password' field type your password\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")\n\
 1. Click 'Download'",
-      "label": "Get project",
+      "instructions_wesay_empty": "1. [Download WeSay](https://software.sil.org/wesay/download/) onto your computer.\n\
+1. Open WeSay and select \"Create a new blank project...\".\n\
+1. Fill in the required information: project language and name of project (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
+1. Add some words if you want\n\
+1. Click \"Send/Receive\"\n\
+1. Click on \"Settings...\"\n\
+1. In the \"Name to show in change history\" field make sure your name is spelled correctly\n\
+1. In the \"Project ID\" field type: \"{code}\"\n\
+1. In the \"Login\" field type: \"{login}\".\ Note: A bug in WeSay means you can't type the @ symbol for an email.  The workaround is to type %40 in place of @. \n\
+1. In the \"Password\" field type your password\n\
+1. Click on \"OK\" to close the \"Settings...\" dialog\n\
+1. Click on \"Internet\". This will initiate the first Send/Receive.",
+      "label": "{isEmpty, select, true { Set up } other { Get } } project",
       "send_receive_url": "Send/Receive URL",
     },
     "promote_project": {
       "label": "Promote to real project",
     },
+    "open_with_viewer": "Browse",
     "open_with_flex": {
       "button": "Open with FLEx",
       "supported_version": "Note: This feature is only fully supported as of [FieldWorks version 9.?](https://software.sil.org/fieldworks/download/).",
@@ -317,7 +368,6 @@ If you don't see a dialog or already closed it, click the button below:",
   },
   "project_type": {
     "type": "Project type",
-    "any": "Any",
     "adaptIt": "Adapt It",
     "flex": "FLEx",
     "oneStoryEditor": "OneStory Editor",
@@ -336,7 +386,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "account_exists": "An account with this email already exists",
     "button_register": "Register",
     "label_email": "Email",
-    "description_email": "This will be your Send/Receive login",
+    "description_email": "This will be your **Send/Receive login**",
     "label_name": "Name",
     "label_password": "Password",
     "name_missing": "Name missing",
@@ -382,6 +432,11 @@ If you don't see a dialog or already closed it, click the button below:",
   },
   "emails": {
     "link_expiration_warning": "This email will expire in 3 days.",
+    "link_expiration_days": "This email will expire in {days} {days, plural, one {day} other {days}}.",
+    "link_expiration_hours": "This email will expire in {hours} {hours, plural, one {hour} other {hours}}.",
+    "link_expiration_minutes": "This email will expire in {minutes} {minutes, plural, one {minute} other {minutes}}.",
+    "link_expiration_seconds": "This email will expire in {seconds} {seconds, plural, one {second} other {seconds}}.",
+    "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
       "subject": "New Language Depot administrator {adminName}",
       "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."
@@ -438,7 +493,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "update_detected": "A new version of the application was detected. You may need to reload the page.",
   },
   "table": {
-    "refine_filter": "Refine your filter to see {remainingRows} more rows..."
+    "refine_filter": "Refine your filter to see {remainingRows, number} more rows..."
   },
   "turnstile": {
     "invalid": "Captcha Error, try again",
@@ -465,5 +520,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "no": "No",
     "none": "None",
     "or": "Or",
+    "any": "Any",
+    "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
   }
 }

@@ -1,10 +1,5 @@
-using System.ComponentModel.Composition;
-using System.IO.Compression;
-using System.Runtime.CompilerServices;
 using Chorus.VcsDrivers.Mercurial;
 using LexBoxApi.Auth;
-using LexCore.Utils;
-using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using SIL.Progress;
 using System.Net.Http.Json;
@@ -14,79 +9,45 @@ using Testing.Fixtures;
 using Testing.Logging;
 using Testing.Services;
 using Xunit.Abstractions;
+using static Testing.Services.Constants;
+using static Testing.Services.Utils;
 
 namespace Testing.SyncReverseProxy;
 
 [Trait("Category", "Integration")]
-public class SendReceiveServiceTests
+public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 {
-    private readonly SendReceiveAuth ManagerAuth = new("manager", TestingEnvironmentVariables.DefaultPassword);
-    private readonly SendReceiveAuth AdminAuth = new("admin", TestingEnvironmentVariables.DefaultPassword);
-    private readonly SendReceiveAuth InvalidPass = new("manager", "incorrect_pass");
-    private readonly SendReceiveAuth InvalidUser = new("invalid_user", TestingEnvironmentVariables.DefaultPassword);
-    private readonly SendReceiveAuth UnauthorizedUser = new("user", TestingEnvironmentVariables.DefaultPassword);
-
     private readonly ITestOutputHelper _output;
+    private readonly IntegrationFixture _srFixture;
+    private readonly ApiTestBase _adminApiTester;
 
     private readonly SendReceiveService _sendReceiveService;
 
-    public SendReceiveServiceTests(ITestOutputHelper output)
+    public SendReceiveServiceTests(ITestOutputHelper output, IntegrationFixture sendReceiveSrFixture)
     {
         _output = output;
         _sendReceiveService = new SendReceiveService(_output);
-    }
-
-    private static readonly string BasePath = Path.Join(Path.GetTempPath(), "SR_Tests");
-    private static int _folderIndex = 1;
-    static SendReceiveServiceTests()
-    {
-        var dirInfo = new DirectoryInfo(BasePath);
-        try
-        {
-            dirInfo.Delete(true);
-        }
-        catch (DirectoryNotFoundException)
-        {
-            // It's fine if it didn't exist beforehand
-        }
-    }
-
-
-    private string GetProjectDir(string projectCode,
-        string? identifier = null,
-        [CallerMemberName] string testName = "")
-    {
-        var projectDir = Path.Join(BasePath, testName);
-        if (identifier is not null) projectDir = Path.Join(projectDir, identifier);
-        //fwdata file containing folder name will be the same as the file name
-        projectDir = Path.Join(projectDir, _folderIndex++.ToString(), projectCode);
-        projectDir.Length.ShouldBeLessThan(150, "Path may be too long with mercurial directories");
-        return projectDir;
-    }
-
-    private SendReceiveParams GetParams(HgProtocol protocol,
-        string? projectCode = null,
-        [CallerMemberName] string testName = "")
-    {
-        projectCode ??= TestingEnvironmentVariables.ProjectCode;
-        var sendReceiveParams = new SendReceiveParams(projectCode, protocol.GetTestHostName(), GetProjectDir(projectCode, testName: testName));
-        return sendReceiveParams;
+        _srFixture = sendReceiveSrFixture;
+        _adminApiTester = _srFixture.AdminApiTester;
     }
 
     [Fact]
     public async Task VerifyHgWorking()
     {
-        string version = await _sendReceiveService.GetHgVersion();
+        var version = await _sendReceiveService.GetHgVersion();
         version.ShouldStartWith("Mercurial Distributed SCM");
         _output.WriteLine("Hg version: " + version);
-        HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) {ShowVerbose = true});
+        HgRunner.Run("hg version", Environment.CurrentDirectory, 5, new XunitStringBuilderProgress(_output) { ShowVerbose = true });
         HgRepository.GetEnvironmentReadinessMessage("en").ShouldBeNull();
     }
 
-    [Fact]
-    public void CloneBigProject()
+    [Theory]
+    [InlineData(HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Resumable)]
+    public void CloneBigProject(HgProtocol hgProtocol)
     {
-        RunCloneSendReceive(HgProtocol.Hgweb, AdminAuth, "elawa-dev-flex");
+        var sendReceiveParams = GetParams(hgProtocol, "elawa-dev-flex");
+        _sendReceiveService.RunCloneSendReceive(sendReceiveParams, AdminAuth);
     }
 
     [Theory]
@@ -94,9 +55,9 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
     {
-        RunCloneSendReceive(hgProtocol,
-            new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword),
-            TestingEnvironmentVariables.ProjectCode);
+        var sendReceiveParams = GetParams(hgProtocol);
+        _sendReceiveService.RunCloneSendReceive(sendReceiveParams,
+            new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword));
     }
 
     [Theory]
@@ -106,37 +67,9 @@ public class SendReceiveServiceTests
     {
         var projectCode = TestingEnvironmentVariables.ProjectCode;
         var jwt = await JwtHelper.GetProjectJwtForUser(new SendReceiveAuth(user, TestingEnvironmentVariables.DefaultPassword), projectCode);
-
-        RunCloneSendReceive(hgProtocol,
-            new SendReceiveAuth(AuthKernel.JwtOverBasicAuthUsername, jwt),
-            projectCode);
-    }
-
-    private void RunCloneSendReceive(HgProtocol hgProtocol, SendReceiveAuth auth, string projectCode)
-    {
-        var sendReceiveParams = new SendReceiveParams(projectCode, hgProtocol.GetTestHostName(),
-            GetProjectDir(projectCode, Path.Join(hgProtocol.ToString(), auth.Username)));
-        var projectDir = sendReceiveParams.DestDir;
-        var fwDataFile = sendReceiveParams.FwDataFile;
-
-        // Clone
-        var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);
-        cloneResult.ShouldNotContain("abort");
-        cloneResult.ShouldNotContain("error");
-        Directory.Exists(projectDir).ShouldBeTrue($"Directory {projectDir} not found. Clone response: {cloneResult}");
-        Directory.EnumerateFiles(projectDir).ShouldContain(fwDataFile);
-        var fwDataFileInfo = new FileInfo(fwDataFile);
-        fwDataFileInfo.Length.ShouldBeGreaterThan(0);
-        var fwDataFileOriginalLength = fwDataFileInfo.Length;
-
-        // SendReceive
-        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth);
-        srResult.ShouldNotContain("abort");
-        srResult.ShouldNotContain("error");
-        srResult.ShouldContain("no changes from others");
-        fwDataFileInfo.Refresh();
-        fwDataFileInfo.Exists.ShouldBeTrue();
-        fwDataFileInfo.Length.ShouldBe(fwDataFileOriginalLength);
+        var sendReceiveParams = GetParams(hgProtocol, projectCode);
+        _sendReceiveService.RunCloneSendReceive(sendReceiveParams,
+            new SendReceiveAuth(AuthKernel.JwtOverBasicAuthUsername, jwt));
     }
 
     [Theory]
@@ -144,132 +77,60 @@ public class SendReceiveServiceTests
     [InlineData(HgProtocol.Resumable)]
     public async Task ModifyProjectData(HgProtocol protocol)
     {
-        var projectCode = TestingEnvironmentVariables.ProjectCode;
-        var apiTester = new ApiTestBase();
-        var auth = AdminAuth;
-        await apiTester.LoginAs(auth.Username, auth.Password);
-        string gqlQuery =
-$$"""
-query projectLastCommit {
-    projectByCode(code: "{{projectCode}}") {
-        lastCommit
-    }
-}
-""";
-        var jsonResult = await apiTester.ExecuteGql(gqlQuery);
-        var lastCommitDate = jsonResult["data"]["projectByCode"]["lastCommit"].ToString();
+        // Create a fresh project
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
-        // Clone
-        var sendReceiveParams = GetParams(protocol, projectCode);
-        var cloneResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);
-        cloneResult.ShouldNotContain("abort");
-        cloneResult.ShouldNotContain("error");
+        await WaitForHgRefreshIntervalAsync();
+
+        // Push the project to the server
+        var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
+        _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
+
+        await WaitForLexboxMetadataUpdateAsync();
+
+        // Verify pushed and store last commit
+        var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommitDate.ShouldNotBeNullOrEmpty();
+
+        // Modify
         var fwDataFileInfo = new FileInfo(sendReceiveParams.FwDataFile);
         fwDataFileInfo.Length.ShouldBeGreaterThan(0);
         ModifyProjectHelper.ModifyProject(sendReceiveParams.FwDataFile);
 
-        // Send changes
-        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth, "Modify project data automated test");
-        srResult.ShouldNotContain("abort");
-        srResult.ShouldNotContain("error");
-        await Task.Delay(6000);
+        // Push changes
+        _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
 
-        jsonResult = await apiTester.ExecuteGql(gqlQuery);
-        var lastCommitDateAfter = jsonResult["data"]["projectByCode"]["lastCommit"].ToString();
+        await WaitForLexboxMetadataUpdateAsync();
+
+        // Verify the push updated the last commit date
+        var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
         lastCommitDateAfter.ShouldBeGreaterThan(lastCommitDate);
     }
-
 
     [Theory]
     [InlineData(HgProtocol.Hgweb)]
     [InlineData(HgProtocol.Resumable)]
     public async Task SendReceiveAfterProjectReset(HgProtocol protocol)
     {
-        // Create new project on server so we don't reset our master test project
-        var id = Guid.NewGuid();
-        var newProjectCode = $"{(protocol == HgProtocol.Hgweb ? "web": "res")}-sr-reset-{id:N}";
-        var apiTester = new ApiTestBase();
-        var auth = AdminAuth;
-        await apiTester.LoginAs(auth.Username, auth.Password);
-        await apiTester.ExecuteGql($$"""
-            mutation {
-                createProject(input: {
-                    name: "Send new project test",
-                    type: FL_EX,
-                    id: "{{id}}",
-                    code: "{{newProjectCode}}",
-                    description: "A project created during a unit test to test Send/Receive operation via {{protocol}} after a project reset",
-                    retentionPolicy: DEV
-                }) {
-                    createProjectResponse {
-                        id
-                        result
-                    }
-                    errors {
-                        __typename
-                        ... on DbError {
-                            code
-                            message
-                        }
-                    }
-                }
-            }
-            """);
+        // Create a fresh project
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, "SR_AfterReset");
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
-        // Ensure newly-created project is deleted after test completes
-        await using var deleteProject = Defer.Async(() => apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}"));
+        await WaitForHgRefreshIntervalAsync();
 
-        // Sleep 5 seconds to ensure hgweb picks up newly-created test project
-        await Task.Delay(TimeSpan.FromSeconds(5));
-
-        // Populate new project from original so we're not resetting original test project in E2E tests
-        // Note that this time we're cloning via hg clone rather than Chorus, because we don't want a .fwdata file yet
-        var progress = new NullProgress();
-        var origProjectCode = TestingEnvironmentVariables.ProjectCode;
-        var sourceProjectDir = GetProjectDir(origProjectCode);
-        Directory.CreateDirectory(sourceProjectDir);
-        var hgwebUrl = new UriBuilder
-        {
-            Scheme = TestingEnvironmentVariables.HttpScheme,
-            Host = HgProtocol.Hgweb.GetTestHostName(),
-            UserName = auth.Username,
-            Password = auth.Password
-        };
-        HgRunner.Run($"hg clone {hgwebUrl}{origProjectCode} {sourceProjectDir}", "", 15, progress);
-        HgRunner.Run($"hg push {hgwebUrl}{newProjectCode}", sourceProjectDir, 15, progress);
-
-        // Sleep 5 seconds to ensure hgweb picks up newly-pushed commits
-        await Task.Delay(TimeSpan.FromSeconds(5));
-
-        // Now clone again via Chorus so that we'll hvae a .fwdata file
-        var sendReceiveParams = GetParams(protocol, newProjectCode);
-        Directory.CreateDirectory(sendReceiveParams.DestDir);
-        var srResult = _sendReceiveService.CloneProject(sendReceiveParams, auth);
-        _output.WriteLine(srResult);
-        srResult.ShouldNotContain("abort");
-        srResult.ShouldNotContain("failure");
-        srResult.ShouldNotContain("error");
-
-        // Delete the Chorus revision cache if resumable, otherwise Chorus will send the wrong data during S/R
-        // Note that HgWeb protocol does *not* have this issue
-        string chorusStorageFolder = Path.Join(sendReceiveParams.DestDir, "Chorus", "ChorusStorage");
-        var revisionCache = new FileInfo(Path.Join(chorusStorageFolder, "revisioncache.json"));
-        if (revisionCache.Exists)
-        {
-            revisionCache.Delete();
-        }
-
-        // With all that setup out of the way, we can now start the actual test itself
+        var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
 
         // First, save the current value of `hg tip` from the original project
         var tipUri = new UriBuilder
         {
             Scheme = TestingEnvironmentVariables.HttpScheme,
             Host = TestingEnvironmentVariables.ServerHostname,
-            Path = $"hg/{newProjectCode}/tags",
+            Path = $"hg/{projectConfig.Code}/tags",
             Query = "?style=json"
         };
-        var response = await apiTester.HttpClient.GetAsync(tipUri.Uri);
+        var response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         var jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var originalTip = jsonResult?["node"]?.AsValue()?.ToString();
         originalTip.ShouldNotBeNull();
@@ -280,14 +141,13 @@ query projectLastCommit {
         // /api/project/upload-zip/{code}  // upload zip file
 
         // Step 1: reset project
-        await apiTester.HttpClient.PostAsync($"{apiTester.BaseUrl}/api/project/resetProject/{newProjectCode}", null);
-        await apiTester.HttpClient.PostAsync($"{apiTester.BaseUrl}/api/project/finishResetProject/{newProjectCode}", null);
+        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
+        await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
-        // Sleep 5 seconds to ensure hgweb picks up newly-reset project
-        await Task.Delay(TimeSpan.FromSeconds(5));
+        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
-        response = await apiTester.HttpClient.GetAsync(tipUri.Uri);
+        response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var emptyTip = jsonResult?["node"]?.AsValue()?.ToString();
         emptyTip.ShouldNotBeNull();
@@ -295,14 +155,24 @@ query projectLastCommit {
         emptyTip.Replace("0", "").ShouldBeEmpty();
 
         // Step 3: do Send/Receive
-        var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth);
+        if (protocol == HgProtocol.Resumable)
+        {
+            // Delete the Chorus revision cache of resumable, otherwise Chorus will send the wrong data during S/R
+            var chorusStorageFolder = Path.Join(sendReceiveParams.Dir, "Chorus", "ChorusStorage");
+            var revisionCache = new FileInfo(Path.Join(chorusStorageFolder, "revisioncache.json"));
+            if (revisionCache.Exists)
+            {
+                revisionCache.Delete();
+            }
+        }
+
+        var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
-        srResultStep3.ShouldNotContain("abort");
-        srResultStep3.ShouldNotContain("failure");
-        srResultStep3.ShouldNotContain("error");
+
+        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         // Step 4: verify project tip is same hash as original project tip
-        response = await apiTester.HttpClient.GetAsync(tipUri.Uri);
+        response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var postSRTip = jsonResult?["node"]?.AsValue()?.ToString();
         postSRTip.ShouldNotBeNull();
@@ -310,84 +180,47 @@ query projectLastCommit {
     }
 
     [Fact]
-    public async Task SendNewProject()
+    public async Task SendNewProject_Big()
     {
-        var id = Guid.NewGuid();
-        var apiTester = new ApiTestBase();
-        var auth = AdminAuth;
-        var projectCode = "send-new-project-test-" + id.ToString("N");
-        await apiTester.LoginAs(auth.Username, auth.Password);
-        await apiTester.ExecuteGql($$"""
-            mutation {
-                createProject(input: {
-                    name: "Send new project test",
-                    type: FL_EX,
-                    id: "{{id}}",
-                    code: "{{projectCode}}",
-                    description: "this is a new project created during a unit test to verify we can send a new project for the first time",
-                    retentionPolicy: DEV
-                }) {
-                    createProjectResponse {
-                        id
-                        result
-                    }
-                    errors {
-                        __typename
-                        ... on DbError {
-                            code
-                            message
-                        }
-                    }
-                }
-            }
-            """);
-
-        await using var deleteProject = Defer.Async(() => apiTester.HttpClient.DeleteAsync($"{apiTester.BaseUrl}/api/project/project/{id}"));
-
-        var sendReceiveParams = GetParams(HgProtocol.Hgweb, projectCode);
-        await using (var stream = await apiTester.HttpClient.GetStreamAsync("https://drive.google.com/uc?export=download&id=1w357T1Ti7bDwEof4HPBUZ5gB7WSKA5O2"))
-        using(var zip = new ZipArchive(stream))
-        {
-            zip.ExtractToDirectory(sendReceiveParams.DestDir);
-        }
-        File.Move(Path.Join(sendReceiveParams.DestDir, "kevin-test-01.fwdata"), sendReceiveParams.FwDataFile);
-        Directory.EnumerateFiles(sendReceiveParams.DestDir).ShouldContain(sendReceiveParams.FwDataFile);
-
-        //hack around the fact that our send and receive won't create a repo from scratch.
-        var progress = new NullProgress();
-        HgRunner.Run("hg init", sendReceiveParams.DestDir, 1, progress);
-        HgRunner.Run("hg branch 7500002.7000072", sendReceiveParams.DestDir, 1, progress);
-        HgRunner.Run($"hg add Lexicon.fwstub", sendReceiveParams.DestDir, 1, progress);
-        HgRunner.Run("""hg commit -m "first commit" """, sendReceiveParams.DestDir, 1, progress);
-
-        //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
-        const int totalSizeMb = 180;
-        const int fileCount = 10;
-        for (int i = 1; i <= fileCount; i++)
-        {
-            var bigFileName = $"big-file{i}.bin";
-            WriteBigFile(Path.Combine(sendReceiveParams.DestDir, bigFileName), totalSizeMb / fileCount);
-            HgRunner.Run($"hg add {bigFileName}", sendReceiveParams.DestDir, 1, progress);
-            HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.DestDir, 5, progress).ExitCode.ShouldBe(0);
-        }
-
-
-        //attempt to prevent issue where project isn't found yet.
-        await Task.Delay(TimeSpan.FromSeconds(5));
-        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, auth);
-        _output.WriteLine(srResult);
-        srResult.ShouldNotContain("abort");
-        srResult.ShouldNotContain("failure");
-        srResult.ShouldNotContain("error");
+        await SendNewProject(180, 10);
     }
 
-    private static void WriteBigFile(string path, int sizeMb)
+    [Fact]
+    public async Task SendNewProject_Medium()
+    {
+        await SendNewProject(90, 5);
+    }
+
+    private async Task SendNewProject(int totalSizeMb, int fileCount)
+    {
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
+
+        await WaitForHgRefreshIntervalAsync();
+
+        var sendReceiveParams = new SendReceiveParams(HgProtocol.Hgweb, projectConfig);
+
+        //add a bunch of small files, must be in separate commits otherwise hg runs out of memory. But we want the push to be large
+        var progress = new NullProgress();
+        for (var i = 1; i <= fileCount; i++)
+        {
+            var fileName = $"test-file{i}.bin";
+            WriteFile(Path.Combine(sendReceiveParams.Dir, fileName), totalSizeMb / fileCount);
+            HgRunner.Run($"hg add {fileName}", sendReceiveParams.Dir, 5, progress);
+            HgRunner.Run($"""hg commit -m "large file commit {i}" """, sendReceiveParams.Dir, 5, progress).ExitCode.ShouldBe(0);
+        }
+
+        var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
+        _output.WriteLine(srResult);
+    }
+
+    private static void WriteFile(string path, int sizeMb)
     {
         var random = new Random();
         using var file = File.Open(path, FileMode.Create);
 
         Span<byte> buffer = stackalloc byte[1024 * 1024];
-        for (int i = 0; i < (sizeMb * 1024 * 1024 / buffer.Length); i++)
+        for (var i = 0; i < (sizeMb * 1024 * 1024 / buffer.Length); i++)
         {
             random.NextBytes(buffer);
             file.Write(buffer);
@@ -457,7 +290,7 @@ query projectLastCommit {
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, AdminAuth);
 
         act.ShouldThrow<ProjectLabelErrorException>();
-        Directory.GetFiles(sendReceiveParams.DestDir).ShouldBeEmpty();
+        Directory.GetFiles(sendReceiveParams.Dir).ShouldBeEmpty();
     }
 
     [Fact]
@@ -467,7 +300,7 @@ query projectLastCommit {
         var act = () => _sendReceiveService.CloneProject(sendReceiveParams, ManagerAuth);
 
         act.ShouldThrow<RepositoryAuthorizationException>();
-        Directory.GetFiles(sendReceiveParams.DestDir).ShouldBeEmpty();
+        Directory.GetFiles(sendReceiveParams.Dir).ShouldBeEmpty();
     }
 
     [Fact]

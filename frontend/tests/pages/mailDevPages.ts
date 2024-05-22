@@ -14,6 +14,10 @@ export class MailDevInboxPage extends MailInboxPage {
     return new MailDevEmailPage(this.page);
   }
 
+  override async refreshEmails(): Promise<void> {
+    await this.page.getByTitle('Refresh emails').click();
+  }
+
   override async goto(options?: {expectRedirect: boolean}): Promise<this> {
     await super.goto(options);
     await this.page.locator('input.search-input').fill(this.mailboxId);

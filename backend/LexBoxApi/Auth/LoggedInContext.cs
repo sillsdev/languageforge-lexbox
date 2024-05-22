@@ -21,7 +21,7 @@ public class LoggedInContext : IDisposable
             catch (Exception e)
             {
                 logger.LogError(e, "Error parsing user from claims principal");
-                Activity.Current.RecordException(e);
+                Activity.Current?.RecordException(e);
             }
 
             return null;

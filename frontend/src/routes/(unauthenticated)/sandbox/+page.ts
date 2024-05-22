@@ -2,7 +2,7 @@
 
 import type { PageLoadEvent } from './$types';
 import type {Readable} from 'svelte/store';
-import type {SandboxQueryMyselfQuery} from '$lib/gql/generated/graphql';
+import type {Sandbox500Query} from '$lib/gql/generated/graphql';
 import { browser } from '$app/environment';
 
 export async function load(event: PageLoadEvent) {
@@ -11,11 +11,11 @@ export async function load(event: PageLoadEvent) {
   }
 }
 
-export async function _gqlThrows500(argFetch?: Fetch): Promise<Readable<SandboxQueryMyselfQuery['testingThrowsError']>> {
+export async function _gqlThrows500(argFetch?: Fetch): Promise<Readable<Sandbox500Query['testingThrowsError']>> {
   const client = getClient();
   //language=GraphQL
   const results = await client.awaitedQueryStore(argFetch ?? fetch, graphql(`
-    query sandboxQueryMyself {
+    query sandbox500 {
       testingThrowsError {
         id
       }

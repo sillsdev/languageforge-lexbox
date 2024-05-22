@@ -18,10 +18,10 @@ namespace LexBoxApi.GraphQL;
 [MutationType]
 public class UserMutations
 {
-    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string Email, string Name);
-    public record ChangeUserAccountBySelfInput(Guid UserId, string Email, string Name, string Locale)
+    public record ChangeUserAccountDataInput(Guid UserId, [property: EmailAddress] string? Email, string Name);
+    public record ChangeUserAccountBySelfInput(Guid UserId, string? Email, string Name, string Locale)
         : ChangeUserAccountDataInput(UserId, Email, Name);
-    public record ChangeUserAccountByAdminInput(Guid UserId, string Email, string Name, UserRole Role)
+    public record ChangeUserAccountByAdminInput(Guid UserId, string? Email, string Name, UserRole Role)
         : ChangeUserAccountDataInput(UserId, Email, Name);
 
     [Error<NotFoundException>]
@@ -72,7 +72,7 @@ public class UserMutations
     )
     {
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
 
         if (!input.Name.IsNullOrEmpty())
         {
@@ -85,9 +85,14 @@ public class UserMutations
             permissionService.AssertIsAdmin();
             if (user.Id != loggedInContext.User.Id)
             {
-                var wasAdmin = user.IsAdmin;
-                user.IsAdmin = adminInput.Role == UserRole.admin;
-                wasPromotedToAdmin = user.IsAdmin && !wasAdmin;
+                if (!user.IsAdmin && adminInput.Role == UserRole.admin)
+                {
+                    if (!user.EmailVerified)
+                    {
+                        throw new ValidationException("User must have a verified email address to be promoted to admin");
+                    }
+                    wasPromotedToAdmin = user.IsAdmin = true;
+                }
             }
         }
         else if (input is ChangeUserAccountBySelfInput selfInput)
@@ -101,7 +106,7 @@ public class UserMutations
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
 
-        if (!input.Email.IsNullOrEmpty() && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
+        if (!string.IsNullOrEmpty(input.Email) && !input.Email.Equals(user.Email, StringComparison.InvariantCultureIgnoreCase))
         {
             var emailInUse = await dbContext.Users.AnyAsync(u => u.Email == input.Email);
             if (emailInUse) throw new UniqueValueException("Email");
@@ -111,6 +116,7 @@ public class UserMutations
         if (wasPromotedToAdmin)
         {
             var admins = dbContext.Users.Where(u => u.IsAdmin).AsAsyncEnumerable();
+            ArgumentException.ThrowIfNullOrEmpty(user.Email);
             await emailService.SendNewAdminEmail(admins, user.Name, user.Email);
         }
 
@@ -124,7 +130,7 @@ public class UserMutations
     {
         permissionService.AssertCanDeleteAccount(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
         dbContext.Users.Remove(user);
         await dbContext.SaveChangesAsync();
         return user;
@@ -139,7 +145,7 @@ public class UserMutations
     {
         permissionService.AssertCanLockOrUnlockUser(input.UserId);
         var user = await dbContext.Users.FindAsync(input.UserId);
-        if (user is null) throw new NotFoundException("User not found");
+        NotFoundException.ThrowIfNull(user);
         user.Locked = input.Locked;
         user.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();

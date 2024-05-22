@@ -1,10 +1,12 @@
-import { expect } from '@playwright/test';
-import { test } from './fixtures';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { randomUUID } from 'crypto';
 import { loginAs, logout } from './utils/authHelpers';
+
+import { EmailSubjects } from './pages/mailPages';
+import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
+import { UserDashboardPage } from './pages/userDashboardPage';
+import { expect } from '@playwright/test';
 import { getInbox } from './utils/mailboxHelpers';
+import { randomUUID } from 'crypto';
+import { test } from './fixtures';
 
 test('can update account info', async ({ page, tempUser }) => {
   await loginAs(page.request, tempUser.email, tempUser.password);
@@ -45,6 +47,6 @@ test('can reset password', async ({ page, tempUser }) => {
 
   // Verify password changed email was received
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail();
+  const emailPage = await inboxPage.openEmail(EmailSubjects.PasswordChanged);
   await expect(emailPage.page.getByText('Your password was changed').first()).toBeVisible();
 });

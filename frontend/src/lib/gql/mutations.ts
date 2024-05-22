@@ -1,4 +1,4 @@
-import type { $OpResult, DeleteUserByAdminOrSelfInput, DeleteUserByAdminOrSelfMutation, SoftDeleteProjectMutation } from './types';
+import type { $OpResult, DeleteUserByAdminOrSelfInput, DeleteUserByAdminOrSelfMutation, SoftDeleteProjectMutation, DeleteDraftProjectMutation } from './types';
 
 import { getClient } from './gql-client';
 import { graphql } from './generated';
@@ -49,6 +49,33 @@ export async function _deleteProject(projectId: string): $OpResult<SoftDeletePro
       `),
       {
         input: { projectId }
+      },
+      { additionalTypenames: ['Projects'] },
+    );
+
+  return result;
+}
+
+export async function _deleteDraftProject(draftProjectId: string): $OpResult<DeleteDraftProjectMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation DeleteDraftProject($input: DeleteDraftProjectInput!) {
+          deleteDraftProject(input: $input) {
+            draftProject {
+              id,
+            }
+            errors {
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      {
+        input: { draftProjectId }
       },
       { additionalTypenames: ['Projects'] },
     );

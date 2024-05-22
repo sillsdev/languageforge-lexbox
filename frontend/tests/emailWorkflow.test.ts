@@ -1,12 +1,29 @@
-import { expect } from '@playwright/test';
-import { test } from './fixtures';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { loginAs, logout } from './utils/authHelpers';
-import { getInbox } from './utils/mailboxHelpers';
-import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { ResetPasswordPage } from './pages/resetPasswordPage';
-import { randomUUID } from 'crypto';
+import { TEST_TIMEOUT_2X, defaultPassword } from './envVars';
+import { deleteUser, getCurrentUserId, loginAs, logout } from './utils/authHelpers';
+
+import { AdminDashboardPage } from './pages/adminDashboardPage';
+import { EmailSubjects } from './pages/mailPages';
 import { LoginPage } from './pages/loginPage';
+import { RegisterPage } from './pages/registerPage';
+import { ResetPasswordPage } from './pages/resetPasswordPage';
+import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
+import { UserDashboardPage } from './pages/userDashboardPage';
+import { expect } from '@playwright/test';
+import { getInbox } from './utils/mailboxHelpers';
+import { randomUUID } from 'crypto';
+import { test } from './fixtures';
+
+const userIdsToDelete: string[] = [];
+
+test.afterEach(async ({ page }) => {
+  if (userIdsToDelete.length > 0) {
+    await loginAs(page.request, 'admin', defaultPassword);
+    for (const userId of userIdsToDelete) {
+      await deleteUser(page.request, userId);
+    }
+    userIdsToDelete.splice(0);
+  }
+});
 
 test('register, verify, update, verify email address', async ({ page, tempUser }) => {
   test.slow(); // Checking email and logging in repeatedly takes time
@@ -19,8 +36,7 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
   await userDashboardPage.emailVerificationAlert.assertVerificationSent();
 
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  await expect(inboxPage.emailLocator).toHaveCount(2);
-  let emailPage = await inboxPage.openEmail();
+  let emailPage = await inboxPage.openEmail(EmailSubjects.VerifyEmail);
   let pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickVerifyEmail();
   let newPage = await pagePromise;
@@ -44,8 +60,7 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
 
   // Verify new email address
   await inboxPage.gotoMailbox(newMailinatorId);
-  await expect(inboxPage.emailLocator).toHaveCount(1);
-  emailPage = await inboxPage.openEmail();
+  emailPage = await inboxPage.openEmail(EmailSubjects.VerifyEmail);
   pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickVerifyEmail();
   newPage = await pagePromise;
@@ -67,10 +82,11 @@ test('forgot password', async ({ page, tempUser }) => {
   const forgotPasswordPage = await loginPage.clickForgotPassword();
   await forgotPasswordPage.fillForm(tempUser.email);
   await forgotPasswordPage.submit();
+  await page.locator(':text("Check Your Inbox")').first().waitFor();
 
   // Use reset password link
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail();
+  const emailPage = await inboxPage.openEmail(EmailSubjects.ForgotPassword);
   const resetPasswordUrl = await emailPage.getFirstLanguageDepotUrl();
   expect(resetPasswordUrl).not.toBeNull();
   expect(resetPasswordUrl!).toContain('resetPassword');
@@ -94,4 +110,49 @@ test('forgot password', async ({ page, tempUser }) => {
   await page.goto(resetPasswordUrl!);
   loginPage = await new LoginPage(page).waitFor();
   await expect(loginPage.page.getByText('The email you clicked has expired')).toBeVisible();
+});
+
+test('register via new-user invitation email', async ({ page }) => {
+  test.setTimeout(TEST_TIMEOUT_2X);
+
+  await loginAs(page.request, 'admin', defaultPassword);
+  const adminPage = await new AdminDashboardPage(page).goto();
+  const projectPage = await adminPage.openProject('Sena 3', 'sena-3');
+
+  const uuid = randomUUID();
+
+  const newEmail = `${uuid}@mailinator.com`;
+
+  const addMemberModal = await projectPage.clickAddMember();
+  await addMemberModal.emailField.fill(newEmail);
+  await addMemberModal.selectEditorRole();
+  await addMemberModal.submitButton.click();
+  await page.locator(':text("has been sent an invitation email")').waitFor();
+
+  // Check invite link returnTo is relative path, not absolute
+  const inboxPage = await getInbox(page, uuid).goto();
+  const emailPage = await inboxPage.openEmail(EmailSubjects.ProjectInvitation);
+  const invitationUrl = await emailPage.getFirstLanguageDepotUrl();
+  expect(invitationUrl).not.toBeNull();
+  expect(invitationUrl!).toContain('register');
+  expect(invitationUrl!).toContain('returnTo=');
+  expect(invitationUrl!).not.toContain('returnTo=http');
+
+  // Click invite link, verify register page contains pre-filled email address
+  const pagePromise = emailPage.page.context().waitForEvent('page');
+  await emailPage.clickFirstLanguageDepotUrl();
+  const newPage = await pagePromise;
+  const registerPage = await new RegisterPage(newPage).waitFor();
+  await expect(newPage.getByLabel('Email')).toHaveValue(newEmail);
+  await registerPage.fillForm(`Test user ${uuid}`, newEmail, defaultPassword);
+
+  await registerPage.submit();
+  const userDashboardPage = await new UserDashboardPage(newPage).waitFor();
+
+  // Register current user ID to be cleaned up even if test fails later on
+  const userId = await getCurrentUserId(newPage.request);
+  userIdsToDelete.push(userId);
+
+  // Should be able to open sena-3 project from user dashboard as we are now a member
+  await userDashboardPage.openProject('Sena 3', 'sena-3');
 });

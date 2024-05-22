@@ -7,6 +7,7 @@
 
 <script lang="ts">
   import t from '$lib/i18n';
+  import { OverlayContainer } from '$lib/overlay';
   import { createEventDispatcher } from 'svelte';
   import { writable } from 'svelte/store';
 
@@ -98,6 +99,8 @@
     on:cancel={cancelModal}
     on:close={cancelModal}
   >
+    <OverlayContainer />
+
     <div class="modal-box max-w-3xl">
       {#if showCloseButton}
         <button class="btn btn-sm btn-circle absolute right-2 top-2 z-10" aria-label={$t('close')} on:click={cancelModal}

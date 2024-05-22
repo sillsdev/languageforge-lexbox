@@ -184,7 +184,7 @@
         <span class="i-mdi-chevron-right text-2xl" />
       </Button>
       {:else if currentStep === ResetSteps.Reset}
-      <Button variant="btn-primary" type="submit" form="reset-form" loading={$submitting}>
+      <Button variant="btn-accent" type="submit" form="reset-form" loading={$submitting}>
         {$t('submit')}
         <CircleArrowIcon />
       </Button>

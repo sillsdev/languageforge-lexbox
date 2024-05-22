@@ -7,8 +7,7 @@ namespace LexCore.ServiceInterfaces;
 public interface ILexProxyService
 {
     Task<LexAuthUser?> Login(LoginRequest loginRequest);
-    Task RefreshProjectLastChange(string projectCode);
-    Task UpdateLastEntryCountIfAllowed(string projectCode);
+    Task QueueProjectMetadataUpdate(string projectCode);
     RequestInfo GetDestinationPrefix(HgType type);
 }
 

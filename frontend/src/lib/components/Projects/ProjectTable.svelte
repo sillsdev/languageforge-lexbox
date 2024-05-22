@@ -16,7 +16,7 @@
   }
 </script>
 
-<div class="overflow-x-auto @container">
+<div class="overflow-x-auto @container scroll-shadow">
   <table class="table table-lg">
     <thead>
       <tr class="bg-base-200">
@@ -32,7 +32,7 @@
         {#if isColumnVisible('createdAt')}
           <th class="hidden @xl:table-cell">
             {$t('project.table.created_at')}
-            <span class="i-mdi-sort-descending" />
+            <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2" />
           </th>
         {/if}
         {#if isColumnVisible('lastChange')}
@@ -53,8 +53,8 @@
         <tr>
           {#if isColumnVisible('name')}
             <td>
-              {#if project.isDraft}
-                <span class="flex gap-2 items-center">
+              <span class="flex gap-2 items-center">
+                {#if project.isDraft}
                   <a class="link" href={project.createUrl}>
                     {project.name}
                   </a>
@@ -63,21 +63,30 @@
                     data-tip={$t('admin_dashboard.is_draft')}>
                     <Icon icon="i-mdi-script" />
                   </span>
-                </span>
-              {:else if project.deletedDate}
-                <span class="flex gap-2 text-error items-center">
-                  {project.name}
-                  <TrashIcon pale />
-                </span>
-              {:else}
-                <a class="link" href={`/project/${project.code}`}>
-                  {project.name}
-                </a>
-              {/if}
+                {:else if project.deletedDate}
+                  <span class="contents text-error">
+                    {project.name}
+                    <TrashIcon pale />
+                  </span>
+                {:else}
+                  <a class="link" href={`/project/${project.code}`}>
+                    {project.name}
+                  </a>
+                {/if}
+                {#if project.isConfidential}
+                  <span
+                    class="tooltip text-warning text-xl shrink-0 leading-0"
+                    data-tip={$t('project.confidential.confidential')}>
+                    <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
+                  </span>
+                {/if}
+              </span>
             </td>
           {/if}
           {#if isColumnVisible('code')}
-            <td>{project.code}</td>
+            <td class="max-w-40 overflow-hidden text-ellipsis text-nowrap" title={project.code}>
+              {project.code}
+            </td>
           {/if}
           {#if isColumnVisible('users')}
             <td class="hidden @md:table-cell">
@@ -102,7 +111,7 @@
           {/if}
           {#if isColumnVisible('type')}
             <td>
-              <span class="tooltip align-bottom" data-tip={$t(getProjectTypeI18nKey(project.type))}>
+              <span class="tooltip align-bottom shrink-0 leading-0" data-tip={$t(getProjectTypeI18nKey(project.type))}>
                 <ProjectTypeIcon type={project.type} />
               </span>
             </td>

@@ -33,6 +33,7 @@ interface EmailTemplatePropsBase<T extends EmailTemplate> {
 
 interface ForgotPasswordProps extends EmailTemplatePropsBase<EmailTemplate.ForgotPassword> {
     resetUrl: string;
+    lifetime: string;
 }
 
 interface NewAdminProps extends EmailTemplatePropsBase<EmailTemplate.NewAdmin> {
@@ -43,12 +44,14 @@ interface NewAdminProps extends EmailTemplatePropsBase<EmailTemplate.NewAdmin> {
 interface VerifyEmailAddressProps extends EmailTemplatePropsBase<EmailTemplate.VerifyEmailAddress> {
     verifyUrl: string;
     newAddress: boolean;
+    lifetime: string;
 }
 
 interface CreateAccountProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequest> {
   managerName: string;
   projectName: string;
   verifyUrl: string;
+  lifetime: string;
 }
 
 interface CreateProjectProps extends EmailTemplatePropsBase<EmailTemplate.CreateProjectRequest> {

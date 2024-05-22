@@ -13,13 +13,14 @@ import type {
   DeleteProjectUserMutation,
   LeaveProjectMutation,
   ProjectPageQuery,
+  SetProjectConfidentialityInput,
+  SetProjectConfidentialityMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import { derived } from 'svelte/store';
 import { error } from '@sveltejs/kit';
-import { isAdmin } from '$lib/user';
 import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
@@ -27,7 +28,7 @@ export type ProjectUser = Project['users'][number];
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
-  const userIsAdmin = isAdmin((await event.parent()).user);
+  const userIsAdmin = (await event.parent()).user.isAdmin;
   const projectCode = event.params.project_code;
   const projectResult = await client
     .awaitedQueryStore(event.fetch,
@@ -43,6 +44,8 @@ export async function load(event: PageLoadEvent) {
 						lastCommit
 						createdDate
 						retentionPolicy
+						isConfidential
+            isLanguageForgeProject
 						users {
 							id
 							role
@@ -90,7 +93,7 @@ export async function load(event: PageLoadEvent) {
         }
       `),
       { projectCode }
-  );
+    );
 
   const nonNullableProject = tryMakeNonNullable(projectResult.projectByCode);
   if (!nonNullableProject) {
@@ -133,6 +136,12 @@ export async function _addProjectMember(input: AddProjectMemberInput): $OpResult
             }
             errors {
               __typename
+              ... on Error {
+                message
+              }
+              ... on InvalidEmailError {
+                address
+              }
             }
           }
         }
@@ -166,7 +175,11 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
               }
             }
             errors {
-            __typename
+              __typename
+              ... on InvalidEmailError {
+                message
+                address
+              }
             }
           }
         }
@@ -249,6 +262,30 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
   return result;
 }
 
+export async function _setProjectConfidentiality(input: SetProjectConfidentialityInput): $OpResult<SetProjectConfidentialityMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation SetProjectConfidentiality($input: SetProjectConfidentialityInput!) {
+          setProjectConfidentiality(input: $input) {
+            project {
+              id
+              isConfidential
+            }
+            errors {
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
+}
+
 export async function _deleteProjectUser(projectId: string, userId: string): $OpResult<DeleteProjectUserMutation> {
   const result = await getClient()
     .mutation(
@@ -275,7 +312,7 @@ export async function _deleteProjectUser(projectId: string, userId: string): $Op
 }
 
 export async function _refreshProjectRepoInfo(projectCode: string): Promise<void> {
-    const result = await getClient().query(graphql(`
+  const result = await getClient().query(graphql(`
         query refreshProjectStatus($projectCode: String!) {
             projectByCode(code: $projectCode) {
                 id
@@ -300,10 +337,10 @@ export async function _refreshProjectRepoInfo(projectCode: string): Promise<void
 
 
 export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMutation> {
-//language=GraphQL
+  //language=GraphQL
   const result = await getClient()
-  .mutation(
-    graphql(`
+    .mutation(
+      graphql(`
       mutation LeaveProject($input: LeaveProjectInput!) {
         leaveProject(input: $input) {
           project {
@@ -315,11 +352,11 @@ export async function _leaveProject(projectId: string): $OpResult<LeaveProjectMu
         }
       }
     `),
-    {input: { projectId } },
-    //disable invalidate otherwise the page will reload
-    //and the user will be shown that they don't have permission for this project
-    {fetchOptions: {lexboxResponseHandlingConfig: {invalidateUserOnJwtRefresh: false}}}
-  );
+      { input: { projectId } },
+      //disable invalidate otherwise the page will reload
+      //and the user will be shown that they don't have permission for this project
+      { fetchOptions: { lexboxResponseHandlingConfig: { invalidateUserOnJwtRefresh: false } } }
+    );
 
   return result;
 }

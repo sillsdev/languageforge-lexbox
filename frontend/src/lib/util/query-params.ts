@@ -1,9 +1,9 @@
+import type { StandardEnum, StringifyValues } from '$lib/type.utils';
 import { queryParameters, ssp } from 'sveltekit-search-params';
 
 import type { ConditionalPick } from 'type-fest';
 import type { EncodeAndDecodeOptions } from 'sveltekit-search-params/sveltekit-search-params';
 import type { PrimitiveRecord } from './types';
-import type { StandardEnum } from '$lib/type.utils';
 import type { Writable } from 'svelte/store';
 
 // Require default values
@@ -47,8 +47,8 @@ export function getSearchParams<T extends Record<string, unknown>>(options: Quer
   }
 }
 
-export function getSearchParamValues<T extends Record<string, unknown>>(): T {
-  return Object.fromEntries(new URLSearchParams(location.search).entries()) as T;
+export function getSearchParamValues<T extends Record<string, unknown>>(): StringifyValues<T> {
+  return Object.fromEntries(new URLSearchParams(location.search).entries()) as StringifyValues<T>;
 }
 
 function getDefaults<T extends Record<string, unknown>>(

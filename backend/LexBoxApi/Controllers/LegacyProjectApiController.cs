@@ -42,16 +42,16 @@ public class LegacyProjectApiController : ControllerBase
     [ProducesResponseType(typeof(LegacyApiError), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(LegacyApiProject[]), StatusCodes.Status200OK)]
     [Consumes(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, ProjectsInput input)
+    public async Task<ActionResult<LegacyApiProject[]>> Projects(string userName, ProjectsInput? input)
     {
-        var password = input.Password;
+        var password = input?.Password ?? string.Empty;
 
         var user = await _lexBoxDbContext.Users.FilterByEmailOrUsername(userName)
             .Select(user => new
             {
                 user.Salt,
                 user.PasswordHash,
-                projects = user.Projects.Select(member => new LegacyApiProject(member.Project.Code,
+                projects = user.Projects.Select(member => new LegacyApiProject(member.Project!.Code,
                     member.Project.Name,
                     //it seems this is largely ignored by the client as it uses the LF domain instead
                     "http://public.languagedepot.org",

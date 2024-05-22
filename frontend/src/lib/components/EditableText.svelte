@@ -125,7 +125,7 @@
   {:else}
     <button
       class:hover:bg-base-300={!disabled}
-      class="content-wrapper inline-flex items-center cursor-text rounded-lg py-2 px-3 -mx-3"
+      class="content-wrapper inline-flex items-center cursor-text rounded-lg py-1 px-1.5 -mx-1.5"
       on:click={startEditing}
       on:keypress={startEditing}
     >

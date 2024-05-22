@@ -24,7 +24,6 @@ spec:
             - name: Email__SmtpPort
               value: '587'
             - name: Email__From
-              # TODO: need to parameterize this
               value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
             - name: Email__BaseUrl
               value: "https://staging.languagedepot.org"

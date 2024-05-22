@@ -21,6 +21,7 @@ namespace LexBoxApi.Services;
 public partial class HgService : IHgService
 {
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
+    private const string TEMP_REPO_FOLDER = "_____temp_____";
 
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
@@ -38,6 +39,7 @@ public partial class HgService : IHgService
 
     public static string PrefixRepoRequestPath(string code) => $"{code[0]}/{code}";
     private string PrefixRepoFilePath(string code) => Path.Combine(_options.Value.RepoPath, code[0].ToString(), code);
+    private string GetTempRepoPath(string code, string reason) => Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER, $"{code}__{reason}__{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}");
 
     private async Task<HttpResponseMessage> GetResponseMessage(string code, string requestPath)
     {
@@ -61,16 +63,19 @@ public partial class HgService : IHgService
         AssertIsSafeRepoName(code);
         if (Directory.Exists(PrefixRepoFilePath(code)))
             throw new AlreadyExistsException($"Repo already exists: {code}.");
-        await Task.Run(() => InitRepoAt(code));
+        await Task.Run(() =>
+        {
+            InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
+        });
     }
 
-    private void InitRepoAt(string code)
+    private void InitRepoAt(DirectoryInfo repoDirectory)
     {
-        var repoDirectory = new DirectoryInfo(PrefixRepoFilePath(code));
         repoDirectory.Create();
-        CopyFilesRecursively(
+        FileUtils.CopyFilesRecursively(
             new DirectoryInfo("Services/HgEmptyRepo"),
-            repoDirectory
+            repoDirectory,
+            Permissions
         );
     }
 
@@ -94,45 +99,51 @@ public partial class HgService : IHgService
 
     public async Task ResetRepo(string code)
     {
-        string timestamp = FileUtils.ToTimestamp(DateTimeOffset.UtcNow);
-        await SoftDeleteRepo(code, $"{timestamp}__reset");
+        var tmpRepo = new DirectoryInfo(GetTempRepoPath(code, "reset"));
+        InitRepoAt(tmpRepo);
+        await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
-        await InitRepo(code);
+        tmpRepo.MoveTo(PrefixRepoFilePath(code));
     }
 
     public async Task FinishReset(string code, Stream zipFile)
     {
-        using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
-        await DeleteRepo(code);
-        var repoPath = PrefixRepoFilePath(code);
-        var dir = Directory.CreateDirectory(repoPath);
-        archive.ExtractToDirectory(repoPath);
+        var tempRepoPath = GetTempRepoPath(code, "upload");
+        var tempRepo = Directory.CreateDirectory(tempRepoPath);
+        // TODO: Is Task.Run superfluous here? Or a good idea? Don't know the ins and outs of what happens before the first await in an async method in ASP.NET Core...
+        await Task.Run(() =>
+        {
+            using var archive = new ZipArchive(zipFile, ZipArchiveMode.Read);
+            archive.ExtractToDirectory(tempRepoPath);
+        });
 
-        var hgPath = Path.Join(repoPath, ".hg");
+        var hgPath = Path.Join(tempRepoPath, ".hg");
         if (!Directory.Exists(hgPath))
         {
-            var hgFolder = Directory.EnumerateDirectories(repoPath, ".hg", SearchOption.AllDirectories)
+            var hgFolder = Directory.EnumerateDirectories(tempRepoPath, ".hg", SearchOption.AllDirectories)
                 .FirstOrDefault();
             if (hgFolder is null)
             {
-                await DeleteRepo(code);
-                await InitRepo(code); // we don't want 404s
+                // Don't want to leave invalid .zip contents lying around as they may have been quite large
+                Directory.Delete(tempRepoPath, true);
                 //not sure if this is the best way to handle this, might need to catch it further up to expose the error properly to tus
                 throw ProjectResetException.ZipMissingHgFolder();
             }
             //found the .hg folder, move it to the correct location and continue
             Directory.Move(hgFolder, hgPath);
         }
-        await CleanupRepoFolder(repoPath);
-        SetPermissionsRecursively(dir);
+        await CleanupRepoFolder(tempRepo);
+        SetPermissionsRecursively(tempRepo);
+        // Now we're ready to move the new repo into place, replacing the old one
+        await DeleteRepo(code);
+        tempRepo.MoveTo(PrefixRepoFilePath(code));
     }
 
     /// <summary>
     /// deletes all files and folders in the repo folder except for .hg
     /// </summary>
-    private async Task CleanupRepoFolder(string path)
+    private async Task CleanupRepoFolder(DirectoryInfo repoDir)
     {
-        var repoDir = new DirectoryInfo(path);
         await Task.Run(() =>
         {
             foreach (var info in repoDir.EnumerateFileSystemInfos())
@@ -176,24 +187,6 @@ public partial class HgService : IHgService
                                              UnixFileMode.GroupExecute | UnixFileMode.SetGroup |
                                              UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
                                              UnixFileMode.SetUser;
-
-    private static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target)
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            target.UnixFileMode = Permissions;
-        foreach (var dir in source.EnumerateDirectories())
-        {
-            CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
-        }
-
-        foreach (var file in source.EnumerateFiles())
-        {
-            var destFileName = Path.Combine(target.FullName, file.Name);
-            var destFile = file.CopyTo(destFileName);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                destFile.UnixFileMode = Permissions;
-        }
-    }
 
     private static void SetPermissionsRecursively(DirectoryInfo rootDir)
     {
@@ -269,9 +262,16 @@ public partial class HgService : IHgService
         return response;
     }
 
-    public async Task<int?> GetLexEntryCount(string code)
+    public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)
     {
-        var content = await ExecuteHgCommandServerCommand(code, "lexentrycount", default);
+        var command = projectType switch
+        {
+            ProjectType.FLEx => "lexentrycount",
+            ProjectType.WeSay => "wesaylexentrycount",
+            _ => null
+        };
+        if (command is null) return null;
+        var content = await ExecuteHgCommandServerCommand(code, command, default);
         var str = await content.ReadAsStringAsync();
         return int.TryParse(str, out int result) ? result : null;
     }
@@ -292,7 +292,7 @@ public partial class HgService : IHgService
         return response.Content;
     }
 
-    private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, "api" };
+    private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, TEMP_REPO_FOLDER, "api" };
 
     private void AssertIsSafeRepoName(string name)
     {

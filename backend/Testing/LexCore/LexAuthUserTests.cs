@@ -35,6 +35,7 @@ public class LexAuthUserTests
         Role = UserRole.user,
         Name = "test",
         UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+        Locale = "en",
         Projects = new[]
         {
             new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99"))
@@ -52,6 +53,7 @@ public class LexAuthUserTests
     {
         var claims = _user.GetClaims().Select(c => c.ToString()).ToArray();
         var idClaim = new Claim(LexAuthConstants.IdClaimType, _user.Id.ToString());
+        ArgumentException.ThrowIfNullOrEmpty(_user.Email);
         var emailClaim = new Claim(LexAuthConstants.EmailClaimType, _user.Email);
         var roleClaim = new Claim(LexAuthConstants.RoleClaimType, _user.Role.ToString());
         var projectClaim = new Claim("proj", _user.ProjectsJson);
@@ -160,7 +162,7 @@ public class LexAuthUserTests
     [Fact]
     public void CanRoundTripJwtFromUserThroughLexAuthService()
     {
-        var (jwt, _) = _lexAuthService.GenerateJwt(_user);
+        var (jwt, _, _) = _lexAuthService.GenerateJwt(_user);
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var outputJwt = tokenHandler.ReadJwtToken(jwt);
@@ -179,6 +181,7 @@ public class LexAuthUserTests
         var outputJwt = tokenHandler.ReadJwtToken(knownGoodJwt);
         var principal = new ClaimsPrincipal(new ClaimsIdentity(outputJwt.Claims, "Testing"));
         var newUser = LexAuthUser.FromClaimsPrincipal(principal);
+        newUser.ShouldNotBeNull();
         newUser.UpdatedDate.ShouldBe(0);
         //old jwt doesn't have updated date, we're ok with that so we correct the value to make the equivalence work
         newUser.UpdatedDate = _user.UpdatedDate;
@@ -194,14 +197,14 @@ public class LexAuthUserTests
                 .Select(i => new AuthUserProject(i % 2 == 0 ? ProjectRole.Manager : ProjectRole.Editor, Guid.NewGuid()))
                 .ToArray()
         };
-        var (jwt, _) = _lexAuthService.GenerateJwt(user);
+        var (jwt, _, _) = _lexAuthService.GenerateJwt(user);
         jwt.Length.ShouldBeLessThan(LexAuthUser.MaxJwtLength);
     }
 
     [Fact]
     public void CanRoundTripThroughRefresh()
     {
-        var (forgotJwt, _) = _lexAuthService.GenerateJwt(_user with { Audience = LexboxAudience.ForgotPassword });
+        var (forgotJwt, _, _) = _lexAuthService.GenerateJwt(_user with { Audience = LexboxAudience.ForgotPassword });
         //simulate parsing the token into a claims principal
         var tokenHandler = new JwtSecurityTokenHandler();
         var forgotPrincipal =

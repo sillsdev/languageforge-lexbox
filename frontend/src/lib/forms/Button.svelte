@@ -2,7 +2,7 @@
   import Loader from '$lib/components/Loader.svelte';
 
   export let loading = false;
-  export let variant: 'btn-primary' | 'btn-success' | 'btn-error' | 'btn-ghost' | undefined = undefined;
+  export let variant: 'btn-primary' | 'btn-success' | 'btn-error' | 'btn-ghost' | 'btn-warning' | 'btn-accent' | undefined = undefined;
   export let outline = false;
   export let type: undefined | 'submit' = undefined;
   export let size: undefined | 'btn-sm' = undefined;

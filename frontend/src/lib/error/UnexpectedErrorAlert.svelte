@@ -4,6 +4,7 @@
   import t from '$lib/i18n';
   import UnexpectedError from './UnexpectedError.svelte';
   import { onDestroy } from 'svelte';
+  import { browser } from '$app/environment';
 
   let dialog: HTMLDialogElement;
   const error = useError();
@@ -13,6 +14,7 @@
   onDestroy(
     // subscribe() is more durable than reactive syntax
     error.subscribe((e) => {
+      dialog = dialog ?? (browser ? document.querySelector('.error-alert') : undefined) ?? undefined;
       if (!dialog) return;
       e ? open() : close();
     })
@@ -24,17 +26,17 @@
   }
 
   function open(): void {
-    dialog.showModal();
+    dialog.showModal?.call(dialog);
     dialog.classList.add('modal-open');
   }
 
   function close(): void {
-    dialog.close();
+    dialog.close?.call(dialog);
     dialog.classList.remove('modal-open');
   }
 </script>
 
-<dialog bind:this={dialog} class="modal">
+<dialog bind:this={dialog} class="modal error-alert">
   <div class="modal-box bg-error text-error-content max-w-[95vw] w-[unset]">
     <UnexpectedError />
     <div class="flex justify-end gap-4 modal-action">

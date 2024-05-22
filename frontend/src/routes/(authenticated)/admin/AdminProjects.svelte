@@ -15,14 +15,13 @@
   import {DialogResponse} from '$lib/components/modals';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import {Button} from '$lib/forms';
-  import {_deleteProject} from '$lib/gql/mutations';
+  import {_deleteProject, _deleteDraftProject} from '$lib/gql/mutations';
   import t, {number} from '$lib/i18n';
   import {TrashIcon} from '$lib/icons';
   import {useNotifications} from '$lib/notify';
   import {type QueryParams, toSearchParams} from '$lib/util/query-params';
   import {derived} from 'svelte/store';
   import type {AdminSearchParams, DraftProject} from './+page';
-  import DevContent from '$lib/layout/DevContent.svelte';
   import AdminTabs from './AdminTabs.svelte';
   import type {CreateProjectInput} from '$lib/gql/types';
 
@@ -33,7 +32,7 @@
   $: filters = queryParamValues;
   $: filterDefaults = queryParams.defaultQueryParamValues;
 
-  const { notifyWarning, notifySuccess } = useNotifications();
+  const { notifyWarning } = useNotifications();
 
   const serverSideProjectFilterKeys = (['showDeletedProjects'] as const satisfies Readonly<(keyof ProjectFilters)[]>);
 
@@ -50,27 +49,25 @@
   let lastLoadUsedActiveFilter = false;
   $: if (!$loading) lastLoadUsedActiveFilter = hasActiveFilter;
   $: allProjects = [
-    ...draftProjects.map(p => ({ ...p, isDraft: true as const, createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p)}` })),
+    ...draftProjects.map(p => ({
+      ...p, isDraft: true as const,
+      createUrl: `/project/create?${toSearchParams<CreateProjectInput>(p as CreateProjectInput)}` /* TODO #737 - Remove unnecessary cast */
+    })),
     ...projects.map(p => ({ ...p, isDraft: false as const })),
   ];
   $: filteredProjects = filterProjects(allProjects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects, lastLoadUsedActiveFilter ? DEFAULT_PAGE_SIZE : 10) : filteredProjects;
 
   let deleteProjectModal: ConfirmDeleteModal;
-  async function softDeleteProject(project: ProjectItem): Promise<void> {
+  async function deleteProjectOrDraft(project: ProjectItemWithDraftStatus): Promise<void> {
+    const deleteFn = project.isDraft ? _deleteProject : _deleteDraftProject;
     const result = await deleteProjectModal.open(project.name, async () => {
-      const { error } = await _deleteProject(project.id);
+      const { error } = await deleteFn(project.id);
       return error?.message;
     });
     if (result.response === DialogResponse.Submit) {
       notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
     }
-  }
-
-  async function updateAllLexEntryCounts(): Promise<void> {
-    const result = await fetch(`/api/project/updateAllLexEntryCounts?onlyUnknown=true`, {method: 'POST'});
-    const count = await result.text();
-    notifySuccess(`${count} projects updated` + (Number(count) == 0 ? `. You're all done!` : ''));
   }
 </script>
 
@@ -114,14 +111,14 @@
 
   <ProjectTable projects={shownProjects}>
     <td class="p-0" slot="actions" let:project>
-      {#if !project.isDraft && !project.deletedDate}
+      {#if project.isDraft || !project.deletedDate}
         <Dropdown>
           <button class="btn btn-ghost btn-square">
             <span class="i-mdi-dots-vertical text-lg" />
           </button>
           <ul slot="content" class="menu">
             <li>
-              <button class="text-error whitespace-nowrap" on:click={() => softDeleteProject(project)}>
+              <button class="text-error whitespace-nowrap" on:click={() => deleteProjectOrDraft(project)}>
                 <TrashIcon />
                 {$t('delete_project_modal.submit')}
               </button>
@@ -141,8 +138,4 @@
       <RefineFilterMessage total={filteredProjects.length} showing={shownProjects.length} />
     {/if}
   {/if}
-
-<DevContent>
-  <p><span class="text-bold">TEMPORARY:</span> <button class="btn btn-warning" on:click={updateAllLexEntryCounts}> Update all lex entry counts </button>
-</DevContent>
 </div>

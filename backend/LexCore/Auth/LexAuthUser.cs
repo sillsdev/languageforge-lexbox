@@ -72,6 +72,8 @@ public record LexAuthUser
             }
         }
 
+        if (!jsonObject.ContainsKey(LexAuthConstants.LocaleClaimType)) jsonObject.Add(LexAuthConstants.LocaleClaimType, "en");
+
         var user = jsonObject.Deserialize<LexAuthUser>();
         if (user is null) throw new Exception("Could not deserialize user");
         return user;
@@ -86,6 +88,7 @@ public record LexAuthUser
     {
         Id = user.Id;
         Email = user.Email;
+        Username = user.Username;
         Role = user.IsAdmin ? UserRole.admin : UserRole.user;
         Name = user.Name;
         UpdatedDate = user.UpdatedDate.ToUnixTimeSeconds();
@@ -109,6 +112,9 @@ public record LexAuthUser
 
     [JsonPropertyName(LexAuthConstants.EmailClaimType)]
     public string? Email { get; set; }
+
+    [JsonPropertyName(LexAuthConstants.UsernameClaimType)]
+    public string? Username { get; set; }
 
     [JsonPropertyName(LexAuthConstants.NameClaimType)]
     public required string Name { get; set; }
@@ -173,7 +179,7 @@ public record LexAuthUser
     public bool? CreatedByAdmin { get; init; }
 
     [JsonPropertyName(LexAuthConstants.LocaleClaimType)]
-    public string Locale { get; init; }
+    public required string Locale { get; init; }
 
     public IEnumerable<Claim> GetClaims()
     {

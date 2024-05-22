@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using LexCore.Entities;
+using LexCore.Exceptions;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -25,6 +26,11 @@ public class UserEntityConfiguration : EntityBaseConfiguration<User>
             .HasForeignKey(user => user.CreatedById)
             // We won't allow deleting admin users until their created accounts are  reassigned
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(u => u.Organizations)
+            .WithOne(m => m.User)
+            .HasForeignKey(m => m.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 
@@ -45,12 +51,14 @@ public static class UserEntityExtensions
         return await users.FilterByEmailOrUsername(emailOrUsername).FirstOrDefaultAsync();
     }
 
-    public static bool HasVerifiedEmailForRole(this User user, ProjectRole forRole = ProjectRole.Unknown)
+    public static void AssertHasVerifiedEmailForRole(this User user, ProjectRole forRole = ProjectRole.Unknown)
     {
-        // Users bulk-created by admins might not have email addresses, and that's okay
-        // BUT if they are to be project managers, they must have verified email addresses
-        if (forRole == ProjectRole.Editor && user.CreatedById is not null) return true;
-        // Otherwise, we can simply use the EmailVerified property
-        return user.Email is not null && user.EmailVerified;
+        // Users with verified emails are the most common case, so check that first
+        if (user.Email is not null && user.EmailVerified) return;
+        // Users bulk-created by admins might not have email addresses
+        // Users who self-registered must verify email in all cases
+        if (user.CreatedById is null) throw new ProjectMembersMustBeVerified("Member must verify email first");
+        // Only project editors (basic role) are allowed not to have verified email addresses
+        if (forRole != ProjectRole.Editor) throw new ProjectMembersMustBeVerifiedForRole("Member must verify email before taking on this role", forRole);
     }
 }

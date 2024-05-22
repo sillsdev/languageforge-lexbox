@@ -7,12 +7,15 @@
     ProjectItem & { isDraft?: false } |
     DraftProject & { isDraft: true; createUrl: string };
 
+  export type Confidentiality = `${boolean}` | 'unset';
+
   export type ProjectFilters = {
     projectSearch: string;
     projectType: ProjectType | undefined;
+    confidential: Confidentiality | undefined;
     showDeletedProjects: boolean;
     hideDraftProjects: boolean;
-    userEmail: string | undefined;
+    memberSearch: string | undefined;
   };
 
   export function filterProjects(
@@ -26,7 +29,10 @@
           p.name.toLocaleLowerCase().includes(searchLower) ||
           p.code.toLocaleLowerCase().includes(searchLower)) &&
         (!projectFilters.projectType || p.type === projectFilters.projectType) &&
-        (!projectFilters.hideDraftProjects || !p.isDraft)
+        (!projectFilters.hideDraftProjects || !p.isDraft) &&
+        (projectFilters.confidential === undefined ||
+          (projectFilters.confidential === p.isConfidential?.toString()) ||
+          (projectFilters.confidential === 'unset' && (p.isConfidential ?? undefined) === undefined))
     );
   }
 </script>
@@ -40,13 +46,16 @@
   import { AuthenticatedUserIcon, Icon, TrashIcon } from '$lib/icons';
   import t from '$lib/i18n';
   import IconButton from '../IconButton.svelte';
+  import ProjectConfidentialityFilterSelect from './ProjectConfidentialityFilterSelect.svelte';
+  import SupHelp from '../help/SupHelp.svelte';
+  import { helpLinks } from '../help';
 
   type Filters = Partial<ProjectFilters> & Pick<ProjectFilters, 'projectSearch'>;
   export let filters: Writable<Filters>;
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'showDeletedProjects', 'userEmail', 'hideDraftProjects'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'confidential', 'showDeletedProjects', 'memberSearch', 'hideDraftProjects'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -61,17 +70,30 @@
         <ActiveFilter {filter}>
           <ProjectTypeIcon type={filter.value} />
         </ActiveFilter>
-      {:else if filter.key === 'showDeletedProjects'}
+      {:else if filter.key === 'confidential' && filter.value}
+        <ActiveFilter {filter}>
+          {#if filter.value === 'true'}
+            <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
+            {$t('project.confidential.confidential')}
+          {:else if filter.value === 'false'}
+            <Icon icon="i-mdi-shield-lock-open-outline" />
+            {$t('project.confidential.not_confidential')}
+          {:else}
+            <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
+            {$t('project.confidential.unspecified')}
+          {/if}
+        </ActiveFilter>
+      {:else if filter.key === 'showDeletedProjects' && filter.value}
         <ActiveFilter {filter}>
           <TrashIcon color="text-error" />
           {$t('project.filter.show_deleted')}
         </ActiveFilter>
-      {:else if filter.key === 'userEmail' && filter.value}
+      {:else if filter.key === 'memberSearch' && filter.value}
         <ActiveFilter {filter}>
           <AuthenticatedUserIcon />
           {filter.value}
         </ActiveFilter>
-      {:else if filter.key === 'hideDraftProjects'}
+      {:else if filter.key === 'hideDraftProjects' && filter.value}
         <ActiveFilter {filter}>
           <Icon icon="i-mdi-script" color="text-warning" />
           {$t('project.filter.hide_drafts')}
@@ -81,17 +103,17 @@
   </svelte:fragment>
   <svelte:fragment slot="filters">
     <h2 class="card-title">{$t('project.filter.title')}</h2>
-    {#if filterEnabled('userEmail')}
+    {#if filterEnabled('memberSearch')}
       <FormField label={$t('project.filter.project_member')}>
-        {#if $filters.userEmail}
+        {#if $filters.memberSearch}
           <div class="join">
             <input
               class="input input-bordered join-item flex-grow"
               readonly
-              value={$filters.userEmail}
+              value={$filters.memberSearch}
             />
             <div class="join-item isolate">
-              <IconButton icon="i-mdi-close" on:click={() => ($filters.userEmail = undefined)} />
+              <IconButton icon="i-mdi-close" on:click={() => ($filters.memberSearch = undefined)} />
             </div>
           </div>
         {:else}
@@ -114,13 +136,21 @@
     {/if}
     {#if filterEnabled('projectType')}
       <div class="form-control">
-        <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('project_type.any')} />
+        <ProjectTypeSelect bind:value={$filters.projectType} undefinedOptionLabel={$t('common.any')} includeUnknown />
+      </div>
+    {/if}
+    {#if filterEnabled('confidential')}
+      <div class="form-control">
+        <ProjectConfidentialityFilterSelect bind:value={$filters.confidential} />
       </div>
     {/if}
     {#if filterEnabled('showDeletedProjects')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
-          <span class="label-text">{$t('project.filter.show_deleted')}</span>
+          <span class="label-text inline-flex items-center gap-2">
+            {$t('project.filter.show_deleted')}
+            <TrashIcon color="text-error" />
+          </span>
           <input bind:checked={$filters.showDeletedProjects} type="checkbox" class="toggle toggle-error" />
         </label>
       </div>
@@ -128,8 +158,14 @@
     {#if filterEnabled('hideDraftProjects')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
-          <span class="label-text">{$t('project.filter.hide_drafts')}</span>
-          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle" />
+          <span class="label-text inline-flex items-center gap-2">
+            <span>
+              {$t('project.filter.hide_drafts')}
+              <SupHelp helpLink={helpLinks.projectRequest} />
+            </span>
+            <Icon icon="i-mdi-script" color="text-warning" />
+          </span>
+          <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle toggle-warning" />
         </label>
       </div>
     {/if}

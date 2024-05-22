@@ -119,4 +119,13 @@ password={password}
         responseObject.ShouldContainKey("error");
         responseObject["error"]!.GetValue<string>().ShouldBe("Unknown user");
     }
+
+    // LF sends lots of requests with no password/request body. Chorus might as well.
+    // Requests between our software shouldn't be "Bad requests" (400).
+    [Fact]
+    public async Task MissingPasswordReturns403()
+    {
+        var response = await Client.PostAsJsonAsync<object?>($"{_baseUrl}/api/user/{TestData.User}/projects", null);
+        response.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
 }

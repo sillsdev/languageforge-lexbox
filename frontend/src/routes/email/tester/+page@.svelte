@@ -13,17 +13,20 @@
             template: EmailTemplate.ForgotPassword,
             name: 'Bob',
             resetUrl: absoluteUrl('resetPassword'),
+            lifetime: '3.00:00:00', // 3 days
         },
         {
             template: EmailTemplate.VerifyEmailAddress,
             name: 'Bob',
             verifyUrl: absoluteUrl('user?emailResult=verifiedEmail'),
+            lifetime: '3.00:00:00', // 3 days
         },
         {
             label: 'Verify New Email Address',
             name: 'Bob',
             template: EmailTemplate.VerifyEmailAddress,
             verifyUrl: absoluteUrl('user?emailResult=changedEmail'),
+            lifetime: '3.00:00:00', // 3 days
             newAddress: true,
         },
         {
@@ -31,6 +34,7 @@
             name: 'Bob',
             template: EmailTemplate.CreateAccountRequest,
             verifyUrl: absoluteUrl('register?name=Bob'), // TODO: Get correct URL
+            lifetime: '3.00:00:00', // 3 days
         },
         {
             label: 'Create Project Request',
@@ -42,12 +46,13 @@
                 code: 'myproj-test-onestory',
                 type: ProjectType.OneStoryEditor,
                 description: 'My project description',
-                retentionPolicy: RetentionPolicy.Test
+                retentionPolicy: RetentionPolicy.Test,
+                isConfidential: false,
             },
             user: {
                 name: 'Bob',
                 email: 'test@test.com'
-            }
+            },
         },
         {
             label: 'Create Project Request (Language Project)',
@@ -60,6 +65,7 @@
                 type: ProjectType.OneStoryEditor,
                 description: 'My project description',
                 retentionPolicy: RetentionPolicy.Verified,
+                isConfidential: true,
             },
             user: {
                 name: 'Bob',
@@ -78,6 +84,7 @@
                 description: 'My project description',
                 retentionPolicy: RetentionPolicy.Dev,
                 projectManagerId: '703701a8-005c-4747-91f2-ac7650455118', // manager from seeding data
+                isConfidential: true,
             },
             user: {
                 name: 'Bob',

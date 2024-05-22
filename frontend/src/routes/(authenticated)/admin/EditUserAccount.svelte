@@ -11,14 +11,16 @@
   import { hash } from '$lib/util/hash';
   import Icon from '$lib/icons/Icon.svelte';
   import UserLockedAlert from '$lib/components/Users/UserLockedAlert.svelte';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
 
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
 
   const schema = z.object({
-    email: z.string().email($t('form.invalid_email')),
+    email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
+    score: z.number(),
     role: z.enum([UserRole.User, UserRole.Admin]),
   });
   type Schema = typeof schema;
@@ -29,12 +31,16 @@
     formModal.close();
   }
 
+  // This is a bit of a hack to make sure that the email field is not required if the user has no email
+  // even if the user edited the email field
+  $: if(form && $form && !$form.email && _user && !_user.email) $form.email = null;
+
   let _user: User;
   export async function openModal(user: User): Promise<FormModalResult<Schema>> {
     _user = user;
     userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email ?? undefined, role }, async () => {
+    return await formModal.open({ name: user.name, email: user.email ?? null, role }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
@@ -51,7 +57,7 @@
         await fetch('/api/Admin/resetPassword', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ passwordHash: await hash($form.password), userId: user.id }),
+          body: JSON.stringify({ passwordHash: await hash($form.password), passwordStrength: $form.score, userId: user.id }),
         });
       }
     });
@@ -114,6 +120,7 @@
       autocomplete="new-password"
       error={errors.password}
     />
+    <PasswordStrengthMeter bind:score={$form.score} password={$form.password} />
   </div>
   <FormError error={lockUserError} />
   <svelte:fragment slot="extraActions">

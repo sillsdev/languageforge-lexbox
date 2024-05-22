@@ -25,7 +25,7 @@
   }
   const formSchema = z.object(
     {
-      name: z.string().min(3).max(255),
+      name: z.string().trim().min(3).max(255),
       lastName: z.string().min(3).max(255),
     }
   );
@@ -46,6 +46,7 @@ function preFillForm(): void {
 
 let modal: ConfirmModal;
 let deleteModal: DeleteModal;
+
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -124,7 +125,7 @@ let deleteModal: DeleteModal;
         />
         <Input
           id="lastName"
-          label="Last Name"
+          label="Last Name (allows only white space)"
           type="text"
           error={$errors.lastName}
           bind:value={$form.lastName}

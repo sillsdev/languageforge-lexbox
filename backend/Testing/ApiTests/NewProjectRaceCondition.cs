@@ -24,8 +24,8 @@ public class NewProjectRaceCondition : ApiTestBase
         }
         finally
         {
-            await HttpClient.DeleteAsync($"{BaseUrl}/api/project/project/{project1Id}");
-            await HttpClient.DeleteAsync($"{BaseUrl}/api/project/project/{project2Id}");
+            await HttpClient.DeleteAsync($"{BaseUrl}/api/project/{project1Id}");
+            await HttpClient.DeleteAsync($"{BaseUrl}/api/project/{project2Id}");
         }
     }
 
@@ -40,6 +40,7 @@ public class NewProjectRaceCondition : ApiTestBase
                     type: FL_EX,
                     id: "{{id}}",
                     code: "{{id}}",
+                    isConfidential: false,
                     description: "this is just a testing project for testing a race condition",
                     retentionPolicy: DEV
                 }) {

@@ -6,4 +6,5 @@ public record RegisterAccountInput([Required(AllowEmptyStrings = false)] string 
     [EmailAddress] string Email,
     [Required(AllowEmptyStrings = false)] string Locale,
     [Required(AllowEmptyStrings = false)] string PasswordHash,
+    int? PasswordStrength,
     string TurnstileToken);

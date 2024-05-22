@@ -76,6 +76,15 @@ public class ProjectController(
         return project;
     }
 
+    [HttpPost("setProjectType")]
+    [AdminRequired]
+    public async Task<ActionResult> SetProjectType(string projectCode, ProjectType projectType, bool overrideKnown = false)
+    {
+        await lexBoxDbContext.Projects.Where(p => p.Code == projectCode && (p.Type == ProjectType.Unknown || overrideKnown))
+            .ExecuteUpdateAsync(u => u.SetProperty(p => p.Type, projectType));
+        return Ok();
+    }
+
     [HttpGet("projectCodeAvailable/{code}")]
     public async Task<bool> ProjectCodeAvailable(string code)
     {
@@ -147,7 +156,7 @@ public class ProjectController(
         return Ok();
     }
 
-    [HttpDelete("project/{id}")]
+    [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesDefaultResponseType]
@@ -221,21 +230,6 @@ public class ProjectController(
     {
         var result = await projectService.UpdateLexEntryCount(code);
         return result is null ? NotFound() : result;
-    }
-
-    [HttpPost("updateAllLexEntryCounts")]
-    [AdminRequired]
-    public async Task<ActionResult<int>> UpdateAllLexEntryCounts(bool onlyUnknown = true, int limit = 100, int delayMs = 10)
-    {
-        var projects = lexBoxDbContext.Projects.Where(p => p.Type == ProjectType.FLEx && (!onlyUnknown || p.FlexProjectMetadata == null)).Take(limit).ToArray();
-        var completed = 0;
-        foreach (var project in projects)
-        {
-            await projectService.UpdateLexEntryCount(project.Code);
-            completed++;
-            if (delayMs > 0) await Task.Delay(delayMs);
-        }
-        return Ok(completed);
     }
 
     [HttpPost("queueUpdateProjectMetadataTask")]

@@ -1,10 +1,11 @@
-import { expect } from '@playwright/test';
-import { test } from './fixtures';
-import { loginAs } from './utils/authHelpers';
 import * as testEnv from './envVars';
+
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { ProjectPage } from './pages/projectPage';
+import { expect } from '@playwright/test';
 import { join } from 'path';
+import { loginAs } from './utils/authHelpers';
+import { test } from './fixtures';
 
 type HgWebFileJson = {
   abspath: string
@@ -17,6 +18,8 @@ type HgWebJson = {
 }
 
 test('reset project and upload .zip file', async ({ page, tempProject, tempDir }) => {
+  test.slow();
+
   const allZeroHash = '0000000000000000000000000000000000000000';
 
   // Step 1: Populate project with known initial state
@@ -34,14 +37,20 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 2: Get tip hash and file list from hgweb, check some known values
-  const beforeResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
-  const beforeResetJson = await beforeResetResponse.json() as HgWebJson;
-  expect(beforeResetJson).toHaveProperty('node');
-  expect(beforeResetJson.node).not.toEqual(allZeroHash);
-  expect(beforeResetJson).toHaveProperty('files');
-  expect(beforeResetJson.files).toHaveLength(1);
-  expect(beforeResetJson.files[0]).toHaveProperty('basename');
-  expect(beforeResetJson.files[0].basename).toBe('hello.txt');
+  // It can take a while for the server to pick up the new repo
+  let beforeResetJson: HgWebJson;
+  await expect(async () => {
+    const beforeResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
+    beforeResetJson = await beforeResetResponse.json() as HgWebJson;
+    expect(beforeResetJson).toHaveProperty('node');
+    expect(beforeResetJson.node).not.toEqual(allZeroHash);
+    expect(beforeResetJson).toHaveProperty('files');
+    expect(beforeResetJson.files).toHaveLength(1);
+    expect(beforeResetJson.files[0]).toHaveProperty('basename');
+    expect(beforeResetJson.files[0].basename).toBe('hello.txt');
+  }).toPass({
+    intervals: [1_000, 3_000, 5_000],
+  });
 
   // Step 3: reset project, do not upload zip file
   await projectPage.goto();
@@ -56,12 +65,16 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 4: confirm it's empty now
-  const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
-  const afterResetJson = await afterResetResponse.json() as HgWebJson;
-  expect(afterResetJson).toHaveProperty('node');
-  expect(afterResetJson.node).toEqual(allZeroHash);
-  expect(afterResetJson).toHaveProperty('files');
-  expect(afterResetJson.files).toHaveLength(0);
+  // It can take a while for the server to pick up the new repo
+  await expect(async () => {
+    const afterResetResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
+    const afterResetJson = await afterResetResponse.json() as HgWebJson;
+    expect(afterResetJson.node).toEqual(allZeroHash);
+    expect(afterResetJson).toHaveProperty('files');
+    expect(afterResetJson.files).toHaveLength(0);
+  }).toPass({
+    intervals: [1_000, 3_000, 5_000],
+  });
 
   // Step 5: reset project again, uploading zip file downloaded from step 1
   await projectPage.goto();
@@ -75,7 +88,12 @@ test('reset project and upload .zip file', async ({ page, tempProject, tempDir }
   await resetProjectModel.assertGone();
 
   // Step 6: confirm tip hash and contents are same as before reset
-  const afterUploadResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
-  const afterUploadJson = await afterUploadResponse.json() as HgWebJson;
-  expect(afterUploadJson).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.
+  // It can take a while for the server to pick up the new repo
+  await expect(async () => {
+    const afterUploadResponse = await page.request.get(`${testEnv.serverBaseUrl}/hg/${tempProject.code}/file/tip?style=json-lex`);
+    const afterResetJSon = await afterUploadResponse.json() as HgWebJson;
+    expect(afterResetJSon).toEqual(beforeResetJson); // NOT .toBe(), which would check that they're the same object.
+  }).toPass({
+    intervals: [1_000, 3_000, 5_000],
+  });
 });

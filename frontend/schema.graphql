@@ -77,6 +77,11 @@ type CollectionSegmentInfo {
   hasPreviousPage: Boolean!
 }
 
+type CreateOrganizationPayload {
+  organization: Organization
+  errors: [CreateOrganizationError!]
+}
+
 type CreateProjectPayload {
   createProjectResponse: CreateProjectResponse
   errors: [CreateProjectError!]
@@ -92,6 +97,11 @@ type DbError implements Error {
   code: DbErrorCode!
 }
 
+type DeleteDraftProjectPayload {
+  draftProject: DraftProject
+  errors: [DeleteDraftProjectError!]
+}
+
 type DeleteUserByAdminOrSelfPayload {
   user: User
   errors: [DeleteUserByAdminOrSelfError!]
@@ -103,7 +113,9 @@ type DraftProject {
   code: String!
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
+  projectManager: User
   projectManagerId: UUID
+  isConfidential: Boolean
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -111,8 +123,12 @@ type DraftProject {
 
 type FlexProjectMetadata {
   projectId: UUID!
-  project: Project!
   lexEntryCount: Int
+}
+
+type InvalidEmailError implements Error {
+  message: String!
+  address: String!
 }
 
 type IsAdminResponse {
@@ -133,6 +149,7 @@ type LexAuthUser {
   updatedDate: Long!
   audience: LexboxAudience!
   email: String
+  username: String
   name: String!
   role: UserRole!
   isAdmin: Boolean!
@@ -148,19 +165,23 @@ type LexAuthUser {
 type MeDto {
   id: UUID!
   name: String!
-  email: String!
+  email: String
   locale: String!
 }
 
 type Mutation {
+  createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
+  setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
+  setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
   leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
+  deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
   softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
   changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
   changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
@@ -170,6 +191,26 @@ type Mutation {
 
 type NotFoundError implements Error {
   message: String!
+  type: String!
+}
+
+type OrgMember {
+  userId: UUID!
+  orgId: UUID!
+  role: OrgRole!
+  user: User
+  organization: Organization
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
+type Organization {
+  name: String!
+  members: [OrgMember!]!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
 }
 
 type Project {
@@ -179,11 +220,13 @@ type Project {
   users: [ProjectUsers!]!
   changesets: [Changeset!]!
   hasAbandonedTransactions: Boolean!
+  isLanguageForgeProject: Boolean!
   parentId: UUID
   name: String!
   description: String
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
+  isConfidential: Boolean
   flexProjectMetadata: FlexProjectMetadata
   lastCommit: DateTime
   deletedDate: DateTime
@@ -206,12 +249,16 @@ type ProjectMembersMustBeVerified implements Error {
   message: String!
 }
 
+type ProjectMembersMustBeVerifiedForRole implements Error {
+  message: String!
+}
+
 type ProjectUsers {
+  user: User!
+  project: Project!
   userId: UUID!
   projectId: UUID!
   role: ProjectRole!
-  user: User!
-  project: Project!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -224,6 +271,9 @@ type Query {
   projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
+  orgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
+  myOrgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
+  orgById(orgId: UUID!): Organization
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
   meAuth: LexAuthUser!
@@ -237,6 +287,16 @@ type RemoveProjectMemberPayload {
 
 type RequiredError implements Error {
   message: String!
+}
+
+type SetOrgMemberRolePayload {
+  organization: Organization
+  errors: [SetOrgMemberRoleError!]
+}
+
+type SetProjectConfidentialityPayload {
+  project: Project
+  errors: [SetProjectConfidentialityError!]
 }
 
 type SetUserLockedPayload {
@@ -262,12 +322,14 @@ type User {
   name: String!
   localizationCode: String!
   isAdmin: Boolean!
+  passwordStrength: Int
   lastActive: DateTime!
   canCreateProjects: Boolean!
   createdById: UUID
   createdBy: User
   usersICreated: [User!]!
   googleId: String
+  organizations: [OrgMember!]!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -287,13 +349,13 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMemberInvitedByEmail
+union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
 
-union BulkAddProjectMembersError = NotFoundError | DbError
+union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
 union ChangeProjectDescriptionError = NotFoundError | DbError
 
-union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified
+union ChangeProjectMemberRoleError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
 
 union ChangeProjectNameError = NotFoundError | DbError | RequiredError
 
@@ -301,11 +363,19 @@ union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
 union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 
+union CreateOrganizationError = DbError
+
 union CreateProjectError = DbError | AlreadyExistsError | ProjectCreatorsMustHaveEmail
+
+union DeleteDraftProjectError = NotFoundError | DbError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
+
+union SetOrgMemberRoleError = DbError | NotFoundError
+
+union SetProjectConfidentialityError = NotFoundError | DbError
 
 union SetUserLockedError = NotFoundError
 
@@ -313,7 +383,7 @@ union SoftDeleteProjectError = NotFoundError | DbError
 
 input AddProjectMemberInput {
   projectId: UUID!
-  userEmail: String!
+  usernameOrEmail: String!
   role: ProjectRole!
 }
 
@@ -348,14 +418,18 @@ input ChangeProjectNameInput {
 input ChangeUserAccountByAdminInput {
   role: UserRole!
   userId: UUID!
-  email: String!
+  email: String
   name: String!
 }
 
 input ChangeUserAccountBySelfInput {
   locale: String!
   userId: UUID!
-  email: String!
+  email: String
+  name: String!
+}
+
+input CreateOrganizationInput {
   name: String!
 }
 
@@ -366,6 +440,7 @@ input CreateProjectInput {
   code: String!
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
+  isConfidential: Boolean!
   projectManagerId: UUID
 }
 
@@ -384,6 +459,10 @@ input DateTimeOperationFilterInput {
   nlte: DateTime
 }
 
+input DeleteDraftProjectInput {
+  draftProjectId: UUID!
+}
+
 input DeleteUserByAdminOrSelfInput {
   userId: UUID!
 }
@@ -396,7 +475,9 @@ input DraftProjectFilterInput {
   code: StringOperationFilterInput
   type: ProjectTypeOperationFilterInput
   retentionPolicy: RetentionPolicyOperationFilterInput
+  projectManager: UserFilterInput
   projectManagerId: UuidOperationFilterInput
+  isConfidential: BooleanOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -408,7 +489,9 @@ input DraftProjectSortInput {
   code: SortEnumType
   type: SortEnumType
   retentionPolicy: SortEnumType
+  projectManager: UserSortInput
   projectManagerId: SortEnumType
+  isConfidential: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType
@@ -418,13 +501,11 @@ input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
   projectId: UuidOperationFilterInput
-  project: ProjectFilterInput
   lexEntryCount: IntOperationFilterInput
 }
 
 input FlexProjectMetadataSortInput {
   projectId: SortEnumType
-  project: ProjectSortInput
   lexEntryCount: SortEnumType
 }
 
@@ -447,6 +528,13 @@ input LeaveProjectInput {
   projectId: UUID!
 }
 
+input ListFilterInputTypeOfOrgMemberFilterInput {
+  all: OrgMemberFilterInput
+  none: OrgMemberFilterInput
+  some: OrgMemberFilterInput
+  any: Boolean
+}
+
 input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput
   none: ProjectUsersFilterInput
@@ -461,6 +549,43 @@ input ListFilterInputTypeOfUserFilterInput {
   any: Boolean
 }
 
+input OrgMemberFilterInput {
+  and: [OrgMemberFilterInput!]
+  or: [OrgMemberFilterInput!]
+  userId: UuidOperationFilterInput
+  orgId: UuidOperationFilterInput
+  role: OrgRoleOperationFilterInput
+  user: UserFilterInput
+  organization: OrganizationFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+}
+
+input OrgRoleOperationFilterInput {
+  eq: OrgRole
+  neq: OrgRole
+  in: [OrgRole!]
+  nin: [OrgRole!]
+}
+
+input OrganizationFilterInput {
+  and: [OrganizationFilterInput!]
+  or: [OrganizationFilterInput!]
+  name: StringOperationFilterInput
+  members: ListFilterInputTypeOfOrgMemberFilterInput
+  id: UuidOperationFilterInput
+  createdDate: DateTimeOperationFilterInput
+  updatedDate: DateTimeOperationFilterInput
+}
+
+input OrganizationSortInput {
+  name: SortEnumType
+  id: SortEnumType
+  createdDate: SortEnumType
+  updatedDate: SortEnumType
+}
+
 input ProjectFilterInput {
   and: [ProjectFilterInput!]
   or: [ProjectFilterInput!]
@@ -470,6 +595,7 @@ input ProjectFilterInput {
   description: StringOperationFilterInput
   retentionPolicy: RetentionPolicyOperationFilterInput
   type: ProjectTypeOperationFilterInput
+  isConfidential: BooleanOperationFilterInput
   flexProjectMetadata: FlexProjectMetadataFilterInput
   users: ListFilterInputTypeOfProjectUsersFilterInput
   lastCommit: DateTimeOperationFilterInput
@@ -504,6 +630,7 @@ input ProjectSortInput {
   description: SortEnumType
   retentionPolicy: SortEnumType
   type: SortEnumType
+  isConfidential: SortEnumType
   flexProjectMetadata: FlexProjectMetadataSortInput
   lastCommit: SortEnumType
   deletedDate: SortEnumType
@@ -555,6 +682,17 @@ input RetentionPolicyOperationFilterInput {
   nin: [RetentionPolicy!]
 }
 
+input SetOrgMemberRoleInput {
+  orgId: UUID!
+  role: OrgRole
+  emailOrUsername: String!
+}
+
+input SetProjectConfidentialityInput {
+  projectId: UUID!
+  isConfidential: Boolean!
+}
+
 input SetUserLockedInput {
   userId: UUID!
   locked: Boolean!
@@ -578,6 +716,7 @@ input StringOperationFilterInput {
   endsWith: String
   nendsWith: String
   icontains: String
+  ieq: String
 }
 
 input UserFilterInput {
@@ -589,6 +728,7 @@ input UserFilterInput {
   isAdmin: BooleanOperationFilterInput
   passwordHash: StringOperationFilterInput
   salt: StringOperationFilterInput
+  passwordStrength: IntOperationFilterInput
   lastActive: DateTimeOperationFilterInput
   emailVerified: BooleanOperationFilterInput
   canCreateProjects: BooleanOperationFilterInput
@@ -599,6 +739,7 @@ input UserFilterInput {
   username: StringOperationFilterInput
   googleId: StringOperationFilterInput
   projects: ListFilterInputTypeOfProjectUsersFilterInput
+  organizations: ListFilterInputTypeOfOrgMemberFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -611,6 +752,7 @@ input UserSortInput {
   isAdmin: SortEnumType
   passwordHash: SortEnumType
   salt: SortEnumType
+  passwordStrength: SortEnumType
   lastActive: SortEnumType
   emailVerified: SortEnumType
   canCreateProjects: SortEnumType
@@ -662,6 +804,12 @@ enum LexboxAudience {
   FORGOT_PASSWORD
   SEND_AND_RECEIVE
   SEND_AND_RECEIVE_REFRESH
+}
+
+enum OrgRole {
+  UNKNOWN
+  ADMIN
+  USER
 }
 
 enum ProjectMigrationStatus {

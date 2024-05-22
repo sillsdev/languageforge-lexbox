@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:host, :root {
+  @apply h-full;
+  scroll-behavior: smooth;
+  @apply bg-surface-100;
+  color: var(--base-text);
+}
+
+.dialog {
+  height: calc(100vh - 100px);
+  @apply flex flex-col;
+}
+
+.Checkbox *, label:has(.Switch) {
+  cursor: pointer;
+}

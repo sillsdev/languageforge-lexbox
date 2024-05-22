@@ -167,8 +167,8 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
       "email_required": "E-mail requis",
       "modal_title": "Ajouter un membre à ce projet",
       "submit_button": "Ajouter un membre",
-      "user_not_found": "Aucun utilisateur n'a été trouvé avec cette adresse e-mail",
-      "user_not_verified": "L'utilisateur n'a pas vérifié son adresse e-mail",
+      "user_must_be_verified": "L'utilisateur n'a pas vérifié son adresse e-mail",
+      "manager_must_be_verified": "L'utilisateur doit vérifier son adresse e-mail avant de devenir un responsable du projet",
       "user_needs_to_relogin": "Les membres ajoutés devront se déconnecter et se reconnecter pour voir le nouveau projet."
     },
     "change_role_modal": {
@@ -278,7 +278,7 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
     "button_register": "S'inscrire",
     "email": "Adresse e-mail requise",
     "label_email": "E-mail",
-    "description_email": "Ceci sera votre identifiant d'envoi/réception",
+    "description_email": "Ceci sera votre identifiant **d'envoi/réception**",
     "label_name": "Nom",
     "label_password": "Mot de passe",
     "name_missing": "Nom manquant",
@@ -324,6 +324,11 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
   },
   "emails": {
     "link_expiration_warning": "Cet e-mail expirera dans 3 jours.",
+    "link_expiration_days": "Cet e-mail expirera dans {days} {days, plural, one {jour} other {jours}}.",
+    "link_expiration_hours": "Cet e-mail expirera dans {hours} {hours, plural, one {heure} other {heures}}.",
+    "link_expiration_minutes": "Cet e-mail expirera dans {minutes} {minutes, plural, one {minute} other {minutes}}.",
+    "link_expiration_seconds": "Cet e-mail expirera dans {seconds} {seconds, plural, one {seconde} other {secondes}}.",
+    "link_expiration_ms": "Cet e-mail expirera dans {ms} {ms, plural, one {milliseconde} other {millisecondes}}.",
     "verify_email": {
       "subject": "Vérifiez votre adresse e-mail",
       "to_verify_click": "Cliquez sur le bouton ci-dessous pour vérifier votre adresse e-mail.",

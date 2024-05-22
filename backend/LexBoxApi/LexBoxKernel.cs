@@ -1,6 +1,7 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
@@ -43,6 +44,8 @@ public static class LexBoxKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddHttpClient();
+        services.AddHttpContextAccessor();
+        services.AddMemoryCache();
         services.AddScoped<LoggedInContext>();
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<ProjectService>();
@@ -52,6 +55,7 @@ public static class LexBoxKernel
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
         services.AddTransient<HgWebHealthCheck>();
+        services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();
@@ -64,16 +68,13 @@ public static class LexBoxKernel
         services.AddLexGraphQL(environment);
     }
 
-    private class SwaggerValidationService(IAsyncSwaggerProvider swaggerProvider) : IHostedService
+    private class SwaggerValidationService(IAsyncSwaggerProvider swaggerProvider): BackgroundService
     {
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            //this delay is because there's some kind of race condition where minimal apis are not yet registered
+            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             await swaggerProvider.GetSwaggerAsync(SwaggerDocumentName);
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
         }
     }
 }

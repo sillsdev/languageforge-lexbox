@@ -25,6 +25,7 @@ type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id:
 
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
+  uniqueTestId: string,
   tempUser: TempUser,
   tempProject: TempProject,
   tempDir: string,
@@ -32,9 +33,10 @@ type Fixtures = {
 
 function addUnexpectedResponseListener(context: BrowserContext): void {
   context.addListener('response', response => {
-    expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(500);
+    const traceparent = response.request().headers()['Traceparent'];
+    expect.soft(response.status(), `Unexpected response status: ${response.status()}. (${traceparent})`).toBeLessThan(500);
     if (response.request().isNavigationRequest()) {
-      expect.soft(response.status(), `Unexpected response: ${response.status()}`).toBeLessThan(400);
+      expect.soft(response.status(), `Unexpected response status: ${response.status()}. (${traceparent})`).toBeLessThan(400);
     }
   });
 }
@@ -56,6 +58,14 @@ export const test = base.extend<Fixtures>({
     addUnexpectedResponseListener(context);
     await use(context);
   },
+  // eslint-disable-next-line no-empty-pattern
+  uniqueTestId: async ({ }, use, testInfo) => {
+    // testInfo.testId is only guarunteed to be unique within a session (https://playwright.dev/docs/api/class-testcase#test-case-id)
+    // i.e. it's not unique enough if a test fails to cleanup. We've had that problem.
+    const shortId = randomUUID().split('-')[0];
+    const testId = `${testInfo.testId}-${shortId}`;
+    await use(testId);
+  },
   tempUser: async ({ browser, page }, use, testInfo) => {
     const mailinatorId = randomUUID();
     const email = `${mailinatorId}@mailinator.com`;
@@ -75,13 +85,13 @@ export const test = base.extend<Fixtures>({
     await deleteUser(context.request, tempUser.id);
     await context.close();
   },
-  tempProject: async ({ page }, use, testInfo) => {
+  tempProject: async ({ page, uniqueTestId }, use, testInfo) => {
     const titleForCode =
       testInfo.title
       .replaceAll(' ','-')
-      .replaceAll(/[^a-z-]/g,'');
-    const code = `test-${titleForCode}-${testInfo.testId}`;
-    const name = `Temporary project for ${testInfo.title} unit test ${testInfo.testId}`;
+        .replaceAll(/[^a-z-]/g, '');
+    const code = `test-${titleForCode}-${uniqueTestId}`;
+    const name = `Temporary project for ${testInfo.title} unit test ${uniqueTestId}`;
     const loginData = {
       emailOrUsername: 'admin',
       password: testEnv.defaultPassword,
@@ -96,7 +106,8 @@ export const test = base.extend<Fixtures>({
           type: FL_EX,
           code: "${code}",
           description: "temporary project created during the ${testInfo.title} unit test",
-          retentionPolicy: DEV
+          retentionPolicy: DEV,
+          isConfidential: false
         }) {
           createProjectResponse {
             id
@@ -114,13 +125,19 @@ export const test = base.extend<Fixtures>({
 `);
     const id = gqlResponse.data.createProject.createProjectResponse.id;
     await use({id, code, name});
-    const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/project/${id}`);
+    const deleteResponse = await page.request.delete(`${testEnv.serverBaseUrl}/api/project/${id}`);
     expect(deleteResponse.ok()).toBeTruthy();
   },
   // eslint-disable-next-line no-empty-pattern
-  tempDir: async ({}, use, testInfo) => {
-    const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${testInfo.testId}-`));
+  tempDir: async ({ uniqueTestId }, use) => {
+    const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${uniqueTestId}-`));
     await use(dirname);
-    await rm(dirname, {recursive: true, force: true});
+    try {
+      await rm(dirname, { recursive: true, force: true });
+    } catch (e) {
+      // This fails frequently for me when running tests in Firefox and it's not critical
+      const error = ((e && typeof e === 'object' && 'message' in e) ? e.message : e) as string;
+      console.warn(`Failed to clean up temporary directory ${dirname}: ${error}.`);
+    }
   }
 });

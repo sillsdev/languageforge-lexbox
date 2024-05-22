@@ -16,7 +16,7 @@
   import { delay } from '$lib/util/time';
 
   export let data: PageData;
-  $: user = data?.account;
+  $: user = data.account;
   let deleteModal: DeleteUserModal;
 
   const emailResult = useEmailResult();
@@ -35,9 +35,9 @@
   }
 
   const formSchema = z.object({
-    email: z.string().email($t('form.invalid_email')),
-    name: z.string(),
-    locale: z.string().min(2),
+    email: z.string().email($t('form.invalid_email')).nullish(),
+    name: z.string().trim().min(1, $t('register.name_missing')),
+    locale: z.string().trim().min(2),
   });
 
   let { form, errors, enhance, message, submitting, formState } = lexSuperForm(formSchema, async () => {
@@ -55,7 +55,7 @@
       return error.message;
     }
 
-    if ($formState.email.changed) {
+    if ($formState.email.changed && $form.email) {
       requestedEmail.set($form.email);
     }
 
@@ -63,10 +63,15 @@
       notifySuccess($t('account_settings.update_success'));
     }
   });
+
+  // This is a bit of a hack to make sure that the email field is not required if the user has no email
+  // even if the user edited the email field
+  $: if(!$form.email && $user && !$user.email) $form.email = null;
+
   onMount(() => {
     form.set(
       {
-        email: $user.email,
+        email: $user.email ?? null,
         name: $user.name,
         locale: $user.locale,
       },

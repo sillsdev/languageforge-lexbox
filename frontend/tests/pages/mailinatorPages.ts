@@ -1,10 +1,10 @@
-import type { Locator, Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { MailEmailPage, MailInboxPage } from './mailPages';
 
 export class MailinatorInboxPage extends MailInboxPage {
   constructor(page: Page, mailboxId: string) {
     super(page,
-          page.locator(`[id^='row_']`).first(),
+          page.locator(':text("Public Messages")'),
           `https://www.mailinator.com/v4/public/inboxes.jsp?to=${mailboxId}`,
           mailboxId,
           page.locator(`[id^='row_']`));
@@ -12,6 +12,10 @@ export class MailinatorInboxPage extends MailInboxPage {
 
   override getEmailPage(): MailEmailPage {
     return new MailinatorEmailPage(this.page);
+  }
+
+  override async refreshEmails(): Promise<void> {
+    return Promise.resolve(); // Mailinator auto-refreshes
   }
 
   override async goto(options?: {expectRedirect: boolean}): Promise<this> {
@@ -22,12 +26,12 @@ export class MailinatorInboxPage extends MailInboxPage {
 
 export class MailinatorEmailPage extends MailEmailPage {
   constructor(page: Page) {
-    super(page, page.frameLocator('#html_msg_body') as Locator, undefined);
+    super(page, page.frameLocator('#html_msg_body').locator('body'), undefined);
   }
 
   override getFirstLanguageDepotUrl(): Promise<string | null> {
     // Mailinator sometimes swaps links out with its own that and redirect to the original,
     // but the originals are made available in the links tab, which is always in the DOM
-    return this.bodyLocator.locator(`a[href*='jwt=']`).first().getAttribute('href');
+    return this.page.locator('#email_pane').locator(`a[href*='jwt=']`).first().getAttribute('href');
   }
 }

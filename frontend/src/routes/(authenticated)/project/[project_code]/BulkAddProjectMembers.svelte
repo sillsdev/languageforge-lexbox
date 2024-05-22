@@ -1,7 +1,7 @@
 <script lang="ts">
   import { BadgeButton, MemberBadge } from '$lib/components/Badges';
-  import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, TextArea, passwordFormRules } from '$lib/forms';
+  import { DialogResponse, FormModal, type FormSubmitReturn } from '$lib/components/modals';
+  import { Input, TextArea, isEmail, passwordFormRules } from '$lib/forms';
   import { ProjectRole, type BulkAddProjectMembersResult } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -11,6 +11,8 @@
   import Icon from '$lib/icons/Icon.svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
   import { distinct } from '$lib/util/array';
+  import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
+  import { SupHelp, helpLinks } from '$lib/components/help';
 
   enum BulkAddSteps {
     Add,
@@ -21,7 +23,7 @@
 
   export let projectId: string;
   const schema = z.object({
-    usernamesText: z.string().min(1, $t('register.name_missing')),
+    usernamesText: z.string().trim().min(1, $t('project_page.bulk_add_members.empty_user_field')),
     password: passwordFormRules($t),
   });
 
@@ -35,8 +37,16 @@
 
   const usernameRe = /^[a-zA-Z0-9_]+$/;
 
-  function validateUsernames(usernames: string[]): boolean {
-    return usernames.every(s => usernameRe.test(s));
+  function validateBulkAddInput(usernames: string[]): FormSubmitReturn<typeof schema> {
+    if (usernames.length === 0) return { usernamesText: [$t('project_page.bulk_add_members.empty_user_field')] };
+
+    for (const username of usernames) {
+      if (username.includes('@')) {
+        if (!isEmail(username)) return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', { email: username })] };
+      } else if (!usernameRe.test(username)) {
+        return { usernamesText: [$t('project_page.bulk_add_members.invalid_username', { username })] };
+      }
+    }
   }
 
   async function openModal(): Promise<void> {
@@ -50,15 +60,22 @@
         // Remove empty lines before validating, otherwise final newline would count as invalid because empty string
         .filter(s => s)
         .filter(distinct);
-      if (!validateUsernames(usernames)) {
-        return $t('project_page.bulk_add_members.usernames_alphanum_only');
-      }
+
+      const bulkErrors = validateBulkAddInput(usernames);
+      if (bulkErrors) return bulkErrors;
+
       const { error, data } = await _bulkAddProjectMembers({
         projectId,
         passwordHash,
         usernames,
         role: ProjectRole.Editor, // Managers not allowed to have shared passwords
       });
+
+      const invalidEmailError = error?.byType('InvalidEmailError');
+      if (invalidEmailError) {
+        const email = invalidEmailError[0].address!;
+        return { usernamesText: [$t('project_page.bulk_add_members.invalid_email_address', {email})] };
+      }
 
       addedMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.addedMembers ?? [];
       createdMembers = data?.bulkAddProjectMembers.bulkAddProjectMembersResult?.createdMembers ?? [];
@@ -73,28 +90,36 @@
 </script>
 
 <AdminContent>
-  <BadgeButton type="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
+  <BadgeButton variant="badge-success" icon="i-mdi-account-multiple-plus-outline" on:click={openModal}>
     {$t('project_page.bulk_add_members.add_button')}
   </BadgeButton>
 
   <FormModal bind:this={formModal} {schema} let:errors>
-    <span slot="title">{$t('project_page.bulk_add_members.modal_title')}</span>
+    <span slot="title">
+      {$t('project_page.bulk_add_members.modal_title')}
+      <SupHelp helpLink={helpLinks.bulkAddCreate} />
+    </span>
     {#if currentStep == BulkAddSteps.Add}
-      <p>{$t('project_page.bulk_add_members.explanation')}</p>
+      <p class="mb-2">{$t('project_page.bulk_add_members.explanation')}</p>
       <Input
         id="shared_password"
         type="password"
         autocomplete="new-password"
         label={$t('project_page.bulk_add_members.shared_password')}
+        description={$t('project_page.bulk_add_members.shared_password_description')}
         bind:value={$form.password}
         error={errors.password}
       />
-      <TextArea
-        id="usernamesText"
-        label={$t('project_page.bulk_add_members.usernames')}
-        bind:value={$form.usernamesText}
-        error={errors.usernamesText}
-      />
+      <PasswordStrengthMeter score={0} password={$form.password} />
+      <div class="contents usernames">
+        <TextArea
+          id="usernamesText"
+          label={$t('project_page.bulk_add_members.usernames')}
+          description={$t('project_page.bulk_add_members.usernames_description')}
+          bind:value={$form.usernamesText}
+          error={errors.usernamesText}
+        />
+      </div>
     {:else if currentStep == BulkAddSteps.Results}
       <p class="flex gap-1 items-center mb-4">
         <Icon icon="i-mdi-plus" color="text-success" />
@@ -150,3 +175,9 @@
     <span slot="closeText">{$t('project_page.bulk_add_members.finish_button')}</span>
   </FormModal>
 </AdminContent>
+
+<style lang="postcss">
+  .usernames :global(.description) {
+    @apply text-success;
+  }
+</style>

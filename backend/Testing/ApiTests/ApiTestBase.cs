@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
-using LexBoxApi.Auth;
 using Shouldly;
 using Testing.LexCore.Utils;
 using Testing.Services;
@@ -17,10 +15,13 @@ public class ApiTestBase
 
     public ApiTestBase()
     {
-        HttpClient = new HttpClient(_httpClientHandler);
+        HttpClient = new HttpClient(_httpClientHandler)
+        {
+            BaseAddress = new Uri(BaseUrl)
+        };
     }
 
-    public async Task<string> LoginAs(string user, string password)
+    public virtual async Task<string> LoginAs(string user, string password)
     {
         var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), HttpClient);
         return JwtHelper.GetJwtFromLoginResponse(response);
@@ -39,5 +40,24 @@ public class ApiTestBase
         GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);
         response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         return jsonResponse;
+    }
+
+    public async Task<string?> GetProjectLastCommit(string projectCode)
+    {
+        var jsonResult = await ExecuteGql($$"""
+query projectLastCommit {
+    projectByCode(code: "{{projectCode}}") {
+        lastCommit
+    }
+}
+""");
+        var project = jsonResult?["data"]?["projectByCode"].ShouldBeOfType<JsonObject>();
+        return project?["lastCommit"]?.ToString();
+    }
+
+    public async Task StartLexboxProjectReset(string projectCode)
+    {
+        var response = await HttpClient.PostAsync($"{BaseUrl}/api/project/resetProject/{projectCode}", null);
+        response.EnsureSuccessStatusCode();
     }
 }

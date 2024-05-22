@@ -10,10 +10,12 @@
     formState: LexFormState<S>;
   };
 
-  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<ErrorMessage | Partial<LexFormErrors<Schema>>>;
+  export type FormSubmitReturn<Schema extends ZodValidation<AnyZodObject>> = ErrorMessage | Partial<LexFormErrors<Schema>>;
+  export type FormSubmitCallback<Schema extends ZodValidation<AnyZodObject>> = (state: LexFormState<Schema>) => Promise<FormSubmitReturn<Schema>>;
 </script>
 
 <script lang="ts">
+  import type { SubmitVariant } from '$lib/forms/SubmitButton.svelte';
   import { Button, Form, FormError, lexSuperForm, SubmitButton } from '$lib/forms';
   import type { Readable } from 'svelte/store';
 
@@ -25,9 +27,10 @@
   };
 
   export let schema: Schema;
+  export let submitVariant: SubmitVariant = 'btn-primary';
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
-  const { form: _form, errors, reset, message, enhance, formState } = superForm;
+  const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
   let modal: Modal;
   let done = false;
 
@@ -62,7 +65,7 @@
     modal.close();
   }
 
-  export function form(): Readable<Readonly<FormType>> {
+  export function form(): Readable<FormType> {
     return superForm.form;
   }
 
@@ -84,9 +87,9 @@
   }
 </script>
 
-<Modal bind:this={modal} on:close={() => reset()} bottom>
+<Modal bind:this={modal} on:close={() => reset()} bottom closeOnClickOutside={!$tainted}>
   <Form id="modalForm" {enhance}>
-    <p class="mb-4"><slot name="title" /></p>
+    <p class="mb-4 text-lg"><slot name="title" /></p>
     <slot errors={$errors} />
   </Form>
   <FormError error={$message} right />
@@ -95,7 +98,7 @@
   </svelte:fragment>
   <svelte:fragment slot="actions" let:submitting>
     {#if !done}
-      <SubmitButton form="modalForm" loading={submitting}>
+      <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
         <slot name="submitText" />
       </SubmitButton>
     {:else}

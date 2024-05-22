@@ -30,7 +30,7 @@
               lastChange: new Date(project.lastCommit),
             })}
           {:else}
-            <Badge type="badge-info" outline>
+            <Badge variant="badge-info" outline>
               {$t('projectlist.no_changes')}
             </Badge>
           {/if}

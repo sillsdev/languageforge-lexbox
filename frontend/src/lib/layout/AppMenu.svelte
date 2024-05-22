@@ -5,6 +5,8 @@
   import Badge from '$lib/components/Badges/Badge.svelte';
   import {APP_VERSION} from '$lib/util/version';
   import type {LexAuthUser} from '$lib/user';
+  import Icon from '$lib/icons/Icon.svelte';
+  import { helpLinks } from '$lib/components/help';
 
   export let serverVersion: string;
   export let apiVersion: string | null;
@@ -15,7 +17,7 @@
 <ul class="menu bg-base-100 min-w-[33%] flex-nowrap overflow-y-auto">
   <header class="prose flex flex-col items-end p-4 mb-4 max-w-full">
     <h2 class="mb-0">{user.name}</h2>
-    <span class="font-light">{user.email}</span>
+    <span class="font-light">{user.emailOrUsername}</span>
   </header>
 
   <li>
@@ -47,6 +49,13 @@
     <a href="/user" data-sveltekit-preload-data="tap">
       {$t('account_settings.title')}
       <AuthenticatedUserIcon />
+    </a>
+  </li>
+
+  <li>
+    <a href={helpLinks.helpList} target="_blank" rel="external">
+      {$t('appmenu.help')}
+      <Icon icon="i-mdi-open-in-new" size="text-2xl" />
     </a>
   </li>
 

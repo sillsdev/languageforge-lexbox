@@ -167,8 +167,8 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
       "email_required": "Correo Electrónico requerido",
       "modal_title": "Agregar un Miembro a este proyecto",
       "submit_button": "Agregar Miembro",
-      "user_not_found": "No se encontró ningún usuario con esta dirección de correo electrónico",
-      "user_not_verified": "El usuario no ha verificado su dirección de correo electrónico",
+      "user_must_be_verified": "El usuario no ha verificado su dirección de correo electrónico",
+      "manager_must_be_verified": "El usuario debe verificar su dirección de correo electrónico antes de convertirse en gerente de proyecto.",
       "user_needs_to_relogin": "Los miembros agregados deberán cerrar sesión y volver a iniciar sesión antes de ver el nuevo proyecto."
     },
     "change_role_modal": {
@@ -278,7 +278,7 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
     "button_register": "Registrarse",
     "email": "Correo electrónico requerido",
     "label_email": "Correo electrónico",
-    "description_email": "Este será su inicio de sesión para enviar/recibir",
+    "description_email": "Este será su inicio de sesión para **enviar/recibir**",
     "label_name": "Nombre",
     "label_password": "Contraseña",
     "name_missing": "Falta el nombre",
@@ -324,6 +324,11 @@ el [Linguistics Institute at Payap University](https://li.payap.ac.th/) en Chian
   },
   "emails": {
     "link_expiration_warning": "Este correo electrónico caducará en 3 días.",
+    "link_expiration_days": "Este correo electrónico caducará en {days} {days, plural, one {día} other {días}}.",
+    "link_expiration_hours": "Este correo electrónico caducará en {hours} {hours, plural, one {hora} other {horas}}.",
+    "link_expiration_minutes": "Este correo electrónico caducará en {minutes} {minutes, plural, one {minuto} other {minutos}}.",
+    "link_expiration_seconds": "Este correo electrónico caducará en {seconds} {seconds, plural, one {segundo} other {segundos}}.",
+    "link_expiration_ms": "Este correo electrónico caducará en {ms} {ms, plural, one {milisegundo} other {milisegundos}}.",
     "verify_email": {
       "subject": "Verifica tu dirección de correo electrónico",
       "to_verify_click": "Haz clic en el botón de abajo para verificar tu dirección de correo electrónico.",

@@ -1,20 +1,27 @@
 using System.Data.Common;
 using LexBoxApi.Models.Project;
+using LexCore.Config;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMemoryCache memoryCache)
+public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
+        /* TODO #737 - Remove this draftProject/isConfidentialIsUntrustworthy stuff and just trust input.IsConfidential */
+        var draftProject = await dbContext.DraftProjects.FindAsync(projectId);
+        // There could be draft projects from before we introduced the IsConfidential field. (i.e. where draftProject.IsConfidential is null)
+        // In those cases we can't trust input.IsConfidential == false, because that is the default, but the user will never have had the chance to pick it.
+        var isConfidentialIsUntrustworthy = draftProject is not null && draftProject.IsConfidential is null && !input.IsConfidential;
         dbContext.Projects.Add(
             new Project
             {
@@ -26,10 +33,17 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
                 Type = input.Type,
                 LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
+                IsConfidential = isConfidentialIsUntrustworthy ? null : input.IsConfidential,
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         // Also delete draft project, if any
         await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
+        if (input.ProjectManagerId.HasValue)
+        {
+            var manager = await dbContext.Users.FindAsync(input.ProjectManagerId.Value);
+            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
+
+        }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
@@ -48,6 +62,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
                 Name = input.Name,
                 Description = input.Description,
                 Type = input.Type,
+                IsConfidential = input.IsConfidential,
                 RetentionPolicy = input.RetentionPolicy,
                 ProjectManagerId = input.ProjectManagerId,
             });
@@ -84,35 +99,44 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
     public async Task ResetProject(ResetProjectByAdminInput input)
     {
         var rowsAffected = await dbContext.Projects.Where(p => p.Code == input.Code && p.ResetStatus == ResetStatus.None)
-            .ExecuteUpdateAsync(u => u.SetProperty(p => p.ResetStatus, ResetStatus.InProgress));
-        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found");
+            .ExecuteUpdateAsync(u => u
+                .SetProperty(p => p.ResetStatus, ResetStatus.InProgress)
+                .SetProperty(p => p.LastCommit, null as DateTimeOffset?));
+        if (rowsAffected == 0) throw new NotFoundException($"project {input.Code} not ready for reset, either already reset or not found", nameof(Project));
+        await ResetLexEntryCount(input.Code);
         await hgService.ResetRepo(input.Code);
     }
 
     public async Task FinishReset(string code, Stream? zipFile = null)
     {
-        var project = await dbContext.Projects.Where(p => p.Code == code).SingleOrDefaultAsync();
-        if (project is null) throw new NotFoundException($"project {code} not found");
+        var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).Where(p => p.Code == code).SingleOrDefaultAsync();
+        if (project is null) throw new NotFoundException($"project {code} not found", nameof(Project));
         if (project.ResetStatus != ResetStatus.InProgress) throw ProjectResetException.ResetNotStarted(code);
         if (zipFile is not null)
         {
             await hgService.FinishReset(code, zipFile);
-            project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
+            await UpdateProjectMetadata(project);
         }
         project.ResetStatus = ResetStatus.None;
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateProjectMetadata(string projectCode)
+    public async Task UpdateProjectMetadataForCode(string projectCode)
     {
         var project = await dbContext.Projects
             .Include(p => p.FlexProjectMetadata)
             .FirstOrDefaultAsync(p => p.Code == projectCode);
         if (project is null) return;
-        if (project is { Type: ProjectType.FLEx })
+        await UpdateProjectMetadata(project);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateProjectMetadata(Project project)
+    {
+        if (hgConfig.Value.AutoUpdateLexEntryCountOnSendReceive && project is { Type: ProjectType.FLEx } or { Type: ProjectType.WeSay })
         {
-            var count = await hgService.GetLexEntryCount(projectCode);
+            var count = await hgService.GetLexEntryCount(project.Code, project.Type);
             if (project.FlexProjectMetadata is null)
             {
                 project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };
@@ -123,8 +147,21 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
             }
         }
 
-        project.LastCommit = await hgService.GetLastCommitTimeFromHg(projectCode);
-        await dbContext.SaveChangesAsync();
+        project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
+        // Caller is responsible for caling dbContext.SaveChangesAsync()
+    }
+
+    public async Task ResetLexEntryCount(string projectCode)
+    {
+        var project = await dbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .FirstOrDefaultAsync(p => p.Code == projectCode);
+        if (project is null) return;
+        if (project.FlexProjectMetadata is not null)
+        {
+            project.FlexProjectMetadata.LexEntryCount = null;
+            await dbContext.SaveChangesAsync();
+        }
     }
 
     public async Task<DateTimeOffset?> UpdateLastCommit(string projectCode)
@@ -140,8 +177,8 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IMe
     public async Task<int?> UpdateLexEntryCount(string projectCode)
     {
         var project = await dbContext.Projects.Include(p => p.FlexProjectMetadata).FirstOrDefaultAsync(p => p.Code == projectCode);
-        if (project?.Type is not ProjectType.FLEx) return null;
-        var count = await hgService.GetLexEntryCount(projectCode);
+        if (project?.Type is not (ProjectType.FLEx or ProjectType.WeSay)) return null;
+        var count = await hgService.GetLexEntryCount(project.Code, project.Type);
         if (project.FlexProjectMetadata is null)
         {
             project.FlexProjectMetadata = new FlexProjectMetadata { LexEntryCount = count };

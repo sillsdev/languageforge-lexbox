@@ -3,11 +3,10 @@ import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import { getSearchParam } from '$lib/util/query-params';
-import { isAdmin } from '$lib/user';
 import { isGuid } from '$lib/util/guid';
 
 export async function load(event: PageLoadEvent) {
-  const userIsAdmin = isAdmin((await event.parent()).user);
+  const userIsAdmin = (await event.parent()).user.isAdmin;
   const requestingUserId = getSearchParam<CreateProjectInput>('projectManagerId', event.url.searchParams);
   if (userIsAdmin && isGuid(requestingUserId)) {
     const client = getClient();
