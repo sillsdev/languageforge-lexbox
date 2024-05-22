@@ -85,7 +85,7 @@ export async function login(userId: string, password: string): Promise<LoginResu
     : { success: false, error: await response.text() as LoginError };
 }
 
-export type RegisterResponse = { error?: { turnstile: boolean, accountExists: boolean, invalidInput: boolean }, user?: LexAuthUser };
+export type RegisterResponse = { error?: { turnstile?: boolean, accountExists?: boolean, invalidInput?: boolean }, user?: LexAuthUser };
 export async function createUser(endpoint: string, password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string): Promise<RegisterResponse> {
   const response = await fetch(endpoint, {
     method: 'post',
@@ -133,13 +133,13 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
   }
   const gqlResponse = await _createGuestUserByAdmin(gqlInput);
   if (gqlResponse.error?.byType('UniqueValueError')) {
-    return { error: { invalidInput: false, turnstile: false, accountExists: true }};
+    return { error: { accountExists: true }};
   }
   if (gqlResponse.error?.byType('RequiredError')) {
-    return { error: { invalidInput: true, turnstile: false, accountExists: false }};
+    return { error: { invalidInput: true }};
   }
   if (!gqlResponse.data?.createGuestUserByAdmin.lexAuthUser ) {
-    return { error: { invalidInput: true, turnstile: false, accountExists: false }};
+    return { error: { invalidInput: true }};
   }
   const responseUser = gqlResponse.data?.createGuestUserByAdmin.lexAuthUser;
   const user: LexAuthUser = {
