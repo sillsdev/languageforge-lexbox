@@ -6,10 +6,10 @@ export class AcceptInvitationPage extends BasePage {
     super(page, page.getByRole('heading', {name: 'Accept Invitation'}), `/acceptInvitation`);
   }
 
-  async fillForm(name: string, email: string, password: string): Promise<void> {
+  async fillForm(name: string, password: string, email?: string): Promise<void> {
     await this.page.getByLabel('Name').fill(name);
-    await this.page.getByLabel('Email').fill(email);
     await this.page.getByLabel('Password').fill(password);
+    if (email) await this.page.getByLabel('Email').fill(email);
   }
 
   async submit(): Promise<void> {

@@ -133,7 +133,8 @@
               {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
             <span class="i-mdi-plus text-2xl" />
-          </button>        </div>
+          </button>
+        </div>
       </AdminTabs>
       <div class="mt-4">
         <FilterBar

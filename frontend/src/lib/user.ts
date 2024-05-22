@@ -19,7 +19,7 @@ type RegisterResponseErrors = {
     /* eslint-disable @typescript-eslint/naming-convention */
     TurnstileToken?: unknown,
     Email?: unknown,
-    Required?: unknown,
+    Required?: unknown, // RequiredException is thrown if GQL input is invalid, e.g. missing both email *and* username for CreateUser
     /* eslint-enable @typescript-eslint/naming-convention */
   }
 }
@@ -132,7 +132,6 @@ export async function createGuestUserByAdmin(password: string, passwordStrength:
     gqlInput.username = email;
   }
   const gqlResponse = await _createGuestUserByAdmin(gqlInput);
-  // const registerResponse = { error?: { turnstile: boolean, accountExists: boolean }, user?: LexAuthUser };
   if (gqlResponse.error?.byType('UniqueValueError')) {
     return { error: { invalidInput: false, turnstile: false, accountExists: true }};
   }

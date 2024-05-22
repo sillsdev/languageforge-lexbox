@@ -144,7 +144,7 @@ test('register via new-user invitation email', async ({ page }) => {
   const newPage = await pagePromise;
   const acceptPage = await new AcceptInvitationPage(newPage).waitFor();
   await expect(newPage.getByLabel('Email')).toHaveValue(newEmail);
-  await acceptPage.fillForm(`Test user ${uuid}`, newEmail, defaultPassword);
+  await acceptPage.fillForm(`Test user ${uuid}`, defaultPassword);
 
   await acceptPage.submit();
   const userDashboardPage = await new UserDashboardPage(newPage).waitFor();

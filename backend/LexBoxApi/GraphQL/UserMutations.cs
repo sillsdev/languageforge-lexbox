@@ -82,7 +82,8 @@ public class UserMutations
     public async Task<LexAuthUser> CreateGuestUserByAdmin(
         LoggedInContext loggedInContext,
         CreateGuestUserByAdminInput input,
-        LexBoxDbContext dbContext
+        LexBoxDbContext dbContext,
+        EmailService emailService
     )
     {
         using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
@@ -115,6 +116,10 @@ public class UserMutations
         createGuestUserActivity?.AddTag("app.user.id", userEntity.Id);
         dbContext.Users.Add(userEntity);
         await dbContext.SaveChangesAsync();
+        if (!string.IsNullOrEmpty(input.Email))
+        {
+            await emailService.SendVerifyAddressEmail(userEntity);
+        }
         return new LexAuthUser(userEntity);
     }
 
