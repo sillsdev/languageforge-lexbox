@@ -118,11 +118,12 @@ jobs:
             curl -s --head "$TARGET" > response.txt
             # get version from response, trim off the header and fix the line endings
             versionHeader=$((grep "lexbox-version" response.txt || echo VersionNotFound) | cut -d' ' -f 2 | tr -d '[:space:]')
-            if [[ "$versionHeader" == "$EXPECTED_VERSION" ]]; then
-                echo "Version is correct"
+            status_code=$(grep -oP "HTTP\/\d(\.\d)? \K\d+" response.txt)
+            if [[ "$versionHeader" == "$EXPECTED_VERSION" && "$status_code" == "200" ]]; then
+                echo "Version and status code are correct"
                 exit 0
             else
-                echo "Version '$versionHeader' is incorrect, expected '$EXPECTED_VERSION'"
+                echo "Health check failed, Version '$versionHeader', expected '$EXPECTED_VERSION', status code '$status_code'"
                 n=$((n+1))
                 sleep $((DelayMultiplier * n))
             fi
