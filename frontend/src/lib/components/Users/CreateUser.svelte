@@ -27,7 +27,7 @@
     name: z.string().trim().min(1, $t('register.name_missing')),
     email: z.string().trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
-      .refine((value) => isEmail(value) || (allowUsernames && usernameRe.test(value)), { message: $t('register.invalid_input') }),
+      .refine((value) => isEmail(value) || (allowUsernames && usernameRe.test(value)), (value) => ({ message: isEmail(value) ? $t('register.invalid_email', { email: value }) : $t('register.invalid_username', {username: value}) })),
     password: passwordFormRules($t),
     score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),
@@ -43,7 +43,7 @@
         $errors.email = [$t('register.account_exists')];
       }
       if (error.invalidInput) {
-        $errors.email = [$t('register.invalid_input')];
+        $errors.email = [$t('register.invalid_input', { username: $form.email })];
       }
       return;
     }
