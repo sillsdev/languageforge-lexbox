@@ -6,15 +6,8 @@ using MiniLcm;
 
 namespace LcmCrdt.Objects;
 
-public class Entry : MiniLcm.Entry, IObjectBase<Entry>, INewableObject<Entry>
+public class Entry : MiniLcm.Entry, IObjectBase<Entry>
 {
-    public static Entry New(Guid id, Commit commit)
-    {
-        return new()
-        {
-            Id = id
-        };
-    }
 
     Guid IObjectBase.Id
     {
