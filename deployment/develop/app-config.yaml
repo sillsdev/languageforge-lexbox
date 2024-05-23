@@ -4,6 +4,5 @@ metadata:
   name: app-config
 data:
   environment-name: "Development"
-  hg-otel-enabled: "ON"
   hg-domain: "hg-develop.lexbox.org"
 

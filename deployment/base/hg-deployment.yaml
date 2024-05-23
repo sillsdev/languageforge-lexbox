@@ -105,11 +105,11 @@ spec:
             value: ".*"
           - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_RESPONSE
             value: ".*"
-          - name: OTEL_ENABLED
+          - name: OTEL_SDK_DISABLED
             valueFrom:
               configMapKeyRef:
                 name: app-config
-                key: hg-otel-enabled
+                key: hg-otel-disabled
           - name: ENABLE_DEMAND_IMPORT
             value: "false"
         ports:
