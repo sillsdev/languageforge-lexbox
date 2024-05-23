@@ -48,11 +48,6 @@ portForward:
     resourceName: lexbox
     namespace: languagedepot
     port: 18888
-  # Svelte-Kit frontend
-  - resourceType: Service
-    resourceName: ui
-    namespace: languagedepot
-    port: 3000
   - resourceType: Service
     resourceName: db
     namespace: languagedepot

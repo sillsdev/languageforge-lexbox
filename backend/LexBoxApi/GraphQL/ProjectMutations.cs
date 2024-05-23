@@ -350,6 +350,25 @@ public class ProjectMutations
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [AdminRequired]
+    [UseMutationConvention]
+    [UseProjection]
+    public async Task<DraftProject> DeleteDraftProject(
+        Guid draftProjectId,
+        LexBoxDbContext dbContext)
+    {
+        var deletedDraft = await dbContext.DraftProjects.FindAsync(draftProjectId);
+        if (deletedDraft == null)
+        {
+            throw NotFoundException.ForType<DraftProject>();
+        }
+        // Draft projects are deleted immediately, not soft-deleted
+        dbContext.DraftProjects.Remove(deletedDraft);
+        await dbContext.SaveChangesAsync();
+        return deletedDraft;
+    }
 
     [Error<NotFoundException>]
     [Error<DbError>]
@@ -367,18 +386,7 @@ public class ProjectMutations
         var project = await dbContext.Projects.Include(p => p.Users).FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null)
         {
-            // Draft projects, if any, are deleted immediately, not soft-deleted
-            var deletedDraftCount = await dbContext.DraftProjects.Where(dp => dp.Id == projectId).ExecuteDeleteAsync();
-            if (deletedDraftCount == 0)
-            {
-                // No draft project either, so return standard project not found error
-                throw NotFoundException.ForType<Project>();
-            }
-            else
-            {
-                // Return an empty project list to indicate success
-                return dbContext.Projects.Where(p => p.Id == projectId);
-            }
+            throw NotFoundException.ForType<Project>();
         }
         if (project.DeletedDate is not null) throw new InvalidOperationException("Project already deleted");
 

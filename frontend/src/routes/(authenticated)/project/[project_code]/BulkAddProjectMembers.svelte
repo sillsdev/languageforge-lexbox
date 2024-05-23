@@ -89,7 +89,7 @@
 </script>
 
 <AdminContent>
-  <BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
+  <BadgeButton variant="badge-success" icon="i-mdi-account-multiple-plus-outline" on:click={openModal}>
     {$t('project_page.bulk_add_members.add_button')}
   </BadgeButton>
 
