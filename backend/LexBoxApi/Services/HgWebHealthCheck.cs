@@ -1,9 +1,11 @@
-﻿using LexCore.ServiceInterfaces;
+﻿using LexCore.Config;
+using LexCore.ServiceInterfaces;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.Services;
 
-public class HgWebHealthCheck(IHgService hgService) : IHealthCheck
+public class HgWebHealthCheck(IHgService hgService, IOptions<HgConfig> hgOptions) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
         CancellationToken cancellationToken = new())
@@ -13,7 +15,7 @@ public class HgWebHealthCheck(IHgService hgService) : IHealthCheck
         {
             return HealthCheckResult.Unhealthy();
         }
-        if (version != AppVersionService.Version)
+        if (hgOptions.Value.RequireContainerVersionMatch && version != AppVersionService.Version)
         {
             return HealthCheckResult.Degraded(
                 $"api version: '{AppVersionService.Version}' hg version: '{version}' mismatch");
