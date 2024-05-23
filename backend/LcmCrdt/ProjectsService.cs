@@ -39,7 +39,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         using var serviceScope = CreateProjectScope(crdtProject);
         db ??= serviceScope.ServiceProvider.GetRequiredService<CrdtDbContext>();
         await db.Database.EnsureCreatedAsync();
-        db.Set<ProjectData>().Add(new ProjectData(name, id ?? Guid.NewGuid(), domain));
+        db.Set<ProjectData>().Add(new ProjectData(name, id ?? Guid.NewGuid(), domain, Guid.NewGuid()));
         await db.SaveChangesAsync();
         await (afterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         return crdtProject;

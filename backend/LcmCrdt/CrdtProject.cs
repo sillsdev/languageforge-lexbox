@@ -9,4 +9,4 @@ public class CrdtProject(string name, string dbPath) : IProjectIdentifier
     public string DbPath { get; } = dbPath;
 }
 
-public record ProjectData(string Name, Guid Id, string? OriginDomain);
+public record ProjectData(string Name, Guid Id, string? OriginDomain, Guid ClientId);
