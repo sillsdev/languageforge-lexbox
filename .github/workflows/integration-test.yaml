@@ -53,6 +53,8 @@ jobs:
     runs-on: ${{ inputs.runs-on }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: testspace-com/setup-testspace@v1.0.6
         with:
           domain: ${{ github.repository_owner }}
