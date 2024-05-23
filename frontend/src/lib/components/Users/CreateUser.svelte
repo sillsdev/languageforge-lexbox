@@ -20,6 +20,11 @@
     email: string;
   };
   let turnstileToken = '';
+
+  function validateAsEmail(value: string): boolean {
+    return !allowUsernames || value.includes('@');
+  }
+
   // $locale is the locale that our i18n is using for them (i.e. the best available option we have for them)
   // getLanguageCodeFromNavigator() gives us the language/locale they probably actually want. Maybe we'll support it in the future.
   const userLocale = getLanguageCodeFromNavigator() ?? $locale;
@@ -27,7 +32,8 @@
     name: z.string().trim().min(1, $t('register.name_missing')),
     email: z.string().trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
-      .refine((value) => isEmail(value) || (allowUsernames && usernameRe.test(value)), (value) => ({ message: isEmail(value) ? $t('register.invalid_email', { email: value }) : $t('register.invalid_username', {username: value}) })),
+      .refine((value) => !validateAsEmail(value) || isEmail(value), $t('form.invalid_email'))
+      .refine((value) => validateAsEmail(value) || usernameRe.test(value), $t('register.invalid_username')),
     password: passwordFormRules($t),
     score: z.number(),
     locale: z.string().trim().min(2).default(userLocale),
@@ -43,7 +49,7 @@
         $errors.email = [$t('register.account_exists')];
       }
       if (error.invalidInput) {
-        $errors.email = [$t('register.invalid_input', { username: $form.email })];
+        $errors.email = [validateAsEmail($form.email) ? $t('form.invalid_email') : $t('register.invalid_username')];
       }
       return;
     }
