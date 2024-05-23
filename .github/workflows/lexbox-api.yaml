@@ -53,7 +53,7 @@ jobs:
       - name: Dotnet build
         run: dotnet build
       - name: Unit tests
-        run: dotnet test --logger xunit --results-directory ./test-results --filter "Category!=Integration" --blame-hang-timeout 10m
+        run: dotnet test --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results --filter "Category!=Integration" --blame-hang-timeout 10m
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
         if: always()
