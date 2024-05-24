@@ -1,7 +1,9 @@
 ﻿using Crdt;
 using Crdt.Db;
+using LcmCrdt.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using MiniLcm;
 using Entry = MiniLcm.Entry;
 using ExampleSentence = MiniLcm.ExampleSentence;
@@ -9,7 +11,7 @@ using Sense = MiniLcm.Sense;
 
 namespace LcmCrdt.Tests;
 
-public class BasicApiTests: IAsyncLifetime
+public class BasicApiTests : IAsyncLifetime
 {
     private CrdtLexboxApi _api = null!;
     private Guid _entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
@@ -24,9 +26,11 @@ public class BasicApiTests: IAsyncLifetime
     {
         var services = new ServiceCollection()
             .AddLcmCrdtClient()
+            .RemoveAll(typeof(ProjectContext))
+            .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
         _projectsService = services.GetRequiredService<ProjectsService>();
-        _services = _projectsService.CreateProjectScope(new CrdtProject("sena-3", ":memory:"));
+        _services = services.CreateScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<CrdtDbContext>();
     }
 
