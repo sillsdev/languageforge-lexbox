@@ -48,7 +48,7 @@
         $message = $t('turnstile.invalid');
       }
       if (error.accountExists) {
-        $errors.email = [$t('register.account_exists')];
+        $errors.email = [validateAsEmail($form.email) ? $t('register.account_exists_email') : $t('register.account_exists_login')];
       }
       if (error.invalidInput) {
         $errors.email = [validateAsEmail($form.email) ? $t('form.invalid_email') : $t('register.invalid_username')];
