@@ -8,7 +8,7 @@ using MiniLcm;
 
 namespace LcmCrdt.Changes;
 
-public class CreateWritingSystemChange : Change<WritingSystem>, ISelfNamedType<CreateWritingSystemChange>
+public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamedType<CreateWritingSystemChange>
 {
     public required WritingSystemId WsId { get; init; }
     public required string Name { get; init; }
@@ -36,9 +36,9 @@ public class CreateWritingSystemChange : Change<WritingSystem>, ISelfNamedType<C
     {
     }
 
-    public override IObjectBase NewEntity(Commit commit)
+    public override ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
     {
-        return new WritingSystem(EntityId)
+        return new(new WritingSystem(EntityId)
         {
             WsId = WsId,
             Name = Name,
@@ -47,17 +47,6 @@ public class CreateWritingSystemChange : Change<WritingSystem>, ISelfNamedType<C
             Exemplars = Exemplars,
             Type = Type,
             Order = Order
-        };
-    }
-
-    public override ValueTask ApplyChange(WritingSystem entity, ChangeContext context)
-    {
-        entity.Name = Name;
-        entity.Abbreviation = Abbreviation;
-        entity.Font = Font;
-        entity.Exemplars = Exemplars;
-        entity.Type = Type;
-        entity.Order = Order;
-        return ValueTask.CompletedTask;
+        });
     }
 }

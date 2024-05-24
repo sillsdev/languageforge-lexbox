@@ -9,7 +9,7 @@ public class ProjectContext
 
     private static readonly AsyncLocal<ProjectHolder> _projectHolder = new();
 
-    public CrdtProject? Project
+    public virtual CrdtProject? Project
     {
         get => _projectHolder.Value?.Project;
         set

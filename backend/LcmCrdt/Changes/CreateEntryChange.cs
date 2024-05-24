@@ -7,7 +7,7 @@ using MiniLcm;
 namespace LcmCrdt.Changes;
 
 
-public class CreateEntryChange : Change<Entry>, ISelfNamedType<CreateEntryChange>
+public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntryChange>
 {
     public CreateEntryChange(MiniLcm.Entry entry) : base(entry.Id == Guid.Empty ? Guid.NewGuid() : entry.Id)
     {
@@ -31,24 +31,15 @@ public class CreateEntryChange : Change<Entry>, ISelfNamedType<CreateEntryChange
 
     public MultiString? Note { get; set; }
 
-    public override IObjectBase NewEntity(Commit commit)
+    public override ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
     {
-        return new Entry
+        return new(new Entry
         {
             Id = EntityId,
             LexemeForm = LexemeForm ?? new MultiString(),
             CitationForm = CitationForm ?? new MultiString(),
             LiteralMeaning = LiteralMeaning ?? new MultiString(),
             Note = Note ?? new MultiString()
-        };
-    }
-
-    public override ValueTask ApplyChange(Entry entity, ChangeContext context)
-    {
-        if (LexemeForm is not null) entity.LexemeForm = LexemeForm;
-        if (CitationForm is not null) entity.CitationForm = CitationForm;
-        if (LiteralMeaning is not null) entity.LiteralMeaning = LiteralMeaning;
-        if (Note is not null) entity.Note = Note;
-        return ValueTask.CompletedTask;
+        });
     }
 }

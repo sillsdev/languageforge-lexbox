@@ -9,7 +9,7 @@ using SystemTextJsonPatch.Operations;
 
 namespace LcmCrdt.Changes;
 
-public class JsonPatchChange<T> : Change<T>, IPolyType where T : class, IPolyType, IObjectBase
+public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class, IPolyType, IObjectBase
 {
     public static string TypeName => "jsonPatch:" + T.TypeName;
     public JsonPatchChange(Guid entityId, Action<JsonPatchDocument<T>> action) : base(entityId)
@@ -30,11 +30,6 @@ public class JsonPatchChange<T> : Change<T>, IPolyType where T : class, IPolyTyp
     }
 
     public JsonPatchDocument<T> PatchDocument { get; }
-
-    public override IObjectBase NewEntity(Commit commit)
-    {
-        throw new Exception("Cannot create new entity from patch");
-    }
 
     public override ValueTask ApplyChange(T entity, ChangeContext context)
     {
