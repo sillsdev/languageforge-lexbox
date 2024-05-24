@@ -30,6 +30,7 @@ type BulkAddProjectMembersResult {
   addedMembers: [UserProjectRole!]!
   createdMembers: [UserProjectRole!]!
   existingMembers: [UserProjectRole!]!
+  invitedMembers: [UserProjectRole!]!
 }
 
 type ChangeProjectDescriptionPayload {

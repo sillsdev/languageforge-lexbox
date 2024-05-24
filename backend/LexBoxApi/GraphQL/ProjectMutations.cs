@@ -110,7 +110,7 @@ public class ProjectMutations
     }
 
     public record UserProjectRole(string Username, ProjectRole Role);
-    public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers);
+    public record BulkAddProjectMembersResult(List<UserProjectRole> AddedMembers, List<UserProjectRole> CreatedMembers, List<UserProjectRole> ExistingMembers, List<UserProjectRole> InvitedMembers);
 
     [Error<NotFoundException>]
     [Error<InvalidEmailException>]
@@ -120,16 +120,19 @@ public class ProjectMutations
     public async Task<BulkAddProjectMembersResult> BulkAddProjectMembers(
         LoggedInContext loggedInContext,
         BulkAddProjectMembersInput input,
-        LexBoxDbContext dbContext)
+        LexBoxDbContext dbContext,
+        [Service] EmailService emailService)
     {
+        Project? project = null;
         if (input.ProjectId.HasValue)
         {
-            var projectExists = await dbContext.Projects.AnyAsync(p => p.Id == input.ProjectId.Value);
-            if (!projectExists) throw new NotFoundException("Project not found", "project");
+            project = await dbContext.Projects.FindAsync(input.ProjectId.Value);
+            if (project is null) throw new NotFoundException("Project not found", "project");
         }
         List<UserProjectRole> AddedMembers = [];
         List<UserProjectRole> CreatedMembers = [];
         List<UserProjectRole> ExistingMembers = [];
+        List<UserProjectRole> InvitedMembers = [];
         var existingUsers = await dbContext.Users.Include(u => u.Projects).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
         var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
         var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
@@ -140,28 +143,37 @@ public class ProjectMutations
             {
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
                 var (name, email, username) = ExtractNameAndAddressFromUsernameOrEmail(usernameOrEmail);
-                user = new User
+                if (email is null)
                 {
-                    Id = Guid.NewGuid(),
-                    Username = username,
-                    Name = name,
-                    Email = email,
-                    LocalizationCode = "en", // TODO: input.Locale,
-                    Salt = salt,
-                    PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
-                    PasswordStrength = 0, // Shared password, so always considered strength 0, we don't call Zxcvbn here
-                    IsAdmin = false,
-                    EmailVerified = false,
-                    CreatedById = loggedInContext.User.Id,
-                    Locked = false,
-                    CanCreateProjects = false
-                };
-                CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
-                if (input.ProjectId.HasValue)
-                {
-                    user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId.Value, UserId = user.Id });
+                    user = new User
+                    {
+                        Id = Guid.NewGuid(),
+                        Username = username,
+                        Name = name,
+                        Email = email,
+                        LocalizationCode = "en", // TODO: input.Locale,
+                        Salt = salt,
+                        PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+                        PasswordStrength = 0, // Shared password, so always considered strength 0, we don't call Zxcvbn here
+                        IsAdmin = false,
+                        EmailVerified = false,
+                        CreatedById = loggedInContext.User.Id,
+                        Locked = false,
+                        CanCreateProjects = false
+                    };
+                    CreatedMembers.Add(new UserProjectRole(usernameOrEmail, input.Role));
+                    if (input.ProjectId.HasValue)
+                    {
+                        user.Projects.Add(new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId.Value, UserId = user.Id });
+                    }
+                    dbContext.Add(user);
                 }
-                dbContext.Add(user);
+                else
+                {
+                    var admin = loggedInContext.User;
+                    await emailService.SendCreateAccountEmail(email, project?.Id, input.Role, admin.Name, project?.Name);
+                    InvitedMembers.Add(new UserProjectRole(email, input.Role));
+                }
             }
             else if (input.ProjectId.HasValue)
             {
@@ -184,7 +196,7 @@ public class ProjectMutations
             }
         }
         await dbContext.SaveChangesAsync();
-        return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
+        return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers, InvitedMembers);
     }
 
     public static (string name, string? email, string? username) ExtractNameAndAddressFromUsernameOrEmail(string usernameOrEmail)
