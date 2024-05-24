@@ -51,6 +51,9 @@
       if (error.invalidInput) {
         $errors.email = [validateAsEmail($form.email) ? $t('form.invalid_email') : $t('register.invalid_username')];
       }
+      if (error.invited) {
+        dispatch('invited');
+      }
       return;
     }
     if (user) {

@@ -370,7 +370,7 @@ union ChangeUserAccountByAdminError = NotFoundError | DbError | UniqueValueError
 
 union ChangeUserAccountBySelfError = NotFoundError | DbError | UniqueValueError
 
-union CreateGuestUserByAdminError = NotFoundError | DbError | UniqueValueError | RequiredError
+union CreateGuestUserByAdminError = NotFoundError | DbError | UniqueValueError | ProjectMemberInvitedByEmail | RequiredError
 
 union CreateOrganizationError = DbError
 

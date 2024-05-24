@@ -77,6 +77,7 @@ public class UserMutations
     [Error<NotFoundException>]
     [Error<DbError>]
     [Error<UniqueValueException>]
+    [Error<ProjectMemberInvitedByEmail>]
     [Error<RequiredException>]
     [AdminRequired]
     public async Task<LexAuthUser> CreateGuestUserByAdmin(
@@ -96,31 +97,35 @@ public class UserMutations
 
         var admin = loggedInContext.User;
 
-        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-        var userEntity = new User
+        if (string.IsNullOrEmpty(input.Email))
         {
-            Id = Guid.NewGuid(),
-            Name = input.Name,
-            Email = input.Email,
-            Username = input.Username,
-            LocalizationCode = input.Locale,
-            Salt = salt,
-            PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
-            PasswordStrength = UserService.ClampPasswordStrength(input.PasswordStrength),
-            IsAdmin = false,
-            EmailVerified = false,
-            CreatedById = admin.Id,
-            Locked = false,
-            CanCreateProjects = false
-        };
-        createGuestUserActivity?.AddTag("app.user.id", userEntity.Id);
-        dbContext.Users.Add(userEntity);
-        await dbContext.SaveChangesAsync();
-        if (!string.IsNullOrEmpty(input.Email))
-        {
-            await emailService.SendVerifyAddressEmail(userEntity);
+            var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+            var userEntity = new User
+            {
+                Id = Guid.NewGuid(),
+                Name = input.Name,
+                Email = input.Email,
+                Username = input.Username,
+                LocalizationCode = input.Locale,
+                Salt = salt,
+                PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+                PasswordStrength = UserService.ClampPasswordStrength(input.PasswordStrength),
+                IsAdmin = false,
+                EmailVerified = false,
+                CreatedById = admin.Id,
+                Locked = false,
+                CanCreateProjects = false
+            };
+            createGuestUserActivity?.AddTag("app.user.id", userEntity.Id);
+            dbContext.Users.Add(userEntity);
+            await dbContext.SaveChangesAsync();
+            return new LexAuthUser(userEntity);
         }
-        return new LexAuthUser(userEntity);
+        else
+        {
+            await emailService.SendCreateAccountEmail(input.Email, null, ProjectRole.Editor, admin.Name, null, input.Locale);
+            throw new ProjectMemberInvitedByEmail("Invitation email sent");
+        }
     }
 
     private static async Task<User> UpdateUser(

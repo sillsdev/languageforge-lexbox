@@ -36,6 +36,8 @@
   <h1 class="text-center text-xl">{$t('admin_dashboard.create_user_modal.create_user')}</h1>
   <CreateUser {handleSubmit} allowUsernames skipTurnstile
     on:submitted={() => createUserModal.submitModal()}
+    on:invited={() => createUserModal.submitModal()}
     submitButtonText={$t('admin_dashboard.create_user_modal.create_user')}
   />
+  <!-- TODO: Display toast notification when user invited? Or leave up to caller to decide how to handle, and just pass event on? -->
 </Modal>
