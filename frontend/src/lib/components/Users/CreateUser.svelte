@@ -2,7 +2,7 @@
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SubmitButton, FormError, Input, Form, ProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
-  import { type RegisterResponse } from '$lib/user';
+  import { type LexAuthUser, type RegisterResponse } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { createEventDispatcher, onMount } from 'svelte';
   import { usernameRe } from '$lib/user';
@@ -13,7 +13,9 @@
   export let submitButtonText = $t('register.button_register');
   export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    submitted: LexAuthUser,
+  }>();
 
   type RegisterPageQueryParams = {
     name: string;
@@ -54,7 +56,7 @@
       return;
     }
     if (user) {
-      dispatch('submitted');
+      dispatch('submitted', user);
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');
