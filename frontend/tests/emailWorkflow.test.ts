@@ -4,7 +4,7 @@ import { deleteUser, getCurrentUserId, loginAs, logout } from './utils/authHelpe
 import { AdminDashboardPage } from './pages/adminDashboardPage';
 import { EmailSubjects } from './pages/mailPages';
 import { LoginPage } from './pages/loginPage';
-import { RegisterPage } from './pages/registerPage';
+import { AcceptInvitationPage } from './pages/acceptInvitationPage';
 import { ResetPasswordPage } from './pages/resetPasswordPage';
 import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
 import { UserDashboardPage } from './pages/userDashboardPage';
@@ -134,7 +134,7 @@ test('register via new-user invitation email', async ({ page }) => {
   const emailPage = await inboxPage.openEmail(EmailSubjects.ProjectInvitation);
   const invitationUrl = await emailPage.getFirstLanguageDepotUrl();
   expect(invitationUrl).not.toBeNull();
-  expect(invitationUrl!).toContain('register');
+  expect(invitationUrl!).toContain('acceptInvitation');
   expect(invitationUrl!).toContain('returnTo=');
   expect(invitationUrl!).not.toContain('returnTo=http');
 
@@ -142,11 +142,11 @@ test('register via new-user invitation email', async ({ page }) => {
   const pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickFirstLanguageDepotUrl();
   const newPage = await pagePromise;
-  const registerPage = await new RegisterPage(newPage).waitFor();
+  const acceptPage = await new AcceptInvitationPage(newPage).waitFor();
   await expect(newPage.getByLabel('Email')).toHaveValue(newEmail);
-  await registerPage.fillForm(`Test user ${uuid}`, newEmail, defaultPassword);
+  await acceptPage.fillForm(`Test user ${uuid}`, defaultPassword);
 
-  await registerPage.submit();
+  await acceptPage.submit();
   const userDashboardPage = await new UserDashboardPage(newPage).waitFor();
 
   // Register current user ID to be cleaned up even if test fails later on
