@@ -475,6 +475,11 @@ If you don't see a dialog or already closed it, click the button below:",
       "body": "{managerName} has invited you to join the {projectName} language project. Click below to join.",
       "join_button": "Join project"
     },
+    "create_account_without_project_request_email": {
+      "subject": "Invitation to join Language Depot",
+      "body": "{managerName} has invited you to join the Language Depot website. Click below to create your account.",
+      "join_button": "Create account"
+    },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
       "heading": "User {name} ({email}) requested that a project be created for them. Details below:"

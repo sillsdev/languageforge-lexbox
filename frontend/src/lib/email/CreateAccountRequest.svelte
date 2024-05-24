@@ -9,10 +9,12 @@
   export let lifetime: string;
 
   $: [expirationText, expirationParam] = toI18nKey(lifetime);
+  let template: 'emails.create_account_request_email' | 'emails.create_account_without_project_request_email';
+  $: template = projectName ? 'emails.create_account_request_email' : 'emails.create_account_without_project_request_email';
 </script>
 
-<Email subject={$t('emails.create_account_request_email.subject', {projectName})} name="">
-  <mj-text>{$t('emails.create_account_request_email.body', {managerName, projectName})}</mj-text>
-  <mj-button href={verifyUrl}>{$t('emails.create_account_request_email.join_button')}</mj-button>
+<Email subject={$t(`${template}.subject`, {projectName})} name="">
+  <mj-text>{$t(`${template}.body`, {managerName, projectName})}</mj-text>
+  <mj-button href={verifyUrl}>{$t(`${template}.join_button`)}</mj-button>
   <mj-text>{$t(expirationText, expirationParam)}</mj-text>
 </Email>

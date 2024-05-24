@@ -100,10 +100,10 @@ public class EmailService(
     /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
     public async Task SendCreateAccountEmail(string emailAddress,
-        Guid projectId,
+        Guid? projectId,
         ProjectRole role,
         string managerName,
-        string projectName,
+        string? projectName,
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
@@ -116,7 +116,7 @@ public class EmailService(
                 EmailVerificationRequired = null,
                 Role = UserRole.user,
                 UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
-                Projects = [new AuthUserProject(role, projectId)],
+                Projects = projectId.HasValue ? [new AuthUserProject(role, projectId.Value)] : [],
                 CanCreateProjects = null,
                 Locale = language,
                 Locked = null,
@@ -134,7 +134,7 @@ public class EmailService(
             new { jwt, returnTo });
 
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
-        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink, lifetime), language);
+        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString() ?? "", managerName, projectName ?? "", registerLink, lifetime), language);
         await SendEmailAsync(email);
 
     }
