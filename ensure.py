@@ -35,6 +35,7 @@ if __name__ == '__main__':
     if (len(sys.argv) < 4):
         usage()
     (fname, key, value) = sys.argv[1:4]
-    search_str = f"{key}="
+    if (key.startswith('#')):
+        search_str = f"{key[1:].lstrip()}=" # Strip comments out for search purposes
     replace_str = f"{key}={value}"
     ensure(fname, search_str, replace_str)
