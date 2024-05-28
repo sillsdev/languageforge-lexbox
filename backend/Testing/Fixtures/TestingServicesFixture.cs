@@ -34,7 +34,7 @@ public class TestingServicesFixture : IAsyncLifetime, ICollectionFixture<Testing
             EnvironmentName = Environments.Development
         });
         services.AddSingleton<IConfiguration>(new ConfigurationManager());
-        services.AddLexData(true, ServiceLifetime.Singleton);
+        services.AddLexData(true, dbContextLifeTime: ServiceLifetime.Singleton);
     }
 
     public ServiceProvider ConfigureServices(Action<ServiceCollection>? configureServices = null)

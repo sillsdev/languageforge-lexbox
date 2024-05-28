@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Text;
@@ -5,12 +6,14 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
 using LexBoxApi.Controllers;
 using LexCore.Auth;
+using LexData;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.OpenApi.Models;
+using OpenIddict.Validation.AspNetCore;
 
 namespace LexBoxApi.Auth;
 
@@ -66,6 +69,8 @@ public static class AuthKernel
             .BindConfiguration("Authentication:Jwt")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<OpenIdOptions>()
+            .BindConfiguration("Authentication:OpenId");
         services.AddAuthentication(options =>
             {
                 options.DefaultScheme = DefaultScheme;
@@ -78,7 +83,13 @@ public static class AuthKernel
                 {
                     options.ForwardDefaultSelector = context =>
                     {
-
+                        if (context.Request.Headers.ContainsKey("Authorization") &&
+                            context.Request.Headers.Authorization.ToString().StartsWith("Bearer") &&
+                            context.RequestServices.GetService<IOptions<OpenIdOptions>>()?.Value.Enable == true)
+                        {
+                            //fow now this will use oauth
+                            return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+                        }
                         if (context.Request.IsJwtRequest())
                         {
                             return JwtBearerDefaults.AuthenticationScheme;
@@ -101,9 +112,9 @@ public static class AuthKernel
             .AddCookie(options =>
             {
                 configuration.Bind("Authentication:Cookie", options);
-                options.LoginPath = "/api/login";
+                options.LoginPath = "/login";
                 options.Cookie.Name = AuthCookieName;
-                options.ForwardChallenge = JwtBearerDefaults.AuthenticationScheme;
+                // options.ForwardChallenge = JwtBearerDefaults.AuthenticationScheme;
                 options.ForwardForbid = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
@@ -152,7 +163,8 @@ public static class AuthKernel
                     context.HandleResponse();
                     var loginController = context.HttpContext.RequestServices.GetRequiredService<LoginController>();
                     loginController.ControllerContext.HttpContext = context.HttpContext;
-                    var redirectTo = await loginController.CompleteGoogleLogin(context.Principal, context.Properties?.RedirectUri);
+                    //using context.ReturnUri and not context.Properties.RedirectUri because the latter is null
+                    var redirectTo = await loginController.CompleteGoogleLogin(context.Principal, context.ReturnUri);
                     context.HttpContext.Response.Redirect(redirectTo);
                 };
             });
@@ -185,6 +197,65 @@ public static class AuthKernel
                 }
             });
         });
+
+        var openIdOptions = configuration.GetSection("Authentication:OpenId").Get<OpenIdOptions>();
+        if (openIdOptions?.Enable == true) AddOpenId(services, environment);
+    }
+
+    private static void AddOpenId(IServiceCollection services, IWebHostEnvironment environment)
+    {
+        services.Add(ScopeRequestFixer.Descriptor.ServiceDescriptor);
+        //openid server
+        services.AddOpenIddict()
+            .AddCore(options =>
+            {
+                options.UseEntityFrameworkCore().UseDbContext<LexBoxDbContext>();
+                options.UseQuartz();
+            })
+            .AddServer(options =>
+            {
+                options.RegisterScopes("openid", "profile", "email");
+                //todo add application claims
+                options.RegisterClaims("aud", "email", "exp", "iss", "iat", "sub", "name");
+                options.SetAuthorizationEndpointUris("api/oauth/open-id-auth");
+                options.SetTokenEndpointUris("api/oauth/token");
+                options.SetIntrospectionEndpointUris("api/oauth/introspect");
+                options.SetUserinfoEndpointUris("api/oauth/userinfo");
+                options.Configure(serverOptions => serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor));
+
+                options.AllowAuthorizationCodeFlow()
+                    .AllowRefreshTokenFlow();
+
+                options.RequireProofKeyForCodeExchange();//best practice to use PKCE with auth code flow and no implicit flow
+
+                options.IgnoreResponseTypePermissions();
+                options.IgnoreScopePermissions();
+                if (environment.IsDevelopment())
+                {
+                    options.AddDevelopmentEncryptionCertificate();
+                    options.AddDevelopmentSigningCertificate();
+                }
+                else
+                {
+                    //see docs: https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html
+                    throw new NotImplementedException("need to implement loading keys from a file");
+                }
+
+                var aspnetCoreBuilder = options.UseAspNetCore()
+                    .EnableAuthorizationEndpointPassthrough()
+                    .EnableTokenEndpointPassthrough();
+                if (environment.IsDevelopment())
+                {
+                    aspnetCoreBuilder.DisableTransportSecurityRequirement();
+                }
+            })
+            .AddValidation(options =>
+            {
+                options.UseLocalServer();
+                options.UseAspNetCore();
+                options.AddAudiences(Enum.GetValues<LexboxAudience>().Where(a => a != LexboxAudience.Unknown).Select(a => a.ToString()).ToArray());
+                options.EnableAuthorizationEntryValidation();
+            });
     }
 
     public static AuthorizationPolicyBuilder RequireDefaultLexboxAuth(this AuthorizationPolicyBuilder builder)

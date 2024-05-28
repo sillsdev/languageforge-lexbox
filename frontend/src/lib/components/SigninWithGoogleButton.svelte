@@ -12,7 +12,7 @@
   - commented out overflow: hidden, because it's unnecessary and makes text ugly on click (due to .btn)
   - added media query for dark mode using colors from the guidelines
 -->
-<a data-sveltekit-preload-data="false" {href} class="gsi-material-button btn">
+<a data-sveltekit-preload-data="false" data-sveltekit-reload {href} class="gsi-material-button btn">
   <div class="gsi-material-button-state"></div>
   <div class="gsi-material-button-content-wrapper">
     <div class="gsi-material-button-icon">

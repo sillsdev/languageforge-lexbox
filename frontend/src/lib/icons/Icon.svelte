@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   // Add more as necessary. Should be as limited as possible to maximize consistency. https://daisyui.com/components/badge/
-  export type IconSize = 'text-md' | 'text-lg' | 'text-2xl';
+  export type IconSize = 'text-md' | 'text-lg' | 'text-xl' | 'text-2xl' | 'text-5xl';
 </script>
 
 <script lang="ts">
