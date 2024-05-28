@@ -10,9 +10,11 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName } from './+page';
+  import { _changeOrgName, type OrgSearchParams } from './+page';
   import MembersList from '$lib/components/MembersList.svelte';
   import AddOrgMember from './AddOrgMember.svelte';
+  import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
+  import { getSearchParams, queryParam } from '$lib/util/query-params';
 
   // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
   export let description = 'Fake description since orgs don\'t currently have descriptions';
@@ -21,6 +23,19 @@
   $: user = data.user;
   let orgStore = data.org;
   $: org = $orgStore;
+
+  const queryParams = getSearchParams<OrgSearchParams>({
+    // TODO: Will we want any of the following params that the admin dashboard uses?
+    // userSearch: queryParam.string<string>(''),
+    // showDeletedProjects: queryParam.boolean<boolean>(false),
+    // hideDraftProjects: queryParam.boolean<boolean>(false),
+    // confidential: queryParam.string<Confidentiality | undefined>(undefined),
+    // projectType: queryParam.string<ProjectType | undefined>(undefined),
+    // memberSearch: queryParam.string(undefined),
+    // projectSearch: queryParam.string<string>(''),
+    tab: queryParam.string<OrgTabId>('projects'),
+  });
+  const { queryParamValues } = queryParams;
 
   let loadingExtraButton = false;
 
@@ -88,6 +103,17 @@
     disabled={false}
     multiline={true}
     />
+  <OrgTabs bind:activeTab={$queryParamValues.tab}>
+    <svelte:fragment slot="project-badges">
+      <Badge>3</Badge> <!-- TODO: Actual project count -->
+    </svelte:fragment>
+    <svelte:fragment slot="member-badges">
+      <Badge>5</Badge> <!-- TODO: Actual member count -->
+    </svelte:fragment>
+  </OrgTabs>
+  {#if $queryParamValues.tab === 'projects'}
+  Projects list will go here
+  {:else if $queryParamValues.tab === 'members'}
   <MembersList
     roleType="org"
     projectOrOrgId={org.id}
@@ -100,5 +126,10 @@
       <!-- TODO: Implement <BulkAddOrgMembers orgId={org.id} /> -->
     </svelte:fragment>
   </MembersList>
+  {:else if $queryParamValues.tab === 'settings'}
+  Settings not implemented yet
+  {:else if $queryParamValues.tab === 'history'}
+  History view not implemented yet
+  {/if}
 </DetailsPage>
 

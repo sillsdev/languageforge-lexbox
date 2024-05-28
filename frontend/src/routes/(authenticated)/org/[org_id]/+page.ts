@@ -17,6 +17,7 @@ import type { PageLoadEvent } from './$types';
 import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
 import type { UUID } from 'crypto';
+import type { OrgTabId } from './OrgTabs.svelte';
 
 export type Org = NonNullable<OrgPageQuery['orgById']>;
 export type OrgUser = Org['members'][number];
@@ -73,6 +74,9 @@ export async function load(event: PageLoadEvent) {
   };
 }
 
+export type OrgSearchParams = /*ProjectFilters &*/ { // TODO: Edit once we determine what filters we need
+  tab: OrgTabId
+};
 
 export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole): $OpResult<AddOrgMemberMutation> {
   //language=GraphQL
