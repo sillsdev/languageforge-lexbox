@@ -273,7 +273,7 @@ public partial class HgService : IHgService
         return response;
     }
 
-    public Task<HttpContent> InvalidateDirCache(string code)
+    public Task InvalidateDirCache(string code)
     {
         var repoPath = Path.Join(PrefixRepoFilePath(code));
         if (Directory.Exists(repoPath))
@@ -289,8 +289,9 @@ public partial class HgService : IHgService
             }
             catch (Exception) { }
         }
-        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
-        return result;
+        return Task.CompletedTask;
+        // var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
+        // return result;
     }
 
     public async Task<string> GetTipHash(string code)
