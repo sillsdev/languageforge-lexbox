@@ -8,16 +8,18 @@
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
+  export let readonly: true | undefined = undefined;
   let append: HTMLElement;
 </script>
 
 <CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:save let:onEditorValueChange viewMergeButtonPortal={append}>
   <TextField
     on:change={(e) => onEditorValueChange(e.detail.inputValue)}
-    on:blur={save}
+    on:blur={(e) => {if (e.target) save()}}
     value={editorValue}
+    disabled={readonly}
     class="ws-field"
-    classes={{ root: editorValue ? '' : 'empty', input: 'field-input', container: 'field-container' }}
+    classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, input: 'field-input', container: 'field-container' }}
     {label}
     {labelPlacement}
     {placeholder}>

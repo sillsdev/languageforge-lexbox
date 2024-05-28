@@ -1,49 +1,211 @@
 <script lang="ts">
-  import type { IEntry } from '../mini-lcm';
-  import {
-    type views,
-  } from '../config-data';
+  import type {IEntry, IExampleSentence, ISense} from '../mini-lcm';
   import EntityEditor from './EntityEditor.svelte';
-  import { getContext } from 'svelte';
+  import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
+  import type { ViewConfig } from '../config-types';
+  import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
+  import { Button, portal } from 'svelte-ux';
+  import EntityListItemActions from './EntityListItemActions.svelte';
+  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../utils';
+  import HistoryView from '../history/HistoryView.svelte';
+  import SenseEditor from './SenseEditor.svelte';
+  import ExampleEditor from './ExampleEditor.svelte';
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-  const activeView = getContext('activeView') as Readable<typeof views[number]['value']>;
+  const dispatch = createEventDispatcher<{
+    change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
+    delete: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
+  }>();
 
   export let entry: IEntry;
+
+  function addSense() {
+    const sense = defaultSense();
+    highlightedEntity = sense;
+    entry.senses = [...entry.senses, sense];
+  }
+
+  function addExample(sense: ISense) {
+    const sentence = defaultExampleSentence();
+    highlightedEntity = sentence;
+    sense.exampleSentences = [...sense.exampleSentences, sentence];
+    entry = entry; // examples counts are not updated without this
+  }
+  function deleteEntry() {
+    dispatch('delete', {entry});
+  }
+
+  function deleteSense(sense: ISense) {
+    entry.senses = entry.senses.filter(s => s !== sense);
+    dispatch('delete', {entry, sense});
+  }
+  function moveSense(sense: ISense, i: number) {
+    entry.senses.splice(entry.senses.indexOf(sense), 1);
+    entry.senses.splice(i, 0, sense);
+    dispatch('change', {entry, sense});
+    highlightedEntity = sense;
+  }
+  function deleteExample(sense: ISense, example: IExampleSentence) {
+    sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
+    dispatch('delete', {entry, sense, example});
+    entry = entry; // examples are not updated without this
+  }
+  function moveExample(sense: ISense, example: IExampleSentence, i: number) {
+    sense.exampleSentences.splice(sense.exampleSentences.indexOf(example), 1);
+    sense.exampleSentences.splice(i, 0, example);
+    dispatch('change', {entry, sense, example});
+    highlightedEntity = example;
+    entry = entry; // examples are not updated without this
+  }
+  export let modalMode = false;
+  export let readonly = false;
+  $: if (!readonly) {
+    readonly = $viewConfig.readonly ?? false;
+  }
+
+  let editorElem: HTMLDivElement | undefined;
+  let highlightedEntity: IExampleSentence | ISense | undefined;
+  let highlightTimeout: ReturnType<typeof setTimeout>;
+
+  $: {
+    if (highlightedEntity) {
+      clearTimeout(highlightTimeout);
+      highlightTimeout = setTimeout(() => highlightedEntity = undefined, 3000);
+      // wait for rendering
+      setTimeout(() => {
+        const newEntityElem = editorElem?.querySelector('.highlight');
+        if (newEntityElem) {
+          const _isBottomInViewport = isBottomInView(newEntityElem);
+          const _isTopInViewport = isTopInView(newEntityElem);
+          if (!_isBottomInViewport && !_isTopInViewport)
+            newEntityElem?.scrollIntoView({block: 'start', behavior: 'smooth'});
+          else if (!_isTopInViewport)
+            newEntityElem?.scrollIntoView({block: 'nearest', behavior: 'smooth'});
+          else if (!_isBottomInViewport)
+            newEntityElem?.scrollIntoView({block: 'center', behavior: 'smooth'});
+        }
+      });
+    }
+  }
+
+  function isBottomInView(element: Element): boolean {
+    const elementRect = element.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    // + 40 = simply way to make the check forgiving for if e.g. there's a sticky footer
+    return (elementRect.bottom + 40) <= viewportHeight;
+  }
+
+  function isTopInView(element: Element): boolean {
+    const elementRect = element.getBoundingClientRect();
+    return elementRect.top >= 0;
+  }
+
+  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
+  const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
 </script>
 
-<EntityEditor
-  entity={entry}
-  fieldConfigs={Object.values($activeView?.entry ?? [])}
-  customFieldConfigs={Object.values($activeView?.customEntry ?? [])}
-  on:change
-/>
-
-{#each entry.senses as sense, i}
-  <div class="col-span-full flex items-center gap-4 my-4">
-    <h2 class="text-lg text-surface-content" id="sense{i + 1}">Sense {i + 1}</h2>
-    <hr class="grow border-t-4">
-  </div>
-
+<div bind:this={editorElem} class="editor-grid">
   <EntityEditor
-    entity={sense}
-    fieldConfigs={Object.values($activeView?.sense ?? [])}
-    customFieldConfigs={Object.values($activeView?.customSense ?? [])}
-    on:change
+    entity={entry}
+    fieldConfigs={Object.values($viewConfig.activeView.entry ?? [])}
+    customFieldConfigs={Object.values($viewConfig.activeView?.customEntry ?? [])}
+    on:change={() => dispatch('change', {entry})}
   />
 
-  {#each sense.exampleSentences as example, j}
-    <div class="col-span-full flex items-center gap-4 my-4">
-      <h3 class="text-surface-content" id="example{i + 1}.{j + 1}">Example {j + 1}</h3>
-      <hr class="grow">
-    </div>
+  {#each entry.senses as sense, i (sense.id)}
+    <div class="grid-layer" class:highlight={sense === highlightedEntity}>
+      <div id="sense{i + 1}"></div> <!-- shouldn't be in the sticky header -->
+      <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
+        <h2 class="text-lg text-surface-content">Sense {i + 1}</h2>
+        <hr class="grow border-t-4">
+        {#if !readonly}
+          <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
+            on:move={(e) => moveSense(sense, e.detail)}
+            on:delete={() => deleteSense(sense)} id={sense.id} />
+        {/if}
+      </div>
 
-    <EntityEditor
-      entity={example}
-      fieldConfigs={Object.values($activeView?.example ?? [])}
-      customFieldConfigs={Object.values($activeView?.customExample ?? [])}
-      on:change
-    />
+      <div class="grid-layer">
+        <SenseEditor {sense} on:change={() => dispatch('change', {entry, sense})}/>
+      </div>
+
+      <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+        {#each sense.exampleSentences as example, j (example.id)}
+          <div class="grid-layer" class:highlight={example === highlightedEntity}>
+            <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->
+            <div class="col-span-full flex items-center gap-4 mb-4">
+              <h3 class="text-surface-content">Example {j + 1}</h3>
+              <!--
+                <hr class="grow">
+                collapse/expand toggle
+              -->
+              <hr class="grow">
+              {#if !readonly}
+              <EntityListItemActions i={j}
+                                     items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
+                  on:move={(e) => moveExample(sense, example, e.detail)}
+                                     on:delete={() => deleteExample(sense, example)}
+                                     id={example.id}
+              />
+              {/if}
+            </div>
+
+            <div class="grid-layer">
+            <ExampleEditor
+              {example}
+                on:change={() => dispatch('change', {entry, sense, example})}
+              />
+            </div>
+          </div>
+        {/each}
+      </div>
+      {#if !readonly}
+        <div class="col-span-full flex justify-end mt-4">
+          <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
+        </div>
+      {/if}
+    </div>
   {/each}
-{/each}
+  {#if !readonly}
+    <hr class="col-span-full grow border-t-4 my-4">
+    <div class="col-span-full flex justify-end">
+      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
+    </div>
+  {/if}
+</div>
+
+{#if !modalMode && !$viewConfig.readonly}
+  <div class="hidden">
+    <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
+      <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+        <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
+          Add Sense
+        </div>
+      </Button>
+      <Button on:click={deleteEntry} icon={mdiTrashCanOutline} variant="fill-light" color="danger" size="sm">
+        <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
+          Delete Entry
+        </div>
+      </Button>
+      <HistoryView id={entry.id} small={$entryActionsPortal.collapsed} />
+    </div>
+  </div>
+{/if}
+
+<style lang="postcss">
+  .highlight {
+    & :is(h2, h3) {
+      @apply text-info-500;
+    }
+
+    & hr {
+      @apply border-info-500;
+    }
+  }
+
+  .grid-layer {
+    display: grid;
+    grid-template-columns: subgrid;
+    @apply col-span-full;
+  }
+</style>

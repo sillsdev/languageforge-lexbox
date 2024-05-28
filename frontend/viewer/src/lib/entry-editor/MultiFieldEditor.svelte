@@ -4,7 +4,7 @@
   import type { Readable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import type { MultiString, WritingSystems } from '../mini-lcm';
-  import type { FieldConfig } from '../types';
+  import type { FieldConfig, ViewConfig } from '../config-types';
   import { pickWritingSystems } from '../utils';
 
   const dispatch = createEventDispatcher<{
@@ -12,6 +12,7 @@
   }>();
 
   const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
+  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
   type T = $$Generic<{}>;
   export let field: FieldConfig;
@@ -35,12 +36,13 @@
         label={collapse ? undefined : ws.abbreviation}
         labelPlacement={collapse ? undefined : 'left'}
         placeholder={collapse ? ws.abbreviation : undefined}
+        readonly={$viewConfig.readonly || field.readonly}
       />
     {/each}
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   .collapse-field .fields {
     grid-column: 3;
     display: flex;

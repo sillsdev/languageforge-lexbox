@@ -4,12 +4,19 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Svelte + TS</title>
+    <title>FLEx lite</title>
+    <style>
+      body, html, #app {
+        margin: 0;
+        height: 100%;
+        display: block;
+      }
+    </style>
   </head>
   <body>
     <div id="app" class="contents">
-      <lexbox-svelte class="block"></lexbox-svelte>
+      <lexbox-svelte></lexbox-svelte>
     </div>
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

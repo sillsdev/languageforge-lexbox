@@ -1,4 +1,4 @@
-import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigFieldProps } from './types';
+import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigFieldProps } from './config-types';
 import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 
 import type { I18nType } from './i18n';
@@ -38,7 +38,7 @@ const allFieldConfigs = ({
   customExample: Record<string, CustomFieldConfig>,
 };
 
-export function allFields(viewConfig: ViewConfig['value']): FieldConfig[] {
+export function allFields(viewConfig: ViewConfig): FieldConfig[] {
   return [
     ...Object.values(viewConfig.entry),
     ...Object.values(viewConfig.customEntry ?? {}),
@@ -57,15 +57,13 @@ type FieldWithViewConfigProps<T extends NonNullable<object>> =
 
 interface ViewConfig {
   label: string,
-  value: {
-    i18n?: I18nType,
-    entry: Partial<FieldsWithViewConfigProps<typeof allFieldConfigs.entry>>,
-    sense: Partial<typeof allFieldConfigs.sense>,
-    example: Partial<typeof allFieldConfigs.example>,
-    customEntry?: Partial<typeof allFieldConfigs.customEntry>,
-    customSense?: Partial<typeof allFieldConfigs.customSense>,
-    customExample?: Partial<typeof allFieldConfigs.customExample>,
-  },
+  i18n?: I18nType,
+  entry: Partial<FieldsWithViewConfigProps<typeof allFieldConfigs.entry>>,
+  sense: Partial<typeof allFieldConfigs.sense>,
+  example: Partial<typeof allFieldConfigs.example>,
+  customEntry?: Partial<typeof allFieldConfigs.customEntry>,
+  customSense?: Partial<typeof allFieldConfigs.customSense>,
+  customExample?: Partial<typeof allFieldConfigs.customExample>,
 }
 
 function configure<T extends NonNullable<object>>(fieldConfig: T, props: ViewConfigFieldProps): FieldWithViewConfigProps<T> {
@@ -74,52 +72,46 @@ function configure<T extends NonNullable<object>>(fieldConfig: T, props: ViewCon
 
 export const views: ViewConfig[] = [
   {
-    label: 'Everything',
-    value: {
-      ...allFieldConfigs,
-      entry: {
-        ...allFieldConfigs.entry,
-        literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
-      },
-    }
+    label: 'Everything (FLEx)',
+    ...allFieldConfigs,
+    entry: {
+      ...allFieldConfigs.entry,
+      literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
+    },
   },
   {
     label: 'WeSay',
-    value: {
-      i18n: 'weSay',
-      entry: {
-        lexemeForm: allFieldConfigs.entry.lexemeForm,
-        note: configure(allFieldConfigs.entry.note, { extra: true }),
-      },
-      sense: {
-        gloss: allFieldConfigs.sense.gloss,
-        partOfSpeech: allFieldConfigs.sense.partOfSpeech,
-        semanticDomain: configure(allFieldConfigs.sense.semanticDomain, { extra: true }),
-      },
-      example: {
-        sentence: allFieldConfigs.example.sentence,
-      },
+    i18n: 'weSay',
+    entry: {
+      lexemeForm: allFieldConfigs.entry.lexemeForm,
+      note: configure(allFieldConfigs.entry.note, { extra: true }),
+    },
+    sense: {
+      gloss: allFieldConfigs.sense.gloss,
+      partOfSpeech: allFieldConfigs.sense.partOfSpeech,
+      semanticDomain: configure(allFieldConfigs.sense.semanticDomain, { extra: true }),
+    },
+    example: {
+      sentence: allFieldConfigs.example.sentence,
     },
   },
   {
     label: 'Language Forge',
-    value: {
-      i18n: 'languageForge',
-      entry: {
-        lexemeForm: allFieldConfigs.entry.lexemeForm,
-        note: configure(allFieldConfigs.entry.note, { extra: true }),
-        literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
-      },
-      sense: {
-        gloss: allFieldConfigs.sense.gloss,
-        definition: allFieldConfigs.sense.definition,
-        partOfSpeech: allFieldConfigs.sense.partOfSpeech,
-        semanticDomain: allFieldConfigs.sense.semanticDomain,
-      },
-      example: {
-        sentence: allFieldConfigs.example.sentence,
-        translation: allFieldConfigs.example.translation,
-        reference: configure(allFieldConfigs.example.reference, { extra: true }),
-      },
+    i18n: 'languageForge',
+    entry: {
+      lexemeForm: allFieldConfigs.entry.lexemeForm,
+      note: configure(allFieldConfigs.entry.note, { extra: true }),
+      literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
+    },
+    sense: {
+      gloss: allFieldConfigs.sense.gloss,
+      definition: allFieldConfigs.sense.definition,
+      partOfSpeech: allFieldConfigs.sense.partOfSpeech,
+      semanticDomain: allFieldConfigs.sense.semanticDomain,
+    },
+    example: {
+      sentence: allFieldConfigs.example.sentence,
+      translation: allFieldConfigs.example.translation,
+      reference: configure(allFieldConfigs.example.reference, { extra: true }),
     },
   }] as const;

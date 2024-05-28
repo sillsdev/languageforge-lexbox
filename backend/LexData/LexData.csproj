@@ -24,6 +24,7 @@
 </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\harmony\src\Crdt.Core\Crdt.Core.csproj" />
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
     </ItemGroup>
 
