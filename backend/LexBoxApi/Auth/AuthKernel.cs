@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
 using System.Text;
@@ -204,7 +205,6 @@ public static class AuthKernel
     private static void AddOpenId(IServiceCollection services, IWebHostEnvironment environment)
     {
         services.Add(ScopeRequestFixer.Descriptor.ServiceDescriptor);
-
         //openid server
         services.AddOpenIddict()
             .AddCore(options =>
@@ -215,11 +215,12 @@ public static class AuthKernel
             .AddServer(options =>
             {
                 options.RegisterScopes("openid", "profile", "email");
+                //todo add application claims
                 options.RegisterClaims("aud", "email", "exp", "iss", "iat", "sub", "name");
-                options.SetAuthorizationEndpointUris("api/login/open-id-auth");
-                options.SetTokenEndpointUris("api/login/token");
-                options.SetIntrospectionEndpointUris("api/connect/introspect");
-                options.SetUserinfoEndpointUris("api/connect/userinfo");
+                options.SetAuthorizationEndpointUris("api/oauth/open-id-auth");
+                options.SetTokenEndpointUris("api/oauth/token");
+                options.SetIntrospectionEndpointUris("api/oauth/introspect");
+                options.SetUserinfoEndpointUris("api/oauth/userinfo");
                 options.Configure(serverOptions => serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor));
 
                 options.AllowAuthorizationCodeFlow()

@@ -34,7 +34,7 @@ export default defineConfig({
     codegen(gqlOptions),
     precompileIntl('src/lib/i18n/locales'),
     sveltekit(),
-    // basicSsl()
+    exposeServer ? basicSsl() : null, // crypto.subtle is only available on secure connections
   ],
   optimizeDeps: {
   },
