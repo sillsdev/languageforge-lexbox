@@ -321,6 +321,13 @@ public partial class HgService : IHgService
         return int.TryParse(str, out int result) ? result : null;
     }
 
+    public async Task<string> HgCommandHealth()
+    {
+        var content = await ExecuteHgCommandServerCommand("health", "healthz", default);
+        var version = await content.ReadAsStringAsync();
+        return version.Trim();
+    }
+
     private async Task<HttpContent> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
     {
         var httpClient = _hgClient.Value;

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
@@ -65,27 +66,51 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var jwtUser = _loggedInContext.MaybeUser;
-        var emailVerified = jwtUser?.Email == accountInput.Email;
-
-        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-        var userEntity = new User
-        {
-            Id = Guid.NewGuid(),
-            Name = accountInput.Name,
-            Email = accountInput.Email,
-            LocalizationCode = accountInput.Locale,
-            Salt = salt,
-            PasswordHash = PasswordHashing.HashPassword(accountInput.PasswordHash, salt, true),
-            PasswordStrength = UserService.ClampPasswordStrength(accountInput.PasswordStrength),
-            IsAdmin = false,
-            EmailVerified = emailVerified,
-            Locked = false,
-            CanCreateProjects = false
-        };
+        var userEntity = CreateUserEntity(accountInput, emailVerified: false);
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
-        if (jwtUser is not null && jwtUser.Projects.Length > 0)
+        await _lexBoxDbContext.SaveChangesAsync();
+
+        var user = new LexAuthUser(userEntity);
+        await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
+            new AuthenticationProperties { IsPersistent = true });
+
+        await _emailService.SendVerifyAddressEmail(userEntity);
+        return Ok(user);
+    }
+
+    [HttpPost("acceptInvitation")]
+    [RequireAudience(LexboxAudience.RegisterAccount, true)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesErrorResponseType(typeof(Dictionary<string, string[]>))]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<LexAuthUser>> AcceptEmailInvitation(RegisterAccountInput accountInput)
+    {
+        using var acceptActivity = LexBoxActivitySource.Get().StartActivity("AcceptInvitation");
+        var validToken = await _turnstileService.IsTokenValid(accountInput.TurnstileToken, accountInput.Email);
+        acceptActivity?.AddTag("app.turnstile_token_valid", validToken);
+        if (!validToken)
+        {
+            ModelState.AddModelError<RegisterAccountInput>(r => r.TurnstileToken, "token invalid");
+            return ValidationProblem(ModelState);
+        }
+
+        var jwtUser = _loggedInContext.User;
+
+        var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
+        acceptActivity?.AddTag("app.email_available", !hasExistingUser);
+        if (hasExistingUser)
+        {
+            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email already in use");
+            return ValidationProblem(ModelState);
+        }
+
+        var emailVerified = jwtUser.Email == accountInput.Email;
+        var userEntity = CreateUserEntity(accountInput, emailVerified);
+        acceptActivity?.AddTag("app.user.id", userEntity.Id);
+        _lexBoxDbContext.Users.Add(userEntity);
+        // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
+        if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
         {
             userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
         }
@@ -97,6 +122,27 @@ public class UserController : ControllerBase
 
         if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
+    }
+
+    private User CreateUserEntity(RegisterAccountInput input, bool emailVerified, Guid? creatorId = null)
+    {
+        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+        var userEntity = new User
+        {
+            Id = Guid.NewGuid(),
+            Name = input.Name,
+            Email = input.Email,
+            LocalizationCode = input.Locale,
+            Salt = salt,
+            PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+            PasswordStrength = UserService.ClampPasswordStrength(input.PasswordStrength),
+            IsAdmin = false,
+            EmailVerified = emailVerified,
+            CreatedById = creatorId,
+            Locked = false,
+            CanCreateProjects = false
+        };
+        return userEntity;
     }
 
     [HttpPost("sendVerificationEmail")]

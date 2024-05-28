@@ -21,8 +21,9 @@
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
+  import { createGuestUserByAdmin } from '$lib/user';
+  import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
   import type { Confidentiality } from '$lib/components/Projects';
-  import { helpLinks } from '$lib/components/help';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -70,6 +71,7 @@
   }
 
   let userModal: UserModal;
+  let createUserModal: CreateUserModal;
   let deleteUserModal: DeleteUserModal;
   let formModal: EditUserAccount;
 
@@ -125,14 +127,13 @@
               </Badge>
             </div>
           </div>
-          <a class="btn btn-sm btn-success btn-outline max-xs:btn-square group"
-            href={helpLinks.bulkAddCreate}
-            target="_blank" rel="external">
+          <button class="btn btn-sm btn-success max-xs:btn-square"
+            on:click={() => createUserModal.open()}>
             <span class="admin-tabs:hidden">
-              {$t('admin_dashboard.how_to_create_users')}
+              {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
-            <span class="i-mdi-plus text-2xl group-hover:i-mdi-open-in-new" />
-          </a>
+            <span class="i-mdi-plus text-2xl" />
+          </button>
         </div>
       </AdminTabs>
       <div class="mt-4">
@@ -246,4 +247,5 @@
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
   <UserModal bind:this={userModal}/>
+  <CreateUserModal handleSubmit={createGuestUserByAdmin} bind:this={createUserModal}/>
 </main>

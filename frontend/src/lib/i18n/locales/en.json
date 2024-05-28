@@ -39,6 +39,11 @@
         }
       }
     },
+    "create_user_modal": {
+      "create_user": "Create User",
+      "help_create_single_guest_user": "You can invite users to register and join a project by themselves with the **Add Project Member** button. See [Add Project Member]({helpLink}) for details.",
+      "help_create_bulk_guest_users": "You can also create and add users to a project in bulk. Look for the **Bulk Add/Create Members** button or see [Bulk Add/Create Project Members]({helpLink}) for details.",
+    },
     "user_details_modal": {
       "registered": "Registered",
       "locked": "Locked",
@@ -220,7 +225,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "shared_password_description": "For new users",
       "usernames": "Logins or emails (one per line)",
       "usernames_description": "This will be the **Send/Receive login** for new users",
-      "invalid_username": "Invalid login/username: {username}. Can only use letters, numbers, and underscore (_) characters.",
+      "invalid_username": "Invalid login/username: {username}. Only letters, numbers, and underscore (_) characters are allowed.",
       "empty_user_field": "Please enter email addresses and/or logins",
       "creator_must_have_email": "You must have an email address in order to create a project.",
       "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to project.",
@@ -384,12 +389,17 @@ If you don't see a dialog or already closed it, click the button below:",
   "register": {
     "title": "Register",
     "account_exists": "An account with this email already exists",
+    "invalid_username": "Invalid login/username. Only letters, numbers, and underscore (_) characters are allowed.",
     "button_register": "Register",
     "label_email": "Email",
+    "label_email_or_username": "Email or login/username",
     "description_email": "This will be your **Send/Receive login**",
     "label_name": "Name",
     "label_password": "Password",
     "name_missing": "Name missing",
+  },
+  "accept_invitation": {
+    "title": "Accept Invitation",
   },
   "reset_password": {
     "title": "Reset Password",
@@ -522,6 +532,6 @@ If you don't see a dialog or already closed it, click the button below:",
     "or": "Or",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
-    "any": "Any",
+    "did_you_know": "Did you know?",
   }
 }

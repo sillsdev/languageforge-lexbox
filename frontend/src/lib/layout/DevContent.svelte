@@ -7,9 +7,9 @@
   export let isDev = writable(false);
 
   if (browser) {
-    globalThis.enableDevMode = () => {
-      isDev.set(true);
-      localStorage.setItem('devMode', 'true');
+    globalThis.enableDevMode = (enable = true) => {
+      isDev.set(enable);
+      enable ? localStorage.setItem('devMode', 'true') : localStorage.removeItem('devMode');
     };
     isDev.set(localStorage.getItem('devMode') === 'true');
   }

@@ -21,4 +21,5 @@ public interface IHgService
     Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token);
     Task<HttpContent> InvalidateDirCache(string code);
     bool HasAbandonedTransactions(string projectCode);
+    Task<string> HgCommandHealth();
 }

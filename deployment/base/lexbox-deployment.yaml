@@ -92,6 +92,8 @@ spec:
                 fieldPath: spec.nodeName
           - name: OTEL_RESOURCE_ATTRIBUTES
             value: k8s.node.name=$(K8S_NODE_NAME)
+          - name: OTEL_DOTNET_EXPERIMENTAL_ASPNETCORE_DISABLE_URL_QUERY_REDACTION
+            value: 'true'
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
@@ -118,6 +120,21 @@ spec:
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
           - name: LfClassicConfig__ConnectionString
             value: mongodb://db.languageforge:27017
+          - name: LfClassicConfig__AuthSource
+            valueFrom:
+              secretKeyRef:
+                  key: MONGODB_AUTHSOURCE
+                  name: lf-mongo-auth
+          - name: LfClassicConfig__Username
+            valueFrom:
+              secretKeyRef:
+                  key: MONGODB_USER
+                  name: lf-mongo-auth
+          - name: LfClassicConfig__Password
+            valueFrom:
+              secretKeyRef:
+                  key: MONGODB_PASS
+                  name: lf-mongo-auth
           - name: Authentication__Jwt__Secret
             valueFrom:
               secretKeyRef:

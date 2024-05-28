@@ -35,6 +35,14 @@ public static class DataServiceKernel
     {
         var config = provider.GetRequiredService<IOptions<LfClassicConfig>>();
         var mongoSettings = MongoClientSettings.FromConnectionString(config.Value.ConnectionString);
+        if (config.Value.HasCredentials)
+        {
+            mongoSettings.Credential = MongoCredential.CreateCredential(
+                databaseName: config.Value.AuthSource,
+                username: config.Value.Username,
+                password: config.Value.Password
+            );
+        }
         mongoSettings.LoggingSettings = new LoggingSettings(provider.GetRequiredService<ILoggerFactory>());
         mongoSettings.ClusterConfigurator = cb =>
             cb.Subscribe(new DiagnosticsActivityEventSubscriber(new() { CaptureCommandText = true }));

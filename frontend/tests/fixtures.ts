@@ -25,6 +25,7 @@ type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id:
 
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
+  uniqueTestId: string,
   tempUser: TempUser,
   tempProject: TempProject,
   tempDir: string,
@@ -57,6 +58,14 @@ export const test = base.extend<Fixtures>({
     addUnexpectedResponseListener(context);
     await use(context);
   },
+  // eslint-disable-next-line no-empty-pattern
+  uniqueTestId: async ({ }, use, testInfo) => {
+    // testInfo.testId is only guarunteed to be unique within a session (https://playwright.dev/docs/api/class-testcase#test-case-id)
+    // i.e. it's not unique enough if a test fails to cleanup. We've had that problem.
+    const shortId = randomUUID().split('-')[0];
+    const testId = `${testInfo.testId}-${shortId}`;
+    await use(testId);
+  },
   tempUser: async ({ browser, page }, use, testInfo) => {
     const mailinatorId = randomUUID();
     const email = `${mailinatorId}@mailinator.com`;
@@ -76,13 +85,13 @@ export const test = base.extend<Fixtures>({
     await deleteUser(context.request, tempUser.id);
     await context.close();
   },
-  tempProject: async ({ page }, use, testInfo) => {
+  tempProject: async ({ page, uniqueTestId }, use, testInfo) => {
     const titleForCode =
       testInfo.title
       .replaceAll(' ','-')
-      .replaceAll(/[^a-z-]/g,'');
-    const code = `test-${titleForCode}-${testInfo.testId}`;
-    const name = `Temporary project for ${testInfo.title} unit test ${testInfo.testId}`;
+        .replaceAll(/[^a-z-]/g, '');
+    const code = `test-${titleForCode}-${uniqueTestId}`;
+    const name = `Temporary project for ${testInfo.title} unit test ${uniqueTestId}`;
     const loginData = {
       emailOrUsername: 'admin',
       password: testEnv.defaultPassword,
@@ -120,8 +129,8 @@ export const test = base.extend<Fixtures>({
     expect(deleteResponse.ok()).toBeTruthy();
   },
   // eslint-disable-next-line no-empty-pattern
-  tempDir: async ({}, use, testInfo) => {
-    const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${testInfo.testId}-`));
+  tempDir: async ({ uniqueTestId }, use) => {
+    const dirname = await mkdtemp(join(tmpdir(), `e2etmp-${uniqueTestId}-`));
     await use(dirname);
     try {
       await rm(dirname, { recursive: true, force: true });

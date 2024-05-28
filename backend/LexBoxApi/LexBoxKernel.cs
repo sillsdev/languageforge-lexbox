@@ -1,10 +1,12 @@
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace LexBoxApi;
@@ -22,9 +24,9 @@ public static class LexBoxKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         // services.AddOptions<HasuraConfig>()
-            // .BindConfiguration("HasuraConfig")
-            // .ValidateDataAnnotations()
-            // .ValidateOnStart();
+        // .BindConfiguration("HasuraConfig")
+        // .ValidateDataAnnotations()
+        // .ValidateOnStart();
         services.AddOptions<CloudFlareConfig>()
             .BindConfiguration("CloudFlare")
             .ValidateDataAnnotations()
@@ -52,12 +54,15 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        services.AddTransient<HgWebHealthCheck>();
+        services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();
         if (environment.IsDevelopment())
             services.AddHostedService<SwaggerValidationService>();
         services.AddScheduledTasks(configuration);
+        services.AddHealthChecks().AddCheck<HgWebHealthCheck>("hgweb", HealthStatus.Unhealthy, ["hg"], TimeSpan.FromSeconds(5));
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
