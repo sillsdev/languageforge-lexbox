@@ -11,6 +11,8 @@
   import DevContent from './DevContent.svelte';
   import { helpLinks } from '$lib/components/help';
 
+  export let hideToolbar = false;
+
   let menuToggle = false;
   $: data = $page.data as LayoutData;
   $: user = data.user;
@@ -34,37 +36,39 @@
 <svelte:window on:keydown={closeOnEscape} />
 
 {#if user}
-  <div class="drawer drawer-end">
+  <div class="drawer drawer-end grow">
     <input id="drawer-toggle" type="checkbox" bind:checked={menuToggle} class="drawer-toggle" />
 
-    <div class="drawer-content max-w-[100vw]">
+    <div class="drawer-content max-w-[100vw] flex flex-col">
       <AppBar {user} />
-      <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center gap-2">
-        <Breadcrumbs />
-        <div class="flex gap-4 items-center">
-          <DevContent>
-            <a href="/sandbox" class="btn btn-sm btn-secondary">
-              <span class="max-sm:hidden">
-                Sandbox
-              </span>
-              <Icon size="text-2xl" icon="i-mdi-box-variant" />
+      {#if !hideToolbar}
+        <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center gap-2">
+          <Breadcrumbs />
+          <div class="flex gap-4 items-center">
+            <DevContent>
+              <a href="/sandbox" class="btn btn-sm btn-secondary">
+                <span class="max-sm:hidden">
+                  Sandbox
+                </span>
+                <Icon size="text-2xl" icon="i-mdi-box-variant" />
+              </a>
+            </DevContent>
+            <a href={helpLinks.helpList} target="_blank" rel="external"
+              class="btn btn-sm btn-info btn-outline max-sm:hidden">
+              {$t('appmenu.help')}
+              <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
-          </DevContent>
-          <a href={helpLinks.helpList} target="_blank" rel="external"
-            class="btn btn-sm btn-info btn-outline max-sm:hidden">
-            {$t('appmenu.help')}
-            <Icon icon="i-mdi-open-in-new" size="text-lg" />
-          </a>
-          <AdminContent>
-            <a href="/admin" class="btn btn-sm btn-accent">
-              <span class="max-sm:hidden">
-                {$t('admin_dashboard.title')}
-              </span>
-              <AdminIcon />
-            </a>
-          </AdminContent>
+            <AdminContent>
+              <a href="/admin" class="btn btn-sm btn-accent">
+                <span class="max-sm:hidden">
+                  {$t('admin_dashboard.title')}
+                </span>
+                <AdminIcon />
+              </a>
+            </AdminContent>
+          </div>
         </div>
-      </div>
+      {/if}
 
       <div class="max-w-prose mx-auto email-status-container">
         <EmailVerificationStatus {user} />
