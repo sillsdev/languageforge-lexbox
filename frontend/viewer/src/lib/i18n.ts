@@ -1,4 +1,4 @@
-import type { FieldConfig, WellKnownFieldId } from './types';
+import type { FieldConfig, WellKnownFieldId } from './config-types';
 
 type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
 type I18nKey = keyof typeof defaultI18n;

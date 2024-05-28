@@ -2,10 +2,11 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import { HubConnection, type IStreamResult, Subject } from '@microsoft/signalr';
+import { HubConnection } from '@microsoft/signalr';
 import type { ILexboxApiHub, ILexboxClient } from './Lexbox.ClientServer.Hubs';
-import type { WritingSystems, QueryOptions, Entry, Sense, ExampleSentence } from '../lexboxClientContracts';
+import type {WritingSystems, QueryOptions, Entry, Sense, ExampleSentence, WritingSystem} from '../../mini-lcm';
 import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
+import type {WritingSystemType} from '../../services/lexbox-api';
 
 
 // components
@@ -85,21 +86,34 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
         return await this.connection.invoke("GetWritingSystems");
     }
 
-    public readonly GetExemplars = async (): Promise<string[]> => {
-        return await this.connection.invoke("GetExemplars");
+    public readonly CreateWritingSystem = async (type: WritingSystemType, writingSystem: WritingSystem): Promise<void> => {
+        return await this.connection.invoke("CreateWritingSystem", type, writingSystem);
     }
 
-    public readonly GetEntriesForExemplar = async (exemplar: string, options: QueryOptions): Promise<Entry[]> => {
-        return await this.connection.invoke("GetEntriesForExemplar", exemplar, options);
+    public readonly UpdateWritingSystem = async (wsId: string, type: WritingSystemType, update: JsonOperation[]): Promise<WritingSystem> => {
+        return await this.connection.invoke("UpdateWritingSystem", wsId, type, update);
     }
 
     public readonly GetEntries = async (options: QueryOptions): Promise<Entry[]> => {
         return await this.connection.invoke("GetEntries", options);
     }
 
-    public readonly SearchEntries = async (query: string, options: QueryOptions): Promise<Entry[]> => {
-        return await this.connection.invoke("SearchEntries", query, options);
-    }
+  public readonly SearchEntries = (query: string, options: QueryOptions): Promise<Entry[]> => {
+    return new Promise((resolve, reject) => {
+      let entries: Entry[] = [];
+      this.connection.stream<Entry>('SearchEntries', query, options).subscribe({
+        next(value: Entry) {
+          entries.push(value);
+        },
+        error(err: any) {
+          reject(err);
+        },
+        complete() {
+          resolve(entries);
+        }
+      });
+    });
+  };
 
     public readonly GetEntry = async (id: string): Promise<Entry> => {
         return await this.connection.invoke("GetEntry", id);

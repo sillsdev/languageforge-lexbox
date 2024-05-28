@@ -37,3 +37,18 @@ tasks:
     desc: "Directory independent access to pnpm. E.g. `task svelte -- install`"
     aliases: [ s ]
     cmd: pnpm {{.CLI_ARGS}}
+
+  install-viewer:
+    dir: ./viewer
+    method: checksum
+    sources:
+      - package.json
+      - pnpm-lock.yaml
+    cmds:
+      - corepack enable || true
+      - pnpm install
+  viewer-dev:
+    label: vite
+    dir: ./viewer
+    deps: [ install-viewer ]
+    cmd: pnpm run dev-app

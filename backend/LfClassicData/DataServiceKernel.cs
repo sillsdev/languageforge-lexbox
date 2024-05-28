@@ -66,7 +66,7 @@ public static class DataServiceKernel
                 ) =>
             {
                 var api = provider.GetProjectApi(projectCode);
-                return api.GetEntries(new QueryOptions(SortOptions.Default, count, offset));
+                return api.GetEntries(new QueryOptions(SortOptions.Default, null, count, offset));
             });
         group.MapGet("/entries/{search}",
             (string projectCode,
@@ -76,7 +76,7 @@ public static class DataServiceKernel
                 int offset = 0) =>
             {
                 var api = provider.GetProjectApi(projectCode);
-                return api.SearchEntries(search, new QueryOptions(SortOptions.Default, count, offset));
+                return api.SearchEntries(search, new QueryOptions(SortOptions.Default, null, count, offset));
             });
         group.MapGet("/entry/{id:Guid}",
             (string projectCode, Guid id, [FromServices] ILexboxApiProvider provider) =>

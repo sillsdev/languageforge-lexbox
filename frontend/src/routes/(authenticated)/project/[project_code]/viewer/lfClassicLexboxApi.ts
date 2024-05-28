@@ -3,7 +3,9 @@ import {
   type IEntry, type IExampleSentence, type ISense, type JsonPatch,
   type LexboxApi,
   type QueryOptions,
-  type WritingSystems
+  type WritingSystems,
+  type WritingSystemType,
+  type WritingSystem
 } from 'viewer/lexbox-api';
 
 
@@ -16,13 +18,17 @@ export class LfClassicLexboxApi implements LexboxApi {
     return (await result.json()) as WritingSystems;
   }
 
-  GetEntriesForExemplar(_exemplar: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
-    throw new Error('Method not implemented.');
-  }
-
   async GetEntries(_options: QueryOptions | undefined): Promise<IEntry[]> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries?order=desc&count=100`);
     return (await result.json()) as IEntry[];
+  }
+
+  CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  UpdateWritingSystem(_wsId: string, _type: WritingSystemType, _update: JsonPatch): Promise<WritingSystem> {
+    throw new Error('Method not implemented.');
   }
 
   SearchEntries(_query: string, _options: QueryOptions | undefined): Promise<IEntry[]> {

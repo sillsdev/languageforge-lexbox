@@ -92,6 +92,10 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
+            FlexProjectMetadata = new FlexProjectMetadata
+            {
+                LexEntryCount = -1
+            },
             IsConfidential = null,
             Users = new()
             {

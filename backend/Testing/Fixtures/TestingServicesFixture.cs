@@ -37,11 +37,11 @@ public class TestingServicesFixture : IAsyncLifetime, ICollectionFixture<Testing
         services.AddLexData(true, dbContextLifeTime: ServiceLifetime.Singleton);
     }
 
-    public ServiceProvider ConfigureServices(Action<ServiceCollection> configureServices)
+    public ServiceProvider ConfigureServices(Action<ServiceCollection>? configureServices = null)
     {
         var services = new ServiceCollection();
         ConfigureBaseServices(services);
-        configureServices(services);
+        configureServices?.Invoke(services);
         return services.BuildServiceProvider();
     }
 

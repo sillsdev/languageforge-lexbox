@@ -1,4 +1,5 @@
 import {InMemoryApiService} from '../in-memory-api-service';
+import type {LexboxApi} from './lexbox-api';
 
 declare global {
 
@@ -21,13 +22,11 @@ export class LexboxServiceProvider {
   private services: Record<string, unknown> = {};
 
   public setService(key: string, service: unknown): void {
-    console.log('set-service', key, service);
     this.validateServiceKey(key);
     this.services[key] = service;
   }
 
   public getService<T>(key: string): T {
-    console.log('get-service', key, this.services[key]);
     this.validateServiceKey(key);
     return this.services[key] as T;
   }
@@ -38,6 +37,15 @@ export class LexboxServiceProvider {
     }
   }
 }
-if (!window.lexbox) { window.lexbox = { ServiceProvider: new LexboxServiceProvider()}; }
-else window.lexbox.ServiceProvider = new LexboxServiceProvider();
-window.lexbox.ServiceProvider.setService(LexboxServices.LexboxApi, new InMemoryApiService());
+
+if (!window.lexbox) {
+  window.lexbox = {ServiceProvider: new LexboxServiceProvider()};
+} else window.lexbox.ServiceProvider = new LexboxServiceProvider();
+
+export function useLexboxApi() {
+  let api = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
+  if (!api) {
+    throw new Error('LexboxApi service not found');
+  }
+  return api;
+}

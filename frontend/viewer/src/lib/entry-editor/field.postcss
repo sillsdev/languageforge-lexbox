@@ -1,0 +1,46 @@
+.field {
+    @apply grid grid-cols-subgrid col-span-3 items-center;
+
+    &.multi-field {
+      @apply items-baseline;
+    }
+
+    &:not(:last-child) {
+      @apply mb-4;
+    }
+
+    .fields {
+      @apply grid grid-cols-subgrid col-span-2 gap-1;
+    }
+
+    &.multi-field .fields {
+      .ws-field, .ws-field-wrapper {
+        @apply grid grid-cols-subgrid col-span-2;
+      }
+    }
+
+    &.single-field .fields {
+      @apply grid grid-cols-subgrid;
+      grid-column-start: 3;
+    }
+
+    .readonly {
+      &.TextField, .TextField {
+        opacity: 1;
+
+        [class~="border"] {
+          border: none;
+        }
+
+        input {
+          /* enable standard text selection */
+          pointer-events: auto;
+          cursor: text;
+        }
+
+        .append {
+          display: none;
+        }
+      }
+    }
+  }
