@@ -293,7 +293,7 @@ public partial class HgService : IHgService, IHostedService
     }
 
     private static readonly string[] SpecialDirectoryNames = [DELETED_REPO_FOLDER, TEMP_REPO_FOLDER];
-    private static readonly IEnumerable<string> InvalidRepoNames = SpecialDirectoryNames.Append("api");
+    private static readonly HashSet<string> InvalidRepoNames = [.. SpecialDirectoryNames, "api"];
 
     private void AssertIsSafeRepoName(string name)
     {
