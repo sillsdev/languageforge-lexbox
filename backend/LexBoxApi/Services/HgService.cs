@@ -69,7 +69,6 @@ public partial class HgService : IHgService
         {
             InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
         });
-        // TODO 789: In theory this shouldn't need an invalidate call? Try with and without
         await InvalidateDirCache(code);
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
