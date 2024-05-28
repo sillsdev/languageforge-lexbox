@@ -306,14 +306,15 @@ public partial class HgService : IHgService
         var done = false;
         while (!done)
         {
-            var hash = await GetTipHash(code);
-            var isEmpty = hash == AllZeroHash;
-            done = expectedState switch
-            {
-                RepoEmptyState.Empty => isEmpty,
-                RepoEmptyState.NonEmpty => !isEmpty
-            };
-            if (!done) await Task.Delay(2500);
+            done = true; // Deliberately try to fail tests
+            // var hash = await GetTipHash(code);
+            // var isEmpty = hash == AllZeroHash;
+            // done = expectedState switch
+            // {
+            //     RepoEmptyState.Empty => isEmpty,
+            //     RepoEmptyState.NonEmpty => !isEmpty
+            // };
+            // if (!done) await Task.Delay(2500);
         }
     }
 
