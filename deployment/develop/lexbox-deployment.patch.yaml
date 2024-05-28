@@ -24,3 +24,5 @@ spec:
               value: "Language Depot (Develop) <no-reply@develop.languagedepot.org>"
             - name: Email__BaseUrl
               value: "https://develop.lexbox.org"
+            - name: HgConfig__RequireContainerVersionMatch
+              value: "false"

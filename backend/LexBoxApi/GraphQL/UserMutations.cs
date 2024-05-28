@@ -1,14 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
+using LexBoxApi.Otel;
 using LexBoxApi.Services;
+using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
 using LexData;
+using LexData.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +27,13 @@ public class UserMutations
         : ChangeUserAccountDataInput(UserId, Email, Name);
     public record ChangeUserAccountByAdminInput(Guid UserId, string? Email, string Name, UserRole Role)
         : ChangeUserAccountDataInput(UserId, Email, Name);
+    public record CreateGuestUserByAdminInput(
+        string? Email,
+        string Name,
+        string? Username,
+        string Locale,
+        string PasswordHash,
+        int PasswordStrength);
 
     [Error<NotFoundException>]
     [Error<DbError>]
@@ -61,6 +72,55 @@ public class UserMutations
     )
     {
         return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UniqueValueException>]
+    [Error<RequiredException>]
+    [AdminRequired]
+    public async Task<LexAuthUser> CreateGuestUserByAdmin(
+        LoggedInContext loggedInContext,
+        CreateGuestUserByAdminInput input,
+        LexBoxDbContext dbContext,
+        EmailService emailService
+    )
+    {
+        using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
+
+        var hasExistingUser = input.Email is null && input.Username is null
+            ? throw new RequiredException("Guest users must have either an email or a username")
+            : await dbContext.Users.FilterByEmailOrUsername(input.Email ?? input.Username!).AnyAsync();
+        createGuestUserActivity?.AddTag("app.email_available", !hasExistingUser);
+        if (hasExistingUser) throw new UniqueValueException("Email");
+
+        var admin = loggedInContext.User;
+
+        var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
+        var userEntity = new User
+        {
+            Id = Guid.NewGuid(),
+            Name = input.Name,
+            Email = input.Email,
+            Username = input.Username,
+            LocalizationCode = input.Locale,
+            Salt = salt,
+            PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
+            PasswordStrength = UserService.ClampPasswordStrength(input.PasswordStrength),
+            IsAdmin = false,
+            EmailVerified = false,
+            CreatedById = admin.Id,
+            Locked = false,
+            CanCreateProjects = false
+        };
+        createGuestUserActivity?.AddTag("app.user.id", userEntity.Id);
+        dbContext.Users.Add(userEntity);
+        await dbContext.SaveChangesAsync();
+        if (!string.IsNullOrEmpty(input.Email))
+        {
+            await emailService.SendVerifyAddressEmail(userEntity);
+        }
+        return new LexAuthUser(userEntity);
     }
 
     private static async Task<User> UpdateUser(

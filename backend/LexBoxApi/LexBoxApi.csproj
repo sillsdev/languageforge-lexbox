@@ -62,6 +62,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="Services\HgEmptyRepo\**" CopyToOutputDirectory="Always" />
+      <Content Include="Services\HgEmptyRepo\**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 </Project>

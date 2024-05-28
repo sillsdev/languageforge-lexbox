@@ -19,4 +19,5 @@ public interface IHgService
     Task<string?> GetRepositoryIdentifier(Project project);
     Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token);
     bool HasAbandonedTransactions(string projectCode);
+    Task<string> HgCommandHealth();
 }

@@ -30,6 +30,8 @@ build:
       context: hgweb
       docker:
         dockerfile: Dockerfile
+        buildArgs:
+          APP_VERSION: dockerDev
   local:
     useBuildkit: true
     concurrency: 2

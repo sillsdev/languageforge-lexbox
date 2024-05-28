@@ -9,6 +9,8 @@ import type {
   $OpResult,
   ChangeUserAccountByAdminInput,
   ChangeUserAccountByAdminMutation,
+  CreateGuestUserByAdminInput,
+  CreateGuestUserByAdminMutation,
   DraftProjectFilterInput,
   ProjectFilterInput,
   SetUserLockedInput,
@@ -146,6 +148,44 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
               name
               email
               isAdmin
+            }
+            errors {
+                __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    )
+  return result;
+}
+
+export async function _createGuestUserByAdmin(input: CreateGuestUserByAdminInput): $OpResult<CreateGuestUserByAdminMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation CreateGuestUserByAdmin($input: CreateGuestUserByAdminInput!) {
+          createGuestUserByAdmin(input: $input) {
+            lexAuthUser {
+              id
+              name
+              email
+              username
+              role
+              isAdmin
+              locked
+              emailVerificationRequired
+              canCreateProjects
+              createdByAdmin
+              locale
+              projects {
+                projectId
+                role
+              }
             }
             errors {
                 __typename

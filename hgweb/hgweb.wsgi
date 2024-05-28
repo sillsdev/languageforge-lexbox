@@ -23,7 +23,6 @@ if os.getenv('ENABLE_DEMAND_IMPORT', 'false').lower() in ['1', 'true', 'yes']:
 else:
     demandimport.disable()
 
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.trace import TracerProvider
@@ -32,10 +31,7 @@ from opentelemetry.sdk.trace.export import (
     ConsoleSpanExporter,
 )
 
-resource = Resource(attributes={
-    SERVICE_NAME: "hgweb"
-})
-provider = TracerProvider(resource=resource)
+provider = TracerProvider()
 processor = BatchSpanProcessor(OTLPSpanExporter())
 provider.add_span_processor(processor)
 
