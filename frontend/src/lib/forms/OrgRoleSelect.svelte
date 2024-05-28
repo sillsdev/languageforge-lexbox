@@ -2,18 +2,17 @@
   import { OrgRole } from '$lib/gql/types';
   import t from '$lib/i18n';
 
-  import { Select } from '.';
-
   export let id = 'role';
   export let value: OrgRole;
-  export let error: string[] | undefined;
+  export let disabled = false;
+  export let verbose = false;
 </script>
 
-<Select {id} bind:value label={$t('org_role.label')} {error}>
+<select {disabled} bind:value {id} class="select select-bordered" on:change>
   <option value={OrgRole.User}>
-    {$t('org_role.user_description')}
+    {$t(verbose ? 'org_role.user_description' : 'org_role.user')}
   </option>
   <option value={OrgRole.Admin}>
-    {$t('org_role.admin_description')}
+    {$t(verbose ? 'org_role.admin_description' : 'org_role.admin')}
   </option>
-</Select>
+</select>

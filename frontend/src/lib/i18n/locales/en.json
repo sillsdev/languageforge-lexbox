@@ -396,7 +396,9 @@ If you don't see a dialog or already closed it, click the button below:",
     "user": "Member",
     "user_description": "Member (can join projects)",
     "admin": "Admin",
-    "admin_description": "Admin (can join projects & add new members)"
+    "admin_description": "Admin (can join projects & add new members)",
+    "unknown": "Unknown",
+    "unknown_description": "Unknown"
   },
   "project_role": {
     "label": "Role",

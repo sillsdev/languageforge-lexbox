@@ -11,10 +11,10 @@
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName, type OrgSearchParams } from './+page';
-  import MembersList from '$lib/components/MembersList.svelte';
-  import AddOrgMember from './AddOrgMember.svelte';
+  // import AddOrgMember from './AddOrgMember.svelte'; // TODO: Implement appropriately via OrgMemberTable
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
+  import OrgMemberTable from '$lib/components/Orgs/OrgMemberTable.svelte';
 
   // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
   export let description = 'Fake description since orgs don\'t currently have descriptions';
@@ -39,7 +39,7 @@
 
   let loadingExtraButton = false;
 
-  $: canManage = user?.isAdmin || org?.members?.find((m) => m.user?.id == user.id)?.role == OrgRole.Admin;
+  $: canManage = user.isAdmin || org.members.find(m => m.user?.id === user.id && m.role === OrgRole.Admin)
 
   const { notifySuccess/*, notifyWarning*/ } = useNotifications();
 
@@ -114,18 +114,7 @@
   {#if $queryParamValues.tab === 'projects'}
   Projects list will go here
   {:else if $queryParamValues.tab === 'members'}
-  <MembersList
-    roleType="org"
-    projectOrOrgId={org.id}
-    members={org.members}
-    canManageMember={(member) => canManage && (member.user?.id !== user.id || user.isAdmin)}
-    canManageList={canManage}
-  >
-    <svelte:fragment slot="extraButtons">
-      <AddOrgMember orgId={org.id} />
-      <!-- TODO: Implement <BulkAddOrgMembers orgId={org.id} /> -->
-    </svelte:fragment>
-  </MembersList>
+  <OrgMemberTable shownUsers={org.members} {canManage} />
   {:else if $queryParamValues.tab === 'settings'}
   Settings not implemented yet
   {:else if $queryParamValues.tab === 'history'}
