@@ -23,7 +23,7 @@ jobs:
     uses: ./.github/workflows/lexbox-api.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
-      label-latest: true
+      label-latest: false
 
   build-ui:
     name: Build UI
@@ -31,7 +31,7 @@ jobs:
     uses: ./.github/workflows/lexbox-ui.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
-      label-latest: true
+      label-latest: false
 
   build-hgweb:
     name: Build hgweb
@@ -39,7 +39,7 @@ jobs:
     uses: ./.github/workflows/lexbox-hgweb.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
-      label-latest: true
+      label-latest: false
 
   deploy:
     name: Deploy Develop

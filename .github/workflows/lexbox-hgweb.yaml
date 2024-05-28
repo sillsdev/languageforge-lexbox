@@ -80,11 +80,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
   deploy-hgweb:
       uses: ./.github/workflows/deploy.yaml
-      if: ${{github.ref == 'refs/heads/develop'}}
+      if: ${{github.ref == 'refs/heads/develop' && github.event_name == 'push'}}
       secrets: inherit
       needs: publish-hgweb
       with:
         version: ${{ needs.publish-hgweb.outputs.version }}
         image: 'ghcr.io/sillsdev/lexbox-hgweb'
-        deploy-domain: 'develop.lexbox.org'
+        deploy-domain: lexbox.dev.languagetechnology.org
         k8s-environment: 'develop'
