@@ -275,20 +275,21 @@ public partial class HgService : IHgService
 
     public Task InvalidateDirCache(string code)
     {
-        var repoPath = Path.Join(PrefixRepoFilePath(code));
-        if (Directory.Exists(repoPath))
-        {
-            // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
-            var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
-            while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
-            try
-            {
-                // Create and delete a directory since that's slightly safer than a file
-                var d = Directory.CreateDirectory(randomPath);
-                d.Delete();
-            }
-            catch (Exception) { }
-        }
+        // Try very hard to fail tests again
+        // var repoPath = Path.Join(PrefixRepoFilePath(code));
+        // if (Directory.Exists(repoPath))
+        // {
+        //     // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
+        //     var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
+        //     while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
+        //     try
+        //     {
+        //         // Create and delete a directory since that's slightly safer than a file
+        //         var d = Directory.CreateDirectory(randomPath);
+        //         d.Delete();
+        //     }
+        //     catch (Exception) { }
+        // }
         return Task.CompletedTask;
         // var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
         // return result;
