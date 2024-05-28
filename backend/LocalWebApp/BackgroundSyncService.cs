@@ -20,7 +20,6 @@ public class BackgroundSyncService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await Task.Delay(1_000, stoppingToken);
         var crdtProjects = await projectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {
@@ -42,6 +41,7 @@ public class BackgroundSyncService(
 
         await foreach (var project in _syncResultsChannel.Reader.ReadAllAsync(stoppingToken))
         {
+            //todo, this might not be required, but I can't remember why I added it
             await Task.Delay(100, stoppingToken);
             await SyncProject(project);
         }
