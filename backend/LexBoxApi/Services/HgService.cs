@@ -71,7 +71,6 @@ public partial class HgService : IHgService
         });
         // TODO 789: In theory this shouldn't need an invalidate call? Try with and without
         await InvalidateDirCache(code);
-        // await Process.Start("sync").WaitForExitAsync();  // TODO: Put behind an OS check so we don't break Windows
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
@@ -110,8 +109,7 @@ public partial class HgService : IHgService
         await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
-        // await Process.Start("sync").WaitForExitAsync();  // TODO: Put behind an OS check so we don't break Windows
-        await InvalidateDirCache(code); // TODO 789: Does this work now?
+        await InvalidateDirCache(code);
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
@@ -147,8 +145,10 @@ public partial class HgService : IHgService
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
         await InvalidateDirCache(code);
-        // await Process.Start("sync").WaitForExitAsync();  // TODO: Put behind an OS check so we don't break Windows
-        await WaitForRepoEmptyState(code, RepoEmptyState.NonEmpty); // TODO: Either catch the case where someone uploaded a .zip of an empty .hg repo, or set a timeout in WaitForRepoEmptyState
+        // If someone uploaded an *empty* repo, we don't want to wait forever for a non-empty state
+        var changelogPath = Path.Join(PrefixRepoFilePath(code), ".hg", "store", "00changelog.i");
+        var expectedState = File.Exists(changelogPath) ? RepoEmptyState.NonEmpty : RepoEmptyState.Empty;
+        await WaitForRepoEmptyState(code, expectedState);
     }
 
     /// <summary>
