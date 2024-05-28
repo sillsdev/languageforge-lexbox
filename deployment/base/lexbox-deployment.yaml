@@ -261,3 +261,21 @@ spec:
               configMapKeyRef:
                 name: app-config
                 key: environment-name
+      - name: set-repo-structure-owner-to-www-data
+        securityContext:
+          # Make sure we're authorized to set ownership
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+        image: busybox:1.36.1
+        command:
+          - 'sh'
+          - '-c'
+          - |
+            cd /repos
+            chown www-data:www-data .
+            # Only necessary if directories already exist with the wrong ownership
+            find . -maxdepth 1 -type d ! -name lost+found -exec chown www-data:www-data {} +
+        volumeMounts:
+          - name: repos
+            mountPath: /repos
