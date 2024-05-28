@@ -276,11 +276,21 @@ public partial class HgService : IHgService
 
     public Task<HttpContent> InvalidateDirCache(string code)
     {
-        // TODO: Ensure we don't accidentally re-create a repo we tried to delete by doing the line below
-        // I.e., check if PrefixRepoFilePath(code) exists and if it doesn't, create and delete it alone
-        var d = Directory.CreateDirectory(Path.Join(PrefixRepoFilePath(code), ".tmp-invalidate")); // Try to force NFS to invalidate
+        var repoPath = Path.Join(PrefixRepoFilePath(code));
+        if (Directory.Exists(repoPath))
+        {
+            // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
+            var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
+            while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
+            try
+            {
+                // Create and delete a directory since that's slightly safer than a file
+                var d = Directory.CreateDirectory(randomPath);
+                d.Delete();
+            }
+            catch (Exception) { }
+        }
         var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
-        try { if (d.Exists) d.Delete(); } catch(Exception) {} // Clean up no matter what
         return result;
     }
 
