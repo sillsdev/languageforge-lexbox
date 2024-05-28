@@ -2,7 +2,7 @@
   import PasswordStrengthMeter from '$lib/components/PasswordStrengthMeter.svelte';
   import { SubmitButton, FormError, Input, MaybeProtectedForm, isEmail, lexSuperForm, passwordFormRules, DisplayLanguageSelect } from '$lib/forms';
   import t, { getLanguageCodeFromNavigator, locale } from '$lib/i18n';
-  import { type RegisterResponse } from '$lib/user';
+  import { type LexAuthUser, type RegisterResponse } from '$lib/user';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { createEventDispatcher, onMount } from 'svelte';
   import { usernameRe } from '$lib/user';
@@ -13,7 +13,9 @@
   export let submitButtonText = $t('register.button_register');
   export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    submitted: LexAuthUser,
+  }>();
 
   type RegisterPageQueryParams = {
     name: string;
@@ -46,7 +48,7 @@
         $message = $t('turnstile.invalid');
       }
       if (error.accountExists) {
-        $errors.email = [$t('register.account_exists')];
+        $errors.email = [validateAsEmail($form.email) ? $t('register.account_exists_email') : $t('register.account_exists_login')];
       }
       if (error.invalidInput) {
         $errors.email = [validateAsEmail($form.email) ? $t('form.invalid_email') : $t('register.invalid_username')];
@@ -54,7 +56,7 @@
       return;
     }
     if (user) {
-      dispatch('submitted');
+      dispatch('submitted', user);
       return;
     }
     throw new Error('Unknown error, no error from server, but also no user.');

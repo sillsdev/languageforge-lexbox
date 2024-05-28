@@ -21,7 +21,7 @@
   import { Button } from '$lib/forms';
   import { PageBreadcrumb } from '$lib/layout';
   import AdminTabs, { type AdminTabId } from './AdminTabs.svelte';
-  import { createGuestUserByAdmin } from '$lib/user';
+  import { createGuestUserByAdmin, type LexAuthUser } from '$lib/user';
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
   import type { Confidentiality } from '$lib/components/Projects';
 
@@ -99,6 +99,11 @@
         );
       }
     }
+  }
+
+  function onUserCreated(user: LexAuthUser): void {
+    notifySuccess($t('admin_dashboard.notifications.user_created', { name: user.name }), Duration.Long);
+    $queryParamValues.userSearch = user.emailOrUsername;
   }
 </script>
 
@@ -247,5 +252,5 @@
   <EditUserAccount bind:this={formModal} {deleteUser} currUser={data.user} />
   <DeleteUserModal bind:this={deleteUserModal} i18nScope="admin_dashboard.form_modal.delete_user" />
   <UserModal bind:this={userModal}/>
-  <CreateUserModal handleSubmit={createGuestUserByAdmin} bind:this={createUserModal}/>
+  <CreateUserModal handleSubmit={createGuestUserByAdmin} on:submitted={(e) => onUserCreated(e.detail)} bind:this={createUserModal}/>
 </main>
