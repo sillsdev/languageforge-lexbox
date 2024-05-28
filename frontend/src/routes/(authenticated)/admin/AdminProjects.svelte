@@ -60,7 +60,7 @@
 
   let deleteProjectModal: ConfirmDeleteModal;
   async function deleteProjectOrDraft(project: ProjectItemWithDraftStatus): Promise<void> {
-    const deleteFn = project.isDraft ? _deleteProject : _deleteDraftProject;
+    const deleteFn = project.isDraft ? _deleteDraftProject : _deleteProject;
     const result = await deleteProjectModal.open(project.name, async () => {
       const { error } = await deleteFn(project.id);
       return error?.message;
