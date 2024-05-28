@@ -22,6 +22,9 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
         IReadOnlyList<string> projectCodes,
         CancellationToken cancellationToken)
     {
+        if (!await _systemDbContext.IsAvailable())
+            return new Dictionary<string, bool>();
+
         return await MongoExtensions.ToAsyncEnumerable(_systemDbContext.Projects.AsQueryable()
             .Select(p => p.ProjectCode)
             .Where(projectCode => projectCodes.Contains(projectCode)))
