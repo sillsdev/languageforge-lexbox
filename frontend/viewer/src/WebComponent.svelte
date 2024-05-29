@@ -13,6 +13,8 @@
 
     const abortController = new AbortController();
     window.addEventListener('popstate', () => {
+      if (!location.hash) return;
+
       const hashTarget = shadowRoot.querySelector(location.hash);
       if (hashTarget) {
         hashTarget.scrollIntoView({

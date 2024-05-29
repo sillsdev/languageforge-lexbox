@@ -24,6 +24,7 @@
   import { createGuestUserByAdmin, type LexAuthUser } from '$lib/user';
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
   import type { Confidentiality } from '$lib/components/Projects';
+  import { browser } from '$app/environment';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -114,7 +115,7 @@
 <main>
   <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
     <div class="contents" class:admin-tabs:hidden={tab === 'users'}>
-    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
+      <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
@@ -132,13 +133,14 @@
               </Badge>
             </div>
           </div>
-          <button class="btn btn-sm btn-success max-xs:btn-square"
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <svelte:element this={browser ? 'button' : 'div'} class="btn btn-sm btn-success max-xs:btn-square"
             on:click={() => createUserModal.open()}>
             <span class="admin-tabs:hidden">
               {$t('admin_dashboard.create_user_modal.create_user')}
             </span>
             <span class="i-mdi-plus text-2xl" />
-          </button>
+          </svelte:element>
         </div>
       </AdminTabs>
       <div class="mt-4">
@@ -199,6 +201,8 @@
                 <td class="hidden @2xl:table-cell">
                   {#if user.username}
                     {user.username}
+                  {:else}
+                    –
                   {/if}
                 </td>
                 <td>

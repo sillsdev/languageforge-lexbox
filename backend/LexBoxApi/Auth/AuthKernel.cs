@@ -87,9 +87,11 @@ public static class AuthKernel
                             context.Request.Headers.Authorization.ToString().StartsWith("Bearer") &&
                             context.RequestServices.GetService<IOptions<OpenIdOptions>>()?.Value.Enable == true)
                         {
+                            //todo this breaks CanUseBearerAuth test
                             //fow now this will use oauth
                             return OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
                         }
+
                         if (context.Request.IsJwtRequest())
                         {
                             return JwtBearerDefaults.AuthenticationScheme;
@@ -100,6 +102,7 @@ public static class AuthKernel
                         {
                             return CookieAuthenticationDefaults.AuthenticationScheme;
                         }
+
                         if (context.Request.IsJwtOverBasicAuth(out var jwt))
                         {
                             context.Features.Set(new JwtOverBasicAuthFeature(jwt));
@@ -114,8 +117,23 @@ public static class AuthKernel
                 configuration.Bind("Authentication:Cookie", options);
                 options.LoginPath = "/login";
                 options.Cookie.Name = AuthCookieName;
-                // options.ForwardChallenge = JwtBearerDefaults.AuthenticationScheme;
                 options.ForwardForbid = JwtBearerDefaults.AuthenticationScheme;
+                options.Events = new()
+                {
+                    OnRedirectToLogin = context =>
+                    {
+                        if (context.Request.Path.StartsWithSegments("/api/oauth") &&
+                            context.Response.StatusCode == StatusCodes.Status200OK)
+                        {
+                            context.Response.Redirect(context.RedirectUri);
+                        }
+                        else
+                        {
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             })
             .AddJwtBearer(options =>
             {
@@ -157,6 +175,7 @@ public static class AuthKernel
                     googleOptions.ClientId = googleConfig.ClientId;
                     googleOptions.ClientSecret = googleConfig.ClientSecret;
                 }
+
                 googleOptions.CallbackPath = "/api/login/signin-google";
                 googleOptions.Events.OnTicketReceived = async context =>
                 {
