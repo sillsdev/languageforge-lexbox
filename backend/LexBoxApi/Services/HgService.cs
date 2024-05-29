@@ -273,7 +273,7 @@ public partial class HgService : IHgService
         return response;
     }
 
-    public Task<HttpContent> InvalidateDirCache(string code)
+    public Task<HttpContent> InvalidateDirCache(string code, CancellationToken token = default)
     {
         var repoPath = Path.Join(PrefixRepoFilePath(code));
         if (Directory.Exists(repoPath))
@@ -289,23 +289,25 @@ public partial class HgService : IHgService
             }
             catch (Exception) { }
         }
-        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
+        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", token);
         return result;
     }
 
-    public async Task<string> GetTipHash(string code)
+    public async Task<string> GetTipHash(string code, CancellationToken token = default)
     {
-        var content = await ExecuteHgCommandServerCommand(code, "tip", default);
+        var content = await ExecuteHgCommandServerCommand(code, "tip", token);
         return await content.ReadAsStringAsync();
     }
 
-    public async Task WaitForRepoEmptyState(string code, RepoEmptyState expectedState)
+    private async Task WaitForRepoEmptyState(string code, RepoEmptyState expectedState, int timeoutMs = 30_000, CancellationToken token = default)
     {
-        // TODO: Set timeout so uploading a zip of an empty .hg repo doesn't cause infinite loop here
+        // Set timeout so unforeseen errors can't cause an infinite loop
+        var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+        timeoutSource.CancelAfter(30_000);
         var done = false;
-        while (!done)
+        while (!done && !timeoutSource.IsCancellationRequested)
         {
-            var hash = await GetTipHash(code);
+            var hash = await GetTipHash(code, timeoutSource.Token);
             var isEmpty = hash == AllZeroHash;
             done = expectedState switch
             {
