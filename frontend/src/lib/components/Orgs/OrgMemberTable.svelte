@@ -113,6 +113,12 @@
                   {$t('admin_dashboard.form_modal.title')}
                 </button>
               </li>
+              <li>
+                <button class="whitespace-nowrap" on:click={() => dispatch('removeMember', member.user)}>
+                  <Icon icon="i-mdi-account-remove" />
+                  {$t('org_page.remove_user.remove_button')}
+                </button>
+              </li>
               <!-- TODO: Do we want this on the org page? -->
               <!-- <li>
                 <button class="whitespace-nowrap" on:click={() => dispatch('filterProjectsByUser', member.user)}>

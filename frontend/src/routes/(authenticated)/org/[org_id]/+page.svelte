@@ -9,7 +9,7 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, type OrgSearchParams } from './+page';
+  import { _changeOrgName, _deleteOrgUser, type OrgSearchParams } from './+page';
   import AddOrgMember from './AddOrgMember.svelte';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
@@ -96,6 +96,7 @@
     shownUsers={org.members}
     {canManage}
     on:addMember={() => addMemberModal.openModal()}
+    on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.email ?? event.detail.username)}
   />
   {:else if $queryParamValues.tab === 'settings'}
   Settings not implemented yet
