@@ -14,7 +14,7 @@
         <BadgeButton on:click={removeAllNotifications}>{$t('notify.close_all')}<span class="ml-2">✕</span></BadgeButton>
       </div>
     {/if}
-    {#each $notifications as note}
+    {#each $notifications as note (note)}
       <div class="alert {note.category ?? ''}" in:slide out:blur>
         {note.message}
         <button on:click={() => removeNotification(note)} class="btn btn-circle btn-sm btn-ghost">✕</button>
