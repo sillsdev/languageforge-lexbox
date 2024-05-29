@@ -2,7 +2,7 @@
   export type Member = {
     id: string
     user?: { id: string; name: string; email?: string | null } | null
-    role: ProjectRole | OrgRole
+    role: ProjectRole
   };
 </script>
 
@@ -13,7 +13,7 @@
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import { Button } from '$lib/forms';
-  import type { OrgRole, ProjectRole } from '$lib/gql/types';
+  import type { ProjectRole } from '$lib/gql/types';
   import { createEventDispatcher } from 'svelte';
   import ChangeMemberRoleModal from '../../routes/(authenticated)/project/[project_code]/ChangeMemberRoleModal.svelte';
   import { DialogResponse } from './modals';
@@ -24,9 +24,7 @@
   export let members: Member[] = [];
   export let canManageMember: (member: Member) => boolean;
   export let canManageList: boolean;
-  type RoleType = 'project' | 'org'
-  export let roleType: RoleType;
-  export let projectOrOrgId: string;
+  export let projectId: string;
 
   let dispatch = createEventDispatcher();
 
@@ -60,7 +58,7 @@
     });
 
     if (response === DialogResponse.Submit) {
-      const notification = `${roleType}_page.notifications.role_change` as const;
+      const notification = `project_page.notifications.role_change` as const;
       const role = formState.role.currentValue;
       notifySuccess(
         $t(notification, {
@@ -130,5 +128,5 @@
     <slot />
 
   </BadgeList>
-  <ChangeMemberRoleModal {roleType} {projectOrOrgId} bind:this={changeMemberRoleModal} />
+  <ChangeMemberRoleModal {projectId} bind:this={changeMemberRoleModal} />
 </div>

@@ -345,7 +345,7 @@
 
       <MembersList
         roleType="project"
-        projectOrOrgId={project.id}
+        projectId={project.id}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
         canManageList={canManage}
