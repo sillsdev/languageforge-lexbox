@@ -115,7 +115,7 @@
 <main>
   <div class="grid grid-cols-2 admin-tabs:grid-cols-1 gap-10">
     <div class="contents" class:admin-tabs:hidden={tab === 'users'}>
-    <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
+      <AdminProjects projects={$projects} draftProjects={$draftProjects} {queryParams} />
     </div>
 
     <div class:admin-tabs:hidden={tab !== 'users'}>
