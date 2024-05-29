@@ -15,6 +15,7 @@
     <Choose>
         <When Condition=" '$(MercurialVersion)' == '6' ">
             <ItemGroup>
+                <PackageReference Include="Moq.Contrib.HttpClient" Version="1.4.0" />
                 <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0046" />
                 <PackageReference Include="SIL.Chorus.Mercurial" Version="6.*" />
             </ItemGroup>
