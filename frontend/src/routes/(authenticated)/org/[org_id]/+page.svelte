@@ -10,7 +10,7 @@
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName, _deleteOrgUser, type OrgSearchParams } from './+page';
-  import AddOrgMember from './AddOrgMember.svelte';
+  import type AddOrgMember from './AddOrgMember.svelte';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import OrgMemberTable from '$lib/components/Orgs/OrgMemberTable.svelte';
