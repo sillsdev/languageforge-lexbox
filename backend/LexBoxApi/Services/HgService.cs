@@ -273,26 +273,24 @@ public partial class HgService : IHgService
         return response;
     }
 
-    public Task InvalidateDirCache(string code)
+    public Task<HttpContent> InvalidateDirCache(string code)
     {
-        // Try very hard to fail tests again
-        // var repoPath = Path.Join(PrefixRepoFilePath(code));
-        // if (Directory.Exists(repoPath))
-        // {
-        //     // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
-        //     var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
-        //     while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
-        //     try
-        //     {
-        //         // Create and delete a directory since that's slightly safer than a file
-        //         var d = Directory.CreateDirectory(randomPath);
-        //         d.Delete();
-        //     }
-        //     catch (Exception) { }
-        // }
-        return Task.CompletedTask;
-        // var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
-        // return result;
+        var repoPath = Path.Join(PrefixRepoFilePath(code));
+        if (Directory.Exists(repoPath))
+        {
+            // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
+            var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
+            while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
+            try
+            {
+                // Create and delete a directory since that's slightly safer than a file
+                var d = Directory.CreateDirectory(randomPath);
+                d.Delete();
+            }
+            catch (Exception) { }
+        }
+        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", default);
+        return result;
     }
 
     public async Task<string> GetTipHash(string code)
@@ -307,15 +305,14 @@ public partial class HgService : IHgService
         var done = false;
         while (!done)
         {
-            done = true; // Deliberately try to fail tests
-            // var hash = await GetTipHash(code);
-            // var isEmpty = hash == AllZeroHash;
-            // done = expectedState switch
-            // {
-            //     RepoEmptyState.Empty => isEmpty,
-            //     RepoEmptyState.NonEmpty => !isEmpty
-            // };
-            // if (!done) await Task.Delay(2500);
+            var hash = await GetTipHash(code);
+            var isEmpty = hash == AllZeroHash;
+            done = expectedState switch
+            {
+                RepoEmptyState.Empty => isEmpty,
+                RepoEmptyState.NonEmpty => !isEmpty
+            };
+            if (!done) await Task.Delay(2500);
         }
     }
 
