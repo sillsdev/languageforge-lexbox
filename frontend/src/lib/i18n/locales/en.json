@@ -216,6 +216,12 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
       "invalid_email_address": "Invalid email address: {email}",
     },
+    "details": {
+      "created_at": "Created",
+      "updated_at": "Last updated",
+      "member_count": "Members",
+      "project_count": "Projects",
+    },
     "notifications": {
       "role_change": "Organizational role of {name} set to {role}.",
       "user_delete": "{name} has been removed.",

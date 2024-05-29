@@ -1,12 +1,11 @@
 <script lang="ts">
   import { DetailsPage, DetailItem } from '$lib/layout';
 
-  import t from '$lib/i18n';
+  import t, { date, number } from '$lib/i18n';
   import { z } from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';
   import type { ErrorMessage } from '$lib/forms';
   import { Badge } from '$lib/components/Badges';
-  import IconButton from '$lib/components/IconButton.svelte';
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
@@ -15,9 +14,6 @@
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import OrgMemberTable from '$lib/components/Orgs/OrgMemberTable.svelte';
-
-  // TODO: Use org.description instead... once orgs *have* descriptions, that is. Or remove if we decide orgs won't have descriptions
-  export let description = 'Fake description since orgs don\'t currently have descriptions';
 
   export let data: PageData;
   $: user = data.user;
@@ -37,9 +33,7 @@
   });
   const { queryParamValues } = queryParams;
 
-  let loadingExtraButton = false;
-
-  $: canManage = user.isAdmin || org.members.find(m => m.user?.id === user.id && m.role === OrgRole.Admin)
+  $: canManage = user.isAdmin || !!org.members.find(m => m.user?.id === user.id && m.role === OrgRole.Admin)
 
   const { notifySuccess/*, notifyWarning*/ } = useNotifications();
 
@@ -73,46 +67,27 @@
   </svelte:fragment>
   <svelte:fragment slot="badges">
     <Badge>
-      123 members
+      {org.members.length} members
     </Badge>
     <Badge>
-      45 projects
-    </Badge>
-    <Badge>
-      Any other badges?
+      ?? projects
+      <!-- Orgs owning projects is not yet implemented -->
     </Badge>
   </svelte:fragment>
-  <DetailItem title="project_page.created_at" text="example with copy button" copyToClipboard={true} />
-  <DetailItem title="project.table.last_change" text="example with refresh button">
-    <IconButton
-    slot="extraButton"
-    loading={loadingExtraButton}
-    icon="i-mdi-refresh"
-    size="btn-sm"
-    variant="btn-ghost"
-    outline={false}
-    on:click={() => alert('Button clicked')}
-  />
-  </DetailItem>
-  <DetailItem
-    title="project_page.description"
-    text={description}
-    editable={true}
-    placeholder="desc goes here"
-    saveHandler={(newval) => { description = newval; return Promise.resolve(undefined); }}
-    disabled={false}
-    multiline={true}
-    />
+  <DetailItem title="org_page.details.created_at" text={$date(org.createdDate)} />
+  <DetailItem title="org_page.details.updated_at" text={$date(org.updatedDate)} />
+  <DetailItem title="org_page.details.member_count" text={$number(org.members.length)} />
   <OrgTabs bind:activeTab={$queryParamValues.tab}>
+    <!-- TODO: Add project count once orgs can own projects -->
     <svelte:fragment slot="project-badges">
-      <Badge>3</Badge> <!-- TODO: Actual project count -->
+      <Badge>??</Badge>
     </svelte:fragment>
     <svelte:fragment slot="member-badges">
-      <Badge>5</Badge> <!-- TODO: Actual member count -->
+      <Badge>{$number(org.members.length)}</Badge>
     </svelte:fragment>
   </OrgTabs>
   {#if $queryParamValues.tab === 'projects'}
-  Projects list will go here
+  Projects list will go here once orgs have projects associated with them
   {:else if $queryParamValues.tab === 'members'}
   <OrgMemberTable shownUsers={org.members} {canManage} />
   {:else if $queryParamValues.tab === 'settings'}

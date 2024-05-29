@@ -33,6 +33,8 @@ export async function load(event: PageLoadEvent) {
         query orgPage($orgId: UUID!, $userIsAdmin: Boolean!) {
           orgById(orgId: $orgId) {
             id
+            createdDate
+            updatedDate
             name
             members {
               id

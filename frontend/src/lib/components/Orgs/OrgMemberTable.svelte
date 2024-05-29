@@ -16,7 +16,7 @@
   };
 
   export let shownUsers: Member[];
-  export let canManage: false;
+  export let canManage = false;
 
   const dispatch = createEventDispatcher();
 </script>
