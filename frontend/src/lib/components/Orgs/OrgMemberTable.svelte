@@ -8,12 +8,15 @@
   import type { OrgRole } from '$lib/gql/types';
   import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
   import OrgRoleText from './OrgRoleText.svelte';
+  import AddOrgMember from '../../../routes/(authenticated)/org/[org_id]/AddOrgMember.svelte';
 
   type Member = {
     id: string
     user: User
     role: OrgRole
   };
+
+  export let orgId: string;
 
   export let shownUsers: Member[];
   export let canManage = false;
@@ -32,7 +35,18 @@
       <th class="@2xl:table-cell">
         {$t('admin_dashboard.column_role')}
       </th>
-      <th />
+      <th>
+        {#if canManage}
+          <AddOrgMember {orgId} />
+          <!-- TODO: That might be too big. Maybe like this?
+          <button
+            class="btn btn-sm btn-success btn-square"
+            on:click={() => dispatch('addMember')}>
+            <span class="i-mdi-plus text-2xl" />
+          </button>
+          Or else move it to the bottom of the table. -->
+        {/if}
+      </th>
     </tr>
   </thead>
   <tbody>

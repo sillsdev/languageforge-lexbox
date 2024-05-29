@@ -10,7 +10,7 @@
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName, type OrgSearchParams } from './+page';
-  // import AddOrgMember from './AddOrgMember.svelte'; // TODO: Implement appropriately via OrgMemberTable
+  import AddOrgMember from './AddOrgMember.svelte';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import OrgMemberTable from '$lib/components/Orgs/OrgMemberTable.svelte';
@@ -36,6 +36,8 @@
   $: canManage = user.isAdmin || !!org.members.find(m => m.user?.id === user.id && m.role === OrgRole.Admin)
 
   const { notifySuccess/*, notifyWarning*/ } = useNotifications();
+
+  let addMemberModal: AddOrgMember;
 
   const orgNameValidation = z.string().trim().min(1, $t('org_page.org_name_empty_error'));
 
@@ -89,7 +91,12 @@
   {#if $queryParamValues.tab === 'projects'}
   Projects list will go here once orgs have projects associated with them
   {:else if $queryParamValues.tab === 'members'}
-  <OrgMemberTable shownUsers={org.members} {canManage} />
+  <OrgMemberTable
+    orgId={org.id}
+    shownUsers={org.members}
+    {canManage}
+    on:addMember={() => addMemberModal.openModal()}
+  />
   {:else if $queryParamValues.tab === 'settings'}
   Settings not implemented yet
   {:else if $queryParamValues.tab === 'history'}
@@ -97,3 +104,6 @@
   {/if}
 </DetailsPage>
 
+<!-- Or we change AddOrgMember to be just the modal, not the button, and do something like this:
+<AddOrgMember orgId={org.id} bind:this={addMemberModal} />
+-->
