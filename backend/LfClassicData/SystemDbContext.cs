@@ -26,7 +26,8 @@ public class SystemDbContext
         {
             _isAvailable = await Task.Run(() =>
             {
-                return _mongoDatabase.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(100);
+                //lang=json
+                return _mongoDatabase.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(TimeSpan.FromMilliseconds(100));
             });
         }
         return _isAvailable.Value;

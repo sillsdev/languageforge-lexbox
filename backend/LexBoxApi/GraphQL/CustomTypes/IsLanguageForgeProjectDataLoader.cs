@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using LexCore.ServiceInterfaces;
 using LfClassicData;
 using MongoDB.Driver;
@@ -23,7 +24,7 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
         CancellationToken cancellationToken)
     {
         if (!await _systemDbContext.IsAvailable())
-            return new Dictionary<string, bool>();
+            return ReadOnlyDictionary<string, bool>.Empty;
 
         return await MongoExtensions.ToAsyncEnumerable(_systemDbContext.Projects.AsQueryable()
             .Select(p => p.ProjectCode)
