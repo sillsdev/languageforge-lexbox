@@ -243,9 +243,12 @@ importers:
       svelte-preprocess:
         specifier: ^5.1.4
         version: 5.1.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17)(typescript@5.3.3)
+      svelte-routing:
+        specifier: ^2.12.0
+        version: 2.13.0
       svelte-ux:
-        specifier: latest
-        version: 0.61.10(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17)
+        specifier: ^0.62.10
+        version: 0.62.12(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17)
       type-fest:
         specifier: ^4.18.2
         version: 4.18.2
@@ -9127,6 +9130,10 @@ packages:
       svelte: 4.2.17
       typescript: 5.3.3
 
+  /svelte-routing@2.13.0:
+    resolution: {integrity: sha512-/NTxqTwLc7Dq306hARJrH2HLXOBtKd7hu8nxgoFDlK0AC4SOKnzisiX/9m8Uksei1QAWtlAEdF91YphNM8iDMg==}
+    dev: false
+
   /svelte-turnstile@0.5.0(svelte@4.2.17):
     resolution: {integrity: sha512-FD/XOfyN2gOr7csfThLyrS/sSsRd2zgVfm5pwE1KvpWQHJYqx1HL/PQ92WEw8peL+SPqoKYx2619aZ65uPUsxg==}
     peerDependencies:
@@ -9136,8 +9143,8 @@ packages:
       turnstile-types: 1.2.0
     dev: true
 
-  /svelte-ux@0.61.10(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17):
-    resolution: {integrity: sha512-B02wDaxfY4AGtW+OOpvd9aqxa+2AhWDGTvih0Kb4uYdp4GnS3bhrdi81lysIf4BI94rqR00cxXOD4KSB3ZAI5w==}
+  /svelte-ux@0.62.12(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17):
+    resolution: {integrity: sha512-lkcEEulsqjtJS2a9Vs8aPMqA/vBfSgjnEnkCYl2glbJTjfcfc9pnj6VkrOYvlUHntJF5m6MMKqQTMwe9P7w7kA==}
     peerDependencies:
       svelte: ^3.56.0 || ^4.0.0
     dependencies:

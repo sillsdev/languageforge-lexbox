@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --alert-link-color: #4100ff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --alert-link-color: #4dd0ff;
+    }
+  }
+}
+
 html,
 body,
 .drawer-side,
@@ -152,7 +164,7 @@ input[readonly]:focus {
 }
 
 .alert a:not(.btn) {
-  color: #0024b9;
+  color: var(--alert-link-color, #0024b9);
 }
 
 .collapse input:hover ~ .collapse-title {

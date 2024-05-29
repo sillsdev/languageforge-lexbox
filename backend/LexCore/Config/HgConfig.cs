@@ -16,4 +16,5 @@ public class HgConfig
     [Required, Url]
     public required string HgResumableUrl { get; init; }
     public bool AutoUpdateLexEntryCountOnSendReceive { get; init; } = false;
+    public bool RequireContainerVersionMatch { get; init; } = true;
 }

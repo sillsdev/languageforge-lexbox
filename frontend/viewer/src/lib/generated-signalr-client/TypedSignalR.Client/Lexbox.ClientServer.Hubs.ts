@@ -2,99 +2,10 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import { type IStreamResult, Subject } from '@microsoft/signalr';
-import type { WritingSystems, QueryOptions, Entry, Sense, ExampleSentence } from '../lexboxClientContracts';
-import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
+import type { Entry } from '../../mini-lcm';
+import type {LexboxApi} from '../../services/lexbox-api';
 
-export type ILexboxApiHub = {
-    /**
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.WritingSystems>
-    */
-    GetWritingSystems(): Promise<WritingSystems>;
-    /**
-    * @returns Transpiled from System.Threading.Tasks.Task<string[]>
-    */
-    GetExemplars(): Promise<string[]>;
-    /**
-    * @param exemplar Transpiled from string
-    * @param options Transpiled from lexboxClientContracts.QueryOptions?
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Entry[]>
-    */
-    GetEntriesForExemplar(exemplar: string, options: QueryOptions): Promise<Entry[]>;
-    /**
-    * @param options Transpiled from lexboxClientContracts.QueryOptions?
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Entry[]>
-    */
-    GetEntries(options: QueryOptions): Promise<Entry[]>;
-    /**
-    * @param query Transpiled from string
-    * @param options Transpiled from lexboxClientContracts.QueryOptions?
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Entry[]>
-    */
-    SearchEntries(query: string, options: QueryOptions): Promise<Entry[]>;
-    /**
-    * @param id Transpiled from System.Guid
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Entry>
-    */
-    GetEntry(id: string): Promise<Entry>;
-    /**
-    * @param entry Transpiled from lexboxClientContracts.Entry
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Entry>
-    */
-    CreateEntry(entry: Entry): Promise<Entry>;
-    /**
-    * @param id Transpiled from System.Guid
-    * @param update Transpiled from Lexbox.ClientServer.Hubs.JsonOperation[]
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Entry>
-    */
-    UpdateEntry(id: string, update: JsonOperation[]): Promise<Entry>;
-    /**
-    * @param id Transpiled from System.Guid
-    * @returns Transpiled from System.Threading.Tasks.Task
-    */
-    DeleteEntry(id: string): Promise<void>;
-    /**
-    * @param entryId Transpiled from System.Guid
-    * @param sense Transpiled from lexboxClientContracts.Sense
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Sense>
-    */
-    CreateSense(entryId: string, sense: Sense): Promise<Sense>;
-    /**
-    * @param entryId Transpiled from System.Guid
-    * @param senseId Transpiled from System.Guid
-    * @param update Transpiled from Lexbox.ClientServer.Hubs.JsonOperation[]
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.Sense>
-    */
-    UpdateSense(entryId: string, senseId: string, update: JsonOperation[]): Promise<Sense>;
-    /**
-    * @param entryId Transpiled from System.Guid
-    * @param senseId Transpiled from System.Guid
-    * @returns Transpiled from System.Threading.Tasks.Task
-    */
-    DeleteSense(entryId: string, senseId: string): Promise<void>;
-    /**
-    * @param entryId Transpiled from System.Guid
-    * @param senseId Transpiled from System.Guid
-    * @param exampleSentence Transpiled from lexboxClientContracts.ExampleSentence
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.ExampleSentence>
-    */
-    CreateExampleSentence(entryId: string, senseId: string, exampleSentence: ExampleSentence): Promise<ExampleSentence>;
-    /**
-    * @param entryId Transpiled from System.Guid
-    * @param senseId Transpiled from System.Guid
-    * @param exampleSentenceId Transpiled from System.Guid
-    * @param update Transpiled from Lexbox.ClientServer.Hubs.JsonOperation[]
-    * @returns Transpiled from System.Threading.Tasks.Task<lexboxClientContracts.ExampleSentence>
-    */
-    UpdateExampleSentence(entryId: string, senseId: string, exampleSentenceId: string, update: JsonOperation[]): Promise<ExampleSentence>;
-    /**
-    * @param entryId Transpiled from System.Guid
-    * @param senseId Transpiled from System.Guid
-    * @param exampleSentenceId Transpiled from System.Guid
-    * @returns Transpiled from System.Threading.Tasks.Task
-    */
-    DeleteExampleSentence(entryId: string, senseId: string, exampleSentenceId: string): Promise<void>;
-}
+export type ILexboxApiHub = LexboxApi;
 
 export type ILexboxClient = {
     /**

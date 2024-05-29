@@ -62,7 +62,9 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               cache.invalidate({__typename: 'User', id: args.input.userId});
             },
             bulkAddProjectMembers: (result, args: BulkAddProjectMembersMutationVariables, cache, _info) => {
-              cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              if (args.input.projectId) {
+                cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              }
             },
             leaveProject: (result, args: LeaveProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});

@@ -162,6 +162,7 @@ app.MapGraphQLHttp("/api/graphql");
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
 app.MapLfClassicApi().RequireAuthorization(new AdminRequiredAttribute()).WithOpenApi();
+app.MapSyncApi().WithOpenApi();
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
     .RequireAuthorization(new AdminRequiredAttribute());
@@ -170,6 +171,10 @@ app.MapTus($"/api/project/upload-zip/{{{ProxyConstants.HgProjectCodeRouteKey}}}"
     .RequireAuthorization(new AdminRequiredAttribute());
 // /api routes should never make it to this point, they should be handled by the controllers, so return 404
 app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
+
+//should normally be handled by svelte, but if it does reach this we need to return a 401, otherwise we'll get stuck in a redirect loop
+app.Map("/login", Results.Unauthorized).AllowAnonymous();
+
 app.MapSyncProxy(AuthKernel.DefaultScheme);
 
 await app.RunAsync();

@@ -30,6 +30,8 @@ build:
       context: hgweb
       docker:
         dockerfile: Dockerfile
+        buildArgs:
+          APP_VERSION: dockerDev
   local:
     useBuildkit: true
     concurrency: 2
@@ -48,11 +50,6 @@ portForward:
     resourceName: lexbox
     namespace: languagedepot
     port: 18888
-  # Svelte-Kit frontend
-  - resourceType: Service
-    resourceName: ui
-    namespace: languagedepot
-    port: 3000
   - resourceType: Service
     resourceName: db
     namespace: languagedepot

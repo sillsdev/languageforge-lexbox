@@ -4,6 +4,6 @@ metadata:
   name: app-config
 data:
   environment-name: "Development"
-  hg-otel-enabled: "ON"
+  hg-otel-disabled: "false" # "true" to disable OpenTelemetry
   hg-domain: "hg.localhost"
 

@@ -7,6 +7,7 @@ import Input from './Input.svelte';
 import PlainInput from './PlainInput.svelte';
 import Checkbox from './Checkbox.svelte';
 import ProtectedForm, { type Token } from './ProtectedForm.svelte';
+import MaybeProtectedForm from './MaybeProtectedForm.svelte';
 import Select from './Select.svelte';
 import TextArea from './TextArea.svelte';
 import { lexSuperForm } from './superforms';
@@ -27,6 +28,7 @@ export {
   Input,
   PlainInput,
   ProtectedForm,
+  MaybeProtectedForm,
   Select,
   TextArea,
   lexSuperForm,

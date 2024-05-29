@@ -1,8 +1,8 @@
 import type { HubConnection } from '@microsoft/signalr';
 import {getHubProxyFactory, getReceiverRegister} from '../generated-signalr-client/TypedSignalR.Client';
 import type { LexboxApi } from './lexbox-api';
-import {LexboxServiceProvider, LexboxServices} from './service-provider';
-import type { Entry } from '../generated-signalr-client/lexboxClientContracts';
+import {LexboxServices} from './service-provider';
+import type { Entry } from '../mini-lcm';
 
 export function SetupSignalR(connection: HubConnection) {
     const hubFactory = getHubProxyFactory('ILexboxApiHub');
@@ -12,5 +12,5 @@ export function SetupSignalR(connection: HubConnection) {
             console.log('OnEntryUpdated', entry);
         }
     });
-    LexboxServiceProvider.setService(LexboxServices.LexboxApi, hubProxy satisfies LexboxApi);
+    window.lexbox.ServiceProvider.setService(LexboxServices.LexboxApi, hubProxy satisfies LexboxApi);
 }

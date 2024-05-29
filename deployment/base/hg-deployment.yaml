@@ -105,11 +105,11 @@ spec:
             value: ".*"
           - name: OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_SERVER_RESPONSE
             value: ".*"
-          - name: OTEL_ENABLED
+          - name: OTEL_SDK_DISABLED
             valueFrom:
               configMapKeyRef:
                 name: app-config
-                key: hg-otel-enabled
+                key: hg-otel-disabled
           - name: ENABLE_DEMAND_IMPORT
             value: "false"
         ports:
@@ -135,7 +135,7 @@ spec:
 
 
       - name: hgresumable
-        image: ghcr.io/sillsdev/hgresume:v2023-07-12
+        image: ghcr.io/sillsdev/hgresume:v2024-05-28
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
           requests:
@@ -170,20 +170,3 @@ spec:
           items:
           - key: hgweb.hgrc
             path: hgweb.hgrc
-
-      initContainers:
-      - name: init-repo-structure
-        securityContext:
-          runAsUser: 33
-          runAsGroup: 33 # www-data
-        image: busybox:1.36.1
-        command:
-          - 'sh'
-          - '-c'
-          - |
-            cd /repos
-            mkdir -p a b c d e f g h i j k l m n o p q r s t u v w x y z
-            mkdir -p 0 1 2 3 4 5 6 7 8 9
-        volumeMounts:
-          - name: repos
-            mountPath: /repos

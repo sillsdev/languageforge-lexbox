@@ -11,6 +11,7 @@ spec:
           securityContext:
             runAsUser: 33
             runAsGroup: 33 # www-data
+            runAsNonRoot: true
           image: busybox:1.36.1
           command:
             - 'sh'

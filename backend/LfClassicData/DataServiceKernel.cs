@@ -35,6 +35,14 @@ public static class DataServiceKernel
     {
         var config = provider.GetRequiredService<IOptions<LfClassicConfig>>();
         var mongoSettings = MongoClientSettings.FromConnectionString(config.Value.ConnectionString);
+        if (config.Value.HasCredentials)
+        {
+            mongoSettings.Credential = MongoCredential.CreateCredential(
+                databaseName: config.Value.AuthSource,
+                username: config.Value.Username,
+                password: config.Value.Password
+            );
+        }
         mongoSettings.LoggingSettings = new LoggingSettings(provider.GetRequiredService<ILoggerFactory>());
         mongoSettings.ClusterConfigurator = cb =>
             cb.Subscribe(new DiagnosticsActivityEventSubscriber(new() { CaptureCommandText = true }));
@@ -58,7 +66,7 @@ public static class DataServiceKernel
                 ) =>
             {
                 var api = provider.GetProjectApi(projectCode);
-                return api.GetEntries(new QueryOptions(SortOptions.Default, count, offset));
+                return api.GetEntries(new QueryOptions(SortOptions.Default, null, count, offset));
             });
         group.MapGet("/entries/{search}",
             (string projectCode,
@@ -68,7 +76,7 @@ public static class DataServiceKernel
                 int offset = 0) =>
             {
                 var api = provider.GetProjectApi(projectCode);
-                return api.SearchEntries(search, new QueryOptions(SortOptions.Default, count, offset));
+                return api.SearchEntries(search, new QueryOptions(SortOptions.Default, null, count, offset));
             });
         group.MapGet("/entry/{id:Guid}",
             (string projectCode, Guid id, [FromServices] ILexboxApiProvider provider) =>

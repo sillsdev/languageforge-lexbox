@@ -120,6 +120,21 @@ spec:
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
           - name: LfClassicConfig__ConnectionString
             value: mongodb://db.languageforge:27017
+          - name: LfClassicConfig__AuthSource
+            valueFrom:
+              secretKeyRef:
+                  key: MONGODB_AUTHSOURCE
+                  name: lf-mongo-auth
+          - name: LfClassicConfig__Username
+            valueFrom:
+              secretKeyRef:
+                  key: MONGODB_USER
+                  name: lf-mongo-auth
+          - name: LfClassicConfig__Password
+            valueFrom:
+              secretKeyRef:
+                  key: MONGODB_PASS
+                  name: lf-mongo-auth
           - name: Authentication__Jwt__Secret
             valueFrom:
               secretKeyRef:
@@ -246,3 +261,21 @@ spec:
               configMapKeyRef:
                 name: app-config
                 key: environment-name
+      - name: set-repo-structure-owner-to-www-data
+        securityContext:
+          # Make sure we're authorized to set ownership
+          runAsUser: 0
+          runAsGroup: 0
+          runAsNonRoot: false
+        image: busybox:1.36.1
+        command:
+          - 'sh'
+          - '-c'
+          - |
+            cd /repos
+            chown www-data:www-data .
+            # Only necessary if directories already exist with the wrong ownership
+            find . -maxdepth 1 -type d ! -name lost+found -exec chown www-data:www-data {} +
+        volumeMounts:
+          - name: repos
+            mountPath: /repos
