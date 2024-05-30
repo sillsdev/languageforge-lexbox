@@ -24,7 +24,7 @@ tasks:
     aliases: [ b ]
     deps: [ install ]
     cmds:
-      - pnpm run build
+      - pnpm run -r build
   check:
     desc: "Runs the frontend code checks done in CI. Note: the app must be built."
     aliases: [ sc, svelte-check ]
