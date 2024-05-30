@@ -303,19 +303,26 @@ public partial class HgService : IHgService
     {
         // Set timeout so unforeseen errors can't cause an infinite loop
         var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(token);
-        timeoutSource.CancelAfter(30_000);
+        timeoutSource.CancelAfter(timeoutMs);
         var done = false;
-        while (!done && !timeoutSource.IsCancellationRequested)
+        try
         {
-            var hash = await GetTipHash(code, timeoutSource.Token);
-            var isEmpty = hash == AllZeroHash;
-            done = expectedState switch
+            while (!done && !timeoutSource.IsCancellationRequested)
             {
-                RepoEmptyState.Empty => isEmpty,
-                RepoEmptyState.NonEmpty => !isEmpty
-            };
-            if (!done) await Task.Delay(2500);
+                var hash = await GetTipHash(code, timeoutSource.Token);
+                var isEmpty = hash == AllZeroHash;
+                done = expectedState switch
+                {
+                    RepoEmptyState.Empty => isEmpty,
+                    RepoEmptyState.NonEmpty => !isEmpty
+                };
+                if (!done) await Task.Delay(2500, timeoutSource.Token);
+            }
         }
+        // We don't want to actually throw if we hit the timeout, because the operation *will* succeed eventually
+        // once the NFS caches synchronize, so we don't want to propagate an error message to the end user. So
+        // even if the timeout is hit, return as if we succeeded.
+        catch (OperationCanceledException) { }
     }
 
     public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)
