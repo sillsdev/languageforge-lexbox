@@ -302,7 +302,7 @@ public partial class HgService : IHgService
     private async Task WaitForRepoEmptyState(string code, RepoEmptyState expectedState, int timeoutMs = 30_000, CancellationToken token = default)
     {
         // Set timeout so unforeseen errors can't cause an infinite loop
-        var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+        using var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(token);
         timeoutSource.CancelAfter(timeoutMs);
         var done = false;
         try
