@@ -344,7 +344,6 @@
       </div>
 
       <MembersList
-        roleType="project"
         projectId={project.id}
         {members}
         canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
