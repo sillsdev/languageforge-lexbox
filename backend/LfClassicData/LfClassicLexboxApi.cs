@@ -45,6 +45,16 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
         };
     }
 
+    public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
+    {
+        throw new NotSupportedException();
+    }
+
+    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
+    {
+        throw new NotSupportedException();
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(string exemplar, QueryOptions? options = null)
     {
         return Query();

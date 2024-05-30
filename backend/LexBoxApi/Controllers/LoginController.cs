@@ -8,13 +8,9 @@ using LexCore;
 using LexCore.Auth;
 using LexData;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using LexCore.Entities;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Google;
 
@@ -28,8 +24,7 @@ public class LoginController(
     LoggedInContext loggedInContext,
     EmailService emailService,
     UserService userService,
-    TurnstileService turnstileService,
-    ProjectService projectService)
+    TurnstileService turnstileService)
     : ControllerBase
 {
     /// <summary>
@@ -38,7 +33,6 @@ public class LoginController(
     /// </summary>
     [HttpGet("loginRedirect")]
     [AllowAnyAudience]
-
     public async Task<ActionResult> LoginRedirect(
         string jwt, // This is required because auth looks for a jwt in the query string
         string returnTo)
@@ -53,6 +47,7 @@ public class LoginController(
                 return await EmailLinkExpired();
             }
         }
+
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
         return Redirect(returnTo);
@@ -87,6 +82,7 @@ public class LoginController(
         {
             (authUser, userEntity) = await lexAuthService.GetUser(googleEmail);
         }
+
         if (authUser is null)
         {
             authUser = new LexAuthUser()
@@ -102,19 +98,20 @@ public class LoginController(
                 Locale = locale ?? LexCore.Entities.User.DefaultLocalizationCode,
                 Locked = null,
             };
-            var queryParams = new Dictionary<string, string?>() {
-                {"email", googleEmail},
-                {"name", googleName},
-                {"returnTo", returnTo},
+            var queryParams = new Dictionary<string, string?>()
+            {
+                { "email", googleEmail }, { "name", googleName }, { "returnTo", returnTo },
             };
             var queryString = QueryString.Create(queryParams);
             returnTo = "/register" + queryString.ToString();
         }
+
         if (userEntity is not null && !foundGoogleId)
         {
             userEntity.GoogleId = googleId;
             await lexBoxDbContext.SaveChangesAsync();
         }
+
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
         return returnTo;
@@ -157,6 +154,7 @@ public class LoginController(
         await RefreshJwt();
         return Redirect(returnTo);
     }
+
 
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -219,7 +217,9 @@ public class LoginController(
         return Ok();
     }
 
-    public record ResetPasswordRequest([Required(AllowEmptyStrings = false)] string PasswordHash, int? PasswordStrength);
+    public record ResetPasswordRequest(
+        [Required(AllowEmptyStrings = false)] string PasswordHash,
+        int? PasswordStrength);
 
     [HttpPost("resetPassword")]
     [RequireAudience(LexboxAudience.ForgotPassword)]

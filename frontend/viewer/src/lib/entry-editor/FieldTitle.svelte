@@ -1,16 +1,15 @@
 <script lang="ts">
   import { mdiEyeOffOutline } from '@mdi/js';
   import { Icon, Tooltip } from 'svelte-ux';
-  import type { FieldConfig } from '../types';
+  import type { FieldConfig, ViewConfig } from '../config-types';
   import { fieldName } from '../i18n';
   import { getContext } from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { views } from '../config-data';
   import FieldHelpIcon from './FieldHelpIcon.svelte';
 
   export let field: FieldConfig;
 
-  const activeView = getContext<Readable<typeof views[number]['value']>>('activeView');
+  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
   $: extraField = 'extra' in field && field.extra;
 </script>
@@ -22,7 +21,7 @@
         <Icon classes={{root: 'absolute -left-[1.3em] opacity-50'}} data={mdiEyeOffOutline} size="1em" />
       </Tooltip>
     {/if}
-    <span class="name" title={`${field.id}: ${fieldName(field)}`}>{fieldName(field, $activeView?.i18n)}</span>
+    <span class="name" title={`${field.id}: ${fieldName(field)}`}>{fieldName(field, $viewConfig.activeView?.i18n)}</span>
   </span>
   <FieldHelpIcon fieldConfig={field} />
 </div>

@@ -17,6 +17,7 @@ public static class DataKernel
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
             options.UseProjectables();
+            options.UseOpenIddict();
         }, dbContextLifeTime);
         services.AddLogging();
         services.AddHealthChecks()

@@ -235,7 +235,7 @@
     <svelte:fragment slot="actions">
       {#if project.type === ProjectType.FlEx && $isDev}
         {#if project.isLanguageForgeProject}
-          <a href="./{project.code}/viewer" class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
+          <a href="./{project.code}/viewer" target="_blank" class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
             {$t('project_page.open_with_viewer')}
             <span class="i-mdi-dictionary text-2xl" />
           </a>

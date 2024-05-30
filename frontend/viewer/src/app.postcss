@@ -2,18 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-:host, :root {
-  @apply h-full;
+:host, :root, html, body, .app {
+  @apply block min-h-full;
   scroll-behavior: smooth;
   @apply bg-surface-100;
   color: var(--base-text);
 }
 
 .dialog {
-  height: calc(100vh - 100px);
+  max-height: calc(100vh - 100px);
   @apply flex flex-col;
+
+  .actions {
+    @apply bg-surface-200;
+    position: sticky;
+    bottom: -1px;
+    z-index: 2;
+  }
 }
 
 .Checkbox *, label:has(.Switch) {
   cursor: pointer;
+}
+
+[id^=entry], [id^=sense] {
+  scroll-margin-top: 1rem;
+  scroll-margin-bottom: 4rem;
+}
+
+[id^=example] {
+  /* under the sticky sense header */
+  scroll-margin-top: 4rem;
+  scroll-margin-bottom: 4rem;
+}
+
+@layer components {
+  .editor-grid {
+    display: grid;
+    grid-template-columns: 170px 40px 1fr;
+  }
+
+  .side-scroller {
+    max-height: calc(100vh - 32px);
+    position: sticky;
+    top: 16px;
+  }
+
+  .collapse-col {
+    max-height: 0 !important;
+    width: 0 !important;
+    max-width: 0 !important;
+    opacity: 0 !important;
+  }
+
+  .collapsible-col {
+    overflow-x: hidden;
+    transition: width 0.2s ease-out, max-width 0.2s ease-out, opacity 0.2s ease-in;
+  }
+
+  .text-field-sibling-button {
+    @apply h-[37.6px] p-1.5 aspect-square text-[0.9em] text-surface-content;
+  }
 }

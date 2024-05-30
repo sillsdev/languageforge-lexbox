@@ -84,4 +84,5 @@ tasks:
     deps: [ infra-up, api:only, k8s:infra-forward ]
     interactive: true
 
-
+  local-web-app:
+    deps: [ ui:viewer-dev, api:local-web-app ]

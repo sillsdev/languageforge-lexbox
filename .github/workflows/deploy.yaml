@@ -66,6 +66,7 @@ jobs:
           repository: ${{ vars.FLEET_REPO }}
           ssh-key: ${{ secrets.FLEET_REPO_SSH_KEY }}
           path: fleet
+          ref: main
       - name: Copy yaml resources to fleet repo
         run: |
           cp lexbox/deployment/${{ inputs.k8s-environment }}/resources.yaml fleet/${{ inputs.k8s-environment }}/

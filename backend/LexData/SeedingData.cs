@@ -4,10 +4,11 @@ using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using OpenIddict.Abstractions;
 
 namespace LexData;
 
-public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment)
+public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment, IOpenIddictApplicationManager? applicationManager = null)
 {
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
@@ -16,17 +17,24 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
+        await SeedOpenId(cancellationToken);
         if (await lexBoxDbContext.Users.CountAsync(cancellationToken) > 0)
         {
             return;
         }
 
-        await SeedDatabase(cancellationToken);
+        await SeedUserData(cancellationToken);
+    }
+
+    public async Task SeedDatabase(CancellationToken cancellationToken = default)
+    {
+        await SeedOpenId(cancellationToken);
+        await SeedUserData(cancellationToken);
     }
 
     private const string PwSalt = "password-salt";
 
-    public async Task SeedDatabase(CancellationToken cancellationToken = default)
+    private async Task SeedUserData(CancellationToken cancellationToken = default)
     {
         if (environment.IsProduction()) return;
         //NOTE: When seeding make sure you provide a constant Id like I have done here,
@@ -84,6 +92,10 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
             ProjectOrigin = ProjectMigrationStatus.Migrated,
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
+            FlexProjectMetadata = new FlexProjectMetadata
+            {
+                LexEntryCount = -1
+            },
             IsConfidential = null,
             Users = new()
             {
@@ -161,6 +173,36 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
         }
 
         await lexBoxDbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task SeedOpenId(CancellationToken cancellationToken = default)
+    {
+        if (applicationManager is null) return;
+        const string clientId = "becf2856-0690-434b-b192-a4032b72067f";
+        if (await applicationManager.FindByClientIdAsync(clientId, cancellationToken) is null)
+        {
+            await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+                {
+                    ClientId = clientId,//must be guid for MSAL
+                    ClientType = OpenIddictConstants.ClientTypes.Public,
+                    ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+                    DisplayName = "Oidc Debugger",
+                    //explicit requires the user to consent, Implicit does not, External requires an admin to approve, not currently supported
+                    ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
+                    Permissions =
+                    {
+                        OpenIddictConstants.Permissions.Endpoints.Authorization,
+                        OpenIddictConstants.Permissions.Endpoints.Token,
+                        OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                        OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                        OpenIddictConstants.Permissions.ResponseTypes.Code,
+                        OpenIddictConstants.Permissions.Scopes.Email,
+                        OpenIddictConstants.Permissions.Scopes.Profile
+                    },
+                    RedirectUris = { new Uri("https://oidcdebugger.com/debug")}
+                },
+                cancellationToken);
+        }
     }
 
     public async Task CleanUpSeedData()

@@ -5,29 +5,14 @@
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost/lexbox</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5433/lexbox</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" value="5440" />
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="true" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
         <property name="com.intellij.clouds.kubernetes.db.resource" value="db" />
-        <property name="com.intellij.clouds.kubernetes.db.context" value="docker-desktop" />
         <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Service" />
         <property name="com.intellij.clouds.kubernetes.db.namespace" value="languagedepot" />
         <property name="com.intellij.clouds.kubernetes.db.container.port" value="5432" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="@localhost" uuid="a5c85238-865f-4de7-934f-1647c2e21296">
-      <driver-ref>mariadb</driver-ref>
-      <synchronize>true</synchronize>
-      <remarks>redmine data</remarks>
-      <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mariadb://localhost:3306</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
-        <property name="com.intellij.clouds.kubernetes.db.resource.type" value="Deployment" />
-        <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
@@ -64,6 +49,42 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
       <auto-close enable="true" />
+    </data-source>
+    <data-source source="LOCAL" name="lf staging" uuid="50a0ddd6-2288-4cbf-9cbb-ecc63e52efe9">
+      <driver-ref>mongo</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
+      <jdbc-url>mongodb://localhost:27018</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="@localhost" uuid="e6c1de5a-06ea-4c6e-b652-6854cee06423">
+      <driver-ref>mongo</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
+      <jdbc-url>mongodb://localhost:27017</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.host.port" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" />
+      </jdbc-additional-properties>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="sena-3" uuid="41f4b214-e550-48e3-bb1b-7a923e8fe04e">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:C:\dev\LexBox\backend\LocalWebApp\sena-3.sqlite</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+      </jdbc-additional-properties>
+      <working-dir>$ProjectFileDir$</working-dir>
+      <libraries>
+        <library>
+          <url>file://$APPLICATION_CONFIG_DIR$/jdbc-drivers/Xerial SQLiteJDBC/3.43.0/org/xerial/sqlite-jdbc/3.43.0.0/sqlite-jdbc-3.43.0.0.jar</url>
+        </library>
+      </libraries>
     </data-source>
   </component>
 </project>

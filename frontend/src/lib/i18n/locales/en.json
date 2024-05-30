@@ -19,6 +19,7 @@
     "notifications": {
       "user_deleted": "{name} has been deleted.",
       "user_updated": "{name} has been updated.",
+      "user_created": "{name} has been created.",
       "email_need_verification": "You've requested to change the e-mail address for {name} to {requestedEmail}. The change will only come into effect when the user verifies the new address. They can do so using the link in the e-mail we just sent them."
     },
     "user_is_locked": "This user is locked. They cannot log in or Send/Receive until an administrator unlocks them.",
@@ -388,7 +389,8 @@ If you don't see a dialog or already closed it, click the button below:",
   },
   "register": {
     "title": "Register",
-    "account_exists": "An account with this email already exists",
+    "account_exists_email": "An account with this email already exists",
+    "account_exists_login": "An account with this login/username already exists",
     "invalid_username": "Invalid login/username. Only letters, numbers, and underscore (_) characters are allowed.",
     "button_register": "Register",
     "label_email": "Email",

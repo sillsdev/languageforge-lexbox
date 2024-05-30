@@ -18,7 +18,7 @@ using Path = System.IO.Path;
 
 namespace LexBoxApi.Services;
 
-public partial class HgService : IHgService
+public partial class HgService : IHgService, IHostedService
 {
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
     private const string TEMP_REPO_FOLDER = "_____temp_____";
@@ -355,7 +355,8 @@ public partial class HgService : IHgService
         return response.Content;
     }
 
-    private static readonly string[] InvalidRepoNames = { DELETED_REPO_FOLDER, TEMP_REPO_FOLDER, "api" };
+    private static readonly string[] SpecialDirectoryNames = [DELETED_REPO_FOLDER, TEMP_REPO_FOLDER];
+    private static readonly HashSet<string> InvalidRepoNames = [.. SpecialDirectoryNames, "api"];
 
     private void AssertIsSafeRepoName(string name)
     {
@@ -428,6 +429,28 @@ public partial class HgService : IHgService
             _ => throw new ArgumentException(
                 $"Unknown request, HG request type: {type}")
         };
+    }
+
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        var repoContainerDirectories = SpecialDirectoryNames
+            .Concat(Enumerable.Range('a', 'z' - 'a' + 1).Select(c => ((char)c).ToString()))
+            .Concat(Enumerable.Range(0, 10).Select(c => c.ToString()));
+
+        foreach (var directory in repoContainerDirectories)
+        {
+            var path = Path.Combine(_options.Value.RepoPath, directory);
+            var dirInfo = Directory.CreateDirectory(path);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                dirInfo.UnixFileMode = Permissions;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 }
 

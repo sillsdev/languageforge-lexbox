@@ -54,6 +54,7 @@ public static class LexBoxKernel
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();
+        services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
         services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
         services.AddScoped<ILexProxyService, LexProxyService>();

@@ -1,86 +1,110 @@
 <script lang="ts">
-  import { Button, ListItem, cls } from 'svelte-ux';
-  import type { IEntry } from './mini-lcm';
-  import { firstDefOrGlossVal, firstVal } from './utils';
+  import type {IEntry, IExampleSentence, ISense} from './mini-lcm';
   import EntryEditor from './entry-editor/EntryEditor.svelte';
-  import DictionaryEntry from './DictionaryEntry.svelte';
-  import { mdiChevronDown, mdiChevronUp } from '@mdi/js';
-  import type { Readable } from 'svelte/store';
-  import { getContext } from 'svelte';
+  import type {Readable} from 'svelte/store';
+  import {createEventDispatcher, getContext} from 'svelte';
+  import type {ViewConfig} from './config-types';
+  import jsonPatch from 'fast-json-patch';
+  import {useLexboxApi} from './services/service-provider';
+  import {isEmptyId} from './utils';
 
-  export let entries: IEntry[];
+  let lexboxApi = useLexboxApi();
 
-  const demoValues = getContext<Readable<any>>('demoValues');
+  const dispatch = createEventDispatcher<{
+    delete: { entry: IEntry };
+    change: { entry: IEntry };
+  }>();
 
-  let selectedEntry: IEntry | undefined = entries[0];
-  let dictionaryEntryLines: number;
-  let expandDictionaryEntry = false;
+  export let entry: IEntry;
+  let initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+  function updateInitialEntry() {
+    initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+  }
+
+
+
+  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
+
+  function withoutSenses(entry: IEntry): Omit<IEntry, 'senses'> {
+    let {senses, ...rest} = entry;
+    return rest;
+  }
+  function withoutExamples(sense: ISense): Omit<ISense, 'exampleSentences'> {
+    let {exampleSentences, ...rest} = sense;
+    return rest;
+  }
+
+  async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
+    await updateEntry(e.entry);
+    if (e.sense !== undefined) {
+      await updateSense(e.sense);
+      if (e.example !== undefined) {
+        await updateExample(e.sense.id, e.example);
+      }
+    }
+
+    dispatch('change', {entry: e.entry});
+    updateInitialEntry();
+  }
+
+  async function onDelete(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
+    if (e.example !== undefined && e.sense !== undefined) {
+      await lexboxApi.DeleteExampleSentence(e.entry.id, e.sense.id, e.example.id);
+    } else if (e.sense !== undefined) {
+      await lexboxApi.DeleteSense(e.entry.id, e.sense.id);
+    } else {
+      await lexboxApi.DeleteEntry(e.entry.id);
+      dispatch('delete', {entry: e.entry});
+      return;
+    }
+    updateInitialEntry();
+  }
+
+  async function updateEntry(updatedEntry: IEntry) {
+    if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
+    let operations = jsonPatch.compare(withoutSenses(initialEntry), withoutSenses(updatedEntry));
+    if (operations.length == 0) return;
+    await lexboxApi.UpdateEntry(updatedEntry.id, operations);
+  }
+
+  async function updateSense(updatedSense: ISense) {
+    if (isEmptyId(updatedSense.id)) {
+      updatedSense.id = crypto.randomUUID();
+      await lexboxApi.CreateSense(entry.id, updatedSense);
+      return;
+    }
+    const initialSense = initialEntry.senses.find(s => s.id === updatedSense.id);
+    if (!initialSense) throw new Error('Sense not found in initial entry');
+    let operations = jsonPatch.compare(withoutExamples(initialSense), withoutExamples(updatedSense));
+    if (operations.length == 0) return;
+    await lexboxApi.UpdateSense(entry.id, updatedSense.id, operations);
+  }
+
+  async function updateExample(senseId: string, updatedExample: IExampleSentence) {
+    const initialSense = initialEntry.senses.find(s => s.id === senseId);
+    if (!initialSense) throw new Error('Sense not found in initial entry');
+    if (isEmptyId(updatedExample.id)) {
+      updatedExample.id = crypto.randomUUID();
+      await lexboxApi.CreateExampleSentence(entry.id, senseId, updatedExample);
+      return;
+    }
+    const initialExample = initialSense.exampleSentences.find(e => e.id === updatedExample.id);
+    if (!initialExample) throw new Error('Example not found in initial sense');
+    let operations = jsonPatch.compare(initialExample, updatedExample);
+    if (operations.length == 0) return;
+    await lexboxApi.UpdateExampleSentence(entry.id, senseId, updatedExample.id, operations);
+  }
 </script>
 
-<div class="grid grid-cols-subgrid col-span-3 flex-grow gap-8">
-  <div class="min-w-48 pr-8 border-r-2">
-    <div class="grid border sticky top-4 rounded-md">
-      {#each entries as entry}
-        <ListItem
-          title={firstVal(entry.lexemeForm)}
-          subheading={firstDefOrGlossVal(entry.senses[0])}
-          on:click={() => (selectedEntry = entry)}
-          class={cls(
-            'cursor-pointer',
-            'hover:bg-surface-300',
-            selectedEntry == entry ? 'bg-surface-200' : ''
-          )}
-          noShadow
-        />
-      {/each}
-    </div>
-  </div>
-
-  {#if selectedEntry}
-    <div id="entry" class="grid self-start" style="grid-template-columns: 170px 40px 1fr" class:hide-empty-fields={$demoValues.hideEmptyFields}>
-      <div class="col-span-full sticky mb-6 top-4 z-10">
-        <div class="bg-neutral text-surface-content overflow-auto rounded-sm shadow-lg shadow-neutral" class:max-h-20={!expandDictionaryEntry}>
-          <div class="px-3 py-2 text-sm">
-            <DictionaryEntry entry={selectedEntry} bind:lines={dictionaryEntryLines} />
-          </div>
-        </div>
-        {#if dictionaryEntryLines > 3}
-            <Button on:click={() => expandDictionaryEntry = !expandDictionaryEntry}
-                variant="fill-light"
-                icon={expandDictionaryEntry ? mdiChevronUp : mdiChevronDown}
-                class="p-2 absolute bottom-2 {expandDictionaryEntry ? 'right-2' : 'right-6'}" />
-          {/if}
-      </div>
-      <EntryEditor on:change={() => {selectedEntry = selectedEntry; if (selectedEntry) selectedEntry.senses = selectedEntry.senses;}} entry={selectedEntry} />
-    </div>
-
-    <div class="h-full min-w-48 flex flex-col flex-grow max-h-[calc(100vh - 30px) sticky top-[15px] self-start pl-8 border-l-2">
-      <div class="border flex flex-col rounded-md">
-        <a class="toc-item" href="#top">Entry: {firstVal(selectedEntry.lexemeForm)}</a>
-        {#each selectedEntry.senses as sense, i}
-          <a class="toc-item" href="#sense{i + 1}">Sense: {firstVal(sense.gloss)}</a>
-          {#each sense.exampleSentences as example, j}
-            <a class="toc-item" href="#example{i + 1}.{j + 1}">Example: {firstVal(example.sentence)}</a>
-          {/each}
-        {/each}
-      </div>
-    </div>
-  {/if}
+<div id="entry" class:hide-empty={$viewConfig.hideEmptyFields}>
+  <EntryEditor
+    on:change={e => onChange(e.detail)}
+    on:delete={e => onDelete(e.detail)}
+    entry={entry}/>
 </div>
 
 <style lang="postcss">
-  .toc-item {
-    padding: 4px 8px;
-    &:hover {
-      @apply bg-surface-300;
-    }
-  }
-
-  :global(#entry :is(h2, h3)) {
-    scroll-margin-top: 5.5rem;
-  }
-
-  :global(.hide-empty-fields .empty) {
+  :global(.hide-empty .empty) {
     display: none !important;
   }
 </style>
