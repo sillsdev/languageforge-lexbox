@@ -161,8 +161,6 @@
           on:editUser={(event) => openModal(event.detail)}
           on:filterProjectsByUser={(event) => filterProjectsByUser(event.detail)}
         />
-                  {:else}
-                    –
         <RefineFilterMessage total={filteredUserCount} showing={shownUsers.length} />
       </div>
     </div>

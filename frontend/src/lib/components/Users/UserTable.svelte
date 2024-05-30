@@ -54,6 +54,8 @@
         <td class="hidden @2xl:table-cell">
           {#if user.username}
             {user.username}
+          {:else}
+            –
           {/if}
         </td>
         <td>
