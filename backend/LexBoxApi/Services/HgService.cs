@@ -23,6 +23,8 @@ public partial class HgService : IHgService, IHostedService
     private const string DELETED_REPO_FOLDER = "_____deleted_____";
     private const string TEMP_REPO_FOLDER = "_____temp_____";
 
+    private const string AllZeroHash = "0000000000000000000000000000000000000000";
+
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
     private readonly ILogger<HgService> _logger;
@@ -67,6 +69,8 @@ public partial class HgService : IHgService, IHostedService
         {
             InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
         });
+        await InvalidateDirCache(code);
+        await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
     private void InitRepoAt(DirectoryInfo repoDirectory)
@@ -104,6 +108,8 @@ public partial class HgService : IHgService, IHostedService
         await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
+        await InvalidateDirCache(code);
+        await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
     public async Task FinishReset(string code, Stream zipFile)
@@ -137,6 +143,11 @@ public partial class HgService : IHgService, IHostedService
         // Now we're ready to move the new repo into place, replacing the old one
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
+        await InvalidateDirCache(code);
+        // If someone uploaded an *empty* repo, we don't want to wait forever for a non-empty state
+        var changelogPath = Path.Join(PrefixRepoFilePath(code), ".hg", "store", "00changelog.i");
+        var expectedState = File.Exists(changelogPath) ? RepoEmptyState.NonEmpty : RepoEmptyState.Empty;
+        await WaitForRepoEmptyState(code, expectedState);
     }
 
     /// <summary>
@@ -260,6 +271,58 @@ public partial class HgService : IHgService, IHostedService
         // Can't do this with a streamed response, unfortunately. Will have to do it client-side.
         // if (string.IsNullOrWhiteSpace(response)) return "Nothing to recover";
         return response;
+    }
+
+    public Task<HttpContent> InvalidateDirCache(string code, CancellationToken token = default)
+    {
+        var repoPath = Path.Join(PrefixRepoFilePath(code));
+        if (Directory.Exists(repoPath))
+        {
+            // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
+            var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
+            while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
+            try
+            {
+                // Create and delete a directory since that's slightly safer than a file
+                var d = Directory.CreateDirectory(randomPath);
+                d.Delete();
+            }
+            catch (Exception) { }
+        }
+        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", token);
+        return result;
+    }
+
+    public async Task<string> GetTipHash(string code, CancellationToken token = default)
+    {
+        var content = await ExecuteHgCommandServerCommand(code, "tip", token);
+        return await content.ReadAsStringAsync();
+    }
+
+    private async Task WaitForRepoEmptyState(string code, RepoEmptyState expectedState, int timeoutMs = 30_000, CancellationToken token = default)
+    {
+        // Set timeout so unforeseen errors can't cause an infinite loop
+        using var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+        timeoutSource.CancelAfter(timeoutMs);
+        var done = false;
+        try
+        {
+            while (!done && !timeoutSource.IsCancellationRequested)
+            {
+                var hash = await GetTipHash(code, timeoutSource.Token);
+                var isEmpty = hash == AllZeroHash;
+                done = expectedState switch
+                {
+                    RepoEmptyState.Empty => isEmpty,
+                    RepoEmptyState.NonEmpty => !isEmpty
+                };
+                if (!done) await Task.Delay(2500, timeoutSource.Token);
+            }
+        }
+        // We don't want to actually throw if we hit the timeout, because the operation *will* succeed eventually
+        // once the NFS caches synchronize, so we don't want to propagate an error message to the end user. So
+        // even if the timeout is hit, return as if we succeeded.
+        catch (OperationCanceledException) { }
     }
 
     public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)
@@ -407,4 +470,10 @@ public class BrowseFilesResponse
 public class BrowseResponse
 {
     public BrowseFilesResponse[]? Files { get; set; }
+}
+
+public enum RepoEmptyState
+{
+    Empty,
+    NonEmpty
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "recover" "healthz")
+allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -44,6 +44,10 @@ echo ""
 
 # Run the hg command, simply output to stdout
 first_char=$(echo $project_code | cut -c1)
+# Ensure NFS cache is refreshed in case project repo changed in another pod (e.g., project reset)
+ls /var/hg/repos/$first_char/$project_code/.hg >/dev/null 2>/dev/null  # Don't need output; this is enough to refresh NFS dir cache
+# Sometimes invalidatedircache is called after deleting a project, so the cd would fail. So exit fast in that case.
+[ "x$command_name" = "xinvalidatedircache" ] && exit 0
 cd /var/hg/repos/$first_char/$project_code
 case $command_name in
 

@@ -15,9 +15,11 @@ public interface IHgService
     Task ResetRepo(string code);
     Task FinishReset(string code, Stream zipFile);
     Task<HttpContent> VerifyRepo(string code, CancellationToken token);
+    Task<string> GetTipHash(string code, CancellationToken token = default);
     Task<int?> GetLexEntryCount(string code, ProjectType projectType);
     Task<string?> GetRepositoryIdentifier(Project project);
     Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token);
+    Task<HttpContent> InvalidateDirCache(string code, CancellationToken token = default);
     bool HasAbandonedTransactions(string projectCode);
     Task<string> HgCommandHealth();
 }
