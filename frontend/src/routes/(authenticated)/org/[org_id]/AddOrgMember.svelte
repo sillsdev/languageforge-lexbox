@@ -100,7 +100,7 @@
       autofocus
     />
   {/if}
-  <OrgRoleSelect bind:value={$form.role} error={errors.role} />
+  <OrgRoleSelect withLabel bind:value={$form.role} error={errors.role} />
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}
       {$t('org_page.add_user.submit_button_email')}
