@@ -17,3 +17,11 @@
   </li>
   {/each}
 </ul>
+
+<!--
+TODO:
+
+* Sort options: name, created date, # users
+* Table view
+* Paging
+-->
