@@ -26,6 +26,7 @@ import {
   LexGqlError,
   type SoftDeleteProjectMutationVariables,
   type BulkAddProjectMembersMutationVariables,
+  type DeleteDraftProjectMutationVariables,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -53,7 +54,9 @@ function createGqlClient(_gqlEndpoint?: string): Client {
           Mutation: {
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
-              cache.invalidate({__typename: 'DraftProject', id: args.input.projectId});
+            },
+            deleteDraftProject: (result, args: DeleteDraftProjectMutationVariables, cache, _info) => {
+              cache.invalidate({__typename: 'DraftProject', id: args.input.draftProjectId});
             },
             deleteUserByAdminOrSelf: (result, args: DeleteUserByAdminOrSelfMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'User', id: args.input.userId});
