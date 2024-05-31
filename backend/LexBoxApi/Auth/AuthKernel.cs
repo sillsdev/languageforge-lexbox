@@ -242,6 +242,8 @@ public static class AuthKernel
                 options.SetUserinfoEndpointUris("api/oauth/userinfo");
                 options.Configure(serverOptions => serverOptions.Handlers.Add(ScopeRequestFixer.Descriptor));
 
+                options.SetAccessTokenLifetime(TimeSpan.FromHours(1));
+                options.SetRefreshTokenLifetime(TimeSpan.FromDays(14));
                 options.AllowAuthorizationCodeFlow()
                     .AllowRefreshTokenFlow();
 
