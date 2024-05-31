@@ -14,6 +14,8 @@ public class ProjectContext
         get => _projectHolder.Value?.Project;
         set
         {
+            //don't change existing if they are the same, that will break nested scopes
+            if (Project == value) return;
             var holder = _projectHolder.Value;
             if (holder != null)
             {
