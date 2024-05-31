@@ -75,6 +75,12 @@ spec:
         volumeMounts:
         - name: repos
           mountPath: /hg-repos
+        - name: oauth-signing-cert
+          mountPath: /oauth-certs/signing
+          readOnly: true
+        - name: oauth-encryption-cert
+          mountPath: /oauth-certs/encryption
+          readOnly: true
 
         env:
           - name: DOTNET_URLS
@@ -231,6 +237,14 @@ spec:
           items:
             - key: collector-config.yaml
               path: config.yaml
+      - name: oauth-signing-cert
+        secret:
+          secretName: oauth-signing-cert
+          optional: true
+      - name: oauth-encryption-cert
+        secret:
+          secretName: oauth-encryption-cert
+          optional: true
 
       initContainers:
       - name: db-migrations

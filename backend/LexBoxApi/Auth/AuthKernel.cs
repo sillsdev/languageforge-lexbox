@@ -1,6 +1,6 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Auth.Requirements;
@@ -247,8 +247,6 @@ public static class AuthKernel
 
                 options.RequireProofKeyForCodeExchange();//best practice to use PKCE with auth code flow and no implicit flow
 
-                options.IgnoreResponseTypePermissions();
-                options.IgnoreScopePermissions();
                 if (environment.IsDevelopment())
                 {
                     options.AddDevelopmentEncryptionCertificate();
@@ -257,7 +255,19 @@ public static class AuthKernel
                 else
                 {
                     //see docs: https://documentation.openiddict.com/configuration/encryption-and-signing-credentials.html
-                    throw new NotImplementedException("need to implement loading keys from a file");
+                    //todo, handle certificate rotation, right now these certs will be replaced 15 days before they expire
+                    //however we need to start signing with the new cert before the old one expires
+                    //this means we need 2 certs for each use case, an old one for tokens that have not expired yet, and a new one to sign all new tokens
+                    var encryptionCert = X509Certificate2.CreateFromPemFile(
+                        "/oauth-certs/encryption/tls.crt",
+                        "/oauth-certs/encryption/tls.key");
+                    options.AddEncryptionCertificate(encryptionCert);
+
+                    var signingCert = X509Certificate2.CreateFromPemFile(
+                        "/oauth-certs/signing/tls.crt",
+                        "/oauth-certs/signing/tls.key");
+
+                    options.AddSigningCertificate(signingCert);
                 }
 
                 var aspnetCoreBuilder = options.UseAspNetCore()

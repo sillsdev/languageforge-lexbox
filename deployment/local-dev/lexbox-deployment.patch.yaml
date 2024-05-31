@@ -23,6 +23,8 @@ spec:
             valueFrom: # don't use secret as defined in base
           - $patch: delete
             name: Authentication__Jwt__Secret
+          - name: Authentication__OpenId__Enable
+            value: "true"
           - name: LfClassicConfig__ConnectionString
             value: mongodb://host.docker.internal:27017
           - name: ForwardedHeadersOptions__KnownNetworks__0
