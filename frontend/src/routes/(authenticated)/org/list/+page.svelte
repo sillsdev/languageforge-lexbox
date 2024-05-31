@@ -15,7 +15,7 @@ TODO:
 -->
 
 <Page wide>
-  <h1 class="text-3xl text-left grow max-w-full my-2">Organisations</h1>
+  <h1 class="text-3xl text-left grow max-w-full mb-4">Organisations</h1>
   <div class="overflow-x-auto @container scroll-shadow">
     <table class="table table-lg">
       <thead>
