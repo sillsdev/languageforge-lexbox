@@ -5,6 +5,24 @@
 
   export let data: PageData;
   $: orgs = data.orgs;
+
+  type Column = 'name' | 'users' | 'created_at';
+  let sortColumn = 'created_at' as Column;
+  type Dir = 'ascending' | 'descending';
+  let sortDir = 'ascending' as Dir;
+
+  function swapSortDir(): void {
+    sortDir = sortDir == 'ascending' ? 'descending' : 'ascending';
+  }
+
+  function handleSortClick(clickedColumn: Column): void {
+    if (sortColumn === clickedColumn) {
+      swapSortDir();
+    } else {
+      sortColumn = clickedColumn;
+      sortDir = 'ascending';
+    }
+  }
 </script>
 
 <!--
@@ -20,11 +38,23 @@ TODO:
     <table class="table table-lg">
       <thead>
         <tr class="bg-base-200">
-          <th>{$t('project.table.name')}</th>
-          <th class="hidden @md:table-cell">{$t('project.table.users')}</th>
-          <th class="hidden @xl:table-cell">
+          <th on:click={() => handleSortClick('name')}>
+            {$t('project.table.name')}
+            {#if sortColumn == 'name'}
+            <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
+            {/if}
+          </th>
+          <th on:click={() => handleSortClick('users')} class="hidden @md:table-cell">
+            {$t('project.table.users')}
+            {#if sortColumn == 'users'}
+            <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
+            {/if}
+          </th>
+          <th on:click={() => handleSortClick('created_at')} class="hidden @xl:table-cell">
               {$t('project.table.created_at')}
-              <span class="i-mdi-sort-descending text-xl align-[-5px] ml-2" />
+              {#if sortColumn == 'created_at'}
+              <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
+              {/if}
           </th>
         </tr>
       </thead>
