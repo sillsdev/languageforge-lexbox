@@ -55,6 +55,7 @@
       <Card title="Account" class="w-fit m-4">
         {#if username}
           <p>Logged in as {username}</p>
+          <Button slot="actions" variant="fill" href="/api/auth/logout">Logout</Button>
         {:else}
           <Button slot="actions" variant="fill" href="/api/auth/login">Login</Button>
         {/if}

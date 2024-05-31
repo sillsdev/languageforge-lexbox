@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Crdt;
 using LcmCrdt;
+using LocalWebApp.Auth;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
@@ -15,6 +16,9 @@ public static class LocalAppKernel
         services.AddSingleton<BackgroundSyncService>();
         services.AddHttpContextAccessor();
         services.AddScoped<SyncService>();
+        services.AddSingleton<AuthHelpers>();
+        services.AddSingleton<LoggerAdapter>();
+        services.AddSingleton<IHostedService>(s => s.GetRequiredService<AuthHelpers>());
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient();
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>

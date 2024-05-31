@@ -94,7 +94,7 @@ public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, string or
 
 public interface ISyncHttp
 {
-    [Get("/api/healthz")]
+    [Get("/api/AuthTesting/requires-auth")]
     Task<HttpResponseMessage> HealthCheck();
 
     [Post("/api/sync/{id}/add")]

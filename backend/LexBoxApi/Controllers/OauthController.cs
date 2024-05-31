@@ -204,7 +204,9 @@ public class OauthController(
         //allow cors response for redirect hosts
         var redirectUrisAsync = await applicationManager.GetRedirectUrisAsync(application);
         Response.Headers.AccessControlAllowOrigin = redirectUrisAsync
-            .Select(uri => new Uri(uri).GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)).ToArray();
+            .Select(uri => new Uri(uri))
+            .Where(uri => request.RedirectUri is not null && uri.Host == new Uri(request.RedirectUri).Host)
+            .Select(uri => uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)).ToArray();
 
         // Note: this check is here to ensure a malicious user can't abuse this POST-only endpoint and
         // force it to return a valid response without the external authorization.
@@ -229,14 +231,10 @@ public class OauthController(
         // Create the claims-based identity that will be used by OpenIddict to generate tokens.
         var identity = new ClaimsIdentity(
             authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+            claims: lexAuthUser.GetClaims(),
             nameType: OpenIddictConstants.Claims.Name,
             roleType: OpenIddictConstants.Claims.Role);
 
-        // Add the claims that will be persisted in the tokens.
-        identity.SetClaim(OpenIddictConstants.Claims.Subject, userId)
-            .SetClaim(OpenIddictConstants.Claims.Email, lexAuthUser.Email)
-            .SetClaim(OpenIddictConstants.Claims.Name, lexAuthUser.Name)
-            .SetClaim(OpenIddictConstants.Claims.Role, lexAuthUser.Role.ToString());
 
         // Note: in this sample, the granted scopes match the requested scope
         // but you may want to allow the user to uncheck specific scopes.

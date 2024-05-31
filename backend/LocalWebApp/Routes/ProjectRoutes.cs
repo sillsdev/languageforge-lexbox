@@ -11,13 +11,13 @@ public static class ProjectRoutes
     {
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/projects",
-            async (ProjectsService projectService) =>
+            async (ProjectsService projectService, AuthHelpers helpers) =>
             {
                 var localProjects = await projectService.ListProjects();
-                var httpClient = await AuthHelpers.Instance.CreateClient();
+                var httpClient = await helpers.CreateClient();
                 if (httpClient is not null)
                 {
-                    var response = await httpClient.GetAsync("https://localhost:3000/api/AuthTesting/requires-auth");
+                    var response = await httpClient.GetAsync("/api/AuthTesting/requires-auth");
                     response.EnsureSuccessStatusCode();
                     return [..localProjects, new CrdtProject("LexBox", "LexBox.sqlite")];
                 }
