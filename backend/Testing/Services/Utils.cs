@@ -84,11 +84,6 @@ public static class Utils
         await Task.Delay(TestingEnvironmentVariables.HgRefreshInterval);
     }
 
-    public static async Task WaitForLexboxMetadataUpdateAsync()
-    {
-        await Task.Delay(3000);
-    }
-
     private static string GetNewProjectDir(string projectCode,
         [CallerMemberName] string projectName = "")
     {

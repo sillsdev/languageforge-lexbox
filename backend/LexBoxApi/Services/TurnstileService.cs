@@ -6,34 +6,26 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LexBoxApi.Services;
 
-public class TurnstileService
+public class TurnstileService(IHttpClientFactory httpClientFactory, IOptionsSnapshot<CloudFlareConfig> options)
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly IOptionsSnapshot<CloudFlareConfig> _options;
-
-    public TurnstileService(IHttpClientFactory httpClientFactory, IOptionsSnapshot<CloudFlareConfig> options)
-    {
-        _httpClientFactory = httpClientFactory;
-        _options = options;
-    }
-
     public async Task<bool> IsTokenValid(string token, string? email = null)
     {
         if (email is not null)
         {
-            var allowDomain = _options.Value.AllowDomain;
+            var allowDomain = options.Value.AllowDomain;
             if (!allowDomain.IsNullOrEmpty() && email.EndsWith($"@{allowDomain}"))
             {
                 return true;
             }
         }
 
-        var httpClient = _httpClientFactory.CreateClient("cloudflare");
-        var data = new StringContent(
-            $"secret={_options.Value.TurnstileKey}&response={token}",
-            Encoding.UTF8,
-            "application/x-www-form-urlencoded"
-        );
+        var httpClient = httpClientFactory.CreateClient("cloudflare");
+
+
+        var data = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "secret", options.Value.TurnstileKey }, { "response", token }
+        });
         var response = await httpClient.PostAsync("https://challenges.cloudflare.com/turnstile/v0/siteverify", data);
         var responseJson = await response.Content.ReadFromJsonAsync<JsonDocument>();
         var success = (responseJson?.RootElement.TryGetProperty("success"u8, out var prop) ?? false) && prop.GetBoolean();

@@ -18,10 +18,12 @@ using Path = System.IO.Path;
 
 namespace LexBoxApi.Services;
 
-public partial class HgService : IHgService, IHostedService
+public class HgService : IHgService, IHostedService
 {
-    private const string DELETED_REPO_FOLDER = "_____deleted_____";
-    private const string TEMP_REPO_FOLDER = "_____temp_____";
+    private const string DELETED_REPO_FOLDER = ProjectCode.DELETED_REPO_FOLDER;
+    private const string TEMP_REPO_FOLDER = ProjectCode.TEMP_REPO_FOLDER;
+
+    private const string AllZeroHash = "0000000000000000000000000000000000000000";
 
     private readonly IOptions<HgConfig> _options;
     private readonly Lazy<HttpClient> _hgClient;
@@ -34,17 +36,12 @@ public partial class HgService : IHgService, IHostedService
         _hgClient = new(() => clientFactory.CreateClient("HgWeb"));
     }
 
-    [GeneratedRegex(Project.ProjectCodeRegex)]
-    private static partial Regex ProjectCodeRegex();
+    public static string PrefixRepoRequestPath(ProjectCode code) => $"{code.Value[0]}/{code}";
+    private string PrefixRepoFilePath(ProjectCode code) => Path.Combine(_options.Value.RepoPath, code.Value[0].ToString(), code.Value);
+    private string GetTempRepoPath(ProjectCode code, string reason) => Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER, $"{code}__{reason}__{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}");
 
-    public static string PrefixRepoRequestPath(string code) => $"{code[0]}/{code}";
-    private string PrefixRepoFilePath(string code) => Path.Combine(_options.Value.RepoPath, code[0].ToString(), code);
-    private string GetTempRepoPath(string code, string reason) => Path.Combine(_options.Value.RepoPath, TEMP_REPO_FOLDER, $"{code}__{reason}__{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}");
-
-    private async Task<HttpResponseMessage> GetResponseMessage(string code, string requestPath)
+    private async Task<HttpResponseMessage> GetResponseMessage(ProjectCode code, string requestPath)
     {
-        if (!ProjectCodeRegex().IsMatch(code))
-            throw new ArgumentException($"Invalid project code: {code}.");
         var client = _hgClient.Value;
 
         var urlPrefix = DetermineProjectUrlPrefix(HgType.hgWeb, _options.Value);
@@ -58,15 +55,16 @@ public partial class HgService : IHgService, IHostedService
     /// Note: The repo is unstable and potentially unavailable for a short while after creation, so don't read from it right away.
     /// See: https://github.com/sillsdev/languageforge-lexbox/issues/173#issuecomment-1665478630
     /// </summary>
-    public async Task InitRepo(string code)
+    public async Task InitRepo(ProjectCode code)
     {
-        AssertIsSafeRepoName(code);
         if (Directory.Exists(PrefixRepoFilePath(code)))
             throw new AlreadyExistsException($"Repo already exists: {code}.");
         await Task.Run(() =>
         {
             InitRepoAt(new DirectoryInfo(PrefixRepoFilePath(code)));
         });
+        await InvalidateDirCache(code);
+        await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
     private void InitRepoAt(DirectoryInfo repoDirectory)
@@ -79,12 +77,12 @@ public partial class HgService : IHgService, IHostedService
         );
     }
 
-    public async Task DeleteRepo(string code)
+    public async Task DeleteRepo(ProjectCode code)
     {
         await Task.Run(() => Directory.Delete(PrefixRepoFilePath(code), true));
     }
 
-    public BackupExecutor? BackupRepo(string code)
+    public BackupExecutor? BackupRepo(ProjectCode code)
     {
         string repoPath = PrefixRepoFilePath(code);
         if (!Directory.Exists(repoPath))
@@ -97,16 +95,18 @@ public partial class HgService : IHgService, IHostedService
         }, token));
     }
 
-    public async Task ResetRepo(string code)
+    public async Task ResetRepo(ProjectCode code)
     {
         var tmpRepo = new DirectoryInfo(GetTempRepoPath(code, "reset"));
         InitRepoAt(tmpRepo);
         await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
+        await InvalidateDirCache(code);
+        await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
     }
 
-    public async Task FinishReset(string code, Stream zipFile)
+    public async Task FinishReset(ProjectCode code, Stream zipFile)
     {
         var tempRepoPath = GetTempRepoPath(code, "upload");
         var tempRepo = Directory.CreateDirectory(tempRepoPath);
@@ -137,6 +137,11 @@ public partial class HgService : IHgService, IHostedService
         // Now we're ready to move the new repo into place, replacing the old one
         await DeleteRepo(code);
         tempRepo.MoveTo(PrefixRepoFilePath(code));
+        await InvalidateDirCache(code);
+        // If someone uploaded an *empty* repo, we don't want to wait forever for a non-empty state
+        var changelogPath = Path.Join(PrefixRepoFilePath(code), ".hg", "store", "00changelog.i");
+        var expectedState = File.Exists(changelogPath) ? RepoEmptyState.NonEmpty : RepoEmptyState.Empty;
+        await WaitForRepoEmptyState(code, expectedState);
     }
 
     /// <summary>
@@ -156,7 +161,7 @@ public partial class HgService : IHgService, IHostedService
     }
 
 
-    public Task RevertRepo(string code, string revHash)
+    public Task RevertRepo(ProjectCode code, string revHash)
     {
         throw new NotImplementedException();
         // Steps:
@@ -168,7 +173,7 @@ public partial class HgService : IHgService, IHostedService
         // Will need an SSH key as a k8s secret, put it into authorized_keys on the hgweb side so that lexbox can do "ssh hgweb hg clone ..."
     }
 
-    public async Task SoftDeleteRepo(string code, string deletedRepoSuffix)
+    public async Task SoftDeleteRepo(ProjectCode code, string deletedRepoSuffix)
     {
         var deletedRepoName = $"{code}__{deletedRepoSuffix}";
         await Task.Run(() =>
@@ -205,12 +210,12 @@ public partial class HgService : IHgService, IHostedService
         }
     }
 
-    public bool HasAbandonedTransactions(string projectCode)
+    public bool HasAbandonedTransactions(ProjectCode projectCode)
     {
         return Path.Exists(Path.Combine(PrefixRepoFilePath(projectCode), ".hg", "store", "journal"));
     }
 
-    public bool RepoIsLocked(string projectCode)
+    public bool RepoIsLocked(ProjectCode projectCode)
     {
         return Path.Exists(Path.Combine(PrefixRepoFilePath(projectCode), ".hg", "store", "lock"));
     }
@@ -221,7 +226,7 @@ public partial class HgService : IHgService, IHostedService
         return json?["entries"]?.AsArray().FirstOrDefault()?["node"].Deserialize<string>();
     }
 
-    public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(string projectCode)
+    public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(ProjectCode projectCode)
     {
         var json = await GetCommit(projectCode, "tip");
         //format is this: [1678687688, offset] offset is
@@ -236,13 +241,13 @@ public partial class HgService : IHgService, IHostedService
         return date.ToUniversalTime();
     }
 
-    private async Task<JsonObject?> GetCommit(string projectCode, string rev)
+    private async Task<JsonObject?> GetCommit(ProjectCode projectCode, string rev)
     {
         var response = await GetResponseMessage(projectCode, $"log?style=json-lex&rev={rev}");
         return await response.Content.ReadFromJsonAsync<JsonObject>();
     }
 
-    public async Task<Changeset[]> GetChangesets(string projectCode)
+    public async Task<Changeset[]> GetChangesets(ProjectCode projectCode)
     {
         var response = await GetResponseMessage(projectCode, "log?style=json-lex");
         var logResponse = await response.Content.ReadFromJsonAsync<LogResponse>();
@@ -250,11 +255,11 @@ public partial class HgService : IHgService, IHostedService
     }
 
 
-    public Task<HttpContent> VerifyRepo(string code, CancellationToken token)
+    public Task<HttpContent> VerifyRepo(ProjectCode code, CancellationToken token)
     {
         return ExecuteHgCommandServerCommand(code, "verify", token);
     }
-    public async Task<HttpContent> ExecuteHgRecover(string code, CancellationToken token)
+    public async Task<HttpContent> ExecuteHgRecover(ProjectCode code, CancellationToken token)
     {
         var response = await ExecuteHgCommandServerCommand(code, "recover", token);
         // Can't do this with a streamed response, unfortunately. Will have to do it client-side.
@@ -262,7 +267,59 @@ public partial class HgService : IHgService, IHostedService
         return response;
     }
 
-    public async Task<int?> GetLexEntryCount(string code, ProjectType projectType)
+    public Task<HttpContent> InvalidateDirCache(ProjectCode code, CancellationToken token = default)
+    {
+        var repoPath = Path.Join(PrefixRepoFilePath(code));
+        if (Directory.Exists(repoPath))
+        {
+            // Invalidate NFS directory cache by forcing a write and re-read of the repo directory
+            var randomPath = Path.Join(repoPath, Path.GetRandomFileName());
+            while (File.Exists(randomPath) || Directory.Exists(randomPath)) { randomPath = Path.Join(repoPath, Path.GetRandomFileName()); }
+            try
+            {
+                // Create and delete a directory since that's slightly safer than a file
+                var d = Directory.CreateDirectory(randomPath);
+                d.Delete();
+            }
+            catch (Exception) { }
+        }
+        var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", token);
+        return result;
+    }
+
+    public async Task<string> GetTipHash(ProjectCode code, CancellationToken token = default)
+    {
+        var content = await ExecuteHgCommandServerCommand(code, "tip", token);
+        return await content.ReadAsStringAsync();
+    }
+
+    private async Task WaitForRepoEmptyState(ProjectCode code, RepoEmptyState expectedState, int timeoutMs = 30_000, CancellationToken token = default)
+    {
+        // Set timeout so unforeseen errors can't cause an infinite loop
+        using var timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+        timeoutSource.CancelAfter(timeoutMs);
+        var done = false;
+        try
+        {
+            while (!done && !timeoutSource.IsCancellationRequested)
+            {
+                var hash = await GetTipHash(code, timeoutSource.Token);
+                var isEmpty = hash == AllZeroHash;
+                done = expectedState switch
+                {
+                    RepoEmptyState.Empty => isEmpty,
+                    RepoEmptyState.NonEmpty => !isEmpty
+                };
+                if (!done) await Task.Delay(2500, timeoutSource.Token);
+            }
+        }
+        // We don't want to actually throw if we hit the timeout, because the operation *will* succeed eventually
+        // once the NFS caches synchronize, so we don't want to propagate an error message to the end user. So
+        // even if the timeout is hit, return as if we succeeded.
+        catch (OperationCanceledException) { }
+    }
+
+    public async Task<int?> GetLexEntryCount(ProjectCode code, ProjectType projectType)
     {
         var command = projectType switch
         {
@@ -283,7 +340,7 @@ public partial class HgService : IHgService, IHostedService
         return version.Trim();
     }
 
-    private async Task<HttpContent> ExecuteHgCommandServerCommand(string code, string command, CancellationToken token)
+    private async Task<HttpContent> ExecuteHgCommandServerCommand(ProjectCode code, string command, CancellationToken token)
     {
         var httpClient = _hgClient.Value;
         var baseUri = _options.Value.HgCommandServer;
@@ -292,18 +349,7 @@ public partial class HgService : IHgService, IHostedService
         return response.Content;
     }
 
-    private static readonly string[] SpecialDirectoryNames = [DELETED_REPO_FOLDER, TEMP_REPO_FOLDER];
-    private static readonly HashSet<string> InvalidRepoNames = [.. SpecialDirectoryNames, "api"];
-
-    private void AssertIsSafeRepoName(string name)
-    {
-        if (InvalidRepoNames.Contains(name, StringComparer.OrdinalIgnoreCase))
-            throw new ArgumentException($"Invalid repo name: {name}.");
-        if (!ProjectCodeRegex().IsMatch(name))
-            throw new ArgumentException($"Invalid repo name: {name}.");
-    }
-
-    public async Task<ProjectType> DetermineProjectType(string projectCode)
+    public async Task<ProjectType> DetermineProjectType(ProjectCode projectCode)
     {
         var response = await GetResponseMessage(projectCode, "file/tip?style=json-lex");
         var parsed = await response.Content.ReadFromJsonAsync<BrowseResponse>();
@@ -370,7 +416,7 @@ public partial class HgService : IHgService, IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var repoContainerDirectories = SpecialDirectoryNames
+        var repoContainerDirectories = ProjectCode.SpecialDirectoryNames
             .Concat(Enumerable.Range('a', 'z' - 'a' + 1).Select(c => ((char)c).ToString()))
             .Concat(Enumerable.Range(0, 10).Select(c => c.ToString()));
 
@@ -407,4 +453,10 @@ public class BrowseFilesResponse
 public class BrowseResponse
 {
     public BrowseFilesResponse[]? Files { get; set; }
+}
+
+public enum RepoEmptyState
+{
+    Empty,
+    NonEmpty
 }

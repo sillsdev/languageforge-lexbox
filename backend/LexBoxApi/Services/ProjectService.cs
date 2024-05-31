@@ -117,6 +117,10 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             await hgService.FinishReset(code, zipFile);
             await UpdateProjectMetadata(project);
         }
+        else
+        {
+            await hgService.InvalidateDirCache(code);
+        }
         project.ResetStatus = ResetStatus.None;
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
@@ -145,6 +149,10 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             {
                 project.FlexProjectMetadata.LexEntryCount = count;
             }
+        }
+        else
+        {
+            await hgService.InvalidateDirCache(project.Code);
         }
 
         project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);

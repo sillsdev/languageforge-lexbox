@@ -10,29 +10,29 @@ using Testing.Fixtures;
 namespace Testing.LexCore;
 
 [Collection(nameof(TestingServicesFixture))]
-public class CrdtCommitTests
+public class CrdtServerCommitTests
 {
     private readonly LexBoxDbContext _dbContext;
 
-    public CrdtCommitTests(TestingServicesFixture testing)
+    public CrdtServerCommitTests(TestingServicesFixture testing)
     {
         var serviceProvider = testing.ConfigureServices();
         _dbContext = serviceProvider.GetRequiredService<LexBoxDbContext>();
     }
 
     [Fact]
-    public async Task CanSaveCrdtCommit()
+    public async Task CanSaveServerCommit()
     {
         var projectId = await _dbContext.Projects.Select(p => p.Id).FirstAsync();
         var commitId = Guid.NewGuid();
-        _dbContext.Add(new CrdtCommit(commitId)
+        _dbContext.Add(new ServerCommit(commitId)
         {
             ClientId = Guid.NewGuid(),
-            HybridDateTime = HybridDateTime.ForTestingNow,
+            HybridDateTime = new HybridDateTime(DateTimeOffset.UtcNow, 0),
             ProjectId = projectId,
             ChangeEntities =
             [
-                new ChangeEntity<JsonChange>()
+                new ChangeEntity<ServerJsonChange>()
                 {
                     Index = 0,
                     CommitId = commitId,
@@ -51,14 +51,14 @@ public class CrdtCommitTests
         var projectId = await _dbContext.Projects.Select(p => p.Id).FirstAsync();
         var commitId = Guid.NewGuid();
         var changeJson = """{"$type":"test","name":"Joe"}""";
-        var expectedCommit = new CrdtCommit(commitId)
+        var expectedCommit = new ServerCommit(commitId)
         {
             ClientId = Guid.NewGuid(),
-            HybridDateTime = HybridDateTime.ForTestingNow,
+            HybridDateTime = new HybridDateTime(DateTimeOffset.UtcNow, 0),
             ProjectId = projectId,
             ChangeEntities =
             [
-                new ChangeEntity<JsonChange>()
+                new ChangeEntity<ServerJsonChange>()
                 {
                     Index = 0,
                     CommitId = commitId,
@@ -70,7 +70,7 @@ public class CrdtCommitTests
         _dbContext.Add(expectedCommit);
         await _dbContext.SaveChangesAsync();
 
-        var actualCommit = await _dbContext.Set<CrdtCommit>().AsNoTracking().FirstAsync(c => c.Id == commitId);
+        var actualCommit = await _dbContext.Set<ServerCommit>().AsNoTracking().FirstAsync(c => c.Id == commitId);
         actualCommit.ShouldNotBeSameAs(expectedCommit);
         JsonSerializer.Serialize(actualCommit.ChangeEntities[0].Change).ShouldBe(changeJson);
     }
@@ -79,7 +79,7 @@ public class CrdtCommitTests
     public void TypePropertyShouldAlwaysBeFirst()
     {
         var changeJson = """{"name":"Joe","$type":"test"}""";
-        var jsonChange = JsonSerializer.Deserialize<JsonChange>(changeJson);
+        var jsonChange = JsonSerializer.Deserialize<ServerJsonChange>(changeJson);
         JsonSerializer.Serialize(jsonChange).ShouldBe("""{"$type":"test","name":"Joe"}""");
     }
 }

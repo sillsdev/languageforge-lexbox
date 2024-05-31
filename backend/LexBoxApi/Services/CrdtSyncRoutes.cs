@@ -15,10 +15,10 @@ public static class CrdtSyncRoutes
         group.MapGet("/get",
             async (Guid id, LexBoxDbContext dbContext) =>
             {
-                return await dbContext.Set<CrdtCommit>().Where(c => c.ProjectId == id).GetSyncState();
+                return await dbContext.Set<ServerCommit>().Where(c => c.ProjectId == id).GetSyncState();
             });
         group.MapPost("/add",
-            async (Guid id, CrdtCommit[] commits, LexBoxDbContext dbContext) =>
+            async (Guid id, ServerCommit[] commits, LexBoxDbContext dbContext) =>
             {
                 foreach (var commit in commits)
                 {
@@ -31,8 +31,8 @@ public static class CrdtSyncRoutes
         group.MapPost("/changes",
             async (Guid id, SyncState clientHeads, LexBoxDbContext dbContext) =>
             {
-                var commits = dbContext.Set<CrdtCommit>().Where(c => c.ProjectId == id);
-                return await commits.GetChanges<CrdtCommit, JsonChange>(clientHeads);
+                var commits = dbContext.Set<ServerCommit>().Where(c => c.ProjectId == id);
+                return await commits.GetChanges<ServerCommit, ServerJsonChange>(clientHeads);
             });
 
         return group;

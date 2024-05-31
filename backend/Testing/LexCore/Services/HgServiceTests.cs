@@ -7,6 +7,7 @@ using LexSyncReverseProxy;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
+using Moq.Contrib.HttpClient;
 using Shouldly;
 using Testing.Fixtures;
 
@@ -30,8 +31,16 @@ public class HgServiceTests
             HgResumableUrl = LexboxResumable,
             SendReceiveDomain = LexboxHgWeb
         };
+        var handler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+
+        // This may need to become more sophisticated if our FinishReset tests are changed to include
+        // a Mercurial repo with actual commits in it, but this is good enough at the moment.
+        var AllZeroHash = "0000000000000000000000000000000000000000";
+        handler.SetupAnyRequest().ReturnsResponse(AllZeroHash);
+
+        var mockFactory = handler.CreateClientFactory();
         _hgService = new HgService(new OptionsWrapper<HgConfig>(_hgConfig),
-            Mock.Of<IHttpClientFactory>(),
+            mockFactory,
             NullLogger<HgService>.Instance);
         CleanUpTempDir();
     }

@@ -81,13 +81,9 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
-        await WaitForHgRefreshIntervalAsync();
-
         // Push the project to the server
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
-
-        await WaitForLexboxMetadataUpdateAsync();
 
         // Verify pushed and store last commit
         var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
@@ -100,8 +96,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         // Push changes
         _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth, "Modify project data automated test");
-
-        await WaitForLexboxMetadataUpdateAsync();
 
         // Verify the push updated the last commit date
         var lastCommitDateAfter = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
@@ -116,8 +110,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         // Create a fresh project
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, "SR_AfterReset");
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
-
-        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
@@ -144,8 +136,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/resetProject/{projectConfig.Code}", null);
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
-        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
-
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
@@ -168,8 +158,6 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 
         var srResultStep3 = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
         _output.WriteLine(srResultStep3);
-
-        await WaitForHgRefreshIntervalAsync(); // TODO 765: Remove this
 
         // Step 4: verify project tip is same hash as original project tip
         response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
