@@ -163,7 +163,7 @@ jobs:
           files: ./test-results/*.trx
       - name: Publish results to testspace
         if: always()
-        run: testspace "[.Net Integration]./test-results/*.trx" "[Playwright]./frontend/test-results/*.xml"
+        run: testspace "[.Net Integration/$${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx" "[Playwright]./frontend/test-results/*.xml"
       - name: Upload playwright results
         if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4
