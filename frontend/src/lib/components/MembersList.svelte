@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
   export type Member = {
     id: string
-    user?: { id: string; name: string; email?: string | null } | null
+    user: { id: string; name: string; email?: string | null, username?: string | null}
     role: ProjectRole
   };
 </script>
@@ -28,8 +28,7 @@
 
   let dispatch = createEventDispatcher();
 
-  const DEFAULT_TRUNCATED_MEMBER_COUNT = 5;
-  export let truncatedMemberCount = DEFAULT_TRUNCATED_MEMBER_COUNT;
+  const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = false;
 
   let memberSearch = '';
@@ -39,12 +38,15 @@
     if (!search) {
       filteredMembers = members;
     } else {
-      filteredMembers = members.filter((m) => m.user?.name?.toLowerCase().includes(search) || m.user?.email?.toLowerCase().includes(search));
+      filteredMembers = members.filter((m) =>
+        m.user.name.toLowerCase().includes(search) ||
+        m.user.email?.toLowerCase().includes(search) ||
+        m.user.username?.toLowerCase().includes(search));
     }
   }
-  $: showMembers = showAllMembers ? filteredMembers : filteredMembers.slice(0, truncatedMemberCount);
+  $: showMembers = showAllMembers ? filteredMembers : filteredMembers.slice(0, TRUNCATED_MEMBER_COUNT);
 
-  const { notifySuccess/*, notifyWarning*/ } = useNotifications();
+  const { notifySuccess } = useNotifications();
 
   let changeMemberRoleModal: ChangeMemberRoleModal;
   async function changeMemberRole(member: Member): Promise<void> {
@@ -62,7 +64,7 @@
       const role = formState.role.currentValue;
       notifySuccess(
         $t(notification, {
-          name: member.user?.name ?? '',
+          name: member.user.name,
           role: role.toLowerCase(),
         }),
       );
@@ -73,20 +75,27 @@
 <div>
   <p class="text-2xl mb-4 flex items-baseline gap-4 max-sm:flex-col">
     {$t('project_page.members.title')}
-    {#if members?.length > truncatedMemberCount || true}
+    {#if members?.length > TRUNCATED_MEMBER_COUNT}
       <div class="form-control max-w-full w-96">
         <PlainInput
           placeholder={$t('project_page.members.filter_members_placeholder')}
           bind:value={memberSearch} />
       </div>
     {/if}
-</p>
+  </p>
 
-  <BadgeList grid={showMembers.length > DEFAULT_TRUNCATED_MEMBER_COUNT}>
+  <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
+
+    {#if !members.length}
+      <span class="text-secondary mx-2 my-1">{$t('common.none')}</span>
+    {:else if !showMembers.length}
+      <span class="text-secondary mx-2 my-1">{$t('project_page.members.no_matching')}</span>
+    {/if}
+
     {#each showMembers as member (member.id)}
       {@const canManage = canManageMember(member)}
       <Dropdown disabled={!canManage}>
-        <MemberBadge member={{ name: member.user?.name ?? member.user?.email ?? member.user?.id ?? '', role: member.role }} canManage={canManage} />
+        <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManage} />
         <ul slot="content" class="menu">
           <AdminContent>
             <li>
@@ -112,7 +121,7 @@
       </Dropdown>
     {/each}
 
-    {#if members.length > DEFAULT_TRUNCATED_MEMBER_COUNT}
+    {#if members.length > TRUNCATED_MEMBER_COUNT}
       <div class="justify-self-start">
         <Button outline size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
           {showAllMembers ? $t('project_page.members.show_less') : $t('project_page.members.show_all')}

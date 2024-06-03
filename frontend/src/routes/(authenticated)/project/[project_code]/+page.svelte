@@ -27,7 +27,7 @@
   import {_deleteProject} from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
+  import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
@@ -40,8 +40,9 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
-  import { DetailItem } from '$lib/layout';
+  import { DetailItem, EditableDetailItem } from '$lib/layout';
   import MembersList from '$lib/components/MembersList.svelte';
+  import DetailsPage from '$lib/layout/DetailsPage.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -209,7 +210,7 @@
 
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}
-  <HeaderPage wide title={project.name}>
+  <DetailsPage wide title={project.name}>
     <svelte:fragment slot="actions">
       {#if project.type === ProjectType.FlEx && $isDev}
         {#if project.isLanguageForgeProject}
@@ -310,39 +311,37 @@
       </BadgeList>
       <ProjectConfidentialityModal bind:this={projectConfidentialityModal} projectId={project.id} isConfidential={project.isConfidential ?? undefined} />
     </svelte:fragment>
-    <div class="space-y-4">
-      <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
-      <div class="space-y-2">
-        <DetailItem title="project_page.project_code" text={project.code} copyToClipboard={true} />
-        <DetailItem title="project_page.created_at" text={$date(project.createdDate)} />
-        <DetailItem title="project_page.last_commit" text={$date(project.lastCommit)} />
-        {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
-          <DetailItem title="project_page.num_entries" text={$number(lexEntryCount)}>
-            <AdminContent slot="extraButton">
-              <IconButton
-                loading={loadingEntryCount}
-                icon="i-mdi-refresh"
-                size="btn-sm"
-                variant="btn-ghost"
-                outline={false}
-                on:click={updateEntryCount}
-              />
-            </AdminContent>
-          </DetailItem>
-        {/if}
-        <div>
-          <DetailItem
-            title="project_page.description"
-            text={project.description}
-            editable
-            disabled={!canManage}
-            saveHandler={updateProjectDescription}
-            placeholder={$t('project_page.add_description')}
-            multiline
-          />
-        </div>
+    <svelte:fragment slot="details">
+      <DetailItem title={$t('project_page.project_code')} text={project.code} copyToClipboard={true} />
+      <DetailItem title={$t('project_page.created_at')} text={$date(project.createdDate)} />
+      <DetailItem title={$t('project_page.last_commit')} text={$date(project.lastCommit)} />
+      {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
+        <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
+          <AdminContent slot="extras">
+            <IconButton
+              loading={loadingEntryCount}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateEntryCount}
+            />
+          </AdminContent>
+        </DetailItem>
+      {/if}
+      <div>
+        <EditableDetailItem
+          title={$t('project_page.description')}
+          value={project.description}
+          disabled={!canManage}
+          saveHandler={updateProjectDescription}
+          placeholder={$t('project_page.add_description')}
+          multiline
+        />
       </div>
+    </svelte:fragment>
 
+    <div class="space-y-4">
       <MembersList
         projectId={project.id}
         {members}
@@ -439,5 +438,5 @@
       </MoreSettings>
 
     </div>
-  </HeaderPage>
+  </DetailsPage>
 {/if}

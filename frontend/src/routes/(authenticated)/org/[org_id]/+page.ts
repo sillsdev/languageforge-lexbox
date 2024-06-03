@@ -1,23 +1,19 @@
 import type {
   $OpResult,
-  AddOrgMemberMutation,
-  // ChangeOrgDescriptionInput,
-  // ChangeOrgDescriptionMutation,
   ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
   ChangeOrgNameMutation,
   DeleteOrgUserMutation,
-  // LeaveOrgMutation,
   OrgPageQuery,
   OrgRole,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
+import type { OrgTabId } from './OrgTabs.svelte';
 import type { PageLoadEvent } from './$types';
+import type { UUID } from 'crypto';
 import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
-import type { UUID } from 'crypto';
-import type { OrgTabId } from './OrgTabs.svelte';
 
 export type Org = NonNullable<OrgPageQuery['orgById']>;
 export type OrgUser = Org['members'][number];
@@ -79,38 +75,6 @@ export async function load(event: PageLoadEvent) {
 export type OrgSearchParams = /*ProjectFilters &*/ { // TODO: Edit once we determine what filters we need
   tab: OrgTabId
 };
-
-export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole): $OpResult<AddOrgMemberMutation> {
-  //language=GraphQL
-  const result = await getClient()
-    .mutation(
-      graphql(`
-        mutation AddOrgMember($input: SetOrgMemberRoleInput!) {
-          setOrgMemberRole(input: $input) {
-            organization {
-              id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
-            }
-            errors {
-              __typename
-              ... on Error {
-                message
-              }
-            }
-          }
-        }
-      `),
-      { input: { orgId, emailOrUsername, role} },
-    );
-  return result;
-}
 
 // TODO: Implement
 // export async function _bulkAddOrgMembers(input: BulkAddOrgMembersInput): $OpResult<BulkAddOrgMembersMutation> {
@@ -230,7 +194,7 @@ export async function _changeOrgName(input: ChangeOrgNameInput): $OpResult<Chang
 //   return result;
 // }
 
-export async function _deleteOrgUser(orgId: UUID, emailOrUsername: string): $OpResult<DeleteOrgUserMutation> {
+export async function _deleteOrgUser(orgId: string, emailOrUsername: string): $OpResult<DeleteOrgUserMutation> {
   const result = await getClient()
     .mutation(
       graphql(`

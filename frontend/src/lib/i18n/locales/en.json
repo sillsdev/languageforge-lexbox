@@ -3,6 +3,7 @@
     "title": "Admin Dashboard",
     "column_code": "Code",
     "column_email": "Email",
+    "column_email_or_login": "Email / Login",
     "column_login": "Login",
     "column_last_change": "Last Change",
     "column_migrated": "Migrated",
@@ -201,7 +202,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     },
   },
   "org_page": {
-    "organisation": "Organization",
+    "organization": "Organization",
     "add_user": {
       "add_button": "Add/Invite Member",
       "modal_title": "Add or invite a Member to this organization",
@@ -215,6 +216,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_already_member": "User is already a member of this organization",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
       "invalid_email_address": "Invalid email address: {email}",
+    },
+    "delete_modal": {
+      "submit": "Delete Organization"
     },
     "details": {
       "created_at": "Created",
@@ -230,14 +234,14 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "add_member": "{email} has been added to organization.",
       "member_invited": "{email} has been sent an invitation email to register and join the organization."
     },
-    "remove_user": {
-      "remove_button": "Remove Member",
-    },
+    "edit_member": "Edit Member",
+    "remove_member": "Remove Member",
     "org_name_empty_error": "Organization name cannot be empty",
     "projects_table_title": "Projects",
     "members_table_title": "Members",
     "settings_view_title": "Settings",
     "history_view_title": "History",
+    "leave_org": "Leave Organization",
   },
   "project_page": {
     "project": "Project",
@@ -329,6 +333,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "filter_members_placeholder": "Filter members...",
       "show_all": "Show all...",
       "show_less": "Show less",
+      "no_matching": "No matching members",
     },
     "add_description": "Add description...",
     "remove_project_user_title": "Member",

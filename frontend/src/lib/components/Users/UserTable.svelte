@@ -4,9 +4,11 @@
   import { AdminIcon, Icon } from '$lib/icons';
   import { createEventDispatcher } from 'svelte';
   import Dropdown from '../Dropdown.svelte';
-  import type { User } from '../../../routes/(authenticated)/admin/+page';
+  import type { User } from '$lib/gql/types';
 
-  export let shownUsers: User[];
+  type TableUser = Pick<User, 'name' | 'locked' | 'isAdmin' | 'username' | 'email' | 'emailVerified'>;
+
+  export let shownUsers: TableUser[];
 
   const dispatch = createEventDispatcher();
 </script>

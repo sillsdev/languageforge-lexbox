@@ -9,7 +9,6 @@
   import { useNotifications } from '$lib/notify';
   import { page } from '$app/stores'
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
-  import type { SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { SupHelp, helpLinks } from '$lib/components/help';
 
   export let projectId: string;
@@ -22,18 +21,14 @@
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
 
-  let selectedUser: SingleUserTypeaheadResult;
-
   const { notifySuccess } = useNotifications();
 
   async function openModal(): Promise<void> {
     let userInvited = false;
-    let selectedEmail: string = '';
     const { response, formState } = await formModal.open(async () => {
-      selectedEmail = $form.usernameOrEmail ? $form.usernameOrEmail : selectedUser?.email ?? selectedUser?.username ?? '';
       const { error } = await _addProjectMember({
         projectId,
-        usernameOrEmail: selectedEmail,
+        usernameOrEmail: $form.usernameOrEmail,
         role: $form.role,
       });
 
@@ -65,7 +60,7 @@
     });
     if (response === DialogResponse.Submit) {
       const message = userInvited ? 'member_invited' : 'add_member';
-      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue ?? selectedEmail }));
+      notifySuccess($t(`project_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue }));
     }
   }
 </script>

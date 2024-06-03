@@ -213,11 +213,11 @@ type NotFoundError implements Error {
 }
 
 type OrgMember {
+  user: User!
+  organization: Project!
   userId: UUID!
   orgId: UUID!
   role: OrgRole!
-  user: User
-  organization: Organization
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
