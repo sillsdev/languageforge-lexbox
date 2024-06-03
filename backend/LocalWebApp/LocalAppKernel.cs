@@ -11,14 +11,13 @@ namespace LocalWebApp;
 
 public static class LocalAppKernel
 {
-    public static void AddLocalAppServices(this IServiceCollection services)
+    public static void AddLocalAppServices(this IServiceCollection services, IHostEnvironment environment)
     {
-        services.AddSingleton<BackgroundSyncService>();
         services.AddHttpContextAccessor();
+        services.AddHttpClient();
+        services.AddAuthHelpers(environment);
         services.AddScoped<SyncService>();
-        services.AddSingleton<AuthHelpers>();
-        services.AddSingleton<LoggerAdapter>();
-        services.AddSingleton<IHostedService>(s => s.GetRequiredService<AuthHelpers>());
+        services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient();
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
@@ -41,5 +40,31 @@ public static class LocalAppKernel
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
+    }
+
+    private static void AddAuthHelpers(this IServiceCollection services, IHostEnvironment environment)
+    {
+        services.AddSingleton<AuthHelpers>();
+        services.AddOptionsWithValidateOnStart<AuthConfig>().ValidateDataAnnotations();
+        services.AddSingleton<LoggerAdapter>();
+        services.AddSingleton<IHostedService>(s => s.GetRequiredService<AuthHelpers>());
+        var httpClientBuilder = services.AddHttpClient(AuthHelpers.AuthHttpClientName).ConfigureHttpClient(
+            (provider, client) =>
+            {
+                client.BaseAddress = provider.GetRequiredService<IOptions<AuthConfig>>().Value.DefaultAuthority;
+            });
+        if (environment.IsDevelopment())
+        {
+            // Allow self-signed certificates in development
+            httpClientBuilder.ConfigurePrimaryHttpMessageHandler(() =>
+                {
+                    return new HttpClientHandler
+                    {
+                        ClientCertificateOptions = ClientCertificateOption.Manual,
+                        ServerCertificateCustomValidationCallback = (message, certificate2, arg3, arg4) => true
+                    };
+                });
+        }
+
     }
 }

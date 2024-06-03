@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using System.Threading.Channels;
 using System.Web;
+using LocalWebApp.Routes;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 
@@ -8,32 +10,38 @@ namespace LocalWebApp.Auth;
 
 public class AuthHelpers: BackgroundService
 {
-    private IPublicClientApplication _application;
-    public IPublicClientApplication App => _application;
+    public const string AuthHttpClientName = "AuthHttpClient";
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IOptions<AuthConfig> _options;
+    private Lazy<IPublicClientApplication> _lazyApp;
+    private IPublicClientApplication _application => _lazyApp.Value;
 
-    public AuthHelpers(LoggerAdapter logger)
+
+    public AuthHelpers(LoggerAdapter logger, IHttpClientFactory httpClientFactory, IOptions<AuthConfig> options, LinkGenerator linkGenerator, IHttpContextAccessor accessor)
     {
-        _application = PublicClientApplicationBuilder.Create("becf2856-0690-434b-b192-a4032b72067f")
-            .WithExperimentalFeatures()
-            .WithLogging(logger)
-            .WithHttpClientFactory(HttpClientFactory.Instance)
-            .WithRedirectUri("http://localhost:5173/api/auth/oauth-callback")
-            .WithOidcAuthority("https://localhost:3000").Build();
+        _httpClientFactory = httpClientFactory;
+        _options = options;
+        _lazyApp = new(() =>
+        {
+            var httpContext = accessor.HttpContext;
+            ArgumentNullException.ThrowIfNull(httpContext);
+            var redirectUri = linkGenerator.GetUriByRouteValues(httpContext, AuthRoutes.CallbackRoute);
+            var optionsValue = _options.Value;
+            return PublicClientApplicationBuilder.Create(optionsValue.ClientId)
+                .WithExperimentalFeatures()
+                .WithLogging(logger)
+                .WithHttpClientFactory(new HttpClientFactoryAdapter(httpClientFactory))
+                .WithRedirectUri(redirectUri)
+                .WithOidcAuthority(optionsValue.DefaultAuthority.ToString())
+                .Build();
+        });
     }
 
-    private class HttpClientFactory : IMsalHttpClientFactory
+    private class HttpClientFactoryAdapter(IHttpClientFactory httpClientFactory) : IMsalHttpClientFactory
     {
-        public static readonly HttpClientFactory Instance = new();
-
         public HttpClient GetHttpClient()
         {
-            var client = new HttpClient(new HttpClientHandler()
-            {
-                ClientCertificateOptions = ClientCertificateOption.Manual,
-                ServerCertificateCustomValidationCallback = (message, certificate2, arg3, arg4) => true
-            });
-
-            return client;
+            return httpClientFactory.CreateClient(AuthHttpClientName);
         }
     }
 
@@ -70,14 +78,14 @@ public class AuthHelpers: BackgroundService
         return null;
     }
 
-    private Dictionary<string, AppWebUi> _webUis = new();
-    private Channel<AppWebUi> _webUiChannel = Channel.CreateUnbounded<AppWebUi>();
+    private readonly Dictionary<string, AppWebUi> _webUis = new();
+    private readonly Channel<AppWebUi> _webUiChannel = Channel.CreateUnbounded<AppWebUi>();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         await foreach (var webUi in _webUiChannel.Reader.ReadAllAsync(stoppingToken))
         {
-            var result = await App.AcquireTokenInteractive(["profile openid"])
+            var result = await _application.AcquireTokenInteractive(["profile openid"])
                 .WithCustomWebUi((webUi))
                 .ExecuteAsync(stoppingToken);
             webUi.SetAuthenticationResult(result);
@@ -91,15 +99,15 @@ public class AuthHelpers: BackgroundService
 
     private async Task<AuthenticationResult?> GetAuth()
     {
-        if (_result?.ExpiresOn < DateTimeOffset.UtcNow.AddMinutes(5))
+        if (DateTimeOffset.UtcNow.AddMinutes(5) < _result?.ExpiresOn)
         {
             return _result;
         }
 
-        var accounts = await App.GetAccountsAsync();
+        var accounts = await _application.GetAccountsAsync();
         var account = accounts.FirstOrDefault();
         if (account is null) return null;
-        _result = await App.AcquireTokenSilent(["profile openid"], account).ExecuteAsync();
+        _result = await _application.AcquireTokenSilent(["profile openid"], account).ExecuteAsync();
         return _result;
     }
 
@@ -113,8 +121,8 @@ public class AuthHelpers: BackgroundService
     {
         var auth = await GetAuth();
         if (auth is null) return null;
-        var client = HttpClientFactory.Instance.GetHttpClient();
-        client.BaseAddress = new Uri("https://localhost:3000");
+
+        var client = _httpClientFactory.CreateClient(AuthHttpClientName);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.AccessToken);
         return client;
     }

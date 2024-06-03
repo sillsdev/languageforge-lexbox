@@ -5,6 +5,7 @@ namespace LocalWebApp.Routes;
 
 public static class AuthRoutes
 {
+    public const string CallbackRoute = "AuthRoutes_Callback";
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/auth").WithOpenApi();
@@ -20,7 +21,7 @@ public static class AuthRoutes
                 uriBuilder.Query = context.Request.QueryString.ToUriComponent();
                 await helper.FinishSignin(uriBuilder.Uri);
                 return Results.Redirect("/");
-            });
+            }).WithName(CallbackRoute);
         group.MapGet("/me", async (AuthHelpers helper) => new { name = await helper.GetCurrentName() });
         group.MapGet("/logout", async (AuthHelpers helper) =>
         {
