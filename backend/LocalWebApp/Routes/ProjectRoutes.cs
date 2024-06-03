@@ -11,10 +11,11 @@ public static class ProjectRoutes
     {
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/projects",
-            async (ProjectsService projectService, AuthHelpers helpers) =>
+            async (ProjectsService projectService, AuthHelpersFactory factory) =>
             {
                 var localProjects = await projectService.ListProjects();
-                var httpClient = await helpers.CreateClient();
+                //todo currently we only list projects for the default authority, we may want to tweak that in the future
+                var httpClient = await factory.GetDefault().CreateClient();
                 if (httpClient is not null)
                 {
                     var response = await httpClient.GetAsync("/api/AuthTesting/requires-auth");

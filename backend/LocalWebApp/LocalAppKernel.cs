@@ -16,6 +16,7 @@ public static class LocalAppKernel
         services.AddHttpContextAccessor();
         services.AddHttpClient();
         services.AddAuthHelpers(environment);
+        services.AddSingleton<UrlContext>();
         services.AddScoped<SyncService>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
@@ -44,15 +45,13 @@ public static class LocalAppKernel
 
     private static void AddAuthHelpers(this IServiceCollection services, IHostEnvironment environment)
     {
-        services.AddSingleton<AuthHelpers>();
+        services.AddSingleton<AuthHelpersFactory>();
+        services.AddTransient<AuthHelpers>(sp => sp.GetRequiredService<AuthHelpersFactory>().GetCurrentHelper());
+        services.AddSingleton<OAuthService>();
+        services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<OAuthService>());
         services.AddOptionsWithValidateOnStart<AuthConfig>().ValidateDataAnnotations();
         services.AddSingleton<LoggerAdapter>();
-        services.AddSingleton<IHostedService>(s => s.GetRequiredService<AuthHelpers>());
-        var httpClientBuilder = services.AddHttpClient(AuthHelpers.AuthHttpClientName).ConfigureHttpClient(
-            (provider, client) =>
-            {
-                client.BaseAddress = provider.GetRequiredService<IOptions<AuthConfig>>().Value.DefaultAuthority;
-            });
+        var httpClientBuilder = services.AddHttpClient(AuthHelpers.AuthHttpClientName);
         if (environment.IsDevelopment())
         {
             // Allow self-signed certificates in development

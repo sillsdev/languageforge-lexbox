@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Security.AccessControl;
+using System.Web;
 using LocalWebApp.Auth;
 
 namespace LocalWebApp.Routes;
@@ -9,23 +10,20 @@ public static class AuthRoutes
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/auth").WithOpenApi();
-        group.MapGet("/login",
-            async (AuthHelpers helper) =>
-            {
-                return Results.Redirect(await helper.SignIn());
-            });
+        group.MapGet("/login/default", async (AuthHelpersFactory factory) => Results.Redirect(await factory.GetDefault().SignIn()));
         group.MapGet("/oauth-callback",
-            async (AuthHelpers helper, HttpContext context) =>
+            async (OAuthService oAuthService, HttpContext context) =>
             {
                 var uriBuilder = new UriBuilder(context.Request.Scheme, context.Request.Host.Host, context.Request.Host.Port ?? 80, context.Request.Path);
                 uriBuilder.Query = context.Request.QueryString.ToUriComponent();
-                await helper.FinishSignin(uriBuilder.Uri);
+
+                await oAuthService.FinishLoginRequest(uriBuilder.Uri);
                 return Results.Redirect("/");
             }).WithName(CallbackRoute);
-        group.MapGet("/me", async (AuthHelpers helper) => new { name = await helper.GetCurrentName() });
-        group.MapGet("/logout", async (AuthHelpers helper) =>
+        group.MapGet("/me", async (AuthHelpersFactory factory) => new { name = await factory.GetDefault().GetCurrentName() });
+        group.MapGet("/logout/default", async (AuthHelpersFactory factory) =>
         {
-            await helper.Logout();
+            await factory.GetDefault().Logout();
             return Results.Redirect("/");
         });
         return group;
