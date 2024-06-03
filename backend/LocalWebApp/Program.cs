@@ -39,6 +39,7 @@ app.Use(async (context, next) =>
         var projectsService = context.RequestServices.GetRequiredService<ProjectsService>();
         projectsService.SetProjectScope(projectsService.GetProject(projectName) ??
                                         throw new InvalidOperationException($"Project {projectName} not found"));
+        await context.RequestServices.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
     }
 
     await next(context);
