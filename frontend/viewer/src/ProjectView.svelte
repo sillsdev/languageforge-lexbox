@@ -201,7 +201,7 @@
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>
-              <span class="text-surface-content bg-surface-100/75 text-sm fixed bottom-0 right-0 p-2 inline-flex gap-2 items-center">
+              <span class="text-surface-content bg-surface-100/75 text-sm absolute bottom-0 right-0 p-2 inline-flex gap-2 items-center">
                 {$viewConfig.activeView.label}
                 <Button
                   on:click={() => (showOptionsDialog = true)}
