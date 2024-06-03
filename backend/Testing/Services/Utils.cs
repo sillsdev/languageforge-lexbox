@@ -61,6 +61,7 @@ public static class Utils
                 }
             }
             """);
+        await WaitForHgRefreshIntervalAsync();
         return new LexboxProject(apiTester, config.Id);
     }
 
