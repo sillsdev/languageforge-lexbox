@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { OrgListPageQuery } from '$lib/gql/types';
   import t, { date, number } from '$lib/i18n';
+  import { Icon } from '$lib/icons';
   import { Page } from '$lib/layout';
   import type { PageData } from './$types';
 
@@ -56,7 +57,10 @@ TODO:
 -->
 
 <Page wide>
-  <h1 class="text-3xl text-left grow max-w-full mb-4">Organisations</h1>
+  <h1 class="text-3xl text-left grow max-w-full mb-4 flex gap-4 items-center">
+    Organisations
+    <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
+  </h1>
   <div class="overflow-x-auto @container scroll-shadow">
     <table class="table table-lg">
       <thead>
