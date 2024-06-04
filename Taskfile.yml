@@ -30,10 +30,10 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
-      - ./ensure.py deployment/local-dev/local.env HONEYCOMB_API_KEY __REPLACE__
-      - ./ensure.py deployment/local-dev/local.env '#OTEL_SDK_DISABLED' true
-      - ./ensure.py deployment/local-dev/local.env GOOGLE_OAUTH_CLIENT_ID __REPLACE__.apps.googleusercontent.com
-      - ./ensure.py deployment/local-dev/local.env GOOGLE_OAUTH_CLIENT_SECRET __REPLACE__
+      - echo "HONEYCOMB_API_KEY=__REPLACE__" > deployment/local-dev/local.env
+      - echo "#OTEL_SDK_DISABLED=true" >> deployment/local-dev/local.env
+      - echo "GOOGLE_OAUTH_CLIENT_ID=__REPLACE__.apps.googleusercontent.com" >> deployment/local-dev/local.env
+      - echo "GOOGLE_OAUTH_CLIENT_SECRET=__REPLACE__" >> deployment/local-dev/local.env
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
   setup-win:
     platforms: [ windows ]
