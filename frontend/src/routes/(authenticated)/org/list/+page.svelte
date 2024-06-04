@@ -1,12 +1,20 @@
 <script lang="ts">
+  import { FilterBar } from '$lib/components/FilterBar';
   import type { OrgListPageQuery } from '$lib/gql/types';
   import t, { date, number } from '$lib/i18n';
   import { Icon } from '$lib/icons';
   import { Page } from '$lib/layout';
+  import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { PageData } from './$types';
+  import type { OrgListSearchParams } from './+page';
 
   export let data: PageData;
   $: orgs = data.orgs;
+
+  const queryParams = getSearchParams<OrgListSearchParams>({
+    search: queryParam.string<string>(''),
+  });
+  const { queryParamValues, defaultQueryParamValues } = queryParams;
 
   type OrgList = OrgListPageQuery['orgs']
 
@@ -28,6 +36,10 @@
     }
   }
 
+  function filterOrgs(orgs: OrgList, search: string): OrgList {
+    return orgs.filter((org) => org.name.toLowerCase().includes(search.toLowerCase()));
+  }
+
   function sortOrgs(orgs: OrgList, sortColumn: Column, sortDir: Dir): OrgList {
     const data = [... orgs];
     let mult = sortDir === 'ascending' ? 1 : -1;
@@ -46,7 +58,8 @@
     return data;
   }
 
-  $: displayOrgs = $orgs ? sortOrgs($orgs, sortColumn, sortDir) : [];
+  $: filteredOrgs = $orgs ? filterOrgs($orgs, $queryParamValues.search) : [];
+  $: displayOrgs = sortOrgs(filteredOrgs, sortColumn, sortDir);
 </script>
 
 <!--
@@ -61,6 +74,17 @@ TODO:
     Organisations
     <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
   </h1>
+
+  <div class="mt-4">
+    <FilterBar
+      searchKey="search"
+      filterKeys={['search']}
+      filters={queryParamValues}
+      filterDefaults={defaultQueryParamValues}
+    />
+  </div>
+
+  <div class="divider" />
   <div class="overflow-x-auto @container scroll-shadow">
     <table class="table table-lg">
       <thead>

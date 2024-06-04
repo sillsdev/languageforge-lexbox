@@ -1,6 +1,11 @@
 import { getClient, graphql } from '$lib/gql';
-import { tryMakeNonNullable } from '$lib/util/store';
+
 import type {PageLoadEvent} from './$types';
+import { tryMakeNonNullable } from '$lib/util/store';
+
+export type OrgListSearchParams = {
+  search: string,
+};
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
