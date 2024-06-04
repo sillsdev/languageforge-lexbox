@@ -1,7 +1,9 @@
 ﻿using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using LocalWebApp.Routes;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.Extensions.Msal;
 
 namespace LocalWebApp.Auth;
 
@@ -47,6 +49,35 @@ public class AuthHelpers
             .WithRedirectUri(redirectUri)
             .WithOidcAuthority(authority.ToString())
             .Build();
+        _ = MsalCacheHelper.CreateAsync(BuildCacheProperties()).ContinueWith(
+            task =>
+            {
+                var msalCacheHelper = task.Result;
+                msalCacheHelper.RegisterCache(_application.UserTokenCache);
+            }, scheduler: TaskScheduler.Default);
+    }
+
+    public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");
+
+    public static readonly KeyValuePair<string, string> LinuxKeyRingAttr2 = new("ProductGroup", "Lexbox");
+
+    private static StorageCreationProperties BuildCacheProperties()
+    {
+        const string KeyChainServiceName = "lexbox_msal_service";
+        const string KeyChainAccountName = "lexbox_msal_account";
+
+        const string LinuxKeyRingSchema = "org.sil.lexbox.tokencache";
+        const string LinuxKeyRingCollection = MsalCacheHelper.LinuxKeyRingDefaultCollection;
+        const string LinuxKeyRingLabel = "MSAL token cache for Lexbox.";
+
+        var propertiesBuilder = new StorageCreationPropertiesBuilder("msal.cache", Directory.GetCurrentDirectory());
+#if DEBUG
+        propertiesBuilder.WithUnprotectedFile();
+#else
+        propertiesBuilder.WithLinuxKeyring(LinuxKeyRingSchema, LinuxKeyRingCollection, LinuxKeyRingLabel, LinuxKeyRingAttr1, LinuxKeyRingAttr2)
+            .WithMacKeyChain(KeyChainServiceName, KeyChainAccountName)
+#endif
+        return propertiesBuilder.Build();
     }
 
     public bool IsHostUrlValid()

@@ -17,3 +17,4 @@ dump.sql
 test-results/
 **/*.sqlite
 **/*.sqlite-*
+msal.cache
