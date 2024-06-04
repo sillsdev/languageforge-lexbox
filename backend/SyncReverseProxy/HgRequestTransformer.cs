@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Microsoft.Net.Http.Headers;
 using Yarp.ReverseProxy.Forwarder;
 
 namespace LexSyncReverseProxy;
@@ -14,6 +15,11 @@ public partial class HgRequestTransformer : HttpTransformer
         CancellationToken cancellationToken)
     {
         await base.TransformRequestAsync(httpContext, proxyRequest, destinationPrefix, cancellationToken);
+
+        // Remove the cookie header from the request
+        proxyRequest.Headers.Remove(HeaderNames.Cookie);
+        proxyRequest.Headers.Remove(HeaderNames.Authorization);
+
         var path = httpContext.Request.Path.ToString();
         if (path.StartsWith("/hg")) path = path["/hg".Length..];
         var builder = new UriBuilder(RequestUtilities.MakeDestinationAddress(destinationPrefix,
