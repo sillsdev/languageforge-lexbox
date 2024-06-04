@@ -22,13 +22,19 @@ public class SystemDbContext
 
     public async Task<bool> IsAvailable()
     {
-        if (_isAvailable is null or false)
+        if (_isAvailable is null)
         {
-            _isAvailable = await Task.Run(() =>
+            try
             {
                 //lang=json
-                return _mongoDatabase.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(TimeSpan.FromMilliseconds(100));
-            });
+                await _mongoDatabase.RunCommandAsync((Command<BsonDocument>)"{ping:1}")
+                    .WaitAsync(TimeSpan.FromSeconds(3));
+                _isAvailable = true;
+            }
+            catch
+            {
+                _isAvailable = false;
+            }
         }
         return _isAvailable.Value;
     }
