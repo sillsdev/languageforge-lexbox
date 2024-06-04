@@ -1,11 +1,13 @@
 <script lang="ts">
+  import type { OrgListPageQuery } from '$lib/gql/types';
   import t, { date, number } from '$lib/i18n';
   import { Page } from '$lib/layout';
-  import type { Readable } from 'svelte/store';
   import type { PageData } from './$types';
 
   export let data: PageData;
   $: orgs = data.orgs;
+
+  type OrgList = OrgListPageQuery['orgs']
 
   type Column = 'name' | 'users' | 'created_at';
   let sortColumn = 'created_at' as Column;
@@ -25,8 +27,8 @@
     }
   }
 
-  function sortOrgs<T>(orgs: Readable<T>, sortColumn: Column, sortDir: Dir): T[] {
-    const data = [... $orgs];
+  function sortOrgs(orgs: OrgList, sortColumn: Column, sortDir: Dir): OrgList {
+    const data = [... orgs];
     let mult = sortDir === 'ascending' ? 1 : -1;
     data.sort((a, b) => {
       if (sortColumn === 'users') {
@@ -35,7 +37,7 @@
         const comp = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
         return comp * mult;
       } else if (sortColumn === 'created_at') {
-        const comp = a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0;
+        const comp = a.createdDate < b.createdDate ? -1 : a.createdDate > b.createdDate ? 1 : 0;
         return comp * mult;
       }
       return 0;
@@ -43,7 +45,7 @@
     return data;
   }
 
-  $: displayOrgs = sortOrgs($orgs, sortColumn, sortDir);
+  $: displayOrgs = $orgs ? sortOrgs($orgs, sortColumn, sortDir) : [];
 </script>
 
 <!--
