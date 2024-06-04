@@ -6,6 +6,7 @@ ADD https://github.com/open-telemetry/opentelemetry-cpp-contrib/releases/downloa
 RUN tar -xvf otel.tgz
 RUN apt-get update  \
     && apt-get install -y --no-install-recommends python3-pip
+# wsgi OTEL https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/wsgi/wsgi.html
 RUN pip3 install --target /work/wsgi-otel opentelemetry-instrumentation-wsgi opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-grpc
 
 
@@ -48,4 +49,4 @@ VOLUME /var/hg/repos
 
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
-ENV OTEL_RESOURCE_ATTRIBUTES="service.name=hgweb,service.version=${APP_VERSION}"
+ENV OTEL_RESOURCE_ATTRIBUTES_FROM_BUILD="service.name=hgweb,service.version=${APP_VERSION}"
