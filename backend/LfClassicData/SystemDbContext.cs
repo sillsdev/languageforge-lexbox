@@ -9,6 +9,7 @@ public class SystemDbContext
     public const string SystemDbName = "scriptureforge";
     private readonly IMongoDatabase _mongoDatabase;
     private bool? _isAvailable;
+    private DateTimeOffset _lastIsAvailableCheck = DateTimeOffset.MinValue;
 
     public SystemDbContext(MongoClient mongoClient)
     {
@@ -22,13 +23,20 @@ public class SystemDbContext
 
     public async Task<bool> IsAvailable()
     {
-        if (_isAvailable is null or false)
+        if (_isAvailable is null || (_isAvailable is false && DateTimeOffset.UtcNow - _lastIsAvailableCheck > TimeSpan.FromSeconds(30)))
         {
-            _isAvailable = await Task.Run(() =>
+            try
             {
                 //lang=json
-                return _mongoDatabase.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(TimeSpan.FromMilliseconds(100));
-            });
+                await _mongoDatabase.RunCommandAsync((Command<BsonDocument>)"{ping:1}")
+                    .WaitAsync(TimeSpan.FromMilliseconds(500));
+                _isAvailable = true;
+            }
+            catch
+            {
+                _isAvailable = false;
+            }
+            _lastIsAvailableCheck = DateTimeOffset.UtcNow;
         }
         return _isAvailable.Value;
     }
