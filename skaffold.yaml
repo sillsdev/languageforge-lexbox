@@ -32,6 +32,10 @@ build:
         dockerfile: Dockerfile
         buildArgs:
           APP_VERSION: dockerDev
+    - image: local-dev-init
+      context: data
+      docker:
+        dockerfile: Dockerfile
   local:
     useBuildkit: true
     concurrency: 2
