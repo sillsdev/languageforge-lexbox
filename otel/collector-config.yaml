@@ -26,6 +26,11 @@ processors:
   memory_limiter:
     check_interval: 1s
     limit_mib: 400
+  transform/squash_cookie_array:
+    trace_statements:
+      - context: span
+        statements:
+          - set(attributes["http.request.header.cookie"], String(attributes["http.request.header.cookie"])) where IsList(attributes["http.request.header.cookie"])
   redaction: # https://pkg.go.dev/github.com/open-telemetry/opentelemetry-collector-contrib/processor/redactionprocessor#section-readme
     allow_all_keys: true
     blocked_values:
@@ -55,7 +60,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, redaction, batch]
+      processors: [memory_limiter, transform/squash_cookie_array, redaction, batch]
       exporters: [otlp]
     metrics:
       receivers: [otlp]

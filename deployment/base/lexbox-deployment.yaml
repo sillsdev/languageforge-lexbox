@@ -192,7 +192,7 @@ spec:
             value: /tmp/tus-reset-upload
 
       - name: otel-collector
-        image: otel/opentelemetry-collector-contrib:0.87.0
+        image: otel/opentelemetry-collector-contrib:0.101.0
         args:
           - "--config"
           - "/etc/otelcol-contrib/config.yaml"
