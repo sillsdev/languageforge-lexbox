@@ -7,16 +7,16 @@ namespace LocalWebApp.Services;
 
 public class ImportFwdataService(ProjectsService projectsService, ILogger<ImportFwdataService> logger)
 {
-    public async Task<CrdtProject> Import(string fileName)
+    public async Task<CrdtProject> Import(string projectName)
     {
-        var project = await projectsService.CreateProject(Path.GetFileNameWithoutExtension(fileName),
+        var fwDataApi = CreateApiForFwdataFile(Path.ChangeExtension(projectName, "fwdata"));
+        var project = await projectsService.CreateProject(Path.GetFileNameWithoutExtension(projectName),
             afterCreate: async (provider, project) =>
             {
                 var crdtApi = provider.GetRequiredService<ILexboxApi>();
-                var fwDataApi = CreateApiForFwdataFile(fileName);
                 await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
             });
-        logger.LogInformation("Import of {FileName} complete!", fileName);
+        logger.LogInformation("Import of {FileName} complete!", projectName);
         return project;
     }
 
