@@ -45,7 +45,7 @@ on:
 jobs:
   test:
     timeout-minutes: 120
-    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
+    name: ${{ matrix.test }} tests for HG ${{ inputs.hg-version }}
     permissions:
       checks: write
     strategy:
