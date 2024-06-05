@@ -40,6 +40,8 @@ app.MapHub<LexboxApiHub>($"/api/hub/{{{LexboxApiHub.ProjectRouteKey}}}/lexbox");
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();
+app.MapTest();
+app.MapImport();
 
 await using (app)
 {
