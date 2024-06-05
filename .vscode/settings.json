@@ -29,5 +29,6 @@
     },
     "files.associations": {
       "**/frontend/**/i18n/**/*.json": "json5", // Supports json5 syntax: https://svelte-intl-precompile.com/en/docs/getting-started
-    }
+    },
+    "dotnet.defaultSolution": "LexBox.sln"
 }
