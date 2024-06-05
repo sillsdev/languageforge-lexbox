@@ -74,8 +74,12 @@ public class AuthHelpers
 #if DEBUG
         propertiesBuilder.WithUnprotectedFile();
 #else
-        propertiesBuilder.WithLinuxKeyring(LinuxKeyRingSchema, LinuxKeyRingCollection, LinuxKeyRingLabel, LinuxKeyRingAttr1, LinuxKeyRingAttr2)
-            .WithMacKeyChain(KeyChainServiceName, KeyChainAccountName)
+        propertiesBuilder.WithLinuxKeyring(LinuxKeyRingSchema,
+                LinuxKeyRingCollection,
+                LinuxKeyRingLabel,
+                LinuxKeyRingAttr1,
+                LinuxKeyRingAttr2)
+            .WithMacKeyChain(KeyChainServiceName, KeyChainAccountName);
 #endif
         return propertiesBuilder.Build();
     }
