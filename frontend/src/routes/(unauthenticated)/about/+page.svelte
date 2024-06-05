@@ -5,4 +5,6 @@
 
 <HomeBreadcrumb />
 <HeaderPage wide title={$t('about.title')}>
+  <h2>About Lexbox</h2>
+  <p>Placeholder content</p>
 </HeaderPage>
