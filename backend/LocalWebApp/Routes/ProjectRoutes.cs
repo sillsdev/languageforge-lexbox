@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using FwDataMiniLcmBridge.LcmUtils;
 using LcmCrdt;
 using MiniLcm;
 
@@ -9,7 +10,12 @@ public static class ProjectRoutes
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
-        group.MapGet("/projects", (ProjectsService projectService) => projectService.ListProjects());
+        group.MapGet("/projects",
+            async (ProjectsService projectService) =>
+        {
+            var crdtProjects = await projectService.ListProjects();
+            return crdtProjects.UnionBy(FieldWorksProjectList.EnumerateProjects(), identifier => identifier.Name);
+        });
         Regex alphaNumericRegex = new Regex("^[a-zA-Z0-9]*$");
         group.MapPost("/project",
             async (ProjectsService projectService, string name) =>

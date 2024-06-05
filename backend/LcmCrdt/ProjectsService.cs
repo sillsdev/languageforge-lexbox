@@ -1,5 +1,6 @@
 ﻿using Crdt.Db;
 using Microsoft.Extensions.DependencyInjection;
+using MiniLcm;
 
 namespace LcmCrdt;
 

@@ -5,7 +5,7 @@ namespace FwDataMiniLcmBridge.LcmUtils;
 
 public class ProjectLoader
 {
-    private static string ProjectFolder { get; } = @"C:\ProgramData\SIL\FieldWorks\Projects";
+    public const string ProjectFolder = @"C:\ProgramData\SIL\FieldWorks\Projects";
     private static string TemplatesFolder { get; } = @"C:\ProgramData\SIL\FieldWorks\Templates";
     private static bool _init;
 
