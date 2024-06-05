@@ -47,7 +47,7 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
         {
             if (importTo is CrdtLexboxApi crdtLexboxApi)
             {
-                await crdtLexboxApi.CreateEntry(entry);
+                await crdtLexboxApi.CreateEntryLite(entry);
             }
             else
             {
