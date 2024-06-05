@@ -40,20 +40,12 @@ tasks:
   setup-win:
     platforms: [ windows ]
     cmds:
-      - cmd: powershell "if (test-path {{.HG_REPO_DIR}}/sena-3) { rm -r {{.HG_REPO_DIR}}/sena-3 }"
-        ignore_error: true
-        silent: true
       - powershell -Command "Invoke-WebRequest 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' -OutFile {{.DATA_DIR}}/sena-3.zip -Resume"
-      - powershell -Command "Expand-Archive {{.DATA_DIR}}/sena-3.zip -DestinationPath {{.HG_REPO_DIR}}"
       - powershell -Command "Invoke-WebRequest 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t' -OutFile {{.DATA_DIR}}/elawa.zip -Resume"
   setup-unix:
     platforms: [ linux, darwin ]
     cmds:
-      - cmd: rm -rf {{.HG_REPO_DIR}}/sena-3
-        ignore_error: true
-        silent: true
       - wget -c -O {{.DATA_DIR}}/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
-      - unzip -q {{.DATA_DIR}}/sena-3.zip -d {{.HG_REPO_DIR}}/
       - wget -c -O {{.DATA_DIR}}/elawa.zip 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
 
   # k8s
