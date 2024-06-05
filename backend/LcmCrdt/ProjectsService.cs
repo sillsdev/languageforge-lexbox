@@ -36,7 +36,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         sqliteFile ??= $"{name}.sqlite";
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
-        using var serviceScope = CreateProjectScope(crdtProject);
+        await using var serviceScope = CreateProjectScope(crdtProject);
         db ??= serviceScope.ServiceProvider.GetRequiredService<CrdtDbContext>();
         await db.Database.EnsureCreatedAsync();
         db.Set<ProjectData>().Add(new ProjectData(name, id ?? Guid.NewGuid(), domain, Guid.NewGuid()));
@@ -45,9 +45,9 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         return crdtProject;
     }
 
-    public IServiceScope CreateProjectScope(CrdtProject crdtProject)
+    public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)
     {
-        var serviceScope = provider.CreateScope();
+        var serviceScope = provider.CreateAsyncScope();
         SetProjectScope(crdtProject);
         return serviceScope;
     }

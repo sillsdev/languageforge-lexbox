@@ -49,7 +49,7 @@ public class BackgroundSyncService(
 
     private async Task<SyncResults> SyncProject(CrdtProject crdtProject)
     {
-        using var serviceScope = projectsService.CreateProjectScope(crdtProject);
+        await using var serviceScope = projectsService.CreateProjectScope(crdtProject);
         var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
         return await syncService.ExecuteSync();
     }
