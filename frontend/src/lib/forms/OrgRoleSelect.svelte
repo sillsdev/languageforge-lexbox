@@ -9,7 +9,7 @@
   export let error: string | string[] | undefined = undefined;
 </script>
 
-<Select {id} bind:value label={$t('org_role.label')} {error}>
+<Select {id} bind:value label={$t('org_role.label')} {error} on:change>
   <option value={OrgRole.User}>
     {$t(verbose ? 'org_role.user_description' : 'org_role.user')}
   </option>

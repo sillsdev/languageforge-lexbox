@@ -8,7 +8,7 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, type OrgSearchParams } from './+page';
+  import { _changeOrgMemberRole, _changeOrgName, _deleteOrgUser, type OrgSearchParams } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import OrgMemberTable from '$lib/components/Orgs/OrgMemberTable.svelte';
@@ -75,6 +75,7 @@
       shownUsers={org.members}
       {canManage}
       on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.email ?? event.detail.username)}
+      on:changeMemberRole={(event) => _changeOrgMemberRole(org.id, event.detail.user.id, event.detail.role)}
     />
     {:else if $queryParamValues.tab === 'history'}
       <div class="space-y-2">

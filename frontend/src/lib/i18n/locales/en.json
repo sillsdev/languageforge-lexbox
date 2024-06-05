@@ -234,7 +234,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "add_member": "{email} has been added to organization.",
       "member_invited": "{email} has been sent an invitation email to register and join the organization."
     },
-    "edit_member": "Edit Member",
+    "edit_member_role": "Edit Member Role",
     "remove_member": "Remove Member",
     "org_name_empty_error": "Organization name cannot be empty",
     "projects_table_title": "Projects",

@@ -8,6 +8,7 @@
   import OrgRoleText from './OrgRoleText.svelte';
   import IconButton from '../IconButton.svelte';
   import AddOrgMemberModal from './AddOrgMemberModal.svelte';
+  import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
 
   type TableUser = Pick<User, 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
 
@@ -21,6 +22,8 @@
 
   export let shownUsers: Member[];
   export let canManage = false;
+
+  let editingUser: TableUser|undefined = undefined;
 
   const dispatch = createEventDispatcher();
 
@@ -102,7 +105,11 @@
             </span>
           </td>
           <td class="@2xl:table-cell">
+            {#if editingUser == user}
+            <OrgRoleSelect bind:value={member.role} on:change={() => {dispatch('changeMemberRole', member); editingUser = undefined}} />
+            {:else}
             <OrgRoleText value={member.role} />
+            {/if}
           </td>
           <td class="p-0">
             <Dropdown>
@@ -111,9 +118,9 @@
               </button>
               <ul slot="content" class="menu">
                 <li>
-                  <button class="whitespace-nowrap" on:click={() => dispatch('editUser', user)}>
+                  <button class="whitespace-nowrap" on:click={() => editingUser = user}>
                     <Icon icon="i-mdi-pencil-outline" />
-                    {$t('org_page.edit_member')}
+                    {$t('org_page.edit_member_role')}
                   </button>
                 </li>
                 <li>
