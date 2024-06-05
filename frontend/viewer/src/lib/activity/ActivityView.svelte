@@ -47,7 +47,9 @@
 
 <Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={load}>
   <Button on:click={toggleOn} icon={mdiHistory} variant="fill-outline" color="info" size="sm">
-    Activity
+    <div class="hidden sm:contents">
+      Activity
+    </div>
   </Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
     <div slot="title">Activity</div>
