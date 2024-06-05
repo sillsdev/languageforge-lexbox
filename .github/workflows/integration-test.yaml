@@ -48,6 +48,10 @@ jobs:
     name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
     permissions:
       checks: write
+    strategy:
+      fail-fast: false
+      matrix:
+        test: [ dotnet, playwright ]
     environment:
       name: ${{ inputs.environment }}
     runs-on: ${{ inputs.runs-on }}
@@ -70,38 +74,40 @@ jobs:
           pwsh #validate that powershell installed correctly
       # First we need to setup Node...
       - uses: actions/setup-node@v4
-        if: ${{ inputs.run-playwright }}
+        if: ${{ matrix.test == 'playwright' && inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
       # Then we can set up pnpm...
       - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
-        if: ${{ inputs.run-playwright }}
+        if: ${{ matrix.test == 'playwright' && inputs.run-playwright }}
         with:
           package_json_file: 'frontend/package.json'
-      # Then we can have Noede set up package caching
+      # Then we can have Node set up package caching
       - uses: actions/setup-node@v4
-        if: ${{ inputs.run-playwright }}
+        if: ${{ matrix.test == 'playwright' && inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
           cache: 'pnpm'
           cache-dependency-path: 'frontend/pnpm-lock.yaml'
       - uses: actions/setup-dotnet@v4
+        if: ${{ matrix.test == 'dotnet' }}
         env:
           DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
         with:
           dotnet-version: '8.x'
       - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
         id: python
-        if: ${{ inputs.runs-on != 'windows-latest' && !env.act && inputs.hg-version == '3' }}
+        if: ${{ matrix.test == 'dotnet' && inputs.runs-on != 'windows-latest' && !env.act && inputs.hg-version == '3' }}
         with:
           python-version: '2.7.18'
           cache-build: true
           allow-build: allow
       - name: Link python
-        if: ${{ inputs.runs-on != 'windows-latest' && inputs.hg-version == '3' }}
+        if: ${{ matrix.test == 'dotnet' && inputs.runs-on != 'windows-latest' && inputs.hg-version == '3' }}
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
+        if: ${{ matrix.test == 'dotnet' }}
         # limit cpu count for self-hosted due to memory constraints
         run: dotnet build ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
       # TODO: Set up caching for /home/runner/.cache/ms-playwright so this doesn't take as long
@@ -110,19 +116,20 @@ jobs:
       # TODO: Ditto for /var/cache/apt/archives/
       - name: Playwright setup
         working-directory: frontend
-        if: ${{ inputs.run-playwright }}
+        if: ${{ matrix.test == 'playwright' && inputs.run-playwright }}
         run: pnpm install && pnpm pretest
       - name: Set up Playwright dependencies
         working-directory: frontend
-        if: ${{ inputs.run-playwright && inputs.runs-on == 'self-hosted' }}
+        if: ${{ matrix.test == 'playwright' && inputs.run-playwright && inputs.runs-on == 'self-hosted' }}
         run: sudo pnpm exec playwright install-deps
       - name: Build for tests
+        if: ${{ matrix.test == 'dotnet' }}
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
 
       - name: Integration tests (Playwright)
-        if: ${{ inputs.run-playwright }}
+        if: ${{ matrix.test == 'playwright' && inputs.run-playwright }}
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -134,7 +141,7 @@ jobs:
         run: pnpm test
 
       - name: Integration tests (.NET)
-        if: always()
+        if: ${{ matrix.test == 'dotnet' }}
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -150,22 +157,22 @@ jobs:
 
       - name: Password protect Playwright traces
         id: password_protect_test_results
-        if: ${{ always() && inputs.run-playwright }}
+        if: ${{ always() && matrix.test == 'playwright' && inputs.run-playwright }}
         shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
-        if: ${{ always() && !env.act }}
+        if: ${{ always() && matrix.test == 'dotnet' && !env.act }}
         with:
           check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
           files: ./test-results/*.trx
       - name: Publish results to testspace
-        if: always()
+        if: ${{ always() && matrix.test == 'dotnet' }}
         run: testspace "[.Net Integration/$${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx" "[Playwright]./frontend/test-results/*.xml"
       - name: Upload playwright results
-        if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
+        if: ${{ always() && matrix.test == 'playwright' && inputs.run-playwright && steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
