@@ -1,11 +1,10 @@
 <script lang="ts">
   import { Button } from '$lib/forms';
   import t from '$lib/i18n';
-  import { AdminIcon, Icon } from '$lib/icons';
+  import { Icon } from '$lib/icons';
   import { createEventDispatcher } from 'svelte';
   import Dropdown from '../Dropdown.svelte';
   import type { OrgRole, User } from '$lib/gql/types';
-  import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
   import OrgRoleText from './OrgRoleText.svelte';
   import IconButton from '../IconButton.svelte';
   import AddOrgMemberModal from './AddOrgMemberModal.svelte';

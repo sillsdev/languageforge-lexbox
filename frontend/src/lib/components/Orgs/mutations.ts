@@ -1,7 +1,7 @@
-import type { $OpResult, AddOrgMemberMutation, OrgRole } from "$lib/gql/types";
-import { getClient, graphql } from "$lib/gql";
+import type { $OpResult, AddOrgMemberMutation, OrgRole } from '$lib/gql/types';
+import { getClient, graphql } from '$lib/gql';
 
-import type { UUID } from "crypto";
+import type { UUID } from 'crypto';
 
 export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole): $OpResult<AddOrgMemberMutation> {
   //language=GraphQL
