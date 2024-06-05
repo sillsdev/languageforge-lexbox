@@ -17,7 +17,7 @@ public class BasicApiTests : IAsyncLifetime
     private Guid _entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
     private Guid _entry2Id = new Guid("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
 
-    protected readonly IServiceScope _services;
+    protected readonly AsyncServiceScope _services;
     public DataModel DataModel = null!;
     private CrdtDbContext _crdtDbContext;
     private ProjectsService _projectsService;
@@ -30,7 +30,7 @@ public class BasicApiTests : IAsyncLifetime
             .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
         _projectsService = services.GetRequiredService<ProjectsService>();
-        _services = services.CreateScope();
+        _services = services.CreateAsyncScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<CrdtDbContext>();
     }
 
@@ -124,10 +124,9 @@ public class BasicApiTests : IAsyncLifetime
         });
     }
 
-    public Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        _services.Dispose();
-        return Task.CompletedTask;
+        await _services.DisposeAsync();
     }
 
     [Fact]
