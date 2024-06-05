@@ -1,4 +1,3 @@
-import {InMemoryApiService} from '../in-memory-api-service';
 import type {LexboxApi} from './lexbox-api';
 
 declare global {
