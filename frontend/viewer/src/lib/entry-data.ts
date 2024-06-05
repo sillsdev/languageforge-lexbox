@@ -1,5 +1,7 @@
 import type { IEntry, WritingSystems } from './mini-lcm';
 
+export const projectName = 'Sena 3';
+
 export const writingSystems: WritingSystems = {
   'analysis': [
     {

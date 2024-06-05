@@ -247,8 +247,8 @@ importers:
         specifier: ^2.12.0
         version: 2.13.0
       svelte-ux:
-        specifier: ^0.62.10
-        version: 0.62.12(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17)
+        specifier: ^0.66.4
+        version: 0.66.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17)
       type-fest:
         specifier: ^4.18.2
         version: 4.18.2
@@ -1234,8 +1234,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@fortawesome/fontawesome-common-types@6.5.1:
-    resolution: {integrity: sha512-GkWzv+L6d2bI5f/Vk6ikJ9xtl7dfXtoRu3YGE6nq0p/FFqA1ebMOAWg3XgRyb0I6LYyYkiAo+3/KrwuBp8xG7A==}
+  /@fortawesome/fontawesome-common-types@6.5.2:
+    resolution: {integrity: sha512-gBxPg3aVO6J0kpfHNILc+NMhXnqHumFxOmjYCFfOiLZfwhnnfhtsdA2hfJlDnj+8PjAs6kKQPenOTKj3Rf7zHw==}
     engines: {node: '>=6'}
     requiresBuild: true
     dev: false
@@ -4783,8 +4783,8 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
-  /clsx@2.1.0:
-    resolution: {integrity: sha512-m3iNNWpd9rl3jvvcBnu70ylMdrXt8Vlq4HYadnU5fwcOtvkSQWPmj7amUcDT2qYI7risszBjI5AUIUox9D16pg==}
+  /clsx@2.1.1:
+    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
     engines: {node: '>=6'}
     dev: false
 
@@ -6141,8 +6141,8 @@ packages:
     engines: {node: '>= 4'}
     dev: true
 
-  /immer@10.0.4:
-    resolution: {integrity: sha512-cuBuGK40P/sk5IzWa9QPUaAdvPHjkk1c+xYsd9oZw+YQQEV+10G0P5uMpGctZZKnyQ+ibRO08bD25nWLmYi2pw==}
+  /immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
     dev: false
 
   /immutable@3.7.6:
@@ -8959,8 +8959,8 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /sveld@0.19.1(@babel/core@7.24.4)(postcss@8.4.38):
-    resolution: {integrity: sha512-ec4fRABGafRNASMdvyztLLlkjLBvBdlI7p3egd9HtIai1ThPwdu7eNn044ywKtzjtjRy0JIvaucHCfGt1YyP8Q==}
+  /sveld@0.20.0(@babel/core@7.24.4)(postcss@8.4.38):
+    resolution: {integrity: sha512-PQRs0evdOjsFzjHuPu8B/flqbJX2osN2D0++6nl77jhwriQazaEF0pkQAMwPRaSn/kMivvUdWkkPKi1NmHLosg==}
     hasBin: true
     dependencies:
       '@rollup/plugin-node-resolve': 13.3.0(rollup@2.79.1)
@@ -9143,27 +9143,27 @@ packages:
       turnstile-types: 1.2.0
     dev: true
 
-  /svelte-ux@0.62.12(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17):
-    resolution: {integrity: sha512-lkcEEulsqjtJS2a9Vs8aPMqA/vBfSgjnEnkCYl2glbJTjfcfc9pnj6VkrOYvlUHntJF5m6MMKqQTMwe9P7w7kA==}
+  /svelte-ux@0.66.4(@babel/core@7.24.4)(postcss@8.4.38)(svelte@4.2.17):
+    resolution: {integrity: sha512-p5imk/FbnDdYPPK35X7RPdc5hLtG83RQlyGudul39TjiaVxp66rnqZT6AKXh+2h4CUVyH1chojohjg1jXRos8w==}
     peerDependencies:
-      svelte: ^3.56.0 || ^4.0.0
+      svelte: ^3.56.0 || ^4.0.0 || ^5.0.0-next.120
     dependencies:
       '@floating-ui/dom': 1.6.5
-      '@fortawesome/fontawesome-common-types': 6.5.1
+      '@fortawesome/fontawesome-common-types': 6.5.2
       '@mdi/js': 7.4.47
-      clsx: 2.1.0
+      clsx: 2.1.1
       culori: 4.0.1
       d3-array: 3.2.4
       d3-scale: 4.0.2
       date-fns: 3.6.0
-      immer: 10.0.4
+      immer: 10.1.1
       lodash-es: 4.17.21
       prism-svelte: 0.5.0
       prism-themes: 1.9.0
       prismjs: 1.29.0
-      sveld: 0.19.1(@babel/core@7.24.4)(postcss@8.4.38)
+      sveld: 0.20.0(@babel/core@7.24.4)(postcss@8.4.38)
       svelte: 4.2.17
-      tailwind-merge: 2.2.2
+      tailwind-merge: 2.3.0
       zod: 3.23.8
     transitivePeerDependencies:
       - '@babel/core'
@@ -9230,8 +9230,8 @@ packages:
       tslib: 2.6.2
     dev: true
 
-  /tailwind-merge@2.2.2:
-    resolution: {integrity: sha512-tWANXsnmJzgw6mQ07nE3aCDkCK4QdT3ThPMCzawoYA2Pws7vSTCvz3Vrjg61jVUGfFZPJzxEP+NimbcW+EdaDw==}
+  /tailwind-merge@2.3.0:
+    resolution: {integrity: sha512-vkYrLpIP+lgR0tQCG6AP7zZXCTLc1Lnv/CCRT3BqJ9CZ3ui2++GPaGb1x/ILsINIMSYqqvrpqjUFsMNLlW99EA==}
     dependencies:
       '@babel/runtime': 7.24.1
     dev: false

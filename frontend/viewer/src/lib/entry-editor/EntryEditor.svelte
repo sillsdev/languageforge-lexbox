@@ -3,7 +3,7 @@
   import EntityEditor from './EntityEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { ViewConfig } from '../config-types';
+  import type { LexboxFeatures, ViewConfig } from '../config-types';
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from './EntityListItemActions.svelte';
@@ -101,6 +101,7 @@
   }
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
+  const features = getContext<Readable<LexboxFeatures>>('features');
   const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
 </script>
 
@@ -187,7 +188,9 @@
           Delete Entry
         </div>
       </Button>
-      <HistoryView id={entry.id} small={$entryActionsPortal.collapsed} />
+      {#if $features.history}
+        <HistoryView id={entry.id} small={$entryActionsPortal.collapsed} />
+      {/if}
     </div>
   </div>
 {/if}
