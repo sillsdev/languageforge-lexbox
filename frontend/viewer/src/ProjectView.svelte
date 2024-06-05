@@ -157,7 +157,7 @@
   {:else}
     <main class="p-4">
       <div
-        class="grid flex-grow items-start justify-center" class:md:gap-x-6={!expandList}
+        class="grid flex-grow items-start justify-stretch md:justify-center" class:md:gap-x-6={!expandList}
         style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
       >
         <div class="w-screen max-w-full md:w-[400px] collapsible-col" class:md:!w-[1024px]={expandList} class:max-md:collapse-col={pickedEntry}>
@@ -190,7 +190,7 @@
             <div class="hidden" class:sm:hidden={expandList}>
               <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
             </div>
-            <div class="sm:w-[15vw] max-w-60 collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
+            <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 {#if !$viewConfig.readonly}
                   <div class="contents" bind:this={entryActionsElem}>
