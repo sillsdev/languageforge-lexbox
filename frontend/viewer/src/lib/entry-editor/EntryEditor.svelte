@@ -59,9 +59,7 @@
   }
   export let modalMode = false;
   export let readonly = false;
-  $: if (!readonly) {
-    readonly = $viewConfig.readonly ?? false;
-  }
+  $: isReadonly = readonly || $viewConfig.readonly;
 
   let editorElem: HTMLDivElement | undefined;
   let highlightedEntity: IExampleSentence | ISense | undefined;
@@ -119,7 +117,7 @@
       <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
         <h2 class="text-lg text-surface-content">Sense {i + 1}</h2>
         <hr class="grow border-t-4">
-        {#if !readonly}
+        {#if !isReadonly}
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
             on:move={(e) => moveSense(sense, e.detail)}
             on:delete={() => deleteSense(sense)} id={sense.id} />
@@ -141,7 +139,7 @@
                 collapse/expand toggle
               -->
               <hr class="grow">
-              {#if !readonly}
+              {#if !isReadonly}
               <EntityListItemActions i={j}
                                      items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
                   on:move={(e) => moveExample(sense, example, e.detail)}
@@ -160,14 +158,14 @@
           </div>
         {/each}
       </div>
-      {#if !readonly}
+      {#if !isReadonly}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
         </div>
       {/if}
     </div>
   {/each}
-  {#if !readonly}
+  {#if !isReadonly}
     <hr class="col-span-full grow border-t-4 my-4">
     <div class="col-span-full flex justify-end">
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
@@ -175,7 +173,7 @@
   {/if}
 </div>
 
-{#if !modalMode && !$viewConfig.readonly}
+{#if !modalMode && !isReadonly}
   <div class="hidden">
     <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">
