@@ -152,6 +152,12 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "created_at": "Created",
       "members": "Members"
     },
+    "create": {
+      "title": "Create Organization",
+      "name": "Name",
+      "name_missing": "Organization name required",
+      "submit": "Create Organization",
+    }
   },
   "project": {
     "create": {
