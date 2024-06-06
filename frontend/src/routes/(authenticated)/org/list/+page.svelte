@@ -18,7 +18,7 @@
 
   type OrgList = OrgListPageQuery['orgs']
 
-  type Column = 'name' | 'users' | 'created_at';
+  type Column = 'name' | 'members' | 'created_at';
   let sortColumn: Column = 'name';
   type Dir = 'ascending' | 'descending';
   let sortDir: Dir = 'ascending';
@@ -44,7 +44,7 @@
     const data = [... orgs];
     let mult = sortDir === 'ascending' ? 1 : -1;
     data.sort((a, b) => {
-      if (sortColumn === 'users') {
+      if (sortColumn === 'members') {
         return (a.members.length - b.members.length) * mult;
       } else if (sortColumn === 'name') {
         const comp = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
@@ -93,9 +93,9 @@ TODO:
             {$t('project.table.name')}
             <span class:invisible={sortColumn !== 'name'}  class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
-          <th on:click={() => handleSortClick('users')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
-            {$t('project.table.users')}
-            <span class:invisible={sortColumn !== 'users'} class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
+          <th on:click={() => handleSortClick('members')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
+            {$t('project.table.members')}
+            <span class:invisible={sortColumn !== 'members'} class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
           <th on:click={() => handleSortClick('created_at')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
             {$t('project.table.created_at')}

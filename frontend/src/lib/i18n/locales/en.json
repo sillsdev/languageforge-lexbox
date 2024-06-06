@@ -172,6 +172,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "migrated": "Migrated",
       "type": "Type",
       "users": "Users",
+      "members": "Members",
+      "__comment": "Move 'members' to 'org.table' once org page PR is merged",
     },
     "filter": {
       "title": "Project filters",
