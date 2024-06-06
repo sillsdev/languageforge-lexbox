@@ -58,6 +58,12 @@
               {$t('appmenu.help')}
               <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
+            <DevContent>
+            <a href="/org/list" class="btn btn-sm btn-warning max-sm:hidden">
+              {$t('appmenu.orgs')}
+              <Icon icon="i-mdi-account-group-outline" size="text-lg" />
+            </a>
+            </DevContent>
             <AdminContent>
               <a href="/admin" class="btn btn-sm btn-accent">
                 <span class="max-sm:hidden">

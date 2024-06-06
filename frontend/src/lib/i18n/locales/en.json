@@ -94,6 +94,7 @@
   },
   "appmenu": {
     "log_out": "Log out",
+    "orgs": "Organizations",
     "help": "Help"
   },
   "close": "Close",

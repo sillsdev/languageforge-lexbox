@@ -7,6 +7,7 @@
   import type {LexAuthUser} from '$lib/user';
   import Icon from '$lib/icons/Icon.svelte';
   import { helpLinks } from '$lib/components/help';
+  import DevContent from './DevContent.svelte';
 
   export let serverVersion: string;
   export let apiVersion: string | null;
@@ -51,6 +52,15 @@
       <AuthenticatedUserIcon />
     </a>
   </li>
+
+  <DevContent>
+  <li>
+    <a href="/org/list" data-sveltekit-preload-data="tap">
+      {$t('appmenu.orgs')}
+      <Icon icon="i-mdi-account-group-outline" size="text-2xl" />
+    </a>
+  </li>
+  </DevContent>
 
   <li>
     <a href={helpLinks.helpList} target="_blank" rel="external">
