@@ -18,6 +18,7 @@ public class Organization : EntityBase
     // We'll use this simpler method until we can debug the SqlMemberCount method
     [Projectable]
     public int MemberCount => Members.Count;
+    // Note that this will fail with a NullReferenceException if the GQL query doesn't include `members { at least one property }`
 }
 
 public class OrgMember : EntityBase

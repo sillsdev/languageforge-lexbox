@@ -18,6 +18,9 @@ export async function load(event: PageLoadEvent) {
             name
             createdDate
             memberCount
+            members {
+              userId
+            }
           }
         }
       `)
