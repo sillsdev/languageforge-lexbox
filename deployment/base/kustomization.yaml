@@ -13,3 +13,4 @@ resources:
 - ui-deployment.yaml
 - proxy-deployment.yaml
 - app-config.yaml
+- oauth-certs.yaml
