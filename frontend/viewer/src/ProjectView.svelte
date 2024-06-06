@@ -7,10 +7,10 @@
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
   import {setContext} from 'svelte';
-  import {derived, writable} from 'svelte/store';
+  import {derived, writable, type Readable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
-  import type {ViewConfig} from './lib/config-types';
-  import ViewOptions from './lib/layout/ViewOptions.svelte';
+  import {type ViewConfig, type LexboxPermissions, type ViewOptions, type LexboxFeatures} from './lib/config-types';
+  import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import Toc from './lib/layout/Toc.svelte';
   import {fade} from 'svelte/transition';
@@ -21,21 +21,36 @@
 
   export let loading = false;
 
-  const viewConfig = writable<ViewConfig>({
-    generateExternalChanges: false,
+  const lexboxApi = useLexboxApi();
+  const features = writable<LexboxFeatures>(lexboxApi.SupportedFeatures());
+  setContext<Readable<LexboxFeatures>>('features', features);
+
+  const permissions = writable<LexboxPermissions>({
+    write: true,
+    comment: true,
+  });
+
+  const options = writable<ViewOptions>({
     showExtraFields: false,
     hideEmptyFields: false,
     activeView: views[0],
-    readonly: undefined,
+    generateExternalChanges: false,
   });
 
-  setContext('viewConfig', derived(viewConfig, (config) => ({
-    ...config,
-    hideEmptyFields: config.hideEmptyFields || config.readonly,
-  })));
+  const viewConfig = derived([options, permissions, features], ([config, permissions, features]) => {
+    const readonly = !permissions.write || !features.write;
+    return {
+      ...config,
+      readonly,
+      hideEmptyFields: config.hideEmptyFields || readonly,
+    };
+  });
+
+  setContext<Readable<ViewConfig>>('viewConfig', viewConfig);
+
+  export let projectName: string;
   export let isConnected: boolean;
   $: connected.set(isConnected);
-  const lexboxApi = useLexboxApi();
 
   const connected = writable(false);
   const search = writable<string>('');
@@ -122,7 +137,7 @@
 </script>
 
 <div class="app flex flex-col PortalTarget">
-  <AppBar title="FLEx-Lite" class="bg-secondary min-h-12" menuIcon=''>
+  <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
@@ -144,7 +159,9 @@
           Configure
         </div>
       </Button>
-      <ActivityView/>
+      {#if $features.history}
+        <ActivityView/>
+      {/if}
     </div>
   </AppBar>
 
@@ -160,7 +177,7 @@
         class="grid flex-grow items-start justify-stretch md:justify-center"
         style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
       >
-        <div class="w-screen max-w-full md:w-[400px] collapsible-col" class:md:!w-[1024px]={expandList} class:max-md:collapse-col={pickedEntry}>
+        <div class="w-screen max-w-full md:w-[400px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:max-md:collapse-col={pickedEntry}>
           <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
         </div>
         <div class="max-w-full w-screen md:w-[65vw] collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
@@ -216,7 +233,7 @@
       </div>
     </main>
 
-    <ViewOptions bind:open={showOptionsDialog} {viewConfig} />
+    <ViewOptionsDrawer bind:open={showOptionsDialog} {options} {features} />
 
   {/if}
 </div>

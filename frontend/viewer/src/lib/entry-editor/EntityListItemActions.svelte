@@ -1,13 +1,17 @@
 <script lang="ts">
   import { mdiArrowDownBold, mdiArrowUpBold, mdiArrowUpDownBold, mdiChevronDoubleLeft, mdiPlaylistPlus, mdiTrashCanOutline } from "@mdi/js";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, getContext } from "svelte";
   import { Button, ButtonGroup, Icon, Popover, Toggle } from "svelte-ux";
   import HistoryView from '../history/HistoryView.svelte';
+  import type { Readable } from "svelte/store";
+  import type { LexboxFeatures } from "../config-types";
 
   const dispatch = createEventDispatcher<{
     move: number;
     delete: void;
   }>();
+
+  const features = getContext<Readable<LexboxFeatures>>('features');
 
   export let i: number;
   export let items: string[];
@@ -73,7 +77,7 @@
       </Toggle>
     </div>
   {/if}
-  {#if id}
+  {#if $features.history && id}
     <HistoryView small {id}/>
   {/if}
   <Button on:click={() => dispatch('delete')} variant="fill-light" rounded icon={mdiTrashCanOutline} color="danger" size="sm"></Button>
