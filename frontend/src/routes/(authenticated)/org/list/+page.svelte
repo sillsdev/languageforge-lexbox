@@ -89,23 +89,17 @@ TODO:
     <table class="table table-lg">
       <thead>
         <tr class="bg-base-200">
-          <th on:click={() => handleSortClick('name')} class="cursor-pointer">
+          <th on:click={() => handleSortClick('name')} class="cursor-pointer hover:bg-base-300">
             {$t('project.table.name')}
-            {#if sortColumn === 'name'}
-            <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
-            {/if}
+            <span class:invisible={sortColumn !== 'name'}  class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
-          <th on:click={() => handleSortClick('users')} class="cursor-pointer hidden @md:table-cell">
+          <th on:click={() => handleSortClick('users')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
             {$t('project.table.users')}
-            {#if sortColumn === 'users'}
-            <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
-            {/if}
+            <span class:invisible={sortColumn !== 'users'} class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
-          <th on:click={() => handleSortClick('created_at')} class="cursor-pointer hidden @xl:table-cell">
-              {$t('project.table.created_at')}
-              {#if sortColumn === 'created_at'}
-              <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
-              {/if}
+          <th on:click={() => handleSortClick('created_at')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
+            {$t('project.table.created_at')}
+            <span class:invisible={sortColumn !== 'created_at'}  class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
         </tr>
       </thead>
