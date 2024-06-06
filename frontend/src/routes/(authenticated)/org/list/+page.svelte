@@ -24,7 +24,7 @@
   let sortDir = 'ascending' as Dir;
 
   function swapSortDir(): void {
-    sortDir = sortDir == 'ascending' ? 'descending' : 'ascending';
+    sortDir = sortDir === 'ascending' ? 'descending' : 'ascending';
   }
 
   function handleSortClick(clickedColumn: Column): void {
@@ -91,19 +91,19 @@ TODO:
         <tr class="bg-base-200">
           <th on:click={() => handleSortClick('name')} class="cursor-pointer">
             {$t('project.table.name')}
-            {#if sortColumn == 'name'}
+            {#if sortColumn === 'name'}
             <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
             {/if}
           </th>
           <th on:click={() => handleSortClick('users')} class="cursor-pointer hidden @md:table-cell">
             {$t('project.table.users')}
-            {#if sortColumn == 'users'}
+            {#if sortColumn === 'users'}
             <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
             {/if}
           </th>
           <th on:click={() => handleSortClick('created_at')} class="cursor-pointer hidden @xl:table-cell">
               {$t('project.table.created_at')}
-              {#if sortColumn == 'created_at'}
+              {#if sortColumn === 'created_at'}
               <span class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
               {/if}
           </th>
