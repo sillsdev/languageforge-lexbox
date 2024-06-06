@@ -181,10 +181,10 @@
         class="grid flex-grow items-start justify-stretch md:justify-center"
         style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
       >
-        <div class="w-screen max-w-full md:w-[400px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:max-md:collapse-col={pickedEntry}>
+        <div class="w-screen max-w-full md:w-[500px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
           <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
         </div>
-        <div class="max-w-full w-screen md:w-[65vw] collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
+        <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
           {#if $selectedEntry}
             <div class="mb-6">
               <DictionaryEntryViewer entry={$selectedEntry} />
@@ -206,12 +206,12 @@
             </div>
           {/if}
         </div>
-        {#if $selectedEntry && !expandList}
-          <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:max-md:hidden={!pickedEntry}>
-            <div class="hidden" class:sm:hidden={expandList}>
-              <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
-            </div>
-            <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
+        <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-md:hidden={!pickedEntry}>
+          <div class="hidden" class:sm:hidden={expandList}>
+            <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
+          </div>
+          <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
+            {#if $selectedEntry && !expandList}
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 {#if !$viewConfig.readonly}
                   <div class="contents" bind:this={entryActionsElem}>
@@ -231,9 +231,9 @@
                   iconOnly
                   icon={mdiEyeSettingsOutline} />
               </span>
-            </div>
+            {/if}
           </div>
-        {/if}
+        </div>
       </div>
     </main>
 
