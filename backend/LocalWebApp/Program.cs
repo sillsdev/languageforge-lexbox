@@ -1,5 +1,6 @@
 using LcmCrdt;
 using LocalWebApp;
+using LocalWebApp.Hubs;
 using LocalWebApp.Routes;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
@@ -36,7 +37,7 @@ app.Use(async (context, next) =>
 
     await next(context);
 });
-app.MapHub<LexboxApiHub>($"/api/hub/{{{LexboxApiHub.ProjectRouteKey}}}/lexbox");
+app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();

@@ -4,14 +4,14 @@ using Microsoft.Extensions.Options;
 using MiniLcm;
 using SystemTextJsonPatch;
 
-namespace LocalWebApp;
+namespace LocalWebApp.Hubs;
 
 public interface ILexboxClient
 {
     Task OnEntryUpdated(Entry entry);
 }
 
-public class LexboxApiHub(
+public class CrdtMiniLcmApiHub(
     ILexboxApi lexboxApi,
     IOptions<JsonOptions> jsonOptions,
     BackgroundSyncService backgroundSyncService,

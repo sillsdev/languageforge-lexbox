@@ -1,5 +1,6 @@
 ﻿using Crdt.Core;
 using Crdt.Db;
+using LocalWebApp.Hubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MiniLcm;
@@ -15,7 +16,7 @@ public static class TestRoutes
         {
             operation.Parameters.Add(new OpenApiParameter()
             {
-                Name = LexboxApiHub.ProjectRouteKey,
+                Name = CrdtMiniLcmApiHub.ProjectRouteKey,
                 In = ParameterLocation.Path,
                 Required = true
             });
