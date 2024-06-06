@@ -20,7 +20,8 @@ export async function load(event: PageLoadEvent) {
             memberCount
           }
         }
-      `)
+      `),
+    {}
     );
   const nonNullableOrgs = tryMakeNonNullable(orgQueryResult.orgs);
   return {orgs: nonNullableOrgs};
