@@ -1,7 +1,7 @@
 {
   "about": {
-		"title": "About"
-	},
+    "title": "About"
+  },
   "admin_dashboard": {
     "title": "Admin Dashboard",
     "column_code": "Code",
