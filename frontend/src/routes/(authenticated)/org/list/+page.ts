@@ -37,5 +37,4 @@ export async function load(event: PageLoadEvent) {
     );
   const nonNullableOrgs = tryMakeNonNullable(orgQueryResult.orgs);
   return {orgs: nonNullableOrgs};
-  // return {orgs: orgQueryResult};
 }
