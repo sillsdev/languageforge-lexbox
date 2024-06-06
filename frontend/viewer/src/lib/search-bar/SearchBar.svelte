@@ -5,7 +5,7 @@
   import { useLexboxApi } from '../services/service-provider';
   import { derived, writable } from 'svelte/store';
   import { deriveAsync } from '../utils/time';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import type { IEntry } from '../mini-lcm';
 
   const dispatch = createEventDispatcher<{
@@ -13,6 +13,27 @@
   }>();
 
   let showSearchDialog = false;
+
+  let waitingForSecondShift = false;
+  let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
+  const abortController = new AbortController();
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Shift') return;
+    if (waitingForSecondShift) {
+      waitingForSecondShift = false;
+      clearTimeout(waitingForSecondShiftTimeout);
+      showSearchDialog = true;
+    } else {
+      waitingForSecondShift = true;
+      waitingForSecondShiftTimeout = setTimeout(() => {
+        waitingForSecondShift = false;
+      }, 500);
+    }
+  }, { signal: abortController.signal });
+
+  onDestroy(() => {
+    abortController.abort();
+  });
 
   const lexboxApi = useLexboxApi();
   const search = writable<string | undefined>(undefined);
@@ -43,7 +64,7 @@
   </div>
 </Field>
 
-<Dialog bind:open={showSearchDialog} class="w-[700px]" classes={{root: 'items-start mt-4', title: 'p-2'}}>
+<Dialog bind:open={showSearchDialog} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
     <TextField
       autofocus
