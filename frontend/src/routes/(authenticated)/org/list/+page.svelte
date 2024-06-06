@@ -19,7 +19,7 @@
   type OrgList = OrgListPageQuery['orgs']
 
   type Column = 'name' | 'users' | 'created_at';
-  let sortColumn: Column = 'created_at';
+  let sortColumn: Column = 'name';
   type Dir = 'ascending' | 'descending';
   let sortDir: Dir = 'ascending';
 
