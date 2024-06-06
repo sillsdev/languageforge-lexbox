@@ -45,7 +45,8 @@ export const handle: Handle = ({ event, resolve }) => {
     } else if (PUBLIC_ROUTE_ROOTS.includes(getRoot(routeId))) {
       return resolve(event, options);
     } else if (!isAuthn(cookies)) {
-      redirect(307, '/login');
+      const relativePath = event.url.href.substring(event.url.origin.length);
+      redirect(307, `/login?ReturnUrl=${encodeURIComponent(relativePath)}`);
     }
     //when at home
     if (routeId == `/${AUTHENTICATED_ROOT}`) {

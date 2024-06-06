@@ -18,4 +18,4 @@
   SetupSignalR(connection);
   let connected = false;
 </script>
-<ProjectView isConnected={connected}></ProjectView>
+<ProjectView {projectName} isConnected={connected}></ProjectView>

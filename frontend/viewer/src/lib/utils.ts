@@ -48,15 +48,6 @@ export function pickWritingSystems(
   }
 }
 
-export function filterEntries(entries: IEntry[], query: string) {
-  return entries.filter(entry =>
-    [
-      ...Object.values(entry.lexemeForm ?? {}),
-      ...Object.values(entry.citationForm ?? {}),
-      ...Object.values(entry.literalMeaning ?? {}),
-    ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
-}
-
 const emptyIdPrefix = '00000000-0000-0000-0000-';
 export function emptyId(): string {
   return emptyIdPrefix + crypto.randomUUID().slice(emptyIdPrefix.length);

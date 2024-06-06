@@ -23,6 +23,9 @@ if os.getenv('ENABLE_DEMAND_IMPORT', 'false').lower() in ['1', 'true', 'yes']:
 else:
     demandimport.disable()
 
+# Fixup OTEL_RESOURCE_ATTRIBUTES, can't define twice, once in dockerfile and once via k8s, so we need to merge them here
+os.environ['OTEL_RESOURCE_ATTRIBUTES'] = os.getenv('OTEL_RESOURCE_ATTRIBUTES', '') + ',' + os.getenv('OTEL_RESOURCE_ATTRIBUTES_FROM_BUILD', '')
+
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.trace import TracerProvider

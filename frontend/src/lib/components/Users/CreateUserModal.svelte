@@ -16,12 +16,14 @@
   let createUserModal: Modal;
   export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
 
+  let formTainted = false;
+
   export async function open(): Promise<void> {
     await createUserModal.openModal(true, true);
   }
 </script>
 
-<Modal bind:this={createUserModal} bottom>
+<Modal bind:this={createUserModal} bottom closeOnClickOutside={!formTainted}>
   <div class="alert alert-info gap-4 mb-4">
     <Icon icon="i-mdi-info-outline" size="text-2xl" />
     <div>
@@ -39,7 +41,7 @@
     </div>
   </div>
   <h1 class="text-center text-xl">{$t('admin_dashboard.create_user_modal.create_user')}</h1>
-  <CreateUser {handleSubmit} allowUsernames skipTurnstile
+  <CreateUser {handleSubmit} allowUsernames skipTurnstile bind:formTainted
     on:submitted={(event) => {
       createUserModal.submitModal();
       dispatch('submitted', event.detail);
