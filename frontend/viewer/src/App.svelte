@@ -27,7 +27,7 @@
 <Router {url}>
   <nav>
   </nav>
-  <div>
+  <div class="app">
     <Route path="/project/:name" let:params>
       {#key params.name}
         <CrdtProjectView projectName={params.name}/>

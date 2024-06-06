@@ -145,7 +145,7 @@
   <title>{projectName}</title>
 </svelte:head>
 
-<div class="app flex flex-col PortalTarget">
+<div class="project-view !flex flex-col PortalTarget">
   <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
@@ -181,7 +181,7 @@
       </div>
     </div>
   {:else}
-    <main class="p-4">
+    <main class="p-4 flex grow">
       <div
         class="grid flex-grow items-start justify-stretch md:justify-center"
         style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
@@ -227,7 +227,7 @@
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>
-              <span class="text-surface-content bg-surface-100/75 text-sm absolute bottom-0 right-0 p-2 inline-flex gap-2 items-center">
+              <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 items-center">
                 {$viewConfig.activeView.label}
                 <Button
                   on:click={() => (showOptionsDialog = true)}
