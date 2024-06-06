@@ -22,7 +22,6 @@ function filterEntries(entries: IEntry[], query: string) {
       ...Object.values(entry.citationForm ?? {}),
       ...Object.values(entry.literalMeaning ?? {}),
       ...entry.senses.flatMap(sense => [
-        ...Object.values(sense.definition ?? {}),
         ...Object.values(sense.gloss ?? {}),
       ]),
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
