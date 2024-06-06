@@ -32,7 +32,8 @@ public class OrgMutations
             Members =
             [
                 new OrgMember() { Role = OrgRole.Admin, UserId = userId }
-            ]
+            ],
+            Projects = []
         });
         await dbContext.SaveChangesAsync();
         return dbContext.Orgs.Where(o => o.Id == orgId);

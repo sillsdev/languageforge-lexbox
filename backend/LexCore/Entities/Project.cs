@@ -18,6 +18,7 @@ public class Project : EntityBase
     public required bool? IsConfidential { get; set; }
     public FlexProjectMetadata? FlexProjectMetadata { get; set; }
     public required List<ProjectUsers> Users { get; set; }
+    public required List<Organization> Organizations { get; set; }
     public required DateTimeOffset? LastCommit { get; set; }
     public DateTimeOffset? DeletedDate { get; set; }
     public ResetStatus ResetStatus { get; set; } = ResetStatus.None;

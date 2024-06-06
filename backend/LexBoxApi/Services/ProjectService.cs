@@ -34,6 +34,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
                 IsConfidential = isConfidentialIsUntrustworthy ? null : input.IsConfidential,
+                Organizations = [],
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         // Also delete draft project, if any

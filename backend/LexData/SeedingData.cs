@@ -105,6 +105,7 @@ public class SeedingData(
                 LexEntryCount = -1
             },
             IsConfidential = null,
+            Organizations = [],
             Users = new()
             {
                 new()
@@ -154,6 +155,7 @@ public class SeedingData(
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
             IsConfidential = false,
+            Organizations = [],
             Users = [],
         });
 
@@ -161,6 +163,7 @@ public class SeedingData(
         {
             Id = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6"),
             Name = "Test Org",
+            Projects = [],
             Members =
             [
                 new OrgMember

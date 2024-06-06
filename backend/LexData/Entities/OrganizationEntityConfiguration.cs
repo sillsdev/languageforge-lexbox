@@ -16,5 +16,11 @@ public class OrganizationEntityConfiguration: EntityBaseConfiguration<Organizati
             .WithOne(m => m.Organization)
             .HasForeignKey(m => m.OrgId)
             .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(o => o.Projects)
+            .WithMany(p => p.Organizations)
+            .UsingEntity<OrgProjects>(
+                op => op.HasOne(op => op.Project).WithMany().HasForeignKey(op => op.ProjectId),
+                op => op.HasOne(op => op.Org).WithMany().HasForeignKey(op => op.OrgId)
+            );
     }
 }

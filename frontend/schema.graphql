@@ -229,11 +229,23 @@ type OrgMember {
   updatedDate: DateTime!
 }
 
+type OrgProjects {
+  org: Organization!
+  project: Project!
+  orgId: UUID!
+  projectId: UUID!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
 type Organization {
   createdDate: DateTime!
   memberCount: Int!
   name: String!
   members: [OrgMember!]!
+  projects: [Project!]!
+  projectCount: Int!
   id: UUID!
   updatedDate: DateTime!
 }
@@ -253,6 +265,7 @@ type Project {
   type: ProjectType!
   isConfidential: Boolean
   flexProjectMetadata: FlexProjectMetadata
+  organizations: [Organization!]!
   lastCommit: DateTime
   deletedDate: DateTime
   resetStatus: ResetStatus!
@@ -593,6 +606,20 @@ input ListFilterInputTypeOfOrgMemberFilterInput {
   any: Boolean
 }
 
+input ListFilterInputTypeOfOrganizationFilterInput {
+  all: OrganizationFilterInput
+  none: OrganizationFilterInput
+  some: OrganizationFilterInput
+  any: Boolean
+}
+
+input ListFilterInputTypeOfProjectFilterInput {
+  all: ProjectFilterInput
+  none: ProjectFilterInput
+  some: ProjectFilterInput
+  any: Boolean
+}
+
 input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput
   none: ProjectUsersFilterInput
@@ -633,6 +660,8 @@ input OrganizationFilterInput {
   name: StringOperationFilterInput
   members: ListFilterInputTypeOfOrgMemberFilterInput
   memberCount: IntOperationFilterInput
+  projects: ListFilterInputTypeOfProjectFilterInput
+  projectCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -641,6 +670,7 @@ input OrganizationFilterInput {
 input OrganizationSortInput {
   name: SortEnumType
   memberCount: SortEnumType
+  projectCount: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType
@@ -658,6 +688,7 @@ input ProjectFilterInput {
   isConfidential: BooleanOperationFilterInput
   flexProjectMetadata: FlexProjectMetadataFilterInput
   users: ListFilterInputTypeOfProjectUsersFilterInput
+  organizations: ListFilterInputTypeOfOrganizationFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
