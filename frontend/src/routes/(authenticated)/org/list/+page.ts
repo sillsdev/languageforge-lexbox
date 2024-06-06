@@ -18,6 +18,7 @@ export async function load(event: PageLoadEvent) {
             id
             name
             createdDate
+            memberCount
             members {
               id
               role

@@ -212,10 +212,11 @@ type OrgMember {
 }
 
 type Organization {
+  createdDate: DateTime!
+  memberCount: Int!
   name: String!
   members: [OrgMember!]!
   id: UUID!
-  createdDate: DateTime!
   updatedDate: DateTime!
 }
 
@@ -591,6 +592,7 @@ input OrganizationFilterInput {
   or: [OrganizationFilterInput!]
   name: StringOperationFilterInput
   members: ListFilterInputTypeOfOrgMemberFilterInput
+  memberCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -598,6 +600,7 @@ input OrganizationFilterInput {
 
 input OrganizationSortInput {
   name: SortEnumType
+  memberCount: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType

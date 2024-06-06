@@ -45,7 +45,7 @@
     let mult = sortDir === 'ascending' ? 1 : -1;
     data.sort((a, b) => {
       if (sortColumn === 'members') {
-        return (a.members.length - b.members.length) * mult;
+        return (a.memberCount - b.memberCount) * mult;
       } else if (sortColumn === 'name') {
         const comp = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
         return comp * mult;
@@ -114,7 +114,7 @@ TODO:
               </span>
             </td>
             <td class="hidden @md:table-cell">
-              {$number(org.members.length)}
+              {$number(org.memberCount)}
             </td>
             <td class="hidden @xl:table-cell">
               {$date(org.createdDate)}
