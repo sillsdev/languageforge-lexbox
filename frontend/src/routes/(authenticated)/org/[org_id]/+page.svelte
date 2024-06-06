@@ -93,7 +93,7 @@
       orgId={org.id}
       shownUsers={org.members}
       {canManage}
-      on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.email ?? event.detail.username)}
+      on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.user.id)}
       on:changeMemberRole={(event) => _changeOrgMemberRole(org.id, event.detail.user.id, event.detail.role)}
     />
     {:else if $queryParamValues.tab === 'history'}

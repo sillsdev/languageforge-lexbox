@@ -195,12 +195,12 @@ export async function _changeOrgName(input: ChangeOrgNameInput): $OpResult<Chang
 //   return result;
 // }
 
-export async function _deleteOrgUser(orgId: string, emailOrUsername: string): $OpResult<DeleteOrgUserMutation> {
+export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<DeleteOrgUserMutation> {
   const result = await getClient()
     .mutation(
       graphql(`
-        mutation deleteOrgUser($input: SetOrgMemberRoleInput!) {
-          setOrgMemberRole(input: $input) {
+        mutation deleteOrgUser($input: ChangeOrgMemberRoleInput!) {
+          changeOrgMemberRole(input: $input) {
             organization {
               id
               members {
@@ -215,7 +215,7 @@ export async function _deleteOrgUser(orgId: string, emailOrUsername: string): $O
           }
         }
       `),
-      { input: { orgId, emailOrUsername, role: null } }
+      { input: { orgId, userId, role: null } }
     );
   return result;
 }
