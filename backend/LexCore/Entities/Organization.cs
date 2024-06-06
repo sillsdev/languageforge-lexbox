@@ -10,14 +10,14 @@ public class Organization : EntityBase
     public required List<OrgMember> Members { get; set; }
 
     // This doesn't seem to work:
-    // [NotMapped]
-    // [Projectable(UseMemberBody = nameof(SqlMemberCount))]
-    // public int MemberCount { get; set; }
-    // private static Expression<Func<Organization, int>> SqlMemberCount => org => org.Members.Count;
+    [NotMapped]
+    [Projectable(UseMemberBody = nameof(SqlMemberCount))]
+    public int MemberCount { get; set; }
+    private static Expression<Func<Organization, int>> SqlMemberCount => org => org.Members.Count;
 
     // We'll use this simpler method until we can debug the SqlMemberCount method
-    [Projectable]
-    public int MemberCount => Members.Count;
+    // [Projectable]
+    // public int MemberCount => Members.Count;
     // Note that this will fail with a NullReferenceException if the GQL query doesn't include `members { at least one property }`
 }
 

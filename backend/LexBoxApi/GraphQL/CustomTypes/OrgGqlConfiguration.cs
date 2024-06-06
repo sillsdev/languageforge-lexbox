@@ -11,6 +11,5 @@ public class OrgGqlConfiguration : ObjectType<Organization>
         // TODO: Will we want something similar to the following Project code for orgs?
         // descriptor.Field(o => o.Id).Use<RefreshJwtProjectMembershipMiddleware>();
         // descriptor.Field(o => o.Members).Use<RefreshJwtProjectMembershipMiddleware>();
-        descriptor.Field("memberCount").Resolve(ctx => ctx.Parent<Organization>().MemberCount);
     }
 }
