@@ -69,30 +69,33 @@
       </Button>
     </div>
   </div>
-  <div bind:this={scrollContainerElem} class="border rounded-md overflow-auto">
-    {#if !entries || entries.length == 0}
-      <div class="p-4 text-center opacity-75">No entries found</div>
-    {:else}
-      <InfiniteScroll {perPage} items={entries} let:visibleItems>
-        {#each visibleItems as entry (entry.id)}
-          <div class="entry" class:selected-entry={$selectedEntry == entry}>
-            {#if dictionaryMode}
-              <button class="p-2 w-full text-left"
-                on:click={() => selectEntry(entry)}>
-                <DictionaryEntry entry={entry} />
-              </button>
-            {:else}
-                <ListItem
-                  title={headword(entry)}
-                  subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '-')}
-                  on:click={() => selectEntry(entry)}
-                  noShadow
-                />
-            {/if}
-          </div>
-        {/each}
-      </InfiniteScroll>
-    {/if}
+  <div class="border rounded-md overflow-hidden flex">
+    <div class="overflow-auto w-full">
+      {#if !entries || entries.length == 0}
+        <div class="p-4 text-center opacity-75">No entries found</div>
+      {:else}
+        <InfiniteScroll {perPage} items={entries} let:visibleItems>
+          {#each visibleItems as entry (entry.id)}
+            <div class="entry" class:selected-entry={$selectedEntry == entry}>
+              {#if dictionaryMode}
+                <button class="p-2 w-full text-left"
+                  on:click={() => selectEntry(entry)}>
+                  <DictionaryEntry entry={entry} />
+                </button>
+              {:else}
+                  <ListItem
+                    title={headword(entry)}
+                    subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '-')}
+                    on:click={() => selectEntry(entry)}
+                    noShadow
+                    class="!rounded-none"
+                  />
+              {/if}
+            </div>
+          {/each}
+        </InfiniteScroll>
+      {/if}
+    </div>
   </div>
 </div>
 
