@@ -1,4 +1,5 @@
 ﻿using FwDataMiniLcmBridge.Api.UpdateProxy;
+using Microsoft.Extensions.Logging;
 using MiniLcm;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
@@ -8,7 +9,7 @@ using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Api;
 
-public class LexboxLcmApi(LcmCache cache, bool onCloseSave) : ILexboxApi, IDisposable
+public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger) : ILexboxApi, IDisposable
 {
     private readonly IRepository<ILexEntry> _entriesRepository =
         cache.ServiceLocator.GetInstance<IRepository<ILexEntry>>();
@@ -31,7 +32,11 @@ public class LexboxLcmApi(LcmCache cache, bool onCloseSave) : ILexboxApi, IDispo
     public void Dispose()
     {
         if (onCloseSave)
+        {
+            logger.LogInformation("Saving FW data file {Name}", cache.ProjectId.Name);
             cache.ActionHandlerAccessor.Commit();
+        }
+
         cache.Dispose();
     }
 

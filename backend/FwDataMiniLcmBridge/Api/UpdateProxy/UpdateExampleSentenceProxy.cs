@@ -4,7 +4,7 @@ using SIL.LCModel.Core.Text;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, LexboxLcmApi lexboxLcmApi): ExampleSentence
+public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMiniLcmApi lexboxLcmApi): ExampleSentence
 {
     public override Guid Id
     {

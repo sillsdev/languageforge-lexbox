@@ -1,15 +1,16 @@
-﻿using FwDataMiniLcmBridge.Api;
+﻿using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using LcmCrdt;
 using MiniLcm;
 
 namespace LocalWebApp.Services;
 
-public class ImportFwdataService(ProjectsService projectsService, ILogger<ImportFwdataService> logger)
+public class ImportFwdataService(ProjectsService projectsService, ILogger<ImportFwdataService> logger, FwDataFactory fwDataFactory)
 {
     public async Task<CrdtProject> Import(string projectName)
     {
-        var fwDataApi = CreateApiForFwdataFile(Path.ChangeExtension(projectName, "fwdata"));
+        using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(projectName, false);
         var project = await projectsService.CreateProject(Path.GetFileNameWithoutExtension(projectName),
             afterCreate: async (provider, project) =>
             {
@@ -18,13 +19,6 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
             });
         logger.LogInformation("Import of {FileName} complete!", projectName);
         return project;
-    }
-
-    private LexboxLcmApi CreateApiForFwdataFile(string fileName)
-    {
-        var cache = ProjectLoader.LoadCache(fileName);
-        logger.LogInformation("Loaded cache for {FileName}", fileName);
-        return new LexboxLcmApi(cache, false);
     }
 
     async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)

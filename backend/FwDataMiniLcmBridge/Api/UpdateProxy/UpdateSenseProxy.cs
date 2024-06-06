@@ -3,7 +3,7 @@ using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateSenseProxy(ILexSense sense, LexboxLcmApi lexboxLcmApi) : Sense
+public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : Sense
 {
     public override Guid Id
     {

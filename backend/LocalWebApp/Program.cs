@@ -1,3 +1,5 @@
+using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.LcmUtils;
 using LcmCrdt;
 using LocalWebApp;
 using LocalWebApp.Hubs;
@@ -35,9 +37,17 @@ app.Use(async (context, next) =>
                                         throw new InvalidOperationException($"Project {projectName} not found"));
     }
 
+    var fwData = context.GetFwDataName();
+    if (!string.IsNullOrWhiteSpace(fwData))
+    {
+        var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
+        fwDataProjectContext.Project = FieldWorksProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
+    }
+
     await next(context);
 });
 app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
+app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}fwdata");
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();

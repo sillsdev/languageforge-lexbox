@@ -1,5 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge;
 using LcmCrdt;
 using MiniLcm;
 

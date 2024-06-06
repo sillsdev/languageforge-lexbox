@@ -4,6 +4,7 @@
   import TestProjectView from './TestProjectView.svelte';
   import {ListItem, Card, TextField, Button} from 'svelte-ux';
   import {mdiCubeOutline, mdiMicrosoftXbox, mdiTestTube} from '@mdi/js';
+  import FwDataProjectView from './FwDataProjectView.svelte';
 
   let projectsPromise = fetchProjects();
   export let url = '';
@@ -43,6 +44,11 @@
     <Route path="/project/:name" let:params>
       {#key params.name}
         <CrdtProjectView projectName={params.name}/>
+      {/key}
+    </Route>
+    <Route path="/fwdata/:name" let:params>
+      {#key params.name}
+        <FwDataProjectView projectName={params.name}/>
       {/key}
     </Route>
     <Route path="/testing/project-view">

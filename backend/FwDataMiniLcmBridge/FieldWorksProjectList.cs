@@ -1,7 +1,7 @@
-﻿using MiniLcm;
-using Mono.Unix.Native;
+﻿using FwDataMiniLcmBridge.LcmUtils;
+using MiniLcm;
 
-namespace FwDataMiniLcmBridge.LcmUtils;
+namespace FwDataMiniLcmBridge;
 
 public class FieldWorksProjectList
 {
@@ -12,13 +12,12 @@ public class FieldWorksProjectList
             var projectName = Path.GetFileName(directory);
             if (string.IsNullOrEmpty(projectName)) continue;
             if (!File.Exists(Path.Combine(directory, projectName + ".fwdata"))) continue;
-            yield return new FwDataProject(projectName);
+            yield return new FwDataProject(projectName, projectName + ".fwdata");
         }
     }
-}
 
-public class FwDataProject(string name) : IProjectIdentifier
-{
-    public string Name { get; } = name;
-    public string Origin { get; } = "FieldWorks";
+    public static FwDataProject? GetProject(string name)
+    {
+        return EnumerateProjects().OfType<FwDataProject>().FirstOrDefault(p => p.Name == name);
+    }
 }

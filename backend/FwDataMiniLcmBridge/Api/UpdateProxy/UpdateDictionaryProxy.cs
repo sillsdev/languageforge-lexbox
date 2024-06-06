@@ -5,7 +5,7 @@ using SIL.LCModel.Core.Text;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateDictionaryProxy(ITsMultiString multiString, LexboxLcmApi lexboxLcmApi)
+public class UpdateDictionaryProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi)
     : IDictionary<WritingSystemId, string>, IDictionary
 {
     public void Add(KeyValuePair<WritingSystemId, string> item)

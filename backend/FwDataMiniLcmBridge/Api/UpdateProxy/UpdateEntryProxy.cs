@@ -4,7 +4,7 @@ using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateEntryProxy(ILexEntry lcmEntry, LexboxLcmApi lexboxLcmApi) : Entry
+public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi) : Entry
 {
     public override Guid Id
     {
@@ -48,7 +48,7 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, LexboxLcmApi lexboxLcmApi) : E
     }
 }
 
-public class UpdateMultiStringProxy(ITsMultiString multiString, LexboxLcmApi lexboxLcmApi) : MultiString
+public class UpdateMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : MultiString
 {
     public override IDictionary<WritingSystemId, string> Values { get; } = new UpdateDictionaryProxy(multiString, lexboxLcmApi);
 
