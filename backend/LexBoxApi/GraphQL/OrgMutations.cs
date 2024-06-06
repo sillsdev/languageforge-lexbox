@@ -1,4 +1,5 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models.Org;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -35,6 +36,30 @@ public class OrgMutations
         });
         await dbContext.SaveChangesAsync();
         return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<DbError>]
+    [UseMutationConvention]
+    [AdminRequired]
+    public async Task<Organization> DeleteOrg(Guid orgId,
+        LexBoxDbContext dbContext)
+    {
+        var org = await dbContext.Orgs.Include(o => o.Members).FirstOrDefaultAsync(o => o.Id == orgId);
+        NotFoundException.ThrowIfNull(org);
+
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        // TODO: Once orgs own projects, uncomment this block
+        // var now = DateTimeOffset.UtcNow;
+        // dbContext.Projects
+        //     .Where(p => p.OwningOrgId == orgId)
+        //     .ExecuteUpdateAsync(u => u
+        //         .SetProperty(p => p.OwningOrgId, null)
+        //         .SetProperty(p => p.UpdatedDate, now));
+        org.Members.RemoveAll(m => true); // Should be taken care of by ON DELETE CASCADE. TODO: Check.
+        dbContext.Remove(org);
+        await dbContext.SaveChangesAsync();
+        await transaction.CommitAsync();
+        return org;
     }
 
     /// <summary>

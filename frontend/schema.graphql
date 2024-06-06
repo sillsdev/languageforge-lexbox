@@ -117,6 +117,11 @@ type DeleteDraftProjectPayload {
   errors: [DeleteDraftProjectError!]
 }
 
+type DeleteOrgPayload {
+  organization: Organization
+  errors: [DeleteOrgError!]
+}
+
 type DeleteUserByAdminOrSelfPayload {
   user: User
   errors: [DeleteUserByAdminOrSelfError!]
@@ -186,6 +191,7 @@ type MeDto {
 
 type Mutation {
   createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
+  deleteOrg(input: DeleteOrgInput!): DeleteOrgPayload! @authorize(policy: "AdminRequiredPolicy")
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
@@ -393,6 +399,8 @@ union CreateProjectError = DbError | AlreadyExistsError | ProjectCreatorsMustHav
 
 union DeleteDraftProjectError = NotFoundError | DbError
 
+union DeleteOrgError = DbError
+
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
@@ -505,6 +513,10 @@ input DateTimeOperationFilterInput {
 
 input DeleteDraftProjectInput {
   draftProjectId: UUID!
+}
+
+input DeleteOrgInput {
+  orgId: UUID!
 }
 
 input DeleteUserByAdminOrSelfInput {

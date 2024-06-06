@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DetailsPage, DetailItem } from '$lib/layout';
+  import { DetailsPage, DetailItem, AdminContent } from '$lib/layout';
 
   import t, { date } from '$lib/i18n';
   import { z } from 'zod';
@@ -8,11 +8,14 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgMemberRole, _changeOrgName, _deleteOrgUser, type OrgSearchParams } from './+page';
+  import { _changeOrgMemberRole, _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import OrgMemberTable from '$lib/components/Orgs/OrgMemberTable.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
+  import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
+  import { goto } from '$app/navigation';
+  import { DialogResponse } from '$lib/components/modals';
 
   export let data: PageData;
   $: user = data.user;
@@ -34,7 +37,7 @@
 
   $: canManage = user.isAdmin || !!org.members.find(m => m.user?.id === user.id && m.role === OrgRole.Admin)
 
-  const { notifySuccess } = useNotifications();
+  const { notifySuccess, notifyWarning } = useNotifications();
 
   const orgNameValidation = z.string().trim().min(1, $t('org_page.org_name_empty_error'));
 
@@ -44,6 +47,22 @@
       return result.error.message;
     }
     notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
+  }
+
+  let deleteOrgModal: ConfirmDeleteModal;
+  async function confirmDeleteOrg(): Promise<void> {
+    const result = await deleteOrgModal.open(org.name, async () => {
+      if (confirm(`Do you really want to delete ${org.name}? There is NO UNDO.`)) { // TODO: en.json
+        const { error } = await _deleteOrg(org.id);
+        return error?.message;
+      } else {
+        return `Deletion cancelled.`; // TODO: en.json
+      }
+    });
+    if (result.response === DialogResponse.Submit) {
+      notifyWarning($t('org_page.notifications.delete_org', { name: org.name }));
+      await goto('/');
+    }
   }
 </script>
 
@@ -89,15 +108,16 @@
           <Icon icon="i-mdi-exit-run"/>
         </Button>
       </div>
-      {#if canManage}
+      <AdminContent>
         <div class="divider" />
         <div class="flex justify-end">
-          <Button variant="btn-error">
+          <Button variant="btn-error" on:click={confirmDeleteOrg}>
             {$t('org_page.delete_modal.submit')}
             <TrashIcon/>
           </Button>
         </div>
-      {/if}
+      </AdminContent>
     {/if}
   </div>
 </DetailsPage>
+<ConfirmDeleteModal bind:this={deleteOrgModal} i18nScope="delete_org_modal" />

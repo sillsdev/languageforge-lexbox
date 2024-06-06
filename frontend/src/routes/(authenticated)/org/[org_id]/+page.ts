@@ -3,6 +3,7 @@ import type {
   ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
   ChangeOrgNameMutation,
+  DeleteOrgMutation,
   DeleteOrgUserMutation,
   OrgPageQuery,
   OrgRole,
@@ -244,3 +245,21 @@ export async function _deleteOrgUser(orgId: string, emailOrUsername: string): $O
 
 //   return result;
 // }
+
+export async function _deleteOrg(orgId: string): $OpResult<DeleteOrgMutation> {
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation deleteOrg($input: DeleteOrgInput!) {
+          deleteOrg(input: $input) {
+            organization {
+              id
+              name
+            }
+          }
+        }
+      `),
+      { input: { orgId } }
+    );
+  return result;
+}

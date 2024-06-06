@@ -105,6 +105,15 @@
     "remove": "Remove {entityName}"
   },
   "environment_warning": "This is a {environmentName} environment. Click here to go to the public site.",
+  "delete_org_modal": {
+    "title": "Delete Organization",
+    "submit": "Delete Organization",
+    "enter_to_delete": {
+      "label": "Enter ''{_value}'' to confirm deleting the organization ''{name}''",
+      "value": "DELETE ORGANIZATION"
+    },
+    "success": "Organization ''{name}'' was deleted."
+  },
   "delete_project_modal": {
     "title": "Delete Project",
     "submit": "Delete Project",
@@ -230,6 +239,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "role_change": "Organizational role of {name} set to {role}.",
       "user_delete": "{name} has been removed.",
       "rename_org": "Organization name set to {name}.",
+      "delete_org": "Organization {name} has been deleted.",
       "describe": "Organization description has been updated.",
       "add_member": "{email} has been added to organization.",
       "member_invited": "{email} has been sent an invitation email to register and join the organization."
