@@ -11,6 +11,21 @@
 <Toggle let:on={open} let:toggle let:toggleOff>
   <Popover {open} let:close on:close={toggleOff} placement="bottom-start" offset={4} padding={6}>
     <div class="flex flex-row flex-wrap justify-evenly gap-2 p-3 rounded bg-surface-100 border shadow-lg overflow-auto max-w-56">
+      {#if $selectedCharacter}
+        <!-- for some reason the web-component only gets clicks this way :( -->
+        <button class="contents" on:mouseup={() => {
+          $selectedCharacter = undefined;
+          close();
+        }}>
+          <Button
+            fullWidth
+            icon={mdiClose}
+            class="border mb-2"
+            size="sm">
+            Clear
+          </Button>
+        </button>
+      {/if}
       {#each $characters ?? [] as character}
         <!-- for some reason the web-component only gets clicks this way :( -->
         <button class="contents" on:mouseup={() => {
@@ -27,21 +42,6 @@
           </Button>
         </button>
       {/each}
-      {#if $selectedCharacter}
-        <!-- for some reason the web-component only gets clicks this way :( -->
-        <button class="contents" on:mouseup={() => {
-          $selectedCharacter = undefined;
-          close();
-        }}>
-          <Button
-            fullWidth
-            icon={mdiClose}
-            class="border mt-2"
-            size="sm">
-            Clear
-          </Button>
-        </button>
-      {/if}
     </div>
   </Popover>
   <Button icon={$selectedCharacter ? undefined : mdiBookAlphabet} variant={$selectedCharacter ? 'fill-outline' : open ? 'outline' : undefined} iconOnly
