@@ -136,6 +136,10 @@
 
 </script>
 
+<svelte:head>
+  <title>{projectName}</title>
+</svelte:head>
+
 <div class="app flex flex-col PortalTarget">
   <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
