@@ -115,6 +115,11 @@
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
+    navigateToEntry(entry);
+  }
+
+  function navigateToEntry(entry: IEntry) {
+    $search = '';
     selectEntry(entry);
   }
 
@@ -147,7 +152,7 @@
     </div>
     <div class="sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
-      <SearchBar on:entrySelected={(e) => selectEntry(e.detail)} />
+      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)} />
     </div>
     <div class="flex-grow-[0.25]"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">

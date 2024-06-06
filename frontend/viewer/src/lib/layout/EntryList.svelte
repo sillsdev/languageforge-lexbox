@@ -70,7 +70,7 @@
     </div>
   </div>
   <div class="border rounded-md overflow-hidden flex">
-    <div class="overflow-auto w-full">
+    <div class="overflow-auto w-full" bind:this={scrollContainerElem}>
       {#if !entries || entries.length == 0}
         <div class="p-4 text-center opacity-75">No entries found</div>
       {:else}
