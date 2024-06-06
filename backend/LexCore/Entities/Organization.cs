@@ -10,10 +10,10 @@ public class Organization : EntityBase
     public required List<OrgMember> Members { get; set; }
 
     // This doesn't seem to work:
-    [NotMapped]
-    [Projectable(UseMemberBody = nameof(SqlMemberCount))]
-    public int MemberCountAlternate { get; set; } // TODO: Rename to MemberCount once I get this working
-    private static Expression<Func<Organization, int>> SqlMemberCount => org => org.Members.Count;
+    // [NotMapped]
+    // [Projectable(UseMemberBody = nameof(SqlMemberCount))]
+    // public int MemberCount { get; set; }
+    // private static Expression<Func<Organization, int>> SqlMemberCount => org => org.Members.Count;
 
     // We'll use this simpler method until we can debug the SqlMemberCount method
     [Projectable]
