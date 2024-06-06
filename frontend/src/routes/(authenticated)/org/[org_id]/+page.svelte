@@ -64,6 +64,16 @@
       await goto('/');
     }
   }
+
+  async function leaveOrg(): Promise<void> {
+    const result = await _deleteOrgUser(org.id, user.id);
+    if (result.error) {
+      notifyWarning($t(`org_page.notifications.leave_org_error`, { name: org.name }));
+    } else {
+      notifySuccess($t(`org_page.notifications.leave_org`, { name: org.name }));
+      await goto('/');
+    }
+  }
 </script>
 
 <DetailsPage wide title={org.name}>
@@ -103,7 +113,7 @@
       </div>
     {:else if $queryParamValues.tab === 'settings'}
       <div class="flex justify-end">
-        <Button outline variant="btn-error">
+        <Button outline variant="btn-error" on:click={leaveOrg}>
           {$t('org_page.leave_org')}
           <Icon icon="i-mdi-exit-run"/>
         </Button>

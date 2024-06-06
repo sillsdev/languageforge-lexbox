@@ -220,32 +220,6 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
   return result;
 }
 
-// TODO: Implement as duplicate of _deleteOrgUser? Or uncomment and make separate GQL mutation for this one?
-// export async function _leaveOrg(orgId: string): $OpResult<LeaveOrgMutation> {
-//   //language=GraphQL
-//   const result = await getClient()
-//     .mutation(
-//       graphql(`
-//       mutation LeaveOrg($input: LeaveOrgInput!) {
-//         leaveOrg(input: $input) {
-//           organization {
-//             id
-//           }
-//           errors {
-//             __typename
-//           }
-//         }
-//       }
-//     `),
-//       { input: { orgId } },
-//       //disable invalidate otherwise the page will reload
-//       //and the user will be shown that they don't have permission for this org
-//       { fetchOptions: { lexboxResponseHandlingConfig: { invalidateUserOnJwtRefresh: false } } }
-//     );
-
-//   return result;
-// }
-
 export async function _deleteOrg(orgId: string): $OpResult<DeleteOrgMutation> {
   const result = await getClient()
     .mutation(

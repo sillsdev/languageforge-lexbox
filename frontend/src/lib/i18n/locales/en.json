@@ -240,6 +240,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_delete": "{name} has been removed.",
       "rename_org": "Organization name set to {name}.",
       "delete_org": "Organization {name} has been deleted.",
+      "leave_org": "You have left the organization {name}.",
+      "leave_org_error": "An error occurred trying to remove you from organization {name}. Please try again later.",
       "describe": "Organization description has been updated.",
       "add_member": "{email} has been added to organization.",
       "member_invited": "{email} has been sent an invitation email to register and join the organization."
