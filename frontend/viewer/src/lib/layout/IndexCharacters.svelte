@@ -5,7 +5,7 @@
   import type { Writable, Readable } from "svelte/store";
 
   const characters = getContext<Readable<string[] | null>>('indexExamplars');
-  const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplars');
+  const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 </script>
 
 <Toggle let:on={open} let:toggle let:toggleOff>

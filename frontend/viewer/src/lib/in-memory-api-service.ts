@@ -20,7 +20,6 @@ function filterEntries(entries: IEntry[], query: string) {
     [
       ...Object.values(entry.lexemeForm ?? {}),
       ...Object.values(entry.citationForm ?? {}),
-      ...Object.values(entry.literalMeaning ?? {}),
       ...entry.senses.flatMap(sense => [
         ...Object.values(sense.gloss ?? {}),
       ]),

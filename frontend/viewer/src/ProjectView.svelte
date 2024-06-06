@@ -57,7 +57,7 @@
 
 
   const selectedIndexExemplar = writable<string | undefined>(undefined);
-  setContext('selectedIndexExamplars', selectedIndexExemplar);
+  setContext('selectedIndexExamplar', selectedIndexExemplar);
 
   const writingSystems = deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);

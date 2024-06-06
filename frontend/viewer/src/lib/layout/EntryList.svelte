@@ -45,6 +45,8 @@
   }
 
   let dictionaryMode = false;
+
+  const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 </script>
 
 <div class="entry-list flex flex-col gap-4 w-full justify-self-center side-scroller">
@@ -72,7 +74,12 @@
   <div class="border rounded-md overflow-hidden flex">
     <div class="overflow-auto w-full" bind:this={scrollContainerElem}>
       {#if !entries || entries.length == 0}
-        <div class="p-4 text-center opacity-75">No entries found</div>
+        <div class="p-4 text-center opacity-75">
+          No entries found
+          {#if $selectedCharacter}
+            in '{$selectedCharacter}'
+          {/if}
+        </div>
       {:else}
         <InfiniteScroll {perPage} items={entries} let:visibleItems>
           {#each visibleItems as entry (entry.id)}
