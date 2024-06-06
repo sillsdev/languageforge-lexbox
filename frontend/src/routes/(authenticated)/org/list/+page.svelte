@@ -19,9 +19,9 @@
   type OrgList = OrgListPageQuery['orgs']
 
   type Column = 'name' | 'users' | 'created_at';
-  let sortColumn = 'created_at' as Column;
+  let sortColumn: Column = 'created_at';
   type Dir = 'ascending' | 'descending';
-  let sortDir = 'ascending' as Dir;
+  let sortDir: Dir = 'ascending';
 
   function swapSortDir(): void {
     sortDir = sortDir === 'ascending' ? 'descending' : 'ascending';
