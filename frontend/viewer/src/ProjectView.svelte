@@ -186,10 +186,10 @@
         class="grid flex-grow items-start justify-stretch md:justify-center"
         style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
       >
-        <div class="w-screen max-w-full md:w-[500px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
+        <div class="w-screen max-w-full md:w-[500px] md:min-w-[300px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
           <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
         </div>
-        <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
+        <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry && !$viewConfig.readonly} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
           {#if $selectedEntry}
             <div class="mb-6">
               <DictionaryEntryViewer entry={$selectedEntry} />
@@ -211,7 +211,7 @@
             </div>
           {/if}
         </div>
-        <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-md:hidden={!pickedEntry}>
+        <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-md:hidden={!pickedEntry || $viewConfig.readonly}>
           <div class="hidden" class:sm:hidden={expandList}>
             <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
           </div>

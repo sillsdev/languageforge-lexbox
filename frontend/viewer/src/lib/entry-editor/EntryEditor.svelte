@@ -128,7 +128,7 @@
         <SenseEditor {sense} on:change={() => dispatch('change', {entry, sense})}/>
       </div>
 
-      <div class="grid-layer border-l border-dashed pl-4 mt-4 space-y-4 rounded-lg">
+      <div class="grid-layer border-l border-dashed pl-4 space-y-4 rounded-lg">
         {#each sense.exampleSentences as example, j (example.id)}
           <div class="grid-layer" class:highlight={example === highlightedEntity}>
             <div id="example{i + 1}-{j + 1}"></div> <!-- shouldn't be in the sticky header -->

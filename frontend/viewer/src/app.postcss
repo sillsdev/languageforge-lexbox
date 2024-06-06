@@ -48,16 +48,16 @@
     top: 16px;
   }
 
-  .collapse-col {
+  .collapsible-col {
+    overflow-x: hidden;
+    transition: opacity 0.2s ease-out;
+  }
+
+  .collapsible-col.collapse-col {
     max-height: 0 !important;
     width: 0 !important;
     max-width: 0 !important;
     opacity: 0 !important;
-  }
-
-  .collapsible-col {
-    overflow-x: hidden;
-    transition: width 0.2s ease-out, max-width 0.2s ease-out, opacity 0.2s ease-in;
   }
 
   .text-field-sibling-button {
