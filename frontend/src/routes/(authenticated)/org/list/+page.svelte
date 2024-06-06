@@ -69,9 +69,9 @@ TODO:
 * Paging
 -->
 
-<Page wide>
+<Page wide title={$t('org.table.title')}>
   <h1 class="text-3xl text-left grow max-w-full mb-4 flex gap-4 items-center">
-    Organisations
+    {$t('org.table.title')}
     <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
   </h1>
 
@@ -90,15 +90,15 @@ TODO:
       <thead>
         <tr class="bg-base-200">
           <th on:click={() => handleSortClick('name')} class="cursor-pointer hover:bg-base-300">
-            {$t('project.table.name')}
+            {$t('org.table.name')}
             <span class:invisible={sortColumn !== 'name'}  class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
           <th on:click={() => handleSortClick('members')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
-            {$t('project.table.members')}
+            {$t('org.table.members')}
             <span class:invisible={sortColumn !== 'members'} class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
           <th on:click={() => handleSortClick('created_at')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
-            {$t('project.table.created_at')}
+            {$t('org.table.created_at')}
             <span class:invisible={sortColumn !== 'created_at'}  class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
           </th>
         </tr>
@@ -107,11 +107,9 @@ TODO:
         {#each displayOrgs as org}
           <tr>
             <td>
-              <span class="flex gap-2 items-center">
-                  <a class="link" href={`/org/${org.id}`}>
-                    {org.name}
-                  </a>
-              </span>
+                <a class="link" href={`/org/${org.id}`}>
+                  {org.name}
+                </a>
             </td>
             <td class="hidden @md:table-cell">
               {$number(org.memberCount)}
