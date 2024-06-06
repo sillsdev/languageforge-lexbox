@@ -53,6 +53,61 @@ public class OrgMutations
         return org;
     }
 
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [Error<AlreadyExistsException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> AcquireProject(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid projectId)
+    {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanEditOrg(org);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+
+        if (await dbContext.OrgProjects.AnyAsync(op => op.OrgId == orgId && op.ProjectId == projectId))
+        {
+            throw new AlreadyExistsException("Organization already owns this project");
+        }
+        await dbContext.OrgProjects.AddAsync(new OrgProjects { OrgId = orgId, ProjectId = projectId });
+        await dbContext.SaveChangesAsync();
+        return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> ReleaseProject(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid projectId)
+    {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanEditOrg(org);
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Organizations)
+            .SingleOrDefaultAsync();
+        NotFoundException.ThrowIfNull(project);
+        var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
+        if (foundOrg is not null)
+        {
+            project.Organizations.Remove(foundOrg);
+            await dbContext.SaveChangesAsync();
+        }
+        // If org did not own project, return with no error
+        return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
     /// <summary>
     /// set the role of a member in an organization, if the member does not exist it will be created
     /// </summary>

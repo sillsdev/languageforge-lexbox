@@ -45,6 +45,12 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
 
         }
+        if (input.OwningOrgId.HasValue)
+        {
+            dbContext.OrgProjects.Add(
+                new OrgProjects { ProjectId = projectId, OrgId = input.OwningOrgId.Value }
+            );
+        }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         await transaction.CommitAsync();

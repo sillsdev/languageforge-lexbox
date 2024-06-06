@@ -7,6 +7,11 @@ interface Error {
   message: String!
 }
 
+type AcquireProjectPayload {
+  organization: Organization
+  errors: [AcquireProjectError!]
+}
+
 type AddProjectMemberPayload {
   project: Project
   errors: [AddProjectMemberError!]
@@ -192,6 +197,8 @@ type MeDto {
 type Mutation {
   createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
   deleteOrg(input: DeleteOrgInput!): DeleteOrgPayload! @authorize(policy: "AdminRequiredPolicy")
+  acquireProject(input: AcquireProjectInput!): AcquireProjectPayload!
+  releaseProject(input: ReleaseProjectInput!): ReleaseProjectPayload!
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
@@ -320,6 +327,11 @@ type Query {
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
 
+type ReleaseProjectPayload {
+  organization: Organization
+  errors: [ReleaseProjectError!]
+}
+
 type RemoveProjectMemberPayload {
   project: Project
 }
@@ -388,6 +400,8 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
+union AcquireProjectError = DbError | NotFoundError | AlreadyExistsError
+
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
@@ -420,6 +434,8 @@ union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
+union ReleaseProjectError = DbError | NotFoundError
+
 union SetOrgMemberRoleError = DbError | NotFoundError
 
 union SetProjectConfidentialityError = NotFoundError | DbError
@@ -427,6 +443,11 @@ union SetProjectConfidentialityError = NotFoundError | DbError
 union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
+
+input AcquireProjectInput {
+  orgId: UUID!
+  projectId: UUID!
+}
 
 input AddProjectMemberInput {
   projectId: UUID!
@@ -508,6 +529,7 @@ input CreateProjectInput {
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
   isConfidential: Boolean!
+  owningOrgId: UUID
   projectManagerId: UUID
 }
 
@@ -752,6 +774,11 @@ input ProjectUsersFilterInput {
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
+}
+
+input ReleaseProjectInput {
+  orgId: UUID!
+  projectId: UUID!
 }
 
 input RemoveProjectMemberInput {
