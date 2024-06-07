@@ -48,12 +48,20 @@ public class OAuthService : BackgroundService
             //which then redirects the browser to that uri, once it's done it's sent back and calls FinishLoginRequest, which sends it's uri to OAuthLoginRequest
             //which causes AcquireAuthorizationCodeAsync to return
 
-            //step 2
-            var result = await loginRequest.Application.AcquireTokenInteractive(AuthHelpers.DefaultScopes)
-                .WithCustomWebUi(loginRequest)
-                .ExecuteAsync(stoppingToken);
-            //step 7, causes step 8 to resume
-            loginRequest.SetAuthenticationResult(result);
+            try
+            {
+                //step 2
+                var result = await loginRequest.Application.AcquireTokenInteractive(AuthHelpers.DefaultScopes)
+                    .WithCustomWebUi(loginRequest)
+                    .ExecuteAsync(stoppingToken);
+                //step 7, causes step 8 to resume
+                loginRequest.SetAuthenticationResult(result);
+            }
+            catch (Exception e)
+            {
+                loginRequest.SetException(e);
+            }
+
             if (loginRequest.State is not null)
                 _oAuthLoginRequests.Remove(loginRequest.State);
         }
@@ -89,5 +97,13 @@ public class OAuthLoginRequest(IPublicClientApplication app) : ICustomWebUi
     public async Task<Uri> GetAuthUri() => await _authUriTcs.Task;
     public void SetReturnUri(Uri uri) => _returnUriTcs.SetResult(uri);
     public void SetAuthenticationResult(AuthenticationResult result) => _resultTcs.SetResult(result);
+    public void SetException(Exception e)
+    {
+        if (_authUriTcs.Task.IsCompleted)
+            _resultTcs.SetException(e);
+        else
+            _authUriTcs.SetException(e);
+    }
+
     public Task<AuthenticationResult> GetAuthenticationResult() => _resultTcs.Task;
 }
