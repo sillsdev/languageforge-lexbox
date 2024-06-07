@@ -34,7 +34,6 @@ public class ProjectLoader
         var projectFilePath = Path.Combine(ProjectFolder, Path.GetFileNameWithoutExtension(fileName), fileName);
         var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
         var progress = new LcmThreadedProgress();
-        Console.WriteLine("Creating cache");
         var cache = LcmCache.CreateCacheFromLocalProjectFile(projectFilePath,
             null,
             new LfLcmUi(progress.SynchronizeInvoke),
@@ -42,7 +41,6 @@ public class ProjectLoader
             new LcmSettings(),
             progress
         );
-        Console.WriteLine("Done creating cache");
         return cache;
     }
 }

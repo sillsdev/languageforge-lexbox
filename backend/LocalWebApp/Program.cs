@@ -47,7 +47,7 @@ app.Use(async (context, next) =>
     await next(context);
 });
 app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
-app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}fwdata");
+app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/fwdata");
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();

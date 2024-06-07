@@ -33,11 +33,14 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     {
         if (onCloseSave)
         {
-            logger.LogInformation("Saving FW data file {Name}", cache.ProjectId.Name);
-            cache.ActionHandlerAccessor.Commit();
+            Save();
         }
+    }
 
-        cache.Dispose();
+    public void Save()
+    {
+        logger.LogInformation("Saving FW data file {Name}", cache.ProjectId.Name);
+        cache.ActionHandlerAccessor.Commit();
     }
 
     public int EntryCount => _entriesRepository.Count;
