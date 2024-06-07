@@ -1,5 +1,6 @@
-﻿using System.Threading.Channels;
+using System.Threading.Channels;
 using System.Web;
+using LocalWebApp.Utils;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 
@@ -7,25 +8,24 @@ namespace LocalWebApp.Auth;
 
 //this class is commented with a number of step comments, these are the steps in the OAuth flow
 //if a step comes before a method that means it awaits that call, if it comes after that means it resumes after the above await
-public class OAuthService : BackgroundService
+public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime applicationLifetime) : BackgroundService
 {
-    public async Task<Uri> SubmitLoginRequest(IPublicClientApplication application)
+    public async Task<Uri> SubmitLoginRequest(IPublicClientApplication application, CancellationToken cancellation)
     {
         var request = new OAuthLoginRequest(application);
         if (!_requestChannel.Writer.TryWrite(request))
         {
             throw new InvalidOperationException("Only one request at a time");
         }
-
         //step 1
-        var uri = await request.GetAuthUri();
+        var uri = await request.GetAuthUri(applicationLifetime.ApplicationStopping.Merge(cancellation));
         //step 4
         if (request.State is null) throw new InvalidOperationException("State is null");
         _oAuthLoginRequests[request.State] = request;
         return uri;
     }
 
-    public async Task<AuthenticationResult> FinishLoginRequest(Uri uri)
+    public async Task<AuthenticationResult> FinishLoginRequest(Uri uri, CancellationToken cancellation = default)
     {
         var queryString = HttpUtility.ParseQueryString(uri.Query);
         var state = queryString.Get("state") ?? throw new InvalidOperationException("State is null");
@@ -33,7 +33,7 @@ public class OAuthService : BackgroundService
             throw new InvalidOperationException("Invalid state");
         //step 5
         request.SetReturnUri(uri);
-        return await request.GetAuthenticationResult();
+        return await request.GetAuthenticationResult(applicationLifetime.ApplicationStopping.Merge(cancellation));
         //step 8
     }
 
@@ -50,6 +50,7 @@ public class OAuthService : BackgroundService
 
             try
             {
+                //todo we can get stuck here if the user doesn't complete the login, this basically bricks the login at the moment. We need a timeout or something
                 //step 2
                 var result = await loginRequest.Application.AcquireTokenInteractive(AuthHelpers.DefaultScopes)
                     .WithCustomWebUi(loginRequest)
@@ -59,6 +60,7 @@ public class OAuthService : BackgroundService
             }
             catch (Exception e)
             {
+                logger.LogError(e, "Error getting token");
                 loginRequest.SetException(e);
             }
 
@@ -85,6 +87,7 @@ public class OAuthLoginRequest(IPublicClientApplication app) : ICustomWebUi
         Uri redirectUri,
         CancellationToken cancellationToken)
     {
+        cancellationToken.Register(_resultTcs.SetCanceled);
         State = HttpUtility.ParseQueryString(authorizationUri.Query).Get("state");
         //triggers step 1 to finish awaiting
         _authUriTcs.SetResult(authorizationUri);
@@ -94,7 +97,7 @@ public class OAuthLoginRequest(IPublicClientApplication app) : ICustomWebUi
         //step 6
     }
 
-    public async Task<Uri> GetAuthUri() => await _authUriTcs.Task;
+    public Task<Uri> GetAuthUri(CancellationToken cancellation) => _authUriTcs.Task.WaitAsync(cancellation);
     public void SetReturnUri(Uri uri) => _returnUriTcs.SetResult(uri);
     public void SetAuthenticationResult(AuthenticationResult result) => _resultTcs.SetResult(result);
     public void SetException(Exception e)
@@ -105,5 +108,5 @@ public class OAuthLoginRequest(IPublicClientApplication app) : ICustomWebUi
             _authUriTcs.SetException(e);
     }
 
-    public Task<AuthenticationResult> GetAuthenticationResult() => _resultTcs.Task;
+    public Task<AuthenticationResult> GetAuthenticationResult(CancellationToken cancellation) => _resultTcs.Task.WaitAsync(cancellation);
 }

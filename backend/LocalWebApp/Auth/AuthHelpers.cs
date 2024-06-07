@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using LocalWebApp.Routes;
 using Microsoft.Extensions.Options;
@@ -98,9 +98,9 @@ public class AuthHelpers
         }
     }
 
-    public async Task<string> SignIn()
+    public async Task<string> SignIn(CancellationToken cancellation = default)
     {
-        var authUri = await _oAuthService.SubmitLoginRequest(_application);
+        var authUri = await _oAuthService.SubmitLoginRequest(_application, cancellation);
         return authUri.ToString();
     }
 
