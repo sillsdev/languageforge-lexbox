@@ -17,7 +17,7 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
                 var crdtApi = provider.GetRequiredService<ILexboxApi>();
                 await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
             });
-        logger.LogInformation("Import of {FileName} complete!", projectName);
+        logger.LogInformation("Import of {ProjectName} complete!", fwDataApi.Project.Name);
         return project;
     }
 

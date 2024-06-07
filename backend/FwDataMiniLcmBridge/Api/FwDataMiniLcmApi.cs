@@ -9,8 +9,10 @@ using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Api;
 
-public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger) : ILexboxApi, IDisposable
+public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : ILexboxApi, IDisposable
 {
+    public FwDataProject Project { get; } = project;
+
     private readonly IRepository<ILexEntry> _entriesRepository =
         cache.ServiceLocator.GetInstance<IRepository<ILexEntry>>();
 

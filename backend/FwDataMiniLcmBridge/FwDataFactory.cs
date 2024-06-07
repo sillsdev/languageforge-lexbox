@@ -19,7 +19,7 @@ public class FwDataFactory(FwDataProjectContext context, ILogger<FwDataMiniLcmAp
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
         var projectService = GetProjectServiceCached(project);
-        return new FwDataMiniLcmApi(projectService, saveOnDispose, fwdataLogger);
+        return new FwDataMiniLcmApi(projectService, saveOnDispose, fwdataLogger, project);
     }
 
     private HashSet<string> _projects = [];
