@@ -103,13 +103,6 @@
                     {$t('org_page.remove_member')}
                   </button>
                 </li>
-                <!-- TODO: Do we want this on the org page? -->
-                <!-- <li>
-                  <button class="whitespace-nowrap" on:click={() => dispatch('filterProjectsByUser', user)}>
-                    <Icon icon="i-mdi-filter-outline" />
-                    {$t('project.filter.filter_user_projects')}
-                  </button>
-                </li> -->
               </ul>
             </Dropdown>
           </td>
