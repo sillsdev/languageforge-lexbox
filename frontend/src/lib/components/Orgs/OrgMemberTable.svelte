@@ -6,8 +6,6 @@
   import Dropdown from '../Dropdown.svelte';
   import type { OrgRole, User } from '$lib/gql/types';
   import OrgRoleText from './OrgRoleText.svelte';
-  import IconButton from '../IconButton.svelte';
-  import AddOrgMemberModal from './AddOrgMemberModal.svelte';
   import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
 
   type TableUser = Pick<User, 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
@@ -27,10 +25,6 @@
 
   const dispatch = createEventDispatcher();
 
-  let addOrgMemberModal: AddOrgMemberModal;
-  async function openAddOrgMemberModal(): Promise<void> {
-    await addOrgMemberModal.openModal();
-  }
 </script>
 
 <div class="overflow-x-auto @container scroll-shadow">
@@ -45,27 +39,7 @@
         <th class="@2xl:table-cell">
           {$t('admin_dashboard.column_role')}
         </th>
-        <th class="px-2 py-1">
-          {#if canManage}
-            <Dropdown>
-              <IconButton icon="i-mdi-plus" variant="btn-success" size="btn-sm" outline={false} />
-              <ul slot="content" class="menu">
-                <li>
-                  <button class="whitespace-nowrap text-success" on:click={openAddOrgMemberModal}>
-                    <Icon icon="i-mdi-plus" />
-                    {$t('org_page.add_user.add_button')}
-                  </button>
-                </li>
-                <!-- TODO: Do we want this on the org page? -->
-                <!-- <li>
-                  <button class="whitespace-nowrap" on:click={() => dispatch('filterProjectsByUser', user)}>
-                    <Icon icon="i-mdi-filter-outline" />
-                    {$t('project.filter.filter_user_projects')}
-                  </button>
-                </li> -->
-              </ul>
-            </Dropdown>
-          {/if}
+        <th>
         </th>
       </tr>
     </thead>
@@ -144,5 +118,3 @@
     </tbody>
   </table>
 </div>
-
-<AddOrgMemberModal bind:this={addOrgMemberModal} orgId={orgId} />

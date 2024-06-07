@@ -16,6 +16,7 @@
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { goto } from '$app/navigation';
   import { DialogResponse } from '$lib/components/modals';
+  import AddOrgMemberModal from '$lib/components/Orgs/AddOrgMemberModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -35,7 +36,7 @@
   });
   const { queryParamValues } = queryParams;
 
-  $: canManage = user.isAdmin || !!org.members.find(m => m.user?.id === user.id && m.role === OrgRole.Admin)
+  $: canManage = user.isAdmin || !!org.members.find(m => m.user.id === user.id && m.role === OrgRole.Admin)
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -47,6 +48,11 @@
       return result.error.message;
     }
     notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
+  }
+
+  let addOrgMemberModal: AddOrgMemberModal;
+  async function openAddOrgMemberModal(): Promise<void> {
+    await addOrgMemberModal.openModal();
   }
 
   let deleteOrgModal: ConfirmDeleteModal;
@@ -78,7 +84,16 @@
 
 <DetailsPage wide title={org.name}>
   <svelte:fragment slot="actions">
-    <!-- No action buttons currently -->
+    {#if canManage}
+      <Button variant="btn-success"
+        on:click={openAddOrgMemberModal}>
+        <span class="admin-tabs:hidden">
+          {$t('org_page.add_user.add_button')}
+        </span>
+        <span class="i-mdi-account-plus-outline text-2xl" />
+      </Button>
+      <AddOrgMemberModal bind:this={addOrgMemberModal} orgId={org.id} />
+    {/if}
   </svelte:fragment>
   <div slot="title" class="max-w-full flex items-baseline flex-wrap">
     <span class="mr-2">{$t('org_page.organization')}:</span>
