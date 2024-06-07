@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using LcmCrdt;
+using LocalWebApp.Auth;
 using MiniLcm;
 
 namespace LocalWebApp.Routes;
@@ -9,7 +10,21 @@ public static class ProjectRoutes
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
-        group.MapGet("/projects", (ProjectsService projectService) => projectService.ListProjects());
+        group.MapGet("/projects",
+            async (ProjectsService projectService, AuthHelpersFactory factory) =>
+            {
+                var localProjects = await projectService.ListProjects();
+                //todo currently we only list projects for the default authority, we may want to tweak that in the future
+                var httpClient = await factory.GetDefault().CreateClient();
+                if (httpClient is not null)
+                {
+                    var response = await httpClient.GetAsync("/api/AuthTesting/requires-auth");
+                    response.EnsureSuccessStatusCode();
+                    return [..localProjects, new CrdtProject("LexBox", "LexBox.sqlite")];
+                }
+
+                return localProjects;
+            });
         Regex alphaNumericRegex = new Regex("^[a-zA-Z0-9]*$");
         group.MapPost("/project",
             async (ProjectsService projectService, string name) =>

@@ -15,6 +15,9 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
     {
         builder.ToTable("CrdtCommits");
         builder.HasKey(c => c.Id);
+        //hashes aren't serialized, so they can be null on the server
+        builder.Property(c => c.Hash).IsRequired(false);
+        builder.Property(c => c.ParentHash).IsRequired(false);
         builder.ComplexProperty(c => c.HybridDateTime);
         builder.HasOne<FlexProjectMetadata>().WithMany()
             .HasPrincipalKey(f => f.ProjectId)

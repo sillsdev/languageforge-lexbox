@@ -2,6 +2,7 @@
 using System.Text.Json;
 using LexBoxApi.Auth;
 using LexCore.Auth;
+using LexData;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -17,9 +18,9 @@ namespace LexBoxApi.Controllers;
 [ApiController]
 [Route("/api/oauth")]
 public class OauthController(
-    LoggedInContext loggedInContext,
     IOpenIddictApplicationManager applicationManager,
-    IOpenIddictAuthorizationManager authorizationManager
+    IOpenIddictAuthorizationManager authorizationManager,
+    LexAuthService lexAuthService
 ) : ControllerBase
 {
 
@@ -37,15 +38,14 @@ public class OauthController(
 
         if (IsAcceptRequest())
         {
-            return await FinishSignIn(loggedInContext.User, request);
+            return await FinishSignIn(User, request);
         }
 
         // Retrieve the user principal stored in the authentication cookie.
         // If the user principal can't be extracted or the cookie is too old, redirect the user to the login page.
         var result = await HttpContext.AuthenticateAsync();
-        var lexAuthUser = result.Succeeded ? LexAuthUser.FromClaimsPrincipal(result.Principal) : null;
         if (!result.Succeeded ||
-            lexAuthUser is null ||
+            result.Principal.Identity?.IsAuthenticated is not true ||
             request.HasPrompt(OpenIddictConstants.Prompts.Login) ||
             IsExpired(request, result))
         {
@@ -82,7 +82,9 @@ public class OauthController(
                 });
         }
 
-        var userId = lexAuthUser.Id.ToString();
+        var user = result.Principal;
+        ArgumentNullException.ThrowIfNull(user);
+
         var requestClientId = request.ClientId;
         ArgumentException.ThrowIfNullOrEmpty(requestClientId);
         var application = await applicationManager.FindByClientIdAsync(requestClientId) ??
@@ -93,7 +95,7 @@ public class OauthController(
 
         // Retrieve the permanent authorizations associated with the user and the calling client application.
         var authorizations = await authorizationManager.FindAsync(
-            subject: userId,
+            subject: GetUserId(user).ToString(),
             client: applicationId,
             status: OpenIddictConstants.Statuses.Valid,
             type: OpenIddictConstants.AuthorizationTypes.Permanent,
@@ -107,7 +109,7 @@ public class OauthController(
             case OpenIddictConstants.ConsentTypes.External when authorizations.Count is not 0:
             case OpenIddictConstants.ConsentTypes.Explicit when authorizations.Count is not 0 && !request.HasPrompt(OpenIddictConstants.Prompts.Consent):
 
-                return await FinishSignIn(lexAuthUser, request, applicationId, authorizations);
+                return await FinishSignIn(user, request, applicationId, authorizations);
 
             // If the consent is external (e.g when authorizations are granted by a sysadmin),
             // immediately return an error if no authorization can be found in the database.
@@ -169,8 +171,7 @@ public class OauthController(
                       throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
         // Retrieve the claims principal stored in the authorization code/refresh token.
         var result = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-        var lexAuthUser = result.Succeeded ? LexAuthUser.FromClaimsPrincipal(result.Principal) : null;
-        if (!result.Succeeded || lexAuthUser is null)
+        if (!result.Succeeded || result.Principal.Identity?.IsAuthenticated is not true)
         {
             return Forbid(
                 authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
@@ -182,10 +183,10 @@ public class OauthController(
                 }));
         }
 
-        return await FinishSignIn(lexAuthUser, request);
+        return await FinishSignIn(result.Principal, request);
     }
 
-    private async Task<ActionResult> FinishSignIn(LexAuthUser lexAuthUser, OpenIddictRequest request)
+    private async Task<ActionResult> FinishSignIn(ClaimsPrincipal user, OpenIddictRequest request)
     {
         var requestClientId = request.ClientId;
         ArgumentException.ThrowIfNullOrEmpty(requestClientId);
@@ -195,7 +196,7 @@ public class OauthController(
         // Retrieve the permanent authorizations associated with the user and the calling client application.
         var applicationId = await applicationManager.GetIdAsync(application) ?? throw new InvalidOperationException("The calling client application could not be found.");
         var authorizations = await authorizationManager.FindAsync(
-            subject: lexAuthUser.Id.ToString(),
+            subject: GetUserId(user).ToString(),
             client: applicationId,
             status: OpenIddictConstants.Statuses.Valid,
             type: OpenIddictConstants.AuthorizationTypes.Permanent,
@@ -204,7 +205,9 @@ public class OauthController(
         //allow cors response for redirect hosts
         var redirectUrisAsync = await applicationManager.GetRedirectUrisAsync(application);
         Response.Headers.AccessControlAllowOrigin = redirectUrisAsync
-            .Select(uri => new Uri(uri).GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)).ToArray();
+            .Select(uri => new Uri(uri))
+            .Where(uri => request.RedirectUri is not null && uri.Host == new Uri(request.RedirectUri).Host)
+            .Select(uri => uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)).ToArray();
 
         // Note: this check is here to ensure a malicious user can't abuse this POST-only endpoint and
         // force it to return a valid response without the external authorization.
@@ -221,27 +224,36 @@ public class OauthController(
                 }));
         }
 
-        return await FinishSignIn(lexAuthUser, request, applicationId, authorizations);
+        if (!await lexAuthService.CanUserLogin(GetUserId(user)))
+        {
+            return Forbid(
+                authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+                properties: new AuthenticationProperties(new Dictionary<string, string?>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = OpenIddictConstants.Errors.InvalidGrant,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                        "User account is locked."
+                }));
+        }
+
+        return await FinishSignIn(user, request, applicationId, authorizations);
     }
-    private async Task<ActionResult> FinishSignIn(LexAuthUser lexAuthUser, OpenIddictRequest request, string applicationId, List<object> authorizations)
+    private async Task<ActionResult> FinishSignIn(ClaimsPrincipal user, OpenIddictRequest request, string applicationId, List<object> authorizations)
     {
-        var userId = lexAuthUser.Id.ToString();
+        var userId = GetUserId(user);
         // Create the claims-based identity that will be used by OpenIddict to generate tokens.
         var identity = new ClaimsIdentity(
             authenticationType: TokenValidationParameters.DefaultAuthenticationType,
+            claims: user.Claims,
             nameType: OpenIddictConstants.Claims.Name,
             roleType: OpenIddictConstants.Claims.Role);
-
-        // Add the claims that will be persisted in the tokens.
-        identity.SetClaim(OpenIddictConstants.Claims.Subject, userId)
-            .SetClaim(OpenIddictConstants.Claims.Email, lexAuthUser.Email)
-            .SetClaim(OpenIddictConstants.Claims.Name, lexAuthUser.Name)
-            .SetClaim(OpenIddictConstants.Claims.Role, lexAuthUser.Role.ToString());
 
         // Note: in this sample, the granted scopes match the requested scope
         // but you may want to allow the user to uncheck specific scopes.
         // For that, simply restrict the list of scopes before calling SetScopes.
-        identity.SetScopes(request.GetScopes());
+        // request scope may be null when exchanging tokens, so we want to keep the existing scopes
+        if (!string.IsNullOrEmpty(request.Scope))
+            identity.SetScopes(request.GetScopes());
         identity.SetAudiences(LexboxAudience.LexboxApi.ToString());
         // identity.SetResources(await _scopeManager.ListResourcesAsync(identity.GetScopes()).ToListAsync());
 
@@ -250,7 +262,7 @@ public class OauthController(
         var authorization = authorizations.LastOrDefault();
         authorization ??= await authorizationManager.CreateAsync(
             identity: identity,
-            subject : userId,
+            subject : userId.ToString(),
             client  : applicationId,
             type    : OpenIddictConstants.AuthorizationTypes.Permanent,
             scopes  : identity.GetScopes());
@@ -260,6 +272,16 @@ public class OauthController(
 
         // Returning a SignInResult will ask OpenIddict to issue the appropriate access/identity tokens.
         return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    private static Guid GetUserId(ClaimsPrincipal? principal)
+    {
+        var id = principal?.FindFirst(LexAuthConstants.IdClaimType)?.Value;
+        if (id is null or [])
+        {
+            throw new InvalidOperationException("The user identifier cannot be found.");
+        }
+        return Guid.Parse(id);
     }
 
     private static IEnumerable<string> GetDestinations(Claim claim)
@@ -273,6 +295,13 @@ public class OauthController(
         switch (claim.Type)
         {
             case OpenIddictConstants.Claims.Name:
+                yield return OpenIddictConstants.Destinations.AccessToken;
+
+                if (claimsIdentity.HasScope(OpenIddictConstants.Scopes.Profile))
+                    yield return OpenIddictConstants.Destinations.IdentityToken;
+
+                yield break;
+            case OpenIddictConstants.Claims.Username:
                 yield return OpenIddictConstants.Destinations.AccessToken;
 
                 if (claimsIdentity.HasScope(OpenIddictConstants.Scopes.Profile))

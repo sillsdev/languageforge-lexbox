@@ -36,6 +36,12 @@ public class TestingController(
         return token;
     }
 
+    [HttpGet("claims")]
+    public Dictionary<string, string> Claims()
+    {
+        return User.Claims.ToLookup(c => c.Type, c => c.Value).ToDictionary(k => k.Key, v => string.Join(";", v));
+    }
+
     [HttpPost("cleanupSeedData")]
     public async Task<ActionResult> CleanupSeedData()
     {

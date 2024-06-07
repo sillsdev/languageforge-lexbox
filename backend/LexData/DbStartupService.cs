@@ -45,9 +45,14 @@ public class DbStartupService : IHostedService
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<LexBoxDbContext>();
         await dbContext.Database.MigrateAsync(cancellationToken);
         var environment = serviceScope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+        var seedingData = serviceScope.ServiceProvider.GetRequiredService<SeedingData>();
         if (environment.IsDevelopment() || environment.IsStaging())
         {
-            await serviceScope.ServiceProvider.GetRequiredService<SeedingData>().SeedIfNoUsers(cancellationToken);
+            await seedingData.SeedIfNoUsers(cancellationToken);
+        }
+        else
+        {
+            await seedingData.SeedOAuth(cancellationToken);
         }
 
         _migrateExecuted = true;

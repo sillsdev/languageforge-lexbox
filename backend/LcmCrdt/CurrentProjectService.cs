@@ -9,6 +9,9 @@ public class CurrentProjectService(CrdtDbContext dbContext, ProjectContext proje
     public CrdtProject Project =>
         projectContext.Project ?? throw new NullReferenceException("Not in the context of a project");
 
+    //only works because PopulateProjectDataCache is called first in the request pipeline
+    public ProjectData ProjectData => memoryCache.Get<ProjectData>(Project.Name + "|ProjectData") ?? throw new InvalidOperationException("Project data not found");
+
     public async ValueTask<ProjectData> GetProjectData()
     {
         var key = Project.Name + "|ProjectData";
@@ -22,5 +25,11 @@ public class CurrentProjectService(CrdtDbContext dbContext, ProjectContext proje
         if (result is null) throw new InvalidOperationException("Project data not found");
 
         return (ProjectData)result;
+    }
+
+    public async ValueTask<ProjectData> PopulateProjectDataCache()
+    {
+        var projectData = await GetProjectData();
+        return projectData;
     }
 }
