@@ -12,7 +12,7 @@ namespace LcmCrdt;
 
 public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOptions, IHybridDateTimeProvider timeProvider, CurrentProjectService projectService) : ILexboxApi
 {
-    private Guid ClientId => projectService.ProjectData.ClientId;
+    private Guid ClientId { get; } = projectService.ProjectData.ClientId;
 
 
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
@@ -166,7 +166,7 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     /// <param name="entry"></param>
     public async Task CreateEntryLite(MiniLcm.Entry entry)
     {
-        await dataModel.AddChanges(await GetClientId(),
+        await dataModel.AddChanges(ClientId,
         [
             new CreateEntryChange(entry),
             ..entry.Senses.Select(s => new CreateSenseChange(s, entry.Id)),
