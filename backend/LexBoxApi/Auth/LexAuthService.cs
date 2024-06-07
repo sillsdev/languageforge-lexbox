@@ -60,7 +60,11 @@ public class LexAuthService
         return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret));
     }
 
-
+    public async Task<bool> CanUserLogin(Guid id)
+    {
+        var user = await _lexBoxDbContext.Users.FindAsync(id);
+        return user?.CanLogin() ?? false;
+    }
 
     public async Task<(LexAuthUser?, LoginError?)> Login(LoginRequest loginRequest)
     {
