@@ -1,14 +1,22 @@
+using System.Collections.Immutable;
 using LexCore;
 using LexCore.Entities;
 using LexData.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
+using OpenIddict.EntityFrameworkCore.Models;
 
 namespace LexData;
 
-public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbConfig, IHostEnvironment environment, IOpenIddictApplicationManager? applicationManager = null)
+public class SeedingData(
+    LexBoxDbContext lexBoxDbContext,
+    IOptions<DbConfig> dbConfig,
+    IHostEnvironment environment,
+    ILogger<SeedingData> logger,
+    IOpenIddictApplicationManager? applicationManager = null)
 {
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
@@ -17,7 +25,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
-        await SeedOpenId(cancellationToken);
+        await SeedOAuth(cancellationToken);
         if (await lexBoxDbContext.Users.CountAsync(cancellationToken) > 0)
         {
             return;
@@ -28,7 +36,7 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
 
     public async Task SeedDatabase(CancellationToken cancellationToken = default)
     {
-        await SeedOpenId(cancellationToken);
+        await SeedOAuth(cancellationToken);
         await SeedUserData(cancellationToken);
     }
 
@@ -175,35 +183,81 @@ public class SeedingData(LexBoxDbContext lexBoxDbContext, IOptions<DbConfig> dbC
         await lexBoxDbContext.SaveChangesAsync(cancellationToken);
     }
 
-    private async Task SeedOpenId(CancellationToken cancellationToken = default)
+    public async Task SeedOAuth(CancellationToken token = default)
     {
         if (applicationManager is null) return;
-        const string clientId = "becf2856-0690-434b-b192-a4032b72067f";
-        if (await applicationManager.FindByClientIdAsync(clientId, cancellationToken) is null)
+        var dbApps = await applicationManager.ListAsync(cancellationToken: token)
+            .ToDictionaryAwaitAsync(async app => await applicationManager.GetClientIdAsync(app, token) ?? throw new InvalidOperationException("ClientId is null"), token);
+        var seedApps = OAuthApps;
+        foreach (var clientId in dbApps.Keys.Union(seedApps.Keys))
         {
-            await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
-                {
-                    ClientId = clientId,//must be guid for MSAL
-                    ClientType = OpenIddictConstants.ClientTypes.Public,
-                    ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
-                    DisplayName = "Oidc Debugger",
-                    //explicit requires the user to consent, Implicit does not, External requires an admin to approve, not currently supported
-                    ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
-                    Permissions =
-                    {
-                        OpenIddictConstants.Permissions.Endpoints.Authorization,
-                        OpenIddictConstants.Permissions.Endpoints.Token,
-                        OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
-                        OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
-                        OpenIddictConstants.Permissions.ResponseTypes.Code,
-                        OpenIddictConstants.Permissions.Scopes.Email,
-                        OpenIddictConstants.Permissions.Scopes.Profile
-                    },
-                    RedirectUris = { new Uri("https://oidcdebugger.com/debug")}
-                },
-                cancellationToken);
+            var dbApp = dbApps.GetValueOrDefault(clientId);
+            var seedApp = seedApps.GetValueOrDefault(clientId);
+            await ((dbApp, seedApp) switch {
+                { dbApp: null, seedApp: not null } => CreateApp(seedApp, token),
+                { dbApp: not null, seedApp: null } => applicationManager.DeleteAsync(dbApp, token),
+                { dbApp: not null, seedApp: not null } => UpdateApp(dbApp, seedApp, token),
+                _ => ValueTask.CompletedTask
+            });
+        }
+
+        async ValueTask CreateApp(OpenIddictApplicationDescriptor seedApp, CancellationToken token)
+        {
+            await applicationManager.CreateAsync(seedApp, token);
+        }
+
+        async ValueTask UpdateApp(object dbApp, OpenIddictApplicationDescriptor seedApp, CancellationToken token)
+        {
+            await applicationManager.PopulateAsync(dbApp, seedApp, token);
+            await applicationManager.UpdateAsync(dbApp, token);
         }
     }
+    private Dictionary<string, OpenIddictApplicationDescriptor> OAuthApps => Enumerable.ToDictionary(
+    [
+        ..environment.IsProduction() ? [] : DevApps,
+        new OpenIddictApplicationDescriptor
+        {
+            ClientId = "becf2856-0690-434b-b192-a4032b72067f", //must be guid for MSAL
+            ClientType = OpenIddictConstants.ClientTypes.Public,
+            ApplicationType = OpenIddictConstants.ApplicationTypes.Native, //native allows the redirect port to be dynamic
+            DisplayName = "FieldWorks Lite",
+            ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                OpenIddictConstants.Permissions.ResponseTypes.Code,
+                OpenIddictConstants.Permissions.Scopes.Email,
+                OpenIddictConstants.Permissions.Scopes.Profile
+            },
+            // port is dynamic due to the nature of the native app
+            RedirectUris = { new Uri("http://localhost:5173/api/auth/oauth-callback") }
+        }
+    ], a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));
+
+    private IEnumerable<OpenIddictApplicationDescriptor> DevApps => [
+        new OpenIddictApplicationDescriptor
+        {
+            ClientId = "oidc-debugger",
+            ClientType = OpenIddictConstants.ClientTypes.Public,
+            ApplicationType = OpenIddictConstants.ApplicationTypes.Web,
+            DisplayName = "Oidc Debugger",
+            //explicit requires the user to consent, Implicit does not, External requires an admin to approve, not currently supported
+            ConsentType = OpenIddictConstants.ConsentTypes.Explicit,
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                OpenIddictConstants.Permissions.ResponseTypes.Code,
+                OpenIddictConstants.Permissions.Scopes.Profile
+            },
+            RedirectUris = { new Uri("https://oidcdebugger.com/debug") }
+        },
+    ];
 
     public async Task CleanUpSeedData()
     {
