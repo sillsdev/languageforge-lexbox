@@ -12,7 +12,7 @@ namespace LcmCrdt;
 
 public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOptions, IHybridDateTimeProvider timeProvider, CurrentProjectService projectService) : ILexboxApi
 {
-    private Guid ClientId => projectService.ProjectData.ClientId;
+    private Guid ClientId { get; } = projectService.ProjectData.ClientId;
 
 
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>().ToLinqToDB();

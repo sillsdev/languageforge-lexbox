@@ -19,8 +19,7 @@ public class BasicApiTests : IAsyncLifetime
 
     protected readonly IServiceScope _services;
     public DataModel DataModel = null!;
-    private CrdtDbContext _crdtDbContext;
-    private ProjectsService _projectsService;
+    private readonly CrdtDbContext _crdtDbContext;
 
     public BasicApiTests()
     {
@@ -29,7 +28,6 @@ public class BasicApiTests : IAsyncLifetime
             .RemoveAll(typeof(ProjectContext))
             .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
-        _projectsService = services.GetRequiredService<ProjectsService>();
         _services = services.CreateScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<CrdtDbContext>();
     }
@@ -37,7 +35,8 @@ public class BasicApiTests : IAsyncLifetime
     public virtual async Task InitializeAsync()
     {
         await _crdtDbContext.Database.OpenConnectionAsync();
-        await _projectsService.CreateProject("Sena 3", sqliteFile: ":memory:", db: _crdtDbContext);
+        //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
+        await ProjectsService.InitProjectDb(_crdtDbContext, new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid()));
         await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         DataModel = _services.ServiceProvider.GetRequiredService<DataModel>();
         _api = ActivatorUtilities.CreateInstance<CrdtLexboxApi>(_services.ServiceProvider);
