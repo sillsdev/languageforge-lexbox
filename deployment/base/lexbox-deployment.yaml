@@ -180,6 +180,11 @@ spec:
               secretKeyRef:
                 key: SMTP_PASSWORD
                 name: email
+          - name: Authentication__OpenId__Enable
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: enable-oauth
           - name: Authentication__Google__ClientId
             valueFrom:
               secretKeyRef:
@@ -275,6 +280,11 @@ spec:
               configMapKeyRef:
                 name: app-config
                 key: environment-name
+          - name: Authentication__OpenId__Enable
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: enable-oauth
       - name: set-repo-structure-owner-to-www-data
         securityContext:
           # Make sure we're authorized to set ownership
