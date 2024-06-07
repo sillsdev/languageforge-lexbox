@@ -11,6 +11,7 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import {delay} from '$lib/util/time';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
+  import { _acquireProject, _releaseProject } from '$lib/gql/mutations';
 
   function uploadFinished(): void {
     alert('upload done!');
@@ -47,6 +48,17 @@ function preFillForm(): void {
 let modal: ConfirmModal;
 let deleteModal: DeleteModal;
 
+const testOrgId = '292c80e6-a815-4cd1-9ea2-34bd01274de6';
+const sena3Id = '0ebc5976-058d-4447-aaa7-297f8569f968';
+
+async function acquire() {
+  console.log(await _acquireProject(testOrgId, sena3Id));
+}
+
+async function release() {
+  console.log(await _releaseProject(testOrgId, sena3Id));
+}
+
 </script>
 <PageBreadcrumb>Hello from sandbox</PageBreadcrumb>
 <PageBreadcrumb>second value</PageBreadcrumb>
@@ -69,6 +81,12 @@ let deleteModal: DeleteModal;
     <a rel="external" target="_blank" class="btn" href="/api/testing/test500NoException">Goto API 500 new tab</a>
     <button class="btn" on:click={fetch500}>Fetch 500</button>
     <button class="btn" on:click={gqlThrows500}>GQL 500</button>
+  </div>
+  <div class="card w-96 bg-base-200 shadow-lg">
+    <div class="card-body">
+      <button class="btn btn-success" on:click={acquire}>acquire</button>
+      <button class="btn btn-accent" on:click={release}>release</button>
+    </div>
   </div>
   <div class="card w-96 bg-base-200 shadow-lg">
     <div class="card-body">
