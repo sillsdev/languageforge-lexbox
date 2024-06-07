@@ -146,24 +146,4 @@ public class OrgMutations
         await dbContext.SaveChangesAsync();
         return dbContext.Orgs.Where(o => o.Id == input.OrgId);
     }
-
-    // TODO: Implement this if we decide orgs should have a description, or remove it otherwise
-    // [Error<NotFoundException>]
-    // [Error<DbError>]
-    // [UseMutationConvention]
-    // [UseFirstOrDefault]
-    // [UseProjection]
-    // public async Task<IQueryable<Organization>> ChangeOrgDescription(ChangeOrgDescriptionInput input,
-    //     IPermissionService permissionService,
-    //     LexBoxDbContext dbContext)
-    // {
-    //     var org = await dbContext.Orgs.FindAsync(input.OrgId);
-    //     NotFoundException.ThrowIfNull(org);
-    //     permissionService.AssertCanEditOrg(org);
-
-    //     org.Description = input.Description;
-    //     org.UpdateUpdatedDate();
-    //     await dbContext.SaveChangesAsync();
-    //     return dbContext.Orgs.Where(o => o.Id == input.OrgId);
-    // }
 }

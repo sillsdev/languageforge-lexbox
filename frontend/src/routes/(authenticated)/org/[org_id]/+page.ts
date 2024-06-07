@@ -170,31 +170,6 @@ export async function _changeOrgName(input: ChangeOrgNameInput): $OpResult<Chang
   return result;
 }
 
-// TODO: Uncomment if we decide orgs should hvae a description
-// export async function _changeOrgDescription(input: ChangeOrgDescriptionInput): $OpResult<ChangeOrgDescriptionMutation> {
-//   //language=GraphQL
-//   const result = await getClient()
-//     .mutation(
-//       graphql(`
-//         mutation ChangeOrgDescription($input: ChangeOrgDescriptionInput!) {
-//           changeOrgDescription(input: $input) {
-//             organization {
-//               id
-//               description
-//             }
-//             errors {
-//               ... on Error {
-//                 message
-//               }
-//             }
-//           }
-//         }
-//       `),
-//       { input: input }
-//     );
-//   return result;
-// }
-
 export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<DeleteOrgUserMutation> {
   const result = await getClient()
     .mutation(
