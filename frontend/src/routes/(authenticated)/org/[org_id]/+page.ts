@@ -1,12 +1,10 @@
 import type {
   $OpResult,
-  ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
   ChangeOrgNameMutation,
   DeleteOrgMutation,
   DeleteOrgUserMutation,
   OrgPageQuery,
-  OrgRole,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -76,38 +74,6 @@ export async function load(event: PageLoadEvent) {
 export type OrgSearchParams = {
   tab: OrgTabId
 };
-
-export async function _changeOrgMemberRole(orgId: UUID, userId: UUID, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {
-  //language=GraphQL
-  const result = await getClient()
-    .mutation(
-      graphql(`
-        mutation ChangeOrgMemberRole($input: ChangeOrgMemberRoleInput!) {
-          changeOrgMemberRole(input: $input) {
-            organization {
-              id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
-            }
-            errors {
-              __typename
-              ... on Error {
-                message
-              }
-            }
-          }
-        }
-      `),
-      { input: { orgId, userId, role} },
-    );
-  return result;
-}
 
 export async function _changeOrgName(input: ChangeOrgNameInput): $OpResult<ChangeOrgNameMutation> {
   //language=GraphQL

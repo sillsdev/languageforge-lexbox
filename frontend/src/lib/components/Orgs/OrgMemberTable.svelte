@@ -1,3 +1,13 @@
+<script lang="ts" context="module">
+  type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
+
+  export type Member = {
+    id: string
+    user: TableUser
+    role: OrgRole
+  };
+</script>
+
 <script lang="ts">
   import { Button } from '$lib/forms';
   import t from '$lib/i18n';
@@ -7,14 +17,6 @@
   import type { OrgRole, User } from '$lib/gql/types';
   import OrgRoleText from './OrgRoleText.svelte';
   import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
-
-  type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
-
-  type Member = {
-    id: string
-    user: TableUser
-    role: OrgRole
-  };
 
   export let orgId: string;
 
@@ -96,7 +98,7 @@
               </button>
               <ul slot="content" class="menu">
                 <li>
-                  <button class="whitespace-nowrap" on:click={() => editingUser = user}>
+                  <button class="whitespace-nowrap" on:click={() => dispatch('changeMemberRole', member)}>
                     <Icon icon="i-mdi-pencil-outline" />
                     {$t('org_page.edit_member_role')}
                   </button>

@@ -8,15 +8,17 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgMemberRole, _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams } from './+page';
+  import { _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import OrgMemberTable from '$lib/components/Orgs/OrgMemberTable.svelte';
+  import OrgMemberTable, { type Member } from '$lib/components/Orgs/OrgMemberTable.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { goto } from '$app/navigation';
   import { DialogResponse } from '$lib/components/modals';
   import AddOrgMemberModal from '$lib/components/Orgs/AddOrgMemberModal.svelte';
+  import { _changeOrgMemberRole } from '$lib/components/Orgs/mutations';
+  import ChangeOrgMemberRoleModal from '$lib/components/Orgs/ChangeOrgMemberRoleModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -45,6 +47,15 @@
   let addOrgMemberModal: AddOrgMemberModal;
   async function openAddOrgMemberModal(): Promise<void> {
     await addOrgMemberModal.openModal();
+  }
+
+  let changeMemberRoleModal: ChangeOrgMemberRoleModal;
+  async function openChangeMemberRoleModal(member: Member): Promise<void> {
+    await changeMemberRoleModal.open({
+      userId: member.user.id,
+      name: member.user.name,
+      role: member.role
+    });
   }
 
   let deleteOrgModal: ConfirmDeleteModal;
@@ -111,7 +122,7 @@
       shownUsers={org.members}
       {canManage}
       on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
-      on:changeMemberRole={(event) => _changeOrgMemberRole(org.id, event.detail.user.id, event.detail.role)}
+      on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
     />
     {:else if $queryParamValues.tab === 'history'}
       <div class="space-y-2">
@@ -138,3 +149,4 @@
   </div>
 </DetailsPage>
 <ConfirmDeleteModal bind:this={deleteOrgModal} i18nScope="delete_org_modal" />
+<ChangeOrgMemberRoleModal orgId={org.id} bind:this={changeMemberRoleModal} />
