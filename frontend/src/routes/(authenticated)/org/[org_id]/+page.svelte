@@ -121,6 +121,7 @@
       orgId={org.id}
       shownUsers={org.members}
       {canManage}
+      on:openUserModal={() => console.log('TODO: user details modal not yet done')}
       on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
       on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
     />
