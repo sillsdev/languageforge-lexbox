@@ -35,12 +35,22 @@
   function fetchProjects() {
     return fetch('/api/projects').then(r => r.json() as Promise<{ name: string, origin: 'FieldWorks' | 'CRDT' }[]>);
   }
+
+  let username = '';
+
+  function fetchMe() {
+    return fetch('/api/auth/me').then(r => r.json()).then(user => {
+      username = user.name;
+    });
+  }
+
+  fetchMe();
 </script>
 
 <Router {url}>
   <nav>
   </nav>
-  <div>
+  <div class="app">
     <Route path="/project/:name" let:params>
       {#key params.name}
         <CrdtProjectView projectName={params.name}/>
@@ -59,6 +69,14 @@
       <Card title="Create Project" class="w-fit m-4">
         <TextField label="New Project Name" class="m-4" placeholder="Project Name" bind:value={newProjectName}/>
         <Button slot="actions" variant="fill" on:click={createProject}>Create Project</Button>
+      </Card>
+      <Card title="Account" class="w-fit m-4">
+        {#if username}
+          <p>Logged in as {username}</p>
+          <Button slot="actions" variant="fill" href="/api/auth/logout/default">Logout</Button>
+        {:else}
+          <Button slot="actions" variant="fill" href="/api/auth/login/default">Login</Button>
+        {/if}
       </Card>
       <Card title="Projects" class="w-fit m-4">
         <div slot="contents">

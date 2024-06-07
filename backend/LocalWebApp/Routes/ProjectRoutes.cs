@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using FwDataMiniLcmBridge;
 using LcmCrdt;
+using LocalWebApp.Auth;
 using MiniLcm;
 
 namespace LocalWebApp.Routes;

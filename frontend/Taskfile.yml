@@ -38,6 +38,10 @@ tasks:
     aliases: [ s ]
     cmd: pnpm {{.CLI_ARGS}}
 
+  build-viewer-app:
+    dir: ./viewer
+    deps: [ install-viewer ]
+    cmd: pnpm run build-app
   install-viewer:
     dir: ./viewer
     method: checksum

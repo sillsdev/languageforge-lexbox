@@ -1,4 +1,8 @@
 ﻿version: 3
+includes:
+  ui:
+    taskfile: ../frontend/Taskfile.yml
+    dir: ../frontend
 
 tasks:
   api-only:
@@ -99,6 +103,7 @@ tasks:
     - task: publish-local-osx
   publish-local-win:
     dir: ./LocalWebApp
+    deps: [ui:build-viewer-app]
     cmd: dotnet publish -r win-x64
   publish-local-linux:
     dir: ./LocalWebApp

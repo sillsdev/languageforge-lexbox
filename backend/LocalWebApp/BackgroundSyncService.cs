@@ -1,6 +1,8 @@
 ﻿using System.Threading.Channels;
 using Crdt;
 using LcmCrdt;
+using LocalWebApp.Auth;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 
 namespace LocalWebApp;
@@ -8,6 +10,8 @@ namespace LocalWebApp;
 public class BackgroundSyncService(
     IServiceProvider serviceProvider,
     ProjectsService projectsService,
+    IHostApplicationLifetime applicationLifetime,
+    IOptions<AuthConfig>options,
     ProjectContext projectContext) : BackgroundService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
@@ -18,8 +22,17 @@ public class BackgroundSyncService(
                                             throw new InvalidOperationException("No project selected"));
     }
 
+    private Task StartedAsync()
+    {
+        var tcs = new TaskCompletionSource();
+        applicationLifetime.ApplicationStarted.Register(() => tcs.SetResult());
+        return tcs.Task;
+    }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        //need to wait until application is started, otherwise Server urls will be unknown which prevents creating downstream services
+        await StartedAsync();
         var crdtProjects = await projectsService.ListProjects();
         foreach (var crdtProject in crdtProjects)
         {

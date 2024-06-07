@@ -1,6 +1,7 @@
 import type { IEntry, IExampleSentence, IMultiString, ISense } from './mini-lcm';
 
 import type { ConditionalKeys } from 'type-fest';
+import type { LexboxApiFeatures } from './services/lexbox-api';
 import type { views } from './config-data';
 
 export type WritingSystemType = 'vernacular' | 'analysis';
@@ -49,10 +50,20 @@ export type ViewConfigFieldProps = {
   extra?: true,
 };
 
-export type ViewConfig = {
+export type LexboxFeatures = LexboxApiFeatures;
+
+export type LexboxPermissions = {
+  write: boolean,
+  comment: boolean,
+}
+
+export type ViewOptions = {
   generateExternalChanges: boolean,
   showExtraFields: boolean,
   hideEmptyFields: boolean,
   activeView: typeof views[number],
-  readonly?: true,
+}
+
+export type ViewConfig = ViewOptions & {
+  readonly?: boolean,
 }

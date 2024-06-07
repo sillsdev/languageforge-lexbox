@@ -38,6 +38,7 @@ public class BasicApiTests : IAsyncLifetime
     {
         await _crdtDbContext.Database.OpenConnectionAsync();
         await _projectsService.CreateProject("Sena 3", sqliteFile: ":memory:", db: _crdtDbContext);
+        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         DataModel = _services.ServiceProvider.GetRequiredService<DataModel>();
         _api = ActivatorUtilities.CreateInstance<CrdtLexboxApi>(_services.ServiceProvider);
         await _api.CreateWritingSystem(WritingSystemType.Analysis,

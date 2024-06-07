@@ -1,14 +1,15 @@
 ﻿import type {
+  LexboxApiClient,
   IEntry,
   IExampleSentence,
   ISense,
   JsonPatch,
-  LexboxApi,
+  LexboxApiFeatures,
   QueryOptions,
   WritingSystemType,
   WritingSystems
 } from './services/lexbox-api';
-import {entries, writingSystems} from './entry-data';
+import {entries, projectName, writingSystems} from './entry-data';
 
 import { type WritingSystem } from './mini-lcm';
 import { headword } from './utils';
@@ -19,15 +20,19 @@ function filterEntries(entries: IEntry[], query: string) {
     [
       ...Object.values(entry.lexemeForm ?? {}),
       ...Object.values(entry.citationForm ?? {}),
-      ...Object.values(entry.literalMeaning ?? {}),
       ...entry.senses.flatMap(sense => [
-        ...Object.values(sense.definition ?? {}),
         ...Object.values(sense.gloss ?? {}),
       ]),
     ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
 }
 
-export class InMemoryApiService implements LexboxApi {
+export class InMemoryApiService implements LexboxApiClient {
+
+  SupportedFeatures(): LexboxApiFeatures {
+    return {};
+  }
+
+  readonly projectName = projectName;
 
   private _entries = entries;
   private _Entries(): IEntry[] {

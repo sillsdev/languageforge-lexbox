@@ -1,12 +1,21 @@
-export type { IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems } from '../mini-lcm';
 import type {IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems} from '../mini-lcm';
+
 import type { Operation } from 'fast-json-patch';
+
+export type { IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems } from '../mini-lcm';
+
 export type JsonPatch = Operation[];
 
 export enum WritingSystemType {
   Vernacular = 0,
   Analysis = 1,
 }
+
+export interface LexboxApiFeatures {
+  history?: boolean;
+  write?: boolean;
+};
+
 export interface LexboxApi {
   GetWritingSystems(): Promise<WritingSystems>;
   CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void>;
@@ -28,3 +37,9 @@ export interface LexboxApi {
   UpdateExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string, update: JsonPatch): Promise<IExampleSentence>;
   DeleteExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string): Promise<void>;
 }
+
+export interface LexboxApiMetadata {
+  SupportedFeatures(): LexboxApiFeatures;
+}
+
+export type LexboxApiClient = LexboxApi & LexboxApiMetadata;
