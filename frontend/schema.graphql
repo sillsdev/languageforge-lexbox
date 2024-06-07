@@ -272,6 +272,7 @@ type ProjectUsers {
 
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
+  myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectById(projectId: UUID!): Project
