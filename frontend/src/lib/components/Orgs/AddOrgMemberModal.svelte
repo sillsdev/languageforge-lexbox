@@ -39,23 +39,6 @@
           return { usernameOrEmail: [$t('org_page.add_user.username_not_found')] };
         }
       }
-      // TODO: _addOrgMember should probably return some of the error types below as well
-      // if (error?.byType('InvalidEmailError')) {
-      //   return { usernameOrEmail: [$t('form.invalid_email')] };
-      // }
-      // if (error?.byType('OrgMembersMustBeVerified')) {
-      //   return { usernameOrEmail: [$t('org_page.add_user.user_must_be_verified')] };
-      // }
-      // if (error?.byType('OrgMembersMustBeVerifiedForRole')) {
-      //   return { role: [$t('org_page.add_user.admin_must_be_verified')] };
-      // }
-      // if (error?.byType('AlreadyExistsError')) {
-      //   return { usernameOrEmail: [$t('org_page.add_user.user_already_member')] };
-      // }
-      // if (error?.byType('OrgMemberInvitedByEmail')) {
-      //   userInvited = true;
-      //   return undefined; // Close modal as if success
-      // }
 
       return error?.message;
     });
