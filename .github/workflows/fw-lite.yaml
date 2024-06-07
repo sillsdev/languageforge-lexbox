@@ -2,7 +2,7 @@
 on:
   workflow_dispatch:
   push:
-    paths: &paths
+    paths:
       - 'backend/FwDataMiniLcmBridge/**'
       - 'backend/harmony/**'
       - 'backend/LcmCrdt/**'
@@ -13,7 +13,14 @@ on:
     branches:
       - develop
   pull_request:
-    paths: *paths
+    paths:
+      - 'backend/FwDataMiniLcmBridge/**'
+      - 'backend/harmony/**'
+      - 'backend/LcmCrdt/**'
+      - 'backend/LocalWebApp/**'
+      - 'backend/MiniLcm/**'
+      - 'frontend/viewer/**'
+      - '.github/workflows/fw-lite.yaml'
     branches:
       - develop
 
