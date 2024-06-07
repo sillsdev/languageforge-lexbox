@@ -76,6 +76,10 @@ tasks:
     cmds:
       - kubectl port-forward service/db 5434:5432 -n languagedepot --context dallas-rke
 
+  develop-db-forward:
+    cmds:
+      - kubectl port-forward service/db 5436:5432 -n languagedepot-dev --context dallas-rke
+
   prod-db-forward:
     cmds:
       - kubectl port-forward service/db 5435:5432 -n languagedepot --context aws-rke
