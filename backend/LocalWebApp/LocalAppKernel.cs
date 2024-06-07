@@ -55,7 +55,7 @@ public static class LocalAppKernel
         services.AddTransient<AuthHelpers>(sp => sp.GetRequiredService<AuthHelpersFactory>().GetCurrentHelper());
         services.AddSingleton<OAuthService>();
         services.AddSingleton<IHostedService>(sp => sp.GetRequiredService<OAuthService>());
-        services.AddOptionsWithValidateOnStart<AuthConfig>().ValidateDataAnnotations();
+        services.AddOptionsWithValidateOnStart<AuthConfig>().BindConfiguration("Auth").ValidateDataAnnotations();
         services.AddSingleton<LoggerAdapter>();
         var httpClientBuilder = services.AddHttpClient(AuthHelpers.AuthHttpClientName);
         if (environment.IsDevelopment())
