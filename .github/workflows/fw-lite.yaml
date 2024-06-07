@@ -1,0 +1,70 @@
+﻿name: FieldWorks Lite
+on:
+  workflow_dispatch:
+  push:
+    paths: &paths
+      - 'backend/FwDataMiniLcmBridge/**'
+      - 'backend/harmony/**'
+      - 'backend/LcmCrdt/**'
+      - 'backend/LocalWebApp/**'
+      - 'backend/MiniLcm/**'
+      - 'frontend/viewer/**'
+      - '.github/workflows/fw-lite.yaml'
+    branches:
+      - develop
+  pull_request:
+    paths: *paths
+    branches:
+      - develop
+
+jobs:
+  build-app:
+    name: Build FW Lite
+    timeout-minutes: 20
+    runs-on: unutbu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+      - name: Dotnet build
+        working-directory: backend/LocalWebApp
+        run: dotnet build --configuration Release
+      - name: Dotnet test
+        working-directory: backend/LcmCrdt.Tests
+        run: dotnet test --configuration Release --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
+        if: always()
+        with:
+          check_name: FW Lite Unit Tests
+          files: ./backend/LcmCrdt.Tests/test-results/*.xml
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: |
+          corepack enable
+          pnpm install
+          pnpm run build-app
+
+      - name: Publish linux
+        working-directory: backend/LocalWebApp
+        run: dotnet publish -r linux-x64 -o ./publish/linux
+      - name: Publish osx
+        working-directory: backend/LocalWebApp
+        run: dotnet publish -r osx-x64 -o ./publish/osx
+      - name: Publish win
+        working-directory: backend/LocalWebApp
+        run: dotnet publish -r win-x64 -o ./publish/win
+      - name: Upload artifacts
+        # uploading in one artifact as there's a lot of duplication between builds so compression goes far
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite
+          if-no-files-found: error
+          path: backend/LocalWebApp/publish/*

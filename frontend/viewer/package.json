@@ -1,6 +1,10 @@
 {
   "name": "viewer",
   "private": true,
+  "packageManager": "pnpm@8.15.1",
+  "engines": {
+    "node": ">=20"
+  },
   "version": "1.0.0",
   "type": "module",
   "main": "dist-web-component/viewer.js",

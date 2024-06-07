@@ -2,19 +2,21 @@ name: Develop API CI/CD
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'backend/**'
+    paths: &paths
+      - 'backend/LexBoxApi/**'
+      - 'backend/LexCore/**'
+      - 'backend/LexData/**'
+      - 'backend/LfClassicData/**'
+      - 'backend/MiniLcm/**'
+      - 'backend/SyncReverserProxy/**'
+      - 'backend/Testing/**'
       - '.github/workflows/lexbox-api.yaml'
       - '.github/workflows/deploy.yaml'
       - 'deployment/lexbox-deployment.yaml'
     branches:
       - develop
   pull_request:
-    paths:
-      - 'backend/**'
-      - '.github/workflows/lexbox-api.yaml'
-      - '.github/workflows/deploy.yaml'
-      - 'deployment/lexbox-deployment.yaml'
+    paths: *paths
     branches:
       - develop
 
