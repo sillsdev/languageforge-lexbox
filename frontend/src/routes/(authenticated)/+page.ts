@@ -27,9 +27,15 @@ export async function load(event: PageLoadEvent) {
             myDraftProjects(orderBy: [
                 {code: ASC }
             ]) {
-                name
-                description
-                isConfidential
+              code
+              createdDate
+              id
+              name
+              type
+              description
+              retentionPolicy
+              isConfidential
+              projectManagerId
             }
         }
   `), {});

@@ -2,41 +2,55 @@
   import t from '$lib/i18n';
   import { Badge } from './Badges';
   import { getProjectTypeIcon } from './ProjectType';
-  import type { ProjectItem } from './Projects';
+  import type { ProjectItemWithDraftStatus } from './Projects';
 
-  export let projects: ProjectItem[];
+  export let projects: ProjectItemWithDraftStatus[];
 </script>
 
-<div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
+<div data-sveltekit-preload-data="false" class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
   {#each projects as project}
-    <a class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden" href={`/project/${project.code}`}>
-      <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
-      <div class="card-body z-[1]">
-        <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
-          <span class="text-primary inline-flex gap-2 items-center">
-            {project.name}
-          </span>
-        </h2>
-
-        <p>{project.code}</p>
-
-        <p>
-          <span class="i-mdi-account text-xl mb-[-4px]" /> {project.userCount}
-        </p>
-
-        <p class="flex items-end">
-          {#if project.lastCommit}
-            {$t('projectlist.last_change', {
-              lastChange: new Date(project.lastCommit),
-            })}
-          {:else}
-            <Badge variant="badge-info" outline>
-              {$t('projectlist.no_changes')}
-            </Badge>
-          {/if}
-        </p>
+    <!-- definitely need to be refactored -->
+    {#if project.isDraft}
+      <div class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden">
+        <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
+        <div class="card-body z-[1]">
+          <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
+            <span class="text-primary inline-flex gap-2 items-center">
+              {project.name}
+            </span>
+          </h2>
+          <p>{project.code}</p>
+        </div>
       </div>
-    </a>
+    {:else}
+      <a class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden" href={`/project/${project.code}`}>
+        <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
+        <div class="card-body z-[1]">
+          <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
+            <span class="text-primary inline-flex gap-2 items-center">
+              {project.name}
+            </span>
+          </h2>
+          <p>{project.code}</p>
+          {#if !project.isDraft}
+            <p>
+              <span class="i-mdi-account text-xl mb-[-4px]" /> {project.userCount}
+            </p>
+            <p class="flex items-end">
+              {#if project.lastCommit}
+                {$t('projectlist.last_change', {
+                  lastChange: new Date(project.lastCommit),
+                })}
+              {:else}
+                <Badge variant="badge-info" outline>
+                  {$t('projectlist.no_changes')}
+                </Badge>
+              {/if}
+            </p>
+          {/if}
+        </div>
+      </a>
+    {/if}
   {/each}
 </div>
 

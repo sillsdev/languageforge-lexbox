@@ -5,7 +5,7 @@
   import { HeaderPage } from '$lib/layout';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItem } from '$lib/components/Projects';
+  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import { Button } from '$lib/forms';
   import { limit } from '$lib/components/Paging';
@@ -14,7 +14,10 @@
   import { STORAGE_VIEW_MODE_KEY, ViewMode } from './shared';
 
   export let data: PageData;
-  $: projects = data.projects;
+  $: projectStore = data.projects;
+  $: projects = $projectStore
+  $: draftProjectStore = data.draftProjects;
+  $: draftProjects = $draftProjectStore
 
   type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType'>;
 
@@ -25,7 +28,7 @@
 
   let initializedMode = false;
   let mode: ViewMode;
-  $: defaultMode = $projects.length < 10 ? ViewMode.Grid : ViewMode.Table;
+  $: defaultMode = $projectStore.length < 10 ? ViewMode.Grid : ViewMode.Table;
 
   $: {
     if (!initializedMode) {
@@ -44,9 +47,17 @@
     Cookies.set(STORAGE_VIEW_MODE_KEY, mode, { expires: 365 * 10 });
   }
 
-  let filteredProjects: ProjectItem[] = [];
+  let allProjects: ProjectItemWithDraftStatus[] = [];
+  let filteredProjects: ProjectItemWithDraftStatus[] = [];
   let limitResults = true;
-  $: filteredProjects = filterProjects($projects, $filters);
+  $: allProjects = [
+    ...draftProjects.map(p => ({
+      ...p, isDraft: true as const,
+      createUrl: ''
+    })),
+    ...projects.map(p => ({ ...p, isDraft: false as const })),
+  ];
+  $: filteredProjects = filterProjects(allProjects, $filters);
   $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
 </script>
 
@@ -84,7 +95,7 @@
     {/if}
   </svelte:fragment>
 
-  {#if !$projects.length}
+  {#if !$projectStore.length}
     <div class="text-lg text-secondary flex gap-4 items-center justify-center">
       <span class="i-mdi-creation-outline text-xl shrink-0" />
       {#if !data.user.emailVerified && !data.user.createdByAdmin}
