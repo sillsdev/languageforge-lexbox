@@ -73,7 +73,7 @@ export async function load(event: PageLoadEvent) {
   };
 }
 
-export type OrgSearchParams = /*ProjectFilters &*/ { // TODO: Edit once we determine what filters we need
+export type OrgSearchParams = {
   tab: OrgTabId
 };
 

@@ -24,14 +24,6 @@
   $: org = $orgStore;
 
   const queryParams = getSearchParams<OrgSearchParams>({
-    // TODO: Will we want any of the following params that the admin dashboard uses?
-    // userSearch: queryParam.string<string>(''),
-    // showDeletedProjects: queryParam.boolean<boolean>(false),
-    // hideDraftProjects: queryParam.boolean<boolean>(false),
-    // confidential: queryParam.string<Confidentiality | undefined>(undefined),
-    // projectType: queryParam.string<ProjectType | undefined>(undefined),
-    // memberSearch: queryParam.string(undefined),
-    // projectSearch: queryParam.string<string>(''),
     tab: queryParam.string<OrgTabId>('projects'),
   });
   const { queryParamValues } = queryParams;
