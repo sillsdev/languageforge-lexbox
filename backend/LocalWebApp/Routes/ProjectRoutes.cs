@@ -11,19 +11,9 @@ public static class ProjectRoutes
     {
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/projects",
-            async (ProjectsService projectService, AuthHelpersFactory factory) =>
+            async (ProjectsService projectService) =>
             {
-                var localProjects = await projectService.ListProjects();
-                //todo currently we only list projects for the default authority, we may want to tweak that in the future
-                var httpClient = await factory.GetDefault().CreateClient();
-                if (httpClient is not null)
-                {
-                    var response = await httpClient.GetAsync("/api/AuthTesting/requires-auth");
-                    response.EnsureSuccessStatusCode();
-                    return [..localProjects, new CrdtProject("LexBox", "LexBox.sqlite")];
-                }
-
-                return localProjects;
+                return await projectService.ListProjects();
             });
         Regex alphaNumericRegex = new Regex("^[a-zA-Z0-9]*$");
         group.MapPost("/project",
