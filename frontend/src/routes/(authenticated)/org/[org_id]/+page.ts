@@ -77,43 +77,6 @@ export type OrgSearchParams = {
   tab: OrgTabId
 };
 
-// TODO: Implement
-// export async function _bulkAddOrgMembers(input: BulkAddOrgMembersInput): $OpResult<BulkAddOrgMembersMutation> {
-//   //language=GraphQL
-//   const result = await getClient()
-//     .mutation(
-//       graphql(`
-//         mutation BulkAddOrgMembers($input: BulkAddOrgMembersInput!) {
-//           bulkAddOrgMembers(input: $input) {
-//             bulkAddOrgMembersResult {
-//               addedMembers {
-//                 username
-//                 role
-//               }
-//               createdMembers {
-//                 username
-//                 role
-//               }
-//               existingMembers {
-//                 username
-//                 role
-//               }
-//             }
-//             errors {
-//               __typename
-//               ... on InvalidEmailError {
-//                 message
-//                 address
-//               }
-//             }
-//           }
-//         }
-//       `),
-//       { input: input }
-//     );
-//   return result;
-// }
-
 export async function _changeOrgMemberRole(orgId: UUID, userId: UUID, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {
   //language=GraphQL
   const result = await getClient()
