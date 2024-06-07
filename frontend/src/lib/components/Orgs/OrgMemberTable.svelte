@@ -8,7 +8,7 @@
   import OrgRoleText from './OrgRoleText.svelte';
   import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
 
-  type TableUser = Pick<User, 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
+  type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
 
   type Member = {
     id: string
@@ -23,7 +23,11 @@
 
   let editingUser: TableUser|undefined = undefined;
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    openUserModal: TableUser,
+    changeMemberRole: Member,
+    removeMember: TableUser,
+  }>();
 
 </script>
 

@@ -26,7 +26,10 @@
   export let canManageList: boolean;
   export let projectId: string;
 
-  let dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    openUserModal: Member;
+    deleteProjectUser: Member;
+  }>();
 
   const TRUNCATED_MEMBER_COUNT = 5;
   let showAllMembers = false;

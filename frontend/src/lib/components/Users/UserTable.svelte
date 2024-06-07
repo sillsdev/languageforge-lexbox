@@ -6,11 +6,15 @@
   import Dropdown from '../Dropdown.svelte';
   import type { User } from '$lib/gql/types';
 
-  type TableUser = Pick<User, 'name' | 'locked' | 'isAdmin' | 'username' | 'email' | 'emailVerified'>;
+  type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'isAdmin' | 'username' | 'email' | 'emailVerified'>;
 
   export let shownUsers: TableUser[];
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventDispatcher<{
+    openUserModal: TableUser
+    editUser: TableUser
+    filterProjectsByUser: TableUser
+  }>();
 </script>
 
 <table class="table table-lg">
