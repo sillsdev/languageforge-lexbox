@@ -1,7 +1,7 @@
 <script lang="ts">
   import EmailVerificationStatus, { initEmailResult, initRequestedEmail } from '$lib/email/EmailVerificationStatus.svelte';
   import t from '$lib/i18n';
-  import { AdminIcon, Icon } from '$lib/icons';
+  import { AdminIcon, HomeIcon, Icon } from '$lib/icons';
   import { AdminContent, AppBar, AppMenu, Breadcrumbs, Content } from '$lib/layout';
   import { onMount } from 'svelte';
   import { ensureClientMatchesUser } from '$lib/gql';
@@ -46,30 +46,33 @@
           <Breadcrumbs />
           <div class="flex gap-4 items-center">
             <DevContent>
-              <a href="/sandbox" class="btn btn-sm btn-secondary">
-                <span class="max-sm:hidden">
-                  Sandbox
-                </span>
+              <a href="/sandbox" class="btn btn-sm btn-neutral glass">
                 <Icon size="text-2xl" icon="i-mdi-box-variant" />
               </a>
             </DevContent>
             <a href={helpLinks.helpList} target="_blank" rel="external"
-              class="btn btn-sm btn-info btn-outline max-sm:hidden">
+              class="btn btn-sm btn-info btn-outline hidden lg:flex">
               {$t('appmenu.help')}
               <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
             <DevContent>
-            <a href="/org/list" class="btn btn-sm btn-warning max-sm:hidden">
+            <a href="/org/list" class="btn btn-sm btn-secondary hidden lg:flex">
               {$t('appmenu.orgs')}
-              <Icon icon="i-mdi-account-group-outline" size="text-lg" />
+              <Icon icon="i-mdi-account-group-outline" size="text-xl" />
             </a>
             </DevContent>
+            <a href="/" class="btn btn-sm btn-primary">
+              <span class="max-sm:hidden">
+                {$t('user_dashboard.title')}
+              </span>
+              <HomeIcon size="text-xl" />
+            </a>
             <AdminContent>
               <a href="/admin" class="btn btn-sm btn-accent">
                 <span class="max-sm:hidden">
                   {$t('admin_dashboard.title')}
                 </span>
-                <AdminIcon />
+                <AdminIcon size="text-xl" />
               </a>
             </AdminContent>
           </div>

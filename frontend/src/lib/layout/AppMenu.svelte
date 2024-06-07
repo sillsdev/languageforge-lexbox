@@ -46,13 +46,6 @@
     </a>
   </li>
 
-  <li>
-    <a href="/user" data-sveltekit-preload-data="tap">
-      {$t('account_settings.title')}
-      <AuthenticatedUserIcon />
-    </a>
-  </li>
-
   <DevContent>
   <li>
     <a href="/org/list" data-sveltekit-preload-data="tap">
@@ -61,6 +54,13 @@
     </a>
   </li>
   </DevContent>
+
+  <li>
+    <a href="/user" data-sveltekit-preload-data="tap">
+      {$t('account_settings.title')}
+      <AuthenticatedUserIcon />
+    </a>
+  </li>
 
   <li>
     <a href={helpLinks.helpList} target="_blank" rel="external">
@@ -81,5 +81,9 @@
 <style>
   a {
     justify-content: flex-end;
+  }
+
+  .menu {
+    scrollbar-gutter: stable;
   }
 </style>
