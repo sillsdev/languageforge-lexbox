@@ -52,8 +52,8 @@
 <FormModal bind:this={formModal} {schema} let:errors>
   <span slot="title">
     {$t('org_page.add_user.modal_title')}
-    <SupHelp helpLink={helpLinks.addProjectMember} />
-    <!-- TODO: helpLinks.addOrgMember -->
+    <SupHelp helpLink={helpLinks.addOrgMember} />
+    <!-- TODO: helpLinks.addOrgMember currently points to Add_Project_Member scribe. Create a scribe with Add_Org_Member help. -->
   </span>
   {#if $page.data.user?.isAdmin}
     <UserTypeahead
