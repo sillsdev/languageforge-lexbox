@@ -9,7 +9,7 @@ using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 if (!builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://127.0.0.1:0");
-builder.ConfigureDev<AuthConfig>(config => config.DefaultAuthority = new("https://localhost:3000"));
+builder.ConfigureDev<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
 builder.ConfigureProd<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.org"));
 builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
 

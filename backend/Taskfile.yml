@@ -95,6 +95,12 @@ tasks:
     label: dotnet
     dir: ./LocalWebApp
     cmd: dotnet watch --no-hot-reload
+  local-web-app-with-local-lexbox:
+    label: Run LocalWebApp with Local LexBox
+    env:
+      Auth__DefaultAuthority: "https://localhost:3000"
+    dir: ./LocalWebApp
+    cmd: dotnet watch --no-hot-reload
 
   publish-local-all:
     cmds:
