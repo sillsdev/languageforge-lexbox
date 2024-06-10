@@ -9,7 +9,7 @@
 
   export let projectId: string;
 
-  $: schema = z.object({
+  const schema = z.object({
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager])
   });
   type Schema = typeof schema;
