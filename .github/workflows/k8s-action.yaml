@@ -8,6 +8,7 @@ on:
 
 jobs:
   execute:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,6 +19,8 @@ jobs:
       - run: task setup-local-env
       - name: setup k8s
         uses: helm/kind-action@v1.10.0
+        with:
+          config: deployment/gha/kind.yaml
       - name: Verify k8s
         run: |
           kubectl cluster-info
@@ -33,6 +36,8 @@ jobs:
           kubectl describe pods -l 'app in (lexbox, ui, hg, db)' -n languagedepot
           echo "========== LOGS =========="
           kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers --tail=50
+      - name: verify ingress
+        run: curl -v http://localhost
       - name: test
         env:
           TEST_SERVER_HOSTNAME: 'localhost'
