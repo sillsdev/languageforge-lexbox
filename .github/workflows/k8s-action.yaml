@@ -1,0 +1,25 @@
+name: run k8s in a github action?
+on:
+  workflow_dispatch:
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: setup k8s
+        uses: helm/kind-action@1.10.0
+      - name: Verify k8s
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+      - name: deploy
+        run: |
+          kubectl apply -k ./deployment/develop
+          kubectl wait --for=condition=Ready --timeout=60s deployment/lexbox
+      - name: status
+        if: always()
+        run: kubectl get deployment/lexbox
+
