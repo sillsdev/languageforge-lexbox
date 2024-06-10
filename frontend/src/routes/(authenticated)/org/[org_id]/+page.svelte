@@ -61,12 +61,8 @@
   let deleteOrgModal: ConfirmDeleteModal;
   async function confirmDeleteOrg(): Promise<void> {
     const result = await deleteOrgModal.open(org.name, async () => {
-      if (confirm(`Do you really want to delete ${org.name}? There is NO UNDO.`)) { // TODO: en.json
-        const { error } = await _deleteOrg(org.id);
-        return error?.message;
-      } else {
-        return `Deletion cancelled.`; // TODO: en.json
-      }
+      const { error } = await _deleteOrg(org.id);
+      return error?.message;
     });
     if (result.response === DialogResponse.Submit) {
       notifyWarning($t('org_page.notifications.delete_org', { name: org.name }));
