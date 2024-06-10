@@ -39,13 +39,15 @@ jobs:
           kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers --tail=50
           echo "========== INGRESS =========="
           kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=50
+      - name: forward ingress
+        run: kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
       - name: verify ingress
-        run: curl -v http://localhost
+        run: curl -v http://localhost:6579
       - name: test
         env:
-          TEST_SERVER_HOSTNAME: 'localhost'
-          TEST_STANDARD_HG_HOSTNAME: 'hg.localhost'
-          TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost'
+          TEST_SERVER_HOSTNAME: 'localhost:6579'
+          TEST_STANDARD_HG_HOSTNAME: 'hg.localhost:6579'
+          TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost:6579'
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: 'pass'
         run: dotnet test --logger GitHubActions --filter Category=Integration
