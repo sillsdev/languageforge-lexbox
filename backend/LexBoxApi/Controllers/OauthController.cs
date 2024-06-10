@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
 using System.Text.Json;
 using LexBoxApi.Auth;
 using LexCore.Auth;
@@ -18,11 +19,19 @@ namespace LexBoxApi.Controllers;
 [ApiController]
 [Route("/api/oauth")]
 public class OauthController(
-    IOpenIddictApplicationManager applicationManager,
-    IOpenIddictAuthorizationManager authorizationManager,
-    LexAuthService lexAuthService
+    LexAuthService lexAuthService,
+    IOpenIddictApplicationManager? applicationManager =  null,
+    IOpenIddictAuthorizationManager? authorizationManager = null
 ) : ControllerBase
 {
+    private IOpenIddictApplicationManager? applicationManager = applicationManager;
+    private IOpenIddictAuthorizationManager? authorizationManager = authorizationManager;
+
+    [MemberNotNull(nameof(applicationManager), nameof(authorizationManager))]
+    private void AssertOAuthSetup() {
+        if (applicationManager is null) throw new InvalidOperationException("applicationManager is null");
+        if (authorizationManager is null) throw new InvalidOperationException("authorizationManager is null");
+    }
 
     [HttpGet("open-id-auth")]
     [HttpPost("open-id-auth")]
@@ -30,6 +39,7 @@ public class OauthController(
     [ProducesDefaultResponseType]
     public async Task<ActionResult> Authorize()
     {
+        AssertOAuthSetup();
         var request = HttpContext.GetOpenIddictServerRequest();
         if (request is null)
         {
@@ -167,6 +177,7 @@ public class OauthController(
     [AllowAnonymous]
     public async Task<ActionResult> Exchange()
     {
+        AssertOAuthSetup();
         var request = HttpContext.GetOpenIddictServerRequest() ??
                       throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
         // Retrieve the claims principal stored in the authorization code/refresh token.
@@ -188,6 +199,7 @@ public class OauthController(
 
     private async Task<ActionResult> FinishSignIn(ClaimsPrincipal user, OpenIddictRequest request)
     {
+        AssertOAuthSetup();
         var requestClientId = request.ClientId;
         ArgumentException.ThrowIfNullOrEmpty(requestClientId);
         var application = await applicationManager.FindByClientIdAsync(requestClientId) ??
@@ -240,6 +252,7 @@ public class OauthController(
     }
     private async Task<ActionResult> FinishSignIn(ClaimsPrincipal user, OpenIddictRequest request, string applicationId, List<object> authorizations)
     {
+        AssertOAuthSetup();
         var userId = GetUserId(user);
         // Create the claims-based identity that will be used by OpenIddict to generate tokens.
         var identity = new ClaimsIdentity(
