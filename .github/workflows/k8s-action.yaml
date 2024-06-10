@@ -1,4 +1,4 @@
-name: run k8s in a github action?
+name: Self contained integration tests
 on:
   workflow_dispatch:
   pull_request:
