@@ -52,5 +52,5 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost:6579'
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: 'pass'
-        run: dotnet test --logger GitHubActions --filter Category=Integration
+        run: dotnet test --logger GitHubActions --filter Category=Integration --blame-hang-timeout 40m
 
