@@ -629,6 +629,8 @@ namespace LexData.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrgId");
+
                     b.HasIndex("ProjectId");
 
                     b.HasIndex("OrgId", "ProjectId")

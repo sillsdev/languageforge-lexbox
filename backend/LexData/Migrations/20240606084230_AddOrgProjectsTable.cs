@@ -45,6 +45,11 @@ namespace LexData.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_OrgProjects_OrgId",
+                table: "OrgProjects",
+                column: "OrgId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_OrgProjects_ProjectId",
                 table: "OrgProjects",
                 column: "ProjectId");
