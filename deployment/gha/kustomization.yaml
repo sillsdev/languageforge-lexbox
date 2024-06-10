@@ -12,5 +12,5 @@ patches:
     path: change-storage-class.patch.yaml
 
 images:
-  - name: busybox:1.36.1
+  - name: local-dev-init #revert change made by local-dev patch
     newName: busybox:1.36.1

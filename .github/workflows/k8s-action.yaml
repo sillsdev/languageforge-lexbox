@@ -29,7 +29,7 @@ jobs:
           docker image pull -q ghcr.io/sillsdev/lexbox-ui:develop
           kubectl create namespace languagedepot
           kubectl apply -k ./deployment/gha
-          kubectl wait --for=condition=Ready --timeout=60s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
+          kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
       - name: status
         if: failure()
         run: |
