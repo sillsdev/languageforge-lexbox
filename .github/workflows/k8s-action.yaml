@@ -20,7 +20,7 @@ jobs:
           kubectl get nodes
       - name: deploy
         run: |
-          kubectl apply -k ./deployment/develop
+          kubectl apply -k ./deployment/local-dev
           kubectl wait --for=condition=Ready --timeout=60s deployment/lexbox
       - name: status
         if: always()
