@@ -43,6 +43,8 @@ jobs:
         run: kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
       - name: verify ingress
         run: curl -v http://localhost:6579
+      - name: build
+        run: dotnet restore && dotnet build --no-restore
       - name: test
         env:
           TEST_SERVER_HOSTNAME: 'localhost:6579'
