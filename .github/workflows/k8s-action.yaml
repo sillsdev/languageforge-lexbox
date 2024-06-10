@@ -5,6 +5,7 @@ on:
     branches:
       - develop
 
+
 jobs:
   execute:
     runs-on: ubuntu-latest
@@ -15,6 +16,10 @@ jobs:
       - name: Install Task
         uses: arduino/setup-task@v2
       - run: task setup-local-env
+      - name: Install Skaffold
+        run: |
+          curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+          sudo install skaffold /usr/local/bin/
       - name: setup k8s
         uses: helm/kind-action@v1.10.0
       - name: Verify k8s
@@ -24,9 +29,16 @@ jobs:
       - name: deploy
         run: |
           kubectl create namespace languagedepot
-          kubectl apply -k ./deployment/local-dev
-          kubectl wait --for=condition=Ready --timeout=60s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
+          task up
       - name: status
         if: always()
         run: kubectl get deployment/lexbox -n languagedepot
+      - name: test
+        env:
+          TEST_SERVER_HOSTNAME: 'localhost'
+          TEST_STANDARD_HG_HOSTNAME: 'hg.localhost'
+          TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost'
+          TEST_PROJECT_CODE: 'sena-3'
+          TEST_DEFAULT_PASSWORD: 'pass'
+        run: dotnet test --logger GitHubActions --filter Category=Integration
 
