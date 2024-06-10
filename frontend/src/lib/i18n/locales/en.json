@@ -97,6 +97,7 @@
   },
   "appmenu": {
     "log_out": "Log out",
+    "orgs": "Organizations",
     "help": "Help"
   },
   "close": "Close",
@@ -144,6 +145,14 @@
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
   },
+  "org": {
+    "table": {
+      "title": "Organizations",
+      "name": "Name",
+      "created_at": "Created",
+      "members": "Members"
+    },
+  },
   "project": {
     "create": {
       "title": "Create Project",
@@ -175,6 +184,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "migrated": "Migrated",
       "type": "Type",
       "users": "Users",
+      "members": "Members",
+      "__comment": "Move 'members' to 'org.table' once org page PR is merged",
     },
     "filter": {
       "title": "Project filters",
