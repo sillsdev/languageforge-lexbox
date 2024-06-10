@@ -177,6 +177,28 @@ public class SeedingData(
             ]
         });
 
+        lexBoxDbContext.Attach(new Organization
+        {
+            Id = new Guid("a748bd8b-6348-4980-8dee-6de8b63e4a39"),
+            Name = "Second Test Org",
+            Projects = [],
+            Members =
+            [
+                new OrgMember
+                {
+                    Id = new Guid("03d54e43-ba53-410f-adc2-5ae0bc3cfb21"), Role = OrgRole.Admin, UserId = MangerId,
+                },
+                new OrgMember
+                {
+                    Id = new Guid("d00c7149-c3b2-448a-93ed-9ba2746d38f0"), Role = OrgRole.User, UserId = EditorId,
+                },
+                new OrgMember
+                {
+                    Id = new Guid("3035a412-8503-465b-8525-b60aaadd9488"), Role = OrgRole.User, UserId = TestAdminId,
+                },
+            ]
+        });
+
         foreach (var entry in lexBoxDbContext.ChangeTracker.Entries())
         {
             var exists = await entry.GetDatabaseValuesAsync(cancellationToken) is not null;
