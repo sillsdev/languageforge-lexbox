@@ -32,7 +32,7 @@ jobs:
         run: |
           kubectl describe pods -l 'app in (lexbox, ui, hg, db)' -n languagedepot
           echo "========== LOGS =========="
-          kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers
+          kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers --tail=50
       - name: test
         env:
           TEST_SERVER_HOSTNAME: 'localhost'
