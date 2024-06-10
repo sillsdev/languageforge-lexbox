@@ -69,6 +69,7 @@ public class OrgMutations
         permissionService.AssertCanEditOrg(org);
         var project = await dbContext.Projects.FindAsync(projectId);
         NotFoundException.ThrowIfNull(project);
+        permissionService.AssertCanManageProject(projectId);
 
         if (await dbContext.OrgProjects.AnyAsync(op => op.OrgId == orgId && op.ProjectId == projectId))
         {
