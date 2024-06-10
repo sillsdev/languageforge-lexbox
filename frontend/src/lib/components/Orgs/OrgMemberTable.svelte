@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
+  export type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
 
   export type Member = {
     id: string

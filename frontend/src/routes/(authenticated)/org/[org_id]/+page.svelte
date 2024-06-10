@@ -6,12 +6,12 @@
   import EditableText from '$lib/components/EditableText.svelte';
   import { Button, type ErrorMessage } from '$lib/forms';
   import type { PageData } from './$types';
-  import { OrgRole } from '$lib/gql/types';
+  import { OrgRole, type User } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
   import { _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import OrgMemberTable, { type Member } from '$lib/components/Orgs/OrgMemberTable.svelte';
+  import OrgMemberTable, { type Member, type TableUser } from '$lib/components/Orgs/OrgMemberTable.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { goto } from '$app/navigation';
@@ -19,6 +19,7 @@
   import AddOrgMemberModal from '$lib/components/Orgs/AddOrgMemberModal.svelte';
   import { _changeOrgMemberRole } from '$lib/components/Orgs/mutations';
   import ChangeOrgMemberRoleModal from '$lib/components/Orgs/ChangeOrgMemberRoleModal.svelte';
+  import UserModal from '$lib/components/Users/UserModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -42,6 +43,12 @@
       return result.error.message;
     }
     notifySuccess($t('org_page.notifications.rename_org', { name: newName }));
+  }
+
+  let userModal: UserModal;
+  function openUserModal(user: TableUser): Promise<void> {
+    // Although we receive a TableUser, we know in practice it's a full User object
+    return userModal.open(user as User);
   }
 
   let addOrgMemberModal: AddOrgMemberModal;
@@ -117,7 +124,7 @@
       orgId={org.id}
       shownUsers={org.members}
       {canManage}
-      on:openUserModal={() => console.log('TODO: user details modal not yet done')}
+      on:openUserModal={(event) => openUserModal(event.detail)}
       on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
       on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
     />
@@ -147,3 +154,4 @@
 </DetailsPage>
 <ConfirmDeleteModal bind:this={deleteOrgModal} i18nScope="delete_org_modal" />
 <ChangeOrgMemberRoleModal orgId={org.id} bind:this={changeMemberRoleModal} />
+<UserModal bind:this={userModal} />
