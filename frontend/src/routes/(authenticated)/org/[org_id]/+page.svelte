@@ -17,7 +17,6 @@
   import { goto } from '$app/navigation';
   import { DialogResponse } from '$lib/components/modals';
   import AddOrgMemberModal from '$lib/components/Orgs/AddOrgMemberModal.svelte';
-  import { _changeOrgMemberRole } from '$lib/components/Orgs/mutations';
   import ChangeOrgMemberRoleModal from '$lib/components/Orgs/ChangeOrgMemberRoleModal.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
 
