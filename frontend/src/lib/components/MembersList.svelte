@@ -55,7 +55,6 @@
   async function changeMemberRole(member: Member): Promise<void> {
     if (!member.user) return;
     const nameOrEmail = member.user.name ? member.user.name : member.user.email ?? '';
-    console.log('About to change member role for', member);
     const { response, formState } = await changeMemberRoleModal.open({
       userId: member.user.id as UUID,
       name: nameOrEmail,
