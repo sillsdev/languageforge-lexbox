@@ -1,65 +1,7 @@
-import type { $OpResult, DeleteUserByAdminOrSelfInput, DeleteUserByAdminOrSelfMutation, SoftDeleteProjectMutation, DeleteDraftProjectMutation, AcquireProjectMutation, ReleaseProjectMutation } from './types';
+import type { $OpResult, DeleteUserByAdminOrSelfInput, DeleteUserByAdminOrSelfMutation, SoftDeleteProjectMutation, DeleteDraftProjectMutation } from './types';
 
 import { getClient } from './gql-client';
 import { graphql } from './generated';
-
-export async function _acquireProject(orgId: string, projectId: string): $OpResult<AcquireProjectMutation> {
-  //language=GraphQL
-  const result = await getClient()
-    .mutation(
-      graphql(`
-        mutation AcquireProject($input: AcquireProjectInput!) {
-          acquireProject(input: $input) {
-            organization {
-              id
-              projects {
-                id
-                name
-                code
-              }
-            }
-            errors {
-              ... on Error {
-                __typename
-                message
-              }
-            }
-          }
-        }
-      `),
-      { input: { orgId, projectId } },
-    );
-  return result;
-}
-
-export async function _releaseProject(orgId: string, projectId: string): $OpResult<ReleaseProjectMutation> {
-  //language=GraphQL
-  const result = await getClient()
-    .mutation(
-      graphql(`
-        mutation ReleaseProject($input: ReleaseProjectInput!) {
-          releaseProject(input: $input) {
-            organization {
-              id
-              projects {
-                id
-                name
-                code
-              }
-            }
-            errors {
-              ... on Error {
-                __typename
-                message
-              }
-            }
-          }
-        }
-      `),
-      { input: { orgId, projectId } },
-    );
-  return result;
-}
 
 export async function _deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput): $OpResult<DeleteUserByAdminOrSelfMutation> {
   //language=GraphQL
