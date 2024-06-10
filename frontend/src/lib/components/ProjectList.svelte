@@ -7,11 +7,10 @@
   export let projects: ProjectItemWithDraftStatus[];
 </script>
 
-<div data-sveltekit-preload-data="false" class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
+<div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
   {#each projects as project}
-    <!-- definitely need to be refactored -->
     {#if project.isDraft}
-      <div class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden">
+      <div data-sveltekit-preload-data="false" class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden">
         <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
         <div class="card-body z-[1]">
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
