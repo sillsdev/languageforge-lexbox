@@ -28,13 +28,9 @@ includes:
 
 tasks:
   setup:
-    deps: [ setup-win, setup-unix ]
+    deps: [ setup-win, setup-unix, setup-local-env ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
-      - echo "HONEYCOMB_API_KEY=__REPLACE__" > deployment/local-dev/local.env
-      - echo "#OTEL_SDK_DISABLED=true" >> deployment/local-dev/local.env
-      - echo "GOOGLE_OAUTH_CLIENT_ID=__REPLACE__.apps.googleusercontent.com" >> deployment/local-dev/local.env
-      - echo "GOOGLE_OAUTH_CLIENT_SECRET=__REPLACE__" >> deployment/local-dev/local.env
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
       - docker build -t local-dev-init data/
   setup-win:
@@ -47,6 +43,12 @@ tasks:
     cmds:
       - wget -c -O {{.DATA_DIR}}/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
       - wget -c -O {{.DATA_DIR}}/elawa.zip 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
+  setup-local-env:
+    cmds:
+      - echo "HONEYCOMB_API_KEY=__REPLACE__" > deployment/local-dev/local.env
+      - echo "#OTEL_SDK_DISABLED=true" >> deployment/local-dev/local.env
+      - echo "GOOGLE_OAUTH_CLIENT_ID=__REPLACE__.apps.googleusercontent.com" >> deployment/local-dev/local.env
+      - echo "GOOGLE_OAUTH_CLIENT_SECRET=__REPLACE__" >> deployment/local-dev/local.env
 
   # k8s
   up:
