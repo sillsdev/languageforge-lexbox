@@ -30,13 +30,15 @@ jobs:
           kubectl create namespace languagedepot
           kubectl apply -k ./deployment/gha
           kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
-          kubectl wait --for=condition=Ready --timeout=90s pod -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot
+          kubectl wait --for=condition=Ready --timeout=90s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
       - name: status
         if: failure()
         run: |
           kubectl describe pods -l 'app in (lexbox, ui, hg, db)' -n languagedepot
           echo "========== LOGS =========="
           kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers --tail=50
+          echo "========== INGRESS =========="
+          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=50
       - name: verify ingress
         run: curl -v http://localhost
       - name: test
