@@ -6,6 +6,7 @@ resources:
 - ../local-dev/
 
 patches:
+  - path: lexbox.patch.yaml
   - target:
       version: v1
       kind: PersistentVolumeClaim
