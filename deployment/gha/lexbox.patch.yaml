@@ -11,6 +11,23 @@ spec:
           volumeMounts:
             - mountPath: /frontend
               name: gql-schema
+        - name: otel-collector
+          env: #don't try to export to honeycomb
+            - name: COLLECTOR_CONFIG_OVERRIDE
+              value: |
+                exporters:
+                  otlp/aspire:
+                    endpoint: localhost:18889
+                    tls:
+                      insecure: true
+                service:
+                  pipelines:
+                    traces:
+                      exporters: [otlp/aspire]
+                    metrics:
+                      exporters: [otlp/aspire]
+                    logs:
+                      exporters: [otlp/aspire]
       volumes:
         - name: gql-schema
           emptyDir: {}
