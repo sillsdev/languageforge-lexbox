@@ -213,11 +213,14 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
   "org_page": {
     "organization": "Organization",
     "add_user": {
-      "add_button": "Add/Invite Member",
-      "modal_title": "Add or invite a Member to this organization",
+      "add_button": "Add Member",
+      "__comment_add_button": "Should become 'Add/Invite Member' once email invitations implemented for orgs",
+      "modal_title": "Add a Member to this organization",
+      "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
       "submit_button": "Add Member",
       "empty_user_field": "Please enter an email address or login",
-      "submit_button_email": "Add or invite Member",
+      "submit_button_email": "Add Member",
+      "__comment_submit_button_email": "Should become 'Add or invite Member' once email invitations implemented for orgs",
       "org_not_found": "Organization not found. Please refresh the page.",
       "username_not_found": "No user was found with this login",
       "user_must_be_verified": "User needs a verified email address",
