@@ -55,7 +55,6 @@ public class OrgMutations
 
     [Error<DbError>]
     [Error<NotFoundException>]
-    [Error<AlreadyExistsException>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -73,7 +72,8 @@ public class OrgMutations
 
         if (await dbContext.OrgProjects.AnyAsync(op => op.OrgId == orgId && op.ProjectId == projectId))
         {
-            throw new AlreadyExistsException("Organization already owns this project");
+            // No error since we're already in desired state; just return early
+            return dbContext.Orgs.Where(o => o.Id == orgId);
         }
         await dbContext.OrgProjects.AddAsync(new OrgProjects { OrgId = orgId, ProjectId = projectId });
         await dbContext.SaveChangesAsync();
