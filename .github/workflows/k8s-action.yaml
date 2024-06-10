@@ -16,10 +16,6 @@ jobs:
       - name: Install Task
         uses: arduino/setup-task@v2
       - run: task setup-local-env
-      - name: Install Skaffold
-        run: |
-          curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
-          sudo install skaffold /usr/local/bin/
       - name: setup k8s
         uses: helm/kind-action@v1.10.0
       - name: Verify k8s
@@ -29,10 +25,14 @@ jobs:
       - name: deploy
         run: |
           kubectl create namespace languagedepot
-          task up
+          kubectl apply -k ./deployment/local-dev
+          kubectl wait --for=condition=Ready --timeout=60s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
       - name: status
-        if: always()
-        run: kubectl get deployment/lexbox -n languagedepot
+        if: failure()
+        run: |
+          kubectl describe pods -l 'app in (lexbox, ui, hg, db)' -n languagedepot
+          echo "========== LOGS =========="
+          kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers
       - name: test
         env:
           TEST_SERVER_HOSTNAME: 'localhost'
