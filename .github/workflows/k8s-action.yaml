@@ -1,6 +1,9 @@
 name: run k8s in a github action?
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - develop
 
 jobs:
   execute:
