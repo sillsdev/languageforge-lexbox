@@ -17,13 +17,16 @@ jobs:
         uses: arduino/setup-task@v2
       - run: task setup-local-env
       - name: setup k8s
-        uses: helm/kind-action@v1.10.0
+        uses: medyagh/setup-minikube@latest
       - name: Verify k8s
         run: |
           kubectl cluster-info
           kubectl get nodes
       - name: deploy
         run: |
+          minikube image load ghcr.io/sillsdev/lexbox-hgweb:latest
+          minikube image load ghcr.io/sillsdev/lexbox-api:develop
+          minikube image load ghcr.io/sillsdev/lexbox-ui:develop
           kubectl create namespace languagedepot
           kubectl apply -k ./deployment/local-dev
           kubectl wait --for=condition=Ready --timeout=60s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
