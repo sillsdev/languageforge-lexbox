@@ -24,9 +24,6 @@ jobs:
           kubectl get nodes
       - name: deploy
         run: |
-          docker image pull -q ghcr.io/sillsdev/lexbox-hgweb:latest
-          docker image pull -q ghcr.io/sillsdev/lexbox-api:develop
-          docker image pull -q ghcr.io/sillsdev/lexbox-ui:develop
           kubectl create namespace languagedepot
           kubectl apply -k ./deployment/gha
           kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot

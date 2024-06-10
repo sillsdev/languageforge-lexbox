@@ -13,4 +13,4 @@ patches:
 
 images:
   - name: local-dev-init #revert change made by local-dev patch
-    newName: busybox:1.36.1
+    newName: busybox
