@@ -25,8 +25,8 @@ jobs:
         run: |
           kubectl create namespace languagedepot
           kubectl apply -k ./deployment/local-dev
-          kubectl wait --for=condition=Ready --timeout=60s pod -l 'app in (lexbox, ui, hg, db)'
+          kubectl wait --for=condition=Ready --timeout=60s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
       - name: status
         if: always()
-        run: kubectl get deployment/lexbox
+        run: kubectl get deployment/lexbox -n languagedepot
 
