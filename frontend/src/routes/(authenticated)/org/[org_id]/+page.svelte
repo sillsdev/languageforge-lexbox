@@ -121,9 +121,7 @@
     Projects list will go here once orgs have projects associated with them
     {:else if $queryParamValues.tab === 'members'}
     <OrgMemberTable
-      orgId={org.id}
       shownUsers={org.members}
-      {canManage}
       on:openUserModal={(event) => openUserModal(event.detail)}
       on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
       on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}

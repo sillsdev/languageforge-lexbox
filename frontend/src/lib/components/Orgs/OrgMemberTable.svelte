@@ -18,10 +18,7 @@
   import OrgRoleText from './OrgRoleText.svelte';
   import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
 
-  export let orgId: string;
-
   export let shownUsers: Member[];
-  export let canManage = false;
 
   let editingUser: TableUser|undefined = undefined;
 
