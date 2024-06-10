@@ -24,6 +24,9 @@ jobs:
           kubectl get nodes
       - name: deploy
         run: |
+          docker image pull ghcr.io/sillsdev/lexbox-hgweb:latest
+          docker image pull ghcr.io/sillsdev/lexbox-api:develop
+          docker image pull ghcr.io/sillsdev/lexbox-ui:develop
           kind load docker-image ghcr.io/sillsdev/lexbox-hgweb:latest
           kind load docker-image ghcr.io/sillsdev/lexbox-api:develop
           kind load docker-image ghcr.io/sillsdev/lexbox-ui:develop
