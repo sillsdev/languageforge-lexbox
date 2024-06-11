@@ -10,15 +10,27 @@
 <div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4">
   {#each projects as project}
     {#if project.isDraft}
-      <div data-sveltekit-preload-data="false" class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden">
-        <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
-        <div class="card-body z-[1]">
-          <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
-            <span class="text-primary inline-flex gap-2 items-center">
-              {project.name}
-            </span>
-          </h2>
-          <p>{project.code}</p>
+      <div class="project draft">
+        <div data-sveltekit-preload-data="false" class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden">
+          <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
+          <div class="card-body z-[1]">
+            <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
+              <span class="text-primary inline-flex gap-2 items-center">
+                {project.name}
+              </span>
+            </h2>
+            <p>{project.code}</p>
+
+            <Badge variant="badge-warning" outline>
+              Awaiting approval
+            </Badge>
+
+            <p class="flex items-end">
+              {$t('projectlist.requested', {
+                lastChange: new Date(),
+              })}
+            </p>
+          </div>
         </div>
       </div>
     {:else}
@@ -85,5 +97,10 @@
     &:hover .bg {
       @apply opacity-100;
     }
+  }
+
+  .project.draft .card {
+    pointer-events: none;
+    box-shadow: none;
   }
 </style>
