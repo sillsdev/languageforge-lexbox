@@ -29,7 +29,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
 
     public async Task<CrdtProject> CreateProject(string name,
         Guid? id = null,
-        string? domain = null,
+        Uri? domain = null,
         Func<IServiceProvider, CrdtProject, Task>? afterCreate = null)
     {
         var sqliteFile = $"{name}.sqlite";
@@ -37,7 +37,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         var crdtProject = new CrdtProject(name, sqliteFile);
         await using var serviceScope = CreateProjectScope(crdtProject);
         var db = serviceScope.ServiceProvider.GetRequiredService<CrdtDbContext>();
-        await InitProjectDb(db, new ProjectData(name, id ?? Guid.NewGuid(), domain, Guid.NewGuid()));
+        await InitProjectDb(db, new ProjectData(name, id ?? Guid.NewGuid(), ProjectData.GetOriginDomain(domain), Guid.NewGuid()));
         await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         await (afterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         return crdtProject;

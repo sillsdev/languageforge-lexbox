@@ -1,4 +1,5 @@
-﻿using MiniLcm;
+﻿using System.Diagnostics.CodeAnalysis;
+using MiniLcm;
 
 namespace LcmCrdt;
 
@@ -9,4 +10,10 @@ public class CrdtProject(string name, string dbPath) : IProjectIdentifier
     public string DbPath { get; } = dbPath;
 }
 
-public record ProjectData(string Name, Guid Id, string? OriginDomain, Guid ClientId);
+public record ProjectData(string Name, Guid Id, string? OriginDomain, Guid ClientId)
+{
+    public static string? GetOriginDomain(Uri? uri)
+    {
+        return uri?.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped);
+    }
+}

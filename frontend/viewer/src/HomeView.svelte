@@ -39,8 +39,14 @@
     loading = '';
   }
 
-  async function importCrdtProject(name: string) {
+  let downloading = '';
 
+  async function downloadCrdtProject(name: string) {
+    downloading = name;
+    await fetch(`/api/download/crdt/${name}`, {method: 'POST'});
+    projectsPromise = fetchProjects();
+    await projectsPromise;
+    downloading = '';
   }
 
   let uploading = '';
@@ -139,7 +145,8 @@
                       <Button
                         icon={mdiBookArrowDownOutline}
                         size="sm"
-                        on:click={() => importCrdtProject(rowData.name)}>
+                        loading={downloading === rowData.name}
+                        on:click={() => downloadCrdtProject(rowData.name)}>
                         Download
                       </Button>
                     {:else if !rowData.lexbox && rowData.crdt && loggedIn}

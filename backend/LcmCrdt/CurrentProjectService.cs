@@ -45,17 +45,16 @@ public class CurrentProjectService(CrdtDbContext dbContext, ProjectContext proje
 
     public async Task SetProjectSyncOrigin(Uri domain, Guid? id)
     {
+        var originDomain = ProjectData.GetOriginDomain(domain);
         if (id is null)
         {
             await dbContext.Set<ProjectData>()
-                .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain,
-                    domain.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped)));
+                .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain, originDomain));
         }
         else
         {
             await dbContext.Set<ProjectData>()
-                .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain,
-                        domain.GetComponents(UriComponents.SchemeAndServer, UriFormat.Unescaped))
+                .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain, originDomain)
                     .SetProperty(p => p.Id, id));
         }
 

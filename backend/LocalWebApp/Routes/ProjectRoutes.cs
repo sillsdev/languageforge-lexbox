@@ -70,9 +70,26 @@ public static partial class ProjectRoutes
                     await lexboxProjectService.GetLexboxProjectId(currentProjectService.ProjectData.Name);
                 if (foundProjectGuid is null)
                     return Results.BadRequest(
-                        "Project code {currentProjectService.ProjectData.Name} not found on lexbox");
+                        $"Project code {currentProjectService.ProjectData.Name} not found on lexbox");
                 await currentProjectService.SetProjectSyncOrigin(options.Value.DefaultAuthority, foundProjectGuid);
                 await syncService.ExecuteSync();
+                return TypedResults.Ok();
+            });
+        group.MapPost("/download/crdt/{newProjectName}",
+            async (LexboxProjectService lexboxProjectService,
+                IOptions<AuthConfig> options,
+                ProjectsService projectService,
+                string newProjectName
+                ) =>
+            {
+                var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(newProjectName);
+                if (foundProjectGuid is null)
+                    return Results.BadRequest($"Project code {newProjectName} not found on lexbox");
+                await projectService.CreateProject(newProjectName, foundProjectGuid.Value, options.Value.DefaultAuthority,
+                    async (provider, project) =>
+                    {
+                        await provider.GetRequiredService<SyncService>().ExecuteSync();
+                    });
                 return TypedResults.Ok();
             });
         return group;
