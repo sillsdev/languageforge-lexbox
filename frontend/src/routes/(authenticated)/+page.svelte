@@ -95,7 +95,7 @@
     {/if}
   </svelte:fragment>
 
-  {#if !$projectStore.length}
+  {#if !allProjects.length}
     <div class="text-lg text-secondary flex gap-4 items-center justify-center">
       <span class="i-mdi-creation-outline text-xl shrink-0" />
       {#if !data.user.emailVerified && !data.user.createdByAdmin}
