@@ -42,8 +42,14 @@
   async function importCrdtProject(name: string) {
 
   }
-  async function uploadCrdtProject(name: string) {
 
+  let uploading = '';
+  async function uploadCrdtProject(name: string) {
+    uploading = name;
+    await fetch(`/api/upload/crdt/${name}`, {method: 'POST'});
+    projectsPromise = fetchProjects();
+    await projectsPromise;
+    uploading = '';
   }
 
   async function fetchProjects() {
@@ -140,7 +146,8 @@
                       <Button
                         icon={mdiBookArrowUpOutline}
                         size="sm"
-                        on:click={() => importCrdtProject(rowData.name)}>
+                        loading={uploading === rowData.name}
+                        on:click={() => uploadCrdtProject(rowData.name)}>
                         Upload
                       </Button>
                     {:else if rowData.lexbox && rowData.crdt}

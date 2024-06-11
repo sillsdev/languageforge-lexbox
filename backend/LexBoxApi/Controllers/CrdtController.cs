@@ -46,4 +46,18 @@ public class CrdtController(LexBoxDbContext dbContext): ControllerBase
             .Select(p => new LexboxCrdtProject(p.Id, p.Code))
             .ToArrayAsync();
     }
+
+    [HttpGet("lookupProjectId")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task<ActionResult<Guid>> GetProjectId(string code)
+    {
+        var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Code == code);
+        if (project == null)
+        {
+            return NotFound();
+        }
+        return Ok(project.Id);
+    }
 }

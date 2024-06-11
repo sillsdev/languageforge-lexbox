@@ -2,7 +2,9 @@
 using FwDataMiniLcmBridge;
 using LcmCrdt;
 using LocalWebApp.Auth;
+using LocalWebApp.Hubs;
 using LocalWebApp.Services;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 
 namespace LocalWebApp.Routes;
@@ -55,6 +57,22 @@ public static partial class ProjectRoutes
                 if (!alphaNumericRegex.IsMatch(name))
                     return Results.BadRequest("Project name must be alphanumeric");
                 await projectService.CreateProject(name, afterCreate: AfterCreate);
+                return TypedResults.Ok();
+            });
+        group.MapPost($"/upload/crdt/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
+            async (LexboxProjectService lexboxProjectService,
+                SyncService syncService,
+                IOptions<AuthConfig> options,
+                CurrentProjectService currentProjectService) =>
+            {
+                //todo let the user pick a project to upload to instead of matching the name with the project code.
+                var foundProjectGuid =
+                    await lexboxProjectService.GetLexboxProjectId(currentProjectService.ProjectData.Name);
+                if (foundProjectGuid is null)
+                    return Results.BadRequest(
+                        "Project code {currentProjectService.ProjectData.Name} not found on lexbox");
+                await currentProjectService.SetProjectSyncOrigin(options.Value.DefaultAuthority, foundProjectGuid);
+                await syncService.ExecuteSync();
                 return TypedResults.Ok();
             });
         return group;

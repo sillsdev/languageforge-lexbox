@@ -20,4 +20,19 @@ public class LexboxProjectService(AuthHelpersFactory helpersFactory, ILogger<Lex
             return [];
         }
     }
+
+    public async Task<Guid?> GetLexboxProjectId(string code)
+    {
+        var httpClient = await helpersFactory.GetDefault().CreateClient();
+        if (httpClient is null) return null;
+        try
+        {
+            return (await httpClient.GetFromJsonAsync<Guid?>($"api/crdt/lookupProjectId?code={code}"));
+        }
+        catch (HttpRequestException e)
+        {
+            logger.LogError(e, "Error getting lexbox project id");
+            return null;
+        }
+    }
 }
