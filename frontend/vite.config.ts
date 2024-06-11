@@ -10,11 +10,17 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 
 
-
-const exposeServer = false;
+const inDocker = process.env['DockerDev'] === 'true';
+const exposeServer = !inDocker;
 const lexboxServer: ProxyOptions = {
   target: 'http://localhost:5158',
-  secure: false
+  secure: false,
+  changeOrigin: false,
+  autoRewrite: true,
+  protocolRewrite: 'https',
+  headers: {
+    'x-forwarded-proto': 'https',
+  }
 };
 
 export default defineConfig({
@@ -50,7 +56,7 @@ export default defineConfig({
         searchForWorkspaceRoot(process.cwd())
       ]
     },
-    proxy: process.env['DockerDev'] ? undefined : {
+    proxy: inDocker ? undefined : {
       '/v1/traces': 'http://localhost:4318',
       '/api': lexboxServer,
       '/hg': lexboxServer,

@@ -36,6 +36,7 @@ patches:
       kind: Certificate
     path: delete-oauth-certs.yaml
 
+  - path: app-config.yaml
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
   - path: hg-repos-pvc.patch.yaml
