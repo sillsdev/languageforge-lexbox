@@ -7,6 +7,6 @@ public class OrgGqlConfiguration : ObjectType<Organization>
 {
     protected override void Configure(IObjectTypeDescriptor<Organization> descriptor)
     {
-        descriptor.Field(p => p.CreatedDate).IsProjected();
+        descriptor.Field(o => o.CreatedDate).IsProjected();
     }
 }

@@ -7,7 +7,7 @@ public class OrgProjectsGqlConfiguration : ObjectType<OrgProjects>
 {
     protected override void Configure(IObjectTypeDescriptor<OrgProjects> descriptor)
     {
-        descriptor.Field(f => f.Org).Type<NonNullType<OrgGqlConfiguration>>();
-        descriptor.Field(f => f.Project).Type<NonNullType<ProjectGqlConfiguration>>();
+        descriptor.Field(op => op.Org).Type<NonNullType<OrgGqlConfiguration>>();
+        descriptor.Field(op => op.Project).Type<NonNullType<ProjectGqlConfiguration>>();
     }
 }

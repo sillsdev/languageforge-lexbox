@@ -9,7 +9,7 @@ public class OrgProjectsEntityConfiguration : EntityBaseConfiguration<OrgProject
     public override void Configure(EntityTypeBuilder<OrgProjects> builder)
     {
         base.Configure(builder);
-        builder.HasIndex(pu => new { pu.OrgId, pu.ProjectId }).IsUnique();
-        builder.HasQueryFilter(pu => pu.Project!.DeletedDate == null);
+        builder.HasIndex(op => new { op.OrgId, op.ProjectId }).IsUnique();
+        builder.HasQueryFilter(op => op.Project!.DeletedDate == null);
     }
 }

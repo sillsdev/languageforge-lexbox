@@ -25,7 +25,7 @@ public class ProjectEntityConfiguration : EntityBaseConfiguration<Project>
             .HasForeignKey(projectUser => projectUser.ProjectId)
             .OnDelete(DeleteBehavior.Cascade);
         builder.HasMany(p => p.Organizations)
-            .WithMany(p => p.Projects)
+            .WithMany(o => o.Projects)
             .UsingEntity<OrgProjects>(
                 op => op.HasOne(op => op.Org).WithMany().HasForeignKey(op => op.OrgId),
                 op => op.HasOne(op => op.Project).WithMany().HasForeignKey(op => op.ProjectId)
