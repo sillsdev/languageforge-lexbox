@@ -102,12 +102,12 @@ public interface ISyncHttp
     [Get("/api/AuthTesting/requires-auth")]
     Task<HttpResponseMessage> HealthCheck();
 
-    [Post("/api/sync/{id}/add")]
+    [Post("/api/crdt/{id}/add")]
     internal Task AddRange(Guid id, IEnumerable<Commit> commits);
 
-    [Get("/api/sync/{id}/get")]
+    [Get("/api/crdt/{id}/get")]
     internal Task<SyncState> GetSyncState(Guid id);
 
-    [Post("/api/sync/{id}/changes")]
+    [Post("/api/crdt/{id}/changes")]
     internal Task<ChangesResult<Commit>> GetChanges(Guid id, SyncState otherHeads);
 }
