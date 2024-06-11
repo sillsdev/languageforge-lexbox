@@ -8,6 +8,7 @@ using Microsoft.Identity.Client.Extensions.Msal;
 namespace LocalWebApp.Auth;
 
 /// <summary>
+/// when injected directly it will use the authority of the current project, to get a different authority use <see cref="AuthHelpersFactory"/>
 /// helper class for using MSAL.net
 /// docs: https://learn.microsoft.com/en-us/entra/msal/dotnet/acquiring-tokens/overview
 /// </summary>

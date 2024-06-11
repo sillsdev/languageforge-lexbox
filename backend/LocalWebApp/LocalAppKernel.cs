@@ -20,6 +20,7 @@ public static class LocalAppKernel
         services.AddAuthHelpers(environment);
         services.AddSingleton<UrlContext>();
         services.AddScoped<SyncService>();
+        services.AddScoped<LexboxProjectService>();
         services.AddSingleton<ImportFwdataService>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());

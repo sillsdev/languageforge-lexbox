@@ -2,22 +2,48 @@
 using FwDataMiniLcmBridge;
 using LcmCrdt;
 using LocalWebApp.Auth;
+using LocalWebApp.Services;
 using MiniLcm;
 
 namespace LocalWebApp.Routes;
 
-public static class ProjectRoutes
+public static partial class ProjectRoutes
 {
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/projects",
-            async (ProjectsService projectService) =>
+            async (ProjectsService projectService, LexboxProjectService lexboxProjectService) =>
         {
             var crdtProjects = await projectService.ListProjects();
-            return crdtProjects.UnionBy(FieldWorksProjectList.EnumerateProjects(), identifier => identifier.Name);
+            var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
+            //basically populate projects and indicate if they are lexbox or fwdata
+            foreach (var p in FieldWorksProjectList.EnumerateProjects())
+            {
+                if (projects.TryGetValue(p.Name, out var project))
+                {
+                    projects[p.Name] = project with { Fwdata = true };
+                }
+                else
+                {
+                    projects.Add(p.Name, new ProjectModel(p.Name, false, true));
+                }
+            }
+            foreach (var lexboxProject in await lexboxProjectService.GetLexboxProjects())
+            {
+                if (projects.TryGetValue(lexboxProject.Name, out var project))
+                {
+                    projects[lexboxProject.Name] = project with { Lexbox = true };
+                }
+                else
+                {
+                    projects.Add(lexboxProject.Name, new ProjectModel(lexboxProject.Name, false, false, true));
+                }
+            }
+
+            return projects.Values;
         });
-        Regex alphaNumericRegex = new Regex("^[a-zA-Z0-9]*$");
+        Regex alphaNumericRegex = ProjectName();
         group.MapPost("/project",
             async (ProjectsService projectService, string name) =>
             {
@@ -33,24 +59,25 @@ public static class ProjectRoutes
         return group;
     }
 
+    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false);
+
     private static async Task AfterCreate(IServiceProvider provider, CrdtProject project)
     {
         var lexboxApi = provider.GetRequiredService<ILexboxApi>();
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = { Values = { { "en", "Kevin" } } },
-            Note = { Values = { { "en", "this is a test note from Kevin" } } },
-            CitationForm = { Values = { { "en", "Kevin" } } },
-            LiteralMeaning = { Values = { { "en", "Kevin" } } },
+            LexemeForm = { Values = { { "en", "Apple" } } },
+            CitationForm = { Values = { { "en", "Apple" } } },
+            LiteralMeaning = { Values = { { "en", "Fruit" } } },
             Senses =
             [
                 new()
                 {
-                    Gloss = { Values = { { "en", "Kevin" } } },
-                    Definition = { Values = { { "en", "Kevin" } } },
-                    SemanticDomain = ["Person"],
-                    ExampleSentences = [new() { Sentence = { Values = { { "en", "Kevin is a good guy" } } } }]
+                    Gloss = { Values = { { "en", "Fruit" } } },
+                    Definition = { Values = { { "en", "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh" } } },
+                    SemanticDomain = ["Fruit"],
+                    ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
                 }
             ]
         });
@@ -75,4 +102,7 @@ public static class ProjectRoutes
                 Exemplars = WritingSystem.LatinExemplars
             });
     }
+
+    [GeneratedRegex("^[a-zA-Z0-9-_]*$")]
+    private static partial Regex ProjectName();
 }
