@@ -1,4 +1,5 @@
-﻿using SIL.LCModel;
+﻿using System.Diagnostics;
+using SIL.LCModel;
 using SIL.WritingSystems;
 
 namespace FwDataMiniLcmBridge.LcmUtils;
@@ -17,6 +18,7 @@ public class ProjectLoader
         }
 
         Icu.Wrapper.Init();
+        Debug.Assert(Icu.Wrapper.IcuVersion == "72.1.0.3");
         Sldr.Initialize();
         _init = true;
     }

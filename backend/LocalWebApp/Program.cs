@@ -12,6 +12,11 @@ using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 if (!builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://127.0.0.1:0");
+if (builder.Environment.IsDevelopment())
+{
+    //do this early so we catch bugs on startup
+    ProjectLoader.Init();
+}
 builder.ConfigureDev<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
 //for now prod builds will also use lt dev until we deploy oauth to prod
 builder.ConfigureProd<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
