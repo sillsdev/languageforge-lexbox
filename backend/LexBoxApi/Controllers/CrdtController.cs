@@ -18,7 +18,7 @@ public class CrdtController(LexBoxDbContext dbContext): ControllerBase
     }
 
     [HttpPost("{projectId}/add")]
-    public async Task<ActionResult> Add(Guid projectId, ServerCommit[] commits)
+    public async Task<ActionResult> Add(Guid projectId, [FromBody] ServerCommit[] commits)
     {
         foreach (var commit in commits)
         {
@@ -31,7 +31,7 @@ public class CrdtController(LexBoxDbContext dbContext): ControllerBase
     }
 
     [HttpPost("{projectId}/changes")]
-    public async Task<ActionResult<ChangesResult<ServerCommit>>> Changes(Guid projectId, SyncState clientHeads)
+    public async Task<ActionResult<ChangesResult<ServerCommit>>> Changes(Guid projectId, [FromBody] SyncState clientHeads)
     {
         var commits = dbContext.Set<ServerCommit>().Where(c => c.ProjectId == projectId);
         return await commits.GetChanges<ServerCommit, ServerJsonChange>(clientHeads);
