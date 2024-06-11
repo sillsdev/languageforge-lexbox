@@ -1,8 +1,9 @@
 ﻿<script lang="ts">
 import ProjectView from './ProjectView.svelte';
 import {InMemoryApiService} from './lib/in-memory-api-service';
-import {LexboxServices} from './lib/services/service-provider';
+import {LexboxService} from './lib/services/service-provider';
 
-window.lexbox.ServiceProvider.setService(LexboxServices.LexboxApi, new InMemoryApiService());
+const inMemoryLexboxApi = new InMemoryApiService();
+window.lexbox.ServiceProvider.setService(LexboxService.LexboxApi, inMemoryLexboxApi);
 </script>
-<ProjectView isConnected/>
+<ProjectView projectName={inMemoryLexboxApi.projectName} isConnected />

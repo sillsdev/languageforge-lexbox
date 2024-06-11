@@ -1,14 +1,19 @@
 using LcmCrdt;
 using LocalWebApp;
+using LocalWebApp.Auth;
 using LocalWebApp.Routes;
+using LocalWebApp.Utils;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 if (!builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://127.0.0.1:0");
+builder.ConfigureDev<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
+builder.ConfigureProd<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.org"));
+builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
 
-builder.Services.AddLocalAppServices();
+builder.Services.AddLocalAppServices(builder.Environment);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR().AddJsonProtocol();
@@ -21,9 +26,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//configure dotnet to serve static files from the embedded resources
 var sharedOptions = new SharedOptions() { FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly) };
 app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
 app.UseStaticFiles(new StaticFileOptions(sharedOptions));
+
 app.Use(async (context, next) =>
 {
     var projectName = context.GetProjectName();
@@ -32,6 +39,7 @@ app.Use(async (context, next) =>
         var projectsService = context.RequestServices.GetRequiredService<ProjectsService>();
         projectsService.SetProjectScope(projectsService.GetProject(projectName) ??
                                         throw new InvalidOperationException($"Project {projectName} not found"));
+        await context.RequestServices.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
     }
 
     await next(context);
@@ -40,6 +48,7 @@ app.MapHub<LexboxApiHub>($"/api/hub/{{{LexboxApiHub.ProjectRouteKey}}}/lexbox");
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();
+app.MapAuthRoutes();
 
 await using (app)
 {

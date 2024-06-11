@@ -2,11 +2,12 @@
 using Crdt;
 using Crdt.Db;
 using LcmCrdt;
+using LocalWebApp.Auth;
 using Refit;
 
 namespace LocalWebApp;
 
-public class CrdtHttpSyncService(IHttpClientFactory clientFactory, ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
+public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
 {
     //todo replace with a IMemoryCache check
     private bool? _isHealthy;
@@ -40,18 +41,22 @@ public class CrdtHttpSyncService(IHttpClientFactory clientFactory, ILogger<CrdtH
         return _isHealthy.Value;
     }
 
-    public ISyncHttp CreateSyncHttp(string originDomain)
+    public async ValueTask<ISyncable> CreateProjectSyncable(ProjectData project)
     {
-        var uri = new Uri(originDomain);
-        var httpClient = clientFactory.CreateClient(uri.Host);
-        httpClient.BaseAddress = uri;
-        return RestService.For<ISyncHttp>(httpClient, refitSettings);
-    }
+        if (string.IsNullOrEmpty(project.OriginDomain))
+        {
+            logger.LogWarning("Project {ProjectName} has no origin domain, unable to create http sync client", project.Name);
+            return NullSyncable.Instance;
+        }
 
-    public ISyncable CreateProjectSyncable(ProjectData project)
-    {
-        if (string.IsNullOrEmpty(project.OriginDomain)) return NullSyncable.Instance;
-        return new CrdtProjectSync(CreateSyncHttp(project.OriginDomain), project.Id, project.OriginDomain, this);
+        var client = await authHelpersFactory.GetHelper(project).CreateClient();
+        if (client is null)
+        {
+            logger.LogWarning("Unable to create http client to sync project, user is not authenticated to {OriginDomain}", project.OriginDomain);
+            return NullSyncable.Instance;
+        }
+
+        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.OriginDomain, this);
     }
 }
 
@@ -94,7 +99,7 @@ public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, string or
 
 public interface ISyncHttp
 {
-    [Get("/api/healthz")]
+    [Get("/api/AuthTesting/requires-auth")]
     Task<HttpResponseMessage> HealthCheck();
 
     [Post("/api/sync/{id}/add")]

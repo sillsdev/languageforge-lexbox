@@ -18,6 +18,8 @@
     </explicitIncludes>
     <explicitExcludes>
       <Path>frontend/.svelte-kit/output</Path>
+      <Path>frontend/build</Path>
+      <Path>frontend/viewer/dist-web-component</Path>
     </explicitExcludes>
   </component>
 </project>

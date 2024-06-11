@@ -26,6 +26,7 @@ public static class LcmCrdtKernel
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
     {
         LinqToDBForEFTools.Initialize();
+        services.AddMemoryCache();
 
         services.AddCrdtData(
             ConfigureDbOptions,

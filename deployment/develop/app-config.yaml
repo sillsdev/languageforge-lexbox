@@ -5,4 +5,5 @@ metadata:
 data:
   environment-name: "Development"
   hg-domain: "hg-develop.lexbox.org"
+  enable-oauth: "true"
 

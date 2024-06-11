@@ -33,10 +33,13 @@ type Fixtures = {
 
 function addUnexpectedResponseListener(context: BrowserContext): void {
   context.addListener('response', response => {
-    const traceparent = response.request().headers()['Traceparent'];
-    expect.soft(response.status(), `Unexpected response status: ${response.status()}. (${traceparent})`).toBeLessThan(500);
+    const traceparent = response.request().headers()['traceparent'];
+    const status = response.status();
+    const url = response.request().url();
+    const unexpectedResponseMessage = `Unexpected response status: ${status}. (Request URL: ${url}. Traceparent: ${traceparent}.)`;
+    expect.soft(response.status(), unexpectedResponseMessage).toBeLessThan(500);
     if (response.request().isNavigationRequest()) {
-      expect.soft(response.status(), `Unexpected response status: ${response.status()}. (${traceparent})`).toBeLessThan(400);
+      expect.soft(response.status(), unexpectedResponseMessage).toBeLessThan(400);
     }
   });
 }

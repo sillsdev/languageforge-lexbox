@@ -1,5 +1,4 @@
-import {InMemoryApiService} from '../in-memory-api-service';
-import type {LexboxApi} from './lexbox-api';
+import type {LexboxApiClient} from './lexbox-api';
 
 declare global {
 
@@ -12,28 +11,34 @@ declare global {
   }
 }
 
-export enum LexboxServices {
+export enum LexboxService {
   LexboxApi = 'LexboxApi',
 }
 
-const SERVICE_KEYS = Object.values(LexboxServices);
+type LexboxServiceRegistry = {
+  [LexboxService.LexboxApi]: LexboxApiClient,
+};
+
+const SERVICE_KEYS = Object.values(LexboxService);
 
 export class LexboxServiceProvider {
-  private services: Record<string, unknown> = {};
+  private services: LexboxServiceRegistry = {} as LexboxServiceRegistry;
 
-  public setService(key: string, service: unknown): void {
+  public setService<K extends LexboxService>(key: K, service: LexboxServiceRegistry[K]): void {
     this.validateServiceKey(key);
     this.services[key] = service;
   }
 
-  public getService<T>(key: string): T {
+  public getService<K extends LexboxService>(key: LexboxService): LexboxServiceRegistry[K] {
     this.validateServiceKey(key);
-    return this.services[key] as T;
+    const service = this.services[key];
+    if (!service) throw new Error(`Lexbox service '${key}' not found`);
+    return this.services[key];
   }
 
-  private validateServiceKey(key: string): void {
-    if (!SERVICE_KEYS.includes(key as LexboxServices)) {
-      throw new Error(`Invalid service key: ${key}. Valid vales are: ${SERVICE_KEYS.join(', ')}`);
+  private validateServiceKey(key: LexboxService): void {
+    if (!SERVICE_KEYS.includes(key)) {
+      throw new Error(`Invalid service key: ${key}. Valid values are: ${SERVICE_KEYS.join(', ')}`);
     }
   }
 }
@@ -42,10 +47,6 @@ if (!window.lexbox) {
   window.lexbox = {ServiceProvider: new LexboxServiceProvider()};
 } else window.lexbox.ServiceProvider = new LexboxServiceProvider();
 
-export function useLexboxApi() {
-  let api = window.lexbox.ServiceProvider.getService<LexboxApi>(LexboxServices.LexboxApi);
-  if (!api) {
-    throw new Error('LexboxApi service not found');
-  }
-  return api;
+export function useLexboxApi(): LexboxApiClient {
+  return window.lexbox.ServiceProvider.getService(LexboxService.LexboxApi);
 }

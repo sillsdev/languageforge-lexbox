@@ -1,14 +1,14 @@
 <script lang="ts" context="module">
   const vernacularColors = [
-    'text-blue-500 dark:text-blue-300',
     'text-emerald-400 dark:text-emerald-300',
-    'text-yellow-500 dark:text-yellow-200',
+    'text-fuchsia-600 dark:text-fuchsia-300',
+    'text-lime-600 dark:text-lime-200',
   ] as const;
 
   const analysisColors = [
-    'text-rose-400 dark:text-rose-400',
-    'text-fuchsia-500 dark:text-fuchsia-300',
-    'text-lime-600 dark:text-lime-200',
+    'text-blue-500 dark:text-blue-300',
+    'text-yellow-500 dark:text-yellow-200',
+    'text-rose-500 dark:text-rose-400',
   ] as const;
 </script>
 
@@ -92,6 +92,7 @@
             <span></span><!-- standardizes whitespace between texts -->
           {/each}
         <span class="-ml-0.5">]</span>
+        <span></span><!-- standardizes whitespace between texts -->
       {/if}
     {/each}
   {/each}

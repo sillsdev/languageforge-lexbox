@@ -6,6 +6,8 @@
 
   let loading = true;
 
+  export let projectName: string;
+
   onMount(() => {
     const shadowRoot = document.querySelector('lexbox-svelte')?.shadowRoot;
     if (!shadowRoot) throw new Error('Could not find shadow root');
@@ -42,5 +44,5 @@
 </style>
 
 <div class="app contents" class:dark={$currentTheme.dark}>
-  <ProjectView isConnected {loading} />
+  <ProjectView {projectName} isConnected {loading} />
 </div>

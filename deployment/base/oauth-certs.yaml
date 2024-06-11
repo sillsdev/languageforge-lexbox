@@ -1,0 +1,46 @@
+﻿apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: { }
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: oauth-encryption-cert
+spec:
+  commonName: lexbox Encryption cert
+  duration: 2160h # 90 days
+  renewBefore: 360h # 15 days
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: selfsigned-issuer
+  privateKey:
+      rotationPolicy: Always
+      algorithm: RSA
+  revisionHistoryLimit: 5
+  secretName: oauth-encryption-cert
+  usages:
+    - key encipherment
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: oauth-signing-cert
+spec:
+  commonName: lexbox Signing cert
+  duration: 2160h # 90 days
+  renewBefore: 360h # 15 days
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: selfsigned-issuer
+  privateKey:
+    rotationPolicy: Always
+    algorithm: RSA
+  revisionHistoryLimit: 5
+  secretName: oauth-signing-cert
+  usages:
+    - digital signature

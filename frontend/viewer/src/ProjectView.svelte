@@ -7,10 +7,10 @@
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
   import {setContext} from 'svelte';
-  import {derived, writable} from 'svelte/store';
+  import {derived, writable, type Readable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
-  import type {ViewConfig} from './lib/config-types';
-  import ViewOptions from './lib/layout/ViewOptions.svelte';
+  import {type ViewConfig, type LexboxPermissions, type ViewOptions, type LexboxFeatures} from './lib/config-types';
+  import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import Toc from './lib/layout/Toc.svelte';
   import {fade} from 'svelte/transition';
@@ -21,28 +21,43 @@
 
   export let loading = false;
 
-  const viewConfig = writable<ViewConfig>({
-    generateExternalChanges: false,
+  const lexboxApi = useLexboxApi();
+  const features = writable<LexboxFeatures>(lexboxApi.SupportedFeatures());
+  setContext<Readable<LexboxFeatures>>('features', features);
+
+  const permissions = writable<LexboxPermissions>({
+    write: true,
+    comment: true,
+  });
+
+  const options = writable<ViewOptions>({
     showExtraFields: false,
     hideEmptyFields: false,
     activeView: views[0],
-    readonly: undefined,
+    generateExternalChanges: false,
   });
 
-  setContext('viewConfig', derived(viewConfig, (config) => ({
-    ...config,
-    hideEmptyFields: config.hideEmptyFields || config.readonly,
-  })));
+  const viewConfig = derived([options, permissions, features], ([config, permissions, features]) => {
+    const readonly = !permissions.write || !features.write;
+    return {
+      ...config,
+      readonly,
+      hideEmptyFields: config.hideEmptyFields || readonly,
+    };
+  });
+
+  setContext<Readable<ViewConfig>>('viewConfig', viewConfig);
+
+  export let projectName: string;
   export let isConnected: boolean;
   $: connected.set(isConnected);
-  const lexboxApi = useLexboxApi();
 
   const connected = writable(false);
   const search = writable<string>('');
 
 
   const selectedIndexExemplar = writable<string | undefined>(undefined);
-  setContext('selectedIndexExamplars', selectedIndexExemplar);
+  setContext('selectedIndexExamplar', selectedIndexExemplar);
 
   const writingSystems = deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
@@ -100,6 +115,11 @@
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
+    navigateToEntry(entry);
+  }
+
+  function navigateToEntry(entry: IEntry) {
+    $search = '';
     selectEntry(entry);
   }
 
@@ -121,14 +141,18 @@
 
 </script>
 
-<div class="app flex flex-col PortalTarget">
-  <AppBar title="FLEx-Lite" class="bg-secondary min-h-12" menuIcon=''>
+<svelte:head>
+  <title>{projectName}</title>
+</svelte:head>
+
+<div class="project-view !flex flex-col PortalTarget">
+  <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
     <div class="sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
-      <SearchBar on:entrySelected={(e) => selectEntry(e.detail)} />
+      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)} />
     </div>
     <div class="flex-grow-[0.25]"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
@@ -144,7 +168,9 @@
           Configure
         </div>
       </Button>
-      <ActivityView/>
+      {#if $features.history}
+        <ActivityView/>
+      {/if}
     </div>
   </AppBar>
 
@@ -155,15 +181,15 @@
       </div>
     </div>
   {:else}
-    <main class="p-4">
+    <main class="p-4 flex grow">
       <div
-        class="grid flex-grow items-start justify-center" class:md:gap-x-6={!expandList}
+        class="grid flex-grow items-start justify-stretch md:justify-center"
         style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
       >
-        <div class="w-screen max-w-full md:w-[400px] collapsible-col" class:md:!w-[1024px]={expandList} class:max-md:collapse-col={pickedEntry}>
+        <div class="w-screen max-w-full md:w-[500px] md:min-w-[300px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
           <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
         </div>
-        <div class="max-w-full w-screen md:w-[65vw] collapsible-col" class:max-md:pr-6={pickedEntry} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
+        <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry && !$viewConfig.readonly} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
           {#if $selectedEntry}
             <div class="mb-6">
               <DictionaryEntryViewer entry={$selectedEntry} />
@@ -185,12 +211,12 @@
             </div>
           {/if}
         </div>
-        {#if $selectedEntry && !expandList}
-          <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:max-md:hidden={!pickedEntry}>
-            <div class="hidden" class:sm:hidden={expandList}>
-              <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
-            </div>
-            <div class="sm:w-[15vw] max-w-60 collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
+        <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-md:hidden={!pickedEntry || $viewConfig.readonly}>
+          <div class="hidden" class:sm:hidden={expandList}>
+            <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
+          </div>
+          <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
+            {#if $selectedEntry && !expandList}
               <div class="h-full flex flex-col gap-4 justify-stretch">
                 {#if !$viewConfig.readonly}
                   <div class="contents" bind:this={entryActionsElem}>
@@ -201,7 +227,7 @@
                   <Toc entry={$selectedEntry} />
                 </div>
               </div>
-              <span class="text-surface-content bg-surface-100/75 text-sm fixed bottom-0 right-0 p-2 inline-flex gap-2 items-center">
+              <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 items-center">
                 {$viewConfig.activeView.label}
                 <Button
                   on:click={() => (showOptionsDialog = true)}
@@ -210,13 +236,13 @@
                   iconOnly
                   icon={mdiEyeSettingsOutline} />
               </span>
-            </div>
+            {/if}
           </div>
-        {/if}
+        </div>
       </div>
     </main>
 
-    <ViewOptions bind:open={showOptionsDialog} {viewConfig} />
+    <ViewOptionsDrawer bind:open={showOptionsDialog} {options} {features} />
 
   {/if}
 </div>

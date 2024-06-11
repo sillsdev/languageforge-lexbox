@@ -16,6 +16,7 @@ module.exports = {
         'winter': {
           ...require("daisyui/src/theming/themes")["winter"],
           "warning": "#FFBE00", // warning color from corporate, because it has much better contrast
+          "primary": "#0058BF", // easier on the eyes
         },
       },
       {

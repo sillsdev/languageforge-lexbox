@@ -1,16 +1,21 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 import {
   type IEntry, type IExampleSentence, type ISense, type JsonPatch,
-  type LexboxApi,
   type QueryOptions,
   type WritingSystems,
   type WritingSystemType,
-  type WritingSystem
+  type WritingSystem,
+  type LexboxApiClient,
+  type LexboxApiFeatures
 } from 'viewer/lexbox-api';
 
 
-export class LfClassicLexboxApi implements LexboxApi {
+export class LfClassicLexboxApi implements LexboxApiClient {
   constructor(private projectCode: string) {
+  }
+
+  SupportedFeatures(): LexboxApiFeatures {
+    return {};
   }
 
   async GetWritingSystems(): Promise<WritingSystems> {
@@ -19,8 +24,35 @@ export class LfClassicLexboxApi implements LexboxApi {
   }
 
   async GetEntries(_options: QueryOptions | undefined): Promise<IEntry[]> {
-    const result = await fetch(`/api/lfclassic/${this.projectCode}/entries?order=desc&count=100`);
+    //todo pass query options into query
+    const result = await fetch(`/api/lfclassic/${this.projectCode}/entries${this.toQueryParams(_options)}`);
     return (await result.json()) as IEntry[];
+  }
+
+  async SearchEntries(_query: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
+    //todo pass query options into query
+    const result = await fetch(`/api/lfclassic/${this.projectCode}/entries/${encodeURIComponent(_query)}${this.toQueryParams(_options)}`);
+    return (await result.json()) as IEntry[];
+  }
+
+  private toQueryParams(options: QueryOptions | undefined): string {
+
+    if (!options) return '';
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+    const asc = options.order.ascending ?? true;
+    const params = new URLSearchParams({
+      SortField: options.order.field,
+      SortWritingSystem: options.order.writingSystem,
+      Ascending: asc ? 'true' : 'false',
+      Count: options.count.toString(),
+      Offset: options.offset.toString()
+    });
+    if (options.exemplar) {
+      params.set('ExemplarValue', options.exemplar.value);
+      params.set('ExemplarWritingSystem', options.exemplar.writingSystem);
+    }
+    /* eslint-enable @typescript-eslint/no-unsafe-assignment */
+    return '?' + params.toString();
   }
 
   CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {
@@ -28,10 +60,6 @@ export class LfClassicLexboxApi implements LexboxApi {
   }
 
   UpdateWritingSystem(_wsId: string, _type: WritingSystemType, _update: JsonPatch): Promise<WritingSystem> {
-    throw new Error('Method not implemented.');
-  }
-
-  SearchEntries(_query: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
     throw new Error('Method not implemented.');
   }
 
