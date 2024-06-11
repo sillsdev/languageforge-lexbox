@@ -99,6 +99,7 @@ public class OrgMutations
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
         NotFoundException.ThrowIfNull(project);
+        permissionService.AssertCanManageProject(projectId);
         var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
         if (foundOrg is not null)
         {
