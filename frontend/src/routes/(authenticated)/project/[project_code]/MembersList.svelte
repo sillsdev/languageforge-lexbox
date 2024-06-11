@@ -1,7 +1,10 @@
 <script context="module" lang="ts">
+  import type { User } from './+page';
+  import type { ProjectRole } from '$lib/gql/types';
+
   export type Member = {
     id: string
-    user: { id: string; name: string; email?: string | null, username?: string | null}
+    user: User,
     role: ProjectRole
   };
 </script>
@@ -9,17 +12,16 @@
 <script lang="ts">
   import t from '$lib/i18n';
   import { BadgeList, MemberBadge } from '$lib/components/Badges';
-  import Dropdown from './Dropdown.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import { Button } from '$lib/forms';
-  import type { ProjectRole } from '$lib/gql/types';
   import { createEventDispatcher } from 'svelte';
-  import ChangeMemberRoleModal from '../../routes/(authenticated)/project/[project_code]/ChangeMemberRoleModal.svelte';
-  import { DialogResponse } from './modals';
+  import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { useNotifications } from '$lib/notify';
   import type { UUID } from 'crypto';
   import PlainInput from '$lib/forms/PlainInput.svelte';
+  import { DialogResponse } from '$lib/components/modals';
 
   export let members: Member[] = [];
   export let canManageMember: (member: Member) => boolean;

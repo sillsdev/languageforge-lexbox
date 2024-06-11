@@ -3,17 +3,15 @@
   import t from '$lib/i18n';
   import { AdminIcon, Icon } from '$lib/icons';
   import { createEventDispatcher } from 'svelte';
-  import Dropdown from '../Dropdown.svelte';
-  import type { User } from '$lib/gql/types';
+  import Dropdown from '$lib/components/Dropdown.svelte';
+  import type { User } from './+page';
 
-  type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'isAdmin' | 'username' | 'email' | 'emailVerified'>;
-
-  export let shownUsers: TableUser[];
+  export let shownUsers: User[];
 
   const dispatch = createEventDispatcher<{
-    openUserModal: TableUser
-    editUser: TableUser
-    filterProjectsByUser: TableUser
+    openUserModal: User
+    editUser: User
+    filterProjectsByUser: User
   }>();
 </script>
 

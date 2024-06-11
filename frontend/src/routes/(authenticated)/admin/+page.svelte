@@ -22,7 +22,7 @@
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
   import type { Confidentiality } from '$lib/components/Projects';
   import { browser } from '$app/environment';
-  import UserTable from '$lib/components/Users/UserTable.svelte';
+  import UserTable from './UserTable.svelte';
 
   export let data: PageData;
   $: projects = data.projects;

@@ -41,7 +41,7 @@
   import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
   import { DetailItem, EditableDetailItem } from '$lib/layout';
-  import MembersList from '$lib/components/MembersList.svelte';
+  import MembersList from './MembersList.svelte';
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
 
   export let data: PageData;
