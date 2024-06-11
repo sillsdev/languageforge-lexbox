@@ -29,6 +29,7 @@ public static partial class ProjectRoutes
                     projects.Add(p.Name, new ProjectModel(p.Name, false, true));
                 }
             }
+            //todo split this out into it's own request so we can return other project types right away
             foreach (var lexboxProject in await lexboxProjectService.GetLexboxProjects())
             {
                 if (projects.TryGetValue(lexboxProject.Name, out var project))

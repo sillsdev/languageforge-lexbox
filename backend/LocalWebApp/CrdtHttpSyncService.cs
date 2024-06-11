@@ -13,6 +13,7 @@ public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<
     private bool? _isHealthy;
     private DateTimeOffset _lastHealthCheck = DateTimeOffset.MinValue;
 
+    //todo pull this out into a service wrapped around auth helpers so that any service making requests can use it
     public async ValueTask<bool> ShouldSync(ISyncHttp syncHttp)
     {
         if (_isHealthy is not null && _lastHealthCheck + TimeSpan.FromMinutes(30) > DateTimeOffset.UtcNow)

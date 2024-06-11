@@ -2,7 +2,7 @@
 
 namespace LocalWebApp.Services;
 
-public class LexboxProjectService(AuthHelpersFactory helpersFactory)
+public class LexboxProjectService(AuthHelpersFactory helpersFactory, ILogger<LexboxProjectService> logger)
 {
     public record LexboxCrdtProject(Guid Id, string Name);
 
@@ -10,6 +10,14 @@ public class LexboxProjectService(AuthHelpersFactory helpersFactory)
     {
         var httpClient = await helpersFactory.GetDefault().CreateClient();
         if (httpClient is null) return [];
-        return await httpClient.GetFromJsonAsync<LexboxCrdtProject[]>("api/crdt/listProjects") ?? [];
+        try
+        {
+            return await httpClient.GetFromJsonAsync<LexboxCrdtProject[]>("api/crdt/listProjects") ?? [];
+        }
+        catch (HttpRequestException e)
+        {
+            logger.LogError(e, "Error getting lexbox projects");
+            return [];
+        }
     }
 }
