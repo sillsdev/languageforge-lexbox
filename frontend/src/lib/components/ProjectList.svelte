@@ -1,5 +1,6 @@
 <script lang="ts">
   import t from '$lib/i18n';
+  import Icon from '$lib/icons/Icon.svelte';
   import { Badge } from './Badges';
   import { getProjectTypeIcon } from './ProjectType';
   import type { ProjectItemWithDraftStatus } from './Projects';
@@ -17,17 +18,21 @@
             <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
               <span class="text-primary inline-flex gap-2 items-center">
                 {project.name}
+                <span
+                  class="tooltip text-warning text-xl shrink-0 leading-0"
+                  data-tip={$t('projectlist.is_draft')}>
+                  <Icon icon="i-mdi-script" />
+                </span>
               </span>
             </h2>
             <p>{project.code}</p>
-
             <Badge variant="badge-warning" outline>
+              <Icon icon="i-mdi-progress-clock" />
               Awaiting approval
             </Badge>
-
             <p class="flex items-end">
               {$t('projectlist.requested', {
-                lastChange: new Date(),
+                requested: new Date(project.createdDate),
               })}
             </p>
           </div>
