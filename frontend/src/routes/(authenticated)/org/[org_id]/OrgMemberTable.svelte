@@ -1,31 +1,18 @@
-<script lang="ts" context="module">
-  export type TableUser = Pick<User, 'id' | 'name' | 'locked' | 'username' | 'email' | 'emailVerified'>;
-
-  export type Member = {
-    id: string
-    user: TableUser
-    role: OrgRole
-  };
-</script>
-
 <script lang="ts">
   import { Button } from '$lib/forms';
   import t from '$lib/i18n';
   import { Icon } from '$lib/icons';
   import { createEventDispatcher } from 'svelte';
-  import Dropdown from '../Dropdown.svelte';
-  import type { OrgRole, User } from '$lib/gql/types';
-  import OrgRoleText from './OrgRoleText.svelte';
-  import OrgRoleSelect from '$lib/forms/OrgRoleSelect.svelte';
+  import FormatUserOrgRole from '$lib/components/Orgs/FormatUserOrgRole.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
+  import type { OrgUser, User } from './+page';
 
-  export let shownUsers: Member[];
-
-  let editingUser: TableUser|undefined = undefined;
+  export let shownUsers: OrgUser[];
 
   const dispatch = createEventDispatcher<{
-    openUserModal: TableUser,
-    changeMemberRole: Member,
-    removeMember: TableUser,
+    openUserModal: User,
+    changeMemberRole: OrgUser,
+    removeMember: User,
   }>();
 
 </script>
@@ -82,11 +69,7 @@
             </span>
           </td>
           <td class="@2xl:table-cell">
-            {#if editingUser == user}
-            <OrgRoleSelect bind:value={member.role} on:change={() => {dispatch('changeMemberRole', member); editingUser = undefined}} />
-            {:else}
-            <OrgRoleText value={member.role} />
-            {/if}
+            <FormatUserOrgRole role={member.role} />
           </td>
           <td class="p-0">
             <Dropdown>

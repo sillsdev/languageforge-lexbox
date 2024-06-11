@@ -9,7 +9,7 @@
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
   import type { UUID } from 'crypto';
-  import { _addOrgMember } from './mutations';
+  import { _addOrgMember } from './+page';
 
   export let orgId: string;
   const schema = z.object({

@@ -1,10 +1,13 @@
 import type {
   $OpResult,
+  AddOrgMemberMutation,
+  ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
   ChangeOrgNameMutation,
   DeleteOrgMutation,
   DeleteOrgUserMutation,
   OrgPageQuery,
+  OrgRole,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -16,6 +19,7 @@ import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Org = NonNullable<OrgPageQuery['orgById']>;
 export type OrgUser = Org['members'][number];
+export type User = OrgUser['user'];
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
@@ -120,6 +124,70 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
         }
       `),
       { input: { orgId, userId, role: null } }
+    );
+  return result;
+}
+
+export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole): $OpResult<AddOrgMemberMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation AddOrgMember($input: SetOrgMemberRoleInput!) {
+          setOrgMemberRole(input: $input) {
+            organization {
+              id
+              members {
+                id
+                role
+                user {
+                  id
+                  name
+                }
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { orgId, emailOrUsername, role} },
+    );
+  return result;
+}
+
+export async function _changeOrgMemberRole(orgId: string, userId: string, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation ChangeOrgMemberRole($input: ChangeOrgMemberRoleInput!) {
+          changeOrgMemberRole(input: $input) {
+            organization {
+              id
+              members {
+                id
+                role
+                user {
+                  id
+                  name
+                }
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { orgId, userId, role} },
     );
   return result;
 }

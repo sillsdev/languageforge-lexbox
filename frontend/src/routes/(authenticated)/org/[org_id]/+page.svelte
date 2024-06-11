@@ -6,19 +6,19 @@
   import EditableText from '$lib/components/EditableText.svelte';
   import { Button, type ErrorMessage } from '$lib/forms';
   import type { PageData } from './$types';
-  import { OrgRole, type User } from '$lib/gql/types';
+  import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams } from './+page';
+  import { _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams, type User, type OrgUser } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
-  import OrgMemberTable, { type Member, type TableUser } from '$lib/components/Orgs/OrgMemberTable.svelte';
   import { Icon, TrashIcon } from '$lib/icons';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import { goto } from '$app/navigation';
   import { DialogResponse } from '$lib/components/modals';
-  import AddOrgMemberModal from '$lib/components/Orgs/AddOrgMemberModal.svelte';
-  import ChangeOrgMemberRoleModal from '$lib/components/Orgs/ChangeOrgMemberRoleModal.svelte';
+  import AddOrgMemberModal from './AddOrgMemberModal.svelte';
+  import ChangeOrgMemberRoleModal from './ChangeOrgMemberRoleModal.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
+  import OrgMemberTable from './OrgMemberTable.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -45,9 +45,9 @@
   }
 
   let userModal: UserModal;
-  function openUserModal(user: TableUser): Promise<void> {
+  function openUserModal(user: User): Promise<void> {
     // Although we receive a TableUser, we know in practice it's a full User object
-    return userModal.open(user as User);
+    return userModal.open(user);
   }
 
   let addOrgMemberModal: AddOrgMemberModal;
@@ -56,7 +56,7 @@
   }
 
   let changeMemberRoleModal: ChangeOrgMemberRoleModal;
-  async function openChangeMemberRoleModal(member: Member): Promise<void> {
+  async function openChangeMemberRoleModal(member: OrgUser): Promise<void> {
     await changeMemberRoleModal.open({
       userId: member.user.id,
       name: member.user.name,
