@@ -5,7 +5,7 @@ const svelteUx = require('svelte-ux/plugins/tailwind.cjs')
 const { iconsPlugin, getIconCollections } = require('@egoist/tailwindcss-icons');
 
 module.exports = {
-  content: ['./src/**/*.{html,svelte,ts}', './node_modules/svelte-ux/**/*.{svelte,js}'],
+  content: ['./src/**/!(WebComponent).{html,svelte,ts}', './node_modules/svelte-ux/**/*.{svelte,js}'],
   variants: {
     extend: {},
   },

@@ -31,7 +31,7 @@
     <div>
       {#if user}
         <!-- using a label means it works before hydration is complete -->
-        <label for="drawer-toggle" class="btn btn-primary px-2">
+        <label for="drawer-toggle" class="btn btn-primary glass px-2">
           {user.name}
           <AuthenticatedUserIcon size="text-4xl" />
         </label>
