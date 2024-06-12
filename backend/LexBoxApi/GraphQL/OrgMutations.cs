@@ -101,6 +101,8 @@ public class OrgMutations
         NotFoundException.ThrowIfNull(org);
 
         permissionService.AssertCanEditOrg(org);
+        var user = await dbContext.Users.FindAsync(userId);
+        NotFoundException.ThrowIfNull(user);
         await UpdateOrgMemberRole(dbContext, org, role, userId);
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
