@@ -178,6 +178,7 @@ jobs:
 
   publish-results:
     needs: [ dotnet-test, playwright-test ]
+    if: ${{ always() }}
     runs-on: ${{ inputs.runs-on }}
     steps:
       - name: Password protect Playwright traces
