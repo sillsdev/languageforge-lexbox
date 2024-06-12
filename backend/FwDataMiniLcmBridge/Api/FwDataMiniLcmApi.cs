@@ -34,6 +34,12 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private readonly IMoMorphTypeRepository _morphTypeRepository =
         cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
+    private readonly ICmPossibilityRepository _cmPossibilityRepository =
+        cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
+    private readonly IPartOfSpeechRepository _partOfSpeechRepository =
+        cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
+    private readonly ICmSemanticDomainRepository _semanticDomainRepository =
+        cache.ServiceLocator.GetInstance<ICmSemanticDomainRepository>();
 
     private readonly ICmTranslationFactory _cmTranslationFactory =
         cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
@@ -158,6 +164,32 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         throw new NotImplementedException();
     }
 
+    public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        foreach (var partOfSpeech in _partOfSpeechRepository.AllInstances())
+        {
+            yield return new PartOfSpeech { Id = partOfSpeech.Guid, Name = FromLcmMultiString(partOfSpeech.Name) };
+        }
+    }
+
+    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        foreach (var semanticDomain in _semanticDomainRepository.AllInstances())
+        {
+            yield return new SemanticDomain
+            {
+                Id = semanticDomain.Guid,
+                Name = FromLcmMultiString(semanticDomain.Name),
+                Code = semanticDomain.OcmCodes
+            };
+        }
+    }
+
+    internal ICmSemanticDomain GetLcmSemanticDomain(SemanticDomain semanticDomain)
+    {
+        return _semanticDomainRepository.GetObject(semanticDomain.Id);
+    }
+
     private Entry FromLexEntry(ILexEntry entry)
     {
         return new Entry
@@ -173,15 +205,22 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private Sense FromLexSense(ILexSense sense)
     {
-        return new Sense
+        var s =  new Sense
         {
             Id = sense.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
-            PartOfSpeech = sense.SenseTypeRA?.Name.BestAnalysisVernacularAlternative.Text ?? string.Empty,
-            SemanticDomain = sense.SemanticDomainsRC.Select(s => s.OcmCodes).ToList(),
+            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.InterlinearName ?? "",
+            PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
+            SemanticDomains = sense.SemanticDomainsRC.Select(s => new SemanticDomain
+            {
+                Id = s.Guid,
+                Name = FromLcmMultiString(s.Name),
+                Code = s.OcmCodes
+            }).ToList(),
             ExampleSentences = sense.ExamplesOS.Select(FromLexExampleSentence).ToList()
         };
+        return s;
     }
 
     private ExampleSentence FromLexExampleSentence(ILexExampleSentence sentence)

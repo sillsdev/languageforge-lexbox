@@ -122,7 +122,9 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
             Gloss = ToMultiString(sense.Gloss),
             Definition = ToMultiString(sense.Definition),
             PartOfSpeech = sense.PartOfSpeech?.Value ?? string.Empty,
-            SemanticDomain = sense.SemanticDomain?.Values ?? [],
+            SemanticDomains = (sense.SemanticDomain?.Values ?? [])
+                .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
+                .ToList(),
             ExampleSentences = sense.Examples?.OfType<Example>().Select(ToExampleSentence).ToList() ?? [],
         };
     }

@@ -113,7 +113,7 @@ public static partial class ProjectRoutes
                 {
                     Gloss = { Values = { { "en", "Fruit" } } },
                     Definition = { Values = { { "en", "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh" } } },
-                    SemanticDomain = ["Fruit"],
+                    SemanticDomains = [],
                     ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
                 }
             ]

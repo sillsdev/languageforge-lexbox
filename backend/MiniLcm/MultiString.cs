@@ -76,6 +76,11 @@ public class MultiString: IDictionary
         }
     }
 
+    public void Add(string key, string value)
+    {
+        Values.Add(key, value);
+    }
+
     void IDictionary.Add(object key, object? value)
     {
         ((IDictionary)Values).Add(key, value);

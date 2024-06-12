@@ -215,8 +215,9 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         Guid senseId,
         UpdateObjectInput<MiniLcm.Sense> update)
     {
-        var patchChange = new JsonPatchChange<Sense>(senseId, update.Patch, jsonOptions);
-        await dataModel.AddChange(ClientId, patchChange);
+        var sense = await dataModel.GetLatest<Sense>(senseId);
+        if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
+        await dataModel.AddChanges(ClientId, [..Sense.ChangesFromJsonPatch(sense, update.Patch)]);
         return await dataModel.GetLatest<Sense>(senseId) ?? throw new NullReferenceException();
     }
 
@@ -253,4 +254,5 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     {
         return new UpdateBuilder<T>();
     }
+
 }
