@@ -14,10 +14,8 @@
   import { STORAGE_VIEW_MODE_KEY, ViewMode } from './shared';
 
   export let data: PageData;
-  $: projectStore = data.projects;
-  $: projects = $projectStore
-  $: draftProjectStore = data.draftProjects;
-  $: draftProjects = $draftProjectStore
+  $: projects = data.projects;
+  $: draftProjects = data.draftProjects;
 
   type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType'>;
 
@@ -26,9 +24,22 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
   });
 
+  let allProjects: ProjectItemWithDraftStatus[] = [];
+  let filteredProjects: ProjectItemWithDraftStatus[] = [];
+  let limitResults = true;
+  $: allProjects = [
+    ...$draftProjects.map(p => ({
+      ...p, isDraft: true as const,
+      createUrl: ''
+    })),
+    ...$projects.map(p => ({ ...p, isDraft: false as const })),
+  ];
+  $: filteredProjects = filterProjects(allProjects, $filters);
+  $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
+
   let initializedMode = false;
   let mode: ViewMode;
-  $: defaultMode = $projectStore.length < 10 ? ViewMode.Grid : ViewMode.Table;
+  $: defaultMode = allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table;
 
   $: {
     if (!initializedMode) {
@@ -46,19 +57,6 @@
     mode = selectedMode;
     Cookies.set(STORAGE_VIEW_MODE_KEY, mode, { expires: 365 * 10 });
   }
-
-  let allProjects: ProjectItemWithDraftStatus[] = [];
-  let filteredProjects: ProjectItemWithDraftStatus[] = [];
-  let limitResults = true;
-  $: allProjects = [
-    ...draftProjects.map(p => ({
-      ...p, isDraft: true as const,
-      createUrl: ''
-    })),
-    ...projects.map(p => ({ ...p, isDraft: false as const })),
-  ];
-  $: filteredProjects = filterProjects(allProjects, $filters);
-  $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
 </script>
 
 <HeaderPage wide title={$t('user_dashboard.title')} setBreadcrumb={false}>

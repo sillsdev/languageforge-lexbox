@@ -107,7 +107,7 @@
               {:else if !project.isDraft}
                 {$date(project.lastCommit)}
               {:else}
-                {'Awaiting approval'}
+                {$t('project.awaiting_approval')}
               {/if}
             </td>
           {/if}

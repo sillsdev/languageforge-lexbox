@@ -11,23 +11,19 @@
 <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 auto-rows-fr gap-2 md:gap-4 max-xs:justify-items-center">
   {#each projects as project}
     {#if project.isDraft}
-      <div data-sveltekit-preload-data="false" class="draft card aspect-square bg-base-200 shadow-base-300 group overflow-hidden">
+      <div class="draft card aspect-square bg-base-200 overflow-hidden">
         <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
         <div class="card-body z-[1] max-sm:p-6">
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
             <span class="text-primary inline-flex gap-2 items-center">
               {project.name}
-              <span
-                class="tooltip text-warning text-xl shrink-0 leading-0"
-                data-tip={$t('projectlist.is_draft')}>
-                <Icon icon="i-mdi-script" />
-              </span>
+              <Icon icon="i-mdi-script" />
             </span>
           </h2>
           <p>{project.code}</p>
           <Badge variant="badge-warning" outline>
             <Icon icon="i-mdi-progress-clock" />
-            Awaiting approval
+            {$t('project.awaiting_approval')}
           </Badge>
           <p class="flex items-end">
             {$t('projectlist.requested', {
@@ -37,7 +33,7 @@
         </div>
       </div>
     {:else}
-      <a class="card aspect-square bg-base-200 shadow-base-300 group overflow-hidden" href={`/project/${project.code}`}>
+      <a class="card aspect-square bg-base-200 shadow-base-300 overflow-hidden" href={`/project/${project.code}`}>
         <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
         <div class="card-body z-[1] max-sm:p-6">
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
@@ -46,7 +42,6 @@
             </span>
           </h2>
           <p>{project.code}</p>
-          {#if !project.isDraft}
             <p>
               <span class="i-mdi-account text-xl mb-[-4px]" /> {project.userCount}
             </p>
@@ -61,7 +56,6 @@
                 </Badge>
               {/if}
             </p>
-          {/if}
         </div>
       </a>
     {/if}
