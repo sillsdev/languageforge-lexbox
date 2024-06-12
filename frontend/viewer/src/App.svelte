@@ -1,5 +1,5 @@
 ﻿<script lang="ts">
-  import {Router, Route} from 'svelte-routing';
+  import {Router, Route, navigate} from 'svelte-routing';
   import CrdtProjectView from './CrdtProjectView.svelte';
   import TestProjectView from './TestProjectView.svelte';
   import FwDataProjectView from './FwDataProjectView.svelte';
@@ -28,6 +28,9 @@
     </Route>
     <Route path="/">
       <HomeView/>
+    </Route>
+    <Route path="/*">
+      {setTimeout(() => navigate("/", { replace: true }))}
     </Route>
   </div>
 </Router>

@@ -1,30 +1,42 @@
 ﻿<script lang="ts">
   import {
     mdiBookArrowDownOutline,
+    mdiBookArrowLeftOutline,
     mdiBookArrowUpOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
     mdiBookSyncOutline,
-    mdiCubeOutline,
-    mdiMicrosoftXbox,
     mdiTestTube
   } from '@mdi/js';
   import {navigate} from 'svelte-routing';
   import {Button, Card, type ColumnDef, ListItem, Table, TextField, tableCell, Icon} from 'svelte-ux';
+  import flexLogo from './lib/assets/flex-logo.png';
 
   type Project = { name: string, crdt: boolean, fwdata: boolean, lexbox: boolean };
 
   let newProjectName = '';
   let projectsPromise = fetchProjects();
 
-  function createProject() {
-    if (!newProjectName) return;
-    fetch(`/api/project?name=${newProjectName}`, {
+  let createError: string;
+  async function createProject() {
+    createError = '';
+
+    if (!newProjectName) {
+      createError = 'Project name is required.'
+      return;
+    }
+    const response = await fetch(`/api/project?name=${newProjectName}`, {
       method: 'POST'
-    }).then(() => {
-      newProjectName = '';
-      projectsPromise = fetchProjects();
     });
+
+    if (!response.ok) {
+      createError = await response.json();
+      return;
+    }
+
+    createError = '';
+    newProjectName = '';
+    projectsPromise = fetchProjects();
   }
 
   let loading = '';
@@ -74,22 +86,23 @@
   fetchMe();
 
 
-  const columns: ColumnDef<Project>[] = [
+  $: columns = [
     {
       name: 'name'
-    },
-    {
-      name: 'crdt',
-      header: 'CRDT'
     },
     {
       name: 'fwdata',
       header: 'FieldWorks'
     },
     {
+      name: 'crdt',
+      header: 'CRDT'
+    },
+    ...(loggedIn ? [{
       name: 'lexbox',
-    }
-  ];
+      header: 'Lexbox CRDT',
+    }] : []),
+  ] satisfies ColumnDef<Project>[];
 </script>
 <style>
   .home {
@@ -104,7 +117,7 @@
 <div class="home">
   <div>
     <Card title="Create Project" class="w-fit m-4">
-      <TextField label="New Project Name" class="m-4" placeholder="Project Name" bind:value={newProjectName}/>
+      <TextField label="New Project Name" class="m-4" placeholder="Project Name" bind:value={newProjectName} error={createError} />
       <Button slot="actions" variant="fill" icon={mdiBookPlusOutline} on:click={createProject}>Create Project</Button>
     </Card>
     <Card title="Account" class="w-fit m-4">
@@ -122,7 +135,7 @@
       {#await projectsPromise}
         <p>loading...</p>
       {:then projects}
-        <Table columns={columns} data={projects}>
+        <Table columns={columns} data={projects} classes={{th: 'p-4'}}>
 
           <tbody slot="data" let:columns let:data let:getCellValue let:getCellContent>
           {#each data ?? [] as rowData, rowIndex}
@@ -134,9 +147,9 @@
                   {#if column.name === "fwdata"}
                     {#if rowData.fwdata}
                       <Button
-                        icon={mdiCubeOutline}
-                        size="sm"
+                        size="md"
                         on:click={() => navigate(`/fwdata/${rowData.name}`)}>
+                        <img src={flexLogo} alt="FieldWorks logo" class="h-6">
                         Edit
                       </Button>
                     {/if}
@@ -144,7 +157,7 @@
                     {#if rowData.lexbox && !rowData.crdt}
                       <Button
                         icon={mdiBookArrowDownOutline}
-                        size="sm"
+                        size="md"
                         loading={downloading === rowData.name}
                         on:click={() => downloadCrdtProject(rowData.name)}>
                         Download
@@ -152,26 +165,32 @@
                     {:else if !rowData.lexbox && rowData.crdt && loggedIn}
                       <Button
                         icon={mdiBookArrowUpOutline}
-                        size="sm"
+                        size="md"
                         loading={uploading === rowData.name}
                         on:click={() => uploadCrdtProject(rowData.name)}>
                         Upload
                       </Button>
                     {:else if rowData.lexbox && rowData.crdt}
-                      <Icon size="1.5em" data={mdiBookSyncOutline}/>
+                      <Button
+                        disabled
+                        color="success"
+                        icon={mdiBookSyncOutline}
+                        size="md">
+                        Synced
+                      </Button>
                     {/if}
                   {:else if column.name === "crdt"}
                     {#if rowData.crdt}
                       <Button
                         icon={mdiBookEditOutline}
-                        size="sm"
+                        size="md"
                         on:click={() => navigate(`/project/${rowData.name}`)}>
                         Edit
                       </Button>
                     {:else if rowData.fwdata}
                       <Button
-                        size="sm"
-                        icon={mdiBookPlusOutline}
+                        size="md"
+                        icon={mdiBookArrowLeftOutline}
                         on:click={() => importFwDataProject(rowData.name)}>
                         Import
                       </Button>

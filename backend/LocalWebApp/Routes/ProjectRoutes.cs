@@ -55,7 +55,7 @@ public static partial class ProjectRoutes
                 if (projectService.ProjectExists(name))
                     return Results.BadRequest("Project already exists");
                 if (!alphaNumericRegex.IsMatch(name))
-                    return Results.BadRequest("Project name must be alphanumeric");
+                    return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
                 await projectService.CreateProject(name, afterCreate: AfterCreate);
                 return TypedResults.Ok();
             });
@@ -139,6 +139,6 @@ public static partial class ProjectRoutes
             });
     }
 
-    [GeneratedRegex("^[a-zA-Z0-9-_]*$")]
+    [GeneratedRegex("^[a-zA-Z0-9][a-zA-Z0-9-_]+$")]
     private static partial Regex ProjectName();
 }
