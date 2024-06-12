@@ -17,7 +17,7 @@
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>
             <span class="text-primary inline-flex gap-2 items-center">
               {project.name}
-              <Icon icon="i-mdi-script" />
+              <Icon icon="i-mdi-script" color="text-warning"/>
             </span>
           </h2>
           <p>{project.code}</p>
