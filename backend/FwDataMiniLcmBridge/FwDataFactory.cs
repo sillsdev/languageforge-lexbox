@@ -56,7 +56,7 @@ public class FwDataFactory(FwDataProjectContext context, ILogger<FwDataMiniLcmAp
         // disposing of the service while it's still in use would be bad.
         // one way around this would be to return a lease object, only after a timeout and no more references to the lease object would the service be disposed.
         var lcmCache = (LcmCache)value;
-        var (logger, projects) = ((ILogger, HashSet<string>))state!;
+        var (logger, projects) = ((ILogger<FwDataFactory>, HashSet<string>))state!;
         var name = lcmCache.ProjectId.Name;
         logger.LogInformation("Evicting project {ProjectFileName} from cache", name);
         lcmCache.Dispose();
