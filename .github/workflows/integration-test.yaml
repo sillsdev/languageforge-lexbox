@@ -16,6 +16,11 @@ on:
         required: false
         default: '3'
         type: string
+      run-dotnet:
+        description: 'Whether to run dotnet tests'
+        required: false
+        default: true
+        type: boolean
       run-playwright:
         description: 'Whether to run Playwright tests'
         required: false
@@ -36,6 +41,11 @@ on:
         required: false
         default: '3'
         type: string
+      run-dotnet:
+        description: 'Whether to run dotnet tests'
+        required: false
+        default: true
+        type: boolean
       run-playwright:
         description: 'Whether to run Playwright tests'
         required: false
@@ -49,6 +59,7 @@ on:
 
 jobs:
   dotnet-test:
+    if: ${{ inputs.run-dotnet }}
     timeout-minutes: 120
     name: Dotnet tests on ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
     permissions:
