@@ -98,7 +98,6 @@ jobs:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
 
       - name: Integration tests (.NET)
-        if: ${{ matrix.test == 'dotnet' }}
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
