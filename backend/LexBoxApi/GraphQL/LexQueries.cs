@@ -37,6 +37,14 @@ public class LexQueries
     }
 
     [UseProjection]
+    [UseSorting]
+    public IQueryable<DraftProject> MyDraftProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
+    {
+        var userId = loggedInContext.User.Id;
+        return context.DraftProjects.Where(p => p.ProjectManagerId == userId);
+    }
+
+    [UseProjection]
     [UseFiltering]
     [UseSorting]
     [AdminRequired]

@@ -213,6 +213,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
         "project_now_not_confidential": "Project is now not confidential.",
       }
     },
+    "awaiting_approval": "Awaiting approval"
   },
   "project_page": {
     "project": "Project",
@@ -399,7 +400,8 @@ If you don't see a dialog or already closed it, click the button below:",
   "projectlist": {
     "last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
     "no_changes": "New",
-    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
+    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }",
+    "requested": "Requested: {requested, date, short} {requested, time, short}",
   },
   "register": {
     "title": "Register",

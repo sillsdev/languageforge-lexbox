@@ -1,4 +1,6 @@
 const { iconsPlugin, getIconCollections } = require('@egoist/tailwindcss-icons');
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/*.{svelte,ts}'],
@@ -32,6 +34,10 @@ module.exports = {
     logs: false,
   },
   theme: {
+    screens: {
+      'xs': '400px',
+      ...defaultTheme.screens,
+    },
     extend: {
       screens: {
         'max-xs': { 'max': '400px' },
