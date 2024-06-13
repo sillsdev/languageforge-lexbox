@@ -20,7 +20,11 @@ public class UpdateExampleSentenceProxy(ILexExampleSentence sentence, FwDataMini
 
     public override MultiString Translation
     {
-        get => throw new NotImplementedException();
+        get
+        {
+            var firstTranslation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
+            return firstTranslation is null ? new MultiString() : new UpdateMultiStringProxy(firstTranslation, lexboxLcmApi);
+        }
         set => throw new NotImplementedException();
     }
 

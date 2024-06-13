@@ -125,11 +125,13 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private ExampleSentence FromLexExampleSentence(ILexExampleSentence sentence)
     {
+        var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
             Sentence = FromLcmMultiString(sentence.Example),
-            Reference = sentence.Reference.Text
+            Reference = sentence.Reference.Text,
+            Translation = translation is null ? new MultiString() : FromLcmMultiString(translation),
         };
     }
 
