@@ -20,7 +20,8 @@ export default [
       'playwright.config.ts',
       '.svelte-kit/**',
       '**/generated/**',
-      'viewer/'
+      'viewer/',
+      'https-proxy/',
     ],
   },
   js.configs.recommended,

@@ -7,20 +7,11 @@ import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
 import {type ProxyOptions, searchForWorkspaceRoot} from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 
-
-
-
 const inDocker = process.env['DockerDev'] === 'true';
-const exposeServer = !inDocker;
+const exposeServer = false;
 const lexboxServer: ProxyOptions = {
   target: 'http://localhost:5158',
   secure: false,
-  changeOrigin: false,
-  autoRewrite: true,
-  protocolRewrite: 'https',
-  headers: {
-    'x-forwarded-proto': 'https',
-  }
 };
 
 export default defineConfig({
