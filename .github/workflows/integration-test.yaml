@@ -12,9 +12,9 @@ on:
         required: true
         type: string
       hg-version:
-        description: 'The version of hg to test (3 or 6, default 3)'
+        description: 'The version of hg to test (3 or 6, default 6)'
         required: false
-        default: '3'
+        default: '6'
         type: string
       run-dotnet:
         description: 'Whether to run dotnet tests'
@@ -37,9 +37,9 @@ on:
         required: true
         type: string
       hg-version:
-        description: 'The version of hg to test (3 or 6, default 3)'
+        description: 'The version of hg to test (3 or 6, default 6)'
         required: false
-        default: '3'
+        default: '6'
         type: string
       run-dotnet:
         description: 'Whether to run dotnet tests'
