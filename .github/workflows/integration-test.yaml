@@ -121,6 +121,7 @@ jobs:
         run: testspace "[.Net Integration/$${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx"
 
   playwright-test:
+    if: ${{ inputs.run-playwright }}
     timeout-minutes: 120
     name: Playwright tests on ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
     permissions:
@@ -136,7 +137,7 @@ jobs:
         with:
           domain: ${{ github.repository_owner }}
       - name: Setup self-hosted dependencies
-        if: ${{ inputs.run-playwright && inputs.runs-on == 'self-hosted' }}
+        if: ${{ inputs.runs-on == 'self-hosted' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y p7zip-full iputils-ping python3-venv wget zlib1g-dev libssl-dev #needed by setup python
@@ -147,32 +148,27 @@ jobs:
           pwsh #validate that powershell installed correctly
       # First we need to setup Node...
       - uses: actions/setup-node@v4
-        if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
       # Then we can set up pnpm...
       - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
-        if: ${{ inputs.run-playwright }}
         with:
           package_json_file: 'frontend/package.json'
       # Then we can have Node set up package caching
       - uses: actions/setup-node@v4
-        if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
           cache: 'pnpm'
           cache-dependency-path: 'frontend/pnpm-lock.yaml'
       - name: Playwright setup
         working-directory: frontend
-        if: ${{ inputs.run-playwright }}
         run: pnpm install && pnpm pretest
       - name: Set up Playwright dependencies
         working-directory: frontend
-        if: ${{ inputs.run-playwright && inputs.runs-on == 'self-hosted' }}
+        if: ${{ inputs.runs-on == 'self-hosted' }}
         run: sudo pnpm exec playwright install-deps
 
       - name: Integration tests (Playwright)
-        if: ${{ inputs.run-playwright }}
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -184,7 +180,7 @@ jobs:
         run: pnpm test
       - name: Password protect Playwright traces
         id: password_protect_test_results
-        if: ${{ always() && inputs.run-playwright }}
+        if: ${{ always() }}
         shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
@@ -193,7 +189,7 @@ jobs:
         if: always()
         run: testspace "[Playwright]./frontend/test-results/*.xml"
       - name: Upload playwright results
-        if: ${{ always() && inputs.run-playwright && steps.password_protect_test_results.outcome == 'success' }}
+        if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
