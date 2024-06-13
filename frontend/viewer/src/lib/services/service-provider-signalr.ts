@@ -5,16 +5,13 @@ import type { HubConnection } from '@microsoft/signalr';
 import type { LexboxApiFeatures, LexboxApiMetadata } from './lexbox-api';
 import {LexboxService} from './service-provider';
 
-export function SetupSignalR(connection: HubConnection) {
+export function SetupSignalR(connection: HubConnection, features: LexboxApiFeatures) {
   const hubFactory = getHubProxyFactory('ILexboxApiHub');
   const hubProxy = hubFactory.createHubProxy(connection);
 
   const lexboxApiHubProxy = Object.assign(hubProxy, {
     SupportedFeatures(): LexboxApiFeatures {
-      return {
-        history: true,
-        write: true,
-      };
+      return features;
     }
   } satisfies LexboxApiMetadata);
   getReceiverRegister('ILexboxClient').register(connection, {

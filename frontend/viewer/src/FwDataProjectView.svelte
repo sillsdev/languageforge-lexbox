@@ -15,7 +15,10 @@
     .catch(err => console.error(err));
   onDestroy(() => connection.stop());
   setContext('project-name', projectName);
-  SetupSignalR(connection);
+  SetupSignalR(connection, {
+    history: false,
+    write: true,
+  });
   let connected = false;
 </script>
-<ProjectView isConnected={connected}></ProjectView>
+<ProjectView {projectName} isConnected={connected}></ProjectView>
