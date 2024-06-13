@@ -212,10 +212,11 @@ type OrgMember {
 }
 
 type Organization {
+  createdDate: DateTime!
+  memberCount: Int!
   name: String!
   members: [OrgMember!]!
   id: UUID!
-  createdDate: DateTime!
   updatedDate: DateTime!
 }
 
@@ -272,6 +273,7 @@ type ProjectUsers {
 
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
+  myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectById(projectId: UUID!): Project
@@ -591,6 +593,7 @@ input OrganizationFilterInput {
   or: [OrganizationFilterInput!]
   name: StringOperationFilterInput
   members: ListFilterInputTypeOfOrgMemberFilterInput
+  memberCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -598,6 +601,7 @@ input OrganizationFilterInput {
 
 input OrganizationSortInput {
   name: SortEnumType
+  memberCount: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType

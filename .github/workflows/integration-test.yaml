@@ -129,7 +129,7 @@ jobs:
           files: ./test-results/*.trx
       - name: Publish results to testspace
         if: always()
-        run: testspace "[.Net Integration/$${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx"
+        run: testspace "[.Net Integration/${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx"
 
   playwright-test:
     if: ${{ inputs.run-playwright }}

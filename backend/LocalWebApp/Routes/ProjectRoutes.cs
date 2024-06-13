@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using LcmCrdt;
+using LocalWebApp.Auth;
 using MiniLcm;
 
 namespace LocalWebApp.Routes;
@@ -9,7 +10,11 @@ public static class ProjectRoutes
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
-        group.MapGet("/projects", (ProjectsService projectService) => projectService.ListProjects());
+        group.MapGet("/projects",
+            async (ProjectsService projectService) =>
+            {
+                return await projectService.ListProjects();
+            });
         Regex alphaNumericRegex = new Regex("^[a-zA-Z0-9]*$");
         group.MapPost("/project",
             async (ProjectsService projectService, string name) =>

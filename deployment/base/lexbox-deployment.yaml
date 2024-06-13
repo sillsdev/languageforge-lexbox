@@ -75,6 +75,12 @@ spec:
         volumeMounts:
         - name: repos
           mountPath: /hg-repos
+        - name: oauth-signing-cert
+          mountPath: /oauth-certs/signing
+          readOnly: true
+        - name: oauth-encryption-cert
+          mountPath: /oauth-certs/encryption
+          readOnly: true
 
         env:
           - name: DOTNET_URLS
@@ -174,6 +180,11 @@ spec:
               secretKeyRef:
                 key: SMTP_PASSWORD
                 name: email
+          - name: Authentication__OpenId__Enable
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: enable-oauth
           - name: Authentication__Google__ClientId
             valueFrom:
               secretKeyRef:
@@ -231,6 +242,14 @@ spec:
           items:
             - key: collector-config.yaml
               path: config.yaml
+      - name: oauth-signing-cert
+        secret:
+          secretName: oauth-signing-cert
+          optional: true
+      - name: oauth-encryption-cert
+        secret:
+          secretName: oauth-encryption-cert
+          optional: true
 
       initContainers:
       - name: db-migrations
@@ -261,6 +280,11 @@ spec:
               configMapKeyRef:
                 name: app-config
                 key: environment-name
+          - name: Authentication__OpenId__Enable
+            valueFrom:
+              configMapKeyRef:
+                name: app-config
+                key: enable-oauth
       - name: set-repo-structure-owner-to-www-data
         securityContext:
           # Make sure we're authorized to set ownership

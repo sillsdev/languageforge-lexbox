@@ -1,16 +1,21 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
 import {
   type IEntry, type IExampleSentence, type ISense, type JsonPatch,
-  type LexboxApi,
   type QueryOptions,
   type WritingSystems,
   type WritingSystemType,
-  type WritingSystem
+  type WritingSystem,
+  type LexboxApiClient,
+  type LexboxApiFeatures
 } from 'viewer/lexbox-api';
 
 
-export class LfClassicLexboxApi implements LexboxApi {
+export class LfClassicLexboxApi implements LexboxApiClient {
   constructor(private projectCode: string) {
+  }
+
+  SupportedFeatures(): LexboxApiFeatures {
+    return {};
   }
 
   async GetWritingSystems(): Promise<WritingSystems> {

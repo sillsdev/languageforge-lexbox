@@ -106,6 +106,8 @@
                 </span>
               {:else if !project.isDraft}
                 {$date(project.lastCommit)}
+              {:else}
+                {$t('project.awaiting_approval')}
               {/if}
             </td>
           {/if}

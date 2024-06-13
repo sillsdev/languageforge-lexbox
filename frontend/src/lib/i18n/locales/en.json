@@ -1,4 +1,7 @@
 {
+  "about": {
+    "title": "About"
+  },
   "admin_dashboard": {
     "title": "Admin Dashboard",
     "column_code": "Code",
@@ -94,6 +97,7 @@
   },
   "appmenu": {
     "log_out": "Log out",
+    "orgs": "Organizations",
     "help": "Help"
   },
   "close": "Close",
@@ -141,6 +145,20 @@
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
   },
+  "org": {
+    "table": {
+      "title": "Organizations",
+      "name": "Name",
+      "created_at": "Created",
+      "members": "Members"
+    },
+    "create": {
+      "title": "Create Organization",
+      "name": "Name",
+      "name_missing": "Organization name required",
+      "submit": "Create Organization",
+    }
+  },
   "project": {
     "create": {
       "title": "Create Project",
@@ -172,6 +190,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "migrated": "Migrated",
       "type": "Type",
       "users": "Users",
+      "members": "Members",
+      "__comment": "Move 'members' to 'org.table' once org page PR is merged",
     },
     "filter": {
       "title": "Project filters",
@@ -199,6 +219,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
         "project_now_not_confidential": "Project is now not confidential.",
       }
     },
+    "awaiting_approval": "Awaiting approval"
   },
   "project_page": {
     "project": "Project",
@@ -385,7 +406,8 @@ If you don't see a dialog or already closed it, click the button below:",
   "projectlist": {
     "last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
     "no_changes": "New",
-    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
+    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }",
+    "requested": "Requested: {requested, date, short} {requested, time, short}",
   },
   "register": {
     "title": "Register",
