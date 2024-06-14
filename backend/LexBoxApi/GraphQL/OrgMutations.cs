@@ -67,16 +67,20 @@ public class OrgMutations
         var org = await dbContext.Orgs.FindAsync(orgId);
         NotFoundException.ThrowIfNull(org);
         permissionService.AssertCanEditOrg(org);
-        var project = await dbContext.Projects.FindAsync(projectId);
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Organizations)
+            .SingleOrDefaultAsync();
         NotFoundException.ThrowIfNull(project);
         permissionService.AssertCanManageProject(projectId);
 
-        if (await dbContext.OrgProjects.AnyAsync(op => op.OrgId == orgId && op.ProjectId == projectId))
+        if (project.Organizations.Exists(o => o.Id == orgId))
         {
             // No error since we're already in desired state; just return early
             return dbContext.Orgs.Where(o => o.Id == orgId);
         }
-        await dbContext.OrgProjects.AddAsync(new OrgProjects { OrgId = orgId, ProjectId = projectId });
+        project.Organizations.Add(org);
+        project.UpdateUpdatedDate();
+        org.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
@@ -104,6 +108,8 @@ public class OrgMutations
         if (foundOrg is not null)
         {
             project.Organizations.Remove(foundOrg);
+            project.UpdateUpdatedDate();
+            org.UpdateUpdatedDate();
             await dbContext.SaveChangesAsync();
         }
         // If org did not own project, return with no error
