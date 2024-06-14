@@ -46,7 +46,6 @@ public static partial class ProjectRoutes
 
             return projects.Values;
         });
-        Regex alphaNumericRegex = ProjectName();
         group.MapPost("/project",
             async (ProjectsService projectService, string name) =>
             {
@@ -54,7 +53,7 @@ public static partial class ProjectRoutes
                     return Results.BadRequest("Project name is required");
                 if (projectService.ProjectExists(name))
                     return Results.BadRequest("Project already exists");
-                if (!alphaNumericRegex.IsMatch(name))
+                if (!ProjectName().IsMatch(name))
                     return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
                 await projectService.CreateProject(name, afterCreate: AfterCreate);
                 return TypedResults.Ok();
@@ -82,6 +81,8 @@ public static partial class ProjectRoutes
                 string newProjectName
                 ) =>
             {
+                if (!ProjectName().IsMatch(newProjectName))
+                    return Results.BadRequest("Project name is invalid");
                 var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(newProjectName);
                 if (foundProjectGuid is null)
                     return Results.BadRequest($"Project code {newProjectName} not found on lexbox");
