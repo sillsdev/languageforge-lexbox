@@ -49,6 +49,15 @@ public class BasicApiTests : IAsyncLifetime
                 Font = "Arial",
                 Exemplars = []
             });
+        await _api.CreateWritingSystem(WritingSystemType.Vernacular,
+            new WritingSystem()
+            {
+                Id = "en",
+                Name = "English",
+                Abbreviation = "En",
+                Font = "Arial",
+                Exemplars = []
+            });
         await _api.CreateEntry(new Entry
         {
             Id = _entry1Id,
