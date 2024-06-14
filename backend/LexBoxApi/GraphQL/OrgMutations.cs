@@ -58,7 +58,7 @@ public class OrgMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Organization>> AcquireProject(
+    public async Task<IQueryable<Organization>> AddProjectToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
         Guid orgId,
@@ -90,7 +90,7 @@ public class OrgMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Organization>> ReleaseProject(
+    public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
         Guid orgId,

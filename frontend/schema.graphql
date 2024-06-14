@@ -7,14 +7,14 @@ interface Error {
   message: String!
 }
 
-type AcquireProjectPayload {
-  organization: Organization
-  errors: [AcquireProjectError!]
-}
-
 type AddProjectMemberPayload {
   project: Project
   errors: [AddProjectMemberError!]
+}
+
+type AddProjectToOrgPayload {
+  organization: Organization
+  errors: [AddProjectToOrgError!]
 }
 
 type AlreadyExistsError implements Error {
@@ -197,8 +197,8 @@ type MeDto {
 type Mutation {
   createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
   deleteOrg(input: DeleteOrgInput!): DeleteOrgPayload! @authorize(policy: "AdminRequiredPolicy")
-  acquireProject(input: AcquireProjectInput!): AcquireProjectPayload!
-  releaseProject(input: ReleaseProjectInput!): ReleaseProjectPayload!
+  addProjectToOrg(input: AddProjectToOrgInput!): AddProjectToOrgPayload!
+  removeProjectFromOrg(input: RemoveProjectFromOrgInput!): RemoveProjectFromOrgPayload!
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
@@ -248,10 +248,10 @@ type OrgProjects {
 
 type Organization {
   createdDate: DateTime!
-  memberCount: Int!
   name: String!
   members: [OrgMember!]!
   projects: [Project!]!
+  memberCount: Int!
   projectCount: Int!
   id: UUID!
   updatedDate: DateTime!
@@ -311,8 +311,8 @@ type ProjectUsers {
 
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
-  myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
+  myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
@@ -327,9 +327,9 @@ type Query {
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
 }
 
-type ReleaseProjectPayload {
+type RemoveProjectFromOrgPayload {
   organization: Organization
-  errors: [ReleaseProjectError!]
+  errors: [RemoveProjectFromOrgError!]
 }
 
 type RemoveProjectMemberPayload {
@@ -400,9 +400,9 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
-union AcquireProjectError = DbError | NotFoundError
-
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
+
+union AddProjectToOrgError = DbError | NotFoundError
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
@@ -434,7 +434,7 @@ union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
-union ReleaseProjectError = DbError | NotFoundError
+union RemoveProjectFromOrgError = DbError | NotFoundError
 
 union SetOrgMemberRoleError = DbError | NotFoundError
 
@@ -444,15 +444,15 @@ union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
 
-input AcquireProjectInput {
-  orgId: UUID!
-  projectId: UUID!
-}
-
 input AddProjectMemberInput {
   projectId: UUID!
   usernameOrEmail: String!
   role: ProjectRole!
+}
+
+input AddProjectToOrgInput {
+  orgId: UUID!
+  projectId: UUID!
 }
 
 input BooleanOperationFilterInput {
@@ -681,8 +681,8 @@ input OrganizationFilterInput {
   or: [OrganizationFilterInput!]
   name: StringOperationFilterInput
   members: ListFilterInputTypeOfOrgMemberFilterInput
-  memberCount: IntOperationFilterInput
   projects: ListFilterInputTypeOfProjectFilterInput
+  memberCount: IntOperationFilterInput
   projectCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
@@ -776,7 +776,7 @@ input ProjectUsersFilterInput {
   updatedDate: DateTimeOperationFilterInput
 }
 
-input ReleaseProjectInput {
+input RemoveProjectFromOrgInput {
   orgId: UUID!
   projectId: UUID!
 }
