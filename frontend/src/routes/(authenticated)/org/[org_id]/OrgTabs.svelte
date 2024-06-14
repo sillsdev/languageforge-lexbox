@@ -20,6 +20,8 @@
     clickTab: OrgTabId
   }>();
 
+  export let hideSettingsTab: boolean = false;
+  $: visibleTabs = hideSettingsTab ? orgTabs.filter(t => t !== 'settings') : orgTabs;
   export let activeTab: OrgTabId = 'projects';
   export let projectCount: number;
   export let memberCount: number;
@@ -34,7 +36,7 @@
 
 <div role="tablist" class="flex tabs tabs-lifted tabs-lg">
   <div class="tab tab-divider" />
-  {#each orgTabs as tab}
+  {#each visibleTabs as tab}
     {@const isActiveTab = activeTab === tab}
     <button on:click={() => handleTabChange(tab)} role="tab" class:tab-active={isActiveTab} class="tab grow flex-1 basis-1/2">
       <h2 class="text-lg flex gap-4 items-center">

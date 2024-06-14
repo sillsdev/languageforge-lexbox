@@ -32,6 +32,8 @@
   const { queryParamValues } = queryParams;
 
   $: canManage = user.isAdmin || !!org.members.find(m => m.user.id === user.id && m.role === OrgRole.Admin)
+  $: isMember = !!org.members.find(m => m.user.id === user.id)
+  $: canSeeSettings = user.isAdmin || isMember
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -113,7 +115,7 @@
     </span>
   </div>
   <div class="mt-6">
-    <OrgTabs bind:activeTab={$queryParamValues.tab} memberCount={org.members.length} projectCount={org.projects.length} />
+    <OrgTabs bind:activeTab={$queryParamValues.tab} hideSettingsTab={!canSeeSettings} memberCount={org.members.length} projectCount={org.projects.length} />
   </div>
   <div class="py-6 px-2">
     {#if $queryParamValues.tab === 'projects'}
