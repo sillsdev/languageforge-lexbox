@@ -138,6 +138,11 @@
         </Button>
       </div>
       <AdminContent>
+        <div class="mt-4 flex justify-end">
+          <a class="btn btn-success" href="/admin?targetOrgId={org.id}">
+            {$t('admin_dashboard.bulk_add_users_modal.button_title')}
+          </a>
+        </div>
         <div class="divider" />
         <div class="flex justify-end">
           <Button variant="btn-error" on:click={confirmDeleteOrg}>

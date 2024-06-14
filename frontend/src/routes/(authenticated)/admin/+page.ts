@@ -22,11 +22,13 @@ import type { ProjectFilters } from '$lib/components/Projects';
 import { DEFAULT_PAGE_SIZE } from '$lib/components/Paging';
 import type { AdminTabId } from './AdminTabs.svelte';
 import { derived, readable } from 'svelte/store';
+import type { UUID } from 'crypto';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
 export type AdminSearchParams = ProjectFilters & {
   userSearch: string
   tab: AdminTabId
+  targetOrgId: UUID | ''
 };
 
 export type Project = NonNullable<LoadAdminDashboardProjectsQuery['projects']>[number];
