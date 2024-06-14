@@ -12,6 +12,10 @@ namespace MiniLcm;
 [JsonConverter(typeof(MultiStringConverter))]
 public class MultiString: IDictionary
 {
+    public MultiString(int capacity)
+    {
+        Values = new MultiStringDict(capacity);
+    }
     public MultiString()
     {
         Values = new MultiStringDict();
@@ -41,6 +45,10 @@ public class MultiString: IDictionary
 #pragma warning restore CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.
         IDictionary
     {
+        public MultiStringDict(int capacity) : base(capacity)
+        {
+
+        }
         public MultiStringDict()
         {
         }

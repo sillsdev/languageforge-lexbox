@@ -1,4 +1,5 @@
-﻿using FwDataMiniLcmBridge.Api.UpdateProxy;
+﻿using System.Collections.Frozen;
+using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
 using SIL.LCModel;
@@ -138,7 +139,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
             .Distinct()
             .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
-        var wsExemplarsByHandle = wsExemplars.ToDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
+        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
 
         foreach (var entry in _entriesRepository.AllInstances())
         {
@@ -235,7 +236,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private MultiString FromLcmMultiString(ITsMultiString multiString)
     {
-        var result = new MultiString();
+        var result = new MultiString(multiString.StringCount);
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);

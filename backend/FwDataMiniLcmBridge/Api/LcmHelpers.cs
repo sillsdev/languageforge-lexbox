@@ -53,7 +53,7 @@ internal static class LcmHelpers
         '\u0640', // Arabic Tatweel
     ];
 
-    internal static void ContributeExemplars(ITsMultiString multiString, Dictionary<int, HashSet<char>> wsExemplars)
+    internal static void ContributeExemplars(ITsMultiString multiString, IReadOnlyDictionary<int, HashSet<char>> wsExemplars)
     {
         for (var i = 0; i < multiString.StringCount; i++)
         {
@@ -62,6 +62,7 @@ internal static class LcmHelpers
             var value = tsString.Text.AsSpan().Trim(WhitespaceAndFormattingChars);
             if (!value.IsEmpty && wsExemplars.TryGetValue(ws, out var exemplars))
             {
+                //todo should we upper or lowercase the value?
                 exemplars.Add(value[0]);
             }
         }
