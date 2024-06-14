@@ -4,6 +4,7 @@ using MiniLcm;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
+using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
 using SIL.LCModel.Infrastructure;
 
@@ -13,8 +14,11 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 {
     public FwDataProject Project { get; } = project;
 
-    private readonly IRepository<ILexEntry> _entriesRepository =
-        cache.ServiceLocator.GetInstance<IRepository<ILexEntry>>();
+    private readonly IWritingSystemContainer _writingSystemContainer =
+        cache.ServiceLocator.WritingSystems;
+
+    private readonly ILexEntryRepository _entriesRepository =
+        cache.ServiceLocator.GetInstance<ILexEntryRepository>();
 
     private readonly IRepository<ILexSense> _senseRepository =
         cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
@@ -30,6 +34,12 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private readonly IMoMorphTypeRepository _morphTypeRepository =
         cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
+
+    private readonly ICmTranslationFactory _cmTranslationFactory =
+        cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
+
+    private readonly ICmPossibilityRepository _cmPossibilityRepository =
+        cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
 
     public void Dispose()
     {
@@ -52,20 +62,50 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         return cache.ServiceLocator.WritingSystemManager.Get(ws).Id;
     }
 
-    internal int GetWritingSystemHandle(WritingSystemId ws)
+    internal int GetWritingSystemHandle(WritingSystemId ws, WritingSystemType? type = null)
     {
-        return cache.ServiceLocator.WritingSystemManager.Get(ws.Code).Handle;
+        var lcmWs = GetLcmWritingSystem(ws, type) ?? throw new NullReferenceException($"Unable to find writing system with id {ws}");
+        return lcmWs.Handle;
+    }
+
+    internal CoreWritingSystemDefinition? GetLcmWritingSystem(WritingSystemId ws, WritingSystemType? type = null)
+    {
+        if (ws == "default")
+        {
+            return type switch
+            {
+                WritingSystemType.Analysis => _writingSystemContainer.DefaultAnalysisWritingSystem,
+                WritingSystemType.Vernacular => _writingSystemContainer.DefaultVernacularWritingSystem,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+        }
+
+        var lcmWs = cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
+        if (lcmWs is not null && type is not null)
+        {
+            var validWs = type switch
+            {
+                WritingSystemType.Analysis => _writingSystemContainer.AnalysisWritingSystems,
+                WritingSystemType.Vernacular => _writingSystemContainer.VernacularWritingSystems,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+            if (!validWs.Contains(lcmWs))
+            {
+                throw new InvalidOperationException($"Writing system {ws} is not of the requested type: {type}.");
+            }
+        }
+        return lcmWs;
     }
 
     public Task<WritingSystems> GetWritingSystems()
     {
-        var currentVernacularWs = cache.ServiceLocator.WritingSystems
+        var currentVernacularWs = _writingSystemContainer
             .CurrentVernacularWritingSystems
             .Select(ws => ws.Id).ToHashSet();
-        var currentAnalysisWs = cache.ServiceLocator.WritingSystems
+        var currentAnalysisWs = _writingSystemContainer
             .CurrentAnalysisWritingSystems
             .Select(ws => ws.Id).ToHashSet();
-        return Task.FromResult(new WritingSystems
+        var writingSystems = new WritingSystems
         {
             Vernacular = cache.ServiceLocator.WritingSystems.VernacularWritingSystems.Select(ws => new WritingSystem
             {
@@ -84,7 +124,28 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
                 Font = ws.DefaultFontName,
                 Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
             }).ToArray()
-        });
+        };
+        CompleteExemplars(writingSystems);
+        return Task.FromResult(writingSystems);
+    }
+
+    internal void CompleteExemplars(WritingSystems writingSystems)
+    {
+        var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
+            .Distinct()
+            .ToDictionary(ws => ws, ws => ws.Exemplars.ToHashSet());
+        var wsExemplarsByHandle = wsExemplars.ToDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
+
+        foreach (var entry in _entriesRepository.AllInstances())
+        {
+            LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
+            LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
+        }
+
+        foreach (var ws in wsExemplars.Keys)
+        {
+            ws.Exemplars = [.. wsExemplars[ws].Order()];
+        }
     }
 
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
@@ -138,7 +199,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     private MultiString FromLcmMultiString(ITsMultiString multiString)
     {
         var result = new MultiString();
-        for (int i = 0; i < multiString.StringCount; i++)
+        for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
             result.Values.Add(GetWritingSystemId(ws), tsString.Text);
@@ -149,7 +210,34 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public async IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        foreach (var entry in _entriesRepository.AllInstances())
+        await foreach (var entry in GetEntries(null, options))
+        {
+            yield return entry;
+        }
+    }
+
+    public async IAsyncEnumerable<Entry> GetEntries(
+        Func<ILexEntry, bool>? predicate = null, QueryOptions? options = null)
+    {
+        var entries = _entriesRepository.AllInstances();
+
+        options ??= QueryOptions.Default;
+        if (predicate is not null) entries = entries.Where(e => predicate(e));
+
+        if (options.Exemplar is not null)
+        {
+            var ws = GetWritingSystemHandle(options.Exemplar.WritingSystem, WritingSystemType.Vernacular);
+            entries = entries.Where(e => (e.CitationForm.get_String(ws).Text ?? e.LexemeFormOA.Form.get_String(ws).Text)?
+                .Trim(LcmHelpers.WhitespaceAndFormattingChars)
+                .StartsWith(options.Exemplar.Value, StringComparison.InvariantCultureIgnoreCase) ?? false);
+        }
+
+        var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
+        entries = entries.OrderBy(e => (e.CitationForm.get_String(sortWs).Text ?? e.LexemeFormOA.Form.get_String(sortWs).Text).Trim(LcmHelpers.WhitespaceChars))
+            .Skip(options.Offset)
+            .Take(options.Count);
+
+        foreach (var entry in entries)
         {
             yield return FromLexEntry(entry);
         }
@@ -157,8 +245,11 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        var entries = GetEntries(options);
-        return entries.Where(e => e.LexemeForm.Values.Values.Any(v => v.Contains(query)));
+        var entries = GetEntries(e =>
+            e.CitationForm.SearchValue(query) ||
+            e.LexemeFormOA.Form.SearchValue(query) ||
+            e.SensesOS.Any(s => s.Gloss.SearchValue(query)), options);
+        return entries;
     }
 
     public Task<Entry?> GetEntry(Guid id)
@@ -168,7 +259,8 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        if (entry.Id != default) throw new NotSupportedException("Id must be empty");
+        // TODO: The API requires a value and the UI assumes it has a value. How should we handle this?
+        // if (entry.Id != default) throw new NotSupportedException("Id must be empty");
         Guid entryId = default;
         UndoableUnitOfWorkHelper.Do("Create Entry",
             "Remove entry",
@@ -312,6 +404,9 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     {
         var lexExampleSentence = _lexExampleSentenceFactory.Create(exampleSentence.Id, lexSense);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
+        var freeTranslationType = _cmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
+        var translation = _cmTranslationFactory.Create(lexExampleSentence, freeTranslationType);
+        UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
         lexExampleSentence.Reference = TsStringUtils.MakeString(exampleSentence.Reference,
             lexExampleSentence.Reference.get_WritingSystem(0));
     }
