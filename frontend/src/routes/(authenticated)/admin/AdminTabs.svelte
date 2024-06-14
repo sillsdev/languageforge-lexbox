@@ -44,29 +44,3 @@
     {$t(DEFAULT_TAB_I18N[activeTab])}
   </slot>
 </h2>
-
-<style lang="postcss">
-  .tab {
-    /* https://daisyui.com/docs/themes/#-5 */
-    --tab-border: 0.1rem;
-    /* using a tab radius leads to tiny rendering issues at random screen sizes */
-    --tab-radius: 0;
-
-    /* https://daisyui.com/components/tab/#tabs-with-custom-color */
-    --tab-border-color: oklch(var(--bc));
-
-    &:not(.tab-active):not(.tab-divider) {
-      border: var(--tab-border) solid var(--tab-border-color);
-
-      &:hover {
-        @apply bg-base-200;
-      }
-    }
-
-    /* .tab-divider needs .tab so it can access the tab css-variables */
-    &.tab-divider {
-      @apply px-2;
-      border-bottom: var(--tab-border) solid var(--tab-border-color);
-    }
-  }
-</style>
