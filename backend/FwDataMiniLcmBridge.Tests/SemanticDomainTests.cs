@@ -3,7 +3,8 @@ using MiniLcm;
 
 namespace FwDataMiniLcmBridge.Tests;
 
-public class SemanticDomainTests(ProjectLoaderFixture fixture) : IClassFixture<ProjectLoaderFixture>
+[Collection(ProjectLoaderFixture.Name)]
+public class SemanticDomainTests(ProjectLoaderFixture fixture)
 {
     [Fact]
     public async Task GetSemanticDomains_ReturnsAllSemanticDomains()

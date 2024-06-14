@@ -27,4 +27,8 @@
       <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="TestData\" />
+    </ItemGroup>
+
 </Project>

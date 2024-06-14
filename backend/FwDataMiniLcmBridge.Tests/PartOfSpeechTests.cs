@@ -3,18 +3,13 @@ using MiniLcm;
 
 namespace FwDataMiniLcmBridge.Tests;
 
-public class PartOfSpeechTests: IClassFixture<ProjectLoaderFixture>
+[Collection(ProjectLoaderFixture.Name)]
+public class PartOfSpeechTests(ProjectLoaderFixture fixture)
 {
-    ProjectLoaderFixture _fixture;
-    public PartOfSpeechTests(ProjectLoaderFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
     [Fact]
     public async Task GetPartsOfSpeech_ReturnsAllPartsOfSpeech()
     {
-        var api = _fixture.CreateApi("sena-3");
+        var api = fixture.CreateApi("sena-3");
         var partOfSpeeches = await api.GetPartsOfSpeech().ToArrayAsync();
         partOfSpeeches.Should().AllSatisfy(po => po.Id.Should().NotBe(Guid.Empty));
     }
@@ -22,7 +17,7 @@ public class PartOfSpeechTests: IClassFixture<ProjectLoaderFixture>
     [Fact]
     public async Task Sense_HasPartOfSpeech()
     {
-        var api = _fixture.CreateApi("sena-3");
+        var api = fixture.CreateApi("sena-3");
         var entry = await api.GetEntries().FirstAsync(e => e.Senses.Any(s => !string.IsNullOrEmpty(s.PartOfSpeech)));
         var sense = entry.Senses.First(s => !string.IsNullOrEmpty(s.PartOfSpeech));
         sense.PartOfSpeech.Should().NotBeNullOrEmpty();
@@ -32,7 +27,7 @@ public class PartOfSpeechTests: IClassFixture<ProjectLoaderFixture>
     [Fact]
     public async Task Sense_UpdatesPartOfSpeech()
     {
-        var api = _fixture.CreateApi("sena-3");
+        var api = fixture.CreateApi("sena-3");
         var entry = await api.GetEntries().FirstAsync(e => e.Senses.Any(s => !string.IsNullOrEmpty(s.PartOfSpeech)));
         var sense = entry.Senses.First(s => !string.IsNullOrEmpty(s.PartOfSpeech));
         var newPartOfSpeech = await api.GetPartsOfSpeech().FirstAsync(po => po.Id != sense.PartOfSpeechId);

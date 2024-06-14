@@ -5,8 +5,9 @@ namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
 public class ProjectLoaderFixture : IDisposable
 {
+    public const string Name = "ProjectLoaderCollection";
     private readonly FwDataFactory _fwDataFactory;
-    private ServiceProvider _serviceProvider;
+    private readonly ServiceProvider _serviceProvider;
 
     public ProjectLoaderFixture()
     {
@@ -23,7 +24,11 @@ public class ProjectLoaderFixture : IDisposable
 
     public void Dispose()
     {
-        _fwDataFactory.Dispose();
         _serviceProvider.Dispose();
     }
+}
+
+[CollectionDefinition(ProjectLoaderFixture.Name)]
+public class ProjectLoaderCollection : ICollectionFixture<ProjectLoaderFixture>
+{
 }
