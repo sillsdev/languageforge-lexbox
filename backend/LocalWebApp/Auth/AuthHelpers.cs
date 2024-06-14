@@ -22,21 +22,25 @@ public class AuthHelpers
     private readonly OAuthService _oAuthService;
     private readonly UrlContext _urlContext;
     private readonly Uri _authority;
+    private readonly ILogger<AuthHelpers> _logger;
     private readonly IPublicClientApplication _application;
     AuthenticationResult? _authResult;
 
-    public AuthHelpers(LoggerAdapter logger,
+    public AuthHelpers(LoggerAdapter loggerAdapter,
         IHttpMessageHandlerFactory httpMessageHandlerFactory,
         IOptions<AuthConfig> options,
         LinkGenerator linkGenerator,
         OAuthService oAuthService,
         UrlContext urlContext,
-        Uri authority)
+        Uri authority,
+        ILogger<AuthHelpers> logger,
+        IHostEnvironment hostEnvironment)
     {
         _httpMessageHandlerFactory = httpMessageHandlerFactory;
         _oAuthService = oAuthService;
         _urlContext = urlContext;
         _authority = authority;
+        _logger = logger;
         (var hostUrl, _isRedirectHostGuess) = urlContext.GetUrl();
         _redirectHost = HostString.FromUriComponent(hostUrl);
         var redirectUri = linkGenerator.GetUriByRouteValues(AuthRoutes.CallbackRoute, new RouteValueDictionary(), hostUrl.Scheme, _redirectHost);
@@ -45,7 +49,7 @@ public class AuthHelpers
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
         _application = PublicClientApplicationBuilder.Create(optionsValue.ClientId)
             .WithExperimentalFeatures()
-            .WithLogging(logger)
+            .WithLogging(loggerAdapter, hostEnvironment.IsDevelopment())
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
             .WithRedirectUri(redirectUri)
             .WithOidcAuthority(authority.ToString())
@@ -125,7 +129,16 @@ public class AuthHelpers
         var accounts = await _application.GetAccountsAsync();
         var account = accounts.FirstOrDefault();
         if (account is null) return null;
-        _authResult = await _application.AcquireTokenSilent(DefaultScopes, account).ExecuteAsync();
+        try
+        {
+            _authResult = await _application.AcquireTokenSilent(DefaultScopes, account).ExecuteAsync();
+        }
+        catch (MsalServiceException e) when (e.InnerException is HttpRequestException)
+        {
+            _logger.LogWarning(e, "Failed to acquire token silently");
+            await _application.RemoveAsync(account);//todo might not be the best way to handle this, maybe it's a transient error?
+            _authResult = null;
+        }
         return _authResult;
     }
 
