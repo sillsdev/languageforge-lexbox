@@ -136,12 +136,14 @@
         <DetailItem title={$t('org_page.details.updated_at')} text={$date(org.updatedDate)} />
       </div>
     {:else if $queryParamValues.tab === 'settings'}
-      <div class="flex justify-end">
-        <Button outline variant="btn-error" on:click={leaveOrg}>
-          {$t('org_page.leave_org')}
-          <Icon icon="i-mdi-exit-run"/>
-        </Button>
-      </div>
+      {#if isMember}
+        <div class="flex justify-end">
+          <Button outline variant="btn-error" on:click={leaveOrg}>
+            {$t('org_page.leave_org')}
+            <Icon icon="i-mdi-exit-run"/>
+          </Button>
+        </div>
+      {/if}
       <AdminContent>
         <div class="divider" />
         <div class="flex justify-end">
