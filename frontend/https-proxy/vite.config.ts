@@ -50,10 +50,6 @@ const lexboxServer: ProxyOptions = {
 };
 
 export default defineConfig({
-  build: {
-    target: 'esnext',
-    sourcemap: true
-  },
   plugins: [
     basicSsl(),
   ],
