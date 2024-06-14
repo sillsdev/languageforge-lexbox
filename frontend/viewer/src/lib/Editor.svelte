@@ -16,12 +16,11 @@
   }>();
 
   export let entry: IEntry;
-  let initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+  $: initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+
   function updateInitialEntry() {
     initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
   }
-
-
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 

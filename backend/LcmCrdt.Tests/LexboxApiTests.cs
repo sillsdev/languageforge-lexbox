@@ -17,7 +17,7 @@ public class BasicApiTests : IAsyncLifetime
     private Guid _entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
     private Guid _entry2Id = new Guid("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
 
-    protected readonly IServiceScope _services;
+    protected readonly AsyncServiceScope _services;
     public DataModel DataModel = null!;
     private readonly CrdtDbContext _crdtDbContext;
 
@@ -28,7 +28,7 @@ public class BasicApiTests : IAsyncLifetime
             .RemoveAll(typeof(ProjectContext))
             .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
-        _services = services.CreateScope();
+        _services = services.CreateAsyncScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<CrdtDbContext>();
     }
 
@@ -41,6 +41,15 @@ public class BasicApiTests : IAsyncLifetime
         DataModel = _services.ServiceProvider.GetRequiredService<DataModel>();
         _api = ActivatorUtilities.CreateInstance<CrdtLexboxApi>(_services.ServiceProvider);
         await _api.CreateWritingSystem(WritingSystemType.Analysis,
+            new WritingSystem()
+            {
+                Id = "en",
+                Name = "English",
+                Abbreviation = "En",
+                Font = "Arial",
+                Exemplars = []
+            });
+        await _api.CreateWritingSystem(WritingSystemType.Vernacular,
             new WritingSystem()
             {
                 Id = "en",
@@ -124,10 +133,9 @@ public class BasicApiTests : IAsyncLifetime
         });
     }
 
-    public Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        _services.Dispose();
-        return Task.CompletedTask;
+        await _services.DisposeAsync();
     }
 
     [Fact]

@@ -15,10 +15,10 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
 
 
-    private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>().ToLinqToDB();
-    private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>().ToLinqToDB();
-    private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>().ToLinqToDB();
-    private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>().ToLinqToDB();
+    private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
+    private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
+    private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
+    private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
 
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -97,13 +97,13 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         if (predicate is not null) queryable = queryable.Where(predicate);
         if (options.Exemplar is not null)
         {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Analysis))?.WsId;
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
             if (ws is null)
                 throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
             queryable = queryable.Where(e => e.Headword(ws.Value).StartsWith(options.Exemplar.Value));
         }
 
-        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Analysis))?.WsId;
+        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable.OrderBy(e => e.Headword(sortWs.Value))
@@ -120,13 +120,13 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     {
         var allSenses = (await Senses
                 .Where(s => entries.Select(e => e.Id).Contains(s.EntryId))
-                .ToArrayAsync())
+                .ToArrayAsyncEF())
             .ToLookup(s => s.EntryId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         var allSenseIds = allSenses.Values.SelectMany(s => s, (_, sense) => sense.Id);
         var allExampleSentences = (await ExampleSentences
                 .Where(e => allSenseIds.Contains(e.SenseId))
-                .ToArrayAsync())
+                .ToArrayAsyncEF())
             .ToLookup(s => s.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         foreach (var entry in entries)
@@ -143,12 +143,12 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
 
     public async Task<MiniLcm.Entry?> GetEntry(Guid id)
     {
-        var entry = await dataModel.GetLatest<Entry>(id);
+        var entry = await Entries.SingleOrDefaultAsync(e => e.Id == id);
         if (entry is null) return null;
         var senses = await Senses
                 .Where(s => s.EntryId == id).ToArrayAsyncLinqToDB();
         var exampleSentences = (await ExampleSentences
-                .Where(e => senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncLinqToDB())
+                .Where(e => senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncEF())
             .ToLookup(e => e.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         entry.Senses = senses;
@@ -158,6 +158,21 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         }
 
         return entry;
+    }
+
+    /// <summary>
+    /// does not return the newly created entry, used for importing a large amount of data
+    /// </summary>
+    /// <param name="entry"></param>
+    public async Task CreateEntryLite(MiniLcm.Entry entry)
+    {
+        await dataModel.AddChanges(ClientId,
+        [
+            new CreateEntryChange(entry),
+            ..entry.Senses.Select(s => new CreateSenseChange(s, entry.Id)),
+            ..entry.Senses.SelectMany(s => s.ExampleSentences,
+                (sense, sentence) => new CreateExampleSentenceChange(sentence, sense.Id))
+        ], deferCommit: true);
     }
 
     public async Task<MiniLcm.Entry> CreateEntry(MiniLcm.Entry entry)

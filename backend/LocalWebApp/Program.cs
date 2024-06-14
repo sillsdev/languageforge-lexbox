@@ -1,5 +1,8 @@
+using FwDataMiniLcmBridge;
+using FwDataMiniLcmBridge.LcmUtils;
 using LcmCrdt;
 using LocalWebApp;
+using LocalWebApp.Hubs;
 using LocalWebApp.Auth;
 using LocalWebApp.Routes;
 using LocalWebApp.Utils;
@@ -9,8 +12,14 @@ using Microsoft.Extensions.FileProviders;
 var builder = WebApplication.CreateBuilder(args);
 if (!builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://127.0.0.1:0");
+if (builder.Environment.IsDevelopment())
+{
+    //do this early so we catch bugs on startup
+    ProjectLoader.Init();
+}
 builder.ConfigureDev<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
-builder.ConfigureProd<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.org"));
+//for now prod builds will also use lt dev until we deploy oauth to prod
+builder.ConfigureProd<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
 builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
 
 builder.Services.AddLocalAppServices(builder.Environment);
@@ -42,12 +51,22 @@ app.Use(async (context, next) =>
         await context.RequestServices.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
     }
 
+    var fwData = context.GetFwDataName();
+    if (!string.IsNullOrWhiteSpace(fwData))
+    {
+        var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
+        fwDataProjectContext.Project = FieldWorksProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
+    }
+
     await next(context);
 });
-app.MapHub<LexboxApiHub>($"/api/hub/{{{LexboxApiHub.ProjectRouteKey}}}/lexbox");
+app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
+app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/fwdata");
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();
+app.MapTest();
+app.MapImport();
 app.MapAuthRoutes();
 
 await using (app)

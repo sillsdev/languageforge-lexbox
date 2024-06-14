@@ -36,6 +36,7 @@ tasks:
       - echo "GOOGLE_OAUTH_CLIENT_ID=__REPLACE__.apps.googleusercontent.com" >> deployment/local-dev/local.env
       - echo "GOOGLE_OAUTH_CLIENT_SECRET=__REPLACE__" >> deployment/local-dev/local.env
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
+      - kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
       - docker build -t local-dev-init data/
   setup-win:
     platforms: [ windows ]
@@ -78,5 +79,8 @@ tasks:
     deps: [ infra-up, api:only, k8s:infra-forward ]
     interactive: true
 
+  local-web-app-for-develop:
+    deps: [ ui:viewer-dev, api:local-web-app-for-develop, ui:https-oauth-authority ]
+
   local-web-app:
-    deps: [ ui:viewer-dev, api:local-web-app ]
+    deps: [ ui:viewer-dev, api:local-web-app, ui:https-oauth-authority ]

@@ -5,6 +5,7 @@ using Crdt.Db;
 using Crdt.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using LocalWebApp.Hubs;
 using Microsoft.OpenApi.Models;
 
 namespace LocalWebApp.Routes;
@@ -17,7 +18,7 @@ public static class HistoryRoutes
         {
             operation.Parameters.Add(new OpenApiParameter()
             {
-                Name = LexboxApiHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
+                Name = CrdtMiniLcmApiHub.ProjectRouteKey, In = ParameterLocation.Path, Required = true
             });
             return operation;
         });

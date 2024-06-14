@@ -72,7 +72,7 @@ function configure<T extends NonNullable<object>>(fieldConfig: T, props: ViewCon
 
 export const views: ViewConfig[] = [
   {
-    label: 'Everything (FLEx)',
+    label: 'Everything (FieldWorks)',
     ...allFieldConfigs,
     entry: {
       ...allFieldConfigs.entry,

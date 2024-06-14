@@ -476,14 +476,8 @@ namespace LexData.Migrations
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Hash")
-                        .HasColumnType("text");
-
                     b.Property<string>("Metadata")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ParentHash")
                         .HasColumnType("text");
 
                     b.Property<Guid>("ProjectId")

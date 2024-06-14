@@ -14,13 +14,13 @@ public class MultiString: IDictionary
 {
     public MultiString()
     {
-        _values = new MultiStringDict();
+        Values = new MultiStringDict();
     }
 
     [JsonConstructor]
     public MultiString(IDictionary<WritingSystemId, string> values)
     {
-        _values = new MultiStringDict(values);
+        Values = new MultiStringDict(values);
     }
 
     public virtual MultiString Copy()
@@ -28,13 +28,12 @@ public class MultiString: IDictionary
         return new(Values);
     }
 
-    private readonly MultiStringDict _values;
-    public virtual IDictionary<WritingSystemId, string> Values => _values;
+    public virtual IDictionary<WritingSystemId, string> Values { get; }
 
     public string this[WritingSystemId key]
     {
-        get => _values[key];
-        set => _values[key] = value;
+        get => Values[key];
+        set => Values[key] = value;
     }
     private class MultiStringDict : Dictionary<WritingSystemId, string>,
 #pragma warning disable CS8644 // Type does not implement interface member. Nullability of reference types in interface implemented by the base type doesn't match.
@@ -79,42 +78,42 @@ public class MultiString: IDictionary
 
     void IDictionary.Add(object key, object? value)
     {
-        ((IDictionary)_values).Add(key, value);
+        ((IDictionary)Values).Add(key, value);
     }
 
     void IDictionary.Clear()
     {
-        ((IDictionary)_values).Clear();
+        ((IDictionary)Values).Clear();
     }
 
     bool IDictionary.Contains(object key)
     {
-        return ((IDictionary)_values).Contains(key);
+        return ((IDictionary)Values).Contains(key);
     }
 
     IDictionaryEnumerator IDictionary.GetEnumerator()
     {
-        return ((IDictionary)_values).GetEnumerator();
+        return ((IDictionary)Values).GetEnumerator();
     }
 
     void IDictionary.Remove(object key)
     {
-        ((IDictionary)_values).Remove(key);
+        ((IDictionary)Values).Remove(key);
     }
 
-    bool IDictionary.IsFixedSize => ((IDictionary)_values).IsFixedSize;
+    bool IDictionary.IsFixedSize => ((IDictionary)Values).IsFixedSize;
 
-    bool IDictionary.IsReadOnly => ((IDictionary)_values).IsReadOnly;
+    bool IDictionary.IsReadOnly => ((IDictionary)Values).IsReadOnly;
 
     object? IDictionary.this[object key]
     {
-        get => ((IDictionary)_values)[key];
-        set => ((IDictionary)_values)[key] = value;
+        get => ((IDictionary)Values)[key];
+        set => ((IDictionary)Values)[key] = value;
     }
 
-    ICollection IDictionary.Keys => ((IDictionary)_values).Keys;
+    ICollection IDictionary.Keys => ((IDictionary)Values).Keys;
 
-    ICollection IDictionary.Values => ((IDictionary)_values).Values;
+    ICollection IDictionary.Values => ((IDictionary)Values).Values;
 
     IEnumerator IEnumerable.GetEnumerator()
     {
@@ -123,14 +122,14 @@ public class MultiString: IDictionary
 
     void ICollection.CopyTo(Array array, int index)
     {
-        ((IDictionary)_values).CopyTo(array, index);
+        ((IDictionary)Values).CopyTo(array, index);
     }
 
-    int ICollection.Count => ((IDictionary)_values).Count;
+    int ICollection.Count => ((IDictionary)Values).Count;
 
-    bool ICollection.IsSynchronized => ((IDictionary)_values).IsSynchronized;
+    bool ICollection.IsSynchronized => ((IDictionary)Values).IsSynchronized;
 
-    object ICollection.SyncRoot => ((IDictionary)_values).SyncRoot;
+    object ICollection.SyncRoot => ((IDictionary)Values).SyncRoot;
 }
 
 public static class MultiStringExtensions

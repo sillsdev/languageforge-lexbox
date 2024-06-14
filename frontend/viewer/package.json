@@ -45,7 +45,7 @@
     "postcss": "^8.4.38",
     "svelte-preprocess": "^5.1.4",
     "svelte-routing": "^2.12.0",
-    "svelte-ux": "^0.66.4",
+    "svelte-ux": "^0.66.8",
     "type-fest": "^4.18.2"
   }
 }

@@ -91,14 +91,14 @@ tasks:
     cmds:
       - kubectl port-forward service/db 27018:27017 -n languageforge --context dallas-rke
 
-  local-web-app:
+  local-web-app-for-develop:
     label: dotnet
     dir: ./LocalWebApp
     cmd: dotnet watch --no-hot-reload
-  local-web-app-with-local-lexbox:
+  local-web-app:
     label: Run LocalWebApp with Local LexBox
     env:
-      Auth__DefaultAuthority: "https://localhost:3000"
+      Auth__DefaultAuthority: "https://localhost:3050"
     dir: ./LocalWebApp
     cmd: dotnet watch --no-hot-reload
 

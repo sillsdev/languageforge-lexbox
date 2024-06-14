@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using Crdt;
+using FwDataMiniLcmBridge;
 using LcmCrdt;
+using LocalWebApp.Services;
 using LocalWebApp.Auth;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.SignalR;
@@ -11,16 +13,20 @@ namespace LocalWebApp;
 
 public static class LocalAppKernel
 {
-    public static void AddLocalAppServices(this IServiceCollection services, IHostEnvironment environment)
+    public static IServiceCollection AddLocalAppServices(this IServiceCollection services, IHostEnvironment environment)
     {
         services.AddHttpContextAccessor();
         services.AddHttpClient();
         services.AddAuthHelpers(environment);
         services.AddSingleton<UrlContext>();
         services.AddScoped<SyncService>();
+        services.AddScoped<LexboxProjectService>();
+        services.AddSingleton<ImportFwdataService>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient();
+        services.AddFwDataBridge();
+
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
         {
             jsonOptions.SerializerOptions.TypeInfoResolver = crdtConfig.Value.MakeJsonTypeResolver();
@@ -41,6 +47,7 @@ public static class LocalAppKernel
             })
         });
         services.AddSingleton<CrdtHttpSyncService>();
+        return services;
     }
 
     private static void AddAuthHelpers(this IServiceCollection services, IHostEnvironment environment)

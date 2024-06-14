@@ -25,7 +25,6 @@ public class CurrentProjectService(CrdtDbContext dbContext, ProjectContext proje
         if (result is null) throw new InvalidOperationException("Project data not found");
 
         return (ProjectData)result;
-
     }
 
     private static string CacheKey(CrdtProject project)
@@ -37,5 +36,29 @@ public class CurrentProjectService(CrdtDbContext dbContext, ProjectContext proje
     {
         var projectData = await GetProjectData();
         return projectData;
+    }
+
+    private void RemoveProjectDataCache()
+    {
+        memoryCache.Remove(CacheKey(Project));
+    }
+
+    public async Task SetProjectSyncOrigin(Uri domain, Guid? id)
+    {
+        var originDomain = ProjectData.GetOriginDomain(domain);
+        if (id is null)
+        {
+            await dbContext.Set<ProjectData>()
+                .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain, originDomain));
+        }
+        else
+        {
+            await dbContext.Set<ProjectData>()
+                .ExecuteUpdateAsync(calls => calls.SetProperty(p => p.OriginDomain, originDomain)
+                    .SetProperty(p => p.Id, id));
+        }
+
+        RemoveProjectDataCache();
+        await PopulateProjectDataCache();
     }
 }

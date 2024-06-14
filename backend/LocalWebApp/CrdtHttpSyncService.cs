@@ -13,6 +13,7 @@ public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<
     private bool? _isHealthy;
     private DateTimeOffset _lastHealthCheck = DateTimeOffset.MinValue;
 
+    //todo pull this out into a service wrapped around auth helpers so that any service making requests can use it
     public async ValueTask<bool> ShouldSync(ISyncHttp syncHttp)
     {
         if (_isHealthy is not null && _lastHealthCheck + TimeSpan.FromMinutes(30) > DateTimeOffset.UtcNow)
@@ -102,12 +103,12 @@ public interface ISyncHttp
     [Get("/api/AuthTesting/requires-auth")]
     Task<HttpResponseMessage> HealthCheck();
 
-    [Post("/api/sync/{id}/add")]
+    [Post("/api/crdt/{id}/add")]
     internal Task AddRange(Guid id, IEnumerable<Commit> commits);
 
-    [Get("/api/sync/{id}/get")]
+    [Get("/api/crdt/{id}/get")]
     internal Task<SyncState> GetSyncState(Guid id);
 
-    [Post("/api/sync/{id}/changes")]
+    [Post("/api/crdt/{id}/changes")]
     internal Task<ChangesResult<Commit>> GetChanges(Guid id, SyncState otherHeads);
 }

@@ -56,3 +56,20 @@ tasks:
     dir: ./viewer
     deps: [ install-viewer ]
     cmd: pnpm run dev-app
+
+
+  install-https-proxy:
+    dir: ./https-proxy
+    method: checksum
+    sources:
+      - package.json
+    cmds:
+      - corepack enable || true
+      - pnpm install
+  https-proxy:
+    dir: ./https-proxy
+    desc: "MSAL requires the oauth authority to be available over https. That's why this is here. As a bonus it dynamically looks for the UI either locally or in k8s."
+    aliases: [ https-oauth-authority ]
+    deps: [ install-https-proxy ]
+    cmd: pnpm run dev
+

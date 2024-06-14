@@ -73,16 +73,24 @@
     trigger.update(t => t + 1);
   }
 
-  const entries = deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
+  const _entries = deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
     return fetchEntries(s, isConnected, exemplar);
   }, undefined, 200);
+
+  // TODO: replace with either
+  // 1 something like setContext('editorEntry') that even includes unsaved changes
+  // 2 somehow use selectedEntry in components that need to refresh on changes
+  // 3 combine 1 into 2
+  // Used for triggering rerendering when display values of the current entry change (e.g. the headword in the list view)
+  const entries = writable<IEntry[]>();
+  $: $entries = $_entries;
 
   function fetchEntries(s: string, isConnected: boolean, exemplar: string | undefined) {
     if (!isConnected) return Promise.resolve([]);
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
       // we always load full exampelar lists for now, so we can guaruntee that the selected entry is in the list
-      count: exemplar ? Infinity : 1000,
+      count: exemplar ? 1_000_000_000 : 1000,
       order: {field: 'headword', writingSystem: 'default'},
       exemplar: exemplar ? {value: exemplar, writingSystem: 'default'} : undefined
     });
@@ -150,11 +158,11 @@
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
-    <div class="sm:flex-grow"></div>
+    <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
       <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)} />
     </div>
-    <div class="flex-grow-[0.25]"></div>
+    <div class="max-sm:hidden flex-grow-[0.25]"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
       {#if !$viewConfig.readonly}
         <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
@@ -197,6 +205,7 @@
             <Editor entry={$selectedEntry}
               on:change={e => {
                 $selectedEntry = $selectedEntry;
+                $entries = $entries;
               }}
               on:delete={e => {
                 $selectedEntry = undefined;

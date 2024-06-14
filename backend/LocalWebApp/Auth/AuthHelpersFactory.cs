@@ -15,7 +15,6 @@ public class AuthHelpersFactory(
     /// <summary>
     /// gets the default (as configured in the options) Auth Helper, usually for lexbox.org
     /// </summary>
-    /// <returns></returns>
     public AuthHelpers GetDefault()
     {
         return GetHelper(options.Value.DefaultAuthority);
