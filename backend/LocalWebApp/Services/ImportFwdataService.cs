@@ -10,8 +10,13 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
 {
     public async Task<CrdtProject> Import(string projectName)
     {
-        using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(projectName, false);
-        var project = await projectsService.CreateProject(Path.GetFileNameWithoutExtension(projectName),
+        var fwDataProject = FieldWorksProjectList.GetProject(projectName);
+        if (fwDataProject is null)
+        {
+            throw new InvalidOperationException($"Project {projectName} not found.");
+        }
+        using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
+        var project = await projectsService.CreateProject(fwDataProject.Name,
             afterCreate: async (provider, project) =>
             {
                 var crdtApi = provider.GetRequiredService<ILexboxApi>();
