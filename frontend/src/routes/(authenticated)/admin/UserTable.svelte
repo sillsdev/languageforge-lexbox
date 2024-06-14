@@ -7,17 +7,30 @@
   import type { User } from './+page';
 
   export let shownUsers: User[];
+  export let selectedUsers: User[] = [];
 
   const dispatch = createEventDispatcher<{
     openUserModal: User
     editUser: User
     filterProjectsByUser: User
   }>();
+
+  function toggleSelectAllUsers(e: Event): void {
+    if (((e.target!) as HTMLInputElement).checked) {
+      selectedUsers = [...shownUsers];
+    } else {
+      selectedUsers = [];
+    }
+  }
+
 </script>
 
 <table class="table table-lg">
   <thead>
     <tr class="bg-base-200">
+      <th class="max-w-4">
+        <input type="checkbox" on:change={toggleSelectAllUsers}/>
+      </th>
       <th>
         {$t('admin_dashboard.column_name')}
         <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
@@ -32,6 +45,9 @@
   <tbody>
     {#each shownUsers as user}
       <tr>
+        <td class="max-w-4">
+          <input type="checkbox" bind:group={selectedUsers} value={user}/>
+        </td>
         <td>
           <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
             <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', user)}>
