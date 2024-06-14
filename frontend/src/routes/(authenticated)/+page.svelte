@@ -5,7 +5,7 @@
   import { HeaderPage } from '$lib/layout';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { ProjectType } from '$lib/gql/types';
-  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItem } from '$lib/components/Projects';
+  import { ProjectFilter, filterProjects, type ProjectFilters, type ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import { Button } from '$lib/forms';
   import { limit } from '$lib/components/Paging';
@@ -15,6 +15,7 @@
 
   export let data: PageData;
   $: projects = data.projects;
+  $: draftProjects = data.draftProjects;
 
   type Filters = Pick<ProjectFilters, 'projectSearch' | 'projectType'>;
 
@@ -23,9 +24,22 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
   });
 
+  let allProjects: ProjectItemWithDraftStatus[] = [];
+  let filteredProjects: ProjectItemWithDraftStatus[] = [];
+  let limitResults = true;
+  $: allProjects = [
+    ...$draftProjects.map(p => ({
+      ...p, isDraft: true as const,
+      createUrl: ''
+    })),
+    ...$projects.map(p => ({ ...p, isDraft: false as const })),
+  ];
+  $: filteredProjects = filterProjects(allProjects, $filters);
+  $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
+
   let initializedMode = false;
   let mode: ViewMode;
-  $: defaultMode = $projects.length < 10 ? ViewMode.Grid : ViewMode.Table;
+  $: defaultMode = allProjects.length < 10 ? ViewMode.Grid : ViewMode.Table;
 
   $: {
     if (!initializedMode) {
@@ -43,11 +57,6 @@
     mode = selectedMode;
     Cookies.set(STORAGE_VIEW_MODE_KEY, mode, { expires: 365 * 10 });
   }
-
-  let filteredProjects: ProjectItem[] = [];
-  let limitResults = true;
-  $: filteredProjects = filterProjects($projects, $filters);
-  $: shownProjects = limitResults ? limit(filteredProjects) : filteredProjects;
 </script>
 
 <HeaderPage wide title={$t('user_dashboard.title')}>
@@ -84,7 +93,7 @@
     {/if}
   </svelte:fragment>
 
-  {#if !$projects.length}
+  {#if !allProjects.length}
     <div class="text-lg text-secondary flex gap-4 items-center justify-center">
       <span class="i-mdi-creation-outline text-xl shrink-0" />
       {#if !data.user.emailVerified && !data.user.createdByAdmin}

@@ -2,6 +2,9 @@ import AdminContent from './AdminContent.svelte'
 import AppBar from './AppBar.svelte'
 import AppMenu from './AppMenu.svelte'
 import Content from './Content.svelte'
+import DetailItem from './DetailItem.svelte'
+import DetailsPage from './DetailsPage.svelte'
+import EditableDetailItem from './EditableDetailItem.svelte'
 import Footer from './Footer.svelte'
 import HeaderPage from './HeaderPage.svelte'
 import Layout from './Layout.svelte'
@@ -20,6 +23,9 @@ export {
   PageTitle,
   TitlePage,
   HeaderPage,
+  DetailItem,
+  EditableDetailItem,
+  DetailsPage,
 }
 
 export * from './Breadcrumbs'

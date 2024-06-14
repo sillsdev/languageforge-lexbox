@@ -6,6 +6,7 @@
     "title": "Admin Dashboard",
     "column_code": "Code",
     "column_email": "Email",
+    "column_email_or_login": "Email / Login",
     "column_login": "Login",
     "column_last_change": "Last Change",
     "column_migrated": "Migrated",
@@ -108,6 +109,15 @@
     "remove": "Remove {entityName}"
   },
   "environment_warning": "This is a {environmentName} environment. Click here to go to the public site.",
+  "delete_org_modal": {
+    "title": "Delete Organization",
+    "submit": "Delete Organization",
+    "enter_to_delete": {
+      "label": "Enter ''{_value}'' to confirm deleting the organization ''{name}''",
+      "value": "DELETE ORGANIZATION"
+    },
+    "success": "Organization ''{name}'' was deleted."
+  },
   "delete_project_modal": {
     "title": "Delete Project",
     "submit": "Delete Project",
@@ -152,6 +162,12 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "created_at": "Created",
       "members": "Members"
     },
+    "create": {
+      "title": "Create Organization",
+      "name": "Name",
+      "name_missing": "Organization name required",
+      "submit": "Create Organization",
+    }
   },
   "project": {
     "create": {
@@ -213,6 +229,59 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
         "project_now_not_confidential": "Project is now not confidential.",
       }
     },
+    "awaiting_approval": "Awaiting approval"
+  },
+  "org_page": {
+    "organization": "Organization",
+    "add_user": {
+      "add_button": "Add Member",
+      "__comment_add_button": "Should become 'Add/Invite Member' once email invitations implemented for orgs",
+      "modal_title": "Add a Member to this organization",
+      "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
+      "submit_button": "Add Member",
+      "empty_user_field": "Please enter an email address or login",
+      "submit_button_email": "Add Member",
+      "__comment_submit_button_email": "Should become 'Add or invite Member' once email invitations implemented for orgs",
+      "org_not_found": "Organization not found. Please refresh the page.",
+      "username_not_found": "No user was found with this login",
+      "user_must_be_verified": "User needs a verified email address",
+      "admin_must_be_verified": "User needs a verified email address in order to be an organization admin",
+      "user_already_member": "User is already a member of this organization",
+      "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
+      "invalid_email_address": "Invalid email address: {email}",
+    },
+    "change_role_modal": {
+      "title": "Choose role for {name}",
+      "button_label": "Change Role"
+    },
+    "delete_modal": {
+      "submit": "Delete Organization"
+    },
+    "details": {
+      "created_at": "Created",
+      "updated_at": "Last updated",
+      "member_count": "Members",
+      "project_count": "Projects",
+    },
+    "notifications": {
+      "role_change": "Organizational role of {name} set to {role}.",
+      "user_delete": "{name} has been removed.",
+      "rename_org": "Organization name set to {name}.",
+      "delete_org": "Organization {name} has been deleted.",
+      "leave_org": "You have left the organization {name}.",
+      "leave_org_error": "An error occurred trying to remove you from organization {name}. Please try again later.",
+      "describe": "Organization description has been updated.",
+      "add_member": "{email} has been added to organization.",
+      "member_invited": "{email} has been sent an invitation email to register and join the organization."
+    },
+    "edit_member_role": "Change Role",
+    "remove_member": "Remove",
+    "org_name_empty_error": "Organization name cannot be empty",
+    "projects_table_title": "Projects",
+    "members_table_title": "Members",
+    "settings_view_title": "Settings",
+    "history_view_title": "History",
+    "leave_org": "Leave Organization",
   },
   "project_page": {
     "project": "Project",
@@ -301,8 +370,10 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "last_commit": "Last Commit",
     "members": {
       "title": "Members",
+      "filter_members_placeholder": "Filter members...",
       "show_all": "Show all...",
       "show_less": "Show less",
+      "no_matching": "No matching members",
     },
     "add_description": "Add description...",
     "remove_project_user_title": "Member",
@@ -374,6 +445,15 @@ If you don't see a dialog or already closed it, click the button below:",
       "leave_project": "Leave Project"
     },
   },
+  "org_role": {
+    "label": "Role",
+    "user": "Member",
+    "user_description": "Member (can join projects)",
+    "admin": "Admin",
+    "admin_description": "Admin (can join projects & add new members)",
+    "unknown": "Unknown",
+    "unknown_description": "Unknown"
+  },
   "project_role": {
     "label": "Role",
     "editor": "Editor",
@@ -399,7 +479,8 @@ If you don't see a dialog or already closed it, click the button below:",
   "projectlist": {
     "last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
     "no_changes": "New",
-    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
+    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }",
+    "requested": "Requested: {requested, date, short} {requested, time, short}",
   },
   "register": {
     "title": "Register",

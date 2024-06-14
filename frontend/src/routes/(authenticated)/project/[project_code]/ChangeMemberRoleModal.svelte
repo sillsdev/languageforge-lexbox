@@ -5,11 +5,12 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _changeProjectMemberRole } from './+page';
+  import type { UUID } from 'crypto';
 
   export let projectId: string;
 
   const schema = z.object({
-    role: z.enum([ProjectRole.Editor, ProjectRole.Manager]),
+    role: z.enum([ProjectRole.Editor, ProjectRole.Manager])
   });
   type Schema = typeof schema;
   let formModal: FormModal<Schema>;
@@ -17,13 +18,13 @@
 
   let name: string;
 
-  export async function open(member: { userId: string; name: string; role: ProjectRole }): Promise<FormModalResult<Schema>> {
+  export async function open(member: { userId: UUID; name: string; role: ProjectRole }): Promise<FormModalResult<Schema>> {
     name = member.name;
     return await formModal.open(tryParse(schema, member), async () => {
       const result = await _changeProjectMemberRole({
-        projectId,
+        projectId: projectId,
         userId: member.userId,
-        role: $form.role,
+        role: $form.role as ProjectRole,
       });
       if (result.error?.byType('ProjectMembersMustBeVerified')) {
         return { role: [$t('project_page.add_user.user_must_be_verified')] };
