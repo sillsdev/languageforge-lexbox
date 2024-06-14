@@ -34,8 +34,6 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private readonly IMoMorphTypeRepository _morphTypeRepository =
         cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
-    private readonly ICmPossibilityRepository _cmPossibilityRepository =
-        cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
     private readonly IPartOfSpeechRepository _partOfSpeechRepository =
         cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
     private readonly ICmSemanticDomainRepository _semanticDomainRepository =
@@ -247,16 +245,13 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         return result;
     }
 
-    public async IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
+    public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        await foreach (var entry in GetEntries(null, options))
-        {
-            yield return entry;
-        }
+        return GetEntries(null, options);
     }
 
     public async IAsyncEnumerable<Entry> GetEntries(
-        Func<ILexEntry, bool>? predicate = null, QueryOptions? options = null)
+        Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
     {
         var entries = _entriesRepository.AllInstances();
 
