@@ -97,13 +97,13 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         if (predicate is not null) queryable = queryable.Where(predicate);
         if (options.Exemplar is not null)
         {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Analysis))?.WsId;
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
             if (ws is null)
                 throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
             queryable = queryable.Where(e => e.Headword(ws.Value).StartsWith(options.Exemplar.Value));
         }
 
-        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Analysis))?.WsId;
+        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable.OrderBy(e => e.Headword(sortWs.Value))
