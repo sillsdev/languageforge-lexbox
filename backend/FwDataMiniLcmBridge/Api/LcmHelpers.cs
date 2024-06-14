@@ -6,11 +6,11 @@ internal static class LcmHelpers
 {
     internal static bool SearchValue(this ITsMultiString multiString, string value)
     {
-        var valueLower = value.ToLowerInvariant();
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var _);
-            if (tsString.Text?.ToLowerInvariant().Contains(valueLower) is true)
+            if (string.IsNullOrEmpty(tsString.Text)) continue;
+            if (tsString.Text.Contains(value, StringComparison.InvariantCultureIgnoreCase))
             {
                 return true;
             }
