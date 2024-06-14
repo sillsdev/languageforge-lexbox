@@ -53,15 +53,16 @@ internal static class LcmHelpers
         '\u0640', // Arabic Tatweel
     ];
 
-    internal static void ContributeExemplars(ITsMultiString multiString, Dictionary<int, HashSet<string>> wsExemplars)
+    internal static void ContributeExemplars(ITsMultiString multiString, Dictionary<int, HashSet<char>> wsExemplars)
     {
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
-            var value = tsString.Text?.Trim(WhitespaceAndFormattingChars);
-            if (value?.Any() is true && wsExemplars.TryGetValue(ws, out var exemplars))
+            if (string.IsNullOrEmpty(tsString.Text)) continue;
+            var value = tsString.Text.AsSpan().Trim(WhitespaceAndFormattingChars);
+            if (!value.IsEmpty && wsExemplars.TryGetValue(ws, out var exemplars))
             {
-                exemplars.Add(value.First().ToString());
+                exemplars.Add(value[0]);
             }
         }
     }

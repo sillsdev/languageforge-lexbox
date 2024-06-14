@@ -137,7 +137,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
             .Distinct()
-            .ToDictionary(ws => ws, ws => ws.Exemplars.ToHashSet());
+            .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
         var wsExemplarsByHandle = wsExemplars.ToDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
 
         foreach (var entry in _entriesRepository.AllInstances())
@@ -148,7 +148,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
         foreach (var ws in wsExemplars.Keys)
         {
-            ws.Exemplars = [.. wsExemplars[ws].Order()];
+            ws.Exemplars = [.. wsExemplars[ws].Order().Select(s => s.ToString())];
         }
     }
 
