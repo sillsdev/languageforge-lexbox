@@ -9,7 +9,7 @@ public class OrgGqlConfiguration : ObjectType<Organization>
     {
         descriptor.Field(o => o.CreatedDate).IsProjected();
         descriptor.Field(o => o.Id).Use<RefreshJwtOrgMembershipMiddleware>();
-        descriptor.Field(o => o.Members).Use<RefreshJwtOrgMembershipMiddleware>();
+        // Must be listed *before* RefreshJwtOrgMembershipMiddleware
         descriptor.Field(o => o.Members).Use(next => async context =>
         {
             await next(context);
@@ -17,7 +17,8 @@ public class OrgGqlConfiguration : ObjectType<Organization>
             if (result is List<OrgMember> members)
             {
                 var user = context.Service<LexBoxApi.Auth.LoggedInContext>().MaybeUser;
-                if (user is not null && (user.IsAdmin || members.Any(om => om.UserId == user.Id)))
+                var org = context.Parent<Organization>();
+                if (user is not null && org is not null && (user.IsAdmin || user.Orgs.Any(o => o.OrgId == org.Id)))
                 {
                     return;
                 }
@@ -28,6 +29,7 @@ public class OrgGqlConfiguration : ObjectType<Organization>
                 }
             }
         });
+        descriptor.Field(o => o.Members).Use<RefreshJwtOrgMembershipMiddleware>();
         // Once "orgs can own projects" PR is merged, uncomment below
         // descriptor.Field(o => o.Projects).Use(next => async context =>
         // {
