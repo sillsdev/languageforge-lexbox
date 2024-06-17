@@ -8,6 +8,8 @@ public class OrgGqlConfiguration : ObjectType<Organization>
     protected override void Configure(IObjectTypeDescriptor<Organization> descriptor)
     {
         descriptor.Field(o => o.CreatedDate).IsProjected();
+        descriptor.Field(o => o.Id).Use<RefreshJwtOrgMembershipMiddleware>();
+        descriptor.Field(o => o.Members).Use<RefreshJwtOrgMembershipMiddleware>();
         descriptor.Field(o => o.Members).Use(next => async context =>
         {
             await next(context);

@@ -95,6 +95,9 @@ public record LexAuthUser
         Projects = user.IsAdmin
             ? Array.Empty<AuthUserProject>() // admins have access to all projects, so we don't include them to prevent going over the jwt limit
             : user.Projects.Select(p => new AuthUserProject(p.Role, p.ProjectId)).ToArray();
+        Orgs = user.IsAdmin
+            ? Array.Empty<AuthUserOrg>() // likewise, admins have access to all orgs, so we don't include them
+            : user.Organizations.Select(p => new AuthUserOrg(p.Role, p.OrgId)).ToArray();
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
         CreatedByAdmin = user.CreatedById == null ? null : true;
@@ -127,6 +130,9 @@ public record LexAuthUser
 
     [JsonIgnore]
     public AuthUserProject[] Projects { get; set; } = Array.Empty<AuthUserProject>();
+
+    [JsonIgnore]
+    public AuthUserOrg[] Orgs { get; set; } = Array.Empty<AuthUserOrg>();
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
     public string ProjectsJson
@@ -163,6 +169,45 @@ public record LexAuthUser
                     _ => ProjectRole.Unknown
                 };
                 return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserProject(role, pId));
+            }).ToArray();
+        }
+    }
+
+    [JsonPropertyName(LexAuthConstants.OrgsClaimType)]
+    public string OrgsJson
+    {
+        get =>
+            string.Join(",",
+                Orgs.GroupBy(p => p.Role).Select(roleGroup =>
+                {
+                    var orgRole = roleGroup.Key switch
+                    {
+                        OrgRole.Admin => "a",
+                        OrgRole.User => "u",
+                        _ => "x"
+                    };
+
+                    var orgIdString = string.Join("|", roleGroup.Select(p => p.OrgId.ToString("N")));
+                    return $"{orgRole}:{orgIdString}";
+                }));
+        set
+        {
+            //will be empty for admins
+            if (string.IsNullOrEmpty(value))
+            {
+                Orgs = Array.Empty<AuthUserOrg>();
+                return;
+            }
+            Orgs = value.Split(",").SelectMany(p =>
+            {
+                if (string.IsNullOrEmpty(p)) return Array.Empty<AuthUserOrg>();
+                var role = p[0] switch
+                {
+                    'a' => OrgRole.Admin,
+                    'u' => OrgRole.User,
+                    _ => OrgRole.Unknown
+                };
+                return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserOrg(role, pId));
             }).ToArray();
         }
     }
@@ -231,6 +276,8 @@ public record LexAuthUser
 }
 
 public record AuthUserProject(ProjectRole Role, Guid ProjectId);
+
+public record AuthUserOrg(OrgRole Role, Guid OrgId);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole
