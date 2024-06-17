@@ -156,7 +156,14 @@ public class EmailService(
             new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), "en");
         await SendEmailWithRetriesAsync(email);
     }
-
+    public async Task SendApproveProjectRequestEmail(User user, CreateProjectInput projectInput)
+    {
+        var email = StartUserEmail(user);
+        if (email is null) throw new ArgumentNullException("emailAddress");
+        await RenderEmail(email,
+            new ApproveProjectRequestEmail(user.Name, new CreateProjectRequestUser(user.Name, user.Email!), projectInput), "en");
+        await SendEmailWithRetriesAsync(email);
+    }
     public async Task SendEmailAsync(MimeMessage message)
     {
         message.From.Add(MailboxAddress.Parse(_emailConfig.From));
