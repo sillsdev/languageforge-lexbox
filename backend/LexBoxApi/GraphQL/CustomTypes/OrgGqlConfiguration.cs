@@ -16,14 +16,17 @@ public class OrgGqlConfiguration : ObjectType<Organization>
             var result = context.Result;
             if (result is List<OrgMember> members)
             {
-                // We want to throw if not logged in, so use User rather than MaybeUser below
-                var user = context.Service<LexBoxApi.Auth.LoggedInContext>().User;
-                if (user.IsAdmin || members.Any(om => om.UserId == user.Id))
+                var user = context.Service<LexBoxApi.Auth.LoggedInContext>().MaybeUser;
+                if (user is not null && (user.IsAdmin || members.Any(om => om.UserId == user.Id)))
                 {
                     return;
                 }
+                else
+                {
+                    // Non-members may only see org admins, not whole membership
+                    context.Result = members.Where(om => om.Role == OrgRole.Admin);
+                }
             }
-            throw new UnauthorizedAccessException("Must be org member");
         });
         // Once "orgs can own projects" PR is merged, uncomment below
         // descriptor.Field(o => o.Projects).Use(next => async context =>
