@@ -12,10 +12,15 @@ on:
         required: true
         type: string
       hg-version:
-        description: 'The version of hg to test (3 or 6, default 3)'
+        description: 'The version of hg to test (3 or 6, default 6)'
         required: false
-        default: '3'
+        default: '6'
         type: string
+      run-dotnet:
+        description: 'Whether to run dotnet tests'
+        required: false
+        default: true
+        type: boolean
       run-playwright:
         description: 'Whether to run Playwright tests'
         required: false
@@ -32,20 +37,104 @@ on:
         required: true
         type: string
       hg-version:
-        description: 'The version of hg to test (3 or 6, default 3)'
+        description: 'The version of hg to test (3 or 6, default 6)'
         required: false
-        default: '3'
+        default: '6'
         type: string
+      run-dotnet:
+        description: 'Whether to run dotnet tests'
+        required: false
+        default: true
+        type: boolean
       run-playwright:
         description: 'Whether to run Playwright tests'
         required: false
         default: true
         type: boolean
 
+# TODO: Set up caching for /home/runner/.cache/ms-playwright
+# TODO: Ditto for /home/runner/.pnpm-store/v3
+# TODO: Ditto for /home/runner/.nuget/packages
+# TODO: Ditto for /var/cache/apt/archives/
+
 jobs:
-  test:
+  dotnet-test:
+    if: ${{ inputs.run-dotnet }}
     timeout-minutes: 120
-    name: Test ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
+    name: Dotnet tests on ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
+    permissions:
+      checks: write
+    environment:
+      name: ${{ inputs.environment }}
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: testspace-com/setup-testspace@v1.0.6
+        with:
+          domain: ${{ github.repository_owner }}
+      - name: Setup self-hosted dependencies
+        if: ${{ inputs.runs-on == 'self-hosted' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y p7zip-full iputils-ping python3-venv wget zlib1g-dev libssl-dev #needed by setup python
+          wget -q https://github.com/PowerShell/PowerShell/releases/download/v7.4.1/powershell_7.4.1-1.deb_amd64.deb
+          sudo dpkg -i powershell_7.4.1-1.deb_amd64.deb
+          sudo apt-get install -f
+          rm powershell_7.4.1-1.deb_amd64.deb
+          pwsh #validate that powershell installed correctly
+      - uses: actions/setup-dotnet@v4
+        env:
+          DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
+        with:
+          dotnet-version: '8.x'
+      - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
+        id: python
+        if: ${{ inputs.runs-on != 'windows-latest' && !env.act && inputs.hg-version == '3' }}
+        with:
+          python-version: '2.7.18'
+          cache-build: true
+          allow-build: allow
+      - name: Link python
+        if: ${{ inputs.runs-on != 'windows-latest' && inputs.hg-version == '3' }}
+        run: |
+          sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
+      - name: Dotnet build
+        # limit cpu count for self-hosted due to memory constraints
+        run: dotnet build ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
+      - name: Build for tests
+        run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
+        env:
+          MERCURIAL_VERSION: ${{ inputs.hg-version }}
+
+      - name: Integration tests (.NET)
+        env:
+          TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
+          #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
+          TEST_STANDARD_HG_HOSTNAME: ${{ vars.TEST_STANDARD_HG_HOSTNAME }}
+          TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
+          TEST_PROJECT_CODE: 'sena-3'
+          TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          # 1.5gb max heap size, must be in hex https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector#heap-limit
+          # the self hosted runner only has 2gb so this should prevent it from running out of memory
+          DOTNET_GCHeapHardLimit: '0x2CB417800'
+
+        run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
+      - name: Publish unit test results
+        uses: EnricoMi/publish-unit-test-result-action/composite@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
+        if: ${{ always() && !env.act }}
+        with:
+          check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
+          files: ./test-results/*.trx
+      - name: Publish results to testspace
+        if: always()
+        run: testspace "[.Net Integration/${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx"
+
+  playwright-test:
+    if: ${{ inputs.run-playwright }}
+    timeout-minutes: 120
+    name: Playwright tests on ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }} on ${{ inputs.environment }}
     permissions:
       checks: write
     environment:
@@ -70,59 +159,27 @@ jobs:
           pwsh #validate that powershell installed correctly
       # First we need to setup Node...
       - uses: actions/setup-node@v4
-        if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
       # Then we can set up pnpm...
       - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
-        if: ${{ inputs.run-playwright }}
         with:
           package_json_file: 'frontend/package.json'
-      # Then we can have Noede set up package caching
+      # Then we can have Node set up package caching
       - uses: actions/setup-node@v4
-        if: ${{ inputs.run-playwright }}
         with:
           node-version-file: 'frontend/package.json'
           cache: 'pnpm'
           cache-dependency-path: 'frontend/pnpm-lock.yaml'
-      - uses: actions/setup-dotnet@v4
-        env:
-          DOTNET_INSTALL_DIR: ${{ inputs.runs-on == 'self-hosted' && '/opt/hostedtoolcache/dotnet' || '' }} #poor man's conditional
-        with:
-          dotnet-version: '8.x'
-      - uses: MatteoH2O1999/setup-python@429b7dee8a48c31eb72ce0b420ea938ff51c2f11 # v3.2.1
-        id: python
-        if: ${{ inputs.runs-on != 'windows-latest' && !env.act && inputs.hg-version == '3' }}
-        with:
-          python-version: '2.7.18'
-          cache-build: true
-          allow-build: allow
-      - name: Link python
-        if: ${{ inputs.runs-on != 'windows-latest' && inputs.hg-version == '3' }}
-        run: |
-          sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
-      - name: Dotnet build
-        # limit cpu count for self-hosted due to memory constraints
-        run: dotnet build ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
-      # TODO: Set up caching for /home/runner/.cache/ms-playwright so this doesn't take as long
-      # TODO: Ditto for /home/runner/.pnpm-store/v3
-      # TODO: Ditto for /home/runner/.nuget/packages
-      # TODO: Ditto for /var/cache/apt/archives/
       - name: Playwright setup
         working-directory: frontend
-        if: ${{ inputs.run-playwright }}
         run: pnpm install && pnpm pretest
       - name: Set up Playwright dependencies
         working-directory: frontend
-        if: ${{ inputs.run-playwright && inputs.runs-on == 'self-hosted' }}
+        if: ${{ inputs.runs-on == 'self-hosted' }}
         run: sudo pnpm exec playwright install-deps
-      - name: Build for tests
-        run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
-        env:
-          MERCURIAL_VERSION: ${{ inputs.hg-version }}
 
       - name: Integration tests (Playwright)
-        if: ${{ inputs.run-playwright }}
         env:
           TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
           #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
@@ -132,38 +189,16 @@ jobs:
           TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         working-directory: frontend
         run: pnpm test
-
-      - name: Integration tests (.NET)
-        if: always()
-        env:
-          TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
-          #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
-          TEST_STANDARD_HG_HOSTNAME: ${{ vars.TEST_STANDARD_HG_HOSTNAME }}
-          TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
-          TEST_PROJECT_CODE: 'sena-3'
-          TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
-          # 1.5gb max heap size, must be in hex https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector#heap-limit
-          # the self hosted runner only has 2gb so this should prevent it from running out of memory
-          DOTNET_GCHeapHardLimit: '0x2CB417800'
-
-        run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
-
       - name: Password protect Playwright traces
         id: password_protect_test_results
-        if: ${{ always() && inputs.run-playwright }}
+        if: ${{ always() }}
         shell: bash
         env:
           ZIP_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
         run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
-      - name: Publish unit test results
-        uses: EnricoMi/publish-unit-test-result-action/composite@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
-        if: ${{ always() && !env.act }}
-        with:
-          check_name: Integration Tests ${{ inputs.runs-on }} for Mercurial ${{ inputs.hg-version }}
-          files: ./test-results/*.trx
       - name: Publish results to testspace
         if: always()
-        run: testspace "[.Net Integration/${{ inputs.runs-on }} HG ${{ inputs.hg-version }}]./test-results/*.trx" "[Playwright]./frontend/test-results/*.xml"
+        run: testspace "[Playwright]./frontend/test-results/*.xml"
       - name: Upload playwright results
         if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4
