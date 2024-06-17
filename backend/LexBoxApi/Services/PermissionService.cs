@@ -108,4 +108,12 @@ public class PermissionService(
         if (org.Members.Any(m => m.UserId == User.Id && m.Role == OrgRole.Admin)) return;
         throw new UnauthorizedAccessException();
     }
+
+    public void AssertCanAddProjectToOrg(Organization org)
+    {
+        if (User is null) throw new UnauthorizedAccessException();
+        if (User.Role == UserRole.admin) return;
+        if (org.Members.Any(m => m.UserId == User.Id)) return;
+        throw new UnauthorizedAccessException();
+    }
 }

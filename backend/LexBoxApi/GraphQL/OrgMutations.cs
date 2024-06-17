@@ -66,7 +66,7 @@ public class OrgMutations
     {
         var org = await dbContext.Orgs.FindAsync(orgId);
         NotFoundException.ThrowIfNull(org);
-        permissionService.AssertCanEditOrg(org);
+        permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
@@ -98,7 +98,7 @@ public class OrgMutations
     {
         var org = await dbContext.Orgs.FindAsync(orgId);
         NotFoundException.ThrowIfNull(org);
-        permissionService.AssertCanEditOrg(org);
+        permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
