@@ -23,5 +23,15 @@ public class OrgGqlConfiguration : ObjectType<Organization>
             }
             throw new UnauthorizedAccessException("Must be org member");
         });
+        // Once "orgs can own projects" PR is merged, uncomment below
+        // descriptor.Field(o => o.Projects).Use(next => async context =>
+        // {
+        //     await next(context);
+        //     if (context.Result is List<Project> projects)
+        //     {
+        //         var user = context.Service<LexBoxApi.Auth.LoggedInContext>().MaybeUser;
+        //         context.Result = projects.Where(p => p.IsConfidential == false || (user is not null && user.Projects.Any(up => up.ProjectId == p.Id)));
+        //     }
+        // });
     }
 }
