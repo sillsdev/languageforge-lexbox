@@ -577,8 +577,9 @@ If you don't see a dialog or already closed it, click the button below:",
       "heading": "User {name} ({email}) requested that a project be created for them. Details below:"
     },
     "approve_project_request_email": {
-      "subject": "Project approval: {projectName}",
-      "heading": "{projectName} has been approved."
+      "subject": "Project approved: {projectName}",
+      "heading": "The project you requested, {projectName}, has been approved and created.",
+      "view_button": "View project"
     }
   },
   "footer": {
