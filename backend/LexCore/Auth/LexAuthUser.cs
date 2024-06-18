@@ -131,7 +131,7 @@ public record LexAuthUser
     [JsonIgnore]
     public AuthUserProject[] Projects { get; set; } = Array.Empty<AuthUserProject>();
 
-    [JsonIgnore]
+    [JsonPropertyName(LexAuthConstants.OrgsClaimType)]
     public AuthUserOrg[] Orgs { get; set; } = Array.Empty<AuthUserOrg>();
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
@@ -169,45 +169,6 @@ public record LexAuthUser
                     _ => ProjectRole.Unknown
                 };
                 return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserProject(role, pId));
-            }).ToArray();
-        }
-    }
-
-    [JsonPropertyName(LexAuthConstants.OrgsClaimType)]
-    public string OrgsJson
-    {
-        get =>
-            string.Join(",",
-                Orgs.GroupBy(p => p.Role).Select(roleGroup =>
-                {
-                    var orgRole = roleGroup.Key switch
-                    {
-                        OrgRole.Admin => "a",
-                        OrgRole.User => "u",
-                        _ => "x"
-                    };
-
-                    var orgIdString = string.Join("|", roleGroup.Select(p => p.OrgId.ToString("N")));
-                    return $"{orgRole}:{orgIdString}";
-                }));
-        set
-        {
-            //will be empty for admins
-            if (string.IsNullOrEmpty(value))
-            {
-                Orgs = Array.Empty<AuthUserOrg>();
-                return;
-            }
-            Orgs = value.Split(",").SelectMany(p =>
-            {
-                if (string.IsNullOrEmpty(p)) return Array.Empty<AuthUserOrg>();
-                var role = p[0] switch
-                {
-                    'a' => OrgRole.Admin,
-                    'u' => OrgRole.User,
-                    _ => OrgRole.Unknown
-                };
-                return p[2..].Split("|").Select(Guid.Parse).Select(pId => new AuthUserOrg(role, pId));
             }).ToArray();
         }
     }
