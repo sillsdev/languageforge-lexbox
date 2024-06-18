@@ -6,5 +6,5 @@
 </script>
 
 <Email subject={$t('emails.approve_project_request_email.subject')} {name}>
-  <mj-text>$t('emails.approve_project_request_email.heading')</mj-text>
+  <mj-text>{$t('emails.approve_project_request_email.heading')}</mj-text>
 </Email>
