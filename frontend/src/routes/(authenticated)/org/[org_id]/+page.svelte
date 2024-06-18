@@ -126,6 +126,7 @@
     {:else if $queryParamValues.tab === 'members'}
     <OrgMemberTable
       shownUsers={org.members}
+      showEmailColumn={user.isAdmin}
       on:openUserModal={(event) => openUserModal(event.detail)}
       on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
       on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
