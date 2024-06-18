@@ -165,7 +165,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
-        foreach (var partOfSpeech in _partOfSpeechRepository.AllInstances())
+        foreach (var partOfSpeech in _partOfSpeechRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
         {
             yield return new PartOfSpeech { Id = partOfSpeech.Guid, Name = FromLcmMultiString(partOfSpeech.Name) };
         }
@@ -173,7 +173,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        foreach (var semanticDomain in _semanticDomainRepository.AllInstances())
+        foreach (var semanticDomain in _semanticDomainRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
         {
             yield return new SemanticDomain
             {

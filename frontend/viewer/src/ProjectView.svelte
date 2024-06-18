@@ -2,12 +2,12 @@
   import {AppBar, Button, ProgressCircle} from 'svelte-ux';
   import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiEyeSettingsOutline} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import {headword} from './lib/utils';
+  import {headword, pickBestAlternative} from './lib/utils';
   import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
   import {setContext} from 'svelte';
-  import {derived, writable, type Readable} from 'svelte/store';
+  import {derived, readable, writable, type Readable} from 'svelte/store';
   import {deriveAsync} from './lib/utils/time';
   import {type ViewConfig, type LexboxPermissions, type ViewOptions, type LexboxFeatures} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
@@ -18,6 +18,7 @@
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
   import ActivityView from './lib/activity/ActivityView.svelte';
+  import type { OptionProvider } from './lib/services/option-provider';
 
   export let loading = false;
 
@@ -73,6 +74,20 @@
     trigger.update(t => t + 1);
   }
 
+  const partsOfSpeech = deriveAsync(connected, isConnected => {
+    if (!isConnected) return Promise.resolve(null);
+    return lexboxApi.GetPartsOfSpeech();
+  });
+  const semanticDomains = deriveAsync(connected, isConnected => {
+    if (!isConnected) return Promise.resolve(null);
+    return lexboxApi.GetSemanticDomains();
+  });
+  const optionProvider: OptionProvider = {
+    partsOfSpeech: derived([writingSystems, partsOfSpeech], ([ws, pos]) => pos?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
+    semanticDomains: derived([writingSystems, semanticDomains], ([ws, sd]) => sd?.map(option => ({ value: option, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
+  };
+  setContext('optionProvider', optionProvider);
+
   const _entries = deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
     return fetchEntries(s, isConnected, exemplar);
   }, undefined, 200);
@@ -119,7 +134,7 @@
   }
 
 
-  $: _loading = !$entries || !$writingSystems || loading;
+  $: _loading = !$entries || !$writingSystems || !$partsOfSpeech || !$semanticDomains || loading;
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
