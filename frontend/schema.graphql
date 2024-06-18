@@ -21,6 +21,11 @@ type AlreadyExistsError implements Error {
   message: String!
 }
 
+type AuthUserOrg {
+  role: OrgRole!
+  orgId: UUID!
+}
+
 type AuthUserProject {
   role: ProjectRole!
   projectId: UUID!
@@ -179,6 +184,7 @@ type LexAuthUser {
   role: UserRole!
   isAdmin: Boolean!
   projects: [AuthUserProject!]!
+  orgs: [AuthUserOrg!]!
   projectsJson: String!
   locked: Boolean
   emailVerificationRequired: Boolean
