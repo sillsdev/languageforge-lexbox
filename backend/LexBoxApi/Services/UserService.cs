@@ -1,10 +1,11 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Services.Email;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Services;
 
-public class UserService(LexBoxDbContext dbContext, EmailService emailService, LexAuthService lexAuthService)
+public class UserService(LexBoxDbContext dbContext, IEmailService emailService, LexAuthService lexAuthService)
 {
     public async Task ForgotPassword(string email)
     {

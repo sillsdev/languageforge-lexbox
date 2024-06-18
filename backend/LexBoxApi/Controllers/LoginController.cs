@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Google;
+using LexBoxApi.Services.Email;
 
 namespace LexBoxApi.Controllers;
 
@@ -22,7 +23,7 @@ public class LoginController(
     LexAuthService lexAuthService,
     LexBoxDbContext lexBoxDbContext,
     LoggedInContext loggedInContext,
-    EmailService emailService,
+    IEmailService emailService,
     UserService userService,
     TurnstileService turnstileService)
     : ControllerBase

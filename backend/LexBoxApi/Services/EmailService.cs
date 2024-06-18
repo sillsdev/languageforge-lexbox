@@ -25,7 +25,7 @@ public class EmailService(
     LexboxLinkGenerator linkGenerator,
     IHttpContextAccessor httpContextAccessor,
     Quartz.ISchedulerFactory schedulerFactory,
-    LexAuthService lexAuthService)
+    LexAuthService lexAuthService) : IEmailService
 {
     private readonly EmailConfig _emailConfig = emailConfig.Value;
     private readonly LinkGenerator _linkGenerator = linkGenerator;

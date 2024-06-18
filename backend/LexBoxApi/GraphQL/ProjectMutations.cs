@@ -14,6 +14,7 @@ using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Net.Mail;
+using LexBoxApi.Services.Email;
 
 namespace LexBoxApi.GraphQL;
 
@@ -39,7 +40,7 @@ public class ProjectMutations
         CreateProjectInput input,
         LexBoxDbContext dbContext,
         [Service] ProjectService projectService,
-        [Service] EmailService emailService)
+        [Service] IEmailService emailService)
     {
         if (!loggedInContext.User.IsAdmin)
         {
@@ -82,7 +83,7 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         AddProjectMemberInput input,
         LexBoxDbContext dbContext,
-        [Service] EmailService emailService)
+        [Service] IEmailService emailService)
     {
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
