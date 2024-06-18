@@ -37,6 +37,7 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
         CreateProjectInput input,
+        LexBoxDbContext dbContext,
         [Service] ProjectService projectService,
         [Service] EmailService emailService)
     {
@@ -54,8 +55,16 @@ public class ProjectMutations
             await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
             return new CreateProjectResponse(draftProjectId, CreateProjectResult.Requested);
         }
-
+        var draftProject = await dbContext.DraftProjects.FindAsync(input.Id);
         var projectId = await projectService.CreateProject(input);
+        if (draftProject is not null)
+        {
+            var manager = await dbContext.Users.FindAsync(draftProject.ProjectManagerId);
+            if (manager is not null)
+            {
+                await emailService.SendApproveProjectRequestEmail(manager, input);
+            }
+        }
         return new CreateProjectResponse(projectId, CreateProjectResult.Created);
     }
 
