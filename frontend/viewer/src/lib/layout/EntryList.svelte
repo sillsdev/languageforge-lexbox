@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Button, InfiniteScroll, ListItem, TextField } from "svelte-ux";
+  import { Button, Icon, InfiniteScroll, ListItem, TextField } from "svelte-ux";
   import type { IEntry } from "../mini-lcm";
   import { firstDefOrGlossVal, headword } from "../utils";
-  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiFormatListText } from "@mdi/js";
+  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from "@mdi/js";
   import IndexCharacters from "./IndexCharacters.svelte";
   import type { Writable } from "svelte/store";
   import { createEventDispatcher, getContext } from "svelte";
@@ -56,6 +56,7 @@
       <TextField
         bind:value={search}
         placeholder="Filter entries..."
+        clearable
         icon={mdiBookSearchOutline} />
     </div>
     <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
@@ -77,7 +78,15 @@
         <div class="p-4 text-center opacity-75">
           No entries found
           {#if $selectedCharacter}
-            in '{$selectedCharacter}'
+            in
+            <Button
+              fullWidth
+              class="border mb-2 w-auto inline ml-0.5"
+              on:click={() => $selectedCharacter = undefined}
+              size="sm">
+              {$selectedCharacter}
+              <Icon data={mdiClose} />
+            </Button>
           {/if}
         </div>
       {:else}

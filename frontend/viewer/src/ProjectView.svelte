@@ -55,7 +55,7 @@
 
   const connected = writable(false);
   const search = writable<string>('');
-
+  setContext('listSearch', search);
 
   const selectedIndexExemplar = writable<string | undefined>(undefined);
   setContext('selectedIndexExamplar', selectedIndexExemplar);

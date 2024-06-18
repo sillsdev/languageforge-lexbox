@@ -1,11 +1,11 @@
 <script lang="ts">
   import { mdiBookSearchOutline, mdiMagnifyRemoveOutline } from '@mdi/js';
-  import { Dialog, Field, Icon, ListItem, TextField, cls } from 'svelte-ux';
+  import { Button, Dialog, Field, Icon, ListItem, TextField, cls } from 'svelte-ux';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
-  import { derived, writable } from 'svelte/store';
+  import { derived, writable, type Writable } from 'svelte/store';
   import { deriveAsync } from '../utils/time';
-  import { createEventDispatcher, onDestroy } from 'svelte';
+  import { createEventDispatcher, getContext, onDestroy } from 'svelte';
   import type { IEntry } from '../mini-lcm';
 
   const dispatch = createEventDispatcher<{
@@ -50,6 +50,9 @@
   const displayedEntries = derived(result, (result) => {
     return result?.entries.slice(0, 5) ?? [];
   });
+
+  const listSearch = getContext<Writable<string | undefined>>('listSearch');
+  const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 </script>
 
 <Field
@@ -64,7 +67,7 @@
   </div>
 </Field>
 
-<Dialog bind:open={showSearchDialog} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
+<Dialog bind:open={showSearchDialog} on:close={() => $search = undefined} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
     <TextField
       autofocus
@@ -86,7 +89,6 @@
         on:click={() => {
           dispatch('entrySelected', entry);
           showSearchDialog = false;
-          $search = undefined;
         }}
       />
     {/each}
@@ -100,10 +102,23 @@
       </div>
     {/if}
     {#if $result.entries.length > $displayedEntries.length}
-      <div class="p-4 text-center opacity-75 flex">
+      <div class="p-4 text-center opacity-75 flex items-center">
         <span>{$result.entries.length - $displayedEntries.length}</span>
         {#if $result.entries.length === fetchCount}<span>+</span>{/if}
-        <span class="ml-1">more matching entries...</span>
+        <div class="ml-1 flex justify-between items-center gap-2">
+          <span>more matching entries...</span>
+          <Button
+            fullWidth
+            icon={mdiBookSearchOutline}
+            on:click={() => {
+              $listSearch = $search;
+              $selectedIndexExamplar = undefined;
+              showSearchDialog = false;
+            }}
+            class="border w-auto inline ml-0.5">
+            Filter list
+          </Button>
+        </div>
       </div>
     {/if}
   </div>
