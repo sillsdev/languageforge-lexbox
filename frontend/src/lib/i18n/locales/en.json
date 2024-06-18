@@ -575,6 +575,10 @@ If you don't see a dialog or already closed it, click the button below:",
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
       "heading": "User {name} ({email}) requested that a project be created for them. Details below:"
+    },
+    "approve_project_request_email": {
+      "subject": "Project approval: {projectName}",
+      "heading": "{projectName} has been approved."
     }
   },
   "footer": {
