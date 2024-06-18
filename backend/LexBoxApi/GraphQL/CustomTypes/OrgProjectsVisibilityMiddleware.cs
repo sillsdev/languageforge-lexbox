@@ -11,12 +11,6 @@ public class OrgProjectsVisibilityMiddleware(FieldDelegate next)
         await next(context);
         if (context.Result is List<Project> projects)
         {
-            var org = context.Parent<Organization>();
-            var orgId = org?.Id ?? default;
-            if (orgId == default)
-            {
-                throw new LexCore.Exceptions.NotFoundException("Org ID not found in GraphQL - shouldn't happen", nameof(Organization));
-            }
             var user = context.Service<LoggedInContext>().MaybeUser;
             if (user is null)
             {
@@ -24,12 +18,13 @@ public class OrgProjectsVisibilityMiddleware(FieldDelegate next)
                 context.Result = projects.Where(p => p.IsConfidential == false);
                 return;
             }
-            if (user.Orgs.Any(o => o.OrgId == orgId && o.Role == OrgRole.Admin))
+            var org = context.Parent<Organization>();
+            if (org is not null && user.Orgs.Any(o => o.OrgId == org.Id && o.Role == OrgRole.Admin))
             {
                 // Org admins can see all projects
                 return;
             }
-            // Anyone else can only see public projects; org membership makes no difference
+            // Anyone else can only see public projects or projects they themselves are a member of; org membership makes no difference
             context.Result = projects.Where(p => p.IsConfidential == false || user.Projects.Any(up => up.ProjectId == p.Id)).ToList();
         }
     }
