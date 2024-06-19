@@ -6,7 +6,7 @@
   export let baseUrl: string;
   export let projectName: string;
   export let projectCode: string;
-  let projectUrl = new URL(`/project/${projectCode}`, baseUrl);
+  let projectUrl = new URL(`/?projectSearch=${encodeURIComponent(projectCode)}`, baseUrl);
 </script>
 
 <Email subject={$t('emails.user_added.subject', {projectName})} {name}>

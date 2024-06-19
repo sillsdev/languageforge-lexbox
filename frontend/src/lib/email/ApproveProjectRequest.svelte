@@ -6,7 +6,7 @@
   export let name: string;
   export let baseUrl: string;
   export let project: CreateProjectInput;
-  let projectUrl = new URL(`/project/${project.code}`, baseUrl);
+  let projectUrl = new URL(`/?projectSearch=${encodeURIComponent(project.code)}`, baseUrl);
   let projectName = project.name;
 </script>
 
