@@ -126,6 +126,39 @@ public class LexQueries
         };
     }
 
+    public async Task<OrgMemberDto?> OrgMemberById(LexBoxDbContext context, LoggedInContext loggedInContext, Guid orgId, Guid userId)
+    {
+        var requestingUserId = loggedInContext.User.Id;
+        var requestingUser = await context.Users.Include(u => u.Organizations).Where(u => u.Id == requestingUserId).FirstOrDefaultAsync();
+        if (requestingUser is null) return null;
+
+        var isOrgAdmin = requestingUser.Organizations.Any(om => om.OrgId == orgId && om.UserId == requestingUserId && om.Role == OrgRole.Admin);
+        var allowed = isOrgAdmin || requestingUser.IsAdmin;
+        if (!allowed) return null;
+
+        var user = await context.Users.Include(u => u.Organizations).Where(u => u.Id == userId).FirstOrDefaultAsync();
+        if (user is null) return null;
+
+        var userInOrg = user.Organizations.Any(om => om.OrgId == orgId);
+        if (!userInOrg) return null;
+
+        return new OrgMemberDto
+        {
+            Id = user.Id,
+            CreatedDate = user.CreatedDate,
+            UpdatedDate = user.UpdatedDate,
+            LastActive = user.LastActive,
+            Name = user.Name,
+            Email = user.Email,
+            Username = user.Username,
+            LocalizationCode = user.LocalizationCode,
+            EmailVerified = user.EmailVerified,
+            IsAdmin = user.IsAdmin,
+            Locked = user.Locked,
+            CanCreateProjects = user.CanCreateProjects,
+        };
+    }
+
     public LexAuthUser MeAuth(LoggedInContext loggedInContext)
     {
         return loggedInContext.User;

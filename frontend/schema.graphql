@@ -252,6 +252,21 @@ type OrgProjects {
   updatedDate: DateTime!
 }
 
+type OrgMemberDto {
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+  lastActive: DateTime!
+  name: String!
+  email: String
+  username: String
+  localizationCode: String!
+  emailVerified: Boolean!
+  isAdmin: Boolean!
+  locked: Boolean!
+  canCreateProjects: Boolean!
+}
+
 type Organization {
   createdDate: DateTime!
   name: String!
@@ -328,6 +343,7 @@ type Query {
   orgById(orgId: UUID!): Organization
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
+  orgMemberById(orgId: UUID! userId: UUID!): OrgMemberDto
   meAuth: LexAuthUser!
   testingThrowsError: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
