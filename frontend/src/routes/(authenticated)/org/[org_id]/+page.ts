@@ -6,6 +6,8 @@ import type {
   ChangeOrgNameMutation,
   DeleteOrgMutation,
   DeleteOrgUserMutation,
+  GqlResult,
+  OrgMemberDto,
   OrgPageQuery,
   OrgRole,
 } from '$lib/gql/types';
@@ -169,6 +171,43 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
       { input: { orgId, emailOrUsername, role} },
     );
   return result;
+}
+
+// NOT WOKRING YET: having trouble getting this to type-check and compile
+export async function _orgMemberById(orgId: UUID, userId: UUID): Promise<GqlResult<OrgMemberDto>> {
+  //language=GraphQL
+  const result = await getClient()
+    .query(
+      graphql(`
+        query OrgMemberById($orgId: UUID!, $userId: UUID!}!) {
+          orgMemberById($orgId, $userId) {
+            orgMemberDto {
+              id
+              name
+              email
+              emailVerified
+              isAdmin
+              createdDate
+              username
+              locked
+              localizationCode
+              updatedDate
+              lastActive
+              canCreateProjects
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { orgId, userId },
+    );
+  return result;
+
 }
 
 export async function _changeOrgMemberRole(orgId: string, userId: string, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {

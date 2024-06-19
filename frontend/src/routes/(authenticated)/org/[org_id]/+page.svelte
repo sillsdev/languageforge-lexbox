@@ -8,7 +8,7 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams, type User, type OrgUser } from './+page';
+  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import { Icon, TrashIcon } from '$lib/icons';
@@ -48,8 +48,10 @@
   }
 
   let userModal: UserModal;
-  function openUserModal(user: User): Promise<void> {
+  async function openUserModal(user: User): Promise<void> {
     // Although we receive a TableUser, we know in practice it's a full User object
+    const queryUser = await _orgMemberById(org.id, user.id);
+    console.log('_orgMemberById returned', queryUser);
     return userModal.open(user);
   }
 
