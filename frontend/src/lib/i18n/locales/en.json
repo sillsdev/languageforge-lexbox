@@ -580,6 +580,11 @@ If you don't see a dialog or already closed it, click the button below:",
       "subject": "Project approved: {projectName}",
       "heading": "The project you requested, {projectName}, has been approved and created.",
       "view_button": "View project"
+    },
+    "user_added": {
+      "subject": "You've Joined {projectName}!",
+      "body": "You have been added to the project, {projectName}.",
+      "view_button": "View project"
     }
   },
   "footer": {

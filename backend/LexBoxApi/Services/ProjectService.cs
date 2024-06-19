@@ -42,7 +42,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         if (input.ProjectManagerId.HasValue)
         {
             var manager = await dbContext.Users.FindAsync(input.ProjectManagerId.Value);
-            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager); // Comment this out
+            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
             if (draftProject != null && manager != null)
             {
                 await emailService.SendApproveProjectRequestEmail(manager, input);

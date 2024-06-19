@@ -7,6 +7,8 @@ import CreateAccountRequest from '$lib/email/CreateAccountRequest.svelte';
 import CreateProjectRequest from '$lib/email/CreateProjectRequest.svelte';
 import type {CreateProjectInput} from '$lib/gql/generated/graphql';
 import ApproveProjectRequest from '$lib/email/ApproveProjectRequest.svelte';
+import UserAdded from '$lib/email/UserAdded.svelte';
+
 
 export const enum EmailTemplate {
     NewAdmin = 'NEW_ADMIN',
@@ -16,6 +18,7 @@ export const enum EmailTemplate {
     CreateAccountRequest = 'CREATE_ACCOUNT_REQUEST',
     CreateProjectRequest = 'CREATE_PROJECT_REQUEST',
     ApproveProjectRequest = 'APPROVE_PROJECT_REQUEST',
+    UserAdded = 'USER_ADDED',
 }
 
 export const componentMap = {
@@ -26,6 +29,7 @@ export const componentMap = {
     [EmailTemplate.CreateAccountRequest]: CreateAccountRequest,
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
     [EmailTemplate.ApproveProjectRequest]: ApproveProjectRequest,
+    [EmailTemplate.UserAdded]: UserAdded,
 } satisfies Record<EmailTemplate, ComponentType>;
 
 interface EmailTemplatePropsBase<T extends EmailTemplate> {
@@ -67,6 +71,11 @@ interface ApproveProjectProps extends EmailTemplatePropsBase<EmailTemplate.Appro
   user: { name: string, email: string };
 }
 
+interface UserAddedProps extends EmailTemplatePropsBase<EmailTemplate.UserAdded> {
+  projectName: string;
+  projectCode: string;
+}
+
 export type EmailTemplateProps =
     ForgotPasswordProps
     | NewAdminProps
@@ -74,4 +83,5 @@ export type EmailTemplateProps =
     | CreateAccountProps
     | CreateProjectProps
     | ApproveProjectProps
+    | UserAddedProps
     | EmailTemplatePropsBase<EmailTemplate>;

@@ -106,6 +106,7 @@ public class ProjectMutations
         user.UpdateUpdatedDate();
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
+        await emailService.SendUserAddedEmail(user, project.Name, project.Code);
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 
