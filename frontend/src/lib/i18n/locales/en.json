@@ -569,7 +569,7 @@ If you don't see a dialog or already closed it, click the button below:",
     },
     "create_account_request_email": {
       "subject": "Project invitation: {projectName}",
-      "body": "{managerName} has invited you to join the {projectName} language project. Click below to join.",
+      "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
       "join_button": "Join project"
     },
     "create_project_request_email": {
@@ -582,8 +582,8 @@ If you don't see a dialog or already closed it, click the button below:",
       "view_button": "View project"
     },
     "user_added": {
-      "subject": "You've Joined {projectName}!",
-      "body": "You have been added to the project, {projectName}.",
+      "subject": "You joined project: {projectName}!",
+      "body": "You have been added to the project: {projectName}.",
       "view_button": "View project"
     }
   },
