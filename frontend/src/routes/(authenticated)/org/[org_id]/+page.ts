@@ -173,41 +173,34 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
   return result;
 }
 
-// NOT WOKRING YET: having trouble getting this to type-check and compile
-export async function _orgMemberById(orgId: UUID, userId: UUID): Promise<GqlResult<OrgMemberDto>> {
+export async function _orgMemberById(orgId: UUID, userId: UUID): Promise<OrgMemberDto> {
   //language=GraphQL
   const result = await getClient()
     .query(
       graphql(`
-        query OrgMemberById($orgId: UUID!, $userId: UUID!}!) {
-          orgMemberById($orgId, $userId) {
-            orgMemberDto {
-              id
-              name
-              email
-              emailVerified
-              isAdmin
-              createdDate
-              username
-              locked
-              localizationCode
-              updatedDate
-              lastActive
-              canCreateProjects
-            }
-            errors {
-              __typename
-              ... on Error {
-                message
-              }
-            }
+        query OrgMemberById($orgId: UUID!, $userId: UUID!) {
+          orgMemberById(orgId: $orgId, userId: $userId) {
+            id
+            name
+            email
+            emailVerified
+            isAdmin
+            createdDate
+            username
+            locked
+            localizationCode
+            updatedDate
+            lastActive
+            canCreateProjects
           }
         }
       `),
       { orgId, userId },
-    );
-  return result;
+  );
 
+  if (!result.data?.orgMemberById) error(404);
+
+  return result.data.orgMemberById;
 }
 
 export async function _changeOrgMemberRole(orgId: string, userId: string, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {

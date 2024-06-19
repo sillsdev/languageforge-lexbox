@@ -20,6 +20,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import OrgMemberTable from './OrgMemberTable.svelte';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
+  import type { UUID } from 'crypto';
 
   export let data: PageData;
   $: user = data.user;
@@ -49,10 +50,8 @@
 
   let userModal: UserModal;
   async function openUserModal(user: User): Promise<void> {
-    // Although we receive a TableUser, we know in practice it's a full User object
-    const queryUser = await _orgMemberById(org.id, user.id);
-    console.log('_orgMemberById returned', queryUser);
-    return userModal.open(user);
+    const queryUser = await _orgMemberById(org.id as UUID, user.id as UUID);
+    return userModal.open(queryUser);
   }
 
   let addOrgMemberModal: AddOrgMemberModal;
