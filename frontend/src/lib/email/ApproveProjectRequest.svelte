@@ -3,8 +3,10 @@
   import t from '$lib/i18n';
 
   export let name: string;
+  export let baseUrl: string;
   export let projectName: string;
-  export let projectUrl: string;
+  export let projectCode: string;
+  let projectUrl = new URL(`/project/${projectCode}`, baseUrl);
 </script>
 
 <Email subject={$t('emails.approve_project_request_email.subject', {projectName})} {name}>
