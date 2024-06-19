@@ -160,7 +160,7 @@ public class EmailService(
     {
         var email = StartUserEmail(user) ?? throw new ArgumentNullException("emailAddress");
         await RenderEmail(email,
-            new ApproveProjectRequestEmail(user.Name, new CreateProjectRequestUser(user.Name, user.Email!), projectInput), "en");
+            new ApproveProjectRequestEmail(user.Name, new CreateProjectRequestUser(user.Name, user.Email!), projectInput), user.LocalizationCode);
         await SendEmailWithRetriesAsync(email);
     }
     public async Task SendUserAddedEmail(User user, string projectName, string projectCode)
