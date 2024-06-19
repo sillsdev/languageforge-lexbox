@@ -1,5 +1,6 @@
 using System.Data.Common;
 using LexBoxApi.Models.Project;
+using LexBoxApi.Services.Email;
 using LexCore.Config;
 using LexCore.Entities;
 using LexCore.Exceptions;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.Services;
 
-public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache)
+public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOptions<HgConfig> hgConfig, IMemoryCache memoryCache, IEmailService emailService)
 {
     public async Task<Guid> CreateProject(CreateProjectInput input)
     {
@@ -41,7 +42,11 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         if (input.ProjectManagerId.HasValue)
         {
             var manager = await dbContext.Users.FindAsync(input.ProjectManagerId.Value);
-            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager);
+            manager?.UpdateCreateProjectsPermission(ProjectRole.Manager); // Comment this out
+            if (draftProject != null && manager != null)
+            {
+                await emailService.SendApproveProjectRequestEmail(manager, input);
+            }
         }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
