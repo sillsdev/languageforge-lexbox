@@ -160,7 +160,7 @@ public class EmailService(
     {
         var email = StartUserEmail(user) ?? throw new ArgumentNullException("emailAddress");
         await RenderEmail(email,
-            new ApproveProjectRequestEmail(user.Name, new CreateProjectRequestUser(user.Name, user.Email!), projectInput, projectInput.Name, projectInput.Code), "en");
+            new ApproveProjectRequestEmail(user.Name, new CreateProjectRequestUser(user.Name, user.Email!), projectInput), "en");
         await SendEmailWithRetriesAsync(email);
     }
     public async Task SendEmailAsync(MimeMessage message)
