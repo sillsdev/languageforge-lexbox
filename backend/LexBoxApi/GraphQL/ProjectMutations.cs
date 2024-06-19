@@ -14,6 +14,7 @@ using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Net.Mail;
+using LexBoxApi.Services.Email;
 
 namespace LexBoxApi.GraphQL;
 
@@ -38,7 +39,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         CreateProjectInput input,
         [Service] ProjectService projectService,
-        [Service] EmailService emailService)
+        [Service] IEmailService emailService)
     {
         if (!loggedInContext.User.IsAdmin)
         {
@@ -54,7 +55,6 @@ public class ProjectMutations
             await emailService.SendCreateProjectRequestEmail(loggedInContext.User, input);
             return new CreateProjectResponse(draftProjectId, CreateProjectResult.Requested);
         }
-
         var projectId = await projectService.CreateProject(input);
         return new CreateProjectResponse(projectId, CreateProjectResult.Created);
     }
@@ -73,7 +73,7 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         AddProjectMemberInput input,
         LexBoxDbContext dbContext,
-        [Service] EmailService emailService)
+        [Service] IEmailService emailService)
     {
         permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
@@ -106,6 +106,7 @@ public class ProjectMutations
         user.UpdateUpdatedDate();
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
+        await emailService.SendUserAddedEmail(user, project.Name, project.Code);
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
 

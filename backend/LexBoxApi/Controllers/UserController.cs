@@ -4,6 +4,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
@@ -24,14 +25,14 @@ public class UserController : ControllerBase
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly TurnstileService _turnstileService;
     private readonly LoggedInContext _loggedInContext;
-    private readonly EmailService _emailService;
+    private readonly IEmailService _emailService;
     private readonly LexAuthService _lexAuthService;
 
     public UserController(
         LexBoxDbContext lexBoxDbContext,
         TurnstileService turnstileService,
         LoggedInContext loggedInContext,
-        EmailService emailService,
+        IEmailService emailService,
         LexAuthService lexAuthService
     )
     {

@@ -25,7 +25,7 @@ public class EmailService(
     LexboxLinkGenerator linkGenerator,
     IHttpContextAccessor httpContextAccessor,
     Quartz.ISchedulerFactory schedulerFactory,
-    LexAuthService lexAuthService)
+    LexAuthService lexAuthService) : IEmailService
 {
     private readonly EmailConfig _emailConfig = emailConfig.Value;
     private readonly LinkGenerator _linkGenerator = linkGenerator;
@@ -156,7 +156,19 @@ public class EmailService(
             new CreateProjectRequestEmail("Admin", new CreateProjectRequestUser(user.Name, user.Email), projectInput), "en");
         await SendEmailWithRetriesAsync(email);
     }
-
+    public async Task SendApproveProjectRequestEmail(User user, CreateProjectInput projectInput)
+    {
+        var email = StartUserEmail(user) ?? throw new ArgumentNullException("emailAddress");
+        await RenderEmail(email,
+            new ApproveProjectRequestEmail(user.Name, new CreateProjectRequestUser(user.Name, user.Email!), projectInput), user.LocalizationCode);
+        await SendEmailWithRetriesAsync(email);
+    }
+    public async Task SendUserAddedEmail(User user, string projectName, string projectCode)
+    {
+        var email = StartUserEmail(user) ?? throw new ArgumentNullException("emailAddress");
+        await RenderEmail(email, new UserAddedEmail(user.Name, user.Email!, projectName, projectCode), user.LocalizationCode);
+        await SendEmailWithRetriesAsync(email);
+    }
     public async Task SendEmailAsync(MimeMessage message)
     {
         message.From.Add(MailboxAddress.Parse(_emailConfig.From));
@@ -181,7 +193,7 @@ public class EmailService(
             throw;
         }
     }
-     private async Task SendEmailWithRetriesAsync(MimeMessage message, int retryCount = 3, int retryWaitSeconds = 5 * 60)
+    private async Task SendEmailWithRetriesAsync(MimeMessage message, int retryCount = 3, int retryWaitSeconds = 5 * 60)
     {
         try
         {

@@ -1,7 +1,7 @@
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
-using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +22,7 @@ public class ProjectServiceTest
         var serviceProvider = testing.ConfigureServices(s =>
         {
             s.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
+            s.AddScoped<IEmailService>(_ => Mock.Of<IEmailService>());
             s.AddSingleton<IMemoryCache>(_ => Mock.Of<IMemoryCache>());
             s.AddScoped<ProjectService>();
         });

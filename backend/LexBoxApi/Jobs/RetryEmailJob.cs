@@ -1,10 +1,10 @@
-﻿using LexBoxApi.Services;
+﻿using LexBoxApi.Services.Email;
 using MimeKit;
 using Quartz;
 
 namespace LexBoxApi.Jobs;
 
-public class RetryEmailJob(EmailService emailService) : LexJob
+public class RetryEmailJob(IEmailService emailService) : LexJob
 {
     public static async Task Queue(ISchedulerFactory schedulerFactory,
         MimeMessage email,
