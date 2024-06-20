@@ -1,6 +1,6 @@
 <script lang="ts">
   import { mdiBookSearchOutline, mdiMagnifyRemoveOutline } from '@mdi/js';
-  import { Button, Dialog, Field, Icon, ListItem, TextField, cls } from 'svelte-ux';
+  import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField, cls } from 'svelte-ux';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
   import { derived, writable, type Writable } from 'svelte/store';
@@ -36,9 +36,9 @@
   });
 
   const lexboxApi = useLexboxApi();
-  const search = writable<string | undefined>(undefined);
+  const search = writable<string | undefined>('');
   const fetchCount = 105;
-  const result = deriveAsync(search, async (s) => {
+  const { value: result, loading } = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
     const entries = await lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
@@ -75,9 +75,14 @@
       bind:value={$search}
       placeholder="Find entry..."
       class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
-      classes={{ prepend: 'text-sm'}}
-      icon={mdiBookSearchOutline}
-    />
+      classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
+      icon={mdiBookSearchOutline}>
+      <div slot="append" class="flex p-1">
+        {#if $loading}
+          <ProgressCircle size={20} width={2} />
+        {/if}
+      </div>
+    </TextField>
   </div>
   <div>
     {#each $displayedEntries as entry}
@@ -97,7 +102,11 @@
         {#if $result.search}
           No entries found <Icon data={mdiMagnifyRemoveOutline} />
         {:else}
-          Search for an entry <Icon data={mdiBookSearchOutline} />
+          {#if $loading}
+            <ProgressCircle size={30} />
+          {:else}
+            Search for an entry <Icon data={mdiBookSearchOutline} />
+          {/if}
         {/if}
       </div>
     {/if}

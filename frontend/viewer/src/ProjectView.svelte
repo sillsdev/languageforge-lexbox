@@ -60,7 +60,7 @@
   const selectedIndexExemplar = writable<string | undefined>(undefined);
   setContext('selectedIndexExamplar', selectedIndexExemplar);
 
-  const writingSystems = deriveAsync(connected, isConnected => {
+  const { value: writingSystems } = deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.GetWritingSystems();
   });
@@ -70,15 +70,12 @@
   });
   setContext('indexExamplars', indexExamplars);
   const trigger = writable(0);
-  function refreshEntries(): void {
-    trigger.update(t => t + 1);
-  }
 
-  const partsOfSpeech = deriveAsync(connected, isConnected => {
+  const { value: partsOfSpeech } = deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.GetPartsOfSpeech();
   });
-  const semanticDomains = deriveAsync(connected, isConnected => {
+  const { value: semanticDomains } = deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.GetSemanticDomains();
   });
@@ -88,9 +85,15 @@
   };
   setContext('optionProvider', optionProvider);
 
-  const _entries = deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
-    return fetchEntries(s, isConnected, exemplar);
+  const { value: _entries, loading: loadingEntries, flush: flushLoadingEntries } =
+    deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
+      return fetchEntries(s, isConnected, exemplar);
   }, undefined, 200);
+
+  function refreshEntries(): void {
+    trigger.update(t => t + 1);
+    setTimeout(flushLoadingEntries);
+  }
 
   // TODO: replace with either
   // 1 something like setContext('editorEntry') that even includes unsaved changes
@@ -168,6 +171,14 @@
   <title>{projectName}</title>
 </svelte:head>
 
+
+{#if _loading || !$entries}
+<div class="absolute w-full h-full z-10 bg-surface-100 flex grow items-center justify-center" out:fade={{duration: 800}}>
+  <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75">
+    <span>Loading <span class="text-primary-500">{projectName}</span>...</span><ProgressCircle class="text-surface-content" />
+  </div>
+</div>
+{:else}
 <div class="project-view !flex flex-col PortalTarget">
   <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
@@ -196,77 +207,68 @@
       {/if}
     </div>
   </AppBar>
-
-  {#if _loading || !$entries}
-    <div class="absolute w-full h-full z-10 bg-surface-100 flex grow items-center justify-center" out:fade={{duration: 800}}>
-      <div class="inline-flex flex-col items-center text-4xl gap-4 opacity-75">
-        Loading... <ProgressCircle class="text-surface-content" />
+  <main class="p-4 flex grow">
+    <div
+      class="grid flex-grow items-start justify-stretch md:justify-center"
+      style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
+    >
+      <div class="w-screen max-w-full md:w-[500px] md:min-w-[300px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
+        <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-    </div>
-  {:else}
-    <main class="p-4 flex grow">
-      <div
-        class="grid flex-grow items-start justify-stretch md:justify-center"
-        style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
-      >
-        <div class="w-screen max-w-full md:w-[500px] md:min-w-[300px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
-          <EntryList bind:search={$search} entries={$entries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
-        </div>
-        <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry && !$viewConfig.readonly} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
-          {#if $selectedEntry}
-            <div class="mb-6">
-              <DictionaryEntryViewer entry={$selectedEntry} />
-            </div>
-            <Editor entry={$selectedEntry}
-              on:change={e => {
-                $selectedEntry = $selectedEntry;
-                $entries = $entries;
-              }}
-              on:delete={e => {
-                $selectedEntry = undefined;
-                refreshEntries();
-              }} />
-          {:else}
-            <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
-              No entry selected
-              {#if !$viewConfig.readonly}
-                <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
-              {/if}
-            </div>
-          {/if}
-        </div>
-        <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-md:hidden={!pickedEntry || $viewConfig.readonly}>
-          <div class="hidden" class:sm:hidden={expandList}>
-            <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
+      <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry && !$viewConfig.readonly} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
+        {#if $selectedEntry}
+          <div class="mb-6">
+            <DictionaryEntryViewer entry={$selectedEntry} />
           </div>
-          <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
-            {#if $selectedEntry && !expandList}
-              <div class="h-full flex flex-col gap-4 justify-stretch">
-                {#if !$viewConfig.readonly}
-                  <div class="contents" bind:this={entryActionsElem}>
-
-                  </div>
-                {/if}
-                <div class="contents max-sm:hidden" class:hidden={collapseActionBar}>
-                  <Toc entry={$selectedEntry} />
-                </div>
-              </div>
-              <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 items-center">
-                {$viewConfig.activeView.label}
-                <Button
-                  on:click={() => (showOptionsDialog = true)}
-                  size="sm"
-                  variant="default"
-                  iconOnly
-                  icon={mdiEyeSettingsOutline} />
-              </span>
+          <Editor entry={$selectedEntry}
+            on:change={e => {
+              $selectedEntry = $selectedEntry;
+              $entries = $entries;
+            }}
+            on:delete={e => {
+              $selectedEntry = undefined;
+              refreshEntries();
+            }} />
+        {:else}
+          <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
+            No entry selected
+            {#if !$viewConfig.readonly}
+              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
             {/if}
           </div>
+        {/if}
+      </div>
+      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-md:hidden={!pickedEntry || $viewConfig.readonly}>
+        <div class="hidden" class:sm:hidden={expandList}>
+          <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
+        </div>
+        <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
+          {#if $selectedEntry && !expandList}
+            <div class="h-full flex flex-col gap-4 justify-stretch">
+              {#if !$viewConfig.readonly}
+                <div class="contents" bind:this={entryActionsElem}>
+
+                </div>
+              {/if}
+              <div class="contents max-sm:hidden" class:hidden={collapseActionBar}>
+                <Toc entry={$selectedEntry} />
+              </div>
+            </div>
+            <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 items-center">
+              {$viewConfig.activeView.label}
+              <Button
+                on:click={() => (showOptionsDialog = true)}
+                size="sm"
+                variant="default"
+                iconOnly
+                icon={mdiEyeSettingsOutline} />
+            </span>
+          {/if}
         </div>
       </div>
-    </main>
+    </div>
+  </main>
 
-    <ViewOptionsDrawer bind:open={showOptionsDialog} {options} {features} />
-
-  {/if}
+  <ViewOptionsDrawer bind:open={showOptionsDialog} {options} {features} />
 </div>
+{/if}

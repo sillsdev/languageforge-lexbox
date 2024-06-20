@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Icon, InfiniteScroll, ListItem, TextField } from "svelte-ux";
+  import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from "svelte-ux";
   import type { IEntry } from "../mini-lcm";
   import { firstDefOrGlossVal, headword } from "../utils";
   import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from "@mdi/js";
@@ -13,6 +13,7 @@
   }>();
 
   export let entries: IEntry[] | undefined;
+  export let loading: boolean;
   export let search: string;
   export let expand: boolean;
 
@@ -57,7 +58,14 @@
         bind:value={search}
         placeholder="Filter entries..."
         clearable
-        icon={mdiBookSearchOutline} />
+        classes={{ append: 'flex-row-reverse' }}
+        icon={mdiBookSearchOutline}>
+        <div slot="append" class="flex p-1">
+          {#if loading}
+            <ProgressCircle size={20} width={2} />
+          {/if}
+        </div>
+      </TextField>
     </div>
     <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
       class="text-field-sibling-button"
