@@ -35,6 +35,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
                 IsConfidential = isConfidentialIsUntrustworthy ? null : input.IsConfidential,
+                Organizations = [],
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         // Also delete draft project, if any
@@ -47,6 +48,12 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             {
                 await emailService.SendApproveProjectRequestEmail(manager, input);
             }
+        }
+        if (input.OwningOrgId.HasValue)
+        {
+            dbContext.OrgProjects.Add(
+                new OrgProjects { ProjectId = projectId, OrgId = input.OwningOrgId.Value }
+            );
         }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);

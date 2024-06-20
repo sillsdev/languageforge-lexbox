@@ -12,6 +12,11 @@ type AddProjectMemberPayload {
   errors: [AddProjectMemberError!]
 }
 
+type AddProjectToOrgPayload {
+  organization: Organization
+  errors: [AddProjectToOrgError!]
+}
+
 type AlreadyExistsError implements Error {
   message: String!
 }
@@ -192,6 +197,8 @@ type MeDto {
 type Mutation {
   createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
   deleteOrg(input: DeleteOrgInput!): DeleteOrgPayload! @authorize(policy: "AdminRequiredPolicy")
+  addProjectToOrg(input: AddProjectToOrgInput!): AddProjectToOrgPayload!
+  removeProjectFromOrg(input: RemoveProjectFromOrgInput!): RemoveProjectFromOrgPayload!
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
@@ -229,11 +236,23 @@ type OrgMember {
   updatedDate: DateTime!
 }
 
+type OrgProjects {
+  org: Organization!
+  project: Project!
+  orgId: UUID!
+  projectId: UUID!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
 type Organization {
   createdDate: DateTime!
-  memberCount: Int!
   name: String!
   members: [OrgMember!]!
+  projects: [Project!]!
+  memberCount: Int!
+  projectCount: Int!
   id: UUID!
   updatedDate: DateTime!
 }
@@ -253,6 +272,7 @@ type Project {
   type: ProjectType!
   isConfidential: Boolean
   flexProjectMetadata: FlexProjectMetadata
+  organizations: [Organization!]!
   lastCommit: DateTime
   deletedDate: DateTime
   resetStatus: ResetStatus!
@@ -291,8 +311,8 @@ type ProjectUsers {
 
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
-  myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
+  myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
@@ -305,6 +325,11 @@ type Query {
   meAuth: LexAuthUser!
   testingThrowsError: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
+}
+
+type RemoveProjectFromOrgPayload {
+  organization: Organization
+  errors: [RemoveProjectFromOrgError!]
 }
 
 type RemoveProjectMemberPayload {
@@ -377,6 +402,8 @@ type UsersCollectionSegment {
 
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
 
+union AddProjectToOrgError = DbError | NotFoundError
+
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
 union ChangeOrgMemberRoleError = DbError | NotFoundError
@@ -407,6 +434,8 @@ union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
+union RemoveProjectFromOrgError = DbError | NotFoundError
+
 union SetOrgMemberRoleError = DbError | NotFoundError
 
 union SetProjectConfidentialityError = NotFoundError | DbError
@@ -419,6 +448,11 @@ input AddProjectMemberInput {
   projectId: UUID!
   usernameOrEmail: String!
   role: ProjectRole!
+}
+
+input AddProjectToOrgInput {
+  orgId: UUID!
+  projectId: UUID!
 }
 
 input BooleanOperationFilterInput {
@@ -495,6 +529,7 @@ input CreateProjectInput {
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
   isConfidential: Boolean!
+  owningOrgId: UUID
   projectManagerId: UUID
 }
 
@@ -593,6 +628,20 @@ input ListFilterInputTypeOfOrgMemberFilterInput {
   any: Boolean
 }
 
+input ListFilterInputTypeOfOrganizationFilterInput {
+  all: OrganizationFilterInput
+  none: OrganizationFilterInput
+  some: OrganizationFilterInput
+  any: Boolean
+}
+
+input ListFilterInputTypeOfProjectFilterInput {
+  all: ProjectFilterInput
+  none: ProjectFilterInput
+  some: ProjectFilterInput
+  any: Boolean
+}
+
 input ListFilterInputTypeOfProjectUsersFilterInput {
   all: ProjectUsersFilterInput
   none: ProjectUsersFilterInput
@@ -632,7 +681,9 @@ input OrganizationFilterInput {
   or: [OrganizationFilterInput!]
   name: StringOperationFilterInput
   members: ListFilterInputTypeOfOrgMemberFilterInput
+  projects: ListFilterInputTypeOfProjectFilterInput
   memberCount: IntOperationFilterInput
+  projectCount: IntOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
@@ -641,6 +692,7 @@ input OrganizationFilterInput {
 input OrganizationSortInput {
   name: SortEnumType
   memberCount: SortEnumType
+  projectCount: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType
   updatedDate: SortEnumType
@@ -658,6 +710,7 @@ input ProjectFilterInput {
   isConfidential: BooleanOperationFilterInput
   flexProjectMetadata: FlexProjectMetadataFilterInput
   users: ListFilterInputTypeOfProjectUsersFilterInput
+  organizations: ListFilterInputTypeOfOrganizationFilterInput
   lastCommit: DateTimeOperationFilterInput
   deletedDate: DateTimeOperationFilterInput
   resetStatus: ResetStatusOperationFilterInput
@@ -721,6 +774,11 @@ input ProjectUsersFilterInput {
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
+}
+
+input RemoveProjectFromOrgInput {
+  orgId: UUID!
+  projectId: UUID!
 }
 
 input RemoveProjectMemberInput {

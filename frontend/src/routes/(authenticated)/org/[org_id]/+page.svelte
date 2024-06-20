@@ -19,6 +19,7 @@
   import ChangeOrgMemberRoleModal from './ChangeOrgMemberRoleModal.svelte';
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import OrgMemberTable from './OrgMemberTable.svelte';
+  import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -112,12 +113,14 @@
     </span>
   </div>
   <div class="mt-6">
-    <!-- TODO: Add project count once orgs can own projects -->
-    <OrgTabs bind:activeTab={$queryParamValues.tab} memberCount={org.members.length} projectCount={0} />
+    <OrgTabs bind:activeTab={$queryParamValues.tab} memberCount={org.members.length} projectCount={org.projects.length} />
   </div>
   <div class="py-6 px-2">
     {#if $queryParamValues.tab === 'projects'}
-    Projects list will go here once orgs have projects associated with them
+    <ProjectTable
+      columns={['name', 'code', 'users', 'type']}
+      projects={org.projects}
+    />
     {:else if $queryParamValues.tab === 'members'}
     <OrgMemberTable
       shownUsers={org.members}

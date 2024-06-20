@@ -32,7 +32,8 @@ public class OrgMutations
             Members =
             [
                 new OrgMember() { Role = OrgRole.Admin, UserId = userId }
-            ]
+            ],
+            Projects = []
         });
         await dbContext.SaveChangesAsync();
         return dbContext.Orgs.Where(o => o.Id == orgId);
@@ -50,6 +51,69 @@ public class OrgMutations
         dbContext.Remove(org);
         await dbContext.SaveChangesAsync();
         return org;
+    }
+
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> AddProjectToOrg(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid projectId)
+    {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanAddProjectToOrg(org);
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Organizations)
+            .SingleOrDefaultAsync();
+        NotFoundException.ThrowIfNull(project);
+        permissionService.AssertCanManageProject(projectId);
+
+        if (project.Organizations.Exists(o => o.Id == orgId))
+        {
+            // No error since we're already in desired state; just return early
+            return dbContext.Orgs.Where(o => o.Id == orgId);
+        }
+        project.Organizations.Add(org);
+        project.UpdateUpdatedDate();
+        org.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid projectId)
+    {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanAddProjectToOrg(org);
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Organizations)
+            .SingleOrDefaultAsync();
+        NotFoundException.ThrowIfNull(project);
+        permissionService.AssertCanManageProject(projectId);
+        var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
+        if (foundOrg is not null)
+        {
+            project.Organizations.Remove(foundOrg);
+            project.UpdateUpdatedDate();
+            org.UpdateUpdatedDate();
+            await dbContext.SaveChangesAsync();
+        }
+        // If org did not own project, return with no error
+        return dbContext.Orgs.Where(o => o.Id == orgId);
     }
 
     /// <summary>

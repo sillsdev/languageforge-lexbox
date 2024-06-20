@@ -35,6 +35,13 @@ export async function load(event: PageLoadEvent) {
             createdDate
             updatedDate
             name
+            projects {
+              id
+              code
+              name
+              type
+              userCount
+            }
             members {
               id
               role

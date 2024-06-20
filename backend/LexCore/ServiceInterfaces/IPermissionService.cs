@@ -20,4 +20,5 @@ public interface IPermissionService
     void AssertCanLockOrUnlockUser(Guid userId);
     void AssertCanCreateOrg();
     void AssertCanEditOrg(Organization org);
+    void AssertCanAddProjectToOrg(Organization org);
 }
