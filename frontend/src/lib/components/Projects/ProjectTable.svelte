@@ -69,7 +69,7 @@
                     <TrashIcon pale />
                   </span>
                 {:else}
-                  <a data-sveltekit-preload-data="tap" class="link" href={`/project/${project.code}`}>
+                  <a class="link" href={`/project/${project.code}`}>
                     {project.name}
                   </a>
                 {/if}

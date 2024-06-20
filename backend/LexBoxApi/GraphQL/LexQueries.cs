@@ -63,7 +63,6 @@ public class LexQueries
 
     [UseSingleOrDefault]
     [UseProjection]
-    [Error<UnauthorizedAccessException>]
     public async Task<IQueryable<Project>> ProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
     {
         await permissionService.AssertCanAccessProject(code);

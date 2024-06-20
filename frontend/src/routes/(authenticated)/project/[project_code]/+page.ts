@@ -17,7 +17,6 @@ import type {
   SetProjectConfidentialityMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
-import { type QueryStoreReturnType} from '$lib/gql/gql-client'
 
 import type { PageLoadEvent } from './$types';
 import { derived } from 'svelte/store';
@@ -32,9 +31,7 @@ export async function load(event: PageLoadEvent) {
   const client = getClient();
   const userIsAdmin = (await event.parent()).user.isAdmin;
   const projectCode = event.params.project_code;
-  let projectResult: QueryStoreReturnType<ProjectPageQuery>;
-  try {
-    projectResult = await client
+  const projectResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
 				query projectPage($projectCode: String!, $userIsAdmin: Boolean!) {
@@ -82,18 +79,6 @@ export async function load(event: PageLoadEvent) {
 			`),
       { projectCode, userIsAdmin }
     );
-  } catch (e) {
-    if (e instanceof AggregateError) {
-      // TODO: Figure out how to propagate the GraphQL error type in awaitedQueryStore so we don't have to do nonsense like this
-      const msg = 'Attempted to perform an unauthorized operation.';
-      if (e.message === msg || e.errors && e.errors.find(e => e.message == msg || e.extensions.message == msg)) {
-        // if (browser) history.back(); // Can't do this in load functions
-        // redirect(-1); // This doesn't work either
-        // TODO: returning a 404 isn't great but it's simple and it works for now. We'll replace this soon anyway.
-        error(404);
-      }
-    }
-  }
   const changesetResultStore = client
     .queryStore(event.fetch,
       graphql(`

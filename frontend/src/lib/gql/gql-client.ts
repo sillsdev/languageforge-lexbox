@@ -108,7 +108,7 @@ type OperationOptions = Partial<OperationContext>;
 type QueryOperationOptions = OperationOptions; // ensure the sveltekit fetch is always provided
 
 type OperationResultState<Data, Variables extends AnyVariables> = ReturnType<typeof queryStore<Data, Variables>> extends Readable<infer T> ? T : never;
-export type QueryStoreReturnType<Data> = { [K in keyof Data]: Readable<Data[K]> & Pausable };
+type QueryStoreReturnType<Data> = { [K in keyof Data]: Readable<Data[K]> & Pausable };
 
 class GqlClient {
   public ownedByUserId = '';
