@@ -6,9 +6,9 @@
   import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
-  import {setContext} from 'svelte';
-  import {derived, readable, writable, type Readable} from 'svelte/store';
-  import {deriveAsync} from './lib/utils/time';
+  import {onMount, setContext} from 'svelte';
+  import {derived, writable, type Readable} from 'svelte/store';
+  import {deriveAsync, makeDebouncer} from './lib/utils/time';
   import {type ViewConfig, type LexboxPermissions, type ViewOptions, type LexboxFeatures} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
@@ -19,6 +19,7 @@
   import SearchBar from './lib/search-bar/SearchBar.svelte';
   import ActivityView from './lib/activity/ActivityView.svelte';
   import type { OptionProvider } from './lib/services/option-provider';
+  import { getAvailableHeightForElement } from './lib/utils/size';
 
   export let loading = false;
 
@@ -165,6 +166,23 @@
   setContext('entryActionsPortal', entryActionsPortal);
   $: entryActionsPortal.set({target: entryActionsElem, collapsed: collapseActionBar});
 
+  let editorElem: HTMLElement | undefined;
+  let spaceForEditorStyle: string = '';
+  const updateSpaceForEditor = makeDebouncer(() => {
+    if (!editorElem) return;
+    const availableHeight = getAvailableHeightForElement(editorElem);
+    spaceForEditorStyle = `--space-for-editor: ${availableHeight}px`;
+  }, 15).debounce;
+
+  $: editorElem && updateSpaceForEditor();
+  onMount(() => {
+    const abortController = new AbortController();
+    window.addEventListener('resize', updateSpaceForEditor, abortController);
+    window.addEventListener('scroll', updateSpaceForEditor, abortController);
+    return () => {
+      abortController.abort();
+    };
+  });
 </script>
 
 <svelte:head>
@@ -179,7 +197,7 @@
   </div>
 </div>
 {:else}
-<div class="project-view !flex flex-col PortalTarget">
+<div class="project-view !flex flex-col PortalTarget" style="{spaceForEditorStyle}">
   <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
@@ -207,7 +225,7 @@
       {/if}
     </div>
   </AppBar>
-  <main class="p-4 flex grow">
+  <main bind:this={editorElem} class="p-4 flex grow">
     <div
       class="grid flex-grow items-start justify-stretch md:justify-center"
       style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
@@ -254,7 +272,7 @@
                 <Toc entry={$selectedEntry} />
               </div>
             </div>
-            <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 items-center">
+            <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
               {$viewConfig.activeView.label}
               <Button
                 on:click={() => (showOptionsDialog = true)}
