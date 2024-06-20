@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiBookSearchOutline, mdiMagnifyRemoveOutline } from '@mdi/js';
+  import { mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline } from '@mdi/js';
   import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField, cls } from 'svelte-ux';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
@@ -60,7 +60,7 @@
   on:click={() => (showSearchDialog = true)}
   class="cursor-pointer opacity-80 hover:opacity-100">
   <div class="hidden sm:contents">
-    Find entry... 🚀
+    Find entry... <span class="ml-2"><Icon data={mdiMagnify} /></span>
   </div>
   <div class="contents sm:hidden">
     <Icon data={mdiBookSearchOutline} />
