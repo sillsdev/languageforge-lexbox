@@ -39,6 +39,7 @@ export async function load(event: PageLoadEvent) {
             name
             projects {
               id
+              isConfidential
               code
               name
               type
