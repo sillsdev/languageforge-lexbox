@@ -148,7 +148,8 @@
 
   function selectEntry(entry: IEntry) {
     $selectedEntry = entry;
-    $selectedIndexExemplar = headword(entry).charAt(0).toLocaleUpperCase() || undefined;
+    const indexChar: string | undefined = new Intl.Segmenter().segment(headword(entry))[Symbol.iterator]().next()?.value?.segment;
+    $selectedIndexExemplar = indexChar?.toLocaleUpperCase() ?? undefined;
     refreshEntries();
     pickedEntry = true;
   }
