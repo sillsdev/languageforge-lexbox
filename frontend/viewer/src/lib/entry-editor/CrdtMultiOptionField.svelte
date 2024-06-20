@@ -3,24 +3,15 @@
   import CrdtField from './CrdtField.svelte';
   import { TextField, type MenuOption, MultiSelectField } from 'svelte-ux';
 
-  export let value: string[];
-  let stringValue: string;
-  $: {
-    if (!stringValue) {
-      stringValue = value.join(',');
-    } else {
-      value = stringValue.split(',');
-    }
-  }
+  export let value: any[];
+
   export let unsavedChanges = false;
+  export let options: MenuOption[] = [];
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
-  export let readonly: true | undefined = undefined;
+  export let readonly: boolean | undefined = undefined;
   let append: HTMLElement;
-
-  let demoOptions: MenuOption[] | undefined;
-  $: demoOptions = demoOptions ?? [...value.map(v => ({label: v, value: v})), {label: 'Another option', value: 'Another option'}];
 
   function asOption(value: any): MenuOption {
     if (!(typeof value === 'object' && 'label' in value && 'value' in value)) {
@@ -34,19 +25,20 @@
   }
 </script>
 
-<CrdtField on:change bind:value={stringValue} bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
+<CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
   <MultiSelectField
-    on:change={(e) => onEditorValueChange(asOptions(e.detail.value).map((o) => o.value).join(','), true)}
-    value={editorValue.split(',')}
+    on:change={(e) => {
+      console.log(e);
+      onEditorValueChange(e.detail.value, true);
+    }}
+    value={editorValue}
     disabled={readonly}
-    options={demoOptions ?? []}
+    {options}
     valueProp="value"
     labelProp="label"
-    formatSelected={({ options }) =>
-      options.map((o) => o.label).join(", ") || "None"}
+    infiniteScroll
     clearSearchOnOpen={false}
     clearable={false}
-    search={() => Promise.resolve()}
     class="ws-field"
     classes={{ root: `${editorValue ? '' : 'empty'} ${readonly ? 'readonly' : ''}`, field: 'field-container' }}
     {label}
