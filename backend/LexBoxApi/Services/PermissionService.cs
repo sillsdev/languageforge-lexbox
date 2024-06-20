@@ -2,11 +2,13 @@
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
+using LexData;
 
 namespace LexBoxApi.Services;
 
 public class PermissionService(
     LoggedInContext loggedInContext,
+    LexBoxDbContext dbContext,
     ProjectService projectService)
     : IPermissionService
 {
@@ -34,6 +36,32 @@ public class PermissionService(
     public void AssertCanSyncProject(Guid projectId)
     {
         if (!CanSyncProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask<bool> CanViewProject(Guid projectId)
+    {
+        if (User is not null && User.Role == UserRole.admin) return true;
+        if (User is not null && User.Projects.Any(p => p.ProjectId == projectId)) return true;
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null) return false;
+        if (project.IsConfidential is null) return false; // Private by default
+        return project.IsConfidential == false; // Explicitly set to public
+    }
+
+    public async ValueTask AssertCanViewProject(Guid projectId)
+    {
+        if (!await CanViewProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask<bool> CanViewProject(string projectCode)
+    {
+        if (User is not null && User.Role == UserRole.admin) return true;
+        return await CanViewProject(await projectService.LookupProjectId(projectCode));
+    }
+
+    public async ValueTask AssertCanViewProject(string projectCode)
+    {
+        if (!await CanViewProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
     public bool CanManageProject(Guid projectId)

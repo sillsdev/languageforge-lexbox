@@ -55,9 +55,9 @@ public class LexQueries
 
     [UseSingleOrDefault]
     [UseProjection]
-    public IQueryable<Project> ProjectById(LexBoxDbContext context, IPermissionService permissionService, Guid projectId)
+    public async Task<IQueryable<Project>> ProjectById(LexBoxDbContext context, IPermissionService permissionService, Guid projectId)
     {
-        permissionService.AssertCanSyncProject(projectId);
+        await permissionService.AssertCanViewProject(projectId);
         return context.Projects.Where(p => p.Id == projectId);
     }
 
@@ -65,7 +65,7 @@ public class LexQueries
     [UseProjection]
     public async Task<IQueryable<Project>> ProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
     {
-        await permissionService.AssertCanSyncProject(code);
+        await permissionService.AssertCanViewProject(code);
         return context.Projects.Where(p => p.Code == code);
     }
 
