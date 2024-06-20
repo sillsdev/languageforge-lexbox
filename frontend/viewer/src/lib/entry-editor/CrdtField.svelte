@@ -59,10 +59,12 @@
   }
 
   function saveChanges(): void {
-    value = editorValue;
+    if (unsavedChanges) {
+      value = editorValue;
+      dispatch('change', { value });
+    }
     unsavedChanges = false;
     unacceptedChanges = false;
-    dispatch('change', { value });
   }
 
   function onEditorValueChange(newValue: Value, save = false): void {
