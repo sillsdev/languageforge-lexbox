@@ -12,7 +12,7 @@ const allFieldConfigs = ({
     note: { id: 'note', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Note_field.htm' },
   },
   customEntry: {
-    custom1: { id: 'entry-custom-001', type: 'multi', ws: 'vernacular', name: 'Custom 1', custom: true },
+    // custom1: { id: 'entry-custom-001', type: 'multi', ws: 'vernacular', name: 'Custom 1', custom: true },
   },
   sense: {
     gloss: { id: 'gloss', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm' },
@@ -21,7 +21,7 @@ const allFieldConfigs = ({
     semanticDomains: { id: 'semanticDomains', type: 'multi-option', optionType: 'semantic-domain', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/semantic_domains_field.htm' }
   },
   customSense: {
-    custom1: { id: 'sense-custom-001', type: 'multi', ws: 'first-analysis', name: 'Custom sense', custom: true },
+    // custom1: { id: 'sense-custom-001', type: 'multi', ws: 'first-analysis', name: 'Custom sense', custom: true },
   },
   example: {
     sentence: { id: 'sentence', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/example_field.htm' },
@@ -40,15 +40,16 @@ const allFieldConfigs = ({
 };
 
 type FieldOptionType<T extends { optionType: string }> = T['optionType'];
-export type WellKnownOptionType = FieldOptionType<ValueOf<ConditionalPickDeep<typeof allFieldConfigs, { optionType?: string }>['sense']>>;
-export type OptionType = WellKnownOptionType | Omit<string, WellKnownOptionType>;
+type OptionFields = ValueOf<ValueOf<ConditionalPickDeep<typeof allFieldConfigs, { optionType?: string }>>>;
+export type WellKnownSingleOptionType = FieldOptionType<OptionFields & { type: 'option' }>;
+export type WellKnownMultiOptionType = FieldOptionType<OptionFields & { type: 'multi-option' }>;
 
 export function allFields(viewConfig: ViewConfig): Readonly<FieldConfig[]> {
   return [
     ...Object.values(viewConfig.entry),
-    ...Object.values(viewConfig.customEntry ?? {}),
+    ...Object.values<never>(viewConfig.customEntry ?? {}),
     ...Object.values(viewConfig.sense),
-    ...Object.values(viewConfig.customSense ?? {}),
+    ...Object.values<never>(viewConfig.customSense ?? {}),
     ...Object.values(viewConfig.example),
     ...Object.values<never>(viewConfig.customExample ?? {}),
   ] as const;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { OptionType } from '../config-data';
+  import type { WellKnownSingleOptionType } from '../config-data';
 
   import type { OptionProvider } from '../services/option-provider';
 
@@ -23,7 +23,7 @@
   const optionProvider = getContext<OptionProvider>('optionProvider');
 
   function pickOptions(field: FieldConfig & OptionFieldConfig): Readable<MenuOption[]> {
-    switch (field.optionType as OptionType) {
+    switch (field.optionType as WellKnownSingleOptionType) {
       case 'part-of-speech':
         return optionProvider.partsOfSpeech;
       default:

@@ -22,7 +22,7 @@
   function isSingleOption(state: {value: unknown, field: FieldConfig}): state is {value: string, field: FieldConfig & OptionFieldConfig} {
     return field.type === 'option';
   }
-  function isMultiOption(value: unknown): value is string[] {
+  function isMultiOption(state: {value: unknown, field: FieldConfig}): state is {value: string[], field: FieldConfig & OptionFieldConfig} {
     return field.type === 'multi-option';
   }
 </script>
@@ -33,8 +33,8 @@
   <SingleFieldEditor on:change {field} bind:value />
 {:else if isSingleOption(state)}
   <SingleOptionEditor on:change field={state.field} bind:value={state.value} />
-{:else if isMultiOption(value)}
-  <MultiOptionEditor on:change {field} bind:value />
+{:else if isMultiOption(state)}
+  <MultiOptionEditor on:change field={state.field} bind:value={state.value} />
 {/if}
 
 <style global>
