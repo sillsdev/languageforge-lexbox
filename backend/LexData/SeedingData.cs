@@ -25,6 +25,7 @@ public class SeedingData(
     private static readonly Guid TestOrgId = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6");
     private static readonly Guid SecondTestOrgId = new Guid("a748bd8b-6348-4980-8dee-6de8b63e4a39");
     private static readonly Guid Sena3ProjId = new Guid("0ebc5976-058d-4447-aaa7-297f8569f968");
+    private static readonly Guid ElawaProjId = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507");
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
@@ -149,7 +150,7 @@ public class SeedingData(
         });
         lexBoxDbContext.Attach(new Project
         {
-            Id = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507"),
+            Id = ElawaProjId,
             Name = "Elawa",
             Description = "Eastern Lawa project",
             Code = "elawa-dev-flex",
@@ -207,6 +208,13 @@ public class SeedingData(
             Id = new Guid("f659eb4c-0289-475d-b44a-095ffddb31c8"),
             OrgId = TestOrgId,
             ProjectId = Sena3ProjId,
+        });
+
+        lexBoxDbContext.Attach(new OrgProjects
+        {
+            Id = new Guid("9b642e86-9f72-46db-baa6-0984beb5b815"),
+            OrgId = TestOrgId,
+            ProjectId = ElawaProjId,
         });
 
         foreach (var entry in lexBoxDbContext.ChangeTracker.Entries())
