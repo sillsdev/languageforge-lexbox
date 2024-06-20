@@ -1,4 +1,3 @@
-using System.Globalization;
 using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api;
@@ -39,33 +38,32 @@ internal static class LcmHelpers
         '\u200C', // Zero Width Non-Joiner
         '\u200D', // Zero Width Joiner
         '\u200E', // Left-to-Right Mark
-        '\u200F', // Right-to-Left Mark
+        '\u200F',  // Right-to-Left Mark
         '\u2028', // Line Separator
         '\u2029', // Paragraph Separator
         '\u202F', // Narrow No-Break Space
         '\u205F', // Medium Mathematical Space
-        '\u3000', // Ideographic Space
+        '\u3000',  // Ideographic Space
         '\uFEFF', // Zero Width No-Break Space / BOM
     ];
 
     internal static readonly char[] WhitespaceAndFormattingChars =
     [
         .. WhitespaceChars,
-        '\u0640'.ToString().Normalize(System.Text.NormalizationForm.FormD)[0], // Arabic Tatweel
+        '\u0640', // Arabic Tatweel
     ];
 
-    internal static void ContributeExemplars(ITsMultiString multiString, IReadOnlyDictionary<int, HashSet<string>> wsExemplars)
+    internal static void ContributeExemplars(ITsMultiString multiString, IReadOnlyDictionary<int, HashSet<char>> wsExemplars)
     {
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
             if (string.IsNullOrEmpty(tsString.Text)) continue;
-            var value = new StringInfo(tsString.Text).SubstringByTextElements(0, 1)
-                // in some cases we need to trim things both before and after the grapheme
-                .Trim(WhitespaceAndFormattingChars);
-            if (value.Length > 0 && wsExemplars.TryGetValue(ws, out var exemplars))
+            var value = tsString.Text.AsSpan().Trim(WhitespaceAndFormattingChars);
+            if (!value.IsEmpty && wsExemplars.TryGetValue(ws, out var exemplars))
             {
-                exemplars.Add(value.ToUpper());
+                //todo should we upper or lowercase the value?
+                exemplars.Add(value[0]);
             }
         }
     }
