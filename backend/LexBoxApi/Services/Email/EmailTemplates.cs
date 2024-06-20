@@ -18,7 +18,9 @@ public enum EmailTemplate
     VerifyEmailAddress,
     PasswordChanged,
     CreateAccountRequest,
-    CreateProjectRequest
+    CreateProjectRequest,
+    ApproveProjectRequest,
+    UserAdded,
 }
 
 public record ForgotPasswordEmail(string Name, string ResetUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.ForgotPassword);
@@ -32,4 +34,6 @@ public record ProjectInviteEmail(string Email, string ProjectId, string ManagerN
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);
 
 public record CreateProjectRequestUser(string Name, string Email);
-public record CreateProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project): EmailTemplateBase(EmailTemplate.CreateProjectRequest);
+public record CreateProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.CreateProjectRequest);
+public record ApproveProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.ApproveProjectRequest);
+public record UserAddedEmail(string Name, string Email, string ProjectName, string ProjectCode) : EmailTemplateBase(EmailTemplate.UserAdded);

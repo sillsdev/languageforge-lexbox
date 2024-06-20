@@ -16,12 +16,11 @@
   }>();
 
   export let entry: IEntry;
-  let initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+  $: initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
+
   function updateInitialEntry() {
     initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
   }
-
-
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
@@ -104,7 +103,7 @@
 </div>
 
 <style lang="postcss">
-  :global(.hide-empty .empty) {
+  :global(.hide-empty :is(.empty, .ws-field-wrapper:has(.empty))) {
     display: none !important;
   }
 </style>

@@ -12,6 +12,8 @@
   export let skipTurnstile = false;
   export let submitButtonText = $t('register.button_register');
   export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
+  export let formTainted = false;
+  $: formTainted = !!$tainted;
 
   const dispatch = createEventDispatcher<{
     submitted: LexAuthUser,
@@ -41,7 +43,7 @@
     locale: z.string().trim().min(2).default(userLocale),
   });
 
-  let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
+  let { form, errors, message, enhance, submitting, tainted } = lexSuperForm(formSchema, async () => {
     const { user, error } = await handleSubmit($form.password, $form.score, $form.name, $form.email, $form.locale, turnstileToken);
     if (error) {
       if (error.turnstile) {

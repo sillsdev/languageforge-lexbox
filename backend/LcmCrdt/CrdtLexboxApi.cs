@@ -12,16 +12,13 @@ namespace LcmCrdt;
 
 public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOptions, IHybridDateTimeProvider timeProvider, CurrentProjectService projectService) : ILexboxApi
 {
-    private async ValueTask<Guid> GetClientId()
-    {
-        return (await projectService.GetProjectData()).ClientId;
-    }
+    private Guid ClientId { get; } = projectService.ProjectData.ClientId;
 
 
-    private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>().ToLinqToDB();
-    private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>().ToLinqToDB();
-    private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>().ToLinqToDB();
-    private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>().ToLinqToDB();
+    private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
+    private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
+    private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
+    private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
 
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -39,7 +36,7 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     {
         var entityId = Guid.NewGuid();
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
-        await dataModel.AddChange(await GetClientId(), new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
+        await dataModel.AddChange(ClientId, new CreateWritingSystemChange(writingSystem, type, entityId, wsCount));
         return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
     }
 
@@ -48,7 +45,7 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         var ws = await GetWritingSystem(id, type);
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
         var patchChange = new JsonPatchChange<WritingSystem>(ws.Id, update.Patch, jsonOptions);
-        await dataModel.AddChange(await GetClientId(), patchChange);
+        await dataModel.AddChange(ClientId, patchChange);
         return await dataModel.GetLatest<WritingSystem>(ws.Id) ?? throw new NullReferenceException();
     }
 
@@ -100,13 +97,13 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         if (predicate is not null) queryable = queryable.Where(predicate);
         if (options.Exemplar is not null)
         {
-            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Analysis))?.WsId;
+            var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
             if (ws is null)
                 throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
             queryable = queryable.Where(e => e.Headword(ws.Value).StartsWith(options.Exemplar.Value));
         }
 
-        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Analysis))?.WsId;
+        var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable.OrderBy(e => e.Headword(sortWs.Value))
@@ -123,13 +120,13 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     {
         var allSenses = (await Senses
                 .Where(s => entries.Select(e => e.Id).Contains(s.EntryId))
-                .ToArrayAsync())
+                .ToArrayAsyncEF())
             .ToLookup(s => s.EntryId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         var allSenseIds = allSenses.Values.SelectMany(s => s, (_, sense) => sense.Id);
         var allExampleSentences = (await ExampleSentences
                 .Where(e => allSenseIds.Contains(e.SenseId))
-                .ToArrayAsync())
+                .ToArrayAsyncEF())
             .ToLookup(s => s.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         foreach (var entry in entries)
@@ -146,12 +143,12 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
 
     public async Task<MiniLcm.Entry?> GetEntry(Guid id)
     {
-        var entry = await dataModel.GetLatest<Entry>(id);
+        var entry = await Entries.SingleOrDefaultAsync(e => e.Id == id);
         if (entry is null) return null;
         var senses = await Senses
                 .Where(s => s.EntryId == id).ToArrayAsyncLinqToDB();
         var exampleSentences = (await ExampleSentences
-                .Where(e => senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncLinqToDB())
+                .Where(e => senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncEF())
             .ToLookup(e => e.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         entry.Senses = senses;
@@ -163,9 +160,24 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         return entry;
     }
 
+    /// <summary>
+    /// does not return the newly created entry, used for importing a large amount of data
+    /// </summary>
+    /// <param name="entry"></param>
+    public async Task CreateEntryLite(MiniLcm.Entry entry)
+    {
+        await dataModel.AddChanges(ClientId,
+        [
+            new CreateEntryChange(entry),
+            ..entry.Senses.Select(s => new CreateSenseChange(s, entry.Id)),
+            ..entry.Senses.SelectMany(s => s.ExampleSentences,
+                (sense, sentence) => new CreateExampleSentenceChange(sentence, sense.Id))
+        ], deferCommit: true);
+    }
+
     public async Task<MiniLcm.Entry> CreateEntry(MiniLcm.Entry entry)
     {
-        await dataModel.AddChanges(await GetClientId(),
+        await dataModel.AddChanges(ClientId,
         [
             new CreateEntryChange(entry),
             ..entry.Senses.Select(s => new CreateSenseChange(s, entry.Id)),
@@ -179,18 +191,18 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         UpdateObjectInput<MiniLcm.Entry> update)
     {
         var patchChange = new JsonPatchChange<Entry>(id, update.Patch, jsonOptions);
-        await dataModel.AddChange(await GetClientId(), patchChange);
+        await dataModel.AddChange(ClientId, patchChange);
         return await GetEntry(id) ?? throw new NullReferenceException();
     }
 
     public async Task DeleteEntry(Guid id)
     {
-        await dataModel.AddChange(await GetClientId(), new DeleteChange<Entry>(id));
+        await dataModel.AddChange(ClientId, new DeleteChange<Entry>(id));
     }
 
     public async Task<MiniLcm.Sense> CreateSense(Guid entryId, MiniLcm.Sense sense)
     {
-        await dataModel.AddChanges(await GetClientId(),
+        await dataModel.AddChanges(ClientId,
         [
             new CreateSenseChange(sense, entryId),
             ..sense.ExampleSentences.Select(sentence =>
@@ -204,20 +216,20 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         UpdateObjectInput<MiniLcm.Sense> update)
     {
         var patchChange = new JsonPatchChange<Sense>(senseId, update.Patch, jsonOptions);
-        await dataModel.AddChange(await GetClientId(), patchChange);
+        await dataModel.AddChange(ClientId, patchChange);
         return await dataModel.GetLatest<Sense>(senseId) ?? throw new NullReferenceException();
     }
 
     public async Task DeleteSense(Guid entryId, Guid senseId)
     {
-        await dataModel.AddChange(await GetClientId(), new DeleteChange<Sense>(senseId));
+        await dataModel.AddChange(ClientId, new DeleteChange<Sense>(senseId));
     }
 
     public async Task<MiniLcm.ExampleSentence> CreateExampleSentence(Guid entryId,
         Guid senseId,
         MiniLcm.ExampleSentence exampleSentence)
     {
-        await dataModel.AddChange(await GetClientId(), new CreateExampleSentenceChange(exampleSentence, senseId));
+        await dataModel.AddChange(ClientId, new CreateExampleSentenceChange(exampleSentence, senseId));
         return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
     }
 
@@ -228,13 +240,13 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     {
         var jsonPatch = update.Patch;
         var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch, jsonOptions);
-        await dataModel.AddChange(await GetClientId(), patchChange);
+        await dataModel.AddChange(ClientId, patchChange);
         return await dataModel.GetLatest<ExampleSentence>(exampleSentenceId) ?? throw new NullReferenceException();
     }
 
     public async Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        await dataModel.AddChange(await GetClientId(), new DeleteChange<ExampleSentence>(exampleSentenceId));
+        await dataModel.AddChange(ClientId, new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
     public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class

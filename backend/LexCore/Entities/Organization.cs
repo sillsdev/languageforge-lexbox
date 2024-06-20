@@ -1,9 +1,24 @@
-﻿namespace LexCore.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
+using EntityFrameworkCore.Projectables;
+
+namespace LexCore.Entities;
 
 public class Organization : EntityBase
 {
     public required string Name { get; set; }
     public required List<OrgMember> Members { get; set; }
+    public required List<Project> Projects { get; set; }
+
+    [NotMapped]
+    [Projectable(UseMemberBody = nameof(SqlMemberCount))]
+    public int MemberCount { get; set; }
+    private static Expression<Func<Organization, int>> SqlMemberCount => org => org.Members.Count;
+
+    [NotMapped]
+    [Projectable(UseMemberBody = nameof(SqlProjectCount))]
+    public int ProjectCount { get; set; }
+    private static Expression<Func<Organization, int>> SqlProjectCount => org => org.Projects.Count;
 }
 
 public class OrgMember : EntityBase

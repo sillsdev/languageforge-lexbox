@@ -1,7 +1,7 @@
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
-using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +22,7 @@ public class ProjectServiceTest
         var serviceProvider = testing.ConfigureServices(s =>
         {
             s.AddScoped<IHgService>(_ => Mock.Of<IHgService>());
+            s.AddScoped<IEmailService>(_ => Mock.Of<IEmailService>());
             s.AddSingleton<IMemoryCache>(_ => Mock.Of<IMemoryCache>());
             s.AddScoped<ProjectService>();
         });
@@ -32,7 +33,7 @@ public class ProjectServiceTest
     public async Task CanCreateProject()
     {
         var projectId = await _projectService.CreateProject(
-            new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test, false, null));
+            new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
         projectId.ShouldNotBe(default);
     }
 
@@ -41,10 +42,10 @@ public class ProjectServiceTest
     {
         //first project should be created
         await _projectService.CreateProject(
-            new(null, "TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test, false, null));
+            new(null, "TestProject", "Test", "test-dup-code", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
 
         var exception = await _projectService.CreateProject(
-            new(null, "Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev, false, null)
+            new(null, "Test2", "Test desc", "test-dup-code", ProjectType.Unknown, RetentionPolicy.Dev, false, null, null)
         ).ShouldThrowAsync<DbUpdateException>();
 
         exception.InnerException.ShouldBeOfType<PostgresException>()

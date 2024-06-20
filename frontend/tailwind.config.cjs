@@ -1,4 +1,6 @@
 const { iconsPlugin, getIconCollections } = require('@egoist/tailwindcss-icons');
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/*.{svelte,ts}'],
@@ -16,6 +18,7 @@ module.exports = {
         'winter': {
           ...require("daisyui/src/theming/themes")["winter"],
           "warning": "#FFBE00", // warning color from corporate, because it has much better contrast
+          "primary": "#0058BF", // easier on the eyes
         },
       },
       {
@@ -31,6 +34,10 @@ module.exports = {
     logs: false,
   },
   theme: {
+    screens: {
+      'xs': '400px',
+      ...defaultTheme.screens,
+    },
     extend: {
       screens: {
         'max-xs': { 'max': '400px' },

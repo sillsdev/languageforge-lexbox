@@ -2,16 +2,18 @@
 using Crdt;
 using Crdt.Db;
 using LcmCrdt;
+using LocalWebApp.Auth;
 using Refit;
 
 namespace LocalWebApp;
 
-public class CrdtHttpSyncService(IHttpClientFactory clientFactory, ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
+public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<CrdtHttpSyncService> logger, RefitSettings refitSettings)
 {
     //todo replace with a IMemoryCache check
     private bool? _isHealthy;
     private DateTimeOffset _lastHealthCheck = DateTimeOffset.MinValue;
 
+    //todo pull this out into a service wrapped around auth helpers so that any service making requests can use it
     public async ValueTask<bool> ShouldSync(ISyncHttp syncHttp)
     {
         if (_isHealthy is not null && _lastHealthCheck + TimeSpan.FromMinutes(30) > DateTimeOffset.UtcNow)
@@ -40,18 +42,22 @@ public class CrdtHttpSyncService(IHttpClientFactory clientFactory, ILogger<CrdtH
         return _isHealthy.Value;
     }
 
-    public ISyncHttp CreateSyncHttp(string originDomain)
+    public async ValueTask<ISyncable> CreateProjectSyncable(ProjectData project)
     {
-        var uri = new Uri(originDomain);
-        var httpClient = clientFactory.CreateClient(uri.Host);
-        httpClient.BaseAddress = uri;
-        return RestService.For<ISyncHttp>(httpClient, refitSettings);
-    }
+        if (string.IsNullOrEmpty(project.OriginDomain))
+        {
+            logger.LogWarning("Project {ProjectName} has no origin domain, unable to create http sync client", project.Name);
+            return NullSyncable.Instance;
+        }
 
-    public ISyncable CreateProjectSyncable(ProjectData project)
-    {
-        if (string.IsNullOrEmpty(project.OriginDomain)) return NullSyncable.Instance;
-        return new CrdtProjectSync(CreateSyncHttp(project.OriginDomain), project.Id, project.OriginDomain, this);
+        var client = await authHelpersFactory.GetHelper(project).CreateClient();
+        if (client is null)
+        {
+            logger.LogWarning("Unable to create http client to sync project, user is not authenticated to {OriginDomain}", project.OriginDomain);
+            return NullSyncable.Instance;
+        }
+
+        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.OriginDomain, this);
     }
 }
 
@@ -94,15 +100,15 @@ public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, string or
 
 public interface ISyncHttp
 {
-    [Get("/api/healthz")]
+    [Get("/api/AuthTesting/requires-auth")]
     Task<HttpResponseMessage> HealthCheck();
 
-    [Post("/api/sync/{id}/add")]
+    [Post("/api/crdt/{id}/add")]
     internal Task AddRange(Guid id, IEnumerable<Commit> commits);
 
-    [Get("/api/sync/{id}/get")]
+    [Get("/api/crdt/{id}/get")]
     internal Task<SyncState> GetSyncState(Guid id);
 
-    [Post("/api/sync/{id}/changes")]
+    [Post("/api/crdt/{id}/changes")]
     internal Task<ChangesResult<Commit>> GetChanges(Guid id, SyncState otherHeads);
 }

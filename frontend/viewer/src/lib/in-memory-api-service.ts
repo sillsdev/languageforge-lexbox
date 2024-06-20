@@ -1,19 +1,38 @@
 ﻿import type {
+  LexboxApiClient,
   IEntry,
   IExampleSentence,
   ISense,
   JsonPatch,
-  LexboxApi,
+  LexboxApiFeatures,
   QueryOptions,
   WritingSystemType,
   WritingSystems
 } from './services/lexbox-api';
-import {entries, writingSystems} from './entry-data';
+import {entries, projectName, writingSystems} from './entry-data';
 
 import { type WritingSystem } from './mini-lcm';
-import { filterEntries, firstVal } from './utils';
+import { headword } from './utils';
+import { applyPatch } from 'fast-json-patch';
 
-export class InMemoryApiService implements LexboxApi {
+function filterEntries(entries: IEntry[], query: string) {
+  return entries.filter(entry =>
+    [
+      ...Object.values(entry.lexemeForm ?? {}),
+      ...Object.values(entry.citationForm ?? {}),
+      ...entry.senses.flatMap(sense => [
+        ...Object.values(sense.gloss ?? {}),
+      ]),
+    ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
+}
+
+export class InMemoryApiService implements LexboxApiClient {
+
+  SupportedFeatures(): LexboxApiFeatures {
+    return {};
+  }
+
+  readonly projectName = projectName;
 
   private _entries = entries;
   private _Entries(): IEntry[] {
@@ -49,8 +68,8 @@ export class InMemoryApiService implements LexboxApi {
 
     return entries
       .sort((e1, e2) => {
-        const v1 = firstVal(e1.citationForm) ?? firstVal(e1.lexemeForm);
-        const v2 = firstVal(e2.citationForm) ?? firstVal(e2.lexemeForm);
+        const v1 = headword(e1, sortWs);
+        const v2 = headword(e2, sortWs);
         if (!v2) return -1;
         if (!v1) return 1;
         let compare = v1.localeCompare(v2, sortWs);
@@ -70,7 +89,9 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   UpdateEntry(guid: string, update: JsonPatch): Promise<IEntry> {
-    throw new Error('Method not implemented.');
+    const entry = entries.find(e => e.id === guid)!;
+    applyPatch(entry, update);
+    return Promise.resolve(entry);
   }
 
   CreateSense(entryGuid: string, sense: ISense): Promise<ISense> {
@@ -79,7 +100,10 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   UpdateSense(entryGuid: string, senseGuid: string, update: JsonPatch): Promise<ISense> {
-    throw new Error('Method not implemented.');
+    const entry = entries.find(e => e.id === entryGuid)!;
+    const sense = entry.senses.find(s => s.id === senseGuid)!;
+    applyPatch(sense, update);
+    return Promise.resolve(sense);
   }
 
   CreateExampleSentence(entryGuid: string, senseGuid: string, exampleSentence: IExampleSentence): Promise<IExampleSentence> {
@@ -88,7 +112,11 @@ export class InMemoryApiService implements LexboxApi {
   }
 
   UpdateExampleSentence(entryGuid: string, senseGuid: string, exampleSentenceGuid: string, update: JsonPatch): Promise<IExampleSentence> {
-    throw new Error('Method not implemented.');
+    const entry = entries.find(e => e.id === entryGuid)!;
+    const sense = entry.senses.find(s => s.id === senseGuid)!;
+    const exampleSentence = sense.exampleSentences.find(es => es.id === exampleSentenceGuid)!;
+    applyPatch(exampleSentence, update);
+    return Promise.resolve(exampleSentence);
   }
 
   DeleteEntry(guid: string): Promise<void> {

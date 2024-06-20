@@ -3,6 +3,7 @@ using HotChocolate.Diagnostics;
 using LexBoxApi.Auth;
 using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.ServiceInterfaces;
 using LexData;
 
@@ -22,7 +23,7 @@ public static class GraphQlSetupKernel
             .RegisterService<IHgService>()
             .RegisterService<IIsLanguageForgeProjectDataLoader>()
             .RegisterService<LoggedInContext>()
-            .RegisterService<EmailService>()
+            .RegisterService<IEmailService>()
             .RegisterService<LexAuthService>()
             .RegisterService<IPermissionService>()
             .AddDataAnnotationsValidator()

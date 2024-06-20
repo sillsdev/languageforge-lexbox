@@ -14,6 +14,7 @@ import { lexSuperForm } from './superforms';
 import type { ErrorMessage } from './types';
 export * from './utils';
 import SystemRoleSelect from './SystemRoleSelect.svelte';
+import OrgRoleSelect from './OrgRoleSelect.svelte';
 import ProjectRoleSelect from './ProjectRoleSelect.svelte';
 import ProjectTypeSelect from './ProjectTypeSelect.svelte';
 import DisplayLanguageSelect from './DisplayLanguageSelect.svelte';
@@ -35,6 +36,7 @@ export {
   type Token,
   type ErrorMessage,
   SystemRoleSelect,
+  OrgRoleSelect,
   ProjectRoleSelect,
   ProjectTypeSelect,
   DisplayLanguageSelect,

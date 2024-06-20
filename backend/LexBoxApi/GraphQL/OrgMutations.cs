@@ -1,4 +1,6 @@
 ﻿using LexBoxApi.Auth;
+using LexBoxApi.Auth.Attributes;
+using LexBoxApi.Models.Org;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -30,9 +32,87 @@ public class OrgMutations
             Members =
             [
                 new OrgMember() { Role = OrgRole.Admin, UserId = userId }
-            ]
+            ],
+            Projects = []
         });
         await dbContext.SaveChangesAsync();
+        return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<DbError>]
+    [UseMutationConvention]
+    [AdminRequired]
+    public async Task<Organization> DeleteOrg(Guid orgId,
+        LexBoxDbContext dbContext)
+    {
+        var org = await dbContext.Orgs.Include(o => o.Members).FirstOrDefaultAsync(o => o.Id == orgId);
+        NotFoundException.ThrowIfNull(org);
+
+        dbContext.Remove(org);
+        await dbContext.SaveChangesAsync();
+        return org;
+    }
+
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> AddProjectToOrg(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid projectId)
+    {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanAddProjectToOrg(org);
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Organizations)
+            .SingleOrDefaultAsync();
+        NotFoundException.ThrowIfNull(project);
+        permissionService.AssertCanManageProject(projectId);
+
+        if (project.Organizations.Exists(o => o.Id == orgId))
+        {
+            // No error since we're already in desired state; just return early
+            return dbContext.Orgs.Where(o => o.Id == orgId);
+        }
+        project.Organizations.Add(org);
+        project.UpdateUpdatedDate();
+        org.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid projectId)
+    {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanAddProjectToOrg(org);
+        var project = await dbContext.Projects.Where(p => p.Id == projectId)
+            .Include(p => p.Organizations)
+            .SingleOrDefaultAsync();
+        NotFoundException.ThrowIfNull(project);
+        permissionService.AssertCanManageProject(projectId);
+        var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
+        if (foundOrg is not null)
+        {
+            project.Organizations.Remove(foundOrg);
+            project.UpdateUpdatedDate();
+            org.UpdateUpdatedDate();
+            await dbContext.SaveChangesAsync();
+        }
+        // If org did not own project, return with no error
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
 
@@ -56,13 +136,38 @@ public class OrgMutations
         OrgRole? role,
         string emailOrUsername)
     {
+        var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
+        NotFoundException.ThrowIfNull(user); // TODO: Implement inviting user
+        return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+    }
+
+    /// <summary>
+    /// Change the role of an existing member in an organization
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="permissionService"></param>
+    /// <param name="orgId"></param>
+    /// <param name="userId">ID (GUID) of the user whose membership should be updated</param>
+    /// <param name="role">set to null to remove the member</param>
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> ChangeOrgMemberRole(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        Guid orgId,
+        Guid userId,
+        OrgRole? role)
+    {
         var org = await dbContext.Orgs.Include(o => o.Members).FirstOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
-        var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
-        NotFoundException.ThrowIfNull(user);
 
         permissionService.AssertCanEditOrg(org);
-        await UpdateOrgMemberRole(dbContext, org, role, user.Id);
+        var user = await dbContext.Users.FindAsync(userId);
+        NotFoundException.ThrowIfNull(user);
+        await UpdateOrgMemberRole(dbContext, org, role, userId);
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
 
@@ -84,5 +189,27 @@ public class OrgMutations
         }
 
         await dbContext.SaveChangesAsync();
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<RequiredException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Organization>> ChangeOrgName(ChangeOrgNameInput input,
+        IPermissionService permissionService,
+        LexBoxDbContext dbContext)
+    {
+        if (string.IsNullOrEmpty(input.Name)) throw new RequiredException("Org name cannot be empty");
+
+        var org = await dbContext.Orgs.FindAsync(input.OrgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanEditOrg(org);
+
+        org.Name = input.Name;
+        org.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return dbContext.Orgs.Where(o => o.Id == input.OrgId);
     }
 }

@@ -1,4 +1,8 @@
 ﻿version: 3
+includes:
+  ui:
+    taskfile: ../frontend/Taskfile.yml
+    dir: ../frontend
 
 tasks:
   api-only:
@@ -87,8 +91,14 @@ tasks:
     cmds:
       - kubectl port-forward service/db 27018:27017 -n languageforge --context dallas-rke
 
-  local-web-app:
+  local-web-app-for-develop:
     label: dotnet
+    dir: ./LocalWebApp
+    cmd: dotnet watch --no-hot-reload
+  local-web-app:
+    label: Run LocalWebApp with Local LexBox
+    env:
+      Auth__DefaultAuthority: "https://localhost:3050"
     dir: ./LocalWebApp
     cmd: dotnet watch --no-hot-reload
 
@@ -99,6 +109,7 @@ tasks:
     - task: publish-local-osx
   publish-local-win:
     dir: ./LocalWebApp
+    deps: [ui:build-viewer-app]
     cmd: dotnet publish -r win-x64
   publish-local-linux:
     dir: ./LocalWebApp

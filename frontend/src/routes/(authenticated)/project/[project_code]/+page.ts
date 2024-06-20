@@ -25,6 +25,7 @@ import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
+export type User = ProjectUser['user'];
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();

@@ -5,7 +5,7 @@
   import { useLexboxApi } from '../services/service-provider';
   import { derived, writable } from 'svelte/store';
   import { deriveAsync } from '../utils/time';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import type { IEntry } from '../mini-lcm';
 
   const dispatch = createEventDispatcher<{
@@ -14,18 +14,36 @@
 
   let showSearchDialog = false;
 
+  let waitingForSecondShift = false;
+  let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
+  const abortController = new AbortController();
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Shift') return;
+    if (waitingForSecondShift) {
+      waitingForSecondShift = false;
+      clearTimeout(waitingForSecondShiftTimeout);
+      showSearchDialog = true;
+    } else {
+      waitingForSecondShift = true;
+      waitingForSecondShiftTimeout = setTimeout(() => {
+        waitingForSecondShift = false;
+      }, 500);
+    }
+  }, { signal: abortController.signal });
+
+  onDestroy(() => {
+    abortController.abort();
+  });
+
   const lexboxApi = useLexboxApi();
   const search = writable<string | undefined>(undefined);
   const fetchCount = 105;
   const result = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
-
-    const exemplar = s.charAt(0);
     const entries = await lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
       count: fetchCount,
       order: {field: 'headword', writingSystem: 'default'},
-      exemplar: exemplar ? {value: exemplar, writingSystem: 'default'} : undefined
     });
     return { entries, search: s};
   }, {entries: [], search: undefined}, 200);
@@ -46,7 +64,7 @@
   </div>
 </Field>
 
-<Dialog bind:open={showSearchDialog} class="w-[700px]" classes={{root: 'items-start mt-4', title: 'p-2'}}>
+<Dialog bind:open={showSearchDialog} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
     <TextField
       autofocus
@@ -82,10 +100,10 @@
       </div>
     {/if}
     {#if $result.entries.length > $displayedEntries.length}
-      <div class="p-4 text-center opacity-75">
-        {$result.entries.length - $displayedEntries.length}
-        {#if $result.entries.length === fetchCount}+{/if}
-        more matching entries...
+      <div class="p-4 text-center opacity-75 flex">
+        <span>{$result.entries.length - $displayedEntries.length}</span>
+        {#if $result.entries.length === fetchCount}<span>+</span>{/if}
+        <span class="ml-1">more matching entries...</span>
       </div>
     {/if}
   </div>

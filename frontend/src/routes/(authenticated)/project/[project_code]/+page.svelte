@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge, BadgeList, MemberBadge } from '$lib/components/Badges';
+  import { Badge, BadgeList } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import { ProjectTypeBadge } from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
@@ -15,10 +15,8 @@
     _leaveProject,
     type ProjectUser,
   } from './+page';
-  import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
   import AddProjectMember from './AddProjectMember.svelte';
   import BulkAddProjectMembers from './BulkAddProjectMembers.svelte';
-  import ChangeMemberRoleModal from './ChangeMemberRoleModal.svelte';
   import { CircleArrowIcon, TrashIcon } from '$lib/icons';
   import { useNotifications } from '$lib/notify';
   import {DialogResponse, Modal} from '$lib/components/modals';
@@ -29,7 +27,7 @@
   import {_deleteProject} from '$lib/gql/mutations';
   import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
-  import { AdminContent, HeaderPage, PageBreadcrumb } from '$lib/layout';
+  import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
   import { ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
@@ -42,6 +40,9 @@
   import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import ProjectConfidentialityBadge from './ProjectConfidentialityBadge.svelte';
   import ProjectConfidentialityModal from './ProjectConfidentialityModal.svelte';
+  import { DetailItem, EditableDetailItem } from '$lib/layout';
+  import MembersList from './MembersList.svelte';
+  import DetailsPage from '$lib/layout/DetailsPage.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -62,10 +63,6 @@
   let lexEntryCount: number | string | null | undefined = undefined;
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
 
-  const TRUNCATED_MEMBER_COUNT = 5;
-  let showAllMembers = false;
-  $: showMembers = showAllMembers ? members : members.slice(0, TRUNCATED_MEMBER_COUNT);
-
   const { notifySuccess, notifyWarning } = useNotifications();
 
   let userModal: UserModal;
@@ -76,24 +73,6 @@
     const response = await fetch(`/api/project/updateLexEntryCount/${project.code}`, {method: 'POST'});
     lexEntryCount = await response.text();
     loadingEntryCount = false;
-  }
-
-  let changeMemberRoleModal: ChangeMemberRoleModal;
-  async function changeMemberRole(projectUser: ProjectUser): Promise<void> {
-    const { response } = await changeMemberRoleModal.open({
-      userId: projectUser.user.id,
-      name: projectUser.user.name,
-      role: projectUser.role,
-    });
-
-    if (response === DialogResponse.Submit) {
-      notifySuccess(
-        $t('project_page.notifications.role_change', {
-          name: projectUser.user.name,
-          role: projectUser.role.toLowerCase(),
-        }),
-      );
-    }
   }
 
   let resetProjectModal: ResetProjectModal;
@@ -231,7 +210,7 @@
 
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}
-  <HeaderPage wide title={project.name}>
+  <DetailsPage wide title={project.name}>
     <svelte:fragment slot="actions">
       {#if project.type === ProjectType.FlEx && $isDev}
         {#if project.isLanguageForgeProject}
@@ -332,107 +311,49 @@
       </BadgeList>
       <ProjectConfidentialityModal bind:this={projectConfidentialityModal} projectId={project.id} isConfidential={project.isConfidential ?? undefined} />
     </svelte:fragment>
-    <div class="space-y-4">
-      <p class="text-2xl mb-4">{$t('project_page.summary')}</p>
-      <div class="space-y-2">
-        <span class="text-lg">
-          {$t('project_page.project_code')}:
-          <span class="inline-flex items-center gap-1">
-            <span class="text-secondary">{project.code}</span>
-            <CopyToClipboardButton textToCopy={project.code} size="btn-sm" outline={false} />
-          </span>
-        </span>
-        <div class="text-lg">
-          {$t('project_page.created_at')}:
-          <span class="text-secondary">{$date(project.createdDate)}</span>
-        </div>
-        <div class="text-lg">
-          {$t('project_page.last_commit')}:
-          <span class="text-secondary">{$date(project.lastCommit)}</span>
-        </div>
-        {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
-          <div class="text-lg flex items-center gap-1">
-            {$t('project_page.num_entries')}:
-            <span class="text-secondary">
-              {$number(lexEntryCount)}
-            </span>
-            <AdminContent>
-              <IconButton
-                loading={loadingEntryCount}
-                icon="i-mdi-refresh"
-                size="btn-sm"
-                variant="btn-ghost"
-                outline={false}
-                on:click={updateEntryCount}
-              />
-            </AdminContent>
-          </div>
-        {/if}
-        <div>
-          <div class="text-lg">{$t('project_page.description')}:</div>
-          <span class="text-secondary">
-            <EditableText
-              value={project.description}
-              disabled={!canManage}
-              saveHandler={updateProjectDescription}
-              placeholder={$t('project_page.add_description')}
-              multiline
+    <svelte:fragment slot="details">
+      <DetailItem title={$t('project_page.project_code')} text={project.code} copyToClipboard={true} />
+      <DetailItem title={$t('project_page.created_at')} text={$date(project.createdDate)} />
+      <DetailItem title={$t('project_page.last_commit')} text={$date(project.lastCommit)} />
+      {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
+        <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
+          <AdminContent slot="extras">
+            <IconButton
+              loading={loadingEntryCount}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateEntryCount}
             />
-          </span>
-        </div>
-      </div>
-
+          </AdminContent>
+        </DetailItem>
+      {/if}
       <div>
-        <p class="text-2xl mb-4">
-          {$t('project_page.members.title')}
-        </p>
+        <EditableDetailItem
+          title={$t('project_page.description')}
+          value={project.description}
+          disabled={!canManage}
+          saveHandler={updateProjectDescription}
+          placeholder={$t('project_page.add_description')}
+          multiline
+        />
+      </div>
+    </svelte:fragment>
 
-        <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
-          {#each showMembers as member}
-            {@const canManageMember = canManage && (member.user.id !== userId || user.isAdmin)}
-            <Dropdown disabled={!canManageMember}>
-              <MemberBadge member={{ name: member.user.name, role: member.role }} canManage={canManageMember} />
-              <ul slot="content" class="menu">
-                <AdminContent>
-                  <li>
-                    <button on:click={() => userModal.open(member.user)}>
-                      <Icon icon="i-mdi-card-account-details-outline" size="text-2xl" />
-                      {$t('project_page.view_user_details')}
-                    </button>
-                  </li>
-                </AdminContent>
-                <li>
-                  <button on:click={() => changeMemberRole(member)}>
-                    <span class="i-mdi-account-lock text-2xl" />
-                    {$t('project_page.change_role')}
-                  </button>
-                </li>
-                <li>
-                  <button class="text-error" on:click={() => deleteProjectUser(member)}>
-                    <TrashIcon />
-                    {$t('project_page.remove_user')}
-                  </button>
-                </li>
-              </ul>
-            </Dropdown>
-          {/each}
-
-          {#if members.length > TRUNCATED_MEMBER_COUNT}
-            <div class="justify-self-start">
-              <Button outline size="btn-sm" on:click={() => (showAllMembers = !showAllMembers)}>
-                {showAllMembers ? $t('project_page.members.show_less') : $t('project_page.members.show_all')}
-              </Button>
-            </div>
-          {/if}
-
-          {#if canManage}
-            <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
-              <AddProjectMember projectId={project.id} />
-              <BulkAddProjectMembers projectId={project.id} />
-            </div>
-          {/if}
-
-          <ChangeMemberRoleModal projectId={project.id} bind:this={changeMemberRoleModal} />
+    <div class="space-y-4">
+      <MembersList
+        projectId={project.id}
+        {members}
+        canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
+        canManageList={canManage}
+        on:openUserModal={(event) => userModal.open(event.detail.user)}
+        on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
+        >
+          <svelte:fragment slot="extraButtons">
+            <AddProjectMember projectId={project.id} />
+            <BulkAddProjectMembers projectId={project.id} />
+          </svelte:fragment>
           <UserModal bind:this={userModal}/>
 
           <DeleteModal
@@ -444,8 +365,7 @@
               userName: userToDelete?.user.name ?? '',
             })}
           </DeleteModal>
-        </BadgeList>
-      </div>
+      </MembersList>
 
       <div class="divider" />
       <div class="space-y-2">
@@ -518,5 +438,5 @@
       </MoreSettings>
 
     </div>
-  </HeaderPage>
+  </DetailsPage>
 {/if}

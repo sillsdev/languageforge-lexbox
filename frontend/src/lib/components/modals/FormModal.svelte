@@ -89,7 +89,7 @@
 
 <Modal bind:this={modal} on:close={() => reset()} bottom closeOnClickOutside={!$tainted}>
   <Form id="modalForm" {enhance}>
-    <p class="mb-4 text-lg"><slot name="title" /></p>
+    <p class="mb-4 text-lg font-bold"><slot name="title" /></p>
     <slot errors={$errors} />
   </Form>
   <FormError error={$message} right />

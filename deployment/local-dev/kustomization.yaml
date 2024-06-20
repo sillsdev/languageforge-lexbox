@@ -8,6 +8,7 @@ resources:
 - ingress-deployment.yaml
 - db-secrets.yaml
 - lf-classic-secrets.yaml
+- self-signed-ssl.yaml
 
 components:
   - ../init-repos
@@ -29,6 +30,14 @@ patches:
       version: v1
       kind: PersistentVolumeClaim
     path: change-storage-class.patch.yaml
+  - target:
+      kind: Issuer
+    path: delete-oauth-certs.yaml
+  - target:
+      kind: Certificate
+    path: delete-oauth-certs.yaml
+
+  - path: app-config.yaml
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
   - path: hg-repos-pvc.patch.yaml
@@ -38,3 +47,7 @@ patches:
       kind: Ingress
       name: proxy
       namespace: languagedepot
+
+images:
+  - name: busybox:1.36.1
+    newName: local-dev-init
