@@ -12,28 +12,28 @@ public class PermissionService(
 {
     private LexAuthUser? User => loggedInContext.MaybeUser;
 
-    public async ValueTask<bool> CanAccessProject(string projectCode)
+    public async ValueTask<bool> CanSyncProject(string projectCode)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        return CanAccessProject(await projectService.LookupProjectId(projectCode));
+        return CanSyncProject(await projectService.LookupProjectId(projectCode));
     }
 
-    public bool CanAccessProject(Guid projectId)
+    public bool CanSyncProject(Guid projectId)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
         return User.Projects.Any(p => p.ProjectId == projectId);
     }
 
-    public async ValueTask AssertCanAccessProject(string projectCode)
+    public async ValueTask AssertCanSyncProject(string projectCode)
     {
-        if (!await CanAccessProject(projectCode)) throw new UnauthorizedAccessException();
+        if (!await CanSyncProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
-    public void AssertCanAccessProject(Guid projectId)
+    public void AssertCanSyncProject(Guid projectId)
     {
-        if (!CanAccessProject(projectId)) throw new UnauthorizedAccessException();
+        if (!CanSyncProject(projectId)) throw new UnauthorizedAccessException();
     }
 
     public bool CanManageProject(Guid projectId)
