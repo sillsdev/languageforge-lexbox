@@ -14,7 +14,7 @@ public class OrgGqlConfiguration : ObjectType<Organization>
         descriptor.Field(o => o.Members).Use<OrgMembersVisibilityMiddleware>();
         descriptor.Field(o => o.Members).Use<RefreshJwtOrgMembershipMiddleware>();
         // Once "orgs can own projects" PR is merged, uncomment below
-        // descriptor.Field(o => o.Projects).Use<OrgProjectsVisibilityMiddleware>();
-        // descriptor.Field(o => o.Projects).Use<RefreshJwtOrgMembershipMiddleware>();
+        descriptor.Field(o => o.Projects).Use<OrgProjectsVisibilityMiddleware>();
+        descriptor.Field(o => o.Projects).Use<RefreshJwtOrgMembershipMiddleware>();
     }
 }
