@@ -16,13 +16,19 @@
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
 
-  const schema = z.object({
+  const schema = z
+    .object({
     email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
     score: z.number(),
     role: z.enum([UserRole.User, UserRole.Admin]),
-  });
+    })
+    .refine((data) => data.email || data.role !== UserRole.Admin, {
+    message: 'You must have a valid email.',
+    path: ['role'],
+    });
+
   type Schema = typeof schema;
   let formModal: FormModal<Schema>;
   $: form = formModal?.form();
@@ -98,6 +104,7 @@
     error={errors.email}
     autofocus
   />
+  <!-- if !email && role.UserRole.ADMIN -->
   <Input
     id="name"
     type="text"
