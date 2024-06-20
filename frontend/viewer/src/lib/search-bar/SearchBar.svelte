@@ -36,7 +36,7 @@
   });
 
   const lexboxApi = useLexboxApi();
-  const search = writable<string | undefined>('');
+  const search = writable<string>('');
   const fetchCount = 105;
   const { value: result, loading } = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
@@ -61,13 +61,14 @@
   class="cursor-pointer opacity-80 hover:opacity-100">
   <div class="hidden sm:contents">
     Find entry... <span class="ml-2"><Icon data={mdiMagnify} /></span>
+    <span class="max-md:hidden ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
   </div>
   <div class="contents sm:hidden">
     <Icon data={mdiBookSearchOutline} />
   </div>
 </Field>
 
-<Dialog bind:open={showSearchDialog} on:close={() => $search = undefined} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
+<Dialog bind:open={showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
     <TextField
       autofocus
