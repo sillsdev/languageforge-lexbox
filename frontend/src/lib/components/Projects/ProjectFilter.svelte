@@ -103,7 +103,7 @@
       {:else if filter.key === 'emptyProjects' && filter.value}
         <ActiveFilter {filter}>
           <Icon icon="i-mdi-file-hidden" />
-          {$t('project.filter.show_empty')}
+          {$t('project.filter.empty')}
         </ActiveFilter>
       {/if}
     {/each}
