@@ -21,12 +21,16 @@
   import type { OptionProvider } from './lib/services/option-provider';
   import { getAvailableHeightForElement } from './lib/utils/size';
   import { ViewerSearchParam, getSearchParam, updateSearchParam } from './lib/utils/search-params';
+  import SaveStatus from './lib/status/SaveStatus.svelte';
+  import { saveEventDispatcher, saveHandler } from './lib/services/save-event-service';
 
   export let loading = false;
 
   const lexboxApi = useLexboxApi();
   const features = writable<LexboxFeatures>(lexboxApi.SupportedFeatures());
   setContext<Readable<LexboxFeatures>>('features', features);
+  setContext('saveEvents', saveEventDispatcher);
+  setContext('saveHandler', saveHandler);
 
   const permissions = writable<LexboxPermissions>({
     write: true,
@@ -224,15 +228,19 @@
 </div>
 {:else}
 <div class="project-view !flex flex-col PortalTarget" style="{spaceForEditorStyle}">
-  <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
+  <AppBar title={projectName} class="bg-secondary min-h-12 shadow-md" menuIcon=''>
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
+    <div class="inline-flex flex-grow-0 basis-60 max-md:hidden mx-2">
+      <SaveStatus />
+    </div>
+
     <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
       <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)} />
     </div>
-    <div class="max-sm:hidden flex-grow-[0.25]"></div>
+    <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
       {#if !$viewConfig.readonly}
         <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
