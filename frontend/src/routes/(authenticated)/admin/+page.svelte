@@ -35,6 +35,7 @@
     userSearch: queryParam.string<string>(''),
     showDeletedProjects: queryParam.boolean<boolean>(false),
     hideDraftProjects: queryParam.boolean<boolean>(false),
+    emptyProjects: queryParam.boolean<boolean>(false),
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- false positive?
     confidential: queryParam.string<Confidentiality | undefined>(undefined),
     projectType: queryParam.string<ProjectType | undefined>(undefined),
