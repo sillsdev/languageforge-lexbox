@@ -62,8 +62,7 @@ internal static class LcmHelpers
             var value = tsString.Text.AsSpan().Trim(WhitespaceAndFormattingChars);
             if (!value.IsEmpty && wsExemplars.TryGetValue(ws, out var exemplars))
             {
-                //todo should we upper or lowercase the value?
-                exemplars.Add(value[0]);
+                exemplars.Add(char.ToUpperInvariant(value[0]));
             }
         }
     }
