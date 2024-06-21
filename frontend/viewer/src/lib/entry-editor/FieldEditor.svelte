@@ -11,7 +11,17 @@
   export let value: unknown;
   export let field: FieldConfig;
 
-  $: state = {value, field};
+  // having a single state object lets us do type predicates on the value and field at once
+  // we just have to make sure they stay in sync
+  const state = {value, field};
+  $: syncToState(value);
+  function syncToState(_: unknown): void {
+    if (state.value !== value) state.value = value;
+  }
+  $: syncToValue(state.value);
+  function syncToValue(_: unknown): void {
+    if (state.value !== value) value = state.value;
+  }
 
   function isMultiString(value: unknown): value is MultiString {
     return field.type === 'multi';
