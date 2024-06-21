@@ -207,7 +207,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "title": "Project filters",
       "show_deleted": "Show deleted",
       "hide_drafts": "Hide drafts",
-      "show_empty": "Show empty projects",
+      "show_empty": "Only empty",
       "select_user_from_table": "To filter projects for a specific user, select the user from the user table:",
       "project_member": "Project member",
       "filter_user_projects": "Filter projects",

@@ -102,7 +102,7 @@
         </ActiveFilter>
       {:else if filter.key === 'emptyProjects' && filter.value}
         <ActiveFilter {filter}>
-          <Icon icon="i-mdi-script" color="text-warning" />
+          <Icon icon="i-mdi-file-hidden" />
           {$t('project.filter.show_empty')}
         </ActiveFilter>
       {/if}
@@ -181,7 +181,7 @@
         <label class="cursor-pointer label gap-4">
           <span class="label-text inline-flex items-center gap-2">
             {$t('project.filter.show_empty')}
-            <!-- Icon -->
+            <Icon icon="i-mdi-file-hidden" />
           </span>
           <input bind:checked={$filters.emptyProjects} type="checkbox" class="toggle toggle-warning" />
         </label>
