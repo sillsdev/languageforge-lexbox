@@ -15,6 +15,7 @@
     confidential: Confidentiality | undefined;
     showDeletedProjects: boolean;
     hideDraftProjects: boolean;
+    emptyProjects: boolean;
     memberSearch: string | undefined;
   };
 
@@ -30,6 +31,7 @@
           p.code.toLocaleLowerCase().includes(searchLower)) &&
         (!projectFilters.projectType || p.type === projectFilters.projectType) &&
         (!projectFilters.hideDraftProjects || !p.isDraft) &&
+        (!projectFilters.emptyProjects || p.isDraft || !p.lastCommit) &&
         (projectFilters.confidential === undefined ||
           (projectFilters.confidential === p.isConfidential?.toString()) ||
           (projectFilters.confidential === 'unset' && (p.isConfidential ?? undefined) === undefined))
@@ -55,7 +57,7 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'confidential', 'showDeletedProjects', 'memberSearch', 'hideDraftProjects'];
+  export let filterKeys: (keyof Filters)[] = ['projectSearch', 'projectType', 'confidential', 'showDeletedProjects', 'memberSearch', 'hideDraftProjects', 'emptyProjects'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -97,6 +99,11 @@
         <ActiveFilter {filter}>
           <Icon icon="i-mdi-script" color="text-warning" />
           {$t('project.filter.hide_drafts')}
+        </ActiveFilter>
+      {:else if filter.key === 'emptyProjects' && filter.value}
+        <ActiveFilter {filter}>
+          <Icon icon="i-mdi-script" color="text-warning" />
+          {$t('project.filter.show_empty')}
         </ActiveFilter>
       {/if}
     {/each}
@@ -166,6 +173,17 @@
             <Icon icon="i-mdi-script" color="text-warning" />
           </span>
           <input bind:checked={$filters.hideDraftProjects} type="checkbox" class="toggle toggle-warning" />
+        </label>
+      </div>
+    {/if}
+    {#if filterEnabled('emptyProjects')}
+      <div class="form-control">
+        <label class="cursor-pointer label gap-4">
+          <span class="label-text inline-flex items-center gap-2">
+            {$t('project.filter.show_empty')}
+            <!-- Icon -->
+          </span>
+          <input bind:checked={$filters.emptyProjects} type="checkbox" class="toggle toggle-warning" />
         </label>
       </div>
     {/if}
