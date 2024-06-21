@@ -36,6 +36,8 @@
     {options}
     valueProp="value"
     labelProp="label"
+    formatSelected={({ options }) =>
+      options.map((o) => o.label).join(", ") || "None"}
     infiniteScroll
     clearSearchOnOpen={false}
     clearable={false}
