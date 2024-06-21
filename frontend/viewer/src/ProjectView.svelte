@@ -20,6 +20,7 @@
   import ActivityView from './lib/activity/ActivityView.svelte';
   import type { OptionProvider } from './lib/services/option-provider';
   import { getAvailableHeightForElement } from './lib/utils/size';
+  import { ViewerSearchParam, getSearchParam, updateSearchParam } from './lib/utils/search-params';
 
   export let loading = false;
 
@@ -55,11 +56,13 @@
   $: connected.set(isConnected);
 
   const connected = writable(false);
-  const search = writable<string>('');
+  const search = writable<string>(getSearchParam(ViewerSearchParam.Search));
   setContext('listSearch', search);
+  $: updateSearchParam(ViewerSearchParam.Search, $search);
 
-  const selectedIndexExemplar = writable<string | undefined>(undefined);
+  const selectedIndexExemplar = writable<string | undefined>(getSearchParam(ViewerSearchParam.IndexCharacter));
   setContext('selectedIndexExamplar', selectedIndexExemplar);
+  $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar);
 
   const { value: writingSystems } = deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
@@ -101,11 +104,11 @@
   // 2 somehow use selectedEntry in components that need to refresh on changes
   // 3 combine 1 into 2
   // Used for triggering rerendering when display values of the current entry change (e.g. the headword in the list view)
-  const entries = writable<IEntry[]>();
+  const entries = writable<IEntry[] | undefined>();
   $: $entries = $_entries;
 
   function fetchEntries(s: string, isConnected: boolean, exemplar: string | undefined) {
-    if (!isConnected) return Promise.resolve([]);
+    if (!isConnected) return Promise.resolve(undefined);
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
       // we always load full exampelar lists for now, so we can guaruntee that the selected entry is in the list
@@ -116,8 +119,17 @@
   }
 
   let showOptionsDialog = false;
+  let pickedEntry = false;
+  let navigateToEntryIdOnLoad = getSearchParam(ViewerSearchParam.EntryId);
   const selectedEntry = writable<IEntry | undefined>(undefined);
   setContext('selectedEntry', selectedEntry);
+  // For some reason reactive syntax doesn't pick up every change, so we need to manually subscribe
+  // and we need the extra call to updateEntryIdSearchParam in refreshSelection
+  const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
+  $: { pickedEntry; updateEntryIdSearchParam(); }
+  function updateEntryIdSearchParam() {
+    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryIdOnLoad ?? (pickedEntry ? $selectedEntry?.id : undefined));
+  }
 
   $: {
     $entries;
@@ -126,17 +138,31 @@
 
   //selection handling, make sure the selected entry is always in the list of entries
   function refreshSelection() {
-    let currentEntry = $selectedEntry;
-    if (currentEntry !== undefined) {
-      const entry = $entries.find(e => e.id === currentEntry.id);
-      if (entry !== currentEntry) {
+    if (!$entries) return;
+
+    if ($selectedEntry !== undefined) {
+      const entry = $entries.find(e => e.id === $selectedEntry!.id);
+      if (entry !== $selectedEntry) {
+        $selectedEntry = entry;
+      }
+    } else if (navigateToEntryIdOnLoad) {
+      const entry = $entries.find(e => e.id === navigateToEntryIdOnLoad);
+      if (entry) {
         $selectedEntry = entry;
       }
     }
-    if (!$selectedEntry && $entries?.length > 0)
-      $selectedEntry = $entries[0];
-  }
 
+    if ($selectedEntry) {
+      pickedEntry = true;
+    } else {
+      pickedEntry = false;
+      if ($entries?.length > 0)
+        $selectedEntry = $entries[0];
+    }
+
+    updateEntryIdSearchParam();
+    navigateToEntryIdOnLoad = undefined;
+  }
 
   $: _loading = !$entries || !$writingSystems || !$partsOfSpeech || !$semanticDomains || loading;
 
@@ -159,7 +185,6 @@
 
   let expandList = false;
   let collapseActionBar = false;
-  let pickedEntry = false;
 
   let entryActionsElem: HTMLDivElement;
   const entryActionsPortal = writable<{target: HTMLDivElement, collapsed: boolean}>();
@@ -181,6 +206,7 @@
     window.addEventListener('scroll', updateSpaceForEditor, abortController);
     return () => {
       abortController.abort();
+      unsubSelectedEntry();
     };
   });
 </script>
