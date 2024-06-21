@@ -59,11 +59,12 @@
   classes={{ input: 'my-1 justify-center opacity-60' }}
   on:click={() => (showSearchDialog = true)}
   class="cursor-pointer opacity-80 hover:opacity-100">
-  <div class="hidden sm:contents">
-    Find entry... <span class="ml-2"><Icon data={mdiMagnify} /></span>
-    <span class="max-md:hidden ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
+  <div class="hidden lg:contents">
+    Find entry...
+    <span class="ml-2"><Icon data={mdiMagnify} /></span>
+    <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
   </div>
-  <div class="contents sm:hidden">
+  <div class="contents lg:hidden">
     <Icon data={mdiBookSearchOutline} />
   </div>
 </Field>

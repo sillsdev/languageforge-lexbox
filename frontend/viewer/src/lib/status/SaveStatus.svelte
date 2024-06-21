@@ -95,20 +95,22 @@
         </div>
       </Popover>
       <Button class="font-normal" color="info" iconOnly rounded="full" icon={statusIcon} on:click={toggle}>
-        {#if showStatus}
-          {#if lastStatus === 'saved-to-disk'}
-            <span class="text-sm">Project saved to disk</span>
-          {:else if lastStatus === 'failed-to-save'}
-            <span class="text-sm text-danger">Save failed</span>
+        <span class="max-md:hidden contents">
+          {#if showStatus}
+            {#if lastStatus === 'saved-to-disk'}
+              <span class="text-sm">Project saved to disk</span>
+            {:else if lastStatus === 'failed-to-save'}
+              <span class="text-sm text-danger">Save failed</span>
+            {/if}
+          {:else if showSaved}
+            <span class="text-sm">
+              Just saved
+            </span>
+            <Icon data={mdiCheck} size="1em" />
+          {:else if showSaving}
+            <span class="text-sm">Saving...</span>
           {/if}
-        {:else if showSaved}
-          <span class="text-sm">
-            Just saved
-          </span>
-          <Icon data={mdiCheck} size="1em" />
-        {:else if showSaving}
-          <span class="text-sm">Saving...</span>
-        {/if}
+        </span>
       </Button>
     </div>
   </div>

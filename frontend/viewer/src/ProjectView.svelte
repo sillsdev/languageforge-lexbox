@@ -229,10 +229,10 @@
 {:else}
 <div class="project-view !flex flex-col PortalTarget" style="{spaceForEditorStyle}">
   <AppBar title={projectName} class="bg-secondary min-h-12 shadow-md" menuIcon=''>
-    <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
+    <div class="flex-grow-0 flex-shrink-0 lg:hidden mx-2 sm:mr-0" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
-    <div class="inline-flex flex-grow-0 basis-60 max-md:hidden mx-2">
+    <div class="inline-flex flex-grow-0 basis-60 max-sm:hidden mx-2">
       <SaveStatus />
     </div>
 
@@ -264,10 +264,10 @@
       class="grid flex-grow items-start justify-stretch md:justify-center"
       style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
     >
-      <div class="w-screen max-w-full md:w-[500px] md:min-w-[300px] collapsible-col side-scroller flex" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
+      <div class="w-screen max-w-full lg:w-[500px] lg:min-w-[300px] collapsible-col side-scroller flex" class:lg:!w-[1024px]={expandList} class:lg:max-w-[25vw]={!expandList} class:max-lg:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry && !$viewConfig.readonly} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !$viewConfig.readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
         {#if $selectedEntry}
           <div class="mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
@@ -290,31 +290,33 @@
           </div>
         {/if}
       </div>
-      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-md:hidden={!pickedEntry || $viewConfig.readonly}>
+      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !$viewConfig.readonly} class:max-lg:hidden={!pickedEntry || $viewConfig.readonly} class:lg:hidden={expandList}>
         <div class="hidden" class:sm:hidden={expandList}>
           <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
         </div>
-        <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:collapse-col={expandList} class:w-min={collapseActionBar}>
-          {#if $selectedEntry && !expandList}
-            <div class="h-full flex flex-col gap-4 justify-stretch">
-              {#if !$viewConfig.readonly}
-                <div class="contents" bind:this={entryActionsElem}>
+        <div class="sm:w-[15vw] collapsible-col max-sm:self-center" class:self-center={collapseActionBar} class:lg:collapse-col={expandList} class:w-min={collapseActionBar}>
+          {#if $selectedEntry}
+            <div class="contents" class:lg:hidden={expandList}>
+              <div class="h-full flex flex-col gap-4 justify-stretch">
+                {#if !$viewConfig.readonly}
+                  <div class="contents" bind:this={entryActionsElem}>
 
+                  </div>
+                {/if}
+                <div class="contents max-sm:hidden" class:hidden={collapseActionBar}>
+                  <Toc entry={$selectedEntry} />
                 </div>
-              {/if}
-              <div class="contents max-sm:hidden" class:hidden={collapseActionBar}>
-                <Toc entry={$selectedEntry} />
               </div>
+              <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
+                {$viewConfig.activeView.label}
+                <Button
+                  on:click={() => (showOptionsDialog = true)}
+                  size="sm"
+                  variant="default"
+                  iconOnly
+                  icon={mdiEyeSettingsOutline} />
+              </span>
             </div>
-            <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
-              {$viewConfig.activeView.label}
-              <Button
-                on:click={() => (showOptionsDialog = true)}
-                size="sm"
-                variant="default"
-                iconOnly
-                icon={mdiEyeSettingsOutline} />
-            </span>
           {/if}
         </div>
       </div>
