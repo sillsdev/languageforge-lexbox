@@ -42,15 +42,16 @@
     grid-template-columns: 170px fit-content(80px) 1fr;
   }
 
-  .side-scroller {
-    max-height: calc(var(--space-for-editor, 100vh) - 32px);
-    position: sticky;
-    top: 16px;
-  }
-
   .collapsible-col {
     overflow-x: hidden;
     transition: opacity 0.2s ease-out;
+  }
+
+  .side-scroller {
+    height: calc(var(--space-for-editor, 100vh) - 32px);
+    transition: height 0.1s ease-out, opacity 0.2s ease-out;
+    position: sticky;
+    top: 16px;
   }
 
   .collapsible-col.collapse-col {

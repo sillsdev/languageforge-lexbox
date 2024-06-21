@@ -50,7 +50,7 @@
   const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 </script>
 
-<div class="entry-list flex flex-col gap-4 w-full justify-self-center side-scroller">
+<div class="entry-list flex flex-col gap-4 w-full justify-self-center">
   <div class="flex gap-3 w-full self-center">
     <IndexCharacters />
     <div class="grow">

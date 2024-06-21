@@ -197,7 +197,7 @@
     if (!editorElem) return;
     const availableHeight = getAvailableHeightForElement(editorElem);
     spaceForEditorStyle = `--space-for-editor: ${availableHeight}px`;
-  }, 15).debounce;
+  }, 30).debounce;
 
   $: editorElem && updateSpaceForEditor();
   onMount(() => {
@@ -256,7 +256,7 @@
       class="grid flex-grow items-start justify-stretch md:justify-center"
       style="grid-template-columns: minmax(0, min-content) minmax(0, min-content) minmax(0, min-content);"
     >
-      <div class="w-screen max-w-full md:w-[500px] md:min-w-[300px] collapsible-col side-scroller" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
+      <div class="w-screen max-w-full md:w-[500px] md:min-w-[300px] collapsible-col side-scroller flex" class:md:!w-[1024px]={expandList} class:md:max-w-[25vw]={!expandList} class:max-md:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
       <div class="max-w-full w-screen md:w-screen collapsible-col" class:md:px-6={!expandList} class:max-md:pr-6={pickedEntry && !$viewConfig.readonly} class:md:collapse-col={expandList} class:max-md:collapse-col={!pickedEntry}>
