@@ -44,6 +44,9 @@
         }
       }
     },
+    "bulk_add_users_modal": {
+      "button_title": "Bulk Add Users",
+    },
     "create_user_modal": {
       "create_user": "Create User",
       "help_create_single_guest_user": "You can invite users to register and join a project by themselves with the **Add Project Member** button. See [Add Project Member]({helpLink}) for details.",

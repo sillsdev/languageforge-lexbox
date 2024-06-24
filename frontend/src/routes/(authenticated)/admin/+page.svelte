@@ -23,6 +23,7 @@
   import type { Confidentiality } from '$lib/components/Projects';
   import { browser } from '$app/environment';
   import UserTable from './UserTable.svelte';
+  import type { UUID } from 'crypto';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -42,6 +43,7 @@
     memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     tab: queryParam.string<AdminTabId>('projects'),
+    targetOrgId: queryParam.string<UUID | ''>(''),
   });
 
   const userFilterKeys = ['userSearch'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
@@ -61,6 +63,15 @@
   $: users = $userData?.items ?? [];
   $: filteredUserCount = $userData?.totalCount ?? 0;
   $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
+  let selectedUsers: User[] = [];
+
+  function bulkAddSelectedUsersToOrg(): void {
+    if (!$queryParamValues.targetOrgId) {
+      // Shouldn't have been called
+      return;
+    }
+    console.log(`Would add the following users to org with ID ${$queryParamValues.targetOrgId}:`, selectedUsers);
+  }
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
@@ -132,6 +143,15 @@
               </Badge>
             </div>
           </div>
+          {#if $queryParamValues.targetOrgId}
+          <button class="btn btn-sm btn-primary max-xs:btn-square"
+            on:click={bulkAddSelectedUsersToOrg}>
+            <span class="admin-tabs:hidden">
+              {$t('admin_dashboard.bulk_add_users_modal.button_title')}
+            </span>
+            <span class="i-mdi-plus text-2xl" />
+          </button>
+          {/if}
           <!-- svelte-ignore a11y-no-static-element-interactions -->
           <svelte:element this={browser ? 'button' : 'div'} class="btn btn-sm btn-success max-xs:btn-square"
             on:click={() => createUserModal.open()}>
@@ -158,6 +178,7 @@
       <div class="overflow-x-auto @container scroll-shadow">
         <UserTable
           {shownUsers}
+          bind:selectedUsers
           on:openUserModal={(event) => userModal.open(event.detail)}
           on:editUser={(event) => openModal(event.detail)}
           on:filterProjectsByUser={(event) => filterProjectsByUser(event.detail)}
