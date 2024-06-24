@@ -8,7 +8,7 @@
   import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
-  import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
+  // import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
   import { RefineFilterMessage } from '$lib/components/Table';
   import type { AdminSearchParams, User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
@@ -23,6 +23,7 @@
   import type { Confidentiality } from '$lib/components/Projects';
   import { browser } from '$app/environment';
   import UserTable from './UserTable.svelte';
+  import UserFilter, { filterUsers } from '$lib/components/Users/UserFilter.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -60,7 +61,9 @@
 
   $: users = $userData?.items ?? [];
   $: filteredUserCount = $userData?.totalCount ?? 0;
-  $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
+  $: filters = queryParams.queryParamValues;
+  $: filteredUsers = filterUsers(users, $filters);
+  $: shownUsers = lastLoadUsedActiveFilter ? filteredUsers : filteredUsers.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
@@ -143,11 +146,17 @@
         </div>
       </AdminTabs>
       <div class="mt-4">
-        <FilterBar
+        <!-- <FilterBar
           debounce
           loading={$loadingUsers}
           searchKey="userSearch"
           filterKeys={userFilterKeys}
+          filters={queryParamValues}
+          filterDefaults={defaultQueryParamValues}
+          bind:hasActiveFilter
+        /> -->
+        <UserFilter
+          loading={$loadingUsers}
           filters={queryParamValues}
           filterDefaults={defaultQueryParamValues}
           bind:hasActiveFilter
