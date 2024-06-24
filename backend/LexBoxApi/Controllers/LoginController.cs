@@ -114,7 +114,14 @@ public class LoginController(
         }
 
         if (authUser.Locked == true) {
-            return "/login";
+            var queryParams = new Dictionary<string, string?>()
+            {
+                { "message", "account_locked" },
+                { "returnTo", returnTo },
+            };
+            var queryString = QueryString.Create(queryParams);
+            returnTo = "/login" + queryString.ToString();
+            return returnTo;
         }
 
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
