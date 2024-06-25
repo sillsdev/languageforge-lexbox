@@ -58,8 +58,8 @@
       "can_create_projects": "Can create projects",
     },
     "user_filter": {
-      title: "User filters",
-      users_i_created: "Users I created only",
+      "title": "User filters",
+      "users_i_created": "Users I created only",
     }
   },
   "account_settings": {
