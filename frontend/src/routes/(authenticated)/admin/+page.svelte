@@ -42,6 +42,7 @@
     projectType: queryParam.string<ProjectType | undefined>(undefined),
     memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
+    usersICreated: queryParam.boolean<boolean>(false),
     tab: queryParam.string<AdminTabId>('projects'),
   });
 
@@ -62,6 +63,7 @@
   $: users = $userData?.items ?? [];
   $: filteredUserCount = $userData?.totalCount ?? 0;
   $: filters = queryParams.queryParamValues;
+  $: console.log($filters)
   $: filteredUsers = filterUsers(users, $filters, adminId);
   $: shownUsers = lastLoadUsedActiveFilter ? filteredUsers : filteredUsers.slice(0, 10);
 
