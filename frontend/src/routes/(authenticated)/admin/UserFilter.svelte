@@ -23,7 +23,7 @@
   import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
   import ActiveFilter from '$lib/components/FilterBar/ActiveFilter.svelte';
   import { Icon } from '$lib/icons';
-  // import t from '$lib/i18n';
+  import t from '$lib/i18n';
 
 
   type Filters = Partial<UserFilter> & Pick<UserFilter, 'userSearch'>;
@@ -45,18 +45,18 @@
       {#if filter.key === 'usersICreated' && filter.value}
         <ActiveFilter {filter}>
           <Icon icon="i-mdi-account-plus-outline" color="text-warning" />
-          {'Users I Created'}
+          {$t('admin_dashboard.user_filter.users_i_created')}
         </ActiveFilter>
       {/if}
     {/each}
   </svelte:fragment>
   <svelte:fragment slot="filters">
-    <h2 class="card-title">{'Users I created'}</h2>
+    <h2 class="card-title">{$t('admin_dashboard.user_filter.title')}</h2>
     {#if filterEnabled('usersICreated')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
           <span class="label-text inline-flex items-center gap-2">
-            {'Users I Created'}
+            {$t('admin_dashboard.user_filter.users_i_created')}
             <Icon icon="i-mdi-account-plus-outline" color="text-warning" />
           </span>
           <input bind:checked={$filters.usersICreated} type="checkbox" class="toggle toggle-warning" />
