@@ -112,6 +112,7 @@ export async function load(event: PageLoadEvent) {
                 updatedDate
                 lastActive
                 canCreateProjects
+                createdById
                 projects {
                     id
                     projectId

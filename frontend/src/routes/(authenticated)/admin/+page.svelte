@@ -8,7 +8,6 @@
   import { useNotifications } from '$lib/notify';
   import { DialogResponse } from '$lib/components/modals';
   import { Duration } from '$lib/util/time';
-  // import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
   import { RefineFilterMessage } from '$lib/components/Table';
   import type { AdminSearchParams, User } from './+page';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
@@ -29,6 +28,7 @@
   $: projects = data.projects;
   $: draftProjects = data.draftProjects;
   $: userData = data.users;
+  $: adminId = data.user?.id;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -62,7 +62,7 @@
   $: users = $userData?.items ?? [];
   $: filteredUserCount = $userData?.totalCount ?? 0;
   $: filters = queryParams.queryParamValues;
-  $: filteredUsers = filterUsers(users, $filters);
+  $: filteredUsers = filterUsers(users, $filters, adminId);
   $: shownUsers = lastLoadUsedActiveFilter ? filteredUsers : filteredUsers.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
@@ -146,20 +146,11 @@
         </div>
       </AdminTabs>
       <div class="mt-4">
-        <!-- <FilterBar
-          debounce
-          loading={$loadingUsers}
-          searchKey="userSearch"
-          filterKeys={userFilterKeys}
-          filters={queryParamValues}
-          filterDefaults={defaultQueryParamValues}
-          bind:hasActiveFilter
-        /> -->
         <UserFilter
-          loading={$loadingUsers}
           filters={queryParamValues}
           filterDefaults={defaultQueryParamValues}
           bind:hasActiveFilter
+          loading={$loadingUsers}
         />
       </div>
 

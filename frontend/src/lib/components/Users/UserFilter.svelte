@@ -9,10 +9,11 @@
   export function filterUsers(
     users: User[],
     userFilter: Partial<UserFilter>,
+    adminId: string | undefined,
   ): User[] {
     return users.filter(
-      () =>
-        (!userFilter.usersICreated)
+      (u) =>
+        (!userFilter.usersICreated || u.createdById === adminId)
     );
   }
 </script>
@@ -43,14 +44,14 @@
     {#each activeFilters as filter}
       {#if filter.key === 'usersICreated' && filter.value}
         <ActiveFilter {filter}>
-          <Icon icon="i-mdi-account-plus-outline" />
+          <Icon icon="i-mdi-account-plus-outline" color="text-warning" />
           {'Users I Created'}
         </ActiveFilter>
       {/if}
     {/each}
   </svelte:fragment>
   <svelte:fragment slot="filters">
-    <h2 class="card-title">{'User Filters'}</h2>
+    <h2 class="card-title">{'Users I created'}</h2>
     {#if filterEnabled('usersICreated')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
