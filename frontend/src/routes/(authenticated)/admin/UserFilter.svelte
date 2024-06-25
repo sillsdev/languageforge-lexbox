@@ -1,5 +1,5 @@
 <script  context="module" lang="ts">
-  import type { User } from '$lib/gql/types';
+  import type { User } from './+page';
 
   export type UserFilter = {
     userSearch: string;
@@ -21,7 +21,7 @@
 <script lang="ts">
   import type { Writable } from 'svelte/store';
   import FilterBar from '$lib/components/FilterBar/FilterBar.svelte';
-  import ActiveFilter from '../FilterBar/ActiveFilter.svelte';
+  import ActiveFilter from '$lib/components/FilterBar/ActiveFilter.svelte';
   import { Icon } from '$lib/icons';
   // import t from '$lib/i18n';
 

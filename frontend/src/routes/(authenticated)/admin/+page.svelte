@@ -22,7 +22,7 @@
   import type { Confidentiality } from '$lib/components/Projects';
   import { browser } from '$app/environment';
   import UserTable from './UserTable.svelte';
-  import UserFilter, { filterUsers } from '$lib/components/Users/UserFilter.svelte';
+  import UserFilter, { filterUsers } from './UserFilter.svelte';
 
   export let data: PageData;
   $: projects = data.projects;

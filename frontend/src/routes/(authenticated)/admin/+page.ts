@@ -27,6 +27,7 @@ import { derived, readable } from 'svelte/store';
 export type AdminSearchParams = ProjectFilters & {
   userSearch: string
   tab: AdminTabId
+  usersICreated: boolean
 };
 
 export type Project = NonNullable<LoadAdminDashboardProjectsQuery['projects']>[number];
