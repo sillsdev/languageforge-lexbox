@@ -57,6 +57,10 @@
       "last_active": "Last active",
       "can_create_projects": "Can create projects",
     },
+    "user_filter": {
+      "title": "User filters",
+      "guest_users_i_added": "Guest users I added",
+    }
   },
   "account_settings": {
     "title": "Account Settings",

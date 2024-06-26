@@ -27,6 +27,7 @@ import { derived, readable } from 'svelte/store';
 export type AdminSearchParams = ProjectFilters & {
   userSearch: string
   tab: AdminTabId
+  usersICreated: boolean
 };
 
 export type Project = NonNullable<LoadAdminDashboardProjectsQuery['projects']>[number];
@@ -112,6 +113,7 @@ export async function load(event: PageLoadEvent) {
                 updatedDate
                 lastActive
                 canCreateProjects
+                createdById
                 projects {
                     id
                     projectId
