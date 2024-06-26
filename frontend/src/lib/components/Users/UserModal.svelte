@@ -17,7 +17,7 @@
     updatedDate: string | Date
     lastActive: string | Date
     canCreateProjects: boolean
-    createdBy: string
+    createdBy?: Partial<User> | null
   };
   let userDetailsModal: Modal;
   let user: User;
@@ -89,7 +89,7 @@
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.createdBy')}</h3>
-        <p class="value">{user.createdBy}</p>
+        <p class="value">{user.createdBy?.name  ?? '-'}</p>
       </div>
       <DevContent>
         <div>

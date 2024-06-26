@@ -64,6 +64,9 @@ export async function load(event: PageLoadEvent) {
                   canCreateProjects
                   isAdmin
                   emailVerified
+                  createdBy {
+                    name
+                  }
                 }
 							}
 						}
