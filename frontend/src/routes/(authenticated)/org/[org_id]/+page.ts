@@ -60,6 +60,7 @@ export async function load(event: PageLoadEvent) {
                   isAdmin
                   emailVerified
                   createdBy {
+                    id
                     name
                   }
                 }

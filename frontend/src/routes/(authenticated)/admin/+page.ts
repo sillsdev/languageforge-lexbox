@@ -115,6 +115,7 @@ export async function load(event: PageLoadEvent) {
                 canCreateProjects
                 createdById
                 createdBy {
+                  id
                   name
                 }
                 projects {
