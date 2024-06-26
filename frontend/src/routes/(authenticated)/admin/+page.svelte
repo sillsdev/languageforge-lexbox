@@ -158,7 +158,7 @@
       </div>
 
       <div class="divider" />
-      <div class="overflow-x-auto @container scroll-shadow">
+      <div class="overflow-x-visible @container scroll-shadow">
         <UserTable
           {shownUsers}
           on:openUserModal={(event) => userModal.open(event.detail)}
