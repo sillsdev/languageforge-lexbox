@@ -39,13 +39,23 @@
   }
 </script>
 
-<FilterBar on:change searchKey="userSearch" {autofocus} {filters} {filterDefaults} bind:hasActiveFilter {filterKeys} {loading}>
+<FilterBar
+  debounce
+  on:change
+  searchKey="userSearch"
+  {autofocus}
+  {filters}
+  {filterDefaults}
+  bind:hasActiveFilter
+  {filterKeys}
+  {loading}
+>
   <svelte:fragment slot="activeFilters" let:activeFilters>
     {#each activeFilters as filter}
       {#if filter.key === 'usersICreated' && filter.value}
         <ActiveFilter {filter}>
           <Icon icon="i-mdi-account-plus-outline" color="text-warning" />
-          {$t('admin_dashboard.user_filter.users_i_created')}
+          {$t('admin_dashboard.user_filter.guest_users_i_added')}
         </ActiveFilter>
       {/if}
     {/each}
@@ -56,7 +66,7 @@
       <div class="form-control">
         <label class="cursor-pointer label gap-4">
           <span class="label-text inline-flex items-center gap-2">
-            {$t('admin_dashboard.user_filter.users_i_created')}
+            {$t('admin_dashboard.user_filter.guest_users_i_added')}
             <Icon icon="i-mdi-account-plus-outline" color="text-warning" />
           </span>
           <input bind:checked={$filters.usersICreated} type="checkbox" class="toggle toggle-warning" />

@@ -63,7 +63,6 @@
   $: users = $userData?.items ?? [];
   $: filteredUserCount = $userData?.totalCount ?? 0;
   $: filters = queryParams.queryParamValues;
-  $: console.log($filters)
   $: filteredUsers = filterUsers(users, $filters, adminId);
   $: shownUsers = lastLoadUsedActiveFilter ? filteredUsers : filteredUsers.slice(0, 10);
 
