@@ -22,7 +22,7 @@
   import type { Confidentiality } from '$lib/components/Projects';
   import { browser } from '$app/environment';
   import UserTable from './UserTable.svelte';
-  import UserFilter, { filterUsers } from './UserFilter.svelte';
+  import UserFilter, { filterUsers, type UserFilters } from './UserFilter.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -46,7 +46,8 @@
     tab: queryParam.string<AdminTabId>('projects'),
   });
 
-  const userFilterKeys = ['userSearch', 'usersICreated'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
+  const userFilterKeys = ['userSearch', 'usersICreated'] as const satisfies Readonly<(keyof UserFilters)[]>;
+
   const { queryParamValues, defaultQueryParamValues } = queryParams;
   $: tab = $queryParamValues.tab;
 

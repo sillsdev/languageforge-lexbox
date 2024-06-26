@@ -31,7 +31,7 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: (keyof Filters)[] = ['userSearch', 'usersICreated'];
+  export let filterKeys: ReadonlyArray<(keyof Filters)> = ['userSearch', 'usersICreated'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
