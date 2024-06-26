@@ -17,6 +17,7 @@
     updatedDate: string | Date
     lastActive: string | Date
     canCreateProjects: boolean
+    createdBy: string
   };
   let userDetailsModal: Modal;
   let user: User;
@@ -85,6 +86,10 @@
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.locale')}</h3>
         <p class="value">{user.localizationCode}</p>
+      </div>
+      <div>
+        <h3>{$t('admin_dashboard.user_details_modal.createdBy')}</h3>
+        <p class="value">{user.createdBy}</p>
       </div>
       <DevContent>
         <div>
