@@ -46,7 +46,7 @@
     tab: queryParam.string<AdminTabId>('projects'),
   });
 
-  const userFilterKeys = ['userSearch'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
+  const userFilterKeys = ['userSearch', 'usersICreated'] as const satisfies Readonly<(keyof AdminSearchParams)[]>;
   const { queryParamValues, defaultQueryParamValues } = queryParams;
   $: tab = $queryParamValues.tab;
 
@@ -150,6 +150,7 @@
         <UserFilter
           filters={queryParamValues}
           filterDefaults={defaultQueryParamValues}
+          filterKeys={userFilterKeys}
           bind:hasActiveFilter
           loading={$loadingUsers}
         />

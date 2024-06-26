@@ -1,14 +1,14 @@
 <script  context="module" lang="ts">
   import type { User } from './+page';
 
-  export type UserFilter = {
+  export type UserFilters = {
     userSearch: string;
     usersICreated: boolean;
   }
 
   export function filterUsers(
     users: User[],
-    userFilter: Partial<UserFilter>,
+    userFilter: Partial<UserFilters>,
     adminId: string | undefined,
   ): User[] {
     return users.filter(
@@ -26,7 +26,7 @@
   import t from '$lib/i18n';
 
 
-  type Filters = Partial<UserFilter> & Pick<UserFilter, 'userSearch'>;
+  type Filters = Partial<UserFilters> & Pick<UserFilters, 'userSearch'>;
   export let filters: Writable<Filters>;
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
