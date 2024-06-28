@@ -1,0 +1,651 @@
+{
+  "about": {
+    "title": "소개"
+  },
+  "admin_dashboard": {
+    "title": "관리자 대시보드",
+    "column_code": "코드",
+    "column_email": "이메일",
+    "column_email_or_login": "이메일 / 로그인",
+    "column_login": "로그인",
+    "column_last_change": "마지막 변경",
+    "column_migrated": "이동됨",
+    "column_name": "이름",
+    "column_role": "역할",
+    "column_type": "유형",
+    "column_users": "사용자",
+    "column_edit": "편집",
+    "project_table_title": "프로젝트",
+    "user_table_title": "사용자",
+    "how_to_create_users": "사용자 생성 방법",
+    "is_draft": "초안",
+    "email_not_verified": "확인되지 않음",
+    "notifications": {
+      "user_deleted": "{name}이(가) 삭제되었습니다.",
+      "user_updated": "{name}이(가) 업데이트되었습니다.",
+      "user_created": "{name}이(가) 생성되었습니다.",
+      "email_need_verification": "{name}의 이메일 주소를 {requestedEmail}(으)로 변경하려고 요청했습니다. 사용자의 이메일 확인이 완료될 때까지 변경이 보류 중입니다. 방금 보낸 이메일 링크를 사용하여 확인할 수 있습니다."
+    },
+    "user_is_locked": "이 사용자는 잠겨 있습니다. 관리자가 잠금을 해제할 때까지 로그인하거나 송수신할 수 없습니다.",
+    "form_modal": {
+      "title": "사용자 수정",
+      "email_label": "이메일",
+      "name_label": "이름",
+      "password_label": "비밀번호 변경",
+      "update_user": "사용자 업데이트",
+      "lock": "사용자 잠금",
+      "unlock": "사용자 잠금 해제",
+      "delete_user": {
+        "title": "사용자 탈퇴",
+        "submit": "사용자 탈퇴",
+        "enter_to_delete": {
+          "label": "사용자 ''{name}''을(를) 탈퇴하려면 ''{_value}''를 입력하십시오",
+          "value": "사용자 탈퇴"
+        }
+      }
+    },
+    "create_user_modal": {
+      "create_user": "사용자 생성",
+      "help_create_single_guest_user": "사용자에게 **프로젝트 멤버 추가** 버튼을 사용하여 프로젝트에 가입하라고 초대할 수 있습니다. 자세한 내용은 [프로젝트 멤버 추가]({helpLink})를 참조하십시오.",
+      "help_create_bulk_guest_users": "여러 사용자를 대량으로 생성하고 프로젝트에 추가할 수 있습니다. **대량 추가/생성 멤버** 버튼을 찾거나 [대량 추가/생성 프로젝트 멤버]({helpLink})를 참조하십시오.",
+    },
+    "user_details_modal": {
+      "registered": "등록됨",
+      "locked": "잠김",
+      "locale": "지역",
+      "updated": "업데이트됨",
+      "last_active": "마지막 활동",
+      "can_create_projects": "프로젝트 생성 권한",
+    },
+    "user_filter": {
+      "title": "사용자 필터",
+      "guest_users_i_added": "내가 추가한 게스트 사용자",
+    }
+  },
+  "account_settings": {
+    "title": "계정 설정",
+    "email": "이메일",
+    "name": "이름",
+    "language": {
+      "title": "언어",
+      "en": "영어",
+      "es": "스페인어",
+      "fr": "프랑스어",
+      "not_supported": "아직 지원되지 않음",
+    },
+    "reset_password": "비밀번호를 변경하시겠습니까?",
+    "update_success": "계정이 업데이트되었습니다.",
+    "button_update": "계정 정보 업데이트",
+    "email_taken": "해당 이메일 주소는 이미 사용되고 있습니다.",
+    "delete_account": {
+      "title": "계정 탈퇴",
+      "submit": "계정 탈퇴",
+      "enter_to_delete": {
+        "label": "계정을 탈퇴하려면 ''{_value}''을(를) 입력하십시오",
+        "value": "계정 탈퇴"
+      }
+    },
+    "delete_success": "계정이 탈퇴되었습니다.",
+    "verify_email": {
+      "verify_success": "이메일 주소가 성공적으로 확인되었습니다.",
+      "change_success": "이메일 주소가 성공적으로 변경되었습니다.",
+      "verify_to_change": "이메일 주소를 {requestedEmail}(으)로 변경하려고 요청했습니다. 새로운 주소를 확인하면 변경이 효력이 발생합니다. 방금 보낸 이메일 링크를 사용하여 확인할 수 있습니다.",
+      "go_to_projects": "내 프로젝트로 이동",
+      "check_inbox": "방금 보낸 확인 이메일을 받으려면 받은 편지함을 확인하십시오.",
+      "please_verify": "이메일 주소를 확인할 수 있도록 이메일을 보냈습니다. 가능한 빨리 확인해 주세요.",
+      "resend": "확인 이메일 재전송",
+      "you_have_mail": "메일이 도착했습니다!"
+    }
+  },
+  "appbar": {
+    "app_name": "Language Depot"
+  },
+  "appmenu": {
+    "log_out": "로그아웃",
+    "orgs": "조직",
+    "help": "도움말"
+  },
+  "close": "닫기",
+  "delete_modal": {
+    "delete": "{entityName} 삭제",
+    "dont_delete": "삭제하지 않음",
+    "dont_remove": "제거하지 않음",
+    "remove": "{entityName} 제거"
+  },
+  "environment_warning": "이 환경은 {environmentName} 환경입니다. 여기를 클릭하여 공개 사이트로 이동하십시오.",
+  "delete_org_modal": {
+    "title": "조직 삭제",
+    "submit": "조직 삭제",
+    "enter_to_delete": {
+      "label": "조직 ''{name}''을(를) 삭제하려면 ''{_value}''를 입력하십시오",
+      "value": "조직 삭제"
+    },
+    "success": "조직 ''{name}''이(가) 삭제되었습니다."
+  },
+  "delete_project_modal": {
+    "title": "프로젝트 삭제",
+    "submit": "프로젝트 삭제",
+    "enter_to_delete": {
+      "label": "프로젝트 ''{name}''을(를) 삭제하려면 ''{_value}''를 입력하십시오",
+      "value": "프로젝트 삭제"
+    },
+    "success": "프로젝트 ''{name}'' ({code})이(가) 삭제되었습니다."
+  },
+  "forgot_password": {
+    "title": "비밀번호 찾기",
+    "send_email": "비밀번호 재설정 이메일 보내기",
+    "email_sent": {
+      "title": "받은 편지함 확인",
+      "email_sent_message": "비밀번호 재설정 링크가 포함된 이메일을 받은 편지함에서 확인하십시오. 이메일이 보이지 않으면 스팸 폴더를 확인하거나 올바른 주소를 사용했는지 확인하십시오. 잘못된 주소를 입력한 경우에는 경고하지 않습니다.",
+      "back_to_login": "로그인 페이지로 돌아가기"
+    }
+  },
+  "login": {
+    "bad_credentials": "입력한 계정 정보가 잘못되었습니다.",
+    "your_account_is_locked": "계정이 잠겨 있습니다. [관리자에게 문의](mailto:admin@languagedepot.org)하여 잠금을 해제하거나 계정을 삭제하십시오.",
+    "button_login": "로그인",
+    "button_login_again": "다시 로그인 시도?",
+    "forgot_password": "비밀번호를 잊으셨습니까?",
+    "label_email": "이메일 또는 송수신 로그인",
+    "label_password": "비밀번호",
+    "missing_user_info": "사용자 정보 누락",
+    "sign_in_with_google": "Google로 로그인",
+    "title": "로그인",
+    "password_missing": "비밀번호 누락",
+    "link_expired": "클릭한 이메일이 만료되었습니다. 새 이메일을 요청하십시오.",
+    "welcome_header": "### Language Depot에 오신 것을 환영합니다\n",
+    "welcome": "Language Depot은 [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
+[Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) 및 [WeSay](https://software.sil.org/wesay/) 프로젝트를 호스팅하는 서비스입니다. \
+이 서비스는 [SIL Language Technology](https://software.sil.org/)와 태국 치앙마이에 있는 [사이압 대학교 언어연구소](https://li.payap.ac.th/)에서 언어 커뮤니티를 위해 제공됩니다."
+  },
+  "org": {
+    "table": {
+      "title": "조직",
+      "name": "이름",
+      "created_at": "생성됨",
+      "members": "멤버"
+    },
+    "create": {
+      "title": "조직 생성",
+      "name": "이름",
+      "name_missing": "조직 이름이 필요합니다",
+      "submit": "조직 생성",
+    }
+  },
+  "project": {
+    "create": {
+      "title": "프로젝트 생성",
+      "code": "코드",
+      "type": "유형",
+      "code_exists": "프로젝트 코드가 이미 사용 중입니다",
+      "code_too_short": "프로젝트 코드는 최소 4자 이상이어야 합니다",
+      "code_invalid": "프로젝트 코드는 소문자 a-z, 숫자 및 '-'만 포함할 수 있으며 '-'로 시작할 수 없습니다",
+      "custom_code": "사용자 정의 코드",
+      "description_missing": "설명이 필요합니다",
+      "language_code": "언어 코드",
+      "language_code_description": "가능하면 [Ethnologue 코드](https://www.ethnologue.com)를 사용하십시오",
+      "language_code_too_short": "언어 코드는 최소 2자 이상이어야 합니다",
+      "language_code_invalid": "언어 코드는 소문자 a-z, 숫자 및 '-'만 포함할 수 있으며 '-'로 시작할 수 없습니다",
+      "name": "이름",
+      "name_description": "예: 작업 중인 언어의 이름",
+      "description": "설명",
+      "name_missing": "프로젝트 이름이 필요합니다",
+      "retention_policy": "목적",
+      "submit": "프로젝트 생성",
+      "requested": "프로젝트 {name}에 대한 요청이 제출되었습니다.",
+      "request": "프로젝트 요청"
+    },
+    "table": {
+      "name": "이름",
+      "code": "코드",
+      "created_at": "생성됨",
+      "last_change": "마지막 변경",
+      "migrated": "이동됨",
+      "type": "유형",
+      "users": "사용자",
+      "members": "멤버",
+      "__comment": "org 페이지 PR이 병합되면 'members'를 'org.table'로 이동",
+    },
+    "filter": {
+      "title": "프로젝트 필터",
+      "show_deleted": "삭제된 항목 표시",
+      "hide_drafts": "초안 숨기기",
+      "show_empty": "비어 있음만 표시",
+      "empty": "비어 있음",
+      "select_user_from_table": "특정 사용자에 대한 프로젝트를 필터링하려면 사용자 테이블에서 사용자를 선택하십시오:",
+      "project_member": "프로젝트 멤버",
+      "filter_user_projects": "사용자 프로젝트 필터링",
+    },
+    "confidential": {
+      "confidential": "기밀",
+      "confidentiality": "기밀성",
+      "not_confidential": "기밀 아님",
+      "set_confidentiality": "프로젝트 기밀성 설정",
+      "unspecified": "지정되지 않음",
+      "confidentiality_unspecified": "기밀성 지정되지 않음",
+      "label": "이 프로젝트는 기밀입니다. 프로젝트 멤버의 안전이 보안 문제입니다.",
+      "description": "프로젝트 멤버와 관리자만 이 프로젝트를 볼 수 있습니다. 자세한 내용은 [프로젝트 기밀성](https://scribehow.com/shared/Project_Confidentiality__s6TX8_wFQ1ejVpH1s5Bsmw?referrer=documents)을 참조하십시오.",
+      "suggestions": "프로젝트, 프로젝트 멤버 및 프로젝트에서 식별할 수 있는 기타 정보에 대한 별명을 사용하는 것이 좋습니다. ([기밀 Paratext 프로젝트](https://paratext.org/paratext-help-and-support/registry-training-and-help/confidential-projects/)에 언급된 유사한 이유로).",
+      "modal": {
+        "title": "프로젝트 기밀성",
+        "submit_button_confidential": "프로젝트는 기밀입니다",
+        "submit_button_not_confidential": "프로젝트는 기밀이 아닙니다",
+        "project_now_confidential": "프로젝트는 이제 기밀입니다.",
+        "project_now_not_confidential": "프로젝트는 이제 기밀이 아닙니다.",
+      }
+    },
+    "awaiting_approval": "승인 대기 중"
+  },
+  "org_page": {
+    "organization": "조직",
+    "add_user": {
+      "add_button": "멤버 추가",
+      "__comment_add_button": "이메일 초대가 조직에 구현되면 '멤버 추가/초대'로 변경되어야 함",
+      "modal_title": "이 조직에 멤버 추가",
+      "__comment_modal_title": "이메일 초대가 조직에 구현되면 '멤버 추가 또는 초대...'로 변경되어야 함",
+      "submit_button": "멤버 추가",
+      "empty_user_field": "이메일 주소 또는 로그인을 입력하십시오",
+      "submit_button_email": "멤버 추가",
+      "__comment_submit_button_email": "이메일 초대가 조직에 구현되면 '멤버 추가 또는 초대'로 변경되어야 함",
+      "org_not_found": "조직을 찾을 수 없습니다. 페이지를 새로 고침하십시오.",
+      "username_not_found": "이 로그인을 가진 사용자를 찾을 수 없습니다",
+      "user_must_be_verified": "사용자는 확인된 이메일 주소가 필요합니다",
+      "admin_must_be_verified": "사용자는 조직 관리자가 되려면 확인된 이메일 주소가 필요합니다",
+      "user_already_member": "사용자는 이미 이 조직의 멤버입니다",
+      "user_needs_to_relogin": "추가된 멤버는 조직을 보기 전에 다시 로그아웃하고 다시 로그인해야 합니다.",
+      "invalid_email_address": "잘못된 이메일 주소: {email}",
+    },
+    "change_role_modal": {
+      "title": "{name}의 역할 선택",
+      "button_label": "역할 변경"
+    },
+    "delete_modal": {
+      "submit": "조직 삭제"
+    },
+    "details": {
+      "created_at": "생성됨",
+      "updated_at": "마지막 업데이트",
+      "member_count": "멤버",
+      "project_count": "프로젝트",
+    },
+    "notifications": {
+      "role_change": "{name}의 조직 역할이 {role}로 설정되었습니다.",
+      "user_delete": "{name}이(가) 제거되었습니다.",
+      "rename_org": "조직 이름이 {name}(으)로 설정되었습니다.",
+      "delete_org": "조직 {name}이(가) 삭제되었습니다.",
+      "leave_org": "조직 {name}에서 나왔습니다.",
+      "leave_org_error": "조직 {name}에서 제거를 시도하는 동안 오류가 발생했습니다. 나중에 다시 시도하십시오.",
+      "describe": "조직 설명이 업데이트되었습니다.",
+      "add_member": "{email}이(가) 조직에 추가되었습니다.",
+      "member_invited": "{email}에게 조직에 가입하라는 초대 이메일이 발송되었습니다."
+    },
+    "edit_member_role": "역할 변경",
+    "remove_member": "제거",
+    "org_name_empty_error": "조직 이름은 비워둘 수 없습니다",
+    "projects_table_title": "프로젝트",
+    "members_table_title": "멤버",
+    "settings_view_title": "설정",
+    "history_view_title": "기록",
+    "leave_org": "조직에서 나가기",
+  },
+  "project_page": {
+    "project": "프로젝트",
+    "add_user": {
+      "add_button": "멤버 추가/초대",
+      "modal_title": "이 프로젝트에 멤버 추가 또는 초대",
+      "submit_button": "멤버 추가",
+      "empty_user_field": "이메일 주소 또는 로그인을 입력하십시오",
+      "submit_button_email": "멤버 추가 또는 초대",
+      "project_not_found": "프로젝트를 찾을 수 없습니다. 페이지를 새로 고침하십시오.",
+      "username_not_found": "이 로그인을 가진 사용자를 찾을 수 없습니다",
+      "user_must_be_verified": "사용자는 확인된 이메일 주소가 필요합니다",
+      "manager_must_be_verified": "사용자는 관리자가 되려면 확인된 이메일 주소가 필요합니다",
+      "user_already_member": "사용자는 이미 이 프로젝트의 멤버입니다",
+      "user_needs_to_relogin": "추가된 멤버는 프로젝트를 보기 전에 다시 로그아웃하고 다시 로그인해야 합니다.",
+      "invalid_email_address": "잘못된 이메일 주소: {email}",
+    },
+    "bulk_add_members": {
+      "add_button": "멤버 대량 추가/생성",
+      "explanation": "입력된 모든 로그인 및 이메일을 이 프로젝트에 추가합니다. 계정이 없는 사용자의 새 계정이 자동으로 생성됩니다.",
+      "modal_title": "멤버 대량 추가/생성",
+      "submit_button": "멤버 추가/생성",
+      "finish_button": "닫기",
+      "shared_password": "공유 비밀번호",
+      "shared_password_description": "새 사용자용",
+      "usernames": "로그인 또는 이메일 (줄마다 하나씩)",
+      "usernames_description": "이것은 새 사용자의 **송수신 로그인**이 됩니다",
+      "invalid_username": "잘못된 로그인/사용자 이름: {username}. 문자, 숫자 및 밑줄(_) 문자만 허용됩니다.",
+      "empty_user_field": "이메일 주소 및/또는 로그인을 입력하십시오",
+      "creator_must_have_email": "프로젝트를 생성하려면 이메일 주소가 있어야 합니다.",
+      "members_added": "{addedCount}명의 새 {addedCount, plural, one {멤버가} other {멤버들이}} 프로젝트에 추가되었습니다.",
+      "existing_added_members": "{existedCount}명의 기존 {existedCount, plural, one {사용자가} other {사용자들이}} 이미 존재했습니다.",
+      "already_members": "{count, plural, one {#명의 사용자가} other {#명의 사용자들이}} 이미 프로젝트에 있습니다.",
+      "accounts_created": "{createdCount}개의 새 {createdCount, plural, one {계정이} other {계정들이}} 제공된 비밀번호로 생성되었습니다.",
+      "accounts_invited": "{invitedCount}명의 새 {invitedCount, plural, one {사용자가} other {사용자들이}} 이메일로 초대되었습니다.",
+      "invalid_email_address": "잘못된 이메일 주소: {email}.",
+    },
+    "change_role_modal": {
+      "title": "{name}의 역할 선택"
+    },
+    "reset_project_modal": {
+      "title": "프로젝트 {code} 재설정",
+      "submit": "프로젝트 재설정",
+      "close": "닫기",
+      "i_have_working_backup": "작동하는 백업이 있습니다",
+      "leave_project_empty": "프로젝트를 비워 둡니다",
+      "next": "다음",
+      "back": "뒤로",
+      "download_instruction": "먼저, 프로젝트의 백업을 다운로드하여 3단계에서 복원에 사용할 수 있도록 합니다:",
+      "download_button": "프로젝트 백업 다운로드",
+      "confirm_downloaded": "프로젝트 백업을 다운로드하고 작동하는지 확인했음을 확인합니다. 프로젝트 리포지토리 내용을 완전히 재설정/삭제할 준비가 되었습니다.",
+      "confirm_downloaded_error": "백업을 다운로드했음을 확인하십시오",
+      "confirm_project_code": "재설정을 확인하려면 프로젝트 코드를 입력하십시오",
+      "confirm_project_code_error": "재설정을 확인하려면 프로젝트 코드를 입력하십시오",
+      "reset_project_notification": "프로젝트 {code}이(가) 성공적으로 재설정되었습니다.",
+      "upload_instruction": "프로젝트 리포지토리가 성공적으로 재설정되었습니다. 이제 복원을 위해 zip 파일을 업로드하십시오:",
+      "upload_project": "프로젝트 업로드",
+      "select_zip": "프로젝트 zip 파일",
+      "should_only_contain_hg": "루트에 .hg 폴더만 포함되어야 합니다",
+      "reset_success": "프로젝트가 성공적으로 재설정되었습니다.",
+      "backup_step": "백업",
+      "reset_step": "재설정",
+      "restore_step": "복원",
+      "finished_step": "완료",
+      "reset_in_progress": "프로젝트 재설정 진행 중",
+      "click_to_continue": "계속하려면 클릭"
+    },
+    "notifications": {
+      "role_change": "{name}의 프로젝트 역할이 {role}로 설정되었습니다.",
+      "reset_project": "프로젝트 {code}이(가) 재설정되었습니다.",
+      "user_delete": "{name}이(가) 제거되었습니다.",
+      "rename_project": "프로젝트 이름이 {name}(으)로 설정되었습니다.",
+      "promote_project": "프로젝트가 초안 상태에서 실제 프로젝트로 변경되었습니다.",
+      "describe": "프로젝트 설명이 업데이트되었습니다.",
+      "add_member": "{email}이(가) 프로젝트에 추가되었습니다.",
+      "member_invited": "{email}에게 프로젝트에 가입하라는 초대 이메일이 발송되었습니다."
+    },
+    "project_name_empty_error": "프로젝트 이름은 비워둘 수 없습니다",
+    "confirm_remove": "{userName}을(를) 이 프로젝트에서 제거하시겠습니까?",
+    "history": "기록",
+    "project_code": "프로젝트 코드",
+    "summary": "요약",
+    "num_entries": "항목 수",
+    "description": "설명",
+    "created_at": "생성됨",
+    "last_commit": "마지막 커밋",
+    "members": {
+      "title": "멤버",
+      "filter_members_placeholder": "멤버 필터링...",
+      "show_all": "모두 표시",
+      "show_less": "줄이기",
+      "no_matching": "일치하는 멤버 없음",
+    },
+    "add_description": "설명 추가...",
+    "remove_project_user_title": "멤버",
+    "remove_user": "제거",
+    "change_role": "역할 변경",
+    "view_user_details": "세부 정보 보기",
+    "hg": {
+      "open_in_hgweb": "HgWeb에서 열기",
+      "no_history": "기록 없음",
+      "loading": "기록 로드 중...",
+      "date_header": "날짜",
+      "author_header": "작성자",
+      "log_header": "메시지"
+    },
+    "get_project": {
+      "instructions_header": "이 프로젝트를 {isEmpty, select, true { 설정 } other { 얻기 }}하려면 {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (예: FLEx) }} {mode, select, manual { 수동으로} other { }}",
+      "instructions_flex": "1. \"송수신\" 메뉴에서 \"동료로부터 프로젝트 가져오기...\"를 클릭하십시오\n\
+1. \"프로젝트 받기\" 대화 상자에서 \"인터넷\"을 클릭하십시오\n\
+1. \"인터넷을 통한 프로젝트 가져오기\" 대화 상자에서 Language Depot의 \"로그인\" ({login})과(와) \"비밀번호\"를 입력하고 \"로그인\"을 클릭하십시오\n\
+1. 나타나는 \"프로젝트 ID\" 필드에서 \"{code}\"를 선택하십시오\n\
+1. 컴퓨터에 폴더 이름을 입력하십시오 (예: \"{name}\")",
+      "instructions_flex_empty": "1. 컴퓨터에 [FLEx 다운로드](https://software.sil.org/fieldworks/download/)\n\
+1. FLEx 응용 프로그램을 열고 \"새 프로젝트 생성...\"을 선택하십시오.\n\
+1. 필수 정보를 입력하십시오: 프로젝트 이름, 폴더 이름 (예: \"{name}\"), 등을 입력한 후 \"완료\"를 클릭하십시오.\n\
+1. 새 프로젝트가 열리면 \"송수신\" -> \"처음으로 이 프로젝트 전송\"을 클릭하십시오.\n\
+1. \"확인 (주 프로젝트가 있습니다)\"을 클릭하십시오.\n\
+1. \"설정...\"을 클릭하고 Language Depot \"로그인\" ({login})과(와) \"비밀번호\"를 입력하십시오.\n\
+1. 로그인하고 드롭다운 메뉴에서 프로젝트 ID ({code})를 선택하십시오.\n\
+1. 인터넷을 클릭하십시오. 이렇게 하면 첫 번째 송수신이 시작됩니다.",
+      "instructions_wesay": "1. 'WeSay 구성 도구'를 실행하십시오\n\
+1. '인터넷에서 가져오기'를 클릭하십시오\n\
+1. '프로젝트 ID' 필드에 \"{code}\"를 입력하십시오\n\
+1. '로그인' 필드에 \"{login}\"을 입력하십시오.\ 참고: WeSay의 버그로 인해 이메일의 @ 기호를 입력할 수 없습니다. 해결 방법은 @ 대신 %40을 입력하는 것입니다.\n\
+1. '비밀번호' 필드에 비밀번호를 입력하십시오\n\
+1. 컴퓨터에 폴더 이름을 입력하십시오 (예: \"{name}\")\n\
+1. '다운로드'를 클릭하십시오",
+      "instructions_wesay_empty": "1. 컴퓨터에 [WeSay 다운로드](https://software.sil.org/wesay/download/)\n\
+1. WeSay를 열고 \"새 빈 프로젝트 생성...\"을 선택하십시오.\n\
+1. 필수 정보를 입력하십시오: 프로젝트 언어 및 프로젝트 이름 (예: \"{name}\"), 등을 입력한 후 \"완료\"를 클릭하십시오.\n\
+1. 단어를 추가할 수 있습니다\n\
+1. '송수신'을 클릭하십시오\n\
+1. '설정...'을 클릭하십시오\n\
+1. 변경 내역에 표시할 이름 필드에 이름이 올바르게 입력되었는지 확인하십시오\n\
+1. '프로젝트 ID' 필드에 \"{code}\"를 입력하십시오\n\
+1. '로그인' 필드에 \"{login}\"을 입력하십시오.\ 참고: WeSay의 버그로 인해 이메일의 @ 기호를 입력할 수 없습니다. 해결 방법은 @ 대신 %40을 입력하는 것입니다.\n\
+1. '비밀번호' 필드에 비밀번호를 입력하십시오\n\
+1. '설정...' 대화 상자를 닫으려면 '확인'을 클릭하십시오\n\
+1. '인터넷'을 클릭하십시오. 이렇게 하면 첫 번째 송수신이 시작됩니다.",
+      "label": "{isEmpty, select, true { 프로젝트 설정 } other { 프로젝트 획득 }}",
+      "send_receive_url": "송수신 URL",
+    },
+    "promote_project": {
+      "label": "실제 프로젝트로 승격",
+    },
+    "open_with_viewer": "브라우저로 열기",
+    "open_with_flex": {
+      "button": "FLEx로 열기",
+      "supported_version": "참고: 이 기능은 [FieldWorks 버전 9.?](https://software.sil.org/fieldworks/download/)부터 완전히 지원됩니다.",
+      "instructions": "이 프로젝트를 열려면 브라우저에 표시된 대화 상자에서 **FieldWorks 열기**를 클릭하십시오.\n\n\
+대화 상자가 보이지 않거나 이미 닫힌 경우, 아래 버튼을 클릭하십시오:",
+    },
+    "leave": {
+      "confirm_title": "프로젝트를 떠나시겠습니까?",
+      "leave_action": "떠나기",
+      "dont_leave": "떠나지 않음",
+      "confirm_leave": "이 프로젝트를 정말로 떠나시겠습니까?",
+      "last_to_leave": "이 프로젝트의 마지막 관리자입니다. 떠나려면 프로젝트를 삭제하거나 다른 관리자를 추가해야 합니다.",
+      "leave_success": "프로젝트 {projectName}을(를) 떠났습니다.",
+      "leave_project": "프로젝트 떠나기"
+    },
+  },
+  "org_role": {
+    "label": "역할",
+    "user": "멤버",
+    "user_description": "멤버 (프로젝트에 참여 가능)",
+    "admin": "관리자",
+    "admin_description": "관리자 (프로젝트에 참여 및 새로운 멤버 추가 가능)",
+    "unknown": "알 수 없음",
+    "unknown_description": "알 수 없음"
+  },
+  "project_role": {
+    "label": "역할",
+    "editor": "편집자",
+    "editor_description": "편집자 (송수신 가능)",
+    "manager": "관리자",
+    "manager_description": "관리자 (송수신 및 새로운 사용자 추가 가능)"
+  },
+  "system_role": {
+    "label": "역할",
+    "admin_description": "시스템 관리자 (모든 프로젝트 및 사용자 관리 가능)",
+    "user_description": "사용자 (자신의 프로젝트 생성 및 관리 가능)"
+  },
+  "project_type": {
+    "type": "프로젝트 유형",
+    "adaptIt": "Adapt It",
+    "flex": "FLEx",
+    "oneStoryEditor": "OneStory Editor",
+    "other": "기타",
+    "ourWord": "OurWord",
+    "weSay": "WeSay (LIFT)",
+    "logo": "{type} 로고",
+  },
+  "projectlist": {
+    "last_change": "마지막 변경: {lastChange, date, short} {lastChange, time, short}",
+    "no_changes": "새로운",
+    "shared_with": "{memberCount, plural, one {아무에게도 공유되지 않음} other {#명과 공유됨}}",
+    "requested": "요청됨: {requested, date, short} {requested, time, short}",
+  },
+  "register": {
+    "title": "회원가입",
+    "account_exists_email": "이 이메일로 이미 계정이 존재합니다",
+    "account_exists_login": "이 로그인/사용자 이름으로 이미 계정이 존재합니다",
+    "invalid_username": "잘못된 로그인/사용자 이름. 문자, 숫자 및 밑줄(_) 문자만 허용됩니다.",
+    "button_register": "가입",
+    "label_email": "이메일",
+    "label_email_or_username": "이메일 또는 로그인/사용자 이름",
+    "description_email": "이것이 귀하의 **송수신 로그인**이 됩니다",
+    "label_name": "이름",
+    "label_password": "비밀번호",
+    "name_missing": "이름 누락",
+  },
+  "accept_invitation": {
+    "title": "초대 수락",
+  },
+  "reset_password": {
+    "title": "비밀번호 재설정",
+    "new_password": "새 비밀번호",
+    "submit": "비밀번호 재설정",
+    "password_reset": "비밀번호가 재설정되었습니다",
+    "failed": "비밀번호 재설정 실패. 만료된 링크를 사용했습니까? ({errorMessage})",
+  },
+  "retention_policy": {
+    "dev": "소프트웨어 개발자",
+    "language_project": "언어 프로젝트",
+    "test": "테스트",
+    "training": "훈련",
+    "verified": "확인됨"
+  },
+  "unknown": "알 수 없음",
+  "user_dashboard": {
+    "home_title": "홈",
+    "title": "내 프로젝트",
+    "not_verified": "아직 프로젝트에 참여하지 않았습니다. 프로젝트에 참여하거나 요청하려면 이메일 주소를 확인해야 합니다.",
+    "no_projects": "아직 프로젝트에 참여하지 않았습니다.",
+  },
+  "user_types": {
+    "admin": "관리자",
+    "user": "사용자"
+  },
+  "errors": {
+    "apology": "죄송합니다, 저희 쪽에서 문제가 발생했습니다. 죄송합니다!",
+    "mail_us_at": "문제 해결이 필요하시다면, 아래 주소로 알려주십시오",
+    "please_include": "오류 코드를 포함하고 브라우저의 스크린샷 및 오류 발생까지의 단계를 요약하여 보내주십시오.",
+    "error_code": "오류 코드",
+    "not_found": "404 - 죄송합니다, 해당 페이지를 찾을 수 없습니다. 죄송합니다!",
+    "go_home": "홈으로 이동",
+  },
+  "modal": {
+    "dismiss": "무시"
+  },
+  "notify": {
+    "close_all": "모두 닫기"
+  },
+  "emails": {
+    "link_expiration_warning": "이 이메일은 3일 후 만료됩니다.",
+    "link_expiration_days": "이 이메일은 {days} {days, plural, one {일} other {일}} 후 만료됩니다.",
+    "link_expiration_hours": "이 이메일은 {hours} {hours, plural, one {시간} other {시간}} 후 만료됩니다.",
+    "link_expiration_minutes": "이 이메일은 {minutes} {minutes, plural, one {분} other {분}} 후 만료됩니다.",
+    "link_expiration_seconds": "이 이메일은 {seconds} {seconds, plural, one {초} other {초}} 후 만료됩니다.",
+    "link_expiration_ms": "이 이메일은 {ms} {ms, plural, one {밀리초} other {밀리초}} 후 만료됩니다.",
+    "new_admin": {
+      "subject": "새 Language Depot 관리자 {adminName}",
+      "body": "{adminName} ({adminEmail})이(가) Language Depot의 관리자로 임명되었습니다."
+    },
+    "verify_email": {
+      "subject": "이메일 주소 확인",
+      "to_verify_click": "이메일 주소를 확인하려면 아래 버튼을 클릭하십시오.",
+      "to_verify_and_finish_changing_click": "새 이메일 주소를 확인하고 계정에 연관된 이메일 주소로 설정하려면 아래 버튼을 클릭하십시오.",
+      "verify_button": "이메일 확인"
+    },
+    "forgot_password": {
+      "subject": "비밀번호를 잊으셨습니까?",
+      "to_reset_click": "비밀번호를 재설정하려면 아래 버튼을 클릭하십시오.",
+      "reset_button": "비밀번호 재설정"
+    },
+    "password_changed": {
+      "subject": "비밀번호가 변경되었습니다",
+      "body": "비밀번호가 방금 변경되었음을 확인하기 위해 이 메일을 보냅니다."
+    },
+    "shared": {
+      "greeting": "안녕하세요 {name}님!",
+      "greeting_noname": "안녕하세요!"
+    },
+    "create_account_request_email": {
+      "subject": "프로젝트 초대: {projectName}",
+      "body": "{managerName} 님이 프로젝트 {projectName}에 가입하라고 초대했습니다. 가입하려면 아래를 클릭하십시오.",
+      "join_button": "프로젝트 가입"
+    },
+    "create_project_request_email": {
+      "subject": "프로젝트 요청: {projectName}",
+      "heading": "사용자 {name} ({email})님이 프로젝트를 생성해 달라고 요청했습니다. 아래 세부 정보를 참조하십시오:"
+    },
+    "approve_project_request_email": {
+      "subject": "프로젝트 승인: {projectName}",
+      "heading": "귀하가 요청한 프로젝트 {projectName}이(가) 승인되고 생성되었습니다.",
+      "view_button": "프로젝트 보기"
+    },
+    "user_added": {
+      "subject": "프로젝트에 참여함: {projectName}!",
+      "body": "프로젝트 {projectName}에 추가되었습니다.",
+      "view_button": "프로젝트 보기"
+    }
+  },
+  "footer": {
+    "contact": "연락처",
+    "terms_of_use": "이용 약관",
+    "privacy_policy": "개인정보 보호정책"
+  },
+  "more_settings": {
+    "title": "더 많은 설정"
+  },
+  "clipboard": {
+    "copied": "복사됨!"
+  },
+  "form": {
+    "password": {
+      "forbidden_characters": "비밀번호에는 &, +, :, % 기호를 사용할 수 없습니다",
+      "too_short": "최소 4자 이상이어야 합니다"
+    },
+    "invalid_email": "잘못된 이메일",
+    "value_is_incorrect": "값이 잘못되었습니다",
+  },
+  "notifications": {
+    "update_detected": "새로운 버전의 응용 프로그램이 감지되었습니다. 페이지를 새로 고쳐야 할 수도 있습니다.",
+  },
+  "table": {
+      "refine_filter": "필터를 세부적으로 설정하여 {remainingRows, number}개의 추가 행을 보십시오..."
+  },
+  "turnstile": {
+    "invalid": "캡차 오류, 다시 시도하십시오",
+  },
+  "tus": {
+    "upload": "업로드",
+    "upload_progress": "업로드 진행 상황",
+    "status": "상태: {status, select, NoFile {파일 없음} Ready {준비됨} Error {오류} Uploading {업로드 중} Paused {일시 중지됨} Complete {완료} other {알 수 없음}}",
+    "zip_only": ".zip 파일만 허용됩니다",
+    "no_file_selected": "파일을 선택하십시오",
+    "select_file": "파일 선택",
+    "server_error_codes": {
+      "ZIP_MISSING_HG_FOLDER": "ZIP 파일에 .hg 폴더가 없습니다"
+    }
+  },
+  "paging": {
+    "load_more": "더 불러오기",
+  },
+  "filter": {
+    "placeholder": "검색...",
+  },
+  "common": {
+    "yes": "예",
+    "no": "아니오",
+    "none": "없음",
+    "or": "또는",
+    "any": "아무거나",
+    "yes_no": "{value, select, true {예} false {아니오} other {알 수 없음}}",
+    "did_you_know": "알고 계셨습니까?",
+  }
+}
+
+
