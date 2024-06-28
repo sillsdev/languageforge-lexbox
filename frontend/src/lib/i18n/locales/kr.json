@@ -89,7 +89,7 @@
     "verify_email": {
       "verify_success": "이메일 주소가 성공적으로 확인되었습니다.",
       "change_success": "이메일 주소가 성공적으로 변경되었습니다.",
-      "verify_to_change": "이메일 주소를 {requestedEmail}(으)로 변경하려고 요청했습니다. 새로운 주소를 확인하면 변경이 효력이 발생합니다. 방금 보낸 이메일 링크를 사용하여 확인할 수 있습니다.",
+      "verify_to_change": "이메일 주소를 {requestedEmail}(으)로 변경하려고 요청했습니다. 사용자의 이메일 확인이 완료될 때까지 변경이 보류 중입니다. 방금 보낸 이메일 링크를 사용하여 확인할 수 있습니다.",
       "go_to_projects": "내 프로젝트로 이동",
       "check_inbox": "방금 보낸 확인 이메일을 받으려면 받은 편지함을 확인하십시오.",
       "please_verify": "이메일 주소를 확인할 수 있도록 이메일을 보냈습니다. 가능한 빨리 확인해 주세요.",
@@ -133,10 +133,10 @@
   },
   "forgot_password": {
     "title": "비밀번호 찾기",
-    "send_email": "비밀번호 재설정 이메일 보내기",
+    "send_email": "비밀번호 변경 이메일 보내기",
     "email_sent": {
       "title": "받은 편지함 확인",
-      "email_sent_message": "비밀번호 재설정 링크가 포함된 이메일을 받은 편지함에서 확인하십시오. 이메일이 보이지 않으면 스팸 폴더를 확인하거나 올바른 주소를 사용했는지 확인하십시오. 잘못된 주소를 입력한 경우에는 경고하지 않습니다.",
+      "email_sent_message": "비밀번호 변경 링크가 포함된 이메일을 받은 편지함에서 확인하십시오. 이메일이 보이지 않으면 스팸 폴더를 확인하거나 올바른 주소를 사용했는지 확인하십시오. 잘못된 주소를 입력한 경우에는 별도의 안내가 없습니다.",
       "back_to_login": "로그인 페이지로 돌아가기"
     }
   },
@@ -144,7 +144,7 @@
     "bad_credentials": "입력한 계정 정보가 잘못되었습니다.",
     "your_account_is_locked": "계정이 잠겨 있습니다. [관리자에게 문의](mailto:admin@languagedepot.org)하여 잠금을 해제하거나 계정을 삭제하십시오.",
     "button_login": "로그인",
-    "button_login_again": "다시 로그인 시도?",
+    "button_login_again": "다시 로그인 재시도",
     "forgot_password": "비밀번호를 잊으셨습니까?",
     "label_email": "이메일 또는 송수신 로그인",
     "label_password": "비밀번호",
@@ -154,9 +154,10 @@
     "password_missing": "비밀번호 누락",
     "link_expired": "클릭한 이메일이 만료되었습니다. 새 이메일을 요청하십시오.",
     "welcome_header": "### Language Depot에 오신 것을 환영합니다\n",
+
     "welcome": "Language Depot은 [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) 및 [WeSay](https://software.sil.org/wesay/) 프로젝트를 호스팅하는 서비스입니다. \
-이 서비스는 [SIL Language Technology](https://software.sil.org/)와 태국 치앙마이에 있는 [사이압 대학교 언어연구소](https://li.payap.ac.th/)에서 언어 커뮤니티를 위해 제공됩니다."
+이 서비스는 태국 치앙마이에 있는 [파얍 대학교 언어학연구소](https://li.payap.ac.th/)와 [SIL Language Technology](https://software.sil.org/)의 언어학 커뮤니티를 위해 제공됩니다."
   },
   "org": {
     "table": {
@@ -212,9 +213,9 @@
       "hide_drafts": "초안 숨기기",
       "show_empty": "비어 있음만 표시",
       "empty": "비어 있음",
-      "select_user_from_table": "특정 사용자에 대한 프로젝트를 필터링하려면 사용자 테이블에서 사용자를 선택하십시오:",
+      "select_user_from_table": "특정 사용자의 프로젝트를 필터링하려면 사용자 테이블에서 사용자를 선택하십시오:",
       "project_member": "프로젝트 멤버",
-      "filter_user_projects": "사용자 프로젝트 필터링",
+      "filter_user_projects": "프로젝트 필터링",
     },
     "confidential": {
       "confidential": "기밀",
@@ -223,7 +224,7 @@
       "set_confidentiality": "프로젝트 기밀성 설정",
       "unspecified": "지정되지 않음",
       "confidentiality_unspecified": "기밀성 지정되지 않음",
-      "label": "이 프로젝트는 기밀입니다. 프로젝트 멤버의 안전이 보안 문제입니다.",
+      "label": "이 프로젝트는 기밀이며, 프로젝트 멤버의 안전과 관련된 보안 문제입니다.",
       "description": "프로젝트 멤버와 관리자만 이 프로젝트를 볼 수 있습니다. 자세한 내용은 [프로젝트 기밀성](https://scribehow.com/shared/Project_Confidentiality__s6TX8_wFQ1ejVpH1s5Bsmw?referrer=documents)을 참조하십시오.",
       "suggestions": "프로젝트, 프로젝트 멤버 및 프로젝트에서 식별할 수 있는 기타 정보에 대한 별명을 사용하는 것이 좋습니다. ([기밀 Paratext 프로젝트](https://paratext.org/paratext-help-and-support/registry-training-and-help/confidential-projects/)에 언급된 유사한 이유로).",
       "modal": {
@@ -240,19 +241,16 @@
     "organization": "조직",
     "add_user": {
       "add_button": "멤버 추가",
-      "__comment_add_button": "이메일 초대가 조직에 구현되면 '멤버 추가/초대'로 변경되어야 함",
       "modal_title": "이 조직에 멤버 추가",
-      "__comment_modal_title": "이메일 초대가 조직에 구현되면 '멤버 추가 또는 초대...'로 변경되어야 함",
       "submit_button": "멤버 추가",
       "empty_user_field": "이메일 주소 또는 로그인을 입력하십시오",
       "submit_button_email": "멤버 추가",
-      "__comment_submit_button_email": "이메일 초대가 조직에 구현되면 '멤버 추가 또는 초대'로 변경되어야 함",
       "org_not_found": "조직을 찾을 수 없습니다. 페이지를 새로 고침하십시오.",
       "username_not_found": "이 로그인을 가진 사용자를 찾을 수 없습니다",
       "user_must_be_verified": "사용자는 확인된 이메일 주소가 필요합니다",
       "admin_must_be_verified": "사용자는 조직 관리자가 되려면 확인된 이메일 주소가 필요합니다",
       "user_already_member": "사용자는 이미 이 조직의 멤버입니다",
-      "user_needs_to_relogin": "추가된 멤버는 조직을 보기 전에 다시 로그아웃하고 다시 로그인해야 합니다.",
+      "user_needs_to_relogin": "추가된 멤버는 조직을 보기 전에 로그아웃하고 다시 로그인해야 합니다.",
       "invalid_email_address": "잘못된 이메일 주소: {email}",
     },
     "change_role_modal": {
