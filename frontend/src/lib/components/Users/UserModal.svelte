@@ -3,6 +3,7 @@
   import { Modal } from '$lib/components/modals';
   import DevContent from '$lib/layout/DevContent.svelte';
   import UserLockedAlert from './UserLockedAlert.svelte';
+  import { NULL_LABEL } from '$lib/i18n';
 
   type User = {
     id: string;
@@ -68,7 +69,7 @@
       <div>
         <h3>{$t('admin_dashboard.column_login')}</h3>
         <p class="value">
-          {user.username ?? '-'}
+          {user.username ?? NULL_LABEL}
         </p>
       </div>
       <div>
@@ -89,7 +90,7 @@
       </div>
       <div>
         <h3>{$t('admin_dashboard.user_details_modal.createdBy')}</h3>
-        <p class="value">{user.createdBy?.name  ?? '-'}</p>
+        <p class="value">{user.createdBy?.name  ?? NULL_LABEL}</p>
       </div>
       <DevContent>
         <div>
