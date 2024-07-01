@@ -130,24 +130,24 @@ public class PermissionService(
         if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
     }
 
-    public bool IsOrgMember(Organization org)
+    public bool IsOrgMember(Guid orgId)
     {
         if (User is null) return false;
-        if (org.Members.Any(m => m.UserId == User.Id)) return true;
+        if (User.Orgs.Any(o => o.OrgId == orgId)) return true;
         return false;
     }
 
-    public bool CanEditOrg(Organization org)
+    public bool CanEditOrg(Guid orgId)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        if (org.Members?.Any(m => m.UserId == User.Id && m.Role == OrgRole.Admin) ?? false) return true;
+        if (User.Orgs.Any(o => o.OrgId == orgId && o.Role == OrgRole.Admin)) return true;
         return false;
     }
 
     public void AssertCanEditOrg(Organization org)
     {
-        if (!CanEditOrg(org)) throw new UnauthorizedAccessException();
+        if (!CanEditOrg(org.Id)) throw new UnauthorizedAccessException();
     }
 
     public void AssertCanAddProjectToOrg(Organization org)

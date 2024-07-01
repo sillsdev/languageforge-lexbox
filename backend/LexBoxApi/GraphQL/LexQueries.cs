@@ -101,21 +101,20 @@ public class LexQueries
     {
         var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(context).SingleOrDefaultAsync();
         if (org is null) return org;
-        //todo filter/modify users based on user permissions
         // Site admins and org admins can see everything
-        if (permissionService.CanEditOrg(org)) return org;
-        // // Members can see all public projects plus their own
-        if (permissionService.IsOrgMember(org))
+        if (permissionService.CanEditOrg(orgId)) return org;
+        // Non-admins cannot see email addresses
+        org.Members?.ForEach(m => { if (m.User is not null) m.User.Email = null; });
+        // Members can see all public projects plus their own
+        if (permissionService.IsOrgMember(orgId))
         {
-            // org.Projects = org.Projects.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id)).ToList();
-            org.Projects = org.Projects;
-            // TODO: Members cannot see emails of other members
+            org.Projects = org.Projects.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id)).ToList();
         }
         else
         {
-            org.Projects = org.Projects.Where(p => p.IsConfidential == false).ToList();
+            org.Projects = org.Projects?.Where(p => p.IsConfidential == false).ToList() ?? [];
             // Non-members also cannot see membership, only org admins
-            org.Members = org.Members.Where(m => m.Role == OrgRole.Admin).ToList();
+            org.Members = org.Members?.Where(m => m.Role == OrgRole.Admin).ToList() ?? [];
         }
         return org;
     }
