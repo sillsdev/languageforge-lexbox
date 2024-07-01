@@ -24,13 +24,15 @@
     score: z.number(),
     role: z.enum([UserRole.User, UserRole.Admin]),
     })
+  const refinedSchema = schema
     .refine((data) => data.email || data.role !== UserRole.Admin, {
     message: 'You must have a valid email.',
     path: ['role'],
     });
 
   type Schema = typeof schema;
-  let formModal: FormModal<Schema>;
+  type RefinedSchema = typeof refinedSchema;
+  let formModal: FormModal<RefinedSchema>;
   $: form = formModal?.form();
 
   export function close(): void {
@@ -91,7 +93,7 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors>
+<FormModal bind:this={formModal} schema={refinedSchema} let:errors>
   <span slot="title">
     {$t('admin_dashboard.form_modal.title')}
   </span>
