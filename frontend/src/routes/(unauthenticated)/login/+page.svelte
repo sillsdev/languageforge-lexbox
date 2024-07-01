@@ -54,6 +54,8 @@
     const code = urlSearchParams.get('message');
     if (code === 'link_expired') {
       $message = $t('login.link_expired');
+    } else if (code === 'account_locked') {
+      $message = $t('login.your_account_is_locked');
     }
     logout();
   });

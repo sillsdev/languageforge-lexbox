@@ -99,7 +99,7 @@ public record LexAuthUser
         CanCreateProjects = user.CanCreateProjects ? true : null;
         CreatedByAdmin = user.CreatedById == null ? null : true;
         Locale = user.LocalizationCode;
-        Locked = user.Locked ? null : true;
+        Locked = user.Locked ? true : null;
     }
 
     [JsonPropertyName(LexAuthConstants.IdClaimType)]

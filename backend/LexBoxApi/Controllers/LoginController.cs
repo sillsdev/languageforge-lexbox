@@ -113,6 +113,17 @@ public class LoginController(
             await lexBoxDbContext.SaveChangesAsync();
         }
 
+        if (authUser.Locked == true) {
+            var queryParams = new Dictionary<string, string?>()
+            {
+                { "message", "account_locked" },
+                { "returnTo", returnTo },
+            };
+            var queryString = QueryString.Create(queryParams);
+            returnTo = "/login" + queryString.ToString();
+            return returnTo;
+        }
+
         await HttpContext.SignInAsync(authUser.GetPrincipal("google"),
             new AuthenticationProperties { IsPersistent = true });
         return returnTo;
