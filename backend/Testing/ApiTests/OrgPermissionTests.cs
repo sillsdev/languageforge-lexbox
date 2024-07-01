@@ -211,4 +211,18 @@ public class OrgPermissionTests : ApiTestBase
         MustContainProject(org, SeedingData.Sena3ProjId);
         MustContainProject(org, SeedingData.ElawaProjId);
     }
+
+    [Fact]
+    public async Task NonMemberCanJustQueryOrgWithoutMembersOrProjects()
+    {
+        await LoginAs("user");
+        await ExecuteGql(
+            $$"""
+              query {
+                  orgById(orgId: "{{SeedingData.TestOrgId}}") {
+                      name
+                  }
+              }
+              """);
+    }
 }
