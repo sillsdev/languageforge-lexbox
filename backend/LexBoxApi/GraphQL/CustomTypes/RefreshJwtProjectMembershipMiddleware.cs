@@ -7,7 +7,7 @@ namespace LexBoxApi.GraphQL.CustomTypes;
 
 public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
 {
-    private const string REFRESHED_USER_KEY = "RefreshedJwtProjectMembership";
+    private const string REFRESHED_USER_KEY = "RefreshedJwtMemberships";
 
     public async Task InvokeAsync(IMiddlewareContext context)
     {

@@ -7,8 +7,8 @@ namespace LexBoxApi.GraphQL.CustomTypes;
 
 public class RefreshJwtOrgMembershipMiddleware(FieldDelegate next)
 {
-    private const string REFRESHED_USER_KEY = "RefreshedJwtProjectMembership";
-    // Yes, "Project". We need the same key as in RefreshJwtProjectMembershipMiddleware so that we don't call RefreshUser twice.
+    private const string REFRESHED_USER_KEY = "RefreshedJwtMemberships";
+    // Should be the same value as in RefreshJwtProjectMembershipMiddleware.
     public async Task InvokeAsync(IMiddlewareContext context)
     {
         await next(context);
