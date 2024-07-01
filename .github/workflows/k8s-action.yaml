@@ -1,0 +1,56 @@
+name: Self contained integration tests
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - develop
+
+
+jobs:
+  execute:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install Task
+        uses: arduino/setup-task@v2
+      - run: task setup-local-env
+      - name: setup k8s
+        uses: helm/kind-action@v1.10.0
+        with:
+          config: deployment/gha/kind.yaml
+      - name: Verify k8s
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+      - name: deploy
+        run: |
+          kubectl create namespace languagedepot
+          kubectl apply -k ./deployment/gha
+          kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
+          kubectl wait --for=condition=Ready --timeout=90s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
+      - name: status
+        if: failure()
+        run: |
+          kubectl describe pods -l 'app in (lexbox, ui, hg, db)' -n languagedepot
+          echo "========== LOGS =========="
+          kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers --tail=50
+          echo "========== INGRESS =========="
+          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=50
+      - name: forward ingress
+        run: kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
+      - name: verify ingress
+        run: curl -v http://localhost:6579
+      - name: build
+        run: dotnet restore && dotnet build --no-restore
+      - name: test
+        env:
+          TEST_SERVER_HOSTNAME: 'localhost:6579'
+          TEST_STANDARD_HG_HOSTNAME: 'hg.localhost:6579'
+          TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost:6579'
+          TEST_PROJECT_CODE: 'sena-3'
+          TEST_DEFAULT_PASSWORD: 'pass'
+        run: dotnet test --logger GitHubActions --filter Category=Integration --blame-hang-timeout 40m
+
