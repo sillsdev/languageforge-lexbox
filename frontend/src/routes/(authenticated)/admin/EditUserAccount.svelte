@@ -26,7 +26,7 @@
     })
   const refinedSchema = schema
     .refine((data) => data.email || data.role !== UserRole.Admin, {
-    message: 'You must have a valid email.',
+    message: $t('admin_dashboard.form_modal.role_label.email_required_for_admin'),
     path: ['role'],
     });
 
@@ -106,7 +106,6 @@
     error={errors.email}
     autofocus
   />
-  <!-- if !email && role.UserRole.ADMIN -->
   <Input
     id="name"
     type="text"
