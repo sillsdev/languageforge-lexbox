@@ -231,22 +231,40 @@ type NotFoundError implements Error {
   type: String!
 }
 
+type OrgById {
+  members: [OrgByIdMember!]!
+  name: String!
+  projects: [Project!]!
+  memberCount: Int!
+  projectCount: Int!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
+type OrgByIdMember {
+  user: OrgByIdUser!
+  userId: UUID!
+  orgId: UUID!
+  role: OrgRole!
+  organization: Organization
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
+type OrgByIdUser {
+  id: UUID!
+  name: String!
+  email: String
+}
+
 type OrgMember {
   user: User!
   organization: Project!
   userId: UUID!
   orgId: UUID!
   role: OrgRole!
-  id: UUID!
-  createdDate: DateTime!
-  updatedDate: DateTime!
-}
-
-type OrgProjects {
-  org: Organization!
-  project: Project!
-  orgId: UUID!
-  projectId: UUID!
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
@@ -267,14 +285,24 @@ type OrgMemberDto {
   canCreateProjects: Boolean!
 }
 
+type OrgProjects {
+  org: Organization!
+  project: Project!
+  orgId: UUID!
+  projectId: UUID!
+  id: UUID!
+  createdDate: DateTime!
+  updatedDate: DateTime!
+}
+
 type Organization {
   createdDate: DateTime!
+  id: UUID!
+  members: [OrgMember!]! @authorize(policy: "AdminRequiredPolicy")
+  projects: [Project!]! @authorize(policy: "AdminRequiredPolicy")
   name: String!
-  members: [OrgMember!]!
-  projects: [Project!]!
   memberCount: Int!
   projectCount: Int!
-  id: UUID!
   updatedDate: DateTime!
 }
 
@@ -340,7 +368,7 @@ type Query {
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
   orgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
   myOrgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
-  orgById(orgId: UUID!): Organization
+  orgById(orgId: UUID!): OrgById
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
   orgMemberById(orgId: UUID! userId: UUID!): OrgMemberDto

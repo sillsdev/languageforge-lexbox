@@ -31,7 +31,7 @@ export async function load(event: PageLoadEvent) {
   const orgResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
-        query orgPage($orgId: UUID!, $userIsAdmin: Boolean!) {
+        query orgPage($orgId: UUID!) {
           orgById(orgId: $orgId) {
             id
             createdDate
@@ -51,28 +51,13 @@ export async function load(event: PageLoadEvent) {
               user {
                 id
                 name
-                ... on User @include(if: $userIsAdmin) {
-                  locked
-                  username
-                  createdDate
-                  updatedDate
-                  email
-                  localizationCode
-                  lastActive
-                  canCreateProjects
-                  isAdmin
-                  emailVerified
-                  createdBy {
-                    id
-                    name
-                  }
-                }
+                email
               }
             }
           }
         }
       `),
-      { orgId, userIsAdmin }
+      { orgId }
     );
 
   const nonNullableOrg = tryMakeNonNullable(orgResult.orgById);

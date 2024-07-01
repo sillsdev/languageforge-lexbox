@@ -1,3 +1,4 @@
+using HotChocolate.Resolvers;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.GraphQL.CustomTypes;
@@ -94,11 +95,13 @@ public class LexQueries
         return context.Orgs.Where(o => o.Members.Any(m => m.UserId == userId));
     }
 
-    [UseSingleOrDefault]
     [UseProjection]
-    public IQueryable<Organization> OrgById(LexBoxDbContext context, Guid orgId)
+    [GraphQLType<OrgByIdGqlConfiguration>]
+    public async Task<Organization?> OrgById(LexBoxDbContext dbContext, Guid orgId, IResolverContext context)
     {
-        return context.Orgs.Where(o => o.Id == orgId);
+        var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(context).SingleOrDefaultAsync();
+        //todo filter/modify users based on user permissions
+        return org;
     }
 
     [UseOffsetPaging]

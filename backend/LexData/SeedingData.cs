@@ -21,11 +21,11 @@ public class SeedingData(
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
     private static readonly Guid MangerId = new Guid("703701a8-005c-4747-91f2-ac7650455118");
-    private static readonly Guid EditorId = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb");
-    private static readonly Guid TestOrgId = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6");
+    public static readonly Guid EditorId = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb");
+    public static readonly Guid TestOrgId = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6");
     private static readonly Guid SecondTestOrgId = new Guid("a748bd8b-6348-4980-8dee-6de8b63e4a39");
-    private static readonly Guid Sena3ProjId = new Guid("0ebc5976-058d-4447-aaa7-297f8569f968");
-    private static readonly Guid ElawaProjId = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507");
+    public static readonly Guid Sena3ProjId = new Guid("0ebc5976-058d-4447-aaa7-297f8569f968");
+    public static readonly Guid ElawaProjId = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507");
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
