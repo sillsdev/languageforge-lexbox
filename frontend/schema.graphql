@@ -531,6 +531,7 @@ input CreateProjectInput {
   isConfidential: Boolean!
   owningOrgId: UUID
   projectManagerId: UUID
+  orgId: UUID
 }
 
 input DateTimeOperationFilterInput {

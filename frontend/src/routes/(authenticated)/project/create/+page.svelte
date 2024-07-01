@@ -20,6 +20,7 @@
   export let data;
   $: user = data.user;
   let requestingUser : typeof data.requestingUser;
+  $: myOrgs = data.myOrgs ?? [];
 
   const { notifySuccess } = useNotifications();
 
@@ -39,6 +40,7 @@
       .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.code_invalid')),
     customCode: z.boolean().default(false),
     isConfidential: z.boolean().default(false),
+    orgId: z.string().trim()
   });
 
   //random guid
@@ -53,6 +55,7 @@
       retentionPolicy: $form.retentionPolicy,
       isConfidential: $form.isConfidential,
       projectManagerId: requestingUser?.id,
+      orgId: $form.orgId,
     });
     if (result.error) {
       if (result.error.byCode(DbErrorCode.Duplicate)) {
@@ -152,6 +155,18 @@
     />
 
     <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
+
+    <Select
+      id="org"
+      label={'Orgs'}
+      bind:value={$form.orgId}
+      error={$errors.orgId}
+      on:change
+    >
+      {#each myOrgs as org}
+        <option value={org.id}>{org.name}</option>
+      {/each}
+    </Select>
 
     <AdminContent>
       <div class="form-control">
