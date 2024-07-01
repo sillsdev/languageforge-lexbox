@@ -184,9 +184,9 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         }
     }
 
-    internal ICmSemanticDomain GetLcmSemanticDomain(SemanticDomain semanticDomain)
+    internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
     {
-        return _semanticDomainRepository.GetObject(semanticDomain.Id);
+        return _semanticDomainRepository.GetObject(semanticDomainId);
     }
 
     private Entry FromLexEntry(ILexEntry entry)
@@ -279,7 +279,13 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         }
 
         var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        entries = entries.OrderBy(e => (e.CitationForm.get_String(sortWs).Text ?? e.LexemeFormOA.Form.get_String(sortWs).Text).Trim(LcmHelpers.WhitespaceChars))
+        entries = entries
+            .OrderBy(e =>
+            {
+                string? text = e.CitationForm.get_String(sortWs).Text;
+                text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
+                return text?.Trim(LcmHelpers.WhitespaceChars);
+            })
             .Skip(options.Offset)
             .Take(options.Count);
 
