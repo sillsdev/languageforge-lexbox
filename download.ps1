@@ -1,8 +1,16 @@
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$FileName,
+
+    [Parameter(Mandatory=$true)]
+    [string]$Url,
+
+    [Parameter(Mandatory=$true)]
+    [string]$Checksum
+)
+
 $DataDir = "./data"
-$SenaFile = "$DataDir\sena-3.zip"
-$ElawaFile = "$DataDir\elawa.zip"
-$SenaChecksum = "BEC5131799DB07BF8D84D8FC1F3169FB2574F2A1F4C37F6898EAB563A4AE95B8"
-$ElawaChecksum = "E3608F1E3188CE5FDB166FBF9D5AAD06558DB68EFA079FB453881572B50CB8E3"
+$FilePath = "$DataDir\$FileName.zip"
 
 function Get-Checksum {
     param (
@@ -37,12 +45,7 @@ function Get-File {
   }
 }
 
-Get-File -FileName "Sena-3" `
-                     -FileUrl 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' `
-                     -ExpectedChecksum $SenaChecksum `
-                     -FilePath $SenaFile
-
-Get-File -FileName "Elawa" `
-                     -FileUrl 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t' `
-                     -ExpectedChecksum $ElawaChecksum `
-                     -FilePath $ElawaFile
+Get-File -FileName $FileName `
+                     -FileUrl $Url `
+                     -ExpectedChecksum $Checksum `
+                     -FilePath $FilePath
