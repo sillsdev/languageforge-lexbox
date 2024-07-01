@@ -25,6 +25,7 @@ public class PermissionService(
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
+        if (User.Projects is null) return false;
         return User.Projects.Any(p => p.ProjectId == projectId);
     }
 
@@ -129,12 +130,24 @@ public class PermissionService(
         if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
     }
 
+    public bool IsOrgMember(Organization org)
+    {
+        if (User is null) return false;
+        if (org.Members.Any(m => m.UserId == User.Id)) return true;
+        return false;
+    }
+
+    public bool CanEditOrg(Organization org)
+    {
+        if (User is null) return false;
+        if (User.Role == UserRole.admin) return true;
+        if (org.Members?.Any(m => m.UserId == User.Id && m.Role == OrgRole.Admin) ?? false) return true;
+        return false;
+    }
+
     public void AssertCanEditOrg(Organization org)
     {
-        if (User is null) throw new UnauthorizedAccessException();
-        if (User.Role == UserRole.admin) return;
-        if (org.Members.Any(m => m.UserId == User.Id && m.Role == OrgRole.Admin)) return;
-        throw new UnauthorizedAccessException();
+        if (!CanEditOrg(org)) throw new UnauthorizedAccessException();
     }
 
     public void AssertCanAddProjectToOrg(Organization org)

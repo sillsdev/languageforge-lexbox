@@ -23,6 +23,8 @@ public interface IPermissionService
     void AssertHasProjectRequestPermission();
     void AssertCanLockOrUnlockUser(Guid userId);
     void AssertCanCreateOrg();
+    bool IsOrgMember(Organization org);
+    bool CanEditOrg(Organization org);
     void AssertCanEditOrg(Organization org);
     void AssertCanAddProjectToOrg(Organization org);
 }
