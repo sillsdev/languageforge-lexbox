@@ -55,15 +55,30 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
         }
     }
 
-    public override IList<SemanticDomain> SemanticDomains
+    //the frontend may sometimes try to issue patches to remove Domain.Code or Name, but all we care about is Id
+    //when those cases happen then Id will be default, so we ignore them.
+    public new IList<UpdateProxySemanticDomain> SemanticDomains
     {
-        get => new UpdateListProxy<SemanticDomain>(
-            semanticDomain => sense.SemanticDomainsRC.Add(lexboxLcmApi.GetLcmSemanticDomain(semanticDomain)),
-            semanticDomain => sense.SemanticDomainsRC.Remove(sense.SemanticDomainsRC.First(sd => sd.Guid == semanticDomain.Id)),
-            i => new SemanticDomain { Id = sense.SemanticDomainsRC.ElementAt(i).Guid, Code = "", Name = new MultiString() },
+        get => new UpdateListProxy<UpdateProxySemanticDomain>(
+            semanticDomain =>
+            {
+                if (semanticDomain.Id != default) sense.SemanticDomainsRC.Add(lexboxLcmApi.GetLcmSemanticDomain(semanticDomain.Id));
+            },
+            semanticDomain =>
+            {
+                if (semanticDomain.Id != default) sense.SemanticDomainsRC.Remove(sense.SemanticDomainsRC.First(sd => sd.Guid == semanticDomain.Id));
+            },
+            i => new UpdateProxySemanticDomain { Id = sense.SemanticDomainsRC.ElementAt(i).Guid },
             sense.SemanticDomainsRC.Count
         );
         set => throw new NotImplementedException();
+    }
+
+    public class UpdateProxySemanticDomain
+    {
+        public Guid Id { get; set; }
+        public string? Code { get; set; }
+        public MultiString? Name { get; set; }
     }
 
     public override IList<ExampleSentence> ExampleSentences

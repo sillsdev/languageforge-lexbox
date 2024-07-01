@@ -12,11 +12,11 @@
   import { readable, type Readable } from 'svelte/store';
   import { getContext } from 'svelte';
   import { pickWritingSystems } from '../utils';
-  import type { FieldConfig, OptionFieldConfig, ViewConfig } from '../config-types';
+  import type {FieldConfig, OptionFieldConfig, OptionFieldValue, ViewConfig} from '../config-types';
 
   type T = $$Generic<{}>;
   export let field: FieldConfig & OptionFieldConfig;
-  export let value: string[];
+  export let value: OptionFieldValue[];
 
   let options: Readable<MenuOption[]> = readable([]);
   $: options = pickOptions(field);

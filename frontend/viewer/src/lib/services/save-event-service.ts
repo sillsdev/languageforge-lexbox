@@ -9,7 +9,6 @@ export const saveHandler: SaveHandler = async <T>(saveAction: () => Promise<T>):
   saveEventDispatcher.set({ saving: true });
   try {
     const result = await saveAction();
-    throw '';
     saveEventDispatcher.set({ saved: true });
     return result;
   } catch (e) {

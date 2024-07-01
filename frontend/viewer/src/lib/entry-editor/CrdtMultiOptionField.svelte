@@ -2,8 +2,9 @@
   import type { ComponentProps } from 'svelte';
   import CrdtField from './CrdtField.svelte';
   import { TextField, type MenuOption, MultiSelectField } from 'svelte-ux';
+  import type {OptionFieldValue} from '../config-types';
 
-  export let value: any[];
+  export let value: OptionFieldValue[];
 
   export let unsavedChanges = false;
   export let options: MenuOption[] = [];
@@ -13,25 +14,21 @@
   export let readonly: boolean | undefined = undefined;
   let append: HTMLElement;
 
-  function asOption(value: any): MenuOption {
-    if (!(typeof value === 'object' && 'label' in value && 'value' in value)) {
-      throw new Error('Invalid option');
-    }
-    return value;
-  }
 
-  function asOptions(values: any[]): MenuOption[] {
-    return values?.map(asOption) ?? [];
+  function asMultiSelectValues(values: any[]): string[] {
+    return values?.map(v => v.id) ?? [];
+  }
+  function asObjectValues(values: string[]) {
+    return values.map(v => ({id: v}));
   }
 </script>
 
 <CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
   <MultiSelectField
     on:change={(e) => {
-      console.log(e);
-      onEditorValueChange(e.detail.value, true);
+      onEditorValueChange(asObjectValues(e.detail.value), true);
     }}
-    value={editorValue}
+    value={asMultiSelectValues(editorValue)}
     disabled={readonly}
     {options}
     valueProp="value"
@@ -49,6 +46,7 @@
     <span bind:this={append} slot="append" />
   </MultiSelectField>
 </CrdtField>
+{@debug value}
 
 <style lang="postcss">
   :global(.unresolved-merge .field-container) {

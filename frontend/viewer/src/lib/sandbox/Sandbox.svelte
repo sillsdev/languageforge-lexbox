@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { MultiSelectField, } from 'svelte-ux';
+  import {Button, type MenuOption, MultiSelectField,} from 'svelte-ux';
+  import CrdtMultiOptionField from '../entry-editor/CrdtMultiOptionField.svelte';
 
   const options = [
     { name: 'One', value: 1 },
@@ -9,8 +10,23 @@
   ];
 
   let value = [3];
+
+  const crdtOptions:MenuOption[] = [
+    {value: 'a', label: 'Alpha'},
+    {value: 'b', label: 'Beta'},
+    {value: 'c', label: 'Charlie'},
+  ];
+
+  let crdtValue = [{id: 'a'}];
 </script>
 
-<MultiSelectField {options} {value} on:change={(e) => (value = e.detail.value)} />
-
-<div class="bg-green-400 h-[3000px]"></div>
+<div class="grid gap-3 justify-items-start">
+  <MultiSelectField {options} {value} on:change={(e) => (value = e.detail.value)}/>
+  <p>selected: {value.join('|')}</p>
+  <Button on:click={() => value = [4]}>Select Four only</Button>
+</div>
+<div class="grid gap-3 justify-items-start">
+  <CrdtMultiOptionField bind:value={crdtValue} options={crdtOptions}/>
+  <p>selected: {crdtValue.map(c => c.id).join('|')}</p>
+  <Button on:click={() => crdtValue = [{id: 'c'}]}>Select Charlie only</Button>
+</div>

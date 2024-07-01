@@ -89,7 +89,7 @@
   });
   const optionProvider: OptionProvider = {
     partsOfSpeech: derived([writingSystems, partsOfSpeech], ([ws, pos]) => pos?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
-    semanticDomains: derived([writingSystems, semanticDomains], ([ws, sd]) => sd?.map(option => ({ value: option, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
+    semanticDomains: derived([writingSystems, semanticDomains], ([ws, sd]) => sd?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
   };
   setContext('optionProvider', optionProvider);
 
