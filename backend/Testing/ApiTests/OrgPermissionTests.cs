@@ -175,7 +175,7 @@ public class OrgPermissionTests : ApiTestBase
         var projects = org["projects"]!.AsArray();
         projects.ShouldNotBeEmpty();
         projects
-            .Where(p => p?["isConfidential"]?.GetValue<bool>() != true)
+            .Where(p => p?["isConfidential"]?.GetValue<bool>() != false)
             .ShouldBeEmpty();
     }
 
