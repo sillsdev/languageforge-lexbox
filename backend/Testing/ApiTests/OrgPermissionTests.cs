@@ -164,7 +164,7 @@ public class OrgPermissionTests : ApiTestBase
     [Fact]
     public async Task NonMemberCanOnlyQueryManagers()
     {
-        await LoginAs("editor");
+        await LoginAs("user");
         var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
         MustHaveOnlyManagers(org);
         MustNotHaveMemberWithEmail(org);
