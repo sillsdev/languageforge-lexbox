@@ -2,7 +2,7 @@ import type {IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, Seman
 
 import type { Operation } from 'fast-json-patch';
 
-export type { IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems } from '../mini-lcm';
+export type {IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems, PartOfSpeech, SemanticDomain} from '../mini-lcm';
 
 export type JsonPatch = Operation[];
 
