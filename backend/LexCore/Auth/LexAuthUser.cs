@@ -95,6 +95,9 @@ public record LexAuthUser
         Projects = user.IsAdmin
             ? Array.Empty<AuthUserProject>() // admins have access to all projects, so we don't include them to prevent going over the jwt limit
             : user.Projects.Select(p => new AuthUserProject(p.Role, p.ProjectId)).ToArray();
+        Orgs = user.IsAdmin
+            ? Array.Empty<AuthUserOrg>() // likewise, admins have access to all orgs, so we don't include them
+            : user.Organizations.Select(p => new AuthUserOrg(p.Role, p.OrgId)).ToArray();
         EmailVerificationRequired = user.EmailVerified ? null : true;
         CanCreateProjects = user.CanCreateProjects ? true : null;
         CreatedByAdmin = user.CreatedById == null ? null : true;
@@ -127,6 +130,9 @@ public record LexAuthUser
 
     [JsonIgnore]
     public AuthUserProject[] Projects { get; set; } = Array.Empty<AuthUserProject>();
+
+    [JsonPropertyName(LexAuthConstants.OrgsClaimType)]
+    public AuthUserOrg[] Orgs { get; set; } = Array.Empty<AuthUserOrg>();
 
     [JsonPropertyName(LexAuthConstants.ProjectsClaimType)]
     public string ProjectsJson
@@ -231,6 +237,8 @@ public record LexAuthUser
 }
 
 public record AuthUserProject(ProjectRole Role, Guid ProjectId);
+
+public record AuthUserOrg(OrgRole Role, Guid OrgId);
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum UserRole

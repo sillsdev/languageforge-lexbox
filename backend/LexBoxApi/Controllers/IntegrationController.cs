@@ -35,7 +35,7 @@ public class IntegrationController(
     [ProducesResponseType(StatusCodes.Status302Found)]
     public async Task<ActionResult> OpenWithFlex(Guid projectId)
     {
-        if (!permissionService.CanAccessProject(projectId)) return Unauthorized();
+        if (!permissionService.CanSyncProject(projectId)) return Unauthorized();
         var project = await lexBoxDbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null) return NotFound();
         var repoId = await hgService.GetRepositoryIdentifier(project);

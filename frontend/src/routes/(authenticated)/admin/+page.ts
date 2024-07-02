@@ -192,6 +192,10 @@ export async function _createGuestUserByAdmin(input: CreateGuestUserByAdminInput
                 projectId
                 role
               }
+              orgs {
+                orgId
+                role
+              }
             }
             errors {
                 __typename

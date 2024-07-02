@@ -8,7 +8,7 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, _deleteOrg, type OrgSearchParams, type User, type OrgUser } from './+page';
+  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import { Icon, TrashIcon } from '$lib/icons';
@@ -20,6 +20,7 @@
   import UserModal from '$lib/components/Users/UserModal.svelte';
   import OrgMemberTable from './OrgMemberTable.svelte';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
+  import type { UUID } from 'crypto';
 
   export let data: PageData;
   $: user = data.user;
@@ -32,6 +33,8 @@
   const { queryParamValues } = queryParams;
 
   $: canManage = user.isAdmin || !!org.members.find(m => m.user.id === user.id && m.role === OrgRole.Admin)
+  $: isMember = !!org.members.find(m => m.user.id === user.id)
+  $: canSeeSettings = user.isAdmin || isMember
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -46,9 +49,9 @@
   }
 
   let userModal: UserModal;
-  function openUserModal(user: User): Promise<void> {
-    // Although we receive a TableUser, we know in practice it's a full User object
-    return userModal.open(user);
+  async function openUserModal(user: User): Promise<void> {
+    const queryUser = await _orgMemberById(org.id as UUID, user.id as UUID);
+    return userModal.open(queryUser);
   }
 
   let addOrgMemberModal: AddOrgMemberModal;
@@ -113,7 +116,7 @@
     </span>
   </div>
   <div class="mt-6">
-    <OrgTabs bind:activeTab={$queryParamValues.tab} memberCount={org.members.length} projectCount={org.projects.length} />
+    <OrgTabs bind:activeTab={$queryParamValues.tab} hideSettingsTab={!canSeeSettings} memberCount={org.members.length} projectCount={org.projects.length} />
   </div>
   <div class="py-6 px-2">
     {#if $queryParamValues.tab === 'projects'}
@@ -124,6 +127,7 @@
     {:else if $queryParamValues.tab === 'members'}
     <OrgMemberTable
       shownUsers={org.members}
+      showEmailColumn={canManage}
       on:openUserModal={(event) => openUserModal(event.detail)}
       on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
       on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
@@ -134,12 +138,14 @@
         <DetailItem title={$t('org_page.details.updated_at')} text={$date(org.updatedDate)} />
       </div>
     {:else if $queryParamValues.tab === 'settings'}
-      <div class="flex justify-end">
-        <Button outline variant="btn-error" on:click={leaveOrg}>
-          {$t('org_page.leave_org')}
-          <Icon icon="i-mdi-exit-run"/>
-        </Button>
-      </div>
+      {#if isMember}
+        <div class="flex justify-end">
+          <Button outline variant="btn-error" on:click={leaveOrg}>
+            {$t('org_page.leave_org')}
+            <Icon icon="i-mdi-exit-run"/>
+          </Button>
+        </div>
+      {/if}
       <AdminContent>
         <div class="divider" />
         <div class="flex justify-end">

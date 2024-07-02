@@ -4,10 +4,14 @@ namespace LexCore.ServiceInterfaces;
 
 public interface IPermissionService
 {
-    ValueTask<bool> CanAccessProject(string projectCode);
-    bool CanAccessProject(Guid projectId);
-    ValueTask AssertCanAccessProject(string projectCode);
-    void AssertCanAccessProject(Guid projectId);
+    ValueTask<bool> CanSyncProject(string projectCode);
+    bool CanSyncProject(Guid projectId);
+    ValueTask AssertCanSyncProject(string projectCode);
+    void AssertCanSyncProject(Guid projectId);
+    ValueTask<bool> CanViewProject(Guid projectId);
+    ValueTask AssertCanViewProject(Guid projectId);
+    ValueTask<bool> CanViewProject(string projectCode);
+    ValueTask AssertCanViewProject(string projectCode);
     bool CanManageProject(Guid projectId);
     void AssertCanManageProject(Guid projectId);
     void AssertCanManageProjectMemberRole(Guid projectId, Guid userId);
@@ -19,6 +23,8 @@ public interface IPermissionService
     void AssertHasProjectRequestPermission();
     void AssertCanLockOrUnlockUser(Guid userId);
     void AssertCanCreateOrg();
+    bool IsOrgMember(Guid orgId);
+    bool CanEditOrg(Guid orgId);
     void AssertCanEditOrg(Organization org);
     void AssertCanAddProjectToOrg(Organization org);
 }

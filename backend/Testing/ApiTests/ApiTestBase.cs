@@ -21,8 +21,9 @@ public class ApiTestBase
         };
     }
 
-    public virtual async Task<string> LoginAs(string user, string password)
+    public async Task<string> LoginAs(string user, string? password = null)
     {
+        password ??= TestingEnvironmentVariables.DefaultPassword;
         var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), HttpClient);
         return JwtHelper.GetJwtFromLoginResponse(response);
     }
@@ -32,13 +33,14 @@ public class ApiTestBase
         JwtHelper.ClearCookies(_httpClientHandler);
     }
 
-    public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false)
+    public async Task<JsonObject> ExecuteGql([StringSyntax("graphql")] string gql, bool expectGqlError = false, bool expectSuccessCode = true)
     {
         var response = await HttpClient.PostAsJsonAsync($"{BaseUrl}/api/graphql", new { query = gql });
         var jsonResponse = await response.Content.ReadFromJsonAsync<JsonObject>();
         jsonResponse.ShouldNotBeNull($"for query {gql} ({(int)response.StatusCode} ({response.ReasonPhrase}))");
         GqlUtils.ValidateGqlErrors(jsonResponse, expectGqlError);
-        response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
+        if (expectSuccessCode)
+            response.IsSuccessStatusCode.ShouldBeTrue($"code was {(int)response.StatusCode} ({response.ReasonPhrase})");
         return jsonResponse;
     }
 

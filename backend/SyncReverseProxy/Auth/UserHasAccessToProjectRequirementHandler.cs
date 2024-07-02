@@ -33,7 +33,7 @@ public class UserHasAccessToProjectRequirementHandler : AuthorizationHandler<Use
         }
 
         var permissionService = _httpContextAccessor.HttpContext.RequestServices.GetRequiredService<IPermissionService>();
-        if (!await permissionService.CanAccessProject(projectCode))
+        if (!await permissionService.CanSyncProject(projectCode))
         {
             context.Fail(new AuthorizationFailureReason(this, $"User does not have access to project {projectCode}"));
             return;

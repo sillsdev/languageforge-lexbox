@@ -8,6 +8,7 @@
   import type { OrgUser, User } from './+page';
 
   export let shownUsers: OrgUser[];
+  export let showEmailColumn: boolean = true;
 
   const dispatch = createEventDispatcher<{
     openUserModal: User,
@@ -25,7 +26,9 @@
           {$t('admin_dashboard.column_name')}
           <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
         </th>
+        {#if showEmailColumn}
         <th>{$t('admin_dashboard.column_email_or_login')}</th>
+        {/if}
         <th class="@2xl:table-cell">
           {$t('admin_dashboard.column_role')}
         </th>
@@ -45,29 +48,17 @@
                 </span>
                 <Icon icon="i-mdi-card-account-details-outline" />
               </Button>
-              {#if user.locked}
-                <span
-                    class="tooltip text-warning text-xl leading-0"
-                    data-tip={$t('admin_dashboard.user_is_locked')}>
-                  <Icon icon="i-mdi-lock" />
-                </span>
-              {/if}
             </div>
           </td>
+          {#if showEmailColumn}
           <td>
             <span class="inline-flex items-center gap-2 text-left max-w-40">
               <span class="max-width-full overflow-hidden text-ellipsis" title={user.email ?? user.username}>
                 {user.email ?? user.username}
               </span>
-              {#if user.email && !user.emailVerified}
-                <span
-                  class="tooltip text-warning text-xl shrink-0 leading-0"
-                  data-tip={$t('admin_dashboard.email_not_verified')}>
-                  <span class="i-mdi-help-circle-outline" />
-                </span>
-              {/if}
             </span>
           </td>
+          {/if}
           <td class="@2xl:table-cell">
             <FormatUserOrgRole role={member.role} />
           </td>
