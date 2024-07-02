@@ -51,6 +51,7 @@ export async function load(event: PageLoadEvent) {
               user {
                 id
                 name
+                username
                 email
               }
             }
