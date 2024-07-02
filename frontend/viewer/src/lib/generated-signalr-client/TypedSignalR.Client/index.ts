@@ -2,12 +2,12 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import { HubConnection } from '@microsoft/signalr';
+import type {Entry, ExampleSentence, PartOfSpeech, QueryOptions, SemanticDomain, Sense, WritingSystem, WritingSystems} from '../../mini-lcm';
 import type { ILexboxApiHub, ILexboxClient } from './Lexbox.ClientServer.Hubs';
-import type {WritingSystems, QueryOptions, Entry, Sense, ExampleSentence, WritingSystem} from '../../mini-lcm';
+
+import { HubConnection } from '@microsoft/signalr';
 import type { JsonOperation } from '../Lexbox.ClientServer.Hubs';
 import type {WritingSystemType} from '../../services/lexbox-api';
-
 
 // components
 
@@ -92,6 +92,40 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
 
     public readonly UpdateWritingSystem = async (wsId: string, type: WritingSystemType, update: JsonOperation[]): Promise<WritingSystem> => {
         return await this.connection.invoke("UpdateWritingSystem", wsId, type, update);
+    }
+
+    public readonly GetPartsOfSpeech = async (): Promise<PartOfSpeech[]> => {
+      return new Promise((resolve, reject) => {
+        let partsOfSpeech: PartOfSpeech[] = [];
+        this.connection.stream<PartOfSpeech>('GetPartsOfSpeech').subscribe({
+          next(value: PartOfSpeech) {
+            partsOfSpeech.push(value);
+          },
+          error(err: any) {
+            reject(err);
+          },
+          complete() {
+            resolve(partsOfSpeech);
+          }
+        });
+      });
+    }
+
+    public readonly GetSemanticDomains = async (): Promise<SemanticDomain[]> => {
+      return new Promise((resolve, reject) => {
+        let semanticDomains: SemanticDomain[] = [];
+        this.connection.stream<SemanticDomain>('GetSemanticDomains').subscribe({
+          next(value: SemanticDomain) {
+            semanticDomains.push(value);
+          },
+          error(err: any) {
+            reject(err);
+          },
+          complete() {
+            resolve(semanticDomains);
+          }
+        });
+      });
     }
 
     public readonly GetEntries = async (options: QueryOptions): Promise<Entry[]> => {

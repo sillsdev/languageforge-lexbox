@@ -1,11 +1,58 @@
 ﻿using Crdt;
+using Crdt.Changes;
 using Crdt.Db;
 using Crdt.Entities;
+using LcmCrdt.Changes;
+using LcmCrdt.Utils;
+using SystemTextJsonPatch;
+using SystemTextJsonPatch.Operations;
 
 namespace LcmCrdt.Objects;
 
 public class Sense : MiniLcm.Sense, IObjectBase<Sense>
 {
+    public static IEnumerable<IChange> ChangesFromJsonPatch(Sense sense, JsonPatchDocument<MiniLcm.Sense> patch)
+    {
+        foreach (var rewriteChange in patch.RewriteChanges(s => s.PartOfSpeechId,
+                     (partOfSpeechId, operationType) =>
+                     {
+                         if (operationType == OperationType.Replace)
+                            return new SetPartOfSpeechChange(sense.Id, partOfSpeechId);
+                         throw new NotSupportedException($"operation {operationType} not supported for part of speech");
+                     }))
+        {
+            yield return rewriteChange;
+        }
+
+        foreach (var rewriteChange in patch.RewriteChanges(s => s.SemanticDomains,
+                     (semanticDomain, index, operationType) =>
+                     {
+                         if (operationType is OperationType.Add)
+                         {
+                             ArgumentNullException.ThrowIfNull(semanticDomain);
+                             return new AddSemanticDomainChange(semanticDomain, sense.Id);
+                         }
+
+                         if (operationType is OperationType.Replace)
+                         {
+                             ArgumentNullException.ThrowIfNull(semanticDomain);
+                             return new ReplaceSemanticDomainChange(sense.SemanticDomains[index].Id, semanticDomain, sense.Id);
+                         }
+                         if (operationType is OperationType.Remove)
+                         {
+                             return new RemoveSemanticDomainChange(sense.SemanticDomains[index].Id, sense.Id);
+                         }
+
+                         throw new NotSupportedException($"operation {operationType} not supported for semantic domains");
+                     }))
+        {
+            yield return rewriteChange;
+        }
+
+        if (patch.Operations.Count > 0)
+            yield return new JsonPatchChange<Sense>(sense.Id, patch, patch.Options);
+    }
+
     Guid IObjectBase.Id
     {
         get => Id;
@@ -17,13 +64,17 @@ public class Sense : MiniLcm.Sense, IObjectBase<Sense>
 
     public Guid[] GetReferences()
     {
-        return [EntryId];
+        ReadOnlySpan<Guid> pos = PartOfSpeechId.HasValue ? [PartOfSpeechId.Value] : [];
+        return [EntryId, ..pos, ..SemanticDomains.Select(sd => sd.Id)];
     }
 
     public void RemoveReference(Guid id, Commit commit)
     {
         if (id == EntryId)
             DeletedAt = commit.DateTime;
+        if (id == PartOfSpeechId)
+            PartOfSpeechId = null;
+        SemanticDomains = [..SemanticDomains.Where(sd => sd.Id != id)];
     }
 
     public IObjectBase Copy()
@@ -36,7 +87,8 @@ public class Sense : MiniLcm.Sense, IObjectBase<Sense>
             Definition = Definition.Copy(),
             Gloss = Gloss.Copy(),
             PartOfSpeech = PartOfSpeech,
-            SemanticDomain = [..SemanticDomain]
+            PartOfSpeechId = PartOfSpeechId,
+            SemanticDomains = [..SemanticDomains]
         };
     }
 }

@@ -61,19 +61,32 @@ export function deriveAsync<T, D>(
   store: Readable<T>,
   fn: (value: T) => Promise<D>,
   initialValue?: D,
-  debounce: number | boolean = false): Readable<D> {
+  debounce: number | boolean = false): { value: Readable<D>, loading: Readable<boolean>, flush: () => void } {
 
+  const loading = writable(false);
   const debounceTime = pickDebounceTime(debounce);
   let timeout: ReturnType<typeof setTimeout> | undefined;
+  let timeoutFunction: undefined | (() => void);
 
-  return derived(store, (value, set) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      const myTimeout = timeout;
-      void fn(value).then((result) => {
-        if (myTimeout !== timeout) return; // discard outdated results
-        set(result);
-      });
-    }, debounceTime);
-  }, initialValue);
+  return {
+    value: derived(store, (value, set) => {
+      loading.set(true);
+      clearTimeout(timeout);
+      const myTimeoutFunction = timeoutFunction = () => {
+        const myTimeout = timeout;
+        if (myTimeoutFunction === timeoutFunction) timeoutFunction = undefined; // prevent it from getting triggered again
+        void fn(value).then((result) => {
+          if (myTimeout !== timeout) return; // discard outdated results
+          loading.set(false);
+          set(result);
+        });
+      };
+      timeout = setTimeout(timeoutFunction, debounceTime);
+    }, initialValue),
+    loading,
+    flush: () => {
+      clearTimeout(timeout);
+      timeoutFunction?.();
+    },
+  };
 }

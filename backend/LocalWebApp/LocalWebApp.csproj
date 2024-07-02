@@ -6,9 +6,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+        <ServerGarbageCollection>false</ServerGarbageCollection>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
-        <PublishSingleFile>true</PublishSingleFile>
+<!--        single file disabled for now, pending https://github.com/sillsdev/icu-dotnet/pull/201-->
+        <PublishSingleFile>false</PublishSingleFile>
         <SelfContained>true</SelfContained>
         <PublishTrimmed>false</PublishTrimmed>
     </PropertyGroup>

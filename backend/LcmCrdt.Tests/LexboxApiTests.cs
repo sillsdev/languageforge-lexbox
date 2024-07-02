@@ -1,5 +1,6 @@
 ﻿using Crdt;
 using Crdt.Db;
+using LcmCrdt.Changes;
 using LcmCrdt.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -337,8 +338,65 @@ public class BasicApiTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task CreateSense_WontCreateMissingDomains()
+    {
+        var senseId = Guid.NewGuid();
+        var createdSense = await _api.CreateSense(_entry1Id, new Sense()
+        {
+            Id = senseId,
+            SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString() }],
+        });
+        createdSense.Id.Should().Be(senseId);
+        createdSense.SemanticDomains.Should().BeEmpty("because the domain does not exist (or was deleted)");
+    }
+
+
+    [Fact]
+    public async Task CreateSense_WillCreateWithExistingDomains()
+    {
+        var senseId = Guid.NewGuid();
+        var semanticDomainId = Guid.NewGuid();
+        await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(semanticDomainId, new MultiString() { { "en", "test" } }, "test"));
+        var semanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(semanticDomainId);
+        ArgumentNullException.ThrowIfNull(semanticDomain);
+        var createdSense = await _api.CreateSense(_entry1Id, new Sense()
+        {
+            Id = senseId,
+            SemanticDomains = [semanticDomain],
+        });
+        createdSense.Id.Should().Be(senseId);
+        createdSense.SemanticDomains.Should().ContainSingle(s => s.Id == semanticDomainId);
+    }
+
+    [Fact]
+    public async Task CreateSense_WontCreateMissingPartOfSpeech()
+    {
+        var senseId = Guid.NewGuid();
+        var createdSense = await _api.CreateSense(_entry1Id,
+            new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = Guid.NewGuid(), });
+        createdSense.Id.Should().Be(senseId);
+        createdSense.PartOfSpeechId.Should().BeNull("because the part of speech does not exist (or was deleted)");
+    }
+
+    [Fact]
+    public async Task CreateSense_WillCreateWthExistingPartOfSpeech()
+    {
+        var senseId = Guid.NewGuid();
+        var partOfSpeechId = Guid.NewGuid();
+        await DataModel.AddChange(Guid.NewGuid(), new CreatePartOfSpeechChange(partOfSpeechId, new MultiString() { { "en", "test" } }));
+        var partOfSpeech = await DataModel.GetLatest<Objects.PartOfSpeech>(partOfSpeechId);
+        ArgumentNullException.ThrowIfNull(partOfSpeech);
+        var createdSense = await _api.CreateSense(_entry1Id,
+            new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = partOfSpeechId, });
+        createdSense.Id.Should().Be(senseId);
+        createdSense.PartOfSpeechId.Should().Be(partOfSpeechId, "because the part of speech does  exist");
+    }
+
+    [Fact]
     public async Task UpdateSensePartOfSpeech()
     {
+        var partOfSpeechId = Guid.NewGuid();
+        await DataModel.AddChange(Guid.NewGuid(), new CreatePartOfSpeechChange(partOfSpeechId, new MultiString() { { "en", "Adverb" } }));
         var entry = await _api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
@@ -367,13 +425,19 @@ public class BasicApiTests : IAsyncLifetime
             entry.Senses[0].Id,
             _api.CreateUpdateBuilder<Sense>()
                 .Set(e => e.PartOfSpeech, "updated")
+                .Set(e => e.PartOfSpeechId, partOfSpeechId)
                 .Build());
         updatedSense.PartOfSpeech.Should().Be("updated");
+        updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
 
     [Fact]
     public async Task UpdateSenseSemanticDomain()
     {
+        var newDomainId = Guid.NewGuid();
+        await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(newDomainId, new MultiString() { { "en", "test" } }, "updated"));
+        var newSemanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(newDomainId);
+        ArgumentNullException.ThrowIfNull(newSemanticDomain);
         var entry = await _api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
@@ -387,10 +451,7 @@ public class BasicApiTests : IAsyncLifetime
             {
                 new Sense()
                 {
-                    SemanticDomain =
-                    [
-                        "test"
-                    ],
+                    SemanticDomains = [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString() }],
                     Definition = new MultiString
                     {
                         Values =
@@ -404,9 +465,11 @@ public class BasicApiTests : IAsyncLifetime
         var updatedSense = await _api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             _api.CreateUpdateBuilder<Sense>()
-                .Set(e => e.SemanticDomain[0], "updated")
+                .Add(e => e.SemanticDomains, newSemanticDomain)
                 .Build());
-        updatedSense.SemanticDomain.Should().Contain("updated");
+        var semanticDomain = updatedSense.SemanticDomains.Should().ContainSingle(s => s.Id == newDomainId).Subject;
+        semanticDomain.Code.Should().Be("updated");
+        semanticDomain.Id.Should().Be(newDomainId);
     }
 
     [Fact]

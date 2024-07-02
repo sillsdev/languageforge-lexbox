@@ -1,4 +1,4 @@
-import type { IEntry, IExampleSentence, IMultiString, ISense } from './mini-lcm';
+import type { IEntry, IExampleSentence, IMultiString, ISense, SemanticDomain } from './mini-lcm';
 
 import type { ConditionalKeys } from 'type-fest';
 import type { LexboxApiFeatures } from './services/lexbox-api';
@@ -21,6 +21,14 @@ export type CustomFieldConfig = BaseFieldConfig & {
   custom: true;
 }
 
+export type OptionFieldConfig = {
+  type: `option`;
+  optionType: string;
+  ws: `first-${WritingSystemType}`;
+}
+
+export type OptionFieldValue = {id: string};
+
 export type BaseEntityFieldConfig<T> = (({
   type: 'multi';
   id: ConditionalKeys<T, IMultiString>;
@@ -28,15 +36,10 @@ export type BaseEntityFieldConfig<T> = (({
   type: 'single';
   id: ConditionalKeys<T, string>;
   ws: `first-${WritingSystemType}`;
-} | {
-  type: `option`;
-  optionType: string;
-  id: ConditionalKeys<T, string>;
-  ws: `first-${WritingSystemType}`;
-} | {
+} | (OptionFieldConfig & {id: ConditionalKeys<T, string>}) | {
   type: `multi-option`;
   optionType: string;
-  id: ConditionalKeys<T, string[]>;
+  id: ConditionalKeys<T, string[] | SemanticDomain[]>;
   ws: `first-${WritingSystemType}`;
 }) & BaseFieldConfig & {
   id: WellKnownFieldId,

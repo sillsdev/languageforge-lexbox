@@ -14,9 +14,10 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
         sense.Id = EntityId;
         EntryId = entryId;
         Definition = sense.Definition;
-        SemanticDomain = sense.SemanticDomain;
+        SemanticDomains = sense.SemanticDomains;
         Gloss = sense.Gloss;
         PartOfSpeech = sense.PartOfSpeech;
+        PartOfSpeechId = sense.PartOfSpeechId;
     }
 
     [JsonConstructor]
@@ -29,7 +30,8 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     public MultiString? Definition { get; set; }
     public MultiString? Gloss { get; set; }
     public string? PartOfSpeech { get; set; }
-    public IList<string>? SemanticDomain { get; set; }
+    public Guid? PartOfSpeechId { get; set; }
+    public IList<SemanticDomain>? SemanticDomains { get; set; }
 
     public override async ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
     {
@@ -40,7 +42,8 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
             Definition = Definition ?? new MultiString(),
             Gloss = Gloss ?? new MultiString(),
             PartOfSpeech = PartOfSpeech ?? string.Empty,
-            SemanticDomain = SemanticDomain ?? [],
+            PartOfSpeechId = PartOfSpeechId,
+            SemanticDomains = SemanticDomains ?? [],
             DeletedAt = await context.IsObjectDeleted(EntryId) ? commit.DateTime : (DateTime?)null
         };
     }

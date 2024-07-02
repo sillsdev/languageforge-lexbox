@@ -42,6 +42,18 @@ public static class LfClassicRoutes
                 var api = provider.GetProjectApi(projectCode);
                 return api.GetEntry(id);
             });
+        group.MapGet("/parts-of-speech",
+            ([FromRoute] string projectCode, [FromServices] ILexboxApiProvider provider) =>
+            {
+                var api = provider.GetProjectApi(projectCode);
+                return api.GetPartsOfSpeech();
+            });
+        group.MapGet("/semantic-domains",
+            ([FromRoute] string projectCode, [FromServices] ILexboxApiProvider provider) =>
+            {
+                var api = provider.GetProjectApi(projectCode);
+                return api.GetSemanticDomains();
+            });
         return group;
     }
 

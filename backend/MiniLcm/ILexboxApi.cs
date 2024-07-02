@@ -11,6 +11,15 @@ public interface ILexboxApi
     Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
+
+    IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        throw new NotImplementedException();
+    }
+    IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        throw new NotImplementedException();
+    }
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);
@@ -73,6 +82,20 @@ public class UpdateBuilder<T> where T : class
     public UpdateBuilder<T> Set<T_Val>(Expression<Func<T, T_Val>> field, T_Val value)
     {
         _patchDocument.Replace(field, value);
+        return this;
+    }
+    public UpdateBuilder<T> Add<T_Val>(Expression<Func<T, IList<T_Val>>> field, T_Val value)
+    {
+        _patchDocument.Add(field, value);
+        return this;
+    }
+
+    /// <summary>
+    /// Removes an item by index, should not be used with CRDTs.
+    /// </summary>
+    public UpdateBuilder<T> Remove<T_Val>(Expression<Func<T, IList<T_Val>>> field, int index)
+    {
+        _patchDocument.Remove(field, index);
         return this;
     }
 }

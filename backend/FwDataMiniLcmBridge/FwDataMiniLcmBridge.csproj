@@ -8,6 +8,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
         <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
         <PackageReference Include="SIL.LCModel" Version="11.0.0-beta0083"/>
@@ -19,6 +20,9 @@
         <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests"/>
+    </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\MiniLcm\MiniLcm.csproj"/>
     </ItemGroup>

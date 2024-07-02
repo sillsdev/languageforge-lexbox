@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { Button, InfiniteScroll, ListItem, TextField } from "svelte-ux";
+  import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from "svelte-ux";
   import type { IEntry } from "../mini-lcm";
   import { firstDefOrGlossVal, headword } from "../utils";
-  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiFormatListText } from "@mdi/js";
+  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from "@mdi/js";
   import IndexCharacters from "./IndexCharacters.svelte";
   import type { Writable } from "svelte/store";
   import { createEventDispatcher, getContext } from "svelte";
@@ -13,6 +13,7 @@
   }>();
 
   export let entries: IEntry[] | undefined;
+  export let loading: boolean;
   export let search: string;
   export let expand: boolean;
 
@@ -49,14 +50,22 @@
   const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 </script>
 
-<div class="entry-list flex flex-col gap-4 w-full justify-self-center side-scroller">
+<div class="entry-list flex flex-col gap-4 w-full justify-self-center">
   <div class="flex gap-3 w-full self-center">
     <IndexCharacters />
     <div class="grow">
       <TextField
         bind:value={search}
         placeholder="Filter entries..."
-        icon={mdiBookSearchOutline} />
+        clearable
+        classes={{ append: 'flex-row-reverse' }}
+        icon={mdiBookSearchOutline}>
+        <div slot="append" class="flex p-1">
+          {#if loading}
+            <ProgressCircle size={20} width={2} />
+          {/if}
+        </div>
+      </TextField>
     </div>
     <Button icon={dictionaryMode ? mdiFormatListText : mdiBookOpenVariantOutline} variant="outline"
       class="text-field-sibling-button"
@@ -77,7 +86,15 @@
         <div class="p-4 text-center opacity-75">
           No entries found
           {#if $selectedCharacter}
-            in '{$selectedCharacter}'
+            in
+            <Button
+              fullWidth
+              class="border mb-2 w-auto inline ml-0.5"
+              on:click={() => $selectedCharacter = undefined}
+              size="sm">
+              {$selectedCharacter}
+              <Icon data={mdiClose} />
+            </Button>
           {/if}
         </div>
       {:else}

@@ -1,6 +1,8 @@
-﻿using Crdt.Db;
+﻿using Crdt;
+using Crdt.Db;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
+using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
 
 namespace LcmCrdt;
 
@@ -37,8 +39,10 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         var crdtProject = new CrdtProject(name, sqliteFile);
         await using var serviceScope = CreateProjectScope(crdtProject);
         var db = serviceScope.ServiceProvider.GetRequiredService<CrdtDbContext>();
-        await InitProjectDb(db, new ProjectData(name, id ?? Guid.NewGuid(), ProjectData.GetOriginDomain(domain), Guid.NewGuid()));
+        var projectData = new ProjectData(name, id ?? Guid.NewGuid(), ProjectData.GetOriginDomain(domain), Guid.NewGuid());
+        await InitProjectDb(db, projectData);
         await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
         await (afterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         return crdtProject;
     }
@@ -48,6 +52,11 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         await db.Database.EnsureCreatedAsync();
         db.Set<ProjectData>().Add(data);
         await db.SaveChangesAsync();
+    }
+
+    internal static async Task SeedSystemData(DataModel dataModel, Guid clientId)
+    {
+        await PartOfSpeech.PredefinedPartsOfSpeech(dataModel, clientId);
     }
 
     public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)
