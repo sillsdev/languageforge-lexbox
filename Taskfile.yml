@@ -41,8 +41,8 @@ tasks:
   setup-win:
     platforms: [ windows ]
     cmds:
-      - powershell -Command "Invoke-WebRequest 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' -OutFile {{.DATA_DIR}}/sena-3.zip -Resume"
-      - powershell -Command "Invoke-WebRequest 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t' -OutFile {{.DATA_DIR}}/elawa.zip -Resume"
+      - powershell -File download.ps1 sena-3 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' 'BEC5131799DB07BF8D84D8FC1F3169FB2574F2A1F4C37F6898EAB563A4AE95B8'
+      - powershell -File download.ps1 elawa 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t' "E3608F1E3188CE5FDB166FBF9D5AAD06558DB68EFA079FB453881572B50CB8E3"
   setup-unix:
     platforms: [ linux, darwin ]
     cmds:
