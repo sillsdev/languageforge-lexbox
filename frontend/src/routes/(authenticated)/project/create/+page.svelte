@@ -16,6 +16,8 @@
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import { isDev } from '$lib/layout/DevContent.svelte';
 
   export let data;
   $: user = data.user;
@@ -114,9 +116,11 @@
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;
-      if (urlValues.orgId) form.orgId = urlValues.orgId;
-      if (!form.orgId && myOrgs && myOrgs[0]) {
-        form.orgId = myOrgs[0].id;
+      if ($isDev === true) {
+        if (urlValues.orgId) form.orgId = urlValues.orgId;
+        if (!form.orgId && myOrgs && myOrgs[0]) {
+          form.orgId = myOrgs[0].id;
+        }
       }
       if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || user.isAdmin)) form.retentionPolicy = urlValues.retentionPolicy;
       if (urlValues.isConfidential === 'true') form.isConfidential = true;
@@ -160,17 +164,19 @@
 
     <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
 
-    <Select
-      id="org"
-      label={'Orgs'}
-      bind:value={$form.orgId}
-      error={$errors.orgId}
-      on:change
-    >
-      {#each myOrgs as org}
-        <option value={org.id}>{org.name}</option>
-      {/each}
-    </Select>
+    <DevContent>
+      <Select
+        id="org"
+        label={'Orgs'}
+        bind:value={$form.orgId}
+        error={$errors.orgId}
+        on:change
+      >
+        {#each myOrgs as org}
+          <option value={org.id}>{org.name}</option>
+        {/each}
+      </Select>
+    </DevContent>
 
     <AdminContent>
       <div class="form-control">
