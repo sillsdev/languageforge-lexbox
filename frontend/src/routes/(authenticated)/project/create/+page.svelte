@@ -40,7 +40,7 @@
       .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.code_invalid')),
     customCode: z.boolean().default(false),
     isConfidential: z.boolean().default(false),
-    orgId: z.string().trim().optional().default(() => myOrgs?.[0]?.id)
+    orgId: z.string().trim()
   });
 
   //random guid
@@ -55,7 +55,7 @@
       retentionPolicy: $form.retentionPolicy,
       isConfidential: $form.isConfidential,
       projectManagerId: requestingUser?.id,
-      orgId: $form.orgId,
+      orgId: $form?.orgId,
     });
     if (result.error) {
       if (result.error.byCode(DbErrorCode.Duplicate)) {
@@ -114,6 +114,10 @@
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;
+      if (urlValues.orgId) form.orgId = urlValues.orgId;
+      if (!form.orgId && myOrgs && myOrgs[0]) {
+        form.orgId = myOrgs[0].id;
+      }
       if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || user.isAdmin)) form.retentionPolicy = urlValues.retentionPolicy;
       if (urlValues.isConfidential === 'true') form.isConfidential = true;
       if (urlValues.code) {
