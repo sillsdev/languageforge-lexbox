@@ -108,8 +108,7 @@ public class LexQueries
         // Members can see all public projects plus their own
         if (permissionService.IsOrgMember(orgId))
         {
-            org.Projects = org.Projects; // This is wrong (should hide confidential project that we're not a member of), but tests still passing
-            // org.Projects = org.Projects.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id)).ToList();
+            org.Projects = org.Projects.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id)).ToList();
         }
         else
         {
