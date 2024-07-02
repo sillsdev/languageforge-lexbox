@@ -74,6 +74,10 @@ export async function load(event: PageLoadEvent) {
 						flexProjectMetadata {
 							lexEntryCount
 						}
+            organizations {
+              id
+              name
+            }
 					}
 				}
 			`),
