@@ -26,6 +26,7 @@ public class SeedingData(
     private static readonly Guid SecondTestOrgId = new Guid("a748bd8b-6348-4980-8dee-6de8b63e4a39");
     public static readonly Guid Sena3ProjId = new Guid("0ebc5976-058d-4447-aaa7-297f8569f968");
     public static readonly Guid ElawaProjId = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507");
+    public static readonly Guid EmptyProjId = new Guid("762b50e8-2e09-4ed4-a48d-775e1ada78e8");
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
@@ -162,6 +163,20 @@ public class SeedingData(
             Organizations = [],
             Users = [],
         });
+        lexBoxDbContext.Attach(new Project
+        {
+            Id = EmptyProjId,
+            Name = "Empty",
+            Description = "Empty project",
+            Code = "empty-dev-flex",
+            Type = ProjectType.FLEx,
+            ProjectOrigin = ProjectMigrationStatus.Migrated,
+            LastCommit = DateTimeOffset.UtcNow,
+            RetentionPolicy = RetentionPolicy.Dev,
+            IsConfidential = true,
+            Organizations = [],
+            Users = [],
+        });
 
         lexBoxDbContext.Attach(new Organization
         {
@@ -215,6 +230,13 @@ public class SeedingData(
             Id = new Guid("9b642e86-9f72-46db-baa6-0984beb5b815"),
             OrgId = TestOrgId,
             ProjectId = ElawaProjId,
+        });
+
+        lexBoxDbContext.Attach(new OrgProjects
+        {
+            Id = new Guid("65ea538d-9692-4456-a82e-04ab89fb6aff"),
+            OrgId = TestOrgId,
+            ProjectId = EmptyProjId,
         });
 
         foreach (var entry in lexBoxDbContext.ChangeTracker.Entries())

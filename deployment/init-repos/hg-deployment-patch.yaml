@@ -34,6 +34,15 @@ spec:
                   unzip -q /tmp/elawa.zip -d /repos/e/
                 fi
               fi
+              if [ ! -d /repos/e/empty-dev-flex ] && [ ! -d /repos/empty-dev-flex ]; then
+                if [ -f /init-repos/empty.zip ]; then
+                  unzip -q /init-repos/empty.zip -d /repos/e/
+                else
+                  wget -O /tmp/empty.zip 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD'
+                  unzip -q /tmp/empty.zip -d /repos/e/
+                  exit 1
+                fi
+              fi
           volumeMounts:
             - name: repos
               mountPath: /repos
