@@ -115,7 +115,7 @@ export const locale: Readable<string> = {
 const t: I18n = buildI18n(locale);
 export default t;
 
-const NULL_LABEL = '–';
+export const NULL_LABEL = '–';
 
 export const number = withLocale(_number, (numberFunc, value, options) => numberFunc(Number(value), options));
 

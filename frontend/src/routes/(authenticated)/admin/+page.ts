@@ -114,6 +114,10 @@ export async function load(event: PageLoadEvent) {
                 lastActive
                 canCreateProjects
                 createdById
+                createdBy {
+                  id
+                  name
+                }
                 projects {
                     id
                     projectId

@@ -56,6 +56,7 @@
       "updated": "Updated",
       "last_active": "Last active",
       "can_create_projects": "Can create projects",
+      "createdBy": "Created by",
     },
     "user_filter": {
       "title": "User filters",
