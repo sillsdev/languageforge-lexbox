@@ -186,6 +186,13 @@ public class OrgPermissionTests : ApiTestBase
         projects.ShouldContain(p => p!["id"]!.GetValue<Guid>() == projectId, $"project id '{projectId}' should exist in: {projects.ToJsonString()}");
     }
 
+    private void MustNotContainProject(JsonNode org, Guid projectId)
+    {
+        var projects = org["projects"]!.AsArray();
+        if ((projects?.Count ?? 0) == 0) return;
+        projects!.ShouldNotContain(p => p!["id"]!.GetValue<Guid>() == projectId, $"project id '{projectId}' should not exist in: {projects!.ToJsonString()}");
+    }
+
     [Fact]
     public async Task NonMembersOnlySeePublicProjects()
     {
@@ -201,6 +208,7 @@ public class OrgPermissionTests : ApiTestBase
         var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
         MustContainProject(org, SeedingData.Sena3ProjId);
         MustContainProject(org, SeedingData.ElawaProjId);
+        MustNotContainProject(org, SeedingData.EmptyProjId);
     }
 
     [Fact]
@@ -210,6 +218,7 @@ public class OrgPermissionTests : ApiTestBase
         var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
         MustContainProject(org, SeedingData.Sena3ProjId);
         MustContainProject(org, SeedingData.ElawaProjId);
+        MustContainProject(org, SeedingData.EmptyProjId);
     }
 
     [Fact]
