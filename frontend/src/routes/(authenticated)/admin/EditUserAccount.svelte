@@ -16,15 +16,23 @@
   export let currUser: LexAuthUser;
   export let deleteUser: (user: User) => void;
 
-  const schema = z.object({
+  const schema = z
+    .object({
     email: z.string().email($t('form.invalid_email')).nullish(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
     score: z.number(),
     role: z.enum([UserRole.User, UserRole.Admin]),
-  });
+    })
+  const refinedSchema = schema
+    .refine((data) => data.email || data.role !== UserRole.Admin, {
+    message: $t('admin_dashboard.form_modal.role_label.email_required_for_admin'),
+    path: ['role'],
+    });
+
   type Schema = typeof schema;
-  let formModal: FormModal<Schema>;
+  type RefinedSchema = typeof refinedSchema;
+  let formModal: FormModal<RefinedSchema>;
   $: form = formModal?.form();
 
   export function close(): void {
@@ -85,7 +93,7 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors>
+<FormModal bind:this={formModal} schema={refinedSchema} let:errors>
   <span slot="title">
     {$t('admin_dashboard.form_modal.title')}
   </span>

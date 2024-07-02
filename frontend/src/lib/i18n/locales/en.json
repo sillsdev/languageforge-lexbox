@@ -32,6 +32,10 @@
       "email_label": "Email",
       "name_label": "Display name",
       "password_label": "Change User Password",
+      "role_label": {
+        "label": "Role",
+        "email_required_for_admin": "The user must provide a valid email address to gain administrator access."
+      },
       "update_user": "Update User",
       "lock": "Lock User",
       "unlock": "Unlock User",
