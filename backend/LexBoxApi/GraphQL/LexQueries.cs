@@ -103,8 +103,8 @@ public class LexQueries
         if (org is null) return org;
         // Site admins and org admins can see everything
         if (permissionService.CanEditOrg(orgId)) return org;
-        // Non-admins cannot see email addresses
-        org.Members?.ForEach(m => { if (m.User is not null) m.User.Email = null; });
+        // Non-admins cannot see email addresses or usernames
+        org.Members?.ForEach(m => { if (m.User is not null) { m.User.Email = null; m.User.Username = null; } });
         // Members can see all public projects plus their own
         if (permissionService.IsOrgMember(orgId))
         {

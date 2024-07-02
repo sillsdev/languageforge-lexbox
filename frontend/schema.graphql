@@ -256,6 +256,7 @@ type OrgByIdMember {
 type OrgByIdUser {
   id: UUID!
   name: String!
+  username: String
   email: String
 }
 

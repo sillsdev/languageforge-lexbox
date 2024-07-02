@@ -35,6 +35,7 @@ public class OrgByIdGqlConfiguration : ObjectType<Organization>
                 userDescriptor.BindFieldsExplicitly();
                 userDescriptor.Field(u => u.Id);
                 userDescriptor.Field(u => u.Name);
+                userDescriptor.Field(u => u.Username);
                 userDescriptor.Field(u => u.Email);
             }));
         }));

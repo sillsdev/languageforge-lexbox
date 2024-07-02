@@ -20,6 +20,7 @@ public class OrgPermissionTests : ApiTestBase
                           user {
                               id
                               name
+                              username
                               email
                           }
                       }
@@ -48,6 +49,17 @@ public class OrgPermissionTests : ApiTestBase
     private void MustNotHaveMemberWithEmail(JsonNode org)
     {
         org["members"]!.AsArray().Where(m => m?["user"]?["email"]?.GetValue<string>() is { Length: > 0 })
+            .ShouldBeEmpty();
+    }
+
+    private void MustHaveOneMemberWithUsername(JsonNode org)
+    {
+        org["members"]!.AsArray().Where(m => m?["user"]?["username"]?.GetValue<string>() is { Length: > 0 })
+            .ShouldNotBeEmpty();
+    }
+    private void MustNotHaveMemberWithUsername(JsonNode org)
+    {
+        org["members"]!.AsArray().Where(m => m?["user"]?["username"]?.GetValue<string>() is { Length: > 0 })
             .ShouldBeEmpty();
     }
 
@@ -143,6 +155,14 @@ public class OrgPermissionTests : ApiTestBase
     }
 
     [Fact]
+    public async Task ManagerCanSeeMemberUsernames()
+    {
+        await LoginAs("manager");
+        var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
+        MustHaveOneMemberWithUsername(org);
+    }
+
+    [Fact]
     public async Task OrgMemberCanSeeThemselvesInOrg()
     {
         await LoginAs("editor");
@@ -159,6 +179,16 @@ public class OrgPermissionTests : ApiTestBase
         org.ShouldNotBeNull();
         MustHaveUserNames(org);
         MustNotHaveMemberWithEmail(org);
+    }
+
+    [Fact]
+    public async Task OrgMemberCanNotSeeMemberUsernames()
+    {
+        await LoginAs("editor");
+        var org = GetOrg(await QueryOrg(SeedingData.TestOrgId));
+        org.ShouldNotBeNull();
+        MustHaveUserNames(org);
+        MustNotHaveMemberWithUsername(org);
     }
 
     [Fact]
