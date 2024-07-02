@@ -6,7 +6,6 @@ import type {
   ChangeOrgNameMutation,
   DeleteOrgMutation,
   DeleteOrgUserMutation,
-  GqlResult,
   OrgMemberDto,
   OrgPageQuery,
   OrgRole,
@@ -26,7 +25,6 @@ export type User = OrgUser['user'];
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   const user = (await event.parent()).user;
-  const userIsAdmin = user.isAdmin;
   const orgId = event.params.org_id as UUID;
   const orgResult = await client
     .awaitedQueryStore(event.fetch,
