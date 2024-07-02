@@ -2,22 +2,24 @@ import * as fs from 'fs';
 import * as path from 'path';
 import json5 from 'json5';
 
-function compileKeys(obj, prefix = '', keys = []) {
-    for (const key in obj) {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        keys.push(fullKey);
-        const subKey = obj[key];
-        if (typeof subKey !== 'string') {
-            compileKeys(subKey, fullKey, keys);
-        }
-    }
+function compileKeys(obj, prefix = '') {
+  let keys = [];
+  for (const key in obj) {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      keys.push(fullKey);
+      const subKey = obj[key];
+      if (typeof subKey !== 'string') {
+        const subKeys = compileKeys(subKey, fullKey);
+        keys = keys.concat(subKeys);
+      }
+  }
+  return keys;
 }
 
 function getDiffKeys(stdKeys, lang) {
     const langJson = json5.parse(fs.readFileSync(`${lang}.json`, 'utf-8'));
-    const langKeys = [];
-    compileKeys(langJson, '', langKeys);
-    const diff = stdKeys.filter(x => !langKeys.includes(x));
+    const langKeysSet = new Set(compileKeys(langJson, ''));
+    const diff = stdKeys.filter(x => !langKeysSet.has(x));
     return diff;
 }
 
@@ -30,8 +32,7 @@ function main() {
       .filter(file => file !== 'en');
 
   const enJson = json5.parse(fs.readFileSync('en.json', 'utf-8'));
-  const enAllKeys = [];
-  compileKeys(enJson, '', enAllKeys);
+  const enAllKeys = compileKeys(enJson, '');
 
   const output = {};
   locales.forEach(lang => {
