@@ -40,7 +40,7 @@
       .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.code_invalid')),
     customCode: z.boolean().default(false),
     isConfidential: z.boolean().default(false),
-    orgId: z.string().trim()
+    orgId: z.string().trim().optional().default(() => myOrgs?.[0]?.id)
   });
 
   //random guid
