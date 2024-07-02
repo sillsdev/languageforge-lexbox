@@ -177,6 +177,10 @@ export async function _orgMemberById(orgId: UUID, userId: UUID): Promise<OrgMemb
             updatedDate
             lastActive
             canCreateProjects
+            createdBy {
+              id
+              name
+            }
           }
         }
       `),

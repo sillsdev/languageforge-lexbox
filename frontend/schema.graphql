@@ -284,6 +284,12 @@ type OrgMemberDto {
   isAdmin: Boolean!
   locked: Boolean!
   canCreateProjects: Boolean!
+  createdBy: OrgMemberDtoCreatedBy
+}
+
+type OrgMemberDtoCreatedBy {
+  id: UUID!
+  name: String!
 }
 
 type OrgProjects {

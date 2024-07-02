@@ -154,7 +154,7 @@ public class LexQueries
         var allowed = isOrgAdmin || requestingUser.IsAdmin;
         if (!allowed) return null;
 
-        var user = await context.Users.Include(u => u.Organizations).Where(u => u.Id == userId).FirstOrDefaultAsync();
+        var user = await context.Users.Include(u => u.Organizations).Include(u => u.CreatedBy).Where(u => u.Id == userId).FirstOrDefaultAsync();
         if (user is null) return null;
 
         var userInOrg = user.Organizations.Any(om => om.OrgId == orgId);
@@ -174,6 +174,7 @@ public class LexQueries
             IsAdmin = user.IsAdmin,
             Locked = user.Locked,
             CanCreateProjects = user.CanCreateProjects,
+            CreatedBy = user.CreatedBy is null ? null : new OrgMemberDtoCreatedBy { Id = user.CreatedBy.Id, Name = user.CreatedBy.Name },
         };
     }
 

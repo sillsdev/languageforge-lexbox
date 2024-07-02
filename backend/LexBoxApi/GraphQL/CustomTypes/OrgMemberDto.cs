@@ -14,5 +14,11 @@ public class OrgMemberDto
     public required bool IsAdmin { get; set; }
     public required bool Locked { get; set; }
     public required bool CanCreateProjects { get; set; }
+    public required OrgMemberDtoCreatedBy? CreatedBy { get; set; }
 }
 
+public class OrgMemberDtoCreatedBy
+{
+    public required Guid Id { get; set; }
+    public required string Name { get; set; }
+}
