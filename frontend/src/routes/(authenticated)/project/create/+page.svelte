@@ -167,7 +167,7 @@
     <DevContent>
       <Select
         id="org"
-        label={'Orgs'}
+        label={$t('project.create.org')}
         bind:value={$form.orgId}
         error={$errors.orgId}
         on:change

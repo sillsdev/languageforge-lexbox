@@ -194,7 +194,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "retention_policy": "Purpose",
       "submit": "Create Project",
       "requested": "Your request for project {name} has been submitted.",
-      "request": "Request Project"
+      "request": "Request Project",
+      "org": "Organization"
     },
     "table": {
       "name": "Name",
