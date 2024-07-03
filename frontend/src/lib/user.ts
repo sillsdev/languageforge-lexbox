@@ -180,7 +180,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
   const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
 
   if (user.orgs) {
-    user.orgs = user.orgs.map(o => ({ ...o, role: o.role.toUpperCase() as OrgRole } ));
+    user.orgs = user.orgs.map(o => ({ orgId: o.OrgId ?? o.orgId, role: (o.Role ?? o.role).toUpperCase() as OrgRole } ));
   }
 
   return {
