@@ -105,14 +105,10 @@ public class LexQueries
         if (permissionService.CanEditOrg(orgId)) return org;
         // Non-admins cannot see email addresses or usernames
         org.Members?.ForEach(m => { if (m.User is not null) { m.User.Email = null; m.User.Username = null; } });
-        // Members can see all public projects plus their own
-        if (permissionService.IsOrgMember(orgId))
+        // Members and non-members alike can see all public projects plus their own
+        org.Projects = org.Projects?.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id))?.ToList() ?? [];
+        if (!permissionService.IsOrgMember(orgId))
         {
-            org.Projects = org.Projects.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id)).ToList();
-        }
-        else
-        {
-            org.Projects = org.Projects?.Where(p => p.IsConfidential == false).ToList() ?? [];
             // Non-members also cannot see membership, only org admins
             org.Members = org.Members?.Where(m => m.Role == OrgRole.Admin).ToList() ?? [];
         }
