@@ -189,7 +189,7 @@ public record LexAuthUser
 
     public IEnumerable<Claim> GetClaims()
     {
-        var jsonElement = JsonSerializer.SerializeToElement(this, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+        var jsonElement = JsonSerializer.SerializeToElement(this);
         foreach (var jsonProperty in jsonElement.EnumerateObject())
         {
             switch (jsonProperty.Value.ValueKind)
