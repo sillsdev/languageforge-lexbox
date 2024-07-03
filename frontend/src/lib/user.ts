@@ -5,7 +5,7 @@ import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
 import zxcvbn from 'zxcvbn';
-import { type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput } from './gql/types';
+import { type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, OrgRole } from './gql/types';
 import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
@@ -178,6 +178,10 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
 function jwtToUser(user: JwtTokenUser): LexAuthUser {
   const { sub: id, name, email, user: username, proj: projectsString, role: jwtRole } = user;
   const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
+
+  if (user.orgs) {
+    user.orgs = user.orgs.map(o => ({ ...o, role: o.role.toUpperCase() as OrgRole } ));
+  }
 
   return {
     id,

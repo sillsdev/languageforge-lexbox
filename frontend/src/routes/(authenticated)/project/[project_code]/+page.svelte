@@ -113,9 +113,7 @@
   }
 
   $: userId = user.id;
-  // TODO: Actual orgs object in JWT currently has o.Role and o.OrgId instead of o.role and o.orgId. Serialize it correclty in .NET
-  // $: orgsManagedByUser = user.orgs.filter(o => o.role === OrgRole.Admin).map(o => o.orgId);
-  $: orgsManagedByUser = user.orgs.filter(o => o.Role === 1).map(o => o.OrgId); // TODO: Delete this line and replace with the correct one above once JWT serialization fixed in .NET
+  $: orgsManagedByUser = user.orgs.filter(o => o.role === OrgRole.Admin).map(o => o.orgId);
   $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || project?.organizations.find((o) => orgsManagedByUser.includes(o.id));
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
