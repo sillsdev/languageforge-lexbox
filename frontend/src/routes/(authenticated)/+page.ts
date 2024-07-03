@@ -31,6 +31,7 @@ export async function load(event: PageLoadEvent) {
               description
               retentionPolicy
               isConfidential
+              orgId
               projectManagerId
             }
         }
