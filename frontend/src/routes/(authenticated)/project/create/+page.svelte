@@ -118,7 +118,7 @@
       if (urlValues.type) form.type = urlValues.type;
       if (urlValues.orgId) form.orgId = urlValues.orgId;
       if ($isDev === true) {
-        if (!form.orgId && myOrgs?.[0]) {
+        if (!form.orgId && !user.isAdmin && myOrgs?.[0]) {
           form.orgId = myOrgs[0].id;
         }
       }
