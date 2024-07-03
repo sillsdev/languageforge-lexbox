@@ -35,16 +35,30 @@ export async function load(event: PageLoadEvent) {
 
     requestingUser = userResultsPromise.data?.users?.items?.[0];
   }
-  const myOrgsPromise = await client.query(graphql(`
-        query loadMyOrgs {
-            myOrgs {
-                id
-                name
-            }
-        }
-    `), {}, { fetch: event.fetch });
-  const myOrgs = myOrgsPromise.data?.myOrgs;
-  return { requestingUser, myOrgs };
+
+  if (userIsAdmin) {
+    const orgsPromise = await client.query(graphql(`
+          query loadOrgs {
+              orgs {
+                  id
+                  name
+              }
+          }
+      `), {}, { fetch: event.fetch });
+    const orgs = orgsPromise.data?.orgs;
+    return { requestingUser, myOrgs: orgs };
+  } else {
+    const myOrgsPromise = await client.query(graphql(`
+          query loadMyOrgs {
+              myOrgs {
+                  id
+                  name
+              }
+          }
+      `), {}, { fetch: event.fetch });
+    const myOrgs = myOrgsPromise.data?.myOrgs;
+    return { requestingUser, myOrgs };
+  }
 }
 
 export async function _createProject(input: CreateProjectInput): $OpResult<CreateProjectMutation> {
