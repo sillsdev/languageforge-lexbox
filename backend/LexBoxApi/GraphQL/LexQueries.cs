@@ -144,15 +144,10 @@ public class LexQueries
         };
     }
 
-    public async Task<OrgMemberDto?> OrgMemberById(LexBoxDbContext context, LoggedInContext loggedInContext, Guid orgId, Guid userId)
+    public async Task<OrgMemberDto?> OrgMemberById(LexBoxDbContext context, IPermissionService permissionService, Guid orgId, Guid userId)
     {
-        var requestingUserId = loggedInContext.User.Id;
-        var requestingUser = await context.Users.Include(u => u.Organizations).Where(u => u.Id == requestingUserId).FirstOrDefaultAsync();
-        if (requestingUser is null) return null;
-
-        var isOrgAdmin = requestingUser.Organizations.Any(om => om.OrgId == orgId && om.UserId == requestingUserId && om.Role == OrgRole.Admin);
-        var allowed = isOrgAdmin || requestingUser.IsAdmin;
-        if (!allowed) return null;
+        // Only site admins and org admins are allowed to run this query
+        if (!permissionService.CanEditOrg(orgId)) return null;
 
         var user = await context.Users.Include(u => u.Organizations).Include(u => u.CreatedBy).Where(u => u.Id == userId).FirstOrDefaultAsync();
         if (user is null) return null;
