@@ -75,7 +75,7 @@ public class ProjectMutations
         LexBoxDbContext dbContext,
         [Service] IEmailService emailService)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
@@ -231,7 +231,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProjectMemberRole(input.ProjectId, input.UserId);
+        await permissionService.AssertCanManageProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
             await dbContext.ProjectUsers
                 .Include(r => r.Project)
@@ -259,7 +259,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
 
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
@@ -280,7 +280,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
 
@@ -299,7 +299,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
 
@@ -340,7 +340,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         await dbContext.ProjectUsers.Where(pu => pu.ProjectId == input.ProjectId && pu.UserId == input.UserId)
             .ExecuteDeleteAsync();
         // Not doing .Include() above because we don't want the project or user removed, just the many-to-many table row
@@ -382,7 +382,7 @@ public class ProjectMutations
         LexBoxDbContext dbContext,
         IHgService hgService)
     {
-        permissionService.AssertCanManageProject(projectId);
+        await permissionService.AssertCanManageProject(projectId);
 
         var project = await dbContext.Projects.Include(p => p.Users).FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null)
