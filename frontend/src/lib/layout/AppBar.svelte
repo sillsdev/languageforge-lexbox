@@ -5,6 +5,7 @@
   import { onMount } from 'svelte';
   import type { LexAuthUser } from '$lib/user';
   import { page } from '$app/stores';
+  import AppLogo from '$lib/icons/AppLogo.svelte';
 
   onMount(() => {
     isPlaywright = localStorage.getItem('isPlaywright') === 'true';
@@ -24,8 +25,10 @@
       <span class="i-mdi-open-in-new text-xl shrink-0" />
     </a>
   {/if}
-  <div class="navbar justify-between bg-primary text-primary-content md:px-6">
+  <div class="navbar justify-between bg-primary text-primary-content md:pl-3 md:pr-6">
+
     <a href={loggedIn ? '/' : '/login'} class="text-lg md:text-3xl tracking-wider hover:underline">
+      <AppLogo class="h-[1.5em] w-[1.5em] mr-3"/>
       {$t('appbar.app_name')}
     </a>
     <div>

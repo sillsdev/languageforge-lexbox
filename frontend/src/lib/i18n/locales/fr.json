@@ -115,7 +115,7 @@
     "title": "Se connecter",
     "password_missing": "Mot de passe manquant",
     "link_expired": "L'e-mail sur lequel vous avez cliqué a expiré. Veuillez en demander un nouveau.",
-    "welcome_header": "### Bienvenue sur Language Depot\n",
+    "welcome_header": "Bienvenue sur Language Depot",
     "welcome": "Language Depot est un service d'hébergement pour [FieldWorks (FLEx)](https://software.sil.org/fieldworks/),\
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) et [WeSay](https://software.sil.org/wesay/) projects.\
 Il est fourni en tant que service aux communautés linguistiques par [SIL Language Technology](https://software.sil.org/) et\
