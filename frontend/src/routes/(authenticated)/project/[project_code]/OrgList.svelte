@@ -1,15 +1,16 @@
 <script context="module" lang="ts">
-  export type Org = {
-    id: string
-    name: string
-  };
+  // export type Org = {
+  //   id: string
+  //   name: string
+  // };
 </script>
 
 <script lang="ts">
   import t from '$lib/i18n';
   import { Badge, BadgeList } from '$lib/components/Badges';
+  import type { Organization } from '$lib/gql/types';
 
-  export let organizations: Org[] = [];
+  export let organizations: Partial<Organization>[] = [];
 
   const TRUNCATED_MEMBER_COUNT = 5;
 </script>
