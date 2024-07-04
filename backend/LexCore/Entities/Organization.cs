@@ -31,7 +31,6 @@ public class OrgMember : EntityBase
     public Organization? Organization { get; set; }
 }
 
-// FIXME: when I add the JsonStringEnumConverter, now the claims in the backend aren't comparing correctly
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrgRole
 {
