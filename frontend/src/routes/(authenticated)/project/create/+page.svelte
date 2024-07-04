@@ -57,7 +57,7 @@
       retentionPolicy: $form.retentionPolicy,
       isConfidential: $form.isConfidential,
       projectManagerId: requestingUser?.id,
-      orgId: $form.orgId,
+      orgId: $form.orgId === '' ? null : $form.orgId,
     });
     if (result.error) {
       if (result.error.byCode(DbErrorCode.Duplicate)) {
@@ -172,6 +172,7 @@
         error={$errors.orgId}
         on:change
       >
+        <option value={''} >{$t('project_page.organization.placeholder')}</option>
         {#each myOrgs as org}
           <option value={org.id}>{org.name}</option>
         {/each}
