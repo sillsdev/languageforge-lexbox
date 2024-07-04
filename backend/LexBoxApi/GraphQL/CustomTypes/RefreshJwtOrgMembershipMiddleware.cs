@@ -7,8 +7,6 @@ namespace LexBoxApi.GraphQL.CustomTypes;
 
 public class RefreshJwtOrgMembershipMiddleware(FieldDelegate next)
 {
-    private const string REFRESHED_USER_KEY = "RefreshedJwtMemberships";
-    // Should be the same value as in RefreshJwtProjectMembershipMiddleware.
     public async Task InvokeAsync(IMiddlewareContext context)
     {
         await next(context);
@@ -66,12 +64,12 @@ public class RefreshJwtOrgMembershipMiddleware(FieldDelegate next)
     private static async Task RefreshUser(IMiddlewareContext context, Guid userId)
     {
         var lexAuthService = context.Service<LexAuthService>();
-        context.ContextData[REFRESHED_USER_KEY] = true;
+        context.ContextData[GraphQlSetupKernel.RefreshedJwtMembershipsKey] = true;
         await lexAuthService.RefreshUser(userId, LexAuthConstants.OrgsClaimType);
     }
 
     private static bool UserAlreadyRefreshed(IMiddlewareContext context)
     {
-        return context.ContextData.ContainsKey(REFRESHED_USER_KEY);
+        return context.ContextData.ContainsKey(GraphQlSetupKernel.RefreshedJwtMembershipsKey);
     }
 }
