@@ -4,6 +4,7 @@
   import TestProjectView from './TestProjectView.svelte';
   import FwDataProjectView from './FwDataProjectView.svelte';
   import HomeView from './HomeView.svelte';
+  import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
 
   export let url = '';
 
@@ -34,3 +35,4 @@
     </Route>
   </div>
 </Router>
+<NotificationOutlet/>
