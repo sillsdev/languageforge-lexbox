@@ -17,6 +17,9 @@
   <BadgeList grid={organizations.length > TRUNCATED_MEMBER_COUNT}>
     {#if !organizations.length}
       <span class="text-secondary mx-2 my-1">{$t('common.none')}</span>
+      <div class="flex grow flex-wrap place-self-end gap-3 place-content-end" style="grid-column: -2 / -1">
+        <slot name="extraButtons" />
+      </div>
     {/if}
     {#each organizations as org (org.id)}
       <Badge>

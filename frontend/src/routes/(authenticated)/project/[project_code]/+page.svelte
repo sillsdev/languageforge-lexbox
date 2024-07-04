@@ -44,6 +44,7 @@
   import MembersList from './MembersList.svelte';
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
   import OrgList from './OrgList.svelte';
+  import AddOrganization from './AddOrganization.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -346,6 +347,9 @@
       <OrgList
         organizations={project.organizations}
       >
+        <svelte:fragment slot="extraButtons">
+          <AddOrganization orgList={data.myOrgs} projectId={project.id} />
+        </svelte:fragment>
       </OrgList>
 
       <MembersList

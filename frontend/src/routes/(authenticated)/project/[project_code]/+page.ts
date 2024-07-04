@@ -2,6 +2,8 @@ import type {
   $OpResult,
   AddProjectMemberInput,
   AddProjectMemberMutation,
+  AddProjectToOrgInput,
+  AddProjectToOrgMutation,
   BulkAddProjectMembersInput,
   BulkAddProjectMembersMutation,
   ChangeProjectDescriptionInput,
@@ -110,8 +112,31 @@ export async function load(event: PageLoadEvent) {
   }
 
   event.depends(`project:${projectCode}`);
+  let orgs;
+  if (userIsAdmin) {
+  const orgsPromise = await client.query(graphql(`
+        query loadOrgs {
+            orgs {
+                id
+                name
+            }
+        }
+     `), {}, { fetch: event.fetch });
+    orgs = orgsPromise.data?.orgs;
+  } else {
+  const myOrgsPromise = await client.query(graphql(`
+        query loadMyOrgs {
+            myOrgs {
+                id
+                name
+            }
+        }
+      `), {}, { fetch: event.fetch });
+    orgs = myOrgsPromise.data?.myOrgs;
+  }
 
   return {
+    myOrgs: orgs,
     project: nonNullableProject,
     changesets: {
       //this is to ensure that the store is pausable
@@ -123,6 +148,30 @@ export async function load(event: PageLoadEvent) {
     },
     code: projectCode,
   };
+}
+
+export async function _addProjectToOrg(input: AddProjectToOrgInput): $OpResult<AddProjectToOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation AddProjectToOrg($input: AddProjectToOrgInput!) {
+          addProjectToOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
 }
 
 export async function _addProjectMember(input: AddProjectMemberInput): $OpResult<AddProjectMemberMutation> {
