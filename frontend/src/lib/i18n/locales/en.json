@@ -375,6 +375,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "organizations": "Organizations",
     "members": {
       "title": "Members",
       "filter_members_placeholder": "Filter members...",
