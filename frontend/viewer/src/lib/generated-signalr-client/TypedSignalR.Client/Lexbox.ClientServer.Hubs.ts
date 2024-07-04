@@ -13,5 +13,6 @@ export type ILexboxClient = {
     * @returns Transpiled from System.Threading.Tasks.Task
     */
     OnEntryUpdated(entry: Entry): Promise<void>;
+    OnProjectClosed(): Promise<void>;
 }
 
