@@ -36,6 +36,7 @@ export async function load(event: PageLoadEvent) {
     requestingUser = userResultsPromise.data?.users?.items?.[0];
   }
 
+  let orgs;
   if (userIsAdmin) {
     const orgsPromise = await client.query(graphql(`
           query loadOrgs {
@@ -45,8 +46,7 @@ export async function load(event: PageLoadEvent) {
               }
           }
       `), {}, { fetch: event.fetch });
-    const orgs = orgsPromise.data?.orgs;
-    return { requestingUser, myOrgs: orgs };
+    orgs = orgsPromise.data?.orgs;
   } else {
     const myOrgsPromise = await client.query(graphql(`
           query loadMyOrgs {
@@ -56,9 +56,9 @@ export async function load(event: PageLoadEvent) {
               }
           }
       `), {}, { fetch: event.fetch });
-    const myOrgs = myOrgsPromise.data?.myOrgs;
-    return { requestingUser, myOrgs };
+    orgs = myOrgsPromise.data?.myOrgs;
   }
+  return { requestingUser, myOrgs: orgs };
 }
 
 export async function _createProject(input: CreateProjectInput): $OpResult<CreateProjectMutation> {
