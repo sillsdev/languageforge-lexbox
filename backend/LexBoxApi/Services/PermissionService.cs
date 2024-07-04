@@ -15,13 +15,14 @@ public class PermissionService(
 {
     private LexAuthUser? User => loggedInContext.MaybeUser;
 
-    public async ValueTask<bool> ManagesOrgThatOwnsProject(Guid projectId)
+    private async ValueTask<bool> ManagesOrgThatOwnsProject(Guid projectId)
     {
         var project = await dbContext.Projects.Include(p => p.Organizations).Where(p => p.Id == projectId).FirstOrDefaultAsync();
         if (project is null) return false;
         return ManagesOrgThatOwnsProject(project);
     }
-    public bool ManagesOrgThatOwnsProject(Project project)
+
+    private bool ManagesOrgThatOwnsProject(Project project)
     {
         if (User is not null && User.Orgs.Any(o => o.Role == OrgRole.Admin))
         {
