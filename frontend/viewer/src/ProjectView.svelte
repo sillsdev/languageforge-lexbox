@@ -1,7 +1,8 @@
 <script lang="ts">
   import {AppBar, Button, ProgressCircle} from 'svelte-ux';
-  import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiEyeSettingsOutline} from '@mdi/js';
+  import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiEyeSettingsOutline, mdiHome} from '@mdi/js';
   import Editor from './lib/Editor.svelte';
+  import {navigate} from 'svelte-routing';
   import {headword} from './lib/utils';
   import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
@@ -50,6 +51,7 @@
 
   export let projectName: string;
   export let isConnected: boolean;
+  export let showHomeButton = true;
   $: connected.set(isConnected);
 
   const connected = writable(false);
@@ -154,7 +156,14 @@
 </svelte:head>
 
 <div class="project-view !flex flex-col PortalTarget">
-  <AppBar title={projectName} class="bg-secondary min-h-12" menuIcon=''>
+  <AppBar title={projectName} class="bg-secondary min-h-12">
+    {#if showHomeButton}
+      <Button
+        slot="menuIcon"
+        icon={mdiHome}
+        on:click={() => navigate('/')}
+      />
+    {/if}
     <div class="flex-grow-0 flex-shrink-0 md:hidden mx-2" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
