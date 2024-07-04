@@ -36,7 +36,7 @@ public class LexAuthUserTests
         Name = "test",
         UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
         Locale = "en",
-        Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.EmptyProjId) ],
+        Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ],
         Projects = new[]
         {
             new AuthUserProject(ProjectRole.Manager, new Guid("42f566c0-a4d2-48b5-a1e1-59c82289ff99"))
@@ -185,7 +185,7 @@ public class LexAuthUserTests
         newUser.ShouldNotBeNull();
         newUser.UpdatedDate.ShouldBe(0);
         //old jwt doesn't have updated date or orgs, we're ok with that so we correct the values to make the equivalence work
-        newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.EmptyProjId) ];
+        newUser.Orgs = [ new AuthUserOrg(OrgRole.Admin, LexData.SeedingData.TestOrgId) ];
         newUser.UpdatedDate = _user.UpdatedDate;
         newUser.ShouldBeEquivalentTo(_user);
     }
