@@ -51,6 +51,24 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     }
 
     [Theory]
+    [InlineData(HgProtocol.Hgweb)]
+    [InlineData(HgProtocol.Resumable)]
+    public async Task CloneConfidentialProjectAsOrgManager(HgProtocol protocol)
+    {
+        // Create a fresh project
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, isConfidential: true, LexData.SeedingData.TestOrgId);
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
+
+        // Push the project to the server
+        var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
+        _sendReceiveService.SendReceiveProject(sendReceiveParams, ManagerAuth);
+
+        // Verify pushed
+        var lastCommitDate = await _adminApiTester.GetProjectLastCommit(projectConfig.Code);
+        lastCommitDate.ShouldNotBeNullOrEmpty();
+    }
+
+    [Theory]
     [InlineData(HgProtocol.Hgweb, "manager")]
     [InlineData(HgProtocol.Resumable, "manager")]
     public void CanCloneSendReceive(HgProtocol hgProtocol, string user)
