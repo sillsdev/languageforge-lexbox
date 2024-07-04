@@ -6,11 +6,31 @@ using SystemTextJsonPatch;
 
 namespace LocalWebApp.Hubs;
 
-public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey)] ILexboxApi lexboxApi) : Hub<ILexboxClient>
+public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey)] ILexboxApi lexboxApi, FwDataFactory fwDataFactory,
+    FwDataProjectContext context) : Hub<ILexboxClient>
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()
     {
+        var project = context.Project;
+        if (project is null)
+        {
+            throw new InvalidOperationException("No project is set in the context.");
+        }
+        await Groups.AddToGroupAsync(Context.ConnectionId, project.Name);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        //todo if multiple clients are connected, this will close the project for all of them.
+        fwDataFactory.CloseCurrentProject();
+        var project = context.Project;
+        if (project is null)
+        {
+            throw new InvalidOperationException("No project is set in the context.");
+        }
+        await Clients.OthersInGroup(project.Name).OnProjectClosed();
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, project.Name);
     }
 
     public async Task<WritingSystems> GetWritingSystems()
