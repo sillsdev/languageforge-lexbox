@@ -17,21 +17,20 @@ function compileKeys(obj, prefix = '') {
 }
 
 function getDiffKeys(stdKeys, lang) {
-    const langJson = json5.parse(fs.readFileSync(`${lang}.json`, 'utf-8'));
+    const langJson = json5.parse(fs.readFileSync(lang, 'utf-8'));
     const langKeysSet = new Set(compileKeys(langJson, ''));
     const diff = stdKeys.filter(x => !langKeysSet.has(x));
     return diff;
 }
 
 function main() {
-  const dirname = import.meta.dirname;
-  const files = fs.readdirSync(dirname);
+  const localesPath = path.join(import.meta.dirname, 'locales');
+  const files = fs.readdirSync(localesPath);
   const locales = files
-      .filter(file => path.extname(file).toLowerCase() === '.json')
-      .map(file => path.basename(file, '.json'))
-      .filter(file => file !== 'en');
+      .filter(file => path.extname(file).toLowerCase() === '.json' && file !== 'en.json')
+      .map(file => path.join(localesPath, file));
 
-  const enJson = json5.parse(fs.readFileSync('en.json', 'utf-8'));
+  const enJson = json5.parse(fs.readFileSync(path.join(localesPath, 'en.json'), 'utf-8'));
   const enAllKeys = compileKeys(enJson, '');
 
   const output = {};

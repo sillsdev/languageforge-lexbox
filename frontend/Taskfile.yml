@@ -73,3 +73,8 @@ tasks:
     deps: [ install-https-proxy ]
     cmd: pnpm run dev
 
+  check-out-of-date-translations:
+    dir: ./src/lib/i18n
+    silent: true
+    cmd: node update_tracker.mjs
+
