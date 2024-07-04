@@ -21,7 +21,8 @@ public class ApiTestBase
         };
     }
 
-    public async Task<string> LoginAs(string user, string? password = null)
+    // This needs to be virtual so it can be mocked in IntegrationFixtureTests
+    public virtual async Task<string> LoginAs(string user, string? password = null)
     {
         password ??= TestingEnvironmentVariables.DefaultPassword;
         var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), HttpClient);
