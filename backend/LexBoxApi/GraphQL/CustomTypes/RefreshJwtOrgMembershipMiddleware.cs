@@ -5,7 +5,7 @@ using LexCore.Entities;
 
 namespace LexBoxApi.GraphQL.CustomTypes;
 
-public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
+public class RefreshJwtOrgMembershipMiddleware(FieldDelegate next)
 {
     public async Task InvokeAsync(IMiddlewareContext context)
     {
@@ -18,36 +18,36 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
         var user = context.Service<LoggedInContext>().MaybeUser;
         if (user is null || user.Role == UserRole.admin) return;
 
-        var projectId = context.Parent<Project>().Id;
-        if (projectId == default)
+        var orgId = context.Parent<Organization>().Id;
+        if (orgId == default)
         {
-            if (context.Result is not Guid projectGuid) return;
-            if (projectGuid == default) return;
-            projectId = projectGuid;
-        } // we know we have a valid project-ID
+            if (context.Result is not Guid orgGuid) return;
+            if (orgGuid == default) return;
+            orgId = orgGuid;
+        } // we know we have a valid org-ID
 
-        var currUserMembershipJwt = user.Projects.FirstOrDefault(projects => projects.ProjectId == projectId);
+        var currUserMembershipJwt = user.Orgs.FirstOrDefault(orgs => orgs.OrgId == orgId);
 
         if (currUserMembershipJwt is null)
         {
-            // The user was probably added to the project and it's not in the token yet
+            // The user was probably added to the org and it's not in the token yet
             await RefreshUser(context, user.Id);
             return;
         }
 
-        if (context.Result is not IEnumerable<ProjectUsers> projectUsers) return;
+        if (context.Result is not IEnumerable<OrgMember> orgMembers) return;
 
-        var sampleProjectUser = projectUsers.FirstOrDefault();
-        if (sampleProjectUser is not null && sampleProjectUser.UserId == default && (sampleProjectUser.User == null || sampleProjectUser.User.Id == default))
+        var sampleOrgUser = orgMembers.FirstOrDefault();
+        if (sampleOrgUser is not null && sampleOrgUser.UserId == default && (sampleOrgUser.User == null || sampleOrgUser.User.Id == default))
         {
             // User IDs don't seem to have been loaded from the DB, so we can't do anything
             return;
         }
 
-        var currUserMembershipDb = projectUsers.FirstOrDefault(projectUser => user.Id == projectUser.UserId || user.Id == projectUser.User?.Id);
+        var currUserMembershipDb = orgMembers.FirstOrDefault(orgUser => user.Id == orgUser.UserId || user.Id == orgUser.User?.Id);
         if (currUserMembershipDb is null)
         {
-            // The user was probably removed from the project and it's still in the token
+            // The user was probably removed from the org and it's still in the token
             await RefreshUser(context, user.Id);
         }
         else if (currUserMembershipDb.Role == default)
@@ -65,7 +65,7 @@ public class RefreshJwtProjectMembershipMiddleware(FieldDelegate next)
     {
         var lexAuthService = context.Service<LexAuthService>();
         context.ContextData[GraphQlSetupKernel.RefreshedJwtMembershipsKey] = true;
-        await lexAuthService.RefreshUser(userId, LexAuthConstants.ProjectsClaimType);
+        await lexAuthService.RefreshUser(userId, LexAuthConstants.OrgsClaimType);
     }
 
     private static bool UserAlreadyRefreshed(IMiddlewareContext context)

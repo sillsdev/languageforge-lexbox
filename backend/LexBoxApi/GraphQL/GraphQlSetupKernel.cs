@@ -12,6 +12,7 @@ namespace LexBoxApi.GraphQL;
 public static class GraphQlSetupKernel
 {
     public const string LexBoxSchemaName = "LexBox";
+    public const string RefreshedJwtMembershipsKey = "RefreshedJwtMemberships";
     public static void AddLexGraphQL(this IServiceCollection services, IHostEnvironment env, bool forceGenerateSchema = false)
     {
         if (forceGenerateSchema || env.IsDevelopment())
