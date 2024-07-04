@@ -55,9 +55,9 @@ public class IntegrationFixture : IAsyncLifetime
         }
     }
 
-    public ProjectConfig InitLocalFlexProjectWithRepo(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
+    public ProjectConfig InitLocalFlexProjectWithRepo(HgProtocol? protocol = null, bool isConfidential = false, [CallerMemberName] string projectName = "")
     {
-        var projectConfig = Utils.GetNewProjectConfig(protocol, projectName);
+        var projectConfig = Utils.GetNewProjectConfig(protocol, isConfidential, projectName);
         InitLocalFlexProjectWithRepo(projectConfig);
         return projectConfig;
     }

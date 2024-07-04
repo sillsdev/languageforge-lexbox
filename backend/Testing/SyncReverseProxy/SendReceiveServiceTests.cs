@@ -108,7 +108,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     public async Task SendReceiveAfterProjectReset(HgProtocol protocol)
     {
         // Create a fresh project
-        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, "SR_AfterReset");
+        var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, isConfidential: false, "SR_AfterReset");
         await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
 
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
