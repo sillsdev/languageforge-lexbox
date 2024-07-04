@@ -34,7 +34,7 @@
       "password_label": "Change User Password",
       "role_label": {
         "label": "Role",
-        "email_required_for_admin": "The user must provide a valid email address to gain administrator access."
+        "verified_email_required_for_admin": "The user must provide a verified email address to gain administrator access."
       },
       "update_user": "Update User",
       "lock": "Lock User",

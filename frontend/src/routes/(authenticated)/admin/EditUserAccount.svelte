@@ -25,8 +25,8 @@
     role: z.enum([UserRole.User, UserRole.Admin]),
     })
   const refinedSchema = schema
-    .refine((data) => data.email || data.role !== UserRole.Admin, {
-    message: $t('admin_dashboard.form_modal.role_label.email_required_for_admin'),
+    .refine((data) => data.role !== UserRole.Admin || (data.email && _user.emailVerified), {
+    message: $t('admin_dashboard.form_modal.role_label.verified_email_required_for_admin'),
     path: ['role'],
     });
 
