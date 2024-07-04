@@ -50,7 +50,7 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
             }
             else
             {
-                sense.MorphoSyntaxAnalysisRA = null;
+                sense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(null);
             }
         }
     }

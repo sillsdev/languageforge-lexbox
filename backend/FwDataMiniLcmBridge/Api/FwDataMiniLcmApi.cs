@@ -209,7 +209,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
             Id = sense.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
-            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.InterlinearName ?? "",
+            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.PosFieldName ?? "",
             PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
             SemanticDomains = sense.SemanticDomainsRC.Select(s => new SemanticDomain
             {
@@ -257,7 +257,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         var entries = _entriesRepository.AllInstances();
 
         options ??= QueryOptions.Default;
-        if (predicate is not null) entries = entries.Where(e => predicate(e));
+        if (predicate is not null) entries = entries.Where(predicate);
 
         if (options.Exemplar is not null)
         {

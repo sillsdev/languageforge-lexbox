@@ -8,8 +8,6 @@ public class UpdateListProxy<T>(
     Func<int, T> getAt,
     int count) : IList<T>, IList
 {
-    private bool _isSynchronized;
-    private bool _isFixedSize;
 
     public IEnumerator<T> GetEnumerator()
     {
@@ -83,7 +81,7 @@ public class UpdateListProxy<T>(
 
     public int Count { get; } = count;
 
-    bool ICollection.IsSynchronized => _isSynchronized;
+    bool ICollection.IsSynchronized => false;
 
     object ICollection.SyncRoot => throw new NotImplementedException();
 
@@ -109,7 +107,7 @@ public class UpdateListProxy<T>(
         Remove(getAt(index));
     }
 
-    bool IList.IsFixedSize => _isFixedSize;
+    bool IList.IsFixedSize => false;
 
     public T this[int index]
     {

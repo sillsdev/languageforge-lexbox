@@ -4,7 +4,7 @@ namespace FwDataMiniLcmBridge.Api;
 
 public static class MorphoSyntaxExtensions
 {
-    public static void SetMsaPartOfSpeech(this IMoMorphSynAnalysis msa, IPartOfSpeech pos)
+    public static void SetMsaPartOfSpeech(this IMoMorphSynAnalysis msa, IPartOfSpeech? pos)
     {
         switch (msa.ClassID)
         {
