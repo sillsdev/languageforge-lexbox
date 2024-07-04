@@ -26,7 +26,7 @@
     {/if}
     {#each organizations as org (org.id)}
       <Badge>
-        {org}
+        {org.name}
       </Badge>
     {/each}
   </BadgeList>
