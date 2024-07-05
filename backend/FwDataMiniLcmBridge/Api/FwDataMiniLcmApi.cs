@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
@@ -262,19 +263,16 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         if (options.Exemplar is not null)
         {
             var ws = GetWritingSystemHandle(options.Exemplar.WritingSystem, WritingSystemType.Vernacular);
+            var exemplar = options.Exemplar.Value.Normalize(NormalizationForm.FormD);//LCM data is NFD so the should be as well
             entries = entries.Where(e =>
             {
                 var value = (e.CitationForm.get_String(ws).Text ?? e.LexemeFormOA.Form.get_String(ws).Text)?
                     .Trim(LcmHelpers.WhitespaceAndFormattingChars);
-                if ((value?.Length ?? 0) < options.Exemplar.Value.Length) return false;
-                for (var i = 0; i < options.Exemplar.Value.Length; i++)
-                {
-                    // We compare chars, because there are cases where value.StartsWith(value[0].ToString()) == false (e.g. "آبراهام")
-                    // Perhaps string.StartsWith compares the first grapheme cluster of value, which could be multiple characters.
-                    // Comparing value.AsSpan().StartsWith() also didn't work
-                    if (char.ToUpperInvariant(value![i]) != char.ToUpperInvariant(options.Exemplar.Value[i])) return false;
-                }
-                return true;
+                if (value is null || value.Length < exemplar.Length) return false;
+                //exemplar is normalized, so we can use StartsWith
+                //there may still be cases where value.StartsWith(value[0].ToString()) == false (e.g. "آبراهام")
+                //but I don't have the data to test that
+                return value.StartsWith(exemplar, StringComparison.InvariantCultureIgnoreCase);
             });
         }
 
