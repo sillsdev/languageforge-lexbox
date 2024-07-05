@@ -7,7 +7,8 @@
   import { FormModal } from '$lib/components/modals';
   import { BadgeButton } from '$lib/components/Badges';
 
-  export let orgList: Partial<Organization>[] = [];
+  type Org = Pick<Organization, 'id' | 'name'>;
+  export let orgList: Org[] = [];
   export let projectId: string;
 
   const schema = z.object({
@@ -20,13 +21,17 @@
 
   async function openModal(): Promise<void> {
     await formModal.open(async () => {
-      await _addProjectToOrg({
+      const { error } = await _addProjectToOrg({
         projectId,
         orgId: $form.orgId,
       })
+      if (error?.byType('NotFoundError')) {
+        if (error.message === 'Organization not found') return $t('project_page.add_org.org_not_found');
+      }
+      if (error?.byType('NotFoundError')) {
+        if (error.message === 'Project not found') return $t('project_page.add_org.project_not_found');
+      }
     });
-
-    // Error Handling
   }
 
 </script>

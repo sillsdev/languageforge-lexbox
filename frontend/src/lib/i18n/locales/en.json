@@ -309,7 +309,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "add_org": {
       "add_button": "Add Organization",
       "modal_title": "Choose organization",
-      "submit_button": "Add Organization"
+      "submit_button": "Add Organization",
+      "org_not_found": "Organization not found. Please refresh the page.",
+      "project_not_found": "Project not found. Please refresh the page."
     },
     "bulk_add_members": {
       "add_button": "Bulk Add/Create Members",

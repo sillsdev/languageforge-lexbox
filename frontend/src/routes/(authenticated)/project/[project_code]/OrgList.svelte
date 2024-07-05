@@ -4,7 +4,6 @@
   import type { Organization } from '$lib/gql/types';
 
   type Org = Pick<Organization, 'id' | 'name'>;
-
   export let organizations: Org[] = [];
 
   const TRUNCATED_MEMBER_COUNT = 5;

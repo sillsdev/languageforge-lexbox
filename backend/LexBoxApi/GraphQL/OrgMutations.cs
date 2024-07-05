@@ -65,12 +65,14 @@ public class OrgMutations
         Guid projectId)
     {
         var org = await dbContext.Orgs.FindAsync(orgId);
-        NotFoundException.ThrowIfNull(org);
+        // old: NotFoundException.ThrowIfNull(org);
+        if (!org) throw new NotFoundException("Organization not found", "org");
         permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
-        NotFoundException.ThrowIfNull(project);
+        // old: NotFoundException.ThrowIfNull(project);
+        if (!project) throw new NotFoundException("Project not found", "project");
         permissionService.AssertCanManageProject(projectId);
 
         if (project.Organizations.Exists(o => o.Id == orgId))
