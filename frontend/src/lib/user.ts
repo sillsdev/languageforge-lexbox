@@ -5,7 +5,7 @@ import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
 import zxcvbn from 'zxcvbn';
-import { type AuthUserProject, ProjectRole, UserRole, type CreateGuestUserByAdminInput } from './gql/types';
+import { type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput } from './gql/types';
 import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
@@ -31,6 +31,7 @@ type JwtTokenUser = {
   user?: string
   role: 'admin' | 'user'
   proj?: string,
+  orgs?: AuthUserOrg[],
   lock: boolean | undefined,
   unver: boolean | undefined,
   mkproj: boolean | undefined,
@@ -47,6 +48,7 @@ export type LexAuthUser = {
   role: UserRole
   isAdmin: boolean
   projects: AuthUserProject[]
+  orgs: AuthUserOrg[]
   locked: boolean
   emailVerified: boolean
   canCreateProjects: boolean
@@ -185,6 +187,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     role,
     isAdmin: role === UserRole.Admin,
     projects: projectsStringToProjects(projectsString),
+    orgs: user.orgs ?? [],
     locked: user.lock === true,
     emailVerified: !user.unver,
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,

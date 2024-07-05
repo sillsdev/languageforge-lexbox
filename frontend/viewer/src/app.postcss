@@ -42,15 +42,16 @@
     grid-template-columns: 170px fit-content(80px) 1fr;
   }
 
-  .side-scroller {
-    max-height: calc(100vh - 32px);
-    position: sticky;
-    top: 16px;
-  }
-
   .collapsible-col {
     overflow-x: hidden;
     transition: opacity 0.2s ease-out;
+  }
+
+  .side-scroller {
+    height: calc(var(--space-for-editor, 100vh) - 32px);
+    transition: height 0.1s ease-out, opacity 0.2s ease-out;
+    position: sticky;
+    top: 16px;
   }
 
   .collapsible-col.collapse-col {
@@ -63,4 +64,16 @@
   .text-field-sibling-button {
     @apply h-[37.6px] p-1.5 aspect-square text-[0.9em] text-surface-content;
   }
+
+  .key {
+    display: inline-block;
+    padding: 0.15em 0.4em;
+    margin: 0 0.1em;
+    font-size: 0.8em;
+    @apply border border-surface-content rounded-md shadow-md;
+  }
+}
+
+.Popover .menu-items {
+  max-height: 40vh;
 }

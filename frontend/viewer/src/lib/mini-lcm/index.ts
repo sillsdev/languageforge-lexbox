@@ -14,3 +14,5 @@ export * from './query-options';
 export * from './sense';
 export * from './writing-system';
 export * from './writing-systems';
+export * from './part-of-speech';
+export * from './semantic-domain';

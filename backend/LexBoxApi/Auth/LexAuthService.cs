@@ -90,6 +90,8 @@ public class LexAuthService
         var dbUser = await _lexBoxDbContext.Users
             .Include(u => u.Projects)
             .ThenInclude(p => p.Project)
+            .Include(u => u.Organizations)
+            .ThenInclude(o => o.Organization)
             .FirstOrDefaultAsync(user => user.Id == userId);
         if (dbUser is null)
         {
@@ -130,6 +132,7 @@ public class LexAuthService
         var user = await _lexBoxDbContext.Users
             .Where(predicate)
             .Include(u => u.Projects).ThenInclude(p => p.Project)
+            .Include(u => u.Organizations)
             .FirstOrDefaultAsync();
         return (user == null ? null : new LexAuthUser(user), user);
     }

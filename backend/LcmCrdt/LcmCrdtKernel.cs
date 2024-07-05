@@ -4,7 +4,7 @@ using Crdt.Core;
 using Crdt;
 using Crdt.Changes;
 using LcmCrdt.Changes;
-using MiniLcm;
+using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
@@ -17,9 +17,6 @@ using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt;
 
-using Entry = Objects.Entry;
-using ExampleSentence = Objects.ExampleSentence;
-using Sense = Objects.Sense;
 
 public static class LcmCrdtKernel
 {
@@ -32,7 +29,7 @@ public static class LcmCrdtKernel
             ConfigureDbOptions,
             ConfigureCrdt
         );
-        services.AddScoped<ILexboxApi, CrdtLexboxApi>();
+        services.AddScoped<MiniLcm.ILexboxApi, CrdtLexboxApi>();
         services.AddScoped<CurrentProjectService>();
         services.AddSingleton<ProjectContext>();
         services.AddSingleton<ProjectsService>();
@@ -52,7 +49,7 @@ public static class LcmCrdtKernel
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
                     .Build();
-                mappingSchema.SetConvertExpression((WritingSystemId id) =>
+                mappingSchema.SetConvertExpression((MiniLcm.WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
                 var loggerFactory = provider.GetService<ILoggerFactory>();
@@ -71,10 +68,10 @@ public static class LcmCrdtKernel
             })
             .AddDbModelConvention(builder =>
             {
-                builder.Properties<MultiString>()
+                builder.Properties<MiniLcm.MultiString>()
                     .HaveColumnType("jsonb")
                     .HaveConversion<MultiStringDbConverter>();
-                builder.Properties<WritingSystemId>()
+                builder.Properties<MiniLcm.WritingSystemId>()
                     .HaveConversion<WritingSystemIdConverter>();
             })
             .Add<Entry>(builder =>
@@ -89,10 +86,10 @@ public static class LcmCrdtKernel
                 builder.HasOne<Entry>()
                     .WithMany()
                     .HasForeignKey(sense => sense.EntryId);
-                builder.Property(s => s.SemanticDomain)
+                builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<string>>(json, (JsonSerializerOptions?)null) ?? new());
+                        json => JsonSerializer.Deserialize<List<MiniLcm.SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
@@ -107,28 +104,36 @@ public static class LcmCrdtKernel
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ??
                                 Array.Empty<string>());
-            });
+            }).Add<PartOfSpeech>().Add<SemanticDomain>();
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
             .Add<JsonPatchChange<ExampleSentence>>()
             .Add<JsonPatchChange<WritingSystem>>()
+            .Add<JsonPatchChange<PartOfSpeech>>()
+            .Add<JsonPatchChange<SemanticDomain>>()
             .Add<DeleteChange<Entry>>()
             .Add<DeleteChange<Sense>>()
             .Add<DeleteChange<ExampleSentence>>()
             .Add<DeleteChange<WritingSystem>>()
+            .Add<DeleteChange<PartOfSpeech>>()
+            .Add<DeleteChange<SemanticDomain>>()
+            .Add<SetPartOfSpeechChange>()
+            .Add<AddSemanticDomainChange>()
             .Add<CreateEntryChange>()
             .Add<CreateSenseChange>()
             .Add<CreateExampleSentenceChange>()
+            .Add<CreatePartOfSpeechChange>()
+            .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>();
     }
 
 
-    private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
+    private class MultiStringDbConverter() : ValueConverter<MiniLcm.MultiString, string>(
         mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
-        json => JsonSerializer.Deserialize<MultiString>(json, (JsonSerializerOptions?)null) ?? new());
+        json => JsonSerializer.Deserialize<MiniLcm.MultiString>(json, (JsonSerializerOptions?)null) ?? new());
 
-    private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
+    private class WritingSystemIdConverter() : ValueConverter<MiniLcm.WritingSystemId, string>(
         id => id.Code,
-        code => new WritingSystemId(code));
+        code => new MiniLcm.WritingSystemId(code));
 }

@@ -6,7 +6,12 @@ using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge;
 
-public class FwDataFactory(FwDataProjectContext context, ILogger<FwDataMiniLcmApi> fwdataLogger, IMemoryCache cache, ILogger<FwDataFactory> logger): IDisposable
+public class FwDataFactory(
+    FwDataProjectContext context,
+    ILogger<FwDataMiniLcmApi> fwdataLogger,
+    IMemoryCache cache,
+    ILogger<FwDataFactory> logger,
+    IProjectLoader projectLoader) : IDisposable
 {
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(string projectName, bool saveOnDispose)
     {
@@ -32,7 +37,7 @@ public class FwDataFactory(FwDataProjectContext context, ILogger<FwDataMiniLcmAp
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction, (logger, _projects));
                     logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
-                    var projectService = ProjectLoader.LoadCache(project.FileName);
+                    var projectService = projectLoader.LoadCache(project.FileName);
                     logger.LogInformation("Project {ProjectFileName} loaded", project.FileName);
                     _projects.Add((string)entry.Key);
                     return projectService;
@@ -72,7 +77,7 @@ public class FwDataFactory(FwDataProjectContext context, ILogger<FwDataMiniLcmAp
         foreach (var project in _projects)
         {
             var lcmCache = cache.Get<LcmCache>(project);
-            if (lcmCache is null) continue;
+            if (lcmCache is null || lcmCache.IsDisposed) continue;
             var name = lcmCache.ProjectId.Name;
             lcmCache.Dispose();//need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
             logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);

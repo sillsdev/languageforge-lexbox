@@ -10,7 +10,9 @@ public static class FwDataBridgeKernel
     public static IServiceCollection AddFwDataBridge(this IServiceCollection services)
     {
         services.AddMemoryCache();
+        services.AddLogging();
         services.AddSingleton<FwDataFactory>();
+        services.AddSingleton<IProjectLoader, ProjectLoader>();
         services.AddKeyedScoped<ILexboxApi>(FwDataApiKey, (provider, o) => provider.GetRequiredService<FwDataFactory>().GetCurrentFwDataMiniLcmApi(true));
         services.AddSingleton<FwDataProjectContext>();
         return services;
