@@ -112,6 +112,7 @@ export async function load(event: PageLoadEvent) {
   }
 
   event.depends(`project:${projectCode}`);
+
   let orgs;
   if (userIsAdmin) {
   const orgsPromise = await client.query(graphql(`
