@@ -141,6 +141,7 @@ public class UserMutations
         }
 
         bool wasPromotedToAdmin = false;
+        bool wasDemotedToUser = false;
         if (input is ChangeUserAccountByAdminInput adminInput)
         {
             permissionService.AssertIsAdmin();
@@ -153,6 +154,11 @@ public class UserMutations
                         throw new ValidationException("User must have a verified email address to be promoted to admin");
                     }
                     wasPromotedToAdmin = user.IsAdmin = true;
+                }
+                if (user.IsAdmin && adminInput.Role == UserRole.user)
+                {
+                    user.IsAdmin = false;
+                    wasDemotedToUser = true;
                 }
             }
         }
@@ -180,6 +186,12 @@ public class UserMutations
             ArgumentException.ThrowIfNullOrEmpty(user.Email);
             await emailService.SendNewAdminEmail(admins, user.Name, user.Email);
         }
+
+        //TODO: Should we send an email when admin gets demoted to user status?
+        // if (wasDemotedToUser)
+        // {
+        //     await emailService.SendDemotedToUserEmail(user);
+        // }
 
         return user;
     }
