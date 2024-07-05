@@ -50,12 +50,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 await emailService.SendApproveProjectRequestEmail(manager, input);
             }
         }
-        if (input.OwningOrgId.HasValue)
-        {
-            dbContext.OrgProjects.Add(
-                new OrgProjects { ProjectId = projectId, OrgId = input.OwningOrgId.Value }
-            );
-        }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
         await transaction.CommitAsync();
