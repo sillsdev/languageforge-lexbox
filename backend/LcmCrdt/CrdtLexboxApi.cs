@@ -7,6 +7,7 @@ using LcmCrdt.Changes;
 using MiniLcm;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 
 namespace LcmCrdt;
 
@@ -19,6 +20,8 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
     private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
     private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
+    private IQueryable<SemanticDomain> SemanticDomains => dataModel.GetLatestObjects<SemanticDomain>();
+    private IQueryable<Objects.PartOfSpeech> PartsOfSpeech => dataModel.GetLatestObjects<Objects.PartOfSpeech>();
 
     public async Task<WritingSystems> GetWritingSystems()
     {
@@ -63,6 +66,16 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
             };
         }
         return await WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
+    }
+
+    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        return PartsOfSpeech.AsAsyncEnumerable();
+    }
+
+    public IAsyncEnumerable<MiniLcm.SemanticDomain> GetSemanticDomains()
+    {
+        return SemanticDomains.AsAsyncEnumerable();
     }
 
     public IAsyncEnumerable<MiniLcm.Entry> GetEntries(QueryOptions? options = null)
@@ -180,9 +193,9 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         await dataModel.AddChanges(ClientId,
         [
             new CreateEntryChange(entry),
-            ..entry.Senses.Select(s => new CreateSenseChange(s, entry.Id)),
-            ..entry.Senses.SelectMany(s => s.ExampleSentences,
-                (sense, sentence) => new CreateExampleSentenceChange(sentence, sense.Id))
+            ..await entry.Senses.ToAsyncEnumerable()
+                .SelectMany(s => CreateSenseChanges(entry.Id, s))
+                .ToArrayAsync()
         ]);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
     }
@@ -200,14 +213,31 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         await dataModel.AddChange(ClientId, new DeleteChange<Entry>(id));
     }
 
+    private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId, MiniLcm.Sense sense)
+    {
+        sense.SemanticDomains = await SemanticDomains
+            .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
+            .OfType<MiniLcm.SemanticDomain>()
+            .ToListAsync();
+        if (sense.PartOfSpeechId is not null)
+        {
+            var partOfSpeech = await PartsOfSpeech.FirstOrDefaultAsync(p => p.Id == sense.PartOfSpeechId);
+            sense.PartOfSpeechId = partOfSpeech?.Id;
+            sense.PartOfSpeech = partOfSpeech?.Name["en"] ?? string.Empty;
+        }
+
+
+        yield return new CreateSenseChange(sense, entryId);
+        foreach (var change in sense.ExampleSentences.Select(sentence =>
+                     new CreateExampleSentenceChange(sentence, sense.Id)))
+        {
+            yield return change;
+        }
+    }
+
     public async Task<MiniLcm.Sense> CreateSense(Guid entryId, MiniLcm.Sense sense)
     {
-        await dataModel.AddChanges(ClientId,
-        [
-            new CreateSenseChange(sense, entryId),
-            ..sense.ExampleSentences.Select(sentence =>
-                new CreateExampleSentenceChange(sentence, sense.Id))
-        ]);
+        await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
 
@@ -215,8 +245,9 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         Guid senseId,
         UpdateObjectInput<MiniLcm.Sense> update)
     {
-        var patchChange = new JsonPatchChange<Sense>(senseId, update.Patch, jsonOptions);
-        await dataModel.AddChange(ClientId, patchChange);
+        var sense = await dataModel.GetLatest<Sense>(senseId);
+        if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
+        await dataModel.AddChanges(ClientId, [..Sense.ChangesFromJsonPatch(sense, update.Patch)]);
         return await dataModel.GetLatest<Sense>(senseId) ?? throw new NullReferenceException();
     }
 
@@ -253,4 +284,5 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     {
         return new UpdateBuilder<T>();
     }
+
 }

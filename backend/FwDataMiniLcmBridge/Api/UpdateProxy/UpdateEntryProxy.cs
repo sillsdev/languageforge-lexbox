@@ -36,7 +36,8 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
             new UpdateListProxy<Sense>(
                 sense => lexboxLcmApi.CreateSense(lcmEntry, sense),
                 sense => lexboxLcmApi.DeleteSense(Id, sense.Id),
-                i => new UpdateSenseProxy(lcmEntry.SensesOS[i], lexboxLcmApi)
+                i => new UpdateSenseProxy(lcmEntry.SensesOS[i], lexboxLcmApi),
+                lcmEntry.SensesOS.Count
             );
         set => throw new NotImplementedException();
     }

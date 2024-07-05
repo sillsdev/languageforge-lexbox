@@ -6,6 +6,7 @@
 import {type ISense} from './i-sense';
 import {type IMultiString} from './i-multi-string';
 import {type IExampleSentence} from './i-example-sentence';
+import {type SemanticDomain} from './semantic-domain';
 
 export class Sense implements ISense {
 
@@ -16,7 +17,7 @@ export class Sense implements ISense {
   id: string;
   definition: IMultiString = {};
   gloss: IMultiString = {};
-  partOfSpeech: string = '';
-  semanticDomain: string[] = [];
+  partOfSpeechId: string = '';
+  semanticDomains: SemanticDomain[] = [];
   exampleSentences: IExampleSentence[] = [];
 }

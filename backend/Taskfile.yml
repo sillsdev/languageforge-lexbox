@@ -107,6 +107,7 @@ tasks:
     - task: publish-local-win
     - task: publish-local-linux
     - task: publish-local-osx
+    - task: publish-local-osx-arm
   publish-local-win:
     dir: ./LocalWebApp
     deps: [ui:build-viewer-app]
@@ -117,3 +118,6 @@ tasks:
   publish-local-osx:
     dir: ./LocalWebApp
     cmd: dotnet publish -r osx-x64
+  publish-local-osx-arm:
+    dir: ./LocalWebApp
+    cmd: dotnet publish -r osx-arm64

@@ -1,4 +1,6 @@
-﻿using FwDataMiniLcmBridge.Api.UpdateProxy;
+﻿using System.Collections.Frozen;
+using System.Text;
+using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
 using SIL.LCModel;
@@ -34,6 +36,10 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private readonly IMoMorphTypeRepository _morphTypeRepository =
         cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
+    private readonly IPartOfSpeechRepository _partOfSpeechRepository =
+        cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
+    private readonly ICmSemanticDomainRepository _semanticDomainRepository =
+        cache.ServiceLocator.GetInstance<ICmSemanticDomainRepository>();
 
     private readonly ICmTranslationFactory _cmTranslationFactory =
         cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
@@ -133,8 +139,8 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
             .Distinct()
-            .ToDictionary(ws => ws, ws => ws.Exemplars.ToHashSet());
-        var wsExemplarsByHandle = wsExemplars.ToDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
+            .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
+        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
 
         foreach (var entry in _entriesRepository.AllInstances())
         {
@@ -144,7 +150,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
         foreach (var ws in wsExemplars.Keys)
         {
-            ws.Exemplars = [.. wsExemplars[ws].Order()];
+            ws.Exemplars = [.. wsExemplars[ws].Order().Select(s => s.ToString())];
         }
     }
 
@@ -156,6 +162,32 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         throw new NotImplementedException();
+    }
+
+    public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        foreach (var partOfSpeech in _partOfSpeechRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
+        {
+            yield return new PartOfSpeech { Id = partOfSpeech.Guid, Name = FromLcmMultiString(partOfSpeech.Name) };
+        }
+    }
+
+    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        foreach (var semanticDomain in _semanticDomainRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
+        {
+            yield return new SemanticDomain
+            {
+                Id = semanticDomain.Guid,
+                Name = FromLcmMultiString(semanticDomain.Name),
+                Code = semanticDomain.OcmCodes
+            };
+        }
+    }
+
+    internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
+    {
+        return _semanticDomainRepository.GetObject(semanticDomainId);
     }
 
     private Entry FromLexEntry(ILexEntry entry)
@@ -173,15 +205,22 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private Sense FromLexSense(ILexSense sense)
     {
-        return new Sense
+        var s =  new Sense
         {
             Id = sense.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
-            PartOfSpeech = sense.SenseTypeRA?.Name.BestAnalysisVernacularAlternative.Text ?? string.Empty,
-            SemanticDomain = sense.SemanticDomainsRC.Select(s => s.OcmCodes).ToList(),
+            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.PosFieldName ?? "",
+            PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
+            SemanticDomains = sense.SemanticDomainsRC.Select(s => new SemanticDomain
+            {
+                Id = s.Guid,
+                Name = FromLcmMultiString(s.Name),
+                Code = s.OcmCodes
+            }).ToList(),
             ExampleSentences = sense.ExamplesOS.Select(FromLexExampleSentence).ToList()
         };
+        return s;
     }
 
     private ExampleSentence FromLexExampleSentence(ILexExampleSentence sentence)
@@ -198,7 +237,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     private MultiString FromLcmMultiString(ITsMultiString multiString)
     {
-        var result = new MultiString();
+        var result = new MultiString(multiString.StringCount);
         for (var i = 0; i < multiString.StringCount; i++)
         {
             var tsString = multiString.GetStringFromIndex(i, out var ws);
@@ -208,32 +247,43 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         return result;
     }
 
-    public async IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
+    public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
-        await foreach (var entry in GetEntries(null, options))
-        {
-            yield return entry;
-        }
+        return GetEntries(null, options);
     }
 
     public async IAsyncEnumerable<Entry> GetEntries(
-        Func<ILexEntry, bool>? predicate = null, QueryOptions? options = null)
+        Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
     {
         var entries = _entriesRepository.AllInstances();
 
         options ??= QueryOptions.Default;
-        if (predicate is not null) entries = entries.Where(e => predicate(e));
+        if (predicate is not null) entries = entries.Where(predicate);
 
         if (options.Exemplar is not null)
         {
             var ws = GetWritingSystemHandle(options.Exemplar.WritingSystem, WritingSystemType.Vernacular);
-            entries = entries.Where(e => (e.CitationForm.get_String(ws).Text ?? e.LexemeFormOA.Form.get_String(ws).Text)?
-                .Trim(LcmHelpers.WhitespaceAndFormattingChars)
-                .StartsWith(options.Exemplar.Value, StringComparison.InvariantCultureIgnoreCase) ?? false);
+            var exemplar = options.Exemplar.Value.Normalize(NormalizationForm.FormD);//LCM data is NFD so the should be as well
+            entries = entries.Where(e =>
+            {
+                var value = (e.CitationForm.get_String(ws).Text ?? e.LexemeFormOA.Form.get_String(ws).Text)?
+                    .Trim(LcmHelpers.WhitespaceAndFormattingChars);
+                if (value is null || value.Length < exemplar.Length) return false;
+                //exemplar is normalized, so we can use StartsWith
+                //there may still be cases where value.StartsWith(value[0].ToString()) == false (e.g. "آبراهام")
+                //but I don't have the data to test that
+                return value.StartsWith(exemplar, StringComparison.InvariantCultureIgnoreCase);
+            });
         }
 
         var sortWs = GetWritingSystemHandle(options.Order.WritingSystem, WritingSystemType.Vernacular);
-        entries = entries.OrderBy(e => (e.CitationForm.get_String(sortWs).Text ?? e.LexemeFormOA.Form.get_String(sortWs).Text).Trim(LcmHelpers.WhitespaceChars))
+        entries = entries
+            .OrderBy(e =>
+            {
+                string? text = e.CitationForm.get_String(sortWs).Text;
+                text ??= e.LexemeFormOA.Form.get_String(sortWs).Text;
+                return text?.Trim(LcmHelpers.WhitespaceChars);
+            })
             .Skip(options.Offset)
             .Take(options.Count);
 

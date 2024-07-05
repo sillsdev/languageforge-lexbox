@@ -4,6 +4,7 @@
   import TestProjectView from './TestProjectView.svelte';
   import FwDataProjectView from './FwDataProjectView.svelte';
   import HomeView from './HomeView.svelte';
+  import Sandbox from './lib/sandbox/Sandbox.svelte';
 
   export let url = '';
 
@@ -28,6 +29,9 @@
     </Route>
     <Route path="/">
       <HomeView/>
+    </Route>
+    <Route path="/sandbox">
+      <Sandbox />
     </Route>
     <Route path="/*">
       {setTimeout(() => navigate("/", { replace: true }))}

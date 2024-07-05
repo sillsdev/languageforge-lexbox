@@ -6,7 +6,9 @@ import {
   type WritingSystemType,
   type WritingSystem,
   type LexboxApiClient,
-  type LexboxApiFeatures
+  type LexboxApiFeatures,
+  type PartOfSpeech,
+  type SemanticDomain
 } from 'viewer/lexbox-api';
 
 
@@ -53,6 +55,15 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     }
     /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     return '?' + params.toString();
+  }
+
+  async GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
+    const result = await fetch(`/api/lfclassic/${this.projectCode}/parts-of-speech`);
+    return (await result.json()) as PartOfSpeech[];
+  }
+
+  GetSemanticDomains(): Promise<SemanticDomain[]> {
+    return Promise.resolve([]);
   }
 
   CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {

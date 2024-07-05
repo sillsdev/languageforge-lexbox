@@ -11,8 +11,8 @@ const defaultI18n = {
   'note': 'Note',
   'definition': 'Definition',
   'gloss': 'Gloss',
-  'partOfSpeech': 'Grammatical Info.',
-  'semanticDomain': 'Semantic domain',
+  'partOfSpeechId': 'Grammatical Info.',
+  'semanticDomains': 'Semantic domain',
   'sentence': 'Sentence',
   'translation': 'Translation',
   'reference': 'Reference',
@@ -22,12 +22,12 @@ const defaultI18n = {
 const weSayI18n = {
   'lexemeForm': 'Word',
   'gloss': 'Definition',
-  'partOfSpeech': 'Part of speech',
+  'partOfSpeechId': 'Part of speech',
 };
 
 const languageForgeI18n = {
   'lexemeForm': 'Word',
-  'partOfSpeech': 'Part of speech',
+  'partOfSpeechId': 'Part of speech',
 };
 
 const i18nMap = ({

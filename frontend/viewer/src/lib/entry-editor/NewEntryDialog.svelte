@@ -6,7 +6,8 @@
   import {useLexboxApi} from '../services/service-provider';
   import { mdiBookPlusOutline } from '@mdi/js';
   import { defaultEntry } from '../utils';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, getContext } from 'svelte';
+  import type { SaveHandler } from '../services/save-event-service';
 
   const dispatch = createEventDispatcher<{
     created: { entry: IEntry};
@@ -16,11 +17,12 @@
   let entry: IEntry = defaultEntry();
 
   const lexboxApi = useLexboxApi();
+  const saveHandler = getContext<SaveHandler>('saveHandler');
 
   async function createEntry(e: Event, closeDialog: () => void) {
     e.preventDefault();
     loading = true;
-    await lexboxApi.CreateEntry(entry);
+    await saveHandler(() => lexboxApi.CreateEntry(entry));
     dispatch('created', {entry});
     loading = false;
     closeDialog();

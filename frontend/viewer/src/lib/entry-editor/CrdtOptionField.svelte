@@ -5,14 +5,12 @@
 
   export let value: string;
   export let unsavedChanges = false;
+  export let options: MenuOption[] | undefined = undefined;
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
-  export let readonly: true | undefined = undefined;
+  export let readonly: boolean | undefined = undefined;
   let append: HTMLElement;
-
-  let demoOptions: MenuOption[] | undefined;
-  $: demoOptions = demoOptions ?? [{label: value, value: value}, {label: 'Another option', value: 'Another option'}];
 </script>
 
 <CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
@@ -20,7 +18,7 @@
     on:change={(e) => onEditorValueChange(e.detail.value, true)}
     value={editorValue}
     disabled={readonly}
-    options={demoOptions ?? []}
+    {options}
     clearSearchOnOpen={false}
     clearable={false}
     search={() => Promise.resolve()}
