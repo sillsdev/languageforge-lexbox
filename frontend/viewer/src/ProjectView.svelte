@@ -231,13 +231,12 @@
 {:else}
 <div class="project-view !flex flex-col PortalTarget" style="{spaceForEditorStyle}">
   <AppBar title={projectName} class="bg-secondary min-h-12 shadow-md">
-    {#if showHomeButton}
-      <Button
-        slot="menuIcon"
-        icon={mdiHome}
-        on:click={() => navigate('/')}
-      />
-    {/if}
+    <Button
+      classes={{root: showHomeButton ? '' : 'hidden'}}
+      slot="menuIcon"
+      icon={mdiHome}
+      on:click={() => navigate('/')}
+    />
     <div class="flex-grow-0 flex-shrink-0 lg:hidden mx-2 sm:mr-0" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
