@@ -64,9 +64,12 @@ public class FwDataFactory(
         var (logger, projects) = ((ILogger<FwDataFactory>, HashSet<string>))state!;
         var name = lcmCache.ProjectId.Name;
         logger.LogInformation("Evicting project {ProjectFileName} from cache", name);
-        lcmCache.Dispose();
-        logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);
         projects.Remove((string)key);
+        if (!lcmCache.IsDisposed)
+        {
+            lcmCache.Dispose();
+            logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);
+        }
     }
 
     public void Dispose()
@@ -89,5 +92,20 @@ public class FwDataFactory(
             throw new InvalidOperationException("No project is set in the context.");
         }
         return GetFwDataMiniLcmApi(fwDataProject, true);
+    }
+
+    public void CloseCurrentProject()
+    {
+        var fwDataProject = context.Project;
+        if (fwDataProject is null) return;
+        CloseProject(fwDataProject);
+    }
+
+    private void CloseProject(FwDataProject project)
+    {
+        var cacheKey = CacheKey(project);
+        var lcmCache = cache.Get<LcmCache>(cacheKey);
+        if (lcmCache is null) return;
+        cache.Remove(cacheKey);
     }
 }

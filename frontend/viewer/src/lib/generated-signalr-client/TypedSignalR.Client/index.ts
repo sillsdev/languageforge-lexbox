@@ -203,11 +203,14 @@ class ILexboxClient_Binder implements ReceiverRegister<ILexboxClient> {
     public readonly register = (connection: HubConnection, receiver: ILexboxClient): Disposable => {
 
         const __onEntryUpdated = (...args: [Entry]) => receiver.OnEntryUpdated(...args);
+        const __onProjectClosed = () => receiver.OnProjectClosed();
 
         connection.on("OnEntryUpdated", __onEntryUpdated);
+        connection.on("OnProjectClosed", __onProjectClosed);
 
         const methodList: ReceiverMethod[] = [
-            { methodName: "OnEntryUpdated", method: __onEntryUpdated }
+            { methodName: "OnEntryUpdated", method: __onEntryUpdated },
+            { methodName: "OnProjectClosed", method: __onProjectClosed },
         ]
 
         return new ReceiverMethodSubscription(connection, methodList);

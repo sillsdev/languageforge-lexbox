@@ -9,6 +9,7 @@ namespace LocalWebApp.Hubs;
 public interface ILexboxClient
 {
     Task OnEntryUpdated(Entry entry);
+    Task OnProjectClosed();
 }
 
 public class CrdtMiniLcmApiHub(
