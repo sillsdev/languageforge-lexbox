@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { BadgeButton } from '$lib/components/Badges';
-  import { FormModal } from '$lib/components/modals';
   import { z } from 'zod';
-  import { _addProjectToOrg } from './+page';
+  import t from '$lib/i18n';
   import { Select } from '$lib/forms';
+  import { _addProjectToOrg } from './+page';
+  import type { Organization } from '$lib/gql/types';
+  import { FormModal } from '$lib/components/modals';
+  import { BadgeButton } from '$lib/components/Badges';
 
-  export let orgList;
+  export let orgList: Partial<Organization>[] = [];
   export let projectId: string;
 
   const schema = z.object({
@@ -30,14 +32,14 @@
 </script>
 
 <BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
-  {'Add Organization'}
+  {$t('project_page.add_org.add_button')}
 </BadgeButton>
 
 <FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{'Choose Organization'}</span>
+  <span slot="title">{$t('project_page.add_org.modal_title')}</span>
   <Select
     id="org"
-    label={'organization'}
+    label={$t('project_page.organizations')}
     bind:value={$form.orgId}
     error={errors.orgId}
     on:change
@@ -46,4 +48,5 @@
       <option value={org.id}>{org.name}</option>
     {/each}
   </Select>
+  <span slot="submitText">{$t('project_page.add_org.submit_button')}</span>
 </FormModal>
