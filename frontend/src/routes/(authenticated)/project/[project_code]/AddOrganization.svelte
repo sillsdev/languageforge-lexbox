@@ -42,7 +42,6 @@
     label={$t('project_page.organizations')}
     bind:value={$form.orgId}
     error={errors.orgId}
-    on:change
   >
     {#each orgList as org}
       <option value={org.id}>{org.name}</option>

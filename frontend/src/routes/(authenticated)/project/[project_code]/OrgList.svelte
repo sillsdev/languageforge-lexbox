@@ -3,7 +3,9 @@
   import { Badge, BadgeList } from '$lib/components/Badges';
   import type { Organization } from '$lib/gql/types';
 
-  export let organizations: Partial<Organization>[] = [];
+  type Org = Pick<Organization, 'id' | 'name'>;
+
+  export let organizations: Org[] = [];
 
   const TRUNCATED_MEMBER_COUNT = 5;
 </script>

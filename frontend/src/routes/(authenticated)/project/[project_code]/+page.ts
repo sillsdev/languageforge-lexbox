@@ -115,7 +115,7 @@ export async function load(event: PageLoadEvent) {
 
   let orgs;
   if (userIsAdmin) {
-  const orgsPromise = await client.query(graphql(`
+  const orgsResult = await client.query(graphql(`
         query loadOrgs {
             orgs {
                 id
@@ -123,9 +123,9 @@ export async function load(event: PageLoadEvent) {
             }
         }
      `), {}, { fetch: event.fetch });
-    orgs = orgsPromise.data?.orgs;
+    orgs = orgsResult.data?.orgs;
   } else {
-  const myOrgsPromise = await client.query(graphql(`
+  const myOrgsResult = await client.query(graphql(`
         query loadMyOrgs {
             myOrgs {
                 id
@@ -133,7 +133,7 @@ export async function load(event: PageLoadEvent) {
             }
         }
       `), {}, { fetch: event.fetch });
-    orgs = myOrgsPromise.data?.myOrgs;
+    orgs = myOrgsResult.data?.myOrgs;
   }
 
   return {
