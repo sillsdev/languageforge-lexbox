@@ -67,7 +67,9 @@ function getDefaults<T extends Record<string, unknown>>(
  * https://github.com/microsoft/TypeScript-DOM-lib-generator/issues/1568#issuecomment-1587963141
  */
 export function toSearchParams<T extends PrimitiveRecord>(params: T): string {
-  const searchParams = new URLSearchParams(params as unknown as Record<string, string>);
+  //filter out null values
+  const paramsWithoutNull = Object.fromEntries(Object.entries(params).filter(([_, v]) => v !== null));
+  const searchParams = new URLSearchParams(paramsWithoutNull as unknown as Record<string, string>);
   return searchParams.toString();
 }
 
