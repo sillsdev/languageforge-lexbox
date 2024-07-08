@@ -2,14 +2,11 @@
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
-using LexData;
-using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Services;
 
 public class PermissionService(
     LoggedInContext loggedInContext,
-    LexBoxDbContext dbContext,
     ProjectService projectService)
     : IPermissionService
 {
