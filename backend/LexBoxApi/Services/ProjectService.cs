@@ -137,6 +137,26 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         await dbContext.SaveChangesAsync();
     }
 
+    public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
+    {
+        var cacheKey = $"ProjectOrgsForId:{projectId}";
+        if (memoryCache.TryGetValue(cacheKey, out Guid[]? orgIds) && orgIds != null) return orgIds;
+        orgIds = await dbContext.Projects
+            .Include(p => p.Organizations)
+            .Where(p => p.Id == projectId)
+            .Select(p => p.Organizations.Select(o => o.Id).ToArray())
+            .FirstOrDefaultAsync();
+        if (orgIds is null) return [];
+        memoryCache.Set(cacheKey, orgIds, TimeSpan.FromHours(1));
+        return orgIds;
+    }
+
+    public void InvalidateProjectOrgIdsCache(Guid projectId)
+    {
+        try { memoryCache.Remove($"ProjectOrgsForId:{projectId}"); }
+        catch (Exception) { } // Never allow this to throw
+    }
+
     public async Task UpdateProjectMetadataForCode(string projectCode)
     {
         var project = await dbContext.Projects

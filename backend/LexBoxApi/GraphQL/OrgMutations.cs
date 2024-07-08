@@ -1,6 +1,7 @@
 ﻿using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models.Org;
+using LexBoxApi.Services;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -61,6 +62,7 @@ public class OrgMutations
     public async Task<IQueryable<Organization>> AddProjectToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
+        [Service] ProjectService projectService,
         Guid orgId,
         Guid projectId)
     {
@@ -81,6 +83,7 @@ public class OrgMutations
         project.Organizations.Add(org);
         project.UpdateUpdatedDate();
         org.UpdateUpdatedDate();
+        projectService.InvalidateProjectOrgIdsCache(projectId);
         await dbContext.SaveChangesAsync();
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
@@ -93,6 +96,7 @@ public class OrgMutations
     public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
+        [Service] ProjectService projectService,
         Guid orgId,
         Guid projectId)
     {
@@ -110,6 +114,7 @@ public class OrgMutations
             project.Organizations.Remove(foundOrg);
             project.UpdateUpdatedDate();
             org.UpdateUpdatedDate();
+            projectService.InvalidateProjectOrgIdsCache(projectId);
             await dbContext.SaveChangesAsync();
         }
         // If org did not own project, return with no error

@@ -19,16 +19,12 @@ public class PermissionService(
     {
         var project = await dbContext.Projects.Include(p => p.Organizations).Where(p => p.Id == projectId).FirstOrDefaultAsync();
         if (project is null) return false;
-        return ManagesOrgThatOwnsProject(project);
-    }
-
-    private bool ManagesOrgThatOwnsProject(Project project)
-    {
         if (User is not null && User.Orgs.Any(o => o.Role == OrgRole.Admin))
         {
             // Org admins can view, edit, and sync all projects, even confidential ones
             var managedOrgIds = User.Orgs.Where(o => o.Role == OrgRole.Admin).Select(o => o.OrgId).ToHashSet();
-            if (project.Organizations.Any(o => managedOrgIds.Contains(o.Id))) return true;
+            var projectOrgIds = await projectService.LookupProjectOrgIds(projectId);
+            if (projectOrgIds.Any(oId => managedOrgIds.Contains(oId))) return true;
         }
         return false;
     }
