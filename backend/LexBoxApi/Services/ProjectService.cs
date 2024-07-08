@@ -57,6 +57,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
+        InvalidateProjectOrgIdsCache(projectId);
         InvalidateProjectConfidentialityCache(projectId);
         await transaction.CommitAsync();
         return projectId;
@@ -141,15 +142,14 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
     {
         var cacheKey = $"ProjectOrgsForId:{projectId}";
-        if (memoryCache.TryGetValue(cacheKey, out Guid[]? orgIds) && orgIds != null) return orgIds;
+        if (memoryCache.TryGetValue(cacheKey, out Guid[]? orgIds)) return orgIds ?? [];
         orgIds = await dbContext.Projects
             .Include(p => p.Organizations)
             .Where(p => p.Id == projectId)
             .Select(p => p.Organizations.Select(o => o.Id).ToArray())
             .FirstOrDefaultAsync();
-        if (orgIds is null) return [];
         memoryCache.Set(cacheKey, orgIds, TimeSpan.FromHours(1));
-        return orgIds;
+        return orgIds ?? [];
     }
 
     public void InvalidateProjectOrgIdsCache(Guid projectId)
