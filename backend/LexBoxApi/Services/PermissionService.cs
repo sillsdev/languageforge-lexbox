@@ -17,8 +17,6 @@ public class PermissionService(
 
     private async ValueTask<bool> ManagesOrgThatOwnsProject(Guid projectId)
     {
-        var project = await dbContext.Projects.Include(p => p.Organizations).Where(p => p.Id == projectId).FirstOrDefaultAsync();
-        if (project is null) return false;
         if (User is not null && User.Orgs.Any(o => o.Role == OrgRole.Admin))
         {
             // Org admins can view, edit, and sync all projects, even confidential ones
