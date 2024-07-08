@@ -63,14 +63,10 @@ public class PermissionService(
     {
         if (User is not null && User.Role == UserRole.admin) return true;
         if (User is not null && User.Projects.Any(p => p.ProjectId == projectId)) return true;
-        var project = await dbContext.Projects.Include(p => p.Organizations).Where(p => p.Id == projectId).FirstOrDefaultAsync();
+        // Org admins can view all projects, even confidential ones
+        if (await ManagesOrgThatOwnsProject(projectId)) return true;
+        var project = await dbContext.Projects.FindAsync(projectId);
         if (project is null) return false;
-        if (User is not null && User.Orgs.Any(o => o.Role == OrgRole.Admin))
-        {
-            // Org admins can view all projects, even confidential ones
-            var managedOrgIds = User.Orgs.Where(o => o.Role == OrgRole.Admin).Select(o => o.OrgId).ToHashSet();
-            if (project.Organizations.Any(o => managedOrgIds.Contains(o.Id))) return true;
-        }
         if (project.IsConfidential is null) return false; // Private by default
         return project.IsConfidential == false; // Explicitly set to public
     }
