@@ -42,7 +42,7 @@
   <span slot="title">{$t('project_page.add_org.modal_title')}</span>
   <Select
     id="org"
-    label={$t('project_page.organizations')}
+    label={$t('project_page.organization.title')}
     bind:value={$form.orgId}
     error={errors.orgId}
   >
