@@ -148,6 +148,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
               name
               email
               isAdmin
+              emailVerified
             }
             errors {
                 __typename

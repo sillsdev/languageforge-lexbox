@@ -19,13 +19,14 @@
   const schema = z
     .object({
     email: z.string().email($t('form.invalid_email')).nullish(),
+    emailVerified: z.boolean(),
     name: z.string(),
     password: passwordFormRules($t).or(emptyString()).default(''),
     score: z.number(),
     role: z.enum([UserRole.User, UserRole.Admin]),
     })
   const refinedSchema = schema
-    .refine((data) => data.role !== UserRole.Admin || (data.email && _user.emailVerified), {
+    .refine((data) => data.role !== UserRole.Admin || (data.email && data.emailVerified), {
     message: $t('admin_dashboard.form_modal.role_label.verified_email_required_for_admin'),
     path: ['role'],
     });
@@ -48,7 +49,7 @@
     _user = user;
     userIsLocked = user.locked;
     const role = user.isAdmin ? UserRole.Admin : UserRole.User;
-    return await formModal.open({ name: user.name, email: user.email ?? null, role }, async () => {
+    return await formModal.open({ name: user.name, email: user.email ?? null, role, emailVerified: user.emailVerified }, async () => {
       const { error, data } = await _changeUserAccountByAdmin({
         userId: user.id,
         email: $form.email,
