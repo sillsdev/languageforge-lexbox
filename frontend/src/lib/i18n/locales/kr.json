@@ -299,7 +299,7 @@
       "user_must_be_verified": "사용자는 확인된 이메일 주소가 필요합니다",
       "manager_must_be_verified": "사용자는 관리자가 되려면 확인된 이메일 주소가 필요합니다",
       "user_already_member": "사용자는 이미 이 프로젝트의 멤버입니다",
-      "user_needs_to_relogin": "추가된 멤버는 프로젝트를 보기 전에 다시 로그아웃하고 다시 로그인해야 합니다.",
+      "user_needs_to_relogin": "추가된 멤버는 프로젝트를 보기 전에 로그아웃하고 다시 로그인해야 합니다.",
       "invalid_email_address": "잘못된 이메일 주소: {email}",
     },
     "bulk_add_members": {
@@ -360,7 +360,7 @@
       "promote_project": "프로젝트가 초안 상태에서 실제 프로젝트로 변경되었습니다.",
       "describe": "프로젝트 설명이 업데이트되었습니다.",
       "add_member": "{email}이(가) 프로젝트에 추가되었습니다.",
-      "member_invited": "{email}에게 프로젝트에 가입하라는 초대 이메일이 발송되었습니다."
+      "member_invited": "{email}에게 프로젝트 초대 이메일이 발송되었습니다."
     },
     "project_name_empty_error": "프로젝트 이름은 비워둘 수 없습니다",
     "confirm_remove": "{userName}을(를) 이 프로젝트에서 제거하시겠습니까?",
@@ -386,7 +386,7 @@
     "hg": {
       "open_in_hgweb": "HgWeb에서 열기",
       "no_history": "기록 없음",
-      "loading": "기록 로드 중...",
+      "loading": "기록 불러러오는 중...",
       "date_header": "날짜",
       "author_header": "작성자",
       "log_header": "메시지"
@@ -398,7 +398,7 @@
 1. \"인터넷을 통한 프로젝트 가져오기\" 대화 상자에서 Language Depot의 \"로그인\" ({login})과(와) \"비밀번호\"를 입력하고 \"로그인\"을 클릭하십시오\n\
 1. 나타나는 \"프로젝트 ID\" 필드에서 \"{code}\"를 선택하십시오\n\
 1. 컴퓨터에 폴더 이름을 입력하십시오 (예: \"{name}\")",
-      "instructions_flex_empty": "1. 컴퓨터에 [FLEx 다운로드](https://software.sil.org/fieldworks/download/)\n\
+      "instructions_flex_empty": "1. [FLEx 다운로드](https://software.sil.org/fieldworks/download/)\n\
 1. FLEx 응용 프로그램을 열고 \"새 프로젝트 생성...\"을 선택하십시오.\n\
 1. 필수 정보를 입력하십시오: 프로젝트 이름, 폴더 이름 (예: \"{name}\"), 등을 입력한 후 \"완료\"를 클릭하십시오.\n\
 1. 새 프로젝트가 열리면 \"송수신\" -> \"처음으로 이 프로젝트 전송\"을 클릭하십시오.\n\
