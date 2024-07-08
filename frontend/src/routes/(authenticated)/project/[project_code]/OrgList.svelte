@@ -12,7 +12,7 @@
 
 <div>
   <p class="text-2xl mb-4 flex items-baseline gap-4 max-sm:flex-col">
-    {$t('project_page.organizations')}
+    {$t('project_page.organization.title')}
   </p>
 
   <BadgeList grid={organizations.length > TRUNCATED_MEMBER_COUNT}>
