@@ -27,8 +27,6 @@
       })
       if (error?.byType('NotFoundError')) {
         if (error.message === 'Organization not found') return $t('project_page.add_org.org_not_found');
-      }
-      if (error?.byType('NotFoundError')) {
         if (error.message === 'Project not found') return $t('project_page.add_org.project_not_found');
       }
     });
