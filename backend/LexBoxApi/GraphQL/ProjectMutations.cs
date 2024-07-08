@@ -297,6 +297,7 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> SetProjectConfidentiality(SetProjectConfidentialityInput input,
         IPermissionService permissionService,
+        [Service] ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         await permissionService.AssertCanManageProject(input.ProjectId);
@@ -305,6 +306,7 @@ public class ProjectMutations
 
         project.IsConfidential = input.IsConfidential;
         project.UpdateUpdatedDate();
+        projectService.InvalidateProjectConfidentialityCache(input.ProjectId);
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
@@ -379,6 +381,7 @@ public class ProjectMutations
     public async Task<IQueryable<Project>> SoftDeleteProject(
         Guid projectId,
         IPermissionService permissionService,
+        [Service] ProjectService projectService,
         LexBoxDbContext dbContext,
         IHgService hgService)
     {
@@ -402,6 +405,7 @@ public class ProjectMutations
         using var transaction = await dbContext.Database.BeginTransactionAsync();
         await dbContext.SaveChangesAsync();
         await hgService.SoftDeleteRepo(projectCode, timestamp);
+        projectService.InvalidateProjectConfidentialityCache(projectId);
         await transaction.CommitAsync();
 
         return dbContext.Projects.Where(p => p.Id == projectId);

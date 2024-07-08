@@ -57,6 +57,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
+        InvalidateProjectConfidentialityCache(projectId);
         await transaction.CommitAsync();
         return projectId;
     }
@@ -154,6 +155,21 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     public void InvalidateProjectOrgIdsCache(Guid projectId)
     {
         try { memoryCache.Remove($"ProjectOrgsForId:{projectId}"); }
+        catch (Exception) { } // Never allow this to throw
+    }
+
+    public async ValueTask<bool?> LookupProjectConfidentiality(Guid projectId)
+    {
+        var cacheKey = $"ProjectConfidentiality:{projectId}";
+        if (memoryCache.TryGetValue(cacheKey, out bool? confidential)) return confidential;
+        var project = await dbContext.Projects.FindAsync(projectId);
+        memoryCache.Set(cacheKey, project?.IsConfidential, TimeSpan.FromHours(1));
+        return project?.IsConfidential;
+    }
+
+    public void InvalidateProjectConfidentialityCache(Guid projectId)
+    {
+        try { memoryCache.Remove($"ProjectConfidentiality:{projectId}"); }
         catch (Exception) { } // Never allow this to throw
     }
 

@@ -65,10 +65,9 @@ public class PermissionService(
         if (User is not null && User.Projects.Any(p => p.ProjectId == projectId)) return true;
         // Org admins can view all projects, even confidential ones
         if (await ManagesOrgThatOwnsProject(projectId)) return true;
-        var project = await dbContext.Projects.FindAsync(projectId);
-        if (project is null) return false;
-        if (project.IsConfidential is null) return false; // Private by default
-        return project.IsConfidential == false; // Explicitly set to public
+        var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
+        if (isConfidential is null) return false; // Private by default
+        return isConfidential == false; // Explicitly set to public
     }
 
     public async ValueTask AssertCanViewProject(Guid projectId)
