@@ -144,7 +144,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         var cacheKey = $"ProjectOrgsForId:{projectId}";
         if (memoryCache.TryGetValue(cacheKey, out Guid[]? orgIds)) return orgIds ?? [];
         orgIds = await dbContext.Projects
-            .Include(p => p.Organizations)
             .Where(p => p.Id == projectId)
             .Select(p => p.Organizations.Select(o => o.Id).ToArray())
             .FirstOrDefaultAsync();
