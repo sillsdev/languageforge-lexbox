@@ -96,6 +96,12 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return projectId;
     }
 
+    public void InvalidateProjectCodeCache(string projectCode)
+    {
+        try { memoryCache.Remove($"ProjectIdForCode:{projectCode}"); }
+        catch (Exception) { }; // Never allow this to throw
+    }
+
     public async Task<BackupExecutor?> BackupProject(string code)
     {
         var exists = await dbContext.Projects.Where(p => p.Code == code)
