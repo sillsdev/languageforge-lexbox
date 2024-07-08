@@ -52,6 +52,8 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
+        InvalidateProjectOrgIdsCache(projectId);
+        InvalidateProjectConfidentialityCache(projectId);
         await transaction.CommitAsync();
         return projectId;
     }
@@ -131,6 +133,39 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         project.ResetStatus = ResetStatus.None;
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
+    }
+
+    public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
+    {
+        var cacheKey = $"ProjectOrgsForId:{projectId}";
+        if (memoryCache.TryGetValue(cacheKey, out Guid[]? orgIds)) return orgIds ?? [];
+        orgIds = await dbContext.Projects
+            .Where(p => p.Id == projectId)
+            .Select(p => p.Organizations.Select(o => o.Id).ToArray())
+            .FirstOrDefaultAsync();
+        memoryCache.Set(cacheKey, orgIds, TimeSpan.FromHours(1));
+        return orgIds ?? [];
+    }
+
+    public void InvalidateProjectOrgIdsCache(Guid projectId)
+    {
+        try { memoryCache.Remove($"ProjectOrgsForId:{projectId}"); }
+        catch (Exception) { } // Never allow this to throw
+    }
+
+    public async ValueTask<bool?> LookupProjectConfidentiality(Guid projectId)
+    {
+        var cacheKey = $"ProjectConfidentiality:{projectId}";
+        if (memoryCache.TryGetValue(cacheKey, out bool? confidential)) return confidential;
+        var project = await dbContext.Projects.FindAsync(projectId);
+        memoryCache.Set(cacheKey, project?.IsConfidential, TimeSpan.FromHours(1));
+        return project?.IsConfidential;
+    }
+
+    public void InvalidateProjectConfidentialityCache(Guid projectId)
+    {
+        try { memoryCache.Remove($"ProjectConfidentiality:{projectId}"); }
+        catch (Exception) { } // Never allow this to throw
     }
 
     public async Task UpdateProjectMetadataForCode(string projectCode)

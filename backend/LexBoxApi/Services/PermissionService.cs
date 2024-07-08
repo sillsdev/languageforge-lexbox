@@ -2,23 +2,33 @@
 using LexCore.Auth;
 using LexCore.Entities;
 using LexCore.ServiceInterfaces;
-using LexData;
 
 namespace LexBoxApi.Services;
 
 public class PermissionService(
     LoggedInContext loggedInContext,
-    LexBoxDbContext dbContext,
     ProjectService projectService)
     : IPermissionService
 {
     private LexAuthUser? User => loggedInContext.MaybeUser;
 
+    private async ValueTask<bool> ManagesOrgThatOwnsProject(Guid projectId)
+    {
+        if (User is not null && User.Orgs.Any(o => o.Role == OrgRole.Admin))
+        {
+            // Org admins can view, edit, and sync all projects, even confidential ones
+            var managedOrgIds = User.Orgs.Where(o => o.Role == OrgRole.Admin).Select(o => o.OrgId).ToHashSet();
+            var projectOrgIds = await projectService.LookupProjectOrgIds(projectId);
+            if (projectOrgIds.Any(oId => managedOrgIds.Contains(oId))) return true;
+        }
+        return false;
+    }
+
     public async ValueTask<bool> CanSyncProject(string projectCode)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        return CanSyncProject(await projectService.LookupProjectId(projectCode));
+        return await CanSyncProjectAsync(await projectService.LookupProjectId(projectCode));
     }
 
     public bool CanSyncProject(Guid projectId)
@@ -29,24 +39,32 @@ public class PermissionService(
         return User.Projects.Any(p => p.ProjectId == projectId);
     }
 
+    public async ValueTask<bool> CanSyncProjectAsync(Guid projectId)
+    {
+        if (CanSyncProject(projectId)) return true;
+        // Org managers can sync any project owned by their org(s)
+        return await ManagesOrgThatOwnsProject(projectId);
+    }
+
     public async ValueTask AssertCanSyncProject(string projectCode)
     {
         if (!await CanSyncProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
-    public void AssertCanSyncProject(Guid projectId)
+    public async ValueTask AssertCanSyncProject(Guid projectId)
     {
-        if (!CanSyncProject(projectId)) throw new UnauthorizedAccessException();
+        if (!await CanSyncProjectAsync(projectId)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask<bool> CanViewProject(Guid projectId)
     {
         if (User is not null && User.Role == UserRole.admin) return true;
         if (User is not null && User.Projects.Any(p => p.ProjectId == projectId)) return true;
-        var project = await dbContext.Projects.FindAsync(projectId);
-        if (project is null) return false;
-        if (project.IsConfidential is null) return false; // Private by default
-        return project.IsConfidential == false; // Explicitly set to public
+        // Org admins can view all projects, even confidential ones
+        if (await ManagesOrgThatOwnsProject(projectId)) return true;
+        var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
+        if (isConfidential is null) return false; // Private by default
+        return isConfidential == false; // Explicitly set to public
     }
 
     public async ValueTask AssertCanViewProject(Guid projectId)
@@ -65,22 +83,23 @@ public class PermissionService(
         if (!await CanViewProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
-    public bool CanManageProject(Guid projectId)
+    public async ValueTask<bool> CanManageProject(Guid projectId)
     {
         if (User is null) return false;
         if (User.Role == UserRole.admin) return true;
-        return User.Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager);
+        if (User.Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager)) return true;
+        return await ManagesOrgThatOwnsProject(projectId);
     }
 
-    public void AssertCanManageProject(Guid projectId)
+    public async ValueTask AssertCanManageProject(Guid projectId)
     {
-        if (!CanManageProject(projectId)) throw new UnauthorizedAccessException();
+        if (!await CanManageProject(projectId)) throw new UnauthorizedAccessException();
     }
 
-    public void AssertCanManageProjectMemberRole(Guid projectId, Guid userId)
+    public async ValueTask AssertCanManageProjectMemberRole(Guid projectId, Guid userId)
     {
         if (User is null) throw new UnauthorizedAccessException();
-        AssertCanManageProject(projectId);
+        await AssertCanManageProject(projectId);
         if (User.Role != UserRole.admin && userId == User.Id)
             throw new UnauthorizedAccessException("Not allowed to change own project role.");
     }

@@ -21,14 +21,14 @@ public static class Utils
         return sendReceiveParams;
     }
 
-    public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, [CallerMemberName] string projectName = "")
+    public static ProjectConfig GetNewProjectConfig(HgProtocol? protocol = null, bool isConfidential = false, Guid? owningOrgId = null, [CallerMemberName] string projectName = "")
     {
         if (protocol.HasValue) projectName += $" ({protocol.Value.ToString()[..5]})";
         var id = Guid.NewGuid();
         var shortId = id.ToString().Split("-")[0];
         var projectCode = $"{ToProjectCodeFriendlyString(projectName)}-{shortId}-dev-flex";
         var dir = GetNewProjectDir(projectCode, "");
-        return new ProjectConfig(id, projectName, projectCode, dir);
+        return new ProjectConfig(id, projectName, projectCode, dir, isConfidential, owningOrgId);
     }
 
     public static async Task<LexboxProject> RegisterProjectInLexBox(
@@ -43,8 +43,9 @@ public static class Utils
                     type: FL_EX,
                     id: "{{config.Id}}",
                     code: "{{config.Code}}",
-                    isConfidential: false,
+                    isConfidential: {{config.IsConfidential.ToString().ToLowerInvariant()}},
                     description: "Project created by an integration test",
+                    owningOrgId: {{(config.OwningOrgId is null ? "null" : "\"" + config.OwningOrgId.ToString() + "\"")}}
                     retentionPolicy: DEV
                 }) {
                     createProjectResponse {
@@ -121,7 +122,7 @@ public record ProjectPath(string Code, string Dir)
     public string FwDataFile { get; } = Path.Join(Dir, $"{Code}.fwdata");
 }
 
-public record ProjectConfig(Guid Id, string Name, string Code, string Dir) : ProjectPath(Code, Dir)
+public record ProjectConfig(Guid Id, string Name, string Code, string Dir, bool IsConfidential, Guid? OwningOrgId) : ProjectPath(Code, Dir)
 {
-    public ProjectConfig(Guid id, string name, ProjectPath config) : this(id, name, config.Code, config.Dir) { }
+    public ProjectConfig(Guid id, string name, ProjectPath config, bool isConfidential, Guid? owningOrgId) : this(id, name, config.Code, config.Dir, isConfidential, owningOrgId) { }
 }

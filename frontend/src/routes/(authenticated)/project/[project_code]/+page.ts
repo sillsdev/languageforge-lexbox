@@ -47,6 +47,9 @@ export async function load(event: PageLoadEvent) {
 						retentionPolicy
 						isConfidential
             isLanguageForgeProject
+						organizations {
+							id
+						}
 						users {
 							id
 							role

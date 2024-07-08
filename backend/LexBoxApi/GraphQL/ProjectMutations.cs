@@ -75,7 +75,7 @@ public class ProjectMutations
         LexBoxDbContext dbContext,
         [Service] IEmailService emailService)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
@@ -231,7 +231,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProjectMemberRole(input.ProjectId, input.UserId);
+        await permissionService.AssertCanManageProjectMemberRole(input.ProjectId, input.UserId);
         var projectUser =
             await dbContext.ProjectUsers
                 .Include(r => r.Project)
@@ -259,7 +259,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
 
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
@@ -280,7 +280,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
 
@@ -297,14 +297,16 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> SetProjectConfidentiality(SetProjectConfidentialityInput input,
         IPermissionService permissionService,
+        [Service] ProjectService projectService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
 
         project.IsConfidential = input.IsConfidential;
         project.UpdateUpdatedDate();
+        projectService.InvalidateProjectConfidentialityCache(input.ProjectId);
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
@@ -340,7 +342,7 @@ public class ProjectMutations
         IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
-        permissionService.AssertCanManageProject(input.ProjectId);
+        await permissionService.AssertCanManageProject(input.ProjectId);
         await dbContext.ProjectUsers.Where(pu => pu.ProjectId == input.ProjectId && pu.UserId == input.UserId)
             .ExecuteDeleteAsync();
         // Not doing .Include() above because we don't want the project or user removed, just the many-to-many table row
@@ -379,10 +381,11 @@ public class ProjectMutations
     public async Task<IQueryable<Project>> SoftDeleteProject(
         Guid projectId,
         IPermissionService permissionService,
+        [Service] ProjectService projectService,
         LexBoxDbContext dbContext,
         IHgService hgService)
     {
-        permissionService.AssertCanManageProject(projectId);
+        await permissionService.AssertCanManageProject(projectId);
 
         var project = await dbContext.Projects.Include(p => p.Users).FirstOrDefaultAsync(p => p.Id == projectId);
         if (project is null)
@@ -402,6 +405,7 @@ public class ProjectMutations
         using var transaction = await dbContext.Database.BeginTransactionAsync();
         await dbContext.SaveChangesAsync();
         await hgService.SoftDeleteRepo(projectCode, timestamp);
+        projectService.InvalidateProjectConfidentialityCache(projectId);
         await transaction.CommitAsync();
 
         return dbContext.Projects.Where(p => p.Id == projectId);
