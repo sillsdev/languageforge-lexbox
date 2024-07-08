@@ -145,6 +145,7 @@ type DraftProject {
   retentionPolicy: RetentionPolicy!
   projectManager: User
   projectManagerId: UUID
+  orgId: UUID
   isConfidential: Boolean
   id: UUID!
   createdDate: DateTime!
@@ -588,6 +589,7 @@ input CreateProjectInput {
   isConfidential: Boolean!
   owningOrgId: UUID
   projectManagerId: UUID
+  orgId: UUID
 }
 
 input DateTimeOperationFilterInput {
@@ -627,6 +629,7 @@ input DraftProjectFilterInput {
   retentionPolicy: RetentionPolicyOperationFilterInput
   projectManager: UserFilterInput
   projectManagerId: UuidOperationFilterInput
+  orgId: UuidOperationFilterInput
   isConfidential: BooleanOperationFilterInput
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
@@ -641,6 +644,7 @@ input DraftProjectSortInput {
   retentionPolicy: SortEnumType
   projectManager: UserSortInput
   projectManagerId: SortEnumType
+  orgId: SortEnumType
   isConfidential: SortEnumType
   id: SortEnumType
   createdDate: SortEnumType

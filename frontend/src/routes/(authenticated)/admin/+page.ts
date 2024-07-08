@@ -84,6 +84,7 @@ export async function load(event: PageLoadEvent) {
               retentionPolicy
               isConfidential
               projectManagerId
+              orgId
             }
         }
     `), { withDeletedProjects, projectFilter, draftFilter });
