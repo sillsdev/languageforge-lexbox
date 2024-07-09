@@ -204,4 +204,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
-          path: ./playwright-traces.7z
+          path: |
+            ./playwright-traces.7z
+            ./frontend/test-results/
