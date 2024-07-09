@@ -154,6 +154,10 @@ public class UserMutations
                     }
                     wasPromotedToAdmin = user.IsAdmin = true;
                 }
+                if (user.IsAdmin && adminInput.Role == UserRole.user)
+                {
+                    user.IsAdmin = false;
+                }
             }
         }
         else if (input is ChangeUserAccountBySelfInput selfInput)
@@ -180,7 +184,6 @@ public class UserMutations
             ArgumentException.ThrowIfNullOrEmpty(user.Email);
             await emailService.SendNewAdminEmail(admins, user.Name, user.Email);
         }
-
         return user;
     }
 
