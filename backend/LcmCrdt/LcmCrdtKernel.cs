@@ -24,9 +24,9 @@ public static class LcmCrdtKernel
     {
         LinqToDBForEFTools.Initialize();
         services.AddMemoryCache();
+        services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
 
-        services.AddCrdtData(
-            ConfigureDbOptions,
+        services.AddCrdtData<LcmCrdtDbContext>(
             ConfigureCrdt
         );
         services.AddScoped<MiniLcm.ILexboxApi, CrdtLexboxApi>();
@@ -61,19 +61,7 @@ public static class LcmCrdtKernel
     private static void ConfigureCrdt(CrdtConfig config)
     {
         config.EnableProjectedTables = true;
-        config.ObjectTypeListBuilder.AddDbModelConfig(builder =>
-            {
-                builder.Entity<ProjectData>().HasKey(p => p.Id);
-                // builder.Owned<MultiString>();
-            })
-            .AddDbModelConvention(builder =>
-            {
-                builder.Properties<MiniLcm.MultiString>()
-                    .HaveColumnType("jsonb")
-                    .HaveConversion<MultiStringDbConverter>();
-                builder.Properties<MiniLcm.WritingSystemId>()
-                    .HaveConversion<WritingSystemIdConverter>();
-            })
+        config.ObjectTypeListBuilder
             .Add<Entry>(builder =>
             {
                 // builder.OwnsOne(e => e.Note, n => n.ToJson());
@@ -127,13 +115,4 @@ public static class LcmCrdtKernel
             .Add<CreateSemanticDomainChange>()
             .Add<CreateWritingSystemChange>();
     }
-
-
-    private class MultiStringDbConverter() : ValueConverter<MiniLcm.MultiString, string>(
-        mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
-        json => JsonSerializer.Deserialize<MiniLcm.MultiString>(json, (JsonSerializerOptions?)null) ?? new());
-
-    private class WritingSystemIdConverter() : ValueConverter<MiniLcm.WritingSystemId, string>(
-        id => id.Code,
-        code => new MiniLcm.WritingSystemId(code));
 }

@@ -1,6 +1,7 @@
 ﻿using Crdt.Changes;
 using Crdt.Core;
 using Crdt.Db;
+using LcmCrdt;
 using LocalWebApp.Hubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -22,7 +23,7 @@ public static class ActivityRoutes
             return operation;
         });
         group.MapGet("/",
-            (CrdtDbContext dbcontext) =>
+            (ICrdtDbContext dbcontext) =>
             {
                 return dbcontext.Commits.DefaultOrder().Take(10).Select(c => new Activity(c.Id, c.HybridDateTime.DateTime, ChangeName(c.ChangeEntities), c.ChangeEntities)).AsAsyncEnumerable();
             });

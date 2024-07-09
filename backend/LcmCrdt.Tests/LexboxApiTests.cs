@@ -20,7 +20,7 @@ public class BasicApiTests : IAsyncLifetime
 
     protected readonly AsyncServiceScope _services;
     public DataModel DataModel = null!;
-    private readonly CrdtDbContext _crdtDbContext;
+    private readonly LcmCrdtDbContext _crdtDbContext;
 
     public BasicApiTests()
     {
@@ -30,7 +30,7 @@ public class BasicApiTests : IAsyncLifetime
             .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
-        _crdtDbContext = _services.ServiceProvider.GetRequiredService<CrdtDbContext>();
+        _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
     }
 
     public virtual async Task InitializeAsync()

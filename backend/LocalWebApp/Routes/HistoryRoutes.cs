@@ -23,7 +23,7 @@ public static class HistoryRoutes
             return operation;
         });
         group.MapGet("/snapshot/{snapshotId:guid}",
-            async (Guid snapshotId, CrdtDbContext dbcontext) =>
+            async (Guid snapshotId, ICrdtDbContext dbcontext) =>
             {
                 return await dbcontext.Snapshots.Where(s => s.Id == snapshotId).SingleOrDefaultAsync();
             });
@@ -35,12 +35,12 @@ public static class HistoryRoutes
                 return await dataModel.GetEntitySnapshotAtTime(new DateTimeOffset(timestamp), entityId);
             });
         group.MapGet("/{entityId}",
-            (Guid entityId, CrdtDbContext dbcontext) =>
+            (Guid entityId, ICrdtDbContext dbcontext) =>
             {
                 var query = from commit in dbcontext.Commits.DefaultOrder()
                     from snapshot in dbcontext.Snapshots.LeftJoin(
                         s => s.CommitId == commit.Id && s.EntityId == entityId)
-                    from change in dbcontext.ChangeEntities.LeftJoin(c =>
+                    from change in dbcontext.Set<ChangeEntity<IChange>>().LeftJoin(c =>
                         c.CommitId == commit.Id && c.EntityId == entityId)
                     where snapshot.Id != null || change.EntityId != null
                     select new HistoryLineItem(commit.Id,

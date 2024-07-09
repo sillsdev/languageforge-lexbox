@@ -23,10 +23,9 @@ public static class TestRoutes
             return operation;
         });
         group.MapGet("/entries",
-            (CrdtDbContext dbContext, ILexboxApi api) =>
+            (ILexboxApi api) =>
             {
                 return api.GetEntries();
-                return dbContext.Set<Entry>().Take(1000).AsAsyncEnumerable();
             });
         return group;
     }
