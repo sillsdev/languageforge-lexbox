@@ -100,9 +100,10 @@ public class EmailService(
     /// <param name="emailAddress">The email address to send the invitation to</param>
     /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
-    public async Task SendCreateAccountEmail(string emailAddress,
+    public async Task SendCreateAccountEmail(
+        string emailAddress,
         string managerName,
-        Guid orgId,
+        Guid? orgId,
         Guid? projectId,
         ProjectRole? role,
         string? projectName,
@@ -122,7 +123,7 @@ public class EmailService(
             Locale = language,
             Locked = null,
             Projects = [new AuthUserProject(role ?? ProjectRole.Unknown, projectId ?? Guid.Empty)],
-            Orgs = [new AuthUserOrg(OrgRole.Unknown, orgId)],
+            Orgs = [new AuthUserOrg(OrgRole.Unknown, orgId ?? Guid.Empty)],
         },
             useEmailLifetime: true
         );

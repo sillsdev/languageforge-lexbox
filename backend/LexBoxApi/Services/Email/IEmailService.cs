@@ -30,7 +30,7 @@ public interface IEmailService
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
     public Task SendCreateAccountEmail(string emailAddress,
         string managerName,
-        Guid orgId,
+        Guid? orgId,
         Guid? projectId,
         ProjectRole? role,
         string? projectName,

@@ -2,6 +2,7 @@
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models.Org;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -136,14 +137,44 @@ public class OrgMutations
     [UseProjection]
     public async Task<IQueryable<Organization>> SetOrgMemberRole(
         LexBoxDbContext dbContext,
+        LoggedInContext loggedInContext,
         IPermissionService permissionService,
         Guid orgId,
         OrgRole? role,
-        string emailOrUsername)
+        string emailOrUsername,
+        [Service] IEmailService emailService)
     {
+        //TODO: Add AssertCanManageOrg() to permission service?
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
         var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
-        NotFoundException.ThrowIfNull(user); // TODO: Implement inviting user
-        return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+        NotFoundException.ThrowIfNull(user);
+        if (user is null)
+        {
+            var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(emailOrUsername);
+            if (email is null)
+            {
+                throw NotFoundException.ForType<User>();
+            }
+            else
+            {
+                var manager = loggedInContext.User;
+                // There should be a way of doing this without having to pass in all these null values.
+                await emailService.SendCreateAccountEmail(
+                    email,
+                    manager.Name,
+                    orgId: orgId,
+                    projectId: Guid.Empty,
+                    role: null,
+                    projectName: "");
+                throw new ProjectMemberInvitedByEmail("Invitation email sent");
+            }
+        }
+        else if (user.Organizations.Any(o => o.OrgId == orgId))
+        {
+            return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+        }
+        return dbContext.Orgs.Where(o => o.Id == orgId);
     }
 
     /// <summary>
