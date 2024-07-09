@@ -13,7 +13,6 @@ using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Net.Mail;
 using LexBoxApi.Services.Email;
 
 namespace LexBoxApi.GraphQL;
@@ -69,7 +68,8 @@ public class ProjectMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Project>> AddProjectMember(IPermissionService permissionService,
+    public async Task<IQueryable<Project>> AddProjectMember(
+        IPermissionService permissionService,
         LoggedInContext loggedInContext,
         AddProjectMemberInput input,
         LexBoxDbContext dbContext,
@@ -81,7 +81,7 @@ public class ProjectMutations
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
         if (user is null)
         {
-            var (_, email, _) = ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail);
+            var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail);
             // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
             if (email is null)
             {
@@ -140,7 +140,7 @@ public class ProjectMutations
             if (user is null)
             {
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-                var (name, email, username) = ExtractNameAndAddressFromUsernameOrEmail(usernameOrEmail);
+                var (name, email, username) = UserService.ExtractNameAndAddressFromUsernameOrEmail(usernameOrEmail);
                 user = new User
                 {
                     Id = Guid.NewGuid(),
@@ -186,37 +186,6 @@ public class ProjectMutations
         }
         await dbContext.SaveChangesAsync();
         return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
-    }
-
-    public static (string name, string? email, string? username) ExtractNameAndAddressFromUsernameOrEmail(string usernameOrEmail)
-    {
-        var isEmailAddress = usernameOrEmail.Contains('@');
-        string name;
-        string? email;
-        string? username;
-        if (isEmailAddress)
-        {
-            try
-            {
-                var parsed = new MailAddress(usernameOrEmail);
-                email = parsed.Address;
-                username = null;
-                name = parsed.DisplayName;
-                if (string.IsNullOrEmpty(name)) name = email.Split('@')[0];
-            }
-            catch (FormatException)
-            {
-                // FormatException message from .NET talks about mail headers, which is confusing here
-                throw new InvalidEmailException("Invalid email address", usernameOrEmail);
-            }
-        }
-        else
-        {
-            username = usernameOrEmail;
-            email = null;
-            name = username;
-        }
-        return (name, email, username);
     }
 
     [Error<NotFoundException>]
