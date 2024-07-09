@@ -43,6 +43,8 @@
   import { DetailItem, EditableDetailItem } from '$lib/layout';
   import MembersList from './MembersList.svelte';
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
+  import OrgList from './OrgList.svelte';
+  import AddOrganization from './AddOrganization.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -343,6 +345,16 @@
     </svelte:fragment>
 
     <div class="space-y-4">
+      <OrgList
+        organizations={project.organizations}
+      >
+        <svelte:fragment slot="extraButtons">
+          {#if canManage}
+            <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
+          {/if}
+        </svelte:fragment>
+      </OrgList>
+
       <MembersList
         projectId={project.id}
         {members}
