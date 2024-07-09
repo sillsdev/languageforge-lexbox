@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace LcmCrdt;
 
-public class LcmCrdtDbContext(IOptions<CrdtConfig> options): DbContext, ICrdtDbContext
+public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOptions, IOptions<CrdtConfig> options): DbContext(dbContextOptions), ICrdtDbContext
 {
     public DbSet<ProjectData> ProjectData => Set<ProjectData>();
 
