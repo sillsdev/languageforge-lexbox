@@ -2,14 +2,15 @@
   import { z } from 'zod';
   import t from '$lib/i18n';
   import { Select } from '$lib/forms';
-  import { _addProjectToOrg } from './+page';
+  import { _addProjectToOrg, _getOrgs } from './+page';
   import type { Organization } from '$lib/gql/types';
   import { FormModal } from '$lib/components/modals';
   import { BadgeButton } from '$lib/components/Badges';
 
   type Org = Pick<Organization, 'id' | 'name'>;
-  export let orgList: Org[] = [];
   export let projectId: string;
+  export let userIsAdmin: boolean;
+  let orgList: Org[] = [];
 
   const schema = z.object({
     orgId: z.string().trim()
@@ -20,6 +21,8 @@
   $: form = formModal?.form();
 
   async function openModal(): Promise<void> {
+    orgList = await _getOrgs(userIsAdmin);
+
     await formModal.open(async () => {
       const { error } = await _addProjectToOrg({
         projectId,

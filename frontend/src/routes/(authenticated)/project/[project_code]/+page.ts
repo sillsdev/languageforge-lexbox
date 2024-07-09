@@ -14,6 +14,7 @@ import type {
   ChangeProjectNameMutation,
   DeleteProjectUserMutation,
   LeaveProjectMutation,
+  Organization,
   ProjectPageQuery,
   SetProjectConfidentialityInput,
   SetProjectConfidentialityMutation,
@@ -28,6 +29,7 @@ import { tryMakeNonNullable } from '$lib/util/store';
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
 export type User = ProjectUser['user'];
+export type Org = Pick<Organization, 'id' | 'name'>;
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
@@ -113,31 +115,7 @@ export async function load(event: PageLoadEvent) {
 
   event.depends(`project:${projectCode}`);
 
-  let orgs;
-  if (userIsAdmin) {
-  const orgsResult = await client.query(graphql(`
-        query loadOrgs {
-            orgs {
-                id
-                name
-            }
-        }
-     `), {}, { fetch: event.fetch });
-    orgs = orgsResult.data?.orgs;
-  } else {
-  const myOrgsResult = await client.query(graphql(`
-        query loadMyOrgs {
-            myOrgs {
-                id
-                name
-            }
-        }
-      `), {}, { fetch: event.fetch });
-    orgs = myOrgsResult.data?.myOrgs;
-  }
-
   return {
-    myOrgs: orgs,
     project: nonNullableProject,
     changesets: {
       //this is to ensure that the store is pausable
@@ -149,6 +127,31 @@ export async function load(event: PageLoadEvent) {
     },
     code: projectCode,
   };
+}
+
+export async function _getOrgs(userIsAdmin: boolean): Promise<Org[]> {
+  const client = getClient();
+  if (userIsAdmin) {
+    const orgsResult = await client.query(graphql(`
+          query loadOrgs {
+              orgs {
+                  id
+                  name
+              }
+          }
+      `), {}, {});
+    return orgsResult.data?.orgs ?? [];
+  } else {
+    const myOrgsResult = await client.query(graphql(`
+          query loadMyOrgs {
+              myOrgs {
+                  id
+                  name
+              }
+          }
+        `), {}, {});
+    return myOrgsResult.data?.myOrgs ?? [];
+  }
 }
 
 export async function _addProjectToOrg(input: AddProjectToOrgInput): $OpResult<AddProjectToOrgMutation> {

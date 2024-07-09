@@ -50,7 +50,6 @@
   $: user = data.user;
   let projectStore = data.project;
   $: project = $projectStore;
-  $: orgList = data.myOrgs;
   $: changesetStore = data.changesets;
   let isEmpty: boolean = false;
   $: isEmpty = project?.lastCommit == null;
@@ -350,7 +349,7 @@
       >
         <svelte:fragment slot="extraButtons">
           {#if canManage}
-            <AddOrganization {orgList} projectId={project.id} />
+            <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
           {/if}
         </svelte:fragment>
       </OrgList>
