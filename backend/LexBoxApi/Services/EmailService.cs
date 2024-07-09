@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+// using System.Text.Json.Serialization; This is not being used.
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.Jobs;
@@ -48,7 +48,7 @@ public class EmailService(
             new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
         await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink, lifetime), user.LocalizationCode);
-        await SendEmailWithRetriesAsync(email, retryCount:5, retryWaitSeconds:30);
+        await SendEmailWithRetriesAsync(email, retryCount: 5, retryWaitSeconds: 30);
     }
 
     public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail)
@@ -73,9 +73,10 @@ public class EmailService(
     public async Task SendVerifyAddressEmail(User user, string? newEmail = null)
     {
         var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser(user)
-            {
-                EmailVerificationRequired = null, Email = newEmail ?? user.Email,
-            },
+        {
+            EmailVerificationRequired = null,
+            Email = newEmail ?? user.Email,
+        },
             useEmailLifetime: true
         );
         var email = StartUserEmail(user, newEmail);
@@ -100,27 +101,29 @@ public class EmailService(
     /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
     public async Task SendCreateAccountEmail(string emailAddress,
-        Guid projectId,
-        ProjectRole role,
         string managerName,
-        string projectName,
+        Guid orgId,
+        Guid? projectId,
+        ProjectRole? role,
+        string? projectName,
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
         var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser()
-            {
-                Id = Guid.NewGuid(),
-                Audience = LexboxAudience.RegisterAccount,
-                Name = "",
-                Email = emailAddress,
-                EmailVerificationRequired = null,
-                Role = UserRole.user,
-                UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
-                Projects = [new AuthUserProject(role, projectId)],
-                CanCreateProjects = null,
-                Locale = language,
-                Locked = null,
-            },
+        {
+            Id = Guid.NewGuid(),
+            Audience = LexboxAudience.RegisterAccount,
+            Name = "",
+            Email = emailAddress,
+            EmailVerificationRequired = null,
+            Role = UserRole.user,
+            UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+            CanCreateProjects = null,
+            Locale = language,
+            Locked = null,
+            Projects = [new AuthUserProject(role ?? ProjectRole.Unknown, projectId ?? Guid.Empty)],
+            Orgs = [new AuthUserOrg(OrgRole.Unknown, orgId)],
+        },
             useEmailLifetime: true
         );
         var email = StartUserEmail(name: "", emailAddress);
@@ -134,7 +137,7 @@ public class EmailService(
             new { jwt, returnTo });
 
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
-        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink, lifetime), language);
+        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString() ?? "", managerName, projectName ?? "", registerLink, lifetime), language);
         await SendEmailAsync(email);
 
     }
