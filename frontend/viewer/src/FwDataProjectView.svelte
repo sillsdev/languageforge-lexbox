@@ -46,7 +46,7 @@
             AppNotification.display('Project closed on another tab', 'warning', 'long');
             break;
           case CloseReason.Locked:
-            AppNotification.displayAction('Project closed because it was locked', 'warning', {
+            AppNotification.displayAction('The project is open in FieldWorks. Please close it and try again.', 'warning', {
               label: 'Retry',
               callback: () => connected = true
             });
@@ -55,10 +55,10 @@
       }
     },
     (errorContext) => {
-
       connected = false;
       if (errorContext.error instanceof Error) {
         let message = errorContext.error.message;
+        if (message.includes('The project is locked')) return; //handled via the project closed callback
         AppNotification.display('Connection error: ' + message, 'error', 'long');
       } else {
         AppNotification.display('Unknown Connection error', 'error', 'long');
