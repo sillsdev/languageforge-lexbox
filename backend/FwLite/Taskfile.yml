@@ -28,6 +28,9 @@ tasks:
     dir: ./LocalWebApp
     deps: [ ui:build-viewer-app ]
     cmd: dotnet publish -r win-x64
+  publish-local-win-arm:
+    dir: ./LocalWebApp
+    cmd: dotnet publish -r win-arm64
   publish-local-linux:
     dir: ./LocalWebApp
     cmd: dotnet publish -r linux-x64
