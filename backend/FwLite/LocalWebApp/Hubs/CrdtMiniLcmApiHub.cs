@@ -6,17 +6,11 @@ using SystemTextJsonPatch;
 
 namespace LocalWebApp.Hubs;
 
-public interface ILexboxClient
-{
-    Task OnEntryUpdated(Entry entry);
-    Task OnProjectClosed();
-}
-
 public class CrdtMiniLcmApiHub(
     ILexboxApi lexboxApi,
     IOptions<JsonOptions> jsonOptions,
     BackgroundSyncService backgroundSyncService,
-    SyncService syncService) : Hub<ILexboxClient>
+    SyncService syncService) : Hub<ILexboxHubClient>
 {
     public const string ProjectRouteKey = "project";
     public override async Task OnConnectedAsync()

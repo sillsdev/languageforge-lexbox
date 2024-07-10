@@ -6,6 +6,7 @@ using LocalWebApp.Hubs;
 using LocalWebApp.Auth;
 using LocalWebApp.Routes;
 using LocalWebApp.Utils;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
 
@@ -25,7 +26,10 @@ builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b19
 builder.Services.AddLocalAppServices(builder.Environment);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR().AddJsonProtocol();
+builder.Services.AddSignalR(options =>
+{
+    options.AddFilter(new LockedProjectFilter());
+}).AddJsonProtocol();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
