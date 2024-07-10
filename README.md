@@ -4,8 +4,9 @@
 
 ## Repo Structure
 
-* backend - dotnet API
-* frontend - SvelteKit app
+* [backend](backend/README.md) - dotnet API
+* [backend/FwLite](backend/FwLite/README.md) - FieldWorks lite application
+* [frontend](frontend/README.md) - SvelteKit app
 * hgweb - hgweb Dockerfile and config
 * otel - Open Telemetry collector config
 * deployment - k8s config for production, staging, develop and local development environments

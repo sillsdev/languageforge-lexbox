@@ -587,7 +587,6 @@ input CreateProjectInput {
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
   isConfidential: Boolean!
-  owningOrgId: UUID
   projectManagerId: UUID
   orgId: UUID
 }
