@@ -14,7 +14,8 @@ export enum WritingSystemType {
 export interface LexboxApiFeatures {
   history?: boolean;
   write?: boolean;
-};
+  openWithFlex?: boolean;
+}
 
 export interface LexboxApi {
   GetWritingSystems(): Promise<WritingSystems>;

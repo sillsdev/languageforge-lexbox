@@ -70,6 +70,7 @@ app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/f
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();
+app.MapFwIntegrationRoutes();
 app.MapTest();
 app.MapImport();
 app.MapAuthRoutes();
