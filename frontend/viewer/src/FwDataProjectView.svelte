@@ -23,7 +23,6 @@
         console.error('Failed to start the connection:', err);
       });
   }
-
   connect();
   onDestroy(() => connection.stop());
   connection.onclose(error => {
@@ -54,7 +53,18 @@
             break;
         }
       }
-    });
+    },
+    (errorContext) => {
+
+      connected = false;
+      if (errorContext.error instanceof Error) {
+        let message = errorContext.error.message;
+        AppNotification.display('Connection error: ' + message, 'error', 'long');
+      } else {
+        AppNotification.display('Unknown Connection error', 'error', 'long');
+      }
+    }
+  );
   let connected = false;
 </script>
 <ProjectView {projectName} isConnected={connected}></ProjectView>

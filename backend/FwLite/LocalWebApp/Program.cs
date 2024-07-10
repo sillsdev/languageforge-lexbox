@@ -29,6 +29,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR(options =>
 {
     options.AddFilter(new LockedProjectFilter());
+    options.EnableDetailedErrors = true;
 }).AddJsonProtocol();
 
 var app = builder.Build();
