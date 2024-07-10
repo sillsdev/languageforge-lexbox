@@ -6,7 +6,6 @@
 
 * backend - dotnet API
 * frontend - SvelteKit app
-* hasura - Hasura metadata (currently not in use)
 * hgweb - hgweb Dockerfile and config
 * otel - Open Telemetry collector config
 * deployment - k8s config for production, staging, develop and local development environments
@@ -115,31 +114,6 @@ The following users are available, password for them all is just `pass`:
 
 There will also be a single project, Sena 3.
 There will not be an hg repository however, see optional setup below if this is desired.
-
----
-### Hasura workflow
-
-> [!WARNING]
-> Hasura is not currently in use
-
-In order to modify Hasura table relations and permissions in hasura we need to use the hasura console.
-We first will need to install the hasura cli from [here](https://hasura.io/docs/latest/hasura-cli/install-hasura-cli/) and add it to your path.
-
-Next we need to run the following command from the root of the repo:
-```bash
-hasura console --project hasura
-```
-This should open a window in the browser. You will need hasura running in docker for this to work.
-Once you make some changes in the console you should notice some metadata under `hasura/metadata` has been updated, you will want to check that in to git.
-
-##### Hasura troubleshooting
-
-Sometimes Hasura can get out of sync with the database.
-To troubleshoot this you should open the hasura console at `localhost:8081` and navigate to settings > metadata status.
-If you see some errors there try reloading your metadata on the Metadata Actions tab.
-It may be that dotnet did not apply migrations yet, 
-so you might try restarting dotnet and wait for it to update the database schema.
-Then come back and reload the metadata again.
 
 ---
 ## Architecture
