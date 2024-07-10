@@ -12,44 +12,27 @@ using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Api;
 
-public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : ILexboxApi, IDisposable
+public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : ILexboxApi, IDisposable
 {
+    private LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
 
-    private readonly IWritingSystemContainer _writingSystemContainer =
-        cache.ServiceLocator.WritingSystems;
-
-    private readonly ILexEntryRepository _entriesRepository =
-        cache.ServiceLocator.GetInstance<ILexEntryRepository>();
-
-    private readonly IRepository<ILexSense> _senseRepository =
-        cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
-
-    private readonly IRepository<ILexExampleSentence> _exampleSentenceRepository =
-        cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
-
-    private readonly ILexEntryFactory _lexEntryFactory = cache.ServiceLocator.GetInstance<ILexEntryFactory>();
-    private readonly ILexSenseFactory _lexSenseFactory = cache.ServiceLocator.GetInstance<ILexSenseFactory>();
-
-    private readonly ILexExampleSentenceFactory _lexExampleSentenceFactory =
-        cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
-
-    private readonly IMoMorphTypeRepository _morphTypeRepository =
-        cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
-    private readonly IPartOfSpeechRepository _partOfSpeechRepository =
-        cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
-    private readonly ICmSemanticDomainRepository _semanticDomainRepository =
-        cache.ServiceLocator.GetInstance<ICmSemanticDomainRepository>();
-
-    private readonly ICmTranslationFactory _cmTranslationFactory =
-        cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
-
-    private readonly ICmPossibilityRepository _cmPossibilityRepository =
-        cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
+    private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
+    private ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
+    private IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
+    private IRepository<ILexExampleSentence> ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
+    private ILexEntryFactory LexEntryFactory => Cache.ServiceLocator.GetInstance<ILexEntryFactory>();
+    private ILexSenseFactory LexSenseFactory => Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
+    private ILexExampleSentenceFactory LexExampleSentenceFactory => Cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
+    private IMoMorphTypeRepository MorphTypeRepository => Cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
+    private IPartOfSpeechRepository PartOfSpeechRepository => Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
+    private ICmSemanticDomainRepository SemanticDomainRepository => Cache.ServiceLocator.GetInstance<ICmSemanticDomainRepository>();
+    private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
+    private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
 
     public void Dispose()
     {
-        if (onCloseSave)
+        if (onCloseSave && cacheLazy.IsValueCreated)
         {
             Save();
         }
@@ -57,15 +40,16 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public void Save()
     {
-        logger.LogInformation("Saving FW data file {Name}", cache.ProjectId.Name);
-        cache.ActionHandlerAccessor.Commit();
+        if (Cache.IsDisposed) return;
+        logger.LogInformation("Saving FW data file {Name}", Cache.ProjectId.Name);
+        Cache.ActionHandlerAccessor.Commit();
     }
 
-    public int EntryCount => _entriesRepository.Count;
+    public int EntryCount => EntriesRepository.Count;
 
     internal WritingSystemId GetWritingSystemId(int ws)
     {
-        return cache.ServiceLocator.WritingSystemManager.Get(ws).Id;
+        return Cache.ServiceLocator.WritingSystemManager.Get(ws).Id;
     }
 
     internal int GetWritingSystemHandle(WritingSystemId ws, WritingSystemType? type = null)
@@ -80,19 +64,19 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         {
             return type switch
             {
-                WritingSystemType.Analysis => _writingSystemContainer.DefaultAnalysisWritingSystem,
-                WritingSystemType.Vernacular => _writingSystemContainer.DefaultVernacularWritingSystem,
+                WritingSystemType.Analysis => WritingSystemContainer.DefaultAnalysisWritingSystem,
+                WritingSystemType.Vernacular => WritingSystemContainer.DefaultVernacularWritingSystem,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
 
-        var lcmWs = cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
+        var lcmWs = Cache.ServiceLocator.WritingSystemManager.Get(ws.Code);
         if (lcmWs is not null && type is not null)
         {
             var validWs = type switch
             {
-                WritingSystemType.Analysis => _writingSystemContainer.AnalysisWritingSystems,
-                WritingSystemType.Vernacular => _writingSystemContainer.VernacularWritingSystems,
+                WritingSystemType.Analysis => WritingSystemContainer.AnalysisWritingSystems,
+                WritingSystemType.Vernacular => WritingSystemContainer.VernacularWritingSystems,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
             if (!validWs.Contains(lcmWs))
@@ -105,15 +89,15 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public Task<WritingSystems> GetWritingSystems()
     {
-        var currentVernacularWs = _writingSystemContainer
+        var currentVernacularWs = WritingSystemContainer
             .CurrentVernacularWritingSystems
             .Select(ws => ws.Id).ToHashSet();
-        var currentAnalysisWs = _writingSystemContainer
+        var currentAnalysisWs = WritingSystemContainer
             .CurrentAnalysisWritingSystems
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = cache.ServiceLocator.WritingSystems.VernacularWritingSystems.Select(ws => new WritingSystem
+            Vernacular = Cache.ServiceLocator.WritingSystems.VernacularWritingSystems.Select(ws => new WritingSystem
             {
                 //todo determine current and create a property for that.
                 Id = ws.Id,
@@ -122,7 +106,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
                 Font = ws.DefaultFontName,
                 Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
             }).ToArray(),
-            Analysis = cache.ServiceLocator.WritingSystems.AnalysisWritingSystems.Select(ws => new WritingSystem
+            Analysis = Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems.Select(ws => new WritingSystem
             {
                 Id = ws.Id,
                 Name = ws.LanguageTag,
@@ -142,7 +126,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
             .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
         var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
 
-        foreach (var entry in _entriesRepository.AllInstances())
+        foreach (var entry in EntriesRepository.AllInstances())
         {
             LcmHelpers.ContributeExemplars(entry.CitationForm, wsExemplarsByHandle);
             LcmHelpers.ContributeExemplars(entry.LexemeFormOA.Form, wsExemplarsByHandle);
@@ -166,7 +150,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
-        foreach (var partOfSpeech in _partOfSpeechRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
+        foreach (var partOfSpeech in PartOfSpeechRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
         {
             yield return new PartOfSpeech { Id = partOfSpeech.Guid, Name = FromLcmMultiString(partOfSpeech.Name) };
         }
@@ -174,7 +158,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        foreach (var semanticDomain in _semanticDomainRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
+        foreach (var semanticDomain in SemanticDomainRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
         {
             yield return new SemanticDomain
             {
@@ -187,7 +171,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
     {
-        return _semanticDomainRepository.GetObject(semanticDomainId);
+        return SemanticDomainRepository.GetObject(semanticDomainId);
     }
 
     private Entry FromLexEntry(ILexEntry entry)
@@ -255,7 +239,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     public async IAsyncEnumerable<Entry> GetEntries(
         Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
     {
-        var entries = _entriesRepository.AllInstances();
+        var entries = EntriesRepository.AllInstances();
 
         options ??= QueryOptions.Default;
         if (predicate is not null) entries = entries.Where(predicate);
@@ -304,7 +288,7 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public Task<Entry?> GetEntry(Guid id)
     {
-        return Task.FromResult<Entry?>(FromLexEntry(_entriesRepository.GetObject(id)));
+        return Task.FromResult<Entry?>(FromLexEntry(EntriesRepository.GetObject(id)));
     }
 
     public async Task<Entry> CreateEntry(Entry entry)
@@ -314,12 +298,12 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         Guid entryId = default;
         UndoableUnitOfWorkHelper.Do("Create Entry",
             "Remove entry",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var rootMorphType = _morphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphRoot);
+                var rootMorphType = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphRoot);
                 var firstSense = entry.Senses.FirstOrDefault();
-                var lexEntry = _lexEntryFactory.Create(new LexEntryComponents
+                var lexEntry = LexEntryFactory.Create(new LexEntryComponents
                 {
                     MorphType = rootMorphType,
                     LexemeFormAlternatives = MultiStringToTsStrings(entry.LexemeForm),
@@ -372,10 +356,10 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
-        var lexEntry = _entriesRepository.GetObject(id);
+        var lexEntry = EntriesRepository.GetObject(id);
         UndoableUnitOfWorkHelper.Do("Update Entry",
             "Revert entry",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () =>
             {
                 var updateProxy = new UpdateEntryProxy(lexEntry, this);
@@ -388,17 +372,17 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     {
         UndoableUnitOfWorkHelper.Do("Delete Entry",
             "Revert delete",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                _entriesRepository.GetObject(id).Delete();
+                EntriesRepository.GetObject(id).Delete();
             });
         return Task.CompletedTask;
     }
 
     internal void CreateSense(ILexEntry lexEntry, Sense sense)
     {
-        var lexSense = _lexSenseFactory.Create(sense.Id, lexEntry);
+        var lexSense = LexSenseFactory.Create(sense.Id, lexEntry);
         ApplySenseToLexSense(sense, lexSense);
     }
 
@@ -415,22 +399,22 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     public Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         if (sense.Id != default) sense.Id = Guid.NewGuid();
-        if (!_entriesRepository.TryGetObject(entryId, out var lexEntry))
+        if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
         UndoableUnitOfWorkHelper.Do("Create Sense",
             "Remove sense",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () => CreateSense(lexEntry, sense));
-        return Task.FromResult(FromLexSense(_senseRepository.GetObject(sense.Id)));
+        return Task.FromResult(FromLexSense(SenseRepository.GetObject(sense.Id)));
     }
 
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
-        var lexSense = _senseRepository.GetObject(senseId);
+        var lexSense = SenseRepository.GetObject(senseId);
         if (lexSense.Owner.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
         UndoableUnitOfWorkHelper.Do("Update Sense",
             "Revert sense",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () =>
             {
                 var updateProxy = new UpdateSenseProxy(lexSense, this);
@@ -441,21 +425,21 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
-        var lexSense = _senseRepository.GetObject(senseId);
+        var lexSense = SenseRepository.GetObject(senseId);
         if (lexSense.Owner.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
         UndoableUnitOfWorkHelper.Do("Delete Sense",
             "Revert delete",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () => lexSense.Delete());
         return Task.CompletedTask;
     }
 
     internal void CreateExampleSentence(ILexSense lexSense, ExampleSentence exampleSentence)
     {
-        var lexExampleSentence = _lexExampleSentenceFactory.Create(exampleSentence.Id, lexSense);
+        var lexExampleSentence = LexExampleSentenceFactory.Create(exampleSentence.Id, lexSense);
         UpdateLcmMultiString(lexExampleSentence.Example, exampleSentence.Sentence);
-        var freeTranslationType = _cmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
-        var translation = _cmTranslationFactory.Create(lexExampleSentence, freeTranslationType);
+        var freeTranslationType = CmPossibilityRepository.GetObject(CmPossibilityTags.kguidTranFreeTranslation);
+        var translation = CmTranslationFactory.Create(lexExampleSentence, freeTranslationType);
         UpdateLcmMultiString(translation.Translation, exampleSentence.Translation);
         lexExampleSentence.Reference = TsStringUtils.MakeString(exampleSentence.Reference,
             lexExampleSentence.Reference.get_WritingSystem(0));
@@ -464,13 +448,13 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
         if (exampleSentence.Id != default) exampleSentence.Id = Guid.NewGuid();
-        if (!_senseRepository.TryGetObject(senseId, out var lexSense))
+        if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         UndoableUnitOfWorkHelper.Do("Create Example Sentence",
             "Remove example sentence",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () => CreateExampleSentence(lexSense, exampleSentence));
-        return Task.FromResult(FromLexExampleSentence(_exampleSentenceRepository.GetObject(exampleSentence.Id)));
+        return Task.FromResult(FromLexExampleSentence(ExampleSentenceRepository.GetObject(exampleSentence.Id)));
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -478,14 +462,14 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update)
     {
-        var lexExampleSentence = _exampleSentenceRepository.GetObject(exampleSentenceId);
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
         if (lexExampleSentence.Owner.Guid != senseId)
             throw new InvalidOperationException("Example sentence does not belong to sense");
         if (lexExampleSentence.Owner.Owner.Guid != entryId)
             throw new InvalidOperationException("Example sentence does not belong to entry");
         UndoableUnitOfWorkHelper.Do("Update Example Sentence",
             "Revert example sentence",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () =>
             {
                 var updateProxy = new UpdateExampleSentenceProxy(lexExampleSentence, this);
@@ -496,14 +480,14 @@ public class FwDataMiniLcmApi(LcmCache cache, bool onCloseSave, ILogger<FwDataMi
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
-        var lexExampleSentence = _exampleSentenceRepository.GetObject(exampleSentenceId);
+        var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
         if (lexExampleSentence.Owner.Guid != senseId)
             throw new InvalidOperationException("Example sentence does not belong to sense");
         if (lexExampleSentence.Owner.Owner.Guid != entryId)
             throw new InvalidOperationException("Example sentence does not belong to entry");
         UndoableUnitOfWorkHelper.Do("Delete Example Sentence",
             "Revert delete",
-            cache.ServiceLocator.ActionHandler,
+            Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());
         return Task.CompletedTask;
     }

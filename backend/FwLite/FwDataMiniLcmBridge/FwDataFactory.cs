@@ -23,8 +23,7 @@ public class FwDataFactory(
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
-        var projectService = GetProjectServiceCached(project);
-        return new FwDataMiniLcmApi(projectService, saveOnDispose, fwdataLogger, project);
+        return new FwDataMiniLcmApi(new (() =>GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project);
     }
 
     private HashSet<string> _projects = [];
