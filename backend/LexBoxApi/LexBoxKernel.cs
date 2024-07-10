@@ -24,10 +24,6 @@ public static class LexBoxKernel
             .BindConfiguration("HgConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        // services.AddOptions<HasuraConfig>()
-        // .BindConfiguration("HasuraConfig")
-        // .ValidateDataAnnotations()
-        // .ValidateOnStart();
         services.AddOptions<CloudFlareConfig>()
             .BindConfiguration("CloudFlare")
             .ValidateDataAnnotations()

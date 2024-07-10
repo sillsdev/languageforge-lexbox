@@ -4,7 +4,6 @@
     <attachedFolders>
       <Path>deployment</Path>
       <Path>frontend</Path>
-      <Path>hasura</Path>
       <Path>hg-web</Path>
     </attachedFolders>
     <explicitIncludes>
