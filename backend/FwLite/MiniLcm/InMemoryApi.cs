@@ -164,6 +164,15 @@ public class InMemoryApi : ILexboxApi
         return Task.FromResult(sense);
     }
 
+    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    {
+        throw new NotImplementedException();
+    }
 
     public Task DeleteEntry(Guid id)
     {

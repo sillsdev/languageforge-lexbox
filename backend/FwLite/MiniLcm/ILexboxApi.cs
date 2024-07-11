@@ -16,10 +16,15 @@ public interface ILexboxApi
     {
         throw new NotImplementedException();
     }
+    Task CreatePartOfSpeech(PartOfSpeech partOfSpeech);
     IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         throw new NotImplementedException();
     }
+
+    Task CreateSemanticDomain(SemanticDomain semanticDomain);
+
+
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);

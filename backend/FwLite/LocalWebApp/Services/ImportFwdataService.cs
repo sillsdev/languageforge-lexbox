@@ -1,6 +1,6 @@
-﻿using FwDataMiniLcmBridge;
-using FwDataMiniLcmBridge.Api;
-using FwDataMiniLcmBridge.LcmUtils;
+﻿using System.Diagnostics;
+using FwDataMiniLcmBridge;
+using Humanizer;
 using LcmCrdt;
 using MiniLcm;
 
@@ -10,6 +10,7 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
 {
     public async Task<CrdtProject> Import(string projectName)
     {
+        var startTime = Stopwatch.GetTimestamp();
         var fwDataProject = FieldWorksProjectList.GetProject(projectName);
         if (fwDataProject is null)
         {
@@ -22,11 +23,12 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
                 var crdtApi = provider.GetRequiredService<ILexboxApi>();
                 await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
             });
-        logger.LogInformation("Import of {ProjectName} complete!", fwDataApi.Project.Name);
+        var timeSpent = Stopwatch.GetElapsedTime(startTime);
+        logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize());
         return project;
     }
 
-    async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)
+    private async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)
     {
         var writingSystems = await importFrom.GetWritingSystems();
         foreach (var ws in writingSystems.Analysis)
@@ -41,19 +43,31 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
             logger.LogInformation("Imported ws {WsId}", ws.Id);
         }
 
-        var index = 0;
-        await foreach (var entry in importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0)))
+        await foreach (var semanticDomain in importFrom.GetSemanticDomains())
         {
-            if (importTo is CrdtLexboxApi crdtLexboxApi)
-            {
-                await crdtLexboxApi.CreateEntryLite(entry);
-            }
-            else
+            await importTo.CreateSemanticDomain(semanticDomain);
+            logger.LogTrace("Imported semantic domain {Id}", semanticDomain.Id);
+        }
+        await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
+        {
+            await importTo.CreatePartOfSpeech(partOfSpeech);
+            logger.LogInformation("Imported part of speech {Id}", partOfSpeech.Id);
+        }
+
+        var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));
+        if (importTo is CrdtLexboxApi crdtLexboxApi)
+        {
+            await crdtLexboxApi.BulkCreateEntries(entries);
+        }
+        else
+        {
+            var index = 0;
+            await foreach (var entry in entries)
             {
                 await importTo.CreateEntry(entry);
+                logger.LogTrace("Imported entry, {Index} of {Count} {Id}", index++, entryCount, entry.Id);
             }
-
-            logger.LogInformation("Imported entry, {Index} of {Count} {Id}", index++, entryCount, entry.Id);
         }
+        logger.LogInformation("Imported {Count} entries", entryCount);
     }
 }

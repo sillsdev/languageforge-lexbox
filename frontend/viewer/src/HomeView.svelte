@@ -40,16 +40,16 @@
     projectsPromise = fetchProjects();
   }
 
-  let loading = '';
+  let importing = '';
 
   async function importFwDataProject(name: string) {
-    loading = name;
+    importing = name;
     await fetch(`/api/import/fwdata/${name}`, {
       method: 'POST',
     });
     projectsPromise = fetchProjects();
     await projectsPromise;
-    loading = '';
+    importing = '';
   }
 
   let downloading = '';
@@ -194,6 +194,7 @@
                           {:else if rowData.fwdata}
                             <Button
                               size="md"
+                              loading={importing === rowData.name}
                               icon={mdiBookArrowLeftOutline}
                               on:click={() => importFwDataProject(rowData.name)}
                             >

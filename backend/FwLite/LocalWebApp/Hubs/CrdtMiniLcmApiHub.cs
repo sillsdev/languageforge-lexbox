@@ -37,6 +37,16 @@ public class CrdtMiniLcmApiHub(
         return writingSystem;
     }
 
+    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        return lexboxApi.GetPartsOfSpeech();
+    }
+
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        return lexboxApi.GetSemanticDomains();
+    }
+
     public IAsyncEnumerable<Entry> GetEntriesForExemplar(string exemplar, QueryOptions? options = null)
     {
         throw new NotImplementedException();

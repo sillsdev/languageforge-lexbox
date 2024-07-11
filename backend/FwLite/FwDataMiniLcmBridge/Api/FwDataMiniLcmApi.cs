@@ -58,6 +58,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return lcmWs.Handle;
     }
 
+
     internal CoreWritingSystemDefinition? GetLcmWritingSystem(WritingSystemId ws, WritingSystemType? type = null)
     {
         if (ws == "default")
@@ -156,6 +157,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         }
     }
 
+    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        throw new NotImplementedException();
+    }
+
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         foreach (var semanticDomain in SemanticDomainRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
@@ -164,9 +170,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             {
                 Id = semanticDomain.Guid,
                 Name = FromLcmMultiString(semanticDomain.Name),
-                Code = semanticDomain.OcmCodes
+                Code = semanticDomain.OcmCodes ?? ""
             };
         }
+    }
+
+    public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    {
+        throw new NotImplementedException();
     }
 
     internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
