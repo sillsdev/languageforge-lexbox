@@ -1,6 +1,6 @@
 [![Staging workflow](https://github.com/sillsdev/languageforge-lexbox/actions/workflows/lexbox-api.yaml/badge.svg?branch=develop)](https://github.com/sillsdev/languageforge-lexbox/actions/workflows/lexbox-api.yaml?query=branch%3Adevelop)
 
-# Lexbox replacement
+# Lexbox (formerly Language Depot)
 
 ## Repo Structure
 
