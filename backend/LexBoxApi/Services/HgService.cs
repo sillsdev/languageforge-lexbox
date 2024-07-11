@@ -160,6 +160,10 @@ public class HgService : IHgService, IHostedService
         });
     }
 
+    public Task<HttpContent> GetWsTagsFromFlexProject(ProjectCode code, CancellationToken token = default)
+    {
+        return ExecuteHgCommandServerCommand(code, "flexwritingsystems", token);
+    }
 
     public Task RevertRepo(ProjectCode code, string revHash)
     {
@@ -254,11 +258,11 @@ public class HgService : IHgService, IHostedService
         return logResponse?.Changesets ?? Array.Empty<Changeset>();
     }
 
-
     public Task<HttpContent> VerifyRepo(ProjectCode code, CancellationToken token)
     {
         return ExecuteHgCommandServerCommand(code, "verify", token);
     }
+
     public async Task<HttpContent> ExecuteHgRecover(ProjectCode code, CancellationToken token)
     {
         var response = await ExecuteHgCommandServerCommand(code, "recover", token);

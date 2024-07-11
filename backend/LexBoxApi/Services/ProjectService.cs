@@ -141,6 +141,63 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         await dbContext.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Returns either an empty string, or XML (in string form) with a root LangTags element containing five child elements: AnalysisWss, CurAnalysisWss, VernWss, CurVernWss, and CurPronunWss.
+    /// Each child element will contain a single `<Uni>` element whose text content is a list of tags separated by spaces.
+    /// </summary>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    public async Task<string> GetLangTagsAsXml(ProjectCode code) // May become private eventually
+    {
+        var result = await hgService.GetWsTagsFromFlexProject(code);
+        var xmlBody = await result.ReadAsStringAsync();
+        if (string.IsNullOrEmpty(xmlBody)) return string.Empty;
+        return $"<LangTags>{xmlBody}</LangTags>";
+    }
+
+    public enum GuessConfidence { Low, Medium, High };
+    public record LanguageGuess(string LangTag, GuessConfidence confidence);
+    public async Task<LanguageGuess?> GuessVernacularLanguage(ProjectCode code)
+    {
+        var langTags = await VernacularAndAnalysisLangTags(code);
+        if (langTags is null) return null; // Probably not a FieldWorks project
+
+        // Just one vernacular tag? Easy.
+        if (langTags.VernWss.Length == 1) return new LanguageGuess(langTags.VernWss[0], GuessConfidence.High);
+
+        // Multiple tags but they all refer to the same language? Also easy.
+        // TODO: Implement. Confidence = high.
+
+        // Multiple languages, but all but one of them are also in the analysis list? Also easy.
+        // TODO: Implement. Confidence = high.
+
+        // Multiple languages, but we couldn't narrow it down using the analysis list? See if any are in the project code.
+        // TODO: Implement. Split project code by hyphens, then normalize 2-to-3 so `en` would become `eng`.
+        // Then if the first vernacular-only language is present in some segment of the project code, return that. Confidence = medium.
+
+        // If all else fails, guess the first vernacular tag with low confidence
+        return new LanguageGuess(langTags.VernWss[0], GuessConfidence.Low);
+    }
+
+    private record VALangTags(string[] VernWss, string[] AnalysisWss);
+    private async Task<VALangTags?> VernacularAndAnalysisLangTags(ProjectCode code)
+    {
+        var langTagsXml = await GetLangTagsAsXml(code);
+        if (string.IsNullOrEmpty(langTagsXml)) return null;
+        var doc = new System.Xml.XmlDocument();
+        doc.LoadXml(langTagsXml);
+        var root = doc.DocumentElement;
+        if (root is null) return null;
+        var vernWssStr = root["CurVernVss"]?["Uni"]?.InnerText;
+        if (vernWssStr is null) return null;
+        var analysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText;
+        if (analysisWssStr is null) return null;
+        var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        // TODO: Use SIL.WritingSystems.IetfLanguageTags functions to parse, validate, and normalize these
+        return new VALangTags(vernWss, analysisWss);
+    }
+
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
     {
         var cacheKey = $"ProjectOrgsForId:{projectId}";
