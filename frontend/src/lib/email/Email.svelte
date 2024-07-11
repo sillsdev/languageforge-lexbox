@@ -37,7 +37,7 @@
       <mj-column>
         <mj-social font-size="15px" icon-size="40px" icon-padding="8px">
           <mj-social-element href="https://languagedepot.org" src={silLogo} alt="SIL Logo">
-            Language Depot
+            {$t('appbar.app_name')}
           </mj-social-element>
         </mj-social>
       </mj-column>

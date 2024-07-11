@@ -72,7 +72,8 @@
     }
   },
   "appbar": {
-    "app_name": "Language Depot"
+    "app_name": "Lexbox",
+    "app_subtitle": "auparavant Language Depot"
   },
   "appmenu": {
     "log_out": "Déconnexion"
@@ -115,8 +116,8 @@
     "title": "Se connecter",
     "password_missing": "Mot de passe manquant",
     "link_expired": "L'e-mail sur lequel vous avez cliqué a expiré. Veuillez en demander un nouveau.",
-    "welcome_header": "Bienvenue sur Language Depot",
-    "welcome": "Language Depot est un service d'hébergement pour [FieldWorks (FLEx)](https://software.sil.org/fieldworks/),\
+    "welcome_header": "Bienvenue sur Lexbox",
+    "welcome": "Lexbox est un service d'hébergement pour [FieldWorks (FLEx)](https://software.sil.org/fieldworks/),\
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) et [WeSay](https://software.sil.org/wesay/) projects.\
 Il est fourni en tant que service aux communautés linguistiques par [SIL Language Technology](https://software.sil.org/) et\
 le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chiang Mai, en Thaïlande."
@@ -238,7 +239,7 @@ le [Linguistics Institute at Payap University](https://li.payap.ac.th/) à Chian
     "instructions": "### Pour charger le projet dans{type, select, FL_EX { } other { (par exemple) }}FLEx\n\
 1. Dans le menu \"Envoyer/Recevoir\", cliquez sur \"Obtenir un projet d'un collègue...\"\n\
 1. Dans la boîte de dialogue \"Recevoir le projet\", cliquez sur \"Internet\"\
-1. Dans la boîte de dialogue \"Obtenir un projet depuis Internet\", saisissez votre \"Nom d'utilisateur\" et \"Mot de passe\" pour Language Depot, puis cliquez sur \"Se connecter\".\
+1. Dans la boîte de dialogue \"Obtenir un projet depuis Internet\", saisissez votre \"Nom d'utilisateur\" et \"Mot de passe\" pour Lexbox, puis cliquez sur \"Se connecter\".\
 1. Dans le champ \"ID du projet\" qui apparaît, sélectionnez \"{code}\".\
 1. Entrez un \"Nom pour le dossier sur votre ordinateur\" (par exemple, \"{name}\")",
       "label": "Obtenir le projet",

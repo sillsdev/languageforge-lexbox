@@ -139,10 +139,17 @@
       </div>
 
       <div class="prose text-lg">
-        <h3 class="flex items-center">
+        <div class="flex items-center">
           <AppLogo class="h-[3em] w-[3em] mr-3"/>
-          {$t('login.welcome_header')}
-        </h3>
+          <div class="flex flex-col">
+            <h3 class="flex items-center my-2">
+              {$t('login.welcome_header')}
+            </h3>
+            <span class="text-xs">
+              {$t('appbar.app_subtitle')}
+            </span>
+          </div>
+        </div>
         <Markdown md={$t('login.welcome')}/>
       </div>
     </div>

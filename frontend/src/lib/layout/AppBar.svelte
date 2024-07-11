@@ -26,11 +26,15 @@
     </a>
   {/if}
   <div class="navbar justify-between bg-primary text-primary-content md:pl-3 md:pr-6">
-
-    <a href={loggedIn ? '/' : '/login'} class="text-lg md:text-3xl tracking-wider hover:underline">
-      <AppLogo class="h-[1.5em] w-[1.5em] mr-3"/>
-      {$t('appbar.app_name')}
-    </a>
+    <div class="flex">
+      <AppLogo class="h-[2.5em] w-[2.5em] mr-3"/>
+      <a href={loggedIn ? '/' : '/login'} class="flex flex-col text-lg md:text-3xl tracking-wider hover:underline">
+        {$t('appbar.app_name')}
+        <span class="text-xs md:text-[0.35em]/[2em]">
+          {$t('appbar.app_subtitle')}
+        </span>
+      </a>
+    </div>
     <div>
       {#if user}
         <!-- using a label means it works before hydration is complete -->

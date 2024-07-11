@@ -24,6 +24,6 @@ spec:
             - name: Email__SmtpPort
               value: '587'
             - name: Email__From
-              value: "Language Depot (Staging) <no-reply@staging.languagedepot.org>"
+              value: "Lexbox (Staging) <no-reply@staging.languagedepot.org>"
             - name: Email__BaseUrl
               value: "https://staging.languagedepot.org"

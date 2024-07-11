@@ -103,7 +103,8 @@
     }
   },
   "appbar": {
-    "app_name": "Language Depot"
+    "app_name": "LexBox",
+    "app_subtitle": "formerly Language Depot"
   },
   "appmenu": {
     "log_out": "Log out",
@@ -158,8 +159,8 @@
     "title": "Log in",
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
-    "welcome_header": "Welcome to Language Depot",
-    "welcome": "Language Depot is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
+    "welcome_header": "Welcome to Lexbox",
+    "welcome": "Lexbox is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
@@ -415,7 +416,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
-1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Language Depot and click \"Log in\"\n\
+1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Lexbox and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
       "instructions_flex_empty": "1. [Download FLEx](https://software.sil.org/fieldworks/download/) onto your computer.\n\
@@ -423,7 +424,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
 1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
 1. Click on \"OK (I have the master project)\".\n\
-1. Click on \"Settings...\" and enter your Language Depot \"Login\" ({login}) and \"Password\".\n\
+1. Click on \"Settings...\" and enter your Lexbox \"Login\" ({login}) and \"Password\".\n\
 1. Click Log in, then select the Project ID ({code}) from the drop-down menu.\n\
 1. Click on Internet. This will initiate the first Send/Receive.",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
@@ -568,8 +569,8 @@ If you don't see a dialog or already closed it, click the button below:",
     "link_expiration_seconds": "This email will expire in {seconds} {seconds, plural, one {second} other {seconds}}.",
     "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
-      "subject": "New Language Depot administrator {adminName}",
-      "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."
+      "subject": "New Lexbox administrator {adminName}",
+      "body": "{adminName} ({adminEmail}) has been made an administrator on Lexbox."
     },
     "verify_email": {
       "subject": "Verify your e-mail address",
