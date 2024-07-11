@@ -406,6 +406,7 @@ public class ProjectMutations
         await dbContext.SaveChangesAsync();
         await hgService.SoftDeleteRepo(projectCode, timestamp);
         projectService.InvalidateProjectConfidentialityCache(projectId);
+        projectService.InvalidateProjectCodeCache(projectCode);
         await transaction.CommitAsync();
 
         return dbContext.Projects.Where(p => p.Id == projectId);
