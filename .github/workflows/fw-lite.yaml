@@ -3,22 +3,16 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'backend/FwDataMiniLcmBridge/**'
+      - 'backend/FwLite/**'
       - 'backend/harmony/**'
-      - 'backend/LcmCrdt/**'
-      - 'backend/LocalWebApp/**'
-      - 'backend/MiniLcm/**'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
     branches:
       - develop
   pull_request:
     paths:
-      - 'backend/FwDataMiniLcmBridge/**'
+      - 'backend/FwLite/**'
       - 'backend/harmony/**'
-      - 'backend/LcmCrdt/**'
-      - 'backend/LocalWebApp/**'
-      - 'backend/MiniLcm/**'
       - 'frontend/viewer/**'
       - '.github/workflows/fw-lite.yaml'
     branches:
@@ -41,17 +35,17 @@ jobs:
         with:
           node-version-file: './frontend/package.json'
       - name: Dotnet build
-        working-directory: backend/LocalWebApp
+        working-directory: backend/FwLite/LocalWebApp
         run: dotnet build --configuration Release
       - name: Dotnet test
-        working-directory: backend/LcmCrdt.Tests
+        working-directory: backend/FwLite/LcmCrdt.Tests
         run: dotnet test --configuration Release --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
         if: always()
         with:
           check_name: FW Lite Unit Tests
-          files: ./backend/LcmCrdt.Tests/test-results/*.xml
+          files: ./backend/FwLite/LcmCrdt.Tests/test-results/*.xml
       - name: Build viewer
         working-directory: frontend/viewer
         run: |
@@ -60,18 +54,24 @@ jobs:
           pnpm run build-app
 
       - name: Publish linux
-        working-directory: backend/LocalWebApp
-        run: dotnet publish -r linux-x64 -o ./publish/linux
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet publish -r linux-x64 --artifacts-path ../artifacts
       - name: Publish osx
-        working-directory: backend/LocalWebApp
-        run: dotnet publish -r osx-x64 -o ./publish/osx
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet publish -r osx-x64 --artifacts-path ../artifacts
+      - name: Publish osx-arm
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts
       - name: Publish win
-        working-directory: backend/LocalWebApp
-        run: dotnet publish -r win-x64 -o ./publish/win
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet publish -r win-x64 --artifacts-path ../artifacts
+      - name: Publish win-arm
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet publish -r win-arm64 --artifacts-path ../artifacts
       - name: Upload artifacts
         # uploading in one artifact as there's a lot of duplication between builds so compression goes far
         uses: actions/upload-artifact@v4
         with:
           name: fw-lite
           if-no-files-found: error
-          path: backend/LocalWebApp/publish/*
+          path: backend/FwLite/artifacts/publish/LocalWebApp/*

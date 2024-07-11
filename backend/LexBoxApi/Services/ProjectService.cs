@@ -18,6 +18,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
     {
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
         var projectId = input.Id ?? Guid.NewGuid();
+        var theOrg = await dbContext.Orgs.FindAsync(input.OrgId);
         /* TODO #737 - Remove this draftProject/isConfidentialIsUntrustworthy stuff and just trust input.IsConfidential */
         var draftProject = await dbContext.DraftProjects.FindAsync(projectId);
         // There could be draft projects from before we introduced the IsConfidential field. (i.e. where draftProject.IsConfidential is null)
@@ -35,7 +36,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 LastCommit = null,
                 RetentionPolicy = input.RetentionPolicy,
                 IsConfidential = isConfidentialIsUntrustworthy ? null : input.IsConfidential,
-                Organizations = [],
+                Organizations = theOrg is not null ? [theOrg] : [],
                 Users = input.ProjectManagerId.HasValue ? [new() { UserId = input.ProjectManagerId.Value, Role = ProjectRole.Manager }] : [],
             });
         // Also delete draft project, if any
@@ -49,14 +50,10 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 await emailService.SendApproveProjectRequestEmail(manager, input);
             }
         }
-        if (input.OwningOrgId.HasValue)
-        {
-            dbContext.OrgProjects.Add(
-                new OrgProjects { ProjectId = projectId, OrgId = input.OwningOrgId.Value }
-            );
-        }
         await dbContext.SaveChangesAsync();
         await hgService.InitRepo(input.Code);
+        InvalidateProjectOrgIdsCache(projectId);
+        InvalidateProjectConfidentialityCache(projectId);
         await transaction.CommitAsync();
         return projectId;
     }
@@ -76,6 +73,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
                 IsConfidential = input.IsConfidential,
                 RetentionPolicy = input.RetentionPolicy,
                 ProjectManagerId = input.ProjectManagerId,
+                OrgId = input.OrgId
             });
         await dbContext.SaveChangesAsync();
         return projectId;
@@ -135,6 +133,39 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         project.ResetStatus = ResetStatus.None;
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
+    }
+
+    public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
+    {
+        var cacheKey = $"ProjectOrgsForId:{projectId}";
+        if (memoryCache.TryGetValue(cacheKey, out Guid[]? orgIds)) return orgIds ?? [];
+        orgIds = await dbContext.Projects
+            .Where(p => p.Id == projectId)
+            .Select(p => p.Organizations.Select(o => o.Id).ToArray())
+            .FirstOrDefaultAsync();
+        memoryCache.Set(cacheKey, orgIds, TimeSpan.FromHours(1));
+        return orgIds ?? [];
+    }
+
+    public void InvalidateProjectOrgIdsCache(Guid projectId)
+    {
+        try { memoryCache.Remove($"ProjectOrgsForId:{projectId}"); }
+        catch (Exception) { } // Never allow this to throw
+    }
+
+    public async ValueTask<bool?> LookupProjectConfidentiality(Guid projectId)
+    {
+        var cacheKey = $"ProjectConfidentiality:{projectId}";
+        if (memoryCache.TryGetValue(cacheKey, out bool? confidential)) return confidential;
+        var project = await dbContext.Projects.FindAsync(projectId);
+        memoryCache.Set(cacheKey, project?.IsConfidential, TimeSpan.FromHours(1));
+        return project?.IsConfidential;
+    }
+
+    public void InvalidateProjectConfidentialityCache(Guid projectId)
+    {
+        try { memoryCache.Remove($"ProjectConfidentiality:{projectId}"); }
+        catch (Exception) { } // Never allow this to throw
     }
 
     public async Task UpdateProjectMetadataForCode(string projectCode)

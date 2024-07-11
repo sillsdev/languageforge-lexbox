@@ -32,6 +32,10 @@
       "email_label": "Email",
       "name_label": "Display name",
       "password_label": "Change User Password",
+      "role_label": {
+        "label": "Role",
+        "verified_email_required_for_admin": "The user must provide a verified email address to gain administrator access."
+      },
       "update_user": "Update User",
       "lock": "Lock User",
       "unlock": "Unlock User",
@@ -195,7 +199,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "retention_policy": "Purpose",
       "submit": "Create Project",
       "requested": "Your request for project {name} has been submitted.",
-      "request": "Request Project"
+      "request": "Request Project",
+      "org": "Organization"
     },
     "table": {
       "name": "Name",
@@ -306,6 +311,13 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
       "invalid_email_address": "Invalid email address: {email}",
     },
+    "add_org": {
+      "add_button": "Add Organization",
+      "modal_title": "Choose organization",
+      "submit_button": "Add Organization",
+      "org_not_found": "Organization not found. Please refresh the page.",
+      "project_not_found": "Project not found. Please refresh the page."
+    },
     "bulk_add_members": {
       "add_button": "Bulk Add/Create Members",
       "explanation": "Adds all the entered logins and emails to this project. New accounts will be created automatically for users that don't have one yet.",
@@ -375,6 +387,10 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "organization": {
+      "title": "Organizations",
+      "placeholder": "No organization"
+    },
     "members": {
       "title": "Members",
       "filter_members_placeholder": "Filter members...",

@@ -25,19 +25,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LfNext", "LfNext", "{7B6E21
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LfClassicData", "backend\LfClassicData\LfClassicData.csproj", "{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm", "backend\MiniLcm\MiniLcm.csproj", "{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm", "backend\FwLite\MiniLcm\MiniLcm.csproj", "{6D4062DC-1B1A-4A24-9C61-0F6A18A39882}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalWebApp", "backend\LocalWebApp\LocalWebApp.csproj", "{2CDF7126-733B-46E8-9B93-7DC31DE39682}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalWebApp", "backend\FwLite\LocalWebApp\LocalWebApp.csproj", "{2CDF7126-733B-46E8-9B93-7DC31DE39682}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmCrdt", "backend\LcmCrdt\LcmCrdt.csproj", "{6B857F83-72E3-43E6-91C3-A946F3F988D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmCrdt", "backend\FwLite\LcmCrdt\LcmCrdt.csproj", "{6B857F83-72E3-43E6-91C3-A946F3F988D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmCrdt.Tests", "backend\LcmCrdt.Tests\LcmCrdt.Tests.csproj", "{7D874D9B-1CA9-49E9-8B03-91B5C324E938}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmCrdt.Tests", "backend\FwLite\LcmCrdt.Tests\LcmCrdt.Tests.csproj", "{7D874D9B-1CA9-49E9-8B03-91B5C324E938}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crdt", "backend\harmony\src\Crdt\Crdt.csproj", "{740C8FF5-8006-4047-8C52-53873C2DD7C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crdt.Core", "backend\harmony\src\Crdt.Core\Crdt.Core.csproj", "{8B54FFB5-0BDF-403E-83CC-A3B3861EC507}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwDataMiniLcmBridge", "backend\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj", "{279197B6-EC06-4DE0-94F8-625379C3AD83}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwDataMiniLcmBridge", "backend\FwLite\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj", "{279197B6-EC06-4DE0-94F8-625379C3AD83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwDataMiniLcmBridge.Tests", "backend\FwLite\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj", "{B0299A49-C0B2-4553-A72E-1670D4CB5138}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +103,10 @@ Global
 		{279197B6-EC06-4DE0-94F8-625379C3AD83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{279197B6-EC06-4DE0-94F8-625379C3AD83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{279197B6-EC06-4DE0-94F8-625379C3AD83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0299A49-C0B2-4553-A72E-1670D4CB5138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0299A49-C0B2-4553-A72E-1670D4CB5138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0299A49-C0B2-4553-A72E-1670D4CB5138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0299A49-C0B2-4553-A72E-1670D4CB5138}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E8BB768B-C3DC-4BE6-9B9F-82319E05AF86} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
@@ -111,5 +117,6 @@ Global
 		{740C8FF5-8006-4047-8C52-53873C2DD7C4} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 		{8B54FFB5-0BDF-403E-83CC-A3B3861EC507} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 		{279197B6-EC06-4DE0-94F8-625379C3AD83} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
+		{B0299A49-C0B2-4553-A72E-1670D4CB5138} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 	EndGlobalSection
 EndGlobal

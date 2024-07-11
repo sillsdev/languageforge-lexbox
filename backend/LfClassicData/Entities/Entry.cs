@@ -35,3 +35,16 @@ public class Example
     public Dictionary<string, LexValue>? Reference { get; set; }
 
 }
+
+public class OptionListRecord
+{
+    public required string Code { get; set; }
+    public List<OptionListItem> Items { get; set; } = [];
+}
+public class OptionListItem
+{
+    public Guid? Guid { get; set; }
+    public string? Key { get; set; }
+    public string? Value { get; set; }
+    public string? Abbreviation { get; set; }
+}

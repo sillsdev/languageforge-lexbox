@@ -93,7 +93,7 @@ public class JwtTicketDataFormat : ISecureDataFormat<AuthenticationTicket>
         {
             if (!token.Payload.TryGetValue(claimName, out var value))
             {
-                return; // no claim to fix up, so nothing to do
+                continue; // no claim to fix up, so nothing to do
             }
 
             // if there's only 1 object it will be a stored in the payload as just an object and not an array.

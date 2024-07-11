@@ -29,7 +29,7 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
-  import { ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
+  import { OrgRole, ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
@@ -43,6 +43,8 @@
   import { DetailItem, EditableDetailItem } from '$lib/layout';
   import MembersList from './MembersList.svelte';
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
+  import OrgList from './OrgList.svelte';
+  import AddOrganization from './AddOrganization.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -113,7 +115,8 @@
   }
 
   $: userId = user.id;
-  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager;
+  $: orgsManagedByUser = user.orgs.filter(o => o.role === OrgRole.Admin).map(o => o.orgId);
+  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations.find((o) => orgsManagedByUser.includes(o.id));
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
@@ -342,6 +345,16 @@
     </svelte:fragment>
 
     <div class="space-y-4">
+      <OrgList
+        organizations={project.organizations}
+      >
+        <svelte:fragment slot="extraButtons">
+          {#if canManage}
+            <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
+          {/if}
+        </svelte:fragment>
+      </OrgList>
+
       <MembersList
         projectId={project.id}
         {members}

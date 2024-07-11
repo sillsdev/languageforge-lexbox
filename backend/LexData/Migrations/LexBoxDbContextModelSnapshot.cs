@@ -527,6 +527,9 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("OrgId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("ProjectManagerId")
                         .HasColumnType("uuid");
 
@@ -622,8 +625,6 @@ namespace LexData.Migrations
                         .HasDefaultValueSql("now()");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrgId");
 
                     b.HasIndex("ProjectId");
 

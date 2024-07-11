@@ -5,7 +5,7 @@ import { deleteCookie, getCookie } from './util/cookies'
 import {hash} from '$lib/util/hash';
 import { ensureErrorIsTraced, errorSourceTag } from './otel'
 import zxcvbn from 'zxcvbn';
-import { type AuthUserProject, ProjectRole, UserRole, type CreateGuestUserByAdminInput } from './gql/types';
+import { type AuthUserProject, type AuthUserOrg, ProjectRole, UserRole, type CreateGuestUserByAdminInput, type OrgRole } from './gql/types';
 import { _createGuestUserByAdmin } from '../routes/(authenticated)/admin/+page';
 
 type LoginError = 'BadCredentials' | 'Locked';
@@ -31,6 +31,7 @@ type JwtTokenUser = {
   user?: string
   role: 'admin' | 'user'
   proj?: string,
+  orgs?: AuthUserOrg[],
   lock: boolean | undefined,
   unver: boolean | undefined,
   mkproj: boolean | undefined,
@@ -47,6 +48,7 @@ export type LexAuthUser = {
   role: UserRole
   isAdmin: boolean
   projects: AuthUserProject[]
+  orgs: AuthUserOrg[]
   locked: boolean
   emailVerified: boolean
   canCreateProjects: boolean
@@ -177,6 +179,11 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
   const { sub: id, name, email, user: username, proj: projectsString, role: jwtRole } = user;
   const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
 
+  if (user.orgs) {
+    // eslint-disable-next-line
+    user.orgs = user.orgs.map(o => ({ orgId: (o as any).OrgId ?? o.orgId, role: ((o as any).Role ?? o.role).toUpperCase() as OrgRole } ));
+  }
+
   return {
     id,
     name,
@@ -185,6 +192,7 @@ function jwtToUser(user: JwtTokenUser): LexAuthUser {
     role,
     isAdmin: role === UserRole.Admin,
     projects: projectsStringToProjects(projectsString),
+    orgs: user.orgs ?? [],
     locked: user.lock === true,
     emailVerified: !user.unver,
     canCreateProjects: user.mkproj === true || role === UserRole.Admin,

@@ -25,6 +25,9 @@ includes:
   test:
     taskfile: ./backend/Testing/Taskfile.yml
     dir: ./backend/Testing
+  fw-lite:
+    taskfile: ./backend/FwLite/Taskfile.yml
+    dir: ./backend/FwLite
 
 tasks:
   setup:
@@ -42,11 +45,13 @@ tasks:
     platforms: [ windows ]
     cmds:
       - powershell -File download.ps1 sena-3 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' 'BEC5131799DB07BF8D84D8FC1F3169FB2574F2A1F4C37F6898EAB563A4AE95B8'
+      - powershell -File download.ps1 empty 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD' 'F4EB48D2C7B3294DCA93965F14F058E56D797F38D562B86CF0372F774E1B486B'
       - powershell -File download.ps1 elawa 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t' "E3608F1E3188CE5FDB166FBF9D5AAD06558DB68EFA079FB453881572B50CB8E3"
   setup-unix:
     platforms: [ linux, darwin ]
     cmds:
       - wget -c -O {{.DATA_DIR}}/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
+      - wget -c -O {{.DATA_DIR}}/empty.zip 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD'
       - wget -c -O {{.DATA_DIR}}/elawa.zip 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
 
   # k8s
@@ -80,7 +85,7 @@ tasks:
     interactive: true
 
   local-web-app-for-develop:
-    deps: [ ui:viewer-dev, api:local-web-app-for-develop, ui:https-oauth-authority ]
+    deps: [ ui:viewer-dev, fw-lite:local-web-app-for-develop, ui:https-oauth-authority ]
 
   local-web-app:
-    deps: [ ui:viewer-dev, api:local-web-app, ui:https-oauth-authority ]
+    deps: [ ui:viewer-dev, fw-lite:local-web-app, ui:https-oauth-authority ]

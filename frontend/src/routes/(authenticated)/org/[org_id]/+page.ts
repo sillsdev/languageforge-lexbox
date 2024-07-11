@@ -6,6 +6,7 @@ import type {
   ChangeOrgNameMutation,
   DeleteOrgMutation,
   DeleteOrgUserMutation,
+  OrgMemberDto,
   OrgPageQuery,
   OrgRole,
 } from '$lib/gql/types';
@@ -24,12 +25,11 @@ export type User = OrgUser['user'];
 export async function load(event: PageLoadEvent) {
   const client = getClient();
   const user = (await event.parent()).user;
-  const userIsAdmin = user.isAdmin;
   const orgId = event.params.org_id as UUID;
   const orgResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
-        query orgPage($orgId: UUID!, $userIsAdmin: Boolean!) {
+        query orgPage($orgId: UUID!) {
           orgById(orgId: $orgId) {
             id
             createdDate
@@ -37,6 +37,7 @@ export async function load(event: PageLoadEvent) {
             name
             projects {
               id
+              isConfidential
               code
               name
               type
@@ -48,28 +49,14 @@ export async function load(event: PageLoadEvent) {
               user {
                 id
                 name
-                ... on User @include(if: $userIsAdmin) {
-                  locked
-                  username
-                  createdDate
-                  updatedDate
-                  email
-                  localizationCode
-                  lastActive
-                  canCreateProjects
-                  isAdmin
-                  emailVerified
-                  createdBy {
-                    id
-                    name
-                  }
-                }
+                username
+                email
               }
             }
           }
         }
       `),
-      { orgId, userIsAdmin }
+      { orgId }
     );
 
   const nonNullableOrg = tryMakeNonNullable(orgResult.orgById);
@@ -169,6 +156,40 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
       { input: { orgId, emailOrUsername, role} },
     );
   return result;
+}
+
+export async function _orgMemberById(orgId: UUID, userId: UUID): Promise<OrgMemberDto> {
+  //language=GraphQL
+  const result = await getClient()
+    .query(
+      graphql(`
+        query OrgMemberById($orgId: UUID!, $userId: UUID!) {
+          orgMemberById(orgId: $orgId, userId: $userId) {
+            id
+            name
+            email
+            emailVerified
+            isAdmin
+            createdDate
+            username
+            locked
+            localizationCode
+            updatedDate
+            lastActive
+            canCreateProjects
+            createdBy {
+              id
+              name
+            }
+          }
+        }
+      `),
+      { orgId, userId },
+  );
+
+  if (!result.data?.orgMemberById) error(404);
+
+  return result.data.orgMemberById;
 }
 
 export async function _changeOrgMemberRole(orgId: string, userId: string, role: OrgRole): $OpResult<ChangeOrgMemberRoleMutation> {

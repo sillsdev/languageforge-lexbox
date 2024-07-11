@@ -4,6 +4,8 @@
   import TestProjectView from './TestProjectView.svelte';
   import FwDataProjectView from './FwDataProjectView.svelte';
   import HomeView from './HomeView.svelte';
+  import NotificationOutlet from './lib/notifications/NotificationOutlet.svelte';
+  import Sandbox from './lib/sandbox/Sandbox.svelte';
 
   export let url = '';
 
@@ -29,8 +31,12 @@
     <Route path="/">
       <HomeView/>
     </Route>
+    <Route path="/sandbox">
+      <Sandbox />
+    </Route>
     <Route path="/*">
       {setTimeout(() => navigate("/", { replace: true }))}
     </Route>
   </div>
 </Router>
+<NotificationOutlet/>

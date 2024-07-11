@@ -24,11 +24,13 @@
     }
   }
 
+  type Value = $$Generic<unknown>;
+
   const dispatch = createEventDispatcher<{
-    change: { value: string };
+    change: { value: Value };
   }>();
 
-  export let value: string;
+  export let value: Value;
   export let viewMergeButtonPortal: HTMLElement;
   let editorValue = value;
 
@@ -57,14 +59,16 @@
   }
 
   function saveChanges(): void {
-    value = editorValue;
+    if (unsavedChanges) {
+      value = editorValue;
+      dispatch('change', { value });
+    }
     unsavedChanges = false;
     unacceptedChanges = false;
-    dispatch('change', { value });
   }
 
-  function onEditorValueChange(newValue: string | number, save = false): void {
-    editorValue = String(newValue);
+  function onEditorValueChange(newValue: Value, save = false): void {
+    editorValue = newValue;
     unsavedChanges = editorValue !== value;
     if (save) {
       saveChanges();

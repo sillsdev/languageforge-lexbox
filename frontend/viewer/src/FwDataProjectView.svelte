@@ -4,6 +4,8 @@
   import {onDestroy, setContext} from 'svelte';
   import {SetupSignalR} from './lib/services/service-provider-signalr';
   import ProjectView from './ProjectView.svelte';
+  import {navigate} from 'svelte-routing';
+  import {AppNotification} from './lib/notifications/notifications';
 
   export let projectName: string;
   const connection = new HubConnectionBuilder()
@@ -18,6 +20,10 @@
   SetupSignalR(connection, {
     history: false,
     write: true,
+  },
+  async () => {
+    navigate('/');
+    AppNotification.display('Project closed on another tab', 'warning', 'long');
   });
   let connected = false;
 </script>

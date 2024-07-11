@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using EntityFrameworkCore.Projectables;
 
 namespace LexCore.Entities;
@@ -30,6 +31,7 @@ public class OrgMember : EntityBase
     public Organization? Organization { get; set; }
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum OrgRole
 {
     Unknown = 0,

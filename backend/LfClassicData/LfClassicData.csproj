@@ -17,7 +17,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\MiniLcm\MiniLcm.csproj"/>
+        <ProjectReference Include="..\FwLite\MiniLcm\MiniLcm.csproj"/>
     </ItemGroup>
 
 </Project>
