@@ -163,7 +163,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         if (langTags is null) return null; // Probably not a FieldWorks project
 
         // Just one vernacular tag? Easy.
-        if (langTags.VernWss.Length == 1) return new LanguageGuess(langTags.VernWss[0], GuessConfidence.High);
+        if (langTags.CurVernWss.Length == 1) return new LanguageGuess(langTags.CurVernWss[0], GuessConfidence.High);
 
         // Multiple tags but they all refer to the same language? Also easy.
         // TODO: Implement. Confidence = high.
@@ -176,11 +176,11 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         // Then if the first vernacular-only language is present in some segment of the project code, return that. Confidence = medium.
 
         // If all else fails, guess the first vernacular tag with low confidence
-        return new LanguageGuess(langTags.VernWss[0], GuessConfidence.Low);
+        return new LanguageGuess(langTags.CurVernWss[0], GuessConfidence.Low);
     }
 
-    private record VALangTags(string[] VernWss, string[] AnalysisWss);
-    private async Task<VALangTags?> VernacularAndAnalysisLangTags(ProjectCode code)
+    public record ProjectLangTags(string[] VernWss, string[] AnalysisWss, string[] CurVernWss, string[] CurAnalysisWss);
+    public async Task<ProjectLangTags?> VernacularAndAnalysisLangTags(ProjectCode code)
     {
         var langTagsXml = await GetLangTagsAsXml(code);
         if (string.IsNullOrEmpty(langTagsXml)) return null;
@@ -188,14 +188,15 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         doc.LoadXml(langTagsXml);
         var root = doc.DocumentElement;
         if (root is null) return null;
-        var vernWssStr = root["CurVernVss"]?["Uni"]?.InnerText;
-        if (vernWssStr is null) return null;
-        var analysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText;
-        if (analysisWssStr is null) return null;
+        var vernWssStr = root["VernVss"]?["Uni"]?.InnerText ?? "";
+        var analysisWssStr = root["AnalysisWss"]?["Uni"]?.InnerText ?? "";
+        var curVernWssStr = root["CurVernVss"]?["Uni"]?.InnerText ?? "";
+        var curAnalysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText ?? "";
         var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        // TODO: Use SIL.WritingSystems.IetfLanguageTags functions to parse, validate, and normalize these
-        return new VALangTags(vernWss, analysisWss);
+        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        return new ProjectLangTags(vernWss, analysisWss, curVernWss, curAnalysisWss);
     }
 
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
