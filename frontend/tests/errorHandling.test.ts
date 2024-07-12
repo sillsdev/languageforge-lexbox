@@ -67,7 +67,7 @@ test('client-side gql 500 does not break the application', async ({ page }) => {
   await responsePromise.catch(() => { });// Ignore the error
   await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
   await page.getByRole('button', { name: 'Dismiss' }).click();
-  await page.getByText('Language Depot').click();
+  await page.getByText('Lexbox').click();
   await new UserDashboardPage(page).waitFor();
   test.fail(); // Everything up to here passed, but we expect a soft 500 response assertion to ultimately fail the test
 });
