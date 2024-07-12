@@ -10,8 +10,8 @@ public class FlexProjectMetadata
 
 public class ProjectWritingSystems
 {
-    public required FLExWsId[] VernacularWss { get; set; }
-    public required FLExWsId[] AnalysisWss { get; set; }
+    public required List<FLExWsId> VernacularWss { get; set; } = [];
+    public required List<FLExWsId> AnalysisWss { get; set; } = [];
 }
 
 public class FLExWsId
