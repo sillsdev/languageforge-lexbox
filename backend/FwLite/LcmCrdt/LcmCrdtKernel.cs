@@ -66,6 +66,7 @@ public static class LcmCrdtKernel
         config.ObjectTypeListBuilder
             .Add<Entry>(builder =>
             {
+                builder.Ignore(e => e.Senses);
                 // builder.OwnsOne(e => e.Note, n => n.ToJson());
                 // builder.OwnsOne(e => e.LexemeForm, n => n.ToJson());
                 // builder.OwnsOne(e => e.CitationForm, n => n.ToJson());
@@ -73,6 +74,7 @@ public static class LcmCrdtKernel
             })
             .Add<Sense>(builder =>
             {
+                builder.Ignore(s => s.ExampleSentences);
                 builder.HasOne<Entry>()
                     .WithMany()
                     .HasForeignKey(sense => sense.EntryId);

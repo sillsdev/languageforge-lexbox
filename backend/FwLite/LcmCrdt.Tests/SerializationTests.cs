@@ -19,14 +19,14 @@ public class SerializationTests(ITestOutputHelper output)
             LexemeForm = { Values = { { "en", "test" } } },
             CitationForm = { Values = { { "en", "test" } } },
             Senses =
-            {
+            [
                 new Sense
                 {
                     Id = Guid.NewGuid(),
                     EntryId = entryId,
                     Gloss = { Values = { { "en", "test" } } }
                 }
-            }
+            ]
         };
         var act = () => JsonSerializer.Serialize(entry);
         var json = act.Should().NotThrow().Subject;
@@ -44,7 +44,7 @@ public class SerializationTests(ITestOutputHelper output)
             LexemeForm = { Values = { { "en", "test" } } },
             CitationForm = { Values = { { "en", "test" } } },
             Senses =
-            {
+            [
                 new Sense
                 {
                     Id = senseId,
@@ -60,7 +60,7 @@ public class SerializationTests(ITestOutputHelper output)
                         }
                     }
                 }
-            }
+            ]
         };
         var json = JsonSerializer.Serialize(entry);
         var act = () => JsonSerializer.Deserialize<Entry>(json);
@@ -94,14 +94,14 @@ public class SerializationTests(ITestOutputHelper output)
             LexemeForm = { Values = { { "en", "test" } } },
             CitationForm = { Values = { { "en", "test" } } },
             Senses =
-            {
+            [
                 new Sense
                 {
                     Id = senseId,
                     EntryId = entryId,
                     Gloss = { Values = { { "en", "test" } } }
                 }
-            }
+            ]
         };
         var entryCopy = new Entry()
         {
@@ -109,14 +109,14 @@ public class SerializationTests(ITestOutputHelper output)
             LexemeForm = { Values = { { "en", "test" } } },
             CitationForm = { Values = { { "en", "test" } } },
             Senses =
-            {
+            [
                 new Sense
                 {
                     Id = senseId,
                     EntryId = entryId,
                     Gloss = { Values = { { "en", "test" } } }
                 }
-            }
+            ]
         };
         entry.Should().BeEquivalentTo(entryCopy);
     }

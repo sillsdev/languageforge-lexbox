@@ -59,6 +59,16 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
         }
     }
 
+    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        throw new NotSupportedException();
+    }
+
+    public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    {
+        throw new NotSupportedException();
+    }
+
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         return AsyncEnumerable.Empty<SemanticDomain>();
