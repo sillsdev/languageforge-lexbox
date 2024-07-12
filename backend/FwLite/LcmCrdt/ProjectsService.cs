@@ -1,12 +1,14 @@
 ﻿using Crdt;
 using Crdt.Db;
+using LcmCrdt.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MiniLcm;
 using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
 
 namespace LcmCrdt;
 
-public class ProjectsService(IServiceProvider provider, ProjectContext projectContext)
+public class ProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<ProjectsService> logger)
 {
     public Task<CrdtProject[]> ListProjects()
     {
@@ -34,16 +36,30 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         Uri? domain = null,
         Func<IServiceProvider, CrdtProject, Task>? afterCreate = null)
     {
+        //poor man's sanitation
+        name = Path.GetFileName(name);
         var sqliteFile = $"{name}.sqlite";
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
         await using var serviceScope = CreateProjectScope(crdtProject);
         var db = serviceScope.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
-        var projectData = new ProjectData(name, id ?? Guid.NewGuid(), ProjectData.GetOriginDomain(domain), Guid.NewGuid());
-        await InitProjectDb(db, projectData);
-        await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-        await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
-        await (afterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
+        try
+        {
+            var projectData = new ProjectData(name,
+                id ?? Guid.NewGuid(),
+                ProjectData.GetOriginDomain(domain),
+                Guid.NewGuid());
+            await InitProjectDb(db, projectData);
+            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+            await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
+            await (afterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
+        }
+        catch
+        {
+            logger.LogError("Failed to create project {Project}, deleting database", crdtProject.Name);
+            await db.Database.EnsureDeletedAsync();
+            throw;
+        }
         return crdtProject;
     }
 

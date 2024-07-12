@@ -17,15 +17,23 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
             throw new InvalidOperationException($"Project {projectName} not found.");
         }
         using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
-        var project = await projectsService.CreateProject(fwDataProject.Name,
-            afterCreate: async (provider, project) =>
-            {
-                var crdtApi = provider.GetRequiredService<ILexboxApi>();
-                await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
-            });
-        var timeSpent = Stopwatch.GetElapsedTime(startTime);
-        logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize());
-        return project;
+        try
+        {
+            var project = await projectsService.CreateProject(fwDataProject.Name,
+                afterCreate: async (provider, project) =>
+                {
+                    var crdtApi = provider.GetRequiredService<ILexboxApi>();
+                    await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
+                });
+            var timeSpent = Stopwatch.GetElapsedTime(startTime);
+            logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize());
+            return project;
+        }
+        catch
+        {
+            logger.LogError("Import of {ProjectName} failed, deleting project", fwDataApi.Project.Name);
+            throw;
+        }
     }
 
     private async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)
