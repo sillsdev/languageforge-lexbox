@@ -3,7 +3,7 @@
   import CrdtField from './CrdtField.svelte';
   import { SelectField, TextField, type MenuOption } from 'svelte-ux';
 
-  export let value: string;
+  export let value: string | undefined;
   export let unsavedChanges = false;
   export let options: MenuOption[] | undefined = undefined;
   export let label: string | undefined = undefined;
