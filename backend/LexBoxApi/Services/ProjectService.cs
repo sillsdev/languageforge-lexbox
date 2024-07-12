@@ -155,30 +155,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return $"<LangTags>{xmlBody}</LangTags>";
     }
 
-    public enum GuessConfidence { Low, Medium, High };
-    public record LanguageGuess(string LangTag, GuessConfidence confidence);
-    public async Task<LanguageGuess?> GuessVernacularLanguage(ProjectCode code)
-    {
-        var langTags = await VernacularAndAnalysisLangTags(code);
-        if (langTags is null) return null; // Probably not a FieldWorks project
-
-        // Just one vernacular tag? Easy.
-        if (langTags.CurVernWss.Length == 1) return new LanguageGuess(langTags.CurVernWss[0], GuessConfidence.High);
-
-        // Multiple tags but they all refer to the same language? Also easy.
-        // TODO: Implement. Confidence = high.
-
-        // Multiple languages, but all but one of them are also in the analysis list? Also easy.
-        // TODO: Implement. Confidence = high.
-
-        // Multiple languages, but we couldn't narrow it down using the analysis list? See if any are in the project code.
-        // TODO: Implement. Split project code by hyphens, then normalize 2-to-3 so `en` would become `eng`.
-        // Then if the first vernacular-only language is present in some segment of the project code, return that. Confidence = medium.
-
-        // If all else fails, guess the first vernacular tag with low confidence
-        return new LanguageGuess(langTags.CurVernWss[0], GuessConfidence.Low);
-    }
-
     public record ProjectLangTags(string[] VernWss, string[] AnalysisWss, string[] CurVernWss, string[] CurAnalysisWss);
     public async Task<ProjectLangTags?> VernacularAndAnalysisLangTags(ProjectCode code)
     {
