@@ -398,7 +398,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
-        if (sense.Id != default) sense.Id = Guid.NewGuid();
+        if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
         UndoableUnitOfWorkHelper.Do("Create Sense",
@@ -447,7 +447,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
-        if (exampleSentence.Id != default) exampleSentence.Id = Guid.NewGuid();
+        if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
         UndoableUnitOfWorkHelper.Do("Create Example Sentence",
