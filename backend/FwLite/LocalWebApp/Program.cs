@@ -43,7 +43,8 @@ if (app.Environment.IsDevelopment())
 //configure dotnet to serve static files from the embedded resources
 var sharedOptions = new SharedOptions() { FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly) };
 app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
-app.UseStaticFiles(new StaticFileOptions(sharedOptions));
+var staticFileOptions = new StaticFileOptions(sharedOptions);
+app.UseStaticFiles(staticFileOptions);
 
 app.Use(async (context, next) =>
 {
@@ -73,6 +74,7 @@ app.MapProjectRoutes();
 app.MapTest();
 app.MapImport();
 app.MapAuthRoutes();
+app.MapFallbackToFile("index.html", staticFileOptions);
 
 await using (app)
 {
