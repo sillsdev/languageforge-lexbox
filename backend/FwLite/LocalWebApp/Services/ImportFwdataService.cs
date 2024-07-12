@@ -62,7 +62,9 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
         var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));
         if (importTo is CrdtLexboxApi crdtLexboxApi)
         {
+            logger.LogInformation("Importing semantic domains");
             await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains.ToBlockingEnumerable());
+            logger.LogInformation("Importing {Count} entries", entryCount);
             await crdtLexboxApi.BulkCreateEntries(entries);
         }
         else
