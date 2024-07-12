@@ -8,7 +8,7 @@
     mdiBookSyncOutline,
     mdiTestTube,
   } from '@mdi/js';
-  import { navigate } from 'svelte-routing';
+  import { links } from 'svelte-routing';
   import { Button, Card, type ColumnDef, ListItem, Table, TextField, tableCell, Icon } from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, { isDev } from './lib/layout/DevContent.svelte';
@@ -152,10 +152,10 @@
                 {#each data ?? [] as rowData, rowIndex}
                   <tr class="tabular-nums">
                     {#each columns as column (column.name)}
-                      <td use:tableCell={{ column, rowData, rowIndex, tableData: data }}>
+                      <td use:tableCell={{ column, rowData, rowIndex, tableData: data }} use:links>
                         {#if column.name === 'fwdata'}
                           {#if rowData.fwdata}
-                            <Button size="md" on:click={() => navigate(`/fwdata/${rowData.name}`)}>
+                            <Button size="md" href={`/fwdata/${rowData.name}`}>
                               <img src={flexLogo} alt="FieldWorks logo" class="h-6" />
                               Open
                             </Button>
@@ -187,7 +187,7 @@
                             <Button
                               icon={mdiBookEditOutline}
                               size="md"
-                              on:click={() => navigate(`/project/${rowData.name}`)}
+                              href={`/project/${rowData.name}`}
                             >
                               Open
                             </Button>
@@ -214,8 +214,8 @@
                     <td>
                       Test project
                     </td>
-                    <td>
-                      <Button size="md" icon={mdiTestTube} on:click={() => navigate('/testing/project-view')}>
+                    <td use:links>
+                      <Button size="md" icon={mdiTestTube} href="/testing/project-view">
                         Open
                       </Button>
                     </td>
