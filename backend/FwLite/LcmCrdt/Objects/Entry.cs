@@ -34,11 +34,11 @@ public class Entry : MiniLcm.Entry, IObjectBase<Entry>
     {
         var word = CitationForm[ws];
         if (string.IsNullOrEmpty(word)) word = LexemeForm[ws];
-        return word;
+        return word.Trim();
     }
 
     protected static Expression<Func<Entry, WritingSystemId, string?>> HeadwordExpression() =>
-        (e, ws) => Json.Value(e.CitationForm, ms => ms[ws]) ?? Json.Value(e.LexemeForm, ms => ms[ws]);
+        (e, ws) => (string.IsNullOrEmpty(Json.Value(e.CitationForm, ms => ms[ws])) ? Json.Value(e.LexemeForm, ms => ms[ws]) : Json.Value(e.CitationForm, ms => ms[ws]))!.Trim();
 
     public Guid[] GetReferences()
     {
