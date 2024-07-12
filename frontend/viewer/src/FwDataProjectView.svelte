@@ -33,13 +33,14 @@
   SetupSignalR(connection, {
       history: false,
       write: true,
+      openWithFlex: true,
     },
     {
       OnEntryUpdated: async (entry: Entry) => {
         console.log('OnEntryUpdated', entry);
       },
       async OnProjectClosed(reason: CloseReason): Promise<void> {
-        connected = false;
+        // connected = false;
         switch (reason) {
           case CloseReason.User:
             navigate('/');

@@ -301,11 +301,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var rootMorphType = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphRoot);
+                var stemMorphType = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem);
                 var firstSense = entry.Senses.FirstOrDefault();
                 var lexEntry = LexEntryFactory.Create(new LexEntryComponents
                 {
-                    MorphType = rootMorphType,
+                    MorphType = stemMorphType,
                     LexemeFormAlternatives = MultiStringToTsStrings(entry.LexemeForm),
                     GlossAlternatives = MultiStringToTsStrings(firstSense?.Gloss),
                     GlossFeatures = [],
