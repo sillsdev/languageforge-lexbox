@@ -5,6 +5,7 @@
   import { onMount } from 'svelte';
   import type { LexAuthUser } from '$lib/user';
   import { page } from '$app/stores';
+  import AppLogo from '$lib/icons/AppLogo.svelte';
 
   onMount(() => {
     isPlaywright = localStorage.getItem('isPlaywright') === 'true';
@@ -24,10 +25,16 @@
       <span class="i-mdi-open-in-new text-xl shrink-0" />
     </a>
   {/if}
-  <div class="navbar justify-between bg-primary text-primary-content md:px-6">
-    <a href={loggedIn ? '/' : '/login'} class="text-lg md:text-3xl tracking-wider hover:underline">
-      {$t('appbar.app_name')}
-    </a>
+  <div class="navbar justify-between bg-primary text-primary-content md:pl-3 md:pr-6">
+    <div class="flex">
+      <AppLogo class="h-[2.5em] w-[2.5em] mr-3"/>
+      <a href={loggedIn ? '/' : '/login'} class="flex flex-col text-lg md:text-3xl tracking-wider hover:underline">
+        {$t('appbar.app_name')}
+        <span class="text-xs md:text-[0.35em]/[2em]">
+          {$t('appbar.app_subtitle')}
+        </span>
+      </a>
+    </div>
     <div>
       {#if user}
         <!-- using a label means it works before hydration is complete -->
