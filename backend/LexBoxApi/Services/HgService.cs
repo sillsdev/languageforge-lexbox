@@ -160,9 +160,41 @@ public class HgService : IHgService, IHostedService
         });
     }
 
-    public Task<HttpContent> GetWsTagsFromFlexProject(ProjectCode code, CancellationToken token = default)
+    /// <summary>
+    /// Returns either an empty string, or XML (in string form) with a root LangTags element containing five child elements: AnalysisWss, CurAnalysisWss, VernWss, CurVernWss, and CurPronunWss.
+    /// Each child element will contain a single `<Uni>` element whose text content is a list of tags separated by spaces.
+    /// </summary>
+    private async Task<string> GetLangTagsAsXml(ProjectCode code, CancellationToken token = default)
     {
-        return ExecuteHgCommandServerCommand(code, "flexwritingsystems", token);
+        var result = await ExecuteHgCommandServerCommand(code, "flexwritingsystems", token);
+        var xmlBody = await result.ReadAsStringAsync(token);
+        if (string.IsNullOrEmpty(xmlBody)) return string.Empty;
+        return $"<LangTags>{xmlBody}</LangTags>";
+    }
+
+    public async Task<ProjectWritingSystems?> GetProjectWritingSystems(ProjectCode code, CancellationToken token = default)
+    {
+        var langTagsXml = await GetLangTagsAsXml(code, token);
+        if (string.IsNullOrEmpty(langTagsXml)) return null;
+        var doc = new System.Xml.XmlDocument();
+        doc.LoadXml(langTagsXml);
+        var root = doc.DocumentElement;
+        if (root is null) return null;
+        var vernWssStr = root["VernVss"]?["Uni"]?.InnerText ?? "";
+        var analysisWssStr = root["AnalysisWss"]?["Uni"]?.InnerText ?? "";
+        var curVernWssStr = root["CurVernVss"]?["Uni"]?.InnerText ?? "";
+        var curAnalysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText ?? "";
+        var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
+        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
+        var vernWsIds = vernWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curVernWss.Contains(tag) }).ToList();
+        var analysisWsIds = analysisWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curAnalysisWss.Contains(tag) }).ToList();
+        return new ProjectWritingSystems
+        {
+            VernacularWss = vernWsIds,
+            AnalysisWss = analysisWsIds
+        };
     }
 
     public Task RevertRepo(ProjectCode code, string revHash)

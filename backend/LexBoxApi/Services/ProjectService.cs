@@ -58,6 +58,18 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return projectId;
     }
 
+    public async Task UpdateProjectLangTags(Guid projectId)
+    {
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null || project.Type != ProjectType.FLEx) return;
+        await dbContext.Entry(project).Reference(p => p.FlexProjectMetadata).LoadAsync();
+        var langTags = await hgService.GetProjectWritingSystems(project.Code);
+        if (langTags is null) return;
+        project.FlexProjectMetadata ??= new FlexProjectMetadata();
+        project.FlexProjectMetadata.WritingSystems = langTags;
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<Guid> CreateDraftProject(CreateProjectInput input)
     {
         // No need for a transaction if we're just saving a single item
@@ -139,42 +151,6 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         project.ResetStatus = ResetStatus.None;
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
-    }
-
-    /// <summary>
-    /// Returns either an empty string, or XML (in string form) with a root LangTags element containing five child elements: AnalysisWss, CurAnalysisWss, VernWss, CurVernWss, and CurPronunWss.
-    /// Each child element will contain a single `<Uni>` element whose text content is a list of tags separated by spaces.
-    /// </summary>
-    /// <param name="code"></param>
-    /// <returns></returns>
-    public async Task<string> GetLangTagsAsXml(ProjectCode code) // May become private eventually
-    {
-        var result = await hgService.GetWsTagsFromFlexProject(code);
-        var xmlBody = await result.ReadAsStringAsync();
-        if (string.IsNullOrEmpty(xmlBody)) return string.Empty;
-        return $"<LangTags>{xmlBody}</LangTags>";
-    }
-
-    public record ProjectLangTags(FLExWsId[] VernWss, FLExWsId[] AnalysisWss);
-    public async Task<ProjectLangTags?> VernacularAndAnalysisLangTags(ProjectCode code)
-    {
-        var langTagsXml = await GetLangTagsAsXml(code);
-        if (string.IsNullOrEmpty(langTagsXml)) return null;
-        var doc = new System.Xml.XmlDocument();
-        doc.LoadXml(langTagsXml);
-        var root = doc.DocumentElement;
-        if (root is null) return null;
-        var vernWssStr = root["VernVss"]?["Uni"]?.InnerText ?? "";
-        var analysisWssStr = root["AnalysisWss"]?["Uni"]?.InnerText ?? "";
-        var curVernWssStr = root["CurVernVss"]?["Uni"]?.InnerText ?? "";
-        var curAnalysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText ?? "";
-        var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
-        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
-        var vernWsIds = vernWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curVernWss.Contains(tag) }).ToArray();
-        var analysisWsIds = analysisWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curAnalysisWss.Contains(tag) }).ToArray();
-        return new ProjectLangTags(vernWsIds, analysisWsIds);
     }
 
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)

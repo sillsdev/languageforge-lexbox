@@ -11,7 +11,7 @@ public interface IHgService
     Task<ProjectType> DetermineProjectType(ProjectCode projectCode);
     Task DeleteRepo(ProjectCode code);
     Task SoftDeleteRepo(ProjectCode code, string deletedRepoSuffix);
-    Task<HttpContent> GetWsTagsFromFlexProject(ProjectCode code, CancellationToken token = default);
+    Task<ProjectWritingSystems?> GetProjectWritingSystems(ProjectCode code, CancellationToken token = default);
     BackupExecutor? BackupRepo(ProjectCode code);
     Task ResetRepo(ProjectCode code);
     Task FinishReset(ProjectCode code, Stream zipFile);
