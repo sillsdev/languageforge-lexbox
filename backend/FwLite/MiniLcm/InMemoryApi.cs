@@ -138,6 +138,16 @@ public class InMemoryApi : ILexboxApi
         return Task.FromResult(ws);
     }
 
+    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        throw new NotImplementedException();
+    }
+
     private readonly string[] _exemplars = Enumerable.Range('a', 'z').Select(c => ((char)c).ToString()).ToArray();
 
     public Task<Entry> CreateEntry(Entry entry)
