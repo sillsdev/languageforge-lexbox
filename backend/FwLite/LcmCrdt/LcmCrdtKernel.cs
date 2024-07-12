@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt;
 
-
 public static class LcmCrdtKernel
 {
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
@@ -40,6 +39,9 @@ public static class LcmCrdtKernel
     {
         var projectContext = provider.GetRequiredService<ProjectContext>();
         if (projectContext.Project is null) throw new NullReferenceException("Project is null");
+#if DEBUG
+        builder.EnableSensitiveDataLogging();
+#endif
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDB(optionsBuilder =>
             {

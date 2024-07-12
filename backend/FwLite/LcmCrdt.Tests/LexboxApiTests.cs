@@ -5,6 +5,7 @@ using LcmCrdt.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 using MiniLcm;
 using Entry = MiniLcm.Entry;
 using ExampleSentence = MiniLcm.ExampleSentence;
@@ -26,6 +27,7 @@ public class BasicApiTests : IAsyncLifetime
     {
         var services = new ServiceCollection()
             .AddLcmCrdtClient()
+            .AddLogging(builder => builder.AddDebug())
             .RemoveAll(typeof(ProjectContext))
             .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
@@ -144,6 +146,14 @@ public class BasicApiTests : IAsyncLifetime
     {
         var writingSystems = await _api.GetWritingSystems();
         writingSystems.Analysis.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public async Task CreatingMultipleWritingSystems_DoesNotHaveDuplicateOrders()
+    {
+        await _api.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = "test-2", Name = "test", Abbreviation = "test", Font = "Arial", Exemplars = new[] { "test" } });
+        var writingSystems = await DataModel.GetLatestObjects<Objects.WritingSystem>().Where(ws => ws.Type == WritingSystemType.Vernacular).ToArrayAsync();
+        writingSystems.GroupBy(ws => ws.Order).Should().NotContain(g => g.Count() > 1);
     }
 
     [Fact]
