@@ -51,24 +51,28 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
             logger.LogInformation("Imported ws {WsId}", ws.Id);
         }
 
-        await foreach (var semanticDomain in importFrom.GetSemanticDomains())
-        {
-            await importTo.CreateSemanticDomain(semanticDomain);
-            logger.LogTrace("Imported semantic domain {Id}", semanticDomain.Id);
-        }
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
         {
             await importTo.CreatePartOfSpeech(partOfSpeech);
             logger.LogInformation("Imported part of speech {Id}", partOfSpeech.Id);
         }
 
+
+        var semanticDomains = importFrom.GetSemanticDomains();
         var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));
         if (importTo is CrdtLexboxApi crdtLexboxApi)
         {
+            await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains.ToBlockingEnumerable());
             await crdtLexboxApi.BulkCreateEntries(entries);
         }
         else
         {
+            await foreach (var semanticDomain in semanticDomains)
+            {
+                await importTo.CreateSemanticDomain(semanticDomain);
+                logger.LogTrace("Imported semantic domain {Id}", semanticDomain.Id);
+            }
+
             var index = 0;
             await foreach (var entry in entries)
             {

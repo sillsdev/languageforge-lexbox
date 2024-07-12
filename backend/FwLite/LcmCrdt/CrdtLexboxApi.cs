@@ -88,6 +88,11 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code));
     }
 
+    public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.SemanticDomain> semanticDomains)
+    {
+        await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
+    }
+
     public IAsyncEnumerable<MiniLcm.Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);
