@@ -6,6 +6,7 @@ using LocalWebApp.Hubs;
 using LocalWebApp.Auth;
 using LocalWebApp.Routes;
 using LocalWebApp.Utils;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
 
@@ -25,7 +26,11 @@ builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b19
 builder.Services.AddLocalAppServices(builder.Environment);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR().AddJsonProtocol();
+builder.Services.AddSignalR(options =>
+{
+    options.AddFilter(new LockedProjectFilter());
+    options.EnableDetailedErrors = true;
+}).AddJsonProtocol();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
@@ -38,7 +43,8 @@ if (app.Environment.IsDevelopment())
 //configure dotnet to serve static files from the embedded resources
 var sharedOptions = new SharedOptions() { FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly) };
 app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
-app.UseStaticFiles(new StaticFileOptions(sharedOptions));
+var staticFileOptions = new StaticFileOptions(sharedOptions);
+app.UseStaticFiles(staticFileOptions);
 
 app.Use(async (context, next) =>
 {
@@ -68,6 +74,7 @@ app.MapProjectRoutes();
 app.MapTest();
 app.MapImport();
 app.MapAuthRoutes();
+app.MapFallbackToFile("index.html", staticFileOptions);
 
 await using (app)
 {

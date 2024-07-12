@@ -2,12 +2,13 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using SIL.LCModel;
 using SystemTextJsonPatch;
 
 namespace LocalWebApp.Hubs;
 
 public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey)] ILexboxApi lexboxApi, FwDataFactory fwDataFactory,
-    FwDataProjectContext context) : Hub<ILexboxClient>
+    FwDataProjectContext context) : Hub<ILexboxHubClient>
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()
@@ -29,7 +30,15 @@ public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey
         {
             throw new InvalidOperationException("No project is set in the context.");
         }
-        await Clients.OthersInGroup(project.Name).OnProjectClosed();
+
+        if (exception is LcmFileLockedException)
+        {
+            await Clients.Group(project.Name).OnProjectClosed(CloseReason.Locked);
+        }
+        else
+        {
+            await Clients.OthersInGroup(project.Name).OnProjectClosed(CloseReason.User);
+        }
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, project.Name);
     }
 

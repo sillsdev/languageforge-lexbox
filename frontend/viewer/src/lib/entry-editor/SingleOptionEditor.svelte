@@ -15,7 +15,7 @@
 
   type T = $$Generic<{}>;
   export let field: FieldConfig & OptionFieldConfig;
-  export let value: string;
+  export let value: string | undefined;
 
   let options: Readable<MenuOption[]> = readable([]);
   $: options = pickOptions(field);
