@@ -50,6 +50,8 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
+                    .Entity<Entry>().Property(e => e.Id)
+                    .Association(e => (e.Senses as IEnumerable<Sense>)!, e => e.Id, s => s.EntryId)
                     .Build();
                 mappingSchema.SetConvertExpression((MiniLcm.WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });

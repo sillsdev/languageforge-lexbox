@@ -96,7 +96,12 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     public IAsyncEnumerable<MiniLcm.Entry> SearchEntries(string? query, QueryOptions? options = null)
     {
         if (string.IsNullOrEmpty(query)) return GetEntriesAsyncEnum(null, options);
-        return GetEntriesAsyncEnum(e => e.LexemeForm.SearchValue(query) || e.CitationForm.SearchValue(query), options);
+
+        return GetEntriesAsyncEnum(e => e.LexemeForm.SearchValue(query)
+                                        || e.CitationForm.SearchValue(query)
+                                        || e.Senses.Any(s => s.Gloss.SearchValue(query))
+
+            , options);
     }
 
     private async IAsyncEnumerable<MiniLcm.Entry> GetEntriesAsyncEnum(

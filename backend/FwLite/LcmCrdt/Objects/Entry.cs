@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using Crdt;
 using Crdt.Entities;
 using LinqToDB;
@@ -16,6 +17,16 @@ public class Entry : MiniLcm.Entry, IObjectBase<Entry>
     }
 
     public DateTimeOffset? DeletedAt { get; set; }
+
+    [JsonIgnore]
+    public new IReadOnlyList<Sense> Senses
+    {
+        get
+        {
+            return [..base.Senses.OfType<Sense>()];
+        }
+        set { base.Senses = [..value]; }
+    }
 
 
     [ExpressionMethod(nameof(HeadwordExpression))]

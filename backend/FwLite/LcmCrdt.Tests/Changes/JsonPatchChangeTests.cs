@@ -3,6 +3,7 @@ using Crdt.Entities;
 using LcmCrdt.Changes;
 using LcmCrdt.Objects;
 using SystemTextJsonPatch;
+using SystemTextJsonPatch.Operations;
 
 namespace LcmCrdt.Tests.Changes;
 
@@ -14,7 +15,7 @@ public class JsonPatchChangeTests
         var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(),
             patch =>
             {
-                patch.Remove(entry => entry.Senses, 1);
+                patch.Operations.Add(new Operation<Entry>("remove", "/senses/1", null, null));
             });
         act.Should().Throw<NotSupportedException>();
     }
@@ -23,7 +24,7 @@ public class JsonPatchChangeTests
     public void NewChangeDirect_ThrowsForRemoveAtIndex()
     {
         var patch = new JsonPatchDocument<Entry>();
-        patch.Remove(entry => entry.Senses, 1);
+        patch.Operations.Add(new Operation<Entry>("remove", "/senses/1", null, null));
         var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(), patch);
         act.Should().Throw<NotSupportedException>();
     }
@@ -32,7 +33,7 @@ public class JsonPatchChangeTests
     public void NewChangeIPatchDoc_ThrowsForRemoveAtIndex()
     {
         var patch = new JsonPatchDocument<Entry>();
-        patch.Remove(entry => entry.Senses, 1);
+        patch.Operations.Add(new Operation<Entry>("remove", "/senses/1", null, null));
         var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(), patch, JsonSerializerOptions.Default);
         act.Should().Throw<NotSupportedException>();
     }
