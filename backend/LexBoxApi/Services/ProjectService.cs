@@ -155,7 +155,7 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return $"<LangTags>{xmlBody}</LangTags>";
     }
 
-    public record ProjectLangTags(string[] VernWss, string[] AnalysisWss, string[] CurVernWss, string[] CurAnalysisWss);
+    public record ProjectLangTags(FLExWsId[] VernWss, FLExWsId[] AnalysisWss);
     public async Task<ProjectLangTags?> VernacularAndAnalysisLangTags(ProjectCode code)
     {
         var langTagsXml = await GetLangTagsAsXml(code);
@@ -170,9 +170,11 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         var curAnalysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText ?? "";
         var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        return new ProjectLangTags(vernWss, analysisWss, curVernWss, curAnalysisWss);
+        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
+        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
+        var vernWsIds = vernWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curVernWss.Contains(tag) }).ToArray();
+        var analysisWsIds = analysisWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curAnalysisWss.Contains(tag) }).ToArray();
+        return new ProjectLangTags(vernWsIds, analysisWsIds);
     }
 
     public async ValueTask<Guid[]> LookupProjectOrgIds(Guid projectId)
