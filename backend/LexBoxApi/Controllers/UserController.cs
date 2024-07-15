@@ -115,6 +115,10 @@ public class UserController : ControllerBase
         {
             userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
         }
+        if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
+        {
+            userEntity.Organizations = jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }).ToList();
+        }
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
