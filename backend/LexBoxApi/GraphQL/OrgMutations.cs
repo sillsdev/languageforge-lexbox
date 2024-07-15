@@ -160,14 +160,13 @@ public class OrgMutations
             {
                 var manager = loggedInContext.User;
                 // There should be a way of doing this without having to pass in all these null values.
-                await emailService.SendCreateAccountEmail(
+                await emailService.SendCreateAccountWithOrgEmail(
                     email,
                     manager.Name,
-                    orgId: orgId,
-                    projectId: Guid.Empty,
-                    role: null,
-                    projectName: "");
-                throw new ProjectMemberInvitedByEmail("Invitation email sent");
+                    orgId: input.OrgId,
+                    orgRole: input.OrgRole,
+                    orgName: org.Name);
+                throw new OrgMemberInvitedByEmail("Invitation email sent");
             }
         }
         else if (user.Organizations.Any(o => o.OrgId == orgId))

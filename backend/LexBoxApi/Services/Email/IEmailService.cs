@@ -28,12 +28,19 @@ public interface IEmailService
     /// <param name="emailAddress">The email address to send the invitation to</param>
     /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
-    public Task SendCreateAccountEmail(string emailAddress,
+    public Task SendCreateAccountWithOrgEmail(
+        string emailAddress,
         string managerName,
-        Guid? orgId,
-        Guid? projectId,
-        ProjectRole? role,
-        string? projectName,
+        Guid orgId,
+        OrgRole orgRole,
+        string orgName,
+        string? language = null);
+    public Task SendCreateAccountWithProjectEmail(
+        string emailAddress,
+        string managerName,
+        Guid projectId,
+        ProjectRole role,
+        string projectName,
         string? language = null);
 
     public Task SendPasswordChangedEmail(User user);

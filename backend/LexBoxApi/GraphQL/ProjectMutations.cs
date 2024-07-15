@@ -90,10 +90,9 @@ public class ProjectMutations
             else
             {
                 var manager = loggedInContext.User;
-                await emailService.SendCreateAccountEmail(
+                await emailService.SendCreateAccountWithProjectEmail(
                     email,
                     manager.Name,
-                    orgId: Guid.Empty,
                     projectId: input.ProjectId,
                     role: input.Role,
                     projectName: project.Name);

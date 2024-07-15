@@ -98,34 +98,46 @@ public class EmailService(
     /// </summary>
     /// <param name="name">The name (real name, NOT username) of user to invite.</param>
     /// <param name="emailAddress">The email address to send the invitation to</param>
-    /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
-    public async Task SendCreateAccountEmail(
+    public async Task SendCreateAccountWithOrgEmail(
         string emailAddress,
         string managerName,
-        Guid? orgId,
-        Guid? projectId,
-        ProjectRole? role,
-        string? projectName,
+        Guid orgId,
+        OrgRole orgRole,
+        string orgName,
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser()
-        {
-            Id = Guid.NewGuid(),
-            Audience = LexboxAudience.RegisterAccount,
-            Name = "",
-            Email = emailAddress,
-            EmailVerificationRequired = null,
-            Role = UserRole.user,
-            UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
-            CanCreateProjects = null,
-            Locale = language,
-            Locked = null,
-            Projects = [new AuthUserProject(role ?? ProjectRole.Unknown, projectId ?? Guid.Empty)],
-            Orgs = [new AuthUserOrg(OrgRole.Unknown, orgId ?? Guid.Empty)],
-        },
-            useEmailLifetime: true
+        var authUser = CreateAuthUser(emailAddress, language);
+        authUser.Orgs = [new AuthUserOrg(orgRole, orgId)];
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(authUser, useEmailLifetime: true);
+        var email = StartUserEmail(name: "", emailAddress);
+        var httpContext = httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+        var queryString = QueryString.Create("email", emailAddress);
+        var returnTo = new UriBuilder() { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
+        var registerLink = _linkGenerator.GetUriByAction(httpContext,
+            "LoginRedirect",
+            "Login",
+            new { jwt, returnTo });
+
+        ArgumentException.ThrowIfNullOrEmpty(registerLink);
+        await RenderEmail(email, new OrgInviteEmail(emailAddress, orgId.ToString() ?? "", managerName, orgName ?? "", registerLink, lifetime), language);
+        await SendEmailAsync(email);
+
+    }
+    public async Task SendCreateAccountWithProjectEmail(
+        string emailAddress,
+        Guid projectId,
+        ProjectRole role,
+        string managerName,
+        string projectName,
+        string? language = null)
+    {
+        language ??= User.DefaultLocalizationCode;
+        var authUser = CreateAuthUser(emailAddress, language);
+        authUser.Projects = [new AuthUserProject(role, projectId)];
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(authUser, useEmailLifetime: true
         );
         var email = StartUserEmail(name: "", emailAddress);
         var httpContext = httpContextAccessor.HttpContext;
@@ -142,7 +154,25 @@ public class EmailService(
         await SendEmailAsync(email);
 
     }
-
+    private LexAuthUser CreateAuthUser(string emailAddress, string? language)
+    {
+        language ??= User.DefaultLocalizationCode;
+        return new LexAuthUser
+        {
+            Id = Guid.NewGuid(),
+            Audience = LexboxAudience.RegisterAccount,
+            Name = "",
+            Email = emailAddress,
+            EmailVerificationRequired = null,
+            Role = UserRole.user,
+            UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+            CanCreateProjects = null,
+            Locale = language,
+            Locked = null,
+            Projects = [],
+            Orgs = [],
+        };
+    }
     public async Task SendPasswordChangedEmail(User user)
     {
         var email = StartUserEmail(user);
