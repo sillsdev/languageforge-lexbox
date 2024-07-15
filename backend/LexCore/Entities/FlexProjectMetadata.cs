@@ -18,4 +18,5 @@ public class FLExWsId
 {
     public required string Tag { get; set; }
     public bool IsActive { get; set; }
+    public bool IsDefault { get; set; }
 }

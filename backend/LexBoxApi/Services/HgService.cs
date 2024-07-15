@@ -188,8 +188,8 @@ public class HgService : IHgService, IHostedService
         var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
         var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
-        var vernWsIds = vernWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curVernWss.Contains(tag) }).ToList();
-        var analysisWsIds = analysisWss.Select(tag => new FLExWsId { Tag = tag, IsActive = curAnalysisWss.Contains(tag) }).ToList();
+        var vernWsIds = vernWss.Select((tag, idx) => new FLExWsId { Tag = tag, IsActive = curVernWss.Contains(tag), IsDefault = idx == 0 }).ToList();
+        var analysisWsIds = analysisWss.Select((tag, idx) => new FLExWsId { Tag = tag, IsActive = curAnalysisWss.Contains(tag), IsDefault = idx == 0 }).ToList();
         return new ProjectWritingSystems
         {
             VernacularWss = vernWsIds,

@@ -21,13 +21,13 @@ public class ProjectServiceTest
     {
         VernacularWss = new List<FLExWsId>()
         {
-            new() { Tag = "en", IsActive = true },
-            new() { Tag = "fr", IsActive = false }
+            new() { Tag = "en", IsActive = true, IsDefault = true },
+            new() { Tag = "fr", IsActive = false, IsDefault = false }
         },
         AnalysisWss = new List<FLExWsId>()
         {
-            new() { Tag = "en", IsActive = true },
-            new() { Tag = "fr", IsActive = false }
+            new() { Tag = "en", IsActive = true, IsDefault = true },
+            new() { Tag = "fr", IsActive = false, IsDefault = false }
         }
     };
 
