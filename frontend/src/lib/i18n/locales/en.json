@@ -387,6 +387,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "vernacular_langs": "Vernacular writing systems",
+    "analysis_langs": "Analysis writing systems",
     "organization": {
       "title": "Organizations",
       "placeholder": "No organization"

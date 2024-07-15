@@ -339,7 +339,7 @@
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
-        <DetailItem title={'Vernacular languages'} text={vernacularLangTags?.map(tag => tag.tag)}>
+        <DetailItem title={$t('project_page.vernacular_langs')} text={vernacularLangTags?.map(tag => tag.tag)}>
           <AdminContent slot="extras">
             <IconButton
               loading={loadingEntryCount}
@@ -351,7 +351,7 @@
             />
           </AdminContent>
         </DetailItem>
-        <DetailItem title={'Analysis languages'} text={analysisLangTags?.map(tag => tag.tag)}>
+        <DetailItem title={$t('project_page.analysis_langs')} text={analysisLangTags?.map(tag => tag.tag)}>
           <AdminContent slot="extras">
             <IconButton
               loading={loadingEntryCount}
