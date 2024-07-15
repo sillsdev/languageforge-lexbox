@@ -25,7 +25,7 @@
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import {_deleteProject} from '$lib/gql/mutations';
-  import { goto } from '$app/navigation';
+  import { goto, invalidate } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
@@ -82,6 +82,7 @@
 
   async function updateLanguageList(): Promise<void> {
     await fetch(`/api/project/updateLanguageList/${project.code}`, {method: 'POST'});
+    await invalidate(`project:${project.code}`);
   }
 
   let resetProjectModal: ResetProjectModal;
@@ -341,10 +342,30 @@
       {/if}
       {#if project.type === ProjectType.FlEx}
         <DetailItem title={$t('project_page.vernacular_langs')}>
-          <WritingSystemList slot="extras" writingSystems={vernacularLangTags} />
+          <WritingSystemList writingSystems={vernacularLangTags} />
+          <AdminContent>
+            <IconButton
+              loading={loadingEntryCount}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
+            />
+          </AdminContent>
         </DetailItem>
         <DetailItem title={$t('project_page.analysis_langs')}>
-          <WritingSystemList slot="extras" writingSystems={analysisLangTags} />
+          <WritingSystemList writingSystems={analysisLangTags} />
+          <AdminContent>
+            <IconButton
+              loading={loadingEntryCount}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
+            />
+          </AdminContent>
         </DetailItem>
       {/if}
       <div>
