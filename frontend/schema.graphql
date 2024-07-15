@@ -161,6 +161,7 @@ type FLExWsId {
 type FlexProjectMetadata {
   projectId: UUID!
   lexEntryCount: Int
+  langProjectId: UUID
   writingSystems: ProjectWritingSystems
 }
 
@@ -675,12 +676,14 @@ input FlexProjectMetadataFilterInput {
   or: [FlexProjectMetadataFilterInput!]
   projectId: UuidOperationFilterInput
   lexEntryCount: IntOperationFilterInput
+  langProjectId: UuidOperationFilterInput
   writingSystems: ProjectWritingSystemsFilterInput
 }
 
 input FlexProjectMetadataSortInput {
   projectId: SortEnumType
   lexEntryCount: SortEnumType
+  langProjectId: SortEnumType
 }
 
 input IntOperationFilterInput {

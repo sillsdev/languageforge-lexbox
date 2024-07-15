@@ -5,6 +5,10 @@ public class FlexProjectMetadata
 {
     public Guid ProjectId { get; set; }
     public int? LexEntryCount { get; set; }
+    /// <summary>
+    /// GUID from the LangProject element, which is not the same as the ID of the LexBox project
+    /// </summary>
+    public Guid? LangProjectId { get; set; }
     public ProjectWritingSystems? WritingSystems { get; set; }
 }
 
