@@ -2,7 +2,7 @@
   import CopyToClipboardButton from '$lib/components/CopyToClipboardButton.svelte';
 
   export let title: string;
-  export let text: string | null | undefined;
+  export let text: string | null | undefined = undefined;
   export let copyToClipboard = false;
 </script>
 
