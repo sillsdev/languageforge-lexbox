@@ -70,6 +70,17 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task UpdateProjectLangProjectId(Guid projectId)
+    {
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null || project.Type != ProjectType.FLEx) return;
+        await dbContext.Entry(project).Reference(p => p.FlexProjectMetadata).LoadAsync();
+        var langProjGuid = await hgService.GetProjectIdOfFlexProject(project.Code);
+        project.FlexProjectMetadata ??= new FlexProjectMetadata();
+        project.FlexProjectMetadata.LangProjectId = langProjGuid;
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<Guid> CreateDraftProject(CreateProjectInput input)
     {
         // No need for a transaction if we're just saving a single item

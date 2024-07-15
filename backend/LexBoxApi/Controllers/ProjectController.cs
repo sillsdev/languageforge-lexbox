@@ -232,6 +232,16 @@ public class ProjectController(
         return result is null ? NotFound() : result;
     }
 
+    [HttpPost("updateLanguageList/{code}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesDefaultResponseType]
+    public async Task UpdateLanguageList(string code)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await projectService.UpdateProjectLangTags(projectId);
+    }
+
     [HttpPost("queueUpdateProjectMetadataTask")]
     public async Task<ActionResult> QueueUpdateProjectMetadataTask(string projectCode)
     {

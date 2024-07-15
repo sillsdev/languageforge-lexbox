@@ -64,6 +64,8 @@
 
   let lexEntryCount: number | string | null | undefined = undefined;
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
+  $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
+  $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -75,6 +77,10 @@
     const response = await fetch(`/api/project/updateLexEntryCount/${project.code}`, {method: 'POST'});
     lexEntryCount = await response.text();
     loadingEntryCount = false;
+  }
+
+  async function updateLanguageList(): Promise<void> {
+    await fetch(`/api/project/updateLanguageList/${project.code}`, {method: 'POST'});
   }
 
   let resetProjectModal: ResetProjectModal;
@@ -328,6 +334,32 @@
               variant="btn-ghost"
               outline={false}
               on:click={updateEntryCount}
+            />
+          </AdminContent>
+        </DetailItem>
+      {/if}
+      {#if project.type === ProjectType.FlEx}
+        <DetailItem title={'Vernacular languages'} text={vernacularLangTags?.map(tag => tag.tag)}>
+          <AdminContent slot="extras">
+            <IconButton
+              loading={loadingEntryCount}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
+            />
+          </AdminContent>
+        </DetailItem>
+        <DetailItem title={'Analysis languages'} text={analysisLangTags?.map(tag => tag.tag)}>
+          <AdminContent slot="extras">
+            <IconButton
+              loading={loadingEntryCount}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
             />
           </AdminContent>
         </DetailItem>
