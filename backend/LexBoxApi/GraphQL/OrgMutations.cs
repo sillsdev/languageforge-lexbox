@@ -139,6 +139,7 @@ public class OrgMutations
         LexBoxDbContext dbContext,
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
+        AddOrgMemberInput input,
         Guid orgId,
         OrgRole? role,
         string emailOrUsername,

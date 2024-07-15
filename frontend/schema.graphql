@@ -502,6 +502,12 @@ union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
 
+input AddOrgMemberInput {
+  orgId: UUID!
+  usernameOrEmail: String!
+  orgRole: OrgRole!
+}
+
 input AddProjectMemberInput {
   projectId: UUID!
   usernameOrEmail: String!
@@ -587,7 +593,6 @@ input CreateProjectInput {
   type: ProjectType!
   retentionPolicy: RetentionPolicy!
   isConfidential: Boolean!
-  owningOrgId: UUID
   projectManagerId: UUID
   orgId: UUID
 }
@@ -862,6 +867,7 @@ input RetentionPolicyOperationFilterInput {
 }
 
 input SetOrgMemberRoleInput {
+  input: AddOrgMemberInput!
   orgId: UUID!
   role: OrgRole
   emailOrUsername: String!
