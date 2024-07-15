@@ -139,9 +139,8 @@ public class OrgMutations
         LexBoxDbContext dbContext,
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
-        AddOrgMemberInput input,
         Guid orgId,
-        OrgRole? role,
+        OrgRole role,
         string emailOrUsername,
         [Service] IEmailService emailService)
     {
@@ -164,8 +163,8 @@ public class OrgMutations
                 await emailService.SendCreateAccountWithOrgEmail(
                     email,
                     manager.Name,
-                    orgId: input.OrgId,
-                    orgRole: input.OrgRole,
+                    orgId: orgId,
+                    orgRole: role,
                     orgName: org.Name);
                 throw new OrgMemberInvitedByEmail("Invitation email sent");
             }
