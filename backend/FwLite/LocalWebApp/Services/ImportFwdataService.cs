@@ -26,7 +26,7 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
                     await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
                 });
             var timeSpent = Stopwatch.GetElapsedTime(startTime);
-            logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize());
+            logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize(2));
             return project;
         }
         catch
