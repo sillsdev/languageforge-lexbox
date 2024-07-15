@@ -45,6 +45,7 @@
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
   import OrgList from './OrgList.svelte';
   import AddOrganization from './AddOrganization.svelte';
+  import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -339,29 +340,11 @@
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
-        <DetailItem title={$t('project_page.vernacular_langs')} text={vernacularLangTags?.map(tag => tag.tag)}>
-          <AdminContent slot="extras">
-            <IconButton
-              loading={loadingEntryCount}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateLanguageList}
-            />
-          </AdminContent>
+        <DetailItem title={$t('project_page.vernacular_langs')}>
+          <WritingSystemList slot="extras" writingSystems={vernacularLangTags} />
         </DetailItem>
-        <DetailItem title={$t('project_page.analysis_langs')} text={analysisLangTags?.map(tag => tag.tag)}>
-          <AdminContent slot="extras">
-            <IconButton
-              loading={loadingEntryCount}
-              icon="i-mdi-refresh"
-              size="btn-sm"
-              variant="btn-ghost"
-              outline={false}
-              on:click={updateLanguageList}
-            />
-          </AdminContent>
+        <DetailItem title={$t('project_page.analysis_langs')}>
+          <WritingSystemList slot="extras" writingSystems={analysisLangTags} />
         </DetailItem>
       {/if}
       <div>
