@@ -180,9 +180,9 @@ public class HgService : IHgService, IHostedService
         doc.LoadXml(langTagsXml);
         var root = doc.DocumentElement;
         if (root is null) return null;
-        var vernWssStr = root["VernVss"]?["Uni"]?.InnerText ?? "";
+        var vernWssStr = root["VernWss"]?["Uni"]?.InnerText ?? "";
         var analysisWssStr = root["AnalysisWss"]?["Uni"]?.InnerText ?? "";
-        var curVernWssStr = root["CurVernVss"]?["Uni"]?.InnerText ?? "";
+        var curVernWssStr = root["CurVernWss"]?["Uni"]?.InnerText ?? "";
         var curAnalysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText ?? "";
         var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
