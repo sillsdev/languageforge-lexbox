@@ -64,11 +64,10 @@ case $command_name in
         ;;
 
     flexprojectid)
-        # Project ID is first GUID in file, so simplest way is to just grab the first GUID
-        # chg cat -r tip General/LanguageProject.langproj | grep -oP 'guid="\K[^"]+' | head -n 1
-        # Alternate approach:
+        # grep -o extracts only what matches the pattern; -P turns on Perl-compatible regex, and \K is a Perl regex flag
+        # that means "consider the previous text a lookbehind assertion, and don't include it in the match."
+        # https://perldoc.perl.org/perlre#%5CK says the `\K` construct "may be significantly more efficient" than "standard" lookbehind assertions like `(?<=...)`
         chg cat -r tip General/LanguageProject.langproj | sed -n -e '/<LangProject/,/>/p' | grep -oP 'guid="\K[^"]+'
-        # Which is slightly more verbose but ensures we're getting the guid from the LangProject element
         ;;
 
     flexwritingsystems)
