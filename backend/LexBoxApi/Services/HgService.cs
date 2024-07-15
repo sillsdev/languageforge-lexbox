@@ -186,10 +186,15 @@ public class HgService : IHgService, IHostedService
         var curAnalysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText ?? "";
         var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
         var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
-        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
-        var vernWsIds = vernWss.Select((tag, idx) => new FLExWsId { Tag = tag, IsActive = curVernWss.Contains(tag), IsDefault = idx == 0 }).ToList();
-        var analysisWsIds = analysisWss.Select((tag, idx) => new FLExWsId { Tag = tag, IsActive = curAnalysisWss.Contains(tag), IsDefault = idx == 0 }).ToList();
+        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var curVernSet = curVernWss.ToHashSet();
+        var curAnalysisSet = curAnalysisWss.ToHashSet();
+        // Ordering is important here to match how FLEx handles things: all *current* writing systems first, then all *non-current*.
+        var vernWsIds = curVernWss.Select((tag, idx) => new FLExWsId { Tag = tag, IsActive = true, IsDefault = idx == 0 }).ToList();
+        var analysisWsIds = curAnalysisWss.Select((tag, idx) => new FLExWsId { Tag = tag, IsActive = true, IsDefault = idx == 0 }).ToList();
+        vernWsIds.AddRange(vernWss.Where(ws => !curVernSet.Contains(ws)).Select(tag => new FLExWsId { Tag = tag, IsActive = false, IsDefault = false }));
+        analysisWsIds.AddRange(analysisWss.Where(ws => !curAnalysisSet.Contains(ws)).Select(tag => new FLExWsId { Tag = tag, IsActive = false, IsDefault = false }));
         return new ProjectWritingSystems
         {
             VernacularWss = vernWsIds,
