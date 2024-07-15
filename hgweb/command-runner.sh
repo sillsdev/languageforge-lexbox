@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "flexwritingsystems" "recover" "healthz" "invalidatedircache")
+allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -61,6 +61,14 @@ case $command_name in
         LIFTFILE=$(chg manifest -r tip | grep '\.lift$' | head -n 1)
         # The \b for word boundary is not necessary for .lift files
         [ -n "${LIFTFILE}" ] && (chg cat -r tip "${LIFTFILE}" | grep -c '<entry') || echo 0
+        ;;
+
+    flexprojectid)
+        # Project ID is first GUID in file, so simplest way is to just grab the first GUID
+        # chg cat -r tip General/LanguageProject.langproj | grep -oP 'guid="\K[^"]+' | head -n 1
+        # Alternate approach:
+        chg cat -r tip General/LanguageProject.langproj | sed -n -e '/<LangProject/,/>/p' | grep -oP 'guid="\K[^"]+'
+        # Which is slightly more verbose but ensures we're getting the guid from the LangProject element
         ;;
 
     flexwritingsystems)

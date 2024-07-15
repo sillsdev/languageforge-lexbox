@@ -12,6 +12,7 @@ public interface IHgService
     Task DeleteRepo(ProjectCode code);
     Task SoftDeleteRepo(ProjectCode code, string deletedRepoSuffix);
     Task<ProjectWritingSystems?> GetProjectWritingSystems(ProjectCode code, CancellationToken token = default);
+    Task<Guid?> GetProjectIdOfFlexProject(ProjectCode code, CancellationToken token = default);
     BackupExecutor? BackupRepo(ProjectCode code);
     Task ResetRepo(ProjectCode code);
     Task FinishReset(ProjectCode code, Stream zipFile);

@@ -197,6 +197,14 @@ public class HgService : IHgService, IHostedService
         };
     }
 
+    public async Task<Guid?> GetProjectIdOfFlexProject(ProjectCode code, CancellationToken token = default)
+    {
+        var result = await ExecuteHgCommandServerCommand(code, "flexprojectid", token);
+        var text = await result.ReadAsStringAsync(token);
+        if (Guid.TryParse(text, out var guid)) return guid;
+        return null;
+    }
+
     public Task RevertRepo(ProjectCode code, string revHash)
     {
         throw new NotImplementedException();
