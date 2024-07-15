@@ -111,20 +111,7 @@ public class EmailService(
         language ??= User.DefaultLocalizationCode;
         var authUser = CreateAuthUser(emailAddress, language);
         authUser.Orgs = [new AuthUserOrg(orgRole, orgId)];
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(authUser, useEmailLifetime: true);
-        var email = StartUserEmail(name: "", emailAddress);
-        var httpContext = httpContextAccessor.HttpContext;
-        ArgumentNullException.ThrowIfNull(httpContext);
-        var queryString = QueryString.Create("email", emailAddress);
-        var returnTo = new UriBuilder() { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
-        var registerLink = _linkGenerator.GetUriByAction(httpContext,
-            "LoginRedirect",
-            "Login",
-            new { jwt, returnTo });
-
-        ArgumentException.ThrowIfNullOrEmpty(registerLink);
-        await RenderEmail(email, new OrgInviteEmail(emailAddress, orgId.ToString() ?? "", managerName, orgName ?? "", registerLink, lifetime), language);
-        await SendEmailAsync(email);
+        await SendInvitationEmail(authUser, emailAddress, managerName, orgId.ToString(), orgName, language, isProjectInvitation: false);
 
     }
     /// <summary>
@@ -145,21 +132,7 @@ public class EmailService(
         language ??= User.DefaultLocalizationCode;
         var authUser = CreateAuthUser(emailAddress, language);
         authUser.Projects = [new AuthUserProject(role, projectId)];
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(authUser, useEmailLifetime: true
-        );
-        var email = StartUserEmail(name: "", emailAddress);
-        var httpContext = httpContextAccessor.HttpContext;
-        ArgumentNullException.ThrowIfNull(httpContext);
-        var queryString = QueryString.Create("email", emailAddress);
-        var returnTo = new UriBuilder() { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
-        var registerLink = _linkGenerator.GetUriByAction(httpContext,
-            "LoginRedirect",
-            "Login",
-            new { jwt, returnTo });
-
-        ArgumentException.ThrowIfNullOrEmpty(registerLink);
-        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString() ?? "", managerName, projectName ?? "", registerLink, lifetime), language);
-        await SendEmailAsync(email);
+        await SendInvitationEmail(authUser, emailAddress, managerName, projectId.ToString(), projectName, language, isProjectInvitation: true);
 
     }
     private LexAuthUser CreateAuthUser(string emailAddress, string? language)
@@ -180,6 +153,39 @@ public class EmailService(
             Projects = [],
             Orgs = [],
         };
+    }
+    private async Task SendInvitationEmail(
+        LexAuthUser authUser,
+        string emailAddress,
+        string managerName,
+        string id,
+        string name,
+        string? language,
+        bool isProjectInvitation)
+    {
+        language ??= User.DefaultLocalizationCode;
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(authUser, useEmailLifetime: true);
+        var email = StartUserEmail(name: "", emailAddress);
+        var httpContext = httpContextAccessor.HttpContext;
+        ArgumentNullException.ThrowIfNull(httpContext);
+
+        var queryString = QueryString.Create("email", emailAddress);
+        var returnTo = new UriBuilder { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
+        var registerLink = _linkGenerator.GetUriByAction(httpContext,
+            "LoginRedirect",
+            "Login",
+            new { jwt, returnTo });
+
+        ArgumentException.ThrowIfNullOrEmpty(registerLink);
+        if (isProjectInvitation)
+        {
+            await RenderEmail(email, new ProjectInviteEmail(emailAddress, id.ToString() ?? "", managerName, name ?? "", registerLink, lifetime), language);
+        }
+        else
+        {
+            await RenderEmail(email, new OrgInviteEmail(emailAddress, id.ToString() ?? "", managerName, name ?? "", registerLink, lifetime), language);
+        }
+        await SendEmailAsync(email);
     }
     public async Task SendPasswordChangedEmail(User user)
     {
