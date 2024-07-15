@@ -94,10 +94,11 @@ public class EmailService(
     }
 
     /// <summary>
-    /// Sends a project invitation email to a new user, whose account will be created when they accept.
+    /// Sends a organization invitation email to a new user, whose account will be created when they accept.
     /// </summary>
     /// <param name="name">The name (real name, NOT username) of user to invite.</param>
     /// <param name="emailAddress">The email address to send the invitation to</param>
+    /// <param name="orgId">The GUID of the organization the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
     public async Task SendCreateAccountWithOrgEmail(
         string emailAddress,
@@ -126,11 +127,18 @@ public class EmailService(
         await SendEmailAsync(email);
 
     }
+    /// <summary>
+    /// Sends a project invitation email to a new user, whose account will be created when they accept.
+    /// </summary>
+    /// <param name="name">The name (real name, NOT username) of user to invite.</param>
+    /// <param name="emailAddress">The email address to send the invitation to</param>
+    /// <param name="projectId">The GUID of the project the user is being invited to</param>
+    /// <param name="language">The language in which the invitation email should be sent (default English)</param>
     public async Task SendCreateAccountWithProjectEmail(
         string emailAddress,
+        string managerName,
         Guid projectId,
         ProjectRole role,
-        string managerName,
         string projectName,
         string? language = null)
     {
