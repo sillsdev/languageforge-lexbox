@@ -80,14 +80,16 @@
     />
   {/if}
   <OrgRoleSelect bind:value={$form.role} error={errors.role} />
-  <Checkbox
-    id="invite"
-    label={'invite'}
-    description={''}
-    variant="checkbox-warning"
-    labelColor="text-warning"
-    bind:value={$form.canInvite}
-  />
+  <span slot="checkbox">
+    <Checkbox
+      id="invite"
+      label={'invite'}
+      description={''}
+      variant="checkbox-warning"
+      labelColor="text-warning"
+      bind:value={$form.canInvite}
+    />
+  </span>
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}
       {$t('org_page.add_user.submit_button_email')}
