@@ -26,7 +26,6 @@ public class ProjectController(
     ISchedulerFactory scheduler)
     : ControllerBase
 {
-
     [HttpPost("refreshProjectLastChanged")]
     public async Task<ActionResult> RefreshProjectLastChanged(string projectCode)
     {
@@ -55,6 +54,7 @@ public class ProjectController(
         {
             project.LastCommit = await hgService.GetLastCommitTimeFromHg(project.Code);
         }
+
         await lexBoxDbContext.SaveChangesAsync();
 
         return Ok();
@@ -73,14 +73,18 @@ public class ProjectController(
             project.Type = await hgService.DetermineProjectType(project.Code);
             await lexBoxDbContext.SaveChangesAsync();
         }
+
         return project;
     }
 
     [HttpPost("setProjectType")]
     [AdminRequired]
-    public async Task<ActionResult> SetProjectType(string projectCode, ProjectType projectType, bool overrideKnown = false)
+    public async Task<ActionResult> SetProjectType(string projectCode,
+        ProjectType projectType,
+        bool overrideKnown = false)
     {
-        await lexBoxDbContext.Projects.Where(p => p.Code == projectCode && (p.Type == ProjectType.Unknown || overrideKnown))
+        await lexBoxDbContext.Projects
+            .Where(p => p.Code == projectCode && (p.Type == ProjectType.Unknown || overrideKnown))
             .ExecuteUpdateAsync(u => u.SetProperty(p => p.Type, projectType));
         return Ok();
     }
@@ -107,7 +111,9 @@ public class ProjectController(
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [AdminRequired]
-    public async Task<ActionResult<Dictionary<string, ProjectType>>> UpdateProjectTypesForUnknownProjects(int limit = 50, int offset = 0)
+    public async Task<ActionResult<Dictionary<string, ProjectType>>> UpdateProjectTypesForUnknownProjects(int limit =
+            50,
+        int offset = 0)
     {
         var projects = lexBoxDbContext.Projects
             .Where(p => p.Type == ProjectType.Unknown)
@@ -121,6 +127,7 @@ public class ProjectController(
             project.Type = await hgService.DetermineProjectType(project.Code);
             result.Add(project.Code, project.Type);
         }
+
         await lexBoxDbContext.SaveChangesAsync();
         return result;
     }
@@ -176,6 +183,7 @@ public class ProjectController(
     }
 
     public record HgCommandResponse(string Response);
+
     [HttpGet("hgVerify/{code}")]
     [AdminRequired]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -191,6 +199,7 @@ public class ProjectController(
             await Response.CompleteAsync();
             return;
         }
+
         var result = await hgService.VerifyRepo(code, HttpContext.RequestAborted);
         await StreamHttpResponse(result);
     }
@@ -210,6 +219,7 @@ public class ProjectController(
             await Response.CompleteAsync();
             return;
         }
+
         var result = await hgService.ExecuteHgRecover(code, HttpContext.RequestAborted);
         await StreamHttpResponse(result);
     }
@@ -240,6 +250,48 @@ public class ProjectController(
     {
         var projectId = await projectService.LookupProjectId(code);
         await projectService.UpdateProjectLangTags(projectId);
+    }
+
+    [HttpPost("updateMissingLanguageList")]
+    public async Task<ActionResult<string[]>> UpdateMissingLanguageList(int limit = 10)
+    {
+        var projects = lexBoxDbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .Where(p => p.Type == ProjectType.FLEx && p.LastCommit != null && p.FlexProjectMetadata!.WritingSystems == null)
+            .Take(limit)
+            .AsAsyncEnumerable();
+        var codes = new List<string>(limit);
+        await foreach (var project in projects)
+        {
+            codes.Add(project.Code);
+            project.FlexProjectMetadata ??= new FlexProjectMetadata();
+            project.FlexProjectMetadata.WritingSystems = await hgService.GetProjectWritingSystems(project.Code);
+        }
+
+        await lexBoxDbContext.SaveChangesAsync();
+
+        return Ok(codes);
+    }
+
+    [HttpPost("updateMissingLangProjectId")]
+    public async Task<ActionResult<string[]>> UpdateMissingLangProjectId(int limit = 10)
+    {
+        var projects = lexBoxDbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .Where(p => p.Type == ProjectType.FLEx && p.LastCommit != null && p.FlexProjectMetadata!.LangProjectId == null)
+            .Take(limit)
+            .AsAsyncEnumerable();
+        var codes = new List<string>(limit);
+        await foreach (var project in projects)
+        {
+            codes.Add(project.Code);
+            project.FlexProjectMetadata ??= new FlexProjectMetadata();
+            project.FlexProjectMetadata.LangProjectId = await hgService.GetProjectIdOfFlexProject(project.Code);
+        }
+
+        await lexBoxDbContext.SaveChangesAsync();
+
+        return Ok(codes);
     }
 
     [HttpPost("queueUpdateProjectMetadataTask")]
