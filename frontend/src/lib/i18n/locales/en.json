@@ -273,7 +273,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "usernames_description": "This should be the **email or Send/Receive login** for existing accounts",
       "invalid_username": "Invalid login/username: {username}. Only letters, numbers, and underscore (_) characters are allowed.",
       "empty_user_field": "Please enter email addresses and/or logins",
-      "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to organization.",
+      "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to the organization.",
       "already_members": "{count, plural, one {# user was} other {# users were}} already in the organization.",
       "accounts_not_found": "{notFoundCount} {notFoundCount, plural, one {user was} other {users were}} not found.",
       "invalid_email_address": "Invalid email address: {email}.",
