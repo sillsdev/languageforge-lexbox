@@ -17,7 +17,8 @@ public enum EmailTemplate
     NewAdmin,
     VerifyEmailAddress,
     PasswordChanged,
-    CreateAccountRequest,
+    CreateAccountRequestProject,
+    CreateAccountRequestOrg,
     CreateProjectRequest,
     ApproveProjectRequest,
     UserAdded,
@@ -29,8 +30,8 @@ public record NewAdminEmail(string Name, string AdminName, string AdminEmail) : 
 
 public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
 
-public record ProjectInviteEmail(string Email, string ProjectId, string ManagerName, string ProjectName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
-public record OrgInviteEmail(string Email, string OrgId, string ManagerName, string OrgName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
+public record ProjectInviteEmail(string Email, string ProjectId, string ManagerName, string ProjectName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequestProject);
+public record OrgInviteEmail(string Email, string OrgId, string ManagerName, string OrgName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequestOrg);
 
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);
 

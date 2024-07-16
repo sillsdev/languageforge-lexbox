@@ -583,10 +583,15 @@ If you don't see a dialog or already closed it, click the button below:",
       "greeting": "Hello {name}!",
       "greeting_noname": "Hello!"
     },
-    "create_account_request_email": {
+    "create_account_request_email_project": {
       "subject": "Project invitation: {projectName}",
       "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
       "join_button": "Join project"
+    },
+    "create_account_request_email_org": {
+      "subject": "Org invitation: {orgName}",
+      "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
+      "join_button": "Join organization"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
