@@ -9,7 +9,6 @@ namespace LcmCrdt.Objects;
 
 public class Entry : MiniLcm.Entry, IObjectBase<Entry>
 {
-
     Guid IObjectBase.Id
     {
         get => Id;
@@ -18,12 +17,17 @@ public class Entry : MiniLcm.Entry, IObjectBase<Entry>
 
     public DateTimeOffset? DeletedAt { get; set; }
 
+    /// <summary>
+    /// This is a bit of a hack, we want to be able to reference senses when running a query, and they must be CrdtSenses
+    /// however we only want to store the senses in the entry as MiniLcmSenses, so we need to convert them back to CrdtSenses
+    /// Note, even though this is JsonIgnored, the Senses property in the base class is still serialized
+    /// </summary>
     [JsonIgnore]
     public new IReadOnlyList<Sense> Senses
     {
         get
         {
-            return [..base.Senses.OfType<Sense>()];
+            return [..base.Senses.Select(s => s as Sense ?? Sense.FromMiniLcm(s, Id))];
         }
         set { base.Senses = [..value]; }
     }

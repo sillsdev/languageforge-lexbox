@@ -11,6 +11,20 @@ namespace LcmCrdt.Objects;
 
 public class Sense : MiniLcm.Sense, IObjectBase<Sense>
 {
+    public static Sense FromMiniLcm(MiniLcm.Sense sense, Guid entryId)
+    {
+        return new Sense
+        {
+            Id = sense.Id,
+            Definition = sense.Definition,
+            Gloss = sense.Gloss,
+            PartOfSpeech = sense.PartOfSpeech,
+            PartOfSpeechId = sense.PartOfSpeechId,
+            SemanticDomains = sense.SemanticDomains,
+            ExampleSentences = sense.ExampleSentences,
+            EntryId = entryId
+        };
+    }
     public static IEnumerable<IChange> ChangesFromJsonPatch(Sense sense, JsonPatchDocument<MiniLcm.Sense> patch)
     {
         foreach (var rewriteChange in patch.RewriteChanges(s => s.PartOfSpeechId,
