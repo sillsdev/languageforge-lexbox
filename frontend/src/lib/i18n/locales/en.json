@@ -589,7 +589,7 @@ If you don't see a dialog or already closed it, click the button below:",
       "join_button": "Join project"
     },
     "create_account_request_email_org": {
-      "subject": "Org invitation: {orgName}",
+      "subject": "Organization invitation: {orgName}",
       "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
       "join_button": "Join organization"
     },

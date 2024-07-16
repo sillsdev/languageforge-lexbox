@@ -3,11 +3,11 @@ import NewAdmin from '$lib/email/NewAdmin.svelte';
 import type {ComponentType} from 'svelte';
 import VerifyEmailAddress from '$lib/email/VerifyEmailAddress.svelte';
 import PasswordChanged from '$lib/email/PasswordChanged.svelte';
-import CreateAccountRequestOrg from '$lib/email/CreateAccountRequestProject.svelte';
 import CreateProjectRequest from '$lib/email/CreateProjectRequest.svelte';
 import type {CreateProjectInput} from '$lib/gql/generated/graphql';
 import ApproveProjectRequest from '$lib/email/ApproveProjectRequest.svelte';
 import UserAdded from '$lib/email/UserAdded.svelte';
+import CreateAccountRequestOrg from '$lib/email/CreateAccountRequestOrg.svelte';
 import CreateAccountRequestProject from '$lib/email/CreateAccountRequestProject.svelte';
 
 
