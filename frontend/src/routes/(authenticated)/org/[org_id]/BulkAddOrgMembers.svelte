@@ -108,11 +108,11 @@
         />
       </div>
     {:else if currentStep == BulkAddSteps.Results}
-      <p class="flex gap-1 items-center mb-4">
-        <Icon icon="i-mdi-plus" color="text-success" />
-        {$t('org_page.bulk_add_members.members_added', {addedCount: addedMembers.length})}
-      </p>
-      <div class="mb-4 ml-8">
+      <div class="mb-4">
+        <p class="flex gap-1 items-center">
+          <Icon icon="i-mdi-plus" color="text-success" />
+          {$t('org_page.bulk_add_members.members_added', {addedCount: addedMembers.length})}
+        </p>
         {#if addedMembers.length > 0}
           <div class="mt-2">
             <BadgeList>
