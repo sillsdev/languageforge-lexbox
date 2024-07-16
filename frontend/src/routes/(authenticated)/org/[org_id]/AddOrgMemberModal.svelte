@@ -1,6 +1,6 @@
 <script lang="ts">
   import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, OrgRoleSelect, isEmail } from '$lib/forms';
+  import { Checkbox, Input, OrgRoleSelect, isEmail } from '$lib/forms';
   import { OrgRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -17,6 +17,7 @@
       .min(1, $t('org_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
     role: z.enum([OrgRole.User, OrgRole.Admin]).default(OrgRole.User),
+    canInvite: z.boolean().default(false),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
@@ -30,6 +31,7 @@
         orgId as UUID,
         $form.usernameOrEmail,
         $form.role,
+        $form.canInvite,
       );
 
       if (error?.byType('NotFoundError')) {
@@ -78,14 +80,14 @@
     />
   {/if}
   <OrgRoleSelect bind:value={$form.role} error={errors.role} />
-  <!-- <Checkbox
+  <Checkbox
     id="invite"
     label={'invite'}
     description={''}
     variant="checkbox-warning"
     labelColor="text-warning"
-    bind:value
-  /> -->
+    bind:value={$form.canInvite}
+  />
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}
       {$t('org_page.add_user.submit_button_email')}

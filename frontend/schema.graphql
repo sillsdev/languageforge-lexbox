@@ -868,6 +868,7 @@ input SetOrgMemberRoleInput {
   orgId: UUID!
   role: OrgRole!
   emailOrUsername: String!
+  canInvite: Boolean!
 }
 
 input SetProjectConfidentialityInput {

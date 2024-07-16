@@ -143,6 +143,7 @@ public class OrgMutations
         Guid orgId,
         OrgRole role,
         string emailOrUsername,
+        bool canInvite,
         [Service] IEmailService emailService)
     {
         var org = await dbContext.Orgs.FindAsync(orgId);
@@ -156,7 +157,7 @@ public class OrgMutations
             {
                 throw NotFoundException.ForType<User>();
             }
-            else
+            else if (canInvite)
             {
                 var manager = loggedInContext.User;
                 await emailService.SendCreateAccountWithOrgEmail(
@@ -166,6 +167,10 @@ public class OrgMutations
                     orgRole: role,
                     orgName: org.Name);
                 throw new OrgMemberInvitedByEmail("Invitation email sent");
+            }
+            else
+            {
+                throw NotFoundException.ForType<User>();
             }
         }
         else if (user.Organizations.Any(o => o.OrgId == orgId))
