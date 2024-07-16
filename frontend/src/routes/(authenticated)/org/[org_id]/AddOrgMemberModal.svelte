@@ -83,8 +83,7 @@
   <span slot="checkbox">
     <Checkbox
       id="invite"
-      label={'invite'}
-      description={''}
+      label={$t('org_page.add_user.invite')}
       variant="checkbox-warning"
       labelColor="text-warning"
       bind:value={$form.canInvite}

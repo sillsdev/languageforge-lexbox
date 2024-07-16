@@ -247,6 +247,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "organization": "Organization",
     "add_user": {
       "add_button": "Add Member",
+      "invite": "Invite",
       "__comment_add_button": "Should become 'Add/Invite Member' once email invitations implemented for orgs",
       "modal_title": "Add a Member to this organization",
       "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
