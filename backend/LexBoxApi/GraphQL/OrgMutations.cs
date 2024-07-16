@@ -144,9 +144,9 @@ public class OrgMutations
         string emailOrUsername,
         [Service] IEmailService emailService)
     {
-        //TODO: Add AssertCanManageOrg() to permission service?
         var org = await dbContext.Orgs.FindAsync(orgId);
         NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanEditOrg(org);
         var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
         NotFoundException.ThrowIfNull(user);
         if (user is null)
