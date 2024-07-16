@@ -6,6 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
+<!--        this is referenced by SIL.LCModel however it causes conflicts because CommonServiceLocator includes Microsoft.NETCore.App which includes it's own runtime, this is not compatible with MAUI-->
+        <PackageReference Include="CommonServiceLocator" Version="1.4.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />

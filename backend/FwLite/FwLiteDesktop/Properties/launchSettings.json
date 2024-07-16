@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "Run": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "COREHOST_TRACE": "1"
+      }
+    },
+    "Windows Machine": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
+    }
+  }
+}
