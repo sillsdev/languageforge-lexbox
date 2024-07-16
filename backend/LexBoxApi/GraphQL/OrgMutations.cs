@@ -132,6 +132,7 @@ public class OrgMutations
     /// <param name="emailOrUsername">either an email or a username for the user whos membership to update</param>
     [Error<DbError>]
     [Error<NotFoundException>]
+    [Error<OrgMemberInvitedByEmail>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
@@ -148,7 +149,6 @@ public class OrgMutations
         NotFoundException.ThrowIfNull(org);
         permissionService.AssertCanEditOrg(org);
         var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
-        NotFoundException.ThrowIfNull(user);
         if (user is null)
         {
             var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(emailOrUsername);
@@ -159,7 +159,6 @@ public class OrgMutations
             else
             {
                 var manager = loggedInContext.User;
-                // There should be a way of doing this without having to pass in all these null values.
                 await emailService.SendCreateAccountWithOrgEmail(
                     email,
                     manager.Name,

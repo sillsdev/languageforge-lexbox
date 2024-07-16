@@ -39,6 +39,10 @@
           return { usernameOrEmail: [$t('org_page.add_user.username_not_found')] };
         }
       }
+      if (error?.byType('OrgMemberInvitedByEmail')) {
+        userInvited = true;
+        return undefined; // Close modal as if success
+      }
 
       return error?.message;
     });
@@ -74,6 +78,14 @@
     />
   {/if}
   <OrgRoleSelect bind:value={$form.role} error={errors.role} />
+  <!-- <Checkbox
+    id="invite"
+    label={'invite'}
+    description={''}
+    variant="checkbox-warning"
+    labelColor="text-warning"
+    bind:value
+  /> -->
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}
       {$t('org_page.add_user.submit_button_email')}

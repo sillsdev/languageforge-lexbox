@@ -293,6 +293,10 @@ type OrgMemberDtoCreatedBy {
   name: String!
 }
 
+type OrgMemberInvitedByEmail implements Error {
+  message: String!
+}
+
 type OrgProjects {
   org: Organization!
   project: Project!
@@ -494,7 +498,7 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
-union SetOrgMemberRoleError = DbError | NotFoundError
+union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
 union SetProjectConfidentialityError = NotFoundError | DbError
 
