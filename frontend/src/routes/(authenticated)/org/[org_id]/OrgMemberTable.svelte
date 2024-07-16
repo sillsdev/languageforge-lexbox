@@ -42,12 +42,18 @@
         <tr>
           <td>
             <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
-              <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', user)}>
+              {#if showEmailColumn}
+                <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', user)}>
+                  <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
+                    {user.name}
+                  </span>
+                  <Icon icon="i-mdi-card-account-details-outline" />
+                </Button>
+              {:else}
                 <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
                   {user.name}
                 </span>
-                <Icon icon="i-mdi-card-account-details-outline" />
-              </Button>
+              {/if}
             </div>
           </td>
           {#if showEmailColumn}
