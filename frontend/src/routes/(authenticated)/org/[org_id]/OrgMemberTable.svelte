@@ -62,6 +62,7 @@
           <td class="@2xl:table-cell">
             <FormatUserOrgRole role={member.role} />
           </td>
+          {#if showEmailColumn}
           <td class="p-0">
             <Dropdown>
               <button class="btn btn-ghost btn-square">
@@ -83,6 +84,7 @@
               </ul>
             </Dropdown>
           </td>
+          {/if}
         </tr>
       {/each}
     </tbody>
