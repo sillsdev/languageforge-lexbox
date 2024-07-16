@@ -31,6 +31,17 @@ type AuthUserProject {
   projectId: UUID!
 }
 
+type BulkAddOrgMembersPayload {
+  bulkAddOrgMembersResult: BulkAddOrgMembersResult
+  errors: [BulkAddOrgMembersError!]
+}
+
+type BulkAddOrgMembersResult {
+  addedMembers: [OrgMemberRole!]!
+  notFoundMembers: [OrgMemberRole!]!
+  existingMembers: [OrgMemberRole!]!
+}
+
 type BulkAddProjectMembersPayload {
   bulkAddProjectMembersResult: BulkAddProjectMembersResult
   errors: [BulkAddProjectMembersError!]
@@ -208,6 +219,7 @@ type Mutation {
   removeProjectFromOrg(input: RemoveProjectFromOrgInput!): RemoveProjectFromOrgPayload!
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
+  bulkAddOrgMembers(input: BulkAddOrgMembersInput!): BulkAddOrgMembersPayload! @authorize(policy: "AdminRequiredPolicy")
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
@@ -291,6 +303,11 @@ type OrgMemberDto {
 type OrgMemberDtoCreatedBy {
   id: UUID!
   name: String!
+}
+
+type OrgMemberRole {
+  username: String!
+  role: OrgRole!
 }
 
 type OrgProjects {
@@ -462,6 +479,8 @@ union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVeri
 
 union AddProjectToOrgError = DbError | NotFoundError
 
+union BulkAddOrgMembersError = NotFoundError | DbError
+
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
 union ChangeOrgMemberRoleError = DbError | NotFoundError
@@ -516,6 +535,12 @@ input AddProjectToOrgInput {
 input BooleanOperationFilterInput {
   eq: Boolean
   neq: Boolean
+}
+
+input BulkAddOrgMembersInput {
+  orgId: UUID!
+  usernames: [String!]!
+  role: OrgRole!
 }
 
 input BulkAddProjectMembersInput {

@@ -1,6 +1,7 @@
 import type {
   $OpResult,
   AddOrgMemberMutation,
+  BulkAddOrgMembersMutation,
   ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
   ChangeOrgNameMutation,
@@ -154,6 +155,38 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
         }
       `),
       { input: { orgId, emailOrUsername, role} },
+    );
+  return result;
+}
+
+export async function _bulkAddOrgMembers(orgId: UUID, usernames: string[], role: OrgRole): $OpResult<BulkAddOrgMembersMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation BulkAddOrgMembers($input: BulkAddOrgMembersInput!) {
+          bulkAddOrgMembers(input: $input) {
+            bulkAddOrgMembersResult {
+              addedMembers {
+                username
+                role
+              }
+              existingMembers {
+                username
+                role
+              }
+              notFoundMembers {
+                username
+                role
+              }
+            }
+            errors {
+              __typename
+            }
+          }
+        }
+      `),
+      { input: { orgId, usernames, role } }
     );
   return result;
 }
