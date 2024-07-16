@@ -48,9 +48,7 @@
 
   async function openModal(): Promise<void> {
     currentStep = BulkAddSteps.Add;
-    console.log('Opening modal');
     const { response } = await formModal.open(undefined, async (state) => {
-      console.log('Submit button clicked');
       const usernames = state.usernamesText.currentValue
         .split('\n')
         // Remove whitespace
@@ -58,8 +56,6 @@
         // Remove empty lines before validating, otherwise final newline would count as invalid because empty string
         .filter(s => s)
         .filter(distinct);
-
-      console.log('Usernames:', usernames);
 
       const bulkErrors = validateBulkAddInput(usernames);
       if (bulkErrors) return bulkErrors;
@@ -69,9 +65,6 @@
         usernames,
         OrgRole.User,
       );
-
-      console.log('Error:', error);
-      console.log('Data:', data);
 
       addedMembers = data?.bulkAddOrgMembers.bulkAddOrgMembersResult?.addedMembers ?? [];
       notFoundMembers = data?.bulkAddOrgMembers.bulkAddOrgMembersResult?.notFoundMembers ?? [];
