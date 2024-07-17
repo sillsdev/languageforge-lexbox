@@ -28,6 +28,7 @@ import {
   type BulkAddProjectMembersMutationVariables,
   type DeleteDraftProjectMutationVariables,
   type MutationAddProjectToOrgArgs,
+  type BulkAddOrgMembersMutationVariables,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -69,6 +70,9 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               if (args.input.projectId) {
                 cache.invalidate({__typename: 'Project', id: args.input.projectId});
               }
+            },
+            bulkAddOrgMembers: (result, args: BulkAddOrgMembersMutationVariables, cache, _info) => {
+              cache.invalidate({__typename: 'Org', id: args.input.orgId});
             },
             leaveProject: (result, args: LeaveProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});

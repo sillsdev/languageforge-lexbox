@@ -202,12 +202,14 @@ public class OrgMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
-    [AdminRequired]
+    [Error<UnauthorizedAccessException>]
     [UseMutationConvention]
     public async Task<BulkAddOrgMembersResult> BulkAddOrgMembers(
         BulkAddOrgMembersInput input,
+        IPermissionService permissionService,
         LexBoxDbContext dbContext)
     {
+        permissionService.AssertCanEditOrg(input.OrgId);
         var orgExists = await dbContext.Orgs.AnyAsync(p => p.Id == input.OrgId);
         if (!orgExists) throw NotFoundException.ForType<Organization>();
         List<OrgMemberRole> AddedMembers = [];

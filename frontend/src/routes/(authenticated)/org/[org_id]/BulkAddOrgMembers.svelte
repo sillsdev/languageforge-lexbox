@@ -78,7 +78,6 @@
   }
 </script>
 
-<AdminContent>
   <Button variant="btn-success" on:click={openModal}>
     {$t('org_page.bulk_add_members.add_button')}
     <span class="i-mdi-account-multiple-plus-outline text-2xl" />
@@ -150,7 +149,6 @@
     <span slot="submitText">{$t('org_page.bulk_add_members.submit_button')}</span>
     <span slot="closeText">{$t('org_page.bulk_add_members.finish_button')}</span>
   </FormModal>
-</AdminContent>
 
 <style lang="postcss">
   .usernames :global(.description) {
