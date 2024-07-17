@@ -48,7 +48,8 @@ public class WritingSystem : IObjectBase<WritingSystem>, IOrderableCrdt
             Font = Font,
             Exemplars = Exemplars,
             DeletedAt = DeletedAt,
-            Type = Type
+            Type = Type,
+            Order = Order
         };
     }
 

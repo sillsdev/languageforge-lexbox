@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 
 namespace LcmCrdt;
 
-
 public static class LcmCrdtKernel
 {
     public static IServiceCollection AddLcmCrdtClient(this IServiceCollection services)
@@ -40,6 +39,9 @@ public static class LcmCrdtKernel
     {
         var projectContext = provider.GetRequiredService<ProjectContext>();
         if (projectContext.Project is null) throw new NullReferenceException("Project is null");
+#if DEBUG
+        builder.EnableSensitiveDataLogging();
+#endif
         builder.UseSqlite($"Data Source={projectContext.Project.DbPath}")
             .UseLinqToDB(optionsBuilder =>
             {
@@ -48,6 +50,8 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
+                    .Entity<Entry>().Property(e => e.Id)
+                    .Association(e => (e.Senses as IEnumerable<Sense>)!, e => e.Id, s => s.EntryId)
                     .Build();
                 mappingSchema.SetConvertExpression((MiniLcm.WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -64,6 +68,7 @@ public static class LcmCrdtKernel
         config.ObjectTypeListBuilder
             .Add<Entry>(builder =>
             {
+                builder.Ignore(e => e.Senses);
                 // builder.OwnsOne(e => e.Note, n => n.ToJson());
                 // builder.OwnsOne(e => e.LexemeForm, n => n.ToJson());
                 // builder.OwnsOne(e => e.CitationForm, n => n.ToJson());
@@ -71,6 +76,7 @@ public static class LcmCrdtKernel
             })
             .Add<Sense>(builder =>
             {
+                builder.Ignore(s => s.ExampleSentences);
                 builder.HasOne<Entry>()
                     .WithMany()
                     .HasForeignKey(sense => sense.EntryId);

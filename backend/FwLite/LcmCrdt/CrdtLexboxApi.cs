@@ -73,9 +73,24 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
+    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, false));
+    }
+
     public IAsyncEnumerable<MiniLcm.SemanticDomain> GetSemanticDomains()
     {
         return SemanticDomains.AsAsyncEnumerable();
+    }
+
+    public async Task CreateSemanticDomain(MiniLcm.SemanticDomain semanticDomain)
+    {
+        await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code));
+    }
+
+    public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.SemanticDomain> semanticDomains)
+    {
+        await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
     }
 
     public IAsyncEnumerable<MiniLcm.Entry> GetEntries(QueryOptions? options = null)
@@ -86,7 +101,12 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
     public IAsyncEnumerable<MiniLcm.Entry> SearchEntries(string? query, QueryOptions? options = null)
     {
         if (string.IsNullOrEmpty(query)) return GetEntriesAsyncEnum(null, options);
-        return GetEntriesAsyncEnum(e => e.LexemeForm.SearchValue(query) || e.CitationForm.SearchValue(query), options);
+
+        return GetEntriesAsyncEnum(e => e.LexemeForm.SearchValue(query)
+                                        || e.CitationForm.SearchValue(query)
+                                        || e.Senses.Any(s => s.Gloss.SearchValue(query))
+
+            , options);
     }
 
     private async IAsyncEnumerable<MiniLcm.Entry> GetEntriesAsyncEnum(
@@ -188,6 +208,35 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
         ], deferCommit: true);
     }
 
+    public async Task BulkCreateEntries(IAsyncEnumerable<MiniLcm.Entry> entries)
+    {
+        var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
+        var partsOfSpeech = await PartsOfSpeech.ToDictionaryAsync(p => p.Id, p => p);
+        await dataModel.AddChanges(ClientId, entries.ToBlockingEnumerable().SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech)));
+    }
+
+    private IEnumerable<IChange> CreateEntryChanges(MiniLcm.Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, Objects.PartOfSpeech> partsOfSpeech)
+    {
+        yield return new CreateEntryChange(entry);
+        foreach (var sense in entry.Senses)
+        {
+            sense.SemanticDomains = sense.SemanticDomains
+                .Select(sd => semanticDomains.TryGetValue(sd.Id, out var selectedSd) ? selectedSd : null)
+                .OfType<MiniLcm.SemanticDomain>()
+                .ToList();
+            if (sense.PartOfSpeechId is not null && partsOfSpeech.TryGetValue(sense.PartOfSpeechId.Value, out var partOfSpeech))
+            {
+                sense.PartOfSpeechId = partOfSpeech.Id;
+                sense.PartOfSpeech = partOfSpeech.Name["en"] ?? string.Empty;
+            }
+            yield return new CreateSenseChange(sense, entry.Id);
+            foreach (var exampleSentence in sense.ExampleSentences)
+            {
+                yield return new CreateExampleSentenceChange(exampleSentence, sense.Id);
+            }
+        }
+    }
+
     public async Task<MiniLcm.Entry> CreateEntry(MiniLcm.Entry entry)
     {
         await dataModel.AddChanges(ClientId,
@@ -225,7 +274,6 @@ public class CrdtLexboxApi(DataModel dataModel, JsonSerializerOptions jsonOption
             sense.PartOfSpeechId = partOfSpeech?.Id;
             sense.PartOfSpeech = partOfSpeech?.Name["en"] ?? string.Empty;
         }
-
 
         yield return new CreateSenseChange(sense, entryId);
         foreach (var change in sense.ExampleSentences.Select(sentence =>

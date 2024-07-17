@@ -12,14 +12,12 @@ public interface ILexboxApi
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
 
-    IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
-    {
-        throw new NotImplementedException();
-    }
-    IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
-    {
-        throw new NotImplementedException();
-    }
+    IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech();
+    Task CreatePartOfSpeech(PartOfSpeech partOfSpeech);
+    IAsyncEnumerable<SemanticDomain> GetSemanticDomains();
+
+    Task CreateSemanticDomain(SemanticDomain semanticDomain);
+
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);

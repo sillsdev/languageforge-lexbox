@@ -138,6 +138,16 @@ public class InMemoryApi : ILexboxApi
         return Task.FromResult(ws);
     }
 
+    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        throw new NotImplementedException();
+    }
+
     private readonly string[] _exemplars = Enumerable.Range('a', 'z').Select(c => ((char)c).ToString()).ToArray();
 
     public Task<Entry> CreateEntry(Entry entry)
@@ -164,6 +174,15 @@ public class InMemoryApi : ILexboxApi
         return Task.FromResult(sense);
     }
 
+    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    {
+        throw new NotImplementedException();
+    }
 
     public Task DeleteEntry(Guid id)
     {

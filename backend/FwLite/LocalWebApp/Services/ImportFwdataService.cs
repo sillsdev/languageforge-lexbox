@@ -1,6 +1,6 @@
-﻿using FwDataMiniLcmBridge;
-using FwDataMiniLcmBridge.Api;
-using FwDataMiniLcmBridge.LcmUtils;
+﻿using System.Diagnostics;
+using FwDataMiniLcmBridge;
+using Humanizer;
 using LcmCrdt;
 using MiniLcm;
 
@@ -10,23 +10,33 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
 {
     public async Task<CrdtProject> Import(string projectName)
     {
+        var startTime = Stopwatch.GetTimestamp();
         var fwDataProject = FieldWorksProjectList.GetProject(projectName);
         if (fwDataProject is null)
         {
             throw new InvalidOperationException($"Project {projectName} not found.");
         }
         using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
-        var project = await projectsService.CreateProject(fwDataProject.Name,
-            afterCreate: async (provider, project) =>
-            {
-                var crdtApi = provider.GetRequiredService<ILexboxApi>();
-                await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
-            });
-        logger.LogInformation("Import of {ProjectName} complete!", fwDataApi.Project.Name);
-        return project;
+        try
+        {
+            var project = await projectsService.CreateProject(fwDataProject.Name,
+                afterCreate: async (provider, project) =>
+                {
+                    var crdtApi = provider.GetRequiredService<ILexboxApi>();
+                    await ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
+                });
+            var timeSpent = Stopwatch.GetElapsedTime(startTime);
+            logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize(2));
+            return project;
+        }
+        catch
+        {
+            logger.LogError("Import of {ProjectName} failed, deleting project", fwDataApi.Project.Name);
+            throw;
+        }
     }
 
-    async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)
+    private async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)
     {
         var writingSystems = await importFrom.GetWritingSystems();
         foreach (var ws in writingSystems.Analysis)
@@ -41,19 +51,37 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
             logger.LogInformation("Imported ws {WsId}", ws.Id);
         }
 
-        var index = 0;
-        await foreach (var entry in importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0)))
+        await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())
         {
-            if (importTo is CrdtLexboxApi crdtLexboxApi)
+            await importTo.CreatePartOfSpeech(partOfSpeech);
+            logger.LogInformation("Imported part of speech {Id}", partOfSpeech.Id);
+        }
+
+
+        var semanticDomains = importFrom.GetSemanticDomains();
+        var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));
+        if (importTo is CrdtLexboxApi crdtLexboxApi)
+        {
+            logger.LogInformation("Importing semantic domains");
+            await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains.ToBlockingEnumerable());
+            logger.LogInformation("Importing {Count} entries", entryCount);
+            await crdtLexboxApi.BulkCreateEntries(entries);
+        }
+        else
+        {
+            await foreach (var semanticDomain in semanticDomains)
             {
-                await crdtLexboxApi.CreateEntryLite(entry);
-            }
-            else
-            {
-                await importTo.CreateEntry(entry);
+                await importTo.CreateSemanticDomain(semanticDomain);
+                logger.LogTrace("Imported semantic domain {Id}", semanticDomain.Id);
             }
 
-            logger.LogInformation("Imported entry, {Index} of {Count} {Id}", index++, entryCount, entry.Id);
+            var index = 0;
+            await foreach (var entry in entries)
+            {
+                await importTo.CreateEntry(entry);
+                logger.LogTrace("Imported entry, {Index} of {Count} {Id}", index++, entryCount, entry.Id);
+            }
         }
+        logger.LogInformation("Imported {Count} entries", entryCount);
     }
 }
