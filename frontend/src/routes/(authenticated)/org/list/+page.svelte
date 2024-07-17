@@ -70,20 +70,28 @@ TODO:
 -->
 
 <Page wide title={$t('org.table.title')}>
-  <h1 class="text-3xl text-left grow max-w-full mb-4 flex gap-4 items-center">
-    {$t('org.table.title')}
-    <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
-  </h1>
-
-  <div class="mt-4">
-    <FilterBar
-      searchKey="search"
-      filterKeys={['search']}
-      filters={queryParamValues}
-      filterDefaults={defaultQueryParamValues}
-    />
-  </div>
-
+  <svelte:fragment slot="header">
+    <div class="flex flex-row-reverse flex-wrap justify-between mb-4 gap-y-2 gap-x-4">
+      <div class="inline-flex flex-wrap header-actions gap-2">
+        <a href="/org/create" class="btn btn-success">
+          {$t('org.create.title')}
+          <span class="i-mdi-plus text-2xl" />
+        </a>
+      </div>
+      <h1 class="text-3xl text-left grow max-w-full flex items-end flex-wrap">
+        {$t('org.table.title')}
+      <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
+      </h1>
+    </div>
+    <div class="mt-4">
+      <FilterBar
+        searchKey="search"
+        filterKeys={['search']}
+        filters={queryParamValues}
+        filterDefaults={defaultQueryParamValues}
+      />
+    </div>
+  </svelte:fragment>
   <div class="divider" />
   <div class="overflow-x-auto @container scroll-shadow">
     <table class="table table-lg">
