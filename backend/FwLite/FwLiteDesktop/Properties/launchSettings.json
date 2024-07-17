@@ -3,7 +3,7 @@
     "Run": {
       "commandName": "Project",
       "environmentVariables": {
-        "COREHOST_TRACE": "1"
+        "COREHOST_TRACE": "0"
       }
     },
     "Windows Machine": {

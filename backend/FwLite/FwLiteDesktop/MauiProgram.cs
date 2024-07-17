@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FwLiteDesktop.ServerBridge;
+using LocalWebApp;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
 
 namespace FwLiteDesktop;
 
@@ -15,17 +19,19 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+        builder.Services.AddSingleton<MainPage>();
 
-        builder.Services.AddOptions<LocalWebAppConfig>().Configure(config =>
-            {
-                config.Url = "http://localhost:5000";
-            }
-        );
+        var serverManager = new ServerManager();
+        builder.Services.AddSingleton(serverManager);
+        builder.Configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
+        builder.Services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
 
 #if DEBUG
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+        app.Services.GetRequiredService<ServerManager>().Start();
+        return app;
     }
 }
