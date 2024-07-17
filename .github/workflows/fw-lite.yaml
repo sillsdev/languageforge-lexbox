@@ -31,6 +31,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
+      - name: Setup Maui
+        run: dotnet workload install maui
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
