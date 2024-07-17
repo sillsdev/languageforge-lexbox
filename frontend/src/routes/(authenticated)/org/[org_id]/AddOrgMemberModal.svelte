@@ -55,7 +55,7 @@
   }
 </script>
 
-<FormModal bind:this={formModal} {schema} let:errors>
+<FormModal bind:this={formModal} {schema} let:errors --justify-actions="end">
   <span slot="title">
     {$t('org_page.add_user.modal_title')}
     <SupHelp helpLink={helpLinks.addOrgMember} />
@@ -80,7 +80,7 @@
     />
   {/if}
   <OrgRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="checkbox">
+  <svelte:fragment slot="extraActions">
     <Checkbox
       id="invite"
       label={$t('org_page.add_user.invite')}
@@ -88,7 +88,7 @@
       labelColor="text-warning"
       bind:value={$form.canInvite}
     />
-  </span>
+  </svelte:fragment>
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}
       {$t('org_page.add_user.submit_button_email')}
