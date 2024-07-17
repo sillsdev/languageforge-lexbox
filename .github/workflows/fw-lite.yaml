@@ -41,13 +41,8 @@ jobs:
         run: dotnet build --configuration Release
       - name: Dotnet test
         working-directory: backend/FwLite/LcmCrdt.Tests
-        run: dotnet test --configuration Release --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results
-      - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
-        if: always()
-        with:
-          check_name: FW Lite Unit Tests
-          files: ./backend/FwLite/LcmCrdt.Tests/test-results/*.xml
+        run: dotnet test --configuration Release  --logger GitHubActions
+
       - name: Build viewer
         working-directory: frontend/viewer
         run: |
