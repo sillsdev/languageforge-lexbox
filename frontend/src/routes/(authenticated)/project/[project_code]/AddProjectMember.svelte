@@ -10,6 +10,7 @@
   import { page } from '$app/stores'
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
+  import Checkbox from '$lib/forms/Checkbox.svelte';
 
   export let projectId: string;
   const schema = z.object({
@@ -17,6 +18,7 @@
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
+    canInvite: z.boolean().default(false),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
@@ -30,6 +32,7 @@
         projectId,
         usernameOrEmail: $form.usernameOrEmail,
         role: $form.role,
+        canInvite: $form.canInvite,
       });
 
       if (error?.byType('NotFoundError')) {
@@ -93,6 +96,15 @@
     />
   {/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
+  <span slot="checkbox">
+    <Checkbox
+      id="invite"
+      label={'Invite'}
+      variant="checkbox-warning"
+      labelColor="text-warning"
+      bind:value={$form.canInvite}
+    />
+  </span>
   <span slot="submitText">
     {#if $form.usernameOrEmail.includes('@')}
       {$t('project_page.add_user.submit_button_email')}

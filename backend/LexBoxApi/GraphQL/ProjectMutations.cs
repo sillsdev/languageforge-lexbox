@@ -87,7 +87,7 @@ public class ProjectMutations
             {
                 throw NotFoundException.ForType<User>();
             }
-            else
+            else if (input.canInvite)
             {
                 var manager = loggedInContext.User;
                 await emailService.SendCreateAccountWithProjectEmail(
@@ -97,6 +97,10 @@ public class ProjectMutations
                     role: input.Role,
                     projectName: project.Name);
                 throw new ProjectMemberInvitedByEmail("Invitation email sent");
+            }
+            else
+            {
+                throw NotFoundException.ForType<User>();
             }
         }
         if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
