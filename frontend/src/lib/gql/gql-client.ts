@@ -72,7 +72,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               }
             },
             bulkAddOrgMembers: (result, args: BulkAddOrgMembersMutationVariables, cache, _info) => {
-              cache.invalidate({__typename: 'Org', id: args.input.orgId});
+              cache.invalidate({__typename: 'Organization', id: args.input.orgId});
             },
             leaveProject: (result, args: LeaveProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
