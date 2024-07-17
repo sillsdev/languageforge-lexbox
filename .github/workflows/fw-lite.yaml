@@ -19,8 +19,8 @@ on:
       - develop
 
 jobs:
-  build-app:
-    name: Build FW Lite
+  build-and-test:
+    name: Build FW Lite and run tests
     timeout-minutes: 20
     runs-on: windows-latest
     steps:
@@ -31,14 +31,14 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-      - name: Setup Maui
-        run: dotnet workload install maui-windows
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
+
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet build --configuration Release
+
       - name: Dotnet test
         working-directory: backend/FwLite/LcmCrdt.Tests
         run: dotnet test --configuration Release  --logger GitHubActions
@@ -50,26 +50,58 @@ jobs:
           pnpm install
           pnpm run build-app
 
-      - name: Publish linux
+  publish-app:
+    name: Publish FW Lite app and sign installer
+
+    # only publish if tag matches fwlite-v* pattern
+    # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
+    needs: build-and-test
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+
+      - name: Setup Maui
+        run: dotnet workload install maui-windows
+
+      - name: Dotnet build
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet build --configuration Release
+
+      - name: Publish Linux
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts
-      - name: Publish osx
+
+      - name: Publish OSX
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r osx-x64 --artifacts-path ../artifacts
-      - name: Publish osx-arm
+
+      - name: Publish OSX ARM
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts
-      - name: Publish win
+
+      - name: Publish Windows
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r win-x64 --artifacts-path ../artifacts
-      - name: Publish win-arm
+
+      - name: Publish Windows ARM
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r win-arm64 --artifacts-path ../artifacts
-      - name: Publish win maui app
+
+      - name: Publish Windows MAUI app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
           dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
           dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
+
       - name: Upload artifacts
         # uploading in one artifact as there's a lot of duplication between builds so compression goes far
         uses: actions/upload-artifact@v4
@@ -79,3 +111,31 @@ jobs:
           path: |
             backend/FwLite/artifacts/publish/LocalWebApp/*
             backend/FwLite/artifacts/bin/FwLiteDesktop/*/AppPackages/FwLiteDesktop_1.0.0.1_Test/*.msix
+
+  sign-installer:
+    name: Sign FWLite MSIX installer
+    needs: publish-app
+    uses: sillsdev/codesign/.github/workflows/sign.yml@v2
+    with:
+      artifact: fw-lite
+    secrets:
+      certificate: ${{ secrets.CODESIGN_LSDEVSECTIGOEV }}
+
+  create-release:
+    name: Create Release
+    needs: sign-installer
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            backend/FwLite/artifacts/bin/FwLiteDesktop/*/AppPackages/FwLiteDesktop_1.0.0.1_Test/*.msix
+          body: |
+            Release for version ${{ github.ref }}
+          draft: true
