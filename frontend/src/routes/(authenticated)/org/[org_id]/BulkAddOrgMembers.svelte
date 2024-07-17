@@ -6,7 +6,6 @@
   import t from '$lib/i18n';
   import { z } from 'zod';
   import { _bulkAddOrgMembers } from './+page';
-  import { AdminContent } from '$lib/layout';
   import Icon from '$lib/icons/Icon.svelte';
   import BadgeList from '$lib/components/Badges/BadgeList.svelte';
   import { distinct } from '$lib/util/array';
@@ -14,6 +13,7 @@
   import { usernameRe } from '$lib/user';
   import OrgMemberBadge from '$lib/components/Badges/OrgMemberBadge.svelte';
   import type { UUID } from 'crypto';
+  import { invalidate } from '$app/navigation';
 
   enum BulkAddSteps {
     Add,
@@ -73,6 +73,7 @@
     }, { keepOpenOnSubmit: true });
 
     if (response === DialogResponse.Submit) {
+      await invalidate(`org:${orgId}`);
       currentStep = BulkAddSteps.Results;
     }
   }
