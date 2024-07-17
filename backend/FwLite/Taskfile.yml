@@ -26,7 +26,7 @@ tasks:
   publish-maui-desktop:
     label: Publish Maui Desktop
     dir: ./FwLiteDesktop
-    cmd: dotnet publish -f net8.0-windows10.0.19041.0  -p:RuntimeIdentifierOverride=win10-x64
+    cmd: dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
 
   publish-local-all:
     cmds:
