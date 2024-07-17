@@ -1,30 +1,32 @@
 ﻿using LocalWebApp;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-namespace FwLiteDesktop;
+namespace FwLiteDesktop.ServerBridge;
 
-public class ServerManager : IAsyncDisposable
+public class ServerManager(Action<WebApplicationBuilder>? configure = null) : IAsyncDisposable
 {
     private readonly TaskCompletionSource<WebApplication> _started = new();
     public Task<WebApplication> Started => _started.Task;
     private WebApplication? _webApp;
 
-    public void Start()
+    public void Start(ILogger<ServerManager> logger)
     {
-        _webApp = LocalWebAppServer.SetupAppServer([]);
+        _webApp = LocalWebAppServer.SetupAppServer([], configure);
         _ = Task.Run(async () =>
         {
             try
             {
+                logger.LogInformation("Starting web app");
                 await _webApp.StartAsync();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.LogError(e, "Failed to start web app");
                 throw;
             }
-
+            logger.LogInformation("Web app started");
             _started.SetResult(_webApp);
         });
     }

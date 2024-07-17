@@ -1,17 +1,22 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace FwLiteDesktop;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage(IOptionsMonitor<LocalWebAppConfig> options)
+    public MainPage(IOptionsMonitor<LocalWebAppConfig> options, ILogger<MainPage> logger)
     {
         InitializeComponent();
         options.OnChange(o =>
         {
-            webView.Dispatcher.Dispatch(() => webView.Source = o.Url);
+            var url = o.Url;
+            webView.Dispatcher.Dispatch(() => webView.Source = url);
+            logger.LogInformation("Url updated: {Url}", url);
         });
-        webView.Source = options.CurrentValue.Url;
+        var url = options.CurrentValue.Url;
+        webView.Source = url;
+        logger.LogInformation("Main page initialized, url: {Url}", url);
     }
 }
 
