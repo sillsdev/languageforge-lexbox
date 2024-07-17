@@ -4,6 +4,7 @@
   import t, { date, number } from '$lib/i18n';
   import { Icon } from '$lib/icons';
   import { Page } from '$lib/layout';
+  import AdminContent from '$lib/layout/AdminContent.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { PageData } from './$types';
   import type { OrgListSearchParams } from './+page';
@@ -72,12 +73,14 @@ TODO:
 <Page wide title={$t('org.table.title')}>
   <svelte:fragment slot="header">
     <div class="flex flex-row-reverse flex-wrap justify-between mb-4 gap-y-2 gap-x-4">
-      <div class="inline-flex flex-wrap header-actions gap-2">
-        <a href="/org/create" class="btn btn-success">
-          {$t('org.create.title')}
-          <span class="i-mdi-plus text-2xl" />
-        </a>
-      </div>
+      <AdminContent>
+        <div class="inline-flex flex-wrap header-actions gap-2">
+          <a href="/org/create" class="btn btn-success">
+            {$t('org.create.title')}
+            <span class="i-mdi-plus text-2xl" />
+          </a>
+        </div>
+      </AdminContent>
       <h1 class="text-3xl text-left grow max-w-full mb-4 flex gap-4 items-center">
         {$t('org.table.title')}
         <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
