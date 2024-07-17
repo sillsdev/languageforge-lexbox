@@ -22,7 +22,7 @@ jobs:
   build-app:
     name: Build FW Lite
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
