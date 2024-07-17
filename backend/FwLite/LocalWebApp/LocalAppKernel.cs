@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Crdt;
 #if !DISABLE_FW_BRIDGE
-using FwDataMiniLcmBridge
+using FwDataMiniLcmBridge;
 #endif
 using LcmCrdt;
 using LocalWebApp.Services;

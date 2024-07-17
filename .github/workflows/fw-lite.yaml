@@ -68,10 +68,17 @@ jobs:
       - name: Publish win-arm
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r win-arm64 --artifacts-path ../artifacts
+      - name: Publish win maui app
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
+          dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
       - name: Upload artifacts
         # uploading in one artifact as there's a lot of duplication between builds so compression goes far
         uses: actions/upload-artifact@v4
         with:
           name: fw-lite
           if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/LocalWebApp/*
+          path: |
+            backend/FwLite/artifacts/publish/LocalWebApp/*
+            backend/FwLite/artifacts/bin/FwLiteDesktop/*/AppPackages/FwLiteDesktop_1.0.0.1_Test/*.msix

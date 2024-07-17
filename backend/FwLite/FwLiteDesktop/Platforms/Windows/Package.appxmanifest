@@ -2,17 +2,15 @@
 <Package
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="uap rescap">
 
-  <Identity Name="maui-package-name-placeholder" Publisher="CN=User Name" Version="0.0.0.0" />
+  <Identity Name="FwLiteDesktop" Publisher="CN=SIL, OID.2.25.311729368913984317654407730594956997722=1" Version="0.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="1DC5C0B2-C5F2-461C-8F89-237BF4D0CEF0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>$placeholder$</DisplayName>
-    <PublisherDisplayName>User Name</PublisherDisplayName>
+    <PublisherDisplayName>SIL Global</PublisherDisplayName>
     <Logo>$placeholder$.png</Logo>
   </Properties>
 
