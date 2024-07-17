@@ -29,7 +29,7 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
-  import { OrgRole, ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
+  import { OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
@@ -295,9 +295,13 @@
       <BadgeList>
         <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
         <ProjectTypeBadge type={project.type} />
-        <Badge>
-          <FormatRetentionPolicy policy={project.retentionPolicy} />
-        </Badge>
+        {#if project.retentionPolicy === RetentionPolicy.Unknown}
+          <span>Hi</span>
+        {:else}
+          <Badge>
+            <FormatRetentionPolicy policy={project.retentionPolicy} />
+          </Badge>
+        {/if}
         {#if project.resetStatus === ResetStatus.InProgress}
           <button
             class:tooltip={user.isAdmin}
@@ -345,9 +349,7 @@
     </svelte:fragment>
 
     <div class="space-y-4">
-      <OrgList
-        organizations={project.organizations}
-      >
+      <OrgList organizations={project.organizations} >
         <svelte:fragment slot="extraButtons">
           {#if canManage}
             <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
