@@ -173,11 +173,10 @@ public class OrgMutations
                 throw NotFoundException.ForType<User>();
             }
         }
-        else if (user.Organizations.Any(o => o.OrgId == orgId))
+        else
         {
             return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
         }
-        return dbContext.Orgs.Where(o => o.Id == orgId);
     }
 
     /// <summary>

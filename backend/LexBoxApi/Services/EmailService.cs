@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
-// using System.Text.Json.Serialization; This is not being used.
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.Jobs;
@@ -79,8 +78,7 @@ public class EmailService(
         },
             useEmailLifetime: true
         );
-        var email = StartUserEmail(user, newEmail);
-        if (email is null) throw new ArgumentNullException("emailAddress");
+        var email = StartUserEmail(user, newEmail) ?? throw new ArgumentNullException("emailAddress");
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryParam = string.IsNullOrEmpty(newEmail) ? "verifiedEmail" : "changedEmail";
@@ -109,9 +107,9 @@ public class EmailService(
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
-        var authUser = CreateAuthUser(emailAddress, language);
+        var authUser = CreateUserForInvite(emailAddress, language);
         authUser.Orgs = [new AuthUserOrg(orgRole, orgId)];
-        await SendInvitationEmail(authUser, emailAddress, managerName, orgId.ToString(), orgName, language, isProjectInvitation: false);
+        await SendInvitationEmail(authUser, emailAddress, managerName, orgName, language, isProjectInvitation: false);
 
     }
     /// <summary>
@@ -130,12 +128,12 @@ public class EmailService(
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
-        var authUser = CreateAuthUser(emailAddress, language);
+        var authUser = CreateUserForInvite(emailAddress, language);
         authUser.Projects = [new AuthUserProject(role, projectId)];
-        await SendInvitationEmail(authUser, emailAddress, managerName, projectId.ToString(), projectName, language, isProjectInvitation: true);
+        await SendInvitationEmail(authUser, emailAddress, managerName, projectName, language, isProjectInvitation: true);
 
     }
-    private LexAuthUser CreateAuthUser(string emailAddress, string? language)
+    private LexAuthUser CreateUserForInvite(string emailAddress, string? language)
     {
         language ??= User.DefaultLocalizationCode;
         return new LexAuthUser
@@ -158,8 +156,7 @@ public class EmailService(
         LexAuthUser authUser,
         string emailAddress,
         string managerName,
-        string id,
-        string name,
+        string resourceName,
         string? language,
         bool isProjectInvitation)
     {
@@ -179,11 +176,11 @@ public class EmailService(
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
         if (isProjectInvitation)
         {
-            await RenderEmail(email, new ProjectInviteEmail(emailAddress, id.ToString() ?? "", managerName, name ?? "", registerLink, lifetime), language);
+            await RenderEmail(email, new ProjectInviteEmail(emailAddress, managerName, resourceName ?? "", registerLink, lifetime), language);
         }
         else
         {
-            await RenderEmail(email, new OrgInviteEmail(emailAddress, id.ToString() ?? "", managerName, name ?? "", registerLink, lifetime), language);
+            await RenderEmail(email, new OrgInviteEmail(emailAddress, managerName, resourceName ?? "", registerLink, lifetime), language);
         }
         await SendEmailAsync(email);
     }

@@ -32,6 +32,8 @@
         {
             label: 'Create Account Request for Org',
             name: 'Bob',
+            managerName: 'John',
+            orgName: 'Payap University',
             template: EmailTemplate.CreateAccountRequestOrg,
             verifyUrl: absoluteUrl('register?name=Bob'), // TODO: Get correct URL
             lifetime: '3.00:00:00', // 3 days
@@ -39,6 +41,8 @@
         {
             label: 'Create Account Request for Project',
             name: 'Bob',
+            managerName: 'John',
+            projectName: 'Elawa',
             template: EmailTemplate.CreateAccountRequestProject,
             verifyUrl: absoluteUrl('register?name=Bob'), // TODO: Get correct URL
             lifetime: '3.00:00:00', // 3 days

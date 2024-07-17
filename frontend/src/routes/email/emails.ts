@@ -57,14 +57,14 @@ interface VerifyEmailAddressProps extends EmailTemplatePropsBase<EmailTemplate.V
     lifetime: string;
 }
 
-interface CreateAccountOrgProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequestProject> {
+interface CreateAccountOrgProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequestOrg> {
   managerName: string;
   orgName: string;
   verifyUrl: string;
   lifetime: string;
 }
 
-interface CreateAccountProjectProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequestOrg> {
+interface CreateAccountProjectProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequestProject> {
   managerName: string;
   projectName: string;
   verifyUrl: string;
