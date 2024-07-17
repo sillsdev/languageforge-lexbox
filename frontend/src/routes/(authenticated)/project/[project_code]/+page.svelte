@@ -45,6 +45,7 @@
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
   import OrgList from './OrgList.svelte';
   import AddOrganization from './AddOrganization.svelte';
+  import AddPurpose from './AddPurpose.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -296,7 +297,9 @@
         <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
         <ProjectTypeBadge type={project.type} />
         {#if project.retentionPolicy === RetentionPolicy.Unknown}
-          <span>Hi</span>
+          {#if canManage}
+            <AddPurpose projectId={project.id} />
+          {/if}
         {:else}
           <Badge>
             <FormatRetentionPolicy policy={project.retentionPolicy} />
