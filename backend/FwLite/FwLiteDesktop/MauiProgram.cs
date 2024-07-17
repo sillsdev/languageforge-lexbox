@@ -21,7 +21,16 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<MainPage>();
 
-        var serverManager = new ServerManager();
+        var serverManager = new ServerManager(webAppBuilder =>
+        {
+            webAppBuilder.Logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "web-app.log"));
+            webAppBuilder.Services.Configure<LcmCrdtConfig>(config =>
+            {
+                config.ProjectPath = FileSystem.AppDataDirectory;
+            });
+            webAppBuilder.Services.Configure<AuthConfig>(config =>
+                config.CacheFileName = Path.Combine(FileSystem.AppDataDirectory, "msal.cache"));
+        });
         builder.Services.AddSingleton(serverManager);
         builder.Configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
         builder.Services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");

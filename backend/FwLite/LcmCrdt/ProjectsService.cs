@@ -3,16 +3,17 @@ using Crdt.Db;
 using LcmCrdt.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
 
 namespace LcmCrdt;
 
-public class ProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<ProjectsService> logger)
+public class ProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<ProjectsService> logger, IOptions<LcmCrdtConfig> config)
 {
     public Task<CrdtProject[]> ListProjects()
     {
-        return Task.FromResult(Directory.EnumerateFiles(".", "*.sqlite").Select(file =>
+        return Task.FromResult(Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
             var name = Path.GetFileNameWithoutExtension(file);
             return new CrdtProject(name, file);
@@ -21,7 +22,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
 
     public CrdtProject? GetProject(string name)
     {
-        var file = Directory.EnumerateFiles(".", "*.sqlite")
+        var file = Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite")
             .FirstOrDefault(file => Path.GetFileNameWithoutExtension(file) == name);
         return file is null ? null : new CrdtProject(name, file);
     }
@@ -38,7 +39,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
     {
         //poor man's sanitation
         name = Path.GetFileName(name);
-        var sqliteFile = $"{name}.sqlite";
+        var sqliteFile = Path.Combine(config.Value.ProjectPath, $"{name}.sqlite");
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
         await using var serviceScope = CreateProjectScope(crdtProject);

@@ -54,7 +54,7 @@ public class AuthHelpers
             .WithRedirectUri(redirectUri)
             .WithOidcAuthority(authority.ToString())
             .Build();
-        _ = MsalCacheHelper.CreateAsync(BuildCacheProperties()).ContinueWith(
+        _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(optionsValue.CacheFileName)).ContinueWith(
             task =>
             {
                 var msalCacheHelper = task.Result;
@@ -66,8 +66,9 @@ public class AuthHelpers
 
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr2 = new("ProductGroup", "Lexbox");
 
-    private static StorageCreationProperties BuildCacheProperties()
+    private static StorageCreationProperties BuildCacheProperties(string cacheFileName)
     {
+        if (!Path.IsPathFullyQualified(cacheFileName)) throw new ArgumentException("Cache file name must be fully qualified");
         const string KeyChainServiceName = "lexbox_msal_service";
         const string KeyChainAccountName = "lexbox_msal_account";
 
@@ -75,7 +76,7 @@ public class AuthHelpers
         const string LinuxKeyRingCollection = MsalCacheHelper.LinuxKeyRingDefaultCollection;
         const string LinuxKeyRingLabel = "MSAL token cache for Lexbox.";
 
-        var propertiesBuilder = new StorageCreationPropertiesBuilder("msal.cache", Directory.GetCurrentDirectory());
+        var propertiesBuilder = new StorageCreationPropertiesBuilder(cacheFileName, Directory.GetCurrentDirectory());
 #if DEBUG
         propertiesBuilder.WithUnprotectedFile();
 #else

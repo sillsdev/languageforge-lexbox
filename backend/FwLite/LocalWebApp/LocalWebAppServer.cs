@@ -16,7 +16,7 @@ namespace LocalWebApp;
 
 public static class LocalWebAppServer
 {
-    public static WebApplication SetupAppServer(string[] args)
+    public static WebApplication SetupAppServer(string[] args, Action<WebApplicationBuilder>? configure = null)
     {
         var builder = WebApplication.CreateBuilder(args);
         if (!builder.Environment.IsDevelopment())
@@ -45,6 +45,7 @@ public static class LocalWebAppServer
             options.EnableDetailedErrors = true;
         }).AddJsonProtocol();
 
+        configure?.Invoke(builder);
         var app = builder.Build();
 // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
