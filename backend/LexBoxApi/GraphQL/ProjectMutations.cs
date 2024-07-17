@@ -312,6 +312,28 @@ public class ProjectMutations
     }
 
     [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> SetRetentionPolicy(
+        SetRetentionPolicyInput input,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        await permissionService.AssertCanManageProject(input.ProjectId);
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        NotFoundException.ThrowIfNull(project);
+
+        project.RetentionPolicy = input.RetentionPolicy;
+        project.UpdateUpdatedDate();
+        projectService.InvalidateProjectConfidentialityCache(input.ProjectId);
+        await dbContext.SaveChangesAsync();
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
     [Error<LastMemberCantLeaveException>]
     [UseMutationConvention]
     [RefreshJwt]

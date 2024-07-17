@@ -18,6 +18,8 @@ import type {
   ProjectPageQuery,
   SetProjectConfidentialityInput,
   SetProjectConfidentialityMutation,
+  SetRetentionPolicyInput,
+  SetRetentionPolicyMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -337,6 +339,30 @@ export async function _setProjectConfidentiality(input: SetProjectConfidentialit
             project {
               id
               isConfidential
+            }
+            errors {
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
+}
+
+export async function _setRetentionPolicy(input: SetRetentionPolicyInput): $OpResult<SetRetentionPolicyMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation SetRetentionPolicy($input: SetRetentionPolicyInput!) {
+          setRetentionPolicy(input: $input) {
+            project {
+              id
+              retentionPolicy
             }
             errors {
               ... on Error {
