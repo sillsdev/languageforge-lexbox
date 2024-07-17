@@ -198,6 +198,8 @@
       bind:value={$form.retentionPolicy}
       error={$errors.retentionPolicy}
     >
+      <!-- Unknown option in temporary use for testing -->
+      <option value={RetentionPolicy.Unknown}>{'Unknown'}</option>
       <option value={RetentionPolicy.Verified}>{$t('retention_policy.language_project')}</option>
       <option value={RetentionPolicy.Training}>{$t('retention_policy.training')}</option>
       <option value={RetentionPolicy.Test}>{$t('retention_policy.test')}</option>
