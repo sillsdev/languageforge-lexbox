@@ -1,12 +1,13 @@
 <script lang="ts">
   import { z } from 'zod';
   import t from '$lib/i18n';
+  import { useNotifications } from '$lib/notify';
   import { BadgeButton } from '$lib/components/Badges';
   import { Select } from '$lib/forms';
   import { AdminContent } from '$lib/layout';
   import { RetentionPolicy } from '$lib/gql/types';
   import { _setRetentionPolicy } from './+page';
-  import { FormModal } from '$lib/components/modals';
+  import { DialogResponse, FormModal } from '$lib/components/modals';
 
   export let projectId: string;
 
@@ -18,8 +19,10 @@
   let formModal: FormModal<Schema>;
   $: form = formModal?.form();
 
+  const { notifySuccess } = useNotifications();
+
   async function openModal(): Promise<void> {
-    await formModal.open(async () => {
+    const { response, formState } = await formModal.open(async () => {
       const { error } = await _setRetentionPolicy({
         projectId,
         retentionPolicy: $form.retentionPolicy,
@@ -28,6 +31,10 @@
         if (error.message === 'Project not found') return $t('project_page.add_org.project_not_found');
       }
     });
+
+    if (response === DialogResponse.Submit && formState.retentionPolicy.currentValue) {
+        notifySuccess('You have successfully added a project purpose.');
+    }
   }
 </script>
 
