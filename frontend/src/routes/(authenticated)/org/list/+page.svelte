@@ -78,9 +78,9 @@ TODO:
           <span class="i-mdi-plus text-2xl" />
         </a>
       </div>
-      <h1 class="text-3xl text-left grow max-w-full flex items-end flex-wrap">
+      <h1 class="text-3xl text-left grow max-w-full mb-4 flex gap-4 items-center">
         {$t('org.table.title')}
-      <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
+        <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
       </h1>
     </div>
     <div class="mt-4">
