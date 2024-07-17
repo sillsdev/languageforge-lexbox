@@ -1,4 +1,5 @@
-﻿using FwDataMiniLcmBridge;
+﻿#if !DISABLE_FW_BRIDGE
+using FwDataMiniLcmBridge;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using MiniLcm;
@@ -42,3 +43,4 @@ public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey
         await Groups.RemoveFromGroupAsync(Context.ConnectionId, project.Name);
     }
 }
+#endif

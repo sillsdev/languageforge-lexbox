@@ -12,7 +12,11 @@ public static class HttpHelpers
 
     public static string? GetFwDataName(this HttpContext? context)
     {
+        #if DISABLE_FW_BRIDGE
+        return null;
+        #else
         var name = context?.Request.RouteValues.GetValueOrDefault(FwDataMiniLcmHub.ProjectRouteKey, null)?.ToString();
         return string.IsNullOrWhiteSpace(name) ? null : name;
+        #endif
     }
 }

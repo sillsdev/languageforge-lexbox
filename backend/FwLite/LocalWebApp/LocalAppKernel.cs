@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
 using Crdt;
-using FwDataMiniLcmBridge;
+#if !DISABLE_FW_BRIDGE
+using FwDataMiniLcmBridge
+#endif
 using LcmCrdt;
 using LocalWebApp.Services;
 using LocalWebApp.Auth;
@@ -25,7 +27,9 @@ public static class LocalAppKernel
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient();
+        #if !DISABLE_FW_BRIDGE
         services.AddFwDataBridge();
+        #endif
 
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
         {

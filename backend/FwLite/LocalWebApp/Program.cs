@@ -1,5 +1,7 @@
+#if !DISABLE_FW_BRIDGE
 using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
+#endif
 using LcmCrdt;
 using LocalWebApp;
 using LocalWebApp.Hubs;
@@ -15,8 +17,10 @@ if (!builder.Environment.IsDevelopment())
     builder.WebHost.UseUrls("http://127.0.0.1:0");
 if (builder.Environment.IsDevelopment())
 {
+    #if !DISABLE_FW_BRIDGE
     //do this early so we catch bugs on startup
     ProjectLoader.Init();
+    #endif
 }
 builder.ConfigureDev<AuthConfig>(config => config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
 //for now prod builds will also use lt dev until we deploy oauth to prod
@@ -56,18 +60,21 @@ app.Use(async (context, next) =>
                                         throw new InvalidOperationException($"Project {projectName} not found"));
         await context.RequestServices.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
     }
-
+    #if !DISABLE_FW_BRIDGE
     var fwData = context.GetFwDataName();
     if (!string.IsNullOrWhiteSpace(fwData))
     {
         var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
         fwDataProjectContext.Project = FieldWorksProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
     }
+    #endif
 
     await next(context);
 });
 app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
+#if !DISABLE_FW_BRIDGE
 app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/fwdata");
+#endif
 app.MapHistoryRoutes();
 app.MapActivities();
 app.MapProjectRoutes();

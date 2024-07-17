@@ -1,15 +1,24 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
+#if !DISABLE_FW_BRIDGE
 using FwDataMiniLcmBridge;
+#endif
 using Humanizer;
 using LcmCrdt;
 using MiniLcm;
 
 namespace LocalWebApp.Services;
 
-public class ImportFwdataService(ProjectsService projectsService, ILogger<ImportFwdataService> logger, FwDataFactory fwDataFactory)
+public class ImportFwdataService(ProjectsService projectsService, ILogger<ImportFwdataService> logger
+    #if !DISABLE_FW_BRIDGE
+    , FwDataFactory fwDataFactory
+    #endif
+    )
 {
     public async Task<CrdtProject> Import(string projectName)
     {
+        #if DISABLE_FW_BRIDGE
+        throw new NotSupportedException("FW bridge is disabled");
+        #else
         var startTime = Stopwatch.GetTimestamp();
         var fwDataProject = FieldWorksProjectList.GetProject(projectName);
         if (fwDataProject is null)
@@ -28,12 +37,14 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
             var timeSpent = Stopwatch.GetElapsedTime(startTime);
             logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize(2));
             return project;
+
         }
         catch
         {
             logger.LogError("Import of {ProjectName} failed, deleting project", fwDataApi.Project.Name);
             throw;
         }
+#endif
     }
 
     private async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)
