@@ -80,8 +80,11 @@
     loadingEntryCount = false;
   }
 
+  let loadingLanguageList = false;
   async function updateLanguageList(): Promise<void> {
+    loadingLanguageList = true;
     await fetch(`/api/project/updateLanguageList/${project.code}`, {method: 'POST'});
+    loadingLanguageList = false;
     await invalidate(`project:${project.code}`);
   }
 
@@ -345,7 +348,7 @@
           <WritingSystemList writingSystems={vernacularLangTags} />
           <AdminContent>
             <IconButton
-              loading={loadingEntryCount}
+              loading={loadingLanguageList}
               icon="i-mdi-refresh"
               size="btn-sm"
               variant="btn-ghost"
@@ -358,7 +361,7 @@
           <WritingSystemList writingSystems={analysisLangTags} />
           <AdminContent>
             <IconButton
-              loading={loadingEntryCount}
+              loading={loadingLanguageList}
               icon="i-mdi-refresh"
               size="btn-sm"
               variant="btn-ghost"
