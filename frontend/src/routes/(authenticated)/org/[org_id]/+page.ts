@@ -110,14 +110,6 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
           changeOrgMemberRole(input: $input) {
             organization {
               id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
             }
           }
         }
@@ -136,14 +128,6 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
           setOrgMemberRole(input: $input) {
             organization {
               id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
             }
             errors {
               __typename
@@ -234,14 +218,6 @@ export async function _changeOrgMemberRole(orgId: string, userId: string, role: 
           changeOrgMemberRole(input: $input) {
             organization {
               id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
             }
             errors {
               __typename
