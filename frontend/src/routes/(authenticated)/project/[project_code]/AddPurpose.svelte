@@ -33,17 +33,17 @@
     });
 
     if (response === DialogResponse.Submit && formState.retentionPolicy.currentValue) {
-        notifySuccess('You have successfully added a project purpose.');
+        notifySuccess($t('project_page.add_purpose.notify_success'));
     }
   }
 </script>
 
 <BadgeButton variant="badge-success" icon="i-mdi-plus" on:click={openModal}>
-  {'Add Purpose'}
+  {$t('project_page.add_purpose.add_button')}
 </BadgeButton>
 
 <FormModal bind:this={formModal} {schema} let:errors>
-  <span slot="title">{'Choose purpose'}</span>
+  <span slot="title">{$t('project_page.add_purpose.modal_title')}</span>
   <Select
     id="policy"
     label={$t('project.create.retention_policy')}
