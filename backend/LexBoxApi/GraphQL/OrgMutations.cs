@@ -210,7 +210,7 @@ public class OrgMutations
         LexBoxDbContext dbContext)
     {
         permissionService.AssertCanEditOrg(input.OrgId);
-        var orgExists = await dbContext.Orgs.AnyAsync(p => p.Id == input.OrgId);
+        var orgExists = await dbContext.Orgs.AnyAsync(o => o.Id == input.OrgId);
         if (!orgExists) throw NotFoundException.ForType<Organization>();
         List<OrgMemberRole> AddedMembers = [];
         List<OrgMemberRole> ExistingMembers = [];
