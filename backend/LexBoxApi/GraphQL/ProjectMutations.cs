@@ -328,7 +328,6 @@ public class ProjectMutations
 
         project.RetentionPolicy = input.RetentionPolicy;
         project.UpdateUpdatedDate();
-        projectService.InvalidateProjectConfidentialityCache(input.ProjectId);
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
     }
