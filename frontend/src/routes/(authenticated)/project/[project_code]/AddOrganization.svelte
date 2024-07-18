@@ -6,6 +6,7 @@
   import type { Organization } from '$lib/gql/types';
   import { FormModal } from '$lib/components/modals';
   import { BadgeButton } from '$lib/components/Badges';
+  import { onMount } from 'svelte';
 
   type Org = Pick<Organization, 'id' | 'name'>;
   export let projectId: string;
@@ -34,6 +35,13 @@
       }
     });
   }
+
+  onMount(() => {
+    form.update((form) => {
+      form.orgId = orgList[0].id;
+      return form;
+    }, { taint: true });
+  });
 
 </script>
 
