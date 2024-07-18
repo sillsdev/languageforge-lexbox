@@ -124,7 +124,7 @@ jobs:
         with:
           name: fw-lite-msix
           if-no-files-found: error
-          path: backend/FwLite/artifacts/*.msix
+          path: backend/FwLite/artifacts/msix/*.msix
 
   sign-installer:
     name: Sign FWLite MSIX installer
