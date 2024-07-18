@@ -72,6 +72,13 @@ jobs:
       - name: Setup Maui
         run: dotnet workload install maui-windows
 
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: |
+          corepack enable
+          pnpm install
+          pnpm run build-app
+
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet build --configuration Release
@@ -96,28 +103,35 @@ jobs:
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r win-arm64 --artifacts-path ../artifacts
 
-      - name: Publish Windows MAUI app
-        working-directory: backend/FwLite/FwLiteDesktop
-        run: |
-          dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
-          dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
-
-      - name: Upload artifacts
+      - name: Upload local web app artifacts
         # uploading in one artifact as there's a lot of duplication between builds so compression goes far
         uses: actions/upload-artifact@v4
         with:
           name: fw-lite
           if-no-files-found: error
-          path: |
-            backend/FwLite/artifacts/publish/LocalWebApp/*
-            backend/FwLite/artifacts/bin/FwLiteDesktop/*/AppPackages/FwLiteDesktop_1.0.0.1_Test/*.msix
+          path: backend/FwLite/artifacts/publish/LocalWebApp/*
+
+      - name: Publish Windows MAUI app
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
+          dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
+          mkdir -p ../artifacts/msix
+          cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
+
+      - name: Upload FWLite Desktop artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-msix
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/artifacts/*.msix
 
   sign-installer:
     name: Sign FWLite MSIX installer
     needs: publish-app
     uses: sillsdev/codesign/.github/workflows/sign.yml@v2
     with:
-      artifact: fw-lite
+      artifact: fw-lite-msix
     secrets:
       certificate: ${{ secrets.CODESIGN_LSDEVSECTIGOEV }}
 
