@@ -6,7 +6,6 @@
   import type { Organization } from '$lib/gql/types';
   import { FormModal } from '$lib/components/modals';
   import { BadgeButton } from '$lib/components/Badges';
-  import { onMount } from 'svelte';
 
   type Org = Pick<Organization, 'id' | 'name'>;
   export let projectId: string;
@@ -23,8 +22,9 @@
 
   async function openModal(): Promise<void> {
     orgList = await _getOrgs(userIsAdmin);
+    const selected = orgList.length > 0 && orgList.length < 6 ? { orgId: orgList[0].id } : {};
 
-    await formModal.open(async () => {
+    await formModal.open(selected, async () => {
       const { error } = await _addProjectToOrg({
         projectId,
         orgId: $form.orgId,
@@ -35,13 +35,6 @@
       }
     });
   }
-
-  onMount(() => {
-    form.update((form) => {
-      form.orgId = orgList[0].id;
-      return form;
-    }, { taint: true });
-  });
 
 </script>
 
