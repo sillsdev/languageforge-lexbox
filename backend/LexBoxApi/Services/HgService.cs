@@ -172,6 +172,13 @@ public class HgService : IHgService, IHostedService
         return $"<LangTags>{xmlBody}</LangTags>";
     }
 
+    private string[] GetWsList(System.Xml.XmlElement root, string tagName)
+    {
+        var wsStr = root[tagName]?["Uni"]?.InnerText ?? "";
+        // String.Split(null) splits on any whitespace, but needs a type cast so the compiler can tell which overload (char[] vs string[]) to use
+        return wsStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+    }
+
     public async Task<ProjectWritingSystems?> GetProjectWritingSystems(ProjectCode code, CancellationToken token = default)
     {
         var langTagsXml = await GetLangTagsAsXml(code, token);
@@ -180,14 +187,10 @@ public class HgService : IHgService, IHostedService
         doc.LoadXml(langTagsXml);
         var root = doc.DocumentElement;
         if (root is null) return null;
-        var vernWssStr = root["VernWss"]?["Uni"]?.InnerText ?? "";
-        var analysisWssStr = root["AnalysisWss"]?["Uni"]?.InnerText ?? "";
-        var curVernWssStr = root["CurVernWss"]?["Uni"]?.InnerText ?? "";
-        var curAnalysisWssStr = root["CurAnalysisWss"]?["Uni"]?.InnerText ?? "";
-        var vernWss = vernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var analysisWss = analysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var curVernWss = curVernWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        var curAnalysisWss = curAnalysisWssStr.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+        var vernWss = GetWsList(root, "VernWss");
+        var analysisWss = GetWsList(root, "AnalysisWss");
+        var curVernWss = GetWsList(root, "CurVernWss");
+        var curAnalysisWss = GetWsList(root, "CurAnalysisWss");
         var curVernSet = curVernWss.ToHashSet();
         var curAnalysisSet = curAnalysisWss.ToHashSet();
         // Ordering is important here to match how FLEx handles things: all *current* writing systems first, then all *non-current*.
