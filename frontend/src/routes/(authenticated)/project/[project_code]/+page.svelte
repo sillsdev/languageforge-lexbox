@@ -371,7 +371,7 @@
         </svelte:fragment>
         <DeleteModal
             bind:this={removeProjectFromOrgModal}
-            entityName={'Project'}
+            entityName={$t('project_page.remove_project_from_org_title')}
             isRemoveDialog
           >
           {$t('project_page.confirm_remove_org', {orgName: orgToRemove})}

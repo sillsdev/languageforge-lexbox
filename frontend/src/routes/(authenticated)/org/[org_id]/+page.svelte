@@ -89,7 +89,7 @@
       return error?.message;
     });
     if (removed) {
-      notifyWarning('You have successfully removed project from org');
+      notifyWarning($t('org_page.notifications.remove_project_from_org', {projectName: projectToRemove}));
     }
   }
 
@@ -140,10 +140,10 @@
     >
       <DeleteModal
         bind:this={removeProjectFromOrgModal}
-        entityName={'Project'}
+        entityName={$t('org_page.remove_project_from_org_title')}
         isRemoveDialog
         >
-        {'Would you like to remove {projectName} from {orgName}?'}
+        {$t('org_page.confirm_remove_project_from_org', {projectName: projectToRemove})}
       </DeleteModal>
     </ProjectTable>
     {:else if $queryParamValues.tab === 'members'}

@@ -281,6 +281,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_delete": "{name} has been removed.",
       "rename_org": "Organization name set to {name}.",
       "delete_org": "Organization {name} has been deleted.",
+      "remove_project_from_org": "You have successfully removed {projectName} from this organization",
       "leave_org": "You have left the organization {name}.",
       "leave_org_error": "An error occurred trying to remove you from organization {name}. Please try again later.",
       "describe": "Organization description has been updated.",
@@ -294,6 +295,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "members_table_title": "Members",
     "settings_view_title": "Settings",
     "history_view_title": "History",
+    "remove_project_from_org_title": "Project",
+    "confirm_remove_project_from_org": "Would you like to remove {projectName} from {orgName}?",
     "leave_org": "Leave Organization",
   },
   "project_page": {
@@ -404,8 +407,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "add_description": "Add description...",
     "go_to_org": "Go to {orgName}",
     "remove_project_user_title": "Member",
-    "remove_project_from_org": "Remove",
     "remove_user": "Remove",
+    "remove_project_from_org_title": "Project",
+    "remove_project_from_org": "Remove",
     "change_role": "Change Role",
     "view_user_details": "View details",
     "hg": {
