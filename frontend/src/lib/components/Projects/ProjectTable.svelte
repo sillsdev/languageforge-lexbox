@@ -50,6 +50,8 @@
         {#if isColumnVisible('type')}
           <th>{$t('project.table.type')}</th>
         {/if}
+        <th>
+        </th>
         {#if $$slots.actions}
           <th />
         {/if}
