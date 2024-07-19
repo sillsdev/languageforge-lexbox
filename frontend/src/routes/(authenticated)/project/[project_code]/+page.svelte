@@ -100,7 +100,7 @@
   // let orgToRemove: string | undefined;
   async function removeProjectFromOrg(orgId: string): Promise<void> {
     // orgToRemove = orgId;
-    const removed = await removeUserModal.prompt(async () => {
+    const removed = await removeProjectFromOrgModal.prompt(async () => {
       const { error } = await _removeProjectFromOrg(project.id, orgId);
       return error?.message;
     });
