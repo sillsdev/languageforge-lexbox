@@ -33,12 +33,12 @@ export type Org = Pick<Organization, 'id' | 'name'>;
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
-  const userIsAdmin = (await event.parent()).user.isAdmin;
+  const user = (await event.parent()).user;
   const projectCode = event.params.project_code;
   const projectResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
-				query projectPage($projectCode: String!, $userIsAdmin: Boolean!) {
+				query projectPage($projectCode: String!, $userIsAdmin: Boolean!, $userIsMember: Boolean!) {
 					projectByCode(code: $projectCode) {
 						id
 						name
@@ -88,7 +88,7 @@ export async function load(event: PageLoadEvent) {
 					}
 				}
 			`),
-      { projectCode, userIsAdmin }
+      { projectCode, userIsAdmin: user.isAdmin, userIsMember: user. }//todo can't determine if user is member here right now
     );
   const changesetResultStore = client
     .queryStore(event.fetch,
