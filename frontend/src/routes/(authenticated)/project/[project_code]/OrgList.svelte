@@ -1,6 +1,6 @@
 <script lang="ts">
   import t from '$lib/i18n';
-  import { BadgeList } from '$lib/components/Badges';
+  import { Badge, BadgeList } from '$lib/components/Badges';
   import type { Organization } from '$lib/gql/types';
   import { createEventDispatcher } from 'svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
@@ -8,6 +8,7 @@
   import ActionBadge from '$lib/components/Badges/ActionBadge.svelte';
 
   type Org = Pick<Organization, 'id' | 'name'>;
+  export let canManage: boolean;
   export let organizations: Org[] = [];
 
   const dispatch = createEventDispatcher<{
@@ -31,26 +32,32 @@
       </div>
     {/if}
     {#each organizations as org (org.id)}
-      <Dropdown>
-        <ActionBadge actionIcon="i-mdi-dots-vertical" on:action>
-          <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={org.name}>
-            {org.name}
-          </span>
-        </ActionBadge>
-        <ul slot="content" class="menu">
-          <li>
-            <button>
-              Link to Org
-            </button>
-          </li>
-          <li>
-            <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', org.id)}>
-              <TrashIcon />
-              {'Remove'}
-            </button>
-          </li>
-        </ul>
-      </Dropdown>
+      {#if !canManage}
+        <Badge>
+          {org.name}
+        </Badge>
+      {:else}
+        <Dropdown>
+          <ActionBadge actionIcon="i-mdi-dots-vertical" on:action>
+            <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={org.name}>
+              {org.name}
+            </span>
+          </ActionBadge>
+          <ul slot="content" class="menu">
+            <li>
+              <a class="link" href={`/org/${org.id}`}>
+                {$t('project_page.go_to_org', {orgName: org.name})}
+              </a>
+            </li>
+            <li>
+              <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', org.id)}>
+                <TrashIcon />
+                {$t('project_page.remove_project_from_org')}
+              </button>
+            </li>
+          </ul>
+        </Dropdown>
+      {/if}
     {/each}
   </BadgeList>
 

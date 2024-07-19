@@ -360,6 +360,7 @@
 
     <div class="space-y-4">
       <OrgList
+        canManage={canManage}
         organizations={project.organizations}
         on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail)}
       >
@@ -397,7 +398,7 @@
             isRemoveDialog
           >
             {$t('project_page.confirm_remove', {
-              userName: userToDelete?.user.name ?? '',
+              userName: userToDelete?.user.name ?? ''
             })}
           </DeleteModal>
       </MembersList>
