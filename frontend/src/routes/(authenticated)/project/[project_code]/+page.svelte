@@ -13,6 +13,7 @@
     _changeProjectName,
     _deleteProjectUser,
     _leaveProject,
+    _removeProjectFromOrg,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
@@ -92,6 +93,19 @@
     });
     if (deleted) {
       notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
+    }
+  }
+
+  let removeProjectFromOrgModal: DeleteModal;
+  // let orgToRemove: string | undefined;
+  async function removeProjectFromOrg(orgId: string): Promise<void> {
+    // orgToRemove = orgId;
+    const removed = await removeUserModal.prompt(async () => {
+      const { error } = await _removeProjectFromOrg(project.id, orgId);
+      return error?.message;
+    });
+    if (removed) {
+      notifyWarning('Your project has successfully been removed from the organization.');
     }
   }
 
@@ -347,12 +361,20 @@
     <div class="space-y-4">
       <OrgList
         organizations={project.organizations}
+        on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail)}
       >
         <svelte:fragment slot="extraButtons">
           {#if canManage}
             <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
           {/if}
         </svelte:fragment>
+        <DeleteModal
+            bind:this={removeProjectFromOrgModal}
+            entityName={'Project'}
+            isRemoveDialog
+          >
+          {'Would you like to remove your project from the organization, {orgId}'}
+        </DeleteModal>
       </OrgList>
 
       <MembersList
