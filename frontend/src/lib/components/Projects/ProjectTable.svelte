@@ -7,7 +7,7 @@
   import Dropdown from '../Dropdown.svelte';
   import { createEventDispatcher } from 'svelte';
 
-  export let canManage: boolean;
+  export let canManage: boolean = false;
   export let projects: ProjectItemWithDraftStatus[];
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
@@ -126,21 +126,21 @@
             </td>
           {/if}
           {#if canManage}
-          <td class="p-0">
-            <Dropdown>
-              <button class="btn btn-ghost btn-square">
-                <span class="i-mdi-dots-vertical text-lg" />
-              </button>
-              <ul slot="content" class="menu">
-                <li>
-                  <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {projectId: project.id, projectName: project.name})}>
-                    <TrashIcon />
-                    {'Remove'}
-                  </button>
-                </li>
-              </ul>
-            </Dropdown>
-          </td>
+            <td class="p-0">
+              <Dropdown>
+                <button class="btn btn-ghost btn-square">
+                  <span class="i-mdi-dots-vertical text-lg" />
+                </button>
+                <ul slot="content" class="menu">
+                  <li>
+                    <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {projectId: project.id, projectName: project.name})}>
+                      <TrashIcon />
+                      {'Remove'}
+                    </button>
+                  </li>
+                </ul>
+              </Dropdown>
+            </td>
           {/if}
           {#if $$slots.actions}
             <slot name="actions" {project} />
