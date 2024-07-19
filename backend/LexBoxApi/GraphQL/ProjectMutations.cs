@@ -311,6 +311,122 @@ public class ProjectMutations
     }
 
     [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateProjectLexEntryCount(string code,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+        var result = await projectService.UpdateLexEntryCount(code);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateProjectLanguageList(string code,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+        await projectService.UpdateProjectLangTags(projectId);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseProjection]
+    [AdminRequired]
+    public async Task<IQueryable<Project>> UpdateProjectLanguageListWhereMissing(
+        [Service] IHgService hgService,
+        LexBoxDbContext dbContext,
+        int limit = 10)
+    {
+        var projects = dbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .Where(p => p.Type == ProjectType.FLEx && p.LastCommit != null && p.FlexProjectMetadata!.WritingSystems == null)
+            .Take(limit)
+            .AsAsyncEnumerable();
+        var projectIds = new List<Guid>(limit);
+        await foreach (var project in projects)
+        {
+            projectIds.Add(project.Id);
+            project.FlexProjectMetadata ??= new FlexProjectMetadata();
+            project.FlexProjectMetadata.WritingSystems = await hgService.GetProjectWritingSystems(project.Code);
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        return dbContext.Projects.Where(p => projectIds.Contains(p.Id));
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateLangProjectId(string code,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        [Service] IHgService hgService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+        await hgService.GetProjectIdOfFlexProject(code);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseProjection]
+    [AdminRequired]
+    public async Task<IQueryable<Project>> UpdateLangProjectIdWhereMissing(
+        [Service] IHgService hgService,
+        LexBoxDbContext dbContext,
+        int limit = 10)
+    {
+        var projects = dbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .Where(p => p.Type == ProjectType.FLEx && p.LastCommit != null && p.FlexProjectMetadata!.LangProjectId == null)
+            .Take(limit)
+            .AsAsyncEnumerable();
+        var projectIds = new List<Guid>(limit);
+        await foreach (var project in projects)
+        {
+            projectIds.Add(project.Id);
+            project.FlexProjectMetadata ??= new FlexProjectMetadata();
+            project.FlexProjectMetadata.LangProjectId = await hgService.GetProjectIdOfFlexProject(project.Code);
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        return dbContext.Projects.Where(p => projectIds.Contains(p.Id));
+    }
+
+    [Error<NotFoundException>]
     [Error<LastMemberCantLeaveException>]
     [UseMutationConvention]
     [RefreshJwt]

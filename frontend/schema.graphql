@@ -237,6 +237,11 @@ type Mutation {
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
   setRetentionPolicy(input: SetRetentionPolicyInput!): SetRetentionPolicyPayload!
+  updateProjectLexEntryCount(input: UpdateProjectLexEntryCountInput!): UpdateProjectLexEntryCountPayload!
+  updateProjectLanguageList(input: UpdateProjectLanguageListInput!): UpdateProjectLanguageListPayload!
+  updateProjectLanguageListWhereMissing(input: UpdateProjectLanguageListWhereMissingInput!): UpdateProjectLanguageListWhereMissingPayload! @authorize(policy: "AdminRequiredPolicy")
+  updateLangProjectId(input: UpdateLangProjectIdInput!): UpdateLangProjectIdPayload!
+  updateLangProjectIdWhereMissing(input: UpdateLangProjectIdWhereMissingInput!): UpdateLangProjectIdWhereMissingPayload! @authorize(policy: "AdminRequiredPolicy")
   leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
@@ -466,6 +471,31 @@ type UniqueValueError implements Error {
   message: String!
 }
 
+type UpdateLangProjectIdPayload {
+  project: Project
+  errors: [UpdateLangProjectIdError!]
+}
+
+type UpdateLangProjectIdWhereMissingPayload {
+  project: [Project!]
+  errors: [UpdateLangProjectIdWhereMissingError!]
+}
+
+type UpdateProjectLanguageListPayload {
+  project: Project
+  errors: [UpdateProjectLanguageListError!]
+}
+
+type UpdateProjectLanguageListWhereMissingPayload {
+  project: [Project!]
+  errors: [UpdateProjectLanguageListWhereMissingError!]
+}
+
+type UpdateProjectLexEntryCountPayload {
+  project: Project
+  errors: [UpdateProjectLexEntryCountError!]
+}
+
 type User {
   email: String @authorize(policy: "AdminRequiredPolicy")
   emailVerified: Boolean! @authorize(policy: "AdminRequiredPolicy")
@@ -549,6 +579,16 @@ union SetRetentionPolicyError = NotFoundError | DbError
 union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
+
+union UpdateLangProjectIdError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateLangProjectIdWhereMissingError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateProjectLanguageListError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateProjectLanguageListWhereMissingError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAccessError
 
 input AddProjectMemberInput {
   projectId: UUID!
@@ -981,6 +1021,26 @@ input StringOperationFilterInput {
   nendsWith: String
   icontains: String
   ieq: String
+}
+
+input UpdateLangProjectIdInput {
+  code: String!
+}
+
+input UpdateLangProjectIdWhereMissingInput {
+  limit: Int! = 10
+}
+
+input UpdateProjectLanguageListInput {
+  code: String!
+}
+
+input UpdateProjectLanguageListWhereMissingInput {
+  limit: Int! = 10
+}
+
+input UpdateProjectLexEntryCountInput {
+  code: String!
 }
 
 input UserFilterInput {
