@@ -12,7 +12,7 @@
   export let organizations: Org[] = [];
 
   const dispatch = createEventDispatcher<{
-    removeProjectFromOrg: string;
+    removeProjectFromOrg: { orgId: string; orgName: string };
   }>();
 
   const TRUNCATED_MEMBER_COUNT = 5;
@@ -50,7 +50,7 @@
               </a>
             </li>
             <li>
-              <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', org.id)}>
+              <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {orgId: org.id, orgName: org.name})}>
                 <TrashIcon />
                 {$t('project_page.remove_project_from_org')}
               </button>
