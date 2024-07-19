@@ -318,7 +318,7 @@ type Project {
   code: String!
   createdDate: DateTime!
   id: UUID!
-  users: [ProjectUsers!]!
+  users: [ProjectUsers!]! @authorize(policy: "CanAccessProjectUsers")
   changesets: [Changeset!]!
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean!
