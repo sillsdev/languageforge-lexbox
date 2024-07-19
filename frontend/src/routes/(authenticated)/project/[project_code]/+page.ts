@@ -35,6 +35,9 @@ export async function load(event: PageLoadEvent) {
   const client = getClient();
   const user = (await event.parent()).user;
   const projectCode = event.params.project_code;
+  const projectId = event.url.searchParams.get('id') ?? '';
+  //projectId is not required, so if it's not there we assume the user is a member, if we're wrong there will be an error
+  const userIsMember = projectId === '' ? true : (user.isAdmin || user.projects.some(p => p.projectId === projectId));
   const projectResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
@@ -54,30 +57,32 @@ export async function load(event: PageLoadEvent) {
 						organizations {
 							id
 						}
-						users {
-							id
-							role
-							user {
-								id
-								name
-                ... on User @include(if: $userIsAdmin) {
-                  locked
-                  username
-                  createdDate
-                  updatedDate
-                  email
-                  localizationCode
-                  lastActive
-                  canCreateProjects
-                  isAdmin
-                  emailVerified
-                  createdBy {
-                    id
-                    name
+            ... on Project @include(if: $userIsMember) {
+              users {
+                id
+                role
+                user {
+                  id
+                  name
+                  ... on User @include(if: $userIsAdmin) {
+                    locked
+                    username
+                    createdDate
+                    updatedDate
+                    email
+                    localizationCode
+                    lastActive
+                    canCreateProjects
+                    isAdmin
+                    emailVerified
+                    createdBy {
+                      id
+                      name
+                    }
                   }
                 }
-							}
-						}
+              }
+            }
 						flexProjectMetadata {
 							lexEntryCount
 						}
@@ -88,7 +93,7 @@ export async function load(event: PageLoadEvent) {
 					}
 				}
 			`),
-      { projectCode, userIsAdmin: user.isAdmin, userIsMember: user. }//todo can't determine if user is member here right now
+      { projectCode, userIsAdmin: user.isAdmin, userIsMember }
     );
   const changesetResultStore = client
     .queryStore(event.fetch,

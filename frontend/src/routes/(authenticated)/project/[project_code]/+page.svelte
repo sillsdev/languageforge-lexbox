@@ -116,7 +116,7 @@
 
   $: userId = user.id;
   $: orgsManagedByUser = user.orgs.filter(o => o.role === OrgRole.Admin).map(o => o.orgId);
-  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations.find((o) => orgsManagedByUser.includes(o.id));
+  $: canManage = user.isAdmin || project?.users?.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations?.find((o) => orgsManagedByUser.includes(o.id));
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
