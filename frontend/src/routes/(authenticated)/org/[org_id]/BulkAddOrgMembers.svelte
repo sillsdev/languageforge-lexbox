@@ -79,12 +79,12 @@
   }
 </script>
 
-  <Button variant="btn-success" on:click={openModal}>
-    {$t('org_page.bulk_add_members.add_button')}
-    <span class="i-mdi-account-multiple-plus-outline text-2xl" />
-  </Button>
+<Button variant="btn-success" on:click={openModal}>
+  {$t('org_page.bulk_add_members.add_button')}
+  <span class="i-mdi-account-multiple-plus-outline text-2xl" />
+</Button>
 
-  <FormModal bind:this={formModal} {schema} let:errors>
+<FormModal bind:this={formModal} {schema} let:errors>
     <span slot="title">
       {$t('org_page.bulk_add_members.modal_title')}
       <SupHelp helpLink={helpLinks.bulkAddCreate} />
