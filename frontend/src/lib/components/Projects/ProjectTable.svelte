@@ -7,6 +7,7 @@
   import Dropdown from '../Dropdown.svelte';
   import { createEventDispatcher } from 'svelte';
 
+  export let canManage: boolean;
   export let projects: ProjectItemWithDraftStatus[];
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
@@ -124,6 +125,7 @@
               </span>
             </td>
           {/if}
+          {#if canManage}
           <td class="p-0">
             <Dropdown>
               <button class="btn btn-ghost btn-square">
@@ -139,6 +141,7 @@
               </ul>
             </Dropdown>
           </td>
+          {/if}
           {#if $$slots.actions}
             <slot name="actions" {project} />
           {/if}

@@ -134,6 +134,7 @@
   <div class="py-6 px-2">
     {#if $queryParamValues.tab === 'projects'}
     <ProjectTable
+      canManage={canManage}
       columns={['name', 'code', 'users', 'type']}
       projects={org.projects}
       on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail.projectId, event.detail.projectName)}
@@ -143,7 +144,7 @@
         entityName={$t('org_page.remove_project_from_org_title')}
         isRemoveDialog
         >
-        {$t('org_page.confirm_remove_project_from_org', {projectName: projectToRemove})}
+        {$t('org_page.confirm_remove_project_from_org', {projectName: projectToRemove, orgName: org.name})}
       </DeleteModal>
     </ProjectTable>
     {:else if $queryParamValues.tab === 'members'}
