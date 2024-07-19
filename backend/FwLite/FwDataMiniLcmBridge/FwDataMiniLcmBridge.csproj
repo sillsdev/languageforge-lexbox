@@ -6,27 +6,25 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-<!--        this is referenced by SIL.LCModel however it causes conflicts because CommonServiceLocator includes Microsoft.NETCore.App which includes it's own runtime, this is not compatible with MAUI-->
-        <PackageReference Include="CommonServiceLocator" Version="1.4.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
         <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
         <PackageReference Include="SIL.LCModel" Version="11.0.0-beta0083"/>
-        <PackageReference Include="SIL.LCModel.Core" Version="11.0.0-beta0083"/>
-        <PackageReference Include="SIL.LCModel.Utils" Version="11.0.0-beta0083"/>
-        <PackageReference Include="structuremap.patched" Version="4.7.3"/>
+<!--        if you have a github personal access token, you can use this instead of the above, modify the nuget.config file to include your token-->
+<!--        <PackageReference Include="SIL.LCModel" Version="11.0.0-pr0302-0101" />-->
+        <PackageReference Include="structuremap.patched" Version="4.7.3" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-        <PackageReference Include="System.Net.NameResolution" Version="4.3.0"/>
+        <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
         <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests"/>
+        <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\MiniLcm\MiniLcm.csproj"/>
+        <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
     </ItemGroup>
 
 </Project>

@@ -7,13 +7,10 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
         <ServerGarbageCollection>false</ServerGarbageCollection>
-        <Configurations>Debug;Release;Debug-no-fw-bridge;Release-no-fw-bridge</Configurations>
-        <DefineConstants Condition="'$(Configuration)' == 'Debug-no-fw-bridge'">$(DefineConstants);DISABLE_FW_BRIDGE</DefineConstants>
-        <DefineConstants Condition="'$(Configuration)' == 'Release-no-fw-bridge'">$(DefineConstants);DISABLE_FW_BRIDGE</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
 <!--        disabled due to https://github.com/sillsdev/languageforge-lexbox/issues/964 -->
-        <DefineConstants>$(DefineConstants);DISABLE_FW_BRIDGE</DefineConstants>
+<!--        <DefineConstants>$(DefineConstants);DISABLE_FW_BRIDGE</DefineConstants>-->
 <!--        single file disabled for now, pending https://github.com/sillsdev/icu-dotnet/pull/201-->
         <PublishSingleFile>false</PublishSingleFile>
         <SelfContained>true</SelfContained>
