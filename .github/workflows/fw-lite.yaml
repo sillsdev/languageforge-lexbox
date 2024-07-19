@@ -127,6 +127,7 @@ jobs:
           path: backend/FwLite/artifacts/msix/*.msix
 
   sign-installer:
+    if: false #disable because we can't sign the MSIX installer yet
     name: Sign FWLite MSIX installer
     needs: publish-app
     uses: sillsdev/codesign/.github/workflows/sign.yml@v2
