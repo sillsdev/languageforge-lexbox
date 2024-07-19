@@ -1,6 +1,5 @@
 <script lang="ts">
   import { DetailsPage, DetailItem, AdminContent } from '$lib/layout';
-
   import t, { date } from '$lib/i18n';
   import { z } from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';
@@ -8,11 +7,12 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser } from './+page';
+  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser, _removeProjectFromOrg } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import { Icon, TrashIcon } from '$lib/icons';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
+  import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import { goto } from '$app/navigation';
   import { DialogResponse } from '$lib/components/modals';
   import AddOrgMemberModal from './AddOrgMemberModal.svelte';
@@ -80,6 +80,19 @@
     }
   }
 
+  let removeProjectFromOrgModal: DeleteModal;
+  let projectToRemove: string;
+  async function removeProjectFromOrg(projectId: string, projectName: string): Promise<void> {
+    projectToRemove = projectName;
+    const removed = await removeProjectFromOrgModal.prompt(async () => {
+      const { error } = await _removeProjectFromOrg(projectId, org.id);
+      return error?.message;
+    });
+    if (removed) {
+      notifyWarning('You have successfully removed project from org');
+    }
+  }
+
   async function leaveOrg(): Promise<void> {
     const result = await _deleteOrgUser(org.id, user.id);
     if (result.error) {
@@ -123,7 +136,16 @@
     <ProjectTable
       columns={['name', 'code', 'users', 'type']}
       projects={org.projects}
-    />
+      on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail.projectId, event.detail.projectName)}
+    >
+      <DeleteModal
+        bind:this={removeProjectFromOrgModal}
+        entityName={'Project'}
+        isRemoveDialog
+        >
+        {'Would you like to remove {projectName} from {orgName}?'}
+      </DeleteModal>
+    </ProjectTable>
     {:else if $queryParamValues.tab === 'members'}
     <OrgMemberTable
       shownUsers={org.members}

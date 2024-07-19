@@ -142,6 +142,7 @@
           {#if $$slots.actions}
             <slot name="actions" {project} />
           {/if}
+          <slot />
         </tr>
       {/each}
     </tbody>

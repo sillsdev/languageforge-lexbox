@@ -9,6 +9,7 @@ import type {
   OrgMemberDto,
   OrgPageQuery,
   OrgRole,
+  RemoveProjectFromOrgMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -154,6 +155,30 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
         }
       `),
       { input: { orgId, emailOrUsername, role} },
+    );
+  return result;
+}
+
+export async function _removeProjectFromOrg(projectId: string, orgId: string): $OpResult<RemoveProjectFromOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation RemoveProjectFromOrg($input: RemoveProjectFromOrgInput!) {
+          removeProjectFromOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { projectId: projectId, orgId: orgId } }
     );
   return result;
 }
