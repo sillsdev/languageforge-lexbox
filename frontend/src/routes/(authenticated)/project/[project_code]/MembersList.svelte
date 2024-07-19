@@ -138,6 +138,7 @@
         <slot name="extraButtons" />
       </div>
     {/if}
+
     <slot />
 
   </BadgeList>

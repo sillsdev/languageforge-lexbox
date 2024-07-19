@@ -53,4 +53,6 @@
       </Dropdown>
     {/each}
   </BadgeList>
+
+  <slot />
 </div>
