@@ -4,7 +4,7 @@
   import type { Organization } from '$lib/gql/types';
   import { createEventDispatcher } from 'svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import { TrashIcon } from '$lib/icons';
+  import { Icon, TrashIcon } from '$lib/icons';
   import ActionBadge from '$lib/components/Badges/ActionBadge.svelte';
 
   type Org = Pick<Organization, 'id' | 'name'>;
@@ -45,9 +45,10 @@
           </ActionBadge>
           <ul slot="content" class="menu">
             <li>
-              <a class="link" href={`/org/${org.id}`}>
-                {$t('project_page.go_to_org', {orgName: org.name})}
-              </a>
+              <mj-button href={`/org/${org.id}`}>
+                <Icon icon="i-mdi-link"/>
+                {$t('project_page.view_org', {orgName: org.name})}
+              </mj-button>
             </li>
             <li>
               <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {orgId: org.id, orgName: org.name})}>

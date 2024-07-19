@@ -405,7 +405,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "no_matching": "No matching members",
     },
     "add_description": "Add description...",
-    "go_to_org": "Go to {orgName}",
+    "view_org": "View {orgName}",
     "remove_project_user_title": "Member",
     "remove_user": "Remove",
     "remove_project_from_org_title": "Project",
