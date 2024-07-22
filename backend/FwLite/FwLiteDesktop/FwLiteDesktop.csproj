@@ -23,8 +23,8 @@
 		<Nullable>enable</Nullable>
         <Platform Condition="$([MSBuild]::IsOSPlatform('windows'))">x64</Platform>
 
-		<!-- Display name -->
-		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
+		<!-- controls display name in Package.appxmanifest -->
+		<ApplicationTitle>FW Lite (nightly)</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.sil.fwlitedesktop</ApplicationId>

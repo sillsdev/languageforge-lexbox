@@ -12,11 +12,10 @@
               Version="0.9.0.0"/>
 
   <Properties>
-<!--      again different names for now to publish to the microsoft store-->
-    <DisplayName>FW Lite (nightly)</DisplayName>
+<!--      publisher name must match the microsoft store-->
     <PublisherDisplayName>Kevin Hahn</PublisherDisplayName>
-
-<!--      <DisplayName>$placeholder$</DisplayName>-->
+<!--      modified with ApplicationTitle in FwLiteDesktop.csproj-->
+    <DisplayName>$placeholder$</DisplayName>
 <!--      <PublisherDisplayName>SIL Global</PublisherDisplayName>-->
     <Logo>$placeholder$.png</Logo>
   </Properties>
