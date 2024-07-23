@@ -15,7 +15,6 @@ public class AccessProjectUsersRequirementHandler(
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,
         AccessProjectUsersRequirement requirement)
     {
-        //todo get guid.
         Guid projectId = Guid.Empty;
         if (context.Resource is IMiddlewareContext middlewareContext)
         {
