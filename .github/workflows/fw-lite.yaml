@@ -137,6 +137,8 @@ jobs:
           path: backend/FwLite/artifacts/msix/*.msix
 
   sign-installer:
+    #disabled as this doesn't work since ltops-signing doesn't have the signtool
+    if: false
     name: Sign FWLite MSIX installer
     needs: publish-app
     runs-on: [self-hosted, ltops-signing]
