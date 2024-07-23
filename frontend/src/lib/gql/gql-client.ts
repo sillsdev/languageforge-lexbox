@@ -62,6 +62,19 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               if (args.input.orgId) {
                 cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
               }
+              if (args.input.id) {
+                cache.invalidate({__typename: 'Project', id: args.input.id});
+                cache.invalidate({__typename: 'DraftProject', id: args.input.id});
+                // Note singular MyProject name for the myProjects query cache, ditto for draft
+                cache.invalidate({__typename: 'MyProject', id: args.input.id});
+                cache.invalidate({__typename: 'MyDraftProject', id: args.input.id});
+              }
+              if (result?.createProject?.createProjectResponse?.id) {
+                cache.invalidate({__typename: 'Project', id: result?.createProject?.createProjectResponse?.id});
+                cache.invalidate({__typename: 'DraftProject', id: result?.createProject?.createProjectResponse?.id});
+                cache.invalidate({__typename: 'MyProject', id: result?.createProject?.createProjectResponse?.id});
+                cache.invalidate({__typename: 'MyDraftProject', id: result?.createProject?.createProjectResponse?.id});
+              }
             },
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
