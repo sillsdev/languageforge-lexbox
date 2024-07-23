@@ -127,16 +127,32 @@ jobs:
           path: backend/FwLite/artifacts/msix/*.msix
 
   sign-installer:
-    if: false #disable because we can't sign the MSIX installer yet
     name: Sign FWLite MSIX installer
     needs: publish-app
-    uses: sillsdev/codesign/.github/workflows/sign.yml@v2
-    with:
-      artifact: fw-lite-msix
-    secrets:
-      certificate: ${{ secrets.CODESIGN_LSDEVSECTIGOEV }}
+    runs-on: [self-hosted, ltops-signing]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-msix
+          path: target-msix
+      - name: Sign MSIX installer
+        shell: pwsh
+        env:
+          signtool: C:/"Program Files (x86)"/"Windows Kits"/10/bin/10.0.17763.0/x86/signtool.exe
+        run: |
+          $PublicCert = [System.Convert]::FromBase64String('${{ secrets.CODESIGN_LSDEVSECTIGOEV }}')
+          Set-Content $ENV:TEMP\certificate -Value ($PublicCert) -AsByteStream
+          ${{env.signtool}} sign /f $ENV:TEMP\certificate /fd sha256 /du https://software.sil.org /tr http://timestamp.sectigo.com /td sha256 /v target-msix/*.msix
+      - name: Upload signed MSIX installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-msix-signed
+          if-no-files-found: error
+          path: target-msix/*.msix
 
   create-release:
+    #disabled since we don't have a release yet
+    if: false
     name: Create Release
     needs: sign-installer
     runs-on: windows-latest
