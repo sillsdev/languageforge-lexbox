@@ -34,5 +34,6 @@ public interface IPermissionService
     bool IsOrgMember(Guid orgId);
     bool CanEditOrg(Guid orgId);
     void AssertCanEditOrg(Organization org);
+    void AssertCanEditOrg(Guid orgId);
     void AssertCanAddProjectToOrg(Organization org);
 }

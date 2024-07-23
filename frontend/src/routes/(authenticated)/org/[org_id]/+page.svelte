@@ -20,6 +20,7 @@
   import OrgMemberTable from './OrgMemberTable.svelte';
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import type { UUID } from 'crypto';
+  import BulkAddOrgMembers from './BulkAddOrgMembers.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -101,6 +102,7 @@
         <span class="i-mdi-account-plus-outline text-2xl" />
       </Button>
       <AddOrgMemberModal bind:this={addOrgMemberModal} orgId={org.id} />
+      <BulkAddOrgMembers orgId={org.id} />
     {/if}
   </svelte:fragment>
   <div slot="title" class="max-w-full flex items-baseline flex-wrap">

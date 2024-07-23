@@ -39,8 +39,10 @@
     await updateEntry(e.entry);
     if (e.sense !== undefined) {
       await updateSense(e.sense);
+      detectSenseIndexChanges(e.entry, e.sense);
       if (e.example !== undefined) {
         await updateExample(e.sense.id, e.example);
+        detectExampleIndexChanges(e.entry, e.sense, e.example);
       }
     }
 
@@ -94,6 +96,26 @@
     let operations = jsonPatch.compare(initialExample, updatedExample);
     if (operations.length == 0) return;
     await saveHandler(() => lexboxApi.UpdateExampleSentence(entry.id, senseId, updatedExample.id, operations));
+  }
+
+  function detectSenseIndexChanges(entry: IEntry, sense: ISense) {
+    const initialIndex = initialEntry.senses.findIndex(s => s.id === sense.id);
+    if (initialIndex === -1) return;
+    const currentIndex = entry.senses.findIndex(s => s.id === sense.id);
+    if (currentIndex === -1) return;
+    if (initialIndex !== currentIndex) {
+      // todo figure out how to send this to the server
+    }
+  }
+
+  function detectExampleIndexChanges(entry: IEntry, sense: ISense, example: IExampleSentence) {
+    const initialIndex = initialEntry.senses.find(s => s.id == sense.id)?.exampleSentences.findIndex(s => s.id === example.id);
+    if (initialIndex === -1 || initialIndex === undefined) return;
+    const currentIndex = sense.exampleSentences.findIndex(s => s.id === example.id);
+    if (currentIndex === -1) return;
+    if (initialIndex !== currentIndex) {
+      // todo figure out how to send this to the server
+    }
   }
 </script>
 

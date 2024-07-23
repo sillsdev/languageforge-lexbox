@@ -11,7 +11,7 @@ export interface ISense {
     id: string;
     definition: IMultiString;
     gloss: IMultiString;
-    partOfSpeechId: string;
+    partOfSpeechId: string | undefined;
     semanticDomains: SemanticDomain[];
     exampleSentences: IExampleSentence[];
 }

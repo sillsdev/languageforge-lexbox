@@ -25,6 +25,9 @@ includes:
   test:
     taskfile: ./backend/Testing/Taskfile.yml
     dir: ./backend/Testing
+  fw-lite:
+    taskfile: ./backend/FwLite/Taskfile.yml
+    dir: ./backend/FwLite
 
 tasks:
   setup:
@@ -82,7 +85,7 @@ tasks:
     interactive: true
 
   local-web-app-for-develop:
-    deps: [ ui:viewer-dev, api:local-web-app-for-develop, ui:https-oauth-authority ]
+    deps: [ ui:viewer-dev, fw-lite:local-web-app-for-develop, ui:https-oauth-authority ]
 
   local-web-app:
-    deps: [ ui:viewer-dev, api:local-web-app, ui:https-oauth-authority ]
+    deps: [ ui:viewer-dev, fw-lite:local-web-app, ui:https-oauth-authority ]

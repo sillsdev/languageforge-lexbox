@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
   import {AppNotification} from './notifications';
-  import {Notification, Icon} from 'svelte-ux';
+  import {Notification, Icon, Button} from 'svelte-ux';
   import {
     mdiAlert,
     mdiAlertCircleOutline,
@@ -13,7 +13,7 @@
 <div class="fixed bottom-0 z-50 flex flex-col gap-2 p-4 w-full overflow-y-auto">
   {#each $notifications as notification}
     <div class="w-[400px] mx-auto">
-      <Notification open closeIcon>
+      <Notification open closeIcon actions="right">
         <div slot="icon">
           {#if notification.type === 'success'}
             <Icon path={mdiCheckCircleOutline} size="1.5rem" class="text-success"/>
@@ -26,6 +26,11 @@
           {/if}
         </div>
         <div slot="title">{notification.message}</div>
+        <div slot="actions">
+          {#if notification.action}
+            <Button color="primary" on:click={notification.action.callback}>{notification.action.label}</Button>
+          {/if}
+        </div>
       </Notification>
     </div>
   {/each}

@@ -198,10 +198,12 @@ jobs:
         run: 7z a ./playwright-traces.7z -mx=0 -mmt=off ./frontend/test-results -p"$ZIP_PASSWORD"
       - name: Publish results to testspace
         if: always()
-        run: testspace "[Playwright]./frontend/test-results/*.xml"
+        run: testspace "[Playwright]./frontend/test-results/results.xml"
       - name: Upload playwright results
         if: ${{ always() && steps.password_protect_test_results.outcome == 'success' }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
-          path: ./playwright-traces.7z
+          path: |
+            ./playwright-traces.7z
+            ./frontend/test-results/

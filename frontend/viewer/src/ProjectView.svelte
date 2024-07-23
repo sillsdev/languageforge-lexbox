@@ -24,6 +24,8 @@
   import { ViewerSearchParam, getSearchParam, updateSearchParam } from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
   import { saveEventDispatcher, saveHandler } from './lib/services/save-event-service';
+  import {AppNotification} from './lib/notifications/notifications';
+  import flexLogo from './lib/assets/flex-logo.png';
 
   export let loading = false;
 
@@ -215,6 +217,13 @@
       unsubSelectedEntry();
     };
   });
+
+  async function openInFlex() {
+    AppNotification.displayAction('The project is open in FieldWorks. Please close it to reopen.', 'warning', {
+      label: 'Open',
+      callback: () => window.location.reload()
+    });
+  }
 </script>
 
 <svelte:head>
@@ -309,6 +318,22 @@
                 {#if !$viewConfig.readonly}
                   <div class="contents" bind:this={entryActionsElem}>
 
+                  </div>
+                {/if}
+                {#if $features.openWithFlex && $selectedEntry}
+                  <div class="contents">
+<!--                    button must be a link otherwise it won't follow the redirect to a protocol handler-->
+                    <Button
+                      href={`/api/fw/${projectName}/open/entry/${$selectedEntry.id}`}
+                      on:click={openInFlex}
+                      variant="fill-light"
+                      color="info"
+                      size="sm">
+                      <img src={flexLogo} alt="FieldWorks logo" class="h-6"/>
+                      <div class="hidden" class:sm:contents={!$entryActionsPortal.collapsed}>
+                        Open in FieldWorks
+                      </div>
+                    </Button>
                   </div>
                 {/if}
                 <div class="contents max-sm:hidden" class:hidden={collapseActionBar}>

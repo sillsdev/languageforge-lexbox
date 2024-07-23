@@ -25,7 +25,7 @@
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import {_deleteProject} from '$lib/gql/mutations';
-  import { goto } from '$app/navigation';
+  import { goto, invalidate } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
@@ -43,6 +43,9 @@
   import { DetailItem, EditableDetailItem } from '$lib/layout';
   import MembersList from './MembersList.svelte';
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
+  import OrgList from './OrgList.svelte';
+  import AddOrganization from './AddOrganization.svelte';
+  import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -62,6 +65,8 @@
 
   let lexEntryCount: number | string | null | undefined = undefined;
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
+  $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
+  $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -73,6 +78,14 @@
     const response = await fetch(`/api/project/updateLexEntryCount/${project.code}`, {method: 'POST'});
     lexEntryCount = await response.text();
     loadingEntryCount = false;
+  }
+
+  let loadingLanguageList = false;
+  async function updateLanguageList(): Promise<void> {
+    loadingLanguageList = true;
+    await fetch(`/api/project/updateLanguageList/${project.code}`, {method: 'POST'});
+    loadingLanguageList = false;
+    await invalidate(`project:${project.code}`);
   }
 
   let resetProjectModal: ResetProjectModal;
@@ -330,6 +343,34 @@
           </AdminContent>
         </DetailItem>
       {/if}
+      {#if project.type === ProjectType.FlEx}
+        <DetailItem title={$t('project_page.vernacular_langs')}>
+          <WritingSystemList writingSystems={vernacularLangTags} />
+          <AdminContent>
+            <IconButton
+              loading={loadingLanguageList}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
+            />
+          </AdminContent>
+        </DetailItem>
+        <DetailItem title={$t('project_page.analysis_langs')}>
+          <WritingSystemList writingSystems={analysisLangTags} />
+          <AdminContent>
+            <IconButton
+              loading={loadingLanguageList}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
+            />
+          </AdminContent>
+        </DetailItem>
+      {/if}
       <div>
         <EditableDetailItem
           title={$t('project_page.description')}
@@ -343,6 +384,16 @@
     </svelte:fragment>
 
     <div class="space-y-4">
+      <OrgList
+        organizations={project.organizations}
+      >
+        <svelte:fragment slot="extraButtons">
+          {#if canManage}
+            <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
+          {/if}
+        </svelte:fragment>
+      </OrgList>
+
       <MembersList
         projectId={project.id}
         {members}

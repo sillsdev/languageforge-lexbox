@@ -14,6 +14,7 @@
   import {navigating} from '$app/stores';
   import {AUTHENTICATED_ROOT} from '../..';
   import SigninWithGoogleButton from '$lib/components/SigninWithGoogleButton.svelte';
+  import AppLogo from '$lib/icons/AppLogo.svelte';
 
   //return url should be a relative path, or empty string
   let returnUrl: string = '';
@@ -138,7 +139,17 @@
       </div>
 
       <div class="prose text-lg">
-        <Markdown md={$t('login.welcome_header')}/>
+        <div class="flex items-center">
+          <AppLogo class="h-[3em] w-[3em] mr-3"/>
+          <div class="flex flex-col">
+            <h3 class="flex items-center my-2">
+              {$t('login.welcome_header')}
+            </h3>
+            <span class="text-xs">
+              {$t('appbar.app_subtitle')}
+            </span>
+          </div>
+        </div>
         <Markdown md={$t('login.welcome')}/>
       </div>
     </div>

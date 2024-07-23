@@ -559,6 +559,9 @@ namespace LexData.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("LangProjectId")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("LexEntryCount")
                         .HasColumnType("integer");
 
@@ -1164,6 +1167,81 @@ namespace LexData.Migrations
                         .HasForeignKey("LexCore.Entities.FlexProjectMetadata", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsOne("LexCore.Entities.ProjectWritingSystems", "WritingSystems", b1 =>
+                        {
+                            b1.Property<Guid>("FlexProjectMetadataProjectId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("FlexProjectMetadataProjectId");
+
+                            b1.ToTable("FlexProjectMetadata");
+
+                            b1.ToJson("WritingSystems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("FlexProjectMetadataProjectId");
+
+                            b1.OwnsMany("LexCore.Entities.FLExWsId", "AnalysisWss", b2 =>
+                                {
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    b2.Property<bool>("IsActive")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<bool>("IsDefault")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<string>("Tag")
+                                        .IsRequired()
+                                        .HasColumnType("text");
+
+                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
+
+                                    b2.ToTable("FlexProjectMetadata");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ProjectWritingSystemsFlexProjectMetadataProjectId");
+                                });
+
+                            b1.OwnsMany("LexCore.Entities.FLExWsId", "VernacularWss", b2 =>
+                                {
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    b2.Property<bool>("IsActive")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<bool>("IsDefault")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<string>("Tag")
+                                        .IsRequired()
+                                        .HasColumnType("text");
+
+                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
+
+                                    b2.ToTable("FlexProjectMetadata");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ProjectWritingSystemsFlexProjectMetadataProjectId");
+                                });
+
+                            b1.Navigation("AnalysisWss");
+
+                            b1.Navigation("VernacularWss");
+                        });
+
+                    b.Navigation("WritingSystems");
                 });
 
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>

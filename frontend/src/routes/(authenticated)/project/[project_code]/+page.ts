@@ -2,6 +2,8 @@ import type {
   $OpResult,
   AddProjectMemberInput,
   AddProjectMemberMutation,
+  AddProjectToOrgInput,
+  AddProjectToOrgMutation,
   BulkAddProjectMembersInput,
   BulkAddProjectMembersMutation,
   ChangeProjectDescriptionInput,
@@ -12,6 +14,7 @@ import type {
   ChangeProjectNameMutation,
   DeleteProjectUserMutation,
   LeaveProjectMutation,
+  Organization,
   ProjectPageQuery,
   SetProjectConfidentialityInput,
   SetProjectConfidentialityMutation,
@@ -26,6 +29,7 @@ import { tryMakeNonNullable } from '$lib/util/store';
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
 export type ProjectUser = Project['users'][number];
 export type User = ProjectUser['user'];
+export type Org = Pick<Organization, 'id' | 'name'>;
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
@@ -74,9 +78,25 @@ export async function load(event: PageLoadEvent) {
                 }
 							}
 						}
-						flexProjectMetadata {
-							lexEntryCount
-						}
+            flexProjectMetadata {
+              lexEntryCount
+              writingSystems {
+                vernacularWss {
+                  tag
+                  isActive
+                  isDefault
+                }
+                analysisWss {
+                  tag
+                  isActive
+                  isDefault
+                }
+              }
+            }
+            organizations {
+              id
+              name
+            }
 					}
 				}
 			`),
@@ -122,6 +142,55 @@ export async function load(event: PageLoadEvent) {
     },
     code: projectCode,
   };
+}
+
+export async function _getOrgs(userIsAdmin: boolean): Promise<Org[]> {
+  const client = getClient();
+  if (userIsAdmin) {
+    const orgsResult = await client.query(graphql(`
+          query loadOrgs {
+              orgs {
+                  id
+                  name
+              }
+          }
+      `), {}, {});
+    return orgsResult.data?.orgs ?? [];
+  } else {
+    const myOrgsResult = await client.query(graphql(`
+          query loadMyOrgs {
+              myOrgs {
+                  id
+                  name
+              }
+          }
+        `), {}, {});
+    return myOrgsResult.data?.myOrgs ?? [];
+  }
+}
+
+export async function _addProjectToOrg(input: AddProjectToOrgInput): $OpResult<AddProjectToOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation AddProjectToOrg($input: AddProjectToOrgInput!) {
+          addProjectToOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
 }
 
 export async function _addProjectMember(input: AddProjectMemberInput): $OpResult<AddProjectMemberMutation> {

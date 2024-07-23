@@ -58,6 +58,29 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return projectId;
     }
 
+    public async Task UpdateProjectLangTags(Guid projectId)
+    {
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null || project.Type != ProjectType.FLEx) return;
+        await dbContext.Entry(project).Reference(p => p.FlexProjectMetadata).LoadAsync();
+        var langTags = await hgService.GetProjectWritingSystems(project.Code);
+        if (langTags is null) return;
+        project.FlexProjectMetadata ??= new FlexProjectMetadata();
+        project.FlexProjectMetadata.WritingSystems = langTags;
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateProjectLangProjectId(Guid projectId)
+    {
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null || project.Type != ProjectType.FLEx) return;
+        await dbContext.Entry(project).Reference(p => p.FlexProjectMetadata).LoadAsync();
+        var langProjGuid = await hgService.GetProjectIdOfFlexProject(project.Code);
+        project.FlexProjectMetadata ??= new FlexProjectMetadata();
+        project.FlexProjectMetadata.LangProjectId = langProjGuid;
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<Guid> CreateDraftProject(CreateProjectInput input)
     {
         // No need for a transaction if we're just saving a single item
@@ -94,6 +117,12 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
             .FirstOrDefaultAsync();
         memoryCache.Set(cacheKey, projectId, TimeSpan.FromHours(1));
         return projectId;
+    }
+
+    public void InvalidateProjectCodeCache(string projectCode)
+    {
+        try { memoryCache.Remove($"ProjectIdForCode:{projectCode}"); }
+        catch (Exception) { }; // Never allow this to throw
     }
 
     public async Task<BackupExecutor?> BackupProject(string code)

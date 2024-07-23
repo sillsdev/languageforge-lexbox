@@ -55,7 +55,7 @@
         {/each}
       </div>
       <div class="mt-4 flex items-center gap-2">
-        {data.appName} is trusted by Language Depot
+        {data.appName} is trusted by Lexbox
         <Icon icon="i-mdi-shield-check" color="text-info" size="text-xl" />
       </div>
       <div class="w-full flex max-sm:flex-col justify-center gap-4 mt-6">

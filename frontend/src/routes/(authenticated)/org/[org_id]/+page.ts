@@ -1,6 +1,7 @@
 import type {
   $OpResult,
   AddOrgMemberMutation,
+  BulkAddOrgMembersMutation,
   ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
   ChangeOrgNameMutation,
@@ -109,14 +110,6 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
           changeOrgMemberRole(input: $input) {
             organization {
               id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
             }
           }
         }
@@ -135,14 +128,6 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
           setOrgMemberRole(input: $input) {
             organization {
               id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
             }
             errors {
               __typename
@@ -154,6 +139,38 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
         }
       `),
       { input: { orgId, emailOrUsername, role, canInvite} },
+    );
+  return result;
+}
+
+export async function _bulkAddOrgMembers(orgId: UUID, usernames: string[], role: OrgRole): $OpResult<BulkAddOrgMembersMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation BulkAddOrgMembers($input: BulkAddOrgMembersInput!) {
+          bulkAddOrgMembers(input: $input) {
+            bulkAddOrgMembersResult {
+              addedMembers {
+                username
+                role
+              }
+              existingMembers {
+                username
+                role
+              }
+              notFoundMembers {
+                username
+                role
+              }
+            }
+            errors {
+              __typename
+            }
+          }
+        }
+      `),
+      { input: { orgId, usernames, role } }
     );
   return result;
 }
@@ -201,14 +218,6 @@ export async function _changeOrgMemberRole(orgId: string, userId: string, role: 
           changeOrgMemberRole(input: $input) {
             organization {
               id
-              members {
-                id
-                role
-                user {
-                  id
-                  name
-                }
-              }
             }
             errors {
               __typename

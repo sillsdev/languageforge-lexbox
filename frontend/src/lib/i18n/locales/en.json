@@ -103,7 +103,8 @@
     }
   },
   "appbar": {
-    "app_name": "Language Depot"
+    "app_name": "Lexbox",
+    "app_subtitle": "formerly Language Depot"
   },
   "appmenu": {
     "log_out": "Log out",
@@ -158,8 +159,8 @@
     "title": "Log in",
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
-    "welcome_header": "### Welcome to Language Depot\n",
-    "welcome": "Language Depot is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
+    "welcome_header": "Welcome to Lexbox",
+    "welcome": "Lexbox is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
@@ -263,6 +264,21 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
       "invalid_email_address": "Invalid email address: {email}",
     },
+    "bulk_add_members": {
+      "add_button": "Bulk Add Members",
+      "explanation": "Adds all the entered logins and emails to this organization. Unlike the bulk-add feature for projects, new accounts will NOT be automatically created.",
+      "modal_title": "Bulk Add Members",
+      "submit_button": "Add Members",
+      "finish_button": "Close",
+      "usernames": "Logins or emails (one per line)",
+      "usernames_description": "This should be the **email or Send/Receive login** for existing accounts",
+      "invalid_username": "Invalid login/username: {username}. Only letters, numbers, and underscore (_) characters are allowed.",
+      "empty_user_field": "Please enter email addresses and/or logins",
+      "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to the organization.",
+      "already_members": "{count, plural, one {# user was} other {# users were}} already in the organization.",
+      "accounts_not_found": "{notFoundCount} {notFoundCount, plural, one {user was} other {users were}} not found.",
+      "invalid_email_address": "Invalid email address: {email}.",
+    },
     "change_role_modal": {
       "title": "Choose role for {name}",
       "button_label": "Change Role"
@@ -311,6 +327,13 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_already_member": "User is already a member of this project",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
       "invalid_email_address": "Invalid email address: {email}",
+    },
+    "add_org": {
+      "add_button": "Add Organization",
+      "modal_title": "Choose organization",
+      "submit_button": "Add Organization",
+      "org_not_found": "Organization not found. Please refresh the page.",
+      "project_not_found": "Project not found. Please refresh the page."
     },
     "bulk_add_members": {
       "add_button": "Bulk Add/Create Members",
@@ -381,6 +404,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "vernacular_langs": "Vernacular writing systems",
+    "analysis_langs": "Analysis writing systems",
     "organization": {
       "title": "Organizations",
       "placeholder": "No organization"
@@ -409,7 +434,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
-1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Language Depot and click \"Log in\"\n\
+1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Lexbox and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
       "instructions_flex_empty": "1. [Download FLEx](https://software.sil.org/fieldworks/download/) onto your computer.\n\
@@ -417,7 +442,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
 1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
 1. Click on \"OK (I have the master project)\".\n\
-1. Click on \"Settings...\" and enter your Language Depot \"Login\" ({login}) and \"Password\".\n\
+1. Click on \"Settings...\" and enter your Lexbox \"Login\" ({login}) and \"Password\".\n\
 1. Click Log in, then select the Project ID ({code}) from the drop-down menu.\n\
 1. Click on Internet. This will initiate the first Send/Receive.",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
@@ -562,8 +587,8 @@ If you don't see a dialog or already closed it, click the button below:",
     "link_expiration_seconds": "This email will expire in {seconds} {seconds, plural, one {second} other {seconds}}.",
     "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
-      "subject": "New Language Depot administrator {adminName}",
-      "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."
+      "subject": "New Lexbox administrator {adminName}",
+      "body": "{adminName} ({adminEmail}) has been made an administrator on Lexbox."
     },
     "verify_email": {
       "subject": "Verify your e-mail address",

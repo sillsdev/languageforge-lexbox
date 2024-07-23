@@ -3,13 +3,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'backend/LexBoxApi/**'
-      - 'backend/LexCore/**'
-      - 'backend/LexData/**'
-      - 'backend/LfClassicData/**'
-      - 'backend/MiniLcm/**'
-      - 'backend/SyncReverserProxy/**'
-      - 'backend/Testing/**'
+      - 'backend/**'
+      - '!backend/FwLite/**'
       - '.github/workflows/lexbox-api.yaml'
       - '.github/workflows/deploy.yaml'
       - 'deployment/lexbox-deployment.yaml'
@@ -17,13 +12,8 @@ on:
       - develop
   pull_request:
     paths:
-      - 'backend/LexBoxApi/**'
-      - 'backend/LexCore/**'
-      - 'backend/LexData/**'
-      - 'backend/LfClassicData/**'
-      - 'backend/MiniLcm/**'
-      - 'backend/SyncReverserProxy/**'
-      - 'backend/Testing/**'
+      - 'backend/**'
+      - '!backend/FwLite/**'
       - '.github/workflows/lexbox-api.yaml'
       - '.github/workflows/deploy.yaml'
       - 'deployment/lexbox-deployment.yaml'
