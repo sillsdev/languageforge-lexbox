@@ -60,7 +60,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
           Mutation: {
             createProject: (result, args: CreateProjectMutationVariables, cache, _info) => {
               if (args.input.orgId) {
-                cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
+                cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
               }
             },
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
@@ -94,7 +94,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             },
             addProjectToOrg: (result, args: MutationAddProjectToOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
-              cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
             },
             removeProjectFromOrg: (result, args: MutationRemoveProjectFromOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
