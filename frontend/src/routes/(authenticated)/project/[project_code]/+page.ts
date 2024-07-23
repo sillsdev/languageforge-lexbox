@@ -27,7 +27,7 @@ import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
-export type ProjectUser = Project['users'][number];
+export type ProjectUser = NonNullable<Project['users']>[number];
 export type User = ProjectUser['user'];
 export type Org = Pick<Organization, 'id' | 'name'>;
 
