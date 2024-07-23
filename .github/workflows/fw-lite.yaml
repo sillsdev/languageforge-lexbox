@@ -121,7 +121,7 @@ jobs:
           if-no-files-found: error
           path: backend/FwLite/artifacts/publish/LocalWebApp/*
 
-      - name: Publish Windows MAUI app
+      - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
           dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
@@ -135,6 +135,17 @@ jobs:
           name: fw-lite-msix
           if-no-files-found: error
           path: backend/FwLite/artifacts/msix/*.msix
+      - name: Publish Windows MAUI unpackaged app
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true
+          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true
+      - name: Upload FWLite Desktop artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-msix-none
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/publish/FwLiteDesktop/*
 
   sign-installer:
     #disabled as this doesn't work since ltops-signing doesn't have the signtool
