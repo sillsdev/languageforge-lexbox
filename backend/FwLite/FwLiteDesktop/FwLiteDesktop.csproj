@@ -50,13 +50,10 @@
         <SelfContained>true</SelfContained>
         <PublishTrimmed>false</PublishTrimmed>
     </PropertyGroup>
-    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(Configuration)' == 'Release'">
-<!--        <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>-->
-<!--        <PackageCertificateThumbprint>A10612AF095FD8F8255F4C6691D88F79EF2B135E</PackageCertificateThumbprint>-->
+    <PropertyGroup Condition="'$(WindowsPackageType)' == 'None'">
+        <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
     </PropertyGroup>
-<!--    <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' and '$(RuntimeIdentifierOverride)' != ''">-->
-<!--        <RuntimeIdentifier>$(RuntimeIdentifierOverride)</RuntimeIdentifier>-->
-<!--    </PropertyGroup>-->
 
 
 	<ItemGroup>

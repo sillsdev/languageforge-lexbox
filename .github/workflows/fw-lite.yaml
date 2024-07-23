@@ -64,6 +64,7 @@ jobs:
     runs-on: windows-latest
     env:
       NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
+      enable-msix: false #we can't sign the msix installer so we'll disable the build for now
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -114,14 +115,26 @@ jobs:
         run: dotnet publish -r win-arm64 --artifacts-path ../artifacts
 
       - name: Upload local web app artifacts
-        # uploading in one artifact as there's a lot of duplication between builds so compression goes far
         uses: actions/upload-artifact@v4
         with:
-          name: fw-lite
+          name: fw-lite-local-web-app
           if-no-files-found: error
           path: backend/FwLite/artifacts/publish/LocalWebApp/*
 
+      - name: Publish Windows MAUI unpackaged app
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
+          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None
+      - name: Upload FWLite Desktop artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-unpackaged
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/publish/FwLiteDesktop/*
+
       - name: Publish Windows MAUI msix app
+        if: ${{env.enable-msix}}
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
           dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
@@ -131,21 +144,11 @@ jobs:
 
       - name: Upload FWLite Desktop artifacts
         uses: actions/upload-artifact@v4
+        if: ${{env.enable-msix}}
         with:
           name: fw-lite-msix
           if-no-files-found: error
           path: backend/FwLite/artifacts/msix/*.msix
-      - name: Publish Windows MAUI unpackaged app
-        working-directory: backend/FwLite/FwLiteDesktop
-        run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true
-          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true
-      - name: Upload FWLite Desktop artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: fw-lite-msix-none
-          if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/FwLiteDesktop/*
 
   sign-installer:
     #disabled as this doesn't work since ltops-signing doesn't have the signtool
