@@ -54,6 +54,34 @@ public class LexQueries
         return context.DraftProjects;
     }
 
+    public record ProjectsByLangCodeAndOrgInput(Guid OrgId, string LangCode);
+    [UseProjection]
+    [UseSorting]
+    public IQueryable<Project> ProjectsByLangCodeAndOrg(LoggedInContext loggedInContext, LexBoxDbContext context, IPermissionService permissionService, ProjectsByLangCodeAndOrgInput input)
+    {
+        var userId = loggedInContext.User.Id;
+        var authorized = loggedInContext.User.IsAdmin || permissionService.IsOrgMember(input.OrgId);
+        if (!authorized) throw new UnauthorizedAccessException();
+        var query = context.Projects.Where(p =>
+            p.Organizations.Any(o => o.Id == input.OrgId) &&
+            p.FlexProjectMetadata != null &&
+            p.FlexProjectMetadata.WritingSystems != null &&
+            p.FlexProjectMetadata.WritingSystems.VernacularWss.Any(ws =>
+                ws.IsActive && (
+                    ws.Tag == input.LangCode ||
+                    ws.Tag == $"qaa-x-{input.LangCode}" ||
+                    ws.Tag.StartsWith($"{input.LangCode}-")
+                )
+            )
+        );
+        // Org admins can see all projects, everyone else can only see non-confidential
+        if (!permissionService.CanEditOrg(input.OrgId))
+        {
+            query = query.Where(p => p.IsConfidential == false);
+        }
+        return query;
+    }
+
     [UseSingleOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> ProjectById(LexBoxDbContext context, IPermissionService permissionService, Guid projectId)

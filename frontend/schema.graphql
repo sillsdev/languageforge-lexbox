@@ -409,6 +409,7 @@ type Query {
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
+  projectsByLangCodeAndOrg(input: ProjectsByLangCodeAndOrgInput! orderBy: [ProjectSortInput!]): [Project!]!
   projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
@@ -949,6 +950,11 @@ input ProjectWritingSystemsFilterInput {
   or: [ProjectWritingSystemsFilterInput!]
   vernacularWss: ListFilterInputTypeOfFLExWsIdFilterInput
   analysisWss: ListFilterInputTypeOfFLExWsIdFilterInput
+}
+
+input ProjectsByLangCodeAndOrgInput {
+  orgId: UUID!
+  langCode: String!
 }
 
 input RemoveProjectFromOrgInput {
