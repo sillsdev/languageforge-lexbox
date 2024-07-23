@@ -9,7 +9,8 @@
         <ServerGarbageCollection>false</ServerGarbageCollection>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
-        <PublishSingleFile>true</PublishSingleFile>
+<!--        single file disabled as it's less efficient for updates-->
+        <PublishSingleFile>false</PublishSingleFile>
         <SelfContained>true</SelfContained>
         <PublishTrimmed>false</PublishTrimmed>
     </PropertyGroup>
