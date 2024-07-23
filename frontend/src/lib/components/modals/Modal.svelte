@@ -89,6 +89,11 @@
     }
   }
 </script>
+<style>
+  .modal-action {
+    justify-content: var(--justify-actions, space-between)
+  }
+</style>
 
 {#if $open}
   <!-- using DaisyUI modal https://daisyui.com/components/modal/ -->
@@ -109,7 +114,7 @@
       {/if}
       <slot {closing} {submitting} />
       {#if $$slots.actions}
-        <div class="modal-action justify-between">
+        <div class="modal-action">
           <div class="flex gap-4">
             <slot name="extraActions" />
           </div>

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { DetailsPage, DetailItem, AdminContent } from '$lib/layout';
-
   import t, { date } from '$lib/i18n';
   import { z } from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';

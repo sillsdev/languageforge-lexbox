@@ -248,6 +248,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "organization": "Organization",
     "add_user": {
       "add_button": "Add Member",
+      "invite": "Invite",
       "__comment_add_button": "Should become 'Add/Invite Member' once email invitations implemented for orgs",
       "modal_title": "Add a Member to this organization",
       "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
@@ -608,10 +609,15 @@ If you don't see a dialog or already closed it, click the button below:",
       "greeting": "Hello {name}!",
       "greeting_noname": "Hello!"
     },
-    "create_account_request_email": {
+    "create_account_request_email_project": {
       "subject": "Project invitation: {projectName}",
       "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
       "join_button": "Join project"
+    },
+    "create_account_request_email_org": {
+      "subject": "Organization invitation: {orgName}",
+      "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
+      "join_button": "Join organization"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
