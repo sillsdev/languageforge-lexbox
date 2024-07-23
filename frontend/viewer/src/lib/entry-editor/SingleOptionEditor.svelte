@@ -19,6 +19,7 @@
 
   let options: Readable<MenuOption[]> = readable([]);
   $: options = pickOptions(field);
+  const emptyOptions = readable([]);
 
   const optionProvider = getContext<OptionProvider>('optionProvider');
 
@@ -27,7 +28,8 @@
       case 'part-of-speech':
         return optionProvider.partsOfSpeech;
       default:
-        throw new Error(`No options for single-option field ${field.id} (Option type: ${field.optionType})`);
+        console.error(`No options for single-option field '${field.id}' (Option type: ${field.optionType})`);
+        return emptyOptions;
     }
   }
 
