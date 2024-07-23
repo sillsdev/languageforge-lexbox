@@ -79,6 +79,7 @@ jobs:
       - name: Setup Maui
         run: dotnet workload install maui-windows
       - name: Enable GitHub Packages
+        working-directory: backend/FwLite
         run: dotnet nuget enable source github
 
       - name: Build viewer
