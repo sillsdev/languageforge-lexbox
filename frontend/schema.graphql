@@ -163,9 +163,17 @@ type DraftProject {
   updatedDate: DateTime!
 }
 
+type FLExWsId {
+  tag: String!
+  isActive: Boolean!
+  isDefault: Boolean!
+}
+
 type FlexProjectMetadata {
   projectId: UUID!
   lexEntryCount: Int
+  langProjectId: UUID
+  writingSystems: ProjectWritingSystems
 }
 
 type InvalidEmailError implements Error {
@@ -381,6 +389,11 @@ type ProjectUsers {
   id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
+}
+
+type ProjectWritingSystems {
+  vernacularWss: [FLExWsId!]!
+  analysisWss: [FLExWsId!]!
 }
 
 type Query {
@@ -679,16 +692,27 @@ input DraftProjectSortInput {
   updatedDate: SortEnumType
 }
 
+input FLExWsIdFilterInput {
+  and: [FLExWsIdFilterInput!]
+  or: [FLExWsIdFilterInput!]
+  tag: StringOperationFilterInput
+  isActive: BooleanOperationFilterInput
+  isDefault: BooleanOperationFilterInput
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
   projectId: UuidOperationFilterInput
   lexEntryCount: IntOperationFilterInput
+  langProjectId: UuidOperationFilterInput
+  writingSystems: ProjectWritingSystemsFilterInput
 }
 
 input FlexProjectMetadataSortInput {
   projectId: SortEnumType
   lexEntryCount: SortEnumType
+  langProjectId: SortEnumType
 }
 
 input IntOperationFilterInput {
@@ -708,6 +732,13 @@ input IntOperationFilterInput {
 
 input LeaveProjectInput {
   projectId: UUID!
+}
+
+input ListFilterInputTypeOfFLExWsIdFilterInput {
+  all: FLExWsIdFilterInput
+  none: FLExWsIdFilterInput
+  some: FLExWsIdFilterInput
+  any: Boolean
 }
 
 input ListFilterInputTypeOfOrgMemberFilterInput {
@@ -863,6 +894,13 @@ input ProjectUsersFilterInput {
   id: UuidOperationFilterInput
   createdDate: DateTimeOperationFilterInput
   updatedDate: DateTimeOperationFilterInput
+}
+
+input ProjectWritingSystemsFilterInput {
+  and: [ProjectWritingSystemsFilterInput!]
+  or: [ProjectWritingSystemsFilterInput!]
+  vernacularWss: ListFilterInputTypeOfFLExWsIdFilterInput
+  analysisWss: ListFilterInputTypeOfFLExWsIdFilterInput
 }
 
 input RemoveProjectFromOrgInput {

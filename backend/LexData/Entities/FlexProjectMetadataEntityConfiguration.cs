@@ -9,5 +9,11 @@ public class FlexProjectMetadataEntityConfiguration: IEntityTypeConfiguration<Fl
     public virtual void Configure(EntityTypeBuilder<FlexProjectMetadata> builder)
     {
         builder.HasKey(e => e.ProjectId);
+        builder.OwnsOne(e => e.WritingSystems, wsb =>
+        {
+            wsb.ToJson();
+            wsb.OwnsMany(e => e.AnalysisWss);
+            wsb.OwnsMany(e => e.VernacularWss);
+        });
     }
 }
