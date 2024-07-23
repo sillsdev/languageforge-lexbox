@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "recover" "healthz" "invalidatedircache")
+allowed_commands=("verify" "tip" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -61,6 +61,17 @@ case $command_name in
         LIFTFILE=$(chg manifest -r tip | grep '\.lift$' | head -n 1)
         # The \b for word boundary is not necessary for .lift files
         [ -n "${LIFTFILE}" ] && (chg cat -r tip "${LIFTFILE}" | grep -c '<entry') || echo 0
+        ;;
+
+    flexprojectid)
+        # grep -o extracts only what matches the pattern; -P turns on Perl-compatible regex, and \K is a Perl regex flag
+        # that means "consider the previous text a lookbehind assertion, and don't include it in the match."
+        # https://perldoc.perl.org/perlre#%5CK says the `\K` construct "may be significantly more efficient" than "standard" lookbehind assertions like `(?<=...)`
+        chg cat -r tip General/LanguageProject.langproj | sed -n -e '/<LangProject/,/>/p' | grep -oP 'guid="\K[^"]+'
+        ;;
+
+    flexwritingsystems)
+        chg cat -r tip General/LanguageProject.langproj | sed -n -e '/<AnalysisWss>/,/<\/AnalysisWss>/p' -e '/<VernWss>/,/<\/VernWss>/p' -e '/<CurAnalysisWss>/,/<\/CurAnalysisWss>/p' -e '/<CurVernWss>/,/<\/CurVernWss>/p' -e '/<CurPronunWss>/,/<\/CurPronunWss>/p'
         ;;
 
     tip)
