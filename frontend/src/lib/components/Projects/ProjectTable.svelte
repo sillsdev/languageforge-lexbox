@@ -137,7 +137,7 @@
                   <li>
                     <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {projectId: project.id, projectName: project.name})}>
                       <TrashIcon />
-                      {'Remove'}
+                      {$t('org_page.remove_project_from_org')}
                     </button>
                   </li>
                 </ul>

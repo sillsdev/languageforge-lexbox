@@ -296,6 +296,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "settings_view_title": "Settings",
     "history_view_title": "History",
     "remove_project_from_org_title": "Project",
+    "remove_project_from_org": "Remove",
     "confirm_remove_project_from_org": "Would you like to remove {projectName} from {orgName}?",
     "leave_org": "Leave Organization",
   },
