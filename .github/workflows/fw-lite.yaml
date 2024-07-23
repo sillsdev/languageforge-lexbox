@@ -23,6 +23,8 @@ jobs:
     name: Build FW Lite and run tests
     timeout-minutes: 20
     runs-on: windows-latest
+    env:
+      NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,8 +38,10 @@ jobs:
           node-version-file: './frontend/package.json'
 
       - name: Dotnet build
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet build --configuration Release
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet nuget enable source github
+          dotnet build --configuration Release
 
       - name: Dotnet test
         working-directory: backend/FwLite/LcmCrdt.Tests
@@ -51,12 +55,15 @@ jobs:
           pnpm run build-app
 
   publish-app:
-    name: Publish FW Lite app and sign installer
+    name: Publish FW Lite app
 
     # only publish if tag matches fwlite-v* pattern
     # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
     needs: build-and-test
+    timeout-minutes: 20
     runs-on: windows-latest
+    env:
+      NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,6 +78,8 @@ jobs:
 
       - name: Setup Maui
         run: dotnet workload install maui-windows
+      - name: Enable GitHub Packages
+        run: dotnet nuget enable source github
 
       - name: Build viewer
         working-directory: frontend/viewer
