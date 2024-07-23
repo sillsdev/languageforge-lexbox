@@ -50,7 +50,7 @@ public class ProjectServiceTest
     public async Task CanCreateProject()
     {
         var projectId = await _projectService.CreateProject(
-            new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
+            new(null, "TestProject", "Test", "test1", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
         projectId.ShouldNotBe(default);
     }
 
@@ -58,7 +58,7 @@ public class ProjectServiceTest
     public async Task CanUpdateProjectLangTags()
     {
         var projectId = await _projectService.CreateProject(
-            new(null, "TestProject", "Test", "test", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
+            new(null, "TestProject", "Test", "test2", ProjectType.FLEx, RetentionPolicy.Test, false, null, null));
         await _projectService.UpdateProjectLangTags(projectId);
         var project = await _lexBoxDbContext.Projects.Include(p => p.FlexProjectMetadata).SingleAsync(p => p.Id == projectId);
         project.FlexProjectMetadata.ShouldNotBeNull();
