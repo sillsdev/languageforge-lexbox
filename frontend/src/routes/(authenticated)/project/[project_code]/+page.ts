@@ -83,9 +83,21 @@ export async function load(event: PageLoadEvent) {
                 }
               }
             }
-						flexProjectMetadata {
-							lexEntryCount
-						}
+            flexProjectMetadata {
+              lexEntryCount
+              writingSystems {
+                vernacularWss {
+                  tag
+                  isActive
+                  isDefault
+                }
+                analysisWss {
+                  tag
+                  isActive
+                  isDefault
+                }
+              }
+            }
             organizations {
               id
               name

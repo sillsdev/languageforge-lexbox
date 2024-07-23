@@ -2,6 +2,7 @@
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models.Org;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -131,19 +132,51 @@ public class OrgMutations
     /// <param name="emailOrUsername">either an email or a username for the user whos membership to update</param>
     [Error<DbError>]
     [Error<NotFoundException>]
+    [Error<OrgMemberInvitedByEmail>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IQueryable<Organization>> SetOrgMemberRole(
         LexBoxDbContext dbContext,
+        LoggedInContext loggedInContext,
         IPermissionService permissionService,
         Guid orgId,
-        OrgRole? role,
-        string emailOrUsername)
+        OrgRole role,
+        string emailOrUsername,
+        bool canInvite,
+        [Service] IEmailService emailService)
     {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanEditOrg(org);
         var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
-        NotFoundException.ThrowIfNull(user); // TODO: Implement inviting user
-        return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+        if (user is null)
+        {
+            var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(emailOrUsername);
+            if (email is null)
+            {
+                throw NotFoundException.ForType<User>();
+            }
+            else if (canInvite)
+            {
+                var manager = loggedInContext.User;
+                await emailService.SendCreateAccountWithOrgEmail(
+                    email,
+                    manager.Name,
+                    orgId: orgId,
+                    orgRole: role,
+                    orgName: org.Name);
+                throw new OrgMemberInvitedByEmail("Invitation email sent");
+            }
+            else
+            {
+                throw NotFoundException.ForType<User>();
+            }
+        }
+        else
+        {
+            return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+        }
     }
 
     /// <summary>
@@ -194,6 +227,54 @@ public class OrgMutations
         }
 
         await dbContext.SaveChangesAsync();
+    }
+
+    public record BulkAddOrgMembersInput(Guid OrgId, string[] Usernames, OrgRole Role);
+    public record OrgMemberRole(string Username, OrgRole Role);
+    public record BulkAddOrgMembersResult(List<OrgMemberRole> AddedMembers, List<OrgMemberRole> NotFoundMembers, List<OrgMemberRole> ExistingMembers);
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    public async Task<BulkAddOrgMembersResult> BulkAddOrgMembers(
+        BulkAddOrgMembersInput input,
+        IPermissionService permissionService,
+        LexBoxDbContext dbContext)
+    {
+        permissionService.AssertCanEditOrg(input.OrgId);
+        var orgExists = await dbContext.Orgs.AnyAsync(o => o.Id == input.OrgId);
+        if (!orgExists) throw NotFoundException.ForType<Organization>();
+        List<OrgMemberRole> AddedMembers = [];
+        List<OrgMemberRole> ExistingMembers = [];
+        List<OrgMemberRole> NotFoundMembers = [];
+        var existingUsers = await dbContext.Users.Include(u => u.Organizations).Where(u => input.Usernames.Contains(u.Username) || input.Usernames.Contains(u.Email)).ToArrayAsync();
+        var byUsername = existingUsers.Where(u => u.Username is not null).ToDictionary(u => u.Username!);
+        var byEmail = existingUsers.Where(u => u.Email is not null).ToDictionary(u => u.Email!);
+        foreach (var usernameOrEmail in input.Usernames)
+        {
+            var user = byUsername.GetValueOrDefault(usernameOrEmail) ?? byEmail.GetValueOrDefault(usernameOrEmail);
+            if (user is null)
+            {
+                NotFoundMembers.Add(new OrgMemberRole(usernameOrEmail, input.Role));
+            }
+            else
+            {
+                var userOrg = user.Organizations.FirstOrDefault(p => p.OrgId == input.OrgId);
+                if (userOrg is not null)
+                {
+                    ExistingMembers.Add(new OrgMemberRole(user.Username ?? user.Email!, userOrg.Role));
+                }
+                else
+                {
+                    AddedMembers.Add(new OrgMemberRole(user.Username ?? user.Email!, input.Role));
+                    // Not yet a member, so add a membership. We don't want to touch existing memberships, which might have other roles
+                    user.Organizations.Add(new OrgMember { Role = input.Role, OrgId = input.OrgId, UserId = user.Id });
+                }
+            }
+        }
+        await dbContext.SaveChangesAsync();
+        return new BulkAddOrgMembersResult(AddedMembers, NotFoundMembers, ExistingMembers);
     }
 
     [Error<NotFoundException>]

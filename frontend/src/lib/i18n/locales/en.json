@@ -248,6 +248,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "organization": "Organization",
     "add_user": {
       "add_button": "Add Member",
+      "invite": "Invite",
       "__comment_add_button": "Should become 'Add/Invite Member' once email invitations implemented for orgs",
       "modal_title": "Add a Member to this organization",
       "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
@@ -262,6 +263,21 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_already_member": "User is already a member of this organization",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
       "invalid_email_address": "Invalid email address: {email}",
+    },
+    "bulk_add_members": {
+      "add_button": "Bulk Add Members",
+      "explanation": "Adds all the entered logins and emails to this organization. Unlike the bulk-add feature for projects, new accounts will NOT be automatically created.",
+      "modal_title": "Bulk Add Members",
+      "submit_button": "Add Members",
+      "finish_button": "Close",
+      "usernames": "Logins or emails (one per line)",
+      "usernames_description": "This should be the **email or Send/Receive login** for existing accounts",
+      "invalid_username": "Invalid login/username: {username}. Only letters, numbers, and underscore (_) characters are allowed.",
+      "empty_user_field": "Please enter email addresses and/or logins",
+      "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to the organization.",
+      "already_members": "{count, plural, one {# user was} other {# users were}} already in the organization.",
+      "accounts_not_found": "{notFoundCount} {notFoundCount, plural, one {user was} other {users were}} not found.",
+      "invalid_email_address": "Invalid email address: {email}.",
     },
     "change_role_modal": {
       "title": "Choose role for {name}",
@@ -388,6 +404,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "vernacular_langs": "Vernacular writing systems",
+    "analysis_langs": "Analysis writing systems",
     "organization": {
       "title": "Organizations",
       "placeholder": "No organization"
@@ -591,10 +609,15 @@ If you don't see a dialog or already closed it, click the button below:",
       "greeting": "Hello {name}!",
       "greeting_noname": "Hello!"
     },
-    "create_account_request_email": {
+    "create_account_request_email_project": {
       "subject": "Project invitation: {projectName}",
       "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
       "join_button": "Join project"
+    },
+    "create_account_request_email_org": {
+      "subject": "Organization invitation: {orgName}",
+      "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
+      "join_button": "Join organization"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
