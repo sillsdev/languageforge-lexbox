@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LexData.Migrations
 {
     [DbContext(typeof(LexBoxDbContext))]
-    partial class LexBoxDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240712083211_AddProjectLangTagsToMetadata")]
+    partial class AddProjectLangTagsToMetadata
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -557,9 +560,6 @@ namespace LexData.Migrations
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
                 {
                     b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("LangProjectId")
                         .HasColumnType("uuid");
 
                     b.Property<int?>("LexEntryCount")
@@ -1194,9 +1194,6 @@ namespace LexData.Migrations
                                     b2.Property<bool>("IsActive")
                                         .HasColumnType("boolean");
 
-                                    b2.Property<bool>("IsDefault")
-                                        .HasColumnType("boolean");
-
                                     b2.Property<string>("Tag")
                                         .IsRequired()
                                         .HasColumnType("text");
@@ -1219,9 +1216,6 @@ namespace LexData.Migrations
                                         .HasColumnType("integer");
 
                                     b2.Property<bool>("IsActive")
-                                        .HasColumnType("boolean");
-
-                                    b2.Property<bool>("IsDefault")
                                         .HasColumnType("boolean");
 
                                     b2.Property<string>("Tag")

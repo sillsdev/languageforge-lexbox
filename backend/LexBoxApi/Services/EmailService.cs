@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using LexBoxApi.Auth;
 using LexBoxApi.Config;
 using LexBoxApi.Jobs;
@@ -48,7 +47,7 @@ public class EmailService(
             new { jwt, returnTo = "/resetPassword" });
         ArgumentException.ThrowIfNullOrEmpty(forgotLink);
         await RenderEmail(email, new ForgotPasswordEmail(user.Name, forgotLink, lifetime), user.LocalizationCode);
-        await SendEmailWithRetriesAsync(email, retryCount:5, retryWaitSeconds:30);
+        await SendEmailWithRetriesAsync(email, retryCount: 5, retryWaitSeconds: 30);
     }
 
     public async Task SendNewAdminEmail(IAsyncEnumerable<User> admins, string newAdminName, string newAdminEmail)
@@ -73,13 +72,13 @@ public class EmailService(
     public async Task SendVerifyAddressEmail(User user, string? newEmail = null)
     {
         var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser(user)
-            {
-                EmailVerificationRequired = null, Email = newEmail ?? user.Email,
-            },
+        {
+            EmailVerificationRequired = null,
+            Email = newEmail ?? user.Email,
+        },
             useEmailLifetime: true
         );
-        var email = StartUserEmail(user, newEmail);
-        if (email is null) throw new ArgumentNullException("emailAddress");
+        var email = StartUserEmail(user, newEmail) ?? throw new ArgumentNullException("emailAddress");
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
         var queryParam = string.IsNullOrEmpty(newEmail) ? "verifiedEmail" : "changedEmail";
@@ -93,52 +92,98 @@ public class EmailService(
     }
 
     /// <summary>
+    /// Sends a organization invitation email to a new user, whose account will be created when they accept.
+    /// </summary>
+    /// <param name="name">The name (real name, NOT username) of user to invite.</param>
+    /// <param name="emailAddress">The email address to send the invitation to</param>
+    /// <param name="orgId">The GUID of the organization the user is being invited to</param>
+    /// <param name="language">The language in which the invitation email should be sent (default English)</param>
+    public async Task SendCreateAccountWithOrgEmail(
+        string emailAddress,
+        string managerName,
+        Guid orgId,
+        OrgRole orgRole,
+        string orgName,
+        string? language = null)
+    {
+        language ??= User.DefaultLocalizationCode;
+        var authUser = CreateUserForInvite(emailAddress, language);
+        authUser.Orgs = [new AuthUserOrg(orgRole, orgId)];
+        await SendInvitationEmail(authUser, emailAddress, managerName, orgName, language, isProjectInvitation: false);
+
+    }
+    /// <summary>
     /// Sends a project invitation email to a new user, whose account will be created when they accept.
     /// </summary>
     /// <param name="name">The name (real name, NOT username) of user to invite.</param>
     /// <param name="emailAddress">The email address to send the invitation to</param>
     /// <param name="projectId">The GUID of the project the user is being invited to</param>
     /// <param name="language">The language in which the invitation email should be sent (default English)</param>
-    public async Task SendCreateAccountEmail(string emailAddress,
+    public async Task SendCreateAccountWithProjectEmail(
+        string emailAddress,
+        string managerName,
         Guid projectId,
         ProjectRole role,
-        string managerName,
         string projectName,
         string? language = null)
     {
         language ??= User.DefaultLocalizationCode;
-        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(new LexAuthUser()
-            {
-                Id = Guid.NewGuid(),
-                Audience = LexboxAudience.RegisterAccount,
-                Name = "",
-                Email = emailAddress,
-                EmailVerificationRequired = null,
-                Role = UserRole.user,
-                UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
-                Projects = [new AuthUserProject(role, projectId)],
-                CanCreateProjects = null,
-                Locale = language,
-                Locked = null,
-            },
-            useEmailLifetime: true
-        );
+        var authUser = CreateUserForInvite(emailAddress, language);
+        authUser.Projects = [new AuthUserProject(role, projectId)];
+        await SendInvitationEmail(authUser, emailAddress, managerName, projectName, language, isProjectInvitation: true);
+
+    }
+    private LexAuthUser CreateUserForInvite(string emailAddress, string? language)
+    {
+        language ??= User.DefaultLocalizationCode;
+        return new LexAuthUser
+        {
+            Id = Guid.NewGuid(),
+            Audience = LexboxAudience.RegisterAccount,
+            Name = "",
+            Email = emailAddress,
+            EmailVerificationRequired = null,
+            Role = UserRole.user,
+            UpdatedDate = DateTimeOffset.Now.ToUnixTimeSeconds(),
+            CanCreateProjects = null,
+            Locale = language,
+            Locked = null,
+            Projects = [],
+            Orgs = [],
+        };
+    }
+    private async Task SendInvitationEmail(
+        LexAuthUser authUser,
+        string emailAddress,
+        string managerName,
+        string resourceName,
+        string? language,
+        bool isProjectInvitation)
+    {
+        language ??= User.DefaultLocalizationCode;
+        var (jwt, _, lifetime) = lexAuthService.GenerateJwt(authUser, useEmailLifetime: true);
         var email = StartUserEmail(name: "", emailAddress);
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
+
         var queryString = QueryString.Create("email", emailAddress);
-        var returnTo = new UriBuilder() { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
+        var returnTo = new UriBuilder { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
             "LoginRedirect",
             "Login",
             new { jwt, returnTo });
 
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
-        await RenderEmail(email, new ProjectInviteEmail(emailAddress, projectId.ToString(), managerName, projectName, registerLink, lifetime), language);
+        if (isProjectInvitation)
+        {
+            await RenderEmail(email, new ProjectInviteEmail(emailAddress, managerName, resourceName ?? "", registerLink, lifetime), language);
+        }
+        else
+        {
+            await RenderEmail(email, new OrgInviteEmail(emailAddress, managerName, resourceName ?? "", registerLink, lifetime), language);
+        }
         await SendEmailAsync(email);
-
     }
-
     public async Task SendPasswordChangedEmail(User user)
     {
         var email = StartUserEmail(user);

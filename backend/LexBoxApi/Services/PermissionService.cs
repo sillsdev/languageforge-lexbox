@@ -164,6 +164,11 @@ public class PermissionService(
         return false;
     }
 
+    public void AssertCanEditOrg(Guid orgId)
+    {
+        if (!CanEditOrg(orgId)) throw new UnauthorizedAccessException();
+    }
+
     public void AssertCanEditOrg(Organization org)
     {
         if (!CanEditOrg(org.Id)) throw new UnauthorizedAccessException();

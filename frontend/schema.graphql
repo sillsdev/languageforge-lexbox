@@ -31,6 +31,17 @@ type AuthUserProject {
   projectId: UUID!
 }
 
+type BulkAddOrgMembersPayload {
+  bulkAddOrgMembersResult: BulkAddOrgMembersResult
+  errors: [BulkAddOrgMembersError!]
+}
+
+type BulkAddOrgMembersResult {
+  addedMembers: [OrgMemberRole!]!
+  notFoundMembers: [OrgMemberRole!]!
+  existingMembers: [OrgMemberRole!]!
+}
+
 type BulkAddProjectMembersPayload {
   bulkAddProjectMembersResult: BulkAddProjectMembersResult
   errors: [BulkAddProjectMembersError!]
@@ -152,9 +163,17 @@ type DraftProject {
   updatedDate: DateTime!
 }
 
+type FLExWsId {
+  tag: String!
+  isActive: Boolean!
+  isDefault: Boolean!
+}
+
 type FlexProjectMetadata {
   projectId: UUID!
   lexEntryCount: Int
+  langProjectId: UUID
+  writingSystems: ProjectWritingSystems
 }
 
 type InvalidEmailError implements Error {
@@ -208,6 +227,7 @@ type Mutation {
   removeProjectFromOrg(input: RemoveProjectFromOrgInput!): RemoveProjectFromOrgPayload!
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
+  bulkAddOrgMembers(input: BulkAddOrgMembersInput!): BulkAddOrgMembersPayload!
   changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
   createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
@@ -294,6 +314,15 @@ type OrgMemberDtoCreatedBy {
   name: String!
 }
 
+type OrgMemberInvitedByEmail implements Error {
+  message: String!
+}
+
+type OrgMemberRole {
+  username: String!
+  role: OrgRole!
+}
+
 type OrgProjects {
   org: Organization!
   project: Project!
@@ -367,6 +396,11 @@ type ProjectUsers {
   updatedDate: DateTime!
 }
 
+type ProjectWritingSystems {
+  vernacularWss: [FLExWsId!]!
+  analysisWss: [FLExWsId!]!
+}
+
 type Query {
   myProjects(orderBy: [ProjectSortInput!]): [Project!]!
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
@@ -424,6 +458,10 @@ type SoftDeleteProjectPayload {
   errors: [SoftDeleteProjectError!]
 }
 
+type UnauthorizedAccessError implements Error {
+  message: String!
+}
+
 type UniqueValueError implements Error {
   message: String!
 }
@@ -468,6 +506,8 @@ union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVeri
 
 union AddProjectToOrgError = DbError | NotFoundError
 
+union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
+
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
 
 union ChangeOrgMemberRoleError = DbError | NotFoundError
@@ -500,7 +540,7 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
-union SetOrgMemberRoleError = DbError | NotFoundError
+union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
 union SetProjectConfidentialityError = NotFoundError | DbError
 
@@ -524,6 +564,12 @@ input AddProjectToOrgInput {
 input BooleanOperationFilterInput {
   eq: Boolean
   neq: Boolean
+}
+
+input BulkAddOrgMembersInput {
+  orgId: UUID!
+  usernames: [String!]!
+  role: OrgRole!
 }
 
 input BulkAddProjectMembersInput {
@@ -658,16 +704,27 @@ input DraftProjectSortInput {
   updatedDate: SortEnumType
 }
 
+input FLExWsIdFilterInput {
+  and: [FLExWsIdFilterInput!]
+  or: [FLExWsIdFilterInput!]
+  tag: StringOperationFilterInput
+  isActive: BooleanOperationFilterInput
+  isDefault: BooleanOperationFilterInput
+}
+
 input FlexProjectMetadataFilterInput {
   and: [FlexProjectMetadataFilterInput!]
   or: [FlexProjectMetadataFilterInput!]
   projectId: UuidOperationFilterInput
   lexEntryCount: IntOperationFilterInput
+  langProjectId: UuidOperationFilterInput
+  writingSystems: ProjectWritingSystemsFilterInput
 }
 
 input FlexProjectMetadataSortInput {
   projectId: SortEnumType
   lexEntryCount: SortEnumType
+  langProjectId: SortEnumType
 }
 
 input IntOperationFilterInput {
@@ -687,6 +744,13 @@ input IntOperationFilterInput {
 
 input LeaveProjectInput {
   projectId: UUID!
+}
+
+input ListFilterInputTypeOfFLExWsIdFilterInput {
+  all: FLExWsIdFilterInput
+  none: FLExWsIdFilterInput
+  some: FLExWsIdFilterInput
+  any: Boolean
 }
 
 input ListFilterInputTypeOfOrgMemberFilterInput {
@@ -844,6 +908,13 @@ input ProjectUsersFilterInput {
   updatedDate: DateTimeOperationFilterInput
 }
 
+input ProjectWritingSystemsFilterInput {
+  and: [ProjectWritingSystemsFilterInput!]
+  or: [ProjectWritingSystemsFilterInput!]
+  vernacularWss: ListFilterInputTypeOfFLExWsIdFilterInput
+  analysisWss: ListFilterInputTypeOfFLExWsIdFilterInput
+}
+
 input RemoveProjectFromOrgInput {
   orgId: UUID!
   projectId: UUID!
@@ -870,8 +941,9 @@ input RetentionPolicyOperationFilterInput {
 
 input SetOrgMemberRoleInput {
   orgId: UUID!
-  role: OrgRole
+  role: OrgRole!
   emailOrUsername: String!
+  canInvite: Boolean!
 }
 
 input SetProjectConfidentialityInput {

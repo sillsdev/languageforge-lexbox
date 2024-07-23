@@ -25,7 +25,7 @@
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import {_deleteProject} from '$lib/gql/mutations';
-  import { goto } from '$app/navigation';
+  import { goto, invalidate } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
@@ -46,6 +46,7 @@
   import OrgList from './OrgList.svelte';
   import AddOrganization from './AddOrganization.svelte';
   import AddPurpose from './AddPurpose.svelte';
+  import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -65,6 +66,8 @@
 
   let lexEntryCount: number | string | null | undefined = undefined;
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
+  $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
+  $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -76,6 +79,14 @@
     const response = await fetch(`/api/project/updateLexEntryCount/${project.code}`, {method: 'POST'});
     lexEntryCount = await response.text();
     loadingEntryCount = false;
+  }
+
+  let loadingLanguageList = false;
+  async function updateLanguageList(): Promise<void> {
+    loadingLanguageList = true;
+    await fetch(`/api/project/updateLanguageList/${project.code}`, {method: 'POST'});
+    loadingLanguageList = false;
+    await invalidate(`project:${project.code}`);
   }
 
   let resetProjectModal: ResetProjectModal;
@@ -335,6 +346,34 @@
               variant="btn-ghost"
               outline={false}
               on:click={updateEntryCount}
+            />
+          </AdminContent>
+        </DetailItem>
+      {/if}
+      {#if project.type === ProjectType.FlEx}
+        <DetailItem title={$t('project_page.vernacular_langs')}>
+          <WritingSystemList writingSystems={vernacularLangTags} />
+          <AdminContent>
+            <IconButton
+              loading={loadingLanguageList}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
+            />
+          </AdminContent>
+        </DetailItem>
+        <DetailItem title={$t('project_page.analysis_langs')}>
+          <WritingSystemList writingSystems={analysisLangTags} />
+          <AdminContent>
+            <IconButton
+              loading={loadingLanguageList}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateLanguageList}
             />
           </AdminContent>
         </DetailItem>
