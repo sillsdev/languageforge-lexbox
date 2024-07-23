@@ -28,7 +28,9 @@ tasks:
     dir: ./FwLiteDesktop
     cmds:
       - dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
+      - dotnet publish --no-build --no-restore -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64 -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true
       - dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
+      - dotnet publish --no-build --no-restore -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64 -p:WindowsPackageType=None -p:WindowsAppSDKSelfContained=true
 
   publish-local-all:
     cmds:
