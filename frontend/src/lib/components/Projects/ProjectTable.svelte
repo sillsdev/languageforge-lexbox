@@ -4,10 +4,7 @@
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
   import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import Icon from '$lib/icons/Icon.svelte';
-  import Dropdown from '../Dropdown.svelte';
-  import { createEventDispatcher } from 'svelte';
 
-  export let canManage: boolean = false;
   export let projects: ProjectItemWithDraftStatus[];
 
   const allColumns = ['name', 'code', 'users', 'createdAt', 'lastChange', 'type', 'actions'] as const;
@@ -17,10 +14,6 @@
   function isColumnVisible(column: ProjectTableColumn): boolean {
     return columns.includes(column);
   }
-
-  const dispatch = createEventDispatcher<{
-    removeProjectFromOrg: { projectId: string; projectName: string };
-  }>();
 </script>
 
 <div class="overflow-x-auto @container scroll-shadow">
@@ -125,23 +118,6 @@
               <span class="tooltip align-bottom shrink-0 leading-0" data-tip={$t(getProjectTypeI18nKey(project.type))}>
                 <ProjectTypeIcon type={project.type} />
               </span>
-            </td>
-          {/if}
-          {#if canManage}
-            <td class="p-0">
-              <Dropdown>
-                <button class="btn btn-ghost btn-square">
-                  <span class="i-mdi-dots-vertical text-lg" />
-                </button>
-                <ul slot="content" class="menu">
-                  <li>
-                    <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {projectId: project.id, projectName: project.name})}>
-                      <TrashIcon />
-                      {$t('org_page.remove_project_from_org')}
-                    </button>
-                  </li>
-                </ul>
-              </Dropdown>
             </td>
           {/if}
           {#if $$slots.actions}

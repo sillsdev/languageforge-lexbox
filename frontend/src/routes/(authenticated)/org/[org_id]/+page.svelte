@@ -22,6 +22,7 @@
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import type { UUID } from 'crypto';
   import BulkAddOrgMembers from './BulkAddOrgMembers.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -135,28 +136,43 @@
   </div>
   <div class="py-6 px-2">
     {#if $queryParamValues.tab === 'projects'}
-    <ProjectTable
-      canManage={canManage}
-      columns={['name', 'code', 'users', 'type']}
-      projects={org.projects}
-      on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail.projectId, event.detail.projectName)}
-    >
+      <ProjectTable
+        columns={['name', 'code', 'users', 'type']}
+        projects={org.projects}
+      >
+        <td class="p-0" slot="actions" let:project>
+          {#if canManage}
+            <Dropdown>
+              <button class="btn btn-ghost btn-square">
+                <span class="i-mdi-dots-vertical text-lg" />
+              </button>
+              <ul slot="content" class="menu">
+                <li>
+                  <button class="text-error" on:click={() => removeProjectFromOrg(project.id, project.name)}>
+                    <TrashIcon />
+                    {$t('org_page.remove_project_from_org')}
+                  </button>
+                </li>
+              </ul>
+            </Dropdown>
+          {/if}
+        <td/>
+      </ProjectTable>
       <DeleteModal
         bind:this={removeProjectFromOrgModal}
         entityName={$t('org_page.remove_project_from_org_title')}
         isRemoveDialog
-        >
+      >
         {$t('org_page.confirm_remove_project_from_org', {projectName: projectToRemove, orgName: org.name})}
       </DeleteModal>
-    </ProjectTable>
     {:else if $queryParamValues.tab === 'members'}
-    <OrgMemberTable
-      shownUsers={org.members}
-      showEmailColumn={canManage}
-      on:openUserModal={(event) => openUserModal(event.detail)}
-      on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
-      on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
-    />
+      <OrgMemberTable
+        shownUsers={org.members}
+        showEmailColumn={canManage}
+        on:openUserModal={(event) => openUserModal(event.detail)}
+        on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
+        on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
+      />
     {:else if $queryParamValues.tab === 'history'}
       <div class="space-y-2">
         <DetailItem title={$t('org_page.details.created_at')} text={$date(org.createdDate)} />
