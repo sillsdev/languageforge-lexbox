@@ -22,8 +22,9 @@
 
   async function openModal(): Promise<void> {
     orgList = await _getOrgs(userIsAdmin);
+    const selected = orgList.length > 0 && orgList.length < 6 ? { orgId: orgList[0].id } : {};
 
-    await formModal.open(async () => {
+    await formModal.open(selected, async () => {
       const { error } = await _addProjectToOrg({
         projectId,
         orgId: $form.orgId,
