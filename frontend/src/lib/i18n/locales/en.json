@@ -401,8 +401,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "remove_project_from_org": "Your project has been removed from {orgName}"
     },
     "project_name_empty_error": "Project name cannot be empty",
-    "confirm_remove_project": "Would you like to remove {userName} from this project?",
     "confirm_remove_org": "Would you like to remove your project from {orgName}?",
+    "confirm_remove": "Would you like to remove {userName} from this project?",
     "history": "History",
     "project_code": "Project Code",
     "summary": "Summary",
