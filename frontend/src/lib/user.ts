@@ -32,10 +32,10 @@ type JwtTokenUser = {
   role: 'admin' | 'user'
   proj?: string,
   orgs?: AuthUserOrg[],
-  lock: boolean | undefined,
-  unver: boolean | undefined,
-  mkproj: boolean | undefined,
-  creat: boolean | undefined,
+  lock?: boolean | undefined,
+  unver?: boolean | undefined,
+  mkproj?: boolean | undefined,
+  creat?: boolean | undefined,
   loc: string,
 }
 
@@ -175,7 +175,7 @@ export function getUser(cookies: Cookies): LexAuthUser | null {
   }
 }
 
-function jwtToUser(user: JwtTokenUser): LexAuthUser {
+export function jwtToUser(user: JwtTokenUser): LexAuthUser {
   const { sub: id, name, email, user: username, proj: projectsString, role: jwtRole } = user;
   const role = Object.values(UserRole).find(r => r.toLowerCase() === jwtRole) ?? UserRole.User;
 
@@ -216,9 +216,16 @@ function projectsStringToProjects(projectsString: string | undefined): AuthUserP
         role = ProjectRole.Editor;
         break;
     }
-    projects.push(...pString.split('|').map(id => ({projectId: id, role})));
+    //substring to remove the first character which is the role code plus the colon
+    projects.push(...pString.substring(2).split('|').map(id => ({projectId: stringToUuid(id), role})));
   }
   return projects;
+}
+
+function stringToUuid(str: string): string {
+  str = str.replace('-', '');
+  if (str.length !== 32) throw new Error('Invalid UUID: ' + str);
+  return str.substring(0, 8) + '-' + str.substring(8, 12) + '-' + str.substring(12, 16) + '-' + str.substring(16, 20) + '-' + str.substring(20);
 }
 
 export function logout(cookies?: Cookies): void {

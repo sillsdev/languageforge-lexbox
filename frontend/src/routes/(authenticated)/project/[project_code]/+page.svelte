@@ -57,7 +57,7 @@
   $: isEmpty = project?.lastCommit == null;
   // TODO: Once we've stabilized the lastCommit issue with project reset, get rid of the next line
   $: if (! $changesetStore.fetching) isEmpty = $changesetStore.changesets.length === 0;
-  $: members = project.users.sort((a, b) => {
+  $: members = project.users?.sort((a, b) => {
     if (a.role !== b.role) {
       return a.role === ProjectRole.Manager ? -1 : 1;
     }
@@ -141,7 +141,7 @@
 
   $: userId = user.id;
   $: orgsManagedByUser = user.orgs.filter(o => o.role === OrgRole.Admin).map(o => o.orgId);
-  $: canManage = user.isAdmin || project?.users.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations.find((o) => orgsManagedByUser.includes(o.id));
+  $: canManage = user.isAdmin || project?.users?.find((u) => u.user.id == userId)?.role == ProjectRole.Manager || !!project?.organizations?.find((o) => orgsManagedByUser.includes(o.id));
 
   const projectNameValidation = z.string().trim().min(1, $t('project_page.project_name_empty_error'));
 
@@ -416,32 +416,32 @@
           {$t('project_page.confirm_remove_org', {orgName: orgToRemove})}
         </DeleteModal>
       </OrgList>
-
-      <MembersList
-        projectId={project.id}
-        {members}
-        canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
-        canManageList={canManage}
-        on:openUserModal={(event) => userModal.open(event.detail.user)}
-        on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
-        >
-          <svelte:fragment slot="extraButtons">
-            <AddProjectMember projectId={project.id} />
-            <BulkAddProjectMembers projectId={project.id} />
-          </svelte:fragment>
-          <UserModal bind:this={userModal}/>
-
-          <DeleteModal
-            bind:this={removeUserModal}
-            entityName={$t('project_page.remove_project_user_title')}
-            isRemoveDialog
+      {#if members}
+        <MembersList
+          projectId={project.id}
+          {members}
+          canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
+          canManageList={canManage}
+          on:openUserModal={(event) => userModal.open(event.detail.user)}
+          on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
           >
-            {$t('project_page.confirm_remove_project', {
-              userName: userToDelete?.user.name ?? ''
-            })}
-          </DeleteModal>
-      </MembersList>
+            <svelte:fragment slot="extraButtons">
+              <AddProjectMember projectId={project.id} />
+              <BulkAddProjectMembers projectId={project.id} />
+            </svelte:fragment>
+            <UserModal bind:this={userModal}/>
 
+            <DeleteModal
+              bind:this={removeUserModal}
+              entityName={$t('project_page.remove_project_user_title')}
+              isRemoveDialog
+            >
+              {$t('project_page.confirm_remove', {
+                userName: userToDelete?.user.name ?? '',
+              })}
+            </DeleteModal>
+        </MembersList>
+      {/if}
       <div class="divider" />
       <div class="space-y-2">
         <p class="text-2xl mb-4 flex gap-4 items-baseline">

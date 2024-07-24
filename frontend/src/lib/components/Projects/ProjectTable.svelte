@@ -78,7 +78,7 @@
                     <TrashIcon pale />
                   </span>
                 {:else}
-                  <a class="link" href={`/project/${project.code}`}>
+                  <a class="link" href={`/project/${project.code}?id=${project.id}`}>
                     {project.name}
                   </a>
                 {/if}

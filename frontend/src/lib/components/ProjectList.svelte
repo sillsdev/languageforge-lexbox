@@ -33,7 +33,7 @@
         </div>
       </div>
     {:else}
-      <a class="card aspect-square bg-base-200 shadow-base-300 overflow-hidden" href={`/project/${project.code}`}>
+      <a class="card aspect-square bg-base-200 shadow-base-300 overflow-hidden" href={`/project/${project.code}?id=${project.id}`}>
         <div class="bg" style="background-image: url('{getProjectTypeIcon(project.type)}')" />
         <div class="card-body z-[1] max-sm:p-6">
           <h2 class="card-title overflow-hidden text-ellipsis" title={project.name}>

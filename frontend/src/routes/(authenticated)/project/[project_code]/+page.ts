@@ -28,18 +28,21 @@ import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
-export type ProjectUser = Project['users'][number];
+export type ProjectUser = NonNullable<Project['users']>[number];
 export type User = ProjectUser['user'];
 export type Org = Pick<Organization, 'id' | 'name'>;
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
-  const userIsAdmin = (await event.parent()).user.isAdmin;
+  const user = (await event.parent()).user;
   const projectCode = event.params.project_code;
+  const projectId = event.url.searchParams.get('id') ?? '';
+  //projectId is not required, so if it's not there we assume the user is a member, if we're wrong there will be an error
+  const userIsMember = projectId === '' ? true : (user.isAdmin || user.projects.some(p => p.projectId === projectId));
   const projectResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
-				query projectPage($projectCode: String!, $userIsAdmin: Boolean!) {
+				query projectPage($projectCode: String!, $userIsAdmin: Boolean!, $userIsMember: Boolean!) {
 					projectByCode(code: $projectCode) {
 						id
 						name
@@ -55,30 +58,32 @@ export async function load(event: PageLoadEvent) {
 						organizations {
 							id
 						}
-						users {
-							id
-							role
-							user {
-								id
-								name
-                ... on User @include(if: $userIsAdmin) {
-                  locked
-                  username
-                  createdDate
-                  updatedDate
-                  email
-                  localizationCode
-                  lastActive
-                  canCreateProjects
-                  isAdmin
-                  emailVerified
-                  createdBy {
-                    id
-                    name
+            ... on Project @include(if: $userIsMember) {
+              users {
+                id
+                role
+                user {
+                  id
+                  name
+                  ... on User @include(if: $userIsAdmin) {
+                    locked
+                    username
+                    createdDate
+                    updatedDate
+                    email
+                    localizationCode
+                    lastActive
+                    canCreateProjects
+                    isAdmin
+                    emailVerified
+                    createdBy {
+                      id
+                      name
+                    }
                   }
                 }
-							}
-						}
+              }
+            }
             flexProjectMetadata {
               lexEntryCount
               writingSystems {
@@ -101,7 +106,7 @@ export async function load(event: PageLoadEvent) {
 					}
 				}
 			`),
-      { projectCode, userIsAdmin }
+      { projectCode, userIsAdmin: user.isAdmin, userIsMember }
     );
   const changesetResultStore = client
     .queryStore(event.fetch,
