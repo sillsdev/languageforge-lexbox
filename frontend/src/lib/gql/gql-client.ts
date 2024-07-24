@@ -98,6 +98,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             },
             removeProjectFromOrg: (result, args: MutationRemoveProjectFromOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
             }
           }
         }
