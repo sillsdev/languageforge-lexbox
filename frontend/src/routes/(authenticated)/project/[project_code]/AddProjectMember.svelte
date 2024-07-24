@@ -72,7 +72,7 @@
   {$t('project_page.add_user.add_button')}
 </BadgeButton>
 
-<FormModal bind:this={formModal} {schema} let:errors>
+<FormModal bind:this={formModal} {schema} let:errors --justify-actions="end">
   <span slot="title">
     {$t('project_page.add_user.modal_title')}
     <SupHelp helpLink={helpLinks.addProjectMember} />
@@ -96,7 +96,7 @@
     />
   {/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
-  <span slot="checkbox">
+  <svelte:fragment slot="extraActions">
     <Checkbox
       id="invite"
       label={'Invite'}
@@ -104,12 +104,8 @@
       labelColor="text-warning"
       bind:value={$form.canInvite}
     />
-  </span>
+  </svelte:fragment>
   <span slot="submitText">
-    {#if $form.usernameOrEmail.includes('@')}
-      {$t('project_page.add_user.submit_button_email')}
-    {:else}
-      {$t('project_page.add_user.submit_button')}
-    {/if}
+    {$t('project_page.add_user.submit_button')}
   </span>
 </FormModal>
