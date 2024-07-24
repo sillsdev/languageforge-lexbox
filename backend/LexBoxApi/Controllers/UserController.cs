@@ -67,7 +67,9 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var userEntity = CreateUserEntity(accountInput, emailVerified: false);
+        var jwtUser = _loggedInContext.MaybeUser;
+
+        var userEntity = CreateUserEntity(accountInput, emailVerified: false, jwtUser ?? null);
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
@@ -107,18 +109,9 @@ public class UserController : ControllerBase
         }
 
         var emailVerified = jwtUser.Email == accountInput.Email;
-        var userEntity = CreateUserEntity(accountInput, emailVerified);
+        var userEntity = CreateUserEntity(accountInput, emailVerified, jwtUser);
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
-        // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
-        if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
-        {
-            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
-        }
-        if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
-        {
-            userEntity.Organizations = jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }).ToList();
-        }
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
@@ -129,7 +122,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    private User CreateUserEntity(RegisterAccountInput input, bool emailVerified, Guid? creatorId = null)
+    private User CreateUserEntity(RegisterAccountInput input, bool emailVerified, LexAuthUser? jwtUser, Guid? creatorId = null)
     {
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
@@ -147,6 +140,15 @@ public class UserController : ControllerBase
             Locked = false,
             CanCreateProjects = false
         };
+        // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
+        if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
+        {
+            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+        }
+        if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
+        {
+            userEntity.Organizations = jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }).ToList();
+        }
         return userEntity;
     }
 
