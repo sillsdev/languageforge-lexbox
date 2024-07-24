@@ -43,8 +43,6 @@
         {#if isColumnVisible('type')}
           <th>{$t('project.table.type')}</th>
         {/if}
-        <th>
-        </th>
         {#if $$slots.actions}
           <th />
         {/if}
@@ -123,7 +121,6 @@
           {#if $$slots.actions}
             <slot name="actions" {project} />
           {/if}
-          <slot />
         </tr>
       {/each}
     </tbody>

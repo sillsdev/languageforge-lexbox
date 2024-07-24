@@ -45,10 +45,10 @@
           </ActionBadge>
           <ul slot="content" class="menu">
             <li>
-              <mj-button href={`/org/${org.id}`}>
+              <a href={`/org/${org.id}`}>
                 <Icon icon="i-mdi-link"/>
                 {$t('project_page.view_org', {orgName: org.name})}
-              </mj-button>
+              </a>
             </li>
             <li>
               <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {orgId: org.id, orgName: org.name})}>
