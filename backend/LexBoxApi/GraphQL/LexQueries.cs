@@ -61,6 +61,8 @@ public class LexQueries
     {
         var userId = loggedInContext.User.Id;
         var authorized = loggedInContext.User.IsAdmin || permissionService.IsOrgMember(input.OrgId);
+        // Convert 3-letter code to 2-letter code if relevant, otherwise leave as-is
+        var langCode = Services.LangTagConstants.ThreeToTwo.GetValueOrDefault(input.LangCode, input.LangCode);
         if (!authorized) throw new UnauthorizedAccessException();
         var query = context.Projects.Where(p =>
             p.Organizations.Any(o => o.Id == input.OrgId) &&
@@ -68,9 +70,9 @@ public class LexQueries
             p.FlexProjectMetadata.WritingSystems != null &&
             p.FlexProjectMetadata.WritingSystems.VernacularWss.Any(ws =>
                 ws.IsActive && (
-                    ws.Tag == input.LangCode ||
-                    ws.Tag == $"qaa-x-{input.LangCode}" ||
-                    ws.Tag.StartsWith($"{input.LangCode}-")
+                    ws.Tag == langCode ||
+                    ws.Tag == $"qaa-x-{langCode}" ||
+                    ws.Tag.StartsWith($"{langCode}-")
                 )
             )
         );
