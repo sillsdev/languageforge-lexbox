@@ -1,9 +1,10 @@
-import type { $OpResult, CreateProjectInput, CreateProjectMutation } from '$lib/gql/types';
+import type { $OpResult, CreateProjectInput, CreateProjectMutation, ProjectsByLangCodeAndOrgQuery } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
 import { getSearchParam } from '$lib/util/query-params';
 import { isGuid } from '$lib/util/guid';
+import type { Readable } from 'svelte/store';
 
 export async function load(event: PageLoadEvent) {
   const userIsAdmin = (await event.parent()).user.isAdmin;
@@ -87,4 +88,21 @@ export async function _projectCodeAvailable(code: string): Promise<boolean> {
   const result = await fetch(`/api/project/projectCodeAvailable/${encodeURIComponent(code)}`);
   if (!result.ok) throw new Error('Failed to check project code availability');
   return await result.json() as boolean;
+}
+
+export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langCode: string }): Promise<Readable<ProjectsByLangCodeAndOrgQuery['projectsByLangCodeAndOrg']>> {
+  const client = getClient();
+  //language=GraphQL
+  const results = await client.awaitedQueryStore(fetch,
+    graphql(`
+      query ProjectsByLangCodeAndOrg($input: ProjectsByLangCodeAndOrgInput!) {
+        projectsByLangCodeAndOrg(input: $input) {
+          id
+          code
+          name
+        }
+      }
+    `), { input }
+  );
+  return results.projectsByLangCodeAndOrg;
 }

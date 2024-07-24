@@ -8,7 +8,7 @@
   import { _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
-  import { Duration, deriveAsync } from '$lib/util/time';
+  import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
@@ -18,6 +18,7 @@
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
   import DevContent from '$lib/layout/DevContent.svelte';
   import { isDev } from '$lib/layout/DevContent.svelte';
+  import { _getProjectsByLangCodeAndOrg } from './+page';
 
   export let data;
   $: user = data.user;
@@ -84,6 +85,19 @@
   }, true, true);
   $: $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
   const codeErrors = derived([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
+
+  const langCodeStore = derived(form, ($form) => $form.languageCode);
+  const orgIdStore = derived(form, ($form) => $form.orgId);
+  const langCodeAndOrgIdStore = derived([langCodeStore, orgIdStore], ([lang, orgId], set) => {
+    if (lang && orgId && (lang.length == 2 || lang.length == 3)) {
+      set({ langCode: lang, orgId: orgId });
+    }
+  });
+
+  const relatedProjectsStoreStore = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg);
+  const relatedProjects = derived(relatedProjectsStoreStore, (nestedStore, set) => {
+    if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
+  }, []);
 
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
@@ -212,6 +226,18 @@
       bind:value={$form.languageCode}
       error={$errors.languageCode}
     />
+
+    {#if $relatedProjects?.length}
+      <div>
+        Possibly related projects:
+        <ul>
+          {#each $relatedProjects as proj}
+            <li>{proj.name} ({proj.code})</li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
+
     <AdminContent>
       <Checkbox label={$t('project.create.custom_code')} bind:value={$form.customCode} />
     </AdminContent>
