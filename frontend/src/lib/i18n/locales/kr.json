@@ -527,11 +527,11 @@
     "user": "사용자"
   },
   "errors": {
-    "apology": "죄송합니다, 저희 쪽에서 문제가 발생했습니다. 죄송합니다!",
+    "apology": "죄송합니다, 저희 쪽에서 문제가 발생했습니다.",
     "mail_us_at": "문제 해결이 필요하시다면, 아래 주소로 알려주십시오",
     "please_include": "오류 코드를 포함하고 브라우저의 스크린샷 및 오류 발생까지의 단계를 요약하여 보내주십시오.",
     "error_code": "오류 코드",
-    "not_found": "404 - 죄송합니다, 해당 페이지를 찾을 수 없습니다. 죄송합니다!",
+    "not_found": "404 - 죄송합니다, 해당 페이지를 찾을 수 없습니다.",
     "go_home": "홈으로 이동",
   },
   "modal": {
@@ -607,16 +607,16 @@
       "too_short": "최소 4자 이상이어야 합니다"
     },
     "invalid_email": "잘못된 이메일",
-    "value_is_incorrect": "값이 잘못되었습니다",
+    "value_is_incorrect": "잘못된 입력입니다.",
   },
   "notifications": {
     "update_detected": "새로운 버전의 응용 프로그램이 감지되었습니다. 페이지를 새로 고쳐야 할 수도 있습니다.",
   },
   "table": {
-      "refine_filter": "필터를 세부적으로 설정하여 {remainingRows, number}개의 추가 행을 보십시오..."
+      "refine_filter": "필터를 세부적으로 설정하여 {remainingRows, number}개의 행을 추가로 보십시오..."
   },
   "turnstile": {
-    "invalid": "캡차 오류, 다시 시도하십시오",
+    "invalid": "보안문자 오류, 다시 시도하십시오",
   },
   "tus": {
     "upload": "업로드",
