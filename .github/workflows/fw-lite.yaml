@@ -60,7 +60,7 @@ jobs:
     # only publish if tag matches fwlite-v* pattern
     # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
     needs: build-and-test
-    timeout-minutes: 20
+    timeout-minutes: 30
     runs-on: windows-latest
     env:
       NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
