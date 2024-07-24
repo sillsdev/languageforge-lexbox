@@ -13,6 +13,7 @@
     _changeProjectName,
     _deleteProjectUser,
     _leaveProject,
+    _removeProjectFromOrg,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
@@ -104,6 +105,19 @@
     });
     if (deleted) {
       notifyWarning($t('project_page.notifications.user_delete', { name: projectUser.user.name }));
+    }
+  }
+
+  let removeProjectFromOrgModal: DeleteModal;
+  let orgToRemove: string;
+  async function removeProjectFromOrg(orgId: string, orgName: string): Promise<void> {
+    orgToRemove = orgName;
+    const removed = await removeProjectFromOrgModal.prompt(async () => {
+      const { error } = await _removeProjectFromOrg(project.id, orgId);
+      return error?.message;
+    });
+    if (removed) {
+      notifyWarning($t('project_page.notifications.remove_project_from_org', {orgName: orgToRemove}));
     }
   }
 
@@ -391,12 +405,23 @@
     </svelte:fragment>
 
     <div class="space-y-4">
-      <OrgList organizations={project.organizations} >
+      <OrgList
+        canManage={canManage}
+        organizations={project.organizations}
+        on:removeProjectFromOrg={(event) => removeProjectFromOrg(event.detail.orgId, event.detail.orgName)}
+      >
         <svelte:fragment slot="extraButtons">
           {#if canManage}
             <AddOrganization projectId={project.id} userIsAdmin={user.isAdmin} />
           {/if}
         </svelte:fragment>
+        <DeleteModal
+            bind:this={removeProjectFromOrgModal}
+            entityName={$t('project_page.remove_project_from_org_title')}
+            isRemoveDialog
+          >
+          {$t('project_page.confirm_remove_org', {orgName: orgToRemove})}
+        </DeleteModal>
       </OrgList>
       {#if members}
         <MembersList
@@ -424,7 +449,6 @@
             </DeleteModal>
         </MembersList>
       {/if}
-
       <div class="divider" />
       <div class="space-y-2">
         <p class="text-2xl mb-4 flex gap-4 items-baseline">

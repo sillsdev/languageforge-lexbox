@@ -7,11 +7,12 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser } from './+page';
+  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser, _removeProjectFromOrg } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import { Icon, TrashIcon } from '$lib/icons';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
+  import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import { goto } from '$app/navigation';
   import { DialogResponse } from '$lib/components/modals';
   import AddOrgMemberModal from './AddOrgMemberModal.svelte';
@@ -21,6 +22,7 @@
   import ProjectTable from '$lib/components/Projects/ProjectTable.svelte';
   import type { UUID } from 'crypto';
   import BulkAddOrgMembers from './BulkAddOrgMembers.svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -80,6 +82,19 @@
     }
   }
 
+  let removeProjectFromOrgModal: DeleteModal;
+  let projectToRemove: string;
+  async function removeProjectFromOrg(projectId: string, projectName: string): Promise<void> {
+    projectToRemove = projectName;
+    const removed = await removeProjectFromOrgModal.prompt(async () => {
+      const { error } = await _removeProjectFromOrg(projectId, org.id);
+      return error?.message;
+    });
+    if (removed) {
+      notifyWarning($t('org_page.notifications.remove_project_from_org', {projectName: projectToRemove}));
+    }
+  }
+
   async function leaveOrg(): Promise<void> {
     const result = await _deleteOrgUser(org.id, user.id);
     if (result.error) {
@@ -121,18 +136,43 @@
   </div>
   <div class="py-6 px-2">
     {#if $queryParamValues.tab === 'projects'}
-    <ProjectTable
-      columns={['name', 'code', 'users', 'type']}
-      projects={org.projects}
-    />
+      <ProjectTable
+        columns={['name', 'code', 'users', 'type']}
+        projects={org.projects}
+      >
+        <td class="p-0" slot="actions" let:project>
+          {#if canManage}
+            <Dropdown>
+              <button class="btn btn-ghost btn-square">
+                <span class="i-mdi-dots-vertical text-lg" />
+              </button>
+              <ul slot="content" class="menu">
+                <li>
+                  <button class="text-error" on:click={() => removeProjectFromOrg(project.id, project.name)}>
+                    <TrashIcon />
+                    {$t('org_page.remove_project_from_org')}
+                  </button>
+                </li>
+              </ul>
+            </Dropdown>
+          {/if}
+        <td/>
+      </ProjectTable>
+      <DeleteModal
+        bind:this={removeProjectFromOrgModal}
+        entityName={$t('org_page.remove_project_from_org_title')}
+        isRemoveDialog
+      >
+        {$t('org_page.confirm_remove_project_from_org', {projectName: projectToRemove, orgName: org.name})}
+      </DeleteModal>
     {:else if $queryParamValues.tab === 'members'}
-    <OrgMemberTable
-      shownUsers={org.members}
-      showEmailColumn={canManage}
-      on:openUserModal={(event) => openUserModal(event.detail)}
-      on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
-      on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
-    />
+      <OrgMemberTable
+        shownUsers={org.members}
+        showEmailColumn={canManage}
+        on:openUserModal={(event) => openUserModal(event.detail)}
+        on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
+        on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
+      />
     {:else if $queryParamValues.tab === 'history'}
       <div class="space-y-2">
         <DetailItem title={$t('org_page.details.created_at')} text={$date(org.createdDate)} />

@@ -16,6 +16,7 @@ import type {
   LeaveProjectMutation,
   Organization,
   ProjectPageQuery,
+  RemoveProjectFromOrgMutation,
   SetProjectConfidentialityInput,
   SetProjectConfidentialityMutation,
   SetRetentionPolicyInput,
@@ -342,6 +343,30 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
         }
       `),
       { input: input }
+    );
+  return result;
+}
+
+export async function _removeProjectFromOrg(projectId: string, orgId: string): $OpResult<RemoveProjectFromOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation RemoveProjectFromOrg($input: RemoveProjectFromOrgInput!) {
+          removeProjectFromOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { projectId: projectId, orgId: orgId } }
     );
   return result;
 }

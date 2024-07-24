@@ -12,10 +12,10 @@
   }
 </script>
 <ConfirmModal bind:this={modal}
-              title={isRemoveDialog ?$t('delete_modal.remove', { entityName }): $t('delete_modal.delete', { entityName })}
-              submitText={isRemoveDialog ? $t('delete_modal.remove', { entityName }): $t('delete_modal.delete', { entityName })}
+              title={isRemoveDialog ? $t('delete_modal.remove', { entityName }) : $t('delete_modal.delete', { entityName })}
+              submitText={isRemoveDialog ? $t('delete_modal.remove', { entityName }) : $t('delete_modal.delete', { entityName })}
               submitIcon="i-mdi-trash-can"
               submitVariant="btn-error"
-              cancelText={isRemoveDialog?$t('delete_modal.dont_remove'):  $t('delete_modal.dont_delete')}>
+              cancelText={isRemoveDialog ? $t('delete_modal.dont_remove') : $t('delete_modal.dont_delete')}>
   <slot/>
 </ConfirmModal>

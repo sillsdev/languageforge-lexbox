@@ -28,6 +28,7 @@ import {
   type BulkAddProjectMembersMutationVariables,
   type DeleteDraftProjectMutationVariables,
   type MutationAddProjectToOrgArgs,
+  type MutationRemoveProjectFromOrgArgs,
   type BulkAddOrgMembersMutationVariables,
   type ChangeOrgMemberRoleMutationVariables,
   type AddOrgMemberMutationVariables,
@@ -86,6 +87,9 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
             },
             addProjectToOrg: (result, args: MutationAddProjectToOrgArgs, cache, _info) => {
+              cache.invalidate({__typename: 'Project', id: args.input.projectId});
+            },
+            removeProjectFromOrg: (result, args: MutationRemoveProjectFromOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
             }
           }
