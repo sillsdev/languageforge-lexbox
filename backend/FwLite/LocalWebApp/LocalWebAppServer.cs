@@ -47,6 +47,7 @@ public static class LocalWebAppServer
 
         configure?.Invoke(builder);
         var app = builder.Build();
+        app.Logger.LogInformation("FwLite LocalWebApp startup");
 // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {

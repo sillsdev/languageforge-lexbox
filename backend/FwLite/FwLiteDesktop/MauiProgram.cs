@@ -11,8 +11,14 @@ namespace FwLiteDesktop;
 
 public static class MauiProgram
 {
+    private record AppHolder(MauiApp? App)
+    {
+        public MauiApp? App { get; set; } = App;
+    }
+
     public static MauiApp CreateMauiApp()
     {
+        AppHolder holder = new AppHolder(null);
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
@@ -21,31 +27,19 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+        builder.ConfigureLifecycleEvents(events => events.AddWindows(windowsEvents =>
+        {
+            windowsEvents.OnClosed((window, args) =>
+            {
+                holder.App?.Services.GetRequiredService<ServerManager>().Stop();
+            });
+        }));
 
         Directory.CreateDirectory(FileSystem.AppDataDirectory);
-        builder.Services.AddSingleton<MainPage>();
+        builder.Services.AddFwLiteDesktopServices(builder.Configuration, builder.Logging);
 
-        var serverManager = new ServerManager(webAppBuilder =>
-        {
-            webAppBuilder.Logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "web-app.log"));
-            webAppBuilder.Services.Configure<LcmCrdtConfig>(config =>
-            {
-                config.ProjectPath = FileSystem.AppDataDirectory;
-            });
-            webAppBuilder.Services.Configure<AuthConfig>(config =>
-                config.CacheFileName = Path.Combine(FileSystem.AppDataDirectory, "msal.cache"));
-        });
-        builder.Services.AddSingleton(serverManager);
-        builder.Configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
-        builder.Services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
-        builder.Logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "app.log"));
-#if DEBUG
-        builder.Logging.AddDebug();
-#endif
-        var app = builder.Build();
-        app.Services.GetRequiredService<ServerManager>()
-            .Start(app.Services.GetRequiredService<ILogger<ServerManager>>());
-        var logger = app.Services.GetRequiredService<ILogger<MauiApp>>();
+        holder.App = builder.Build();
+        var logger = holder.App.Services.GetRequiredService<ILogger<MauiApp>>();
         logger.LogInformation("App started");
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
         {
@@ -62,6 +56,6 @@ public static class MauiProgram
         {
             logger.LogError(e.Exception, "Unobserved task exception");
         };
-        return app;
+        return holder.App;
     }
 }
