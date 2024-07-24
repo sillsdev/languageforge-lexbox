@@ -236,6 +236,7 @@ type Mutation {
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
+  setRetentionPolicy(input: SetRetentionPolicyInput!): SetRetentionPolicyPayload!
   leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
@@ -442,6 +443,11 @@ type SetProjectConfidentialityPayload {
   errors: [SetProjectConfidentialityError!]
 }
 
+type SetRetentionPolicyPayload {
+  project: Project
+  errors: [SetRetentionPolicyError!]
+}
+
 type SetUserLockedPayload {
   user: User
   errors: [SetUserLockedError!]
@@ -537,6 +543,8 @@ union RemoveProjectFromOrgError = DbError | NotFoundError
 union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
 union SetProjectConfidentialityError = NotFoundError | DbError
+
+union SetRetentionPolicyError = NotFoundError | DbError
 
 union SetUserLockedError = NotFoundError
 
@@ -941,6 +949,11 @@ input SetOrgMemberRoleInput {
 input SetProjectConfidentialityInput {
   projectId: UUID!
   isConfidential: Boolean!
+}
+
+input SetRetentionPolicyInput {
+  projectId: UUID!
+  retentionPolicy: RetentionPolicy!
 }
 
 input SetUserLockedInput {

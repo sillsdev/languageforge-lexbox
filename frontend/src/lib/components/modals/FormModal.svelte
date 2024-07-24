@@ -57,12 +57,12 @@
     const response = await openModal(onSubmit);
     const _formState = $formState; // we need to read the form state before the modal closes or it will be reset
     if (response !== DialogResponse.Submit || !options?.keepOpenOnSubmit)
-      modal.close();
+      modal?.close();
     return { response, formState: _formState };
   }
 
   export function close(): void {
-    modal.close();
+    modal?.close();
   }
 
   export function form(): Readable<FormType> {

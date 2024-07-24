@@ -30,7 +30,7 @@
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
-  import { OrgRole, ProjectRole, ProjectType, ResetStatus } from '$lib/gql/generated/graphql';
+  import { OrgRole, ProjectRole, ProjectType, ResetStatus, RetentionPolicy } from '$lib/gql/generated/graphql';
   import Icon from '$lib/icons/Icon.svelte';
   import OpenInFlexModal from './OpenInFlexModal.svelte';
   import OpenInFlexButton from './OpenInFlexButton.svelte';
@@ -46,6 +46,7 @@
   import DetailsPage from '$lib/layout/DetailsPage.svelte';
   import OrgList from './OrgList.svelte';
   import AddOrganization from './AddOrganization.svelte';
+  import AddPurpose from './AddPurpose.svelte';
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
 
   export let data: PageData;
@@ -320,9 +321,15 @@
       <BadgeList>
         <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
         <ProjectTypeBadge type={project.type} />
-        <Badge>
-          <FormatRetentionPolicy policy={project.retentionPolicy} />
-        </Badge>
+        {#if project.retentionPolicy === RetentionPolicy.Unknown}
+          {#if canManage}
+            <AddPurpose projectId={project.id} />
+          {/if}
+        {:else}
+          <Badge>
+            <FormatRetentionPolicy policy={project.retentionPolicy} />
+          </Badge>
+        {/if}
         {#if project.resetStatus === ResetStatus.InProgress}
           <button
             class:tooltip={user.isAdmin}
