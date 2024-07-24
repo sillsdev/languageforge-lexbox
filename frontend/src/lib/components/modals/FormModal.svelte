@@ -97,7 +97,6 @@
     <slot name="extraActions" />
   </svelte:fragment>
   <svelte:fragment slot="actions" let:submitting>
-    <slot name="checkbox"/>
     {#if !done}
       <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
         <slot name="submitText" />
