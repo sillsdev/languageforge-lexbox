@@ -430,6 +430,11 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "author_header": "Author",
       "log_header": "Message"
     },
+    "add_purpose": {
+      "add_button": "Add Purpose",
+      "modal_title": "Choose purpose",
+      "notify_success": "You have successfully added a project purpose."
+    },
     "get_project": {
       "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
