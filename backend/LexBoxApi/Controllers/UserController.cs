@@ -140,6 +140,7 @@ public class UserController : ControllerBase
             Locked = false,
             CanCreateProjects = false
         };
+        userEntity.EmailVerified = jwtUser?.Email == userEntity.Email;
         // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
         {
