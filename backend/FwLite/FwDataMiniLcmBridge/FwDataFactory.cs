@@ -12,7 +12,8 @@ public class FwDataFactory(
     ILogger<FwDataMiniLcmApi> fwdataLogger,
     IMemoryCache cache,
     ILogger<FwDataFactory> logger,
-    IProjectLoader projectLoader) : IDisposable
+    IProjectLoader projectLoader,
+    FieldWorksProjectList fieldWorksProjectList) : IDisposable
 {
     private bool _shuttingDown = false;
     public FwDataFactory(FwDataProjectContext context,
@@ -20,7 +21,8 @@ public class FwDataFactory(
         IMemoryCache cache,
         ILogger<FwDataFactory> logger,
         IProjectLoader projectLoader,
-        IHostApplicationLifetime lifetime) : this(context, fwdataLogger, cache, logger, projectLoader)
+        IHostApplicationLifetime lifetime,
+        FieldWorksProjectList fieldWorksProjectList) : this(context, fwdataLogger, cache, logger, projectLoader, fieldWorksProjectList)
     {
         lifetime.ApplicationStopping.Register(() =>
         {
@@ -32,7 +34,7 @@ public class FwDataFactory(
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(string projectName, bool saveOnDispose)
     {
-        var project = FieldWorksProjectList.GetProject(projectName) ?? throw new InvalidOperationException($"Project {projectName} not found.");
+        var project = fieldWorksProjectList.GetProject(projectName) ?? throw new InvalidOperationException($"Project {projectName} not found.");
         return GetFwDataMiniLcmApi(project, saveOnDispose);
     }
 
