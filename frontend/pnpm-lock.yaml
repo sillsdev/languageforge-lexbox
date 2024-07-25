@@ -139,17 +139,17 @@ importers:
         specifier: ^6.21.0
         version: 6.21.0(eslint@8.57.0)(typescript@5.3.3)
       '@urql/core':
-        specifier: ^5.0.3
-        version: 5.0.3(graphql@16.8.1)
+        specifier: ^5.0.4
+        version: 5.0.4(graphql@16.8.1)
       '@urql/devtools':
         specifier: ^2.0.3
-        version: 2.0.3(@urql/core@5.0.3)(graphql@16.8.1)
+        version: 2.0.3(@urql/core@5.0.4)(graphql@16.8.1)
       '@urql/exchange-graphcache':
-        specifier: ^6.5.1
-        version: 6.5.1(graphql@16.8.1)
+        specifier: ^7.1.2
+        version: 7.1.2(@urql/core@5.0.4)(graphql@16.8.1)
       '@urql/svelte':
-        specifier: ^4.2.0
-        version: 4.2.0(@urql/core@5.0.3)(svelte@4.2.17)
+        specifier: ^4.2.1
+        version: 4.2.1(@urql/core@5.0.4)(svelte@4.2.17)
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.19(postcss@8.4.38)
@@ -306,17 +306,6 @@ importers:
         version: 5.2.13(@types/node@20.12.12)
 
 packages:
-
-  /@0no-co/graphql.web@1.0.4(graphql@16.8.1):
-    resolution: {integrity: sha512-W3ezhHGfO0MS1PtGloaTpg0PbaT8aZSmmaerL7idtU5F7oCI+uu25k+MsMS31BVFlp4aMkHSrNRxiD72IlK8TA==}
-    peerDependencies:
-      graphql: ^14.0.0 || ^15.0.0 || ^16.0.0
-    peerDependenciesMeta:
-      graphql:
-        optional: true
-    dependencies:
-      graphql: 16.8.1
-    dev: true
 
   /@0no-co/graphql.web@1.0.7(graphql@16.8.1):
     resolution: {integrity: sha512-E3Qku4mTzdrlwVWGPxklDnME5ANrEGetvYw4i2GCRlppWXXE4QD66j7pwb8HelZwS6LnqEChhrSOGCXpbiu6MQ==}
@@ -4473,8 +4462,8 @@ packages:
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
-  /@urql/core@5.0.3(graphql@16.8.1):
-    resolution: {integrity: sha512-NZ3YqRr6IphbpFjGqujJOuVuV8/QegYxfjy1zdmOSWpYYFLpmMBfVtzZ/L8IiqPERVAEAIKjUsryLnVtXJQo4w==}
+  /@urql/core@5.0.4(graphql@16.8.1):
+    resolution: {integrity: sha512-gl86J6B6gWXvvkx5omZ+CaGiPQ0chCUGM0jBsm0zTtkDQPRqufv0NSUN6sp2JhGGtTOB0NR6Pd+w7XAVGGyUOA==}
     dependencies:
       '@0no-co/graphql.web': 1.0.7(graphql@16.8.1)
       wonka: 6.3.4
@@ -4482,34 +4471,36 @@ packages:
       - graphql
     dev: true
 
-  /@urql/devtools@2.0.3(@urql/core@5.0.3)(graphql@16.8.1):
+  /@urql/devtools@2.0.3(@urql/core@5.0.4)(graphql@16.8.1):
     resolution: {integrity: sha512-TktPLiBS9LcBPHD6qcnb8wqOVcg3Bx0iCtvQ80uPpfofwwBGJmqnQTjUdEFU6kwaLOFZULQ9+Uo4831G823mQw==}
     peerDependencies:
       '@urql/core': '>= 1.14.0'
       graphql: '>= 0.11.0'
     dependencies:
-      '@urql/core': 5.0.3(graphql@16.8.1)
+      '@urql/core': 5.0.4(graphql@16.8.1)
       graphql: 16.8.1
       wonka: 6.3.4
     dev: true
 
-  /@urql/exchange-graphcache@6.5.1(graphql@16.8.1):
-    resolution: {integrity: sha512-Ky77kuaTuo1H+VKZatXyNDqTMw+z03KV3Ep/6TQjktlc+0RDhEZq3rI4F/ViwqLaDUtGqPCYjmnHdoupXqdK0g==}
+  /@urql/exchange-graphcache@7.1.2(@urql/core@5.0.4)(graphql@16.8.1):
+    resolution: {integrity: sha512-W2+lYYB/aW1xjPtrMO/Cuxnq3Wl+DuiySqbdw/II91G/NH8Axx2oxRLjWMeC5r/71RivJUrmf2FVzb4Yy1+qwQ==}
+    peerDependencies:
+      '@urql/core': ^5.0.0
     dependencies:
-      '@0no-co/graphql.web': 1.0.4(graphql@16.8.1)
-      '@urql/core': 5.0.3(graphql@16.8.1)
+      '@0no-co/graphql.web': 1.0.7(graphql@16.8.1)
+      '@urql/core': 5.0.4(graphql@16.8.1)
       wonka: 6.3.4
     transitivePeerDependencies:
       - graphql
     dev: true
 
-  /@urql/svelte@4.2.0(@urql/core@5.0.3)(svelte@4.2.17):
-    resolution: {integrity: sha512-88mvnJ+x1Dh/rKrbo7T0C0UnfY1Tv7HEeEg+hMsrZVAqxFbzGR7mXBaZo0XL0AYrvhtGGWsK3l/+Sfj8OoKDSg==}
+  /@urql/svelte@4.2.1(@urql/core@5.0.4)(svelte@4.2.17):
+    resolution: {integrity: sha512-tzjt5qElu6EF4ns+AWLUFvvGFH+bDGEgLStHQTBu76puQcMCW374MrjxWM9lKA6lfA7iUyu1KXkIRhxNy09l4Q==}
     peerDependencies:
       '@urql/core': ^5.0.0
-      svelte: ^3.0.0 || ^4.0.0
+      svelte: ^3.0.0 || ^4.0.0 || ^5.0.0
     dependencies:
-      '@urql/core': 5.0.3(graphql@16.8.1)
+      '@urql/core': 5.0.4(graphql@16.8.1)
       svelte: 4.2.17
       wonka: 6.3.4
     dev: true
