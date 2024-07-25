@@ -14,6 +14,8 @@
     _deleteProjectUser,
     _leaveProject,
     _removeProjectFromOrg,
+    _updateProjectLanguageList,
+    _updateProjectLexEntryCount,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
@@ -26,7 +28,7 @@
   import Dropdown from '$lib/components/Dropdown.svelte';
   import ConfirmDeleteModal from '$lib/components/modals/ConfirmDeleteModal.svelte';
   import {_deleteProject} from '$lib/gql/mutations';
-  import { goto, invalidate } from '$app/navigation';
+  import { goto } from '$app/navigation';
   import MoreSettings from '$lib/components/MoreSettings.svelte';
   import { AdminContent, PageBreadcrumb } from '$lib/layout';
   import Markdown from 'svelte-exmarkdown';
@@ -65,7 +67,6 @@
     return a.user.name.localeCompare(b.user.name);
   });
 
-  let lexEntryCount: number | string | null | undefined = undefined;
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
   $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
   $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
@@ -77,17 +78,15 @@
   let loadingEntryCount = false;
   async function updateEntryCount(): Promise<void> {
     loadingEntryCount = true;
-    const response = await fetch(`/api/project/updateLexEntryCount/${project.code}`, {method: 'POST'});
-    lexEntryCount = await response.text();
+    await _updateProjectLexEntryCount(project.code);
     loadingEntryCount = false;
   }
 
   let loadingLanguageList = false;
   async function updateLanguageList(): Promise<void> {
     loadingLanguageList = true;
-    await fetch(`/api/project/updateLanguageList/${project.code}`, {method: 'POST'});
+    await _updateProjectLanguageList(project.code);
     loadingLanguageList = false;
-    await invalidate(`project:${project.code}`);
   }
 
   let resetProjectModal: ResetProjectModal;

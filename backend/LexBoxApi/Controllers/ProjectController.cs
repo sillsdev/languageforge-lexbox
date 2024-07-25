@@ -232,26 +232,6 @@ public class ProjectController(
         await hgResult.CopyToAsync(writer.AsStream());
     }
 
-    [HttpPost("updateLexEntryCount/{code}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public async Task<ActionResult<int>> UpdateLexEntryCount(string code)
-    {
-        var result = await projectService.UpdateLexEntryCount(code);
-        return result is null ? NotFound() : result;
-    }
-
-    [HttpPost("updateLanguageList/{code}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesDefaultResponseType]
-    public async Task UpdateLanguageList(string code)
-    {
-        var projectId = await projectService.LookupProjectId(code);
-        await projectService.UpdateProjectLangTags(projectId);
-    }
-
     [HttpPost("updateMissingLanguageList")]
     public async Task<ActionResult<string[]>> UpdateMissingLanguageList(int limit = 10)
     {

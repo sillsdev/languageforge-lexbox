@@ -21,6 +21,9 @@ import type {
   SetProjectConfidentialityMutation,
   SetRetentionPolicyInput,
   SetRetentionPolicyMutation,
+  UpdateLangProjectIdMutation,
+  UpdateProjectLanguageListMutation,
+  UpdateProjectLexEntryCountMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -270,6 +273,98 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
         }
       `),
       { input: input }
+    );
+  return result;
+}
+
+export async function _updateProjectLexEntryCount(code: string): $OpResult<UpdateProjectLexEntryCountMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateProjectLexEntryCount($input: UpdateProjectLexEntryCountInput!) {
+          updateProjectLexEntryCount(input: $input) {
+            project {
+              id
+              flexProjectMetadata {
+                lexEntryCount
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
+    );
+  return result;
+}
+
+export async function _updateLangProjectId(code: string): $OpResult<UpdateLangProjectIdMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateLangProjectId($input: UpdateLangProjectIdInput!) {
+          updateLangProjectId(input: $input) {
+            project {
+              id
+              flexProjectMetadata {
+                langProjectId
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
+    );
+  return result;
+}
+
+export async function _updateProjectLanguageList(code: string): $OpResult<UpdateProjectLanguageListMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateProjectLanguageList($input: UpdateProjectLanguageListInput!) {
+          updateProjectLanguageList(input: $input) {
+            project {
+              id
+              flexProjectMetadata {
+                writingSystems {
+                  analysisWss {
+                    tag
+                    isActive
+                    isDefault
+                  }
+                  vernacularWss {
+                    tag
+                    isActive
+                    isDefault
+                  }
+                }
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
     );
   return result;
 }
