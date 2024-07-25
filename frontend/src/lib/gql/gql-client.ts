@@ -33,6 +33,8 @@ import {
   type ChangeOrgMemberRoleMutationVariables,
   type AddOrgMemberMutationVariables,
   type CreateProjectMutationVariables,
+  type CreateProjectMutation,
+  CreateProjectResult,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -58,22 +60,14 @@ function createGqlClient(_gqlEndpoint?: string): Client {
         },
         updates: {
           Mutation: {
-            createProject: (result, args: CreateProjectMutationVariables, cache, _info) => {
+            createProject: (result: CreateProjectMutation, args: CreateProjectMutationVariables, cache, _info) => {
               if (args.input.orgId) {
                 cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
               }
-              if (args.input.id) {
-                cache.invalidate({__typename: 'DraftProject', id: args.input.id});
-                // Urql cache also stores values for myProjects and myDraftProjects query so we need to invalidate them too
-                // Note singular MyProject name for the myProjects query cache, ditto for draft
-                cache.invalidate({__typename: 'MyProject', id: args.input.id});
-                cache.invalidate({__typename: 'MyDraftProject', id: args.input.id});
-              }
-              if (result?.createProject?.createProjectResponse?.id) {
-                cache.invalidate({__typename: 'DraftProject', id: result?.createProject?.createProjectResponse?.id});
-                cache.invalidate({__typename: 'MyProject', id: result?.createProject?.createProjectResponse?.id});
-                cache.invalidate({__typename: 'MyDraftProject', id: result?.createProject?.createProjectResponse?.id});
-              }
+              const invalidateField = result.createProject.createProjectResponse?.result === CreateProjectResult.Created ? 'myProjects' : 'myDraftProjects';
+              cache.inspectFields('Query')
+                .filter(field => field.fieldName === invalidateField)
+                .forEach(field => cache.invalidate('Query', field.fieldKey));
             },
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
