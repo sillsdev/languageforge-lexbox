@@ -99,7 +99,7 @@
   <svelte:fragment slot="extraActions">
     <Checkbox
       id="invite"
-      label={'Invite'}
+      label={$t('project_page.add_user.invite_checkbox')}
       variant="checkbox-warning"
       labelColor="text-warning"
       bind:value={$form.canInvite}
