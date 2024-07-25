@@ -96,6 +96,14 @@ public class LexQueries
     }
 
     [UseProjection]
+    [UseFiltering]
+    public IQueryable<User> UsersInMyOrg(LexBoxDbContext context, LoggedInContext loggedInContext)
+    {
+        var myOrgIds = loggedInContext.User.Orgs.Select(o => o.OrgId).ToList();
+        return context.Users.Where(u => u.Organizations.Any(orgMember => myOrgIds.Contains(orgMember.OrgId)));
+    }
+
+    [UseProjection]
     [GraphQLType<OrgByIdGqlConfiguration>]
     public async Task<Organization?> OrgById(LexBoxDbContext dbContext, Guid orgId, IPermissionService permissionService, IResolverContext context)
     {
