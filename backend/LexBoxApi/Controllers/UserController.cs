@@ -69,7 +69,7 @@ public class UserController : ControllerBase
 
         var jwtUser = _loggedInContext.MaybeUser;
 
-        var userEntity = CreateUserEntity(accountInput, emailVerified: false, jwtUser ?? null);
+        var userEntity = CreateUserEntity(accountInput, jwtUser);
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
@@ -78,7 +78,7 @@ public class UserController : ControllerBase
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
 
-        await _emailService.SendVerifyAddressEmail(userEntity);
+        if (!userEntity.EmailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
     }
 
@@ -108,8 +108,7 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var emailVerified = jwtUser.Email == accountInput.Email;
-        var userEntity = CreateUserEntity(accountInput, emailVerified, jwtUser);
+        var userEntity = CreateUserEntity(accountInput, jwtUser);
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
@@ -118,11 +117,11 @@ public class UserController : ControllerBase
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
 
-        if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
+        if (!userEntity.EmailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
     }
 
-    private User CreateUserEntity(RegisterAccountInput input, bool emailVerified, LexAuthUser? jwtUser, Guid? creatorId = null)
+    private User CreateUserEntity(RegisterAccountInput input, LexAuthUser? jwtUser, Guid? creatorId = null)
     {
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
@@ -135,12 +134,11 @@ public class UserController : ControllerBase
             PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
             PasswordStrength = UserService.ClampPasswordStrength(input.PasswordStrength),
             IsAdmin = false,
-            EmailVerified = emailVerified,
+            EmailVerified = jwtUser?.Email == input.Email,
             CreatedById = creatorId,
             Locked = false,
             CanCreateProjects = false
         };
-        userEntity.EmailVerified = jwtUser?.Email == userEntity.Email;
         // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
         {
