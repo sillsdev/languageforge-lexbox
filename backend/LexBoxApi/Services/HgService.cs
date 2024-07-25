@@ -405,7 +405,6 @@ public class HgService : IHgService, IHostedService
     {
         var response = await GetResponseMessage(projectCode, "file/tip?style=json-lex");
         var parsed = await response.Content.ReadFromJsonAsync<BrowseResponse>();
-        bool hasDotSettingsFolder = false;
         // TODO: Move the heuristics below to a ProjectHeuristics class?
         foreach (var file in parsed?.Files ?? [])
         {
@@ -431,23 +430,27 @@ public class HgService : IHgService, IHostedService
                 {
                     return ProjectType.WeSay;
                 }
-
                 const string adaptItConfigFile = "AI-ProjectConfiguration.aic";
                 if (name.Equals(adaptItConfigFile, StringComparison.Ordinal))
                 {
                     return ProjectType.AdaptIt;
                 }
-                //OurWord projects have a .Settings folder, but that might not be super reliable
-                //so we only use it as a last resort if we didn't match any other project type.
-                if (name.Equals(".Settings", StringComparison.OrdinalIgnoreCase))
-                {
-                    hasDotSettingsFolder = true;
-                }
             }
         }
 
         //if we didn't find any of the above files, check for a .Settings folder
-        if (hasDotSettingsFolder) return ProjectType.OurWord;
+        //OurWord projects have a .Settings folder, but that might not be super reliable
+        //so we only use it as a last resort if we didn't match any other project type.
+        foreach (var dir in parsed?.Directories ?? [])
+        {
+            if (dir.Basename is { } name)
+            {
+                if (name.Equals(".Settings", StringComparison.OrdinalIgnoreCase))
+                {
+                    return ProjectType.OurWord;
+                }
+            }
+        }
         return ProjectType.Unknown;
     }
 
@@ -505,6 +508,7 @@ public class BrowseFilesResponse
 public class BrowseResponse
 {
     public BrowseFilesResponse[]? Files { get; set; }
+    public BrowseFilesResponse[]? Directories { get; set; }
 }
 
 public enum RepoEmptyState
