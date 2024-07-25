@@ -554,6 +554,7 @@ input AddProjectMemberInput {
   projectId: UUID!
   usernameOrEmail: String!
   role: ProjectRole!
+  canInvite: Boolean!
 }
 
 input AddProjectToOrgInput {
