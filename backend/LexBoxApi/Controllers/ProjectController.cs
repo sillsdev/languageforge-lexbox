@@ -232,6 +232,48 @@ public class ProjectController(
         await hgResult.CopyToAsync(writer.AsStream());
     }
 
+    [HttpPost("updateMissingLanguageList")]
+    public async Task<ActionResult<string[]>> UpdateMissingLanguageList(int limit = 10)
+    {
+        var projects = lexBoxDbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .Where(p => p.Type == ProjectType.FLEx && p.LastCommit != null && p.FlexProjectMetadata!.WritingSystems == null)
+            .Take(limit)
+            .AsAsyncEnumerable();
+        var codes = new List<string>(limit);
+        await foreach (var project in projects)
+        {
+            codes.Add(project.Code);
+            project.FlexProjectMetadata ??= new FlexProjectMetadata();
+            project.FlexProjectMetadata.WritingSystems = await hgService.GetProjectWritingSystems(project.Code);
+        }
+
+        await lexBoxDbContext.SaveChangesAsync();
+
+        return Ok(codes);
+    }
+
+    [HttpPost("updateMissingLangProjectId")]
+    public async Task<ActionResult<string[]>> UpdateMissingLangProjectId(int limit = 10)
+    {
+        var projects = lexBoxDbContext.Projects
+            .Include(p => p.FlexProjectMetadata)
+            .Where(p => p.Type == ProjectType.FLEx && p.LastCommit != null && p.FlexProjectMetadata!.LangProjectId == null)
+            .Take(limit)
+            .AsAsyncEnumerable();
+        var codes = new List<string>(limit);
+        await foreach (var project in projects)
+        {
+            codes.Add(project.Code);
+            project.FlexProjectMetadata ??= new FlexProjectMetadata();
+            project.FlexProjectMetadata.LangProjectId = await hgService.GetProjectIdOfFlexProject(project.Code);
+        }
+
+        await lexBoxDbContext.SaveChangesAsync();
+
+        return Ok(codes);
+    }
+
     [HttpPost("queueUpdateProjectMetadataTask")]
     public async Task<ActionResult> QueueUpdateProjectMetadataTask(string projectCode)
     {
