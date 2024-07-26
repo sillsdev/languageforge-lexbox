@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserInMyOrgTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { writable } from 'svelte/store';
@@ -12,7 +12,7 @@
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   export let value: string;
   export let debounceMs = 200;
-  export let isAdmin: boolean;
+  export let isAdmin: boolean = true;
 
   let input = writable('');
   $: $input = value;
@@ -26,8 +26,19 @@
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
                 : user.username ? ` (${user.username})`
                 : user.email ? ` (${user.email})`
+                : user.id ? ` (${user.id})`
                 : '';
     return `${user.name}${extra}`;
+  }
+
+  function getInputValue(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
+    if ('email' in user && user.email) {
+      return user.email;
+    }
+    if ('username' in user && user.username) {
+      return user.username;
+    }
+    return user.name;
   }
 
 </script>
@@ -38,7 +49,7 @@
     <div class="overlay-content">
       <ul class="menu p-0">
       {#each $typeaheadResults as user}
-        <li class="p-0"><button class="whitespace-nowrap" on:click={() => setTimeout(() => $input = value = user.email ?? user.username ?? '')}>{formatResult(user)}</button></li>
+        <li class="p-0"><button class="whitespace-nowrap" on:click={() => setTimeout(() => getInputValue(user))}>{formatResult(user)}</button></li>
       {/each}
       </ul>
     </div>
