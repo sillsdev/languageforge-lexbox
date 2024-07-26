@@ -18,6 +18,21 @@ tasks:
     dir: ./LocalWebApp
     cmd: dotnet watch --no-hot-reload
 
+  maui-desktop:
+    label: Run Maui Desktop
+    dir: ./FwLiteDesktop
+    cmd: dotnet run -f net8.0-windows10.0.19041.0
+
+  publish-maui-desktop:
+    label: Publish Maui Desktop
+    dir: ./FwLiteDesktop
+    cmds:
+      - dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
+      - dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None
+    # disabled since we can't sign the msix installer
+#      - dotnet publish -r win-x64 --artifacts-path ../artifacts
+#      - dotnet publish -r win-arm64 --artifacts-path ../artifacts
+
   publish-local-all:
     cmds:
       - task: publish-local-win

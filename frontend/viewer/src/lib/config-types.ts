@@ -36,7 +36,12 @@ export type BaseEntityFieldConfig<T> = (({
   type: 'single';
   id: ConditionalKeys<T, string>;
   ws: `first-${WritingSystemType}`;
-} | (OptionFieldConfig & {id: ConditionalKeys<T, string>}) | {
+} | {
+  type: 'option',
+  optionType: string,
+  id: ConditionalKeys<T, string | undefined>,
+  ws: `first-${WritingSystemType}`
+} | {
   type: `multi-option`;
   optionType: string;
   id: ConditionalKeys<T, string[] | SemanticDomain[]>;

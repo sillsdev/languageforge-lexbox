@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using FwDataMiniLcmBridge;
 using Humanizer;
 using LcmCrdt;
@@ -28,6 +28,7 @@ public class ImportFwdataService(ProjectsService projectsService, ILogger<Import
             var timeSpent = Stopwatch.GetElapsedTime(startTime);
             logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataApi.Project.Name, timeSpent.Humanize(2));
             return project;
+
         }
         catch
         {

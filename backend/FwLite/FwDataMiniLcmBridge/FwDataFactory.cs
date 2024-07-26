@@ -1,6 +1,7 @@
 ﻿using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SIL.LCModel;
 
@@ -13,6 +14,22 @@ public class FwDataFactory(
     ILogger<FwDataFactory> logger,
     IProjectLoader projectLoader) : IDisposable
 {
+    private bool _shuttingDown = false;
+    public FwDataFactory(FwDataProjectContext context,
+        ILogger<FwDataMiniLcmApi> fwdataLogger,
+        IMemoryCache cache,
+        ILogger<FwDataFactory> logger,
+        IProjectLoader projectLoader,
+        IHostApplicationLifetime lifetime) : this(context, fwdataLogger, cache, logger, projectLoader)
+    {
+        lifetime.ApplicationStopping.Register(() =>
+        {
+            //this gets called immediately after the shutdown is triggered, we need this so we can ignore project disconnects during shutdown.
+            //and delegate those to the disposal of this class.
+            _shuttingDown = true;
+        });
+    }
+
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(string projectName, bool saveOnDispose)
     {
         var project = FieldWorksProjectList.GetProject(projectName) ?? throw new InvalidOperationException($"Project {projectName} not found.");
@@ -61,7 +78,7 @@ public class FwDataFactory(
         // one way around this would be to return a lease object, only after a timeout and no more references to the lease object would the service be disposed.
         var lcmCache = (LcmCache)value;
         var (logger, projects) = ((ILogger<FwDataFactory>, HashSet<string>))state!;
-        var name = lcmCache.ProjectId.Name;
+        var name = key.ToString()?.Split('|')[1] ?? "Unknown";
         logger.LogInformation("Evicting project {ProjectFileName} from cache", name);
         projects.Remove((string)key);
         if (!lcmCache.IsDisposed)
@@ -73,12 +90,13 @@ public class FwDataFactory(
 
     public void Dispose()
     {
+        logger.LogInformation("Closing all projects");
         foreach (var project in _projects)
         {
             var lcmCache = cache.Get<LcmCache>(project);
             if (lcmCache is null || lcmCache.IsDisposed) continue;
             var name = lcmCache.ProjectId.Name;
-            lcmCache.Dispose();//need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
+            lcmCache.Dispose(); //need to explicitly call dispose as that blocks, just removing from the cache does not block, meaning it will not finish disposing before the program exits.
             logger.LogInformation("FW Data Project {ProjectFileName} disposed", name);
         }
     }
@@ -102,6 +120,9 @@ public class FwDataFactory(
 
     private void CloseProject(FwDataProject project)
     {
+        // if we are shutting down, don't do anything because we want project dispose to be called as part of the shutdown process.
+        if (_shuttingDown) return;
+        logger.LogInformation("Explicitly Closing project {ProjectFileName}", project.Name);
         var cacheKey = CacheKey(project);
         var lcmCache = cache.Get<LcmCache>(cacheKey);
         if (lcmCache is null) return;

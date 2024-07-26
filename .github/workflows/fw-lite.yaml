@@ -19,10 +19,12 @@ on:
       - develop
 
 jobs:
-  build-app:
-    name: Build FW Lite
+  build-and-test:
+    name: Build FW Lite and run tests
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    env:
+      NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,18 +36,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
+
       - name: Dotnet build
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet build --configuration Release
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet nuget enable source github
+          dotnet build --configuration Release
+
       - name: Dotnet test
         working-directory: backend/FwLite/LcmCrdt.Tests
-        run: dotnet test --configuration Release --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results
-      - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
-        if: always()
-        with:
-          check_name: FW Lite Unit Tests
-          files: ./backend/FwLite/LcmCrdt.Tests/test-results/*.xml
+        run: dotnet test --configuration Release  --logger GitHubActions
+
       - name: Build viewer
         working-directory: frontend/viewer
         run: |
@@ -53,25 +54,145 @@ jobs:
           pnpm install
           pnpm run build-app
 
-      - name: Publish linux
+  publish-app:
+    name: Publish FW Lite app
+
+    # only publish if tag matches fwlite-v* pattern
+    # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
+    needs: build-and-test
+    timeout-minutes: 30
+    runs-on: windows-latest
+    env:
+      NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
+      enable-msix: false #we can't sign the msix installer so we'll disable the build for now
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+
+      - name: Setup Maui
+        run: dotnet workload install maui-windows
+      - name: Enable GitHub Packages
+        working-directory: backend/FwLite
+        run: dotnet nuget enable source github
+
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: |
+          corepack enable
+          pnpm install
+          pnpm run build-app
+
+      - name: Dotnet build
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet build --configuration Release
+
+      - name: Publish Linux
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts
-      - name: Publish osx
+
+      - name: Publish OSX
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r osx-x64 --artifacts-path ../artifacts
-      - name: Publish osx-arm
+
+      - name: Publish OSX ARM
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts
-      - name: Publish win
+
+      - name: Publish Windows
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r win-x64 --artifacts-path ../artifacts
-      - name: Publish win-arm
+
+      - name: Publish Windows ARM
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r win-arm64 --artifacts-path ../artifacts
-      - name: Upload artifacts
-        # uploading in one artifact as there's a lot of duplication between builds so compression goes far
+
+      - name: Upload local web app artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fw-lite
+          name: fw-lite-local-web-app
           if-no-files-found: error
           path: backend/FwLite/artifacts/publish/LocalWebApp/*
+
+      - name: Publish Windows MAUI unpackaged app
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
+          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None
+      - name: Upload FWLite Desktop artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-unpackaged
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/publish/FwLiteDesktop/*
+
+      - name: Publish Windows MAUI msix app
+        if: ${{env.enable-msix}}
+        working-directory: backend/FwLite/FwLiteDesktop
+        run: |
+          dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
+          dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
+          mkdir -p ../artifacts/msix
+          cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
+
+      - name: Upload FWLite Desktop artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{env.enable-msix}}
+        with:
+          name: fw-lite-msix
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/msix/*.msix
+
+  sign-installer:
+    #disabled as this doesn't work since ltops-signing doesn't have the signtool
+    if: false
+    name: Sign FWLite MSIX installer
+    needs: publish-app
+    runs-on: [self-hosted, ltops-signing]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-msix
+          path: target-msix
+      - name: Sign MSIX installer
+        shell: pwsh
+        env:
+          signtool: C:/"Program Files (x86)"/"Windows Kits"/10/bin/10.0.17763.0/x86/signtool.exe
+        run: |
+          $PublicCert = [System.Convert]::FromBase64String('${{ secrets.CODESIGN_LSDEVSECTIGOEV }}')
+          Set-Content $ENV:TEMP\certificate -Value ($PublicCert) -AsByteStream
+          ${{env.signtool}} sign /f $ENV:TEMP\certificate /fd sha256 /du https://software.sil.org /tr http://timestamp.sectigo.com /td sha256 /v target-msix/*.msix
+      - name: Upload signed MSIX installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-msix-signed
+          if-no-files-found: error
+          path: target-msix/*.msix
+
+  create-release:
+    #disabled since we don't have a release yet
+    if: false
+    name: Create Release
+    needs: sign-installer
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            backend/FwLite/artifacts/bin/FwLiteDesktop/*/AppPackages/FwLiteDesktop_1.0.0.1_Test/*.msix
+          body: |
+            Release for version ${{ github.ref }}
+          draft: true
