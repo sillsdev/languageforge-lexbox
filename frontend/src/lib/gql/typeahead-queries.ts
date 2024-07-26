@@ -1,4 +1,4 @@
-import type { LoadAdminUsersTypeaheadQuery, UserFilterInput } from './types';
+import type { LoadAdminUsersTypeaheadQuery, LoadOrgMembersTypeaheadQuery, UserFilterInput } from './types';
 
 import { getClient } from './gql-client';
 import { graphql } from './generated';
@@ -49,42 +49,34 @@ export async function _userTypeaheadSearch(userSearch: string, limit = 10): Prom
   return users;
 }
 
-// export function orgMemberFilter(userSearch: string): OrgMemberFilterInput {
-//   return {
-//     or: [
-//       {name: {icontains: userSearch}},
-//       {email: {icontains: userSearch}},
-//       {username: {icontains: userSearch}}
-//     ]
-//   };
-// }
+export type UsersInMyOrgTypeaheadResult = NonNullable<NonNullable<LoadOrgMembersTypeaheadQuery['usersInMyOrg']>['items']>;
+export type SingleUserInMyOrgTypeaheadResult = UsersInMyOrgTypeaheadResult[number];
 
-// export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<OrgMemberTypeaheadResult> {
-//   if (!orgMemberSearch) return Promise.resolve([]);
-//   const client = getClient();
-//   const result = client.query(graphql(`
-//     query loadOrgMembersTypeahead($filter: UserFilterInput, $take: Int!) {
-//       usersInMyOrgs(where: $filter, orderBy: {name: ASC}, take: $take) {
-//         user {
-//           id
-//           name
-//           email
-//           username
-//         }
-//       }
-//     }
-//   `), { filter: orgMemberFilter(orgMemberSearch), take: limit });
+export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<UsersInMyOrgTypeaheadResult> {
+  if (!orgMemberSearch) return Promise.resolve([]);
+  const client = getClient();
+  const result = client.query(graphql(`
+    query loadOrgMembersTypeahead($filter: UserFilterInput, $take: Int!) {
+      usersInMyOrg(where: $filter, orderBy: {name: ASC}, take: $take) {
+        totalCount
+        items {
+          id
+          name
+        }
+      }
+    }
+  `), { filter: userFilter(orgMemberSearch), take: limit });
 
-//   const users = result.then(members => {
-//     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-//     const count = members.data?.members.length ?? 0;
-//     if (0 < count && count <= limit) {
-//       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-//       return members.data?.members?.user ?? [];
-//     } else {
-//       return [];
-//     }
-//   });
+  const users = result.then(members => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const count = members.data?.usersInMyOrg?.totalCount ?? 0;
+    if (0 < count && count <= limit) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return members.data?.usersInMyOrg?.items ?? [];
+    } else {
+      return [];
+    }
+  });
 
-//   return users;
-// }
+  return users;
+}

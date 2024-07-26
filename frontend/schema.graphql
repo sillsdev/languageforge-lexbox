@@ -414,7 +414,7 @@ type Query {
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
   orgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
   myOrgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
-  usersInMyOrg(where: UserFilterInput): [User!]!
+  usersInMyOrg(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersInMyOrgCollectionSegment
   orgById(orgId: UUID!): OrgById
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
@@ -514,6 +514,15 @@ type UserProjectRole {
 
 "A segment of a collection."
 type UsersCollectionSegment {
+  "Information to aid in pagination."
+  pageInfo: CollectionSegmentInfo!
+  "A flattened list of the items."
+  items: [User!]
+  totalCount: Int!
+}
+
+"A segment of a collection."
+type UsersInMyOrgCollectionSegment {
   "Information to aid in pagination."
   pageInfo: CollectionSegmentInfo!
   "A flattened list of the items."

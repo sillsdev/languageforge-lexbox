@@ -95,8 +95,10 @@ public class LexQueries
         return context.Orgs.Where(o => o.Members.Any(m => m.UserId == userId));
     }
 
+    [UseOffsetPaging]
     [UseProjection]
     [UseFiltering]
+    [UseSorting]
     public IQueryable<User> UsersInMyOrg(LexBoxDbContext context, LoggedInContext loggedInContext)
     {
         var myOrgIds = loggedInContext.User.Orgs.Select(o => o.OrgId).ToList();
