@@ -1,6 +1,6 @@
 <script lang="ts">
   import { FormField, PlainInput, randomFormId } from '$lib/forms';
-  import { _userTypeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { writable } from 'svelte/store';
@@ -12,11 +12,15 @@
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   export let value: string;
   export let debounceMs = 200;
+  export let isAdmin: boolean;
 
   let input = writable('');
   $: $input = value;
-
-  let typeaheadResults = deriveAsync(input, _userTypeaheadSearch, [], debounceMs);
+  let typeaheadResults = deriveAsync(
+    input,
+    isAdmin ? _userTypeaheadSearch : _orgMemberTypeaheadSearch,
+    [],
+    debounceMs);
 
   function formatResult(user: SingleUserTypeaheadResult): string {
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`

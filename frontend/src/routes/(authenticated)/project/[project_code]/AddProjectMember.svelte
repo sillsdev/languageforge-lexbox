@@ -1,7 +1,7 @@
 <script lang="ts">
   import { BadgeButton } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, ProjectRoleSelect, isEmail } from '$lib/forms';
+  import { ProjectRoleSelect, isEmail } from '$lib/forms';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -77,24 +77,14 @@
     {$t('project_page.add_user.modal_title')}
     <SupHelp helpLink={helpLinks.addProjectMember} />
   </span>
-  {#if $page.data.user?.isAdmin}
-    <UserTypeahead
-      id="usernameOrEmail"
-      label={$t('login.label_email')}
-      bind:value={$form.usernameOrEmail}
-      error={errors.usernameOrEmail}
-      autofocus
-      />
-  {:else}
-    <Input
-      id="usernameOrEmail"
-      type="text"
-      label={$t('login.label_email')}
-      bind:value={$form.usernameOrEmail}
-      error={errors.usernameOrEmail}
-      autofocus
-    />
-  {/if}
+  <UserTypeahead
+    id="usernameOrEmail"
+    isAdmin={$page.data.user?.isAdmin}
+    label={$t('login.label_email')}
+    bind:value={$form.usernameOrEmail}
+    error={errors.usernameOrEmail}
+    autofocus
+  />
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <svelte:fragment slot="extraActions">
     <Checkbox
