@@ -25,9 +25,7 @@ public static class LocalAppKernel
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient();
-        #if !DISABLE_FW_BRIDGE
         services.AddFwDataBridge();
-        #endif
 
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>
         {

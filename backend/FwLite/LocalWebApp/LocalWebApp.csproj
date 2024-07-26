@@ -38,7 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Condition="!$(DefineConstants.Contains('DISABLE_FW_BRIDGE'))" Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
+      <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
       <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
       <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
     </ItemGroup>

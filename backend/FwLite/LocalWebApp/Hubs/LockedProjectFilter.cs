@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-#if !DISABLE_FW_BRIDGE
 using SIL.LCModel;
-#endif
 
 namespace LocalWebApp.Hubs;
 
@@ -13,13 +11,7 @@ public class LockedProjectFilter: IHubFilter
         {
             return await next(invocationContext);
         }
-        catch (
-            #if !DISABLE_FW_BRIDGE
-            LcmFileLockedException
-            #else
-            IOException
-            #endif
-            )
+        catch (LcmFileLockedException)
         {
             await TypedHubHelper<ILexboxHubClient>.TypeClients(invocationContext.Hub.Clients)
                 .Caller.OnProjectClosed(CloseReason.Locked);

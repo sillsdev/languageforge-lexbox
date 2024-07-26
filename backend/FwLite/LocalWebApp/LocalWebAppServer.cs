@@ -1,7 +1,5 @@
-﻿#if !DISABLE_FW_BRIDGE
-using FwDataMiniLcmBridge;
+﻿using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.LcmUtils;
-#endif
 using LcmCrdt;
 using LocalWebApp;
 using LocalWebApp.Hubs;
@@ -23,10 +21,8 @@ public static class LocalWebAppServer
             builder.WebHost.UseUrls("http://127.0.0.1:0");
         if (builder.Environment.IsDevelopment())
         {
-#if !DISABLE_FW_BRIDGE
-    //do this early so we catch bugs on startup
-    ProjectLoader.Init();
-#endif
+            //do this early so we catch bugs on startup
+            ProjectLoader.Init();
         }
 
         builder.ConfigureDev<AuthConfig>(config =>
@@ -73,22 +69,17 @@ public static class LocalWebAppServer
                                                     $"Project {projectName} not found"));
                 await context.RequestServices.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
             }
-#if !DISABLE_FW_BRIDGE
-    var fwData = context.GetFwDataName();
-    if (!string.IsNullOrWhiteSpace(fwData))
-    {
-        var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
-        fwDataProjectContext.Project =
- FieldWorksProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
-    }
-#endif
+            var fwData = context.GetFwDataName();
+            if (!string.IsNullOrWhiteSpace(fwData))
+            {
+                var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
+                fwDataProjectContext.Project = FieldWorksProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
+            }
 
             await next(context);
         });
         app.MapHub<CrdtMiniLcmApiHub>($"/api/hub/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}/lexbox");
-#if !DISABLE_FW_BRIDGE
-app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/fwdata");
-#endif
+        app.MapHub<FwDataMiniLcmHub>($"/api/hub/{{{FwDataMiniLcmHub.ProjectRouteKey}}}/fwdata");
         app.MapHistoryRoutes();
         app.MapActivities();
         app.MapProjectRoutes();

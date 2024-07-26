@@ -1,6 +1,4 @@
-﻿#if !DISABLE_FW_BRIDGE
-using FwDataMiniLcmBridge;
-#endif
+﻿using FwDataMiniLcmBridge;
 using LocalWebApp.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.OpenApi.Models;
@@ -11,7 +9,6 @@ public static class FwIntegrationRoutes
 {
     public static IEndpointConventionBuilder MapFwIntegrationRoutes(this WebApplication app)
     {
-#if !DISABLE_FW_BRIDGE
         var group = app.MapGroup($"/api/fw/{{{FwDataMiniLcmHub.ProjectRouteKey}}}").WithOpenApi(
             operation =>
             {
@@ -31,8 +28,5 @@ public static class FwIntegrationRoutes
                 return Results.Redirect($"silfw://localhost/link?database={context.Project.Name}&tool=lexiconEdit&guid={id}");
             });
         return group;
-        #else
-        return app.MapGroup($"/api/fw/");
-        #endif
     }
 }

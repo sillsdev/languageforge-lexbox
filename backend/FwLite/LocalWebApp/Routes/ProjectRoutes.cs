@@ -18,7 +18,6 @@ public static partial class ProjectRoutes
         {
             var crdtProjects = await projectService.ListProjects();
             var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
-#if !DISABLE_FW_BRIDGE
             //basically populate projects and indicate if they are lexbox or fwdata
             foreach (var p in FwDataMiniLcmBridge.FieldWorksProjectList.EnumerateProjects())
             {
@@ -31,7 +30,6 @@ public static partial class ProjectRoutes
                     projects.Add(p.Name, new ProjectModel(p.Name, false, true));
                 }
             }
-#endif
             //todo split this out into it's own request so we can return other project types right away
             foreach (var lexboxProject in await lexboxProjectService.GetLexboxProjects())
             {
