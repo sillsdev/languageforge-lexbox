@@ -227,6 +227,16 @@
       error={$errors.languageCode}
     />
 
+    <AdminContent>
+      <Checkbox label={$t('project.create.custom_code')} bind:value={$form.customCode} />
+    </AdminContent>
+    <Input
+      label={$t('project.create.code')}
+      bind:value={$form.code}
+      error={$codeErrors}
+      readonly={!$form.customCode}
+    />
+
     {#if $relatedProjects?.length}
       <div>
         Possibly related projects:
@@ -237,16 +247,6 @@
         </ul>
       </div>
     {/if}
-
-    <AdminContent>
-      <Checkbox label={$t('project.create.custom_code')} bind:value={$form.customCode} />
-    </AdminContent>
-    <Input
-      label={$t('project.create.code')}
-      bind:value={$form.code}
-      error={$codeErrors}
-      readonly={!$form.customCode}
-    />
 
     <TextArea
       id="description"
