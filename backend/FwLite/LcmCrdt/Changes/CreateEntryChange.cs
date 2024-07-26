@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using Crdt;
-using Crdt.Changes;
-using Crdt.Entities;
+using SIL.Harmony;
+using SIL.Harmony.Changes;
+using SIL.Harmony.Entities;
 using MiniLcm;
 
 namespace LcmCrdt.Changes;
