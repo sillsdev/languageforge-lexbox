@@ -7,6 +7,7 @@ metadata:
   labels:
     app: lexbox
 spec:
+  progressDeadlineSeconds: 300
   template:
     spec:
       containers:
