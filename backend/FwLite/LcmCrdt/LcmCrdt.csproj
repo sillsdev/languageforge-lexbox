@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\harmony\src\Crdt\Crdt.csproj" />
+      <ProjectReference Include="..\..\harmony\src\SIL.Harmony\SIL.Harmony.csproj" />
       <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
     </ItemGroup>
 </Project>

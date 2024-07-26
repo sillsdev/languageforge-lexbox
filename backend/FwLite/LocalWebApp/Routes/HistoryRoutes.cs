@@ -1,8 +1,8 @@
-﻿using Crdt;
-using Crdt.Changes;
-using Crdt.Core;
-using Crdt.Db;
-using Crdt.Entities;
+﻿using SIL.Harmony;
+using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
+using SIL.Harmony.Db;
+using SIL.Harmony.Entities;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using LocalWebApp.Hubs;

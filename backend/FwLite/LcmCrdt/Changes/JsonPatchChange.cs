@@ -1,10 +1,10 @@
 ﻿using System.Buffers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Crdt;
-using Crdt.Changes;
-using Crdt.Db;
-using Crdt.Entities;
+using SIL.Harmony;
+using SIL.Harmony.Changes;
+using SIL.Harmony.Db;
+using SIL.Harmony.Entities;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Internal;
 using SystemTextJsonPatch.Operations;

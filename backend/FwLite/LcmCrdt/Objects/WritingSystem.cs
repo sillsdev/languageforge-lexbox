@@ -1,7 +1,7 @@
-﻿using Crdt;
-using Crdt.Changes;
-using Crdt.Db;
-using Crdt.Entities;
+﻿using SIL.Harmony;
+using SIL.Harmony.Changes;
+using SIL.Harmony.Db;
+using SIL.Harmony.Entities;
 using MiniLcm;
 
 namespace LcmCrdt.Objects;

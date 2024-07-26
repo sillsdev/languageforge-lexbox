@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Crdt.Entities;
+using SIL.Harmony.Entities;
 using LcmCrdt.Changes;
 using LcmCrdt.Objects;
 using SystemTextJsonPatch;

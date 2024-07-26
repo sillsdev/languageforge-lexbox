@@ -1,6 +1,6 @@
-﻿using Crdt.Changes;
-using Crdt.Core;
-using Crdt.Db;
+﻿using SIL.Harmony.Changes;
+using SIL.Harmony.Core;
+using SIL.Harmony.Db;
 using LcmCrdt;
 using LocalWebApp.Hubs;
 using Microsoft.EntityFrameworkCore;

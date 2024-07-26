@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
-using Crdt;
-using Crdt.Core;
-using Crdt;
-using Crdt.Changes;
+using SIL.Harmony;
+using SIL.Harmony.Core;
+using SIL.Harmony;
+using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
 using LcmCrdt.Objects;
 using LinqToDB;

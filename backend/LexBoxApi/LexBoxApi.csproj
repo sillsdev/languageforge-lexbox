@@ -55,7 +55,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\harmony\src\Crdt.Core\Crdt.Core.csproj" />
+      <ProjectReference Include="..\harmony\src\SIL.Harmony.Core\SIL.Harmony.Core.csproj" />
       <ProjectReference Include="..\LexCore\LexCore.csproj" />
       <ProjectReference Include="..\LexData\LexData.csproj" />
       <ProjectReference Include="..\LfClassicData\LfClassicData.csproj" />
