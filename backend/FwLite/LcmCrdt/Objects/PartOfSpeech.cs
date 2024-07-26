@@ -1,5 +1,5 @@
-﻿using Crdt;
-using Crdt.Entities;
+﻿using SIL.Harmony;
+using SIL.Harmony.Entities;
 using LcmCrdt.Changes;
 using MiniLcm;
 

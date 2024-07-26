@@ -2,9 +2,18 @@
   import t from '$lib/i18n';
   import { Badge, BadgeList } from '$lib/components/Badges';
   import type { Organization } from '$lib/gql/types';
+  import { createEventDispatcher } from 'svelte';
+  import Dropdown from '$lib/components/Dropdown.svelte';
+  import { Icon, TrashIcon } from '$lib/icons';
+  import ActionBadge from '$lib/components/Badges/ActionBadge.svelte';
 
   type Org = Pick<Organization, 'id' | 'name'>;
+  export let canManage: boolean;
   export let organizations: Org[] = [];
+
+  const dispatch = createEventDispatcher<{
+    removeProjectFromOrg: { orgId: string; orgName: string };
+  }>();
 
   const TRUNCATED_MEMBER_COUNT = 5;
 </script>
@@ -23,9 +32,35 @@
       </div>
     {/if}
     {#each organizations as org (org.id)}
-      <Badge>
-        {org.name}
-      </Badge>
+      {#if !canManage}
+        <Badge>
+          {org.name}
+        </Badge>
+      {:else}
+        <Dropdown>
+          <ActionBadge actionIcon="i-mdi-dots-vertical" on:action>
+            <span class="pr-3 whitespace-nowrap overflow-ellipsis overflow-x-clip" title={org.name}>
+              {org.name}
+            </span>
+          </ActionBadge>
+          <ul slot="content" class="menu">
+            <li>
+              <a href={`/org/${org.id}`}>
+                <Icon icon="i-mdi-link"/>
+                {$t('project_page.view_org', {orgName: org.name})}
+              </a>
+            </li>
+            <li>
+              <button class="text-error" on:click={() => dispatch('removeProjectFromOrg', {orgId: org.id, orgName: org.name})}>
+                <TrashIcon />
+                {$t('project_page.remove_project_from_org')}
+              </button>
+            </li>
+          </ul>
+        </Dropdown>
+      {/if}
     {/each}
   </BadgeList>
+
+  <slot />
 </div>

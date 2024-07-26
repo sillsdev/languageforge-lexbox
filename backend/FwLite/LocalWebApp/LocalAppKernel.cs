@@ -1,8 +1,6 @@
 ﻿using System.Text.Json;
-using Crdt;
-#if !DISABLE_FW_BRIDGE
+using SIL.Harmony;
 using FwDataMiniLcmBridge;
-#endif
 using LcmCrdt;
 using LocalWebApp.Services;
 using LocalWebApp.Auth;

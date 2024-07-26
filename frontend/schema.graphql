@@ -236,6 +236,10 @@ type Mutation {
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
+  setRetentionPolicy(input: SetRetentionPolicyInput!): SetRetentionPolicyPayload!
+  updateProjectLexEntryCount(input: UpdateProjectLexEntryCountInput!): UpdateProjectLexEntryCountPayload!
+  updateProjectLanguageList(input: UpdateProjectLanguageListInput!): UpdateProjectLanguageListPayload!
+  updateLangProjectId(input: UpdateLangProjectIdInput!): UpdateLangProjectIdPayload!
   leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
@@ -313,6 +317,10 @@ type OrgMemberDtoCreatedBy {
   name: String!
 }
 
+type OrgMemberInvitedByEmail implements Error {
+  message: String!
+}
+
 type OrgMemberRole {
   username: String!
   role: OrgRole!
@@ -343,7 +351,7 @@ type Project {
   code: String!
   createdDate: DateTime!
   id: UUID!
-  users: [ProjectUsers!]!
+  users: [ProjectUsers!]! @authorize(policy: "CanAccessProjectUsers")
   changesets: [Changeset!]!
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean!
@@ -438,6 +446,11 @@ type SetProjectConfidentialityPayload {
   errors: [SetProjectConfidentialityError!]
 }
 
+type SetRetentionPolicyPayload {
+  project: Project
+  errors: [SetRetentionPolicyError!]
+}
+
 type SetUserLockedPayload {
   user: User
   errors: [SetUserLockedError!]
@@ -454,6 +467,21 @@ type UnauthorizedAccessError implements Error {
 
 type UniqueValueError implements Error {
   message: String!
+}
+
+type UpdateLangProjectIdPayload {
+  project: Project
+  errors: [UpdateLangProjectIdError!]
+}
+
+type UpdateProjectLanguageListPayload {
+  project: Project
+  errors: [UpdateProjectLanguageListError!]
+}
+
+type UpdateProjectLexEntryCountPayload {
+  project: Project
+  errors: [UpdateProjectLexEntryCountError!]
 }
 
 type User {
@@ -530,18 +558,27 @@ union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
 
-union SetOrgMemberRoleError = DbError | NotFoundError
+union SetOrgMemberRoleError = DbError | NotFoundError | OrgMemberInvitedByEmail
 
 union SetProjectConfidentialityError = NotFoundError | DbError
+
+union SetRetentionPolicyError = NotFoundError | DbError
 
 union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
 
+union UpdateLangProjectIdError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateProjectLanguageListError = NotFoundError | DbError | UnauthorizedAccessError
+
+union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAccessError
+
 input AddProjectMemberInput {
   projectId: UUID!
   usernameOrEmail: String!
   role: ProjectRole!
+  canInvite: Boolean!
 }
 
 input AddProjectToOrgInput {
@@ -929,13 +966,19 @@ input RetentionPolicyOperationFilterInput {
 
 input SetOrgMemberRoleInput {
   orgId: UUID!
-  role: OrgRole
+  role: OrgRole!
   emailOrUsername: String!
+  canInvite: Boolean!
 }
 
 input SetProjectConfidentialityInput {
   projectId: UUID!
   isConfidential: Boolean!
+}
+
+input SetRetentionPolicyInput {
+  projectId: UUID!
+  retentionPolicy: RetentionPolicy!
 }
 
 input SetUserLockedInput {
@@ -962,6 +1005,18 @@ input StringOperationFilterInput {
   nendsWith: String
   icontains: String
   ieq: String
+}
+
+input UpdateLangProjectIdInput {
+  code: String!
+}
+
+input UpdateProjectLanguageListInput {
+  code: String!
+}
+
+input UpdateProjectLexEntryCountInput {
+  code: String!
 }
 
 input UserFilterInput {

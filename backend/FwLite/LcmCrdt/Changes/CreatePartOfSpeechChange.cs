@@ -1,6 +1,6 @@
-﻿using Crdt;
-using Crdt.Changes;
-using Crdt.Entities;
+﻿using SIL.Harmony;
+using SIL.Harmony.Changes;
+using SIL.Harmony.Entities;
 using MiniLcm;
 using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
 

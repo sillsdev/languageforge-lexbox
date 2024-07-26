@@ -13,7 +13,6 @@ using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Net.Mail;
 using LexBoxApi.Services.Email;
 
 namespace LexBoxApi.GraphQL;
@@ -69,7 +68,8 @@ public class ProjectMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Project>> AddProjectMember(IPermissionService permissionService,
+    public async Task<IQueryable<Project>> AddProjectMember(
+        IPermissionService permissionService,
         LoggedInContext loggedInContext,
         AddProjectMemberInput input,
         LexBoxDbContext dbContext,
@@ -81,17 +81,26 @@ public class ProjectMutations
         var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
         if (user is null)
         {
-            var (_, email, _) = ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail);
+            var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail);
             // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
             if (email is null)
             {
                 throw NotFoundException.ForType<User>();
             }
-            else
+            else if (input.canInvite)
             {
                 var manager = loggedInContext.User;
-                await emailService.SendCreateAccountEmail(email, input.ProjectId, input.Role, manager.Name, project.Name);
+                await emailService.SendCreateAccountWithProjectEmail(
+                    email,
+                    manager.Name,
+                    projectId: input.ProjectId,
+                    role: input.Role,
+                    projectName: project.Name);
                 throw new ProjectMemberInvitedByEmail("Invitation email sent");
+            }
+            else
+            {
+                throw NotFoundException.ForType<User>();
             }
         }
         if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
@@ -140,7 +149,7 @@ public class ProjectMutations
             if (user is null)
             {
                 var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
-                var (name, email, username) = ExtractNameAndAddressFromUsernameOrEmail(usernameOrEmail);
+                var (name, email, username) = UserService.ExtractNameAndAddressFromUsernameOrEmail(usernameOrEmail);
                 user = new User
                 {
                     Id = Guid.NewGuid(),
@@ -186,37 +195,6 @@ public class ProjectMutations
         }
         await dbContext.SaveChangesAsync();
         return new BulkAddProjectMembersResult(AddedMembers, CreatedMembers, ExistingMembers);
-    }
-
-    public static (string name, string? email, string? username) ExtractNameAndAddressFromUsernameOrEmail(string usernameOrEmail)
-    {
-        var isEmailAddress = usernameOrEmail.Contains('@');
-        string name;
-        string? email;
-        string? username;
-        if (isEmailAddress)
-        {
-            try
-            {
-                var parsed = new MailAddress(usernameOrEmail);
-                email = parsed.Address;
-                username = null;
-                name = parsed.DisplayName;
-                if (string.IsNullOrEmpty(name)) name = email.Split('@')[0];
-            }
-            catch (FormatException)
-            {
-                // FormatException message from .NET talks about mail headers, which is confusing here
-                throw new InvalidEmailException("Invalid email address", usernameOrEmail);
-            }
-        }
-        else
-        {
-            username = usernameOrEmail;
-            email = null;
-            name = username;
-        }
-        return (name, email, username);
     }
 
     [Error<NotFoundException>]
@@ -309,6 +287,85 @@ public class ProjectMutations
         projectService.InvalidateProjectConfidentialityCache(input.ProjectId);
         await dbContext.SaveChangesAsync();
         return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> SetRetentionPolicy(
+        SetRetentionPolicyInput input,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        await permissionService.AssertCanManageProject(input.ProjectId);
+        var project = await dbContext.Projects.FindAsync(input.ProjectId);
+        NotFoundException.ThrowIfNull(project);
+
+        project.RetentionPolicy = input.RetentionPolicy;
+        project.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return dbContext.Projects.Where(p => p.Id == input.ProjectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateProjectLexEntryCount(string code,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+        var result = await projectService.UpdateLexEntryCount(code);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateProjectLanguageList(string code,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+        await projectService.UpdateProjectLangTags(projectId);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateLangProjectId(string code,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        [Service] IHgService hgService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+        await hgService.GetProjectIdOfFlexProject(code);
+        return dbContext.Projects.Where(p => p.Id == projectId);
     }
 
     [Error<NotFoundException>]

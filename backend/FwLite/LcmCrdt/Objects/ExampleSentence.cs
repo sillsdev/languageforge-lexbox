@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
-using Crdt;
-using Crdt.Db;
-using Crdt.Entities;
+using SIL.Harmony;
+using SIL.Harmony.Db;
+using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Objects;
 

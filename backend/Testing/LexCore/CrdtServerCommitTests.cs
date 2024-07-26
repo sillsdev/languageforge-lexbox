@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Crdt.Core;
+using SIL.Harmony.Core;
 using LexData;
 using LexData.Entities;
 using Microsoft.EntityFrameworkCore;

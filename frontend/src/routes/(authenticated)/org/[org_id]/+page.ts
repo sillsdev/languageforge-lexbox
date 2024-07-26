@@ -10,6 +10,7 @@ import type {
   OrgMemberDto,
   OrgPageQuery,
   OrgRole,
+  RemoveProjectFromOrgMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -119,7 +120,7 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
   return result;
 }
 
-export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole): $OpResult<AddOrgMemberMutation> {
+export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole, canInvite: boolean): $OpResult<AddOrgMemberMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
@@ -138,7 +139,7 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
           }
         }
       `),
-      { input: { orgId, emailOrUsername, role} },
+      { input: { orgId, emailOrUsername, role, canInvite} },
     );
   return result;
 }
@@ -171,6 +172,30 @@ export async function _bulkAddOrgMembers(orgId: UUID, usernames: string[], role:
         }
       `),
       { input: { orgId, usernames, role } }
+    );
+  return result;
+}
+
+export async function _removeProjectFromOrg(projectId: string, orgId: string): $OpResult<RemoveProjectFromOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation RemoveProjectFromOrg($input: RemoveProjectFromOrgInput!) {
+          removeProjectFromOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { projectId: projectId, orgId: orgId } }
     );
   return result;
 }

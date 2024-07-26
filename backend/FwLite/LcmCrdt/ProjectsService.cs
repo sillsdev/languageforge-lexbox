@@ -1,5 +1,5 @@
-﻿using Crdt;
-using Crdt.Db;
+﻿using SIL.Harmony;
+using SIL.Harmony.Db;
 using LcmCrdt.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

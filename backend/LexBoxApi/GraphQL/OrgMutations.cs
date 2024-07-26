@@ -2,6 +2,7 @@
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models.Org;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.Entities;
 using LexCore.Exceptions;
 using LexCore.ServiceInterfaces;
@@ -66,7 +67,7 @@ public class OrgMutations
         Guid orgId,
         Guid projectId)
     {
-        var org = await dbContext.Orgs.FindAsync(orgId);
+        var org = await dbContext.Orgs.Include(o => o.Members).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
         permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
@@ -100,7 +101,7 @@ public class OrgMutations
         Guid orgId,
         Guid projectId)
     {
-        var org = await dbContext.Orgs.FindAsync(orgId);
+        var org = await dbContext.Orgs.Include(o => o.Members).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
         permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
@@ -131,19 +132,51 @@ public class OrgMutations
     /// <param name="emailOrUsername">either an email or a username for the user whos membership to update</param>
     [Error<DbError>]
     [Error<NotFoundException>]
+    [Error<OrgMemberInvitedByEmail>]
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
     public async Task<IQueryable<Organization>> SetOrgMemberRole(
         LexBoxDbContext dbContext,
+        LoggedInContext loggedInContext,
         IPermissionService permissionService,
         Guid orgId,
-        OrgRole? role,
-        string emailOrUsername)
+        OrgRole role,
+        string emailOrUsername,
+        bool canInvite,
+        [Service] IEmailService emailService)
     {
+        var org = await dbContext.Orgs.FindAsync(orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanEditOrg(org);
         var user = await dbContext.Users.FindByEmailOrUsername(emailOrUsername);
-        NotFoundException.ThrowIfNull(user); // TODO: Implement inviting user
-        return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+        if (user is null)
+        {
+            var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(emailOrUsername);
+            if (email is null)
+            {
+                throw NotFoundException.ForType<User>();
+            }
+            else if (canInvite)
+            {
+                var manager = loggedInContext.User;
+                await emailService.SendCreateAccountWithOrgEmail(
+                    email,
+                    manager.Name,
+                    orgId: orgId,
+                    orgRole: role,
+                    orgName: org.Name);
+                throw new OrgMemberInvitedByEmail("Invitation email sent");
+            }
+            else
+            {
+                throw NotFoundException.ForType<User>();
+            }
+        }
+        else
+        {
+            return await ChangeOrgMemberRole(dbContext, permissionService, orgId, user.Id, role);
+        }
     }
 
     /// <summary>

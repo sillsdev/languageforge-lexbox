@@ -1,5 +1,5 @@
-﻿using Crdt.Core;
-using Crdt.Db;
+﻿using SIL.Harmony.Core;
+using SIL.Harmony.Db;
 using LocalWebApp.Hubs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;

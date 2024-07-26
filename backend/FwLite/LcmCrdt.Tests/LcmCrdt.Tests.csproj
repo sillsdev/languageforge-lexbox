@@ -26,7 +26,7 @@
     <ItemGroup>
         <Using Include="Xunit"/>
         <Using Include="FluentAssertions"/>
-        <Using Include="Crdt"/>
+        <Using Include="SIL.Harmony"/>
     </ItemGroup>
 
     <ItemGroup>

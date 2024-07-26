@@ -28,9 +28,11 @@ import {
   type BulkAddProjectMembersMutationVariables,
   type DeleteDraftProjectMutationVariables,
   type MutationAddProjectToOrgArgs,
+  type MutationRemoveProjectFromOrgArgs,
   type BulkAddOrgMembersMutationVariables,
   type ChangeOrgMemberRoleMutationVariables,
   type AddOrgMemberMutationVariables,
+  type CreateProjectMutationVariables,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -56,6 +58,11 @@ function createGqlClient(_gqlEndpoint?: string): Client {
         },
         updates: {
           Mutation: {
+            createProject: (result, args: CreateProjectMutationVariables, cache, _info) => {
+              if (args.input.orgId) {
+                cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
+              }
+            },
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
             },
@@ -86,7 +93,12 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
             },
             addProjectToOrg: (result, args: MutationAddProjectToOrgArgs, cache, _info) => {
-              cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              cache.invalidate({__typename: 'Project', id: args.input.projectId}, 'organizations');
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
+            },
+            removeProjectFromOrg: (result, args: MutationRemoveProjectFromOrgArgs, cache, _info) => {
+              cache.invalidate({__typename: 'Project', id: args.input.projectId}, 'organizations');
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
             }
           }
         }

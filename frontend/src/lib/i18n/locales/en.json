@@ -248,6 +248,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "organization": "Organization",
     "add_user": {
       "add_button": "Add Member",
+      "invite": "Invite",
       "__comment_add_button": "Should become 'Add/Invite Member' once email invitations implemented for orgs",
       "modal_title": "Add a Member to this organization",
       "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
@@ -296,6 +297,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_delete": "{name} has been removed.",
       "rename_org": "Organization name set to {name}.",
       "delete_org": "Organization {name} has been deleted.",
+      "remove_project_from_org": "You have successfully removed {projectName} from this organization",
       "leave_org": "You have left the organization {name}.",
       "leave_org_error": "An error occurred trying to remove you from organization {name}. Please try again later.",
       "describe": "Organization description has been updated.",
@@ -309,6 +311,9 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "members_table_title": "Members",
     "settings_view_title": "Settings",
     "history_view_title": "History",
+    "remove_project_from_org_title": "Project",
+    "remove_project_from_org": "Remove",
+    "confirm_remove_project_from_org": "Would you like to remove {projectName} from {orgName}?",
     "leave_org": "Leave Organization",
   },
   "project_page": {
@@ -317,6 +322,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "add_button": "Add/Invite Member",
       "modal_title": "Add or invite a Member to this project",
       "submit_button": "Add Member",
+      "invite_checkbox": "Invite",
       "empty_user_field": "Please enter an email address or login",
       "submit_button_email": "Add or invite Member",
       "project_not_found": "Project not found. Please refresh the page.",
@@ -392,9 +398,11 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "promote_project": "Project has been changed from draft status to real project.",
       "describe": "Project description has been updated.",
       "add_member": "{email} has been added to project.",
-      "member_invited": "{email} has been sent an invitation email to register and join the project."
+      "member_invited": "{email} has been sent an invitation email to register and join the project.",
+      "remove_project_from_org": "Your project has been removed from {orgName}"
     },
     "project_name_empty_error": "Project name cannot be empty",
+    "confirm_remove_org": "Would you like to remove your project from {orgName}?",
     "confirm_remove": "Would you like to remove {userName} from this project?",
     "history": "History",
     "project_code": "Project Code",
@@ -417,8 +425,11 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "no_matching": "No matching members",
     },
     "add_description": "Add description...",
+    "view_org": "View {orgName}",
     "remove_project_user_title": "Member",
     "remove_user": "Remove",
+    "remove_project_from_org_title": "Project",
+    "remove_project_from_org": "Remove",
     "change_role": "Change Role",
     "view_user_details": "View details",
     "hg": {
@@ -428,6 +439,11 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "date_header": "Date",
       "author_header": "Author",
       "log_header": "Message"
+    },
+    "add_purpose": {
+      "add_button": "Add Purpose",
+      "modal_title": "Choose purpose",
+      "notify_success": "You have successfully added a project purpose."
     },
     "get_project": {
       "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
@@ -608,10 +624,15 @@ If you don't see a dialog or already closed it, click the button below:",
       "greeting": "Hello {name}!",
       "greeting_noname": "Hello!"
     },
-    "create_account_request_email": {
+    "create_account_request_email_project": {
       "subject": "Project invitation: {projectName}",
       "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
       "join_button": "Join project"
+    },
+    "create_account_request_email_org": {
+      "subject": "Organization invitation: {orgName}",
+      "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
+      "join_button": "Join organization"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",

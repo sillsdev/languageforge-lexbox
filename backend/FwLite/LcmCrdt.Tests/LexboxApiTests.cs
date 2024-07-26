@@ -1,5 +1,5 @@
-﻿using Crdt;
-using Crdt.Db;
+﻿using SIL.Harmony;
+using SIL.Harmony.Db;
 using LcmCrdt.Changes;
 using LcmCrdt.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;

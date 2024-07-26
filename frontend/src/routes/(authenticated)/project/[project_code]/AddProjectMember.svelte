@@ -10,6 +10,7 @@
   import { page } from '$app/stores'
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
+  import Checkbox from '$lib/forms/Checkbox.svelte';
 
   export let projectId: string;
   const schema = z.object({
@@ -17,6 +18,7 @@
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
+    canInvite: z.boolean().default(false),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
@@ -30,6 +32,7 @@
         projectId,
         usernameOrEmail: $form.usernameOrEmail,
         role: $form.role,
+        canInvite: $form.canInvite,
       });
 
       if (error?.byType('NotFoundError')) {
@@ -69,7 +72,7 @@
   {$t('project_page.add_user.add_button')}
 </BadgeButton>
 
-<FormModal bind:this={formModal} {schema} let:errors>
+<FormModal bind:this={formModal} {schema} let:errors --justify-actions="end">
   <span slot="title">
     {$t('project_page.add_user.modal_title')}
     <SupHelp helpLink={helpLinks.addProjectMember} />
@@ -93,11 +96,16 @@
     />
   {/if}
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
+  <svelte:fragment slot="extraActions">
+    <Checkbox
+      id="invite"
+      label={$t('project_page.add_user.invite_checkbox')}
+      variant="checkbox-warning"
+      labelColor="text-warning"
+      bind:value={$form.canInvite}
+    />
+  </svelte:fragment>
   <span slot="submitText">
-    {#if $form.usernameOrEmail.includes('@')}
-      {$t('project_page.add_user.submit_button_email')}
-    {:else}
-      {$t('project_page.add_user.submit_button')}
-    {/if}
+    {$t('project_page.add_user.submit_button')}
   </span>
 </FormModal>

@@ -1,6 +1,6 @@
-﻿using Crdt.Core;
-using Crdt;
-using Crdt.Db;
+﻿using SIL.Harmony.Core;
+using SIL.Harmony;
+using SIL.Harmony.Db;
 using LcmCrdt;
 using LocalWebApp.Auth;
 using Refit;
