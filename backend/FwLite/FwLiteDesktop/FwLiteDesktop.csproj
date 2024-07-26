@@ -80,12 +80,10 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
         <PackageReference Include="NReco.Logging.File" Version="1.2.1" />
-        <PackageReference Include="SIL.LCModel" Version="11.0.0-pr0302-0101" />
 	</ItemGroup>
 
 	<ItemGroup>
 	    <ProjectReference Include="..\LocalWebApp\LocalWebApp.csproj" />
-
         <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
         <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
 	</ItemGroup>
