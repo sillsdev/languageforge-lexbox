@@ -64,9 +64,11 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               if (args.input.orgId) {
                 cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
               }
-              const invalidateField = result.createProject.createProjectResponse?.result === CreateProjectResult.Created ? 'myProjects' : 'myDraftProjects';
+              const draftCreated = result.createProject.createProjectResponse?.result === CreateProjectResult.Requested;
+              const dashboardQuery = draftCreated ? 'myProjects' : 'myDraftProjects';
+              const adminDashboardQuery = draftCreated ? 'projects' : 'draftProjects';
               cache.inspectFields('Query')
-                .filter(field => field.fieldName === invalidateField)
+                .filter(field => field.fieldName === dashboardQuery || field.fieldName === adminDashboardQuery)
                 .forEach(field => cache.invalidate('Query', field.fieldKey));
             },
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
