@@ -587,6 +587,7 @@ union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAc
 input AddProjectMemberInput {
   projectId: UUID!
   usernameOrEmail: String!
+  userId: UUID
   role: ProjectRole!
   canInvite: Boolean!
 }
