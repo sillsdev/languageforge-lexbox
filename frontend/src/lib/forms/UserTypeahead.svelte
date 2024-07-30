@@ -38,9 +38,9 @@
 
   function getInputValue(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
     if ('email' in user && user.email) return user.email;
-    if ('username' in user && user.username) return user.username
-    if ('name' in user && user.name) return user.name
-    return ''
+    if ('username' in user && user.username) return user.username;
+    if ('name' in user && user.name) return user.name;
+    return '';
   }
 
 </script>
@@ -52,10 +52,11 @@
       <ul class="menu p-0">
       {#each $typeaheadResults as user}
         <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
-          const result = getInputValue(user);
           setTimeout(() => {
-            $input = result;
-            dispatch('selectedUserId', result);
+            if ('name' in user && user.id) {
+              dispatch('selectedUserId', user.id);
+            }
+            $input = value = getInputValue(user);
           });
         }}>{formatResult(user)}</button></li>
       {/each}

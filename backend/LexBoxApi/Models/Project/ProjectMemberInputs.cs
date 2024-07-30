@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using LexCore.Entities;
 
 namespace LexBoxApi.Models.Project;
