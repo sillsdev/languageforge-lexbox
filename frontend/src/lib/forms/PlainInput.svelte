@@ -37,7 +37,7 @@
     input.focus();
   }
 
-  export let keydownHandler;
+  export let keydownHandler: ((event: KeyboardEvent) => void) | undefined = undefined;
 
   $: debouncer = makeDebouncer((newValue: string | undefined) => (value = newValue), debounce);
   $: debouncingStore = debouncer.debouncing;
