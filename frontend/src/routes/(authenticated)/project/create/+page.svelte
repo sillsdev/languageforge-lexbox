@@ -239,7 +239,7 @@
 
     {#if $relatedProjects?.length}
       <div>
-        Possibly related projects:
+        {$t('project.create.maybe_related')}
         <ul>
           {#each $relatedProjects as proj}
             <li>{proj.name} ({proj.code})</li>

@@ -195,6 +195,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "language_code_invalid": "Language code can only include lowercase a-z, digits and '-', and cannot start with '-'",
       "name": "Name",
       "name_description": "E.g. the name of the language you're working on",
+      "maybe_related": "Possibly related projects:",
       "description": "Description",
       "name_missing": "Project name required",
       "retention_policy": "Purpose",
