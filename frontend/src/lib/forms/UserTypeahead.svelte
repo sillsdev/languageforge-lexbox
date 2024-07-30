@@ -53,7 +53,7 @@
       {#each $typeaheadResults as user}
         <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
           setTimeout(() => {
-            if ('name' in user && user.id) {
+            if ('id' in user && user.id) {
               dispatch('selectedUserId', user.id);
             }
             $input = value = getInputValue(user);

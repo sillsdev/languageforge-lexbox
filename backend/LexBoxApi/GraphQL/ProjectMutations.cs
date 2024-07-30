@@ -78,40 +78,48 @@ public class ProjectMutations
         await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
-        var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
-        if (user is null)
+        User? user;
+        if (input.UserId is not null)
         {
-            var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail);
-            // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
-            if (email is null)
-            {
-                throw NotFoundException.ForType<User>();
-            }
-            else if (input.canInvite)
-            {
-                var manager = loggedInContext.User;
-                await emailService.SendCreateAccountWithProjectEmail(
-                    email,
-                    manager.Name,
-                    projectId: input.ProjectId,
-                    role: input.Role,
-                    projectName: project.Name);
-                throw new ProjectMemberInvitedByEmail("Invitation email sent");
-            }
-            else
-            {
-                throw NotFoundException.ForType<User>();
-            }
+            user = await dbContext.Users.Include(u => u.Projects).Where(u => u.Id == input.UserId).FirstOrDefaultAsync();
         }
-        if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
+        else
         {
-            throw new AlreadyExistsException("User is already a member of this project");
+            user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail ?? "");
+            if (user is null)
+            {
+                var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail ?? "");
+                // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
+                if (email is null)
+                {
+                    throw NotFoundException.ForType<User>();
+                }
+                else if (input.canInvite)
+                {
+                    var manager = loggedInContext.User;
+                    await emailService.SendCreateAccountWithProjectEmail(
+                        email,
+                        manager.Name,
+                        projectId: input.ProjectId,
+                        role: input.Role,
+                        projectName: project.Name);
+                    throw new ProjectMemberInvitedByEmail("Invitation email sent");
+                }
+                else
+                {
+                    throw NotFoundException.ForType<User>();
+                }
+            }
+            if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
+            {
+                throw new AlreadyExistsException("User is already a member of this project");
+            }
         }
 
-        user.AssertHasVerifiedEmailForRole(input.Role);
-        user.UpdateCreateProjectsPermission(input.Role);
+        user!.AssertHasVerifiedEmailForRole(input.Role);
+        user!.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
-            new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
+            new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user!.Id });
         user.UpdateUpdatedDate();
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
