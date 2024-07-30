@@ -4,6 +4,7 @@
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
   import { writable } from 'svelte/store';
+  import { createEventDispatcher } from 'svelte';
 
   export let label: string;
   export let error: string | string[] | undefined = undefined;
@@ -22,6 +23,10 @@
     [],
     debounceMs);
 
+  const dispatch = createEventDispatcher<{
+      selectedUserId: string;
+  }>();
+
   function formatResult(user: SingleUserTypeaheadResult): string {
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
                 : user.username ? ` (${user.username})`
@@ -32,24 +37,27 @@
   }
 
   function getInputValue(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
-    if ('email' in user && user.email) {
-      return user.email;
-    }
-    if ('username' in user && user.username) {
-      return user.username;
-    }
-    return user.name;
+    if ('email' in user && user.email) return user.email;
+    if ('username' in user && user.username) return user.username
+    if ('name' in user && user.name) return user.name
+    return ''
   }
 
 </script>
 
 <FormField {id} {label} {error} {autofocus} >
   <div use:overlay={{ closeClickSelector: '.menu li'}}>
-    <PlainInput style="w-full" {id} bind:value type="text" autocomplete="off" />
+    <PlainInput style="w-full" bind:value {id} type="text" autocomplete="off" />
     <div class="overlay-content">
       <ul class="menu p-0">
       {#each $typeaheadResults as user}
-        <li class="p-0"><button class="whitespace-nowrap" on:click={() => setTimeout(() => getInputValue(user))}>{formatResult(user)}</button></li>
+        <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
+          const result = getInputValue(user);
+          setTimeout(() => {
+            $input = result;
+            dispatch('selectedUserId', result);
+          });
+        }}>{formatResult(user)}</button></li>
       {/each}
       </ul>
     </div>

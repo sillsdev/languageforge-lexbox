@@ -17,11 +17,13 @@
     usernameOrEmail: z.string().trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
       .refine((value) => !value.includes('@') || isEmail(value), { message: $t('form.invalid_email') }),
+    userId: z.string().trim(),
     role: z.enum([ProjectRole.Editor, ProjectRole.Manager]).default(ProjectRole.Editor),
     canInvite: z.boolean().default(false),
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
+  let selectedUserId: string | null = null;
 
   const { notifySuccess } = useNotifications();
 
@@ -30,7 +32,8 @@
     const { response, formState } = await formModal.open(async () => {
       const { error } = await _addProjectMember({
         projectId,
-        usernameOrEmail: $form.usernameOrEmail,
+        usernameOrEmail: $form.usernameOrEmail ?? '',
+        userId: selectedUserId,
         role: $form.role,
         canInvite: $form.canInvite,
       });
@@ -84,6 +87,9 @@
     bind:value={$form.usernameOrEmail}
     error={errors.usernameOrEmail}
     autofocus
+    on:selectedUserId={({ detail }) => {
+        selectedUserId = detail;
+    }}
   />
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <svelte:fragment slot="extraActions">
