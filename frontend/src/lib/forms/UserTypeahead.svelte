@@ -24,7 +24,7 @@
     debounceMs);
 
   const dispatch = createEventDispatcher<{
-      selectedUserId: string;
+      selectedUserId: string | null;
   }>();
 
   function formatResult(user: SingleUserTypeaheadResult): string {
@@ -47,7 +47,13 @@
 
 <FormField {id} {label} {error} {autofocus} >
   <div use:overlay={{ closeClickSelector: '.menu li'}}>
-    <PlainInput style="w-full" bind:value {id} type="text" autocomplete="off" />
+    <PlainInput
+      style="w-full"
+      bind:value {id}
+      type="text"
+      autocomplete="off"
+      keydownHandler={() => {dispatch('selectedUserId', null)}}
+    />
     <div class="overlay-content">
       <ul class="menu p-0">
       {#each $typeaheadResults as user}
