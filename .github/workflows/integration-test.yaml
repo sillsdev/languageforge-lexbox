@@ -101,12 +101,10 @@ jobs:
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
-        working-directory: backend/LexBoxApi
         # limit cpu count for self-hosted due to memory constraints
-        run: dotnet build ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
+        run: dotnet build LexBoxOnly.slnf ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
       - name: Build for tests
-        working-directory: backend/Testing
-        run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
+        run: "dotnet build LexBoxOnly.slnf /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
 
@@ -122,7 +120,7 @@ jobs:
           # the self hosted runner only has 2gb so this should prevent it from running out of memory
           DOTNET_GCHeapHardLimit: '0x2CB417800'
 
-        run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
+        run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
         if: ${{ always() && !env.act }}
