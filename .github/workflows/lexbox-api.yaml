@@ -51,6 +51,7 @@ jobs:
         with:
           dotnet-version: '8.x'
       - name: Dotnet build
+        working-directory: backend/LexBoxApi
         run: dotnet build
       - name: Unit tests
         working-directory: backend/Testing
