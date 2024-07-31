@@ -101,9 +101,11 @@ jobs:
         run: |
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
+        working-directory: backend/LexBoxApi
         # limit cpu count for self-hosted due to memory constraints
         run: dotnet build ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
       - name: Build for tests
+        working-directory: backend/Testing
         run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
