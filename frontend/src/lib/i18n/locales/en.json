@@ -196,6 +196,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "name": "Name",
       "name_description": "E.g. the name of the language you're working on",
       "maybe_related": "Possibly related projects:",
+      "maybe_related_description": "Perhaps you want to join one of these instead?",
       "description": "Description",
       "name_missing": "Project name required",
       "retention_policy": "Purpose",
@@ -638,6 +639,11 @@ If you don't see a dialog or already closed it, click the button below:",
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
       "heading": "User {name} ({email}) requested that a project be created for them. Details below:"
+    },
+    "join_project_request_email": {
+      "subject": "Project join request: {requestingUserName} wants to join {projectName}",
+      "body": "User {requestingUserName} requested to join the project {projectName}. Click below to approve this request.",
+      "approve_button": "Approve request"
     },
     "approve_project_request_email": {
       "subject": "Project approved: {projectName}",

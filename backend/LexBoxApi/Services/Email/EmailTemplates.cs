@@ -19,6 +19,7 @@ public enum EmailTemplate
     PasswordChanged,
     CreateAccountRequestProject,
     CreateAccountRequestOrg,
+    JoinProjectRequest,
     CreateProjectRequest,
     ApproveProjectRequest,
     UserAdded,
@@ -35,6 +36,7 @@ public record OrgInviteEmail(string Email, string ManagerName, string OrgName, s
 
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);
 
+public record JoinProjectRequestEmail(string ManagerName, string RequestingUserName, string ProjectName, string ApproveUrl) : EmailTemplateBase(EmailTemplate.JoinProjectRequest);
 public record CreateProjectRequestUser(string Name, string Email);
 public record CreateProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.CreateProjectRequest);
 public record ApproveProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.ApproveProjectRequest);

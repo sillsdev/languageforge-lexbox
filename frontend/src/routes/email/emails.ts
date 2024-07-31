@@ -3,6 +3,7 @@ import NewAdmin from '$lib/email/NewAdmin.svelte';
 import type {ComponentType} from 'svelte';
 import VerifyEmailAddress from '$lib/email/VerifyEmailAddress.svelte';
 import PasswordChanged from '$lib/email/PasswordChanged.svelte';
+import JoinProjectRequest from '$lib/email/JoinProjectRequest.svelte';
 import CreateProjectRequest from '$lib/email/CreateProjectRequest.svelte';
 import type {CreateProjectInput} from '$lib/gql/generated/graphql';
 import ApproveProjectRequest from '$lib/email/ApproveProjectRequest.svelte';
@@ -18,6 +19,7 @@ export const enum EmailTemplate {
     PasswordChanged = 'PASSWORD_CHANGED',
     CreateAccountRequestOrg = 'CREATE_ACCOUNT_REQUEST_ORG',
     CreateAccountRequestProject = 'CREATE_ACCOUNT_REQUEST_PROJECT',
+    JoinProjectRequest = 'JOIN_PROJECT_REQUEST',
     CreateProjectRequest = 'CREATE_PROJECT_REQUEST',
     ApproveProjectRequest = 'APPROVE_PROJECT_REQUEST',
     UserAdded = 'USER_ADDED',
@@ -30,6 +32,7 @@ export const componentMap = {
     [EmailTemplate.PasswordChanged]: PasswordChanged,
     [EmailTemplate.CreateAccountRequestOrg]: CreateAccountRequestOrg,
     [EmailTemplate.CreateAccountRequestProject]: CreateAccountRequestProject,
+    [EmailTemplate.JoinProjectRequest]: JoinProjectRequest,
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
     [EmailTemplate.ApproveProjectRequest]: ApproveProjectRequest,
     [EmailTemplate.UserAdded]: UserAdded,
@@ -71,6 +74,13 @@ interface CreateAccountProjectProps extends EmailTemplatePropsBase<EmailTemplate
   lifetime: string;
 }
 
+interface JoinProjectProps extends EmailTemplatePropsBase<EmailTemplate.JoinProjectRequest> {
+  managerName: string;
+  requestingUserName: string;
+  projectName: string;
+  approveUrl: string;
+}
+
 interface CreateProjectProps extends EmailTemplatePropsBase<EmailTemplate.CreateProjectRequest> {
     project: CreateProjectInput;
     user: { name: string, email: string };
@@ -92,6 +102,7 @@ export type EmailTemplateProps =
     | VerifyEmailAddressProps
     | CreateAccountOrgProps
     | CreateAccountProjectProps
+    | JoinProjectProps
     | CreateProjectProps
     | ApproveProjectProps
     | UserAddedProps

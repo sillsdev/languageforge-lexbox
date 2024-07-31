@@ -245,6 +245,7 @@
             <li>{proj.name} ({proj.code})</li>
           {/each}
         </ul>
+        {$t('project.create.maybe_related_description')}
       </div>
     {/if}
 

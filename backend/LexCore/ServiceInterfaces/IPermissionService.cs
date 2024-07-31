@@ -23,6 +23,8 @@ public interface IPermissionService
     ValueTask<bool> CanManageProject(Guid projectId);
     ValueTask AssertCanManageProject(Guid projectId);
     ValueTask AssertCanManageProjectMemberRole(Guid projectId, Guid userId);
+    ValueTask<bool> CanAskToJoinProject(Guid projectId);
+    ValueTask AssertCanAskToJoinProject(Guid projectId);
     void AssertIsAdmin();
     void AssertCanDeleteAccount(Guid userId);
     bool HasProjectCreatePermission();

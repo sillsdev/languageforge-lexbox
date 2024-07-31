@@ -238,6 +238,42 @@ public class ProjectMutations
 
     [Error<NotFoundException>]
     [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
+    [Error<ProjectMembersMustBeVerifiedForRole>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> RequestToJoinProject(
+        IPermissionService permissionService,
+        LoggedInContext loggedInContext,
+        Guid projectId,
+        LexBoxDbContext dbContext,
+        [Service] IEmailService emailService)
+    {
+        await permissionService.AssertCanAskToJoinProject(projectId);
+
+        var user = await dbContext.Users.FindAsync(loggedInContext.User.Id);
+        if (user is null) throw new UnauthorizedAccessException();
+        user.AssertHasVerifiedEmailForRole(ProjectRole.Editor);
+
+        var project = await dbContext.Projects
+            .Include(p => p.Users)
+            .ThenInclude(u => u.User)
+            .Where(p => p.Id == projectId)
+            .FirstOrDefaultAsync();
+        NotFoundException.ThrowIfNull(project);
+
+        var managers = project.Users.Where(u => u.Role == ProjectRole.Manager);
+        foreach (var manager in managers)
+        {
+            if (manager.User is null) continue;
+            await emailService.SendJoinProjectRequestEmail(manager.User, user, project);
+        }
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
     [Error<RequiredException>]
     [UseMutationConvention]
     [UseFirstOrDefault]

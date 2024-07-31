@@ -89,6 +89,24 @@ public class ProjectController(
         return Ok();
     }
 
+    [HttpPost("approveProjectJoinRequest/{projectId}/{userId}")]
+    public async Task ApproveProjectJoinRequest(Guid projectId,
+        Guid userId)
+    {
+        await permissionService.AssertCanManageProject(projectId);
+        // userId has already been verified when email was sent out
+        lexBoxDbContext.ProjectUsers
+            .Add(new ProjectUsers { ProjectId = projectId, UserId = userId, Role = ProjectRole.Editor });
+        try
+        {
+            await lexBoxDbContext.SaveChangesAsync();
+        }
+        catch (InvalidOperationException)
+        {
+            // Duplicate key just means someone else added the user at the same time; no problem
+        }
+    }
+
     [HttpGet("projectCodeAvailable/{code}")]
     public async Task<bool> ProjectCodeAvailable(string code)
     {
