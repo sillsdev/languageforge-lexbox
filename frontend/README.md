@@ -32,3 +32,11 @@ pnpm run build
 You can preview the production build with `pnpm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+#### Testing
+
+To run a end-to-end test in the frontend folder:
+
+```bash
+pnpm test
+```
