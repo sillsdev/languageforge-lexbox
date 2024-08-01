@@ -8,7 +8,7 @@
   import { _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
-  import { Duration, deriveAsync } from '$lib/util/time';
+  import { deriveAsync } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
@@ -24,7 +24,7 @@
   let requestingUser : typeof data.requestingUser;
   $: myOrgs = data.myOrgs ?? [];
 
-  const { notifySuccess } = useNotifications();
+  const { notifyPersistent } = useNotifications();
 
   const formSchema = z.object({
     name: z.string().trim().min(1, $t('project.create.name_missing')),
@@ -71,7 +71,7 @@
     if (result.data?.createProject.createProjectResponse?.result == CreateProjectResult.Created) {
       await goto(`/project/${$form.code}`);
     } else {
-      notifySuccess($t('project.create.requested', { name: $form.name }), Duration.Long);
+      notifyPersistent($t('project.create.requested', { name: $form.name }), 'alert-warning');
       await goto('/');
     }
   });

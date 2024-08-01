@@ -30,12 +30,20 @@ export class NotificationService {
     this.addNotification({ message, duration, category: 'alert-warning' });
   }
 
+  notifyPersistent = (message: string, category?: 'alert-warning'): void => {
+    this.addPersistentNotification({ message, duration: Infinity, category });
+  }
+
   removeNotification = (notification: Notification): void => {
     this._notifications.update((currentNotifications) => currentNotifications.filter((n: Notification) => n !== notification));
   }
 
   removeAllNotifications = (): void => {
     this._notifications.set([]);
+  }
+
+  private addPersistentNotification(notification: Notification): void {
+    this._notifications.update((currentNotifications) => [...currentNotifications, notification]);
   }
 
   private addNotification(notification: Notification): void {
