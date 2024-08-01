@@ -90,37 +90,6 @@ public class ProjectController(
         return Ok();
     }
 
-    public record ApproveProjectJoinRequestResult(string ProjectCode, string UserName);
-    [HttpPost("approveProjectJoinRequest/{projectCode}/{userId}")]
-    public async Task<ApproveProjectJoinRequestResult> ApproveProjectJoinRequest(string projectCode,
-        Guid userId)
-    {
-        await permissionService.AssertCanManageProject(projectCode);
-        var projectId = await projectService.LookupProjectId(projectCode);
-        var user = await lexBoxDbContext.Users.FindAsync(userId);
-        // userId has already been verified when email was sent out
-        lexBoxDbContext.ProjectUsers
-            .Add(new ProjectUsers { ProjectId = projectId, UserId = userId, Role = ProjectRole.Editor });
-        try
-        {
-            await lexBoxDbContext.SaveChangesAsync();
-        }
-        catch (DbException e) when (e.SqlState == "23505")
-        {
-            // Duplicate key just means someone else added the user at the same time; no problem
-        }
-        catch (DbUpdateException e)
-        {
-            var sqlState = (e.InnerException as DbException)?.SqlState;
-            if (sqlState is "23505") {
-                // Duplicate key just means someone else added the user at the same time; no problem
-            } else {
-                throw;
-            }
-        }
-        return new(projectCode, user?.Name ?? userId.ToString());
-    }
-
     [HttpGet("projectCodeAvailable/{code}")]
     public async Task<bool> ProjectCodeAvailable(string code)
     {

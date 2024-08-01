@@ -77,8 +77,9 @@ interface CreateAccountProjectProps extends EmailTemplatePropsBase<EmailTemplate
 interface JoinProjectProps extends EmailTemplatePropsBase<EmailTemplate.JoinProjectRequest> {
   managerName: string;
   requestingUserName: string;
+  requestingUserId: string;
+  projectCode: string;
   projectName: string;
-  approveUrl: string;
 }
 
 interface CreateProjectProps extends EmailTemplatePropsBase<EmailTemplate.CreateProjectRequest> {

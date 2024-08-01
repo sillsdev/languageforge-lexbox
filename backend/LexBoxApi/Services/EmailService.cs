@@ -195,15 +195,7 @@ public class EmailService(
     public async Task SendJoinProjectRequestEmail(User projectManager, User requestingUser, Project project)
     {
         var email = StartUserEmail(projectManager) ?? throw new ArgumentNullException("emailAddress");
-        var httpContext = httpContextAccessor.HttpContext;
-        ArgumentNullException.ThrowIfNull(httpContext);
-        var approveLink = _linkGenerator.GetUriByAction(httpContext,
-            "ApproveProjectJoinRequest",
-            "Project",
-            new { UserId = requestingUser.Id, ProjectCode = project.Code });
-        Console.WriteLine($"Generated approval link: {approveLink ?? "(null)"}");
-        if (approveLink is null) return; // Don't send emails if we can't construct approve link
-        await RenderEmail(email, new JoinProjectRequestEmail(projectManager.Name, requestingUser.Name, project.Name, approveLink), projectManager.LocalizationCode);
+        await RenderEmail(email, new JoinProjectRequestEmail(projectManager.Name, requestingUser.Name, requestingUser.Id, project.Code, project.Name), projectManager.LocalizationCode);
         await SendEmailWithRetriesAsync(email);
     }
 

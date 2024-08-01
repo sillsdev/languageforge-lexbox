@@ -50,6 +50,8 @@
   import AddOrganization from './AddOrganization.svelte';
   import AddPurpose from './AddPurpose.svelte';
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
+  import { onMount } from 'svelte';
+  import { getSearchParamValues } from '$lib/util/query-params';
 
   export let data: PageData;
   $: user = data.user;
@@ -72,6 +74,18 @@
   $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
   const { notifySuccess, notifyWarning } = useNotifications();
+
+  type ProjectPageQueryParams = {
+    addUserId: string;
+    addUserName: string;
+  };
+
+  onMount(() => { // query params not available during SSR
+    const urlValues = getSearchParamValues<ProjectPageQueryParams>();
+    // TODO: Pass these to the AddProjectMember component once it acquires the ability to receive a user ID (PR 986)
+    console.log('TODO: Pass these values to AddProjectMember component', urlValues);
+  });
+
 
   let userModal: UserModal;
 
