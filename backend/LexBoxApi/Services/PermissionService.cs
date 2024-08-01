@@ -107,6 +107,16 @@ public class PermissionService(
         if (!await CanManageProject(projectId)) throw new UnauthorizedAccessException();
     }
 
+    public async ValueTask<bool> CanManageProject(string projectCode)
+    {
+        return await CanManageProject(await projectService.LookupProjectId(projectCode));
+    }
+
+    public async ValueTask AssertCanManageProject(string projectCode)
+    {
+        if (!await CanManageProject(projectCode)) throw new UnauthorizedAccessException();
+    }
+
     public async ValueTask AssertCanManageProjectMemberRole(Guid projectId, Guid userId)
     {
         if (User is null) throw new UnauthorizedAccessException();
@@ -125,6 +135,16 @@ public class PermissionService(
     public async ValueTask AssertCanAskToJoinProject(Guid projectId)
     {
         if (!await CanAskToJoinProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask<bool> CanAskToJoinProject(string projectCode)
+    {
+        return await CanAskToJoinProject(await projectService.LookupProjectId(projectCode));
+    }
+
+    public async ValueTask AssertCanAskToJoinProject(string projectCode)
+    {
+        if (!await CanAskToJoinProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
     public void AssertCanLockOrUnlockUser(Guid userId)

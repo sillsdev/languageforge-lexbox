@@ -200,7 +200,7 @@ public class EmailService(
         var approveLink = _linkGenerator.GetUriByAction(httpContext,
             "ApproveProjectJoinRequest",
             "Project",
-            new { UserId = requestingUser.Id, ProjectId = project.Id });
+            new { UserId = requestingUser.Id, ProjectCode = project.Code });
         Console.WriteLine($"Generated approval link: {approveLink ?? "(null)"}");
         if (approveLink is null) return; // Don't send emails if we can't construct approve link
         await RenderEmail(email, new JoinProjectRequestEmail(projectManager.Name, requestingUser.Name, project.Name, approveLink), projectManager.LocalizationCode);

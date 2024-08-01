@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Data.Common;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Controllers.ActionResults;
@@ -89,11 +90,14 @@ public class ProjectController(
         return Ok();
     }
 
-    [HttpPost("approveProjectJoinRequest/{projectId}/{userId}")]
-    public async Task ApproveProjectJoinRequest(Guid projectId,
+    public record ApproveProjectJoinRequestResult(string ProjectCode, string UserName);
+    [HttpPost("approveProjectJoinRequest/{projectCode}/{userId}")]
+    public async Task<ApproveProjectJoinRequestResult> ApproveProjectJoinRequest(string projectCode,
         Guid userId)
     {
-        await permissionService.AssertCanManageProject(projectId);
+        await permissionService.AssertCanManageProject(projectCode);
+        var projectId = await projectService.LookupProjectId(projectCode);
+        var user = await lexBoxDbContext.Users.FindAsync(userId);
         // userId has already been verified when email was sent out
         lexBoxDbContext.ProjectUsers
             .Add(new ProjectUsers { ProjectId = projectId, UserId = userId, Role = ProjectRole.Editor });
@@ -101,10 +105,20 @@ public class ProjectController(
         {
             await lexBoxDbContext.SaveChangesAsync();
         }
-        catch (InvalidOperationException)
+        catch (DbException e) when (e.SqlState == "23505")
         {
             // Duplicate key just means someone else added the user at the same time; no problem
         }
+        catch (DbUpdateException e)
+        {
+            var sqlState = (e.InnerException as DbException)?.SqlState;
+            if (sqlState is "23505") {
+                // Duplicate key just means someone else added the user at the same time; no problem
+            } else {
+                throw;
+            }
+        }
+        return new(projectCode, user?.Name ?? userId.ToString());
     }
 
     [HttpGet("projectCodeAvailable/{code}")]
