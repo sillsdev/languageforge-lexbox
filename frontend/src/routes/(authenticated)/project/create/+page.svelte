@@ -20,6 +20,7 @@
   import { isDev } from '$lib/layout/DevContent.svelte';
   import { _getProjectsByLangCodeAndOrg } from './+page';
   import RadioButtonGroup from '$lib/forms/RadioButtonGroup.svelte';
+  import Button from '$lib/forms/Button.svelte';
 
   export let data;
   $: user = data.user;
@@ -167,6 +168,12 @@
   }
 
   let selectedProjectCode: string;
+  let showRelatedProjects = true;
+
+  function askToJoinProject(projectCode: string): void {
+    // TODO: Implement
+    console.log('Will ask to join', projectCode);
+  }
 </script>
 
 <TitlePage title={$t('project.create.title')}>
@@ -241,33 +248,58 @@
     />
 
     {#if $relatedProjects?.length}
-      <RadioButtonGroup
-        buttons={$relatedProjects.map(proj => ({label: proj.name, value: proj.code}))}
-        label={$t('project.create.maybe_related')}
-        description={$t('project.create.maybe_related_description')}
-        bind:value={selectedProjectCode}
-      />
+      {#if showRelatedProjects}
+        <RadioButtonGroup
+          buttons={$relatedProjects.map(proj => ({label: proj.name, value: proj.code}))}
+          label={$t('project.create.maybe_related')}
+          description={$t('project.create.maybe_related_description')}
+          bind:value={selectedProjectCode}
+        />
+        <div class="inline-flex mt-2">
+          <Button
+            class="mr-2"
+            variant="btn-primary"
+            disabled={!selectedProjectCode}
+            on:click={() => askToJoinProject(selectedProjectCode)}
+          >
+            Ask to joim
+          </Button>
+          <Button
+            class="mr-2"
+            variant="btn-warning"
+            on:click={() => showRelatedProjects = false}
+          >
+            No thanks, create a new project
+          </Button>
+        </div>
+      {:else}
+        <span on:click={() => showRelatedProjects = true} class="mb-4">
+          Found {$relatedProjects.length} related projects, click to see them
+        </span>
+      {/if}
     {/if}
 
-    <TextArea
-      id="description"
-      label={$t('project.create.description')}
-      bind:value={$form.description}
-      error={$errors.description}
-    />
+    {#if !$relatedProjects?.length || !showRelatedProjects}
+      <TextArea
+        id="description"
+        label={$t('project.create.description')}
+        bind:value={$form.description}
+        error={$errors.description}
+      />
 
-    <div class="mt-4 mb-2">
-      <!-- It feels appropriate to give this option a bit more real estate -->
-      <ProjectConfidentialityCombobox bind:value={$form.isConfidential} />
-    </div>
+      <div class="mt-4 mb-2">
+        <!-- It feels appropriate to give this option a bit more real estate -->
+        <ProjectConfidentialityCombobox bind:value={$form.isConfidential} />
+      </div>
 
-    <FormError error={$message} />
-    <SubmitButton loading={$submitting}>
-        {#if data.user.canCreateProjects}
-            {$t('project.create.submit')}
-        {:else}
-            {$t('project.create.request')}
-        {/if}
-    </SubmitButton>
+      <FormError error={$message} />
+      <SubmitButton loading={$submitting}>
+          {#if data.user.canCreateProjects}
+              {$t('project.create.submit')}
+          {:else}
+              {$t('project.create.request')}
+          {/if}
+      </SubmitButton>
+    {/if}
   </Form>
 </TitlePage>
