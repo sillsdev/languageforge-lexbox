@@ -107,7 +107,7 @@
   </svelte:fragment>
   <span slot="submitText">
     {#if $form.canInvite}
-      {$t('project_page.add_user.submit_button_email')}
+      {$t('project_page.add_user.submit_button_invite')}
     {:else}
       {$t('project_page.add_user.submit_button')}
     {/if}

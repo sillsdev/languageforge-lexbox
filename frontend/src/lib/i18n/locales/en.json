@@ -324,7 +324,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "submit_button": "Add Member",
       "invite_checkbox": "Invite",
       "empty_user_field": "Please enter an email address or login",
-      "submit_button_email": "Add or invite Member",
+      "submit_button_invite": "Add or invite Member",
       "project_not_found": "Project not found. Please refresh the page.",
       "username_not_found": "No user was found with this login",
       "user_must_be_verified": "User needs a verified email address",
