@@ -27,6 +27,9 @@
       selectedUserId: string | null;
   }>();
 
+  let selectedUserId = writable<string | null>(null);
+  $: dispatch('selectedUserId', $selectedUserId);
+
   function formatResult(user: SingleUserTypeaheadResult): string {
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
                 : user.username ? ` (${user.username})`
@@ -52,7 +55,7 @@
       bind:value {id}
       type="text"
       autocomplete="off"
-      keydownHandler={() => {dispatch('selectedUserId', null)}}
+      keydownHandler={() => {$selectedUserId = null}}
     />
     <div class="overlay-content">
       <ul class="menu p-0">
@@ -60,7 +63,7 @@
         <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
           setTimeout(() => {
             if ('id' in user && user.id) {
-              dispatch('selectedUserId', user.id);
+              $selectedUserId = user.id;
             }
             $input = value = getInputValue(user);
           });
