@@ -3,7 +3,7 @@ import { BaseComponent } from './baseComponent';
 
 const EMAIL_LABEL = 'Email';
 const ROLE_LABEL = 'Role';
-const CHECKBOX_LABEL = 'Invite';
+const INVITE_LABEL = 'Invite';
 const SUBMIT_BUTTON_LABEL = new RegExp(`(Add Member)|(Add or invite Member)`);
 
 export class AddMemberModal extends BaseComponent {
@@ -15,8 +15,8 @@ export class AddMemberModal extends BaseComponent {
     return this.componentLocator.getByLabel(ROLE_LABEL, {exact: true});
   }
 
-  get checkBox(): Locator {
-    return this.componentLocator.getByRole('checkbox', {name: CHECKBOX_LABEL});
+  get inviteCheckbox(): Locator {
+    return this.componentLocator.getByRole('checkbox', {name: INVITE_LABEL});
   }
 
   get submitButton(): Locator {
