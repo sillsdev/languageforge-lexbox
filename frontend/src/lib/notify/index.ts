@@ -40,8 +40,10 @@ export class NotificationService {
 
   private addNotification(notification: Notification): void {
     this._notifications.update((currentNotifications) => [...currentNotifications, notification]);
-    setTimeout(() => {
-      this.removeNotification(notification);
-    }, notification.duration);
+    if (notification.duration > 0) {
+      setTimeout(() => {
+        this.removeNotification(notification);
+      }, notification.duration);
+    }
   }
 }
