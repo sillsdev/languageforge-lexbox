@@ -6,7 +6,7 @@ import { defineContext } from '$lib/util/context';
 export interface Notification {
   message: string;
   category?: 'alert-warning';
-  duration: Duration;
+  duration: number;
 }
 
 export const { use: useNotifications, init: initNotificationService } =
@@ -22,12 +22,12 @@ export class NotificationService {
     // _notifications.set([{ message: 'Test notification', duration: 4 }, { message: 'Test notification', duration: 4 }])
   }
 
-  notifySuccess = (message: string, duration?: number): void => {
-    this.addNotification({ message, duration: duration ?? Duration.Default });
+  notifySuccess = (message: string, duration = Duration.Default): void => {
+    this.addNotification({ message, duration });
   }
 
-  notifyWarning = (message: string, duration?: number): void => {
-    this.addNotification({ message, duration: duration ?? Duration.Default, category: 'alert-warning' });
+  notifyWarning = (message: string, duration = Duration.Default): void => {
+    this.addNotification({ message, duration, category: 'alert-warning' });
   }
 
   removeNotification = (notification: Notification): void => {
@@ -40,7 +40,7 @@ export class NotificationService {
 
   private addNotification(notification: Notification): void {
     this._notifications.update((currentNotifications) => [...currentNotifications, notification]);
-    if (notification.duration !== Duration.Persistent) {
+    if (notification.duration > 0) {
       setTimeout(() => {
         this.removeNotification(notification);
       }, notification.duration);
