@@ -82,6 +82,7 @@ public class ProjectMutations
         if (input.UserId is not null)
         {
             user = await dbContext.Users.Include(u => u.Projects).Where(u => u.Id == input.UserId).FirstOrDefaultAsync();
+            NotFoundException.ThrowIfNull(user);
         }
         else
         {
@@ -110,16 +111,16 @@ public class ProjectMutations
                     throw NotFoundException.ForType<User>();
                 }
             }
-            if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
-            {
-                throw new AlreadyExistsException("User is already a member of this project");
-            }
+        }
+        if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
+        {
+            throw new AlreadyExistsException("User is already a member of this project");
         }
 
-        user!.AssertHasVerifiedEmailForRole(input.Role);
-        user!.UpdateCreateProjectsPermission(input.Role);
+        user.AssertHasVerifiedEmailForRole(input.Role);
+        user.UpdateCreateProjectsPermission(input.Role);
         dbContext.ProjectUsers.Add(
-            new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user!.Id });
+            new ProjectUsers { Role = input.Role, ProjectId = input.ProjectId, UserId = user.Id });
         user.UpdateUpdatedDate();
         project.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
