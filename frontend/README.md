@@ -35,7 +35,7 @@ You can preview the production build with `pnpm run preview`.
 
 #### Testing
 
-To run a end-to-end test in the frontend folder:
+To run an end-to-end test in the frontend folder:
 
 ```bash
 pnpm test
