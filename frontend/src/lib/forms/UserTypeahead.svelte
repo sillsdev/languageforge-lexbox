@@ -13,7 +13,7 @@
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   export let value: string;
   export let debounceMs = 200;
-  export let isAdmin: boolean = true;
+  export let isAdmin: boolean = false;
 
   let input = writable('');
   $: $input = value;
