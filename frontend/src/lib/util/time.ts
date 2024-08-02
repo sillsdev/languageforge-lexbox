@@ -1,6 +1,7 @@
 import { writable, type Readable, derived } from 'svelte/store';
 
 export const enum Duration {
+  Persistent = -1,
   Default = 5000,
   Medium = 10000,
   Long = 15000,
