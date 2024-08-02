@@ -19,6 +19,7 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import { isDev } from '$lib/layout/DevContent.svelte';
   import { _getProjectsByLangCodeAndOrg } from './+page';
+  import RadioButtonGroup from '$lib/forms/RadioButtonGroup.svelte';
 
   export let data;
   $: user = data.user;
@@ -164,6 +165,8 @@
       { taint: false }
     );
   }
+
+  let selectedProjectCode: string;
 </script>
 
 <TitlePage title={$t('project.create.title')}>
@@ -238,15 +241,12 @@
     />
 
     {#if $relatedProjects?.length}
-      <div>
-        {$t('project.create.maybe_related')}
-        <ul>
-          {#each $relatedProjects as proj}
-            <li>{proj.name} ({proj.code})</li>
-          {/each}
-        </ul>
-        {$t('project.create.maybe_related_description')}
-      </div>
+      <RadioButtonGroup
+        buttons={$relatedProjects.map(proj => ({label: proj.name, value: proj.code}))}
+        label={$t('project.create.maybe_related')}
+        description={$t('project.create.maybe_related_description')}
+        bind:value={selectedProjectCode}
+      />
     {/if}
 
     <TextArea
