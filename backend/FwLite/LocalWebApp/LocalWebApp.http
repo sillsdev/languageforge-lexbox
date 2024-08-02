@@ -1,0 +1,7 @@
+@LocalWebApp_HostAddress = http://localhost:5173
+
+GET {{LocalWebApp_HostAddress}}/api/auth/login/default
+Accept: application/json
+
+
+###

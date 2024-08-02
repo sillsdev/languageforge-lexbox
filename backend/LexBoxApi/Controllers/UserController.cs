@@ -4,6 +4,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Models;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
@@ -24,14 +25,14 @@ public class UserController : ControllerBase
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly TurnstileService _turnstileService;
     private readonly LoggedInContext _loggedInContext;
-    private readonly EmailService _emailService;
+    private readonly IEmailService _emailService;
     private readonly LexAuthService _lexAuthService;
 
     public UserController(
         LexBoxDbContext lexBoxDbContext,
         TurnstileService turnstileService,
         LoggedInContext loggedInContext,
-        EmailService emailService,
+        IEmailService emailService,
         LexAuthService lexAuthService
     )
     {
@@ -66,7 +67,9 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var userEntity = CreateUserEntity(accountInput, emailVerified: false);
+        var jwtUser = _loggedInContext.MaybeUser;
+
+        var userEntity = CreateUserEntity(accountInput, jwtUser);
         registerActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
@@ -75,7 +78,7 @@ public class UserController : ControllerBase
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
 
-        await _emailService.SendVerifyAddressEmail(userEntity);
+        if (!userEntity.EmailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
     }
 
@@ -105,26 +108,20 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var emailVerified = jwtUser.Email == accountInput.Email;
-        var userEntity = CreateUserEntity(accountInput, emailVerified);
+        var userEntity = CreateUserEntity(accountInput, jwtUser);
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
         _lexBoxDbContext.Users.Add(userEntity);
-        // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
-        if (jwtUser.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
-        {
-            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
-        }
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
         await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
             new AuthenticationProperties { IsPersistent = true });
 
-        if (!emailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
+        if (!userEntity.EmailVerified) await _emailService.SendVerifyAddressEmail(userEntity);
         return Ok(user);
     }
 
-    private User CreateUserEntity(RegisterAccountInput input, bool emailVerified, Guid? creatorId = null)
+    private User CreateUserEntity(RegisterAccountInput input, LexAuthUser? jwtUser, Guid? creatorId = null)
     {
         var salt = Convert.ToHexString(RandomNumberGenerator.GetBytes(SHA1.HashSizeInBytes));
         var userEntity = new User
@@ -137,11 +134,20 @@ public class UserController : ControllerBase
             PasswordHash = PasswordHashing.HashPassword(input.PasswordHash, salt, true),
             PasswordStrength = UserService.ClampPasswordStrength(input.PasswordStrength),
             IsAdmin = false,
-            EmailVerified = emailVerified,
+            EmailVerified = jwtUser?.Email == input.Email,
             CreatedById = creatorId,
             Locked = false,
             CanCreateProjects = false
         };
+        // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
+        if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
+        {
+            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+        }
+        if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
+        {
+            userEntity.Organizations = jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }).ToList();
+        }
         return userEntity;
     }
 

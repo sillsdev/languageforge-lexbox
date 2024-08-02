@@ -13,7 +13,7 @@
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 </script>
 
-{#each fieldConfigs as fieldConfig}
+{#each fieldConfigs as fieldConfig (fieldConfig.id)}
   {#if !fieldConfig.extra || $viewConfig.showExtraFields}
     <FieldEditor on:change bind:value={entity[fieldConfig.id]} field={fieldConfig} />
   {/if}

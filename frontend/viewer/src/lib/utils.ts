@@ -14,6 +14,11 @@ export function headword(entry: IEntry, ws?: string): string {
   }
 }
 
+export function pickBestAlternative(value: IMultiString, firstChoice?: WritingSystem): string {
+  let pick = firstChoice ? value[firstChoice.id] : undefined;
+  return pick ?? firstVal(value) ?? '';
+}
+
 export function firstDefOrGlossVal(sense: ISense | undefined): string {
   if (!sense) return '';
   const definition = Object.values(sense.definition ?? {}).find(value => !!value);
@@ -72,8 +77,8 @@ export function defaultSense(): ISense {
     id: emptyId(),
     definition: {},
     gloss: {},
-    partOfSpeech: '',
-    semanticDomain: [],
+    partOfSpeechId: undefined,
+    semanticDomains: [],
     exampleSentences: []
   };
 }

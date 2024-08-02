@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+        <ServerGarbageCollection>false</ServerGarbageCollection>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
+<!--        single file disabled as it's less efficient for updates-->
+        <PublishSingleFile>false</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <PublishTrimmed>false</PublishTrimmed>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+        <PackageReference Include="icu.net" Version="2.10.1-beta.5" GeneratePathProperty="true" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.4"/>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.4" />
+        <PackageReference Include="Microsoft.Identity.Client.Extensions.Msal" Version="4.61.0" />
+        <PackageReference Include="Refit" Version="7.0.0" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="7.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+
+      <None Include="$(Pkgicu_net)\contentFiles\any\any\icu.net.dll.config">
+          <Link>icu.net.dll.config</Link>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
+      <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
+      <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="..\..\..\frontend\viewer\dist\**\*" />
+    </ItemGroup>
+
+</Project>

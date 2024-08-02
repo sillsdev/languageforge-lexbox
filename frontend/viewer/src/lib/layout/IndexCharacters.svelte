@@ -10,7 +10,7 @@
 
 <Toggle let:on={open} let:toggle let:toggleOff>
   <Popover {open} let:close on:close={toggleOff} placement="bottom-start" offset={4} padding={6}>
-    <div class="flex flex-row flex-wrap justify-evenly gap-2 p-3 rounded bg-surface-100 border shadow-lg overflow-auto max-w-56">
+    <div class="index-container flex flex-row flex-wrap justify-evenly gap-2 p-3 rounded bg-surface-100 border shadow-lg overflow-auto">
       {#if $selectedCharacter}
         <!-- for some reason the web-component only gets clicks this way :( -->
         <button class="contents" on:mouseup={() => {
@@ -52,3 +52,10 @@
     {/if}
   </Button>
 </Toggle>
+
+<style lang="postcss">
+  .index-container {
+    max-width: min(24rem, 100vw - 2rem);
+    max-height: 75vh;
+  }
+</style>

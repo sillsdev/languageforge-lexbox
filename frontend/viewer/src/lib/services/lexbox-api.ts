@@ -1,8 +1,8 @@
-import type {IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems} from '../mini-lcm';
+import type {IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, SemanticDomain, WritingSystem, WritingSystems} from '../mini-lcm';
 
 import type { Operation } from 'fast-json-patch';
 
-export type { IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems } from '../mini-lcm';
+export type {IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems, PartOfSpeech, SemanticDomain} from '../mini-lcm';
 
 export type JsonPatch = Operation[];
 
@@ -14,12 +14,16 @@ export enum WritingSystemType {
 export interface LexboxApiFeatures {
   history?: boolean;
   write?: boolean;
-};
+  openWithFlex?: boolean;
+}
 
 export interface LexboxApi {
   GetWritingSystems(): Promise<WritingSystems>;
   CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void>;
   UpdateWritingSystem(wsId: string, type: WritingSystemType, update: JsonPatch): Promise<WritingSystem>;
+
+  GetPartsOfSpeech(): Promise<PartOfSpeech[]>;
+  GetSemanticDomains(): Promise<SemanticDomain[]>;
 
   GetEntries(options: QueryOptions | undefined): Promise<IEntry[]>;
   SearchEntries(query: string, options: QueryOptions | undefined): Promise<IEntry[]>;

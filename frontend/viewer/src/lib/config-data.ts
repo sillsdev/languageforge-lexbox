@@ -2,6 +2,7 @@ import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigF
 import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 
 import type { I18nType } from './i18n';
+import type { ConditionalPickDeep, ValueOf } from 'type-fest';
 
 const allFieldConfigs = ({
   entry: {
@@ -11,16 +12,16 @@ const allFieldConfigs = ({
     note: { id: 'note', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Note_field.htm' },
   },
   customEntry: {
-    custom1: { id: 'entry-custom-001', type: 'multi', ws: 'vernacular', name: 'Custom 1', custom: true },
+    // custom1: { id: 'entry-custom-001', type: 'multi', ws: 'vernacular', name: 'Custom 1', custom: true },
   },
   sense: {
     gloss: { id: 'gloss', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm' },
     definition: { id: 'definition', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/definition_field.htm' },
-    partOfSpeech: { id: 'partOfSpeech', type: 'option', optionType: 'part-of-speech', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Grammatical_Info_field.htm' },
-    semanticDomain: { id: 'semanticDomain', type: 'multi-option', optionType: 'semantic-domain', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/semantic_domains_field.htm' }
+    partOfSpeechId: { id: 'partOfSpeechId', type: 'option', optionType: 'part-of-speech', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Grammatical_Info_field.htm' },
+    semanticDomains: { id: 'semanticDomains', type: 'multi-option', optionType: 'semantic-domain', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/semantic_domains_field.htm' }
   },
   customSense: {
-    custom1: { id: 'sense-custom-001', type: 'multi', ws: 'first-analysis', name: 'Custom sense', custom: true },
+    // custom1: { id: 'sense-custom-001', type: 'multi', ws: 'first-analysis', name: 'Custom sense', custom: true },
   },
   example: {
     sentence: { id: 'sentence', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/example_field.htm' },
@@ -38,15 +39,20 @@ const allFieldConfigs = ({
   customExample: Record<string, CustomFieldConfig>,
 };
 
-export function allFields(viewConfig: ViewConfig): FieldConfig[] {
+type FieldOptionType<T extends { optionType: string }> = T['optionType'];
+type OptionFields = ValueOf<ValueOf<ConditionalPickDeep<typeof allFieldConfigs, { optionType?: string }>>>;
+export type WellKnownSingleOptionType = FieldOptionType<OptionFields & { type: 'option' }>;
+export type WellKnownMultiOptionType = FieldOptionType<OptionFields & { type: 'multi-option' }>;
+
+export function allFields(viewConfig: ViewConfig): Readonly<FieldConfig[]> {
   return [
     ...Object.values(viewConfig.entry),
-    ...Object.values(viewConfig.customEntry ?? {}),
+    ...Object.values<never>(viewConfig.customEntry ?? {}),
     ...Object.values(viewConfig.sense),
-    ...Object.values(viewConfig.customSense ?? {}),
+    ...Object.values<never>(viewConfig.customSense ?? {}),
     ...Object.values(viewConfig.example),
     ...Object.values<never>(viewConfig.customExample ?? {}),
-  ];
+  ] as const;
 }
 
 type FieldsWithViewConfigProps<T extends Record<string, NonNullable<object>>> =
@@ -72,7 +78,7 @@ function configure<T extends NonNullable<object>>(fieldConfig: T, props: ViewCon
 
 export const views: ViewConfig[] = [
   {
-    label: 'Everything (FLEx)',
+    label: 'Everything (FieldWorks)',
     ...allFieldConfigs,
     entry: {
       ...allFieldConfigs.entry,
@@ -88,8 +94,8 @@ export const views: ViewConfig[] = [
     },
     sense: {
       gloss: allFieldConfigs.sense.gloss,
-      partOfSpeech: allFieldConfigs.sense.partOfSpeech,
-      semanticDomain: configure(allFieldConfigs.sense.semanticDomain, { extra: true }),
+      partOfSpeechId: allFieldConfigs.sense.partOfSpeechId,
+      semanticDomains: configure(allFieldConfigs.sense.semanticDomains, { extra: true }),
     },
     example: {
       sentence: allFieldConfigs.example.sentence,
@@ -106,8 +112,8 @@ export const views: ViewConfig[] = [
     sense: {
       gloss: allFieldConfigs.sense.gloss,
       definition: allFieldConfigs.sense.definition,
-      partOfSpeech: allFieldConfigs.sense.partOfSpeech,
-      semanticDomain: allFieldConfigs.sense.semanticDomain,
+      partOfSpeechId: allFieldConfigs.sense.partOfSpeechId,
+      semanticDomains: allFieldConfigs.sense.semanticDomains,
     },
     example: {
       sentence: allFieldConfigs.example.sentence,

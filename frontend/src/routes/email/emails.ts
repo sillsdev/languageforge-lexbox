@@ -3,17 +3,24 @@ import NewAdmin from '$lib/email/NewAdmin.svelte';
 import type {ComponentType} from 'svelte';
 import VerifyEmailAddress from '$lib/email/VerifyEmailAddress.svelte';
 import PasswordChanged from '$lib/email/PasswordChanged.svelte';
-import CreateAccountRequest from '$lib/email/CreateAccountRequest.svelte';
 import CreateProjectRequest from '$lib/email/CreateProjectRequest.svelte';
 import type {CreateProjectInput} from '$lib/gql/generated/graphql';
+import ApproveProjectRequest from '$lib/email/ApproveProjectRequest.svelte';
+import UserAdded from '$lib/email/UserAdded.svelte';
+import CreateAccountRequestOrg from '$lib/email/CreateAccountRequestOrg.svelte';
+import CreateAccountRequestProject from '$lib/email/CreateAccountRequestProject.svelte';
+
 
 export const enum EmailTemplate {
     NewAdmin = 'NEW_ADMIN',
     ForgotPassword = 'FORGOT_PASSWORD',
     VerifyEmailAddress = 'VERIFY_EMAIL_ADDRESS',
     PasswordChanged = 'PASSWORD_CHANGED',
-    CreateAccountRequest = 'CREATE_ACCOUNT_REQUEST',
+    CreateAccountRequestOrg = 'CREATE_ACCOUNT_REQUEST_ORG',
+    CreateAccountRequestProject = 'CREATE_ACCOUNT_REQUEST_PROJECT',
     CreateProjectRequest = 'CREATE_PROJECT_REQUEST',
+    ApproveProjectRequest = 'APPROVE_PROJECT_REQUEST',
+    UserAdded = 'USER_ADDED',
 }
 
 export const componentMap = {
@@ -21,8 +28,11 @@ export const componentMap = {
     [EmailTemplate.NewAdmin]: NewAdmin,
     [EmailTemplate.VerifyEmailAddress]: VerifyEmailAddress,
     [EmailTemplate.PasswordChanged]: PasswordChanged,
-    [EmailTemplate.CreateAccountRequest]: CreateAccountRequest,
+    [EmailTemplate.CreateAccountRequestOrg]: CreateAccountRequestOrg,
+    [EmailTemplate.CreateAccountRequestProject]: CreateAccountRequestProject,
     [EmailTemplate.CreateProjectRequest]: CreateProjectRequest,
+    [EmailTemplate.ApproveProjectRequest]: ApproveProjectRequest,
+    [EmailTemplate.UserAdded]: UserAdded,
 } satisfies Record<EmailTemplate, ComponentType>;
 
 interface EmailTemplatePropsBase<T extends EmailTemplate> {
@@ -47,7 +57,14 @@ interface VerifyEmailAddressProps extends EmailTemplatePropsBase<EmailTemplate.V
     lifetime: string;
 }
 
-interface CreateAccountProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequest> {
+interface CreateAccountOrgProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequestOrg> {
+  managerName: string;
+  orgName: string;
+  verifyUrl: string;
+  lifetime: string;
+}
+
+interface CreateAccountProjectProps extends EmailTemplatePropsBase<EmailTemplate.CreateAccountRequestProject> {
   managerName: string;
   projectName: string;
   verifyUrl: string;
@@ -59,10 +76,23 @@ interface CreateProjectProps extends EmailTemplatePropsBase<EmailTemplate.Create
     user: { name: string, email: string };
 }
 
+interface ApproveProjectProps extends EmailTemplatePropsBase<EmailTemplate.ApproveProjectRequest> {
+  project: CreateProjectInput;
+  user: { name: string, email: string };
+}
+
+interface UserAddedProps extends EmailTemplatePropsBase<EmailTemplate.UserAdded> {
+  projectName: string;
+  projectCode: string;
+}
+
 export type EmailTemplateProps =
     ForgotPasswordProps
     | NewAdminProps
     | VerifyEmailAddressProps
-    | CreateAccountProps
+    | CreateAccountOrgProps
+    | CreateAccountProjectProps
     | CreateProjectProps
+    | ApproveProjectProps
+    | UserAddedProps
     | EmailTemplatePropsBase<EmailTemplate>;

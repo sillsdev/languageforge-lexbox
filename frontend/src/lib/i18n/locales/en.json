@@ -6,6 +6,7 @@
     "title": "Admin Dashboard",
     "column_code": "Code",
     "column_email": "Email",
+    "column_email_or_login": "Email / Login",
     "column_login": "Login",
     "column_last_change": "Last Change",
     "column_migrated": "Migrated",
@@ -31,6 +32,10 @@
       "email_label": "Email",
       "name_label": "Display name",
       "password_label": "Change User Password",
+      "role_label": {
+        "label": "Role",
+        "verified_email_required_for_admin": "The user must provide a verified email address to gain administrator access."
+      },
       "update_user": "Update User",
       "lock": "Lock User",
       "unlock": "Unlock User",
@@ -55,7 +60,12 @@
       "updated": "Updated",
       "last_active": "Last active",
       "can_create_projects": "Can create projects",
+      "createdBy": "Created by",
     },
+    "user_filter": {
+      "title": "User filters",
+      "guest_users_i_added": "Guest users I added",
+    }
   },
   "account_settings": {
     "title": "Account Settings",
@@ -93,7 +103,8 @@
     }
   },
   "appbar": {
-    "app_name": "Language Depot"
+    "app_name": "Lexbox",
+    "app_subtitle": "formerly Language Depot"
   },
   "appmenu": {
     "log_out": "Log out",
@@ -108,6 +119,15 @@
     "remove": "Remove {entityName}"
   },
   "environment_warning": "This is a {environmentName} environment. Click here to go to the public site.",
+  "delete_org_modal": {
+    "title": "Delete Organization",
+    "submit": "Delete Organization",
+    "enter_to_delete": {
+      "label": "Enter ''{_value}'' to confirm deleting the organization ''{name}''",
+      "value": "DELETE ORGANIZATION"
+    },
+    "success": "Organization ''{name}'' was deleted."
+  },
   "delete_project_modal": {
     "title": "Delete Project",
     "submit": "Delete Project",
@@ -139,8 +159,8 @@
     "title": "Log in",
     "password_missing": "Password missing",
     "link_expired": "The email you clicked has expired. Please request a new one.",
-    "welcome_header": "### Welcome to Language Depot\n",
-    "welcome": "Language Depot is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
+    "welcome_header": "Welcome to Lexbox",
+    "welcome": "Lexbox is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
 the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
@@ -152,6 +172,12 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "created_at": "Created",
       "members": "Members"
     },
+    "create": {
+      "title": "Create Organization",
+      "name": "Name",
+      "name_missing": "Organization name required",
+      "submit": "Create Organization",
+    }
   },
   "project": {
     "create": {
@@ -174,7 +200,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "retention_policy": "Purpose",
       "submit": "Create Project",
       "requested": "Your request for project {name} has been submitted.",
-      "request": "Request Project"
+      "request": "Request Project",
+      "org": "Organization"
     },
     "table": {
       "name": "Name",
@@ -191,6 +218,8 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "title": "Project filters",
       "show_deleted": "Show deleted",
       "hide_drafts": "Hide drafts",
+      "show_empty": "Empty only",
+      "empty": "Empty",
       "select_user_from_table": "To filter projects for a specific user, select the user from the user table:",
       "project_member": "Project member",
       "filter_user_projects": "Filter projects",
@@ -213,6 +242,79 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
         "project_now_not_confidential": "Project is now not confidential.",
       }
     },
+    "awaiting_approval": "Awaiting approval"
+  },
+  "org_page": {
+    "organization": "Organization",
+    "add_user": {
+      "add_button": "Add Member",
+      "invite": "Invite",
+      "__comment_add_button": "Should become 'Add/Invite Member' once email invitations implemented for orgs",
+      "modal_title": "Add a Member to this organization",
+      "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
+      "submit_button": "Add Member",
+      "empty_user_field": "Please enter an email address or login",
+      "submit_button_email": "Add Member",
+      "__comment_submit_button_email": "Should become 'Add or invite Member' once email invitations implemented for orgs",
+      "org_not_found": "Organization not found. Please refresh the page.",
+      "username_not_found": "No user was found with this login",
+      "user_must_be_verified": "User needs a verified email address",
+      "admin_must_be_verified": "User needs a verified email address in order to be an organization admin",
+      "user_already_member": "User is already a member of this organization",
+      "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
+      "invalid_email_address": "Invalid email address: {email}",
+    },
+    "bulk_add_members": {
+      "add_button": "Bulk Add Members",
+      "explanation": "Adds all the entered logins and emails to this organization. Unlike the bulk-add feature for projects, new accounts will NOT be automatically created.",
+      "modal_title": "Bulk Add Members",
+      "submit_button": "Add Members",
+      "finish_button": "Close",
+      "usernames": "Logins or emails (one per line)",
+      "usernames_description": "This should be the **email or Send/Receive login** for existing accounts",
+      "invalid_username": "Invalid login/username: {username}. Only letters, numbers, and underscore (_) characters are allowed.",
+      "empty_user_field": "Please enter email addresses and/or logins",
+      "members_added": "{addedCount} new {addedCount, plural, one {member was} other {members were}} added to the organization.",
+      "already_members": "{count, plural, one {# user was} other {# users were}} already in the organization.",
+      "accounts_not_found": "{notFoundCount} {notFoundCount, plural, one {user was} other {users were}} not found.",
+      "invalid_email_address": "Invalid email address: {email}.",
+    },
+    "change_role_modal": {
+      "title": "Choose role for {name}",
+      "button_label": "Change Role"
+    },
+    "delete_modal": {
+      "submit": "Delete Organization"
+    },
+    "details": {
+      "created_at": "Created",
+      "updated_at": "Last updated",
+      "member_count": "Members",
+      "project_count": "Projects",
+    },
+    "notifications": {
+      "role_change": "Organizational role of {name} set to {role}.",
+      "user_delete": "{name} has been removed.",
+      "rename_org": "Organization name set to {name}.",
+      "delete_org": "Organization {name} has been deleted.",
+      "remove_project_from_org": "You have successfully removed {projectName} from this organization",
+      "leave_org": "You have left the organization {name}.",
+      "leave_org_error": "An error occurred trying to remove you from organization {name}. Please try again later.",
+      "describe": "Organization description has been updated.",
+      "add_member": "{email} has been added to organization.",
+      "member_invited": "{email} has been sent an invitation email to register and join the organization."
+    },
+    "edit_member_role": "Change Role",
+    "remove_member": "Remove",
+    "org_name_empty_error": "Organization name cannot be empty",
+    "projects_table_title": "Projects",
+    "members_table_title": "Members",
+    "settings_view_title": "Settings",
+    "history_view_title": "History",
+    "remove_project_from_org_title": "Project",
+    "remove_project_from_org": "Remove",
+    "confirm_remove_project_from_org": "Would you like to remove {projectName} from {orgName}?",
+    "leave_org": "Leave Organization",
   },
   "project_page": {
     "project": "Project",
@@ -220,6 +322,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "add_button": "Add/Invite Member",
       "modal_title": "Add or invite a Member to this project",
       "submit_button": "Add Member",
+      "invite_checkbox": "Invite",
       "empty_user_field": "Please enter an email address or login",
       "submit_button_email": "Add or invite Member",
       "project_not_found": "Project not found. Please refresh the page.",
@@ -229,6 +332,13 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_already_member": "User is already a member of this project",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new project.",
       "invalid_email_address": "Invalid email address: {email}",
+    },
+    "add_org": {
+      "add_button": "Add Organization",
+      "modal_title": "Choose organization",
+      "submit_button": "Add Organization",
+      "org_not_found": "Organization not found. Please refresh the page.",
+      "project_not_found": "Project not found. Please refresh the page."
     },
     "bulk_add_members": {
       "add_button": "Bulk Add/Create Members",
@@ -288,9 +398,11 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "promote_project": "Project has been changed from draft status to real project.",
       "describe": "Project description has been updated.",
       "add_member": "{email} has been added to project.",
-      "member_invited": "{email} has been sent an invitation email to register and join the project."
+      "member_invited": "{email} has been sent an invitation email to register and join the project.",
+      "remove_project_from_org": "Your project has been removed from {orgName}"
     },
     "project_name_empty_error": "Project name cannot be empty",
+    "confirm_remove_org": "Would you like to remove your project from {orgName}?",
     "confirm_remove": "Would you like to remove {userName} from this project?",
     "history": "History",
     "project_code": "Project Code",
@@ -299,14 +411,25 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "vernacular_langs": "Vernacular writing systems",
+    "analysis_langs": "Analysis writing systems",
+    "organization": {
+      "title": "Organizations",
+      "placeholder": "No organization"
+    },
     "members": {
       "title": "Members",
+      "filter_members_placeholder": "Filter members...",
       "show_all": "Show all...",
       "show_less": "Show less",
+      "no_matching": "No matching members",
     },
     "add_description": "Add description...",
+    "view_org": "View {orgName}",
     "remove_project_user_title": "Member",
     "remove_user": "Remove",
+    "remove_project_from_org_title": "Project",
+    "remove_project_from_org": "Remove",
     "change_role": "Change Role",
     "view_user_details": "View details",
     "hg": {
@@ -317,11 +440,16 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "author_header": "Author",
       "log_header": "Message"
     },
+    "add_purpose": {
+      "add_button": "Add Purpose",
+      "modal_title": "Choose purpose",
+      "notify_success": "You have successfully added a project purpose."
+    },
     "get_project": {
       "instructions_header": "To {isEmpty, select, true { set up } other { get } } this project with {type, select, FL_EX { FLEx } WE_SAY { WeSay } other { (e.g.) FLEx } } {mode, select, manual { manually} other { }}",
       "instructions_flex": "1. In the \"Send/Receive\" menu click \"Get Project from colleague…\"\n\
 1. In the \"Receive project\" dialog box, click \"Internet\"\n\
-1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Language Depot and click \"Log in\"\n\
+1. In the \"Get Project From Internet\" dialog box, enter your \"Login\" ({login}) and \"Password\" for Lexbox and click \"Log in\"\n\
 1. In the \"Project ID\" field that appears, select \"{code}\"\n\
 1. Enter a \"Name for the folder on your computer\" (e.g. \"{name}\")",
       "instructions_flex_empty": "1. [Download FLEx](https://software.sil.org/fieldworks/download/) onto your computer.\n\
@@ -329,7 +457,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
 1. Fill in the required information: name of project, name for the folder (e.g. \"{name}\"), etc. Then click \"Finish\".\n\
 1. After the new project opens, click on \"Send/Receive\" -> \"Send this Project for the first time\".\n\
 1. Click on \"OK (I have the master project)\".\n\
-1. Click on \"Settings...\" and enter your Language Depot \"Login\" ({login}) and \"Password\".\n\
+1. Click on \"Settings...\" and enter your Lexbox \"Login\" ({login}) and \"Password\".\n\
 1. Click Log in, then select the Project ID ({code}) from the drop-down menu.\n\
 1. Click on Internet. This will initiate the first Send/Receive.",
       "instructions_wesay": "1. Launch 'WeSay Configuration Tool'\n\
@@ -374,6 +502,15 @@ If you don't see a dialog or already closed it, click the button below:",
       "leave_project": "Leave Project"
     },
   },
+  "org_role": {
+    "label": "Role",
+    "user": "Member",
+    "user_description": "Member (can join projects)",
+    "admin": "Admin",
+    "admin_description": "Admin (can join projects & add new members)",
+    "unknown": "Unknown",
+    "unknown_description": "Unknown"
+  },
   "project_role": {
     "label": "Role",
     "editor": "Editor",
@@ -399,7 +536,8 @@ If you don't see a dialog or already closed it, click the button below:",
   "projectlist": {
     "last_change": "Last Change: {lastChange, date, short} {lastChange, time, short}",
     "no_changes": "New",
-    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }"
+    "shared_with": "Shared with {memberCount, plural, one {no one} other {# people} }",
+    "requested": "Requested: {requested, date, short} {requested, time, short}",
   },
   "register": {
     "title": "Register",
@@ -464,8 +602,8 @@ If you don't see a dialog or already closed it, click the button below:",
     "link_expiration_seconds": "This email will expire in {seconds} {seconds, plural, one {second} other {seconds}}.",
     "link_expiration_ms": "This email will expire in {ms} {ms, plural, one {millisecond} other {milliseconds}}.",
     "new_admin": {
-      "subject": "New Language Depot administrator {adminName}",
-      "body": "{adminName} ({adminEmail}) has been made an administrator on Language Depot."
+      "subject": "New Lexbox administrator {adminName}",
+      "body": "{adminName} ({adminEmail}) has been made an administrator on Lexbox."
     },
     "verify_email": {
       "subject": "Verify your e-mail address",
@@ -486,14 +624,29 @@ If you don't see a dialog or already closed it, click the button below:",
       "greeting": "Hello {name}!",
       "greeting_noname": "Hello!"
     },
-    "create_account_request_email": {
+    "create_account_request_email_project": {
       "subject": "Project invitation: {projectName}",
-      "body": "{managerName} has invited you to join the {projectName} language project. Click below to join.",
+      "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
       "join_button": "Join project"
+    },
+    "create_account_request_email_org": {
+      "subject": "Organization invitation: {orgName}",
+      "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
+      "join_button": "Join organization"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
       "heading": "User {name} ({email}) requested that a project be created for them. Details below:"
+    },
+    "approve_project_request_email": {
+      "subject": "Project approved: {projectName}",
+      "heading": "The project you requested, {projectName}, has been approved and created.",
+      "view_button": "View project"
+    },
+    "user_added": {
+      "subject": "You joined project: {projectName}!",
+      "body": "You have been added to the project: {projectName}.",
+      "view_button": "View project"
     }
   },
   "footer": {

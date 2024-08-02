@@ -21,7 +21,7 @@ spec:
             - name: Email__SmtpPort
               value: '587'
             - name: Email__From
-              value: "Language Depot (Develop) <no-reply@develop.languagedepot.org>"
+              value: "Lexbox (Develop) <no-reply@develop.languagedepot.org>"
             - name: Email__BaseUrl
               value: "https://develop.lexbox.org"
             - name: HgConfig__RequireContainerVersionMatch

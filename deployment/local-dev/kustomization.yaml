@@ -8,6 +8,7 @@ resources:
 - ingress-deployment.yaml
 - db-secrets.yaml
 - lf-classic-secrets.yaml
+- self-signed-ssl.yaml
 
 components:
   - ../init-repos
@@ -36,6 +37,7 @@ patches:
       kind: Certificate
     path: delete-oauth-certs.yaml
 
+  - path: app-config.yaml
   - path: lexbox-deployment.patch.yaml
   - path: ui-deployment.patch.yaml
   - path: hg-repos-pvc.patch.yaml

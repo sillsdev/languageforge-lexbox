@@ -7,14 +7,11 @@ import precompileIntl from 'svelte-intl-precompile/sveltekit-plugin';
 import {type ProxyOptions, searchForWorkspaceRoot} from 'vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 
-
-
-
-
+const inDocker = process.env['DockerDev'] === 'true';
 const exposeServer = false;
 const lexboxServer: ProxyOptions = {
   target: 'http://localhost:5158',
-  secure: false
+  secure: false,
 };
 
 export default defineConfig({
@@ -50,7 +47,7 @@ export default defineConfig({
         searchForWorkspaceRoot(process.cwd())
       ]
     },
-    proxy: process.env['DockerDev'] ? undefined : {
+    proxy: inDocker ? undefined : {
       '/v1/traces': 'http://localhost:4318',
       '/api': lexboxServer,
       '/hg': lexboxServer,

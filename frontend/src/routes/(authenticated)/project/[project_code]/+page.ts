@@ -2,6 +2,8 @@ import type {
   $OpResult,
   AddProjectMemberInput,
   AddProjectMemberMutation,
+  AddProjectToOrgInput,
+  AddProjectToOrgMutation,
   BulkAddProjectMembersInput,
   BulkAddProjectMembersMutation,
   ChangeProjectDescriptionInput,
@@ -12,9 +14,16 @@ import type {
   ChangeProjectNameMutation,
   DeleteProjectUserMutation,
   LeaveProjectMutation,
+  Organization,
   ProjectPageQuery,
+  RemoveProjectFromOrgMutation,
   SetProjectConfidentialityInput,
   SetProjectConfidentialityMutation,
+  SetRetentionPolicyInput,
+  SetRetentionPolicyMutation,
+  UpdateLangProjectIdMutation,
+  UpdateProjectLanguageListMutation,
+  UpdateProjectLexEntryCountMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -24,16 +33,21 @@ import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
 
 export type Project = NonNullable<ProjectPageQuery['projectByCode']>;
-export type ProjectUser = Project['users'][number];
+export type ProjectUser = NonNullable<Project['users']>[number];
+export type User = ProjectUser['user'];
+export type Org = Pick<Organization, 'id' | 'name'>;
 
 export async function load(event: PageLoadEvent) {
   const client = getClient();
-  const userIsAdmin = (await event.parent()).user.isAdmin;
+  const user = (await event.parent()).user;
   const projectCode = event.params.project_code;
+  const projectId = event.url.searchParams.get('id') ?? '';
+  //projectId is not required, so if it's not there we assume the user is a member, if we're wrong there will be an error
+  const userIsMember = projectId === '' ? true : (user.isAdmin || user.projects.some(p => p.projectId === projectId));
   const projectResult = await client
     .awaitedQueryStore(event.fetch,
       graphql(`
-				query projectPage($projectCode: String!, $userIsAdmin: Boolean!) {
+				query projectPage($projectCode: String!, $userIsAdmin: Boolean!, $userIsMember: Boolean!) {
 					projectByCode(code: $projectCode) {
 						id
 						name
@@ -46,33 +60,58 @@ export async function load(event: PageLoadEvent) {
 						retentionPolicy
 						isConfidential
             isLanguageForgeProject
-						users {
+						organizations {
 							id
-							role
-							user {
-								id
-								name
-                ... on User @include(if: $userIsAdmin) {
-                  locked
-                  username
-                  createdDate
-                  updatedDate
-                  email
-                  localizationCode
-                  lastActive
-                  canCreateProjects
-                  isAdmin
-                  emailVerified
+						}
+            ... on Project @include(if: $userIsMember) {
+              users {
+                id
+                role
+                user {
+                  id
+                  name
+                  ... on User @include(if: $userIsAdmin) {
+                    locked
+                    username
+                    createdDate
+                    updatedDate
+                    email
+                    localizationCode
+                    lastActive
+                    canCreateProjects
+                    isAdmin
+                    emailVerified
+                    createdBy {
+                      id
+                      name
+                    }
+                  }
                 }
-							}
-						}
-						flexProjectMetadata {
-							lexEntryCount
-						}
+              }
+            }
+            flexProjectMetadata {
+              lexEntryCount
+              writingSystems {
+                vernacularWss {
+                  tag
+                  isActive
+                  isDefault
+                }
+                analysisWss {
+                  tag
+                  isActive
+                  isDefault
+                }
+              }
+            }
+            organizations {
+              id
+              name
+            }
 					}
 				}
 			`),
-      { projectCode, userIsAdmin }
+      { projectCode, userIsAdmin: user.isAdmin, userIsMember }
     );
   const changesetResultStore = client
     .queryStore(event.fetch,
@@ -114,6 +153,55 @@ export async function load(event: PageLoadEvent) {
     },
     code: projectCode,
   };
+}
+
+export async function _getOrgs(userIsAdmin: boolean): Promise<Org[]> {
+  const client = getClient();
+  if (userIsAdmin) {
+    const orgsResult = await client.query(graphql(`
+          query loadOrgs {
+              orgs {
+                  id
+                  name
+              }
+          }
+      `), {}, {});
+    return orgsResult.data?.orgs ?? [];
+  } else {
+    const myOrgsResult = await client.query(graphql(`
+          query loadMyOrgs {
+              myOrgs {
+                  id
+                  name
+              }
+          }
+        `), {}, {});
+    return myOrgsResult.data?.myOrgs ?? [];
+  }
+}
+
+export async function _addProjectToOrg(input: AddProjectToOrgInput): $OpResult<AddProjectToOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation AddProjectToOrg($input: AddProjectToOrgInput!) {
+          addProjectToOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
 }
 
 export async function _addProjectMember(input: AddProjectMemberInput): $OpResult<AddProjectMemberMutation> {
@@ -185,6 +273,98 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
         }
       `),
       { input: input }
+    );
+  return result;
+}
+
+export async function _updateProjectLexEntryCount(code: string): $OpResult<UpdateProjectLexEntryCountMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateProjectLexEntryCount($input: UpdateProjectLexEntryCountInput!) {
+          updateProjectLexEntryCount(input: $input) {
+            project {
+              id
+              flexProjectMetadata {
+                lexEntryCount
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
+    );
+  return result;
+}
+
+export async function _updateLangProjectId(code: string): $OpResult<UpdateLangProjectIdMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateLangProjectId($input: UpdateLangProjectIdInput!) {
+          updateLangProjectId(input: $input) {
+            project {
+              id
+              flexProjectMetadata {
+                langProjectId
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
+    );
+  return result;
+}
+
+export async function _updateProjectLanguageList(code: string): $OpResult<UpdateProjectLanguageListMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateProjectLanguageList($input: UpdateProjectLanguageListInput!) {
+          updateProjectLanguageList(input: $input) {
+            project {
+              id
+              flexProjectMetadata {
+                writingSystems {
+                  analysisWss {
+                    tag
+                    isActive
+                    isDefault
+                  }
+                  vernacularWss {
+                    tag
+                    isActive
+                    isDefault
+                  }
+                }
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
     );
   return result;
 }
@@ -262,6 +442,30 @@ export async function _changeProjectDescription(input: ChangeProjectDescriptionI
   return result;
 }
 
+export async function _removeProjectFromOrg(projectId: string, orgId: string): $OpResult<RemoveProjectFromOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation RemoveProjectFromOrg($input: RemoveProjectFromOrgInput!) {
+          removeProjectFromOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { projectId: projectId, orgId: orgId } }
+    );
+  return result;
+}
+
 export async function _setProjectConfidentiality(input: SetProjectConfidentialityInput): $OpResult<SetProjectConfidentialityMutation> {
   //language=GraphQL
   const result = await getClient()
@@ -272,6 +476,30 @@ export async function _setProjectConfidentiality(input: SetProjectConfidentialit
             project {
               id
               isConfidential
+            }
+            errors {
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
+    );
+  return result;
+}
+
+export async function _setRetentionPolicy(input: SetRetentionPolicyInput): $OpResult<SetRetentionPolicyMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation SetRetentionPolicy($input: SetRetentionPolicyInput!) {
+          setRetentionPolicy(input: $input) {
+            project {
+              id
+              retentionPolicy
             }
             errors {
               ... on Error {

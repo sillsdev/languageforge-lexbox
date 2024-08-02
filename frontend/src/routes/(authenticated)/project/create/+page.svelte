@@ -16,12 +16,15 @@
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
+  import DevContent from '$lib/layout/DevContent.svelte';
+  import { isDev } from '$lib/layout/DevContent.svelte';
 
   export let data;
   $: user = data.user;
   let requestingUser : typeof data.requestingUser;
+  $: myOrgs = data.myOrgs ?? [];
 
-  const { notifySuccess } = useNotifications();
+  const { notifyWarning } = useNotifications();
 
   const formSchema = z.object({
     name: z.string().trim().min(1, $t('project.create.name_missing')),
@@ -39,6 +42,7 @@
       .regex(/^[a-z\d][a-z-\d]*$/, $t('project.create.code_invalid')),
     customCode: z.boolean().default(false),
     isConfidential: z.boolean().default(false),
+    orgId: z.string().trim()
   });
 
   //random guid
@@ -53,6 +57,7 @@
       retentionPolicy: $form.retentionPolicy,
       isConfidential: $form.isConfidential,
       projectManagerId: requestingUser?.id,
+      orgId: $form.orgId === '' ? null : $form.orgId,
     });
     if (result.error) {
       if (result.error.byCode(DbErrorCode.Duplicate)) {
@@ -66,7 +71,7 @@
     if (result.data?.createProject.createProjectResponse?.result == CreateProjectResult.Created) {
       await goto(`/project/${$form.code}`);
     } else {
-      notifySuccess($t('project.create.requested', { name: $form.name }), Duration.Long);
+      notifyWarning($t('project.create.requested', { name: $form.name }), Duration.Persistent);
       await goto('/');
     }
   });
@@ -111,6 +116,12 @@
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.description) form.description = urlValues.description;
       if (urlValues.type) form.type = urlValues.type;
+      if (urlValues.orgId) form.orgId = urlValues.orgId;
+      if ($isDev === true) {
+        if (!form.orgId && !user.isAdmin && myOrgs?.[0]) {
+          form.orgId = myOrgs[0].id;
+        }
+      }
       if (urlValues.retentionPolicy && (urlValues.retentionPolicy !== RetentionPolicy.Dev || user.isAdmin)) form.retentionPolicy = urlValues.retentionPolicy;
       if (urlValues.isConfidential === 'true') form.isConfidential = true;
       if (urlValues.code) {
@@ -152,6 +163,21 @@
     />
 
     <ProjectTypeSelect bind:value={$form.type} error={$errors.type} />
+
+    <DevContent>
+      <Select
+        id="org"
+        label={$t('project.create.org')}
+        bind:value={$form.orgId}
+        error={$errors.orgId}
+        on:change
+      >
+        <option value={''} >{$t('project_page.organization.placeholder')}</option>
+        {#each myOrgs as org}
+          <option value={org.id}>{org.name}</option>
+        {/each}
+      </Select>
+    </DevContent>
 
     <AdminContent>
       <div class="form-control">

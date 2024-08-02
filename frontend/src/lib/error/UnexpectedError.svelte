@@ -26,7 +26,7 @@
     }
 
     const body = `${error.message}\r\nError code: ${error.traceId}`.replaceAll('\r\n', '%0D%0A%0D%0A');
-    const subject = `Language Depot - Unexpected error`;
+    const subject = `Lexbox - Unexpected error`;
     return `?subject=${subject}&body=${body}`;
   });
 

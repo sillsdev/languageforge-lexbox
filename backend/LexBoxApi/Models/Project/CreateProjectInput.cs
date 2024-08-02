@@ -12,5 +12,6 @@ public record CreateProjectInput(
     ProjectType Type,
     RetentionPolicy RetentionPolicy,
     bool IsConfidential,
-    Guid? ProjectManagerId
+    Guid? ProjectManagerId,
+    Guid? OrgId
 );

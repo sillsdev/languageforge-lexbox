@@ -45,6 +45,35 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
         };
     }
 
+    public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    {
+        var optionListItems = await dbContext.GetOptionListItems(projectCode, "grammatical-info");
+
+        foreach (var item in optionListItems)
+        {
+            yield return new PartOfSpeech
+            {
+                Id = item.Guid ?? Guid.Empty,
+                Name = new MultiString { { "en", item.Value ?? item.Abbreviation ?? string.Empty } }
+            };
+        }
+    }
+
+    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        throw new NotSupportedException();
+    }
+
+    public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    {
+        throw new NotSupportedException();
+    }
+
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        return AsyncEnumerable.Empty<SemanticDomain>();
+    }
+
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
         throw new NotSupportedException();
@@ -122,7 +151,9 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
             Gloss = ToMultiString(sense.Gloss),
             Definition = ToMultiString(sense.Definition),
             PartOfSpeech = sense.PartOfSpeech?.Value ?? string.Empty,
-            SemanticDomain = sense.SemanticDomain?.Values ?? [],
+            SemanticDomains = (sense.SemanticDomain?.Values ?? [])
+                .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
+                .ToList(),
             ExampleSentences = sense.Examples?.OfType<Example>().Select(ToExampleSentence).ToList() ?? [],
         };
     }

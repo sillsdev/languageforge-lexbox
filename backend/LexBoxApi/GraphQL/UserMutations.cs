@@ -6,6 +6,7 @@ using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Project;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore;
 using LexCore.Auth;
 using LexCore.Entities;
@@ -45,7 +46,7 @@ public class UserMutations
         IPermissionService permissionService,
         ChangeUserAccountBySelfInput input,
         LexBoxDbContext dbContext,
-        EmailService emailService
+        IEmailService emailService
     )
     {
         if (loggedInContext.User.Id != input.UserId) throw new UnauthorizedAccessException();
@@ -68,7 +69,7 @@ public class UserMutations
         IPermissionService permissionService,
         ChangeUserAccountByAdminInput input,
         LexBoxDbContext dbContext,
-        EmailService emailService
+        IEmailService emailService
     )
     {
         return UpdateUser(loggedInContext, permissionService, input, dbContext, emailService);
@@ -83,7 +84,7 @@ public class UserMutations
         LoggedInContext loggedInContext,
         CreateGuestUserByAdminInput input,
         LexBoxDbContext dbContext,
-        EmailService emailService
+        IEmailService emailService
     )
     {
         using var createGuestUserActivity = LexBoxActivitySource.Get().StartActivity("CreateGuestUser");
@@ -128,7 +129,7 @@ public class UserMutations
         IPermissionService permissionService,
         ChangeUserAccountDataInput input,
         LexBoxDbContext dbContext,
-        EmailService emailService
+        IEmailService emailService
     )
     {
         var user = await dbContext.Users.FindAsync(input.UserId);
@@ -152,6 +153,10 @@ public class UserMutations
                         throw new ValidationException("User must have a verified email address to be promoted to admin");
                     }
                     wasPromotedToAdmin = user.IsAdmin = true;
+                }
+                if (user.IsAdmin && adminInput.Role == UserRole.user)
+                {
+                    user.IsAdmin = false;
                 }
             }
         }
@@ -179,7 +184,6 @@ public class UserMutations
             ArgumentException.ThrowIfNullOrEmpty(user.Email);
             await emailService.SendNewAdminEmail(admins, user.Name, user.Email);
         }
-
         return user;
     }
 

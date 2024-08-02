@@ -29,6 +29,8 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
     public DbSet<ProjectUsers> ProjectUsers => Set<ProjectUsers>();
     public DbSet<DraftProject> DraftProjects => Set<DraftProject>();
     public DbSet<Organization> Orgs => Set<Organization>();
+    public DbSet<OrgMember> OrgMembers => Set<OrgMember>();
+    public DbSet<OrgProjects> OrgProjects => Set<OrgProjects>();
 
     public async Task<bool> HeathCheck(CancellationToken cancellationToken)
     {

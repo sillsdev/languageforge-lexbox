@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,12 @@ public class AdminController : ControllerBase
     private readonly LexBoxDbContext _lexBoxDbContext;
     private readonly LoggedInContext _loggedInContext;
     private readonly UserService _userService;
-    private readonly EmailService _emailService;
+    private readonly IEmailService _emailService;
 
     public AdminController(LexBoxDbContext lexBoxDbContext,
         LoggedInContext loggedInContext,
         UserService userService,
-        EmailService emailService
+        IEmailService emailService
     )
     {
         _lexBoxDbContext = lexBoxDbContext;

@@ -107,7 +107,7 @@
 </script>
 
 <div class="reset-modal contents">
-  <Modal bind:this={modal} on:close={onClose} showCloseButton={false}>
+  <Modal bind:this={modal} on:close={onClose} showCloseButton={false} closeOnClickOutside={uploadStatus !== UploadStatus.Uploading && !changingSteps && !$submitting}>
     <h2 class="text-xl mb-4">{$t('title', { code })}</h2>
     <ul class="steps w-full mb-2">
       <li class="step step-primary">{$t('backup_step')}</li>

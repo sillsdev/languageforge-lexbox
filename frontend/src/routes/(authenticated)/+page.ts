@@ -19,6 +19,21 @@ export async function load(event: PageLoadEvent) {
                 type
                 isConfidential
             }
+
+            myDraftProjects(orderBy: [
+                {code: ASC }
+            ]) {
+              code
+              createdDate
+              id
+              name
+              type
+              description
+              retentionPolicy
+              isConfidential
+              orgId
+              projectManagerId
+            }
         }
   `), {});
 
@@ -26,6 +41,7 @@ export async function load(event: PageLoadEvent) {
 
   return {
     projects: results.myProjects,
+    draftProjects: results.myDraftProjects,
     projectViewMode,
   }
 }

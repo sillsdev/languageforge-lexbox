@@ -21,7 +21,12 @@ public class SeedingData(
     public static readonly Guid TestAdminId = new("cf430ec9-e721-450a-b6a1-9a853212590b");
     public static readonly Guid QaAdminId = new("99b00c58-0dc7-4fe4-b6f2-c27b828811e0");
     private static readonly Guid MangerId = new Guid("703701a8-005c-4747-91f2-ac7650455118");
-    private static readonly Guid EditorId = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb");
+    public static readonly Guid EditorId = new Guid("6dc9965b-4021-4606-92df-133fcce75fcb");
+    public static readonly Guid TestOrgId = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6");
+    private static readonly Guid SecondTestOrgId = new Guid("a748bd8b-6348-4980-8dee-6de8b63e4a39");
+    public static readonly Guid Sena3ProjId = new Guid("0ebc5976-058d-4447-aaa7-297f8569f968");
+    public static readonly Guid ElawaProjId = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507");
+    public static readonly Guid EmptyProjId = new Guid("762b50e8-2e09-4ed4-a48d-775e1ada78e8");
 
     public async Task SeedIfNoUsers(CancellationToken cancellationToken = default)
     {
@@ -93,7 +98,7 @@ public class SeedingData(
 
         lexBoxDbContext.Attach(new Project
         {
-            Id = new Guid("0ebc5976-058d-4447-aaa7-297f8569f968"),
+            Id = Sena3ProjId,
             Name = "Sena 3",
             Code = "sena-3",
             Type = ProjectType.FLEx,
@@ -105,6 +110,7 @@ public class SeedingData(
                 LexEntryCount = -1
             },
             IsConfidential = null,
+            Organizations = [],
             Users = new()
             {
                 new()
@@ -145,7 +151,7 @@ public class SeedingData(
         });
         lexBoxDbContext.Attach(new Project
         {
-            Id = new Guid("9e972940-8a8e-4b29-a609-bdc2f93b3507"),
+            Id = ElawaProjId,
             Name = "Elawa",
             Description = "Eastern Lawa project",
             Code = "elawa-dev-flex",
@@ -154,13 +160,29 @@ public class SeedingData(
             LastCommit = DateTimeOffset.UtcNow,
             RetentionPolicy = RetentionPolicy.Dev,
             IsConfidential = false,
+            Organizations = [],
+            Users = [],
+        });
+        lexBoxDbContext.Attach(new Project
+        {
+            Id = EmptyProjId,
+            Name = "Empty",
+            Description = "Empty project",
+            Code = "empty-dev-flex",
+            Type = ProjectType.FLEx,
+            ProjectOrigin = ProjectMigrationStatus.Migrated,
+            LastCommit = DateTimeOffset.UtcNow,
+            RetentionPolicy = RetentionPolicy.Dev,
+            IsConfidential = true,
+            Organizations = [],
             Users = [],
         });
 
         lexBoxDbContext.Attach(new Organization
         {
-            Id = new Guid("292c80e6-a815-4cd1-9ea2-34bd01274de6"),
+            Id = TestOrgId,
             Name = "Test Org",
+            Projects = [],
             Members =
             [
                 new OrgMember
@@ -172,6 +194,49 @@ public class SeedingData(
                     Id = new Guid("1f8bbfd2-1502-456c-94ee-c982650ba325"), Role = OrgRole.User, UserId = EditorId,
                 }
             ]
+        });
+
+        lexBoxDbContext.Attach(new Organization
+        {
+            Id = SecondTestOrgId,
+            Name = "Second Test Org",
+            Projects = [],
+            Members =
+            [
+                new OrgMember
+                {
+                    Id = new Guid("03d54e43-ba53-410f-adc2-5ae0bc3cfb21"), Role = OrgRole.Admin, UserId = MangerId,
+                },
+                new OrgMember
+                {
+                    Id = new Guid("d00c7149-c3b2-448a-93ed-9ba2746d38f0"), Role = OrgRole.User, UserId = EditorId,
+                },
+                new OrgMember
+                {
+                    Id = new Guid("3035a412-8503-465b-8525-b60aaadd9488"), Role = OrgRole.User, UserId = TestAdminId,
+                },
+            ]
+        });
+
+        lexBoxDbContext.Attach(new OrgProjects
+        {
+            Id = new Guid("f659eb4c-0289-475d-b44a-095ffddb31c8"),
+            OrgId = TestOrgId,
+            ProjectId = Sena3ProjId,
+        });
+
+        lexBoxDbContext.Attach(new OrgProjects
+        {
+            Id = new Guid("9b642e86-9f72-46db-baa6-0984beb5b815"),
+            OrgId = TestOrgId,
+            ProjectId = ElawaProjId,
+        });
+
+        lexBoxDbContext.Attach(new OrgProjects
+        {
+            Id = new Guid("65ea538d-9692-4456-a82e-04ab89fb6aff"),
+            OrgId = TestOrgId,
+            ProjectId = EmptyProjId,
         });
 
         foreach (var entry in lexBoxDbContext.ChangeTracker.Entries())

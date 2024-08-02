@@ -476,14 +476,8 @@ namespace LexData.Migrations
                     b.Property<Guid>("ClientId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Hash")
-                        .HasColumnType("text");
-
                     b.Property<string>("Metadata")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("ParentHash")
                         .HasColumnType("text");
 
                     b.Property<Guid>("ProjectId")
@@ -533,6 +527,9 @@ namespace LexData.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("OrgId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("ProjectManagerId")
                         .HasColumnType("uuid");
 
@@ -560,6 +557,9 @@ namespace LexData.Migrations
             modelBuilder.Entity("LexCore.Entities.FlexProjectMetadata", b =>
                 {
                     b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("LangProjectId")
                         .HasColumnType("uuid");
 
                     b.Property<int?>("LexEntryCount")
@@ -603,6 +603,38 @@ namespace LexData.Migrations
                         .IsUnique();
 
                     b.ToTable("OrgMembers", (string)null);
+                });
+
+            modelBuilder.Entity("LexCore.Entities.OrgProjects", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<Guid>("OrgId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("OrgId", "ProjectId")
+                        .IsUnique();
+
+                    b.ToTable("OrgProjects");
                 });
 
             modelBuilder.Entity("LexCore.Entities.Organization", b =>
@@ -1135,6 +1167,81 @@ namespace LexData.Migrations
                         .HasForeignKey("LexCore.Entities.FlexProjectMetadata", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.OwnsOne("LexCore.Entities.ProjectWritingSystems", "WritingSystems", b1 =>
+                        {
+                            b1.Property<Guid>("FlexProjectMetadataProjectId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("FlexProjectMetadataProjectId");
+
+                            b1.ToTable("FlexProjectMetadata");
+
+                            b1.ToJson("WritingSystems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("FlexProjectMetadataProjectId");
+
+                            b1.OwnsMany("LexCore.Entities.FLExWsId", "AnalysisWss", b2 =>
+                                {
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    b2.Property<bool>("IsActive")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<bool>("IsDefault")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<string>("Tag")
+                                        .IsRequired()
+                                        .HasColumnType("text");
+
+                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
+
+                                    b2.ToTable("FlexProjectMetadata");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ProjectWritingSystemsFlexProjectMetadataProjectId");
+                                });
+
+                            b1.OwnsMany("LexCore.Entities.FLExWsId", "VernacularWss", b2 =>
+                                {
+                                    b2.Property<Guid>("ProjectWritingSystemsFlexProjectMetadataProjectId")
+                                        .HasColumnType("uuid");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer");
+
+                                    b2.Property<bool>("IsActive")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<bool>("IsDefault")
+                                        .HasColumnType("boolean");
+
+                                    b2.Property<string>("Tag")
+                                        .IsRequired()
+                                        .HasColumnType("text");
+
+                                    b2.HasKey("ProjectWritingSystemsFlexProjectMetadataProjectId", "Id");
+
+                                    b2.ToTable("FlexProjectMetadata");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("ProjectWritingSystemsFlexProjectMetadataProjectId");
+                                });
+
+                            b1.Navigation("AnalysisWss");
+
+                            b1.Navigation("VernacularWss");
+                        });
+
+                    b.Navigation("WritingSystems");
                 });
 
             modelBuilder.Entity("LexCore.Entities.OrgMember", b =>
@@ -1154,6 +1261,25 @@ namespace LexData.Migrations
                     b.Navigation("Organization");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("LexCore.Entities.OrgProjects", b =>
+                {
+                    b.HasOne("LexCore.Entities.Organization", "Org")
+                        .WithMany()
+                        .HasForeignKey("OrgId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LexCore.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Org");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("LexCore.Entities.Project", b =>

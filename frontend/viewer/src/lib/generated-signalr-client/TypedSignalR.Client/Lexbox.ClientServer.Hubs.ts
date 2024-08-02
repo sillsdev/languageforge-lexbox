@@ -13,5 +13,10 @@ export type ILexboxClient = {
     * @returns Transpiled from System.Threading.Tasks.Task
     */
     OnEntryUpdated(entry: Entry): Promise<void>;
+    OnProjectClosed(reason: CloseReason): Promise<void>;
 }
 
+export enum CloseReason {
+    User = 0,
+    Locked = 1,
+}

@@ -69,7 +69,7 @@
                     <TrashIcon pale />
                   </span>
                 {:else}
-                  <a class="link" href={`/project/${project.code}`}>
+                  <a class="link" href={`/project/${project.code}?id=${project.id}`}>
                     {project.name}
                   </a>
                 {/if}
@@ -106,6 +106,8 @@
                 </span>
               {:else if !project.isDraft}
                 {$date(project.lastCommit)}
+              {:else}
+                {$t('project.awaiting_approval')}
               {/if}
             </td>
           {/if}

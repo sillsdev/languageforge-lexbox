@@ -5,12 +5,13 @@
 
 import { type IMultiString } from './i-multi-string';
 import { type IExampleSentence } from './i-example-sentence';
+import type { SemanticDomain } from './semantic-domain';
 
 export interface ISense {
     id: string;
     definition: IMultiString;
     gloss: IMultiString;
-    partOfSpeech: string;
-    semanticDomain: string[];
+    partOfSpeechId: string | undefined;
+    semanticDomains: SemanticDomain[];
     exampleSentences: IExampleSentence[];
 }

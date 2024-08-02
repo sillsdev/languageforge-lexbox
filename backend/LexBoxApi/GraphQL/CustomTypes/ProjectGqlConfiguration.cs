@@ -1,4 +1,5 @@
-﻿using LexCore.Entities;
+﻿using LexBoxApi.Auth.Attributes;
+using LexCore.Entities;
 
 namespace LexBoxApi.GraphQL.CustomTypes;
 
@@ -10,7 +11,7 @@ public class ProjectGqlConfiguration : ObjectType<Project>
         descriptor.Field(p => p.Code).IsProjected();
         descriptor.Field(p => p.CreatedDate).IsProjected();
         descriptor.Field(p => p.Id).Use<RefreshJwtProjectMembershipMiddleware>();
-        descriptor.Field(p => p.Users).Use<RefreshJwtProjectMembershipMiddleware>();
+        descriptor.Field(p => p.Users).Use<RefreshJwtProjectMembershipMiddleware>().Authorize(LexAuthPolicies.CanAccessProjectUsers);
         // descriptor.Field("userCount").Resolve(ctx => ctx.Parent<Project>().UserCount);
     }
 }

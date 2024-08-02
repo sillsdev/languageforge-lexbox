@@ -3,6 +3,7 @@ using LexBoxApi.Config;
 using LexBoxApi.GraphQL;
 using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
@@ -23,10 +24,6 @@ public static class LexBoxKernel
             .BindConfiguration("HgConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        // services.AddOptions<HasuraConfig>()
-        // .BindConfiguration("HasuraConfig")
-        // .ValidateDataAnnotations()
-        // .ValidateOnStart();
         services.AddOptions<CloudFlareConfig>()
             .BindConfiguration("CloudFlare")
             .ValidateDataAnnotations()
@@ -50,7 +47,7 @@ public static class LexBoxKernel
         services.AddScoped<IPermissionService, PermissionService>();
         services.AddScoped<ProjectService>();
         services.AddScoped<UserService>();
-        services.AddScoped<EmailService>();
+        services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<TusService>();
         services.AddScoped<TurnstileService>();
         services.AddScoped<IHgService, HgService>();

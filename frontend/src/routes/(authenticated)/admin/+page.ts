@@ -27,6 +27,7 @@ import { derived, readable } from 'svelte/store';
 export type AdminSearchParams = ProjectFilters & {
   userSearch: string
   tab: AdminTabId
+  usersICreated: boolean
 };
 
 export type Project = NonNullable<LoadAdminDashboardProjectsQuery['projects']>[number];
@@ -83,6 +84,7 @@ export async function load(event: PageLoadEvent) {
               retentionPolicy
               isConfidential
               projectManagerId
+              orgId
             }
         }
     `), { withDeletedProjects, projectFilter, draftFilter });
@@ -112,6 +114,11 @@ export async function load(event: PageLoadEvent) {
                 updatedDate
                 lastActive
                 canCreateProjects
+                createdById
+                createdBy {
+                  id
+                  name
+                }
                 projects {
                     id
                     projectId
@@ -148,6 +155,7 @@ export async function _changeUserAccountByAdmin(input: ChangeUserAccountByAdminI
               name
               email
               isAdmin
+              emailVerified
             }
             errors {
                 __typename
@@ -184,6 +192,10 @@ export async function _createGuestUserByAdmin(input: CreateGuestUserByAdminInput
               locale
               projects {
                 projectId
+                role
+              }
+              orgs {
+                orgId
                 role
               }
             }

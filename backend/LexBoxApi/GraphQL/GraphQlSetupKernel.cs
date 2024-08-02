@@ -3,6 +3,7 @@ using HotChocolate.Diagnostics;
 using LexBoxApi.Auth;
 using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.Services;
+using LexBoxApi.Services.Email;
 using LexCore.ServiceInterfaces;
 using LexData;
 
@@ -11,6 +12,7 @@ namespace LexBoxApi.GraphQL;
 public static class GraphQlSetupKernel
 {
     public const string LexBoxSchemaName = "LexBox";
+    public const string RefreshedJwtMembershipsKey = "RefreshedJwtMemberships";
     public static void AddLexGraphQL(this IServiceCollection services, IHostEnvironment env, bool forceGenerateSchema = false)
     {
         if (forceGenerateSchema || env.IsDevelopment())
@@ -22,7 +24,7 @@ public static class GraphQlSetupKernel
             .RegisterService<IHgService>()
             .RegisterService<IIsLanguageForgeProjectDataLoader>()
             .RegisterService<LoggedInContext>()
-            .RegisterService<EmailService>()
+            .RegisterService<IEmailService>()
             .RegisterService<LexAuthService>()
             .RegisterService<IPermissionService>()
             .AddDataAnnotationsValidator()
@@ -69,23 +71,5 @@ public static class GraphQlSetupKernel
                                  ActivityScopes.DataLoaderBatch |
                                  ActivityScopes.ExecuteRequest;
             });
-
-        // services.AddHttpClient("hasura",
-        //     (provider, client) =>
-        //     {
-        //         var hasuraConfig = provider.GetRequiredService<IOptions<HasuraConfig>>().Value;
-        //         client.BaseAddress = new Uri(hasuraConfig.HasuraUrl);
-        //         client.DefaultRequestHeaders.Add("x-hasura-admin-secret", hasuraConfig.HasuraSecret);
-        //     });
-        // graphqlBuilder
-        //     .AddRemoteSchema("hasura")
-        //     .AddGraphQL("hasura")
-        //     .AddType(new DateTimeType("timestamptz"))
-        //     .AddType(new UuidType("uuid"))
-        //     .AddInstrumentation(options =>
-        //     {
-        //         options.IncludeDocument = true;
-        //         options.Scopes = ActivityScopes.Default | ActivityScopes.ExecuteRequest;
-        //     });
     }
 }

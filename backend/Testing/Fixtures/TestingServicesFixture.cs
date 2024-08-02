@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Testing.Fixtures;
 
@@ -35,6 +36,7 @@ public class TestingServicesFixture : IAsyncLifetime, ICollectionFixture<Testing
         });
         services.AddSingleton<IConfiguration>(new ConfigurationManager());
         services.AddLexData(true, dbContextLifeTime: ServiceLifetime.Singleton);
+        services.AddLogging(builder => builder.AddDebug());
     }
 
     public ServiceProvider ConfigureServices(Action<ServiceCollection>? configureServices = null)

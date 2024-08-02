@@ -14,7 +14,8 @@ public static class GqlUtils
             {
                 foreach (var (_, resultValue) in data)
                 {
-                    resultValue?["errors"].ShouldBeNull();
+                    if (resultValue is JsonObject resultObject)
+                        resultObject["errors"].ShouldBeNull();
                 }
             }
         }

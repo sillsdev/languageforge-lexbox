@@ -8,8 +8,9 @@ import { isGuid } from '$lib/util/guid';
 export async function load(event: PageLoadEvent) {
   const userIsAdmin = (await event.parent()).user.isAdmin;
   const requestingUserId = getSearchParam<CreateProjectInput>('projectManagerId', event.url.searchParams);
+  let requestingUser = null;
+  const client = getClient();
   if (userIsAdmin && isGuid(requestingUserId)) {
-    const client = getClient();
     const userResultsPromise = await client.query(graphql(`
           query loadRequestingUser($userId: UUID!) {
               users(
@@ -31,9 +32,33 @@ export async function load(event: PageLoadEvent) {
               }
           }
       `), { userId: requestingUserId }, { fetch: event.fetch});
-    const requestingUser = userResultsPromise.data?.users?.items?.[0];
-    return { requestingUser };
+
+    requestingUser = userResultsPromise.data?.users?.items?.[0];
   }
+
+  let orgs;
+  if (userIsAdmin) {
+    const orgsPromise = await client.query(graphql(`
+          query loadOrgs {
+              orgs {
+                  id
+                  name
+              }
+          }
+      `), {}, { fetch: event.fetch });
+    orgs = orgsPromise.data?.orgs;
+  } else {
+    const myOrgsPromise = await client.query(graphql(`
+          query loadMyOrgs {
+              myOrgs {
+                  id
+                  name
+              }
+          }
+      `), {}, { fetch: event.fetch });
+    orgs = myOrgsPromise.data?.myOrgs;
+  }
+  return { requestingUser, myOrgs: orgs };
 }
 
 export async function _createProject(input: CreateProjectInput): $OpResult<CreateProjectMutation> {

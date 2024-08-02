@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ProjectRole } from '$lib/gql/types';
-  import FormatUserProjectRole from '../FormatUserProjectRole.svelte';
+  import FormatUserProjectRole from '../Projects/FormatUserProjectRole.svelte';
   import ActionBadge from './ActionBadge.svelte';
   import Badge from './Badge.svelte';
   export let member: { name: string; role: ProjectRole };
@@ -8,7 +8,6 @@
 
   export let type: 'existing' | 'new' = 'existing';
   $: actionIcon = (type === 'existing' ? 'i-mdi-dots-vertical' as const : 'i-mdi-close' as const);
-
   $: variant = member.role === ProjectRole.Manager ? 'btn-primary' as const : 'btn-secondary' as const;
 </script>
 
@@ -21,6 +20,6 @@
   <span class="flex-grow" />
 
   <Badge>
-    <FormatUserProjectRole projectRole={member.role} />
+    <FormatUserProjectRole role={member.role} />
   </Badge>
 </ActionBadge>

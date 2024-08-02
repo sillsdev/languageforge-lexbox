@@ -17,8 +17,11 @@ public enum EmailTemplate
     NewAdmin,
     VerifyEmailAddress,
     PasswordChanged,
-    CreateAccountRequest,
-    CreateProjectRequest
+    CreateAccountRequestProject,
+    CreateAccountRequestOrg,
+    CreateProjectRequest,
+    ApproveProjectRequest,
+    UserAdded,
 }
 
 public record ForgotPasswordEmail(string Name, string ResetUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.ForgotPassword);
@@ -27,9 +30,12 @@ public record NewAdminEmail(string Name, string AdminName, string AdminEmail) : 
 
 public record VerifyAddressEmail(string Name, string VerifyUrl, bool newAddress, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.VerifyEmailAddress);
 
-public record ProjectInviteEmail(string Email, string ProjectId, string ManagerName, string ProjectName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequest);
+public record ProjectInviteEmail(string Email, string ManagerName, string ProjectName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequestProject);
+public record OrgInviteEmail(string Email, string ManagerName, string OrgName, string VerifyUrl, TimeSpan lifetime) : EmailTemplateBase(EmailTemplate.CreateAccountRequestOrg);
 
 public record PasswordChangedEmail(string Name) : EmailTemplateBase(EmailTemplate.PasswordChanged);
 
 public record CreateProjectRequestUser(string Name, string Email);
-public record CreateProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project): EmailTemplateBase(EmailTemplate.CreateProjectRequest);
+public record CreateProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.CreateProjectRequest);
+public record ApproveProjectRequestEmail(string Name, CreateProjectRequestUser User, CreateProjectInput Project) : EmailTemplateBase(EmailTemplate.ApproveProjectRequest);
+public record UserAddedEmail(string Name, string Email, string ProjectName, string ProjectCode) : EmailTemplateBase(EmailTemplate.UserAdded);

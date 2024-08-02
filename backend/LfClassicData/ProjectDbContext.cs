@@ -21,4 +21,12 @@ public class ProjectDbContext
     {
         return GetCollection<Entry>(projectCode, "lexicon");
     }
+
+    public async Task<OptionListItem[]> GetOptionListItems(string projectCode, string listCode)
+    {
+        var collection = GetCollection<OptionListRecord>(projectCode, "optionlists");
+        var result = await collection.Find(e => e.Code == listCode).FirstOrDefaultAsync();
+        if (result is null) return [];
+        return [..result.Items];
+    }
 }

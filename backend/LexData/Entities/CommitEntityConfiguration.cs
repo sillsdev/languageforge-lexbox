@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Crdt.Core;
+using SIL.Harmony.Core;
 using LexCore.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -15,9 +15,6 @@ public class CommitEntityConfiguration : IEntityTypeConfiguration<ServerCommit>
     {
         builder.ToTable("CrdtCommits");
         builder.HasKey(c => c.Id);
-        //hashes aren't serialized, so they can be null on the server
-        builder.Property(c => c.Hash).IsRequired(false);
-        builder.Property(c => c.ParentHash).IsRequired(false);
         builder.ComplexProperty(c => c.HybridDateTime);
         builder.HasOne<FlexProjectMetadata>().WithMany()
             .HasPrincipalKey(f => f.ProjectId)

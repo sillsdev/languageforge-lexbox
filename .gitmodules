@@ -1,4 +1,4 @@
  [submodule "backend/harmony"]
 	path = backend/harmony
-	url = https://github.com/hahn-kev/harmony.git
-	branch = add-crdt
+	url = https://github.com/sillsdev/harmony.git
+	branch = main

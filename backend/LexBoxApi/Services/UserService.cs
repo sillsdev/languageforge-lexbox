@@ -1,10 +1,13 @@
-﻿using LexBoxApi.Auth;
+﻿using System.Net.Mail;
+using LexBoxApi.Auth;
+using LexBoxApi.Services.Email;
+using LexCore.Exceptions;
 using LexData;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexBoxApi.Services;
 
-public class UserService(LexBoxDbContext dbContext, EmailService emailService, LexAuthService lexAuthService)
+public class UserService(LexBoxDbContext dbContext, IEmailService emailService, LexAuthService lexAuthService)
 {
     public async Task ForgotPassword(string email)
     {
@@ -48,5 +51,36 @@ public class UserService(LexBoxDbContext dbContext, EmailService emailService, L
         return (await dbContext.Users.Where(u => u.Id == id)
             .Select(u => u.UpdatedDate)
             .SingleOrDefaultAsync()).ToUnixTimeSeconds();
+    }
+
+    public static (string name, string? email, string? username) ExtractNameAndAddressFromUsernameOrEmail(string usernameOrEmail)
+    {
+        var isEmailAddress = usernameOrEmail.Contains('@');
+        string name;
+        string? email;
+        string? username;
+        if (isEmailAddress)
+        {
+            try
+            {
+                var parsed = new MailAddress(usernameOrEmail);
+                email = parsed.Address;
+                username = null;
+                name = parsed.DisplayName;
+                if (string.IsNullOrEmpty(name)) name = email.Split('@')[0];
+            }
+            catch (FormatException)
+            {
+                // FormatException message from .NET talks about mail headers, which is confusing here
+                throw new InvalidEmailException("Invalid email address", usernameOrEmail);
+            }
+        }
+        else
+        {
+            username = usernameOrEmail;
+            email = null;
+            name = username;
+        }
+        return (name, email, username);
     }
 }

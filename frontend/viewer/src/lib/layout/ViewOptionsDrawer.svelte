@@ -13,13 +13,13 @@
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 </script>
 
-<Drawer bind:open placement="right" classes={{ root: 'w-[400px]' }}>
+<Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
   <div class="flex flex-col h-full gap-4 px-6 py-4 w-full font-semibold">
     <SelectField
-      label="View"
-      options={views.map((view) => ({ value: view, label: view.label }))}
+      label="Fields"
+      options={views.map((view) => ({ value: view, label: view.label, group: view.label }))}
       bind:value={$options.activeView}
-      classes={{root: 'view-select w-auto'}}
+      classes={{root: 'view-select w-auto', options: 'view-select-options'}}
       clearable={false}
       labelPlacement="top"
       clearSearchOnOpen={false}
@@ -65,8 +65,15 @@
   </div>
 </Drawer>
 
-<style>
+<style lang="postcss">
   :global(.view-select input) {
     cursor: pointer;
+  }
+
+  /* We set the group, because the SelectField started breaking when using objects as option values
+  (because there's an #each keyed on <group-value.Tostring()> = <undefined-[Object object]> = duplicates).
+  So, having a group fixes things :(.*/
+  :global(.view-select-options .group-header) {
+    display: none;
   }
 </style>
