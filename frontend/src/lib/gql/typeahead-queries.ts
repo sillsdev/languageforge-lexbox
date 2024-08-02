@@ -53,9 +53,9 @@ export type UsersInMyOrgTypeaheadResult = NonNullable<NonNullable<LoadOrgMembers
 export type SingleUserInMyOrgTypeaheadResult = UsersInMyOrgTypeaheadResult[number];
 
 export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<UsersInMyOrgTypeaheadResult> {
-  if (!orgMemberSearch) return Promise.resolve([]);
+  if (!orgMemberSearch) return [];
   const client = getClient();
-  const result = client.query(graphql(`
+  const users = await client.query(graphql(`
     query loadOrgMembersTypeahead($filter: UserFilterInput, $take: Int!) {
       usersInMyOrg(where: $filter, orderBy: {name: ASC}, take: $take) {
         totalCount
@@ -67,16 +67,5 @@ export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit =
     }
   `), { filter: userFilter(orgMemberSearch), take: limit });
 
-  const users = result.then(members => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const count = members.data?.usersInMyOrg?.totalCount ?? 0;
-    if (0 < count && count <= limit) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return members.data?.usersInMyOrg?.items ?? [];
-    } else {
-      return [];
-    }
-  });
-
-  return users;
+  return users.data?.usersInMyOrg?.items ?? [];
 }

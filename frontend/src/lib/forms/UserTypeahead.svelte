@@ -34,7 +34,6 @@
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
                 : user.username ? ` (${user.username})`
                 : user.email ? ` (${user.email})`
-                : user.id ? ` (${user.id})`
                 : '';
     return `${user.name}${extra}`;
   }
