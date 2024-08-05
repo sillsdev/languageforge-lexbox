@@ -75,6 +75,7 @@
     "zip-build": "^1.8.0"
   },
   "dependencies": {
-    "platform-bible-utils": "file:../../../paranext-core/lib/platform-bible-utils"
+    "platform-bible-utils": "file:../../../paranext-core/lib/platform-bible-utils",
+    "viewer": "file:../viewer"
   }
 }
