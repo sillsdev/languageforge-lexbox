@@ -5,5 +5,7 @@
   "author": "Lexical tools team",
   "license": "MIT",
   "main": "fw-lite-extension.ts",
-  "activationEvents": []
+  "activationEvents": [],
+  "menus": "contributions/menu.json",
+  "localizedStrings": "contributions/localizedStrings.json",
 }

@@ -51,6 +51,8 @@ const configMain: webpack.Configuration = merge(configBase, {
       patterns: [
         // We want all files from the public folder copied into the output folder
         { from: 'public', to: './' },
+        // We want all files from the contributions folder copied into the output folder under contributions
+        { from: 'contributions', to: './contributions/', noErrorOnMissing: true },
         // Copy this extension's type declaration file into the output folder
         { from: 'src/types/fw-lite-extension.d.ts', to: './' },
         // We need to distribute the package.json for Paranext to read the extension properly

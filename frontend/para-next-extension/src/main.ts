@@ -1,18 +1,12 @@
-import { VerseRef } from '@sillsdev/scripture';
-import papi, { logger, DataProviderEngine } from '@papi/backend';
+import papi, { logger } from '@papi/backend';
 import {
-  type DataProviderUpdateInstructions,
   type ExecutionActivationContext,
-  type IDataProviderEngine,
   type IWebViewProvider,
   type SavedWebViewDefinition,
-  type WebViewContentType,
   type WebViewDefinition,
 } from '@papi/core';
 import type {
-  DoStuffEvent,
-  ExtensionVerseDataTypes,
-  ExtensionVerseSetData,
+  DoStuffEvent, FindEntryEvent,
 } from 'fw-lite-extension';
 import extensionTemplateReact from './extension-template.web-view?inline';
 
@@ -52,6 +46,9 @@ export async function activate(context: ExecutionActivationContext) {
   const onDoStuffEmitter = papi.network.createNetworkEventEmitter<DoStuffEvent>(
     'fwLiteExtension.doStuff',
   );
+  const onFindEntryEmitter = papi.network.createNetworkEventEmitter<FindEntryEvent>(
+    'fwLiteExtension.findEntry',
+  );
 
   let doStuffCount = 0;
   const doStuffCommandPromise = papi.commands.registerCommand(
@@ -65,6 +62,24 @@ export async function activate(context: ExecutionActivationContext) {
       return {
         response: `The template did stuff ${doStuffCount} times! ${message}`,
         occurrence: doStuffCount,
+      };
+    },
+  );
+  const findEntryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.findEntry',
+    (entry: string) => {
+      onFindEntryEmitter.emit({ entry });
+      return {
+        success: true,
+      };
+    },
+  );
+  const simpleFindEntryCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.simpleFind',
+    () => {
+      onFindEntryEmitter.emit({ entry: 'apple' });
+      return {
+        success: true,
       };
     },
   );
@@ -82,6 +97,8 @@ export async function activate(context: ExecutionActivationContext) {
     await reactWebViewProviderPromise,
     onDoStuffEmitter,
     await doStuffCommandPromise,
+    await findEntryCommandPromise,
+    await simpleFindEntryCommandPromise
   );
 
   logger.info('Extension template is finished activating!');

@@ -1,0 +1,24 @@
+﻿{
+  "mainMenu": {
+    "columns": {},
+    "groups": {},
+    "items": [
+      {
+        "label": "%fwLiteExtension_menu_label%",
+        "group": "platform.projectProjects",
+        "order": 1006,
+        "command": "fwLiteExtension.simpleFind"
+      }
+    ]
+  },
+  "defaultWebViewTopMenu": {
+    "columns": {},
+    "groups": {},
+    "items": []
+  },
+  "defaultWebViewContextMenu": {
+    "groups": {},
+    "items": []
+  },
+  "webViewMenus": {}
+}

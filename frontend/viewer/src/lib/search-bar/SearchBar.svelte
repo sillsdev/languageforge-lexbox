@@ -7,12 +7,12 @@
   import { deriveAsync } from '../utils/time';
   import { createEventDispatcher, getContext, onDestroy } from 'svelte';
   import type { IEntry } from '../mini-lcm';
+  import {useSearch} from './search';
 
+  const {search, showSearchDialog} = useSearch();
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;
   }>();
-
-  let showSearchDialog = false;
 
   let waitingForSecondShift = false;
   let waitingForSecondShiftTimeout: ReturnType<typeof setTimeout>;
@@ -22,7 +22,7 @@
     if (waitingForSecondShift) {
       waitingForSecondShift = false;
       clearTimeout(waitingForSecondShiftTimeout);
-      showSearchDialog = true;
+      $showSearchDialog = true;
     } else {
       waitingForSecondShift = true;
       waitingForSecondShiftTimeout = setTimeout(() => {
@@ -36,7 +36,6 @@
   });
 
   const lexboxApi = useLexboxApi();
-  const search = writable<string>('');
   const fetchCount = 105;
   const { value: result, loading } = deriveAsync(search, async (s) => {
     if (!s) return Promise.resolve({ entries: [], search: undefined });
@@ -57,7 +56,7 @@
 
 <Field
   classes={{ input: 'my-1 justify-center opacity-60' }}
-  on:click={() => (showSearchDialog = true)}
+  on:click={() => ($showSearchDialog = true)}
   class="cursor-pointer opacity-80 hover:opacity-100">
   <div class="hidden lg:contents">
     Find entry...
@@ -69,7 +68,7 @@
   </div>
 </Field>
 
-<Dialog bind:open={showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
+<Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
     <TextField
       autofocus
@@ -95,7 +94,7 @@
         noShadow
         on:click={() => {
           dispatch('entrySelected', entry);
-          showSearchDialog = false;
+          $showSearchDialog = false;
         }}
       />
     {/each}
@@ -124,7 +123,7 @@
             on:click={() => {
               $listSearch = $search;
               $selectedIndexExamplar = undefined;
-              showSearchDialog = false;
+              $showSearchDialog = false;
             }}
             class="border w-auto inline ml-0.5">
             Filter list
