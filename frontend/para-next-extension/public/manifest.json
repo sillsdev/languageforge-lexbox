@@ -7,5 +7,5 @@
   "main": "fw-lite-extension.ts",
   "activationEvents": [],
   "menus": "contributions/menu.json",
-  "localizedStrings": "contributions/localizedStrings.json",
+  "localizedStrings": "contributions/localizedStrings.json"
 }
