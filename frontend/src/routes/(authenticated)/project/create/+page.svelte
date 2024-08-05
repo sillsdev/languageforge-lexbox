@@ -5,7 +5,7 @@
   import t from '$lib/i18n';
   import { TitlePage } from '$lib/layout';
   import { z } from 'zod';
-  import { _createProject, _projectCodeAvailable } from './+page';
+  import { _askToJoinProject, _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
   import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
@@ -168,12 +168,13 @@
     );
   }
 
-  let selectedProjectCode: string;
+  let selectedProject: { name: string, id: string } | undefined = undefined;
   let showRelatedProjects = true;
 
-  function askToJoinProject(projectCode: string): void {
-    // TODO: Implement
-    console.log('Will ask to join', projectCode);
+  async function askToJoinProject(projectId: string, projectName: string): Promise<void> {
+    await _askToJoinProject(projectId);
+    notifySuccess($t('project.create.join_request_sent', { projectName }))
+    await goto('/');
   }
 </script>
 
@@ -262,7 +263,7 @@
           {#each $relatedProjects as proj}
           <div class="form-control w-full">
             <label class="label cursor-pointer justify-normal pb-0">
-              <input id={`extra-projects-${proj.code}`} type="radio" bind:group={selectedProjectCode} value={proj.code} class="radio mr-2" />
+              <input id={`extra-projects-${proj.code}`} type="radio" bind:group={selectedProject} value={proj} class="radio mr-2" />
               <span class="label-text inline-flex items-center gap-2">
                 {proj.name} ({proj.code}) <br/>
                 {proj.description}
@@ -281,8 +282,8 @@
           <Button
             class="mr-2"
             variant="btn-primary"
-            disabled={!selectedProjectCode}
-            on:click={() => askToJoinProject(selectedProjectCode)}
+            disabled={!selectedProject}
+            on:click={() => askToJoinProject(selectedProject.id, selectedProject.name)}
           >
             {$t('project.create.ask_to_join')}
           </Button>

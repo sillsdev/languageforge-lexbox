@@ -199,6 +199,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "maybe_related_description": "Perhaps you want to join one of these instead?",
       "ask_to_join": "Ask to join",
       "no_thanks": "No thanks, create a new project",
+      "join_request_sent": "Your request to join the {projectName} project has been sent to the project manager(s)",
       "description": "Description",
       "name_missing": "Project name required",
       "retention_policy": "Purpose",

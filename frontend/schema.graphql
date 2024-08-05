@@ -607,7 +607,7 @@ input AddProjectToOrgInput {
 }
 
 input AskToJoinProjectInput {
-  projectCode: String!
+  projectId: UUID!
 }
 
 input BooleanOperationFilterInput {
