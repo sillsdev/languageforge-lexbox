@@ -23,7 +23,7 @@
 
 <div
   role="radiogroup"
-  class="what-should-go-here?"
+  class={$$props.class ?? ''}
   aria-labelledby={`label-${id}`}
   id={`group-${id}`}
   >
