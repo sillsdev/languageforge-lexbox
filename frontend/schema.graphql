@@ -414,6 +414,7 @@ type Query {
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
   orgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
   myOrgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
+  usersInMyOrg(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersInMyOrgCollectionSegment
   orgById(orgId: UUID!): OrgById
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
@@ -520,6 +521,15 @@ type UsersCollectionSegment {
   totalCount: Int!
 }
 
+"A segment of a collection."
+type UsersInMyOrgCollectionSegment {
+  "Information to aid in pagination."
+  pageInfo: CollectionSegmentInfo!
+  "A flattened list of the items."
+  items: [User!]
+  totalCount: Int!
+}
+
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
 
 union AddProjectToOrgError = DbError | NotFoundError
@@ -577,6 +587,7 @@ union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAc
 input AddProjectMemberInput {
   projectId: UUID!
   usernameOrEmail: String!
+  userId: UUID
   role: ProjectRole!
   canInvite: Boolean!
 }

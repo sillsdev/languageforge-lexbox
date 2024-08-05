@@ -126,6 +126,7 @@ test('register via new-user invitation email', async ({ page }) => {
   const addMemberModal = await projectPage.clickAddMember();
   await addMemberModal.emailField.fill(newEmail);
   await addMemberModal.selectEditorRole();
+  await addMemberModal.inviteCheckbox.check();
   await addMemberModal.submitButton.click();
   await page.locator(':text("has been sent an invitation email")').waitFor();
 

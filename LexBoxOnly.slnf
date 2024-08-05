@@ -1,0 +1,17 @@
+{
+  "solution": {
+    "path": "LexBox.sln",
+    "projects": [
+      "backend\\FixFwData\\FixFwData.csproj",
+      "backend\\FwLite\\MiniLcm\\MiniLcm.csproj",
+      "backend\\LexBoxApi\\LexBoxApi.csproj",
+      "backend\\LexCore\\LexCore.csproj",
+      "backend\\LexData\\LexData.csproj",
+      "backend\\LfClassicData\\LfClassicData.csproj",
+      "backend\\SyncReverseProxy\\SyncReverseProxy.csproj",
+      "backend\\Testing\\Testing.csproj",
+      "backend\\harmony\\src\\SIL.Harmony.Core\\SIL.Harmony.Core.csproj",
+      "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj"
+    ]
+  }
+}

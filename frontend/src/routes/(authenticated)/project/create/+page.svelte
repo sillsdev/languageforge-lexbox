@@ -24,7 +24,7 @@
   let requestingUser : typeof data.requestingUser;
   $: myOrgs = data.myOrgs ?? [];
 
-  const { notifySuccess } = useNotifications();
+  const { notifyWarning } = useNotifications();
 
   const formSchema = z.object({
     name: z.string().trim().min(1, $t('project.create.name_missing')),
@@ -71,7 +71,7 @@
     if (result.data?.createProject.createProjectResponse?.result == CreateProjectResult.Created) {
       await goto(`/project/${$form.code}`);
     } else {
-      notifySuccess($t('project.create.requested', { name: $form.name }), Duration.Long);
+      notifyWarning($t('project.create.requested', { name: $form.name }), Duration.Persistent);
       await goto('/');
     }
   });
