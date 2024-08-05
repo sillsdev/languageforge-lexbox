@@ -100,6 +100,7 @@ export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langC
           id
           code
           name
+          description
         }
       }
     `), { input }

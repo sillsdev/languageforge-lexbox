@@ -264,7 +264,8 @@
             <label class="label cursor-pointer justify-normal pb-0">
               <input id={`extra-projects-${proj.code}`} type="radio" bind:group={selectedProjectCode} value={proj.code} class="radio mr-2" />
               <span class="label-text inline-flex items-center gap-2">
-                {proj.name} ({proj.code})
+                {proj.name} ({proj.code}) <br/>
+                {proj.description}
               </span>
             </label>
           </div>
