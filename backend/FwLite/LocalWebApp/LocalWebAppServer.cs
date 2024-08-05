@@ -31,7 +31,7 @@ public static class LocalWebAppServer
         builder.ConfigureProd<AuthConfig>(config =>
             config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
         builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
-
+        builder.Services.AddCors();
         builder.Services.AddLocalAppServices(builder.Environment);
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -49,9 +49,13 @@ public static class LocalWebAppServer
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+            app.UseCors(policyBuilder =>
+            {
+                policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            });
         }
 
-//configure dotnet to serve static files from the embedded resources
+        //configure dotnet to serve static files from the embedded resources
         var sharedOptions =
             new SharedOptions() { FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly) };
         app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
