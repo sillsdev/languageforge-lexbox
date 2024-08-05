@@ -21,8 +21,8 @@
   import CreateUserModal from '$lib/components/Users/CreateUserModal.svelte';
   import type { Confidentiality } from '$lib/components/Projects';
   import { browser } from '$app/environment';
-  import UserTable from './UserTable.svelte';
-  import UserFilter, { filterUsers, type UserFilters } from './UserFilter.svelte';
+  import UserTable from '$lib/components/Users/UserTable.svelte';
+  import UserFilter, { filterUsers, type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
@@ -43,10 +43,11 @@
     memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     usersICreated: queryParam.boolean<boolean>(false),
+    userType: queryParam.string<UserType>(''),
     tab: queryParam.string<AdminTabId>('projects'),
   });
 
-  const userFilterKeys = ['userSearch', 'usersICreated'] as const satisfies Readonly<(keyof UserFilters)[]>;
+  const userFilterKeys = ['userSearch', 'usersICreated', 'userType'] as const satisfies Readonly<(keyof UserFilters)[]>;
 
   const { queryParamValues, defaultQueryParamValues } = queryParams;
   $: tab = $queryParamValues.tab;
