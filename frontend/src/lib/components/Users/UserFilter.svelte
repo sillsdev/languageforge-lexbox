@@ -68,7 +68,6 @@
             <Icon icon="i-mdi-shield-lock-open-outline" />
             {$t('admin_dashboard.user_filter.user_type.nonAdmin')}
           {:else if filter.value === 'guest'}
-            <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
             {$t('admin_dashboard.user_filter.user_type.guest')}
           {/if}
         </ActiveFilter>
