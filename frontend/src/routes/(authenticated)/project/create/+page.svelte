@@ -172,10 +172,12 @@
   let showRelatedProjects = true;
 
   async function askToJoinProject(projectId: string, projectName: string): Promise<void> {
-    await _askToJoinProject(projectId);
-    notifySuccess($t('project.create.join_request_sent', { projectName }))
-    $tainted = undefined; // Prevent "are you sure you want to leave?" warning
-    await goto('/');
+    const joinResult = await _askToJoinProject(projectId);
+    if (!joinResult.error) {
+      notifySuccess($t('project.create.join_request_sent', { projectName }))
+      $tainted = undefined; // Prevent "are you sure you want to leave?" warning
+      await goto('/');
+    }
   }
 </script>
 

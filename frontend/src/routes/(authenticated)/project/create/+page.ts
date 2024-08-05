@@ -127,5 +127,4 @@ export async function _askToJoinProject(projectId: string): $OpResult<AskToJoinP
     `),
     { input: { projectId } });
   return result;
-  //
 }
