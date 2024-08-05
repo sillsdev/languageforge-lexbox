@@ -19,7 +19,8 @@
   import DevContent from '$lib/layout/DevContent.svelte';
   import { isDev } from '$lib/layout/DevContent.svelte';
   import { _getProjectsByLangCodeAndOrg } from './+page';
-  import RadioButtonGroup from '$lib/forms/RadioButtonGroup.svelte';
+  import Markdown from 'svelte-exmarkdown';
+  import { NewTabLinkRenderer } from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
 
   export let data;
@@ -249,12 +250,32 @@
 
     {#if $relatedProjects?.length}
       {#if showRelatedProjects}
-        <RadioButtonGroup
-          buttons={$relatedProjects.map(proj => ({label: proj.name, value: proj.code}))}
-          label={$t('project.create.maybe_related')}
-          description={$t('project.create.maybe_related_description')}
-          bind:value={selectedProjectCode}
-        />
+        <!-- Note, not using RadioButtonGroup here so we can better customize the display to the needs of this form -->
+        <div
+          role="radiogroup"
+          aria-labelledby="label-extra-projects"
+          id="group-extra-projects"
+          >
+          <div class="legend" id="label-extra-projects">
+            {$t('project.create.maybe_related')}
+          </div>
+          {#each $relatedProjects as proj}
+          <div class="form-control w-full">
+            <label class="label cursor-pointer justify-normal pb-0">
+              <input id={`extra-projects-${proj.code}`} type="radio" bind:group={selectedProjectCode} value={proj.code} class="radio mr-2" />
+              <span class="label-text inline-flex items-center gap-2">
+                {proj.name} ({proj.code})
+              </span>
+            </label>
+          </div>
+          {/each}
+          <label for="group-extra-projects" class="label pb-0">
+            <span class="label-text-alt">
+              <Markdown md={$t('project.create.maybe_related_description')} plugins={[{ renderer: { a: NewTabLinkRenderer } }]} />
+            </span>
+          </label>
+        </div>
+
         <div class="inline-flex mt-2">
           <Button
             class="mr-2"
