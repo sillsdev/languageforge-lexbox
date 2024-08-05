@@ -243,14 +243,14 @@ public class ProjectMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Project>> RequestToJoinProject(
+    public async Task<IQueryable<Project>> AskToJoinProject(
         IPermissionService permissionService,
         LoggedInContext loggedInContext,
-        Guid projectId,
+        string projectCode,
         LexBoxDbContext dbContext,
         [Service] IEmailService emailService)
     {
-        await permissionService.AssertCanAskToJoinProject(projectId);
+        await permissionService.AssertCanAskToJoinProject(projectCode);
 
         var user = await dbContext.Users.FindAsync(loggedInContext.User.Id);
         if (user is null) throw new UnauthorizedAccessException();
@@ -259,7 +259,7 @@ public class ProjectMutations
         var project = await dbContext.Projects
             .Include(p => p.Users)
             .ThenInclude(u => u.User)
-            .Where(p => p.Id == projectId)
+            .Where(p => p.Code == projectCode)
             .FirstOrDefaultAsync();
         NotFoundException.ThrowIfNull(project);
 
@@ -269,7 +269,7 @@ public class ProjectMutations
             if (manager.User is null) continue;
             await emailService.SendJoinProjectRequestEmail(manager.User, user, project);
         }
-        return dbContext.Projects.Where(p => p.Id == projectId);
+        return dbContext.Projects.Where(p => p.Id == project.Id);
     }
 
     [Error<NotFoundException>]

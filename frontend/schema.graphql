@@ -21,6 +21,11 @@ type AlreadyExistsError implements Error {
   message: String!
 }
 
+type AskToJoinProjectPayload {
+  project: Project
+  errors: [AskToJoinProjectError!]
+}
+
 type AuthUserOrg {
   role: OrgRole!
   orgId: UUID!
@@ -233,6 +238,7 @@ type Mutation {
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
+  askToJoinProject(input: AskToJoinProjectInput!): AskToJoinProjectPayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
@@ -535,6 +541,8 @@ union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVeri
 
 union AddProjectToOrgError = DbError | NotFoundError
 
+union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
+
 union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
@@ -596,6 +604,10 @@ input AddProjectMemberInput {
 input AddProjectToOrgInput {
   orgId: UUID!
   projectId: UUID!
+}
+
+input AskToJoinProjectInput {
+  projectCode: String!
 }
 
 input BooleanOperationFilterInput {
