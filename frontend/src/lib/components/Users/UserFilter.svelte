@@ -1,7 +1,7 @@
 <script  context="module" lang="ts">
   import type { User } from '../../../routes/(authenticated)/admin/+page';
 
-  export type UserType = 'admin' | 'nonAdmin' | 'guest' | '';
+  export type UserType = 'admin' | 'nonAdmin' | 'guest' | undefined;
 
   export type UserFilters = {
     userSearch: string;
@@ -30,6 +30,7 @@
   import ActiveFilter from '$lib/components/FilterBar/ActiveFilter.svelte';
   import { Icon } from '$lib/icons';
   import t from '$lib/i18n';
+  import UserTypeSelect from '$lib/forms/UserTypeSelect.svelte';
 
 
   type Filters = Partial<UserFilters> & Pick<UserFilters, 'userSearch'>;
@@ -83,6 +84,7 @@
     <h2 class="card-title">{$t('admin_dashboard.user_filter.title')}</h2>
     {#if filterEnabled('userType')}
       <div class="form-control">
+        <UserTypeSelect bind:value={$filters.userType} undefinedOptionLabel={$t('common.any')}/>
       </div>
     {/if}
     {#if filterEnabled('usersICreated')}

@@ -43,7 +43,7 @@
     memberSearch: queryParam.string(undefined),
     projectSearch: queryParam.string<string>(''),
     usersICreated: queryParam.boolean<boolean>(false),
-    userType: queryParam.string<UserType>(''),
+    userType: queryParam.string<UserType>(undefined),
     tab: queryParam.string<AdminTabId>('projects'),
   });
 
