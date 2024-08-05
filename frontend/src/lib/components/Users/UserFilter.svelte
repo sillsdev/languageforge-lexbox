@@ -63,13 +63,13 @@
         <ActiveFilter {filter}>
           {#if filter.value === 'admin'}
             <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
-            {'Admin'}
+            {$t('admin_dashboard.user_filter.user_type.admin')}
           {:else if filter.value === 'nonAdmin'}
             <Icon icon="i-mdi-shield-lock-open-outline" />
-            {'Non-admin'}
+            {$t('admin_dashboard.user_filter.user_type.nonAdmin')}
           {:else if filter.value === 'guest'}
             <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
-            {'Guest'}
+            {$t('admin_dashboard.user_filter.user_type.guest')}
           {/if}
         </ActiveFilter>
       {:else if filter.key === 'usersICreated' && filter.value}
