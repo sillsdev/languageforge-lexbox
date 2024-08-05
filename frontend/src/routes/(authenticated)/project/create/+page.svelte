@@ -284,14 +284,14 @@
             disabled={!selectedProjectCode}
             on:click={() => askToJoinProject(selectedProjectCode)}
           >
-            Ask to joim
+            {$t('project.create.ask_to_join')}
           </Button>
           <Button
             class="mr-2"
             variant="btn-warning"
             on:click={() => showRelatedProjects = false}
           >
-            No thanks, create a new project
+          {$t('project.create.no_thanks')}
           </Button>
         </div>
       {:else}
