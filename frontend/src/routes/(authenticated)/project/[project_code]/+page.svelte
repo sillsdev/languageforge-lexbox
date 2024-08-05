@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge, BadgeList } from '$lib/components/Badges';
+  import { Badge, BadgeButton, BadgeList } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import { ProjectTypeBadge } from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
@@ -82,10 +82,12 @@
 
   onMount(() => { // query params not available during SSR
     const urlValues = getSearchParamValues<ProjectPageQueryParams>();
-    // TODO: Pass these to the AddProjectMember component once it acquires the ability to receive a user ID (PR 986)
-    console.log('TODO: Pass these values to AddProjectMember component', urlValues);
+    if (urlValues.addUserId && urlValues.addUserName && addProjectMember) {
+      void addProjectMember.openModal(urlValues.addUserId, urlValues.addUserName);
+    }
   });
 
+  let addProjectMember: AddProjectMember;
 
   let userModal: UserModal;
 
@@ -446,7 +448,11 @@
           on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
           >
             <svelte:fragment slot="extraButtons">
-              <AddProjectMember projectId={project.id} />
+              <BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={() => addProjectMember.openModal(undefined, undefined)}>
+                {$t('project_page.add_user.add_button')}
+              </BadgeButton>
+
+              <AddProjectMember bind:this={addProjectMember} projectId={project.id} />
               <BulkAddProjectMembers projectId={project.id} />
             </svelte:fragment>
             <UserModal bind:this={userModal}/>

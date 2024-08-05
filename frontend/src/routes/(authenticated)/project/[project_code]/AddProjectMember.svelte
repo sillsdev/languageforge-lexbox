@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { BadgeButton } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
   import { ProjectRoleSelect, isEmail } from '$lib/forms';
   import { ProjectRole } from '$lib/gql/types';
@@ -26,9 +25,11 @@
 
   const { notifySuccess } = useNotifications();
 
-  async function openModal(): Promise<void> {
+  export async function openModal(initialUserId?: string, initialUserName?: string): Promise<void> {
     let userInvited = false;
-    const { response, formState } = await formModal.open(async () => {
+    const initialValue = initialUserName ? { usernameOrEmail: initialUserName } : undefined;
+    if (initialUserId) selectedUserId = initialUserId;
+    const { response, formState } = await formModal.open(initialValue, async () => {
       const { error } = await _addProjectMember({
         projectId,
         usernameOrEmail: $form.usernameOrEmail ?? '',
@@ -69,10 +70,6 @@
     }
   }
 </script>
-
-<BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
-  {$t('project_page.add_user.add_button')}
-</BadgeButton>
 
 <FormModal bind:this={formModal} {schema} let:errors --justify-actions="end">
   <span slot="title">
