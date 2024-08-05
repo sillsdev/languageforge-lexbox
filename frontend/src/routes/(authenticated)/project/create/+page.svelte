@@ -51,7 +51,7 @@
 
   //random guid
   let projectId:string = crypto.randomUUID();
-  let { form, errors, message, enhance, submitting } = lexSuperForm(formSchema, async () => {
+  let { form, errors, message, enhance, submitting, tainted } = lexSuperForm(formSchema, async () => {
     const result = await _createProject({
       id: projectId,
       name: $form.name,
@@ -174,6 +174,7 @@
   async function askToJoinProject(projectId: string, projectName: string): Promise<void> {
     await _askToJoinProject(projectId);
     notifySuccess($t('project.create.join_request_sent', { projectName }))
+    $tainted = undefined; // Prevent "are you sure you want to leave?" warning
     await goto('/');
   }
 </script>
