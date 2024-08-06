@@ -122,7 +122,11 @@
     // eslint-disable-next-line svelte/require-store-reactive-access
     if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
   }, []);
-  const relatedProjects = derived([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => [...byName, ...byCode]);
+  const relatedProjects = derived([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => {
+    // Put projects related by language code first as they're more likely to be real matches
+    var uniqueByName = byName.filter(n => byCode.findIndex(c => c.id == n.id) == -1);
+    return [...byCode, ...uniqueByName];
+  });
 
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
