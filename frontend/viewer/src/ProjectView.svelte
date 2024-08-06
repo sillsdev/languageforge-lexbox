@@ -1,6 +1,13 @@
 <script lang="ts">
   import {AppBar, Button, ProgressCircle} from 'svelte-ux';
-  import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiEyeSettingsOutline, mdiHome} from '@mdi/js';
+  import {
+    mdiArrowCollapseLeft,
+    mdiArrowCollapseRight,
+    mdiArrowLeft,
+    mdiChatQuestion,
+    mdiEyeSettingsOutline,
+    mdiHome
+  } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import {navigate} from 'svelte-routing';
   import {headword, pickBestAlternative} from './lib/utils';
@@ -267,12 +274,24 @@
         size="sm"
         variant="outline"
         icon={mdiEyeSettingsOutline}>
-        <div class="hidden sm:contents">
+        <div class="hidden md:contents">
           Configure
         </div>
       </Button>
       {#if $features.history}
         <ActivityView/>
+      {/if}
+      {#if $features.feedback}
+        <Button
+          href="/api/feedback"
+          target="_blank"
+          size="sm"
+          variant="outline"
+          icon={mdiChatQuestion}>
+          <div class="hidden sm:contents">
+            Feedback
+          </div>
+        </Button>
       {/if}
     </div>
   </AppBar>
