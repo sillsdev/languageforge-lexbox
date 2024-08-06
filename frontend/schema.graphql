@@ -416,7 +416,7 @@ type Query {
   myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectsByLangCodeAndOrg(input: ProjectsByLangCodeAndOrgInput! orderBy: [ProjectSortInput!]): [Project!]!
-  projectsByNameAndOrg(input: ProjectsByNameAndOrgInput! orderBy: [ProjectSortInput!]): [Project!]!
+  projectsInMyOrg(input: ProjectsInMyOrgInput! where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]!
   projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
@@ -970,9 +970,8 @@ input ProjectsByLangCodeAndOrgInput {
   langCode: String!
 }
 
-input ProjectsByNameAndOrgInput {
+input ProjectsInMyOrgInput {
   orgId: UUID!
-  projectName: String!
 }
 
 input RemoveProjectFromOrgInput {

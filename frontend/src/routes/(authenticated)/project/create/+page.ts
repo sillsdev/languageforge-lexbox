@@ -108,22 +108,22 @@ export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langC
   return results.projectsByLangCodeAndOrg;
 }
 
-export async function _getProjectsByNameAndOrg(input: { orgId: string, projectName: string }): Promise<Readable<ProjectsByNameAndOrgQuery['projectsByNameAndOrg']>> {
+export async function _getProjectsByNameAndOrg({ orgId, projectName }: { orgId: string, projectName: string }): Promise<Readable<ProjectsByNameAndOrgQuery['projectsInMyOrg']>> {
   const client = getClient();
   //language=GraphQL
   const results = await client.awaitedQueryStore(fetch,
     graphql(`
-      query ProjectsByNameAndOrg($input: ProjectsByNameAndOrgInput!) {
-        projectsByNameAndOrg(input: $input) {
+      query ProjectsByNameAndOrg($input: ProjectsInMyOrgInput!, $filter: ProjectFilterInput) {
+        projectsInMyOrg(input: $input, where: $filter) {
           id
           code
           name
           description
         }
       }
-    `), { input }
+    `), { input: { orgId }, filter: {name: {icontains: projectName} } }
   );
-  return results.projectsByNameAndOrg;
+  return results.projectsInMyOrg;
 }
 
 export async function _askToJoinProject(projectId: string): $OpResult<AskToJoinProjectMutation> {

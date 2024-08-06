@@ -99,12 +99,12 @@
   });
 
   const projectNameAndOrgIdStore: Readable<{projectName: string, orgId: string}> = derived([projectNameStore, orgIdStore], ([projectName, orgId], set) => {
-    if (projectName && orgId) {
+    if (projectName && orgId && projectName.length >= 3) {
       set({ projectName, orgId: orgId });
     }
   });
 
-  const relatedProjectsByCodeStoreStore = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg);
+  const relatedProjectsByLangCodeStoreStore = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg);
   const relatedProjectsByNameStoreStore = deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg);
 
   // Typescript isn't quite smart enough to infer the type of the `set` function below, so we have to be explicit here
@@ -114,7 +114,7 @@
     name: string;
     description?: string | null;
   };
-  const relatedProjectsByCode = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsByCodeStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
+  const relatedProjectsByLangCode = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsByLangCodeStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
     // eslint-disable-next-line svelte/require-store-reactive-access
     if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
   }, []);
@@ -122,7 +122,7 @@
     // eslint-disable-next-line svelte/require-store-reactive-access
     if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
   }, []);
-  const relatedProjects = derived([relatedProjectsByName, relatedProjectsByCode], ([byName, byCode]) => [...byName, ...byCode]);
+  const relatedProjects = derived([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => [...byName, ...byCode]);
 
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
@@ -321,13 +321,13 @@
           </Button>
         </div>
       {:else}
-        <span on:click={() => showRelatedProjects = true} class="mb-4">
-          Found {$relatedProjectsByCode.length} related projects, click to see them
-        </span>
+        <button class="btn btn-ghost btn-sm mb-4" tabindex="0" on:click={() => showRelatedProjects = true}>
+          {$t('project.create.click_to_view_related_projects', {count: $relatedProjects.length})}
+        </button>
       {/if}
     {/if}
 
-    {#if !$relatedProjectsByCode?.length || !showRelatedProjects}
+    {#if !$relatedProjects?.length || !showRelatedProjects}
       <TextArea
         id="description"
         label={$t('project.create.description')}
