@@ -11,6 +11,8 @@ spec:
           volumeMounts:
             - mountPath: /frontend
               name: gql-schema
+            - mountPath: /var/www
+              name: www
         - name: otel-collector
           env: #don't try to export to honeycomb
             - name: COLLECTOR_CONFIG_OVERRIDE
@@ -30,4 +32,6 @@ spec:
                       exporters: [otlp/aspire]
       volumes:
         - name: gql-schema
+          emptyDir: {}
+        - name: www
           emptyDir: {}

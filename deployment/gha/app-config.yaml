@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: app-config
 data:
-  environment-name: "Staging"
+  environment-name: "Development"
