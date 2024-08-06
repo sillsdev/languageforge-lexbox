@@ -12,7 +12,7 @@
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { derived, writable } from 'svelte/store';
+  import { derived, writable, type Readable, type Subscriber } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
@@ -28,7 +28,7 @@
   let requestingUser : typeof data.requestingUser;
   $: myOrgs = data.myOrgs ?? [];
 
-  const { notifyWarning } = useNotifications();
+  const { notifySuccess, notifyWarning } = useNotifications();
 
   const formSchema = z.object({
     name: z.string().trim().min(1, $t('project.create.name_missing')),
@@ -91,14 +91,22 @@
 
   const langCodeStore = derived(form, ($form) => $form.languageCode);
   const orgIdStore = derived(form, ($form) => $form.orgId);
-  const langCodeAndOrgIdStore = derived([langCodeStore, orgIdStore], ([lang, orgId], set) => {
+  const langCodeAndOrgIdStore: Readable<{langCode: string, orgId: string}> = derived([langCodeStore, orgIdStore], ([lang, orgId], set) => {
     if (lang && orgId && (lang.length == 2 || lang.length == 3)) {
       set({ langCode: lang, orgId: orgId });
     }
   });
 
   const relatedProjectsStoreStore = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg);
-  const relatedProjects = derived(relatedProjectsStoreStore, (nestedStore, set) => {
+  // Typescript isn't quite smart enough to infer the type of the `set` function below, so we have to be explicit here
+  type RelatedProject = {
+    id: string;
+    code: string;
+    name: string;
+    description?: string | null;
+  };
+  const relatedProjects = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
+    // eslint-disable-next-line svelte/require-store-reactive-access
     if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
   }, []);
 
@@ -286,7 +294,7 @@
             class="mr-2"
             variant="btn-primary"
             disabled={!selectedProject}
-            on:click={() => askToJoinProject(selectedProject.id, selectedProject.name)}
+            on:click={() => {if (selectedProject) void askToJoinProject(selectedProject.id, selectedProject.name)}}
           >
             {$t('project.create.ask_to_join')}
           </Button>
