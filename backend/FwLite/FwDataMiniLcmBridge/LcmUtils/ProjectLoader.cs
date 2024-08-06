@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using SIL.LCModel;
 using SIL.WritingSystems;
 
@@ -28,7 +29,10 @@ public class ProjectLoader : IProjectLoader
         }
 
         Icu.Wrapper.Init();
-        Debug.Assert(Icu.Wrapper.IcuVersion == "72.1.0.3");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Debug.Assert(Icu.Wrapper.IcuVersion == "72.1.0.3");
+        }
         Sldr.Initialize();
         _init = true;
     }
