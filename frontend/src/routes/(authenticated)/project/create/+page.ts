@@ -1,4 +1,4 @@
-import type { $OpResult, AskToJoinProjectMutation, CreateProjectInput, CreateProjectMutation, ProjectsByLangCodeAndOrgQuery } from '$lib/gql/types';
+import type { $OpResult, AskToJoinProjectMutation, CreateProjectInput, CreateProjectMutation, ProjectsByLangCodeAndOrgQuery, ProjectsByNameAndOrgQuery } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
@@ -106,6 +106,24 @@ export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langC
     `), { input }
   );
   return results.projectsByLangCodeAndOrg;
+}
+
+export async function _getProjectsByNameAndOrg(input: { orgId: string, projectName: string }): Promise<Readable<ProjectsByNameAndOrgQuery['projectsByNameAndOrg']>> {
+  const client = getClient();
+  //language=GraphQL
+  const results = await client.awaitedQueryStore(fetch,
+    graphql(`
+      query ProjectsByNameAndOrg($input: ProjectsByNameAndOrgInput!) {
+        projectsByNameAndOrg(input: $input) {
+          id
+          code
+          name
+          description
+        }
+      }
+    `), { input }
+  );
+  return results.projectsByNameAndOrg;
 }
 
 export async function _askToJoinProject(projectId: string): $OpResult<AskToJoinProjectMutation> {

@@ -18,7 +18,7 @@
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
   import DevContent from '$lib/layout/DevContent.svelte';
   import { isDev } from '$lib/layout/DevContent.svelte';
-  import { _getProjectsByLangCodeAndOrg } from './+page';
+  import { _getProjectsByLangCodeAndOrg, _getProjectsByNameAndOrg } from './+page';
   import Markdown from 'svelte-exmarkdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
@@ -89,6 +89,7 @@
   $: $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
   const codeErrors = derived([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
 
+  const projectNameStore = derived(form, ($form) => $form.name);
   const langCodeStore = derived(form, ($form) => $form.languageCode);
   const orgIdStore = derived(form, ($form) => $form.orgId);
   const langCodeAndOrgIdStore: Readable<{langCode: string, orgId: string}> = derived([langCodeStore, orgIdStore], ([lang, orgId], set) => {
@@ -97,7 +98,15 @@
     }
   });
 
-  const relatedProjectsStoreStore = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg);
+  const projectNameAndOrgIdStore: Readable<{projectName: string, orgId: string}> = derived([projectNameStore, orgIdStore], ([projectName, orgId], set) => {
+    if (projectName && orgId) {
+      set({ projectName, orgId: orgId });
+    }
+  });
+
+  const relatedProjectsByCodeStoreStore = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg);
+  const relatedProjectsByNameStoreStore = deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg);
+
   // Typescript isn't quite smart enough to infer the type of the `set` function below, so we have to be explicit here
   type RelatedProject = {
     id: string;
@@ -105,10 +114,15 @@
     name: string;
     description?: string | null;
   };
-  const relatedProjects = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
+  const relatedProjectsByCode = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsByCodeStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
     // eslint-disable-next-line svelte/require-store-reactive-access
     if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
   }, []);
+  const relatedProjectsByName = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsByNameStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
+    // eslint-disable-next-line svelte/require-store-reactive-access
+    if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
+  }, []);
+  const relatedProjects = derived([relatedProjectsByName, relatedProjectsByCode], ([byName, byCode]) => [...byName, ...byCode]);
 
   const typeCodeMap: Partial<Record<ProjectType, string | undefined>> = {
     [ProjectType.FlEx]: 'flex',
@@ -260,7 +274,7 @@
       readonly={!$form.customCode}
     />
 
-    {#if $relatedProjects?.length}
+    {#if $relatedProjects.length}
       {#if showRelatedProjects}
         <!-- Note, not using RadioButtonGroup here so we can better customize the display to the needs of this form -->
         <div
@@ -308,12 +322,12 @@
         </div>
       {:else}
         <span on:click={() => showRelatedProjects = true} class="mb-4">
-          Found {$relatedProjects.length} related projects, click to see them
+          Found {$relatedProjectsByCode.length} related projects, click to see them
         </span>
       {/if}
     {/if}
 
-    {#if !$relatedProjects?.length || !showRelatedProjects}
+    {#if !$relatedProjectsByCode?.length || !showRelatedProjects}
       <TextArea
         id="description"
         label={$t('project.create.description')}

@@ -416,6 +416,7 @@ type Query {
   myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
   projectsByLangCodeAndOrg(input: ProjectsByLangCodeAndOrgInput! orderBy: [ProjectSortInput!]): [Project!]!
+  projectsByNameAndOrg(input: ProjectsByNameAndOrgInput! orderBy: [ProjectSortInput!]): [Project!]!
   projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
@@ -595,7 +596,7 @@ union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAc
 
 input AddProjectMemberInput {
   projectId: UUID!
-  usernameOrEmail: String!
+  usernameOrEmail: String
   userId: UUID
   role: ProjectRole!
   canInvite: Boolean!
@@ -967,6 +968,11 @@ input ProjectWritingSystemsFilterInput {
 input ProjectsByLangCodeAndOrgInput {
   orgId: UUID!
   langCode: String!
+}
+
+input ProjectsByNameAndOrgInput {
+  orgId: UUID!
+  projectName: String!
 }
 
 input RemoveProjectFromOrgInput {
