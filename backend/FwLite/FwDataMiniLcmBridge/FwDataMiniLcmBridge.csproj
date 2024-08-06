@@ -11,7 +11,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-        <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" />
+        <PackageReference Include="Microsoft.ICU.ICU4C.Runtime" Version="72.1.0.3" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
         <PackageReference Include="SIL.LCModel" Version="11.0.0-beta0100 " />
         <PackageReference Include="structuremap.patched" Version="4.7.3" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
