@@ -38,6 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
       <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
       <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
       <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />

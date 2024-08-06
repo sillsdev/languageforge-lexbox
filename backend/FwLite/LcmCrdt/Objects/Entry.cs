@@ -62,7 +62,8 @@ public class Entry : MiniLcm.Entry, IObjectBase<Entry>
             LexemeForm = LexemeForm.Copy(),
             CitationForm = CitationForm.Copy(),
             LiteralMeaning = LiteralMeaning.Copy(),
-            Note = Note.Copy()
+            Note = Note.Copy(),
+            Senses = [..Senses.Select(s => (Sense) s.Copy())]
         };
     }
 }

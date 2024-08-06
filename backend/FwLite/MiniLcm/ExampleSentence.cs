@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm;
 
-public class ExampleSentence
+public class ExampleSentence : IObjectWithId
 {
     public virtual Guid Id { get; set; }
     public virtual MultiString Sentence { get; set; } = new();

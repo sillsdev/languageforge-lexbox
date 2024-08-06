@@ -15,12 +15,12 @@ public static partial class ProjectRoutes
     {
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/projects",
-            async (ProjectsService projectService, LexboxProjectService lexboxProjectService) =>
+            async (ProjectsService projectService, LexboxProjectService lexboxProjectService, FieldWorksProjectList fieldWorksProjectList) =>
         {
             var crdtProjects = await projectService.ListProjects();
             var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
             //basically populate projects and indicate if they are lexbox or fwdata
-            foreach (var p in FieldWorksProjectList.EnumerateProjects())
+            foreach (var p in fieldWorksProjectList.EnumerateProjects())
             {
                 if (projects.TryGetValue(p.Name, out var project))
                 {

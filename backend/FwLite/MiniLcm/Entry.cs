@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm;
 
-public class Entry
+public class Entry : IObjectWithId
 {
     public virtual Guid Id { get; set; }
 

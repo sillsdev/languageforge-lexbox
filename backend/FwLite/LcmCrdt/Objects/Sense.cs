@@ -102,7 +102,8 @@ public class Sense : MiniLcm.Sense, IObjectBase<Sense>
             Gloss = Gloss.Copy(),
             PartOfSpeech = PartOfSpeech,
             PartOfSpeechId = PartOfSpeechId,
-            SemanticDomains = [..SemanticDomains]
+            SemanticDomains = [..SemanticDomains],
+            ExampleSentences = [..ExampleSentences]
         };
     }
 }

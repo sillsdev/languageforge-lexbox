@@ -98,26 +98,23 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = Cache.ServiceLocator.WritingSystems.VernacularWritingSystems.Select(ws => new WritingSystem
-            {
-                //todo determine current and create a property for that.
-                Id = ws.Id,
-                Name = ws.LanguageTag,
-                Abbreviation = ws.Abbreviation,
-                Font = ws.DefaultFontName,
-                Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
-            }).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems.Select(ws => new WritingSystem
-            {
-                Id = ws.Id,
-                Name = ws.LanguageTag,
-                Abbreviation = ws.Abbreviation,
-                Font = ws.DefaultFontName,
-                Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
-            }).ToArray()
+            Vernacular = Cache.ServiceLocator.WritingSystems.VernacularWritingSystems.Select(FromLcmWritingSystem).ToArray(),
+            Analysis = Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems.Select(FromLcmWritingSystem).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
+    }
+
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws)
+    {
+        return new WritingSystem
+        {
+            Id = ws.Id,
+            Name = ws.LanguageTag,
+            Abbreviation = ws.Abbreviation,
+            Font = ws.DefaultFontName,
+            Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
+        };
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -141,7 +138,26 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
-        throw new NotImplementedException();
+        CoreWritingSystemDefinition? ws = null;
+        UndoableUnitOfWorkHelper.Do("Create Writing System",
+            "Remove writing system",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.Id.Code, out ws);
+                ws.Abbreviation = writingSystem.Abbreviation;
+                switch (type)
+                {
+                    case WritingSystemType.Analysis:
+                        Cache.ServiceLocator.WritingSystems.AddToCurrentAnalysisWritingSystems(ws);
+                        break;
+                    case WritingSystemType.Vernacular:
+                        Cache.ServiceLocator.WritingSystems.AddToCurrentVernacularWritingSystems(ws);
+                        break;
+                }
+            });
+        if (ws is null) throw new InvalidOperationException("Writing system not found");
+        return Task.FromResult(FromLcmWritingSystem(ws));
     }
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -304,44 +320,28 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        // TODO: The API requires a value and the UI assumes it has a value. How should we handle this?
-        // if (entry.Id != default) throw new NotSupportedException("Id must be empty");
-        Guid entryId = default;
+        entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
         UndoableUnitOfWorkHelper.Do("Create Entry",
             "Remove entry",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var stemMorphType = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem);
-                var firstSense = entry.Senses.FirstOrDefault();
-                var lexEntry = LexEntryFactory.Create(new LexEntryComponents
-                {
-                    MorphType = stemMorphType,
-                    LexemeFormAlternatives = MultiStringToTsStrings(entry.LexemeForm),
-                    GlossAlternatives = MultiStringToTsStrings(firstSense?.Gloss),
-                    GlossFeatures = [],
-                    MSA = null
-                });
+                var lexEntry = LexEntryFactory.Create(entry.Id, Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
+                lexEntry.LexemeFormOA = Cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+                UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                 UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                 UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
                 UpdateLcmMultiString(lexEntry.Comment, entry.Note);
-                if (firstSense is not null)
-                {
-                    var lexSense = lexEntry.SensesOS.First();
-                    ApplySenseToLexSense(firstSense, lexSense);
-                }
 
-                //first sense is already created
-                foreach (var sense in entry.Senses.Skip(1))
+                foreach (var sense in entry.Senses)
                 {
                     CreateSense(lexEntry, sense);
                 }
 
-                entryId = lexEntry.Guid;
             });
-        if (entryId == default) throw new InvalidOperationException("Entry was not created");
+        if (entry.Id == default) throw new InvalidOperationException("Entry was not created");
 
-        return await GetEntry(entryId) ?? throw new InvalidOperationException("Entry was not found");
+        return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not found");
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)
