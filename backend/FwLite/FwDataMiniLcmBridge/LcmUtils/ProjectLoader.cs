@@ -17,10 +17,11 @@ public interface IProjectLoader
 
 public class ProjectLoader : IProjectLoader
 {
+    public static string UnixDataFolder => Environment.GetEnvironmentVariable("XDG_DATA_HOME") ?? Path.Join(Environment.GetEnvironmentVariable("HOME") ?? "", ".local", "share");
     public static string DataFolder =
         RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
             @"C:\ProgramData\SIL\FieldWorks" :
-            Path.Join(Environment.GetEnvironmentVariable("XDG_DATA_HOME") ?? Path.Join(Environment.GetEnvironmentVariable("HOME"), ".local", "share"), "fieldworks");
+            Path.Join(UnixDataFolder, "fieldworks");
     public static string ProjectFolder = Path.Join(DataFolder, "Projects");
     private static string TemplatesFolder { get; } = Path.Join(DataFolder, "Templates");
     private static bool _init;
