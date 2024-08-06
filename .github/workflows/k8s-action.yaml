@@ -46,7 +46,7 @@ jobs:
       - name: verify ingress
         run: curl -v http://localhost:6579
       - name: build
-        run: dotnet restore && dotnet build --no-restore
+        run: dotnet restore LexBoxOnly.slnf && dotnet build --no-restore LexBoxOnly.slnf
       - name: test
         env:
           TEST_SERVER_HOSTNAME: 'localhost:6579'
@@ -54,5 +54,5 @@ jobs:
           TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost:6579'
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: 'pass'
-        run: dotnet test --logger GitHubActions --filter Category=Integration --blame-hang-timeout 40m
+        run: dotnet test LexBoxOnly.slnf --logger GitHubActions --filter Category=Integration --blame-hang-timeout 40m
 
