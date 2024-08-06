@@ -28,6 +28,7 @@ jobs:
       - name: deploy
         run: |
           kubectl create namespace languagedepot
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
           kubectl apply -k ./deployment/gha
           kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
           kubectl wait --for=condition=Ready --timeout=90s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
