@@ -47,4 +47,9 @@
         <EmbeddedResource Include="..\..\..\frontend\viewer\dist\**\*" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="/opt/local/lib/libicu*.??.dylib" Condition="$([MSBuild]::IsOsPlatform('macOS'))">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>
