@@ -11,6 +11,7 @@ patches:
       version: v1
       kind: PersistentVolumeClaim
     path: change-storage-class.patch.yaml
+  - path: app-config.yaml
 
 images:
   - name: local-dev-init #revert change made by local-dev patch
