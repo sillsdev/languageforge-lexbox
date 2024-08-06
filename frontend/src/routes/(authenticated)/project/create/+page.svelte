@@ -8,11 +8,11 @@
   import { _askToJoinProject, _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
-  import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
+  import { Duration, deriveAsync, deriveAsyncIfDefined, flattenNestedStore } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
-  import { derived, writable, type Readable, type Subscriber } from 'svelte/store';
+  import { derived, writable, type Readable } from 'svelte/store';
   import { concatAll } from '$lib/util/array';
   import { browser } from '$app/environment';
   import { ProjectConfidentialityCombobox } from '$lib/components/Projects';
@@ -104,24 +104,9 @@
     }
   });
 
-  const relatedProjectsByLangCodeStoreStore = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg);
-  const relatedProjectsByNameStoreStore = deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg);
+  const relatedProjectsByLangCode = flattenNestedStore(deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg));
+  const relatedProjectsByName = flattenNestedStore(deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg));
 
-  // Typescript isn't quite smart enough to infer the type of the `set` function below, so we have to be explicit here
-  type RelatedProject = {
-    id: string;
-    code: string;
-    name: string;
-    description?: string | null;
-  };
-  const relatedProjectsByLangCode = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsByLangCodeStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
-    // eslint-disable-next-line svelte/require-store-reactive-access
-    if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
-  }, []);
-  const relatedProjectsByName = derived<Readable<Readable<RelatedProject[]>>, RelatedProject[]>(relatedProjectsByNameStoreStore, (nestedStore, set: Subscriber<RelatedProject[]>) => {
-    // eslint-disable-next-line svelte/require-store-reactive-access
-    if (nestedStore) return nestedStore.subscribe(set); // Return the unsubscribe fn so we don't leak memory
-  }, []);
   const relatedProjects = derived([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => {
     // Put projects related by language code first as they're more likely to be real matches
     var uniqueByName = byName.filter(n => byCode.findIndex(c => c.id == n.id) == -1);
