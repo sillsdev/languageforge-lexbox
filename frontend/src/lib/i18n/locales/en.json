@@ -68,9 +68,6 @@
     "name": "Display name",
     "language": {
       "title": "Language",
-      "en": "English",
-      "es": "Español",
-      "fr": "Français",
       "not_supported": "Not yet supported",
     },
     "reset_password": "Reset your password instead?",

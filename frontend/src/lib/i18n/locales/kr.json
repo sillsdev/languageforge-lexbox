@@ -68,9 +68,6 @@
     "name": "이름",
     "language": {
       "title": "언어",
-      "en": "영어",
-      "es": "스페인어",
-      "fr": "프랑스어",
       "not_supported": "아직 지원되지 않음",
     },
     "reset_password": "비밀번호를 변경하시겠습니까?",
