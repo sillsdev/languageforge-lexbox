@@ -11,6 +11,7 @@
   import HistoryView from '../history/HistoryView.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
+  import MultiFieldEditor from './MultiFieldEditor.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -104,9 +105,21 @@
 </script>
 
 <div bind:this={editorElem} class="editor-grid">
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.lexemeForm}
+                    field={{ id: 'lexemeForm', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Lexeme_Form_field.htm' }}/>
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.citationForm}
+                    field={{ id: 'citationForm', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Citation_Form_field.htm' }}/>
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.literalMeaning}
+                    field={{ id: 'literalMeaning', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Literal_Meaning_field.htm' }}/>
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.note}
+                    field={{ id: 'note', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Note_field.htm' }}/>
   <EntityEditor
     entity={entry}
-    fieldConfigs={Object.values($viewConfig.activeView.entry ?? [])}
+    fieldConfigs={[]}
     customFieldConfigs={Object.values($viewConfig.activeView?.customEntry ?? [])}
     on:change={() => dispatch('change', {entry})}
   />
