@@ -18,19 +18,7 @@
   export let field: FieldConfig & OptionFieldConfig;
   export let value: OptionFieldValue[];
 
-  let options: Readable<MenuOption[]> = readable([]);
-  $: options = pickOptions(field);
-
-  const optionProvider = getContext<OptionProvider>('optionProvider');
-
-  function pickOptions(field: FieldConfig & OptionFieldConfig): Readable<MenuOption[]> {
-    switch (field.optionType as WellKnownMultiOptionType) {
-      case 'semantic-domain':
-        return optionProvider.semanticDomains;
-      default:
-        throw new Error(`No options for multi-option field ${field.id} (Option type: ${field.optionType})`);
-    }
-  }
+  export let options: MenuOption[] = [];
 
   const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
@@ -42,6 +30,6 @@
 <div class="single-field field" class:empty class:extra={'extra' in field && field.extra}>
   <FieldTitle {field} />
   <div class="fields">
-    <CrdtMultiOptionField on:change bind:value options={$options} placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
+    <CrdtMultiOptionField on:change bind:value {options} placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
   </div>
 </div>

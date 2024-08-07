@@ -17,21 +17,7 @@
   export let field: FieldConfig & OptionFieldConfig;
   export let value: string | undefined;
 
-  let options: Readable<MenuOption[]> = readable([]);
-  $: options = pickOptions(field);
-  const emptyOptions = readable([]);
-
-  const optionProvider = getContext<OptionProvider>('optionProvider');
-
-  function pickOptions(field: FieldConfig & OptionFieldConfig): Readable<MenuOption[]> {
-    switch (field.optionType as WellKnownSingleOptionType) {
-      case 'part-of-speech':
-        return optionProvider.partsOfSpeech;
-      default:
-        console.error(`No options for single-option field '${field.id}' (Option type: ${field.optionType})`);
-        return emptyOptions;
-    }
-  }
+  export let options: MenuOption[] = [];
 
   const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
@@ -43,6 +29,6 @@
 <div class="single-field field" class:empty class:extra={'extra' in field && field.extra}>
   <FieldTitle {field} />
   <div class="fields">
-    <CrdtOptionField on:change bind:value options={$options} placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
+    <CrdtOptionField on:change bind:value {options} placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
   </div>
 </div>
