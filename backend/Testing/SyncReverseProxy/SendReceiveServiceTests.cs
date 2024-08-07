@@ -133,14 +133,8 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
 
         // First, save the current value of `hg tip` from the original project
-        var tipUri = new UriBuilder
-        {
-            Scheme = TestingEnvironmentVariables.HttpScheme,
-            Host = TestingEnvironmentVariables.ServerHostname,
-            Path = $"hg/{projectConfig.Code}/tags",
-            Query = "?style=json"
-        };
-        var response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
+        var tipUri = $"/hg/{projectConfig.Code}/tags?style=json";
+        var response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         var jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var originalTip = jsonResult?["node"]?.AsValue()?.ToString();
         originalTip.ShouldNotBeNull();
@@ -155,7 +149,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         await _adminApiTester.HttpClient.PostAsync($"{_adminApiTester.BaseUrl}/api/project/finishResetProject/{projectConfig.Code}", null);
 
         // Step 2: verify project is now empty, i.e. tip is "0000000..."
-        response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
+        response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var emptyTip = jsonResult?["node"]?.AsValue()?.ToString();
         emptyTip.ShouldNotBeNull();
@@ -178,7 +172,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
         _output.WriteLine(srResultStep3);
 
         // Step 4: verify project tip is same hash as original project tip
-        response = await _adminApiTester.HttpClient.GetAsync(tipUri.Uri);
+        response = await _adminApiTester.HttpClient.GetAsync(tipUri);
         jsonResult = await response.Content.ReadFromJsonAsync<JsonObject>();
         var postSRTip = jsonResult?["node"]?.AsValue()?.ToString();
         postSRTip.ShouldNotBeNull();
