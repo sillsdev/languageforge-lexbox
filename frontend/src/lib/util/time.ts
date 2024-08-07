@@ -112,5 +112,5 @@ export function deriveAsyncIfDefined<T, D>(
  * This is useful when calling deriveAsync on functions that return GraphQL query stores
  */
 export function flattenNestedStore<T>(nestedStore: Readable<Readable<T>>): Readable<T> {
-  return derived(nestedStore, (store, set) => store.subscribe(set));
+  return derived(nestedStore, (store, set) => store?.subscribe(set));
 }
