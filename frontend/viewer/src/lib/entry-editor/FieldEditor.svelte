@@ -47,6 +47,3 @@
   <MultiOptionEditor on:change field={state.field} bind:value={state.value} />
 {/if}
 
-<style global>
-  @import './field.postcss';
-</style>
