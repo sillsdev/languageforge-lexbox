@@ -104,8 +104,8 @@
     }
   });
 
-  const relatedProjectsByLangCode = flattenNestedStore(deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg));
-  const relatedProjectsByName = flattenNestedStore(deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg));
+  const relatedProjectsByLangCode = flattenNestedStore(deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg), []);
+  const relatedProjectsByName = flattenNestedStore(deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg), []);
 
   const relatedProjects = derived([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => {
     // Put projects related by language code first as they're more likely to be real matches
