@@ -26,8 +26,8 @@
   $: empty = !value;
 </script>
 
-<div class="single-field field" class:empty class:extra={'extra' in field && field.extra}>
-  <FieldTitle {field} />
+<div class="single-field field" class:empty class:extra={field.extra}>
+  <FieldTitle id={field.id} name={field.name} helpId={field.helpId} extra={field.extra}/>
   <div class="fields">
     <CrdtOptionField on:change bind:value {options} placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
   </div>

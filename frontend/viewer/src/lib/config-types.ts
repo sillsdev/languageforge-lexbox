@@ -9,9 +9,12 @@ export type WritingSystemSelection = WritingSystemType | `first-${WritingSystemT
 export type FieldType = 'multi' | 'single' | 'option' | 'multi-option';
 export type WellKnownFieldId = Exclude<keyof (IEntry & ISense & IExampleSentence), 'id' | 'exampleSentences' | 'senses'>
 
-type BaseFieldConfig = {
+export type BaseFieldConfig = {
   type: FieldType;
   id: string;
+  name?: string;
+  extra?: boolean;
+  helpId?: string;
   ws: WritingSystemSelection;
   readonly?: true;
 }
@@ -47,16 +50,12 @@ export type BaseEntityFieldConfig<T> = (({
   id: ConditionalKeys<T, string[] | SemanticDomain[]>;
   ws: `first-${WritingSystemType}`;
 }) & BaseFieldConfig & {
-  id: WellKnownFieldId,
-  helpId: string,
+  id: WellKnownFieldId
 });
 
 export type EntityFieldConfig = BaseEntityFieldConfig<IEntry> | BaseEntityFieldConfig<ISense> | BaseEntityFieldConfig<IExampleSentence>;
-export type FieldConfig = (EntityFieldConfig & ViewConfigFieldProps) | CustomFieldConfig;
+export type FieldConfig = EntityFieldConfig | CustomFieldConfig;
 
-export type ViewConfigFieldProps = {
-  extra?: true,
-};
 
 export type LexboxFeatures = LexboxApiFeatures;
 

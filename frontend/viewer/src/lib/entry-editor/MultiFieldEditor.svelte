@@ -26,7 +26,7 @@
 </script>
 
 <div class="multi-field field" class:collapse-field={collapse} class:empty>
-  <FieldTitle {field} />
+  <FieldTitle id={field.id} name={field.name} helpId={field.helpId} extra={field.extra} />
   <div class="fields">
     {#each writingSystems as ws (ws.id)}
       <CrdtTextField

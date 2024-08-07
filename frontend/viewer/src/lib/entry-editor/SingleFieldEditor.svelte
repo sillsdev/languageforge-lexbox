@@ -8,6 +8,7 @@
   import CrdtTextField from './CrdtTextField.svelte';
 
   type T = $$Generic<{}>;
+  export let id: string;
   export let field: FieldConfig;
   export let value: string;
 
@@ -18,8 +19,8 @@
   $: empty = !value;
 </script>
 
-<div class="single-field field" class:empty class:extra={'extra' in field && field.extra}>
-  <FieldTitle {field} />
+<div class="single-field field" class:empty class:extra={field.extra}>
+  <FieldTitle id={field.id} name={field.name} helpId={field.helpId} extra={field.extra}/>
   <div class="fields">
     <CrdtTextField on:change bind:value placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
   </div>

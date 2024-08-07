@@ -49,6 +49,6 @@ export function i18n(key: I18nKey, i18nType?: I18nType): string {
   return currI18n[key];
 }
 
-export function fieldName(fieldConfig: FieldConfig, i18nType?: I18nType): string {
-  return 'name' in fieldConfig ? fieldConfig.name : i18n(fieldConfig.id as WellKnownFieldId, i18nType);
+export function fieldName(fieldConfig: {id: string, name?: string}, i18nType?: I18nType): string {
+  return fieldConfig.name ?? i18n(fieldConfig.id as WellKnownFieldId, i18nType);
 }

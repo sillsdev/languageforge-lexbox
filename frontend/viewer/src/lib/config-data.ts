@@ -1,4 +1,9 @@
-import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigFieldProps } from './config-types';
+import type {
+  BaseEntityFieldConfig,
+  CustomFieldConfig,
+  FieldConfig,
+  BaseFieldConfig
+} from './config-types';
 import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 
 import type { I18nType } from './i18n';
@@ -58,8 +63,7 @@ export function allFields(viewConfig: ViewConfig): Readonly<FieldConfig[]> {
 type FieldsWithViewConfigProps<T extends Record<string, NonNullable<object>>> =
   { [K in keyof T]: FieldWithViewConfigProps<T[K]> };
 
-type FieldWithViewConfigProps<T extends NonNullable<object>> =
-  T & ViewConfigFieldProps;
+type FieldWithViewConfigProps<T extends NonNullable<object>> = T;
 
 interface ViewConfig {
   label: string,
@@ -72,7 +76,7 @@ interface ViewConfig {
   customExample?: Partial<typeof allFieldConfigs.customExample>,
 }
 
-function configure<T extends NonNullable<object>>(fieldConfig: T, props: ViewConfigFieldProps): FieldWithViewConfigProps<T> {
+function configure<T extends NonNullable<object>>(fieldConfig: T, props: Partial<BaseFieldConfig>): FieldWithViewConfigProps<T> {
   return {...fieldConfig, ...props};
 }
 
