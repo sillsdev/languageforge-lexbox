@@ -23,8 +23,6 @@ jobs:
     name: Build FW Lite and run tests
     timeout-minutes: 20
     runs-on: windows-latest
-    env:
-      NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +38,6 @@ jobs:
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet nuget enable source github
           dotnet build --configuration Release
 
       - name: Dotnet test
