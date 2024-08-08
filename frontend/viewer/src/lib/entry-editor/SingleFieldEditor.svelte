@@ -4,24 +4,25 @@
   import type { Readable } from 'svelte/store';
   import { getContext } from 'svelte';
   import { pickWritingSystems } from '../utils';
-  import type { FieldConfig, ViewConfig } from '../config-types';
+  import type {ViewConfig, WritingSystemSelection} from '../config-types';
   import CrdtTextField from './CrdtTextField.svelte';
 
   type T = $$Generic<{}>;
   export let id: string;
-  export let field: FieldConfig;
+  export let name: string | undefined = undefined;
+  export let wsType: WritingSystemSelection;
   export let value: string;
 
   const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
-  $: [ws] = pickWritingSystems(field.ws, $allWritingSystems);
+  $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
   $: empty = !value;
 </script>
 
-<div class="single-field field" class:empty class:extra={field.extra}>
-  <FieldTitle id={field.id} name={field.name} helpId={field.helpId} extra={field.extra}/>
+<div class="single-field field" class:empty>
+  <FieldTitle id={id} {name}/>
   <div class="fields">
-    <CrdtTextField on:change bind:value placeholder={ws.abbreviation} readonly={field.readonly || $viewConfig.readonly} />
+    <CrdtTextField on:change bind:value placeholder={ws.abbreviation} readonly={$viewConfig.readonly} />
   </div>
 </div>

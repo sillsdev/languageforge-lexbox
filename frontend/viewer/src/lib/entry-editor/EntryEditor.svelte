@@ -107,16 +107,20 @@
 <div bind:this={editorElem} class="editor-grid">
   <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                     bind:value={entry.lexemeForm}
-                    field={{ id: 'lexemeForm', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Lexeme_Form_field.htm' }}/>
+                    id="lexemeForm"
+                    wsType="vernacular"/>
   <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                     bind:value={entry.citationForm}
-                    field={{ id: 'citationForm', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Citation_Form_field.htm' }}/>
+                    id="citationForm"
+                    wsType="vernacular"/>
   <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                     bind:value={entry.literalMeaning}
-                    field={{ id: 'literalMeaning', type: 'multi', ws: 'vernacular', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Literal_Meaning_field.htm' }}/>
+                    id="literalMeaning"
+                    wsType="vernacular"/>
   <MultiFieldEditor on:change={() => dispatch('change', {entry})}
                     bind:value={entry.note}
-                    field={{ id: 'note', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Entry_level_fields/Note_field.htm' }}/>
+                    id="note"
+                    wsType="analysis"/>
   <EntityEditor
     entity={entry}
     fieldConfigs={[]}

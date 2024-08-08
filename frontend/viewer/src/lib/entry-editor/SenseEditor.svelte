@@ -16,16 +16,24 @@
   const semanticDomains = optionProvider.semanticDomains;
 </script>
 
-<MultiFieldEditor on:change bind:value={sense.gloss} field={{ id: 'gloss', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Gloss_field_Sense.htm' }} />
-<MultiFieldEditor on:change bind:value={sense.definition} field={{ id: 'definition', type: 'multi', ws: 'analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/definition_field.htm' }} />
+<MultiFieldEditor on:change
+                  bind:value={sense.gloss}
+                  id="gloss"
+                  wsType="analysis" />
+<MultiFieldEditor on:change
+                  bind:value={sense.definition}
+                  id="definition"
+                  wsType="analysis" />
 <SingleOptionEditor on:change
                     bind:value={sense.partOfSpeechId}
-                    options={$partsOfSpeech}
-                    field={{ id: 'partOfSpeechId', type: 'option', optionType: 'part-of-speech', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/Grammatical_Info_field.htm' }} />
+                    id="partOfSpeechId"
+                    wsType="first-analysis"
+                    options={$partsOfSpeech}/>
 <MultiOptionEditor on:change
                    bind:value={sense.semanticDomains}
-                   options={$semanticDomains}
-                   field={{ id: 'semanticDomains', type: 'multi-option', optionType: 'semantic-domain', ws: 'first-analysis', helpId: 'User_Interface/Field_Descriptions/Lexicon/Lexicon_Edit_fields/Sense_level_fields/semantic_domains_field.htm' }} />
+                   id="semanticDomains"
+                   wsType="first-analysis"
+                   options={$semanticDomains}/>
 <EntityEditor
   entity={sense}
   fieldConfigs={[]}

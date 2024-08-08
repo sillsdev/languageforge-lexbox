@@ -4,7 +4,7 @@
   import type { Readable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import type { MultiString, WritingSystems } from '../mini-lcm';
-  import type { FieldConfig, ViewConfig } from '../config-types';
+  import type {ViewConfig, WritingSystemSelection} from '../config-types';
   import { pickWritingSystems } from '../utils';
 
   const dispatch = createEventDispatcher<{
@@ -15,18 +15,20 @@
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
   type T = $$Generic<{}>;
-  export let field: FieldConfig;
+  export let id: string;
+  export let name: string | undefined = undefined;
+  export let wsType: WritingSystemSelection;
   export let value: MultiString;
 
   let unsavedChanges: Record<string, boolean> = {};
 
-  $: writingSystems = pickWritingSystems(field.ws, $allWritingSystems);
+  $: writingSystems = pickWritingSystems(wsType, $allWritingSystems);
   $: empty = !writingSystems.some((ws) => value[ws.id] || unsavedChanges[ws.id]);
   $: collapse = empty && writingSystems.length > 1;
 </script>
 
 <div class="multi-field field" class:collapse-field={collapse} class:empty>
-  <FieldTitle id={field.id} name={field.name} helpId={field.helpId} extra={field.extra} />
+  <FieldTitle {id} {name} />
   <div class="fields">
     {#each writingSystems as ws (ws.id)}
       <CrdtTextField
@@ -36,7 +38,7 @@
         label={collapse ? undefined : ws.abbreviation}
         labelPlacement={collapse ? undefined : 'left'}
         placeholder={collapse ? ws.abbreviation : undefined}
-        readonly={$viewConfig.readonly || field.readonly}
+        readonly={$viewConfig.readonly}
       />
     {/each}
   </div>

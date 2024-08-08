@@ -46,7 +46,6 @@
     <span bind:this={append} slot="append" />
   </MultiSelectField>
 </CrdtField>
-{@debug value}
 
 <style lang="postcss">
   :global(.unresolved-merge .field-container) {

@@ -51,6 +51,8 @@ export function pickWritingSystems(
     case 'analysis':
       return allWs.analysis;
   }
+  console.error(`Unknown writing system selection: ${ws}`);
+  return [];
 }
 
 const emptyIdPrefix = '00000000-0000-0000-0000-';

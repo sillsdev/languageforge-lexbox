@@ -38,12 +38,12 @@
 </script>
 
 {#if isMultiString(value)}
-  <MultiFieldEditor on:change {field} bind:value />
+  <MultiFieldEditor on:change id={field.id} wsType={field.ws} bind:value />
 {:else if isSingleString(value)}
-  <SingleFieldEditor on:change {field} bind:value />
+  <SingleFieldEditor on:change id={field.id} wsType={field.ws} bind:value />
 {:else if isSingleOption(state)}
-  <SingleOptionEditor on:change field={state.field} bind:value={state.value} />
+  <SingleOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} />
 {:else if isMultiOption(state)}
-  <MultiOptionEditor on:change field={state.field} bind:value={state.value} />
+  <MultiOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} />
 {/if}
 
