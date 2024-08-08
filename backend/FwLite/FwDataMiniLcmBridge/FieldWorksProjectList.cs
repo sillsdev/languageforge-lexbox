@@ -7,6 +7,7 @@ public class FieldWorksProjectList
 {
     public static IEnumerable<IProjectIdentifier> EnumerateProjects()
     {
+        if (!Directory.Exists(ProjectLoader.ProjectFolder)) Directory.CreateDirectory(ProjectLoader.ProjectFolder);
         foreach (var directory in Directory.EnumerateDirectories(ProjectLoader.ProjectFolder))
         {
             var projectName = Path.GetFileName(directory);
