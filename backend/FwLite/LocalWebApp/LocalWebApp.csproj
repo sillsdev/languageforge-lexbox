@@ -62,7 +62,8 @@
         Homebrew installation of icu4c libraries typically resides in /usr/local/lib.
         The following line includes these libraries and copies them to the output directory if the OS is macOS.
         -->
-        <Content Include="/usr/local/lib/libicu*.??.dylib" Condition="Exists('/usr/local/lib/')">
+        <Content Include="/opt/homebrew/Cellar/icu4c/*/lib/libicu*.??.dylib" Condition="Exists('/opt/homebrew/Cellar/icu4c/74.2/lib/')">
+            <Link>%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
