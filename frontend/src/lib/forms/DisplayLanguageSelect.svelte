@@ -12,7 +12,7 @@
     en: 'English',
     es: 'Español',
     fr: 'Français',
-    kr: '한국어'
+    ko: '한국어'
   };
 </script>
 
