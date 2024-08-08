@@ -202,6 +202,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "click_to_view_related_projects": "Found {count, plural, one {# related project} other {# related projects}}, click here to see {count, plural, one {it} other {them}}",
       "join_request_sent": "Your request to join the {projectName} project has been sent to the project manager(s)",
       "description": "Description",
+      "no_description": "This project does not have a description",
       "name_missing": "Project name required",
       "retention_policy": "Purpose",
       "submit": "Create Project",

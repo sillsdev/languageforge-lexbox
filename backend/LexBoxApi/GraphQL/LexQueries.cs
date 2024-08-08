@@ -59,11 +59,9 @@ public class LexQueries
     [UseSorting]
     public IQueryable<Project> ProjectsByLangCodeAndOrg(LoggedInContext loggedInContext, LexBoxDbContext context, IPermissionService permissionService, ProjectsByLangCodeAndOrgInput input)
     {
-        var userId = loggedInContext.User.Id;
-        var authorized = loggedInContext.User.IsAdmin || permissionService.IsOrgMember(input.OrgId);
+        if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
         // Convert 3-letter code to 2-letter code if relevant, otherwise leave as-is
         var langCode = Services.LangTagConstants.ThreeToTwo.GetValueOrDefault(input.LangCode, input.LangCode);
-        if (!authorized) throw new UnauthorizedAccessException();
         var query = context.Projects.Where(p =>
             p.Organizations.Any(o => o.Id == input.OrgId) &&
             p.FlexProjectMetadata != null &&
@@ -90,9 +88,7 @@ public class LexQueries
     [UseSorting]
     public IQueryable<Project> ProjectsInMyOrg(LoggedInContext loggedInContext, LexBoxDbContext context, IPermissionService permissionService, ProjectsInMyOrgInput input)
     {
-        var userId = loggedInContext.User.Id;
-        var authorized = loggedInContext.User.IsAdmin || permissionService.IsOrgMember(input.OrgId);
-        if (!authorized) throw new UnauthorizedAccessException();
+        if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
         var query = context.Projects.Where(p => p.Organizations.Any(o => o.Id == input.OrgId));
         // Org admins can see all projects, everyone else can only see non-confidential
         if (!permissionService.CanEditOrg(input.OrgId))

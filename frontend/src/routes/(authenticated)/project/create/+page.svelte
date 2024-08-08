@@ -89,9 +89,9 @@
   $: $asyncCodeError = $codeIsAvailable ? undefined : $t('project.create.code_exists');
   const codeErrors = derived([errors, asyncCodeError], () => [...new Set(concatAll($errors.code, $asyncCodeError))]);
 
-  const projectNameStore = derived(form, ($form) => $form.name);
-  const langCodeStore = derived(form, ($form) => $form.languageCode);
-  const orgIdStore = derived(form, ($form) => $form.orgId);
+  const projectNameStore = derived(form, f => f.name);
+  const langCodeStore = derived(form, f => f.languageCode);
+  const orgIdStore = derived(form, f => f.orgId);
   const langCodeAndOrgIdStore: Readable<{langCode: string, orgId: string}> = derived([langCodeStore, orgIdStore], ([lang, orgId], set) => {
     if (lang && orgId && (lang.length == 2 || lang.length == 3)) {
       set({ langCode: lang, orgId: orgId });
@@ -182,10 +182,15 @@
   let selectedProject: { name: string, id: string } | undefined = undefined;
   let showRelatedProjects = true;
 
+  // When the related-projects list changes, keep selectedProject up-to-date
+  relatedProjects.subscribe(projects => {
+    if (selectedProject) selectedProject = projects.find(p => selectedProject?.id === p.id);
+  });
+
   async function askToJoinProject(projectId: string, projectName: string): Promise<void> {
     const joinResult = await _askToJoinProject(projectId);
     if (!joinResult.error) {
-      notifySuccess($t('project.create.join_request_sent', { projectName }))
+      notifySuccess($t('project.create.join_request_sent', { projectName }), Duration.Persistent);
       $tainted = undefined; // Prevent "are you sure you want to leave?" warning
       await goto('/');
     }
@@ -280,7 +285,7 @@
               <input id={`extra-projects-${proj.code}`} type="radio" bind:group={selectedProject} value={proj} class="radio mr-2" />
               <span class="label-text inline-flex items-center gap-2">
                 {proj.name} ({proj.code}) <br/>
-                {proj.description}
+                {proj.description ?? $t('project.create.no_description')}
               </span>
             </label>
           </div>
