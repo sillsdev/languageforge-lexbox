@@ -1,12 +1,15 @@
 <script lang="ts">
   import { Drawer, SelectField, Switch } from "svelte-ux";
   import type { Readable, Writable } from "svelte/store";
-  import { views } from "../config-data";
   import type { LexboxFeatures, ViewConfig, ViewOptions } from "../config-types";
   import DevContent from "./DevContent.svelte";
   import { getContext } from "svelte";
+  import {type View, views} from '../entry-editor/view-data';
+  import type {ViewSettings} from '../services/view-service';
 
   export let options: Writable<ViewOptions>;
+  export let activeView: View;
+  export let viewSettings: ViewSettings;
   export let features: Writable<LexboxFeatures>;
   export let open = false;
 
@@ -18,7 +21,7 @@
     <SelectField
       label="Fields"
       options={views.map((view) => ({ value: view, label: view.label, group: view.label }))}
-      bind:value={$options.activeView}
+      bind:value={activeView}
       classes={{root: 'view-select w-auto', options: 'view-select-options'}}
       clearable={false}
       labelPlacement="top"
@@ -26,16 +29,10 @@
       fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
-    <!-- svelte-ignore a11y-label-has-associated-control -->
-    <label class="flex gap-2 items-center text-sm h-10">
-      <Switch bind:checked={$options.showExtraFields}
-        color="neutral" />
-        Show extra/hidden fields
-    </label>
     {#if !$viewConfig.readonly}
       <!-- svelte-ignore a11y-label-has-associated-control -->
       <label class="flex gap-2 items-center text-sm h-10">
-        <Switch bind:checked={$options.hideEmptyFields}
+        <Switch bind:checked={viewSettings.hideEmptyFields}
           color="neutral" />
           Hide empty fields
       </label>

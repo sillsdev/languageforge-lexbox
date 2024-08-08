@@ -33,6 +33,8 @@
   import { saveEventDispatcher, saveHandler } from './lib/services/save-event-service';
   import {AppNotification} from './lib/notifications/notifications';
   import flexLogo from './lib/assets/flex-logo.png';
+  import {initView, initViewSettings} from './lib/services/view-service';
+  import {views as allViews} from './lib/entry-editor/view-data';
 
   export let loading = false;
 
@@ -48,8 +50,6 @@
   });
 
   const options = writable<ViewOptions>({
-    showExtraFields: false,
-    hideEmptyFields: false,
     activeView: views[0],
     generateExternalChanges: false,
   });
@@ -59,9 +59,10 @@
     return {
       ...config,
       readonly,
-      hideEmptyFields: config.hideEmptyFields || readonly,
     };
   });
+  const currentView = initView(allViews[0]);
+  const viewSettings = initViewSettings({hideEmptyFields: false});
 
   setContext<Readable<ViewConfig>>('viewConfig', viewConfig);
 
@@ -375,6 +376,6 @@
     </div>
   </main>
 
-  <ViewOptionsDrawer bind:open={showOptionsDialog} {options} {features} />
+  <ViewOptionsDrawer bind:open={showOptionsDialog} {options} bind:activeView={$currentView} bind:viewSettings={$viewSettings} {features} />
 </div>
 {/if}

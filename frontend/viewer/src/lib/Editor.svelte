@@ -1,13 +1,12 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from './mini-lcm';
   import EntryEditor from './entry-editor/object-editors/EntryEditor.svelte';
-  import type {Readable} from 'svelte/store';
   import {createEventDispatcher, getContext} from 'svelte';
-  import type {ViewConfig} from './config-types';
   import jsonPatch from 'fast-json-patch';
   import {useLexboxApi} from './services/service-provider';
   import {isEmptyId} from './utils';
   import type { SaveHandler } from './services/save-event-service';
+  import {useViewSettings} from './services/view-service';
 
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');
@@ -24,7 +23,7 @@
     initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
   }
 
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
+  const viewSettings = useViewSettings();
 
   function withoutSenses(entry: IEntry): Omit<IEntry, 'senses'> {
     let {senses, ...rest} = entry;
@@ -119,7 +118,7 @@
   }
 </script>
 
-<div id="entry" class:hide-empty={$viewConfig.hideEmptyFields}>
+<div id="entry" class:hide-empty={$viewSettings.hideEmptyFields}>
   <EntryEditor
     on:change={e => onChange(e.detail)}
     on:delete={e => onDelete(e.detail)}

@@ -9,23 +9,27 @@
   import SingleFieldEditor from '../field-editors/SingleFieldEditor.svelte';
 
   export let example: IExampleSentence;
+  export let readonly: boolean;
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 </script>
 <MultiFieldEditor on:change
                   bind:value={example.sentence}
+                  {readonly}
                   id="sentence"
                   wsType="vernacular" />
 <MultiFieldEditor on:change
                   bind:value={example.translation}
+                  {readonly}
                   id="translation"
                   wsType="analysis" />
 <SingleFieldEditor on:change
                    bind:value={example.reference}
+                   {readonly}
                    id="reference"
                    wsType="first-analysis"/>
 <EntityEditor
   entity={example}
-  fieldConfigs={[]}
+  {readonly}
   customFieldConfigs={Object.values($viewConfig.activeView?.customExample ?? [])}
   on:change
 />

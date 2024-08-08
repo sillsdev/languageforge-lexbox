@@ -66,8 +66,6 @@ export type LexboxPermissions = {
 
 export type ViewOptions = {
   generateExternalChanges: boolean,
-  showExtraFields: boolean,
-  hideEmptyFields: boolean,
   activeView: typeof views[number],
 }
 

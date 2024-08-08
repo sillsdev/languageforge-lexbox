@@ -7,6 +7,7 @@
   import type { Readable } from 'svelte/store';
   import FieldHelpIcon from './FieldHelpIcon.svelte';
   import {fieldData} from './field-data';
+  import {useCurrentView} from '../services/view-service';
 
   export let id: string;
   export let helpId: string | undefined = undefined;
@@ -15,6 +16,7 @@
   $: if (!helpId) helpId = fieldData[id]?.helpId;
 
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
+  const currentView = useCurrentView();
 
 </script>
 
@@ -25,7 +27,7 @@
         <Icon classes={{root: 'absolute -left-[1.3em] opacity-50'}} data={mdiEyeOffOutline} size="1em" />
       </Tooltip>
     {/if}
-    <span class="name" title={`${id}: ${fieldName({name, id})}`}>{fieldName({name, id}, $viewConfig.activeView?.i18n)}</span>
+    <span class="name" title={`${id}: ${fieldName({name, id})}`}>{fieldName({name, id}, $currentView.i18nKey)}</span>
   </span>
   {#if helpId}
     <FieldHelpIcon helpId={helpId}/>

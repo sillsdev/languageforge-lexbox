@@ -3,34 +3,33 @@
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import type { Readable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
-  import type { MultiString, WritingSystems } from '../mini-lcm';
-  import type {ViewConfig, WritingSystemSelection} from '../config-types';
-  import { pickWritingSystems } from '../utils';
   import type { MultiString, WritingSystems } from '../../mini-lcm';
-  import type {ViewConfig, WritingSystemSelection} from '../../config-types';
+  import type {WritingSystemSelection} from '../../config-types';
   import { pickWritingSystems } from '../../utils';
+  import {useCurrentView} from '../../services/view-service';
 
   const dispatch = createEventDispatcher<{
     change: { value: MultiString };
   }>();
 
   const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 
   type T = $$Generic<{}>;
   export let id: string;
   export let name: string | undefined = undefined;
   export let wsType: WritingSystemSelection;
   export let value: MultiString;
+  export let readonly: boolean = false;
 
   let unsavedChanges: Record<string, boolean> = {};
+  let currentView = useCurrentView();
 
   $: writingSystems = pickWritingSystems(wsType, $allWritingSystems);
   $: empty = !writingSystems.some((ws) => value[ws.id] || unsavedChanges[ws.id]);
   $: collapse = empty && writingSystems.length > 1;
 </script>
 
-<div class="multi-field field" class:collapse-field={collapse} class:empty>
+<div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={!$currentView.fields[id].show}>
   <FieldTitle {id} {name} />
   <div class="fields">
     {#each writingSystems as ws (ws.id)}
@@ -41,7 +40,7 @@
         label={collapse ? undefined : ws.abbreviation}
         labelPlacement={collapse ? undefined : 'left'}
         placeholder={collapse ? ws.abbreviation : undefined}
-        readonly={$viewConfig.readonly}
+        {readonly}
       />
     {/each}
   </div>
