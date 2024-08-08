@@ -4,7 +4,6 @@ import { getClient, graphql } from '$lib/gql';
 import type { PageLoadEvent } from './$types';
 import { getSearchParam } from '$lib/util/query-params';
 import { isGuid } from '$lib/util/guid';
-import type { Readable } from 'svelte/store';
 
 export async function load(event: PageLoadEvent) {
   const userIsAdmin = (await event.parent()).user.isAdmin;
@@ -90,10 +89,10 @@ export async function _projectCodeAvailable(code: string): Promise<boolean> {
   return await result.json() as boolean;
 }
 
-export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langCode: string }): Promise<Readable<ProjectsByLangCodeAndOrgQuery['projectsByLangCodeAndOrg']>> {
+export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langCode: string }): Promise<ProjectsByLangCodeAndOrgQuery['projectsByLangCodeAndOrg']> {
   const client = getClient();
   //language=GraphQL
-  const results = await client.awaitedQueryStore(fetch,
+  const results = await client.query(
     graphql(`
       query ProjectsByLangCodeAndOrg($input: ProjectsByLangCodeAndOrgInput!) {
         projectsByLangCodeAndOrg(input: $input) {
@@ -105,13 +104,13 @@ export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langC
       }
     `), { input }
   );
-  return results.projectsByLangCodeAndOrg;
+  return results.data?.projectsByLangCodeAndOrg ?? [];
 }
 
-export async function _getProjectsByNameAndOrg({ orgId, projectName }: { orgId: string, projectName: string }): Promise<Readable<ProjectsByNameAndOrgQuery['projectsInMyOrg']>> {
+export async function _getProjectsByNameAndOrg({ orgId, projectName }: { orgId: string, projectName: string }): Promise<ProjectsByNameAndOrgQuery['projectsInMyOrg']> {
   const client = getClient();
   //language=GraphQL
-  const results = await client.awaitedQueryStore(fetch,
+  const results = await client.query(
     graphql(`
       query ProjectsByNameAndOrg($input: ProjectsInMyOrgInput!, $filter: ProjectFilterInput) {
         projectsInMyOrg(input: $input, where: $filter) {
@@ -123,7 +122,7 @@ export async function _getProjectsByNameAndOrg({ orgId, projectName }: { orgId: 
       }
     `), { input: { orgId }, filter: {name: {icontains: projectName} } }
   );
-  return results.projectsInMyOrg;
+  return results.data?.projectsInMyOrg ?? [];
 }
 
 export async function _askToJoinProject(projectId: string): $OpResult<AskToJoinProjectMutation> {

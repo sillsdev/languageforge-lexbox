@@ -105,12 +105,3 @@ export function deriveAsyncIfDefined<T, D>(
     }
   }, initialValue);
 }
-
-/**
- * @param nestedStore: A store that returns a store that returns T
- * @returns A store that returns T
- * This is useful when calling deriveAsync on functions that return GraphQL query stores
- */
-export function flattenNestedStore<T>(nestedStore: Readable<Readable<T>>, initialValue: T): Readable<T> {
-  return derived(nestedStore, (store, set) => store?.subscribe(set), initialValue);
-}

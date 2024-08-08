@@ -8,7 +8,7 @@
   import { _askToJoinProject, _createProject, _projectCodeAvailable } from './+page';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { useNotifications } from '$lib/notify';
-  import { Duration, deriveAsync, deriveAsyncIfDefined, flattenNestedStore } from '$lib/util/time';
+  import { Duration, deriveAsync, deriveAsyncIfDefined } from '$lib/util/time';
   import { getSearchParamValues } from '$lib/util/query-params';
   import { onMount } from 'svelte';
   import MemberBadge from '$lib/components/Badges/MemberBadge.svelte';
@@ -81,7 +81,7 @@
   });
 
   const asyncCodeError = writable<string | undefined>();
-  const codeStore = derived(form, ($form) => $form.code);
+  const codeStore = derived(form, f => f.code);
   const codeIsAvailable = deriveAsync(codeStore, async (code) => {
     if (!browser || !code || !user.canCreateProjects) return true;
     return _projectCodeAvailable(code);
@@ -104,8 +104,8 @@
     }
   });
 
-  const relatedProjectsByLangCode = flattenNestedStore(deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg), []);
-  const relatedProjectsByName = flattenNestedStore(deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg), []);
+  const relatedProjectsByLangCode = deriveAsyncIfDefined(langCodeAndOrgIdStore, _getProjectsByLangCodeAndOrg, []);
+  const relatedProjectsByName = deriveAsyncIfDefined(projectNameAndOrgIdStore, _getProjectsByNameAndOrg, []);
 
   const relatedProjects = derived([relatedProjectsByName, relatedProjectsByLangCode], ([byName, byCode]) => {
     // Put projects related by language code first as they're more likely to be real matches
