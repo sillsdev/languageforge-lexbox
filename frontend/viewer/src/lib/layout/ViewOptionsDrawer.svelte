@@ -1,19 +1,15 @@
 <script lang="ts">
   import { Drawer, SelectField, Switch } from "svelte-ux";
-  import type { Readable, Writable } from "svelte/store";
-  import type { LexboxFeatures, ViewConfig, ViewOptions } from "../config-types";
+  import type { LexboxFeatures } from "../config-types";
   import DevContent from "./DevContent.svelte";
-  import { getContext } from "svelte";
   import {type View, views} from '../entry-editor/view-data';
   import type {ViewSettings} from '../services/view-service';
+  import {generateExternalChanges} from '../debug';
 
-  export let options: Writable<ViewOptions>;
   export let activeView: View;
   export let viewSettings: ViewSettings;
-  export let features: Writable<LexboxFeatures>;
+  export let features: LexboxFeatures;
   export let open = false;
-
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
@@ -29,31 +25,29 @@
       fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
-    {#if !$viewConfig.readonly}
-      <!-- svelte-ignore a11y-label-has-associated-control -->
-      <label class="flex gap-2 items-center text-sm h-10">
-        <Switch bind:checked={viewSettings.hideEmptyFields}
-          color="neutral" />
-          Hide empty fields
-      </label>
-    {/if}
+    <!-- svelte-ignore a11y-label-has-associated-control -->
+    <label class="flex gap-2 items-center text-sm h-10">
+      <Switch bind:checked={viewSettings.hideEmptyFields}
+        color="neutral" />
+        Hide empty fields
+    </label>
     <div class="grow"></div>
     <DevContent>
       <div class="flex flex-col gap-4">
         Debug
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
-          <Switch bind:checked={$features.write} />
+          <Switch bind:checked={features.write} />
           Write
         </label>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
-          <Switch bind:checked={$features.history} />
+          <Switch bind:checked={features.history} />
           History
         </label>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
-          <Switch bind:checked={$options.generateExternalChanges}
+          <Switch bind:checked={$generateExternalChanges}
             color="warning" />
           Simulate conflicting changes
         </label>

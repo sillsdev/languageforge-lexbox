@@ -2,7 +2,6 @@ import type { IEntry, IExampleSentence, IMultiString, ISense, SemanticDomain } f
 
 import type { ConditionalKeys } from 'type-fest';
 import type { LexboxApiFeatures } from './services/lexbox-api';
-import type { views } from './config-data';
 
 export type WritingSystemType = 'vernacular' | 'analysis';
 export type WritingSystemSelection = WritingSystemType | `first-${WritingSystemType}` | 'vernacular-analysis' | 'analysis-vernacular';
@@ -56,19 +55,9 @@ export type BaseEntityFieldConfig<T> = (({
 export type EntityFieldConfig = BaseEntityFieldConfig<IEntry> | BaseEntityFieldConfig<ISense> | BaseEntityFieldConfig<IExampleSentence>;
 export type FieldConfig = EntityFieldConfig | CustomFieldConfig;
 
-
 export type LexboxFeatures = LexboxApiFeatures;
 
 export type LexboxPermissions = {
   write: boolean,
   comment: boolean,
-}
-
-export type ViewOptions = {
-  generateExternalChanges: boolean,
-  activeView: typeof views[number],
-}
-
-export type ViewConfig = ViewOptions & {
-  readonly?: boolean,
 }

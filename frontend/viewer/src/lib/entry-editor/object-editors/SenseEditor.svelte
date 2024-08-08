@@ -2,8 +2,6 @@
   import EntityEditor from './EntityEditor.svelte';
   import type {ISense} from '../../mini-lcm';
   import {getContext} from 'svelte';
-  import type {Readable} from 'svelte/store';
-  import type {ViewConfig} from '../../config-types';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
@@ -11,7 +9,6 @@
 
   export let sense: ISense;
   export let readonly: boolean = false;
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
   const optionProvider = getContext<OptionProvider>('optionProvider');
   const partsOfSpeech = optionProvider.partsOfSpeech;
   const semanticDomains = optionProvider.semanticDomains;
@@ -42,6 +39,6 @@
 <EntityEditor
   entity={sense}
   {readonly}
-  customFieldConfigs={Object.values($viewConfig.activeView?.customSense ?? [])}
+  customFieldConfigs={[]}
   on:change
 />

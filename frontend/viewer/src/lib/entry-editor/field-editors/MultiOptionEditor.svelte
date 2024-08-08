@@ -8,7 +8,6 @@
   import { pickWritingSystems } from '../../utils';
   import type {
     OptionFieldValue,
-    ViewConfig,
     WritingSystemSelection
   } from '../../config-types';
   import {useCurrentView} from '../../services/view-service';

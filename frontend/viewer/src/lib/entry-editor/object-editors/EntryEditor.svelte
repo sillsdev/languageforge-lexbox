@@ -3,7 +3,7 @@
   import EntityEditor from './EntityEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { LexboxFeatures, ViewConfig } from '../../config-types';
+  import type { LexboxFeatures } from '../../config-types';
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from '../EntityListItemActions.svelte';
@@ -98,7 +98,6 @@
     return elementRect.top >= 0;
   }
 
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
   const features = getContext<Readable<LexboxFeatures>>('features');
   const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
 </script>
@@ -127,7 +126,7 @@
   <EntityEditor
     entity={entry}
     {readonly}
-    customFieldConfigs={Object.values($viewConfig.activeView?.customEntry ?? [])}
+    customFieldConfigs={[]}
     on:change={() => dispatch('change', {entry})}
   />
 
@@ -172,6 +171,7 @@
             <div class="grid-layer">
             <ExampleEditor
               {example}
+              {readonly}
                 on:change={() => dispatch('change', {entry, sense, example})}
               />
             </div>

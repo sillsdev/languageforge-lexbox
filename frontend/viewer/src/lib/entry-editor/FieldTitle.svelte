@@ -1,10 +1,7 @@
 <script lang="ts">
   import { mdiEyeOffOutline } from '@mdi/js';
   import { Icon, Tooltip } from 'svelte-ux';
-  import type { ViewConfig } from '../config-types';
   import { fieldName } from '../i18n';
-  import { getContext } from 'svelte';
-  import type { Readable } from 'svelte/store';
   import FieldHelpIcon from './FieldHelpIcon.svelte';
   import {fieldData} from './field-data';
   import {useCurrentView} from '../services/view-service';
@@ -15,7 +12,6 @@
   export let extra: boolean | undefined = undefined;
   $: if (!helpId) helpId = fieldData[id]?.helpId;
 
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
   const currentView = useCurrentView();
 
 </script>

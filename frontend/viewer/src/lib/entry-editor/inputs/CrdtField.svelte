@@ -4,20 +4,16 @@
     mdiCloudDownloadOutline,
     mdiContentSaveCheckOutline,
   } from '@mdi/js';
-  import { createEventDispatcher, getContext } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { Button, Notification, Popover, Tooltip, portal } from 'svelte-ux';
-  import type { Readable } from 'svelte/store';
-  import type { ViewConfig } from '../../config-types';
-
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
+  import {generateExternalChanges} from '../../debug';
 
   // For demo purposes
   let i = 1;
   let timeout: ReturnType<typeof setTimeout>;
   $: {
     clearTimeout(timeout);
-    if (unsavedChanges && $viewConfig.generateExternalChanges) {
+    if (unsavedChanges && $generateExternalChanges) {
       timeout = setTimeout(() => {
         if (unsavedChanges && !unacceptedChanges) value = (value ?? '') + i++;
       }, 1000);

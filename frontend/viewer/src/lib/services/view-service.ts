@@ -9,13 +9,15 @@ export interface ViewSettings {
   hideEmptyFields: boolean;
 }
 
-export function initViewSettings(settings: ViewSettings) {
-  const viewSettingsStore = writable<ViewSettings>(settings);
+export function initViewSettings(defaultSettings: ViewSettings) {
+  //todo load from local storage
+  const viewSettingsStore = writable<ViewSettings>(defaultSettings);
   setContext<Writable<ViewSettings>>(viewSettingsContextName, viewSettingsStore);
   return viewSettingsStore;
 }
-export function initView(view: View) {
-  const currentViewStore = writable<View>(view);
+export function initView(defaultView: View) {
+  //todo load from local storage
+  const currentViewStore = writable<View>(defaultView);
   setContext<Writable<View>>(currentViewContextName, currentViewStore);
   return currentViewStore;
 }
