@@ -92,15 +92,15 @@
   const projectNameStore = derived(form, f => f.name);
   const langCodeStore = derived(form, f => f.languageCode);
   const orgIdStore = derived(form, f => f.orgId);
-  const langCodeAndOrgIdStore: Readable<{langCode: string, orgId: string}> = derived([langCodeStore, orgIdStore], ([lang, orgId], set) => {
-    if (lang && orgId && (lang.length == 2 || lang.length == 3)) {
-      set({ langCode: lang, orgId: orgId });
+  const langCodeAndOrgIdStore: Readable<{langCode: string, orgId: string}> = derived([langCodeStore, orgIdStore], ([langCode, orgId], set) => {
+    if (langCode && orgId && (langCode.length == 2 || langCode.length == 3)) {
+      set({ langCode, orgId });
     }
   });
 
   const projectNameAndOrgIdStore: Readable<{projectName: string, orgId: string}> = derived([projectNameStore, orgIdStore], ([projectName, orgId], set) => {
     if (projectName && orgId && projectName.length >= 3) {
-      set({ projectName, orgId: orgId });
+      set({ projectName, orgId });
     }
   });
 
