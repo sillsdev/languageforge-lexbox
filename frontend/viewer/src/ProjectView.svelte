@@ -255,7 +255,7 @@
     </div>
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
-      {#if !$readonly}
+      {#if !readonly}
         <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
       {/if}
       <Button
@@ -292,12 +292,13 @@
       <div class="w-screen max-w-full lg:w-[500px] lg:min-w-[300px] collapsible-col side-scroller flex" class:lg:!w-[1024px]={expandList} class:lg:max-w-[25vw]={!expandList} class:max-lg:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !$readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
         {#if $selectedEntry}
           <div class="mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
           </div>
           <Editor entry={$selectedEntry}
+                  {readonly}
             on:change={e => {
               $selectedEntry = $selectedEntry;
               $entries = $entries;
@@ -309,13 +310,13 @@
         {:else}
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
-            {#if !$readonly}
+            {#if !readonly}
               <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
             {/if}
           </div>
         {/if}
       </div>
-      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !$readonly} class:max-lg:hidden={!pickedEntry || $readonly} class:lg:hidden={expandList}>
+      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !readonly} class:max-lg:hidden={!pickedEntry || readonly} class:lg:hidden={expandList}>
         <div class="hidden" class:sm:hidden={expandList}>
           <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
         </div>
@@ -323,7 +324,7 @@
           {#if $selectedEntry}
             <div class="contents" class:lg:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
-                {#if !$readonly}
+                {#if !readonly}
                   <div class="contents" bind:this={entryActionsElem}>
 
                   </div>

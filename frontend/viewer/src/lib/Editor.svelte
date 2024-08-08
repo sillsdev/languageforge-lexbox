@@ -17,6 +17,7 @@
   }>();
 
   export let entry: IEntry;
+  export let readonly: boolean;
   $: initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
 
   function updateInitialEntry() {
@@ -120,9 +121,11 @@
 
 <div id="entry" class:hide-empty={$viewSettings.hideEmptyFields}>
   <EntryEditor
+
     on:change={e => onChange(e.detail)}
     on:delete={e => onDelete(e.detail)}
-    entry={entry}/>
+    entry={entry}
+    {readonly}/>
 </div>
 
 <style lang="postcss">
