@@ -55,7 +55,14 @@
           need to be updated. We have to bundle the icu4c libs somehow unless macOS starts to include them
           by default.
           -->
-        <Content Include="/opt/local/lib/libicu*.??.dylib" Condition="$([MSBuild]::IsOsPlatform('macOS'))">
+        <Content Include="/opt/local/lib/libicu*.??.dylib" Condition="$([MSBuild]::IsOsPlatform('macOS')) AND Exists('/opt/local/lib/'))">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <!--
+        Homebrew installation of icu4c libraries typically resides in /usr/local/lib.
+        The following line includes these libraries and copies them to the output directory if the OS is macOS.
+        -->
+        <Content Include="/usr/local/lib/libicu*.??.dylib" Condition="$([MSBuild]::IsOsPlatform('macOS') AND Exists('/usr/local/lib/'))">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
