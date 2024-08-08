@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {IEntry, IExampleSentence, ISense} from './mini-lcm';
-  import EntryEditor from './entry-editor/EntryEditor.svelte';
+  import EntryEditor from './entry-editor/object-editors/EntryEditor.svelte';
   import type {Readable} from 'svelte/store';
   import {createEventDispatcher, getContext} from 'svelte';
   import type {ViewConfig} from './config-types';

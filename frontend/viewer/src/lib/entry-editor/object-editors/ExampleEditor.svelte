@@ -2,11 +2,11 @@
 
   import {getContext} from 'svelte';
   import type {Readable} from 'svelte/store';
-  import type {ViewConfig} from '../config-types';
-  import type {IExampleSentence} from '../mini-lcm';
+  import type {ViewConfig} from '../../config-types';
+  import type {IExampleSentence} from '../../mini-lcm';
   import EntityEditor from './EntityEditor.svelte';
-  import MultiFieldEditor from './MultiFieldEditor.svelte';
-  import SingleFieldEditor from './SingleFieldEditor.svelte';
+  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
+  import SingleFieldEditor from '../field-editors/SingleFieldEditor.svelte';
 
   export let example: IExampleSentence;
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');

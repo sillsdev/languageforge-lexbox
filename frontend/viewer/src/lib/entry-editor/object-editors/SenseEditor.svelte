@@ -1,13 +1,13 @@
 ﻿<script lang="ts">
   import EntityEditor from './EntityEditor.svelte';
-  import type {ISense} from '../mini-lcm';
+  import type {ISense} from '../../mini-lcm';
   import {getContext} from 'svelte';
   import type {Readable} from 'svelte/store';
-  import type {ViewConfig} from '../config-types';
-  import MultiFieldEditor from './MultiFieldEditor.svelte';
-  import SingleOptionEditor from './SingleOptionEditor.svelte';
-  import MultiOptionEditor from './MultiOptionEditor.svelte';
-  import type {OptionProvider} from '../services/option-provider';
+  import type {ViewConfig} from '../../config-types';
+  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
+  import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
+  import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
+  import type {OptionProvider} from '../../services/option-provider';
 
   export let sense: ISense;
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');

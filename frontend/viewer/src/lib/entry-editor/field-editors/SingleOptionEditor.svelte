@@ -1,11 +1,11 @@
 <script lang="ts">
-  import CrdtOptionField from './CrdtOptionField.svelte';
-  import FieldTitle from './FieldTitle.svelte';
-  import type { WritingSystems } from '../mini-lcm';
+  import CrdtOptionField from '../inputs/CrdtOptionField.svelte';
+  import FieldTitle from '../FieldTitle.svelte';
+  import type { WritingSystems } from '../../mini-lcm';
   import { type Readable } from 'svelte/store';
   import { getContext } from 'svelte';
-  import { pickWritingSystems } from '../utils';
-  import type {ViewConfig, WritingSystemSelection} from '../config-types';
+  import { pickWritingSystems } from '../../utils';
+  import type {ViewConfig, WritingSystemSelection} from '../../config-types';
   import type { MenuOption } from 'svelte-ux';
 
   type T = $$Generic<{}>;

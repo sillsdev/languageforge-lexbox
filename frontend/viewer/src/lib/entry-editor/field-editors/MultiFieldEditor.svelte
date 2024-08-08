@@ -1,11 +1,14 @@
 <script lang="ts">
-  import FieldTitle from './FieldTitle.svelte';
-  import CrdtTextField from './CrdtTextField.svelte';
+  import FieldTitle from '../FieldTitle.svelte';
+  import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import type { Readable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
   import type { MultiString, WritingSystems } from '../mini-lcm';
   import type {ViewConfig, WritingSystemSelection} from '../config-types';
   import { pickWritingSystems } from '../utils';
+  import type { MultiString, WritingSystems } from '../../mini-lcm';
+  import type {ViewConfig, WritingSystemSelection} from '../../config-types';
+  import { pickWritingSystems } from '../../utils';
 
   const dispatch = createEventDispatcher<{
     change: { value: MultiString };

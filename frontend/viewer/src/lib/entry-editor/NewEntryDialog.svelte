@@ -1,7 +1,6 @@
 ﻿<script lang="ts">
-
   import {Toggle, Button, Dialog} from 'svelte-ux';
-  import EntryEditor from './EntryEditor.svelte';
+  import EntryEditor from './object-editors/EntryEditor.svelte';
   import type {IEntry} from '../mini-lcm';
   import {useLexboxApi} from '../services/service-provider';
   import { mdiBookPlusOutline } from '@mdi/js';

@@ -2,10 +2,10 @@
   import {mdiHistory} from '@mdi/js';
   import {Button, cls, Dialog, Duration, DurationUnits, InfiniteScroll, ListItem, Toggle} from 'svelte-ux';
   import type {IEntry, IExampleSentence, ISense} from '../mini-lcm';
-  import EntryEditor from '../entry-editor/EntryEditor.svelte';
+  import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
   import {getContext} from 'svelte';
-  import SenseEditor from '../entry-editor/SenseEditor.svelte';
-  import ExampleEditor from '../entry-editor/ExampleEditor.svelte';
+  import SenseEditor from '../entry-editor/object-editors/SenseEditor.svelte';
+  import ExampleEditor from '../entry-editor/object-editors/ExampleEditor.svelte';
 
   type EntityType = { entity: IEntry, entityName: 'Entry' } | { entity: ISense, entityName: 'Sense' } | {
     entity: IExampleSentence,

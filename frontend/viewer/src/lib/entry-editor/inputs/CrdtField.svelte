@@ -7,7 +7,7 @@
   import { createEventDispatcher, getContext } from 'svelte';
   import { Button, Notification, Popover, Tooltip, portal } from 'svelte-ux';
   import type { Readable } from 'svelte/store';
-  import type { ViewConfig } from '../config-types';
+  import type { ViewConfig } from '../../config-types';
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
   const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');

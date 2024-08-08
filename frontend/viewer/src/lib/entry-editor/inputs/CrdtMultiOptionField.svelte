@@ -2,7 +2,7 @@
   import type { ComponentProps } from 'svelte';
   import CrdtField from './CrdtField.svelte';
   import { TextField, type MenuOption, MultiSelectField } from 'svelte-ux';
-  import type {OptionFieldValue} from '../config-types';
+  import type {OptionFieldValue} from '../../config-types';
 
   export let value: OptionFieldValue[];
 

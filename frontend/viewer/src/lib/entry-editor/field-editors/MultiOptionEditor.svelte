@@ -1,16 +1,16 @@
 <script lang="ts">
   import type { MenuOption } from 'svelte-ux';
-  import CrdtMultiOptionField from './CrdtMultiOptionField.svelte';
-  import FieldTitle from './FieldTitle.svelte';
-  import type { WritingSystems } from '../mini-lcm';
+  import CrdtMultiOptionField from '../inputs/CrdtMultiOptionField.svelte';
+  import FieldTitle from '../FieldTitle.svelte';
+  import type { WritingSystems } from '../../mini-lcm';
   import { type Readable } from 'svelte/store';
   import { getContext } from 'svelte';
-  import { pickWritingSystems } from '../utils';
+  import { pickWritingSystems } from '../../utils';
   import type {
     OptionFieldValue,
     ViewConfig,
     WritingSystemSelection
-  } from '../config-types';
+  } from '../../config-types';
 
   type T = $$Generic<{}>;
   export let id: string;

@@ -1,17 +1,17 @@
 <script lang="ts">
-  import type {IEntry, IExampleSentence, ISense} from '../mini-lcm';
+  import type {IEntry, IExampleSentence, ISense} from '../../mini-lcm';
   import EntityEditor from './EntityEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { LexboxFeatures, ViewConfig } from '../config-types';
+  import type { LexboxFeatures, ViewConfig } from '../../config-types';
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
-  import EntityListItemActions from './EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../utils';
-  import HistoryView from '../history/HistoryView.svelte';
+  import EntityListItemActions from '../EntityListItemActions.svelte';
+  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../../utils';
+  import HistoryView from '../../history/HistoryView.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
-  import MultiFieldEditor from './MultiFieldEditor.svelte';
+  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
