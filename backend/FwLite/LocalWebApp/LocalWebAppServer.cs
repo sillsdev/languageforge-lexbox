@@ -84,6 +84,7 @@ public static class LocalWebAppServer
         app.MapActivities();
         app.MapProjectRoutes();
         app.MapFwIntegrationRoutes();
+        app.MapFeedbackRoutes();
         app.MapTest();
         app.MapImport();
         app.MapAuthRoutes();

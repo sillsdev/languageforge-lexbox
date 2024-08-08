@@ -14,7 +14,7 @@ using static Testing.Services.Utils;
 
 namespace Testing.SyncReverseProxy;
 
-[Trait("Category", "Integration")]
+[Trait("Category", "FlakyIntegration")]
 public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
 {
     private readonly ITestOutputHelper _output;
