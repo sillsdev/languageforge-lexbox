@@ -220,6 +220,7 @@
       callback: () => window.location.reload()
     });
   }
+  let newEntryDialog: NewEntryDialog;
 </script>
 
 <svelte:head>
@@ -251,12 +252,14 @@
 
     <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
-      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)} />
+      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)}
+                 createNew={newEntryDialog !== undefined}
+                 on:createNew={(e) => newEntryDialog.openWithValue({lexemeForm: {"seh": e.detail}})} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
       {#if !readonly}
-        <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
+        <NewEntryDialog bind:this={newEntryDialog} on:created={e => onEntryCreated(e.detail.entry)} />
       {/if}
       <Button
         on:click={() => (showOptionsDialog = true)}

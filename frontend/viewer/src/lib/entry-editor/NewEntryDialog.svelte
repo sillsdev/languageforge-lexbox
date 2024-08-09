@@ -26,9 +26,16 @@
     loading = false;
     closeDialog();
   }
+
+  export function openWithValue(newEntry: Partial<IEntry>) {
+    const tmpEntry = defaultEntry();
+    toggle.on = true;
+    setTimeout(() => entry = {...tmpEntry, ...newEntry, id: tmpEntry.id}, 1);
+  }
+  let toggle: Toggle;
 </script>
 
-<Toggle let:on={open} let:toggleOn let:toggleOff on:toggleOn={() => entry = defaultEntry()}>
+<Toggle bind:this={toggle} let:on={open} let:toggleOn let:toggleOff on:toggleOn={() => entry = defaultEntry()}>
   <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
     <div class="hidden sm:contents">
       New Entry
@@ -37,7 +44,7 @@
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
     <div slot="title">New Entry</div>
     <div class="m-6">
-      <EntryEditor {entry} modalMode/>
+      <EntryEditor bind:entry={entry} modalMode/>
     </div>
     <div class="flex-grow"></div>
     <div slot="actions">
