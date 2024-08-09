@@ -98,7 +98,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = Cache.ServiceLocator.WritingSystems.VernacularWritingSystems.Select(ws => new WritingSystem
+            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(ws => new WritingSystem
             {
                 //todo determine current and create a property for that.
                 Id = ws.Id,
@@ -107,7 +107,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 Font = ws.DefaultFontName,
                 Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
             }).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems.Select(ws => new WritingSystem
+            Analysis = WritingSystemContainer.CurrentAnalysisWritingSystems.Select(ws => new WritingSystem
             {
                 Id = ws.Id,
                 Name = ws.LanguageTag,
