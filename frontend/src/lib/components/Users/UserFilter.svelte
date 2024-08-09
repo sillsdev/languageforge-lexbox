@@ -62,12 +62,13 @@
       {#if filter.key === 'userType' && filter.value}
         <ActiveFilter {filter}>
           {#if filter.value === 'admin'}
-            <Icon icon="i-mdi-shield-lock-outline" color="text-warning" />
+            <Icon icon="i-mdi-security" color="text-accent" />
             {$t('admin_dashboard.user_filter.user_type.admin')}
           {:else if filter.value === 'nonAdmin'}
-            <Icon icon="i-mdi-shield-lock-open-outline" />
+            <Icon icon="i-mdi-account" />
             {$t('admin_dashboard.user_filter.user_type.nonAdmin')}
           {:else if filter.value === 'guest'}
+            <Icon icon="i-mdi-account-outline" />
             {$t('admin_dashboard.user_filter.user_type.guest')}
           {/if}
         </ActiveFilter>
