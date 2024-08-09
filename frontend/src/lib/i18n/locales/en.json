@@ -64,6 +64,12 @@
     },
     "user_filter": {
       "title": "User filters",
+      "user_type": {
+        "label": "User Type",
+        "admin": "Admin",
+        "nonAdmin": "Non-admin",
+        "guest": "Guest user"
+      },
       "guest_users_i_added": "Guest users I added",
     }
   },
