@@ -20,7 +20,7 @@ data:
           "Group": "Servers",
           "Port": 5432,
           "Username": "postgres",
-          "PassFile": "/tmp/pgadmin/lexbox-passfile/POSTGRES_PASSWORD",
+          "PassFile": "pgpass",
           "Host": "db",
           "SSLMode": "prefer",
           "MaintenanceDB": "postgres"
@@ -78,6 +78,20 @@ spec:
       containers:
       - name: pgadmin
         image: dpage/pgadmin4:8.10
+        # pgadmin needs a specific format for its pgpass files
+        command: ["/bin/sh"]
+        args:
+          - "-c"
+          - |
+            echo "*:*:${POSTGRES_DB}:${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}" > /tmp/pgpass
+            # cp -pv /tmp/pgpass /pgadmin4/
+            mkdir -p /var/lib/pgadmin/storage/admin_test.com
+            chmod 700 /var/lib/pgadmin/storage/admin_test.com
+            chown -R pgadmin:root /var/lib/pgadmin
+            cp -pv /tmp/pgpass /var/lib/pgadmin/storage/admin_test.com/pgpass
+            chmod 600 /var/lib/pgadmin/storage/admin_test.com/pgpass
+            rm /tmp/pgpass
+            /entrypoint.sh "$@"
         volumeMounts:
         - name: pgadmin-config
           mountPath: /pgadmin4/servers.json
@@ -91,6 +105,9 @@ spec:
         env:
         - name: PGADMIN_LISTEN_ADDRESS
           value: "0.0.0.0"
+        # Don't want pgadmin to run a Postfix instance, we don't need password-reset emails
+        - name: PGADMIN_DISABLE_POSTFIX
+          value: "true"
         - name: PGADMIN_DEFAULT_EMAIL
           valueFrom:
             secretKeyRef:
@@ -101,6 +118,22 @@ spec:
             secretKeyRef:
               name: pgadmin-auth
               key: PGADMIN_DEFAULT_PASSWORD
+        - name: POSTGRES_HOSTNAME
+          value: db
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: POSTGRES_DB
+        - name: POSTGRES_USERNAME
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: POSTGRES_PASSWORD
         ports:
           - name: http
             protocol: TCP
