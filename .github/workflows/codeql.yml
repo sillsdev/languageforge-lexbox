@@ -5,6 +5,11 @@ on:
     branches: [ "develop", "main" ]
   pull_request:
     branches: [ "develop", "main" ]
+    paths:
+      - "**/*.cs"
+      - "**/*.csproj"
+      - "**/*.ts"
+      - "**/*.js"
   schedule:
     - cron: '34 21 * * 2'
 

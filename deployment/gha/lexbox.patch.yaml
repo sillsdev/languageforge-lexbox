@@ -1,0 +1,37 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lexbox
+  namespace: languagedepot
+spec:
+  template:
+    spec:
+      containers:
+        - name: lexbox-api
+          volumeMounts:
+            - mountPath: /frontend
+              name: gql-schema
+            - mountPath: /var/www
+              name: www
+        - name: otel-collector
+          env: #don't try to export to honeycomb
+            - name: COLLECTOR_CONFIG_OVERRIDE
+              value: |
+                exporters:
+                  otlp/aspire:
+                    endpoint: localhost:18889
+                    tls:
+                      insecure: true
+                service:
+                  pipelines:
+                    traces:
+                      exporters: [otlp/aspire]
+                    metrics:
+                      exporters: [otlp/aspire]
+                    logs:
+                      exporters: [otlp/aspire]
+      volumes:
+        - name: gql-schema
+          emptyDir: {}
+        - name: www
+          emptyDir: {}
