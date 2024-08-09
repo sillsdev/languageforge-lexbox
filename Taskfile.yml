@@ -34,22 +34,20 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
-      - echo "HONEYCOMB_API_KEY=__REPLACE__" >> deployment/local-dev/local.env
-      - echo "#OTEL_SDK_DISABLED=true" >> deployment/local-dev/local.env
-      - echo "GOOGLE_OAUTH_CLIENT_ID=__REPLACE__.apps.googleusercontent.com" >> deployment/local-dev/local.env
-      - echo "GOOGLE_OAUTH_CLIENT_SECRET=__REPLACE__" >> deployment/local-dev/local.env
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
       - kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
       - docker build -t local-dev-init data/
   setup-win:
     platforms: [ windows ]
     cmds:
+      - powershell "if (!(test-path deployment/local-dev/local.env)) { cp deployment/local-dev/local.env.template deployment/local-dev/local.env }"
       - powershell -File download.ps1 sena-3 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS' 'BEC5131799DB07BF8D84D8FC1F3169FB2574F2A1F4C37F6898EAB563A4AE95B8'
       - powershell -File download.ps1 empty 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD' 'F4EB48D2C7B3294DCA93965F14F058E56D797F38D562B86CF0372F774E1B486B'
       - powershell -File download.ps1 elawa 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t' "E3608F1E3188CE5FDB166FBF9D5AAD06558DB68EFA079FB453881572B50CB8E3"
   setup-unix:
     platforms: [ linux, darwin ]
     cmds:
+      - "test -f deployment/local-dev/local.env || cp deployment/local-dev/local.env.template deployment/local-dev/local.env"
       - wget -c -O {{.DATA_DIR}}/sena-3.zip 'https://drive.google.com/uc?export=download&id=1I-hwc0RHoQqW774gbS5qR-GHa1E7BlsS'
       - wget -c -O {{.DATA_DIR}}/empty.zip 'https://drive.google.com/uc?export=download&id=1p73u-AGdSwNkg_5KEv9-4iLRuN-1V-LD'
       - wget -c -O {{.DATA_DIR}}/elawa.zip 'https://drive.usercontent.google.com/download?export=download&id=1Jk-eSDho8ATBMS-Kmfatwi-MWQth26ro&confirm=t'
