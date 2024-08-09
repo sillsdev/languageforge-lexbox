@@ -30,12 +30,12 @@
   export function openWithValue(newEntry: Partial<IEntry>) {
     const tmpEntry = defaultEntry();
     toggle.on = true;
-    setTimeout(() => entry = {...tmpEntry, ...newEntry, id: tmpEntry.id}, 1);
+    entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
   }
   let toggle: Toggle;
 </script>
 
-<Toggle bind:this={toggle} let:on={open} let:toggleOn let:toggleOff on:toggleOn={() => entry = defaultEntry()}>
+<Toggle bind:this={toggle} let:on={open} let:toggleOn let:toggleOff on:toggleOff={() => entry = defaultEntry()}>
   <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
     <div class="hidden sm:contents">
       New Entry
