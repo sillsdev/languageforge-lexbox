@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pgadmin-auth
+  namespace: languagedepot
+stringData:
+  PGADMIN_DEFAULT_EMAIL: 'admin@test.com'
+  PGADMIN_DEFAULT_PASSWORD: 'pass'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-config
+data:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+          "Name": "Lexbox Local",
+          "Group": "Servers",
+          "Port": 5432,
+          "Username": "postgres",
+          "PassFile": "/tmp/pgadmin/lexbox-passfile/POSTGRES_PASSWORD",
+          "Host": "db",
+          "SSLMode": "prefer",
+          "MaintenanceDB": "postgres"
+        }
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  namespace: languagedepot
+  labels:
+    app: pgadmin
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: pgadmin
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: languagedepot
+  labels:
+    app: pgadmin
+spec:
+  selector:
+    matchLabels:
+      app: pgadmin
+  strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 2
+        maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      # TODO: Health check, since pgadmin takes a few seconds to start up
+      volumes:
+      - name: pgadmin-config
+        configMap:
+          name: pgadmin-config
+      - name: pgadmin-auth
+        secret:
+          secretName: db
+      containers:
+      - name: pgadmin
+        image: dpage/pgadmin4:8.10
+        volumeMounts:
+        - name: pgadmin-config
+          mountPath: /pgadmin4/servers.json
+          subPath: servers.json
+          readOnly: true
+        - name: pgadmin-auth
+          mountPath: /tmp/pgadmin/lexbox-passfile
+          readOnly: true
+        # - name: pgadmin-data
+        #   mountPath: /var/lib/pgadmin
+        env:
+        - name: PGADMIN_LISTEN_ADDRESS
+          value: "0.0.0.0"
+        - name: PGADMIN_DEFAULT_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: pgadmin-auth
+              key: PGADMIN_DEFAULT_EMAIL
+        - name: PGADMIN_DEFAULT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pgadmin-auth
+              key: PGADMIN_DEFAULT_PASSWORD
+        ports:
+          - name: http
+            protocol: TCP
+            containerPort: 80
