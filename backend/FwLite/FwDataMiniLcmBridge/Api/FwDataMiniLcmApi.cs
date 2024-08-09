@@ -164,13 +164,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        foreach (var semanticDomain in SemanticDomainRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
+        foreach (var semanticDomain in SemanticDomainRepository.AllInstances().OrderBy(p => p.Abbreviation.UiString))
         {
             yield return new SemanticDomain
             {
                 Id = semanticDomain.Guid,
                 Name = FromLcmMultiString(semanticDomain.Name),
-                Code = semanticDomain.OcmCodes ?? ""
+                Code = semanticDomain.Abbreviation.UiString ?? ""
             };
         }
     }

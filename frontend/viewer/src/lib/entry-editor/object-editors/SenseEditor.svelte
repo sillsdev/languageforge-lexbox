@@ -37,7 +37,7 @@
                    {readonly}
                    id="semanticDomains"
                    wsType="first-analysis"
-                   options={$semanticDomains.map(sd => ({label: pickBestAlternative(sd.name, 'analysis', $writingSystems), value: sd.id}))}/>
+                   options={$semanticDomains.map(sd => ({label: sd.code + ' ' + pickBestAlternative(sd.name, 'analysis', $writingSystems), value: sd.id}))}/>
 <EntityEditor
   entity={sense}
   {readonly}
