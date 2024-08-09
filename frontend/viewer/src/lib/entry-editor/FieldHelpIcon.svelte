@@ -3,11 +3,11 @@
   import { Icon } from 'svelte-ux';
   import type { FieldConfig } from '../config-types';
 
-  export let fieldConfig: FieldConfig;
+  export let helpId: string;
 
   const rootHref = 'https://downloads.languagetechnology.org/fieldworks/Documentation/en/index.htm#t=';
 
-  $: href = 'helpId' in fieldConfig && fieldConfig.helpId ? `${rootHref}${encodeURIComponent(fieldConfig.helpId)}` : undefined;
+  $: href = `${rootHref}${encodeURIComponent(helpId)}`;
 </script>
 
 {#if href}

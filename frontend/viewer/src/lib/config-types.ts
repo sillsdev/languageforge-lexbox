@@ -2,16 +2,18 @@ import type { IEntry, IExampleSentence, IMultiString, ISense, SemanticDomain } f
 
 import type { ConditionalKeys } from 'type-fest';
 import type { LexboxApiFeatures } from './services/lexbox-api';
-import type { views } from './config-data';
 
 export type WritingSystemType = 'vernacular' | 'analysis';
 export type WritingSystemSelection = WritingSystemType | `first-${WritingSystemType}` | 'vernacular-analysis' | 'analysis-vernacular';
 export type FieldType = 'multi' | 'single' | 'option' | 'multi-option';
 export type WellKnownFieldId = Exclude<keyof (IEntry & ISense & IExampleSentence), 'id' | 'exampleSentences' | 'senses'>
 
-type BaseFieldConfig = {
+export type BaseFieldConfig = {
   type: FieldType;
   id: string;
+  name?: string;
+  extra?: boolean;
+  helpId?: string;
   ws: WritingSystemSelection;
   readonly?: true;
 }
@@ -47,31 +49,15 @@ export type BaseEntityFieldConfig<T> = (({
   id: ConditionalKeys<T, string[] | SemanticDomain[]>;
   ws: `first-${WritingSystemType}`;
 }) & BaseFieldConfig & {
-  id: WellKnownFieldId,
-  helpId: string,
+  id: WellKnownFieldId
 });
 
 export type EntityFieldConfig = BaseEntityFieldConfig<IEntry> | BaseEntityFieldConfig<ISense> | BaseEntityFieldConfig<IExampleSentence>;
-export type FieldConfig = (EntityFieldConfig & ViewConfigFieldProps) | CustomFieldConfig;
-
-export type ViewConfigFieldProps = {
-  extra?: true,
-};
+export type FieldConfig = EntityFieldConfig | CustomFieldConfig;
 
 export type LexboxFeatures = LexboxApiFeatures;
 
 export type LexboxPermissions = {
   write: boolean,
   comment: boolean,
-}
-
-export type ViewOptions = {
-  generateExternalChanges: boolean,
-  showExtraFields: boolean,
-  hideEmptyFields: boolean,
-  activeView: typeof views[number],
-}
-
-export type ViewConfig = ViewOptions & {
-  readonly?: boolean,
 }

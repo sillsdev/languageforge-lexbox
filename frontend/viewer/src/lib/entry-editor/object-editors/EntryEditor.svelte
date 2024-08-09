@@ -1,16 +1,17 @@
 <script lang="ts">
-  import type {IEntry, IExampleSentence, ISense} from '../mini-lcm';
+  import type {IEntry, IExampleSentence, ISense} from '../../mini-lcm';
   import EntityEditor from './EntityEditor.svelte';
   import {createEventDispatcher, getContext} from 'svelte';
   import type { Readable } from 'svelte/store';
-  import type { LexboxFeatures, ViewConfig } from '../config-types';
+  import type { LexboxFeatures } from '../../config-types';
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
-  import EntityListItemActions from './EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../utils';
-  import HistoryView from '../history/HistoryView.svelte';
+  import EntityListItemActions from '../EntityListItemActions.svelte';
+  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../../utils';
+  import HistoryView from '../../history/HistoryView.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
+  import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -59,7 +60,6 @@
   }
   export let modalMode = false;
   export let readonly = false;
-  $: isReadonly = readonly || $viewConfig.readonly;
 
   let editorElem: HTMLDivElement | undefined;
   let highlightedEntity: IExampleSentence | ISense | undefined;
@@ -98,16 +98,35 @@
     return elementRect.top >= 0;
   }
 
-  const viewConfig = getContext<Readable<ViewConfig>>('viewConfig');
   const features = getContext<Readable<LexboxFeatures>>('features');
   const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
 </script>
 
 <div bind:this={editorElem} class="editor-grid">
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.lexemeForm}
+                    {readonly}
+                    id="lexemeForm"
+                    wsType="vernacular"/>
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.citationForm}
+                    {readonly}
+                    id="citationForm"
+                    wsType="vernacular"/>
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.literalMeaning}
+                    {readonly}
+                    id="literalMeaning"
+                    wsType="vernacular"/>
+  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                    bind:value={entry.note}
+                    {readonly}
+                    id="note"
+                    wsType="analysis"/>
   <EntityEditor
     entity={entry}
-    fieldConfigs={Object.values($viewConfig.activeView.entry ?? [])}
-    customFieldConfigs={Object.values($viewConfig.activeView?.customEntry ?? [])}
+    {readonly}
+    customFieldConfigs={[]}
     on:change={() => dispatch('change', {entry})}
   />
 
@@ -117,7 +136,7 @@
       <div class="col-span-full flex items-center gap-4 py-4 sticky top-[-1px] bg-surface-100 z-[1]">
         <h2 class="text-lg text-surface-content">Sense {i + 1}</h2>
         <hr class="grow border-t-4">
-        {#if !isReadonly}
+        {#if !readonly}
           <EntityListItemActions {i} items={entry.senses.map(firstDefOrGlossVal)}
             on:move={(e) => moveSense(sense, e.detail)}
             on:delete={() => deleteSense(sense)} id={sense.id} />
@@ -139,7 +158,7 @@
                 collapse/expand toggle
               -->
               <hr class="grow">
-              {#if !isReadonly}
+              {#if !readonly}
               <EntityListItemActions i={j}
                                      items={sense.exampleSentences.map(firstSentenceOrTranslationVal)}
                   on:move={(e) => moveExample(sense, example, e.detail)}
@@ -152,20 +171,21 @@
             <div class="grid-layer">
             <ExampleEditor
               {example}
+              {readonly}
                 on:change={() => dispatch('change', {entry, sense, example})}
               />
             </div>
           </div>
         {/each}
       </div>
-      {#if !isReadonly}
+      {#if !readonly}
         <div class="col-span-full flex justify-end mt-4">
           <Button on:click={() => addExample(sense)} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Example</Button>
         </div>
       {/if}
     </div>
   {/each}
-  {#if !isReadonly}
+  {#if !readonly}
     <hr class="col-span-full grow border-t-4 my-4">
     <div class="col-span-full flex justify-end">
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">Add Sense</Button>
@@ -173,7 +193,7 @@
   {/if}
 </div>
 
-{#if !modalMode && !isReadonly}
+{#if !modalMode && !readonly}
   <div class="hidden">
     <div class="contents" use:portal={{ target: $entryActionsPortal.target, enabled: !!$entryActionsPortal.target}}>
       <Button on:click={addSense} icon={mdiPlus} variant="fill-light" color="success" size="sm">

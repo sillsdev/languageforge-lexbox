@@ -11,13 +11,12 @@
   import Editor from './lib/Editor.svelte';
   import {navigate} from 'svelte-routing';
   import {headword, pickBestAlternative} from './lib/utils';
-  import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
   import {onMount, setContext} from 'svelte';
   import {derived, writable, type Readable} from 'svelte/store';
   import {deriveAsync, makeDebouncer} from './lib/utils/time';
-  import {type ViewConfig, type LexboxPermissions, type ViewOptions, type LexboxFeatures} from './lib/config-types';
+  import { type LexboxPermissions, type LexboxFeatures} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import Toc from './lib/layout/Toc.svelte';
@@ -33,6 +32,8 @@
   import { saveEventDispatcher, saveHandler } from './lib/services/save-event-service';
   import {AppNotification} from './lib/notifications/notifications';
   import flexLogo from './lib/assets/flex-logo.png';
+  import {initView, initViewSettings} from './lib/services/view-service';
+  import {views} from './lib/entry-editor/view-data';
 
   export let loading = false;
 
@@ -47,23 +48,11 @@
     comment: true,
   });
 
-  const options = writable<ViewOptions>({
-    showExtraFields: false,
-    hideEmptyFields: false,
-    activeView: views[0],
-    generateExternalChanges: false,
-  });
 
-  const viewConfig = derived([options, permissions, features], ([config, permissions, features]) => {
-    const readonly = !permissions.write || !features.write;
-    return {
-      ...config,
-      readonly,
-      hideEmptyFields: config.hideEmptyFields || readonly,
-    };
-  });
+  const readonly = !$permissions.write || !$features.write;
 
-  setContext<Readable<ViewConfig>>('viewConfig', viewConfig);
+  const currentView = initView(views[0]);
+  const viewSettings = initViewSettings({hideEmptyFields: false});
 
   export let projectName: string;
   export let isConnected: boolean;
@@ -231,6 +220,7 @@
       callback: () => window.location.reload()
     });
   }
+  let newEntryDialog: NewEntryDialog;
 </script>
 
 <svelte:head>
@@ -262,12 +252,14 @@
 
     <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
-      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)} />
+      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)}
+                 createNew={newEntryDialog !== undefined}
+                 on:createNew={(e) => newEntryDialog.openWithValue({lexemeForm: {"seh": e.detail}})} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
-      {#if !$viewConfig.readonly}
-        <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
+      {#if !readonly}
+        <NewEntryDialog bind:this={newEntryDialog} on:created={e => onEntryCreated(e.detail.entry)} />
       {/if}
       <Button
         on:click={() => (showOptionsDialog = true)}
@@ -303,12 +295,13 @@
       <div class="w-screen max-w-full lg:w-[500px] lg:min-w-[300px] collapsible-col side-scroller flex" class:lg:!w-[1024px]={expandList} class:lg:max-w-[25vw]={!expandList} class:max-lg:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !$viewConfig.readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
         {#if $selectedEntry}
           <div class="mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
           </div>
           <Editor entry={$selectedEntry}
+                  {readonly}
             on:change={e => {
               $selectedEntry = $selectedEntry;
               $entries = $entries;
@@ -320,13 +313,13 @@
         {:else}
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
-            {#if !$viewConfig.readonly}
+            {#if !readonly}
               <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
             {/if}
           </div>
         {/if}
       </div>
-      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !$viewConfig.readonly} class:max-lg:hidden={!pickedEntry || $viewConfig.readonly} class:lg:hidden={expandList}>
+      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !readonly} class:max-lg:hidden={!pickedEntry || readonly} class:lg:hidden={expandList}>
         <div class="hidden" class:sm:hidden={expandList}>
           <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
         </div>
@@ -334,7 +327,7 @@
           {#if $selectedEntry}
             <div class="contents" class:lg:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
-                {#if !$viewConfig.readonly}
+                {#if !readonly}
                   <div class="contents" bind:this={entryActionsElem}>
 
                   </div>
@@ -360,7 +353,7 @@
                 </div>
               </div>
               <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
-                {$viewConfig.activeView.label}
+                {$currentView.label}
                 <Button
                   on:click={() => (showOptionsDialog = true)}
                   size="sm"
@@ -375,6 +368,6 @@
     </div>
   </main>
 
-  <ViewOptionsDrawer bind:open={showOptionsDialog} {options} {features} />
+  <ViewOptionsDrawer bind:open={showOptionsDialog} bind:activeView={$currentView} bind:viewSettings={$viewSettings} bind:features={$features} />
 </div>
 {/if}

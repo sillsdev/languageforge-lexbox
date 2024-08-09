@@ -2,17 +2,15 @@
   import { mdiMagnify } from "@mdi/js";
   import { Checkbox, Dialog, ListItem, TextField, cls } from "svelte-ux";
   import { fieldName } from "../i18n";
-  import { allFields } from "../config-data";
-  import { getContext } from "svelte";
-  import type { Writable } from "svelte/store";
-  import type { ViewConfig } from "../config-types";
+  import type {FieldConfig} from '../config-types';
+  import {useCurrentView} from '../services/view-service';
 
   export let open = false;
   let fieldSearch = '';
+  let currentView = useCurrentView();
 
-  const viewConfig = getContext<Writable<ViewConfig>>('viewConfig');
-
-  $: filteredFields = allFields($viewConfig.activeView).filter(
+  //todo list all fields
+  $: filteredFields = ([] as FieldConfig[]).filter(
     (field) =>
       !fieldSearch || fieldName(field)?.toLocaleLowerCase().includes(fieldSearch.toLocaleLowerCase())
   );
@@ -32,7 +30,7 @@
     {#each filteredFields as field}
       <label for={field.id} class="contents">
         <ListItem
-          title={fieldName(field, $viewConfig.activeView?.i18n)}
+          title={fieldName(field, $currentView.i18nKey)}
           subheading={`Type: ${field.type}. WS: ${field.ws}.`}
           class={cls('cursor-pointer', 'hover:bg-surface-300')}
           noShadow>

@@ -8,7 +8,7 @@
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
-  export let readonly: true | undefined = undefined;
+  export let readonly: boolean | undefined = undefined;
   let append: HTMLElement;
 
   // Labels don't always fit (beause WS's can be long and ugly), so a title might be important sometimes

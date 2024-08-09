@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { MultiString } from '../mini-lcm';
-  import type {FieldConfig, OptionFieldConfig, OptionFieldValue} from '../config-types';
+  import type { MultiString } from '../../mini-lcm';
+  import type {FieldConfig, OptionFieldConfig, OptionFieldValue} from '../../config-types';
   import MultiOptionEditor from './MultiOptionEditor.svelte';
   import SingleOptionEditor from './SingleOptionEditor.svelte';
   import SingleFieldEditor from './SingleFieldEditor.svelte';
@@ -10,6 +10,7 @@
 
   export let value: unknown;
   export let field: FieldConfig;
+  export let readonly: boolean;
 
   // having a single state object lets us do type predicates on the value and field at once
   // we just have to make sure they stay in sync
@@ -38,15 +39,12 @@
 </script>
 
 {#if isMultiString(value)}
-  <MultiFieldEditor on:change {field} bind:value />
+  <MultiFieldEditor on:change id={field.id} wsType={field.ws} bind:value {readonly} />
 {:else if isSingleString(value)}
-  <SingleFieldEditor on:change {field} bind:value />
+  <SingleFieldEditor on:change id={field.id} wsType={field.ws} bind:value {readonly} />
 {:else if isSingleOption(state)}
-  <SingleOptionEditor on:change field={state.field} bind:value={state.value} />
+  <SingleOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} {readonly} />
 {:else if isMultiOption(state)}
-  <MultiOptionEditor on:change field={state.field} bind:value={state.value} />
+  <MultiOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} {readonly} />
 {/if}
 
-<style global>
-  @import './field.postcss';
-</style>
