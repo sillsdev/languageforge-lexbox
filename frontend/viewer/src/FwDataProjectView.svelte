@@ -1,6 +1,5 @@
 ﻿<script lang="ts">
-
-  import {HubConnectionBuilder, HubConnectionState} from '@microsoft/signalr';
+  import {HubConnectionBuilder, HubConnectionState, type IHttpConnectionOptions} from '@microsoft/signalr';
   import {onDestroy, setContext} from 'svelte';
   import {SetupSignalR} from './lib/services/service-provider-signalr';
   import ProjectView from './ProjectView.svelte';
@@ -10,9 +9,11 @@
   import {Entry} from './lib/mini-lcm';
 
   export let projectName: string;
+  export let baseUrl: string = '';
+  export let signalrConnectionOptions: IHttpConnectionOptions = {};
   setContext('project-name', projectName);
   const connection = new HubConnectionBuilder()
-    .withUrl(`/api/hub/${projectName}/fwdata`)
+    .withUrl(`${baseUrl}/api/hub/${projectName}/fwdata`, signalrConnectionOptions)
     .withAutomaticReconnect()
     .build();
 
