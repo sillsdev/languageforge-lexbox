@@ -65,6 +65,12 @@ portForward:
     resourceName: hg
     namespace: languagedepot
     port: 8088 # web
+  # pgadmin
+  - resourceType: Service
+    resourceName: pgadmin
+    namespace: languagedepot
+    port: 80
+    localPort: 4810
 
 manifests:
   kustomize:
@@ -115,6 +121,12 @@ profiles:
         resourceName: lexbox
         namespace: languagedepot
         port: 1025
+      # pgadmin
+      - resourceType: Service
+        resourceName: pgadmin
+        namespace: languagedepot
+        port: 80
+        localPort: 4810
 
   - name: no-frontend
     portForward:
@@ -143,3 +155,9 @@ profiles:
       resourceName: lexbox
       namespace: languagedepot
       port: 1080
+    # pgadmin
+    - resourceType: Service
+      resourceName: pgadmin
+      namespace: languagedepot
+      port: 80
+      localPort: 4810

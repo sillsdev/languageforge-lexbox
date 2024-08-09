@@ -9,6 +9,7 @@ resources:
 - db-secrets.yaml
 - lf-classic-secrets.yaml
 - self-signed-ssl.yaml
+- pgadmin-deployment.yaml
 
 components:
   - ../init-repos
