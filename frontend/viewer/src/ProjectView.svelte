@@ -79,14 +79,6 @@
   setContext('indexExamplars', indexExamplars);
   const trigger = writable(0);
 
-  const { value: partsOfSpeech } = deriveAsync(connected, isConnected => {
-    if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.GetPartsOfSpeech();
-  });
-  const optionProvider: OptionProvider = {
-    partsOfSpeech: derived([writingSystems, partsOfSpeech], ([ws, pos]) => pos?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
-  };
-  setContext('optionProvider', optionProvider);
 
   const { value: _entries, loading: loadingEntries, flush: flushLoadingEntries } =
     deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
@@ -163,7 +155,7 @@
     navigateToEntryIdOnLoad = undefined;
   }
 
-  $: _loading = !$entries || !$writingSystems || !$partsOfSpeech || loading;
+  $: _loading = !$entries || !$writingSystems || loading;
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
