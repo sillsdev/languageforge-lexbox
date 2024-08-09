@@ -192,6 +192,13 @@ public class EmailService(
         await SendEmailWithRetriesAsync(email);
     }
 
+    public async Task SendJoinProjectRequestEmail(User projectManager, User requestingUser, Project project)
+    {
+        var email = StartUserEmail(projectManager) ?? throw new ArgumentNullException("emailAddress");
+        await RenderEmail(email, new JoinProjectRequestEmail(projectManager.Name, requestingUser.Name, requestingUser.Id, project.Code, project.Name), projectManager.LocalizationCode);
+        await SendEmailWithRetriesAsync(email);
+    }
+
     public async Task SendCreateProjectRequestEmail(LexAuthUser user, CreateProjectInput projectInput)
     {
         var email = new MimeMessage();

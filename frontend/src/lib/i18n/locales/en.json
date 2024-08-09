@@ -198,7 +198,14 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "language_code_invalid": "Language code can only include lowercase a-z, digits and '-', and cannot start with '-'",
       "name": "Name",
       "name_description": "E.g. the name of the language you're working on",
+      "maybe_related": "Possibly related projects:",
+      "maybe_related_description": "Perhaps you want to join one of these instead?",
+      "ask_to_join": "Ask to join",
+      "no_thanks": "No thanks, create a new project",
+      "click_to_view_related_projects": "Found {count, plural, one {# related project} other {# related projects}}, click here to see {count, plural, one {it} other {them}}",
+      "join_request_sent": "Your request to join the {projectName} project has been sent to the project manager(s)",
       "description": "Description",
+      "no_description": "This project does not have a description",
       "name_missing": "Project name required",
       "retention_policy": "Purpose",
       "submit": "Create Project",
@@ -640,6 +647,11 @@ If you don't see a dialog or already closed it, click the button below:",
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
       "heading": "User {name} ({email}) requested that a project be created for them. Details below:"
+    },
+    "join_project_request_email": {
+      "subject": "Project join request: {requestingUserName} wants to join {projectName}",
+      "body": "User {requestingUserName} requested to join the project {projectName}. Click below to approve this request.",
+      "approve_button": "Approve request"
     },
     "approve_project_request_email": {
       "subject": "Project approved: {projectName}",

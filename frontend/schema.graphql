@@ -21,6 +21,11 @@ type AlreadyExistsError implements Error {
   message: String!
 }
 
+type AskToJoinProjectPayload {
+  project: Project
+  errors: [AskToJoinProjectError!]
+}
+
 type AuthUserOrg {
   role: OrgRole!
   orgId: UUID!
@@ -233,6 +238,7 @@ type Mutation {
   addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
   bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy")
   changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
+  askToJoinProject(input: AskToJoinProjectInput!): AskToJoinProjectPayload!
   changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
   changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
   setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
@@ -409,6 +415,8 @@ type Query {
   projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
   myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
   draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
+  projectsByLangCodeAndOrg(input: ProjectsByLangCodeAndOrgInput! orderBy: [ProjectSortInput!]): [Project!]!
+  projectsInMyOrg(input: ProjectsInMyOrgInput! where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]!
   projectById(projectId: UUID!): Project
   projectByCode(code: String!): Project
   draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
@@ -534,6 +542,8 @@ union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVeri
 
 union AddProjectToOrgError = DbError | NotFoundError
 
+union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
+
 union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
 
 union BulkAddProjectMembersError = NotFoundError | InvalidEmailError | DbError
@@ -586,7 +596,7 @@ union UpdateProjectLexEntryCountError = NotFoundError | DbError | UnauthorizedAc
 
 input AddProjectMemberInput {
   projectId: UUID!
-  usernameOrEmail: String!
+  usernameOrEmail: String
   userId: UUID
   role: ProjectRole!
   canInvite: Boolean!
@@ -594,6 +604,10 @@ input AddProjectMemberInput {
 
 input AddProjectToOrgInput {
   orgId: UUID!
+  projectId: UUID!
+}
+
+input AskToJoinProjectInput {
   projectId: UUID!
 }
 
@@ -949,6 +963,15 @@ input ProjectWritingSystemsFilterInput {
   or: [ProjectWritingSystemsFilterInput!]
   vernacularWss: ListFilterInputTypeOfFLExWsIdFilterInput
   analysisWss: ListFilterInputTypeOfFLExWsIdFilterInput
+}
+
+input ProjectsByLangCodeAndOrgInput {
+  orgId: UUID!
+  langCode: String!
+}
+
+input ProjectsInMyOrgInput {
+  orgId: UUID!
 }
 
 input RemoveProjectFromOrgInput {
