@@ -34,6 +34,7 @@
   import flexLogo from './lib/assets/flex-logo.png';
   import {initView, initViewSettings} from './lib/services/view-service';
   import {views} from './lib/entry-editor/view-data';
+  import {initWritingSystems} from './lib/writing-systems';
 
   export let loading = false;
 
@@ -68,11 +69,10 @@
   setContext('selectedIndexExamplar', selectedIndexExemplar);
   $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar);
 
-  const { value: writingSystems } = deriveAsync(connected, isConnected => {
+  const writingSystems = initWritingSystems(deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.GetWritingSystems();
-  });
-  setContext('writingSystems', writingSystems);
+  }).value);
   const indexExamplars = derived(writingSystems, wsList => {
     return wsList?.vernacular[0].exemplars;
   });

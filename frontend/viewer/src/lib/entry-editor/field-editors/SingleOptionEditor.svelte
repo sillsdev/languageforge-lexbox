@@ -8,6 +8,7 @@
   import type {WritingSystemSelection} from '../../config-types';
   import type { MenuOption } from 'svelte-ux';
   import {useCurrentView} from '../../services/view-service';
+  import {useWritingSystems} from '../../writing-systems';
 
   type T = $$Generic<{}>;
   export let id: string;
@@ -19,7 +20,7 @@
   export let options: MenuOption[] = [];
   let currentView = useCurrentView();
 
-  const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
+  const allWritingSystems = useWritingSystems();
 
   $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
   $: empty = !value;

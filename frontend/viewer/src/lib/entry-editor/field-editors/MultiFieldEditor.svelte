@@ -7,12 +7,13 @@
   import type {WritingSystemSelection} from '../../config-types';
   import { pickWritingSystems } from '../../utils';
   import {useCurrentView} from '../../services/view-service';
+  import {useWritingSystems} from '../../writing-systems';
 
   const dispatch = createEventDispatcher<{
     change: { value: MultiString };
   }>();
 
-  const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
+  const allWritingSystems = useWritingSystems();
 
   type T = $$Generic<{}>;
   export let id: string;

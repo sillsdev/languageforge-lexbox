@@ -7,6 +7,7 @@
   import type {WritingSystemSelection} from '../../config-types';
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import {useCurrentView} from '../../services/view-service';
+  import {useWritingSystems} from '../../writing-systems';
 
   type T = $$Generic<{}>;
   export let id: string;
@@ -16,7 +17,7 @@
   export let readonly: boolean;
   let currentView = useCurrentView();
 
-  const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
+  const allWritingSystems = useWritingSystems();
 
   $: [ws] = pickWritingSystems(wsType, $allWritingSystems);
   $: empty = !value;
