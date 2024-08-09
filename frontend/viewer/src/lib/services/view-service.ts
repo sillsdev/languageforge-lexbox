@@ -1,6 +1,6 @@
 ﻿import {type Writable, writable} from 'svelte/store';
-import type {View} from '../entry-editor/view-data';
-import {getContext, setContext} from 'svelte';
+import {type View, views} from '../entry-editor/view-data';
+import {getContext, onDestroy, setContext} from 'svelte';
 
 const currentViewContextName = 'currentView';
 const viewSettingsContextName = 'viewSettings';
@@ -16,8 +16,9 @@ export function initViewSettings(defaultSettings: ViewSettings) {
   return viewSettingsStore;
 }
 export function initView(defaultView: View) {
-  //todo load from local storage
-  const currentViewStore = writable<View>(defaultView);
+  const localView = localStorage.getItem('currentView');
+  const currentViewStore = writable<View>(views.find(v => v.id === localView) ?? defaultView);
+  onDestroy(currentViewStore.subscribe(v => localStorage.setItem('currentView', v.id)));
   setContext<Writable<View>>(currentViewContextName, currentViewStore);
   return currentViewStore;
 }

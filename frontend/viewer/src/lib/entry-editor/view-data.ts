@@ -21,6 +21,7 @@ export const allFields: Record<FieldIds, FieldView> = {
 
 const viewDefinitions: ViewDefinition[] = [
   {
+    id: 'wesay',
     i18nKey: 'weSay',
     label: 'WeSay',
     fields: {
@@ -34,6 +35,7 @@ const viewDefinitions: ViewDefinition[] = [
     }
   },
   {
+    id: 'languageforge',
     i18nKey: 'languageForge',
     label: 'Language Forge',
     fields: {
@@ -47,6 +49,7 @@ const viewDefinitions: ViewDefinition[] = [
 
 export const views: View[] = [
   {
+    id: 'everything',
     i18nKey: '',
     label: 'Everything (FieldWorks)',
     fields: allFields,
@@ -73,6 +76,7 @@ function recursiveSpread<T extends Record<string, unknown>>(obj1: T, obj2: Parti
 }
 
 interface ViewDefinition {
+  id: string;
   i18nKey: I18nType;
   label: string;
   fields: Partial<Record<FieldIds, FieldView>>;
