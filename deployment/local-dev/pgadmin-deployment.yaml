@@ -16,11 +16,11 @@ data:
     {
       "Servers": {
         "1": {
-          "Name": "Lexbox Local",
+          "Name": "lexbox",
           "Group": "Servers",
           "Port": 5432,
           "Username": "postgres",
-          "PassFile": "pgpass",
+          "PassFile": "/lexbox",
           "Host": "db",
           "SSLMode": "prefer",
           "MaintenanceDB": "postgres"
@@ -67,42 +67,37 @@ spec:
       labels:
         app: pgadmin
     spec:
-      # TODO: Health check, since pgadmin takes a few seconds to start up
       volumes:
       - name: pgadmin-config
         configMap:
           name: pgadmin-config
-      - name: pgadmin-auth
-        secret:
-          secretName: db
       containers:
       - name: pgadmin
         image: dpage/pgadmin4:8.10
         # pgadmin needs a specific format for its pgpass files
+        # Can't just mount k8s secret, so have to run some pre-entrypoint code instead
         command: ["/bin/sh"]
         args:
           - "-c"
           - |
-            echo "*:*:${POSTGRES_DB}:${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}" > /tmp/pgpass
-            # cp -pv /tmp/pgpass /pgadmin4/
-            mkdir -p /var/lib/pgadmin/storage/admin_test.com
-            chmod 700 /var/lib/pgadmin/storage/admin_test.com
-            chown -R pgadmin:root /var/lib/pgadmin
-            cp -pv /tmp/pgpass /var/lib/pgadmin/storage/admin_test.com/pgpass
-            chmod 600 /var/lib/pgadmin/storage/admin_test.com/pgpass
-            rm /tmp/pgpass
+            mkdir -p  /tmp/pgadmin/admin_test.com
+            echo "${POSTGRES_HOSTNAME}:${POSTGRES_PORT}:*:${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}" > /tmp/pgadmin/admin_test.com/lexbox
+            chown -R pgadmin /tmp/pgadmin/admin_test.com
+            chmod 700 /tmp/pgadmin/admin_test.com
+            chmod 600 /tmp/pgadmin/admin_test.com/lexbox
+            ls -l /tmp/pgadmin/admin_test.com/lexbox"
             /entrypoint.sh "$@"
         volumeMounts:
         - name: pgadmin-config
           mountPath: /pgadmin4/servers.json
           subPath: servers.json
           readOnly: true
-        - name: pgadmin-auth
-          mountPath: /tmp/pgadmin/lexbox-passfile
-          readOnly: true
+        # TODO: After testing, create a persistent volume claim and mount it here
         # - name: pgadmin-data
         #   mountPath: /var/lib/pgadmin
         env:
+        - name: PGADMIN_CONFIG_STORAGE_DIR
+          value: "'/tmp/pgadmin'"
         - name: PGADMIN_LISTEN_ADDRESS
           value: "0.0.0.0"
         # Don't want pgadmin to run a Postfix instance, we don't need password-reset emails
@@ -122,11 +117,6 @@ spec:
           value: db
         - name: POSTGRES_PORT
           value: "5432"
-        - name: POSTGRES_DB
-          valueFrom:
-            secretKeyRef:
-              name: db
-              key: POSTGRES_DB
         - name: POSTGRES_USERNAME
           value: "postgres"
         - name: POSTGRES_PASSWORD
@@ -138,3 +128,9 @@ spec:
           - name: http
             protocol: TCP
             containerPort: 80
+        startupProbe:
+          httpGet:
+            path: /
+            port: 80
+          failureThreshold: 30
+          periodSeconds: 10
