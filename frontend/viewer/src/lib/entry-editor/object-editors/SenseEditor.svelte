@@ -6,12 +6,17 @@
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
   import type {OptionProvider} from '../../services/option-provider';
+  import {useSemanticDomains} from '../../semantic-domains';
+  import {useCurrentView} from '../../services/view-service';
+  import {useWritingSystems} from '../../writing-systems';
+  import {pickBestAlternative} from '../../utils';
 
   export let sense: ISense;
   export let readonly: boolean = false;
   const optionProvider = getContext<OptionProvider>('optionProvider');
   const partsOfSpeech = optionProvider.partsOfSpeech;
-  const semanticDomains = optionProvider.semanticDomains;
+  const semanticDomains = useSemanticDomains();
+  const writingSystems = useWritingSystems();
 </script>
 
 <MultiFieldEditor on:change
@@ -35,7 +40,7 @@
                    {readonly}
                    id="semanticDomains"
                    wsType="first-analysis"
-                   options={$semanticDomains}/>
+                   options={$semanticDomains.map(sd => ({label: pickBestAlternative(sd.name, 'analysis', $writingSystems), value: sd.id}))}/>
 <EntityEditor
   entity={sense}
   {readonly}

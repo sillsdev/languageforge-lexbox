@@ -83,13 +83,8 @@
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.GetPartsOfSpeech();
   });
-  const { value: semanticDomains } = deriveAsync(connected, isConnected => {
-    if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.GetSemanticDomains();
-  });
   const optionProvider: OptionProvider = {
     partsOfSpeech: derived([writingSystems, partsOfSpeech], ([ws, pos]) => pos?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
-    semanticDomains: derived([writingSystems, semanticDomains], ([ws, sd]) => sd?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
   };
   setContext('optionProvider', optionProvider);
 
@@ -168,7 +163,7 @@
     navigateToEntryIdOnLoad = undefined;
   }
 
-  $: _loading = !$entries || !$writingSystems || !$partsOfSpeech || !$semanticDomains || loading;
+  $: _loading = !$entries || !$writingSystems || !$partsOfSpeech || loading;
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
