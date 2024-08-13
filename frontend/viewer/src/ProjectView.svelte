@@ -205,6 +205,11 @@
     });
   }
   let newEntryDialog: NewEntryDialog;
+  function openNewEntryDialog(text: string) {
+    const defaultWs = $writingSystems?.vernacular[0].id;
+    if (defaultWs === undefined) return;
+    newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
+  }
 </script>
 
 <svelte:head>
@@ -238,7 +243,7 @@
     <div class="flex-grow-[2] mx-2">
       <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail.entry, e.detail.search)}
                  createNew={newEntryDialog !== undefined}
-                 on:createNew={(e) => newEntryDialog.openWithValue({lexemeForm: {"seh": e.detail}})} />
+                 on:createNew={(e) => openNewEntryDialog(e.detail)} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
