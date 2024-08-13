@@ -159,17 +159,14 @@
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
-    navigateToEntry(entry);
+    navigateToEntry(entry, headword(entry));
   }
 
-  function navigateToEntry(entry: IEntry) {
-    $search = '';
-    selectEntry(entry);
-  }
-
-  function selectEntry(entry: IEntry) {
+  function navigateToEntry(entry: IEntry, searchText?: string) {
+    // this is to ensure that the selected entry is in the list of entries, otherwise it won't be selected
+    $search = searchText ?? '';
+    $selectedIndexExemplar = undefined;
     $selectedEntry = entry;
-    $selectedIndexExemplar = headword(entry).charAt(0).toLocaleUpperCase() || undefined;
     refreshEntries();
     pickedEntry = true;
   }
@@ -239,7 +236,7 @@
 
     <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
-      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)}
+      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail.entry, e.detail.search)}
                  createNew={newEntryDialog !== undefined}
                  on:createNew={(e) => newEntryDialog.openWithValue({lexemeForm: {"seh": e.detail}})} />
     </div>

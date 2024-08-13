@@ -9,7 +9,7 @@
   import type { IEntry } from '../mini-lcm';
 
   const dispatch = createEventDispatcher<{
-    entrySelected: IEntry;
+    entrySelected: {entry: IEntry, search: string};
     createNew: string
   }>();
 
@@ -58,7 +58,7 @@
   const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 
   function selectEntry(entry: IEntry) {
-    dispatch('entrySelected', entry);
+    dispatch('entrySelected', {entry, search: $search});
     showSearchDialog = false;
   }
 </script>
