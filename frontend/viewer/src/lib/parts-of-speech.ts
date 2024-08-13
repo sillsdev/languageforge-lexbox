@@ -7,7 +7,7 @@ let partsOfSpeechStore: Writable<PartOfSpeech[] | null> | null = null;
 export function usePartsOfSpeech(): Readable<PartOfSpeech[]> {
   if (partsOfSpeechStore === null) {
     partsOfSpeechStore = writable<PartOfSpeech[] | null>([], (set) => {
-      useLexboxApi().GetSemanticDomains().then(partsOfSpeech => {
+      useLexboxApi().GetPartsOfSpeech().then(partsOfSpeech => {
         set(partsOfSpeech);
       });
     });
