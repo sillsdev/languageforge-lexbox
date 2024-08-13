@@ -58,7 +58,7 @@
 
   function selectEntry(entry: IEntry) {
     dispatch('entrySelected', entry);
-    showSearchDialog = false;
+    $showSearchDialog = false;
   }
 
   function trimPastedText(e: ClipboardEvent) {
