@@ -18,6 +18,7 @@
   SetupSignalR(connection, {
     history: true,
     write: true,
+    feedback: true
   });
   let connected = false;
 </script>

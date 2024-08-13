@@ -14,8 +14,24 @@ export function headword(entry: IEntry, ws?: string): string {
   }
 }
 
-export function pickBestAlternative(value: IMultiString, firstChoice?: WritingSystem): string {
-  let pick = firstChoice ? value[firstChoice.id] : undefined;
+export function pickBestAlternative(value: IMultiString, wss: 'vernacular' | 'analysis', allWs: WritingSystems): string
+export function pickBestAlternative(value: IMultiString, firstChoice: WritingSystem): string
+export function pickBestAlternative(value: IMultiString): string
+export function pickBestAlternative(value: IMultiString, firstChoice?: WritingSystem | 'vernacular' | 'analysis', allWs?: WritingSystems): string {
+  let ws: WritingSystem | undefined;
+  if (firstChoice && allWs) {
+    switch (firstChoice) {
+      case 'vernacular':
+        ws = allWs.vernacular[0];
+        break;
+      case 'analysis':
+        ws = allWs.analysis[0];
+        break;
+    }
+  } else if (typeof firstChoice === 'object') {
+    ws = firstChoice;
+  }
+  let pick = ws ? value[ws.id] : undefined;
   return pick ?? firstVal(value) ?? '';
 }
 
@@ -51,6 +67,8 @@ export function pickWritingSystems(
     case 'analysis':
       return allWs.analysis;
   }
+  console.error(`Unknown writing system selection: ${ws}`);
+  return [];
 }
 
 const emptyIdPrefix = '00000000-0000-0000-0000-';

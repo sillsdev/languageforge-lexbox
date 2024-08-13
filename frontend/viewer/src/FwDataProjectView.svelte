@@ -35,6 +35,7 @@
       history: false,
       write: true,
       openWithFlex: true,
+      feedback: true
     },
     {
       OnEntryUpdated: async (entry: Entry) => {
