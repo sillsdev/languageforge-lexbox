@@ -15,7 +15,7 @@
   import {getContext} from 'svelte';
 
   let loading = false;
-  let projectName = getContext<string>('project-name');
+  export let projectName: string;
   let activity: Array<{
     commitId: string,
     changeName: string,

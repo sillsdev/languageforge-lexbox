@@ -56,6 +56,7 @@
   const viewSettings = initViewSettings({hideEmptyFields: false});
 
   export let projectName: string;
+  setContext('project-name', projectName);
   export let isConnected: boolean;
   export let showHomeButton = true;
   $: connected.set(isConnected);
@@ -260,7 +261,7 @@
         </div>
       </Button>
       {#if $features.history}
-        <ActivityView/>
+        <ActivityView {projectName}/>
       {/if}
       {#if $features.feedback}
         <Button
