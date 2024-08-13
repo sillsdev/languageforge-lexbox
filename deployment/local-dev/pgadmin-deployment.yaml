@@ -85,7 +85,7 @@ spec:
             chown -R pgadmin /tmp/pgadmin/admin_test.com
             chmod 700 /tmp/pgadmin/admin_test.com
             chmod 600 /tmp/pgadmin/admin_test.com/lexbox
-            ls -l /tmp/pgadmin/admin_test.com/lexbox"
+            ls -l /tmp/pgadmin/admin_test.com/lexbox
             /entrypoint.sh "$@"
         volumeMounts:
         - name: pgadmin-config
