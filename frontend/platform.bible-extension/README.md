@@ -1,6 +1,6 @@
 # fw-lite-extension
 
-Fully function 'hello world' extension template for Paranext
+FW Lite packaged as an extension for platform.bible.
 
 ## Summary
 
@@ -23,42 +23,21 @@ This is a webpack project template pre-configured to build Paranext extensions. 
 
 ### Configure paths to `paranext-core` repo
 
-In order to interact with `paranext-core`, you must point `package.json` to your installed `paranext-core` repository:
-
-1. Follow the instructions to install [`paranext-core`](https://github.com/paranext/paranext-core#developer-install). We recommend you clone `paranext-core` in the same parent directory in which you cloned this repository so you do not have to reconfigure paths to `paranext-core`.
-2. If you cloned `paranext-core` anywhere other than in the same parent directory in which you cloned this repository, update the paths to `paranext-core` in this repository's `package.json` to point to the correct `paranext-core` directory.
+In order to interact with `paranext-core`, you must clone `paranext-core` in the same parent directory in which you cloned this repository so you do not have to reconfigure paths to `paranext-core`.
+For example, if you cloned this repository in `C:\dev\LexBox\`, you would clone `paranext-core` in `C:\dev\paranext-core\`.
 
 ### Install dependencies
 
 Run `npm install` to install local and published dependencies
 
-### Configure extension details
-
-This section is a more compact version of the [`Your first extension` guide](https://github.com/paranext/fw-lite-extension/wiki/Your-First-Extension).
-
-#### Search and replace placeholders
-
-- **Search for:** fw-lite-extension
-  **Replace with:** your-extension-name
-- **Search for:** FW Lite Extension
-  **Replace with:** Your Extension
-  (Be sure to match case)
-
-#### Filenames
-
-You need to change the filename of the `.d.ts` file, which is located in `/src/types` and referenced in the `package.json` “types” field. See more information on the [.d.ts files](https://github.com/paranext/fw-lite-extension/wiki/Extension-Anatomy#type-declaration-files-dts).
-
-#### Manifest
-
-The `manifest.json` and `package.json` files makeup your extension manifest. Add your details in these two files based on your extension name and what you renamed the files described in 1 and 2. See more information on the `manifest.json` and `package.json` files in [Extension Anatomy](https://github.com/paranext/fw-lite-extension/wiki/Extension-Anatomy#extension-manifest).
-
-#### Webpack
-
-You will need to add your extension's name into `webpack.config.main.ts` and `webpack.util.ts`. The search and replace actions listed above will correct this for you.
-
 ## To run
 
+First, you must build the viewer, from the `viewer` folder:
+`pnpm run build`
+
 ### Running Paranext with your extension
+
+#### warning, you must not use `pnpm`, only `npm`
 
 To run Paranext with your extension:
 
@@ -84,7 +63,7 @@ To package your extension into a zip file for distribution:
 
 ## To update
 
-The `fw-lite-extension` will be updated regularly, and will sometimes receive updates that help with breaking changes on `paranext-core`. So we recommend you periodically update your extension by merging the latest template updates into your extension. You can do so by following [these instructions](https://github.com/paranext/paranext-extension-template/wiki/Merging-Template-Changes-into-Your-Extension).
+The template will be updated regularly, and will sometimes receive updates that help with breaking changes on `paranext-core`. So we recommend you periodically update your extension by merging the latest template updates into your extension. You can do so by following [these instructions](https://github.com/paranext/paranext-extension-template/wiki/Merging-Template-Changes-into-Your-Extension).
 
 ## Special features of the template
 
