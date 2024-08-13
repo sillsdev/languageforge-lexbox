@@ -5,7 +5,7 @@
   import { useLexboxApi } from '../services/service-provider';
   import { derived, writable, type Writable } from 'svelte/store';
   import { deriveAsync } from '../utils/time';
-  import { createEventDispatcher, getContext, onDestroy } from 'svelte';
+  import {createEventDispatcher, getContext, onDestroy, onMount} from 'svelte';
   import type { IEntry } from '../mini-lcm';
   import {useSearch} from './search';
 
@@ -52,6 +52,19 @@
 
   const listSearch = getContext<Writable<string | undefined>>('listSearch');
   const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
+
+  function trimPastedText(e: ClipboardEvent) {
+    console.log(e);
+    if (e.clipboardData) {
+      e.preventDefault();
+      const text = e.clipboardData.getData('text');
+      if (text !== null && text !== undefined) {
+        $search = text.trim();
+      }
+    }
+  }
+  let searchElement: HTMLInputElement | null | undefined;
+  $: if (searchElement) searchElement.addEventListener('paste', trimPastedText);
 </script>
 
 <Field
@@ -71,6 +84,7 @@
 <Dialog bind:open={$showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
     <TextField
+      bind:inputEl={searchElement}
       autofocus
       clearable
       bind:value={$search}
