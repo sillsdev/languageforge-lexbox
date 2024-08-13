@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Globalization;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
@@ -266,8 +267,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 if (value is null || value.Length < exemplar.Length) return false;
                 //exemplar is normalized, so we can use StartsWith
                 //there may still be cases where value.StartsWith(value[0].ToString()) == false (e.g. "آبراهام")
+                //another example is "เพือ" does not start with "เ"
                 //but I don't have the data to test that
-                return value.StartsWith(exemplar, StringComparison.InvariantCultureIgnoreCase);
+                return CultureInfo.InvariantCulture.CompareInfo.IsPrefix(value, exemplar, CompareOptions.IgnoreCase);
             });
         }
 

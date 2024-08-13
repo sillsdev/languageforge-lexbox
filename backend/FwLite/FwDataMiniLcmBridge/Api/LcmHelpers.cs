@@ -1,3 +1,4 @@
+using System.Globalization;
 using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api;
@@ -62,7 +63,9 @@ internal static class LcmHelpers
             var value = tsString.Text.AsSpan().Trim(WhitespaceAndFormattingChars);
             if (!value.IsEmpty && wsExemplars.TryGetValue(ws, out var exemplars))
             {
-                exemplars.Add(char.ToUpperInvariant(value[0]));
+                //some cases the first character is not a prefix.
+                if (CultureInfo.InvariantCulture.CompareInfo.IsPrefix(value, value[0..1], CompareOptions.IgnoreCase))
+                    exemplars.Add(char.ToUpperInvariant(value[0]));
             }
         }
     }
