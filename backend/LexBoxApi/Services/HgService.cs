@@ -280,17 +280,16 @@ public class HgService : IHgService, IHostedService
 
     public async Task<DateTimeOffset?> GetLastCommitTimeFromHg(ProjectCode projectCode)
     {
-        var json = await GetCommit(projectCode, "tip");
-        //format is this: [1678687688, offset] offset is
-        var dateArray = json?["entries"]?[0]?["date"].Deserialize<decimal[]>();
-        if (dateArray is null || dateArray.Length != 2 || dateArray[0] <= 0)
-            return null;
-        //offsets are weird. The format we get the offset in is opposite of how we typically represent offsets, eg normally the US has negative
-        //offsets because it's behind UTC. But in other cases the US has positive offsets because time needs to be added to reach UTC.
-        //the offset we get here is the latter but dotnet expects the former so we need to invert it.
-        var offset = (double)dateArray[1] * -1;
-        var date = DateTimeOffset.FromUnixTimeSeconds((long)dateArray[0]).ToOffset(TimeSpan.FromSeconds(offset));
-        return date.ToUniversalTime();
+        var dateStr = await GetTipDate(projectCode);
+        // Format is "1472445535 -25200", two ints separated by a single space.
+        // "0 0" is returned for empty repos (no commits), but we prefer to represent that as null
+        if (dateStr == "0 0") return null;
+        var dateArray = dateStr?.Split();
+        if (dateArray is null || dateArray.Length != 2) return null;
+        // Parse to 64-bit ints so we don't have a year 2038 problem
+        if (!long.TryParse(dateArray[0], out var timestamp)) return null;
+        if (!long.TryParse(dateArray[1], out var offset)) return null;
+        return ConvertHgDate(timestamp, offset);
     }
 
     private async Task<JsonObject?> GetCommit(ProjectCode projectCode, string rev)
@@ -337,6 +336,22 @@ public class HgService : IHgService, IHostedService
         }
         var result = ExecuteHgCommandServerCommand(code, "invalidatedircache", token);
         return result;
+    }
+
+    public DateTimeOffset ConvertHgDate(long timestamp, long hgOffset)
+    {
+        //hg offsets are weird. The format we get the offset in is opposite of how we typically represent offsets, eg normally the US has negative
+        //offsets because it's behind UTC. But in other cases the US has positive offsets because time needs to be added to reach UTC.
+        //the offset we get here is the latter but dotnet expects the former so we need to invert it.
+        var offset = hgOffset * -1;
+        var date = DateTimeOffset.FromUnixTimeSeconds(timestamp).ToOffset(TimeSpan.FromSeconds(offset));
+        return date.ToUniversalTime();
+    }
+
+    public async Task<string> GetTipDate(ProjectCode code, CancellationToken token = default)
+    {
+        var content = await ExecuteHgCommandServerCommand(code, "tipdate", token);
+        return await content.ReadAsStringAsync();
     }
 
     public async Task<string> GetTipHash(ProjectCode code, CancellationToken token = default)

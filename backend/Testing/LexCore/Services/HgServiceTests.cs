@@ -63,6 +63,18 @@ public class HgServiceTests
     }
 
     [Theory]
+    [InlineData("1630088815 0", "2021-08-27T18:26:55+0000")]
+    [InlineData("1472445535 -25200", "2016-08-29T11:38:55+0700")]
+    [InlineData("1472028930 14400", "2016-08-24T04:55:30-0400")]
+    public void HgDatesConvertedAccurately(string input, string expectedStr)
+    {
+        var expected = DateTimeOffset.Parse(expectedStr);
+        var parts = input.Split().Select(long.Parse).ToArray();
+        var actual = _hgService.ConvertHgDate(parts[0], parts[1]);
+        actual.ShouldBe(expected);
+    }
+
+    [Theory]
     [InlineData(".hg/important-file.bin")]
     [InlineData("unzip-test/.hg/important-file.bin")]
     public async Task CanFinishResetByUnZippingAnArchive(string filePath)
