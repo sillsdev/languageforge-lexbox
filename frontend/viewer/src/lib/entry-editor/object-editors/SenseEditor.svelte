@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
   import EntityEditor from './EntityEditor.svelte';
-  import type {ISense} from '../../mini-lcm';
+  import type {ISense, SemanticDomain} from '../../mini-lcm';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
@@ -8,12 +8,16 @@
   import {useWritingSystems} from '../../writing-systems';
   import {pickBestAlternative} from '../../utils';
   import {usePartsOfSpeech} from '../../parts-of-speech';
+  import type {OptionFieldValue} from '../../config-types';
 
   export let sense: ISense;
   export let readonly: boolean = false;
   const partsOfSpeech = usePartsOfSpeech();
   const semanticDomains = useSemanticDomains();
   const writingSystems = useWritingSystems();
+  function setSemanticDomains(selectedValues: OptionFieldValue[]) {
+    sense.semanticDomains = selectedValues.map(v => $semanticDomains.find(sd => sd.id === v.id)).filter((sd): sd is SemanticDomain => !!sd);
+  }
 </script>
 
 <MultiFieldEditor on:change
@@ -32,8 +36,10 @@
                     id="partOfSpeechId"
                     wsType="first-analysis"
                     options={$partsOfSpeech.map(pos => ({label: pickBestAlternative(pos.name, 'analysis', $writingSystems), value: pos.id}))}/>
-<MultiOptionEditor on:change
-                   bind:value={sense.semanticDomains}
+<MultiOptionEditor
+                   value={sense.semanticDomains}
+                   on:change={e =>{ setSemanticDomains(e.detail.value)} }
+                   on:change
                    {readonly}
                    id="semanticDomains"
                    wsType="first-analysis"
