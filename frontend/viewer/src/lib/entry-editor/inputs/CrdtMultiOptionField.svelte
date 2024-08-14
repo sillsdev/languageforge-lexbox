@@ -2,7 +2,8 @@
   import type { ComponentProps } from 'svelte';
   import CrdtField from './CrdtField.svelte';
   import { TextField, type MenuOption, MultiSelectField } from 'svelte-ux';
-  import type {OptionFieldValue} from '../config-types';
+  import type {OptionFieldValue} from '../../config-types';
+  import {mdiMagnify} from '@mdi/js';
 
   export let value: OptionFieldValue[];
 
@@ -31,6 +32,7 @@
     value={asMultiSelectValues(editorValue)}
     disabled={readonly}
     {options}
+    icon={mdiMagnify}
     valueProp="value"
     labelProp="label"
     formatSelected={({ options }) =>
@@ -46,7 +48,6 @@
     <span bind:this={append} slot="append" />
   </MultiSelectField>
 </CrdtField>
-{@debug value}
 
 <style lang="postcss">
   :global(.unresolved-merge .field-container) {

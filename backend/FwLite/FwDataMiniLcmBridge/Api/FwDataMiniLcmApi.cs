@@ -98,8 +98,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = Cache.ServiceLocator.WritingSystems.VernacularWritingSystems.Select(FromLcmWritingSystem).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.AnalysisWritingSystems.Select(FromLcmWritingSystem).ToArray()
+            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(FromLcmWritingSystem).ToArray(),
+            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select(FromLcmWritingSystem).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
@@ -109,6 +109,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         return new WritingSystem
         {
+            //todo determine current and create a property for that.
             Id = ws.Id,
             Name = ws.LanguageTag,
             Abbreviation = ws.Abbreviation,
@@ -180,13 +181,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        foreach (var semanticDomain in SemanticDomainRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
+        foreach (var semanticDomain in SemanticDomainRepository.AllInstances().OrderBy(p => p.Abbreviation.UiString))
         {
             yield return new SemanticDomain
             {
                 Id = semanticDomain.Guid,
                 Name = FromLcmMultiString(semanticDomain.Name),
-                Code = semanticDomain.OcmCodes ?? ""
+                Code = semanticDomain.Abbreviation.UiString ?? ""
             };
         }
     }

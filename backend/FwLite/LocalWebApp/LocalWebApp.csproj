@@ -48,4 +48,24 @@
         <EmbeddedResource Include="..\..\..\frontend\viewer\dist\**\*" />
     </ItemGroup>
 
+    <ItemGroup Condition="$([MSBuild]::IsOsPlatform('macOS'))">
+        <!--
+          This assumes that icu4c libs are installed under "/opt/local/lib" on macOS. This is the default
+          location for libs that MacPorts installs. If we need to start bundling icu4c libs from
+          somewhere other than "/opt/local/lib", this path and some other paths in the build scripts will
+          need to be updated. We have to bundle the icu4c libs somehow unless macOS starts to include them
+          by default.
+          -->
+        <Content Include="/opt/local/lib/libicu*.??.dylib" Condition="Exists('/opt/local/lib/')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <!--
+        Homebrew installation of icu4c libraries typically resides in /usr/local/lib.
+        The following line includes these libraries and copies them to the output directory if the OS is macOS.
+        -->
+        <Content Include="/opt/homebrew/Cellar/icu4c/*/lib/libicu*.??.dylib" Condition="Exists('/opt/homebrew/Cellar/icu4c/74.2/lib/')">
+            <Link>%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
 </Project>

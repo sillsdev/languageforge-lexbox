@@ -78,29 +78,38 @@ public class ProjectMutations
         await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
-        var user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail);
-        if (user is null)
+        User? user;
+        if (input.UserId is not null)
         {
-            var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail);
-            // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
-            if (email is null)
+            user = await dbContext.Users.Include(u => u.Projects).Where(u => u.Id == input.UserId).FirstOrDefaultAsync();
+            NotFoundException.ThrowIfNull(user);
+        }
+        else
+        {
+            user = await dbContext.Users.Include(u => u.Projects).FindByEmailOrUsername(input.UsernameOrEmail ?? "");
+            if (user is null)
             {
-                throw NotFoundException.ForType<User>();
-            }
-            else if (input.canInvite)
-            {
-                var manager = loggedInContext.User;
-                await emailService.SendCreateAccountWithProjectEmail(
-                    email,
-                    manager.Name,
-                    projectId: input.ProjectId,
-                    role: input.Role,
-                    projectName: project.Name);
-                throw new ProjectMemberInvitedByEmail("Invitation email sent");
-            }
-            else
-            {
-                throw NotFoundException.ForType<User>();
+                var (_, email, _) = UserService.ExtractNameAndAddressFromUsernameOrEmail(input.UsernameOrEmail ?? "");
+                // We don't try to catch InvalidEmailException; if it happens, we let it get sent to the frontend
+                if (email is null)
+                {
+                    throw NotFoundException.ForType<User>();
+                }
+                else if (input.canInvite)
+                {
+                    var manager = loggedInContext.User;
+                    await emailService.SendCreateAccountWithProjectEmail(
+                        email,
+                        manager.Name,
+                        projectId: input.ProjectId,
+                        role: input.Role,
+                        projectName: project.Name);
+                    throw new ProjectMemberInvitedByEmail("Invitation email sent");
+                }
+                else
+                {
+                    throw NotFoundException.ForType<User>();
+                }
             }
         }
         if (user.Projects.Any(p => p.ProjectId == input.ProjectId))
@@ -225,6 +234,42 @@ public class ProjectMutations
         await dbContext.SaveChangesAsync();
 
         return dbContext.ProjectUsers.Where(u => u.Id == projectUser.Id);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<ProjectMembersMustBeVerified>]
+    [Error<ProjectMembersMustBeVerifiedForRole>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> AskToJoinProject(
+        IPermissionService permissionService,
+        LoggedInContext loggedInContext,
+        Guid projectId,
+        LexBoxDbContext dbContext,
+        [Service] IEmailService emailService)
+    {
+        await permissionService.AssertCanAskToJoinProject(projectId);
+
+        var user = await dbContext.Users.FindAsync(loggedInContext.User.Id);
+        if (user is null) throw new UnauthorizedAccessException();
+        user.AssertHasVerifiedEmailForRole(ProjectRole.Editor);
+
+        var project = await dbContext.Projects
+            .Include(p => p.Users)
+            .ThenInclude(u => u.User)
+            .Where(p => p.Id == projectId)
+            .FirstOrDefaultAsync();
+        NotFoundException.ThrowIfNull(project);
+
+        var managers = project.Users.Where(u => u.Role == ProjectRole.Manager);
+        foreach (var manager in managers)
+        {
+            if (manager.User is null) continue;
+            await emailService.SendJoinProjectRequestEmail(manager.User, user, project);
+        }
+        return dbContext.Projects.Where(p => p.Id == projectId);
     }
 
     [Error<NotFoundException>]

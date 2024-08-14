@@ -10,7 +10,6 @@
   import {Entry} from './lib/mini-lcm';
 
   export let projectName: string;
-  setContext('project-name', projectName);
   const connection = new HubConnectionBuilder()
     .withUrl(`/api/hub/${projectName}/fwdata`)
     .withAutomaticReconnect()
@@ -34,6 +33,7 @@
       history: false,
       write: true,
       openWithFlex: true,
+      feedback: true
     },
     {
       OnEntryUpdated: async (entry: Entry) => {

@@ -102,9 +102,9 @@ jobs:
           sudo ln -s ${{ steps.python.outputs.python-path }} /usr/bin/python2
       - name: Dotnet build
         # limit cpu count for self-hosted due to memory constraints
-        run: dotnet build ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
+        run: dotnet build LexBoxOnly.slnf ${{ inputs.runs-on == 'self-hosted' && '-maxcpucount:2' || '' }}
       - name: Build for tests
-        run: "dotnet build /p:MercurialVersion=$MERCURIAL_VERSION"
+        run: "dotnet build LexBoxOnly.slnf /p:MercurialVersion=$MERCURIAL_VERSION"
         env:
           MERCURIAL_VERSION: ${{ inputs.hg-version }}
 
@@ -120,7 +120,23 @@ jobs:
           # the self hosted runner only has 2gb so this should prevent it from running out of memory
           DOTNET_GCHeapHardLimit: '0x2CB417800'
 
-        run: dotnet test --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
+        run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=Integration
+
+      - name: Flaky Integration tests (.NET)
+        continue-on-error: true
+        env:
+          TEST_SERVER_HOSTNAME: ${{ vars.TEST_SERVER_HOSTNAME }}
+          #      this is not a typo, we need to use the lf domain because it has a cert that hg will validate
+          TEST_STANDARD_HG_HOSTNAME: ${{ vars.TEST_STANDARD_HG_HOSTNAME }}
+          TEST_RESUMABLE_HG_HOSTNAME: ${{ vars.TEST_RESUMABLE_HG_HOSTNAME }}
+          TEST_PROJECT_CODE: 'sena-3'
+          TEST_DEFAULT_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          # 1.5gb max heap size, must be in hex https://learn.microsoft.com/en-us/dotnet/core/runtime-config/garbage-collector#heap-limit
+          # the self hosted runner only has 2gb so this should prevent it from running out of memory
+          DOTNET_GCHeapHardLimit: '0x2CB417800'
+
+        run: dotnet test LexBoxOnly.slnf --output ./bin --logger trx --results-directory ./test-results --filter Category=FlakyIntegration
+
       - name: Publish unit test results
         uses: EnricoMi/publish-unit-test-result-action/composite@8885e273a4343cd7b48eaa72428dea0c3067ea98 # v2.14.0
         if: ${{ always() && !env.act }}

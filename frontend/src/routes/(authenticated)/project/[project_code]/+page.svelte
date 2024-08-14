@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Badge, BadgeList } from '$lib/components/Badges';
+  import { Badge, BadgeButton, BadgeList } from '$lib/components/Badges';
   import EditableText from '$lib/components/EditableText.svelte';
   import { ProjectTypeBadge } from '$lib/components/ProjectType';
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
@@ -50,6 +50,8 @@
   import AddOrganization from './AddOrganization.svelte';
   import AddPurpose from './AddPurpose.svelte';
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
+  import { onMount } from 'svelte';
+  import { getSearchParamValues } from '$lib/util/query-params';
 
   export let data: PageData;
   $: user = data.user;
@@ -72,6 +74,20 @@
   $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
   const { notifySuccess, notifyWarning } = useNotifications();
+
+  type ProjectPageQueryParams = {
+    addUserId: string;
+    addUserName: string;
+  };
+
+  onMount(() => { // query params not available during SSR
+    const urlValues = getSearchParamValues<ProjectPageQueryParams>();
+    if (urlValues.addUserId && urlValues.addUserName && addProjectMember) {
+      void addProjectMember.openModal(urlValues.addUserId, urlValues.addUserName);
+    }
+  });
+
+  let addProjectMember: AddProjectMember;
 
   let userModal: UserModal;
 
@@ -432,7 +448,11 @@
           on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
           >
             <svelte:fragment slot="extraButtons">
-              <AddProjectMember projectId={project.id} />
+              <BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={() => addProjectMember.openModal(undefined, undefined)}>
+                {$t('project_page.add_user.add_button')}
+              </BadgeButton>
+
+              <AddProjectMember bind:this={addProjectMember} projectId={project.id} />
               <BulkAddProjectMembers projectId={project.id} />
             </svelte:fragment>
             <UserModal bind:this={userModal}/>

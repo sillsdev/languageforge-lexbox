@@ -45,7 +45,7 @@ public static class Utils
                     code: "{{config.Code}}",
                     isConfidential: {{config.IsConfidential.ToString().ToLowerInvariant()}},
                     description: "Project created by an integration test",
-                    owningOrgId: {{(config.OwningOrgId is null ? "null" : "\"" + config.OwningOrgId.ToString() + "\"")}}
+                    orgId: {{(config.OwningOrgId is null ? "null" : "\"" + config.OwningOrgId.ToString() + "\"")}}
                     retentionPolicy: DEV
                 }) {
                     createProjectResponse {

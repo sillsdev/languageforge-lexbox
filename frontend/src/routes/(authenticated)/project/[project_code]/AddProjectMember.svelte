@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { BadgeButton } from '$lib/components/Badges';
   import { DialogResponse, FormModal } from '$lib/components/modals';
-  import { Input, ProjectRoleSelect, isEmail } from '$lib/forms';
+  import { ProjectRoleSelect, isEmail } from '$lib/forms';
   import { ProjectRole } from '$lib/gql/types';
   import t from '$lib/i18n';
   import { z } from 'zod';
@@ -22,15 +21,19 @@
   });
   let formModal: FormModal<typeof schema>;
   $: form = formModal?.form();
+  let selectedUserId: string | null = null;
 
   const { notifySuccess } = useNotifications();
 
-  async function openModal(): Promise<void> {
+  export async function openModal(initialUserId?: string, initialUserName?: string): Promise<void> {
     let userInvited = false;
-    const { response, formState } = await formModal.open(async () => {
+    const initialValue = initialUserName ? { usernameOrEmail: initialUserName } : undefined;
+    if (initialUserId) selectedUserId = initialUserId;
+    const { response, formState } = await formModal.open(initialValue, async () => {
       const { error } = await _addProjectMember({
         projectId,
-        usernameOrEmail: $form.usernameOrEmail,
+        usernameOrEmail: $form.usernameOrEmail ?? '',
+        userId: selectedUserId,
         role: $form.role,
         canInvite: $form.canInvite,
       });
@@ -68,33 +71,22 @@
   }
 </script>
 
-<BadgeButton variant="badge-success" icon="i-mdi-account-plus-outline" on:click={openModal}>
-  {$t('project_page.add_user.add_button')}
-</BadgeButton>
-
 <FormModal bind:this={formModal} {schema} let:errors --justify-actions="end">
   <span slot="title">
     {$t('project_page.add_user.modal_title')}
     <SupHelp helpLink={helpLinks.addProjectMember} />
   </span>
-  {#if $page.data.user?.isAdmin}
-    <UserTypeahead
-      id="usernameOrEmail"
-      label={$t('login.label_email')}
-      bind:value={$form.usernameOrEmail}
-      error={errors.usernameOrEmail}
-      autofocus
-      />
-  {:else}
-    <Input
-      id="usernameOrEmail"
-      type="text"
-      label={$t('login.label_email')}
-      bind:value={$form.usernameOrEmail}
-      error={errors.usernameOrEmail}
-      autofocus
-    />
-  {/if}
+  <UserTypeahead
+    id="usernameOrEmail"
+    isAdmin={$page.data.user?.isAdmin}
+    label={$t('login.label_email')}
+    bind:value={$form.usernameOrEmail}
+    error={errors.usernameOrEmail}
+    autofocus
+    on:selectedUserId={({ detail }) => {
+        selectedUserId = detail;
+    }}
+  />
   <ProjectRoleSelect bind:value={$form.role} error={errors.role} />
   <svelte:fragment slot="extraActions">
     <Checkbox
@@ -106,6 +98,10 @@
     />
   </svelte:fragment>
   <span slot="submitText">
-    {$t('project_page.add_user.submit_button')}
+    {#if $form.canInvite}
+      {$t('project_page.add_user.submit_button_invite')}
+    {:else}
+      {$t('project_page.add_user.submit_button')}
+    {/if}
   </span>
 </FormModal>

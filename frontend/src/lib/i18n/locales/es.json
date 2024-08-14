@@ -43,8 +43,6 @@
     "name": "Nombre de Visualización",
     "language": {
       "title": "Idioma",
-      "en": "English",
-      "fr": "Français",
       "not_supported": "Aún no compatible",
     },
     "reset_password": "¿Restablecer la contraseña en su lugar?",

@@ -15,7 +15,7 @@
   import {getContext} from 'svelte';
 
   let loading = false;
-  let projectName = getContext<string>('project-name');
+  export let projectName: string;
   let activity: Array<{
     commitId: string,
     changeName: string,
@@ -29,6 +29,7 @@
     activity = [];
     loading = true;
     const data = await fetch(`/api/activity/${projectName}`).then(res => res.json());
+    data.reverse();
     loading = false;
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
@@ -53,10 +54,9 @@
   </Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
     <div slot="title">Activity</div>
-    <div class="m-6 grid gap-x-6" style="grid-template-columns: 2fr 4fr">
-
-      <div class="side-scroller flex flex-col gap-4">
-        <div class="border rounded-md overflow-auto">
+    <div class="m-6 grid gap-x-6 h-[50vh]" style="grid-template-columns: auto 4fr">
+      <div class="flex flex-col gap-4 overflow-y-auto">
+        <div class="border rounded-md">
           {#if !activity || activity.length === 0}
             <div class="p-4 text-center opacity-75">No activity found</div>
           {:else}

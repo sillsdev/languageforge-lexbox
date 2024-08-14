@@ -65,6 +65,7 @@
     <UserTypeahead
       id="usernameOrEmail"
       label={$t('login.label_email')}
+      isAdmin={$page.data.user?.isAdmin}
       bind:value={$form.usernameOrEmail}
       error={errors.usernameOrEmail}
       autofocus

@@ -23,8 +23,6 @@ jobs:
     name: Build FW Lite and run tests
     timeout-minutes: 20
     runs-on: windows-latest
-    env:
-      NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,7 +38,6 @@ jobs:
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet nuget enable source github
           dotnet build --configuration Release
 
       - name: Dotnet test
@@ -53,6 +50,50 @@ jobs:
           corepack enable
           pnpm install
           pnpm run build-app
+
+  publish-mac:
+    name: Publish FW Lite app for Mac
+    needs: build-and-test
+    timeout-minutes: 30
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: './frontend/package.json'
+
+      - name: Build viewer
+        working-directory: frontend/viewer
+        run: |
+          corepack enable
+          pnpm install
+          pnpm run build-app
+
+      - name: Dotnet build
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet build --configuration Release
+
+      - name: Publish OSX
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet publish -r osx-x64 --artifacts-path ../artifacts
+
+      - name: Publish OSX ARM
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts
+
+      - name: Upload local web app artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-local-web-app-mac
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/publish/LocalWebApp/*
+
 
   publish-app:
     name: Publish FW Lite app
@@ -79,9 +120,6 @@ jobs:
 
       - name: Setup Maui
         run: dotnet workload install maui-windows
-      - name: Enable GitHub Packages
-        working-directory: backend/FwLite
-        run: dotnet nuget enable source github
 
       - name: Build viewer
         working-directory: frontend/viewer
@@ -97,14 +135,6 @@ jobs:
       - name: Publish Linux
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts
-
-      - name: Publish OSX
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet publish -r osx-x64 --artifacts-path ../artifacts
-
-      - name: Publish OSX ARM
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts
 
       - name: Publish Windows
         working-directory: backend/FwLite/LocalWebApp

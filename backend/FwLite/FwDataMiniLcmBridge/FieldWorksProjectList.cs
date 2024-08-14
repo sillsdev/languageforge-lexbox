@@ -8,6 +8,7 @@ public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config)
 {
     public IEnumerable<IProjectIdentifier> EnumerateProjects()
     {
+        if (!Directory.Exists(config.Value.ProjectsFolder)) Directory.CreateDirectory(config.Value.ProjectsFolder);
         foreach (var directory in Directory.EnumerateDirectories(config.Value.ProjectsFolder))
         {
             var projectName = Path.GetFileName(directory);

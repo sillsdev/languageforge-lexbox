@@ -1,4 +1,4 @@
-import type { LoadAdminUsersTypeaheadQuery, UserFilterInput } from './types';
+import type { LoadAdminUsersTypeaheadQuery, LoadOrgMembersTypeaheadQuery, UserFilterInput } from './types';
 
 import { getClient } from './gql-client';
 import { graphql } from './generated';
@@ -47,4 +47,25 @@ export async function _userTypeaheadSearch(userSearch: string, limit = 10): Prom
   });
 
   return users;
+}
+
+export type UsersInMyOrgTypeaheadResult = NonNullable<NonNullable<LoadOrgMembersTypeaheadQuery['usersInMyOrg']>['items']>;
+export type SingleUserInMyOrgTypeaheadResult = UsersInMyOrgTypeaheadResult[number];
+
+export async function _orgMemberTypeaheadSearch(orgMemberSearch: string, limit = 10): Promise<UsersInMyOrgTypeaheadResult> {
+  if (!orgMemberSearch) return [];
+  const client = getClient();
+  const users = await client.query(graphql(`
+    query loadOrgMembersTypeahead($filter: UserFilterInput, $take: Int!) {
+      usersInMyOrg(where: $filter, orderBy: {name: ASC}, take: $take) {
+        totalCount
+        items {
+          id
+          name
+        }
+      }
+    }
+  `), { filter: userFilter(orgMemberSearch), take: limit });
+
+  return users.data?.usersInMyOrg?.items ?? [];
 }

@@ -1,5 +1,6 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Options;
 using SIL.LCModel;
 using SIL.LCModel.Core.WritingSystems;
@@ -34,7 +35,10 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         }
 
         Icu.Wrapper.Init();
-        Debug.Assert(Icu.Wrapper.IcuVersion == "72.1.0.3");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Debug.Assert(Icu.Wrapper.IcuVersion == "72.1.0.3");
+        }
         Sldr.Initialize();
         _init = true;
     }

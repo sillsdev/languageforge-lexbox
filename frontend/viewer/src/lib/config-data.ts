@@ -1,4 +1,9 @@
-import type { BaseEntityFieldConfig, CustomFieldConfig, FieldConfig, ViewConfigFieldProps } from './config-types';
+import type {
+  BaseEntityFieldConfig,
+  CustomFieldConfig,
+  FieldConfig,
+  BaseFieldConfig
+} from './config-types';
 import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 
 import type { I18nType } from './i18n';
@@ -58,8 +63,7 @@ export function allFields(viewConfig: ViewConfig): Readonly<FieldConfig[]> {
 type FieldsWithViewConfigProps<T extends Record<string, NonNullable<object>>> =
   { [K in keyof T]: FieldWithViewConfigProps<T[K]> };
 
-type FieldWithViewConfigProps<T extends NonNullable<object>> =
-  T & ViewConfigFieldProps;
+type FieldWithViewConfigProps<T extends NonNullable<object>> = T;
 
 interface ViewConfig {
   label: string,
@@ -71,53 +75,3 @@ interface ViewConfig {
   customSense?: Partial<typeof allFieldConfigs.customSense>,
   customExample?: Partial<typeof allFieldConfigs.customExample>,
 }
-
-function configure<T extends NonNullable<object>>(fieldConfig: T, props: ViewConfigFieldProps): FieldWithViewConfigProps<T> {
-  return {...fieldConfig, ...props};
-}
-
-export const views: ViewConfig[] = [
-  {
-    label: 'Everything (FieldWorks)',
-    ...allFieldConfigs,
-    entry: {
-      ...allFieldConfigs.entry,
-      literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
-    },
-  },
-  {
-    label: 'WeSay',
-    i18n: 'weSay',
-    entry: {
-      lexemeForm: allFieldConfigs.entry.lexemeForm,
-      note: configure(allFieldConfigs.entry.note, { extra: true }),
-    },
-    sense: {
-      gloss: allFieldConfigs.sense.gloss,
-      partOfSpeechId: allFieldConfigs.sense.partOfSpeechId,
-      semanticDomains: configure(allFieldConfigs.sense.semanticDomains, { extra: true }),
-    },
-    example: {
-      sentence: allFieldConfigs.example.sentence,
-    },
-  },
-  {
-    label: 'Language Forge',
-    i18n: 'languageForge',
-    entry: {
-      lexemeForm: allFieldConfigs.entry.lexemeForm,
-      note: configure(allFieldConfigs.entry.note, { extra: true }),
-      literalMeaning: configure(allFieldConfigs.entry.literalMeaning, { extra: true }),
-    },
-    sense: {
-      gloss: allFieldConfigs.sense.gloss,
-      definition: allFieldConfigs.sense.definition,
-      partOfSpeechId: allFieldConfigs.sense.partOfSpeechId,
-      semanticDomains: allFieldConfigs.sense.semanticDomains,
-    },
-    example: {
-      sentence: allFieldConfigs.example.sentence,
-      translation: allFieldConfigs.example.translation,
-      reference: configure(allFieldConfigs.example.reference, { extra: true }),
-    },
-  }] as const;

@@ -1,4 +1,4 @@
-import type { $OpResult, CreateProjectInput, CreateProjectMutation } from '$lib/gql/types';
+import type { $OpResult, AskToJoinProjectMutation, CreateProjectInput, CreateProjectMutation, ProjectsByLangCodeAndOrgQuery, ProjectsByNameAndOrgQuery } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
 import type { PageLoadEvent } from './$types';
@@ -87,4 +87,61 @@ export async function _projectCodeAvailable(code: string): Promise<boolean> {
   const result = await fetch(`/api/project/projectCodeAvailable/${encodeURIComponent(code)}`);
   if (!result.ok) throw new Error('Failed to check project code availability');
   return await result.json() as boolean;
+}
+
+export async function _getProjectsByLangCodeAndOrg(input: { orgId: string, langCode: string }): Promise<ProjectsByLangCodeAndOrgQuery['projectsByLangCodeAndOrg']> {
+  const client = getClient();
+  //language=GraphQL
+  const results = await client.query(
+    graphql(`
+      query ProjectsByLangCodeAndOrg($input: ProjectsByLangCodeAndOrgInput!) {
+        projectsByLangCodeAndOrg(input: $input) {
+          id
+          code
+          name
+          description
+        }
+      }
+    `), { input }
+  );
+  return results.data?.projectsByLangCodeAndOrg ?? [];
+}
+
+export async function _getProjectsByNameAndOrg({ orgId, projectName }: { orgId: string, projectName: string }): Promise<ProjectsByNameAndOrgQuery['projectsInMyOrg']> {
+  const client = getClient();
+  //language=GraphQL
+  const results = await client.query(
+    graphql(`
+      query ProjectsByNameAndOrg($input: ProjectsInMyOrgInput!, $filter: ProjectFilterInput) {
+        projectsInMyOrg(input: $input, where: $filter) {
+          id
+          code
+          name
+          description
+        }
+      }
+    `), { input: { orgId }, filter: {name: {icontains: projectName} } }
+  );
+  return results.data?.projectsInMyOrg ?? [];
+}
+
+export async function _askToJoinProject(projectId: string): $OpResult<AskToJoinProjectMutation> {
+  const result = await getClient().mutation(
+    //language=GraphQL
+    graphql(`
+      mutation askToJoinProject($input: AskToJoinProjectInput!) {
+        askToJoinProject(input: $input) {
+          project {
+            id
+          }
+          errors {
+            ... on DbError {
+              code
+            }
+          }
+        }
+      }
+    `),
+    { input: { projectId } });
+  return result;
 }

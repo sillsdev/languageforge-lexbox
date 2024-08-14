@@ -1,9 +1,12 @@
 <script  context="module" lang="ts">
-  import type { User } from './+page';
+  import type { User } from '../../../routes/(authenticated)/admin/+page';
+
+  export type UserType = 'admin' | 'nonAdmin' | 'guest' | undefined;
 
   export type UserFilters = {
     userSearch: string;
     usersICreated: boolean;
+    userType: UserType;
   }
 
   export function filterUsers(
@@ -13,7 +16,10 @@
   ): User[] {
     return users.filter(
       (u) =>
-        (!userFilter.usersICreated || u.createdById === adminId)
+        (!userFilter.usersICreated || u.createdById === adminId) &&
+        (!userFilter.userType ||
+          (userFilter.userType === (u.isAdmin ? 'admin' : 'nonAdmin')) ||
+          (userFilter.userType === 'guest' && u.createdById))
     );
   }
 </script>
@@ -24,6 +30,7 @@
   import ActiveFilter from '$lib/components/FilterBar/ActiveFilter.svelte';
   import { Icon } from '$lib/icons';
   import t from '$lib/i18n';
+  import UserTypeSelect from '$lib/forms/UserTypeSelect.svelte';
 
 
   type Filters = Partial<UserFilters> & Pick<UserFilters, 'userSearch'>;
@@ -31,7 +38,7 @@
   export let filterDefaults: Filters;
   export let hasActiveFilter: boolean = false;
   export let autofocus: true | undefined = undefined;
-  export let filterKeys: ReadonlyArray<(keyof Filters)> = ['userSearch', 'usersICreated'];
+  export let filterKeys: ReadonlyArray<(keyof Filters)> = ['userSearch', 'usersICreated', 'userType'];
   export let loading = false;
 
   function filterEnabled(filter: keyof Filters): boolean {
@@ -52,7 +59,20 @@
 >
   <svelte:fragment slot="activeFilters" let:activeFilters>
     {#each activeFilters as filter}
-      {#if filter.key === 'usersICreated' && filter.value}
+      {#if filter.key === 'userType' && filter.value}
+        <ActiveFilter {filter}>
+          {#if filter.value === 'admin'}
+            <Icon icon="i-mdi-security" color="text-accent" />
+            {$t('admin_dashboard.user_filter.user_type.admin')}
+          {:else if filter.value === 'nonAdmin'}
+            <Icon icon="i-mdi-account" />
+            {$t('admin_dashboard.user_filter.user_type.nonAdmin')}
+          {:else if filter.value === 'guest'}
+            <Icon icon="i-mdi-account-outline" />
+            {$t('admin_dashboard.user_filter.user_type.guest')}
+          {/if}
+        </ActiveFilter>
+      {:else if filter.key === 'usersICreated' && filter.value}
         <ActiveFilter {filter}>
           <Icon icon="i-mdi-account-plus-outline" color="text-warning" />
           {$t('admin_dashboard.user_filter.guest_users_i_added')}
@@ -62,6 +82,11 @@
   </svelte:fragment>
   <svelte:fragment slot="filters">
     <h2 class="card-title">{$t('admin_dashboard.user_filter.title')}</h2>
+    {#if filterEnabled('userType')}
+      <div class="form-control">
+        <UserTypeSelect bind:value={$filters.userType} undefinedOptionLabel={$t('common.any')}/>
+      </div>
+    {/if}
     {#if filterEnabled('usersICreated')}
       <div class="form-control">
         <label class="cursor-pointer label gap-4">

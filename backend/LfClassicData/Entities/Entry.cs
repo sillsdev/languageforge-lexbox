@@ -36,6 +36,7 @@ public class Example
 
 }
 
+[BsonIgnoreExtraElements]
 public class OptionListRecord
 {
     public required string Code { get; set; }

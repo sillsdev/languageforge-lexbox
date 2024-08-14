@@ -1,6 +1,7 @@
 import { writable, type Readable, derived } from 'svelte/store';
 
 export const enum Duration {
+  Persistent = 0,
   Default = 5000,
   Medium = 10000,
   Long = 15000,
@@ -75,5 +76,32 @@ export function deriveAsync<T, D>(
         set(result);
       });
     }, debounceTime);
+  }, initialValue);
+}
+
+/**
+ * @param fn A function that maps the store value to an async result, filtering out undefined values
+ * @returns A store that contains the result of the async function
+ */
+export function deriveAsyncIfDefined<T, D>(
+  store: Readable<T | undefined>,
+  fn: (value: T) => Promise<D>,
+  initialValue?: D,
+  debounce: number | boolean = false): Readable<D> {
+
+  const debounceTime = pickDebounceTime(debounce);
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  return derived(store, (value, set) => {
+    if (value) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const myTimeout = timeout;
+          void fn(value).then((result) => {
+            if (myTimeout !== timeout) return; // discard outdated results
+            set(result);
+          });
+      }, debounceTime);
+    }
   }, initialValue);
 }

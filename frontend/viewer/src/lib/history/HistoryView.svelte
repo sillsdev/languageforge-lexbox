@@ -2,10 +2,10 @@
   import {mdiHistory} from '@mdi/js';
   import {Button, cls, Dialog, Duration, DurationUnits, InfiniteScroll, ListItem, Toggle} from 'svelte-ux';
   import type {IEntry, IExampleSentence, ISense} from '../mini-lcm';
-  import EntryEditor from '../entry-editor/EntryEditor.svelte';
+  import EntryEditor from '../entry-editor/object-editors/EntryEditor.svelte';
   import {getContext} from 'svelte';
-  import SenseEditor from '../entry-editor/SenseEditor.svelte';
-  import ExampleEditor from '../entry-editor/ExampleEditor.svelte';
+  import SenseEditor from '../entry-editor/object-editors/SenseEditor.svelte';
+  import ExampleEditor from '../entry-editor/object-editors/ExampleEditor.svelte';
 
   type EntityType = { entity: IEntry, entityName: 'Entry' } | { entity: ISense, entityName: 'Sense' } | {
     entity: IExampleSentence,
@@ -59,10 +59,10 @@
   </Button>
   <Dialog {open} on:close={toggleOff} {loading} persistent={loading} class="w-[700px]">
     <div slot="title">History</div>
-    <div class="m-6 grid gap-x-6" style="grid-template-columns: 2fr 4fr">
+    <div class="m-6 grid gap-x-6 h-[50vh]" style="grid-template-columns: auto 4fr;">
 
-      <div class="side-scroller flex flex-col gap-4">
-        <div class="border rounded-md overflow-auto">
+      <div class="flex flex-col gap-4 overflow-y-auto">
+        <div class="border rounded-md">
           {#if !history || history.length === 0}
             <div class="p-4 text-center opacity-75">No history found</div>
           {:else}
@@ -94,19 +94,21 @@
           {/if}
         </div>
       </div>
-      {#if record?.entity}
-        {#if record.entityName === "Entry"}
-          <EntryEditor readonly entry={record.entity} modalMode/>
-        {:else if record.entityName === "Sense"}
-          <div class="editor-grid">
-            <SenseEditor sense={record.entity}/>
-          </div>
-        {:else if record.entityName === "ExampleSentence"}
-          <div class="editor-grid">
-            <ExampleEditor example={record.entity}/>
-          </div>
+      <div>
+        {#if record?.entity}
+          {#if record.entityName === "Entry"}
+            <EntryEditor entry={record.entity} modalMode/>
+          {:else if record.entityName === "Sense"}
+            <div class="editor-grid">
+              <SenseEditor sense={record.entity}/>
+            </div>
+          {:else if record.entityName === "ExampleSentence"}
+            <div class="editor-grid">
+              <ExampleEditor example={record.entity} readonly={false}/>
+            </div>
+          {/if}
         {/if}
-      {/if}
+      </div>
     </div>
     <div class="flex-grow"></div>
   </Dialog>

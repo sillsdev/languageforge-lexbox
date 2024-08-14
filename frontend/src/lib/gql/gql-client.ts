@@ -33,6 +33,8 @@ import {
   type ChangeOrgMemberRoleMutationVariables,
   type AddOrgMemberMutationVariables,
   type CreateProjectMutationVariables,
+  type CreateProjectMutation,
+  CreateProjectResult,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -58,10 +60,16 @@ function createGqlClient(_gqlEndpoint?: string): Client {
         },
         updates: {
           Mutation: {
-            createProject: (result, args: CreateProjectMutationVariables, cache, _info) => {
+            createProject: (result: CreateProjectMutation, args: CreateProjectMutationVariables, cache, _info) => {
               if (args.input.orgId) {
                 cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
               }
+              const draftCreated = result.createProject.createProjectResponse?.result === CreateProjectResult.Requested;
+              const dashboardQuery = draftCreated ? 'myProjects' : 'myDraftProjects';
+              const adminDashboardQuery = draftCreated ? 'projects' : 'draftProjects';
+              cache.inspectFields('Query')
+                .filter(field => field.fieldName === dashboardQuery || field.fieldName === adminDashboardQuery)
+                .forEach(field => cache.invalidate('Query', field.fieldKey));
             },
             softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});

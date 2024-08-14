@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline } from '@mdi/js';
+  import {mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
   import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField, cls } from 'svelte-ux';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
@@ -9,8 +9,11 @@
   import type { IEntry } from '../mini-lcm';
 
   const dispatch = createEventDispatcher<{
-    entrySelected: IEntry;
+    entrySelected: {entry: IEntry, search: string};
+    createNew: string
   }>();
+
+  export let createNew: boolean;
 
   let showSearchDialog = false;
 
@@ -53,6 +56,11 @@
 
   const listSearch = getContext<Writable<string | undefined>>('listSearch');
   const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
+
+  function selectEntry(entry: IEntry) {
+    dispatch('entrySelected', {entry, search: $search});
+    showSearchDialog = false;
+  }
 </script>
 
 <Field
@@ -75,6 +83,12 @@
       autofocus
       clearable
       bind:value={$search}
+      on:keypress={(e) => {
+        if (e.key === 'Enter' && $displayedEntries.length > 0) {
+          e.preventDefault();
+          selectEntry($displayedEntries[0]);
+        }
+      }}
       placeholder="Find entry..."
       class="flex-grow-[2] cursor-pointer opacity-80 hover:opacity-100"
       classes={{ prepend: 'text-sm', append: 'flex-row-reverse'}}
@@ -93,12 +107,21 @@
         subheading={firstDefOrGlossVal(entry.senses[0])}
         class={cls('cursor-pointer', 'hover:bg-surface-300')}
         noShadow
-        on:click={() => {
-          dispatch('entrySelected', entry);
-          showSearchDialog = false;
-        }}
+        on:click={() => selectEntry(entry)}
       />
     {/each}
+    {#if $search && createNew}
+      <ListItem
+        title="Create new..."
+        icon={mdiPlus}
+        class={cls('cursor-pointer', 'hover:bg-surface-300')}
+        noShadow
+        on:click={() => {
+            dispatch('createNew', $search);
+            showSearchDialog = false;
+          }}
+      />
+    {/if}
     {#if $displayedEntries.length === 0}
       <div class="p-4 text-center opacity-75">
         {#if $result.search}
