@@ -340,9 +340,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 }
 
             });
-        if (entry.Id == default) throw new InvalidOperationException("Entry was not created");
 
-        return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not found");
+        return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)
