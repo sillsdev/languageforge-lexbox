@@ -29,6 +29,7 @@
     activity = [];
     loading = true;
     const data = await fetch(`/api/activity/${projectName}`).then(res => res.json());
+    data.reverse();
     loading = false;
     if (!Array.isArray(data)) {
       console.error('Invalid history data', data);
