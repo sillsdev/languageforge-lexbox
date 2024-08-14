@@ -13,18 +13,18 @@
 </script>
 
 <script lang="ts">
-  import { derived, type Readable } from 'svelte/store';
+  import { derived } from 'svelte/store';
 
-  import type { IEntry, WritingSystems } from './mini-lcm';
-  import { getContext } from 'svelte';
+  import type { IEntry } from './mini-lcm';
   import { headword } from './utils';
+  import {useWritingSystems} from './writing-systems';
 
   export let entry: IEntry;
   export let lines: number = 0;
 
   $: lines = entry.senses.length > 1 ? entry.senses.length + 1 : 1;
 
-  const allWritingSystems = getContext<Readable<WritingSystems>>('writingSystems');
+  const allWritingSystems = useWritingSystems();
   const wsColor = derived(allWritingSystems, ({vernacular, analysis}) => {
     const vernacularColor: Record<string, typeof vernacularColors[number]> = {};
     const analysisColor: Record<string, typeof analysisColors[number]> = {};
