@@ -43,6 +43,14 @@ public class DbStartupService : IHostedService
         var startTime = Stopwatch.GetTimestamp();
         await using var serviceScope = _serviceProvider.CreateAsyncScope();
         var dbContext = serviceScope.ServiceProvider.GetRequiredService<LexBoxDbContext>();
+        var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token).Token;
+        int counter = 1;
+        while (!await dbContext.Database.CanConnectAsync(timeoutToken))
+        {
+            _logger.LogInformation("Waiting for database connection... {Counter}", counter);
+            counter++;
+            await Task.Delay(TimeSpan.FromSeconds(counter), cancellationToken);
+        }
         await dbContext.Database.MigrateAsync(cancellationToken);
         var environment = serviceScope.ServiceProvider.GetRequiredService<IHostEnvironment>();
         var seedingData = serviceScope.ServiceProvider.GetRequiredService<SeedingData>();
