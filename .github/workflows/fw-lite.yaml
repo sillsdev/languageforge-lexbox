@@ -74,12 +74,6 @@ jobs:
           corepack enable
           pnpm install
           pnpm run build-app
-      - name: Install MacPorts
-        uses: melusina-org/setup-macports@v1
-
-      - name: Install icu4c on macOS
-        run: |
-          sudo port -v install icu
 
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
