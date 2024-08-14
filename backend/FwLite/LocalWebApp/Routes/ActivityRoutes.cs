@@ -25,7 +25,7 @@ public static class ActivityRoutes
         group.MapGet("/",
             (ICrdtDbContext dbcontext) =>
             {
-                return dbcontext.Commits.DefaultOrder().Take(10).Select(c => new Activity(c.Id, c.HybridDateTime.DateTime, ChangeName(c.ChangeEntities), c.ChangeEntities)).AsAsyncEnumerable();
+                return dbcontext.Commits.DefaultOrder().Take(20).Select(c => new Activity(c.Id, c.HybridDateTime.DateTime, ChangeName(c.ChangeEntities), c.ChangeEntities)).AsAsyncEnumerable();
             });
         return group;
     }
