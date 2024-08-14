@@ -29,7 +29,7 @@
   $: empty = !value?.length;
 </script>
 
-<div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show}>
+<div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name}/>
   <div class="fields">
     <CrdtMultiOptionField on:change bind:value {options} placeholder={ws.abbreviation} {readonly} />

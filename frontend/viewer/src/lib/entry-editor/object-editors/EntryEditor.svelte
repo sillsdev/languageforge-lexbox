@@ -12,6 +12,7 @@
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
+  import {objectTemplateAreas, useCurrentView} from '../../services/view-service';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -100,35 +101,38 @@
 
   const features = getContext<Readable<LexboxFeatures>>('features');
   const entryActionsPortal = getContext<Readable<{target: HTMLDivElement, collapsed: boolean}>>('entryActionsPortal');
+  const currentView = useCurrentView();
 </script>
 
 <div bind:this={editorElem} class="editor-grid">
-  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                    bind:value={entry.lexemeForm}
-                    {readonly}
-                    id="lexemeForm"
-                    wsType="vernacular"/>
-  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                    bind:value={entry.citationForm}
-                    {readonly}
-                    id="citationForm"
-                    wsType="vernacular"/>
-  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                    bind:value={entry.literalMeaning}
-                    {readonly}
-                    id="literalMeaning"
-                    wsType="vernacular"/>
-  <MultiFieldEditor on:change={() => dispatch('change', {entry})}
-                    bind:value={entry.note}
-                    {readonly}
-                    id="note"
-                    wsType="analysis"/>
-  <EntityEditor
-    entity={entry}
-    {readonly}
-    customFieldConfigs={[]}
-    on:change={() => dispatch('change', {entry})}
-  />
+  <div class="grid-layer" style:grid-template-areas={objectTemplateAreas($currentView, entry)}>
+    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                      bind:value={entry.lexemeForm}
+                      {readonly}
+                      id="lexemeForm"
+                      wsType="vernacular"/>
+    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                      bind:value={entry.citationForm}
+                      {readonly}
+                      id="citationForm"
+                      wsType="vernacular"/>
+    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                      bind:value={entry.literalMeaning}
+                      {readonly}
+                      id="literalMeaning"
+                      wsType="vernacular"/>
+    <MultiFieldEditor on:change={() => dispatch('change', {entry})}
+                      bind:value={entry.note}
+                      {readonly}
+                      id="note"
+                      wsType="analysis"/>
+    <EntityEditor
+      entity={entry}
+      {readonly}
+      customFieldConfigs={[]}
+      on:change={() => dispatch('change', {entry})}
+    />
+  </div>
 
   {#each entry.senses as sense, i (sense.id)}
     <div class="grid-layer" class:highlight={sense === highlightedEntity}>
@@ -143,9 +147,7 @@
         {/if}
       </div>
 
-      <div class="grid-layer">
-        <SenseEditor {sense} on:change={() => dispatch('change', {entry, sense})}/>
-      </div>
+      <SenseEditor {sense} on:change={() => dispatch('change', {entry, sense})}/>
 
       <div class="grid-layer border-l border-dashed pl-4 space-y-4 rounded-lg">
         {#each sense.exampleSentences as example, j (example.id)}
@@ -168,13 +170,11 @@
               {/if}
             </div>
 
-            <div class="grid-layer">
             <ExampleEditor
               {example}
               {readonly}
                 on:change={() => dispatch('change', {entry, sense, example})}
               />
-            </div>
           </div>
         {/each}
       </div>
@@ -222,11 +222,5 @@
     & hr {
       @apply border-info-500;
     }
-  }
-
-  .grid-layer {
-    display: grid;
-    grid-template-columns: subgrid;
-    @apply col-span-full;
   }
 </style>

@@ -37,3 +37,16 @@ export function useCurrentView(): Writable<View> {
 export function useViewSettings(): Writable<ViewSettings> {
   return getContext<Writable<ViewSettings>>(viewSettingsContextName);
 }
+
+/**
+ * Returns a string that can be used as a grid-template-areas value for a grid with the given fields, ordered based on the current view.
+ * looks like `"lexemeForm lexemeForm lexemeForm" "citationForm citationForm citationForm" "literalMeaning literalMeaning literalMeaning"` etc. each group of fields in quotes is a row.
+ * there are 3 columns for each row and one field per row so the field name is repeated 3 times.
+ */
+export function objectTemplateAreas(view: View, obj: object | string[]): string {
+  const fields = Array.isArray(obj) ? obj : Object.keys(obj);
+  return Object.entries(view.fields)
+    .filter(([id, field]) => fields.includes(id) && field.show)
+    .toSorted((a, b) => a[1].order - b[1].order)
+    .map(([id, field]) => `"${id} ${id} ${id}"`).join(' ');
+}
