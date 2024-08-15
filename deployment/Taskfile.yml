@@ -32,6 +32,7 @@ tasks:
       - local-maildev-forward
       - local-maildev-smtp-forward
       - local-aspire-ui-forward
+      - local-pgadmin-forward
   backend-forward:
     interactive: true
     deps: [infra-forward, local-api-forward]
@@ -67,6 +68,10 @@ tasks:
     internal: true
     cmds:
       - kubectl port-forward service/lexbox 1025:1025 -n languagedepot --context docker-desktop
+  local-pgadmin-forward:
+    internal: true
+    cmds:
+      - kubectl port-forward service/pgadmin 4810:80 -n languagedepot --context docker-desktop
 
   local-api-forward:
     cmds:
