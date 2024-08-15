@@ -36,7 +36,7 @@ jobs:
       - name: Update image lexbox-api version
         uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         with:
-          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }"' "./deployment/gha/kustomization.yaml"
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
       - name: deploy
         run: |
           kubectl create namespace languagedepot
