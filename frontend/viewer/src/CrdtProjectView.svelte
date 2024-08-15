@@ -14,10 +14,10 @@
     .then(() => connected = (connection.state == HubConnectionState.Connected))
     .catch(err => console.error(err));
   onDestroy(() => connection.stop());
-  setContext('project-name', projectName);
   SetupSignalR(connection, {
     history: true,
     write: true,
+    feedback: true
   });
   let connected = false;
 </script>

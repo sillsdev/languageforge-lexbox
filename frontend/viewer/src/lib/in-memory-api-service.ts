@@ -7,13 +7,15 @@
   LexboxApiFeatures,
   QueryOptions,
   WritingSystemType,
-  WritingSystems
+  WritingSystems,
+  PartOfSpeech,
+  SemanticDomain
 } from './services/lexbox-api';
 import {entries, projectName, writingSystems} from './entry-data';
 
-import { type WritingSystem } from './mini-lcm';
-import { headword } from './utils';
-import { applyPatch } from 'fast-json-patch';
+import {type WritingSystem} from './mini-lcm';
+import {headword} from './utils';
+import {applyPatch} from 'fast-json-patch';
 
 function filterEntries(entries: IEntry[], query: string) {
   return entries.filter(entry =>
@@ -23,10 +25,23 @@ function filterEntries(entries: IEntry[], query: string) {
       ...entry.senses.flatMap(sense => [
         ...Object.values(sense.gloss ?? {}),
       ]),
-    ].some(value => value?.toLowerCase().includes(query.toLowerCase())))
+    ].some(value => value?.toLowerCase().includes(query.toLowerCase())));
 }
 
 export class InMemoryApiService implements LexboxApiClient {
+  GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
+    return Promise.resolve([
+      {id: 'noun', name: {en: 'noun'},},
+      {id: 'verb', name: {en: 'verb'},}
+    ]);
+  }
+
+  GetSemanticDomains(): Promise<SemanticDomain[]> {
+    return Promise.resolve([
+      {id: 'Fruit', name: {en: 'Fruit'}, code: '1'},
+      {id: 'Animal', name: {en: 'Animal'}, code: '2'},
+    ]);
+  }
 
   SupportedFeatures(): LexboxApiFeatures {
     return {};
@@ -35,6 +50,7 @@ export class InMemoryApiService implements LexboxApiClient {
   readonly projectName = projectName;
 
   private _entries = entries;
+
   private _Entries(): IEntry[] {
     return JSON.parse(JSON.stringify(this._entries));
   }

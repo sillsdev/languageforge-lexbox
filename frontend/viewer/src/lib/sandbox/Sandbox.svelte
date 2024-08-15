@@ -1,6 +1,6 @@
 <script lang="ts">
   import {Button, type MenuOption, MultiSelectField,} from 'svelte-ux';
-  import CrdtMultiOptionField from '../entry-editor/CrdtMultiOptionField.svelte';
+  import CrdtMultiOptionField from '../entry-editor/inputs/CrdtMultiOptionField.svelte';
 
   const options = [
     { name: 'One', value: 1 },

@@ -52,8 +52,16 @@ public static class LocalWebAppServer
         }
 
 //configure dotnet to serve static files from the embedded resources
-        var sharedOptions =
-            new SharedOptions() { FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly) };
+        SharedOptions sharedOptions;
+        try
+        {
+            sharedOptions = new SharedOptions() { FileProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly) };
+        }
+        catch (InvalidOperationException e)
+        {
+            throw new Exception(
+                "Unable to load embedded files, this is likely due to the viewer app not being built, run 'pnpm run build-app' from the viewer folder", e);
+        }
         app.UseDefaultFiles(new DefaultFilesOptions(sharedOptions));
         var staticFileOptions = new StaticFileOptions(sharedOptions);
         app.UseStaticFiles(staticFileOptions);
@@ -84,6 +92,7 @@ public static class LocalWebAppServer
         app.MapActivities();
         app.MapProjectRoutes();
         app.MapFwIntegrationRoutes();
+        app.MapFeedbackRoutes();
         app.MapTest();
         app.MapImport();
         app.MapAuthRoutes();

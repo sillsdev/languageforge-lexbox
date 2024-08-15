@@ -43,8 +43,6 @@
     "name": "Nom d'affichage",
     "language": {
       "title": "Langue",
-      "en": "English",
-      "fr": "Français",
       "not_supported": "Pas encore pris en charge"
     },
     "reset_password": "Réinitialiser votre mot de passe à la place?",

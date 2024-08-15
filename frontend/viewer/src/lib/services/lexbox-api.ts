@@ -15,6 +15,7 @@ export interface LexboxApiFeatures {
   history?: boolean;
   write?: boolean;
   openWithFlex?: boolean;
+  feedback?: boolean;
 }
 
 export interface LexboxApi {

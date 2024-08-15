@@ -68,17 +68,32 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
             {
                 if (semanticDomain.Id != default) sense.SemanticDomainsRC.Remove(sense.SemanticDomainsRC.First(sd => sd.Guid == semanticDomain.Id));
             },
-            i => new UpdateProxySemanticDomain { Id = sense.SemanticDomainsRC.ElementAt(i).Guid },
+            i => new UpdateProxySemanticDomain(sense.SemanticDomainsRC, sense.SemanticDomainsRC.ElementAt(i).Guid, lexboxLcmApi),
             sense.SemanticDomainsRC.Count
         );
         set => throw new NotImplementedException();
     }
 
-    public class UpdateProxySemanticDomain
+    public class UpdateProxySemanticDomain(
+        ILcmReferenceCollection<ICmSemanticDomain> senseSemanticDomainsRc,
+        Guid id,
+        FwDataMiniLcmApi lexboxLcmApi)
     {
-        public Guid Id { get; set; }
+        public Guid Id
+        {
+            get => id;
+            set
+            {
+                if (value == id) return;
+                if (value == default) throw new ArgumentException("Cannot set to default");
+                senseSemanticDomainsRc.Remove(senseSemanticDomainsRc.First(sd => sd.Guid == id));
+                senseSemanticDomainsRc.Add(lexboxLcmApi.GetLcmSemanticDomain(value));
+                id = value;
+            }
+        }
+
         public string? Code { get; set; }
-        public MultiString? Name { get; set; }
+        public MultiString? Name { get; set; } = new();
     }
 
     public override IList<ExampleSentence> ExampleSentences

@@ -1,16 +1,22 @@
 <script lang="ts">
   import {AppBar, Button, ProgressCircle} from 'svelte-ux';
-  import {mdiArrowCollapseLeft, mdiArrowCollapseRight, mdiArrowLeft, mdiEyeSettingsOutline, mdiHome} from '@mdi/js';
+  import {
+    mdiArrowCollapseLeft,
+    mdiArrowCollapseRight,
+    mdiArrowLeft,
+    mdiChatQuestion,
+    mdiEyeSettingsOutline,
+    mdiHome
+  } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
   import {navigate} from 'svelte-routing';
   import {headword, pickBestAlternative} from './lib/utils';
-  import {views} from './lib/config-data';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
   import {onMount, setContext} from 'svelte';
   import {derived, writable, type Readable} from 'svelte/store';
   import {deriveAsync, makeDebouncer} from './lib/utils/time';
-  import {type ViewConfig, type LexboxPermissions, type ViewOptions, type LexboxFeatures} from './lib/config-types';
+  import { type LexboxPermissions, type LexboxFeatures} from './lib/config-types';
   import ViewOptionsDrawer from './lib/layout/ViewOptionsDrawer.svelte';
   import EntryList from './lib/layout/EntryList.svelte';
   import Toc from './lib/layout/Toc.svelte';
@@ -26,6 +32,9 @@
   import { saveEventDispatcher, saveHandler } from './lib/services/save-event-service';
   import {AppNotification} from './lib/notifications/notifications';
   import flexLogo from './lib/assets/flex-logo.png';
+  import {initView, initViewSettings} from './lib/services/view-service';
+  import {views} from './lib/entry-editor/view-data';
+  import {initWritingSystems} from './lib/writing-systems';
 
   export let loading = false;
 
@@ -40,25 +49,14 @@
     comment: true,
   });
 
-  const options = writable<ViewOptions>({
-    showExtraFields: false,
-    hideEmptyFields: false,
-    activeView: views[0],
-    generateExternalChanges: false,
-  });
 
-  const viewConfig = derived([options, permissions, features], ([config, permissions, features]) => {
-    const readonly = !permissions.write || !features.write;
-    return {
-      ...config,
-      readonly,
-      hideEmptyFields: config.hideEmptyFields || readonly,
-    };
-  });
+  const readonly = !$permissions.write || !$features.write;
 
-  setContext<Readable<ViewConfig>>('viewConfig', viewConfig);
+  const currentView = initView(views[0]);
+  const viewSettings = initViewSettings({hideEmptyFields: false});
 
   export let projectName: string;
+  setContext('project-name', projectName);
   export let isConnected: boolean;
   export let showHomeButton = true;
   $: connected.set(isConnected);
@@ -72,30 +70,16 @@
   setContext('selectedIndexExamplar', selectedIndexExemplar);
   $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar);
 
-  const { value: writingSystems } = deriveAsync(connected, isConnected => {
+  const writingSystems = initWritingSystems(deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
     return lexboxApi.GetWritingSystems();
-  });
-  setContext('writingSystems', writingSystems);
+  }).value);
   const indexExamplars = derived(writingSystems, wsList => {
     return wsList?.vernacular[0].exemplars;
   });
   setContext('indexExamplars', indexExamplars);
   const trigger = writable(0);
 
-  const { value: partsOfSpeech } = deriveAsync(connected, isConnected => {
-    if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.GetPartsOfSpeech();
-  });
-  const { value: semanticDomains } = deriveAsync(connected, isConnected => {
-    if (!isConnected) return Promise.resolve(null);
-    return lexboxApi.GetSemanticDomains();
-  });
-  const optionProvider: OptionProvider = {
-    partsOfSpeech: derived([writingSystems, partsOfSpeech], ([ws, pos]) => pos?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
-    semanticDomains: derived([writingSystems, semanticDomains], ([ws, sd]) => sd?.map(option => ({ value: option.id, label: pickBestAlternative(option.name, ws?.analysis[0]) })) ?? []),
-  };
-  setContext('optionProvider', optionProvider);
 
   const { value: _entries, loading: loadingEntries, flush: flushLoadingEntries } =
     deriveAsync(derived([search, connected, selectedIndexExemplar, trigger], s => s), ([s, isConnected, exemplar]) => {
@@ -172,21 +156,18 @@
     navigateToEntryIdOnLoad = undefined;
   }
 
-  $: _loading = !$entries || !$writingSystems || !$partsOfSpeech || !$semanticDomains || loading;
+  $: _loading = !$entries || !$writingSystems || loading;
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
-    navigateToEntry(entry);
+    navigateToEntry(entry, headword(entry));
   }
 
-  function navigateToEntry(entry: IEntry) {
-    $search = '';
-    selectEntry(entry);
-  }
-
-  function selectEntry(entry: IEntry) {
+  function navigateToEntry(entry: IEntry, searchText?: string) {
+    // this is to ensure that the selected entry is in the list of entries, otherwise it won't be selected
+    $search = searchText ?? '';
+    $selectedIndexExemplar = undefined;
     $selectedEntry = entry;
-    $selectedIndexExemplar = headword(entry).charAt(0).toLocaleUpperCase() || undefined;
     refreshEntries();
     pickedEntry = true;
   }
@@ -224,6 +205,12 @@
       callback: () => window.location.reload()
     });
   }
+  let newEntryDialog: NewEntryDialog;
+  function openNewEntryDialog(text: string) {
+    const defaultWs = $writingSystems?.vernacular[0].id;
+    if (defaultWs === undefined) return;
+    newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
+  }
 </script>
 
 <svelte:head>
@@ -255,24 +242,38 @@
 
     <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
-      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)} />
+      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail.entry, e.detail.search)}
+                 createNew={newEntryDialog !== undefined}
+                 on:createNew={(e) => openNewEntryDialog(e.detail)} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
-      {#if !$viewConfig.readonly}
-        <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)} />
+      {#if !readonly}
+        <NewEntryDialog bind:this={newEntryDialog} on:created={e => onEntryCreated(e.detail.entry)} />
       {/if}
       <Button
         on:click={() => (showOptionsDialog = true)}
         size="sm"
         variant="outline"
         icon={mdiEyeSettingsOutline}>
-        <div class="hidden sm:contents">
+        <div class="hidden md:contents">
           Configure
         </div>
       </Button>
       {#if $features.history}
-        <ActivityView/>
+        <ActivityView {projectName}/>
+      {/if}
+      {#if $features.feedback}
+        <Button
+          href="/api/feedback"
+          target="_blank"
+          size="sm"
+          variant="outline"
+          icon={mdiChatQuestion}>
+          <div class="hidden sm:contents">
+            Feedback
+          </div>
+        </Button>
       {/if}
     </div>
   </AppBar>
@@ -284,12 +285,13 @@
       <div class="w-screen max-w-full lg:w-[500px] lg:min-w-[300px] collapsible-col side-scroller flex" class:lg:!w-[1024px]={expandList} class:lg:max-w-[25vw]={!expandList} class:max-lg:collapse-col={pickedEntry}>
         <EntryList bind:search={$search} entries={$entries} loading={$loadingEntries} bind:expand={expandList} on:entrySelected={() => pickedEntry = true} />
       </div>
-      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !$viewConfig.readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
+      <div class="max-w-full w-screen lg:w-screen collapsible-col" class:lg:px-6={!expandList} class:max-lg:pr-6={pickedEntry && !readonly} class:lg:collapse-col={expandList} class:max-lg:collapse-col={!pickedEntry}>
         {#if $selectedEntry}
           <div class="mb-6">
             <DictionaryEntryViewer entry={$selectedEntry} />
           </div>
           <Editor entry={$selectedEntry}
+                  {readonly}
             on:change={e => {
               $selectedEntry = $selectedEntry;
               $entries = $entries;
@@ -301,13 +303,13 @@
         {:else}
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
-            {#if !$viewConfig.readonly}
+            {#if !readonly}
               <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
             {/if}
           </div>
         {/if}
       </div>
-      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !$viewConfig.readonly} class:max-lg:hidden={!pickedEntry || $viewConfig.readonly} class:lg:hidden={expandList}>
+      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !readonly} class:max-lg:hidden={!pickedEntry || readonly} class:lg:hidden={expandList}>
         <div class="hidden" class:sm:hidden={expandList}>
           <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
         </div>
@@ -315,7 +317,7 @@
           {#if $selectedEntry}
             <div class="contents" class:lg:hidden={expandList}>
               <div class="h-full flex flex-col gap-4 justify-stretch">
-                {#if !$viewConfig.readonly}
+                {#if !readonly}
                   <div class="contents" bind:this={entryActionsElem}>
 
                   </div>
@@ -341,7 +343,7 @@
                 </div>
               </div>
               <span class="text-surface-content bg-surface-100/75 text-sm absolute -bottom-4 -right-4 p-2 inline-flex gap-2 text-end items-center">
-                {$viewConfig.activeView.label}
+                {$currentView.label}
                 <Button
                   on:click={() => (showOptionsDialog = true)}
                   size="sm"
@@ -356,6 +358,6 @@
     </div>
   </main>
 
-  <ViewOptionsDrawer bind:open={showOptionsDialog} {options} {features} />
+  <ViewOptionsDrawer bind:open={showOptionsDialog} bind:activeView={$currentView} bind:viewSettings={$viewSettings} bind:features={$features} />
 </div>
 {/if}

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
 using SIL.LCModel;
 using SIL.WritingSystems;
 
@@ -16,8 +17,13 @@ public interface IProjectLoader
 
 public class ProjectLoader : IProjectLoader
 {
-    public const string ProjectFolder = @"C:\ProgramData\SIL\FieldWorks\Projects";
-    private static string TemplatesFolder { get; } = @"C:\ProgramData\SIL\FieldWorks\Templates";
+    public static string UnixDataFolder => Environment.GetEnvironmentVariable("XDG_DATA_HOME") ?? Path.Join(Environment.GetEnvironmentVariable("HOME") ?? "", ".local", "share");
+    public static readonly string DataFolder =
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+            @"C:\ProgramData\SIL\FieldWorks" :
+            Path.Join(UnixDataFolder, "fieldworks");
+    public static readonly string ProjectFolder = Path.Join(DataFolder, "Projects");
+    private static string TemplatesFolder { get; } = Path.Join(DataFolder, "Templates");
     private static bool _init;
 
     public static void Init()
@@ -28,7 +34,10 @@ public class ProjectLoader : IProjectLoader
         }
 
         Icu.Wrapper.Init();
-        Debug.Assert(Icu.Wrapper.IcuVersion == "72.1.0.3");
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            Debug.Assert(Icu.Wrapper.IcuVersion == "72.1.0.3");
+        }
         Sldr.Initialize();
         _init = true;
     }

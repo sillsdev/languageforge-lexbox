@@ -24,6 +24,17 @@ public class PermissionService(
         return false;
     }
 
+    private async ValueTask<bool> IsMemberOfOrgThatOwnsProject(Guid projectId)
+    {
+        if (User is not null && User.Orgs.Any())
+        {
+            var memberOfOrgIds = User.Orgs.Select(o => o.OrgId).ToHashSet();
+            var projectOrgIds = await projectService.LookupProjectOrgIds(projectId);
+            if (projectOrgIds.Any(oId => memberOfOrgIds.Contains(oId))) return true;
+        }
+        return false;
+    }
+
     public async ValueTask<bool> CanSyncProject(string projectCode)
     {
         if (User is null) return false;
@@ -96,12 +107,44 @@ public class PermissionService(
         if (!await CanManageProject(projectId)) throw new UnauthorizedAccessException();
     }
 
+    public async ValueTask<bool> CanManageProject(string projectCode)
+    {
+        return await CanManageProject(await projectService.LookupProjectId(projectCode));
+    }
+
+    public async ValueTask AssertCanManageProject(string projectCode)
+    {
+        if (!await CanManageProject(projectCode)) throw new UnauthorizedAccessException();
+    }
+
     public async ValueTask AssertCanManageProjectMemberRole(Guid projectId, Guid userId)
     {
         if (User is null) throw new UnauthorizedAccessException();
         await AssertCanManageProject(projectId);
         if (User.Role != UserRole.admin && userId == User.Id)
             throw new UnauthorizedAccessException("Not allowed to change own project role.");
+    }
+
+    public async ValueTask<bool> CanAskToJoinProject(Guid projectId)
+    {
+        if (User is null) return false;
+        if (User.IsAdmin) return true;
+        return await IsMemberOfOrgThatOwnsProject(projectId);
+    }
+
+    public async ValueTask AssertCanAskToJoinProject(Guid projectId)
+    {
+        if (!await CanAskToJoinProject(projectId)) throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask<bool> CanAskToJoinProject(string projectCode)
+    {
+        return await CanAskToJoinProject(await projectService.LookupProjectId(projectCode));
+    }
+
+    public async ValueTask AssertCanAskToJoinProject(string projectCode)
+    {
+        if (!await CanAskToJoinProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
     public void AssertCanLockOrUnlockUser(Guid userId)
