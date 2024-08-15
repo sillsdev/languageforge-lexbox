@@ -16,3 +16,9 @@ patches:
 images:
   - name: local-dev-init #revert change made by local-dev patch
     newName: busybox
+  - name: ghcr.io/sillsdev/lexbox-api
+    newTag: develop #will be replaced by workflow
+  - name: ghcr.io/sillsdev/lexbox-ui
+    newTag: develop
+  - name: ghcr.io/sillsdev/lexbox-hgweb
+    newTag: latest

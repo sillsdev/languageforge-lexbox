@@ -51,6 +51,14 @@ jobs:
       k8s-environment: develop
       deploy-domain: lexbox.dev.languagetechnology.org
 
+  integration-test-gha:
+    name: Self hosted integration tests
+    needs: [build-api, set-version]
+    uses: ./.github/workflows/integration-test-gha.yaml
+    with:
+      lexbox-api-tag: ${{ needs.set-version.outputs.version }}
+
+
   integration-tests:
     name: Integration tests
     concurrency: develop

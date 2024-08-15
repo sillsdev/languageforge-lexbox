@@ -1,10 +1,18 @@
 name: Self contained integration tests
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - develop
-
+    inputs:
+      lexbox-api-tag:
+        description: 'The version of lexbox-api to test'
+        default: 'develop'
+        required: true
+  workflow_call:
+    inputs:
+      lexbox-api-tag:
+        description: 'The version of lexbox-api to test'
+        default: 'develop'
+        type: string
+        required: true
 
 jobs:
   execute:
@@ -25,6 +33,10 @@ jobs:
         run: |
           kubectl cluster-info
           kubectl get nodes
+      - name: Update image lexbox-api version
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }"' "./deployment/gha/kustomization.yaml"
       - name: deploy
         run: |
           kubectl create namespace languagedepot
@@ -47,7 +59,7 @@ jobs:
         run: curl -v http://localhost:6579
       - name: build
         run: dotnet restore LexBoxOnly.slnf && dotnet build --no-restore LexBoxOnly.slnf
-      - name: test
+      - name: Dotnet test
         env:
           TEST_SERVER_HOSTNAME: 'localhost:6579'
           TEST_STANDARD_HG_HOSTNAME: 'hg.localhost:6579'
