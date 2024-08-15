@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Options;
@@ -54,6 +54,8 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         Init();
         fileName = Path.GetFileName(fileName);
         var projectFilePath = Path.Combine(ProjectFolder, Path.GetFileNameWithoutExtension(fileName), fileName);
+        if (!Directory.Exists(ProjectFolder)) Directory.CreateDirectory(ProjectFolder);
+        if (!Directory.Exists(TemplatesFolder)) Directory.CreateDirectory(TemplatesFolder);
         var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
         var progress = new LcmThreadedProgress();
         var cache = LcmCache.CreateCacheFromLocalProjectFile(projectFilePath,
