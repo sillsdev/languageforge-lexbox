@@ -2,7 +2,7 @@
 
 namespace FwDataMiniLcmBridge.LcmUtils;
 
-internal class SimpleProjectId : IProjectIdentifier
+public class SimpleProjectId : IProjectIdentifier
 {
     private readonly BackendProviderType _type;
 

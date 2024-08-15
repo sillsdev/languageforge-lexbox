@@ -23,8 +23,8 @@ public interface IProjectLoader
 
 public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
 {
-    private string ProjectFolder => config.Value.ProjectsFolder;
-    private string TemplatesFolder => config.Value.TemplatesFolder;
+    protected string ProjectFolder => config.Value.ProjectsFolder;
+    protected string TemplatesFolder => config.Value.TemplatesFolder;
     private static bool _init;
 
     public static void Init()

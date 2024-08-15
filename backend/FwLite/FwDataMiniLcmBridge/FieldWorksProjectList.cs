@@ -6,7 +6,7 @@ namespace FwDataMiniLcmBridge;
 
 public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config)
 {
-    public IEnumerable<IProjectIdentifier> EnumerateProjects()
+    public virtual IEnumerable<IProjectIdentifier> EnumerateProjects()
     {
         if (!Directory.Exists(config.Value.ProjectsFolder)) Directory.CreateDirectory(config.Value.ProjectsFolder);
         foreach (var directory in Directory.EnumerateDirectories(config.Value.ProjectsFolder))
@@ -18,7 +18,7 @@ public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config)
         }
     }
 
-    public FwDataProject? GetProject(string name)
+    public virtual FwDataProject? GetProject(string name)
     {
         return EnumerateProjects().OfType<FwDataProject>().FirstOrDefault(p => p.Name == name);
     }
