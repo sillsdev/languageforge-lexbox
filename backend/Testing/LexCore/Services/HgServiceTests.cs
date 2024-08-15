@@ -63,14 +63,24 @@ public class HgServiceTests
     }
 
     [Theory]
+    // Valid values
     [InlineData("1630088815 0", "2021-08-27T18:26:55+0000")]
     [InlineData("1472445535 -25200", "2016-08-29T11:38:55+0700")]
     [InlineData("1472028930 14400", "2016-08-24T04:55:30-0400")]
-    public void HgDatesConvertedAccurately(string input, string expectedStr)
+    // hg returns "0 0" for a repo with no commits, which we want to represent as null
+    [InlineData("0 0", null)]
+    // Invalid values should also return null
+    [InlineData("", null)]
+    [InlineData("1722581047", null)]
+    [InlineData("1722581047 0 3", null)]
+    [InlineData("1722581047 xyz", null)]
+    [InlineData("xyz", null)]
+    [InlineData("xyz 0", null)]
+    [InlineData("xyz 7200", null)]
+    public void HgDatesConvertedAccurately(string input, string? expectedStr)
     {
-        var expected = DateTimeOffset.Parse(expectedStr);
-        var parts = input.Split().Select(long.Parse).ToArray();
-        var actual = _hgService.ConvertHgDate(parts[0], parts[1]);
+        DateTimeOffset? expected = expectedStr == null ? null : DateTimeOffset.Parse(expectedStr);
+        var actual = _hgService.ConvertHgDate(input);
         actual.ShouldBe(expected);
     }
 
