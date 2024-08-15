@@ -7,7 +7,7 @@ public class ServicesFixtureTests
     [Fact]
     public async Task CanSetupServices()
     {
-        var fixture = new TestingServicesFixture();
+        var fixture = TestingServicesFixture.Create("lexbox-service-fixture-test");
         var act = async () =>
         {
             await fixture.InitializeAsync();
