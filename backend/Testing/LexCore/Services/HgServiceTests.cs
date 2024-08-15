@@ -71,13 +71,14 @@ public class HgServiceTests
     [InlineData("0 0", null)]
     // Invalid values should also return null
     [InlineData("", null)]
+    [InlineData(null, null)]
     [InlineData("1722581047", null)]
     [InlineData("1722581047 0 3", null)]
     [InlineData("1722581047 xyz", null)]
     [InlineData("xyz", null)]
     [InlineData("xyz 0", null)]
     [InlineData("xyz 7200", null)]
-    public void HgDatesConvertedAccurately(string input, string? expectedStr)
+    public void HgDatesConvertedAccurately(string? input, string? expectedStr)
     {
         DateTimeOffset? expected = expectedStr == null ? null : DateTimeOffset.Parse(expectedStr);
         var actual = HgService.ConvertHgDate(input);
