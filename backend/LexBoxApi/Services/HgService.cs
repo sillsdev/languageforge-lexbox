@@ -330,7 +330,7 @@ public class HgService : IHgService, IHostedService
         return result;
     }
 
-    public DateTimeOffset? ConvertHgDate(string dateStr)
+    public static DateTimeOffset? ConvertHgDate(string dateStr)
     {
         // Format is "1472445535 -25200", two ints separated by a single space.
         // "0 0" is returned for empty repos (no commits), but we prefer to represent that as null

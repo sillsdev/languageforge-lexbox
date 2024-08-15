@@ -80,7 +80,7 @@ public class HgServiceTests
     public void HgDatesConvertedAccurately(string input, string? expectedStr)
     {
         DateTimeOffset? expected = expectedStr == null ? null : DateTimeOffset.Parse(expectedStr);
-        var actual = _hgService.ConvertHgDate(input);
+        var actual = HgService.ConvertHgDate(input);
         actual.ShouldBe(expected);
     }
 
