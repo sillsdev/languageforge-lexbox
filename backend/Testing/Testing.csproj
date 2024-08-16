@@ -15,7 +15,7 @@
     <Choose>
         <When Condition=" '$(MercurialVersion)' == '6' ">
             <ItemGroup>
-                <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0048" />
+                <PackageReference Include="SIL.Chorus.LibChorus" Version="6.0.0-beta0049" />
                 <PackageReference Include="SIL.Chorus.Mercurial" Version="6.*" />
             </ItemGroup>
         </When>
@@ -47,6 +47,10 @@
         <PackageReference Include="coverlet.collector" Version="6.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="XunitXml.TestLogger" Version="3.1.17" />
     </ItemGroup>

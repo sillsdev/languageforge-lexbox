@@ -51,15 +51,24 @@ jobs:
       k8s-environment: develop
       deploy-domain: lexbox.dev.languagetechnology.org
 
-  integration-tests:
-    name: Integration tests
-    concurrency: develop
-    uses: ./.github/workflows/integration-test.yaml
-    permissions:
-      checks: write
-    secrets: inherit
-    needs: deploy-api
+  integration-test-gha:
+    name: Self hosted integration tests
+    needs: [build-api, set-version]
+    uses: ./.github/workflows/integration-test-gha.yaml
     with:
-      environment: develop
-      runs-on: self-hosted
-      hg-version: 6
+      lexbox-api-tag: ${{ needs.set-version.outputs.version }}
+
+
+      # for now disabling integration tests on self hosted since they're flaky, depend on tests in gha above
+#   integration-tests:
+#     name: Integration tests
+#     concurrency: develop
+#     uses: ./.github/workflows/integration-test.yaml
+#     permissions:
+#       checks: write
+#     secrets: inherit
+#     needs: deploy-api
+#     with:
+#       environment: develop
+#       runs-on: self-hosted
+#       hg-version: 6
