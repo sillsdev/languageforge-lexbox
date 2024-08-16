@@ -59,15 +59,16 @@ jobs:
       lexbox-api-tag: ${{ needs.set-version.outputs.version }}
 
 
-  integration-tests:
-    name: Integration tests
-    concurrency: develop
-    uses: ./.github/workflows/integration-test.yaml
-    permissions:
-      checks: write
-    secrets: inherit
-    needs: deploy-api
-    with:
-      environment: develop
-      runs-on: self-hosted
-      hg-version: 6
+      # for now disabling integration tests on self hosted since they're flaky, depend on tests in gha above
+#   integration-tests:
+#     name: Integration tests
+#     concurrency: develop
+#     uses: ./.github/workflows/integration-test.yaml
+#     permissions:
+#       checks: write
+#     secrets: inherit
+#     needs: deploy-api
+#     with:
+#       environment: develop
+#       runs-on: self-hosted
+#       hg-version: 6
