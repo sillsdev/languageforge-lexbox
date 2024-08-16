@@ -176,7 +176,16 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        throw new NotImplementedException();
+        if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
+        UndoableUnitOfWorkHelper.Do("Create Part of Speech",
+            "Remove part of speech",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
+                    .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
+                UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
+            });
     }
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
@@ -194,7 +203,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        throw new NotImplementedException();
+        if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
+        UndoableUnitOfWorkHelper.Do("Create Semantic Domain",
+            "Remove semantic domain",
+            Cache.ActionHandlerAccessor,
+            () =>
+            {
+                var lcmSemanticDomain = Cache.ServiceLocator.GetInstance<ICmSemanticDomainFactory>()
+                    .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
+                UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
+                UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
+            });
     }
 
     internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
@@ -401,6 +420,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         UpdateLcmMultiString(lexSense.Gloss, sense.Gloss);
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
+        foreach (var senseSemanticDomain in sense.SemanticDomains)
+        {
+            lexSense.SemanticDomainsRC.Add(GetLcmSemanticDomain(senseSemanticDomain.Id));
+        }
+
         foreach (var exampleSentence in sense.ExampleSentences)
         {
             CreateExampleSentence(lexSense, exampleSentence);

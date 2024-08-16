@@ -1,9 +1,8 @@
-﻿using FwDataMiniLcmBridge;
-using FwDataMiniLcmBridge.LcmUtils;
+﻿using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Options;
 using SIL.LCModel;
 
-namespace FwLiteProjectSync.Tests.Fixtures;
+namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
 public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
     : ProjectLoader(config), IDisposable, IProjectLoader

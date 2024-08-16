@@ -1,6 +1,7 @@
 ﻿using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
+using FwDataMiniLcmBridge.Tests.Fixtures;
 using LcmCrdt;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -16,21 +17,26 @@ public class SyncFixture : IAsyncLifetime
 
     public CrdtFwdataProjectSyncService SyncService =>
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
+    private readonly string _projectName;
 
-    public SyncFixture()
+    public static SyncFixture Create(string projectName) => new(projectName);
+
+    private SyncFixture(string projectName)
     {
+        _projectName = projectName;
         var crdtServices = new ServiceCollection()
             .AddLcmCrdtClient()
-            .AddFwDataBridge()
+            .AddTestFwDataBridge()
             .AddFwLiteProjectSync()
-            .AddSingleton<MockFwProjectLoader>()
-            .AddSingleton<IProjectLoader>(sp => sp.GetRequiredService<MockFwProjectLoader>())
-            .AddSingleton<FieldWorksProjectList, MockFwProjectList>()
-            .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", "FwData"))
+            .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", _projectName, "FwData"))
             .AddLogging(builder => builder.AddDebug())
-            .Configure<LcmCrdtConfig>(c => c.ProjectPath = Path.Combine(".", "LcmCrdt"))
+            .Configure<LcmCrdtConfig>(c => c.ProjectPath = Path.Combine(".", _projectName, "LcmCrdt"))
             .BuildServiceProvider();
         _services = crdtServices.CreateAsyncScope();
+    }
+
+    public SyncFixture(): this("sena-3")
+    {
     }
 
     public async Task InitializeAsync()
@@ -40,16 +46,16 @@ public class SyncFixture : IAsyncLifetime
         if (Path.Exists(projectsFolder)) Directory.Delete(projectsFolder, true);
         Directory.CreateDirectory(projectsFolder);
         var lcmCache = _services.ServiceProvider.GetRequiredService<IProjectLoader>()
-            .NewProject("sena-3.fwdata", "en", "fr");
+            .NewProject($"{_projectName}.fwdata", "en", "fr");
         var projectGuid = lcmCache.LanguageProject.Guid;
-        FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi("sena-3", false);
+        FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(_projectName, false);
 
         var crdtProjectsFolder =
             _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
         if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<ProjectsService>()
-            .CreateProject("sena-3", projectGuid);
+            .CreateProject(_projectName, projectGuid);
         _services.ServiceProvider.GetRequiredService<ProjectContext>().Project = crdtProject;
         CrdtApi = _services.ServiceProvider.GetRequiredService<ILexboxApi>();
     }

@@ -1,8 +1,7 @@
-﻿using FwDataMiniLcmBridge;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using MiniLcm;
 
-namespace FwLiteProjectSync.Tests.Fixtures;
+namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
 public class MockFwProjectList(IOptions<FwDataBridgeConfig> config, MockFwProjectLoader loader) : FieldWorksProjectList(config)
 {
