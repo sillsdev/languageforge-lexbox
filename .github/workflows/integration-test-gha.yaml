@@ -64,7 +64,7 @@ jobs:
         run: |
           kubectl describe pods -l 'app in (lexbox, ui, hg, db)' -n languagedepot
           echo "========== LOGS =========="
-          kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers --tail=50
+          kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers
           echo "========== INGRESS =========="
-          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=50
+          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers
 
