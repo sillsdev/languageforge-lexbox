@@ -21,6 +21,7 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+        <SelfContained>true</SelfContained>
         <Platform Condition="$([MSBuild]::IsOSPlatform('windows'))">x64</Platform>
 
 		<!-- controls display name in Package.appxmanifest -->
@@ -47,7 +48,6 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
         <!--        single file disabled as it's less efficient for updates-->
         <PublishSingleFile>false</PublishSingleFile>
-        <SelfContained>true</SelfContained>
         <PublishTrimmed>false</PublishTrimmed>
     </PropertyGroup>
     <PropertyGroup Condition="'$(WindowsPackageType)' == 'None'">
