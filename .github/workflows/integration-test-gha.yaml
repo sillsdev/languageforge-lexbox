@@ -64,8 +64,8 @@ jobs:
         run: |
           mkdir -p k8s-logs
           for app in lexbox ui hg db; do
-            kubectl describe pods -l 'app=$app' -n languagedepot > k8s-logs/describe-${app}.txt
-            kubectl logs -l 'app=$app' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt
+            kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt
+            kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt
           done
           kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-ingress.txt
       - name: upload status
