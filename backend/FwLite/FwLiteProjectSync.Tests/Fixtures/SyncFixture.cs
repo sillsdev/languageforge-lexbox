@@ -29,8 +29,8 @@ public class SyncFixture : IAsyncLifetime
             .AddTestFwDataBridge()
             .AddFwLiteProjectSync()
             .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", _projectName, "FwData"))
-            .AddLogging(builder => builder.AddDebug())
             .Configure<LcmCrdtConfig>(c => c.ProjectPath = Path.Combine(".", _projectName, "LcmCrdt"))
+            .AddLogging(builder => builder.AddDebug())
             .BuildServiceProvider();
         _services = crdtServices.CreateAsyncScope();
     }

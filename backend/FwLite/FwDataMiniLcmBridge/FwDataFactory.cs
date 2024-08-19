@@ -34,7 +34,7 @@ public class FwDataFactory(
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(string projectName, bool saveOnDispose)
     {
-        var project = fieldWorksProjectList.GetProject(projectName) ?? throw new InvalidOperationException($"Project {projectName} not found.");
+        var project = fieldWorksProjectList.GetProject(projectName) ?? throw new InvalidOperationException($"FwData Project {projectName} not found.");
         return GetFwDataMiniLcmApi(project, saveOnDispose);
     }
 
@@ -42,7 +42,7 @@ public class FwDataFactory(
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
-        return new FwDataMiniLcmApi(new (() =>GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project);
+        return new FwDataMiniLcmApi(new (() => GetProjectServiceCached(project)), saveOnDispose, fwdataLogger, project);
     }
 
     private HashSet<string> _projects = [];

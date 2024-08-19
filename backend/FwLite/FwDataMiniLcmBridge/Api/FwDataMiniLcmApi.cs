@@ -16,6 +16,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 {
     private LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
+    public Guid ProjectId => Cache.LangProject.Guid;
 
     private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
     private ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
