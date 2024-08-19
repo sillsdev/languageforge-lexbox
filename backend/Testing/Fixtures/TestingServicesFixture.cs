@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace Testing.Fixtures;
 
@@ -13,17 +14,29 @@ namespace Testing.Fixtures;
 public class TestingServicesFixture : IAsyncLifetime, ICollectionFixture<TestingServicesFixture>
 {
     private readonly ServiceProvider _serviceProvider;
-    public TestingServicesFixture()
+    private readonly string _dbName;
+
+    private TestingServicesFixture(string dbName)
     {
+        _dbName = dbName;
         _serviceProvider = ConfigureServices(_ => { });
     }
 
-    private static void ConfigureBaseServices(IServiceCollection services)
+    public TestingServicesFixture(): this("lexbox-tests")
+    {
+    }
+
+    public static TestingServicesFixture Create(string dbName)
+    {
+        return new TestingServicesFixture(dbName);
+    }
+
+    private static void ConfigureBaseServices(IServiceCollection services, string dbName)
     {
         services.AddOptions<DbConfig>().Configure(config =>
         {
             config.LexBoxConnectionString = string.Join(";",
-                "Database=lexbox-tests",
+                $"Database={dbName}",
                 "Host=localhost",
                 "Port=5433",
                 "Username=postgres",
@@ -42,7 +55,7 @@ public class TestingServicesFixture : IAsyncLifetime, ICollectionFixture<Testing
     public ServiceProvider ConfigureServices(Action<ServiceCollection>? configureServices = null)
     {
         var services = new ServiceCollection();
-        ConfigureBaseServices(services);
+        ConfigureBaseServices(services, _dbName);
         configureServices?.Invoke(services);
         return services.BuildServiceProvider();
     }
