@@ -95,7 +95,9 @@ public class SyncTests : IClassFixture<SyncFixture>
         var fwdataPatch = new JsonPatchDocument<Entry>();
         fwdataPatch.Replace(entry => entry.LexemeForm["fr"], "Pomme");
         await fwdataApi.UpdateEntry(_testEntry.Id, new JsonPatchUpdateInput<Entry>(fwdataPatch));
-        await _syncService.Sync(crdtApi, fwdataApi);
+        var results = await _syncService.Sync(crdtApi, fwdataApi);
+        results.CrdtChanges.Should().Be(1);
+        results.FwdataChanges.Should().Be(1);
 
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();

@@ -2,6 +2,7 @@
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
@@ -32,8 +33,10 @@ afterSyncCommand.SetHandler((crdtFile, fwDataFile) =>
 rootCommand.Add(afterSyncCommand);
 var syncCommand = new Command("sync", "Synchronize CRDT with FwData");
 var createCrdtDirOption = new Option<bool>("--create-crdt-dir", "Create CRDT directory");
+var dryRunOption = new Option<bool>("--dry-run", () => false, "Dry run");
 syncCommand.Add(createCrdtDirOption);
-syncCommand.SetHandler(async (crdtFile, fwDataFile, createCrdtDir) =>
+syncCommand.Add(dryRunOption);
+syncCommand.SetHandler(async (crdtFile, fwDataFile, createCrdtDir, dryRun) =>
     {
         Console.WriteLine($"crdtFile: {crdtFile}");
         Console.WriteLine($"fwDataFile: {fwDataFile}");
@@ -55,12 +58,13 @@ syncCommand.SetHandler(async (crdtFile, fwDataFile, createCrdtDir) =>
         await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
 
-        var result = await syncService.Sync(services.GetRequiredService<ILexboxApi>(), fwdataApi);
+        var result = await syncService.Sync(services.GetRequiredService<ILexboxApi>(), fwdataApi, dryRun);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
     },
     crdtOption,
     fwDataOption,
-    createCrdtDirOption);
+    createCrdtDirOption,
+    dryRunOption);
 rootCommand.Add(syncCommand);
 await rootCommand.InvokeAsync(args);
 
@@ -86,7 +90,10 @@ static ServiceProvider SyncServices(string crdtFile, string fwDataFile, bool cre
         .AddFwLiteProjectSync()
         .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = fwDataProjectsFolder.FullName)
         .Configure<LcmCrdtConfig>(c => c.ProjectPath = crdtFolder.FullName)
-        .AddLogging(builder => builder.AddConsole().AddDebug())
+        .AddLogging(builder => builder.AddConsole().AddDebug().AddConfiguration(new ConfigurationManager().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
+        }).Build()))
         .BuildServiceProvider(true);
     return crdtServices;
 }

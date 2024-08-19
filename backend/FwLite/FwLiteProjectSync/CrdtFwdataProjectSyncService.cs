@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using FwDataMiniLcmBridge.Api;
 using LcmCrdt;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using SystemTextJsonPatch;
@@ -8,35 +9,58 @@ using SystemTextJsonPatch.Operations;
 
 namespace FwLiteProjectSync;
 
-public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig, MiniLcmImport miniLcmImport)
+public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig, MiniLcmImport miniLcmImport, ILogger<CrdtFwdataProjectSyncService> logger)
 {
     public record SyncResult(int CrdtChanges, int FwdataChanges);
 
-    public async Task<SyncResult> Sync(ILexboxApi crdtApi, FwDataMiniLcmApi fwdataApi)
+    public async Task<SyncResult> Sync(ILexboxApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
         var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name);
-        SyncResult result;
+        SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
+
+        if (!dryRun)
+        {
+            await SaveProjectSnapshot(fwdataApi.Project.Name,
+                new ProjectSnapshot(await fwdataApi.GetEntries().ToArrayAsync()));
+        }
+        return result;
+    }
+
+    private async Task<SyncResult> Sync(ILexboxApi crdtApi, ILexboxApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
+    {
+        if (dryRun)
+        {
+            crdtApi = new DryRunMiniLcmApi(crdtApi);
+            fwdataApi = new DryRunMiniLcmApi(fwdataApi);
+        }
+
         if (projectSnapshot is null)
         {
-            await miniLcmImport.ImportProject(crdtApi, fwdataApi, fwdataApi.EntryCount);
-            result = new SyncResult(fwdataApi.EntryCount, 0);
+            await miniLcmImport.ImportProject(crdtApi, fwdataApi, entryCount);
+            LogDryRun(crdtApi, "crdt");
+            return new SyncResult(entryCount, 0);
         }
-        else
+
+        var currentFwDataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        var crdtChanges = await EntrySync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
+        LogDryRun(crdtApi, "crdt");
+
+        var fwdataChanges = await EntrySync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
+        LogDryRun(fwdataApi, "fwdata");
+
+
+        return new SyncResult(crdtChanges, fwdataChanges);
+    }
+
+    private void LogDryRun(ILexboxApi api, string type)
+    {
+        if (api is not DryRunMiniLcmApi dryRunApi) return;
+        foreach (var dryRunRecord in dryRunApi.DryRunRecords)
         {
-            int crdtChanges = 0;
-            int fwdataChanges = 0;
-            var currentFwDataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-            await EntrySync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
-
-            await EntrySync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
-
-
-            result = new SyncResult(crdtChanges, fwdataChanges);
+            logger.LogInformation($"Dry run {type} record: {dryRunRecord.Method} {dryRunRecord.Description}");
         }
 
-        await SaveProjectSnapshot(fwdataApi.Project.Name,
-            new ProjectSnapshot(await fwdataApi.GetEntries().ToArrayAsync()));
-        return result;
+        logger.LogInformation($"Dry run {type} changes: {dryRunApi.DryRunRecords.Count}");
     }
 
     public record ProjectSnapshot(Entry[] Entries);
@@ -56,62 +80,88 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         await JsonSerializer.SerializeAsync(file, projectSnapshot);
     }
 
-    private async Task EntrySync(Entry[] currentEntries,
+    private async Task<int> EntrySync(Entry[] currentEntries,
         Entry[] previousEntries,
         ILexboxApi api)
     {
-        await DiffCollection(api,
+        return await DiffCollection(api,
             previousEntries,
             currentEntries,
-            async (api, currentEntry) => await api.CreateEntry(currentEntry),
-            async (api, previousEntry) => await api.DeleteEntry(previousEntry.Id),
+            async (api, currentEntry) =>
+            {
+                await api.CreateEntry(currentEntry);
+                return 1;
+            },
+            async (api, previousEntry) =>
+            {
+                await api.DeleteEntry(previousEntry.Id);
+                return 1;
+            },
             async (api, previousEntry, currentEntry) =>
             {
                 var updateObjectInput = EntryDiffToUpdate(previousEntry, currentEntry);
                 if (updateObjectInput is not null) await api.UpdateEntry(currentEntry.Id, updateObjectInput);
-                await SenseSync(currentEntry.Id, currentEntry.Senses, previousEntry.Senses, api);
+                var changes = await SenseSync(currentEntry.Id, currentEntry.Senses, previousEntry.Senses, api);
+                return changes + (updateObjectInput is null ? 0 : 1);
             });
     }
 
-    private async Task SenseSync(Guid entryId,
+    private async Task<int> SenseSync(Guid entryId,
         IList<Sense> currentSenses,
         IList<Sense> previousSenses,
         ILexboxApi api)
     {
-        await DiffCollection(api,
+        return await DiffCollection(api,
             previousSenses,
             currentSenses,
-            async (api, currentSense) => await api.CreateSense(entryId, currentSense),
-            async (api, previousSense) => await api.DeleteSense(entryId, previousSense.Id),
+            async (api, currentSense) =>
+            {
+                await api.CreateSense(entryId, currentSense);
+                return 1;
+            },
+            async (api, previousSense) =>
+            {
+                await api.DeleteSense(entryId, previousSense.Id);
+                return 1;
+            },
             async (api, previousSense, currentSense) =>
             {
                 var updateObjectInput = await SenseDiffToUpdate(previousSense, currentSense);
                 if (updateObjectInput is not null) await api.UpdateSense(entryId, previousSense.Id, updateObjectInput);
-                await ExampleSentenceSync(entryId,
+                var changes = await ExampleSentenceSync(entryId,
                     previousSense.Id,
                     currentSense.ExampleSentences,
                     previousSense.ExampleSentences,
                     api);
+                return changes + (updateObjectInput is null ? 0 : 1);
             });
     }
 
-    private async Task ExampleSentenceSync(Guid entryId,
+    private async Task<int> ExampleSentenceSync(Guid entryId,
         Guid senseId,
         IList<ExampleSentence> currentExampleSentences,
         IList<ExampleSentence> previousExampleSentences,
         ILexboxApi api)
     {
-        await DiffCollection(api,
+        return await DiffCollection(api,
             previousExampleSentences,
             currentExampleSentences,
             async (api, currentExampleSentence) =>
-                await api.CreateExampleSentence(entryId, senseId, currentExampleSentence),
+            {
+                await api.CreateExampleSentence(entryId, senseId, currentExampleSentence);
+                return 1;
+            },
             async (api, previousExampleSentence) =>
-                await api.DeleteExampleSentence(entryId, senseId, previousExampleSentence.Id),
+            {
+                await api.DeleteExampleSentence(entryId, senseId, previousExampleSentence.Id);
+                return 1;
+            },
             async (api, previousExampleSentence, currentExampleSentence) =>
             {
                 var updateObjectInput = ExampleDiffToUpdate(previousExampleSentence, currentExampleSentence);
-                if (updateObjectInput is not null) await api.UpdateExampleSentence(entryId, senseId, previousExampleSentence.Id, updateObjectInput);
+                if (updateObjectInput is null) return 0;
+                await api.UpdateExampleSentence(entryId, senseId, previousExampleSentence.Id, updateObjectInput);
+                return 1;
             });
     }
 
@@ -159,17 +209,17 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
             (_, domain) =>
             {
                 patchDocument.Add(sense => sense.SemanticDomains, domain);
-                return Task.CompletedTask;
+                return Task.FromResult(1);
             },
             (_, previousDomain) =>
             {
                 patchDocument.Remove(sense => sense.SemanticDomains, previousSense.SemanticDomains.IndexOf(previousDomain));
-                return Task.CompletedTask;
+                return Task.FromResult(1);
             },
             (_, previousDomain, currentDomain) =>
             {
                 //do nothing, semantic domains are not editable here
-                return Task.CompletedTask;
+                return Task.FromResult(0);
             });
         if (patchDocument.Operations.Count == 0) return null;
         return new JsonPatchUpdateInput<Sense>(patchDocument);
@@ -219,32 +269,33 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         }
     }
 
-    private static async Task DiffCollection<T>(
+    private static async Task<int> DiffCollection<T>(
         ILexboxApi api,
         IList<T> previous,
         IList<T> current,
-        Func<ILexboxApi, T, Task> add,
-        Func<ILexboxApi, T, Task> remove,
-        Func<ILexboxApi, T, T, Task> replace) where T : IObjectWithId
+        Func<ILexboxApi, T, Task<int>> add,
+        Func<ILexboxApi, T, Task<int>> remove,
+        Func<ILexboxApi, T, T, Task<int>> replace) where T : IObjectWithId
     {
+        var changes = 0;
         var currentEntriesDict = current.ToDictionary(entry => entry.Id);
         foreach (var previousEntry in previous)
         {
             if (currentEntriesDict.TryGetValue(previousEntry.Id, out var currentEntry))
             {
-                await replace(api, previousEntry, currentEntry);
+                changes += await replace(api, previousEntry, currentEntry);
             }
             else
             {
-                await remove(api, previousEntry);
+                changes += await remove(api, previousEntry);
             }
 
             currentEntriesDict.Remove(previousEntry.Id);
         }
-
         foreach (var value in currentEntriesDict.Values)
         {
-            await add(api, value);
+            changes += await add(api, value);
         }
+        return changes;
     }
 }
