@@ -237,12 +237,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     private Sense FromLexSense(ILexSense sense)
     {
+        var enWs = GetWritingSystemHandle("en");
         var s =  new Sense
         {
             Id = sense.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
-            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.PosFieldName ?? "",
+            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
             PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
             SemanticDomains = sense.SemanticDomainsRC.Select(s => new SemanticDomain
             {
