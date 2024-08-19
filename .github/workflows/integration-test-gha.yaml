@@ -43,7 +43,7 @@ jobs:
         continue-on-error: true
         run: docker pull ghcr.io/sillsdev/lexbox-hgweb:${{ inputs.lexbox-api-tag }}
       - name: Update image hgweb version
-        if: steps.hgweb_image.outcome == success()
+        if: ${{ steps.hgweb_image.outcome == success() }}
         uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         with:
           cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-hgweb").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
