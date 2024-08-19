@@ -447,7 +447,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        if (lexSense.Owner.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
+        if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException($"Sense {senseId} does not belong to the expected entry, expected Id {entryId}, actual Id {lexSense.Entry.Guid}");
         UndoableUnitOfWorkHelper.Do("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
@@ -462,7 +462,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        if (lexSense.Owner.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
+        if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
         UndoableUnitOfWorkHelper.Do("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
@@ -499,10 +499,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UpdateObjectInput<ExampleSentence> update)
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
-        if (lexExampleSentence.Owner.Guid != senseId)
-            throw new InvalidOperationException("Example sentence does not belong to sense");
-        if (lexExampleSentence.Owner.Owner.Guid != entryId)
-            throw new InvalidOperationException("Example sentence does not belong to entry");
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
         UndoableUnitOfWorkHelper.Do("Update Example Sentence",
             "Revert example sentence",
             Cache.ServiceLocator.ActionHandler,
@@ -517,16 +514,30 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
-        if (lexExampleSentence.Owner.Guid != senseId)
-            throw new InvalidOperationException("Example sentence does not belong to sense");
-        if (lexExampleSentence.Owner.Owner.Guid != entryId)
-            throw new InvalidOperationException("Example sentence does not belong to entry");
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
         UndoableUnitOfWorkHelper.Do("Delete Example Sentence",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());
         return Task.CompletedTask;
     }
+
+    private static void ValidateOwnership(ILexExampleSentence lexExampleSentence, Guid entryId, Guid senseId)
+    {
+        //todo the owner many not be a sense, but could be something owned by the sense.
+        if (lexExampleSentence.Owner is ILexSense sense)
+        {
+            if (sense.Guid != senseId) throw new InvalidOperationException("Example sentence does not belong to sense");
+            if (sense.Entry.Guid != entryId)
+                throw new InvalidOperationException("Example sentence does not belong to entry");
+        }
+        else
+        {
+            throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
+                                                lexExampleSentence.Owner.ClassName);
+        }
+    }
+
 
     public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
     {
