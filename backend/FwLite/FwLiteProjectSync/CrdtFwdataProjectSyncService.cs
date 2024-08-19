@@ -48,6 +48,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         var fwdataChanges = await EntrySync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
         LogDryRun(fwdataApi, "fwdata");
 
+        //todo push crdt changes to lexbox
 
         return new SyncResult(crdtChanges, fwdataChanges);
     }
