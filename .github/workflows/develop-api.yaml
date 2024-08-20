@@ -52,7 +52,7 @@ jobs:
       deploy-domain: lexbox.dev.languagetechnology.org
 
   integration-test-gha:
-    name: Self hosted integration tests
+    name: GHA integration tests
     needs: [build-api, set-version]
     uses: ./.github/workflows/integration-test-gha.yaml
     with:

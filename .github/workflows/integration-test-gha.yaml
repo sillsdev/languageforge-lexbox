@@ -1,4 +1,4 @@
-name: Self contained integration tests
+name: GHA integration tests
 on:
   workflow_dispatch:
     inputs:
@@ -39,6 +39,25 @@ jobs:
         uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         with:
           cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+      # It's also possible that hgweb and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well
+      - name: Pull hgweb if updated
+        id: hgweb_image
+        continue-on-error: true
+        run: docker pull ghcr.io/sillsdev/lexbox-hgweb:${{ inputs.lexbox-api-tag }}
+      - name: Update image hgweb version
+        if: ${{ steps.hgweb_image.outcome == 'success' }}
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-hgweb").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+      - name: Pull ui if updated
+        id: ui_image
+        continue-on-error: true
+        run: docker pull ghcr.io/sillsdev/lexbox-ui:${{ inputs.lexbox-api-tag }}
+      - name: Update image ui version
+        if: ${{ steps.ui_image.outcome == 'success' }}
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
       - name: deploy
         run: |
           kubectl create namespace languagedepot
@@ -47,14 +66,6 @@ jobs:
           kubectl apply -k ./deployment/gha
           kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
           kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
-      - name: status
-        if: failure()
-        run: |
-          kubectl describe pods -l 'app in (lexbox, ui, hg, db)' -n languagedepot
-          echo "========== LOGS =========="
-          kubectl logs -l 'app in (lexbox, ui, hg, db)' -n languagedepot --prefix --all-containers --tail=50
-          echo "========== INGRESS =========="
-          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=50
       - name: forward ingress
         run: kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
       - name: verify ingress
@@ -69,4 +80,19 @@ jobs:
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: 'pass'
         run: dotnet test LexBoxOnly.slnf --logger GitHubActions --filter "Category=Integration|Category=FlakyIntegration" --blame-hang-timeout 40m
+      - name: status
+        if: failure()
+        run: |
+          mkdir -p k8s-logs
+          for app in lexbox ui hg db; do
+            kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt
+            kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt
+          done
+          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-ingress.txt
+      - name: upload status
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k8s-logs
+          path: k8s-logs/*.txt
 
