@@ -87,4 +87,10 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
     {
         projectContext.Project = crdtProject;
     }
+
+    public void SetActiveProject(string name)
+    {
+        var project = GetProject(name) ?? throw new InvalidOperationException($"Crdt Project {name} not found");
+        SetProjectScope(project);
+    }
 }

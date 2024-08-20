@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm;
 
-public class Entry
+public class Entry : IObjectWithId
 {
     public virtual Guid Id { get; set; }
 
@@ -17,4 +17,11 @@ public class Entry
         LexemeForm.SearchValue(query)
         || CitationForm.SearchValue(query)
         || LiteralMeaning.SearchValue(query);
+
+    public string Headword()
+    {
+        var word = CitationForm.Values.Values.FirstOrDefault();
+        if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.Values.FirstOrDefault();
+        return word?.Trim() ?? "(Unknown)";
+    }
 }

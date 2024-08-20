@@ -7,11 +7,11 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
         <ServerGarbageCollection>false</ServerGarbageCollection>
+        <SelfContained>true</SelfContained>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
 <!--        single file disabled as it's less efficient for updates-->
         <PublishSingleFile>false</PublishSingleFile>
-        <SelfContained>true</SelfContained>
         <PublishTrimmed>false</PublishTrimmed>
     </PropertyGroup>
 
@@ -38,6 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
       <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
       <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
       <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />

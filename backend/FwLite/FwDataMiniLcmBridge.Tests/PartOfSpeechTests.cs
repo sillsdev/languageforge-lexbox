@@ -1,24 +1,57 @@
-﻿using FwDataMiniLcmBridge.Tests.Fixtures;
+﻿using FwDataMiniLcmBridge.Api;
+using FwDataMiniLcmBridge.Tests.Fixtures;
 using MiniLcm;
 
 namespace FwDataMiniLcmBridge.Tests;
 
 [Collection(ProjectLoaderFixture.Name)]
-public class PartOfSpeechTests(ProjectLoaderFixture fixture)
+public class PartOfSpeechTests(ProjectLoaderFixture fixture) : IAsyncLifetime
 {
+    private FwDataMiniLcmApi _api = null!;
+
+    public async Task InitializeAsync()
+    {
+        var projectName = "part-of-speech_" + Guid.NewGuid();
+        fixture.MockFwProjectLoader.NewProject(projectName, "en", "en");
+        _api = fixture.CreateApi(projectName);
+        _api.Should().NotBeNull();
+
+        var partOfSpeech = new PartOfSpeech()
+        {
+            Id = Guid.NewGuid(), Name = { { "en", "new-part-of-speech" } }
+        };
+        await _api.CreatePartOfSpeech(partOfSpeech);
+
+        await _api.CreateEntry(new Entry()
+        {
+            Id = Guid.NewGuid(),
+            LexemeForm = {{"en", "new-lexeme-form"}},
+            Senses = new List<Sense>()
+            {
+                new Sense()
+                {
+                    Gloss = {{"en", "new-sense-gloss"}},
+                    PartOfSpeechId = partOfSpeech.Id
+                }
+        }});
+    }
+
+    public async Task DisposeAsync()
+    {
+        _api.Dispose();
+    }
+
     [Fact]
     public async Task GetPartsOfSpeech_ReturnsAllPartsOfSpeech()
     {
-        var api = fixture.CreateApi("sena-3");
-        var partOfSpeeches = await api.GetPartsOfSpeech().ToArrayAsync();
+        var partOfSpeeches = await _api.GetPartsOfSpeech().ToArrayAsync();
         partOfSpeeches.Should().AllSatisfy(po => po.Id.Should().NotBe(Guid.Empty));
     }
 
     [Fact]
     public async Task Sense_HasPartOfSpeech()
     {
-        var api = fixture.CreateApi("sena-3");
-        var entry = await api.GetEntries().FirstAsync(e => e.Senses.Any(s => !string.IsNullOrEmpty(s.PartOfSpeech)));
+        var entry = await _api.GetEntries().FirstAsync(e => e.Senses.Any(s => !string.IsNullOrEmpty(s.PartOfSpeech)));
         var sense = entry.Senses.First(s => !string.IsNullOrEmpty(s.PartOfSpeech));
         sense.PartOfSpeech.Should().NotBeNullOrEmpty();
         sense.PartOfSpeechId.Should().NotBeNull();
@@ -27,21 +60,24 @@ public class PartOfSpeechTests(ProjectLoaderFixture fixture)
     [Fact]
     public async Task Sense_UpdatesPartOfSpeech()
     {
-        var api = fixture.CreateApi("sena-3");
-        var entry = await api.GetEntries().FirstAsync(e => e.Senses.Any(s => !string.IsNullOrEmpty(s.PartOfSpeech)));
+        var entry = await _api.GetEntries().FirstAsync(e => e.Senses.Any(s => !string.IsNullOrEmpty(s.PartOfSpeech)));
         var sense = entry.Senses.First(s => !string.IsNullOrEmpty(s.PartOfSpeech));
-        var newPartOfSpeech = await api.GetPartsOfSpeech().FirstAsync(po => po.Id != sense.PartOfSpeechId);
+        var newPartOfSpeech = await _api.GetPartsOfSpeech().FirstAsync(po => po.Id != sense.PartOfSpeechId);
 
-        var update = api.CreateUpdateBuilder<Sense>()
-            .Set(s => s.PartOfSpeech, newPartOfSpeech.Name["en"])//this won't actually update the part of speech, but it shouldn't cause an issue either.
+        var update = _api.CreateUpdateBuilder<Sense>()
+            .Set(s => s.PartOfSpeech,
+                newPartOfSpeech.Name
+                    ["en"]) //this won't actually update the part of speech, but it shouldn't cause an issue either.
             .Set(s => s.PartOfSpeechId, newPartOfSpeech.Id)
             .Build();
-        await api.UpdateSense(entry.Id, sense.Id, update);
+        await _api.UpdateSense(entry.Id, sense.Id, update);
 
-        entry = await api.GetEntry(entry.Id);
+        entry = await _api.GetEntry(entry.Id);
         ArgumentNullException.ThrowIfNull(entry);
         var updatedSense = entry.Senses.First(s => s.Id == sense.Id);
         updatedSense.PartOfSpeechId.Should().Be(newPartOfSpeech.Id);
-        updatedSense.PartOfSpeech.Should().NotBe(sense.PartOfSpeech);//the part of speech here is whatever the default is for the project, not english.
+        updatedSense.PartOfSpeech.Should()
+            .NotBe(sense
+                .PartOfSpeech); //the part of speech here is whatever the default is for the project, not english.
     }
 }

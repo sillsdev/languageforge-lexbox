@@ -10,7 +10,7 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
         projectContext.Project ?? throw new NullReferenceException("Not in the context of a project");
 
     //only works because PopulateProjectDataCache is called first in the request pipeline
-    public ProjectData ProjectData => memoryCache.Get<ProjectData>(CacheKey(Project)) ?? throw new InvalidOperationException("Project data not found");
+    public ProjectData ProjectData => memoryCache.Get<ProjectData>(CacheKey(Project)) ?? throw new InvalidOperationException("Project data not found, call PopulateProjectDataCache first or use GetProjectData");
 
     public async ValueTask<ProjectData> GetProjectData()
     {

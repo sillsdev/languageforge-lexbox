@@ -81,7 +81,8 @@ public static class LocalWebAppServer
             if (!string.IsNullOrWhiteSpace(fwData))
             {
                 var fwDataProjectContext = context.RequestServices.GetRequiredService<FwDataProjectContext>();
-                fwDataProjectContext.Project = FieldWorksProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
+                var fwProjectList = context.RequestServices.GetRequiredService<FieldWorksProjectList>();
+                fwDataProjectContext.Project = fwProjectList.GetProject(fwData) ?? throw new InvalidOperationException($"FwData {fwData} not found");
             }
 
             await next(context);

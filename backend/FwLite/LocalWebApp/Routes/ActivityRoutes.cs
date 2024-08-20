@@ -44,6 +44,7 @@ public static class ActivityRoutes
             { Count: 0 } => "No changes",
             { Count: 1 } => changeEntities[0].Change switch
             {
+                //todo call JsonPatchChange.Summarize() instead of this
                 IChange change when change.GetType().Name.StartsWith("JsonPatchChange") => "Change " + change.EntityType.Name,
                 IChange change => change.GetType().Name.Humanize()
             },

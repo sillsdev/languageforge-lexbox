@@ -1,14 +1,15 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 
 namespace FwDataMiniLcmBridge;
 
-public class FieldWorksProjectList
+public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config)
 {
-    public static IEnumerable<IProjectIdentifier> EnumerateProjects()
+    public virtual IEnumerable<IProjectIdentifier> EnumerateProjects()
     {
-        if (!Directory.Exists(ProjectLoader.ProjectFolder)) Directory.CreateDirectory(ProjectLoader.ProjectFolder);
-        foreach (var directory in Directory.EnumerateDirectories(ProjectLoader.ProjectFolder))
+        if (!Directory.Exists(config.Value.ProjectsFolder)) Directory.CreateDirectory(config.Value.ProjectsFolder);
+        foreach (var directory in Directory.EnumerateDirectories(config.Value.ProjectsFolder))
         {
             var projectName = Path.GetFileName(directory);
             if (string.IsNullOrEmpty(projectName)) continue;
@@ -17,7 +18,7 @@ public class FieldWorksProjectList
         }
     }
 
-    public static FwDataProject? GetProject(string name)
+    public virtual FwDataProject? GetProject(string name)
     {
         return EnumerateProjects().OfType<FwDataProject>().FirstOrDefault(p => p.Name == name);
     }

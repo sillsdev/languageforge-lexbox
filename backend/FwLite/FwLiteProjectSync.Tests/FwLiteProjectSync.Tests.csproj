@@ -14,9 +14,10 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0"/>
         <PackageReference Include="FluentAssertions" Version="6.12.0"/>
+        <PackageReference Include="Soenneker.Utils.AutoBogus" Version="2.1.278" />
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -25,11 +26,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="TestData\" />
+      <ProjectReference Include="..\FwDataMiniLcmBridge.Tests\FwDataMiniLcmBridge.Tests.csproj" />
+      <ProjectReference Include="..\FwLiteProjectSync\FwLiteProjectSync.csproj" />
+      <ProjectReference Include="..\LocalWebApp\LocalWebApp.csproj" />
     </ItemGroup>
 
 </Project>
