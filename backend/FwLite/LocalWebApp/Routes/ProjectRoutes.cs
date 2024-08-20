@@ -55,7 +55,7 @@ public static partial class ProjectRoutes
                     return Results.BadRequest("Project already exists");
                 if (!ProjectName().IsMatch(name))
                     return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
-                await projectService.CreateProject(name, afterCreate: AfterCreate);
+                await projectService.CreateProject(new(name, AfterCreate: AfterCreate));
                 return TypedResults.Ok();
             });
         group.MapPost($"/upload/crdt/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
@@ -86,11 +86,11 @@ public static partial class ProjectRoutes
                 var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(newProjectName);
                 if (foundProjectGuid is null)
                     return Results.BadRequest($"Project code {newProjectName} not found on lexbox");
-                await projectService.CreateProject(newProjectName, foundProjectGuid.Value, options.Value.DefaultAuthority,
+                await projectService.CreateProject(new(newProjectName, foundProjectGuid.Value, options.Value.DefaultAuthority,
                     async (provider, project) =>
                     {
                         await provider.GetRequiredService<SyncService>().ExecuteSync();
-                    });
+                    }, SeedNewProjectData: false));
                 return TypedResults.Ok();
             });
         return group;

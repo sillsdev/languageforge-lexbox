@@ -52,7 +52,7 @@ syncCommand.SetHandler(async (crdtFile, fwDataFile, createCrdtDir, dryRun) =>
         var crdtProject = projectsService.GetProject(crdtProjectName);
         if (crdtProject is null)
         {
-            crdtProject = await projectsService.CreateProject(crdtProjectName, fwdataApi.ProjectId);
+            crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
         }
         projectsService.SetProjectScope(crdtProject);
         await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
