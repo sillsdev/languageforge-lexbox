@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using LocalWebApp;
+using Microsoft.Extensions.Configuration;
 
 namespace FwLiteDesktop.ServerBridge;
 
-public class ServerConfigSource: IConfigurationSource
+public class ServerConfigSource : IConfigurationSource
 {
     public ServerManager? ServerManager { get; set; }
 
@@ -19,11 +20,12 @@ public class ServerConfigProvider : ConfigurationProvider
     public ServerConfigProvider(ServerManager serverManager)
     {
         _ = serverManager.Started.ContinueWith(t =>
-        {
-            Data = new Dictionary<string, string?> { ["LocalWebApp:Url"] = t.Result.Urls.First() };
-            OnReload();
-        },
-        scheduler: TaskScheduler.Default);
+            {
+                var (url, _) = t.Result.Services.GetRequiredService<UrlContext>().GetUrl();
+                Data = new Dictionary<string, string?> { ["LocalWebApp:Url"] = url.ToString() };
+                OnReload();
+            },
+            scheduler: TaskScheduler.Default);
     }
 
     public override void Load()
