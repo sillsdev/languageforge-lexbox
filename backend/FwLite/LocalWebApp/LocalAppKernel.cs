@@ -22,6 +22,7 @@ public static class LocalAppKernel
         services.AddSingleton<UrlContext>();
         services.AddScoped<SyncService>();
         services.AddScoped<LexboxProjectService>();
+        services.AddSingleton<ChangeEventBus>();
         services.AddSingleton<ImportFwdataService>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using LcmCrdt;
+using LocalWebApp.Services;
 using MiniLcm;
 using SystemTextJsonPatch;
 
@@ -7,12 +8,17 @@ namespace LocalWebApp.Hubs;
 public class CrdtMiniLcmApiHub(
     ILexboxApi lexboxApi,
     BackgroundSyncService backgroundSyncService,
-    SyncService syncService) : MiniLcmApiHubBase(lexboxApi)
+    SyncService syncService,
+    ChangeEventBus changeEventBus,
+    ProjectContext projectContext) : MiniLcmApiHubBase(lexboxApi)
 {
     public const string ProjectRouteKey = "project";
+    public static string ProjectGroup(string projectName) => "crdt-" + projectName;
     public override async Task OnConnectedAsync()
     {
+        await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project?.Name ?? throw new InvalidOperationException("No project is set in the context")));
         await syncService.ExecuteSync();
+        changeEventBus.SetupSignalRSubscription();
     }
 
     public override async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
