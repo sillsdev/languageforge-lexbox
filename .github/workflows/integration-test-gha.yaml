@@ -24,6 +24,8 @@ jobs:
           submodules: true
       - name: Install Task
         uses: arduino/setup-task@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - run: task setup-local-env
       - name: setup k8s
         uses: helm/kind-action@v1.10.0
