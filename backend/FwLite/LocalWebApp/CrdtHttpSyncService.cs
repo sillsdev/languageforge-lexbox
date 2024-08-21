@@ -53,7 +53,7 @@ public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<
         var client = await authHelpersFactory.GetHelper(project).CreateClient();
         if (client is null)
         {
-            logger.LogWarning("Unable to create http client to sync project, user is not authenticated to {OriginDomain}", project.OriginDomain);
+            logger.LogWarning("Unable to create http client to sync project {ProjectName}, user is not authenticated to {OriginDomain}", project.Name, project.OriginDomain);
             return NullSyncable.Instance;
         }
 

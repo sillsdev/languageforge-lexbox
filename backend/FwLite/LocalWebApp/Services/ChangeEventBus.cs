@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace LocalWebApp.Services;
 
-public class ChangeEventBus(ProjectContext projectContext, IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext)
+public class ChangeEventBus(ProjectContext projectContext, IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext, ILogger<ChangeEventBus> logger)
     : IDisposable
 {
     private IDisposable? _subscription;
 
-    public void SetupSignalRSubscription()
+    public void SetupGlobalSignalRSubscription()
     {
         if (_subscription is not null) return;
         _subscription = _entryUpdated.Subscribe(notification =>
         {
+            logger.LogInformation("Sending notification for {EntryId} to {ProjectName}", notification.Entry.Id, notification.ProjectName);
             _ = hubContext.Clients.Group(CrdtMiniLcmApiHub.ProjectGroup(notification.ProjectName)).OnEntryUpdated(notification.Entry);
         });
     }

@@ -1,5 +1,6 @@
 ﻿using LcmCrdt;
 using LocalWebApp.Services;
+using Microsoft.AspNetCore.SignalR.Client;
 using MiniLcm;
 using SystemTextJsonPatch;
 
@@ -10,15 +11,19 @@ public class CrdtMiniLcmApiHub(
     BackgroundSyncService backgroundSyncService,
     SyncService syncService,
     ChangeEventBus changeEventBus,
-    ProjectContext projectContext) : MiniLcmApiHubBase(lexboxApi)
+    CurrentProjectService projectContext,
+    LexboxProjectService lexboxProjectService) : MiniLcmApiHubBase(lexboxApi)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;
+
     public override async Task OnConnectedAsync()
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project?.Name ?? throw new InvalidOperationException("No project is set in the context")));
+        await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project.Name));
         await syncService.ExecuteSync();
-        changeEventBus.SetupSignalRSubscription();
+        changeEventBus.SetupGlobalSignalRSubscription();
+
+        await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
     }
 
     public override async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
@@ -28,7 +33,9 @@ public class CrdtMiniLcmApiHub(
         return newWritingSystem;
     }
 
-    public override async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, JsonPatchDocument<WritingSystem> update)
+    public override async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
+        WritingSystemType type,
+        JsonPatchDocument<WritingSystem> update)
     {
         var writingSystem = await base.UpdateWritingSystem(id, type, update);
         backgroundSyncService.TriggerSync();
