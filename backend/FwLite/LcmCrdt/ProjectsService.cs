@@ -32,13 +32,17 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         return GetProject(name) is not null;
     }
 
-    public async Task<CrdtProject> CreateProject(string name,
-        Guid? id = null,
-        Uri? domain = null,
-        Func<IServiceProvider, CrdtProject, Task>? afterCreate = null)
+    public record CreateProjectRequest(
+        string Name,
+        Guid? Id = null,
+        Uri? Domain = null,
+        Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
+        bool SeedNewProjectData = true);
+
+    public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
         //poor man's sanitation
-        name = Path.GetFileName(name);
+        var name = Path.GetFileName(request.Name);
         var sqliteFile = Path.Combine(config.Value.ProjectPath, $"{name}.sqlite");
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
@@ -47,13 +51,14 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         try
         {
             var projectData = new ProjectData(name,
-                id ?? Guid.NewGuid(),
-                ProjectData.GetOriginDomain(domain),
+                request.Id ?? Guid.NewGuid(),
+                ProjectData.GetOriginDomain(request.Domain),
                 Guid.NewGuid());
             await InitProjectDb(db, projectData);
             await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-            await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
-            await (afterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
+            if (request.SeedNewProjectData)
+                await SeedSystemData(serviceScope.ServiceProvider.GetRequiredService<DataModel>(), projectData.ClientId);
+            await (request.AfterCreate?.Invoke(serviceScope.ServiceProvider, crdtProject) ?? Task.CompletedTask);
         }
         catch
         {

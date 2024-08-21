@@ -55,7 +55,7 @@ public class SyncFixture : IAsyncLifetime
         if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<ProjectsService>()
-            .CreateProject(_projectName, projectGuid);
+            .CreateProject(new(_projectName, projectGuid));
         _services.ServiceProvider.GetRequiredService<ProjectContext>().Project = crdtProject;
         CrdtApi = _services.ServiceProvider.GetRequiredService<ILexboxApi>();
     }
