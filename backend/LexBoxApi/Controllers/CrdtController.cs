@@ -1,25 +1,36 @@
 ﻿using SIL.Harmony.Core;
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.Hub;
+using LexBoxApi.Services;
+using LexCore.ServiceInterfaces;
 using LexData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using MiniLcm.Push;
 
 namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/crdt")]
 [AdminRequired]
-public class CrdtController(LexBoxDbContext dbContext): ControllerBase
+public class CrdtController(
+    LexBoxDbContext dbContext,
+    IHubContext<CrdtProjectChangeHub, IProjectChangeListener> hubContext,
+    IPermissionService permissionService,
+    ProjectService projectService) : ControllerBase
 {
     [HttpGet("{projectId}/get")]
     public async Task<ActionResult<SyncState>> GetSyncState(Guid projectId)
     {
+        await permissionService.AssertCanSyncProject(projectId);
         return await dbContext.Set<ServerCommit>().Where(c => c.ProjectId == projectId).GetSyncState();
     }
 
     [HttpPost("{projectId}/add")]
     public async Task<ActionResult> Add(Guid projectId, [FromBody] ServerCommit[] commits)
     {
+        await permissionService.AssertCanSyncProject(projectId);
         foreach (var commit in commits)
         {
             commit.ProjectId = projectId;
@@ -27,17 +38,21 @@ public class CrdtController(LexBoxDbContext dbContext): ControllerBase
         }
 
         await dbContext.SaveChangesAsync();
+        await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId);
         return Ok();
     }
 
     [HttpPost("{projectId}/changes")]
-    public async Task<ActionResult<ChangesResult<ServerCommit>>> Changes(Guid projectId, [FromBody] SyncState clientHeads)
+    public async Task<ActionResult<ChangesResult<ServerCommit>>> Changes(Guid projectId,
+        [FromBody] SyncState clientHeads)
     {
+        await permissionService.AssertCanSyncProject(projectId);
         var commits = dbContext.Set<ServerCommit>().Where(c => c.ProjectId == projectId);
         return await commits.GetChanges<ServerCommit, ServerJsonChange>(clientHeads);
     }
 
     public record LexboxCrdtProject(Guid Id, string Name);
+
     [HttpGet("listProjects")]
     public async Task<ActionResult<LexboxCrdtProject[]>> ListProjects()
     {
@@ -53,11 +68,13 @@ public class CrdtController(LexBoxDbContext dbContext): ControllerBase
     [ProducesDefaultResponseType]
     public async Task<ActionResult<Guid>> GetProjectId(string code)
     {
-        var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Code == code);
-        if (project == null)
+        await permissionService.AssertCanViewProject(code);
+        var projectId = await projectService.LookupProjectId(code);
+        if (projectId == default)
         {
             return NotFound();
         }
-        return Ok(project.Id);
+
+        return Ok(projectId);
     }
 }
