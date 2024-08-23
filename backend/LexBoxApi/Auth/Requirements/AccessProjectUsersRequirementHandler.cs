@@ -20,10 +20,11 @@ public class AccessProjectUsersRequirementHandler(
         {
             projectId = middlewareContext.Parent<Project>().Id;
         }
-        if (projectId != Guid.Empty && await permissions.CanSyncProjectAsync(projectId))
+        if (projectId != Guid.Empty && await permissions.CanViewProjectMembers(projectId))
         {
             context.Succeed(requirement);
-        } else
+        }
+        else
         {
             if (projectId == Guid.Empty)
             {
