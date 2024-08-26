@@ -54,15 +54,14 @@ spec:
         runAsNonRoot: true
       containers:
       - name: lexbox-api
-        # TODO: need to parameterize this tag
         image: ghcr.io/sillsdev/lexbox-api:develop
         imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
-          requests: # TODO: need to establish resource limits, possibly after seeing it in action for some regular and/or load testing
-            memory: 200Mi
+          requests:
+            memory: 300Mi
           limits:
-            memory: 250Mi
+            memory: 350Mi
         startupProbe:
           httpGet:
             port: 5158
