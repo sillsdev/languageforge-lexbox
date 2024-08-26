@@ -42,20 +42,6 @@ public class CrdtMiniLcmApiHub(
         return writingSystem;
     }
 
-    public override async Task<Entry> CreateEntry(Entry entry)
-    {
-        var newEntry = await base.CreateEntry(entry);
-        await NotifyEntryUpdated(newEntry);
-        return newEntry;
-    }
-
-    public override async Task<Entry> UpdateEntry(Guid id, JsonPatchDocument<Entry> update)
-    {
-        var entry = await base.UpdateEntry(id, update);
-        await NotifyEntryUpdated(entry);
-        return entry;
-    }
-
     public override async Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         var createdSense = await base.CreateSense(entryId, sense);
