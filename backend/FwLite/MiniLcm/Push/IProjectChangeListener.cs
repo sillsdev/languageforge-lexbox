@@ -2,5 +2,5 @@
 
 public interface IProjectChangeListener
 {
-    Task OnProjectUpdated(Guid projectId);
+    Task OnProjectUpdated(Guid projectId, Guid? clientId);
 }

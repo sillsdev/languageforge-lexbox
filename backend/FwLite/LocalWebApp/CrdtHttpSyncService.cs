@@ -57,11 +57,11 @@ public class CrdtHttpSyncService(AuthHelpersFactory authHelpersFactory, ILogger<
             return NullSyncable.Instance;
         }
 
-        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.OriginDomain, this);
+        return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId  , project.OriginDomain, this);
     }
 }
 
-public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, string originDomain, CrdtHttpSyncService httpSyncService) : ISyncable
+public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, Guid clientId, string originDomain, CrdtHttpSyncService httpSyncService) : ISyncable
 {
     public ValueTask<bool> ShouldSync()
     {
@@ -70,7 +70,7 @@ public class CrdtProjectSync(ISyncHttp restSyncClient, Guid projectId, string or
 
     async Task ISyncable.AddRangeFromSync(IEnumerable<Commit> commits)
     {
-        await restSyncClient.AddRange(projectId, commits);
+        await restSyncClient.AddRange(projectId, commits, clientId);
     }
 
     async Task<ChangesResult<Commit>> ISyncable.GetChanges(SyncState otherHeads)
@@ -104,7 +104,7 @@ public interface ISyncHttp
     Task<HttpResponseMessage> HealthCheck();
 
     [Post("/api/crdt/{id}/add")]
-    internal Task AddRange(Guid id, IEnumerable<Commit> commits);
+    internal Task AddRange(Guid id, IEnumerable<Commit> commits, Guid? clientId);
 
     [Get("/api/crdt/{id}/get")]
     internal Task<SyncState> GetSyncState(Guid id);

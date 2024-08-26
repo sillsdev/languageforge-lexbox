@@ -28,7 +28,7 @@ public class CrdtController(
     }
 
     [HttpPost("{projectId}/add")]
-    public async Task<ActionResult> Add(Guid projectId, [FromBody] ServerCommit[] commits)
+    public async Task<ActionResult> Add(Guid projectId, [FromBody] ServerCommit[] commits, Guid? clientId)
     {
         await permissionService.AssertCanSyncProject(projectId);
         foreach (var commit in commits)
@@ -38,7 +38,7 @@ public class CrdtController(
         }
 
         await dbContext.SaveChangesAsync();
-        await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId);
+        await hubContext.Clients.Group(CrdtProjectChangeHub.ProjectGroup(projectId)).OnProjectUpdated(projectId, clientId);
         return Ok();
     }
 

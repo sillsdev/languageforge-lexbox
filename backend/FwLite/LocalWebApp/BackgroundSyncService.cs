@@ -14,12 +14,17 @@ public class BackgroundSyncService(
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
 
-    public void TriggerSync(Guid projectId)
+    public void TriggerSync(Guid projectId, Guid? ignoredClientId = null)
     {
         var projectData = CurrentProjectService.LookupProjectById(memoryCache, projectId);
         if (projectData is null)
         {
             logger.LogWarning("Received project update for unknown project {ProjectId}", projectId);
+            return;
+        }
+        if (ignoredClientId == projectData.ClientId)
+        {
+            logger.LogInformation("Received project update for {ProjectId} triggered by my own change, ignoring", projectId);
             return;
         }
 

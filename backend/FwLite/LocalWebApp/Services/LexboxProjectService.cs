@@ -90,10 +90,10 @@ public class LexboxProjectService(
 
         //it would be cleaner to pass the callback in to this method however it's not supposed to be generic, it should always trigger a sync
         connection.On(nameof(IProjectChangeListener.OnProjectUpdated),
-            (Guid projectId) =>
+            (Guid projectId, Guid? clientId) =>
             {
                 logger.LogInformation("Received project update for {ProjectId}, triggering sync", projectId);
-                backgroundSyncService.TriggerSync(projectId);
+                backgroundSyncService.TriggerSync(projectId, clientId);
                 return Task.CompletedTask;
             });
 
