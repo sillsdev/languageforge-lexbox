@@ -92,6 +92,7 @@ public class LexboxProjectService(
         connection.On(nameof(IProjectChangeListener.OnProjectUpdated),
             (Guid projectId) =>
             {
+                logger.LogInformation("Received project update for {ProjectId}, triggering sync", projectId);
                 backgroundSyncService.TriggerSync(projectId);
                 return Task.CompletedTask;
             });
