@@ -3,7 +3,10 @@ using LcmCrdt;
 using LocalWebApp.Auth;
 using LocalWebApp.Services;
 using MiniLcm;
+using SIL.Harmony.Entities;
 using Entry = LcmCrdt.Objects.Entry;
+using ExampleSentence = LcmCrdt.Objects.ExampleSentence;
+using Sense = LcmCrdt.Objects.Sense;
 
 namespace LocalWebApp;
 
@@ -20,31 +23,42 @@ public class SyncService(
     {
         var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(await currentProjectService.GetProjectData());
         var syncResults = await dataModel.SyncWith(remoteModel);
+        //need to await this, otherwise the database connection will be closed before the notifications are sent
         await SendNotifications(syncResults);
         return syncResults;
     }
 
     private async Task SendNotifications(SyncResults syncResults)
     {
-        //todo figure out how to make this fire and forget. Right now it blocks sync execution.
-        logger.LogInformation("Sending notifications for {Count} commits", syncResults.MissingFromLocal.Length);
-        foreach (var entryId in syncResults.MissingFromLocal
+        await foreach (var entryId in syncResults.MissingFromLocal
                      .SelectMany(c => c.Snapshots, (commit, snapshot) => snapshot.Entity)
-                     .OfType<Entry>()
-                     .Select(e => e.Id)
+                     .ToAsyncEnumerable()
+                     .SelectAwait(async e => await GetEntryId(e))
                      .Distinct())
         {
-            var entry = await lexboxApi.GetEntry(entryId);
+            if (entryId is null) continue;
+            var entry = await lexboxApi.GetEntry(entryId.Value);
             if (entry is Entry crdtEntry)
             {
                 changeEventBus.NotifyEntryUpdated(crdtEntry);
             }
             else
             {
-                logger.LogWarning("Failed to get entry {EntryId}, was not a crdt entry, was {Type}",
+                logger.LogError("Failed to get entry {EntryId}, was not a crdt entry, was {Type}",
                     entryId,
                     entry?.GetType().FullName ?? "null");
             }
         }
+    }
+
+    private async ValueTask<Guid?> GetEntryId(IObjectBase entity)
+    {
+        return entity switch
+        {
+            Entry entry => entry.Id,
+            Sense sense => sense.EntryId,
+            ExampleSentence exampleSentence => (await dataModel.GetLatest<Sense>(exampleSentence.SenseId))?.EntryId,
+            _ => null
+        };
     }
 }
