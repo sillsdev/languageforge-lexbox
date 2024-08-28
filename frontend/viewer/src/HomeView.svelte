@@ -4,19 +4,27 @@
     mdiBookArrowLeftOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiBookSyncOutline,  mdiCloudSync,
+    mdiBookSyncOutline, mdiCloudSync,
     mdiTestTube,
   } from '@mdi/js';
-  import { links } from 'svelte-routing';
-  import { Button, Card, type ColumnDef, ListItem, Table, TextField, tableCell, Icon } from 'svelte-ux';
+  import {links} from 'svelte-routing';
+  import {Button, Card, type ColumnDef, ListItem, Table, TextField, tableCell, Icon} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
-  import DevContent, { isDev } from './lib/layout/DevContent.svelte';
+  import DevContent, {isDev} from './lib/layout/DevContent.svelte';
 
-  type Project = { name: string; crdt: boolean; fwdata: boolean; lexbox: boolean, server: string | null, id: string | null };
+  type Project = {
+    name: string;
+    crdt: boolean;
+    fwdata: boolean;
+    lexbox: boolean,
+    server: string | null,
+    id: string | null
+  };
 
   let newProjectName = '';
 
   let createError: string;
+
   async function createProject() {
     createError = '';
 
@@ -54,21 +62,23 @@
 
   async function downloadCrdtProject(project: Project) {
     downloading = project.name;
-    await fetch(`/api/download/crdt/${project.server}/${project.name}`, { method: 'POST' });
+    await fetch(`/api/download/crdt/${project.server}/${project.name}`, {method: 'POST'});
     await refreshProjects();
     downloading = '';
   }
 
   let uploading = '';
+
   async function uploadCrdtProject(project: Project) {
     uploading = project.name;
-    await fetch(`/api/upload/crdt/${project.server}/${project.name}`, { method: 'POST' });
+    await fetch(`/api/upload/crdt/${project.server}/${project.name}`, {method: 'POST'});
     await refreshProjects();
     uploading = '';
   }
 
   let projectsPromise = fetchProjects();
   type ProjectsResponse = { localProjects: Project[], serversProjects: { [server: string]: Project[] } };
+
   async function fetchProjects() {
     let r = await fetch('/api/projects');
     return (await r.json()) as Promise<ProjectsResponse>;
@@ -82,6 +92,7 @@
 
   type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null };
   let servers: ServerStatus[] = [];
+
   async function fetchServers() {
     let r = await fetch('/api/auth/servers');
     servers = await r.json();
@@ -100,29 +111,30 @@
     },
     ...($isDev
       ? [
-          {
-            name: 'crdt',
-            header: 'CRDT',
-          },
-        ]
+        {
+          name: 'crdt',
+          header: 'CRDT',
+        },
+      ]
       : []),
     ...(servers.find(s => s.loggedIn)
       ? [
-          {
-            name: 'lexbox',
-            header: 'Lexbox',
-          },
-        ]
+        {
+          name: 'lexbox',
+          header: 'Lexbox',
+        },
+      ]
       : []),
   ] satisfies ColumnDef<Project>[];
+
   function matchesProject(projects: Project[], project: Project) {
-    let matches = false;
+    let matches: Project | undefined = undefined;
     if (project.id) {
-      matches = !!projects.find(p => p.id == project.id);
+      matches = projects.find(p => p.id == project.id);
     }
     //for now the local project list does not include the id, so fallback to the name
     if (!matches) {
-      matches = !!projects.find(p => p.name === project.name);
+      matches = projects.find(p => p.name === project.name);
     }
     return matches;
   }
@@ -158,63 +170,65 @@
             <p>loading...</p>
           {:then response}
             {@const projects = response.localProjects}
-            <Table {columns} data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))} classes={{ th: 'p-4' }}>
+            <Table {columns}
+                   data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))}
+                   classes={{ th: 'p-4' }}>
               <tbody slot="data" let:columns let:data let:getCellValue let:getCellContent>
-                {#each data ?? [] as rowData, rowIndex}
-                  <tr class="tabular-nums">
-                    {#each columns as column (column.name)}
-                      <td use:tableCell={{ column, rowData, rowIndex, tableData: data }} use:links>
-                        {#if column.name === 'fwdata'}
-                          {#if rowData.fwdata}
-                            <Button size="md" href={`/fwdata/${rowData.name}`}>
-                              <img src={flexLogo} alt="FieldWorks logo" class="h-6" />
-                              Open
-                            </Button>
-                          {/if}
-                        {:else if column.name === 'lexbox'}
-                          {@const server = syncedServer(response, rowData)}
-                          {#if rowData.crdt && server}
-                            <Button disabled color="success" icon={mdiBookSyncOutline} size="md">{server}</Button>
-                          {/if}
-                        {:else if column.name === 'crdt'}
-                          {#if rowData.crdt}
-                            <Button
-                              icon={mdiBookEditOutline}
-                              size="md"
-                              href={`/project/${rowData.name}`}
-                            >
-                              Open
-                            </Button>
-                          {:else if rowData.fwdata}
-                            <Button
-                              size="md"
-                              loading={importing === rowData.name}
-                              icon={mdiBookArrowLeftOutline}
-                              on:click={() => importFwDataProject(rowData.name)}
-                            >
-                              Import
-                            </Button>
-                          {/if}
-                        {:else}
-                          {getCellContent(column, rowData, rowIndex)}
+              {#each data ?? [] as rowData, rowIndex}
+                <tr class="tabular-nums">
+                  {#each columns as column (column.name)}
+                    <td use:tableCell={{ column, rowData, rowIndex, tableData: data }} use:links>
+                      {#if column.name === 'fwdata'}
+                        {#if rowData.fwdata}
+                          <Button size="md" href={`/fwdata/${rowData.name}`}>
+                            <img src={flexLogo} alt="FieldWorks logo" class="h-6"/>
+                            Open
+                          </Button>
                         {/if}
-                      </td>
-                    {/each}
-                  </tr>
-                {/each}
+                      {:else if column.name === 'lexbox'}
+                        {@const server = syncedServer(response, rowData)}
+                        {#if rowData.crdt && server}
+                          <Button disabled color="success" icon={mdiBookSyncOutline} size="md">{server}</Button>
+                        {/if}
+                      {:else if column.name === 'crdt'}
+                        {#if rowData.crdt}
+                          <Button
+                            icon={mdiBookEditOutline}
+                            size="md"
+                            href={`/project/${rowData.name}`}
+                          >
+                            Open
+                          </Button>
+                        {:else if rowData.fwdata}
+                          <Button
+                            size="md"
+                            loading={importing === rowData.name}
+                            icon={mdiBookArrowLeftOutline}
+                            on:click={() => importFwDataProject(rowData.name)}
+                          >
+                            Import
+                          </Button>
+                        {/if}
+                      {:else}
+                        {getCellContent(column, rowData, rowIndex)}
+                      {/if}
+                    </td>
+                  {/each}
+                </tr>
+              {/each}
 
-                <DevContent>
-                  <tr class="tabular-nums">
-                    <td>
-                      Test project
-                    </td>
-                    <td use:links>
-                      <Button size="md" icon={mdiTestTube} href="/testing/project-view">
-                        Open
-                      </Button>
-                    </td>
-                  </tr>
-                </DevContent>
+              <DevContent>
+                <tr class="tabular-nums">
+                  <td>
+                    Test project
+                  </td>
+                  <td use:links>
+                    <Button size="md" icon={mdiTestTube} href="/testing/project-view">
+                      Open
+                    </Button>
+                  </td>
+                </tr>
+              </DevContent>
               </tbody>
             </Table>
             <div class="mt-4">
@@ -238,7 +252,7 @@
                   <div class="flex flex-row items-center px-10">
                     <p>{project.name}</p>
                     <div class="flex-grow"></div>
-                    {#if matchesProject(response.localProjects, project)}
+                    {#if matchesProject(response.localProjects, project)?.crdt}
                       <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
                     {:else}
                       <Button
