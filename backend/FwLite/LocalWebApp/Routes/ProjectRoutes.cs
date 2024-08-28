@@ -11,33 +11,14 @@ namespace LocalWebApp.Routes;
 
 public static partial class ProjectRoutes
 {
-    public record ProjectsResponse(ProjectModel[] LocalProjects, Dictionary<string, ProjectModel[]> ServersProjects);
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
-        group.MapGet("/projects",
-            async (ProjectsService projectService,
+        group.MapGet("/remoteProjects",
+            async (
                 LexboxProjectService lexboxProjectService,
-                FieldWorksProjectList fieldWorksProjectList,
                 IOptions<AuthConfig> options) =>
             {
-                var crdtProjects = await projectService.ListProjects();
-                //todo get project Id and use that to specify the Id in the model
-                var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
-                //basically populate projects and indicate if they are lexbox or fwdata
-                foreach (var p in fieldWorksProjectList.EnumerateProjects())
-                {
-                    if (projects.TryGetValue(p.Name, out var project))
-                    {
-                        projects[p.Name] = project with { Fwdata = true };
-                    }
-                    else
-                    {
-                        projects.Add(p.Name, new ProjectModel(p.Name, false, true));
-                    }
-                }
-
-
                 var serversProjects = new Dictionary<string, ProjectModel[]>();
                 foreach (var server in options.Value.LexboxServers)
                 {
@@ -45,8 +26,30 @@ public static partial class ProjectRoutes
                     serversProjects.Add(server.DisplayName, lexboxProjects.Select(p => new ProjectModel(p.Name, false, false, true, server.DisplayName, p.Id)).ToArray());
                 }
 
-                return new ProjectsResponse(projects.Values.ToArray(), serversProjects);
+                return serversProjects;
             });
+        group.MapGet("/localProjects",
+            async (
+            ProjectsService projectService,
+            FieldWorksProjectList fieldWorksProjectList) =>
+        {
+            var crdtProjects = await projectService.ListProjects();
+            //todo get project Id and use that to specify the Id in the model
+            var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
+            //basically populate projects and indicate if they are lexbox or fwdata
+            foreach (var p in fieldWorksProjectList.EnumerateProjects())
+            {
+                if (projects.TryGetValue(p.Name, out var project))
+                {
+                    projects[p.Name] = project with { Fwdata = true };
+                }
+                else
+                {
+                    projects.Add(p.Name, new ProjectModel(p.Name, false, true));
+                }
+            }
+            return projects.Values;
+        });
         group.MapPost("/project",
             async (ProjectsService projectService, string name) =>
             {

@@ -77,11 +77,12 @@
   }
 
   let projectsPromise = fetchProjects();
-  type ProjectsResponse = { localProjects: Project[], serversProjects: { [server: string]: Project[] } };
+  let projects: Project[] = [];
 
   async function fetchProjects() {
-    let r = await fetch('/api/projects');
-    return (await r.json()) as Promise<ProjectsResponse>;
+    let r = await fetch('/api/localProjects');
+    projects = (await r.json()) as Project[];
+    return projects;
   }
 
   async function refreshProjects() {
@@ -89,6 +90,13 @@
     await promise;//avoids clearing out the list until the new list is fetched
     projectsPromise = promise;
   }
+
+  let remoteProjects: { [server: string]: Project[] } = {};
+  async function fetchRemoteProjects() {
+    let r = await fetch('/api/remoteProjects');
+    remoteProjects = (await r.json()) as { [server: string]: Project[] };
+  }
+  fetchRemoteProjects();
 
   type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null };
   let servers: ServerStatus[] = [];
@@ -139,8 +147,8 @@
     return matches;
   }
 
-  function syncedServer(response: ProjectsResponse, project: Project): string | null {
-    return Object.entries(response.serversProjects)
+  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project): string | null {
+    return Object.entries(serversProjects)
       .find(([server, projects]) => matchesProject(projects, project))?.[0] ?? null;
   }
 </script>
@@ -168,8 +176,7 @@
         <div slot="contents">
           {#await projectsPromise}
             <p>loading...</p>
-          {:then response}
-            {@const projects = response.localProjects}
+          {:then projects}
             <Table {columns}
                    data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))}
                    classes={{ th: 'p-4' }}>
@@ -186,7 +193,7 @@
                           </Button>
                         {/if}
                       {:else if column.name === 'lexbox'}
-                        {@const server = syncedServer(response, rowData)}
+                        {@const server = syncedServer(remoteProjects, rowData)}
                         {#if rowData.crdt && server}
                           <Button disabled color="success" icon={mdiBookSyncOutline} size="md">{server}</Button>
                         {/if}
@@ -231,46 +238,46 @@
               </DevContent>
               </tbody>
             </Table>
-            <div class="mt-4">
-              <span class="text-lg font-bold"><Icon path={mdiCloudSync}/> Remote projects</span>
-              {#each servers as server}
-                <div class="border my-1"/>
-                <div class="flex flex-row items-center">
-                  <p>{server.displayName}</p>
-                  <div class="flex-grow"></div>
-                  {#if server.loggedInAs}
-                    <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
-                  {/if}
-                  {#if server.loggedIn}
-                    <Button slot="actions" variant="fill" href="/api/auth/logout/{server.displayName}">Logout</Button>
-                  {:else}
-                    <Button slot="actions" variant="fill" href="/api/auth/login/{server.displayName}">Login</Button>
-                  {/if}
-                </div>
-                {@const serverProjects = response.serversProjects[server.displayName] ?? []}
-                {#each serverProjects as project}
-                  <div class="flex flex-row items-center px-10">
-                    <p>{project.name}</p>
-                    <div class="flex-grow"></div>
-                    {#if matchesProject(response.localProjects, project)?.crdt}
-                      <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
-                    {:else}
-                      <Button
-                        icon={mdiBookArrowDownOutline}
-                        size="md"
-                        loading={downloading === project.name}
-                        on:click={() => downloadCrdtProject(project)}
-                      >
-                        Download
-                      </Button>
-                    {/if}
-                  </div>
-                {/each}
-              {/each}
-            </div>
           {:catch error}
             <p>Error: {error.message}</p>
           {/await}
+          <div class="mt-4">
+            <span class="text-lg font-bold"><Icon path={mdiCloudSync}/> Remote projects</span>
+            {#each servers as server}
+              <div class="border my-1"/>
+              <div class="flex flex-row items-center">
+                <p>{server.displayName}</p>
+                <div class="flex-grow"></div>
+                {#if server.loggedInAs}
+                  <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
+                {/if}
+                {#if server.loggedIn}
+                  <Button slot="actions" variant="fill" href="/api/auth/logout/{server.displayName}">Logout</Button>
+                {:else}
+                  <Button slot="actions" variant="fill" href="/api/auth/login/{server.displayName}">Login</Button>
+                {/if}
+              </div>
+              {@const serverProjects = remoteProjects[server.displayName] ?? []}
+              {#each serverProjects as project}
+                <div class="flex flex-row items-center px-10">
+                  <p>{project.name}</p>
+                  <div class="flex-grow"></div>
+                  {#if matchesProject(projects, project)?.crdt}
+                    <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
+                  {:else}
+                    <Button
+                      icon={mdiBookArrowDownOutline}
+                      size="md"
+                      loading={downloading === project.name}
+                      on:click={() => downloadCrdtProject(project)}
+                    >
+                      Download
+                    </Button>
+                  {/if}
+                </div>
+              {/each}
+            {/each}
+          </div>
         </div>
       </Card>
     </div>
