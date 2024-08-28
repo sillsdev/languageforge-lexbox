@@ -2,10 +2,9 @@
   import {
     mdiBookArrowDownOutline,
     mdiBookArrowLeftOutline,
-    mdiBookArrowUpOutline,
     mdiBookEditOutline,
     mdiBookPlusOutline,
-    mdiBookSyncOutline,
+    mdiBookSyncOutline,  mdiCloudSync,
     mdiTestTube,
   } from '@mdi/js';
   import { links } from 'svelte-routing';
@@ -13,10 +12,9 @@
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, { isDev } from './lib/layout/DevContent.svelte';
 
-  type Project = { name: string; crdt: boolean; fwdata: boolean; lexbox: boolean, server: string | null };
+  type Project = { name: string; crdt: boolean; fwdata: boolean; lexbox: boolean, server: string | null, id: string | null };
 
   let newProjectName = '';
-  let projectsPromise = fetchProjects();
 
   let createError: string;
   async function createProject() {
@@ -37,8 +35,9 @@
 
     createError = '';
     newProjectName = '';
-    projectsPromise = fetchProjects();
+    void refreshProjects();
   }
+
 
   let importing = '';
 
@@ -47,8 +46,7 @@
     await fetch(`/api/import/fwdata/${name}`, {
       method: 'POST',
     });
-    projectsPromise = fetchProjects();
-    await projectsPromise;
+    await refreshProjects();
     importing = '';
   }
 
@@ -57,8 +55,7 @@
   async function downloadCrdtProject(project: Project) {
     downloading = project.name;
     await fetch(`/api/download/crdt/${project.server}/${project.name}`, { method: 'POST' });
-    projectsPromise = fetchProjects();
-    await projectsPromise;
+    await refreshProjects();
     downloading = '';
   }
 
@@ -66,14 +63,21 @@
   async function uploadCrdtProject(project: Project) {
     uploading = project.name;
     await fetch(`/api/upload/crdt/${project.server}/${project.name}`, { method: 'POST' });
-    projectsPromise = fetchProjects();
-    await projectsPromise;
+    await refreshProjects();
     uploading = '';
   }
 
+  let projectsPromise = fetchProjects();
+  type ProjectsResponse = { localProjects: Project[], serversProjects: { [server: string]: Project[] } };
   async function fetchProjects() {
     let r = await fetch('/api/projects');
-    return (await r.json()) as Promise<Project[]>;
+    return (await r.json()) as Promise<ProjectsResponse>;
+  }
+
+  async function refreshProjects() {
+    let promise = fetchProjects();
+    await promise;//avoids clearing out the list until the new list is fetched
+    projectsPromise = promise;
   }
 
   type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null };
@@ -106,16 +110,27 @@
       ? [
           {
             name: 'lexbox',
-            header: 'Lexbox CRDT',
+            header: 'Lexbox',
           },
         ]
       : []),
   ] satisfies ColumnDef<Project>[];
-
-  function loggedIn(project: Project) {
-    return servers.find(s => s.loggedIn && s.displayName === project.server);
+  function matchesProject(projects: Project[], project: Project) {
+    let matches = false;
+    if (project.id) {
+      matches = !!projects.find(p => p.id == project.id);
+    }
+    //for now the local project list does not include the id, so fallback to the name
+    if (!matches) {
+      matches = !!projects.find(p => p.name === project.name);
+    }
+    return matches;
   }
 
+  function syncedServer(response: ProjectsResponse, project: Project): string | null {
+    return Object.entries(response.serversProjects)
+      .find(([server, projects]) => matchesProject(projects, project))?.[0] ?? null;
+  }
 </script>
 
 <div class="home">
@@ -139,26 +154,10 @@
       <div class="text-center text-3xl mb-8">My projects</div>
       <Card class="p-6 shadow-2xl">
         <div slot="contents">
-          <div>
-            {#each servers as server}
-              <div class="flex flex-row items-center">
-                <p>{server.displayName}</p>
-                {#if server.loggedInAs}
-                  <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
-                {/if}
-                <div class="flex-grow"></div>
-                {#if server.loggedIn}
-                  <Button slot="actions" variant="fill" href="/api/auth/logout/{server.displayName}">Logout</Button>
-                {:else}
-                  <Button slot="actions" variant="fill" href="/api/auth/login/{server.displayName}">Login</Button>
-                {/if}
-              </div>
-              <div class="border my-1"/>
-            {/each}
-          </div>
           {#await projectsPromise}
             <p>loading...</p>
-          {:then projects}
+          {:then response}
+            {@const projects = response.localProjects}
             <Table {columns} data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))} classes={{ th: 'p-4' }}>
               <tbody slot="data" let:columns let:data let:getCellValue let:getCellContent>
                 {#each data ?? [] as rowData, rowIndex}
@@ -173,26 +172,9 @@
                             </Button>
                           {/if}
                         {:else if column.name === 'lexbox'}
-                          {#if rowData.lexbox && !rowData.crdt && loggedIn(rowData)}
-                            <Button
-                              icon={mdiBookArrowDownOutline}
-                              size="md"
-                              loading={downloading === rowData.name}
-                              on:click={() => downloadCrdtProject(rowData)}
-                            >
-                              Download
-                            </Button>
-                          {:else if !rowData.lexbox && rowData.crdt && loggedIn(rowData)}
-                            <Button
-                              icon={mdiBookArrowUpOutline}
-                              size="md"
-                              loading={uploading === rowData.name}
-                              on:click={() => uploadCrdtProject(rowData)}
-                            >
-                              Upload
-                            </Button>
-                          {:else if rowData.lexbox && rowData.crdt && loggedIn(rowData)}
-                            <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
+                          {@const server = syncedServer(response, rowData)}
+                          {#if rowData.crdt && server}
+                            <Button disabled color="success" icon={mdiBookSyncOutline} size="md">{server}</Button>
                           {/if}
                         {:else if column.name === 'crdt'}
                           {#if rowData.crdt}
@@ -235,6 +217,43 @@
                 </DevContent>
               </tbody>
             </Table>
+            <div class="mt-4">
+              <span class="text-lg font-bold"><Icon path={mdiCloudSync}/> Remote projects</span>
+              {#each servers as server}
+                <div class="border my-1"/>
+                <div class="flex flex-row items-center">
+                  <p>{server.displayName}</p>
+                  <div class="flex-grow"></div>
+                  {#if server.loggedInAs}
+                    <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
+                  {/if}
+                  {#if server.loggedIn}
+                    <Button slot="actions" variant="fill" href="/api/auth/logout/{server.displayName}">Logout</Button>
+                  {:else}
+                    <Button slot="actions" variant="fill" href="/api/auth/login/{server.displayName}">Login</Button>
+                  {/if}
+                </div>
+                {@const serverProjects = response.serversProjects[server.displayName] ?? []}
+                {#each serverProjects as project}
+                  <div class="flex flex-row items-center px-10">
+                    <p>{project.name}</p>
+                    <div class="flex-grow"></div>
+                    {#if matchesProject(response.localProjects, project)}
+                      <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
+                    {:else}
+                      <Button
+                        icon={mdiBookArrowDownOutline}
+                        size="md"
+                        loading={downloading === project.name}
+                        on:click={() => downloadCrdtProject(project)}
+                      >
+                        Download
+                      </Button>
+                    {/if}
+                  </div>
+                {/each}
+              {/each}
+            </div>
           {:catch error}
             <p>Error: {error.message}</p>
           {/await}

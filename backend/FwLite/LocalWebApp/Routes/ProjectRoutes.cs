@@ -11,6 +11,7 @@ namespace LocalWebApp.Routes;
 
 public static partial class ProjectRoutes
 {
+    public record ProjectsResponse(ProjectModel[] LocalProjects, Dictionary<string, ProjectModel[]> ServersProjects);
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
@@ -21,6 +22,7 @@ public static partial class ProjectRoutes
                 IOptions<AuthConfig> options) =>
             {
                 var crdtProjects = await projectService.ListProjects();
+                //todo get project Id and use that to specify the Id in the model
                 var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
                 //basically populate projects and indicate if they are lexbox or fwdata
                 foreach (var p in fieldWorksProjectList.EnumerateProjects())
@@ -35,21 +37,15 @@ public static partial class ProjectRoutes
                     }
                 }
 
-                //todo split this out into it's own request so we can return other project types right away
-                var server = options.Value.DefaultServer;
-                foreach (var lexboxProject in await lexboxProjectService.GetLexboxProjects(server))
+
+                var serversProjects = new Dictionary<string, ProjectModel[]>();
+                foreach (var server in options.Value.LexboxServers)
                 {
-                    if (projects.TryGetValue(lexboxProject.Name, out var project))
-                    {
-                        projects[lexboxProject.Name] = project with { Lexbox = true, Server = server.DisplayName };
-                    }
-                    else
-                    {
-                        projects.Add(lexboxProject.Name, new ProjectModel(lexboxProject.Name, false, false, true, server.DisplayName));
-                    }
+                    var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
+                    serversProjects.Add(server.DisplayName, lexboxProjects.Select(p => new ProjectModel(p.Name, false, false, true, server.DisplayName, p.Id)).ToArray());
                 }
 
-                return projects.Values;
+                return new ProjectsResponse(projects.Values.ToArray(), serversProjects);
             });
         group.MapPost("/project",
             async (ProjectsService projectService, string name) =>
@@ -107,7 +103,7 @@ public static partial class ProjectRoutes
         return group;
     }
 
-    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false, string? Server = null);
+    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false, string? Server = null, Guid? Id = null);
 
     private static async Task AfterCreate(IServiceProvider provider, CrdtProject project)
     {
