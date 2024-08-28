@@ -8,7 +8,7 @@
     mdiTestTube,
   } from '@mdi/js';
   import {links} from 'svelte-routing';
-  import {Button, Card, type ColumnDef, ListItem, Table, TextField, tableCell, Icon} from 'svelte-ux';
+  import {Button, Card, type ColumnDef, Table, TextField, tableCell, Icon, ProgressCircle} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
 
@@ -92,9 +92,12 @@
   }
 
   let remoteProjects: { [server: string]: Project[] } = {};
+  let loadingRemoteProjects = false;
   async function fetchRemoteProjects() {
+    loadingRemoteProjects = true;
     let r = await fetch('/api/remoteProjects');
     remoteProjects = (await r.json()) as { [server: string]: Project[] };
+    loadingRemoteProjects = false;
   }
   fetchRemoteProjects();
 
@@ -242,7 +245,11 @@
             <p>Error: {error.message}</p>
           {/await}
           <div class="mt-4">
-            <span class="text-lg font-bold"><Icon path={mdiCloudSync}/> Remote projects</span>
+            <div class="text-lg font-bold"><Icon path={mdiCloudSync}/> Remote projects
+              {#if loadingRemoteProjects}
+                  <ProgressCircle class="text-surface-content" indeterminate={true}/>
+              {/if}
+            </div>
             {#each servers as server}
               <div class="border my-1"/>
               <div class="flex flex-row items-center">
