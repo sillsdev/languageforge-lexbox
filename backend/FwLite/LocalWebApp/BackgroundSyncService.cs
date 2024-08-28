@@ -1,18 +1,14 @@
 ﻿using System.Threading.Channels;
 using SIL.Harmony;
 using LcmCrdt;
-using LocalWebApp.Auth;
-using Microsoft.Extensions.Options;
-using MiniLcm;
 
 namespace LocalWebApp;
 
 public class BackgroundSyncService(
-    IServiceProvider serviceProvider,
     ProjectsService projectsService,
     IHostApplicationLifetime applicationLifetime,
-    IOptions<AuthConfig>options,
-    ProjectContext projectContext) : BackgroundService
+    ProjectContext projectContext,
+    ILogger<BackgroundSyncService> logger) : BackgroundService
 {
     private readonly Channel<CrdtProject> _syncResultsChannel = Channel.CreateUnbounded<CrdtProject>();
 
@@ -49,8 +45,16 @@ public class BackgroundSyncService(
 
     private async Task<SyncResults> SyncProject(CrdtProject crdtProject)
     {
-        await using var serviceScope = projectsService.CreateProjectScope(crdtProject);
-        var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
-        return await syncService.ExecuteSync();
+        try
+        {
+            await using var serviceScope = projectsService.CreateProjectScope(crdtProject);
+            var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
+            return await syncService.ExecuteSync();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error syncing project {ProjectId}", crdtProject.Name);
+            return new SyncResults([], [], false);
+        }
     }
 }
