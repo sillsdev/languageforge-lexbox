@@ -298,7 +298,11 @@ public class SeedingData(
                 OpenIddictConstants.Permissions.Scopes.Profile
             },
             // port is dynamic due to the nature of the native app
-            RedirectUris = { new Uri("http://localhost/api/auth/oauth-callback"), new Uri("http://127.0.0.1/api/auth/oauth-callback") }
+            RedirectUris = {
+                new Uri("http://localhost/api/auth/oauth-callback"),
+                new Uri("http://127.0.0.1/api/auth/oauth-callback"),
+                new Uri("http://localhost")//handles system web view case
+            }
         }
     ], a => a.ClientId ?? throw new InvalidOperationException("ClientId is null"));
 

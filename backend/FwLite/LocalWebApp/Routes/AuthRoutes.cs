@@ -10,7 +10,16 @@ public static class AuthRoutes
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/auth").WithOpenApi();
-        group.MapGet("/login/default", async (AuthHelpersFactory factory) => Results.Redirect(await factory.GetDefault().SignIn()));
+        group.MapGet("/login/default", async (AuthHelpersFactory factory) =>
+        {
+            var result = await factory.GetDefault().SignIn();
+            if (result.HandledBySystemWebView)
+            {
+                return Results.Redirect("/");
+            }
+            if (result.AuthUri is null) throw new InvalidOperationException("AuthUri is null");
+            return Results.Redirect(result.AuthUri.ToString());
+        });
         group.MapGet("/oauth-callback",
             async (OAuthService oAuthService, HttpContext context) =>
             {

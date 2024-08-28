@@ -43,18 +43,19 @@ public class AuthHelpers
         _logger = logger;
         (var hostUrl, _isRedirectHostGuess) = urlContext.GetUrl();
         _redirectHost = HostString.FromUriComponent(hostUrl);
-        var redirectUri = linkGenerator.GetUriByRouteValues(AuthRoutes.CallbackRoute, new RouteValueDictionary(), hostUrl.Scheme, _redirectHost);
-        var optionsValue = options.Value;
+        var redirectUri = options.Value.SystemWebViewLogin
+            ? "http://localhost" //system web view will always have no path, changing this will not do anything in that case
+            : linkGenerator.GetUriByRouteValues(AuthRoutes.CallbackRoute, new RouteValueDictionary(), hostUrl.Scheme, _redirectHost);
         //todo configure token cache as seen here
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
-        _application = PublicClientApplicationBuilder.Create(optionsValue.ClientId)
+        _application = PublicClientApplicationBuilder.Create(options.Value.ClientId)
             .WithExperimentalFeatures()
             .WithLogging(loggerAdapter, hostEnvironment.IsDevelopment())
             .WithHttpClientFactory(new HttpClientFactoryAdapter(httpMessageHandlerFactory))
             .WithRedirectUri(redirectUri)
             .WithOidcAuthority(authority.ToString())
             .Build();
-        _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(optionsValue.CacheFileName)).ContinueWith(
+        _ = MsalCacheHelper.CreateAsync(BuildCacheProperties(options.Value.CacheFileName)).ContinueWith(
             task =>
             {
                 var msalCacheHelper = task.Result;
@@ -63,23 +64,21 @@ public class AuthHelpers
     }
 
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");
-
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr2 = new("ProductGroup", "Lexbox");
 
     private static StorageCreationProperties BuildCacheProperties(string cacheFileName)
     {
         if (!Path.IsPathFullyQualified(cacheFileName)) throw new ArgumentException("Cache file name must be fully qualified");
+        var propertiesBuilder = new StorageCreationPropertiesBuilder(cacheFileName, Path.GetDirectoryName(cacheFileName));
+#if DEBUG
+        propertiesBuilder.WithUnprotectedFile();
+#else
         const string KeyChainServiceName = "lexbox_msal_service";
         const string KeyChainAccountName = "lexbox_msal_account";
 
         const string LinuxKeyRingSchema = "org.sil.lexbox.tokencache";
         const string LinuxKeyRingCollection = MsalCacheHelper.LinuxKeyRingDefaultCollection;
         const string LinuxKeyRingLabel = "MSAL token cache for Lexbox.";
-
-        var propertiesBuilder = new StorageCreationPropertiesBuilder(cacheFileName, Directory.GetCurrentDirectory());
-#if DEBUG
-        propertiesBuilder.WithUnprotectedFile();
-#else
         propertiesBuilder.WithLinuxKeyring(LinuxKeyRingSchema,
                 LinuxKeyRingCollection,
                 LinuxKeyRingLabel,
@@ -104,10 +103,9 @@ public class AuthHelpers
         }
     }
 
-    public async Task<string> SignIn(CancellationToken cancellation = default)
+    public async Task<OAuthService.SignInResult> SignIn(CancellationToken cancellation = default)
     {
-        var authUri = await _oAuthService.SubmitLoginRequest(_application, cancellation);
-        return authUri.ToString();
+        return await _oAuthService.SubmitLoginRequest(_application, cancellation);
     }
 
     public async Task Logout()
