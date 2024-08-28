@@ -1,24 +1,14 @@
 ﻿using System.Collections.Concurrent;
 using LcmCrdt;
-using Microsoft.Extensions.Options;
 
 namespace LocalWebApp.Auth;
 
 public class AuthHelpersFactory(
     IServiceProvider provider,
     ProjectContext projectContext,
-    IHttpContextAccessor contextAccessor,
-    IOptions<AuthConfig> options)
+    IHttpContextAccessor contextAccessor)
 {
     private readonly ConcurrentDictionary<string, AuthHelpers> _helpers = new();
-
-    /// <summary>
-    /// gets the default (as configured in the options) Auth Helper, usually for lexbox.org
-    /// </summary>
-    public AuthHelpers GetDefault()
-    {
-        return GetHelper(options.Value.DefaultAuthority);
-    }
 
     private string AuthorityKey(Uri authority) =>
         authority.GetComponents(UriComponents.HostAndPort, UriFormat.Unescaped);
@@ -51,6 +41,11 @@ public class AuthHelpersFactory(
         var originDomain = project.OriginDomain;
         if (string.IsNullOrEmpty(originDomain)) throw new InvalidOperationException("No origin domain in project data");
         return GetHelper(new Uri(originDomain));
+    }
+
+    public AuthHelpers GetHelper(LexboxServer server)
+    {
+        return GetHelper(server.Authority);
     }
 
     /// <summary>

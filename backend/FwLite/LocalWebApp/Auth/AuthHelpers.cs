@@ -45,7 +45,10 @@ public class AuthHelpers
         _redirectHost = HostString.FromUriComponent(hostUrl);
         var redirectUri = options.Value.SystemWebViewLogin
             ? "http://localhost" //system web view will always have no path, changing this will not do anything in that case
-            : linkGenerator.GetUriByRouteValues(AuthRoutes.CallbackRoute, new RouteValueDictionary(), hostUrl.Scheme, _redirectHost);
+            : linkGenerator.GetUriByRouteValues(AuthRoutes.CallbackRoute,
+                new RouteValueDictionary(),
+                hostUrl.Scheme,
+                _redirectHost);
         //todo configure token cache as seen here
         //https://github.com/AzureAD/microsoft-authentication-extensions-for-dotnet/wiki/Cross-platform-Token-Cache
         _application = PublicClientApplicationBuilder.Create(options.Value.ClientId)
@@ -60,7 +63,8 @@ public class AuthHelpers
             {
                 var msalCacheHelper = task.Result;
                 msalCacheHelper.RegisterCache(_application.UserTokenCache);
-            }, scheduler: TaskScheduler.Default);
+            },
+            scheduler: TaskScheduler.Default);
     }
 
     public static readonly KeyValuePair<string, string> LinuxKeyRingAttr1 = new("Version", "1");
@@ -68,8 +72,10 @@ public class AuthHelpers
 
     private static StorageCreationProperties BuildCacheProperties(string cacheFileName)
     {
-        if (!Path.IsPathFullyQualified(cacheFileName)) throw new ArgumentException("Cache file name must be fully qualified");
-        var propertiesBuilder = new StorageCreationPropertiesBuilder(cacheFileName, Path.GetDirectoryName(cacheFileName));
+        if (!Path.IsPathFullyQualified(cacheFileName))
+            throw new ArgumentException("Cache file name must be fully qualified");
+        var propertiesBuilder =
+            new StorageCreationPropertiesBuilder(cacheFileName, Path.GetDirectoryName(cacheFileName));
 #if DEBUG
         propertiesBuilder.WithUnprotectedFile();
 #else
@@ -132,12 +138,20 @@ public class AuthHelpers
         {
             _authResult = await _application.AcquireTokenSilent(DefaultScopes, account).ExecuteAsync();
         }
+        catch (MsalClientException e) when (e.ErrorCode == "multiple_matching_tokens_detected")
+        {
+            _logger.LogWarning(e, "Multiple matching tokens detected, logging out");
+            await _application.RemoveAsync(account);
+            _authResult = null;
+        }
         catch (MsalServiceException e) when (e.InnerException is HttpRequestException)
         {
             _logger.LogWarning(e, "Failed to acquire token silently");
-            await _application.RemoveAsync(account);//todo might not be the best way to handle this, maybe it's a transient error?
+            await _application
+                .RemoveAsync(account); //todo might not be the best way to handle this, maybe it's a transient error?
             _authResult = null;
         }
+
         return _authResult;
     }
 

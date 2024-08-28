@@ -13,7 +13,7 @@
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, { isDev } from './lib/layout/DevContent.svelte';
 
-  type Project = { name: string; crdt: boolean; fwdata: boolean; lexbox: boolean };
+  type Project = { name: string; crdt: boolean; fwdata: boolean; lexbox: boolean, server: string | null };
 
   let newProjectName = '';
   let projectsPromise = fetchProjects();
@@ -54,18 +54,18 @@
 
   let downloading = '';
 
-  async function downloadCrdtProject(name: string) {
-    downloading = name;
-    await fetch(`/api/download/crdt/${name}`, { method: 'POST' });
+  async function downloadCrdtProject(project: Project) {
+    downloading = project.name;
+    await fetch(`/api/download/crdt/${project.server}/${project.name}`, { method: 'POST' });
     projectsPromise = fetchProjects();
     await projectsPromise;
     downloading = '';
   }
 
   let uploading = '';
-  async function uploadCrdtProject(name: string) {
-    uploading = name;
-    await fetch(`/api/upload/crdt/${name}`, { method: 'POST' });
+  async function uploadCrdtProject(project: Project) {
+    uploading = project.name;
+    await fetch(`/api/upload/crdt/${project.server}/${project.name}`, { method: 'POST' });
     projectsPromise = fetchProjects();
     await projectsPromise;
     uploading = '';
@@ -76,15 +76,14 @@
     return (await r.json()) as Promise<Project[]>;
   }
 
-  let username = '';
-  $: loggedIn = !!username;
-  async function fetchMe() {
-    let r = await fetch('/api/auth/me');
-    let user: any = await r.json();
-    username = user.name;
+  type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null };
+  let servers: ServerStatus[] = [];
+  async function fetchServers() {
+    let r = await fetch('/api/auth/servers');
+    servers = await r.json();
   }
 
-  fetchMe();
+  fetchServers();
 
   $: columns = [
     {
@@ -103,7 +102,7 @@
           },
         ]
       : []),
-    ...(loggedIn
+    ...(servers.find(s => s.loggedIn)
       ? [
           {
             name: 'lexbox',
@@ -112,6 +111,10 @@
         ]
       : []),
   ] satisfies ColumnDef<Project>[];
+
+  function loggedIn(project: Project) {
+    return servers.find(s => s.loggedIn && s.displayName === project.server);
+  }
 
 </script>
 
@@ -128,14 +131,6 @@
         />
         <Button slot="actions" variant="fill" icon={mdiBookPlusOutline} on:click={createProject}>Create Project</Button>
       </Card>
-      <Card title="Account" class="w-fit m-4">
-        {#if loggedIn}
-          <p>{username}</p>
-          <Button slot="actions" variant="fill" href="/api/auth/logout/default">Logout</Button>
-        {:else}
-          <Button slot="actions" variant="fill" href="/api/auth/login/default">Login</Button>
-        {/if}
-      </Card>
     </div>
   </DevContent>
   <div class="col-start-2 p-6 flex flex-col">
@@ -144,6 +139,23 @@
       <div class="text-center text-3xl mb-8">My projects</div>
       <Card class="p-6 shadow-2xl">
         <div slot="contents">
+          <div>
+            {#each servers as server}
+              <div class="flex flex-row items-center">
+                <p>{server.displayName}</p>
+                {#if server.loggedInAs}
+                  <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
+                {/if}
+                <div class="flex-grow"></div>
+                {#if server.loggedIn}
+                  <Button slot="actions" variant="fill" href="/api/auth/logout/{server.displayName}">Logout</Button>
+                {:else}
+                  <Button slot="actions" variant="fill" href="/api/auth/login/{server.displayName}">Login</Button>
+                {/if}
+              </div>
+              <div class="border my-1"/>
+            {/each}
+          </div>
           {#await projectsPromise}
             <p>loading...</p>
           {:then projects}
@@ -161,25 +173,25 @@
                             </Button>
                           {/if}
                         {:else if column.name === 'lexbox'}
-                          {#if rowData.lexbox && !rowData.crdt}
+                          {#if rowData.lexbox && !rowData.crdt && loggedIn(rowData)}
                             <Button
                               icon={mdiBookArrowDownOutline}
                               size="md"
                               loading={downloading === rowData.name}
-                              on:click={() => downloadCrdtProject(rowData.name)}
+                              on:click={() => downloadCrdtProject(rowData)}
                             >
                               Download
                             </Button>
-                          {:else if !rowData.lexbox && rowData.crdt && loggedIn}
+                          {:else if !rowData.lexbox && rowData.crdt && loggedIn(rowData)}
                             <Button
                               icon={mdiBookArrowUpOutline}
                               size="md"
                               loading={uploading === rowData.name}
-                              on:click={() => uploadCrdtProject(rowData.name)}
+                              on:click={() => uploadCrdtProject(rowData)}
                             >
                               Upload
                             </Button>
-                          {:else if rowData.lexbox && rowData.crdt}
+                          {:else if rowData.lexbox && rowData.crdt && loggedIn(rowData)}
                             <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
                           {/if}
                         {:else if column.name === 'crdt'}
@@ -223,6 +235,8 @@
                 </DevContent>
               </tbody>
             </Table>
+          {:catch error}
+            <p>Error: {error.message}</p>
           {/await}
         </div>
       </Card>
