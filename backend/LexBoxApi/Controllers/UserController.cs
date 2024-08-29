@@ -99,6 +99,12 @@ public class UserController : ControllerBase
         }
 
         var jwtUser = _loggedInContext.User;
+        if (jwtUser.Email != accountInput.Email)
+        {
+            // Someone is trying to reuse a JWT belonging to someone else. Naughty, naughty...
+            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email address mismatch in invitation link");
+            return ValidationProblem(ModelState);
+        }
 
         // We now allow multiple invitations to be accepted by the same account, so only create one if there isn't one already
         var userEntity = await _lexBoxDbContext.Users.FindByEmailOrUsername(accountInput.Email);
