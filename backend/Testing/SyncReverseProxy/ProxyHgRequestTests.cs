@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text;
 using LexBoxApi.Auth;
 using Shouldly;
+using Testing.ApiTests;
 using Testing.Services;
 
 namespace Testing.SyncReverseProxy;
@@ -12,11 +13,7 @@ namespace Testing.SyncReverseProxy;
 public class ProxyHgRequests
 {
     private string _baseUrl = TestingEnvironmentVariables.StandardHgBaseUrl;
-    private static readonly HttpClientHandler Handler = new HttpClientHandler()
-    {
-        UseCookies = false
-    };
-    private static readonly HttpClient Client = new(Handler);
+    private static readonly HttpClient Client = ApiTestBase.NewHttpClient(useCookies: false).Client;
 
     private void ShouldBeValidResponse(HttpResponseMessage responseMessage)
     {

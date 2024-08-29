@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Json;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Http.Resilience;
+using Polly;
 using Shouldly;
 using Testing.LexCore.Utils;
 using Testing.Services;
@@ -10,15 +12,35 @@ namespace Testing.ApiTests;
 public class ApiTestBase
 {
     public string BaseUrl => TestingEnvironmentVariables.ServerBaseUrl;
-    private readonly HttpClientHandler _httpClientHandler = new();
+    private readonly SocketsHttpHandler _httpClientHandler;
     public readonly HttpClient HttpClient;
 
     public ApiTestBase()
     {
-        HttpClient = new HttpClient(_httpClientHandler)
+        (_httpClientHandler, HttpClient) = NewHttpClient(BaseUrl);
+    }
+
+    /// <summary>
+    /// creates an HttpClient which will retry on transient failures
+    /// </summary>
+    /// <param name="baseUrl">bas url for the client</param>
+    /// <param name="useCookies">enable or disable cookies for the client</param>
+    public static (SocketsHttpHandler Handler, HttpClient Client) NewHttpClient(string? baseUrl = null, bool useCookies = true)
+    {
+        var retryPipeline = new ResiliencePipelineBuilder<HttpResponseMessage>()
+            .AddRetry(new HttpRetryStrategyOptions { BackoffType = DelayBackoffType.Linear, MaxRetryAttempts = 3 })
+            .Build();
+
+        var socketsHttpHandler = new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(15), UseCookies = useCookies };
+#pragma warning disable EXTEXP0001
+        var resilienceHandler = new ResilienceHandler(retryPipeline) { InnerHandler = socketsHttpHandler };
+#pragma warning restore EXTEXP0001
+        var httpClient = new HttpClient(resilienceHandler);
+        if (!string.IsNullOrEmpty(baseUrl))
         {
-            BaseAddress = new Uri(BaseUrl)
-        };
+            httpClient.BaseAddress = new Uri(baseUrl);
+        }
+        return (socketsHttpHandler, httpClient);
     }
 
     // This needs to be virtual so it can be mocked in IntegrationFixtureTests
