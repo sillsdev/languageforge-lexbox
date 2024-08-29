@@ -100,17 +100,20 @@ public class UserController : ControllerBase
 
         var jwtUser = _loggedInContext.User;
 
-        var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
-        acceptActivity?.AddTag("app.email_available", !hasExistingUser);
-        if (hasExistingUser)
+        // We now allow multiple invitations to be accepted by the same account, so only create one if there isn't one already
+        var userEntity = await _lexBoxDbContext.Users.FindByEmailOrUsername(accountInput.Email);
+        acceptActivity?.AddTag("app.email_available", userEntity is null);
+        if (userEntity is null)
         {
-            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email already in use");
-            return ValidationProblem(ModelState);
+            userEntity = CreateUserEntity(accountInput, jwtUser);
+            _lexBoxDbContext.Users.Add(userEntity);
+        }
+        else
+        {
+            UpdateUserMemberships(jwtUser, userEntity);
         }
 
-        var userEntity = CreateUserEntity(accountInput, jwtUser);
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
-        _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
@@ -139,16 +142,20 @@ public class UserController : ControllerBase
             Locked = false,
             CanCreateProjects = false
         };
+        UpdateUserMemberships(jwtUser, userEntity);
+        return userEntity;
+    }
+    private void UpdateUserMemberships(LexAuthUser? jwtUser, User userEntity)
+    {
         // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
         {
-            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+            userEntity.Projects.AddRange(jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }));
         }
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
         {
-            userEntity.Organizations = jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }).ToList();
+            userEntity.Organizations.AddRange(jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }));
         }
-        return userEntity;
     }
 
     [HttpPost("sendVerificationEmail")]
