@@ -1,7 +1,5 @@
-﻿using SIL.Harmony.Core;
-using SIL.Harmony.Db;
-using LocalWebApp.Hubs;
-using Microsoft.EntityFrameworkCore;
+﻿using LocalWebApp.Hubs;
+using LocalWebApp.Services;
 using Microsoft.OpenApi.Models;
 using MiniLcm;
 using Entry = LcmCrdt.Objects.Entry;
@@ -27,6 +25,12 @@ public static class TestRoutes
             {
                 return api.GetEntries();
             });
+        group.MapPost("/set-entry-note", async (ILexboxApi api, ChangeEventBus eventBus, Guid entryId, string ws, string note) =>
+        {
+            var entry = await api.UpdateEntry(entryId, api.CreateUpdateBuilder<MiniLcm.Entry>().Set(e => e.Note[ws], note).Build());
+            if (entry is Entry crdtEntry)
+                eventBus.NotifyEntryUpdated(crdtEntry);
+        });
         return group;
     }
 }
