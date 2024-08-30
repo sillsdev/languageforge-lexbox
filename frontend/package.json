@@ -61,7 +61,7 @@
 		"jwt-decode": "^4.0.0",
 		"postcss": "^8.4.38",
 		"rimraf": "^5.0.7",
-		"svelte": "^4.2.17",
+		"svelte": "^4.2.19",
 		"svelte-check": "^3.7.1",
 		"svelte-eslint-parser": "^0.33.1",
 		"svelte-preprocess": "^5.1.4",
