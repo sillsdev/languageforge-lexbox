@@ -30,7 +30,7 @@ public class ImportFwdataService(
                 AfterCreate: async (provider, project) =>
                 {
                     using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
-                    var crdtApi = provider.GetRequiredService<ILexboxApi>();
+                    var crdtApi = provider.GetRequiredService<IMiniLcmApi>();
                     await miniLcmImport.ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
                 }));
             var timeSpent = Stopwatch.GetElapsedTime(startTime);

@@ -5,9 +5,9 @@ using SystemTextJsonPatch;
 namespace LocalWebApp.Hubs;
 
 public class CrdtMiniLcmApiHub(
-    ILexboxApi lexboxApi,
+    IMiniLcmApi miniLcmApi,
     BackgroundSyncService backgroundSyncService,
-    SyncService syncService) : MiniLcmApiHubBase(lexboxApi)
+    SyncService syncService) : MiniLcmApiHubBase(miniLcmApi)
 {
     public const string ProjectRouteKey = "project";
     public override async Task OnConnectedAsync()

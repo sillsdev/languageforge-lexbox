@@ -23,7 +23,7 @@ public static class TestRoutes
             return operation;
         });
         group.MapGet("/entries",
-            (ILexboxApi api) =>
+            (IMiniLcmApi api) =>
             {
                 return api.GetEntries();
             });

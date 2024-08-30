@@ -15,7 +15,7 @@ namespace LcmCrdt.Tests;
 
 public class BasicApiTests : IAsyncLifetime
 {
-    private CrdtLexboxApi _api = null!;
+    private CrdtMiniLcmApi _api = null!;
     private Guid _entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
     private Guid _entry2Id = new Guid("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
 
@@ -42,7 +42,7 @@ public class BasicApiTests : IAsyncLifetime
         await ProjectsService.InitProjectDb(_crdtDbContext, new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid()));
         await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         DataModel = _services.ServiceProvider.GetRequiredService<DataModel>();
-        _api = ActivatorUtilities.CreateInstance<CrdtLexboxApi>(_services.ServiceProvider);
+        _api = ActivatorUtilities.CreateInstance<CrdtMiniLcmApi>(_services.ServiceProvider);
         await _api.CreateWritingSystem(WritingSystemType.Analysis,
             new WritingSystem()
             {

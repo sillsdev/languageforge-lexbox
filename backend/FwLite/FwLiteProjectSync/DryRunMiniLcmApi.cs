@@ -2,7 +2,7 @@
 
 namespace FwLiteProjectSync;
 
-public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
+public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
     public List<DryRunRecord> DryRunRecords { get; } = [];
 

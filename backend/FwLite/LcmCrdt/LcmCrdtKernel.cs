@@ -29,7 +29,7 @@ public static class LcmCrdtKernel
         services.AddCrdtData<LcmCrdtDbContext>(
             ConfigureCrdt
         );
-        services.AddScoped<MiniLcm.ILexboxApi, CrdtLexboxApi>();
+        services.AddScoped<MiniLcm.IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<CurrentProjectService>();
         services.AddSingleton<ProjectContext>();
         services.AddSingleton<ProjectsService>();

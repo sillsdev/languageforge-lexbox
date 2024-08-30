@@ -7,7 +7,7 @@ using Sense = MiniLcm.Sense;
 
 namespace LfClassicData;
 
-public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext) : ILexboxApi
+public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext) : IMiniLcmApi
 {
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
 

@@ -4,7 +4,7 @@ using SystemTextJsonPatch;
 
 namespace MiniLcm;
 
-public interface ILexboxApi
+public interface IMiniLcmApi
 {
     Task<WritingSystems> GetWritingSystems();
     Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem);

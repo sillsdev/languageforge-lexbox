@@ -13,7 +13,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 {
     public record SyncResult(int CrdtChanges, int FwdataChanges);
 
-    public async Task<SyncResult> Sync(ILexboxApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
+    public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
         var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name);
         SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
@@ -26,7 +26,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         return result;
     }
 
-    private async Task<SyncResult> Sync(ILexboxApi crdtApi, ILexboxApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
+    private async Task<SyncResult> Sync(IMiniLcmApi crdtApi, IMiniLcmApi fwdataApi, bool dryRun, int entryCount, ProjectSnapshot? projectSnapshot)
     {
         if (dryRun)
         {
@@ -53,7 +53,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         return new SyncResult(crdtChanges, fwdataChanges);
     }
 
-    private void LogDryRun(ILexboxApi api, string type)
+    private void LogDryRun(IMiniLcmApi api, string type)
     {
         if (api is not DryRunMiniLcmApi dryRunApi) return;
         foreach (var dryRunRecord in dryRunApi.DryRunRecords)
@@ -83,7 +83,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 
     private async Task<int> EntrySync(Entry[] currentEntries,
         Entry[] previousEntries,
-        ILexboxApi api)
+        IMiniLcmApi api)
     {
         return await DiffCollection(api,
             previousEntries,
@@ -110,7 +110,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
     private async Task<int> SenseSync(Guid entryId,
         IList<Sense> currentSenses,
         IList<Sense> previousSenses,
-        ILexboxApi api)
+        IMiniLcmApi api)
     {
         return await DiffCollection(api,
             previousSenses,
@@ -142,7 +142,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         Guid senseId,
         IList<ExampleSentence> currentExampleSentences,
         IList<ExampleSentence> previousExampleSentences,
-        ILexboxApi api)
+        IMiniLcmApi api)
     {
         return await DiffCollection(api,
             previousExampleSentences,
@@ -271,12 +271,12 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
     }
 
     private static async Task<int> DiffCollection<T>(
-        ILexboxApi api,
+        IMiniLcmApi api,
         IList<T> previous,
         IList<T> current,
-        Func<ILexboxApi, T, Task<int>> add,
-        Func<ILexboxApi, T, Task<int>> remove,
-        Func<ILexboxApi, T, T, Task<int>> replace) where T : IObjectWithId
+        Func<IMiniLcmApi, T, Task<int>> add,
+        Func<IMiniLcmApi, T, Task<int>> remove,
+        Func<IMiniLcmApi, T, T, Task<int>> replace) where T : IObjectWithId
     {
         var changes = 0;
         var currentEntriesDict = current.ToDictionary(entry => entry.Id);

@@ -2,5 +2,5 @@
 
 public interface ILexboxApiProvider
 {
-    ILexboxApi GetProjectApi(string projectCode);
+    IMiniLcmApi GetProjectApi(string projectCode);
 }

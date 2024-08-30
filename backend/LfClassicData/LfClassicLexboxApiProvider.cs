@@ -4,8 +4,8 @@ namespace LfClassicData;
 
 public class LfClassicLexboxApiProvider(ProjectDbContext dbContext, SystemDbContext systemDbContext) : ILexboxApiProvider
 {
-    public ILexboxApi GetProjectApi(string projectCode)
+    public IMiniLcmApi GetProjectApi(string projectCode)
     {
-        return new LfClassicLexboxApi(projectCode, dbContext, systemDbContext);
+        return new LfClassicMiniLcmApi(projectCode, dbContext, systemDbContext);
     }
 }

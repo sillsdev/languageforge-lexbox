@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm;
 
-public class InMemoryApi : ILexboxApi
+public class InMemoryApi : IMiniLcmApi
 {
     private readonly List<Entry> _entries =
     [
