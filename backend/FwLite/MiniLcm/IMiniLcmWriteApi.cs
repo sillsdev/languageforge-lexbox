@@ -30,6 +30,11 @@ public interface IMiniLcmWriteApi
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
 }
 
+/// <summary>
+/// wrapper around JsonPatchDocument that allows for fluent updates
+/// </summary>
+/// <param name="patchDocument"></param>
+/// <typeparam name="T"></typeparam>
 public class UpdateObjectInput<T>(JsonPatchDocument<T> patchDocument) where T : class
 {
     public UpdateObjectInput() : this(new JsonPatchDocument<T>()) { }
