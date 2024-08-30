@@ -329,9 +329,4 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         await dataModel.AddChange(ClientId, new DeleteChange<ExampleSentence>(exampleSentenceId));
     }
 
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return new UpdateBuilder<T>();
-    }
-
 }

@@ -1,5 +1,6 @@
 ﻿using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
+using MiniLcm;
 using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests;
@@ -73,9 +74,8 @@ public class SemanticDomainTests(ProjectLoaderFixture fixture) : IAsyncLifetime
         var currentSemanticDomain = sense.SemanticDomains.First();
         var newSemanticDomain = await _api.GetSemanticDomains().FirstAsync(sd => sd.Id != currentSemanticDomain.Id);
 
-        var update = _api.CreateUpdateBuilder<Sense>()
-            .Add(s => s.SemanticDomains, newSemanticDomain)
-            .Build();
+        var update = new UpdateObjectInput<Sense>()
+            .Add(s => s.SemanticDomains, newSemanticDomain);
         await _api.UpdateSense(entry.Id, sense.Id, update);
 
         entry = await _api.GetEntry(entry.Id);
@@ -91,9 +91,8 @@ public class SemanticDomainTests(ProjectLoaderFixture fixture) : IAsyncLifetime
         var sense = entry.Senses.First(s => s.SemanticDomains.Any());
         var domainToRemove = sense.SemanticDomains[0];
 
-        var update = _api.CreateUpdateBuilder<Sense>()
-            .Remove(s => s.SemanticDomains, 0)
-            .Build();
+        var update = new UpdateObjectInput<Sense>()
+            .Remove(s => s.SemanticDomains, 0);
         await _api.UpdateSense(entry.Id, sense.Id, update);
 
         entry = await _api.GetEntry(entry.Id);

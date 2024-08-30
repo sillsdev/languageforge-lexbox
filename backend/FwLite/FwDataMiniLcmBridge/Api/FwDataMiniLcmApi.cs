@@ -539,10 +539,4 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                                                 lexExampleSentence.Owner.ClassName);
         }
     }
-
-
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return new UpdateBuilder<T>();
-    }
 }

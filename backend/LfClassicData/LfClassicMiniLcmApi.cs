@@ -236,9 +236,4 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
     {
         throw new NotSupportedException();
     }
-
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        throw new NotSupportedException();
-    }
 }

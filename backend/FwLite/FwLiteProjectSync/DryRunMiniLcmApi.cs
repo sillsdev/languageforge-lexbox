@@ -137,9 +137,4 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteExampleSentence), $"Delete example sentence {exampleSentenceId}"));
         return Task.CompletedTask;
     }
-
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return api.CreateUpdateBuilder<T>();
-    }
 }

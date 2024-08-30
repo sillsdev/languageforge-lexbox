@@ -183,7 +183,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
             previousEntry.LiteralMeaning,
             currentEntry.LiteralMeaning));
         if (patchDocument.Operations.Count == 0) return null;
-        return new JsonPatchUpdateInput<Entry>(patchDocument);
+        return new UpdateObjectInput<Entry>(patchDocument);
     }
 
     public static async Task<UpdateObjectInput<Sense>?> SenseDiffToUpdate(Sense previousSense, Sense currentSense)
@@ -224,7 +224,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
                 return Task.FromResult(0);
             });
         if (patchDocument.Operations.Count == 0) return null;
-        return new JsonPatchUpdateInput<Sense>(patchDocument);
+        return new UpdateObjectInput<Sense>(patchDocument);
     }
 
     public static UpdateObjectInput<ExampleSentence>? ExampleDiffToUpdate(ExampleSentence previousExampleSentence,
@@ -243,7 +243,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         }
 
         if (patchDocument.Operations.Count == 0) return null;
-        return new JsonPatchUpdateInput<ExampleSentence>(patchDocument);
+        return new UpdateObjectInput<ExampleSentence>(patchDocument);
     }
 
     public static IEnumerable<Operation<T>> GetMultiStringDiff<T>(string path, MultiString previous, MultiString current)

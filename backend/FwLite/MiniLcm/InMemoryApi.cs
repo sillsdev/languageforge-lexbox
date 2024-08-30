@@ -242,11 +242,6 @@ public class InMemoryApi : IMiniLcmApi
         }
     }
 
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return new UpdateBuilder<T>();
-    }
-
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         var entry = _entries.Single(e => e.Id == id);

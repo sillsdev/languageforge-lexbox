@@ -288,9 +288,8 @@ public class BasicApiTests : IAsyncLifetime
     public async Task UpdateEntry()
     {
         var updatedEntry = await _api.UpdateEntry(_entry1Id,
-            _api.CreateUpdateBuilder<Entry>()
-                .Set(e => e.LexemeForm["en"], "updated")
-                .Build());
+            new UpdateObjectInput<Entry>()
+                .Set(e => e.LexemeForm["en"], "updated"));
         updatedEntry.LexemeForm.Values["en"].Should().Be("updated");
     }
 
@@ -308,9 +307,8 @@ public class BasicApiTests : IAsyncLifetime
             }
         });
         var updatedEntry = await _api.UpdateEntry(entry.Id,
-            _api.CreateUpdateBuilder<Entry>()
-                .Set(e => e.Note["en"], "updated")
-                .Build());
+            new UpdateObjectInput<Entry>()
+                .Set(e => e.Note["en"], "updated"));
         updatedEntry.Note.Values["en"].Should().Be("updated");
     }
 
@@ -342,9 +340,8 @@ public class BasicApiTests : IAsyncLifetime
         });
         var updatedSense = await _api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
-            _api.CreateUpdateBuilder<Sense>()
-                .Set(e => e.Definition["en"], "updated")
-                .Build());
+            new UpdateObjectInput<Sense>()
+                .Set(e => e.Definition["en"], "updated"));
         updatedSense.Definition.Values["en"].Should().Be("updated");
     }
 
@@ -434,10 +431,9 @@ public class BasicApiTests : IAsyncLifetime
         });
         var updatedSense = await _api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
-            _api.CreateUpdateBuilder<Sense>()
+            new UpdateObjectInput<Sense>()
                 .Set(e => e.PartOfSpeech, "updated")
-                .Set(e => e.PartOfSpeechId, partOfSpeechId)
-                .Build());
+                .Set(e => e.PartOfSpeechId, partOfSpeechId));
         updatedSense.PartOfSpeech.Should().Be("updated");
         updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
@@ -475,9 +471,8 @@ public class BasicApiTests : IAsyncLifetime
         });
         var updatedSense = await _api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
-            _api.CreateUpdateBuilder<Sense>()
-                .Add(e => e.SemanticDomains, newSemanticDomain)
-                .Build());
+            new UpdateObjectInput<Sense>()
+                .Add(e => e.SemanticDomains, newSemanticDomain));
         var semanticDomain = updatedSense.SemanticDomains.Should().ContainSingle(s => s.Id == newDomainId).Subject;
         semanticDomain.Code.Should().Be("updated");
         semanticDomain.Id.Should().Be(newDomainId);
@@ -526,9 +521,8 @@ public class BasicApiTests : IAsyncLifetime
         var updatedExample = await _api.UpdateExampleSentence(entry.Id,
             entry.Senses[0].Id,
             entry.Senses[0].ExampleSentences[0].Id,
-            _api.CreateUpdateBuilder<ExampleSentence>()
-                .Set(e => e.Sentence["en"], "updated")
-                .Build());
+            new UpdateObjectInput<ExampleSentence>()
+                .Set(e => e.Sentence["en"], "updated"));
         updatedExample.Sentence.Values["en"].Should().Be("updated");
     }
 
@@ -582,9 +576,8 @@ public class BasicApiTests : IAsyncLifetime
         var updatedExample = await _api.UpdateExampleSentence(entry.Id,
             entry.Senses[0].Id,
             entry.Senses[0].ExampleSentences[0].Id,
-            _api.CreateUpdateBuilder<ExampleSentence>()
-                .Set(e => e.Translation["en"], "updated")
-                .Build());
+            new UpdateObjectInput<ExampleSentence>()
+                .Set(e => e.Translation["en"], "updated"));
         updatedExample.Translation.Values["en"].Should().Be("updated");
     }
 

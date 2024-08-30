@@ -24,7 +24,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
         JsonPatchDocument<WritingSystem> update)
     {
         var writingSystem =
-            await miniLcmApi.UpdateWritingSystem(id, type, new JsonPatchUpdateInput<WritingSystem>(update));
+            await miniLcmApi.UpdateWritingSystem(id, type, new UpdateObjectInput<WritingSystem>(update));
         return writingSystem;
     }
 
@@ -62,7 +62,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
 
     public virtual async Task<Entry> UpdateEntry(Guid id, JsonPatchDocument<Entry> update)
     {
-        var entry = await miniLcmApi.UpdateEntry(id, new JsonPatchUpdateInput<Entry>(update));
+        var entry = await miniLcmApi.UpdateEntry(id, new UpdateObjectInput<Entry>(update));
         await NotifyEntryUpdated(entry);
         return entry;
     }
@@ -80,7 +80,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
 
     public virtual async Task<Sense> UpdateSense(Guid entryId, Guid senseId, JsonPatchDocument<Sense> update)
     {
-        var sense = await miniLcmApi.UpdateSense(entryId, senseId, new JsonPatchUpdateInput<Sense>(update));
+        var sense = await miniLcmApi.UpdateSense(entryId, senseId, new UpdateObjectInput<Sense>(update));
         return sense;
     }
 
@@ -105,7 +105,7 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
         var sentence = await miniLcmApi.UpdateExampleSentence(entryId,
             senseId,
             exampleSentenceId,
-            new JsonPatchUpdateInput<ExampleSentence>(update));
+            new UpdateObjectInput<ExampleSentence>(update));
         return sentence;
     }
 
