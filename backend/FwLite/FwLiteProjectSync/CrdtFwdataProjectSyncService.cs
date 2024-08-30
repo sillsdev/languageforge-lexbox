@@ -4,6 +4,7 @@ using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
 

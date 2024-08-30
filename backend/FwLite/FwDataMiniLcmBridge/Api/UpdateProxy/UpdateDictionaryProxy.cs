@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using MiniLcm;
+using MiniLcm.Models;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
 

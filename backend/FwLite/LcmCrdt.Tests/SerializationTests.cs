@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using MiniLcm;
+using MiniLcm.Models;
 using Xunit.Abstractions;
 using Entry = LcmCrdt.Objects.Entry;
 using Sense = LcmCrdt.Objects.Sense;

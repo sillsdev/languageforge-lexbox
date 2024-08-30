@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using MiniLcm;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace LocalWebApp.Hubs;

@@ -7,9 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using Entry = MiniLcm.Entry;
-using ExampleSentence = MiniLcm.ExampleSentence;
-using Sense = MiniLcm.Sense;
+using MiniLcm.Models;
+using Entry = MiniLcm.Models.Entry;
+using ExampleSentence = MiniLcm.Models.ExampleSentence;
+using Sense = MiniLcm.Models.Sense;
 
 namespace LcmCrdt.Tests;
 

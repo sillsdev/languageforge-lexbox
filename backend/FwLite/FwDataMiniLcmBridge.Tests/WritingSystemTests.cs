@@ -1,6 +1,6 @@
 ﻿using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests;
 

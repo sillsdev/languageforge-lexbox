@@ -6,6 +6,7 @@ using LocalWebApp.Hubs;
 using LocalWebApp.Services;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Models;
 
 namespace LocalWebApp.Routes;
 

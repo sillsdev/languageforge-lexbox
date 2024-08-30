@@ -3,6 +3,7 @@ using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;

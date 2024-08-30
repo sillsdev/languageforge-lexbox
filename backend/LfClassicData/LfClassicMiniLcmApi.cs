@@ -1,9 +1,10 @@
 ﻿using LfClassicData.Entities;
 using MiniLcm;
+using MiniLcm.Models;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using Entry = MiniLcm.Entry;
-using Sense = MiniLcm.Sense;
+using Entry = MiniLcm.Models.Entry;
+using Sense = MiniLcm.Models.Sense;
 
 namespace LfClassicData;
 

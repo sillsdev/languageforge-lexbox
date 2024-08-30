@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Text.Json.Serialization;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace MiniLcm;

@@ -1,5 +1,6 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace FwLiteProjectSync.Tests;

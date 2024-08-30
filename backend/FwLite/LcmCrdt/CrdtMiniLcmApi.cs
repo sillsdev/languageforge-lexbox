@@ -7,6 +7,7 @@ using LcmCrdt.Changes;
 using MiniLcm;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using MiniLcm.Models;
 using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 
 namespace LcmCrdt;
@@ -29,13 +30,13 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         return new WritingSystems
         {
             Analysis = systems.Where(ws => ws.Type == WritingSystemType.Analysis)
-                .Select(w => ((MiniLcm.WritingSystem)w)).ToArray(),
+                .Select(w => ((MiniLcm.Models.WritingSystem)w)).ToArray(),
             Vernacular = systems.Where(ws => ws.Type == WritingSystemType.Vernacular)
-                .Select(w => ((MiniLcm.WritingSystem)w)).ToArray()
+                .Select(w => ((MiniLcm.Models.WritingSystem)w)).ToArray()
         };
     }
 
-    public async Task<MiniLcm.WritingSystem> CreateWritingSystem(WritingSystemType type, MiniLcm.WritingSystem writingSystem)
+    public async Task<MiniLcm.Models.WritingSystem> CreateWritingSystem(WritingSystemType type, MiniLcm.Models.WritingSystem writingSystem)
     {
         var entityId = Guid.NewGuid();
         var wsCount = await WritingSystems.CountAsync(ws => ws.Type == type);
@@ -43,7 +44,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         return await dataModel.GetLatest<WritingSystem>(entityId) ?? throw new NullReferenceException();
     }
 
-    public async Task<MiniLcm.WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<MiniLcm.WritingSystem> update)
+    public async Task<MiniLcm.Models.WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<MiniLcm.Models.WritingSystem> update)
     {
         var ws = await GetWritingSystem(id, type);
         if (ws is null) throw new NullReferenceException($"unable to find writing system with id {id}");
@@ -78,27 +79,27 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, false));
     }
 
-    public IAsyncEnumerable<MiniLcm.SemanticDomain> GetSemanticDomains()
+    public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
     {
         return SemanticDomains.AsAsyncEnumerable();
     }
 
-    public async Task CreateSemanticDomain(MiniLcm.SemanticDomain semanticDomain)
+    public async Task CreateSemanticDomain(MiniLcm.Models.SemanticDomain semanticDomain)
     {
         await dataModel.AddChange(ClientId, new CreateSemanticDomainChange(semanticDomain.Id, semanticDomain.Name, semanticDomain.Code));
     }
 
-    public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.SemanticDomain> semanticDomains)
+    public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
     {
         await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
     }
 
-    public IAsyncEnumerable<MiniLcm.Entry> GetEntries(QueryOptions? options = null)
+    public IAsyncEnumerable<MiniLcm.Models.Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);
     }
 
-    public IAsyncEnumerable<MiniLcm.Entry> SearchEntries(string? query, QueryOptions? options = null)
+    public IAsyncEnumerable<MiniLcm.Models.Entry> SearchEntries(string? query, QueryOptions? options = null)
     {
         if (string.IsNullOrEmpty(query)) return GetEntriesAsyncEnum(null, options);
 
@@ -109,7 +110,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
             , options);
     }
 
-    private async IAsyncEnumerable<MiniLcm.Entry> GetEntriesAsyncEnum(
+    private async IAsyncEnumerable<MiniLcm.Models.Entry> GetEntriesAsyncEnum(
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
@@ -120,7 +121,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         }
     }
 
-    private async Task<MiniLcm.Entry[]> GetEntries(
+    private async Task<MiniLcm.Models.Entry[]> GetEntries(
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
@@ -174,7 +175,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         }
     }
 
-    public async Task<MiniLcm.Entry?> GetEntry(Guid id)
+    public async Task<MiniLcm.Models.Entry?> GetEntry(Guid id)
     {
         var entry = await Entries.SingleOrDefaultAsync(e => e.Id == id);
         if (entry is null) return null;
@@ -197,7 +198,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     /// does not return the newly created entry, used for importing a large amount of data
     /// </summary>
     /// <param name="entry"></param>
-    public async Task CreateEntryLite(MiniLcm.Entry entry)
+    public async Task CreateEntryLite(MiniLcm.Models.Entry entry)
     {
         await dataModel.AddChanges(ClientId,
         [
@@ -208,21 +209,21 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         ], deferCommit: true);
     }
 
-    public async Task BulkCreateEntries(IAsyncEnumerable<MiniLcm.Entry> entries)
+    public async Task BulkCreateEntries(IAsyncEnumerable<MiniLcm.Models.Entry> entries)
     {
         var semanticDomains = await SemanticDomains.ToDictionaryAsync(sd => sd.Id, sd => sd);
         var partsOfSpeech = await PartsOfSpeech.ToDictionaryAsync(p => p.Id, p => p);
         await dataModel.AddChanges(ClientId, entries.ToBlockingEnumerable().SelectMany(entry => CreateEntryChanges(entry, semanticDomains, partsOfSpeech)));
     }
 
-    private IEnumerable<IChange> CreateEntryChanges(MiniLcm.Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, Objects.PartOfSpeech> partsOfSpeech)
+    private IEnumerable<IChange> CreateEntryChanges(MiniLcm.Models.Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, Objects.PartOfSpeech> partsOfSpeech)
     {
         yield return new CreateEntryChange(entry);
         foreach (var sense in entry.Senses)
         {
             sense.SemanticDomains = sense.SemanticDomains
                 .Select(sd => semanticDomains.TryGetValue(sd.Id, out var selectedSd) ? selectedSd : null)
-                .OfType<MiniLcm.SemanticDomain>()
+                .OfType<MiniLcm.Models.SemanticDomain>()
                 .ToList();
             if (sense.PartOfSpeechId is not null && partsOfSpeech.TryGetValue(sense.PartOfSpeechId.Value, out var partOfSpeech))
             {
@@ -237,7 +238,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         }
     }
 
-    public async Task<MiniLcm.Entry> CreateEntry(MiniLcm.Entry entry)
+    public async Task<MiniLcm.Models.Entry> CreateEntry(MiniLcm.Models.Entry entry)
     {
         await dataModel.AddChanges(ClientId,
         [
@@ -249,8 +250,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
     }
 
-    public async Task<MiniLcm.Entry> UpdateEntry(Guid id,
-        UpdateObjectInput<MiniLcm.Entry> update)
+    public async Task<MiniLcm.Models.Entry> UpdateEntry(Guid id,
+        UpdateObjectInput<MiniLcm.Models.Entry> update)
     {
         var patchChange = new JsonPatchChange<Entry>(id, update.Patch, jsonOptions);
         await dataModel.AddChange(ClientId, patchChange);
@@ -262,11 +263,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         await dataModel.AddChange(ClientId, new DeleteChange<Entry>(id));
     }
 
-    private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId, MiniLcm.Sense sense)
+    private async IAsyncEnumerable<IChange> CreateSenseChanges(Guid entryId, MiniLcm.Models.Sense sense)
     {
         sense.SemanticDomains = await SemanticDomains
             .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
-            .OfType<MiniLcm.SemanticDomain>()
+            .OfType<MiniLcm.Models.SemanticDomain>()
             .ToListAsync();
         if (sense.PartOfSpeechId is not null)
         {
@@ -283,15 +284,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         }
     }
 
-    public async Task<MiniLcm.Sense> CreateSense(Guid entryId, MiniLcm.Sense sense)
+    public async Task<MiniLcm.Models.Sense> CreateSense(Guid entryId, MiniLcm.Models.Sense sense)
     {
         await dataModel.AddChanges(ClientId, await CreateSenseChanges(entryId, sense).ToArrayAsync());
         return await dataModel.GetLatest<Sense>(sense.Id) ?? throw new NullReferenceException();
     }
 
-    public async Task<MiniLcm.Sense> UpdateSense(Guid entryId,
+    public async Task<MiniLcm.Models.Sense> UpdateSense(Guid entryId,
         Guid senseId,
-        UpdateObjectInput<MiniLcm.Sense> update)
+        UpdateObjectInput<MiniLcm.Models.Sense> update)
     {
         var sense = await dataModel.GetLatest<Sense>(senseId);
         if (sense is null) throw new NullReferenceException($"unable to find sense with id {senseId}");
@@ -304,18 +305,18 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         await dataModel.AddChange(ClientId, new DeleteChange<Sense>(senseId));
     }
 
-    public async Task<MiniLcm.ExampleSentence> CreateExampleSentence(Guid entryId,
+    public async Task<MiniLcm.Models.ExampleSentence> CreateExampleSentence(Guid entryId,
         Guid senseId,
-        MiniLcm.ExampleSentence exampleSentence)
+        MiniLcm.Models.ExampleSentence exampleSentence)
     {
         await dataModel.AddChange(ClientId, new CreateExampleSentenceChange(exampleSentence, senseId));
         return await dataModel.GetLatest<ExampleSentence>(exampleSentence.Id) ?? throw new NullReferenceException();
     }
 
-    public async Task<MiniLcm.ExampleSentence> UpdateExampleSentence(Guid entryId,
+    public async Task<MiniLcm.Models.ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
-        UpdateObjectInput<MiniLcm.ExampleSentence> update)
+        UpdateObjectInput<MiniLcm.Models.ExampleSentence> update)
     {
         var jsonPatch = update.Patch;
         var patchChange = new JsonPatchChange<ExampleSentence>(exampleSentenceId, jsonPatch, jsonOptions);

@@ -1,4 +1,6 @@
-﻿namespace MiniLcm;
+﻿using MiniLcm.Models;
+
+namespace MiniLcm;
 
 public class InMemoryApi : IMiniLcmApi
 {

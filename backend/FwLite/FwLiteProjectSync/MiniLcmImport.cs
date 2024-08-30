@@ -1,6 +1,7 @@
 ﻿using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwLiteProjectSync;
 

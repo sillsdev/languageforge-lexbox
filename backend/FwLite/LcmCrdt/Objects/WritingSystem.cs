@@ -2,7 +2,7 @@
 using SIL.Harmony.Changes;
 using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Objects;
 
@@ -54,7 +54,7 @@ public class WritingSystem : IObjectBase<WritingSystem>, IOrderableCrdt
     }
 
 
-    public static implicit operator MiniLcm.WritingSystem(WritingSystem ws) =>
+    public static implicit operator MiniLcm.Models.WritingSystem(WritingSystem ws) =>
         new()
         {
             Id = ws.WsId,

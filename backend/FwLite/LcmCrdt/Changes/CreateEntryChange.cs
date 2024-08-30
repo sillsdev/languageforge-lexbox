@@ -2,14 +2,14 @@
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 
 
 public class CreateEntryChange : CreateChange<Entry>, ISelfNamedType<CreateEntryChange>
 {
-    public CreateEntryChange(MiniLcm.Entry entry) : base(entry.Id == Guid.Empty ? Guid.NewGuid() : entry.Id)
+    public CreateEntryChange(MiniLcm.Models.Entry entry) : base(entry.Id == Guid.Empty ? Guid.NewGuid() : entry.Id)
     {
         entry.Id = EntityId;
         LexemeForm = entry.LexemeForm;
