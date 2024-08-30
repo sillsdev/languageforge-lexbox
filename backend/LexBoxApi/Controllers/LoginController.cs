@@ -161,6 +161,8 @@ public class LoginController(
 
         user.Email = loggedInContext.User.Email;
         user.EmailVerified = true;
+        // Guest ussers are promoted to "regular" users once they verify an email address
+        user.CreatedById = null;
         user.UpdateUpdatedDate();
         await lexBoxDbContext.SaveChangesAsync();
         await RefreshJwt();
