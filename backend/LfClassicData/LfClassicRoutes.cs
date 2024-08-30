@@ -13,14 +13,14 @@ public static class LfClassicRoutes
     {
         var group = builder.MapGroup("/api/lfclassic/{projectCode}");
         group.MapGet("/writingSystems",
-            ([FromRoute] string projectCode, [FromServices] ILexboxApiProvider provider) =>
+            ([FromRoute] string projectCode, [FromServices] LfClassicLexboxApiProvider provider) =>
             {
                 var api = provider.GetProjectApi(projectCode);
                 return api.GetWritingSystems();
             });
         group.MapGet("/entries",
             ([FromRoute] string projectCode,
-                [FromServices] ILexboxApiProvider provider,
+                [FromServices] LfClassicLexboxApiProvider provider,
                 [AsParameters] ClassicQueryOptions options
             ) =>
             {
@@ -29,7 +29,7 @@ public static class LfClassicRoutes
             });
         group.MapGet("/entries/{search}",
             ([FromRoute] string projectCode,
-                [FromServices] ILexboxApiProvider provider,
+                [FromServices] LfClassicLexboxApiProvider provider,
                 [FromRoute] string search,
                 [AsParameters] ClassicQueryOptions options) =>
             {
@@ -37,19 +37,19 @@ public static class LfClassicRoutes
                 return api.SearchEntries(search, options.ToQueryOptions());
             });
         group.MapGet("/entry/{id:Guid}",
-            ([FromRoute] string projectCode, Guid id, [FromServices] ILexboxApiProvider provider) =>
+            ([FromRoute] string projectCode, Guid id, [FromServices] LfClassicLexboxApiProvider provider) =>
             {
                 var api = provider.GetProjectApi(projectCode);
                 return api.GetEntry(id);
             });
         group.MapGet("/parts-of-speech",
-            ([FromRoute] string projectCode, [FromServices] ILexboxApiProvider provider) =>
+            ([FromRoute] string projectCode, [FromServices] LfClassicLexboxApiProvider provider) =>
             {
                 var api = provider.GetProjectApi(projectCode);
                 return api.GetPartsOfSpeech();
             });
         group.MapGet("/semantic-domains",
-            ([FromRoute] string projectCode, [FromServices] ILexboxApiProvider provider) =>
+            ([FromRoute] string projectCode, [FromServices] LfClassicLexboxApiProvider provider) =>
             {
                 var api = provider.GetProjectApi(projectCode);
                 return api.GetSemanticDomains();
