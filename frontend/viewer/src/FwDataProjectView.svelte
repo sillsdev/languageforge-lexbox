@@ -1,10 +1,11 @@
 ﻿<script lang="ts">
   import {SetupSignalR} from './lib/services/service-provider-signalr';
   import ProjectView from './ProjectView.svelte';
+  import {onDestroy} from 'svelte';
   import {navigate} from 'svelte-routing';
   import {AppNotification} from './lib/notifications/notifications';
   import {CloseReason} from './lib/generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
-  import {Entry} from './lib/mini-lcm';
+  import {useEventBus} from './lib/services/event-bus';
 
   export let projectName: string;
   const {connected, lexboxApi} = SetupSignalR(`/api/hub/${projectName}/fwdata`, {
@@ -12,25 +13,6 @@
       write: true,
       openWithFlex: true,
       feedback: true
-    },
-    {
-      OnEntryUpdated: async (entry: Entry) => {
-      },
-      async OnProjectClosed(reason: CloseReason): Promise<void> {
-        $connected = false;
-        switch (reason) {
-          case CloseReason.User:
-            navigate('/');
-            AppNotification.display('Project closed on another tab', 'warning', 'long');
-            break;
-          case CloseReason.Locked:
-            AppNotification.displayAction('The project is open in FieldWorks. Please close it and try again.', 'warning', {
-              label: 'Retry',
-              callback: () => $connected = true
-            });
-            break;
-        }
-      }
     },
     (errorContext) => {
       if (errorContext.error instanceof Error) {
@@ -40,5 +22,19 @@
       return {handled: false};
     }
   );
+  onDestroy(useEventBus().onProjectClosed(reason => {
+    switch (reason) {
+      case CloseReason.User:
+        navigate('/');
+        AppNotification.display('Project closed on another tab', 'warning', 'long');
+        break;
+      case CloseReason.Locked:
+        AppNotification.displayAction('The project is open in FieldWorks. Please close it and try again.', 'warning', {
+          label: 'Retry',
+          callback: () => $connected = true
+        });
+        break;
+    }
+  }));
 </script>
 <ProjectView {projectName} isConnected={$connected}></ProjectView>

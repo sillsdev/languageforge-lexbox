@@ -49,6 +49,12 @@ jobs:
           corepack enable
           pnpm install
           pnpm run build-app
+      - name: Upload viewer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-viewer-app
+          if-no-files-found: error
+          path: frontend/viewer/dist
 
   publish-mac:
     name: Publish FW Lite app for Mac
@@ -60,19 +66,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-viewer-app
+          path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: './frontend/package.json'
-
-      - name: Build viewer
-        working-directory: frontend/viewer
-        run: |
-          corepack enable
-          pnpm install
-          pnpm run build-app
 
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
@@ -93,39 +93,23 @@ jobs:
           if-no-files-found: error
           path: backend/FwLite/artifacts/publish/LocalWebApp/*
 
-
-  publish-app:
-    name: Publish FW Lite app
-
-    # only publish if tag matches fwlite-v* pattern
-    # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
+  publish-linux:
+    name: Publish FW Lite app for Linux
     needs: build-and-test
     timeout-minutes: 30
-    runs-on: windows-latest
-    env:
-      NuGetPackageSourceCredentials_github: ${{ secrets.GH_NUGET_PACKAGE_CREDS }}
-      enable-msix: false #we can't sign the msix installer so we'll disable the build for now
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-viewer-app
+          path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: './frontend/package.json'
-
-      - name: Setup Maui
-        run: dotnet workload install maui-windows
-
-      - name: Build viewer
-        working-directory: frontend/viewer
-        run: |
-          corepack enable
-          pnpm install
-          pnpm run build-app
 
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
@@ -135,22 +119,42 @@ jobs:
         working-directory: backend/FwLite/LocalWebApp
         run: dotnet publish -r linux-x64 --artifacts-path ../artifacts
 
-      - name: Publish Windows
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet publish -r win-x64 --artifacts-path ../artifacts
-
-      - name: Publish Windows ARM
-        working-directory: backend/FwLite/LocalWebApp
-        run: dotnet publish -r win-arm64 --artifacts-path ../artifacts
-
-      - name: Upload local web app artifacts
+      - name: Upload FWLite Desktop artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fw-lite-local-web-app
+          name: fw-lite-local-web-app-linux
           if-no-files-found: error
           path: backend/FwLite/artifacts/publish/LocalWebApp/*
 
-      - name: Publish Windows MAUI unpackaged app
+  publish-win:
+    name: Publish FW Lite app
+
+    # only publish if tag matches fwlite-v* pattern
+    # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
+    needs: build-and-test
+    timeout-minutes: 30
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-viewer-app
+          path: frontend/viewer/dist
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Setup Maui
+        run: dotnet workload install maui-windows
+
+      - name: Dotnet build
+        working-directory: backend/FwLite/LocalWebApp
+        run: dotnet build --configuration Release
+
+      - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
           dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
@@ -158,12 +162,12 @@ jobs:
       - name: Upload FWLite Desktop artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: fw-lite-unpackaged
+          name: fw-lite-portable
           if-no-files-found: error
           path: backend/FwLite/artifacts/publish/FwLiteDesktop/*
 
       - name: Publish Windows MAUI msix app
-        if: ${{env.enable-msix}}
+        if: false
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
           dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
@@ -173,7 +177,7 @@ jobs:
 
       - name: Upload FWLite Desktop artifacts
         uses: actions/upload-artifact@v4
-        if: ${{env.enable-msix}}
+        if: false
         with:
           name: fw-lite-msix
           if-no-files-found: error
@@ -183,7 +187,7 @@ jobs:
     #disabled as this doesn't work since ltops-signing doesn't have the signtool
     if: false
     name: Sign FWLite MSIX installer
-    needs: publish-app
+    needs: publish-win
     runs-on: [self-hosted, ltops-signing]
     steps:
       - uses: actions/download-artifact@v4

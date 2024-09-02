@@ -3,16 +3,20 @@ import {getHubProxyFactory, getReceiverRegister} from '../generated-signalr-clie
 import {type HubConnection, HubConnectionBuilder, HubConnectionState} from '@microsoft/signalr';
 import type { LexboxApiFeatures, LexboxApiMetadata } from './lexbox-api';
 import {LexboxService} from './service-provider';
-import type {ILexboxClient} from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
 import {onDestroy} from 'svelte';
 import {type Writable, writable} from 'svelte/store';
 import {AppNotification} from '../notifications/notifications';
+import {
+  CloseReason,
+  type ILexboxClient
+} from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
+import {useEventBus} from './event-bus';
+import {Entry} from '../mini-lcm';
 
 type ErrorContext = {error: Error|unknown, methodName?: string, origin: 'method'|'connection'};
 type ErrorHandler = (errorContext: ErrorContext) => {handled: boolean};
 export function SetupSignalR(url: string,
                              features: LexboxApiFeatures,
-                             client: ILexboxClient | null = null,
                              onError?: ErrorHandler) {
   let {connection, connected} = setupConnection(url, errorContext => {
     if (onError && onError(errorContext).handled) {
@@ -34,9 +38,17 @@ export function SetupSignalR(url: string,
       return features;
     }
   } satisfies LexboxApiMetadata);
-  if (client) {
-    getReceiverRegister('ILexboxClient').register(connection, client);
-  }
+  const changeEventBus = useEventBus();
+  getReceiverRegister('ILexboxClient').register(connection, {
+    OnProjectClosed(reason: CloseReason): Promise<void> {
+      changeEventBus.notifyProjectClosed(reason);
+      return Promise.resolve();
+    },
+    OnEntryUpdated(entry: Entry): Promise<void> {
+      changeEventBus.notifyEntryUpdated(entry);
+      return Promise.resolve();
+    }
+  });
   window.lexbox.ServiceProvider.setService(LexboxService.LexboxApi, lexboxApiHubProxy);
   return {connected, lexboxApi: lexboxApiHubProxy};
 }

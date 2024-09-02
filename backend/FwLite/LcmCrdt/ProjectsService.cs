@@ -83,6 +83,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
 
     public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)
     {
+        //todo make this helper method call `CurrentProjectService.PopulateProjectDataCache`
         var serviceScope = provider.CreateAsyncScope();
         SetProjectScope(crdtProject);
         return serviceScope;

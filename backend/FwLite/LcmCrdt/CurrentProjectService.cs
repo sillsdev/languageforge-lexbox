@@ -17,10 +17,9 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
         var key = CacheKey(Project);
         if (!memoryCache.TryGetValue(key, out object? result))
         {
-            using var entry = memoryCache.CreateEntry(key);
-            entry.SlidingExpiration = TimeSpan.FromMinutes(10);
             result = await dbContext.ProjectData.AsNoTracking().FirstAsync();
-            entry.Value = result;
+            memoryCache.Set(key, result);
+            memoryCache.Set(CacheKey(((ProjectData)result).Id), result);
         }
         if (result is null) throw new InvalidOperationException("Project data not found");
 
@@ -30,6 +29,16 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
     private static string CacheKey(CrdtProject project)
     {
         return project.Name + "|ProjectData";
+    }
+
+    private static string CacheKey(Guid projectId)
+    {
+        return $"ProjectData|{projectId}";
+    }
+
+    public static ProjectData? LookupProjectById(IMemoryCache memoryCache, Guid projectId)
+    {
+        return memoryCache.Get<ProjectData>(CacheKey(projectId));
     }
 
     public async ValueTask<ProjectData> PopulateProjectDataCache()
