@@ -31,7 +31,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
         <PackageReference Include="Microsoft.Playwright" Version="1.41.2" />
         <PackageReference Include="Microsoft.Playwright.TestAdapter" Version="1.41.2" />
         <PackageReference Include="Moq" Version="4.20.70" />
@@ -39,8 +39,8 @@
         <PackageReference Include="Shouldly" Version="4.2.1" />
         <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.1.0" />
         <PackageReference Include="SIL.Core" Version="13.0.0-beta0074" />
-        <PackageReference Include="xunit" Version="2.6.6" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.6">
+        <PackageReference Include="xunit" Version="2.9.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
