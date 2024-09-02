@@ -16,22 +16,24 @@ public class PartOfSpeechTests(ProjectLoaderFixture fixture) : IAsyncLifetime
         _api = fixture.CreateApi(projectName);
         _api.Should().NotBeNull();
 
-        var partOfSpeech = new PartOfSpeech()
+        var nounPos = new PartOfSpeech()
         {
-            Id = Guid.NewGuid(), Name = { { "en", "new-part-of-speech" } }
+            Id = Guid.NewGuid(), Name = { { "en", "Noun" } }
         };
-        await _api.CreatePartOfSpeech(partOfSpeech);
+        await _api.CreatePartOfSpeech(nounPos);
+
+        await _api.CreatePartOfSpeech(new() { Id = Guid.NewGuid(), Name = { { "en", "Verb" } } });
 
         await _api.CreateEntry(new Entry()
         {
             Id = Guid.NewGuid(),
-            LexemeForm = {{"en", "new-lexeme-form"}},
+            LexemeForm = {{"en", "Apple"}},
             Senses = new List<Sense>()
             {
                 new Sense()
                 {
-                    Gloss = {{"en", "new-sense-gloss"}},
-                    PartOfSpeechId = partOfSpeech.Id
+                    Gloss = {{"en", "Fruit"}},
+                    PartOfSpeechId = nounPos.Id
                 }
         }});
     }

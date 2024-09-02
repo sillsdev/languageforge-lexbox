@@ -415,11 +415,26 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     internal void CreateSense(ILexEntry lexEntry, Sense sense)
     {
         var lexSense = LexSenseFactory.Create(sense.Id, lexEntry);
+        var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
+        if (sense.PartOfSpeechId.HasValue && PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos))
+        {
+            msa.MainPOS = pos;
+        }
+        lexSense.SandboxMSA = msa;
         ApplySenseToLexSense(sense, lexSense);
     }
 
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
     {
+        if (lexSense.MorphoSyntaxAnalysisRA.GetPartOfSpeech()?.Guid != sense.PartOfSpeechId)
+        {
+            IPartOfSpeech? pos = null;
+            if (sense.PartOfSpeechId.HasValue)
+            {
+                pos = PartOfSpeechRepository.GetObject(sense.PartOfSpeechId.Value);
+            }
+            lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(pos);
+        }
         UpdateLcmMultiString(lexSense.Gloss, sense.Gloss);
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
         foreach (var senseSemanticDomain in sense.SemanticDomains)
