@@ -45,7 +45,10 @@ public class PartOfSpeechTests(ProjectLoaderFixture fixture) : IAsyncLifetime
     public async Task GetPartsOfSpeech_ReturnsAllPartsOfSpeech()
     {
         var partOfSpeeches = await _api.GetPartsOfSpeech().ToArrayAsync();
-        partOfSpeeches.Should().AllSatisfy(po => po.Id.Should().NotBe(Guid.Empty));
+        partOfSpeeches.Should()
+            .NotBeEmpty()
+            .And
+            .AllSatisfy(po => po.Id.Should().NotBe(Guid.Empty));
     }
 
     [Fact]
