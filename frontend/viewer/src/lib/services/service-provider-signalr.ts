@@ -3,10 +3,15 @@ import {getHubProxyFactory, getReceiverRegister} from '../generated-signalr-clie
 import type { HubConnection } from '@microsoft/signalr';
 import type { LexboxApiFeatures, LexboxApiMetadata } from './lexbox-api';
 import {LexboxService} from './service-provider';
-import type {ILexboxClient} from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
+import {
+  CloseReason,
+  type ILexboxClient
+} from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
+import {useEventBus} from './event-bus';
+import {Entry} from '../mini-lcm';
 
 type ErrorContext = {error: Error|unknown, methodName: string};
-export function SetupSignalR(connection: HubConnection, features: LexboxApiFeatures, client: ILexboxClient | null = null, onError?: (context: ErrorContext) => void) {
+export function SetupSignalR(connection: HubConnection, features: LexboxApiFeatures, onError?: (context: ErrorContext) => void) {
   const hubFactory = getHubProxyFactory('ILexboxApiHub');
   if (onError) {
     connection = new Proxy(connection, {
@@ -33,8 +38,17 @@ export function SetupSignalR(connection: HubConnection, features: LexboxApiFeatu
       return features;
     }
   } satisfies LexboxApiMetadata);
-  if (client) {
-    getReceiverRegister('ILexboxClient').register(connection, client);
-  }
+
+  const changeEventBus = useEventBus();
+  getReceiverRegister('ILexboxClient').register(connection, {
+    OnProjectClosed(reason: CloseReason): Promise<void> {
+      changeEventBus.notifyProjectClosed(reason);
+      return Promise.resolve();
+    },
+    OnEntryUpdated(entry: Entry): Promise<void> {
+      changeEventBus.notifyEntryUpdated(entry);
+      return Promise.resolve();
+    }
+  });
   window.lexbox.ServiceProvider.setService(LexboxService.LexboxApi, lexboxApiHubProxy);
 }

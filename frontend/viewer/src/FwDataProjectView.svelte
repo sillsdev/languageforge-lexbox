@@ -8,6 +8,7 @@
   import {AppNotification} from './lib/notifications/notifications';
   import {CloseReason} from './lib/generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
   import {Entry} from './lib/mini-lcm';
+  import {useEventBus} from './lib/services/event-bus';
 
   export let projectName: string;
   const connection = new HubConnectionBuilder()
@@ -35,26 +36,6 @@
       openWithFlex: true,
       feedback: true
     },
-    {
-      OnEntryUpdated: async (entry: Entry) => {
-        console.log('OnEntryUpdated', entry);
-      },
-      async OnProjectClosed(reason: CloseReason): Promise<void> {
-        // connected = false;
-        switch (reason) {
-          case CloseReason.User:
-            navigate('/');
-            AppNotification.display('Project closed on another tab', 'warning', 'long');
-            break;
-          case CloseReason.Locked:
-            AppNotification.displayAction('The project is open in FieldWorks. Please close it and try again.', 'warning', {
-              label: 'Retry',
-              callback: () => connected = true
-            });
-            break;
-        }
-      }
-    },
     (errorContext) => {
       connected = false;
       if (errorContext.error instanceof Error) {
@@ -66,6 +47,20 @@
       }
     }
   );
+  onDestroy(useEventBus().onProjectClosed(reason => {
+    switch (reason) {
+      case CloseReason.User:
+        navigate('/');
+        AppNotification.display('Project closed on another tab', 'warning', 'long');
+        break;
+      case CloseReason.Locked:
+        AppNotification.displayAction('The project is open in FieldWorks. Please close it and try again.', 'warning', {
+          label: 'Retry',
+          callback: () => connected = true
+        });
+        break;
+    }
+  }));
   let connected = false;
 </script>
 <ProjectView {projectName} isConnected={connected}></ProjectView>
