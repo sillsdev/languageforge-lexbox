@@ -77,7 +77,7 @@ public class BackgroundSyncService(
         try
         {
             await using var serviceScope = projectsService.CreateProjectScope(crdtProject);
-        await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
             var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
             return await syncService.ExecuteSync();
         }
