@@ -2,14 +2,21 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using LexBoxApi.Auth;
+using Microsoft.Extensions.Http.Resilience;
+using Polly;
 using Shouldly;
+using Testing.ApiTests;
 
 namespace Testing.Services;
 
 public class JwtHelper
 {
-    private static readonly HttpClientHandler Handler = new();
-    private static readonly HttpClient Client = new(Handler);
+    private static readonly SocketsHttpHandler Handler;
+    private static readonly HttpClient Client;
+    static JwtHelper()
+    {
+        (Handler, Client) = ApiTestBase.NewHttpClient();
+    }
 
     public static async Task<string> GetJwtForUser(SendReceiveAuth auth)
     {
@@ -58,7 +65,7 @@ public class JwtHelper
         return jwt;
     }
 
-    public static void ClearCookies(HttpClientHandler httpClientHandler)
+    public static void ClearCookies(SocketsHttpHandler httpClientHandler)
     {
         foreach (Cookie cookie in httpClientHandler.CookieContainer.GetAllCookies())
         {

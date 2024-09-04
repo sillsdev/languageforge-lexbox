@@ -1,6 +1,7 @@
 using System.Threading.Channels;
 using System.Web;
 using LocalWebApp.Utils;
+using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Extensibility;
 
@@ -8,10 +9,16 @@ namespace LocalWebApp.Auth;
 
 //this class is commented with a number of step comments, these are the steps in the OAuth flow
 //if a step comes before a method that means it awaits that call, if it comes after that means it resumes after the above await
-public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime applicationLifetime) : BackgroundService
+public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime applicationLifetime, IOptions<AuthConfig> options) : BackgroundService
 {
-    public async Task<Uri> SubmitLoginRequest(IPublicClientApplication application, CancellationToken cancellation)
+    public record SignInResult(Uri? AuthUri, bool HandledBySystemWebView);
+    public async Task<SignInResult> SubmitLoginRequest(IPublicClientApplication application, CancellationToken cancellation)
     {
+        if (options.Value.SystemWebViewLogin)
+        {
+           await HandleSystemWebViewLogin(application, cancellation);
+           return new(null, true);
+        }
         var request = new OAuthLoginRequest(application);
         if (!_requestChannel.Writer.TryWrite(request))
         {
@@ -22,7 +29,15 @@ public class OAuthService(ILogger<OAuthService> logger, IHostApplicationLifetime
         //step 4
         if (request.State is null) throw new InvalidOperationException("State is null");
         _oAuthLoginRequests[request.State] = request;
-        return uri;
+        return new(uri, false);
+    }
+
+    private async Task HandleSystemWebViewLogin(IPublicClientApplication application, CancellationToken cancellation)
+    {
+        var result = await application.AcquireTokenInteractive(AuthHelpers.DefaultScopes)
+            .WithUseEmbeddedWebView(false)
+            .WithSystemWebViewOptions(new() { })
+            .ExecuteAsync(cancellation);
     }
 
     public async Task<AuthenticationResult> FinishLoginRequest(Uri uri, CancellationToken cancellation = default)
