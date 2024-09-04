@@ -41,8 +41,7 @@ jobs:
           dotnet build --configuration Release
 
       - name: Dotnet test
-        working-directory: backend/FwLite/LcmCrdt.Tests
-        run: dotnet test --configuration Release  --logger GitHubActions
+        run: dotnet test FwLiteOnly.slnf --configuration Release  --logger GitHubActions
 
       - name: Build viewer
         working-directory: frontend/viewer
