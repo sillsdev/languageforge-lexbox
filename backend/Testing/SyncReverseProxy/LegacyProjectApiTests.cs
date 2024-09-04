@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Shouldly;
+using Testing.ApiTests;
 using Testing.Services;
 
 namespace Testing.SyncReverseProxy;
@@ -12,7 +13,7 @@ namespace Testing.SyncReverseProxy;
 public class LegacyProjectApiTests
 {
     private readonly string _baseUrl = TestingEnvironmentVariables.ServerBaseUrl;
-    private static readonly HttpClient Client = new();
+    private static readonly HttpClient Client = ApiTestBase.NewHttpClient().Client;
 
     private const string SampleRequest = """
 POST https://admin.languageforge.org/api/user/{userName}/projects HTTP/1.1

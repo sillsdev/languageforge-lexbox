@@ -26,10 +26,13 @@ public static class LocalWebAppServer
         }
 
         builder.ConfigureDev<AuthConfig>(config =>
-            config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
+            config.LexboxServers = [
+                new (new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
+                new (new("https://localhost:3000"), "Lexbox Local")
+            ]);
 //for now prod builds will also use lt dev until we deploy oauth to prod
         builder.ConfigureProd<AuthConfig>(config =>
-            config.DefaultAuthority = new("https://lexbox.dev.languagetechnology.org"));
+            config.LexboxServers = [new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev")]);
         builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
 
         builder.Services.AddLocalAppServices(builder.Environment);

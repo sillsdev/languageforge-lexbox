@@ -1,5 +1,6 @@
 ﻿using LcmCrdt;
 using LocalWebApp.Auth;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm.Push;
@@ -15,9 +16,9 @@ public class LexboxProjectService(
 {
     public record LexboxCrdtProject(Guid Id, string Name);
 
-    public async Task<LexboxCrdtProject[]> GetLexboxProjects()
+    public async Task<LexboxCrdtProject[]> GetLexboxProjects(LexboxServer server)
     {
-        var httpClient = await helpersFactory.GetDefault().CreateClient();
+        var httpClient = await helpersFactory.GetHelper(server).CreateClient();
         if (httpClient is null) return [];
         try
         {
@@ -30,9 +31,9 @@ public class LexboxProjectService(
         }
     }
 
-    public async Task<Guid?> GetLexboxProjectId(string code)
+    public async Task<Guid?> GetLexboxProjectId(LexboxServer server, string code)
     {
-        var httpClient = await helpersFactory.GetDefault().CreateClient();
+        var httpClient = await helpersFactory.GetHelper(server).CreateClient();
         if (httpClient is null) return null;
         try
         {
