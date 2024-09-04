@@ -53,6 +53,7 @@ public interface IEmailService
 
     public Task SendPasswordChangedEmail(User user);
 
+    public Task SendJoinProjectRequestEmail(User projectManagers, User requestingUser, Project project);
     public Task SendCreateProjectRequestEmail(LexAuthUser user, CreateProjectInput projectInput);
     public Task SendApproveProjectRequestEmail(User user, CreateProjectInput projectInput);
     public Task SendUserAddedEmail(User user, string projectName, string projectCode);

@@ -54,6 +54,50 @@ public class LexQueries
         return context.DraftProjects;
     }
 
+    public record ProjectsByLangCodeAndOrgInput(Guid OrgId, string LangCode);
+    [UseProjection]
+    [UseSorting]
+    public IQueryable<Project> ProjectsByLangCodeAndOrg(LoggedInContext loggedInContext, LexBoxDbContext context, IPermissionService permissionService, ProjectsByLangCodeAndOrgInput input)
+    {
+        if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
+        // Convert 3-letter code to 2-letter code if relevant, otherwise leave as-is
+        var langCode = Services.LangTagConstants.ThreeToTwo.GetValueOrDefault(input.LangCode, input.LangCode);
+        var query = context.Projects.Where(p =>
+            p.Organizations.Any(o => o.Id == input.OrgId) &&
+            p.FlexProjectMetadata != null &&
+            p.FlexProjectMetadata.WritingSystems != null &&
+            p.FlexProjectMetadata.WritingSystems.VernacularWss.Any(ws =>
+                ws.IsActive && (
+                    ws.Tag == langCode ||
+                    ws.Tag == $"qaa-x-{langCode}" ||
+                    ws.Tag.StartsWith($"{langCode}-")
+                )
+            )
+        );
+        // Org admins can see all projects, everyone else can only see non-confidential
+        if (!permissionService.CanEditOrg(input.OrgId))
+        {
+            query = query.Where(p => p.IsConfidential == false);
+        }
+        return query;
+    }
+
+    public record ProjectsInMyOrgInput(Guid OrgId);
+    [UseProjection]
+    [UseFiltering]
+    [UseSorting]
+    public IQueryable<Project> ProjectsInMyOrg(LoggedInContext loggedInContext, LexBoxDbContext context, IPermissionService permissionService, ProjectsInMyOrgInput input)
+    {
+        if (!loggedInContext.User.IsAdmin && !permissionService.IsOrgMember(input.OrgId)) throw new UnauthorizedAccessException();
+        var query = context.Projects.Where(p => p.Organizations.Any(o => o.Id == input.OrgId));
+        // Org admins can see all projects, everyone else can only see non-confidential
+        if (!permissionService.CanEditOrg(input.OrgId))
+        {
+            query = query.Where(p => p.IsConfidential == false);
+        }
+        return query;
+    }
+
     [UseSingleOrDefault]
     [UseProjection]
     public async Task<IQueryable<Project>> ProjectById(LexBoxDbContext context, IPermissionService permissionService, Guid projectId)

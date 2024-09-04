@@ -135,6 +135,18 @@
           }}
       />
     {/if}
+    {#if $search && createNew}
+      <ListItem
+        title="Create new..."
+        icon={mdiPlus}
+        class={cls('cursor-pointer', 'hover:bg-surface-300')}
+        noShadow
+        on:click={() => {
+            dispatch('createNew', $search);
+            $showSearchDialog = false;
+          }}
+      />
+    {/if}
     {#if $displayedEntries.length === 0}
       <div class="p-4 text-center opacity-75">
         {#if $result.search}

@@ -4,7 +4,7 @@
   import { AdminIcon, Icon } from '$lib/icons';
   import { createEventDispatcher } from 'svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import type { User } from './+page';
+  import type { User } from '../../../routes/(authenticated)/admin/+page';
 
   export let shownUsers: User[];
 
