@@ -10,8 +10,7 @@
 
   export let projectName: string;
   export let baseUrl: string = '';
-  export let signalrConnectionOptions: IHttpConnectionOptions = {};
-  setContext('project-name', projectName);
+  export let signalrConnectionOptions: IHttpConnectionOptions = {};;
   const connection = new HubConnectionBuilder()
     .withUrl(`${baseUrl}/api/hub/${projectName}/fwdata`, signalrConnectionOptions)
     .withAutomaticReconnect()

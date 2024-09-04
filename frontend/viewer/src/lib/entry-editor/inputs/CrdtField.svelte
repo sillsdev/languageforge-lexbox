@@ -20,7 +20,7 @@
     }
   }
 
-  type Value = $$Generic<unknown>;
+  type Value = $$Generic;
 
   const dispatch = createEventDispatcher<{
     change: { value: Value };

@@ -3,20 +3,26 @@ import type {I18nType} from '../i18n';
 
 interface FieldView {
   show: boolean;
+  order: number;
 }
 
 export const allFields: Record<FieldIds, FieldView> = {
-  lexemeForm: {show: true},
-  citationForm: {show: true},
-  literalMeaning: {show: true},
-  note: {show: true},
-  gloss: {show: true},
-  definition: {show: true},
-  partOfSpeechId: {show: true},
-  semanticDomains: {show: true},
-  sentence: {show: true},
-  translation: {show: true},
-  reference: {show: true},
+  //entry
+  lexemeForm: {show: true, order: 1},
+  citationForm: {show: true, order: 2},
+  literalMeaning: {show: true, order: 3},
+  note: {show: true, order: 4},
+
+  //sense
+  gloss: {show: true, order: 1},
+  definition: {show: true, order: 2},
+  partOfSpeechId: {show: true, order: 3},
+  semanticDomains: {show: true, order: 4},
+
+  //example sentence
+  sentence: {show: true, order: 1},
+  translation: {show: true, order: 2},
+  reference: {show: true, order: 3},
 };
 
 const viewDefinitions: ViewDefinition[] = [
@@ -42,32 +48,39 @@ const viewDefinitions: ViewDefinition[] = [
       citationForm: {show: false},
       literalMeaning: {show: false},
       note: {show: false},
+
+      //sense
+      gloss: {order: 2},
+      definition: {order: 1},
+
       reference: {show: false},
     }
   }
 ];
-
+const everythingView: View = {
+  id: 'everything',
+  i18nKey: '',
+  label: 'Everything (FieldWorks)',
+  fields: allFields,
+};
 export const views: View[] = [
-  {
-    id: 'everything',
-    i18nKey: '',
-    label: 'Everything (FieldWorks)',
-    fields: allFields,
-  },
+  everythingView,
   ...viewDefinitions.map(view => {
+    const fields: Record<FieldIds, FieldView> = recursiveSpread<typeof allFields>(allFields, view.fields);
     return {
+      ...everythingView,
       ...view,
-      fields: recursiveSpread(allFields, view.fields)
+      fields: fields
     };
   })
 ];
 
-function recursiveSpread<T extends Record<string, unknown>>(obj1: T, obj2: Partial<T>): T {
+function recursiveSpread<T extends Record<string, unknown>>(obj1: T, obj2: { [P in keyof T]?: Partial<T[P]> }): T {
   const result: Record<string, unknown> = {...obj1};
   for (const [key, value] of Object.entries(obj2)) {
     const currentValue = result[key];
     if (typeof currentValue === 'object' && currentValue !== null && typeof value === 'object' && value !== null) {
-      result[key] = recursiveSpread(currentValue as Record<string, unknown>, value as Record<string, unknown>);
+      result[key] = recursiveSpread(currentValue as Record<string, unknown>, value as Record<string, Partial<unknown>>);
     } else {
       result[key] = value;
     }
@@ -79,7 +92,7 @@ interface ViewDefinition {
   id: string;
   i18nKey: I18nType;
   label: string;
-  fields: Partial<Record<FieldIds, FieldView>>;
+  fields: Partial<Record<FieldIds, Partial<FieldView>>>;
 }
 
 export interface View extends ViewDefinition {

@@ -30,7 +30,7 @@
   $: collapse = empty && writingSystems.length > 1;
 </script>
 
-<div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={!$currentView.fields[id].show}>
+<div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name} />
   <div class="fields">
     {#each writingSystems as ws (ws.id)}

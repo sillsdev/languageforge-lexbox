@@ -56,6 +56,7 @@
   const viewSettings = initViewSettings({hideEmptyFields: false});
 
   export let projectName: string;
+  setContext('project-name', projectName);
   export let isConnected: boolean;
   export let showHomeButton = true;
   $: connected.set(isConnected);
@@ -159,17 +160,14 @@
 
   function onEntryCreated(entry: IEntry) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
-    navigateToEntry(entry);
+    navigateToEntry(entry, headword(entry));
   }
 
-  function navigateToEntry(entry: IEntry) {
-    $search = '';
-    selectEntry(entry);
-  }
-
-  function selectEntry(entry: IEntry) {
+  function navigateToEntry(entry: IEntry, searchText?: string) {
+    // this is to ensure that the selected entry is in the list of entries, otherwise it won't be selected
+    $search = searchText ?? '';
+    $selectedIndexExemplar = undefined;
     $selectedEntry = entry;
-    $selectedIndexExemplar = headword(entry).charAt(0).toLocaleUpperCase() || undefined;
     refreshEntries();
     pickedEntry = true;
   }
@@ -208,6 +206,11 @@
     });
   }
   let newEntryDialog: NewEntryDialog;
+  function openNewEntryDialog(text: string) {
+    const defaultWs = $writingSystems?.vernacular[0].id;
+    if (defaultWs === undefined) return;
+    newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
+  }
 </script>
 
 <svelte:head>
@@ -239,9 +242,9 @@
 
     <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
-      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail)}
+      <SearchBar on:entrySelected={(e) => navigateToEntry(e.detail.entry, e.detail.search)}
                  createNew={newEntryDialog !== undefined}
-                 on:createNew={(e) => newEntryDialog.openWithValue({lexemeForm: {"seh": e.detail}})} />
+                 on:createNew={(e) => openNewEntryDialog(e.detail)} />
     </div>
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
@@ -258,7 +261,7 @@
         </div>
       </Button>
       {#if $features.history}
-        <ActivityView/>
+        <ActivityView {projectName}/>
       {/if}
       {#if $features.feedback}
         <Button
