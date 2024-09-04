@@ -1,9 +1,8 @@
 ﻿<script lang="ts">
-  import {HubConnectionBuilder, HubConnectionState, type IHttpConnectionOptions} from '@microsoft/signalr';
-  import {onDestroy, setContext} from 'svelte';
+  import {type IHttpConnectionOptions} from '@microsoft/signalr';
+  import {onDestroy} from 'svelte';
   import {SetupSignalR} from './lib/services/service-provider-signalr';
   import ProjectView from './ProjectView.svelte';
-  import {onDestroy} from 'svelte';
   import {navigate} from 'svelte-routing';
   import {AppNotification} from './lib/notifications/notifications';
   import {CloseReason} from './lib/generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
@@ -11,8 +10,8 @@
 
   export let projectName: string;
   export let baseUrl: string = '';
-  export let signalrConnectionOptions: IHttpConnectionOptions = {};;
-  const {connected, lexboxApi} = SetupSignalR(`/api/hub/${projectName}/fwdata`, {
+  export let signalrConnectionOptions: IHttpConnectionOptions = {};
+  const {connected, lexboxApi} = SetupSignalR(`${baseUrl}/api/hub/${projectName}/fwdata`, {
       history: false,
       write: true,
       openWithFlex: true,
@@ -24,7 +23,8 @@
         if (message.includes('The project is locked')) return {handled: true}; //handled via the project closed callback
       }
       return {handled: false};
-    }
+    },
+    signalrConnectionOptions
   );
   onDestroy(useEventBus().onProjectClosed(reason => {
     switch (reason) {
