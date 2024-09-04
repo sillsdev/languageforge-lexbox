@@ -17,6 +17,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 {
     private LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
+    public Guid ProjectId => Cache.LangProject.Guid;
 
     private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
     private ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
@@ -99,26 +100,24 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(ws => new WritingSystem
-            {
-                //todo determine current and create a property for that.
-                Id = ws.Id,
-                Name = ws.LanguageTag,
-                Abbreviation = ws.Abbreviation,
-                Font = ws.DefaultFontName,
-                Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
-            }).ToArray(),
-            Analysis = WritingSystemContainer.CurrentAnalysisWritingSystems.Select(ws => new WritingSystem
-            {
-                Id = ws.Id,
-                Name = ws.LanguageTag,
-                Abbreviation = ws.Abbreviation,
-                Font = ws.DefaultFontName,
-                Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
-            }).ToArray()
+            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(FromLcmWritingSystem).ToArray(),
+            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select(FromLcmWritingSystem).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
+    }
+
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws)
+    {
+        return new WritingSystem
+        {
+            //todo determine current and create a property for that.
+            Id = ws.Id,
+            Name = ws.LanguageTag,
+            Abbreviation = ws.Abbreviation,
+            Font = ws.DefaultFontName,
+            Exemplars = ws.CharacterSets.FirstOrDefault(s => s.Type == "index")?.Characters.ToArray() ?? []
+        };
     }
 
     internal void CompleteExemplars(WritingSystems writingSystems)
@@ -142,7 +141,26 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
-        throw new NotImplementedException();
+        CoreWritingSystemDefinition? ws = null;
+        UndoableUnitOfWorkHelper.Do("Create Writing System",
+            "Remove writing system",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.Id.Code, out ws);
+                ws.Abbreviation = writingSystem.Abbreviation;
+                switch (type)
+                {
+                    case WritingSystemType.Analysis:
+                        Cache.ServiceLocator.WritingSystems.AddToCurrentAnalysisWritingSystems(ws);
+                        break;
+                    case WritingSystemType.Vernacular:
+                        Cache.ServiceLocator.WritingSystems.AddToCurrentVernacularWritingSystems(ws);
+                        break;
+                }
+            });
+        if (ws is null) throw new InvalidOperationException("Writing system not found");
+        return Task.FromResult(FromLcmWritingSystem(ws));
     }
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -160,7 +178,16 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
-        throw new NotImplementedException();
+        if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
+        UndoableUnitOfWorkHelper.Do("Create Part of Speech",
+            "Remove part of speech",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
+                    .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
+                UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
+            });
     }
 
     public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
@@ -178,7 +205,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
     {
-        throw new NotImplementedException();
+        if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
+        UndoableUnitOfWorkHelper.Do("Create Semantic Domain",
+            "Remove semantic domain",
+            Cache.ActionHandlerAccessor,
+            () =>
+            {
+                var lcmSemanticDomain = Cache.ServiceLocator.GetInstance<ICmSemanticDomainFactory>()
+                    .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
+                UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
+                UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
+            });
     }
 
     internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
@@ -201,12 +238,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     private Sense FromLexSense(ILexSense sense)
     {
+        var enWs = GetWritingSystemHandle("en");
         var s =  new Sense
         {
             Id = sense.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
-            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.PosFieldName ?? "",
+            PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
             PartOfSpeechId = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Guid,
             SemanticDomains = sense.SemanticDomainsRC.Select(s => new SemanticDomain
             {
@@ -306,44 +344,27 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<Entry> CreateEntry(Entry entry)
     {
-        // TODO: The API requires a value and the UI assumes it has a value. How should we handle this?
-        // if (entry.Id != default) throw new NotSupportedException("Id must be empty");
-        Guid entryId = default;
+        entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
         UndoableUnitOfWorkHelper.Do("Create Entry",
             "Remove entry",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var stemMorphType = MorphTypeRepository.GetObject(MoMorphTypeTags.kguidMorphStem);
-                var firstSense = entry.Senses.FirstOrDefault();
-                var lexEntry = LexEntryFactory.Create(new LexEntryComponents
-                {
-                    MorphType = stemMorphType,
-                    LexemeFormAlternatives = MultiStringToTsStrings(entry.LexemeForm),
-                    GlossAlternatives = MultiStringToTsStrings(firstSense?.Gloss),
-                    GlossFeatures = [],
-                    MSA = null
-                });
+                var lexEntry = LexEntryFactory.Create(entry.Id, Cache.ServiceLocator.GetInstance<ILangProjectRepository>().Singleton.LexDbOA);
+                lexEntry.LexemeFormOA = Cache.ServiceLocator.GetInstance<IMoStemAllomorphFactory>().Create();
+                UpdateLcmMultiString(lexEntry.LexemeFormOA.Form, entry.LexemeForm);
                 UpdateLcmMultiString(lexEntry.CitationForm, entry.CitationForm);
                 UpdateLcmMultiString(lexEntry.LiteralMeaning, entry.LiteralMeaning);
                 UpdateLcmMultiString(lexEntry.Comment, entry.Note);
-                if (firstSense is not null)
-                {
-                    var lexSense = lexEntry.SensesOS.First();
-                    ApplySenseToLexSense(firstSense, lexSense);
-                }
 
-                //first sense is already created
-                foreach (var sense in entry.Senses.Skip(1))
+                foreach (var sense in entry.Senses)
                 {
                     CreateSense(lexEntry, sense);
                 }
 
-                entryId = lexEntry.Guid;
             });
-        if (entryId == default) throw new InvalidOperationException("Entry was not created");
 
-        return await GetEntry(entryId) ?? throw new InvalidOperationException("Entry was not found");
+        return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)
@@ -396,13 +417,33 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     internal void CreateSense(ILexEntry lexEntry, Sense sense)
     {
         var lexSense = LexSenseFactory.Create(sense.Id, lexEntry);
+        var msa = new SandboxGenericMSA() { MsaType = lexSense.GetDesiredMsaType() };
+        if (sense.PartOfSpeechId.HasValue && PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out var pos))
+        {
+            msa.MainPOS = pos;
+        }
+        lexSense.SandboxMSA = msa;
         ApplySenseToLexSense(sense, lexSense);
     }
 
     private void ApplySenseToLexSense(Sense sense, ILexSense lexSense)
     {
+        if (lexSense.MorphoSyntaxAnalysisRA.GetPartOfSpeech()?.Guid != sense.PartOfSpeechId)
+        {
+            IPartOfSpeech? pos = null;
+            if (sense.PartOfSpeechId.HasValue)
+            {
+                pos = PartOfSpeechRepository.GetObject(sense.PartOfSpeechId.Value);
+            }
+            lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(pos);
+        }
         UpdateLcmMultiString(lexSense.Gloss, sense.Gloss);
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
+        foreach (var senseSemanticDomain in sense.SemanticDomains)
+        {
+            lexSense.SemanticDomainsRC.Add(GetLcmSemanticDomain(senseSemanticDomain.Id));
+        }
+
         foreach (var exampleSentence in sense.ExampleSentences)
         {
             CreateExampleSentence(lexSense, exampleSentence);
@@ -424,7 +465,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        if (lexSense.Owner.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
+        if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException($"Sense {senseId} does not belong to the expected entry, expected Id {entryId}, actual Id {lexSense.Entry.Guid}");
         UndoableUnitOfWorkHelper.Do("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
@@ -439,7 +480,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
-        if (lexSense.Owner.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
+        if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
         UndoableUnitOfWorkHelper.Do("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
@@ -476,10 +517,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UpdateObjectInput<ExampleSentence> update)
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
-        if (lexExampleSentence.Owner.Guid != senseId)
-            throw new InvalidOperationException("Example sentence does not belong to sense");
-        if (lexExampleSentence.Owner.Owner.Guid != entryId)
-            throw new InvalidOperationException("Example sentence does not belong to entry");
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
         UndoableUnitOfWorkHelper.Do("Update Example Sentence",
             "Revert example sentence",
             Cache.ServiceLocator.ActionHandler,
@@ -494,16 +532,30 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
-        if (lexExampleSentence.Owner.Guid != senseId)
-            throw new InvalidOperationException("Example sentence does not belong to sense");
-        if (lexExampleSentence.Owner.Owner.Guid != entryId)
-            throw new InvalidOperationException("Example sentence does not belong to entry");
+        ValidateOwnership(lexExampleSentence, entryId, senseId);
         UndoableUnitOfWorkHelper.Do("Delete Example Sentence",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());
         return Task.CompletedTask;
     }
+
+    private static void ValidateOwnership(ILexExampleSentence lexExampleSentence, Guid entryId, Guid senseId)
+    {
+        //todo the owner many not be a sense, but could be something owned by the sense.
+        if (lexExampleSentence.Owner is ILexSense sense)
+        {
+            if (sense.Guid != senseId) throw new InvalidOperationException("Example sentence does not belong to sense");
+            if (sense.Entry.Guid != entryId)
+                throw new InvalidOperationException("Example sentence does not belong to entry");
+        }
+        else
+        {
+            throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
+                                                lexExampleSentence.Owner.ClassName);
+        }
+    }
+
 
     public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
     {

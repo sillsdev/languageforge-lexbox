@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: languagedepot
+
+resources:
+- ../local-dev/
+
+patches:
+  - path: lexbox.patch.yaml
+  - target:
+      version: v1
+      kind: PersistentVolumeClaim
+    path: change-storage-class.patch.yaml
+  - path: app-config.yaml
+
+images:
+  - name: local-dev-init #revert change made by local-dev patch
+    newName: busybox
+  - name: ghcr.io/sillsdev/lexbox-api
+    newTag: develop #will be replaced by workflow
+  - name: ghcr.io/sillsdev/lexbox-ui
+    newTag: develop
+  - name: ghcr.io/sillsdev/lexbox-hgweb
+    newTag: latest

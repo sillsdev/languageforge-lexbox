@@ -11,7 +11,9 @@ public static class FwDataBridgeKernel
     {
         services.AddMemoryCache();
         services.AddLogging();
+        services.AddOptions<FwDataBridgeConfig>();
         services.AddSingleton<FwDataFactory>();
+        services.AddSingleton<FieldWorksProjectList>();
         services.AddSingleton<IProjectLoader, ProjectLoader>();
         services.AddKeyedScoped<ILexboxApi>(FwDataApiKey, (provider, o) => provider.GetRequiredService<FwDataFactory>().GetCurrentFwDataMiniLcmApi(true));
         services.AddSingleton<FwDataProjectContext>();

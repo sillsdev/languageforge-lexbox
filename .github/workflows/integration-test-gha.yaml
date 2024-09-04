@@ -1,0 +1,98 @@
+name: GHA integration tests
+on:
+  workflow_dispatch:
+    inputs:
+      lexbox-api-tag:
+        description: 'The version of lexbox-api to test'
+        default: 'develop'
+        required: true
+  workflow_call:
+    inputs:
+      lexbox-api-tag:
+        description: 'The version of lexbox-api to test'
+        default: 'develop'
+        type: string
+        required: true
+
+jobs:
+  execute:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - run: task setup-local-env
+      - name: setup k8s
+        uses: helm/kind-action@v1.10.0
+        with:
+          config: deployment/gha/kind.yaml
+      - name: Verify k8s
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+      - name: Update image lexbox-api version
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+      # It's also possible that hgweb and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well
+      - name: Pull hgweb if updated
+        id: hgweb_image
+        continue-on-error: true
+        run: docker pull ghcr.io/sillsdev/lexbox-hgweb:${{ inputs.lexbox-api-tag }}
+      - name: Update image hgweb version
+        if: ${{ steps.hgweb_image.outcome == 'success' }}
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-hgweb").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+      - name: Pull ui if updated
+        id: ui_image
+        continue-on-error: true
+        run: docker pull ghcr.io/sillsdev/lexbox-ui:${{ inputs.lexbox-api-tag }}
+      - name: Update image ui version
+        if: ${{ steps.ui_image.outcome == 'success' }}
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-ui").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
+      - name: deploy
+        run: |
+          kubectl create namespace languagedepot
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
+          kubectl wait --for=condition=Ready --timeout=90s pod -l 'app in (cert-manager, webhook)' -n cert-manager
+          kubectl apply -k ./deployment/gha
+          kubectl wait --for=condition=Ready --timeout=120s pod -l 'app.kubernetes.io/component=controller' -n languagedepot
+          kubectl wait --for=condition=Ready --timeout=120s pod -l 'app in (lexbox, ui, hg, db)' -n languagedepot
+      - name: forward ingress
+        run: kubectl port-forward service/ingress-nginx-controller 6579:80 -n languagedepot &
+      - name: verify ingress
+        run: curl -v http://localhost:6579
+      - name: build
+        run: dotnet restore LexBoxOnly.slnf && dotnet build --no-restore LexBoxOnly.slnf
+      - name: Dotnet test
+        env:
+          TEST_SERVER_HOSTNAME: 'localhost:6579'
+          TEST_STANDARD_HG_HOSTNAME: 'hg.localhost:6579'
+          TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost:6579'
+          TEST_PROJECT_CODE: 'sena-3'
+          TEST_DEFAULT_PASSWORD: 'pass'
+        run: dotnet test LexBoxOnly.slnf --logger GitHubActions --filter "Category=Integration|Category=FlakyIntegration" --blame-hang-timeout 40m
+      - name: status
+        if: failure()
+        run: |
+          mkdir -p k8s-logs
+          for app in lexbox ui hg db; do
+            kubectl describe pods -l "app=${app}" -n languagedepot > k8s-logs/describe-${app}.txt
+            kubectl logs -l "app=${app}" -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-${app}.txt
+          done
+          kubectl logs -l 'app.kubernetes.io/name=ingress-nginx' -n languagedepot --prefix --all-containers --tail=-1 > k8s-logs/logs-ingress.txt
+      - name: upload status
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k8s-logs
+          path: k8s-logs/*.txt
+

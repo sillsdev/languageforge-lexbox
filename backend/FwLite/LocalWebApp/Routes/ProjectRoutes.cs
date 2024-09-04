@@ -15,12 +15,12 @@ public static partial class ProjectRoutes
     {
         var group = app.MapGroup("/api").WithOpenApi();
         group.MapGet("/projects",
-            async (ProjectsService projectService, LexboxProjectService lexboxProjectService) =>
+            async (ProjectsService projectService, LexboxProjectService lexboxProjectService, FieldWorksProjectList fieldWorksProjectList) =>
         {
             var crdtProjects = await projectService.ListProjects();
             var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
             //basically populate projects and indicate if they are lexbox or fwdata
-            foreach (var p in FieldWorksProjectList.EnumerateProjects())
+            foreach (var p in fieldWorksProjectList.EnumerateProjects())
             {
                 if (projects.TryGetValue(p.Name, out var project))
                 {
@@ -55,7 +55,7 @@ public static partial class ProjectRoutes
                     return Results.BadRequest("Project already exists");
                 if (!ProjectName().IsMatch(name))
                     return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
-                await projectService.CreateProject(name, afterCreate: AfterCreate);
+                await projectService.CreateProject(new(name, AfterCreate: AfterCreate));
                 return TypedResults.Ok();
             });
         group.MapPost($"/upload/crdt/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
@@ -86,11 +86,11 @@ public static partial class ProjectRoutes
                 var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(newProjectName);
                 if (foundProjectGuid is null)
                     return Results.BadRequest($"Project code {newProjectName} not found on lexbox");
-                await projectService.CreateProject(newProjectName, foundProjectGuid.Value, options.Value.DefaultAuthority,
+                await projectService.CreateProject(new(newProjectName, foundProjectGuid.Value, options.Value.DefaultAuthority,
                     async (provider, project) =>
                     {
                         await provider.GetRequiredService<SyncService>().ExecuteSync();
-                    });
+                    }, SeedNewProjectData: false));
                 return TypedResults.Ok();
             });
         return group;

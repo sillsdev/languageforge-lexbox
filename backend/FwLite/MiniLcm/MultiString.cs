@@ -32,6 +32,12 @@ public class MultiString: IDictionary
         return new(Values);
     }
 
+    public override string ToString()
+    {
+        if (Values.Count == 0) return "{}";
+        return string.Join(", ", Values.Select(kv => $"{kv.Key}: {kv.Value}"));
+    }
+
     public virtual IDictionary<WritingSystemId, string> Values { get; }
 
     public string this[WritingSystemId key]

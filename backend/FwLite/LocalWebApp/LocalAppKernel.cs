@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using SIL.Harmony;
+using FwLiteProjectSync;
 using FwDataMiniLcmBridge;
 using LcmCrdt;
 using LocalWebApp.Services;
@@ -21,10 +22,12 @@ public static class LocalAppKernel
         services.AddSingleton<UrlContext>();
         services.AddScoped<SyncService>();
         services.AddScoped<LexboxProjectService>();
+        services.AddSingleton<ChangeEventBus>();
         services.AddSingleton<ImportFwdataService>();
         services.AddSingleton<BackgroundSyncService>();
         services.AddSingleton<IHostedService>(s => s.GetRequiredService<BackgroundSyncService>());
         services.AddLcmCrdtClient();
+        services.AddFwLiteProjectSync();
         services.AddFwDataBridge();
 
         services.AddOptions<JsonOptions>().PostConfigure<IOptions<CrdtConfig>>((jsonOptions, crdtConfig) =>

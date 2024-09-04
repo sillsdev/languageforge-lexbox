@@ -1,0 +1,18 @@
+{
+  "solution": {
+    "path": "LexBox.sln",
+    "projects": [
+      "backend\\FwLite\\MiniLcm\\MiniLcm.csproj",
+      "backend\\harmony\\src\\SIL.Harmony.Core\\SIL.Harmony.Core.csproj",
+      "backend\\harmony\\src\\SIL.Harmony\\SIL.Harmony.csproj",
+      "backend\\FwLite\\LcmCrdt\\LcmCrdt.csproj",
+      "backend\\FwLite\\LcmCrdt.Tests\\LcmCrdt.Tests.csproj",
+      "backend\\FWLite\\LocalWebApp\\LocalWebApp.csproj",
+      "backend\\FwLite\\FwLiteDesktop\\FwLiteDesktop.csproj",
+      "backend\\FWLite\\FwDataMiniLcmBridge\\FwDataMiniLcmBridge.csproj",
+      "backend\\FwLite\\FwDataMiniLcmBridge.Tests\\FwDataMiniLcmBridge.Tests.csproj",
+      "backend\\FWLite\\FwLiteProjectSync\\FwLiteProjectSync.csproj",
+      "backend\\FWLite\\FwLiteProjectSync.Tests\\FwLiteProjectSync.Tests.csproj",
+    ]
+  }
+} 

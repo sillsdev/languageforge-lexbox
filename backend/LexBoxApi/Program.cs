@@ -7,6 +7,7 @@ using LexBoxApi;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.ErrorHandling;
+using LexBoxApi.Hub;
 using LexBoxApi.Otel;
 using LexBoxApi.Services;
 using LexCore.Exceptions;
@@ -53,6 +54,7 @@ builder.Services.AddControllers(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
 }).AddControllersAsServices();
+builder.Services.AddSignalR();
 builder.Services.AddSingleton(services =>
     services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -168,6 +170,7 @@ app.MapTus("/api/tus-test",
 app.MapTus($"/api/project/upload-zip/{{{ProxyConstants.HgProjectCodeRouteKey}}}",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetResetZipUploadConfig())
     .RequireAuthorization(new AdminRequiredAttribute());
+app.MapHub<CrdtProjectChangeHub>("/api/hub/crdt/project-changes").RequireAuthorization();
 // /api routes should never make it to this point, they should be handled by the controllers, so return 404
 app.Map("/api/{**catch-all}", () => Results.NotFound()).AllowAnonymous();
 

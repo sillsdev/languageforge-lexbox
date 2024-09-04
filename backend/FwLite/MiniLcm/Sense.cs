@@ -1,6 +1,6 @@
 ﻿namespace MiniLcm;
 
-public class Sense
+public class Sense : IObjectWithId
 {
     public virtual Guid Id { get; set; }
     public virtual MultiString Definition { get; set; } = new();

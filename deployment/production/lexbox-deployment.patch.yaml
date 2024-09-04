@@ -12,9 +12,9 @@ spec:
         - name: lexbox-api
           resources:
             requests:
-              memory: 450Mi # based on usage
+              memory: 1Gi # based on usage
             limits:
-              memory: 450Mi
+              memory: 1Gi
           env:
             - name: Email__SmtpHost
               value: email-smtp.us-east-1.amazonaws.com

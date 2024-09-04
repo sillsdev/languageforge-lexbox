@@ -149,6 +149,12 @@ public class AuthHelpers
         return auth?.Account.Username;
     }
 
+    public async ValueTask<string?> GetCurrentToken()
+    {
+        var auth = await GetAuth();
+        return auth?.AccessToken;
+    }
+
     /// <summary>
     /// will return null if no auth token is available
     /// </summary>

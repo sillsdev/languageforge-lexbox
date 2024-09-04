@@ -63,7 +63,7 @@ public static class LcmCrdtKernel
             });
     }
 
-    private static void ConfigureCrdt(CrdtConfig config)
+    public static void ConfigureCrdt(CrdtConfig config)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
