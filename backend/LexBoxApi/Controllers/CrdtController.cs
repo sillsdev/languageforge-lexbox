@@ -1,4 +1,5 @@
-﻿using SIL.Harmony.Core;
+﻿using System.Text.Json.Serialization;
+using SIL.Harmony.Core;
 using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Hub;
 using LexBoxApi.Services;
@@ -42,13 +43,20 @@ public class CrdtController(
         return Ok();
     }
 
+    //using an async enumerable here to reduce memory usage as it allows streaming the Commits
+    public record ChangesResult(IAsyncEnumerable<ServerCommit> MissingFromClient, SyncState ServerSyncState): IChangesResult
+    {
+        [JsonIgnore]//just to ensure type safety
+        IEnumerable<CommitBase> IChangesResult.MissingFromClient => MissingFromClient.ToBlockingEnumerable();
+    }
     [HttpPost("{projectId}/changes")]
-    public async Task<ActionResult<ChangesResult<ServerCommit>>> Changes(Guid projectId,
+    public async Task<ActionResult<ChangesResult>> Changes(Guid projectId,
         [FromBody] SyncState clientHeads)
     {
         await permissionService.AssertCanSyncProject(projectId);
         var commits = dbContext.Set<ServerCommit>().Where(c => c.ProjectId == projectId);
-        return await commits.GetChanges<ServerCommit, ServerJsonChange>(clientHeads);
+        var localState = await commits.GetSyncState();
+        return new ChangesResult(commits.GetMissingCommits<ServerCommit, ServerJsonChange>(localState, clientHeads), localState);
     }
 
     public record LexboxCrdtProject(Guid Id, string Name);
