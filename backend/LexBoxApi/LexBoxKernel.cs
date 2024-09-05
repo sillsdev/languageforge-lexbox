@@ -15,6 +15,7 @@ namespace LexBoxApi;
 public static class LexBoxKernel
 {
     public const string SwaggerDocumentName = "v1";
+    public const string OpenApiPublicDocumentName = "public";
 
     public static void AddLexBoxApi(this IServiceCollection services,
         ConfigurationManager configuration,
