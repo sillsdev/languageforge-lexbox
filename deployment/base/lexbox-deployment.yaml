@@ -95,8 +95,12 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
+          - name: K8S_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
           - name: OTEL_RESOURCE_ATTRIBUTES
-            value: k8s.node.name=$(K8S_NODE_NAME)
+            value: k8s.node.name=$(K8S_NODE_NAME),k8s.pod.name=$(K8S_POD_NAME)
           - name: OTEL_DOTNET_EXPERIMENTAL_ASPNETCORE_DISABLE_URL_QUERY_REDACTION
             value: 'true'
           - name: POSTGRES_DB
