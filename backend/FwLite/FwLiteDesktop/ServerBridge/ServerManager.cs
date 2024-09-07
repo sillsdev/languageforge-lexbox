@@ -14,6 +14,7 @@ public class ServerManager(Action<WebApplicationBuilder>? configure = null) : IM
     private ILogger<ServerManager>? _logger;
     private Thread? _thread;
     private readonly ManualResetEvent _stop = new(false);
+    public IServiceProvider WebServices => _webApp?.Services ?? throw new ApplicationException("initlize not yet called");
 
     public void Initialize(IServiceProvider services)
     {
