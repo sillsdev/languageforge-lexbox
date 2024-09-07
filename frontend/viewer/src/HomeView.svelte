@@ -11,37 +11,20 @@
   import {Button, Card, type ColumnDef, Table, TextField, tableCell, Icon, ProgressCircle} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
+  import {useProjectsService, type Project, type ServerStatus} from './lib/services/projects-service';
+  import {onMount} from 'svelte';
 
-  type Project = {
-    name: string;
-    crdt: boolean;
-    fwdata: boolean;
-    lexbox: boolean,
-    server: string | null,
-    id: string | null
-  };
+  const projectsService = useProjectsService();
 
   let newProjectName = '';
 
   let createError: string;
 
   async function createProject() {
-    createError = '';
 
-    if (!newProjectName) {
-      createError = 'Project name is required.';
-      return;
-    }
-    const response = await fetch(`/api/project?name=${newProjectName}`, {
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      createError = await response.json();
-      return;
-    }
-
-    createError = '';
+    const response = await projectsService.createProject(newProjectName);
+    createError = response.error ?? '';
+    if (createError) return;
     newProjectName = '';
     void refreshProjects();
   }
@@ -51,9 +34,7 @@
 
   async function importFwDataProject(name: string) {
     importing = name;
-    await fetch(`/api/import/fwdata/${name}`, {
-      method: 'POST',
-    });
+    await projectsService.importFwDataProject(name);
     await refreshProjects();
     importing = '';
   }
@@ -62,32 +43,17 @@
 
   async function downloadCrdtProject(project: Project) {
     downloading = project.name;
-    await fetch(`/api/download/crdt/${project.server}/${project.name}`, {method: 'POST'});
+    await projectsService.downloadCrdtProject(project);
     await refreshProjects();
     downloading = '';
   }
 
-  let uploading = '';
-
-  async function uploadCrdtProject(project: Project) {
-    uploading = project.name;
-    await fetch(`/api/upload/crdt/${project.server}/${project.name}`, {method: 'POST'});
-    await refreshProjects();
-    uploading = '';
-  }
-
-  let projectsPromise = fetchProjects();
+  let projectsPromise = projectsService.fetchProjects();
   let projects: Project[] = [];
 
-  async function fetchProjects() {
-    let r = await fetch('/api/localProjects');
-    projects = (await r.json()) as Project[];
-    return projects;
-  }
-
   async function refreshProjects() {
-    let promise = fetchProjects();
-    await promise;//avoids clearing out the list until the new list is fetched
+    let promise = projectsService.fetchProjects();
+    projects = await promise;//avoids clearing out the list until the new list is fetched
     projectsPromise = promise;
   }
 
@@ -95,21 +61,14 @@
   let loadingRemoteProjects = false;
   async function fetchRemoteProjects() {
     loadingRemoteProjects = true;
-    let r = await fetch('/api/remoteProjects');
-    remoteProjects = (await r.json()) as { [server: string]: Project[] };
+    remoteProjects = await projectsService.fetchRemoteProjects();
     loadingRemoteProjects = false;
   }
   fetchRemoteProjects();
 
-  type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null };
+
   let servers: ServerStatus[] = [];
-
-  async function fetchServers() {
-    let r = await fetch('/api/auth/servers');
-    servers = await r.json();
-  }
-
-  fetchServers();
+  onMount(async () => servers = await projectsService.fetchServers());
 
   $: columns = [
     {
