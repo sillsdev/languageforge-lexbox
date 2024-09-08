@@ -37,12 +37,12 @@ public abstract class MiniLcmApiHubBase(ILexboxApi lexboxApi) : Hub<ILexboxHubCl
         return lexboxApi.GetSemanticDomains();
     }
 
-    public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
+    public virtual IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return lexboxApi.GetEntries(options);
     }
 
-    public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
+    public virtual IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
         return lexboxApi.SearchEntries(query, options);
     }

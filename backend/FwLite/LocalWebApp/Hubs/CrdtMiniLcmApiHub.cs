@@ -1,6 +1,7 @@
 ﻿using LcmCrdt;
+using LcmCrdt.Data;
 using LocalWebApp.Services;
-using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using SystemTextJsonPatch;
 
@@ -12,7 +13,8 @@ public class CrdtMiniLcmApiHub(
     SyncService syncService,
     ChangeEventBus changeEventBus,
     CurrentProjectService projectContext,
-    LexboxProjectService lexboxProjectService) : MiniLcmApiHubBase(lexboxApi)
+    LexboxProjectService lexboxProjectService,
+    IMemoryCache memoryCache) : MiniLcmApiHubBase(lexboxApi)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;
@@ -21,9 +23,49 @@ public class CrdtMiniLcmApiHub(
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project.Name));
         await syncService.ExecuteSync();
-        changeEventBus.SetupGlobalSignalRSubscription();
+        IDisposable[] cleanup =
+        [
+            //todo this results in a memory leak, due to holding on to the hub instance, it will be disposed even if the context items are not.
+            changeEventBus.ListenForEntryChanges(projectContext.Project.Name, Context.ConnectionId)
+        ];
+        Context.Items["clanup"] = cleanup;
 
         await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        await base.OnDisconnectedAsync(exception);
+        foreach (var disposable in Context.Items["cleanup"] as IDisposable[] ?? [])
+        {
+            disposable.Dispose();
+        }
+    }
+
+    private Func<LcmCrdt.Objects.Entry, bool> CurrentFilter
+    {
+        set => memoryCache.Set($"CurrentFilter|HubConnectionId={Context.ConnectionId}", value);
+    }
+
+    public static Func<LcmCrdt.Objects.Entry, bool> CurrentProjectFilter(IMemoryCache memoryCache, string connectionId)
+    {
+        return memoryCache.Get<Func<LcmCrdt.Objects.Entry, bool>>(
+            $"CurrentFilter|HubConnectionId={connectionId}") ?? (_ => true);
+    }
+
+    public override IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
+    {
+        CurrentFilter =
+            Filtering.CompiledFilter(null, options?.Exemplar?.WritingSystem ?? "default", options?.Exemplar?.Value);
+        return base.GetEntries(options);
+    }
+
+    public override IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
+    {
+        CurrentFilter = Filtering.CompiledFilter(query,
+            options?.Exemplar?.WritingSystem ?? "default",
+            options?.Exemplar?.Value);
+        return base.SearchEntries(query, options);
     }
 
     public override async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)

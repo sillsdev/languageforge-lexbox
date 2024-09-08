@@ -40,8 +40,23 @@
   export let loading = false;
 
   const changeEventBus = useEventBus();
-  onDestroy(changeEventBus.onEntryUpdated(entry => {
-    entries.update(list => list?.map(e => e.id === entry.id ? entry : e));
+  onDestroy(changeEventBus.onEntryUpdated(updatedEntry => {
+    entries.update(list => {
+      let updated = false;
+      let updatedList = list?.map(e => {
+        if (e.id === updatedEntry.id) {
+          updated = true;
+          return updatedEntry;
+        } else {
+          return e;
+        }
+      }) ?? [];
+      //entry not found, add it to the end
+      //todo this does not handle sorting, should we bother?
+      if (!updated) updatedList.push(updatedEntry);
+
+      return updatedList;
+    });
   }));
 
   const lexboxApi = useLexboxApi();

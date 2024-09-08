@@ -31,6 +31,13 @@ public static class TestRoutes
             if (entry is Entry crdtEntry)
                 eventBus.NotifyEntryUpdated(crdtEntry);
         });
+        group.MapPost("/add-new-entry",
+            async (ILexboxApi api, ChangeEventBus eventBus, MiniLcm.Entry entry) =>
+            {
+                var createdEntry = await api.CreateEntry(entry);
+                if (createdEntry is Entry crdtEntry)
+                    eventBus.NotifyEntryUpdated(crdtEntry);
+            });
         return group;
     }
 }
