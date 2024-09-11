@@ -56,7 +56,7 @@ export class ProjectService {
   }
 
   async fetchServers() {
-    let r = await fetch('/api/servers');
+    let r = await fetch('/api/auth/servers');
     return (await r.json()) as ServerStatus[];
   }
 }
