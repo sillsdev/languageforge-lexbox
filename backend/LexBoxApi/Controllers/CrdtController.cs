@@ -14,7 +14,6 @@ namespace LexBoxApi.Controllers;
 
 [ApiController]
 [Route("/api/crdt")]
-[AdminRequired]
 [ApiExplorerSettings(GroupName = LexBoxKernel.OpenApiPublicDocumentName)]
 public class CrdtController(
     LexBoxDbContext dbContext,
