@@ -34,7 +34,7 @@ public static partial class ProjectRoutes
             FieldWorksProjectList fieldWorksProjectList) =>
         {
             var crdtProjects = await projectService.ListProjects();
-            //todo get project Id and use that to specify the Id in the model
+            //todo get project Id and use that to specify the Id in the model. Also pull out server
             var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
             //basically populate projects and indicate if they are lexbox or fwdata
             foreach (var p in fieldWorksProjectList.EnumerateProjects())

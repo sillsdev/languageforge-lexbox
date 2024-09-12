@@ -8,6 +8,7 @@
   import {writable} from 'svelte/store';
   import {type ServerStatus, useProjectsService} from '../services/projects-service';
   import {getContext} from 'svelte';
+  import {mdiBookArrowUpOutline, mdiBookSyncOutline} from '@mdi/js';
 
   const projectsService = useProjectsService();
   let projectName = getContext<string>('project-name');
@@ -25,6 +26,9 @@
       return server;
     }).then(set);
   });
+  $: if (!$projectServer && $servers.length > 0) {
+    $projectServer = $servers[0].displayName;
+  }
   let uploading = false;
 
   async function upload() {
@@ -70,10 +74,12 @@
       search={() => /* a hack to always show all options */ Promise.resolve()}>
     </SelectField>
     {:else if isUploaded}
-      <div>Syncing with {$projectServer}</div>
+      <Button disabled color="success" icon={mdiBookSyncOutline} size="md">
+        Syncing with {$projectServer}
+      </Button>
     {/if}
     {#if $projectServer && !isUploaded}
-      <Button loading={uploading} on:click={upload}>Upload
+      <Button variant="fill-light" color="primary" loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>Upload
         to {$projectServer}</Button>
     {/if}
 

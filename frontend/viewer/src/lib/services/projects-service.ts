@@ -41,6 +41,7 @@ export class ProjectService {
   }
   async getProjectServer(projectName: string): Promise<string|null> {
     const projects = await this.fetchProjects();
+    //todo project server is always null from local projects`
     return projects.find(p => p.name === projectName)?.server ?? null;
   }
 
