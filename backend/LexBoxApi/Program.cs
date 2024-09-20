@@ -61,6 +61,14 @@ builder.Services.AddSingleton(services =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.DocInclusionPredicate((docName, apiDesc) =>
+    {
+        //we only want docs marked as public in the public group, by default no docs are public. The default behavior is to include all apis in all docs.
+        if (docName == apiDesc.GroupName) return true;
+        if (docName == LexBoxKernel.OpenApiPublicDocumentName) return false;
+        return true;
+    });
+    options.SwaggerDoc(LexBoxKernel.OpenApiPublicDocumentName, new() { Title = "Lexbox Public Api",  });
     options.SwaggerDoc(LexBoxKernel.SwaggerDocumentName, new OpenApiInfo
     {
         Title = "LexBoxApi",
@@ -145,6 +153,9 @@ app.UseHealthChecks("/api/healthz");
     });
     app.UseSwaggerUI(options =>
     {
+        //the first doc is the default one
+        options.SwaggerEndpoint("/api/swagger/public/swagger.json", "Lexbox Public Api");
+        options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Lexbox Api");
         options.RoutePrefix = "api/swagger";
         options.ConfigObject.DisplayRequestDuration = true;
         options.EnableTryItOutByDefault();
@@ -163,7 +174,7 @@ app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
-app.MapLfClassicApi().RequireAuthorization(new AdminRequiredAttribute()).WithOpenApi();
+app.MapLfClassicApi().RequireAuthorization(new AdminRequiredAttribute()).WithOpenApi().WithGroupName(LexBoxKernel.OpenApiPublicDocumentName);
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
     .RequireAuthorization(new AdminRequiredAttribute());

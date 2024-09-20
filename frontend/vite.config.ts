@@ -9,8 +9,9 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 const inDocker = process.env['DockerDev'] === 'true';
 const exposeServer = false;
+const ssl = exposeServer && !inDocker;
 const lexboxServer: ProxyOptions = {
-  target: 'http://localhost:5158',
+  target: ssl ? 'https://localhost:7075' : 'http://localhost:5158',
   secure: false,
 };
 
@@ -31,7 +32,7 @@ export default defineConfig({
     codegen(gqlOptions),
     precompileIntl('src/lib/i18n/locales'),
     sveltekit(),
-    exposeServer ? basicSsl() : null, // crypto.subtle is only available on secure connections
+    ssl ? basicSsl() : null, // crypto.subtle is only available on secure connections
   ],
   optimizeDeps: {
   },

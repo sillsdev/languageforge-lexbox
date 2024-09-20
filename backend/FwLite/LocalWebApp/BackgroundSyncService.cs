@@ -74,9 +74,17 @@ public class BackgroundSyncService(
 
     private async Task<SyncResults> SyncProject(CrdtProject crdtProject)
     {
-        await using var serviceScope = projectsService.CreateProjectScope(crdtProject);
-        await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-        var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
-        return await syncService.ExecuteSync();
+        try
+        {
+            await using var serviceScope = projectsService.CreateProjectScope(crdtProject);
+            await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+            var syncService = serviceScope.ServiceProvider.GetRequiredService<SyncService>();
+            return await syncService.ExecuteSync();
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error syncing project {ProjectId}", crdtProject.Name);
+            return new SyncResults([], [], false);
+        }
     }
 }
