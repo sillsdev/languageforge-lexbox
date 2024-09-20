@@ -3,10 +3,10 @@
   crdt: boolean;
   fwdata: boolean;
   lexbox: boolean,
-  server: string | null,
+  serverAuthority: string | null,
   id: string | null
 };
-export type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null };
+export type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null, authority: string };
 export function useProjectsService() {
   return projectService;
 }
@@ -33,7 +33,7 @@ export class ProjectService {
   }
 
   async downloadCrdtProject(project: Project) {
-    await fetch(`/api/download/crdt/${project.server}/${project.name}`, {method: 'POST'});
+    await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
   }
 
   async uploadCrdtProject(server: string, projectName: string) {
@@ -42,7 +42,7 @@ export class ProjectService {
   async getProjectServer(projectName: string): Promise<string|null> {
     const projects = await this.fetchProjects();
     //todo project server is always null from local projects`
-    return projects.find(p => p.name === projectName)?.server ?? null;
+    return projects.find(p => p.name === projectName)?.serverAuthority ?? null;
   }
 
   async fetchProjects() {

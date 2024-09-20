@@ -23,7 +23,7 @@ public static partial class ProjectRoutes
                 foreach (var server in options.Value.LexboxServers)
                 {
                     var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
-                    serversProjects.Add(server.DisplayName, lexboxProjects.Select(p => new ProjectModel(p.Name, false, false, true, server.DisplayName, p.Id)).ToArray());
+                    serversProjects.Add(server.Authority.Authority, lexboxProjects.Select(p => new ProjectModel(p.Name, false, false, true, server.Authority.Authority, p.Id)).ToArray());
                 }
 
                 return serversProjects;
@@ -35,7 +35,16 @@ public static partial class ProjectRoutes
         {
             var crdtProjects = await projectService.ListProjects();
             //todo get project Id and use that to specify the Id in the model. Also pull out server
-            var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
+            var projects = crdtProjects.ToDictionary(p => p.Name, p =>
+            {
+                var uri = p.Data?.OriginDomain is not null ? new Uri(p.Data.OriginDomain) : null;
+                return new ProjectModel(p.Name,
+                    true,
+                    false,
+                    p.Data?.OriginDomain is not null,
+                    uri?.Authority,
+                    p.Data?.Id);
+            });
             //basically populate projects and indicate if they are lexbox or fwdata
             foreach (var p in fieldWorksProjectList.EnumerateProjects())
             {
@@ -62,14 +71,14 @@ public static partial class ProjectRoutes
                 await projectService.CreateProject(new(name, AfterCreate: AfterCreate));
                 return TypedResults.Ok();
             });
-        group.MapPost($"/upload/crdt/{{serverName}}/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
+        group.MapPost($"/upload/crdt/{{serverAuthority}}/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
             async (LexboxProjectService lexboxProjectService,
                 SyncService syncService,
                 IOptions<AuthConfig> options,
                 CurrentProjectService currentProjectService,
-                string serverName) =>
+                string serverAuthority) =>
             {
-                var server = options.Value.GetServer(serverName);
+                var server = options.Value.GetServerByAuthority(serverAuthority);
                 var foundProjectGuid =
                     await lexboxProjectService.GetLexboxProjectId(server, currentProjectService.ProjectData.Name);
                 if (foundProjectGuid is null)
@@ -79,17 +88,17 @@ public static partial class ProjectRoutes
                 await syncService.ExecuteSync();
                 return TypedResults.Ok();
             });
-        group.MapPost("/download/crdt/{serverName}/{newProjectName}",
+        group.MapPost("/download/crdt/{serverAuthority}/{newProjectName}",
             async (LexboxProjectService lexboxProjectService,
                 IOptions<AuthConfig> options,
                 ProjectsService projectService,
                 string newProjectName,
-                string serverName
+                string serverAuthority
             ) =>
             {
                 if (!ProjectName().IsMatch(newProjectName))
                     return Results.BadRequest("Project name is invalid");
-                var server = options.Value.GetServer(serverName);
+                var server = options.Value.GetServerByAuthority(serverAuthority);
                 var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(server,newProjectName);
                 if (foundProjectGuid is null)
                     return Results.BadRequest($"Project code {newProjectName} not found on lexbox");
@@ -106,7 +115,7 @@ public static partial class ProjectRoutes
         return group;
     }
 
-    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false, string? Server = null, Guid? Id = null);
+    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false, string? ServerAuthority = null, Guid? Id = null);
 
     private static async Task AfterCreate(IServiceProvider provider, CrdtProject project)
     {

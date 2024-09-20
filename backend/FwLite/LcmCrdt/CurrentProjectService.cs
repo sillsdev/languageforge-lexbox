@@ -36,6 +36,11 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
         return $"ProjectData|{projectId}";
     }
 
+    public static ProjectData? LookupProjectData(IMemoryCache memoryCache, string projectName)
+    {
+        return memoryCache.Get<ProjectData>(projectName + "|ProjectData");
+    }
+
     public static ProjectData? LookupProjectById(IMemoryCache memoryCache, Guid projectId)
     {
         return memoryCache.Get<ProjectData>(CacheKey(projectId));
