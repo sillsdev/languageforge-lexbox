@@ -9,12 +9,13 @@ using SIL.LCModel.Core.Text;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
 using SIL.LCModel.Infrastructure;
+using EntryType = MiniLcm.EntryType;
 
 namespace FwDataMiniLcmBridge.Api;
 
 public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : ILexboxApi, IDisposable
 {
-    private LcmCache Cache => cacheLazy.Value;
+    public LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
 
@@ -27,6 +28,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private ILexExampleSentenceFactory LexExampleSentenceFactory => Cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
     private IMoMorphTypeRepository MorphTypeRepository => Cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
     private IPartOfSpeechRepository PartOfSpeechRepository => Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
+    private ILexEntryTypeRepository LexEntryTypeRepository => Cache.ServiceLocator.GetInstance<ILexEntryTypeRepository>();
     private ICmSemanticDomainRepository SemanticDomainRepository => Cache.ServiceLocator.GetInstance<ICmSemanticDomainRepository>();
     private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
     private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
@@ -231,7 +233,51 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
             CitationForm = FromLcmMultiString(entry.CitationForm),
             LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
-            Senses = entry.AllSenses.Select(FromLexSense).ToList()
+            Senses = entry.AllSenses.Select(FromLexSense).ToList(),
+            ComplexForm = ToComplexForm(entry)
+        };
+    }
+
+    private ComplexForm? ToComplexForm(ILexEntry entry)
+    {
+        var complexEntryRef = entry.ComplexFormEntryRefs.SingleOrDefault();
+        if (complexEntryRef is null) return null;
+        return new ComplexForm
+        {
+            Id = complexEntryRef.Guid,
+            Components =
+            [
+                ..complexEntryRef.ComponentLexemesRS.Select(o => o switch
+                {
+                    ILexEntry e => ToEntryReference(e),
+                    ILexSense s => ToSenseReference(s),
+                    _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
+                })
+            ],
+            Types =
+            [
+                ..complexEntryRef.ComplexEntryTypesRS.Select(t =>
+                    new EntryType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
+            ]
+        };
+    }
+
+    private EntryReference ToEntryReference(ILexEntry entry)
+    {
+        return new EntryReference
+        {
+            EntryId = entry.Guid,
+            Headword = entry.HeadWord.Text
+        };
+    }
+
+    private EntryReference ToSenseReference(ILexSense sense)
+    {
+        return new EntryReference
+        {
+            EntryId = sense.Entry.Guid,
+            SenseId = sense.Guid,
+            Headword = sense.Entry.HeadWord.Text,
         };
     }
 
