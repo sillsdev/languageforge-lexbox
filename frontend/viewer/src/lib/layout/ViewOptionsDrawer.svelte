@@ -27,8 +27,9 @@
     }).then(set);
   });
   $: if (!$projectServer && $servers.length > 0) {
-    $projectServer = $servers[0].displayName;
+    $projectServer = $servers[0].authority;
   }
+  $: server = $servers.find((server) => server.authority === $projectServer) ?? {displayName: 'Unknown', authority: '', loggedIn: false};
   let uploading = false;
 
   async function upload() {
@@ -60,11 +61,11 @@
               color="neutral"/>
       Hide empty fields
     </label>
-    {#if $servers.length > 1}
+    {#if $servers.length > 1 && !isUploaded}
       <SelectField
       label="Sync Server"
       disabled={isUploaded}
-      options={($servers).map((server) => ({ value: server, label: server.displayName, group: server.displayName }))}
+      options={($servers).map((server) => ({ value: server.authority, label: server.displayName, group: server.displayName }))}
       bind:value={$projectServer}
       classes={{root: 'view-select w-auto', options: 'view-select-options'}}
       clearable={false}
@@ -75,12 +76,16 @@
     </SelectField>
     {:else if isUploaded}
       <Button disabled color="success" icon={mdiBookSyncOutline} size="md">
-        Syncing with {$projectServer}
+        Syncing with {server.displayName}
       </Button>
     {/if}
-    {#if $projectServer && !isUploaded}
-      <Button variant="fill-light" color="primary" loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>Upload
-        to {$projectServer}</Button>
+    {#if $projectServer && !isUploaded && server.loggedIn}
+      <Button variant="fill-light" color="primary" loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
+        Upload to {server.displayName}
+      </Button>
+      {:else if !isUploaded && !server.loggedIn}
+      <!--todo after login we are sent home, should be sent back to the current project-->
+      <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
     {/if}
 
     <div class="grow"></div>

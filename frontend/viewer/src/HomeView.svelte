@@ -228,9 +228,9 @@
                   <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
                 {/if}
                 {#if server.loggedIn}
-                  <Button slot="actions" variant="fill" href="/api/auth/logout/{server.authority}">Logout</Button>
+                  <Button variant="fill" href="/api/auth/logout/{server.authority}">Logout</Button>
                 {:else}
-                  <Button slot="actions" variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
+                  <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
                 {/if}
               </div>
               {@const serverProjects = remoteProjects[server.authority] ?? []}
