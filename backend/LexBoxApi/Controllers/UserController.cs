@@ -101,7 +101,7 @@ public class UserController : ControllerBase
         var jwtUser = _loggedInContext.User;
         if (jwtUser.Email != accountInput.Email)
         {
-            // Someone is trying to reuse a JWT belonging to someone else. Naughty, naughty...
+            // Changing email address in invite links is not allowed; this prevents someone from trying to reuse a JWT belonging to somebody else
             ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email address mismatch in invitation link");
             return ValidationProblem(ModelState);
         }
