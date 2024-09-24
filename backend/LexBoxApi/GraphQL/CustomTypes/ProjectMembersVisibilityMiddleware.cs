@@ -13,9 +13,8 @@ public class ProjectMembersVisibilityMiddleware(FieldDelegate next)
         if (context.Result is IEnumerable<ProjectUsers>)
         {
             var contextProject = context.Parent<Project>();
-            var projId = contextProject?.Id;
-            if (projId is null) throw new RequiredException("Must include project ID in query if querying users");
-            if (!await permissionService.CanViewProjectMembers(projId.Value))
+            var projId = contextProject?.Id ?? throw new RequiredException("Must include project ID in query if querying users");
+            if (!await permissionService.CanViewProjectMembers(projId))
             {
                 // Confidential project, and user doesn't have permission to see its users, so hide the users list
                 context.Result = new List<ProjectUsers>();
