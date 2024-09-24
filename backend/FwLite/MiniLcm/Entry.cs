@@ -37,11 +37,11 @@ public class EntryReference
 public class ComplexForm
 {
     public IList<EntryReference> Components { get; set; } = [];
-    public IList<EntryType> Types { get; set; } = [];
+    public IList<ComplexFormType> Types { get; set; } = [];
     public Guid Id { get; set; }
 }
 
-public class EntryType
+public class ComplexFormType
 {
     public required Guid Id { get; set; }
     public required MultiString Name { get; set; }

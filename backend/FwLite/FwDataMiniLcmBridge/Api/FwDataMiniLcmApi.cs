@@ -9,7 +9,6 @@ using SIL.LCModel.Core.Text;
 using SIL.LCModel.Core.WritingSystems;
 using SIL.LCModel.DomainServices;
 using SIL.LCModel.Infrastructure;
-using EntryType = MiniLcm.EntryType;
 
 namespace FwDataMiniLcmBridge.Api;
 
@@ -32,6 +31,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private ICmSemanticDomainRepository SemanticDomainRepository => Cache.ServiceLocator.GetInstance<ICmSemanticDomainRepository>();
     private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
     private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
+    private ICmPossibilityList ComplexFormTypes => Cache.LangProject.LexDbOA.ComplexEntryTypesOA;
 
     public void Dispose()
     {
@@ -224,6 +224,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return SemanticDomainRepository.GetObject(semanticDomainId);
     }
 
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return ComplexFormTypes.PossibilitiesOS
+            .Select(t => new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
+            .ToAsyncEnumerable();
+    }
+
     private Entry FromLexEntry(ILexEntry entry)
     {
         return new Entry
@@ -257,7 +264,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Types =
             [
                 ..complexEntryRef.ComplexEntryTypesRS.Select(t =>
-                    new EntryType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
+                    new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
             ]
         };
     }
