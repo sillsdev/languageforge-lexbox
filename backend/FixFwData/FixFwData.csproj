@@ -4,10 +4,10 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>FixFwData</RootNamespace>
     <Description>FixFwData</Description>
-    <Company>SIL International</Company>
-    <Authors>SIL International</Authors>
+    <Company>SIL Global</Company>
+    <Authors>SIL Global</Authors>
     <Product>LexBoxApi Testing</Product>
-    <Copyright>Copyright © 2023 SIL International</Copyright>
+    <Copyright>Copyright © 2024 SIL Global</Copyright>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
