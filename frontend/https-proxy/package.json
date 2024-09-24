@@ -2,7 +2,11 @@
   "name": "https-proxy",
   "version": "0.0.1",
   "private": true,
-	"packageManager": "pnpm@8.15.1",
+  "packageManager": "pnpm@9.1.2",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite"

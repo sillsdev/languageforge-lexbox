@@ -77,7 +77,7 @@
 
   <div>
     {$t('errors.mail_us_at')}
-    <a class="link" href="mailto:issues@languageforge.org{$mailToParams}">issues@languageforge.org</a>.
+    <a class="link" href="mailto:lexbox_support@groups.sil.org{$mailToParams}">lexbox_support@groups.sil.org</a>.
     {$t('errors.please_include')}
   </div>
 

@@ -6,6 +6,8 @@ public static class MorphoSyntaxExtensions
 {
     public static void SetMsaPartOfSpeech(this IMoMorphSynAnalysis msa, IPartOfSpeech? pos)
     {
+        ArgumentNullException.ThrowIfNull(msa);
+
         switch (msa.ClassID)
         {
             case MoDerivAffMsaTags.kClassId:
@@ -31,6 +33,7 @@ public static class MorphoSyntaxExtensions
 
     public static IPartOfSpeech? GetPartOfSpeech(this IMoMorphSynAnalysis msa)
     {
+        ArgumentNullException.ThrowIfNull(msa);
         switch (msa.ClassID)
         {
             case MoDerivAffMsaTags.kClassId:

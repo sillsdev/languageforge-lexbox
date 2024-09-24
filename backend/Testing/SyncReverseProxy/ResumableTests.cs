@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using Shouldly;
+using Testing.ApiTests;
 using Testing.Services;
 
 namespace Testing.SyncReverseProxy;
@@ -11,7 +12,7 @@ namespace Testing.SyncReverseProxy;
 public class ResumableTests
 {
     private readonly string _baseUrl = TestingEnvironmentVariables.ResumableBaseUrl;
-    private static readonly HttpClient Client = new();
+    private static readonly HttpClient Client = ApiTestBase.NewHttpClient().Client;
 
     [Theory]
     [InlineData("admin")]

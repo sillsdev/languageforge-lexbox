@@ -23,7 +23,10 @@ public static class FwLiteDesktopKernel
                 config.ProjectPath = FileSystem.AppDataDirectory;
             });
             webAppBuilder.Services.Configure<AuthConfig>(config =>
-                config.CacheFileName = Path.Combine(FileSystem.AppDataDirectory, "msal.cache"));
+            {
+                config.CacheFileName = Path.Combine(FileSystem.AppDataDirectory, "msal.cache");
+                config.SystemWebViewLogin = true;
+            });
         });
         //using a lambda here means that the serverManager will be disposed when the app is disposed
         services.AddSingleton<ServerManager>(_ => serverManager);

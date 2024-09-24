@@ -13,7 +13,7 @@
   import {headword, pickBestAlternative} from './lib/utils';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
-  import {onMount, setContext} from 'svelte';
+  import {onDestroy, onMount, setContext} from 'svelte';
   import {derived, writable, type Readable} from 'svelte/store';
   import {deriveAsync, makeDebouncer} from './lib/utils/time';
   import { type LexboxPermissions, type LexboxFeatures} from './lib/config-types';
@@ -35,8 +35,14 @@
   import {initView, initViewSettings} from './lib/services/view-service';
   import {views} from './lib/entry-editor/view-data';
   import {initWritingSystems} from './lib/writing-systems';
+  import {useEventBus} from './lib/services/event-bus';
 
   export let loading = false;
+
+  const changeEventBus = useEventBus();
+  onDestroy(changeEventBus.onEntryUpdated(entry => {
+    entries.update(list => list?.map(e => e.id === entry.id ? entry : e));
+  }));
 
   const lexboxApi = useLexboxApi();
   const features = writable<LexboxFeatures>(lexboxApi.SupportedFeatures());
@@ -64,11 +70,12 @@
   const connected = writable(false);
   const search = writable<string>(getSearchParam(ViewerSearchParam.Search));
   setContext('listSearch', search);
-  $: updateSearchParam(ViewerSearchParam.Search, $search);
+  $: updateSearchParam(ViewerSearchParam.Search, $search, true);
 
+  //todo listen for changes to the url, for example when back/forward is pressed
   const selectedIndexExemplar = writable<string | undefined>(getSearchParam(ViewerSearchParam.IndexCharacter));
   setContext('selectedIndexExamplar', selectedIndexExemplar);
-  $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar);
+  $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar, false);
 
   const writingSystems = initWritingSystems(deriveAsync(connected, isConnected => {
     if (!isConnected) return Promise.resolve(null);
@@ -120,7 +127,7 @@
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
   $: { pickedEntry; updateEntryIdSearchParam(); }
   function updateEntryIdSearchParam() {
-    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryIdOnLoad ?? (pickedEntry ? $selectedEntry?.id : undefined));
+    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryIdOnLoad ?? (pickedEntry ? $selectedEntry?.id : undefined), true);
   }
 
   $: {

@@ -13,49 +13,63 @@ public static class LfClassicRoutes
     public static IEndpointConventionBuilder MapLfClassicApi(this IEndpointRouteBuilder builder)
     {
         var group = builder.MapGroup("/api/lfclassic/{projectCode}");
-        group.MapGet("/writingSystems",
-            ([FromRoute] string projectCode, [FromServices] LfClassicLexboxApiProvider provider) =>
-            {
-                var api = provider.GetProjectApi(projectCode);
-                return api.GetWritingSystems();
-            });
-        group.MapGet("/entries",
-            ([FromRoute] string projectCode,
-                [FromServices] LfClassicLexboxApiProvider provider,
-                [AsParameters] ClassicQueryOptions options
-            ) =>
-            {
-                var api = provider.GetProjectApi(projectCode);
-                return api.GetEntries(options.ToQueryOptions());
-            });
-        group.MapGet("/entries/{search}",
-            ([FromRoute] string projectCode,
-                [FromServices] LfClassicLexboxApiProvider provider,
-                [FromRoute] string search,
-                [AsParameters] ClassicQueryOptions options) =>
-            {
-                var api = provider.GetProjectApi(projectCode);
-                return api.SearchEntries(search, options.ToQueryOptions());
-            });
-        group.MapGet("/entry/{id:Guid}",
-            ([FromRoute] string projectCode, Guid id, [FromServices] LfClassicLexboxApiProvider provider) =>
-            {
-                var api = provider.GetProjectApi(projectCode);
-                return api.GetEntry(id);
-            });
-        group.MapGet("/parts-of-speech",
-            ([FromRoute] string projectCode, [FromServices] LfClassicLexboxApiProvider provider) =>
-            {
-                var api = provider.GetProjectApi(projectCode);
-                return api.GetPartsOfSpeech();
-            });
-        group.MapGet("/semantic-domains",
-            ([FromRoute] string projectCode, [FromServices] LfClassicLexboxApiProvider provider) =>
-            {
-                var api = provider.GetProjectApi(projectCode);
-                return api.GetSemanticDomains();
-            });
+        group.MapGet("/writingSystems", MiniLcm.GetWritingSystems);
+        group.MapGet("/entries", MiniLcm.GetEntries);
+        group.MapGet("/entries/{search}", MiniLcm.SearchEntries);
+        group.MapGet("/entry/{id:Guid}", MiniLcm.GetEntry);
+        group.MapGet("/parts-of-speech", MiniLcm.GetPartsOfSpeech);
+        group.MapGet("/semantic-domains", MiniLcm.GetSemanticDomains);
         return group;
+    }
+
+    //swagger docs pickup their controller name from the type that the callback is defined in, that's why this type exists.
+    private static class MiniLcm
+    {
+        public static Task<WritingSystems> GetWritingSystems([FromRoute] string projectCode,
+            [FromServices] LfClassicLexboxApiProvider provider)
+        {
+            var api = provider.GetProjectApi(projectCode);
+            return api.GetWritingSystems();
+        }
+
+        public static IAsyncEnumerable<Entry> GetEntries([FromRoute] string projectCode,
+            [FromServices] LfClassicLexboxApiProvider provider,
+            [AsParameters] ClassicQueryOptions options)
+        {
+            var api = provider.GetProjectApi(projectCode);
+            return api.GetEntries(options.ToQueryOptions());
+        }
+
+        public static IAsyncEnumerable<Entry> SearchEntries([FromRoute] string projectCode,
+            [FromServices] LfClassicLexboxApiProvider provider,
+            [FromRoute] string search,
+            [AsParameters] ClassicQueryOptions options)
+        {
+            var api = provider.GetProjectApi(projectCode);
+            return api.SearchEntries(search, options.ToQueryOptions());
+        }
+
+        public static Task<Entry?> GetEntry([FromRoute] string projectCode,
+            Guid id,
+            [FromServices] LfClassicLexboxApiProvider provider)
+        {
+            var api = provider.GetProjectApi(projectCode);
+            return api.GetEntry(id);
+        }
+
+        public static IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech([FromRoute] string projectCode,
+            [FromServices] LfClassicLexboxApiProvider provider)
+        {
+            var api = provider.GetProjectApi(projectCode);
+            return api.GetPartsOfSpeech();
+        }
+
+        public static IAsyncEnumerable<SemanticDomain> GetSemanticDomains([FromRoute] string projectCode,
+            [FromServices] LfClassicLexboxApiProvider provider)
+        {
+            var api = provider.GetProjectApi(projectCode);
+            return api.GetSemanticDomains();
+        }
     }
 
     private class ClassicQueryOptions
@@ -64,8 +78,10 @@ public static class LfClassicRoutes
         {
             ExemplarOptions? exemplarOptions = string.IsNullOrEmpty(ExemplarValue) || ExemplarWritingSystem is null
                 ? null
-                : new (ExemplarValue, ExemplarWritingSystem.Value);
-            var sortField = Enum.TryParse<SortField>(SortField, true, out var field) ? field : SortOptions.Default.Field;
+                : new(ExemplarValue, ExemplarWritingSystem.Value);
+            var sortField = Enum.TryParse<SortField>(SortField, true, out var field)
+                ? field
+                : SortOptions.Default.Field;
             return new QueryOptions(new SortOptions(sortField,
                     SortWritingSystem ?? SortOptions.Default.WritingSystem,
                     Ascending ?? SortOptions.Default.Ascending),
@@ -83,6 +99,7 @@ public static class LfClassicRoutes
 
         [FromQuery]
         public string? ExemplarValue { get; set; }
+
         public WritingSystemId? ExemplarWritingSystem { get; set; }
 
         [FromQuery]

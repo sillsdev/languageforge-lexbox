@@ -15,10 +15,27 @@ public static partial class ProjectRoutes
     public static IEndpointConventionBuilder MapProjectRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api").WithOpenApi();
-        group.MapGet("/projects",
-            async (ProjectsService projectService, LexboxProjectService lexboxProjectService, FieldWorksProjectList fieldWorksProjectList) =>
+        group.MapGet("/remoteProjects",
+            async (
+                LexboxProjectService lexboxProjectService,
+                IOptions<AuthConfig> options) =>
+            {
+                var serversProjects = new Dictionary<string, ProjectModel[]>();
+                foreach (var server in options.Value.LexboxServers)
+                {
+                    var lexboxProjects = await lexboxProjectService.GetLexboxProjects(server);
+                    serversProjects.Add(server.DisplayName, lexboxProjects.Select(p => new ProjectModel(p.Name, false, false, true, server.DisplayName, p.Id)).ToArray());
+                }
+
+                return serversProjects;
+            });
+        group.MapGet("/localProjects",
+            async (
+            ProjectsService projectService,
+            FieldWorksProjectList fieldWorksProjectList) =>
         {
             var crdtProjects = await projectService.ListProjects();
+            //todo get project Id and use that to specify the Id in the model
             var projects = crdtProjects.ToDictionary(p => p.Name, p => new ProjectModel(p.Name, true, false));
             //basically populate projects and indicate if they are lexbox or fwdata
             foreach (var p in fieldWorksProjectList.EnumerateProjects())
@@ -32,19 +49,6 @@ public static partial class ProjectRoutes
                     projects.Add(p.Name, new ProjectModel(p.Name, false, true));
                 }
             }
-            //todo split this out into it's own request so we can return other project types right away
-            foreach (var lexboxProject in await lexboxProjectService.GetLexboxProjects())
-            {
-                if (projects.TryGetValue(lexboxProject.Name, out var project))
-                {
-                    projects[lexboxProject.Name] = project with { Lexbox = true };
-                }
-                else
-                {
-                    projects.Add(lexboxProject.Name, new ProjectModel(lexboxProject.Name, false, false, true));
-                }
-            }
-
             return projects.Values;
         });
         group.MapPost("/project",
@@ -59,45 +63,51 @@ public static partial class ProjectRoutes
                 await projectService.CreateProject(new(name, AfterCreate: AfterCreate));
                 return TypedResults.Ok();
             });
-        group.MapPost($"/upload/crdt/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
+        group.MapPost($"/upload/crdt/{{serverName}}/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
             async (LexboxProjectService lexboxProjectService,
                 SyncService syncService,
                 IOptions<AuthConfig> options,
-                CurrentProjectService currentProjectService) =>
+                CurrentProjectService currentProjectService,
+                string serverName) =>
             {
-                //todo let the user pick a project to upload to instead of matching the name with the project code.
+                var server = options.Value.GetServer(serverName);
                 var foundProjectGuid =
-                    await lexboxProjectService.GetLexboxProjectId(currentProjectService.ProjectData.Name);
+                    await lexboxProjectService.GetLexboxProjectId(server, currentProjectService.ProjectData.Name);
                 if (foundProjectGuid is null)
                     return Results.BadRequest(
                         $"Project code {currentProjectService.ProjectData.Name} not found on lexbox");
-                await currentProjectService.SetProjectSyncOrigin(options.Value.DefaultAuthority, foundProjectGuid);
+                await currentProjectService.SetProjectSyncOrigin(server.Authority, foundProjectGuid);
                 await syncService.ExecuteSync();
                 return TypedResults.Ok();
             });
-        group.MapPost("/download/crdt/{newProjectName}",
+        group.MapPost("/download/crdt/{serverName}/{newProjectName}",
             async (LexboxProjectService lexboxProjectService,
                 IOptions<AuthConfig> options,
                 ProjectsService projectService,
-                string newProjectName
-                ) =>
+                string newProjectName,
+                string serverName
+            ) =>
             {
                 if (!ProjectName().IsMatch(newProjectName))
                     return Results.BadRequest("Project name is invalid");
-                var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(newProjectName);
+                var server = options.Value.GetServer(serverName);
+                var foundProjectGuid = await lexboxProjectService.GetLexboxProjectId(server,newProjectName);
                 if (foundProjectGuid is null)
                     return Results.BadRequest($"Project code {newProjectName} not found on lexbox");
-                await projectService.CreateProject(new(newProjectName, foundProjectGuid.Value, options.Value.DefaultAuthority,
+                await projectService.CreateProject(new(newProjectName,
+                    foundProjectGuid.Value,
+                    server.Authority,
                     async (provider, project) =>
                     {
                         await provider.GetRequiredService<SyncService>().ExecuteSync();
-                    }, SeedNewProjectData: false));
+                    },
+                    SeedNewProjectData: false));
                 return TypedResults.Ok();
             });
         return group;
     }
 
-    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false);
+    public record ProjectModel(string Name, bool Crdt, bool Fwdata, bool Lexbox = false, string? Server = null, Guid? Id = null);
 
     private static async Task AfterCreate(IServiceProvider provider, CrdtProject project)
     {
@@ -113,7 +123,16 @@ public static partial class ProjectRoutes
                 new()
                 {
                     Gloss = { Values = { { "en", "Fruit" } } },
-                    Definition = { Values = { { "en", "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh" } } },
+                    Definition =
+                    {
+                        Values =
+                        {
+                            {
+                                "en",
+                                "fruit with red, yellow, or green skin with a sweet or tart crispy white flesh"
+                            }
+                        }
+                    },
                     SemanticDomains = [],
                     ExampleSentences = [new() { Sentence = { Values = { { "en", "We ate an apple" } } } }]
                 }

@@ -25,7 +25,7 @@ public static class ScheduledTasksKernel
             q.UsePersistentStore(options =>
             {
                 options.UseProperties = true;
-                options.UseNewtonsoftJsonSerializer();
+                options.UseSystemTextJsonSerializer();
                 var connectionString = configuration.GetSection(nameof(DbConfig))
                     .GetValue<string>(nameof(DbConfig.LexBoxConnectionString));
                 ArgumentNullException.ThrowIfNull(connectionString);

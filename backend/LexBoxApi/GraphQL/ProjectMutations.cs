@@ -283,7 +283,7 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         await permissionService.AssertCanManageProject(input.ProjectId);
-        if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
+        if (string.IsNullOrEmpty(input.Name)) throw new RequiredException("Project name cannot be empty");
 
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);

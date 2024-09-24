@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using LcmCrdt;
+using LocalWebApp.Services;
+using Microsoft.AspNetCore.SignalR.Client;
 using MiniLcm;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
@@ -8,12 +10,21 @@ namespace LocalWebApp.Hubs;
 public class CrdtMiniLcmApiHub(
     IMiniLcmApi miniLcmApi,
     BackgroundSyncService backgroundSyncService,
-    SyncService syncService) : MiniLcmApiHubBase(miniLcmApi)
+    SyncService syncService,
+    ChangeEventBus changeEventBus,
+    CurrentProjectService projectContext,
+    LexboxProjectService lexboxProjectService) : MiniLcmApiHubBase(miniLcmApi)
 {
     public const string ProjectRouteKey = "project";
+    public static string ProjectGroup(string projectName) => "crdt-" + projectName;
+
     public override async Task OnConnectedAsync()
     {
+        await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project.Name));
         await syncService.ExecuteSync();
+        changeEventBus.SetupGlobalSignalRSubscription();
+
+        await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
     }
 
     public override async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
@@ -23,25 +34,13 @@ public class CrdtMiniLcmApiHub(
         return newWritingSystem;
     }
 
-    public override async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, JsonPatchDocument<WritingSystem> update)
+    public override async Task<WritingSystem> UpdateWritingSystem(WritingSystemId id,
+        WritingSystemType type,
+        JsonPatchDocument<WritingSystem> update)
     {
         var writingSystem = await base.UpdateWritingSystem(id, type, update);
         backgroundSyncService.TriggerSync();
         return writingSystem;
-    }
-
-    public override async Task<Entry> CreateEntry(Entry entry)
-    {
-        var newEntry = await base.CreateEntry(entry);
-        await NotifyEntryUpdated(newEntry);
-        return newEntry;
-    }
-
-    public override async Task<Entry> UpdateEntry(Guid id, JsonPatchDocument<Entry> update)
-    {
-        var entry = await base.UpdateEntry(id, update);
-        await NotifyEntryUpdated(entry);
-        return entry;
     }
 
     public override async Task<Sense> CreateSense(Guid entryId, Sense sense)
