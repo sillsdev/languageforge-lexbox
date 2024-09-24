@@ -32,6 +32,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
     private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
     private ICmPossibilityList ComplexFormTypes => Cache.LangProject.LexDbOA.ComplexEntryTypesOA;
+    private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
 
     public void Dispose()
     {
@@ -231,6 +232,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .ToAsyncEnumerable();
     }
 
+    public IAsyncEnumerable<VariantType> GetVariantTypes()
+    {
+        return VariantTypes.PossibilitiesOS
+            .Select(t => new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
+            .ToAsyncEnumerable();
+    }
+
     private Entry FromLexEntry(ILexEntry entry)
     {
         return new Entry
@@ -241,7 +249,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             CitationForm = FromLcmMultiString(entry.CitationForm),
             LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
             Senses = entry.AllSenses.Select(FromLexSense).ToList(),
-            ComplexForm = ToComplexForm(entry)
+            ComplexForm = ToComplexForm(entry),
+            Variants = ToVariants(entry)
         };
     }
 
@@ -265,6 +274,30 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             [
                 ..complexEntryRef.ComplexEntryTypesRS.Select(t =>
                     new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
+            ]
+        };
+    }
+
+    private Variants? ToVariants(ILexEntry entry)
+    {
+        var variantEntryRef = entry.VariantEntryRefs.SingleOrDefault();
+        if (variantEntryRef is null) return null;
+        return new Variants
+        {
+            Id = variantEntryRef.Guid,
+            VariantsOf =
+            [
+                ..variantEntryRef.ComponentLexemesRS.Select(o => o switch
+                {
+                    ILexEntry e => ToEntryReference(e),
+                    ILexSense s => ToSenseReference(s),
+                    _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
+                })
+            ],
+            Types =
+            [
+                ..variantEntryRef.VariantEntryTypesRS.Select(t =>
+                    new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
             ]
         };
     }
