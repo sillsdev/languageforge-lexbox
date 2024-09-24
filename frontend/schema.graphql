@@ -426,6 +426,7 @@ type Query {
   orgById(orgId: UUID!): OrgById
   users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
   me: MeDto
+  userById(userId: UUID!): MeDto @authorize(policy: "AllowAnyAudiencePolicy")
   orgMemberById(orgId: UUID! userId: UUID!): OrgMemberDto
   meAuth: LexAuthUser!
   testingThrowsError: LexAuthUser!
