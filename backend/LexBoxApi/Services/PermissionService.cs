@@ -100,8 +100,8 @@ public class PermissionService(
         // Project managers can view members of their own projects, even confidential ones
         if (await CanManageProject(projectId)) return true;
         var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
-        if (isConfidential is null) return false; // Private by default
-        return isConfidential == false; // Explicitly set to public
+        // In this specific case (only), we assume public unless explicitly set to private
+        return !(isConfidential ?? false);
     }
 
     public async ValueTask<bool> CanManageProject(Guid projectId)
