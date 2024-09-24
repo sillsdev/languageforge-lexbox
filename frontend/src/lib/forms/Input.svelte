@@ -29,7 +29,7 @@
 
 <FormField {id} {error} {label} {autofocus} {description}>
   {#if (type == 'password')}
-    <div class="container">
+    <div class="relative">
       <PlainInput {id} bind:value on:input type={currentType} {autofocus} {readonly} {error} {placeholder} {autocomplete} style="w-full" />
       <span class="eye"><IconButton variant="btn-ghost" icon={currentType == 'password' ? 'i-mdi-eye' : 'i-mdi-eye-off'} on:click={togglePasswordVisibility} /></span>
     </div>
@@ -42,8 +42,5 @@
   .eye {
     position: absolute;
     right: 1px;
-  }
-  .container {
-    position: relative;
   }
 </style>
