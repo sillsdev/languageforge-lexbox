@@ -11,7 +11,7 @@
       <div class="flex gap-4 items-center">
         <a href="https://www.sil.org/">
           <!-- https://www.sil.org/about/media -->
-          <img class="h-6 md:h-12" height="48" src={silLogo} alt="SIL International logo" />
+          <img class="h-6 md:h-12" height="48" src={silLogo} alt="SIL Global logo" />
         </a>
         <a href="https://li.payap.ac.th/">
           <!-- http://info.payap.ac.th/info/link_download/ -->
@@ -20,7 +20,7 @@
       </div>
       <div>
         © {new Date().getFullYear()}
-        <a class="hover:link" href="https://www.sil.org/">SIL International</a>
+        <a class="hover:link" href="https://www.sil.org/">SIL Global</a>
       </div>
     </div>
     <div class="flex flex-col text-right">
