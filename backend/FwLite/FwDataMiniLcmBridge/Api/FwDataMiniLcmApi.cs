@@ -167,15 +167,20 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         throw new NotImplementedException();
     }
 
-    public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
+    public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
-        foreach (var partOfSpeech in PartOfSpeechRepository.AllInstances().OrderBy(p => p.Name.BestAnalysisAlternative.Text))
-        {
-            yield return new PartOfSpeech { Id = partOfSpeech.Guid, Name = FromLcmMultiString(partOfSpeech.Name) };
-        }
+        return PartOfSpeechRepository
+            .AllInstances()
+            .OrderBy(p => p.Name.BestAnalysisAlternative.Text)
+            .ToAsyncEnumerable()
+            .Select(partOfSpeech => new PartOfSpeech
+            {
+                Id = partOfSpeech.Guid,
+                Name = FromLcmMultiString(partOfSpeech.Name)
+            });
     }
 
-    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.Do("Create Part of Speech",
@@ -187,22 +192,25 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
                 UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
             });
+        return Task.CompletedTask;
     }
 
-    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        foreach (var semanticDomain in SemanticDomainRepository.AllInstances().OrderBy(p => p.Abbreviation.UiString))
-        {
-            yield return new SemanticDomain
+        return
+            SemanticDomainRepository
+            .AllInstances()
+            .OrderBy(p => p.Abbreviation.UiString)
+            .ToAsyncEnumerable()
+            .Select(semanticDomain => new SemanticDomain
             {
                 Id = semanticDomain.Guid,
                 Name = FromLcmMultiString(semanticDomain.Name),
                 Code = semanticDomain.Abbreviation.UiString ?? ""
-            };
-        }
+            });
     }
 
-    public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    public Task CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.Do("Create Semantic Domain",
@@ -215,6 +223,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
                 UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
             });
+        return Task.CompletedTask;
     }
 
     internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
@@ -285,7 +294,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return GetEntries(null, options);
     }
 
-    public async IAsyncEnumerable<Entry> GetEntries(
+    public IAsyncEnumerable<Entry> GetEntries(
         Func<ILexEntry, bool>? predicate, QueryOptions? options = null)
     {
         var entries = EntriesRepository.AllInstances();
@@ -320,10 +329,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Skip(options.Offset)
             .Take(options.Count);
 
-        foreach (var entry in entries)
-        {
-            yield return FromLexEntry(entry);
-        }
+        return entries.ToAsyncEnumerable().Select(FromLexEntry);
     }
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)

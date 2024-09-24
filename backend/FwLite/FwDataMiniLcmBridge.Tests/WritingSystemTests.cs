@@ -25,9 +25,10 @@ public class WritingSystemTests(ProjectLoaderFixture fixture) : IAsyncLifetime
         });
     }
 
-    public async Task DisposeAsync()
+    public Task DisposeAsync()
     {
         _api.Dispose();
+        return Task.CompletedTask;
     }
 
     [Fact]
