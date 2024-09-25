@@ -1,4 +1,3 @@
-using HotChocolate.Authorization;
 using HotChocolate.Resolvers;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -191,26 +190,6 @@ public class LexQueries
     public async Task<MeDto?> Me(LexBoxDbContext context, LoggedInContext loggedInContext)
     {
         var userId = loggedInContext.User.Id;
-        var user = await context.Users.FindAsync(userId);
-        if (user == null) return null;
-        return new MeDto
-        {
-            Id = user.Id,
-            Name = user.Name,
-            Email = user.Email,
-            Locale = user.LocalizationCode
-        };
-    }
-
-    [AllowAnonymous]
-    public async Task<MeDto?> UserById(LexBoxDbContext context, LoggedInContext loggedInContext, Guid userId)
-    {
-        var registeringUser = loggedInContext.User;
-        // Only admins can look up users other than themselves via this query
-        if (!registeringUser.IsAdmin && registeringUser.Id != userId)
-        {
-            throw new UnauthorizedAccessException();
-        }
         var user = await context.Users.FindAsync(userId);
         if (user == null) return null;
         return new MeDto

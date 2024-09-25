@@ -168,10 +168,11 @@ public class EmailService(
 
         var queryString = QueryString.Create("email", emailAddress);
         var returnTo = new UriBuilder { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
+        var returnToIfEmailExists = new UriBuilder { Path = "/acceptInvitationImmediately", Query = queryString.Value }.Uri.PathAndQuery;
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
             "LoginRedirect",
             "Login",
-            new { jwt, returnTo });
+            new { jwt, returnTo, returnToIfEmailExists });
 
         ArgumentException.ThrowIfNullOrEmpty(registerLink);
         if (isProjectInvitation)

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Google;
 using LexBoxApi.Services.Email;
+using LexData.Entities;
 
 namespace LexBoxApi.Controllers;
 
@@ -36,7 +37,8 @@ public class LoginController(
     [AllowAnyAudience]
     public async Task<ActionResult> LoginRedirect(
         string jwt, // This is required because auth looks for a jwt in the query string
-        string returnTo)
+        string returnTo,
+        string? returnToIfEmailExists)
     {
         var user = loggedInContext.User;
         // A RegisterAccount token means there's no user account yet, so checking UpdatedDate makes no sense
@@ -51,7 +53,13 @@ public class LoginController(
 
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
-        return Redirect(returnTo);
+        string destination = returnTo;
+        if (returnToIfEmailExists is not null && user.Email is not null)
+        {
+            var dbUser = await lexBoxDbContext.Users.FindByEmailOrUsername(user.Email);
+            if (dbUser is not null) destination = returnToIfEmailExists!;
+        }
+        return Redirect(destination);
     }
 
     [HttpGet("google")]
