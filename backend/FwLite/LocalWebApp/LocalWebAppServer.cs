@@ -31,7 +31,6 @@ public static class LocalWebAppServer
                 new (new("https://localhost:3000"), "Lexbox Local"),
                 new (new("https://staging.languagedepot.org"), "Lexbox Staging")
             ]);
-//for now prod builds will also use lt dev until we deploy oauth to prod
         builder.ConfigureProd<AuthConfig>(config =>
             config.LexboxServers = [new(new("https://staging.languagedepot.org"), "Lexbox Staging")]);
         builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
