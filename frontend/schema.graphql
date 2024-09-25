@@ -1,4 +1,4 @@
-﻿schema {
+schema {
   query: Query
   mutation: Mutation
 }
@@ -357,7 +357,7 @@ type Project {
   code: String!
   createdDate: DateTime!
   id: UUID!
-  users: [ProjectUsers!]! @authorize(policy: "CanAccessProjectUsers")
+  users: [ProjectUsers!]!
   changesets: [Changeset!]!
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean!

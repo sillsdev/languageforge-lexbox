@@ -35,7 +35,6 @@ public static class AuthKernel
 
         services.AddScoped<LexAuthService>();
         services.AddSingleton<IAuthorizationHandler, AudienceRequirementHandler>();
-        services.AddScoped<IAuthorizationHandler, AccessProjectUsersRequirementHandler>();
         services.AddSingleton<IAuthorizationHandler, ValidateUserUpdatedHandler>();
         services.AddAuthorization(options =>
         {
@@ -54,8 +53,6 @@ public static class AuthKernel
             options.AddPolicy(AdminRequiredAttribute.PolicyName,
                 builder => builder.RequireDefaultLexboxAuth()
                     .RequireAssertion(context => context.User.IsInRole(UserRole.admin.ToString())));
-            options.AddPolicy(LexAuthPolicies.CanAccessProjectUsers,
-                builder => builder.RequireDefaultLexboxAuth().AddRequirements(new AccessProjectUsersRequirement()));
             options.AddPolicy(VerifiedEmailRequiredAttribute.PolicyName,
                 builder => builder.RequireDefaultLexboxAuth()
                     .RequireAssertion(context => !context.User.HasClaim(LexAuthConstants.EmailUnverifiedClaimType, "true")));
