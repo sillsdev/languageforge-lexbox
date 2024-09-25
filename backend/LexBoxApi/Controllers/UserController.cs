@@ -156,11 +156,23 @@ public class UserController : ControllerBase
         // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
         {
-            userEntity.Projects.AddRange(jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }));
+            foreach (var p in jwtUser.Projects)
+            {
+                if (!userEntity.Projects.Exists(proj => proj.Id == p.ProjectId))
+                {
+                    userEntity.Projects.Add(new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId });
+                }
+            }
         }
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
         {
-            userEntity.Organizations.AddRange(jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }));
+            foreach (var o in jwtUser.Orgs)
+            {
+                if (!userEntity.Organizations.Exists(org => org.Id == o.OrgId))
+                {
+                    userEntity.Organizations.Add(new OrgMember { Role = o.Role, OrgId = o.OrgId });
+                }
+            }
         }
     }
 
