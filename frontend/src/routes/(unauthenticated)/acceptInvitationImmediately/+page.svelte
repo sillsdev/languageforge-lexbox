@@ -33,6 +33,6 @@
   });
 </script>
 
-<section class="mt-8 flex justify-center md:justify-end">
+<section class="mt-8 flex justify-center">
   <Turnstile {siteKey} on:turnstile-callback={deliverToken} />
 </section>
