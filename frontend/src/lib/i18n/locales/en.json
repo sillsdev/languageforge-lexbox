@@ -562,7 +562,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "label_name": "Name",
     "label_password": "Password",
     "name_missing": "Name missing",
-    "unknown_error": "An unknown error occurred",
+    "unknown_error": "An error occurred, please try again",
   },
   "accept_invitation": {
     "title": "Accept Invitation",
