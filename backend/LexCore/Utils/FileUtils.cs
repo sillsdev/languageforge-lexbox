@@ -10,7 +10,7 @@ public static class FileUtils
     {
         var timestamp = dateTime.ToUniversalTime().ToString(TimestampPattern);
         // make it file-system friendly
-        return timestamp.Replace(':', '-');
+        return timestamp;
     }
 
     public static DateTimeOffset? ToDateTimeOffset(string timestamp)
