@@ -22,10 +22,10 @@ public static class AuthRoutes
                     currentName, s.Authority.Authority);
             });
         });
-        group.MapGet("/login/{server}",
-            async (AuthHelpersFactory factory, string server, IOptions<AuthConfig> options) =>
+        group.MapGet("/login/{authority}",
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
             {
-                var result = await factory.GetHelper(options.Value.GetServerByAuthority(server)).SignIn();
+                var result = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).SignIn();
                 if (result.HandledBySystemWebView)
                 {
                     return Results.Redirect("/");
@@ -46,15 +46,15 @@ public static class AuthRoutes
                 await oAuthService.FinishLoginRequest(uriBuilder.Uri);
                 return Results.Redirect("/");
             }).WithName(CallbackRoute);
-        group.MapGet("/me/{server}",
-            async (AuthHelpersFactory factory, string server, IOptions<AuthConfig> options) =>
+        group.MapGet("/me/{authority}",
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
             {
-                return new { name = await factory.GetHelper(options.Value.GetServerByAuthority(server)).GetCurrentName() };
+                return new { name = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).GetCurrentName() };
             });
-        group.MapGet("/logout/{server}",
-            async (AuthHelpersFactory factory, string server, IOptions<AuthConfig> options) =>
+        group.MapGet("/logout/{authority}",
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
             {
-                await factory.GetHelper(options.Value.GetServerByAuthority(server)).Logout();
+                await factory.GetHelper(options.Value.GetServerByAuthority(authority)).Logout();
                 return Results.Redirect("/");
             });
         return group;
