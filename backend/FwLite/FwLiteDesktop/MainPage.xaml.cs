@@ -56,8 +56,9 @@ public partial class MainPage : ContentPage
     {
         webView.IsVisible = true;
         //not currently working
-        // if (_environment.IsDevelopment())
+        if (_environment.IsDevelopment())
         {
+            _logger.LogInformation("Enabling dev mode in browser");
             //lang=js
             webView.Eval("""
                          localStorage.setItem('devMode', 'true');

@@ -1,7 +1,7 @@
 
 using LocalWebApp;
 
-var app = LocalWebAppServer.SetupAppServer(args);
+var app = LocalWebAppServer.SetupAppServer(new() {Args = args});
 await using (app)
 {
     await app.StartAsync();

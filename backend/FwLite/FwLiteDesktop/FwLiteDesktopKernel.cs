@@ -16,11 +16,12 @@ public static class FwLiteDesktopKernel
     {
         services.AddSingleton<MainPage>();
 
-        var serverManager = new ServerManager(webAppBuilder =>
+        string environment = "Production";
+#if DEBUG
+        environment = "Development";
+#endif
+        var serverManager = new ServerManager(environment, webAppBuilder =>
         {
-            #if DEBUG
-            webAppBuilder.Environment.EnvironmentName = "Development";
-            #endif
             webAppBuilder.Logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "web-app.log"));
             webAppBuilder.Services.Configure<LcmCrdtConfig>(config =>
             {
