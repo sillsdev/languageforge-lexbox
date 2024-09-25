@@ -29,7 +29,7 @@ public static class OtelKernel
                 {
                     configuration.Bind("Otel", options);
                 })
-                .AddSource(ServiceName)
+                .AddSource(ServiceName, MailKit.Telemetry.SmtpClient.ActivitySourceName)
                 .AddProcessor<UserEnricher>()
                 .SetResourceBuilder(appResourceBuilder)
                 // could potentially add baggage to the trace as done in

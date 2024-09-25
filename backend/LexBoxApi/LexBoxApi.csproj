@@ -12,46 +12,46 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.0" />
+        <PackageReference Include="AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL" Version="0.5.1" />
         <PackageReference Include="CrystalQuartz.AspNetCore" Version="7.2.0-beta" />
-        <PackageReference Include="DataAnnotatedModelValidations" Version="5.1.0" />
-        <PackageReference Include="HotChocolate.Analyzers" Version="13.8.1" />
-        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.8.1">
+        <PackageReference Include="DataAnnotatedModelValidations" Version="5.2.0" />
+        <PackageReference Include="HotChocolate.Analyzers" Version="13.9.11" />
+        <PackageReference Include="HotChocolate.Types.Analyzers" Version="13.9.11">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="HotChocolate.AspNetCore" Version="13.8.1" />
-        <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="13.8.1" />
-        <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.8.1" />
-        <PackageReference Include="HotChocolate.Diagnostics" Version="13.8.1" />
+        <PackageReference Include="HotChocolate.AspNetCore" Version="13.9.11" />
+        <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="13.9.11" />
+        <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.9.11" />
+        <PackageReference Include="HotChocolate.Diagnostics" Version="13.9.11" />
         <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-        <PackageReference Include="MailKit" Version="4.3.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
+        <PackageReference Include="MailKit" Version="4.7.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.5.2" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.0.2" />
         <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
         <PackageReference Include="Npgsql.OpenTelemetry" Version="8.0.3" />
-        <PackageReference Include="OpenIddict.AspNetCore" Version="5.6.0" />
-        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.6.0" />
-        <PackageReference Include="OpenIddict.Quartz" Version="5.6.0" />
-        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.8.1" />
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.8.1" />
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.8.1" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.8.1" />
+        <PackageReference Include="OpenIddict.AspNetCore" Version="5.8.0" />
+        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="5.8.0" />
+        <PackageReference Include="OpenIddict.Quartz" Version="5.8.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
         <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.0.0-beta.8" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.8.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="0.5.0-beta.3" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Quartz" Version="1.0.0-beta.1" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.8.0" />
-        <PackageReference Include="Quartz.AspNetCore" Version="3.8.0" />
-        <PackageReference Include="Quartz.Serialization.Json" Version="3.8.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-        <PackageReference Include="tusdotnet" Version="2.7.2" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
+        <PackageReference Include="Quartz.AspNetCore" Version="3.13.0" />
+        <PackageReference Include="Quartz.Serialization.SystemTextJson" Version="3.13.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+        <PackageReference Include="tusdotnet" Version="2.8.0" />
         <PackageReference Include="zxcvbn-core" Version="7.0.92" />
     </ItemGroup>
 

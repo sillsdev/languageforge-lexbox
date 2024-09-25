@@ -9,9 +9,9 @@ using SystemTextJsonPatch.Operations;
 
 namespace LcmCrdt.Objects;
 
-public class Sense : MiniLcm.Sense, IObjectBase<Sense>
+public class Sense : MiniLcm.Models.Sense, IObjectBase<Sense>
 {
-    public static Sense FromMiniLcm(MiniLcm.Sense sense, Guid entryId)
+    public static Sense FromMiniLcm(MiniLcm.Models.Sense sense, Guid entryId)
     {
         return new Sense
         {
@@ -25,7 +25,7 @@ public class Sense : MiniLcm.Sense, IObjectBase<Sense>
             EntryId = entryId
         };
     }
-    public static IEnumerable<IChange> ChangesFromJsonPatch(Sense sense, JsonPatchDocument<MiniLcm.Sense> patch)
+    public static IEnumerable<IChange> ChangesFromJsonPatch(Sense sense, JsonPatchDocument<MiniLcm.Models.Sense> patch)
     {
         foreach (var rewriteChange in patch.RewriteChanges(s => s.PartOfSpeechId,
                      (partOfSpeechId, operationType) =>

@@ -1,5 +1,5 @@
 ﻿using LcmCrdt.Changes;
-using MiniLcm;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 using Sense = LcmCrdt.Objects.Sense;
@@ -21,7 +21,7 @@ public class JsonPatchRewriteTests
     public void RewritePartOfSpeechChangesIntoSetPartOfSpeechChange()
     {
         var newPartOfSpeechId = Guid.NewGuid();
-        var patchDocument = new JsonPatchDocument<MiniLcm.Sense>();
+        var patchDocument = new JsonPatchDocument<MiniLcm.Models.Sense>();
         patchDocument.Replace(s => s.PartOfSpeechId, newPartOfSpeechId);
         patchDocument.Replace(s => s.Gloss["en"], "new gloss");
 
@@ -40,7 +40,7 @@ public class JsonPatchRewriteTests
     public void JsonPatchChangeRewriteDoesNotReturnEmptyPatchChanges()
     {
         var newPartOfSpeechId = Guid.NewGuid();
-        var patchDocument = new JsonPatchDocument<MiniLcm.Sense>();
+        var patchDocument = new JsonPatchDocument<MiniLcm.Models.Sense>();
         patchDocument.Replace(s => s.PartOfSpeechId, newPartOfSpeechId);
 
         var changes = Sense.ChangesFromJsonPatch(_sense, patchDocument).ToArray();
@@ -55,7 +55,7 @@ public class JsonPatchRewriteTests
     public void RewritesAddSemanticDomainChangesIntoAddSemanticDomainChange()
     {
         var newSemanticDomainId = Guid.NewGuid();
-        var patchDocument = new JsonPatchDocument<MiniLcm.Sense>();
+        var patchDocument = new JsonPatchDocument<MiniLcm.Models.Sense>();
         patchDocument.Add(s => s.SemanticDomains,
             new SemanticDomain() { Id = newSemanticDomainId, Code = "new code", Name = new MultiString() });
 
@@ -71,7 +71,7 @@ public class JsonPatchRewriteTests
     {
         var oldSemanticDomainId = _sense.SemanticDomains[0].Id;
         var newSemanticDomainId = Guid.NewGuid();
-        var patchDocument = new JsonPatchDocument<MiniLcm.Sense>();
+        var patchDocument = new JsonPatchDocument<MiniLcm.Models.Sense>();
         patchDocument.Replace(s => s.SemanticDomains, new SemanticDomain() { Id = newSemanticDomainId, Code = "new code", Name = new MultiString() }, 0);
 
         var changes = Sense.ChangesFromJsonPatch(_sense, patchDocument).ToArray();
@@ -86,7 +86,7 @@ public class JsonPatchRewriteTests
     {
         var oldSemanticDomainId = _sense.SemanticDomains[0].Id;
         var newSemanticDomainId = Guid.NewGuid();
-        var patchDocument = new JsonPatchDocument<MiniLcm.Sense>();
+        var patchDocument = new JsonPatchDocument<MiniLcm.Models.Sense>();
         patchDocument.Replace(s => s.SemanticDomains, new SemanticDomain() { Id = newSemanticDomainId, Code = "new code", Name = new MultiString() });
 
         var changes = Sense.ChangesFromJsonPatch(_sense, patchDocument).ToArray();
@@ -100,7 +100,7 @@ public class JsonPatchRewriteTests
     [Fact]
     public void RewritesRemoveSemanticDomainPatchChangesIntoReplaceSemanticDomainChange()
     {
-        var patchDocument = new JsonPatchDocument<MiniLcm.Sense>();
+        var patchDocument = new JsonPatchDocument<MiniLcm.Models.Sense>();
         var semanticDomainIdToRemove = _sense.SemanticDomains[0].Id;
         patchDocument.Remove(s => s.SemanticDomains, 0);
 
@@ -115,7 +115,7 @@ public class JsonPatchRewriteTests
     [Fact]
     public void RewritesRemoveNoIndexSemanticDomainPatchChangesIntoReplaceSemanticDomainChange()
     {
-        var patchDocument = new JsonPatchDocument<MiniLcm.Sense>();
+        var patchDocument = new JsonPatchDocument<MiniLcm.Models.Sense>();
         var semanticDomainIdToRemove = _sense.SemanticDomains[0].Id;
         patchDocument.Remove(s => s.SemanticDomains);
 

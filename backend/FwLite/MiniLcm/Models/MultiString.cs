@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace MiniLcm;
+namespace MiniLcm.Models;
 
 
 /// <summary>

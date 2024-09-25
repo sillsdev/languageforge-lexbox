@@ -1,5 +1,5 @@
 ﻿using System.Linq.Expressions;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Data;
 

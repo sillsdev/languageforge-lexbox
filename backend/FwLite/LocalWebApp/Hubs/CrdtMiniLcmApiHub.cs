@@ -3,18 +3,19 @@ using LcmCrdt.Data;
 using LocalWebApp.Services;
 using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace LocalWebApp.Hubs;
 
 public class CrdtMiniLcmApiHub(
-    ILexboxApi lexboxApi,
+    IMiniLcmApi miniLcmApi,
     BackgroundSyncService backgroundSyncService,
     SyncService syncService,
     ChangeEventBus changeEventBus,
     CurrentProjectService projectContext,
     LexboxProjectService lexboxProjectService,
-    IMemoryCache memoryCache) : MiniLcmApiHubBase(lexboxApi)
+    IMemoryCache memoryCache) : MiniLcmApiHubBase(miniLcmApi)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;

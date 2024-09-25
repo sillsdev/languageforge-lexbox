@@ -6,6 +6,7 @@ using LocalWebApp.Hubs;
 using LocalWebApp.Services;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using MiniLcm.Models;
 
 namespace LocalWebApp.Routes;
 
@@ -119,7 +120,7 @@ public static partial class ProjectRoutes
 
     private static async Task AfterCreate(IServiceProvider provider, CrdtProject project)
     {
-        var lexboxApi = provider.GetRequiredService<ILexboxApi>();
+        var lexboxApi = provider.GetRequiredService<IMiniLcmApi>();
         await lexboxApi.CreateEntry(new()
         {
             Id = Guid.NewGuid(),

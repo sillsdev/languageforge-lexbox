@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
