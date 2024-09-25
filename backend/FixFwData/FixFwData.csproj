@@ -2,12 +2,6 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>FixFwData</RootNamespace>
-    <Description>FixFwData</Description>
-    <Company>SIL Global</Company>
-    <Authors>SIL Global</Authors>
-    <Product>LexBoxApi Testing</Product>
-    <Copyright>Copyright © 2024 SIL Global</Copyright>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
