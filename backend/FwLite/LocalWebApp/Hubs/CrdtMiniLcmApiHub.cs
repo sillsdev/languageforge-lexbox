@@ -31,7 +31,6 @@ public class CrdtMiniLcmApiHub(
         await syncService.ExecuteSync();
         Cleanup =
         [
-            //todo this results in a memory leak, due to holding on to the hub instance, it will be disposed even if the context items are not.
             changeEventBus.ListenForEntryChanges(projectContext.Project.Name, Context.ConnectionId)
         ];
 
@@ -45,6 +44,7 @@ public class CrdtMiniLcmApiHub(
         {
             disposable.Dispose();
         }
+        memoryCache.Remove($"CurrentFilter|HubConnectionId={Context.ConnectionId}");
     }
 
     private Func<LcmCrdt.Objects.Entry, bool> CurrentFilter
