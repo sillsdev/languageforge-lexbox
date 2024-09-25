@@ -20,7 +20,6 @@ public partial class MainPage : ContentPage
             webView.Dispatcher.Dispatch(() => webView.Source = url);
             logger.LogInformation("Url updated: {Url}", url);
         });
-        webView.IsVisible = false;
         var url = options.CurrentValue.Url;
         webView.Source = url;
         logger.LogInformation("Main page initialized, url: {Url}", url);
