@@ -53,13 +53,21 @@ public class LoginController(
 
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
-        string destination = returnTo;
+        string destination = ValidateRedirectUrl(returnTo);
         if (returnToIfEmailExists is not null && user.Email is not null)
         {
             var dbUser = await lexBoxDbContext.Users.FindByEmailOrUsername(user.Email);
-            if (dbUser is not null) destination = returnToIfEmailExists!;
+            if (dbUser is not null) destination = ValidateRedirectUrl(returnToIfEmailExists)!;
         }
         return Redirect(destination);
+    }
+
+    private string ValidateRedirectUrl(string url)
+    {
+        // Redirect URLs must be relative, to avoid phishing attacks where user is redirected to
+        // a lookalike site. So we strip off the host if there is one.
+        var uri = new Uri(url, UriKind.RelativeOrAbsolute);
+        return uri.PathAndQuery;
     }
 
     [HttpGet("google")]
