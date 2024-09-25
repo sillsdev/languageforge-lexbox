@@ -18,7 +18,7 @@ using Path = System.IO.Path;
 
 namespace LexBoxApi.Services;
 
-public class HgService : IHgService, IHostedService
+public partial class HgService : IHgService, IHostedService
 {
     private const string DELETED_REPO_FOLDER = ProjectCode.DELETED_REPO_FOLDER;
     private const string TEMP_REPO_FOLDER = ProjectCode.TEMP_REPO_FOLDER;
@@ -99,11 +99,16 @@ public class HgService : IHgService, IHostedService
     {
         var tmpRepo = new DirectoryInfo(GetTempRepoPath(code, "reset"));
         InitRepoAt(tmpRepo);
-        await SoftDeleteRepo(code, $"{FileUtils.ToTimestamp(DateTimeOffset.UtcNow)}__reset");
+        await SoftDeleteRepo(code, ResetSoftDeleteSuffix(DateTimeOffset.UtcNow));
         //we must init the repo as uploading a zip is optional
         tmpRepo.MoveTo(PrefixRepoFilePath(code));
         await InvalidateDirCache(code);
         await WaitForRepoEmptyState(code, RepoEmptyState.Empty);
+    }
+
+    public static string ResetSoftDeleteSuffix(DateTimeOffset resetAt)
+    {
+        return $"{FileUtils.ToTimestamp(resetAt)}__reset";
     }
 
     public async Task FinishReset(ProjectCode code, Stream zipFile)
@@ -143,6 +148,55 @@ public class HgService : IHgService, IHostedService
         var expectedState = File.Exists(changelogPath) ? RepoEmptyState.NonEmpty : RepoEmptyState.Empty;
         await WaitForRepoEmptyState(code, expectedState);
     }
+
+
+    public async Task<string[]> CleanupResetBackups(bool dryRun = false)
+    {
+        using var activity = LexBoxActivitySource.Get().StartActivity();
+        List<string> deletedRepos = [];
+        int deletedCount = 0;
+        int totalCount = 0;
+        foreach (var deletedRepo in Directory.EnumerateDirectories(Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER)))
+        {
+            totalCount++;
+            var deletedRepoName = Path.GetFileName(deletedRepo);
+            var resetDate = GetResetDate(deletedRepoName);
+            if (resetDate is null)
+            {
+                continue;
+            }
+            var resetAge = DateTimeOffset.UtcNow - resetDate.Value;
+            //enforce a minimum age threshold, just in case the threshold is set too low
+            var ageThreshold = TimeSpan.FromDays(Math.Max(_options.Value.ResetCleanupAgeDays, 5));
+            if (resetAge <= ageThreshold) continue;
+            try
+            {
+                if (!dryRun)
+                    await Task.Run(() => Directory.Delete(deletedRepo, true));
+                deletedRepos.Add(deletedRepoName);
+                deletedCount++;
+            }
+            catch (Exception e)
+            {
+                activity?.AddTag("app.hg.cleanupresetbackups.error", e.Message);
+            }
+        }
+        activity?.AddTag("app.hg.cleanupresetbackups", totalCount);
+        activity?.AddTag("app.hg.cleanupresetbackups.deleted", deletedCount);
+        activity?.AddTag("app.hg.cleanupresetbackups.dryrun", dryRun);
+        return deletedRepos.ToArray();
+    }
+
+    public static DateTimeOffset? GetResetDate(string repoName)
+    {
+        var match = ResetProjectsRegex().Match(repoName);
+        if (!match.Success) return null;
+        return FileUtils.ToDateTimeOffset(match.Groups[1].Value);
+    }
+
+    [GeneratedRegex(@"__(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2})__reset$")]
+    public static partial Regex ResetProjectsRegex();
+
 
     /// <summary>
     /// deletes all files and folders in the repo folder except for .hg
@@ -227,7 +281,7 @@ public class HgService : IHgService, IHostedService
 
     public async Task SoftDeleteRepo(ProjectCode code, string deletedRepoSuffix)
     {
-        var deletedRepoName = $"{code}__{deletedRepoSuffix}";
+        var deletedRepoName = DeletedRepoName(code, deletedRepoSuffix);
         await Task.Run(() =>
         {
             var deletedRepoPath = Path.Combine(_options.Value.RepoPath, DELETED_REPO_FOLDER);
@@ -238,6 +292,11 @@ public class HgService : IHgService, IHostedService
                 PrefixRepoFilePath(code),
                 Path.Combine(deletedRepoPath, deletedRepoName));
         });
+    }
+
+    public static string DeletedRepoName(ProjectCode code, string deletedRepoSuffix)
+    {
+        return $"{code}__{deletedRepoSuffix}";
     }
 
     private const UnixFileMode Permissions = UnixFileMode.GroupRead | UnixFileMode.GroupWrite |

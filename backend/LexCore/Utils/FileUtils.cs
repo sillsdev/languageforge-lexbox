@@ -5,11 +5,22 @@ namespace LexCore.Utils;
 
 public static class FileUtils
 {
+    private static readonly string TimestampPattern = DateTimeFormatInfo.InvariantInfo.SortableDateTimePattern.Replace(':', '-');
     public static string ToTimestamp(DateTimeOffset dateTime)
     {
-        var timestamp = dateTime.ToString(DateTimeFormatInfo.InvariantInfo.SortableDateTimePattern);
+        var timestamp = dateTime.ToUniversalTime().ToString(TimestampPattern);
         // make it file-system friendly
         return timestamp.Replace(':', '-');
+    }
+
+    public static DateTimeOffset? ToDateTimeOffset(string timestamp)
+    {
+        if (DateTimeOffset.TryParseExact(timestamp, TimestampPattern, null, DateTimeStyles.AssumeUniversal, out var dateTime))
+        {
+            return dateTime;
+        }
+
+        return null;
     }
 
     public static void CopyFilesRecursively(DirectoryInfo source, DirectoryInfo target, UnixFileMode? permissions = null)
