@@ -5,7 +5,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Objects;
 
-public class ExampleSentence : MiniLcm.ExampleSentence, IObjectBase<ExampleSentence>
+public class ExampleSentence : MiniLcm.Models.ExampleSentence, IObjectBase<ExampleSentence>
 {
     Guid IObjectBase.Id
     {

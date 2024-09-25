@@ -1,4 +1,4 @@
-﻿namespace MiniLcm;
+﻿namespace MiniLcm.Models;
 
 public interface IProjectIdentifier
 {

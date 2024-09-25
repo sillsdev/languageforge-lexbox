@@ -2,7 +2,7 @@
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
-using MiniLcm;
+using MiniLcm.Models;
 using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 
 namespace LcmCrdt.Changes;

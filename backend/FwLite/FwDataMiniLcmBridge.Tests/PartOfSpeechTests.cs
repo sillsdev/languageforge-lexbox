@@ -1,6 +1,7 @@
 ﻿using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.Tests.Fixtures;
 using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests;
 
@@ -70,12 +71,11 @@ public class PartOfSpeechTests(ProjectLoaderFixture fixture) : IAsyncLifetime
         var sense = entry.Senses.First(s => !string.IsNullOrEmpty(s.PartOfSpeech));
         var newPartOfSpeech = await _api.GetPartsOfSpeech().FirstAsync(po => po.Id != sense.PartOfSpeechId);
 
-        var update = _api.CreateUpdateBuilder<Sense>()
+        var update = new UpdateObjectInput<Sense>()
             .Set(s => s.PartOfSpeech,
                 newPartOfSpeech.Name
                     ["en"]) //this won't actually update the part of speech, but it shouldn't cause an issue either.
-            .Set(s => s.PartOfSpeechId, newPartOfSpeech.Id)
-            .Build();
+            .Set(s => s.PartOfSpeechId, newPartOfSpeech.Id);
         await _api.UpdateSense(entry.Id, sense.Id, update);
 
         entry = await _api.GetEntry(entry.Id);

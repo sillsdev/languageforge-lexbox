@@ -1,4 +1,4 @@
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge;
 

@@ -3,11 +3,11 @@ using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Entities;
 using LinqToDB;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Objects;
 
-public class Entry : MiniLcm.Entry, IObjectBase<Entry>
+public class Entry : MiniLcm.Models.Entry, IObjectBase<Entry>
 {
     Guid IObjectBase.Id
     {

@@ -1,6 +1,6 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Options;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge;
 

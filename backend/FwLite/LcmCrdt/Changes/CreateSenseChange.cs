@@ -3,13 +3,13 @@ using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 
 public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseChange>
 {
-    public CreateSenseChange(MiniLcm.Sense sense, Guid entryId) : base(sense.Id == Guid.Empty ? Guid.NewGuid() : sense.Id)
+    public CreateSenseChange(MiniLcm.Models.Sense sense, Guid entryId) : base(sense.Id == Guid.Empty ? Guid.NewGuid() : sense.Id)
     {
         sense.Id = EntityId;
         EntryId = entryId;

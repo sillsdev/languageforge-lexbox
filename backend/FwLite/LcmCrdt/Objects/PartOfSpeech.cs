@@ -1,11 +1,11 @@
 ﻿using SIL.Harmony;
 using SIL.Harmony.Entities;
 using LcmCrdt.Changes;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Objects;
 
-public class PartOfSpeech : MiniLcm.PartOfSpeech, IObjectBase<PartOfSpeech>
+public class PartOfSpeech : MiniLcm.Models.PartOfSpeech, IObjectBase<PartOfSpeech>
 {
     Guid IObjectBase.Id
     {

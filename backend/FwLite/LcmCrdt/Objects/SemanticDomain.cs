@@ -3,7 +3,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Objects;
 
-public class SemanticDomain : MiniLcm.SemanticDomain, IObjectBase<SemanticDomain>
+public class SemanticDomain : MiniLcm.Models.SemanticDomain, IObjectBase<SemanticDomain>
 {
     Guid IObjectBase.Id
     {

@@ -57,7 +57,7 @@ public class SyncFixture : IAsyncLifetime
         var crdtProject = await _services.ServiceProvider.GetRequiredService<ProjectsService>()
             .CreateProject(new(_projectName, projectGuid));
         _services.ServiceProvider.GetRequiredService<ProjectContext>().Project = crdtProject;
-        CrdtApi = _services.ServiceProvider.GetRequiredService<ILexboxApi>();
+        CrdtApi = _services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
     }
 
     public async Task DisposeAsync()
@@ -65,7 +65,7 @@ public class SyncFixture : IAsyncLifetime
         await _services.DisposeAsync();
     }
 
-    public ILexboxApi CrdtApi { get; set; } = null!;
+    public IMiniLcmApi CrdtApi { get; set; } = null!;
     public FwDataMiniLcmApi FwDataApi { get; set; } = null!;
 }
 

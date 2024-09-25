@@ -3,6 +3,7 @@ using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -12,7 +13,7 @@ using SIL.LCModel.Infrastructure;
 
 namespace FwDataMiniLcmBridge.Api;
 
-public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : ILexboxApi, IDisposable
+public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : IMiniLcmApi, IDisposable
 {
     private LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
@@ -558,11 +559,5 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
-    }
-
-
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return new UpdateBuilder<T>();
     }
 }

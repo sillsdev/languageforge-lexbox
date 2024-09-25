@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MiniLcm;
+﻿using MiniLcm.Models;
 
 namespace LcmCrdt;
 

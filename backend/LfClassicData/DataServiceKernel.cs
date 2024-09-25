@@ -20,7 +20,7 @@ public static class DataServiceKernel
             .ValidateOnStart();
         services.AddSingleton(BuildMongoClientSettings);
         services.AddSingleton(provider => new MongoClient(provider.GetRequiredService<MongoClientSettings>()));
-        services.AddSingleton<ILexboxApiProvider, LfClassicLexboxApiProvider>();
+        services.AddSingleton<LfClassicLexboxApiProvider>();
 
         services.AddSingleton<SystemDbContext>();
         services.AddSingleton<ProjectDbContext>();

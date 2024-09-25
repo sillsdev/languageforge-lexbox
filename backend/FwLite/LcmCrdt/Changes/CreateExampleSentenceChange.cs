@@ -3,13 +3,13 @@ using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 
 public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNamedType<CreateExampleSentenceChange>
 {
-    public CreateExampleSentenceChange(MiniLcm.ExampleSentence exampleSentence, Guid senseId)
+    public CreateExampleSentenceChange(MiniLcm.Models.ExampleSentence exampleSentence, Guid senseId)
         : base(exampleSentence.Id == Guid.Empty ? Guid.NewGuid() : exampleSentence.Id)
     {
         exampleSentence.Id = EntityId;

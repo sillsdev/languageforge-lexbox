@@ -1,7 +1,7 @@
 ﻿using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
-using MiniLcm;
+using MiniLcm.Models;
 using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
 
 namespace LcmCrdt.Changes;
