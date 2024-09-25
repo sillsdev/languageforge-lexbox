@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MiniLcm;
+using MiniLcm.Models;
 
 namespace LfClassicData;
 
@@ -25,14 +26,14 @@ public static class LfClassicRoutes
     private static class MiniLcm
     {
         public static Task<WritingSystems> GetWritingSystems([FromRoute] string projectCode,
-            [FromServices] ILexboxApiProvider provider)
+            [FromServices] LfClassicLexboxApiProvider provider)
         {
             var api = provider.GetProjectApi(projectCode);
             return api.GetWritingSystems();
         }
 
         public static IAsyncEnumerable<Entry> GetEntries([FromRoute] string projectCode,
-            [FromServices] ILexboxApiProvider provider,
+            [FromServices] LfClassicLexboxApiProvider provider,
             [AsParameters] ClassicQueryOptions options)
         {
             var api = provider.GetProjectApi(projectCode);
@@ -40,7 +41,7 @@ public static class LfClassicRoutes
         }
 
         public static IAsyncEnumerable<Entry> SearchEntries([FromRoute] string projectCode,
-            [FromServices] ILexboxApiProvider provider,
+            [FromServices] LfClassicLexboxApiProvider provider,
             [FromRoute] string search,
             [AsParameters] ClassicQueryOptions options)
         {
@@ -50,21 +51,21 @@ public static class LfClassicRoutes
 
         public static Task<Entry?> GetEntry([FromRoute] string projectCode,
             Guid id,
-            [FromServices] ILexboxApiProvider provider)
+            [FromServices] LfClassicLexboxApiProvider provider)
         {
             var api = provider.GetProjectApi(projectCode);
             return api.GetEntry(id);
         }
 
         public static IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech([FromRoute] string projectCode,
-            [FromServices] ILexboxApiProvider provider)
+            [FromServices] LfClassicLexboxApiProvider provider)
         {
             var api = provider.GetProjectApi(projectCode);
             return api.GetPartsOfSpeech();
         }
 
         public static IAsyncEnumerable<SemanticDomain> GetSemanticDomains([FromRoute] string projectCode,
-            [FromServices] ILexboxApiProvider provider)
+            [FromServices] LfClassicLexboxApiProvider provider)
         {
             var api = provider.GetProjectApi(projectCode);
             return api.GetSemanticDomains();

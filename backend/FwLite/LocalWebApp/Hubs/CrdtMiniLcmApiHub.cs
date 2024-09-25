@@ -2,17 +2,18 @@
 using LocalWebApp.Services;
 using Microsoft.AspNetCore.SignalR.Client;
 using MiniLcm;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace LocalWebApp.Hubs;
 
 public class CrdtMiniLcmApiHub(
-    ILexboxApi lexboxApi,
+    IMiniLcmApi miniLcmApi,
     BackgroundSyncService backgroundSyncService,
     SyncService syncService,
     ChangeEventBus changeEventBus,
     CurrentProjectService projectContext,
-    LexboxProjectService lexboxProjectService) : MiniLcmApiHubBase(lexboxApi)
+    LexboxProjectService lexboxProjectService) : MiniLcmApiHubBase(miniLcmApi)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;

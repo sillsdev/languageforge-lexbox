@@ -1,4 +1,4 @@
-﻿using MiniLcm;
+﻿using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 

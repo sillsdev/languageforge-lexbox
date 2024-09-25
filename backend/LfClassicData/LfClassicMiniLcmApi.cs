@@ -1,13 +1,14 @@
 ﻿using LfClassicData.Entities;
 using MiniLcm;
+using MiniLcm.Models;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using Entry = MiniLcm.Entry;
-using Sense = MiniLcm.Sense;
+using Entry = MiniLcm.Models.Entry;
+using Sense = MiniLcm.Models.Sense;
 
 namespace LfClassicData;
 
-public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext) : ILexboxApi
+public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext) : IMiniLcmReadApi
 {
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
 
@@ -59,34 +60,9 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
         }
     }
 
-    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
-    {
-        throw new NotSupportedException();
-    }
-
-    public async Task CreateSemanticDomain(SemanticDomain semanticDomain)
-    {
-        throw new NotSupportedException();
-    }
-
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         return AsyncEnumerable.Empty<SemanticDomain>();
-    }
-
-    public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
-    {
-        throw new NotSupportedException();
-    }
-
-    public IAsyncEnumerable<Entry> GetEntries(string exemplar, QueryOptions? options = null)
-    {
-        return Query();
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -186,58 +162,5 @@ public class LfClassicLexboxApi(string projectCode, ProjectDbContext dbContext, 
         var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
         if (entry is null) return null;
         return ToEntry(entry);
-    }
-
-    public Task<Entry> CreateEntry(Entry entry)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
-    {
-        throw new NotSupportedException();
-    }
-
-    public async Task DeleteEntry(Guid id)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task<Sense> CreateSense(Guid entryId, Sense sense)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task DeleteSense(Guid entryId, Guid senseId)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
-        Guid senseId,
-        Guid exampleSentenceId,
-        UpdateObjectInput<ExampleSentence> update)
-    {
-        throw new NotSupportedException();
-    }
-
-    public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
-    {
-        throw new NotSupportedException();
-    }
-
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        throw new NotSupportedException();
     }
 }

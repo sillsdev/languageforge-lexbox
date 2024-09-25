@@ -1,8 +1,9 @@
 ﻿using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwLiteProjectSync;
 
-public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
+public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
     public List<DryRunRecord> DryRunRecords { get; } = [];
 
@@ -135,10 +136,5 @@ public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteExampleSentence), $"Delete example sentence {exampleSentenceId}"));
         return Task.CompletedTask;
-    }
-
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return api.CreateUpdateBuilder<T>();
     }
 }

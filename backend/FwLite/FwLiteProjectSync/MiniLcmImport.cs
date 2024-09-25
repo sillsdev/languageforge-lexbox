@@ -1,12 +1,13 @@
 ﻿using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwLiteProjectSync;
 
 public class MiniLcmImport(ILogger<MiniLcmImport> logger)
 {
-    public async Task ImportProject(ILexboxApi importTo, ILexboxApi importFrom, int entryCount)
+    public async Task ImportProject(IMiniLcmApi importTo, IMiniLcmApi importFrom, int entryCount)
     {
         var writingSystems = await importFrom.GetWritingSystems();
         foreach (var ws in writingSystems.Analysis)
@@ -30,7 +31,7 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
 
         var semanticDomains = importFrom.GetSemanticDomains();
         var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));
-        if (importTo is CrdtLexboxApi crdtLexboxApi)
+        if (importTo is CrdtMiniLcmApi crdtLexboxApi)
         {
             logger.LogInformation("Importing semantic domains");
             await crdtLexboxApi.BulkImportSemanticDomains(semanticDomains.ToBlockingEnumerable());

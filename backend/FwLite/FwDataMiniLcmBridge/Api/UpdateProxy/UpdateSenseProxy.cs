@@ -1,5 +1,5 @@
 ﻿ using System.Diagnostics.CodeAnalysis;
-using MiniLcm;
+ using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.DomainServices;
 

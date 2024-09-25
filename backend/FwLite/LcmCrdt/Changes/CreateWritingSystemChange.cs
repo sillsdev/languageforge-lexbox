@@ -4,7 +4,7 @@ using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 
@@ -19,7 +19,7 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     public required double Order { get; init; }
 
     [SetsRequiredMembers]
-    public CreateWritingSystemChange(MiniLcm.WritingSystem writingSystem, WritingSystemType type, Guid entityId, double order) :
+    public CreateWritingSystemChange(MiniLcm.Models.WritingSystem writingSystem, WritingSystemType type, Guid entityId, double order) :
         base(entityId)
     {
         WsId = writingSystem.Id;

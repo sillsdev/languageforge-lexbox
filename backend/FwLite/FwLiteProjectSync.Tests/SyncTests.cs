@@ -1,5 +1,6 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace FwLiteProjectSync.Tests;
@@ -88,13 +89,9 @@ public class SyncTests : IClassFixture<SyncFixture>
         await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        var jsonPatchDocument = new JsonPatchDocument<Entry>();
-        jsonPatchDocument.Replace(entry => entry.LexemeForm["es"], "Manzana");
-        await crdtApi.UpdateEntry(_testEntry.Id, new JsonPatchUpdateInput<Entry>(jsonPatchDocument));
+        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"],"Manzana"));
 
-        var fwdataPatch = new JsonPatchDocument<Entry>();
-        fwdataPatch.Replace(entry => entry.LexemeForm["fr"], "Pomme");
-        await fwdataApi.UpdateEntry(_testEntry.Id, new JsonPatchUpdateInput<Entry>(fwdataPatch));
+        await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["fr"], "Pomme"));
         var results = await _syncService.Sync(crdtApi, fwdataApi);
         results.CrdtChanges.Should().Be(1);
         results.FwdataChanges.Should().Be(1);

@@ -58,7 +58,7 @@ syncCommand.SetHandler(async (crdtFile, fwDataFile, createCrdtDir, dryRun) =>
         await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
 
-        var result = await syncService.Sync(services.GetRequiredService<ILexboxApi>(), fwdataApi, dryRun);
+        var result = await syncService.Sync(services.GetRequiredService<IMiniLcmApi>(), fwdataApi, dryRun);
         logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
     },
     crdtOption,
