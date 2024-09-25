@@ -19,17 +19,21 @@ public class CrdtMiniLcmApiHub(
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;
+    private IDisposable[] Cleanup
+    {
+        get => Context.Items["cleanup"] as IDisposable[] ?? [];
+        set => Context.Items["cleanup"] = value;
+    }
 
     public override async Task OnConnectedAsync()
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project.Name));
         await syncService.ExecuteSync();
-        IDisposable[] cleanup =
+        Cleanup =
         [
             //todo this results in a memory leak, due to holding on to the hub instance, it will be disposed even if the context items are not.
             changeEventBus.ListenForEntryChanges(projectContext.Project.Name, Context.ConnectionId)
         ];
-        Context.Items["clanup"] = cleanup;
 
         await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
     }
@@ -37,7 +41,7 @@ public class CrdtMiniLcmApiHub(
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         await base.OnDisconnectedAsync(exception);
-        foreach (var disposable in Context.Items["cleanup"] as IDisposable[] ?? [])
+        foreach (var disposable in Cleanup)
         {
             disposable.Dispose();
         }
