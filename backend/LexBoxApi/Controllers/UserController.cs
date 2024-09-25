@@ -107,7 +107,11 @@ public class UserController : ControllerBase
         }
 
         // We now allow multiple invitations to be accepted by the same account, so only create one if there isn't one already
-        var userEntity = await _lexBoxDbContext.Users.FindByEmailOrUsername(accountInput.Email);
+        var userEntity = await _lexBoxDbContext.Users
+            .Where(u => u.Email == accountInput.Email)
+            .Include(u => u.Projects)
+            .Include(u => u.Organizations)
+            .FirstOrDefaultAsync();
         acceptActivity?.AddTag("app.email_available", userEntity is null);
         if (userEntity is null)
         {
@@ -158,7 +162,7 @@ public class UserController : ControllerBase
         {
             foreach (var p in jwtUser.Projects)
             {
-                if (!userEntity.Projects.Exists(proj => proj.Id == p.ProjectId))
+                if (!userEntity.Projects.Exists(proj => proj.ProjectId == p.ProjectId))
                 {
                     userEntity.Projects.Add(new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId });
                 }
@@ -168,7 +172,7 @@ public class UserController : ControllerBase
         {
             foreach (var o in jwtUser.Orgs)
             {
-                if (!userEntity.Organizations.Exists(org => org.Id == o.OrgId))
+                if (!userEntity.Organizations.Exists(org => org.OrgId == o.OrgId))
                 {
                     userEntity.Organizations.Add(new OrgMember { Role = o.Role, OrgId = o.OrgId });
                 }
