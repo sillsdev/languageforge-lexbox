@@ -70,8 +70,7 @@
     comment: true,
   });
 
-
-  const readonly = !$permissions.write || !$features.write;
+  $: readonly = !$permissions.write || !$features.write;
 
   const currentView = initView(views[0]);
   const viewSettings = initViewSettings({hideEmptyFields: false});
@@ -331,7 +330,7 @@
           </div>
         {/if}
       </div>
-      <div class="side-scroller h-full pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !readonly} class:max-lg:hidden={!pickedEntry || readonly} class:lg:hidden={expandList}>
+      <div class="side-scroller pl-6 border-l-2 gap-4 flex flex-col col-start-3" class:border-l-2={$selectedEntry && !expandList} class:max-lg:border-l-2={pickedEntry && !readonly} class:max-lg:hidden={!pickedEntry || readonly} class:lg:hidden={expandList}>
         <div class="hidden" class:sm:hidden={expandList}>
           <Button icon={collapseActionBar ? mdiArrowCollapseLeft : mdiArrowCollapseRight} class="aspect-square w-10" size="sm" iconOnly rounded variant="outline" on:click={() => collapseActionBar = !collapseActionBar} />
         </div>

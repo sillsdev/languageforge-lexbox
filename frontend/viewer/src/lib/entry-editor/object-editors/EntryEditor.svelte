@@ -147,7 +147,7 @@
         {/if}
       </div>
 
-      <SenseEditor {sense} on:change={() => dispatch('change', {entry, sense})}/>
+      <SenseEditor {sense} {readonly} on:change={() => dispatch('change', {entry, sense})}/>
 
       <div class="grid-layer border-l border-dashed pl-4 space-y-4 rounded-lg">
         {#each sense.exampleSentences as example, j (example.id)}
