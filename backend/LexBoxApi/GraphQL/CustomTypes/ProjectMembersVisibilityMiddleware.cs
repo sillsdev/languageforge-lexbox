@@ -18,7 +18,7 @@ public class ProjectMembersVisibilityMiddleware(FieldDelegate next)
             if (!await permissionService.CanViewProjectMembers(projId))
             {
                 // Confidential project, and user doesn't have permission to see its users, so only show the current user's membership
-                context.Result = projectUsers.Where(pu => pu.User?.Id == loggedInContext.MaybeUser?.Id);
+                context.Result = projectUsers.Where(pu => pu.User?.Id == loggedInContext.MaybeUser?.Id).ToList();
             }
         }
     }
