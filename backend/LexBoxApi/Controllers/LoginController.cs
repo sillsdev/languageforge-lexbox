@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Google;
 using LexBoxApi.Services.Email;
-using LexData.Entities;
 
 namespace LexBoxApi.Controllers;
 
