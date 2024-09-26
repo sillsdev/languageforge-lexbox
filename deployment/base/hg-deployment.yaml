@@ -149,6 +149,14 @@ spec:
         ports:
           - containerPort: 80
 
+        livenessProbe:
+          httpGet:
+            path: /api/v03/isAvailable
+            port: 80
+          failureThreshold: 5
+          periodSeconds: 120
+          initialDelaySeconds: 300
+
         volumeMounts:
         - name: cache
           mountPath: /var/cache/hgresume
