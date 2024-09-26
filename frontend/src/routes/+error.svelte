@@ -3,6 +3,8 @@
   import UnexpectedError from '$lib/error/UnexpectedError.svelte';
   import t from '$lib/i18n';
   import { Layout, Page, HomeBreadcrumb, PageBreadcrumb } from '$lib/layout';
+
+  const status = $page.status;
 </script>
 
 {#if $page.data.user}
@@ -15,7 +17,7 @@
 <Layout>
   <Page>
     <div class="py-6">
-      {#if $page.status === 404}
+      {#if status === 404}
         <div class="flex flex-col gap-4 items-center">
           <div class="flex gap-2">
             <span class="i-mdi-emoticon-confused-outline text-3xl" />
