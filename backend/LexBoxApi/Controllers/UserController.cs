@@ -82,7 +82,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpGet("handleInviteLink")]
+    [HttpGet("acceptInvitation")]
     [RequireAudience(LexboxAudience.RegisterAccount, true)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
