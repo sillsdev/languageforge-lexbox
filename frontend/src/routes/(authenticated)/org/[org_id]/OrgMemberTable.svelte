@@ -44,13 +44,13 @@
             <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
               {#if showEmailColumn}
                 <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', user)}>
-                  <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
+                  <span class="x-ellipsis" title={user.name}>
                     {user.name}
                   </span>
                   <Icon icon="i-mdi-card-account-details-outline" />
                 </Button>
               {:else}
-                <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
+                <span class="x-ellipsis" title={user.name}>
                   {user.name}
                 </span>
               {/if}
@@ -59,7 +59,7 @@
           {#if showEmailColumn}
           <td>
             <span class="inline-flex items-center gap-2 text-left max-w-40">
-              <span class="max-width-full overflow-hidden text-ellipsis" title={user.email ?? user.username}>
+              <span class="x-ellipsis" title={user.email ?? user.username}>
                 {user.email ?? user.username}
               </span>
             </span>
