@@ -72,7 +72,7 @@
       hover:border-neutral
       hover:shadow-xl;
 
-    max-height: 50vh;
+    @apply max-xs:max-h-[50vh];
     max-width: 100%;
 
     .bg {
