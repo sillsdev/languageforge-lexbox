@@ -37,8 +37,7 @@ public class LoginController(
     [AllowAnyAudience]
     public async Task<ActionResult> LoginRedirect(
         string jwt, // This is required because auth looks for a jwt in the query string
-        string returnTo,
-        string? returnToIfEmailExists)
+        string returnTo)
     {
         var user = loggedInContext.User;
         // A RegisterAccount token means there's no user account yet, so checking UpdatedDate makes no sense
@@ -53,12 +52,7 @@ public class LoginController(
 
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
-        string destination = ValidateRedirectUrl(returnTo);
-        if (returnToIfEmailExists is not null && user.Email is not null)
-        {
-            var dbUser = await lexBoxDbContext.Users.FindByEmailOrUsername(user.Email);
-            if (dbUser is not null) destination = ValidateRedirectUrl(returnToIfEmailExists)!;
-        }
+        var destination = ValidateRedirectUrl(returnTo);
         return Redirect(destination);
     }
 
@@ -67,7 +61,7 @@ public class LoginController(
         // Redirect URLs must be relative, to avoid phishing attacks where user is redirected to
         // a lookalike site. So we strip off the host if there is one.
         var uri = new Uri(url, UriKind.RelativeOrAbsolute);
-        return uri.PathAndQuery;
+        return uri.IsAbsoluteUri ? uri.PathAndQuery : uri.ToString();
     }
 
     [HttpGet("google")]

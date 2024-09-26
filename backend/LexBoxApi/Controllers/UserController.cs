@@ -82,19 +82,18 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [HttpGet("inviteLinkRedirect")]
+    [HttpGet("handleInviteLink")]
     [RequireAudience(LexboxAudience.RegisterAccount, true)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<LexAuthUser>> InviteLinkRedirect(LoggedInContext loggedInContext, LexBoxDbContext dbContext)
+    public async Task<ActionResult> HandleInviteLink(LoggedInContext loggedInContext, LexBoxDbContext dbContext)
     {
         var user = loggedInContext.User;
         if (user.Email is null)
         {
+            // Malformed JWT, exit early
             return Redirect("/login");
         }
-        var queryString = QueryString.Create("email", user.Email);
-        var returnTo = new UriBuilder { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
         var dbUser = await dbContext.Users
             .Where(u => u.Email == user.Email)
             .Include(u => u.Projects)
@@ -102,15 +101,20 @@ public class UserController : ControllerBase
             .FirstOrDefaultAsync();
         if (dbUser is null)
         {
+            // Go to frontend to fill out registration page
+            var queryString = QueryString.Create("email", user.Email);
+            var returnTo = new UriBuilder { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
             return Redirect(returnTo);
         }
         else
         {
+            // No need to re-register users that already exist
             UpdateUserMemberships(user, dbUser);
             await dbContext.SaveChangesAsync();
-            await HttpContext.SignInAsync(user.GetPrincipal("Registration"),
+            var loginUser = new LexAuthUser(dbUser);
+            await HttpContext.SignInAsync(loginUser.GetPrincipal("Invitation"),
                 new AuthenticationProperties { IsPersistent = true });
-            return Ok(user);
+            return Redirect("/");
         }
     }
 
