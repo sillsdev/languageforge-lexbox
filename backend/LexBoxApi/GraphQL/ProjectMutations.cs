@@ -413,6 +413,25 @@ public class ProjectMutations
     }
 
     [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateFLExModelVersion(string code,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        var project = await dbContext.Projects.FindAsync(projectId);
+        NotFoundException.ThrowIfNull(project);
+        await projectService.UpdateFLExModelVersion(projectId);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
     [Error<LastMemberCantLeaveException>]
     [UseMutationConvention]
     [RefreshJwt]
