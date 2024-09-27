@@ -142,12 +142,7 @@ public class UserController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        // We now allow multiple invitations to be accepted by the same account, so only create one if there isn't one already
-        var userEntity = await _lexBoxDbContext.Users
-            .Where(u => u.Email == accountInput.Email)
-            .Include(u => u.Projects)
-            .Include(u => u.Organizations)
-            .FirstOrDefaultAsync();
+        var userEntity = await _lexBoxDbContext.Users.FindByEmailOrUsername(accountInput.Email);
         acceptActivity?.AddTag("app.email_available", userEntity is null);
         if (userEntity is null)
         {
@@ -156,7 +151,10 @@ public class UserController : ControllerBase
         }
         else
         {
-            UpdateUserMemberships(jwtUser, userEntity);
+            // Multiple invitations accepted by the same account should no longer go through this method, so return an error if the account already exists
+            // That can only happen if an admin created the user's account while the user was still on the registration page: very unlikely
+            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email already in use");
+            return ValidationProblem(ModelState);
         }
 
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
