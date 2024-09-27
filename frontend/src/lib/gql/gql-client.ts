@@ -59,6 +59,14 @@ function createGqlClient(_gqlEndpoint?: string): Client {
           'FlexProjectMetadata': (metaData) => metaData.projectId as string,
         },
         updates: {
+          Query: {
+            'projectByCode': (result, args, cache) => {
+              if (result.projectByCode === null) {
+                // Don't cache null project results
+                cache.invalidate('Query', 'projectByCode', args);
+              }
+            },
+          },
           Mutation: {
             createProject: (result: CreateProjectMutation, args: CreateProjectMutationVariables, cache, _info) => {
               if (args.input.orgId) {
