@@ -83,7 +83,7 @@
       <Button variant="fill-light" color="primary" loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
         Upload to {server.displayName}
       </Button>
-      {:else if !isUploaded && !server.loggedIn}
+    {:else if $projectServer && !isUploaded && !server.loggedIn}
       <!--todo after login we are sent home, should be sent back to the current project-->
       <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
     {/if}

@@ -55,7 +55,6 @@ public partial class MainPage : ContentPage
     private void NavigationSuccess()
     {
         webView.IsVisible = true;
-        //not currently working
         if (_environment.IsDevelopment())
         {
             _logger.LogInformation("Enabling dev mode in browser");
