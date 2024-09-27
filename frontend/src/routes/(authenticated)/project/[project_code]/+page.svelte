@@ -105,6 +105,11 @@
     loadingLanguageList = false;
   }
 
+  // Mirrors PermissionService.CanViewProjectMembers() in C#
+  $: canViewProjectMembers = user.isAdmin
+    || user.orgs.find((o) => project.organizations?.find((org) => org.id === o.orgId))?.role === OrgRole.Admin
+    || project?.users?.find((u) => u.user.id == user.id)?.role == ProjectRole.Manager;
+
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
     await resetProjectModal.open(project.code, project.resetStatus);
@@ -444,6 +449,7 @@
           {members}
           canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
           canManageList={canManage}
+          canViewMembers={canViewProjectMembers}
           on:openUserModal={(event) => userModal.open(event.detail.user)}
           on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
           >

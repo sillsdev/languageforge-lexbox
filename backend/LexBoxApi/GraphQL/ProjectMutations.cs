@@ -402,14 +402,13 @@ public class ProjectMutations
     public async Task<IQueryable<Project>> UpdateLangProjectId(string code,
         IPermissionService permissionService,
         [Service] ProjectService projectService,
-        [Service] IHgService hgService,
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
         await permissionService.AssertCanManageProject(projectId);
         var project = await dbContext.Projects.FindAsync(projectId);
         NotFoundException.ThrowIfNull(project);
-        await hgService.GetProjectIdOfFlexProject(code);
+        await projectService.UpdateProjectLangProjectId(projectId);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
 

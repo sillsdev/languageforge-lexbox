@@ -31,7 +31,7 @@ includes:
 
 tasks:
   setup:
-    deps: [ setup-win, setup-unix, setup-local-env ]
+    deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml

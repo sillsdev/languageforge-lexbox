@@ -20,6 +20,7 @@ public interface IPermissionService
     ValueTask AssertCanViewProject(Guid projectId);
     ValueTask<bool> CanViewProject(string projectCode);
     ValueTask AssertCanViewProject(string projectCode);
+    ValueTask<bool> CanViewProjectMembers(Guid projectId);
     ValueTask<bool> CanManageProject(Guid projectId);
     ValueTask<bool> CanManageProject(string projectCode);
     ValueTask AssertCanManageProject(Guid projectId);
