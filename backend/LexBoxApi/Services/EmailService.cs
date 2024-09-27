@@ -217,7 +217,8 @@ public class EmailService(
     }
     public async Task SendUserAddedEmail(User user, string projectName, string projectCode)
     {
-        var email = StartUserEmail(user) ?? throw new ArgumentNullException("emailAddress");
+        var email = StartUserEmail(user);
+        if (email is null) return; // Guest users have no email address, so we won't notify them by email and that's not an error
         await RenderEmail(email, new UserAddedEmail(user.Name, user.Email!, projectName, projectCode), user.LocalizationCode);
         await SendEmailWithRetriesAsync(email);
     }
