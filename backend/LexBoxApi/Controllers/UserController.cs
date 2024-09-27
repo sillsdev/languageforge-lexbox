@@ -86,15 +86,15 @@ public class UserController : ControllerBase
     [RequireAudience(LexboxAudience.RegisterAccount, true)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult> HandleInviteLink(LoggedInContext loggedInContext, LexBoxDbContext dbContext)
+    public async Task<ActionResult> HandleInviteLink()
     {
-        var user = loggedInContext.User;
+        var user = _loggedInContext.User;
         if (user.Email is null)
         {
             // Malformed JWT, exit early
             return Redirect("/login");
         }
-        var dbUser = await dbContext.Users
+        var dbUser = await _lexBoxDbContext.Users
             .Where(u => u.Email == user.Email)
             .Include(u => u.Projects)
             .Include(u => u.Organizations)
@@ -110,7 +110,7 @@ public class UserController : ControllerBase
         {
             // No need to re-register users that already exist
             UpdateUserMemberships(user, dbUser);
-            await dbContext.SaveChangesAsync();
+            await _lexBoxDbContext.SaveChangesAsync();
             var loginUser = new LexAuthUser(dbUser);
             await HttpContext.SignInAsync(loginUser.GetPrincipal("Invitation"),
                 new AuthenticationProperties { IsPersistent = true });
