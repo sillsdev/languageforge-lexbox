@@ -169,13 +169,24 @@
   let deleteProjectModal: ConfirmDeleteModal;
 
   async function softDeleteProject(): Promise<void> {
-    const result = await deleteProjectModal.open(project.name, async () => {
-      const { error } = await _deleteProject(project.id);
-      return error?.message;
-    });
-    if (result.response === DialogResponse.Submit) {
-      notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
-      await goto(data.home);
+    projectStore.pause();
+    changesetStore.pause();
+    let deleted = false;
+    try {
+      const result = await deleteProjectModal.open(project.name, async () => {
+        const { error } = await _deleteProject(project.id);
+        return error?.message;
+      });
+      if (result.response === DialogResponse.Submit) {
+        deleted = true;
+        notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
+        await goto(data.home);
+      }
+    } finally {
+      if (!deleted) {
+        projectStore.resume();
+        changesetStore.resume();
+      }
     }
   }
 
