@@ -5,7 +5,7 @@
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import t, { date, number } from '$lib/i18n';
+  import t, { date, NULL_LABEL, number } from '$lib/i18n';
   import { z } from 'zod';
   import type { PageData } from './$types';
   import {
@@ -14,6 +14,7 @@
     _deleteProjectUser,
     _leaveProject,
     _removeProjectFromOrg,
+    _updateFLExModelVersion,
     _updateProjectLanguageList,
     _updateProjectLexEntryCount,
     type ProjectUser,
@@ -70,6 +71,7 @@
   });
 
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
+  $: flexModelVersion = project.flexProjectMetadata?.flexModelVersion;
   $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
   $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
@@ -96,6 +98,13 @@
     loadingEntryCount = true;
     await _updateProjectLexEntryCount(project.code);
     loadingEntryCount = false;
+  }
+
+  let loadingModelVersion = false;
+  async function updateModelVersion(): Promise<void> {
+    loadingModelVersion = true;
+    await _updateFLExModelVersion(project.code);
+    loadingModelVersion = false;
   }
 
   let loadingLanguageList = false;
@@ -377,6 +386,20 @@
               on:click={updateEntryCount}
             />
           </AdminContent>
+        </DetailItem>
+      {/if}
+      <!-- Only show model version to project managers and admins, too technical to show to regular members -->
+      {#if project.type === ProjectType.FlEx && canManage}
+        <DetailItem title={$t('project_page.model_version')} text={flexModelVersion?.toString() ?? NULL_LABEL}>
+          <IconButton
+            slot="extras"
+            loading={loadingModelVersion}
+            icon="i-mdi-refresh"
+            size="btn-sm"
+            variant="btn-ghost"
+            outline={false}
+            on:click={updateModelVersion}
+          />
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
