@@ -5,8 +5,9 @@ WORKDIR /app
 RUN corepack enable
 
 FROM builder-base AS builder-viewer
+COPY pnpm-lock.yaml pnpm-workspace.yaml /app/
 WORKDIR /app/viewer
-COPY viewer/package.json viewer/pnpm-lock.yaml viewer/.npmrc /app/viewer/
+COPY viewer/package.json viewer/.npmrc /app/viewer/
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
 COPY ./viewer /app/viewer
@@ -14,7 +15,8 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm run build
 
 FROM builder-base AS builder
 
-COPY package.json pnpm-lock.yaml /app/
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml /app/
+COPY viewer/package.json /app/viewer/
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store pnpm install
 
 COPY . /app/
