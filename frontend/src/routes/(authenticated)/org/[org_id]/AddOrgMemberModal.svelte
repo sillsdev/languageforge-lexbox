@@ -91,7 +91,7 @@
     />
   </svelte:fragment>
   <span slot="submitText">
-    {#if $form.usernameOrEmail.includes('@')}
+    {#if $form.canInvite && $form.usernameOrEmail.includes('@')}
       {$t('org_page.add_user.submit_button_email')}
     {:else}
       {$t('org_page.add_user.submit_button')}
