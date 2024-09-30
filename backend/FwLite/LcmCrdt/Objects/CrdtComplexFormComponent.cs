@@ -36,6 +36,7 @@ public class CrdtComplexFormComponent : ComplexFormComponent, IObjectBase<CrdtCo
         {
             Id = Id,
             ComplexFormEntryId = ComplexFormEntryId,
+            ComplexFormHeadword = ComplexFormHeadword,
             ComponentEntryId = ComponentEntryId,
             ComponentHeadword = ComponentHeadword,
             ComponentSenseId = ComponentSenseId,

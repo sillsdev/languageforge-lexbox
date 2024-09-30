@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using LcmCrdt.Objects;
+using MiniLcm.Models;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
@@ -9,17 +10,17 @@ namespace LcmCrdt.Changes.Entries;
 public class AddEntryComponentChange : CreateChange<CrdtComplexFormComponent>, ISelfNamedType<AddEntryComponentChange>
 {
     public Guid ComplexFormEntryId { get; }
-    public string ComplexFormHeadword { get; }
+    public string? ComplexFormHeadword { get; }
     public Guid ComponentEntryId { get; }
     public Guid? ComponentSenseId { get; }
-    public string ComponentHeadword { get; }
+    public string? ComponentHeadword { get; }
 
     [JsonConstructor]
-    protected AddEntryComponentChange(Guid entityId,
+    public AddEntryComponentChange(Guid entityId,
         Guid complexFormEntryId,
-        string complexFormHeadword,
+        string? complexFormHeadword,
         Guid componentEntryId,
-        string componentHeadword,
+        string? componentHeadword,
         Guid? componentSenseId = null) : base(entityId)
     {
         ComplexFormEntryId = complexFormEntryId;
@@ -29,15 +30,12 @@ public class AddEntryComponentChange : CreateChange<CrdtComplexFormComponent>, I
         ComponentSenseId = componentSenseId;
     }
 
-    public AddEntryComponentChange(
-        MiniLcm.Models.Entry complexEntry,
-        MiniLcm.Models.Entry componentEntry,
-        Guid? componentSenseId = null) : this(Guid.NewGuid(),
-        complexEntry.Id,
-        complexEntry.Headword(),
-        componentEntry.Id,
-        componentEntry.Headword(),
-        componentSenseId)
+    public AddEntryComponentChange(ComplexFormComponent component) : this(component.Id == default ? Guid.NewGuid() : component.Id,
+        component.ComplexFormEntryId,
+        component.ComplexFormHeadword,
+        component.ComponentEntryId,
+        component.ComponentHeadword,
+        component.ComponentSenseId)
     {
     }
 

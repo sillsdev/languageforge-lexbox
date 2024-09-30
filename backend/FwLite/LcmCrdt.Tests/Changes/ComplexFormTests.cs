@@ -51,8 +51,8 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
         var coatEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat" } }, });
         var rackEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Rack" } }, });
 
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(complexEntry, coatEntry));
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(complexEntry, rackEntry));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, coatEntry)));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, rackEntry)));
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
         complexEntry.Should().NotBeNull();
         complexEntry!.Components.Should().ContainSingle(e => e.ComponentEntryId == coatEntry.Id);
@@ -70,8 +70,8 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
         var coatEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Coat" } }, });
         var rackEntry = await fixture.Api.CreateEntry(new() { LexemeForm = { { "en", "Rack" } }, });
 
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(complexEntry, coatEntry));
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(complexEntry, rackEntry));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, coatEntry)));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new AddEntryComponentChange(ComplexFormComponent.FromEntries(complexEntry, rackEntry)));
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
         complexEntry.Should().NotBeNull();
         var component = complexEntry!.Components.First();

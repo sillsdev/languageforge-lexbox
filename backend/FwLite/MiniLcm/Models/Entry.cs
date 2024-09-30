@@ -39,6 +39,18 @@ public class Entry : IObjectWithId
 
 public class ComplexFormComponent
 {
+    public static ComplexFormComponent FromEntries(Entry complexFormEntry, Entry componentEntry, Guid? componentSenseId = null)
+    {
+        return new ComplexFormComponent
+        {
+            Id = Guid.NewGuid(),
+            ComplexFormEntryId = complexFormEntry.Id,
+            ComplexFormHeadword = complexFormEntry.Headword(),
+            ComponentEntryId = componentEntry.Id,
+            ComponentHeadword = componentEntry.Headword(),
+            ComponentSenseId = componentSenseId,
+        };
+    }
     public Guid Id { get; set; }
     public required Guid ComplexFormEntryId { get; set; }
     public string? ComplexFormHeadword { get; set; }

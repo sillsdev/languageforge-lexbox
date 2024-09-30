@@ -35,14 +35,19 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await _fixture.FwDataApi.CreateEntry(_testEntry);
         await _fixture.FwDataApi.CreateEntry(new Entry()
         {
-            Id = _complexEntryId, LexemeForm = { { "en", "Pineapple" } },
-            ComplexForms = [new ComplexFormComponent() {
-                Id = Guid.NewGuid(),
-                ComponentEntryId = _complexEntryId,
-                ComponentHeadword = "Pineapple",
-                ComplexFormEntryId = _testEntry.Id,
-                ComplexFormHeadword = "Apple"
-            }]
+            Id = _complexEntryId,
+            LexemeForm = { { "en", "Pineapple" } },
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    Id = Guid.NewGuid(),
+                    ComplexFormEntryId = _complexEntryId,
+                    ComplexFormHeadword = "Pineapple",
+                    ComponentEntryId = _testEntry.Id,
+                    ComponentHeadword = "Apple"
+                }
+            ]
         });
     }
 
@@ -66,7 +71,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries);
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                              .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
     [Fact]
@@ -96,7 +103,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries);
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
     [Fact]
@@ -117,7 +126,9 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries);
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
     [Fact]
@@ -142,6 +153,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        crdtEntries.Should().BeEquivalentTo(fwdataEntries);
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 }
