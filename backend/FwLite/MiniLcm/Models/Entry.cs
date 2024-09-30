@@ -56,7 +56,7 @@ public class Variants
 
 public class ComplexFormType
 {
-    public required Guid Id { get; set; }
+    public Guid Id { get; set; }
     public required MultiString Name { get; set; }
 }
 

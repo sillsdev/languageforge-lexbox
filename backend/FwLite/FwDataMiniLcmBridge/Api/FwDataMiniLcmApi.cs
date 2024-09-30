@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
@@ -238,8 +239,31 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
     {
         return ComplexFormTypes.PossibilitiesOS
-            .Select(t => new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
+            .Select(ToComplexFormType)
             .ToAsyncEnumerable();
+    }
+
+    private ComplexFormType ToComplexFormType(ICmPossibility t)
+    {
+        return new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) };
+    }
+
+    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    {
+        if (complexFormType.Id != default) throw new InvalidOperationException("Complex form type id must be empty");
+        UndoableUnitOfWorkHelper.Do("Create complex form type",
+            "Remove complex form type",
+            Cache.ActionHandlerAccessor,
+            () =>
+            {
+                var lexComplexFormType = Cache.ServiceLocator
+                    .GetInstance<ILexEntryTypeFactory>()
+                    .Create();
+                ComplexFormTypes.PossibilitiesOS.Add(lexComplexFormType);
+                UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
+                complexFormType.Id = lexComplexFormType.Guid;
+            });
+        return Task.FromResult(ToComplexFormType(ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormType.Id)));
     }
 
     public IAsyncEnumerable<VariantType> GetVariantTypes()
@@ -271,7 +295,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         return entry.ComplexFormEntryRefs.SingleOrDefault()
             ?.ComplexEntryTypesRS
-            .Select(e => new ComplexFormType { Id = e.Guid, Name = FromLcmMultiString(e.Name) })
+            .Select(ToComplexFormType)
             .ToList() ?? [];
     }
     private IList<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
@@ -456,6 +480,38 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     CreateSense(lexEntry, sense);
                 }
 
+                foreach (var component in entry.Components)
+                {
+                    ICmObject lexComponent = component.ComponentSenseId is not null
+                        ? SenseRepository.GetObject(component.ComponentSenseId.Value)
+                        : EntriesRepository.GetObject(component.ComponentEntryId);
+                    lexEntry.AddComponent(lexComponent);
+                }
+
+                foreach (var complexForm in entry.ComplexForms)
+                {
+                    ICmObject lexComponent = complexForm.ComponentSenseId is not null
+                        ? SenseRepository.GetObject(complexForm.ComponentSenseId.Value)
+                        : lexEntry;
+
+                    var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
+                    complexLexEntry.AddComponent(lexComponent);
+                }
+
+                ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
+                foreach (var complexFormType in entry.ComplexFormTypes)
+                {
+                    if (entryRef is null)
+                    {
+                        entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+                        lexEntry.EntryRefsOS.Add(entryRef);
+                        entryRef.RefType = LexEntryRefTags.krtComplexForm;
+                        entryRef.HideMinorEntry = 0;
+                    }
+
+                    var lexEntryType = (ILexEntryType) ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormType.Id);
+                    entryRef.ComplexEntryTypesRS.Add(lexEntryType);
+                }
             });
 
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");

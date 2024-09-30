@@ -11,5 +11,5 @@ var app = builder.Build();
 
 var fwDataFactory = app.Services.GetRequiredService<FwDataFactory>();
 var miniLcmApi = fwDataFactory.GetFwDataMiniLcmApi("fruit", false);
-await miniLcmApi.GetEntries().ToArrayAsync();
+var entries = await miniLcmApi.GetEntries().ToArrayAsync();
 var complexEntryTypesOa = miniLcmApi.Cache.LangProject.LexDbOA.ComplexEntryTypesOA;

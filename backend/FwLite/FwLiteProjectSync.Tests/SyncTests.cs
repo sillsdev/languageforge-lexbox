@@ -5,11 +5,12 @@ using SystemTextJsonPatch;
 
 namespace FwLiteProjectSync.Tests;
 
-public class SyncTests : IClassFixture<SyncFixture>
+public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 {
     private readonly SyncFixture _fixture;
     private readonly CrdtFwdataProjectSyncService _syncService;
 
+    private readonly Guid _complexEntryId = Guid.NewGuid();
     private Entry _testEntry = new Entry
     {
         Id = Guid.NewGuid(),
@@ -29,6 +30,27 @@ public class SyncTests : IClassFixture<SyncFixture>
         ]
     };
 
+    public async Task InitializeAsync()
+    {
+        await _fixture.FwDataApi.CreateEntry(_testEntry);
+        await _fixture.FwDataApi.CreateEntry(new Entry()
+        {
+            Id = _complexEntryId, LexemeForm = { { "en", "Pineapple" } },
+            ComplexForms = [new ComplexFormComponent() {
+                Id = Guid.NewGuid(),
+                ComponentEntryId = _complexEntryId,
+                ComponentHeadword = "Pineapple",
+                ComplexFormEntryId = _testEntry.Id,
+                ComplexFormHeadword = "Apple"
+            }]
+        });
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
     public SyncTests(SyncFixture fixture)
     {
         _fixture = fixture;
@@ -40,7 +62,6 @@ public class SyncTests : IClassFixture<SyncFixture>
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
-        await fwdataApi.CreateEntry(_testEntry);
         await _syncService.Sync(crdtApi, fwdataApi);
 
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
@@ -53,7 +74,6 @@ public class SyncTests : IClassFixture<SyncFixture>
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
-        await fwdataApi.CreateEntry(_testEntry);
         await _syncService.Sync(crdtApi, fwdataApi);
 
         await fwdataApi.CreateEntry(new Entry()
@@ -84,7 +104,6 @@ public class SyncTests : IClassFixture<SyncFixture>
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
-        await fwdataApi.CreateEntry(_testEntry);
         await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
         await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
@@ -106,7 +125,6 @@ public class SyncTests : IClassFixture<SyncFixture>
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
-        await fwdataApi.CreateEntry(_testEntry);
         await _syncService.Sync(crdtApi, fwdataApi);
 
         await fwdataApi.CreateSense(_testEntry.Id, new Sense()
