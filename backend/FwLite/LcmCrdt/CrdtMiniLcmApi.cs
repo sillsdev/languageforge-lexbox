@@ -113,8 +113,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
 
         return GetEntriesAsyncEnum(e => e.LexemeForm.SearchValue(query)
                                         || e.CitationForm.SearchValue(query)
-                                        || e.Senses.Any(s => s.Gloss.SearchValue(query))
-
+                                        || Senses.Any(s => s.EntryId == e.Id && s.Gloss.SearchValue(query))
             , options);
     }
 

@@ -54,7 +54,6 @@ public static class LcmCrdtKernel
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
                     .Entity<Entry>().Property(e => e.Id)
-                    .Association(e => (e.Senses as IEnumerable<Sense>)!, e => e.Id, s => s.EntryId)
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -71,7 +70,6 @@ public static class LcmCrdtKernel
         config.ObjectTypeListBuilder
             .Add<Entry>(builder =>
             {
-                builder.Ignore(e => e.Senses);
                 builder.HasMany(e => e.Components)
                         .WithOne()
                         .HasPrincipalKey(entry => entry.Id)
@@ -86,7 +84,7 @@ public static class LcmCrdtKernel
                     .Property(e => e.ComplexFormTypes)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<MiniLcm.Models.ComplexFormType>>(json,
+                        json => JsonSerializer.Deserialize<List<ComplexFormType>>(json,
                             (JsonSerializerOptions?)null) ?? new());
             })
             .Add<Sense>(builder =>

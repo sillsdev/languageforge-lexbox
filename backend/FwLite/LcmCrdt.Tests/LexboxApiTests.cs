@@ -133,7 +133,27 @@ public class BasicApiTests : IAsyncLifetime
             LexemeForm =
             {
                 Values = { { "en", "apple" } }
-            }
+            },
+            Senses =
+            [
+                new Sense
+                {
+                    Gloss =
+                    {
+                        Values =
+                        {
+                            { "en", "fruit" }
+                        }
+                    },
+                    Definition =
+                    {
+                        Values =
+                        {
+                            { "en", "a round fruit, red or yellow" }
+                        }
+                    },
+                }
+            ],
         });
     }
 
@@ -182,7 +202,7 @@ public class BasicApiTests : IAsyncLifetime
 
         var entry2 = entries.First(e => e.Id == _entry2Id);
         entry2.LexemeForm.Values.Should().NotBeEmpty();
-        entry2.Senses.Should().BeEmpty();
+        entry2.Senses.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -192,6 +212,14 @@ public class BasicApiTests : IAsyncLifetime
         entries.Should().NotBeEmpty();
         entries.Should().NotContain(e => e.Id == default);
         entries.Should().NotContain(e => e.LexemeForm.Values["en"] == "Kevin");
+    }
+    [Fact]
+    public async Task SearchEntries_MatchesGloss()
+    {
+        var entries = await _api.SearchEntries("fruit").ToArrayAsync();
+        entries.Should().NotBeEmpty();
+        entries.Should().NotContain(e => e.Id == default);
+        entries.Should().Contain(e => e.LexemeForm.Values["en"] == "apple");
     }
 
     [Fact]
