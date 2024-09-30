@@ -259,33 +259,31 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             CitationForm = FromLcmMultiString(entry.CitationForm),
             LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
             Senses = entry.AllSenses.Select(FromLexSense).ToList(),
-            ComplexForm = ToComplexForm(entry),
+            ComplexFormTypes = ToComplexFormType(entry),
+            Components = ToComplexFormComponents(entry),
+            ComplexForms = [..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry))],
             Variants = ToVariants(entry)
         };
     }
 
-    private ComplexForm? ToComplexForm(ILexEntry entry)
+    private IList<ComplexFormType> ToComplexFormType(ILexEntry entry)
     {
-        var complexEntryRef = entry.ComplexFormEntryRefs.SingleOrDefault();
-        if (complexEntryRef is null) return null;
-        return new ComplexForm
-        {
-            Id = complexEntryRef.Guid,
-            Components =
-            [
-                ..complexEntryRef.ComponentLexemesRS.Select(o => o switch
-                {
-                    ILexEntry e => ToEntryReference(e),
-                    ILexSense s => ToSenseReference(s),
-                    _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
-                })
-            ],
-            Types =
-            [
-                ..complexEntryRef.ComplexEntryTypesRS.Select(t =>
-                    new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
-            ]
-        };
+        return entry.ComplexFormEntryRefs.SingleOrDefault()
+            ?.ComplexEntryTypesRS
+            .Select(e => new ComplexFormType { Id = e.Guid, Name = FromLcmMultiString(e.Name) })
+            .ToList() ?? [];
+    }
+    private IList<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
+    {
+        return entry.ComplexFormEntryRefs.SingleOrDefault()
+            ?.ComponentLexemesRS
+            .Select(o => o switch
+            {
+                ILexEntry component => ToEntryReference(component, entry),
+                ILexSense s => ToSenseReference(s, entry),
+                _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
+            })
+            .ToList() ?? [];
     }
 
     private Variants? ToVariants(ILexEntry entry)
@@ -299,8 +297,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             [
                 ..variantEntryRef.ComponentLexemesRS.Select(o => o switch
                 {
-                    ILexEntry e => ToEntryReference(e),
-                    ILexSense s => ToSenseReference(s),
+                    ILexEntry component => ToEntryReference(component, entry),
+                    ILexSense s => ToSenseReference(s, entry),
                     _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
                 })
             ],
@@ -312,22 +310,26 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         };
     }
 
-    private EntryReference ToEntryReference(ILexEntry entry)
+    private ComplexFormComponent ToEntryReference(ILexEntry component, ILexEntry complexEntry)
     {
-        return new EntryReference
+        return new ComplexFormComponent
         {
-            EntryId = entry.Guid,
-            Headword = entry.HeadWord.Text
+            ComponentEntryId = component.Guid,
+            ComponentHeadword = component.HeadWord.Text,
+            ComplexFormEntryId = complexEntry.Guid,
+            ComplexFormHeadword = complexEntry.HeadWord.Text
         };
     }
 
-    private EntryReference ToSenseReference(ILexSense sense)
+    private ComplexFormComponent ToSenseReference(ILexSense componentSense, ILexEntry complexEntry)
     {
-        return new EntryReference
+        return new ComplexFormComponent
         {
-            EntryId = sense.Entry.Guid,
-            SenseId = sense.Guid,
-            Headword = sense.Entry.HeadWord.Text,
+            ComponentEntryId = componentSense.Entry.Guid,
+            ComponentSenseId = componentSense.Guid,
+            ComponentHeadword = componentSense.Entry.HeadWord.Text,
+            ComplexFormEntryId = complexEntry.Guid,
+            ComplexFormHeadword = complexEntry.HeadWord.Text
         };
     }
 

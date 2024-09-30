@@ -4,10 +4,12 @@ using SIL.Harmony.Core;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Objects;
 using MiniLcm;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using MiniLcm.Models;
+using PartOfSpeech = MiniLcm.Models.PartOfSpeech;
 using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 
 namespace LcmCrdt;
@@ -18,6 +20,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
 
 
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
+    private IQueryable<CrdtComplexFormComponent> ComplexFormComponents => dataModel.GetLatestObjects<CrdtComplexFormComponent>();
     private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
     private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
     private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
@@ -92,6 +95,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     public async Task BulkImportSemanticDomains(IEnumerable<MiniLcm.Models.SemanticDomain> semanticDomains)
     {
         await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
+    }
+
+    public async Task CreateComplexFormType(MiniLcm.Models.ComplexFormType complexFormType)
+    {
+        await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.Entry> GetEntries(QueryOptions? options = null)
@@ -186,6 +194,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
             .ToLookup(e => e.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
         entry.Senses = senses;
+
+        //could optimize this by doing a single query, but this is easier to read
+        entry.Components = [..await ComplexFormComponents.Where(c => c.ComplexFormEntryId == id).ToListAsyncEF()];
+        entry.ComplexForms = [..await ComplexFormComponents.Where(c => c.ComponentEntryId == id).ToListAsyncEF()];
         foreach (var sense in senses)
         {
             sense.ExampleSentences = exampleSentences.TryGetValue(sense.Id, out var sentences) ? sentences.ToArray() : [];
