@@ -5,7 +5,7 @@
   import FormatRetentionPolicy from '$lib/components/FormatRetentionPolicy.svelte';
   import HgLogView from '$lib/components/HgLogView.svelte';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
-  import t, { date, NULL_LABEL, number } from '$lib/i18n';
+  import t, { date, number } from '$lib/i18n';
   import { z } from 'zod';
   import type { PageData } from './$types';
   import {
