@@ -167,7 +167,6 @@ jobs:
           path: backend/FwLite/artifacts/publish/FwLiteDesktop/*
 
       - name: Publish Windows MAUI msix app
-        if: false
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
           dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
@@ -175,9 +174,23 @@ jobs:
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
 
+      - name: Sign MSIX with Trusted Signing
+        uses: azure/trusted-signing-action@v0.4.0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: ${{ vars.TRUSTED_SIGNING_ENDPOINT }}
+          trusted-signing-account-name: ${{ vars.TRUSTED_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ vars.CERTIFICATE_PROFILE_NAME }}
+          files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/msix
+          files-folder-filter: msix
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
       - name: Upload FWLite Desktop artifacts
         uses: actions/upload-artifact@v4
-        if: false
         with:
           name: fw-lite-msix
           if-no-files-found: error
