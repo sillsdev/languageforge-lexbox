@@ -53,6 +53,7 @@
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
   import { onMount } from 'svelte';
   import { getSearchParamValues } from '$lib/util/query-params';
+  import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -389,17 +390,19 @@
         </DetailItem>
       {/if}
       <!-- Only show model version to project managers and admins, too technical to show to regular members -->
-      {#if project.type === ProjectType.FlEx && canManage}
-        <DetailItem title={$t('project_page.model_version')} text={flexModelVersion?.toString() ?? NULL_LABEL}>
-          <IconButton
-            slot="extras"
-            loading={loadingModelVersion}
-            icon="i-mdi-refresh"
-            size="btn-sm"
-            variant="btn-ghost"
-            outline={false}
-            on:click={updateModelVersion}
-          />
+      {#if project.type === ProjectType.FlEx}
+        <DetailItem title={$t('project_page.model_version')}>
+          <FlexModelVersionText modelVersion={flexModelVersion ?? 0} />
+          <AdminContent slot="extras">
+            <IconButton
+              loading={loadingModelVersion}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateModelVersion}
+            />
+          </AdminContent>
         </DetailItem>
       {/if}
       {#if project.type === ProjectType.FlEx}
