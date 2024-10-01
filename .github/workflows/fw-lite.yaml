@@ -159,7 +159,8 @@ jobs:
         run: |
           dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
           dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None
-          cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable
+          mkdir -p ../artifacts/sign/portable
+          cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteDesktop
