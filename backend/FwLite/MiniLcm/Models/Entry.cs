@@ -52,10 +52,10 @@ public class ComplexFormComponent
         };
     }
     public Guid Id { get; set; }
-    public required Guid ComplexFormEntryId { get; set; }
+    public virtual required Guid ComplexFormEntryId { get; set; }
     public string? ComplexFormHeadword { get; set; }
-    public required Guid ComponentEntryId { get; set; }
-    public Guid? ComponentSenseId { get; set; } = null;
+    public virtual required Guid ComponentEntryId { get; set; }
+    public virtual Guid? ComponentSenseId { get; set; } = null;
     public string? ComponentHeadword { get; set; }
 }
 

@@ -21,8 +21,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Guid ProjectId => Cache.LangProject.Guid;
 
     private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
-    private ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
-    private IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
+    internal ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
+    internal IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
     private IRepository<ILexExampleSentence> ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
     private ILexEntryFactory LexEntryFactory => Cache.ServiceLocator.GetInstance<ILexEntryFactory>();
     private ILexSenseFactory LexSenseFactory => Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
@@ -482,20 +482,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
                 foreach (var component in entry.Components)
                 {
-                    ICmObject lexComponent = component.ComponentSenseId is not null
-                        ? SenseRepository.GetObject(component.ComponentSenseId.Value)
-                        : EntriesRepository.GetObject(component.ComponentEntryId);
-                    lexEntry.AddComponent(lexComponent);
+                    AddComplexFormComponent(lexEntry, component);
                 }
 
                 foreach (var complexForm in entry.ComplexForms)
                 {
-                    ICmObject lexComponent = complexForm.ComponentSenseId is not null
-                        ? SenseRepository.GetObject(complexForm.ComponentSenseId.Value)
-                        : lexEntry;
-
                     var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
-                    complexLexEntry.AddComponent(lexComponent);
+                    AddComplexFormComponent(complexLexEntry, complexForm);
                 }
 
                 ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
@@ -515,6 +508,29 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             });
 
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
+    }
+
+    /// <summary>
+    /// must be called as part of an lcm action
+    /// </summary>
+    internal void AddComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
+    {
+        ICmObject lexComponent = component.ComponentSenseId is not null
+            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
+            : EntriesRepository.GetObject(component.ComponentEntryId);
+        lexEntry.AddComponent(lexComponent);
+    }
+
+    internal void RemoveComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
+    {
+        ICmObject lexComponent = component.ComponentSenseId is not null
+            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
+            : EntriesRepository.GetObject(component.ComponentEntryId);
+        var entryRef = lexEntry.ComplexFormEntryRefs.Single();
+        if (!entryRef.ComponentLexemesRS.Remove(lexComponent))
+        {
+            throw new InvalidOperationException("Complex form component not found, searched for " + lexComponent.ObjectIdName.Text);
+        }
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)

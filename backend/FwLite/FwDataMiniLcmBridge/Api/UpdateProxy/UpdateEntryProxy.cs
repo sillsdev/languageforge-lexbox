@@ -42,6 +42,20 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
         set => throw new NotImplementedException();
     }
 
+    public override IList<ComplexFormComponent> Components
+    {
+        get =>
+            new UpdateListProxy<ComplexFormComponent>(
+                component => lexboxLcmApi.AddComplexFormComponent(lcmEntry, component),
+                component => lexboxLcmApi.RemoveComplexFormComponent(lcmEntry, component),
+                i => new UpdateComplexFormComponentProxy(lcmEntry,
+                    lcmEntry.ComplexFormEntryRefs.Single().ComponentLexemesRS[i],
+                    lexboxLcmApi),
+                lcmEntry.ComplexFormEntryRefs.SingleOrDefault()?.ComponentLexemesRS.Count ?? 0
+            );
+        set => throw new NotImplementedException();
+    }
+
     public override MultiString Note
     {
         get => new UpdateMultiStringProxy(lcmEntry.Comment, lexboxLcmApi);
@@ -51,7 +65,8 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
 
 public class UpdateMultiStringProxy(ITsMultiString multiString, FwDataMiniLcmApi lexboxLcmApi) : MultiString
 {
-    public override IDictionary<WritingSystemId, string> Values { get; } = new UpdateDictionaryProxy(multiString, lexboxLcmApi);
+    public override IDictionary<WritingSystemId, string> Values { get; } =
+        new UpdateDictionaryProxy(multiString, lexboxLcmApi);
 
     public override MultiString Copy()
     {
