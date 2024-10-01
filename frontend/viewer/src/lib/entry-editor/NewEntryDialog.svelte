@@ -9,7 +9,7 @@
   import type { SaveHandler } from '../services/save-event-service';
 
   const dispatch = createEventDispatcher<{
-    created: { entry: IEntry};
+    created: { entry: IEntry, requesterOptions?: unknown };
   }>();
 
   let loading = false;
@@ -17,25 +17,46 @@
 
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');
+  let requester: {
+    resolve: (entry: IEntry | undefined) => void,
+    options?: unknown,
+  } | undefined;
 
   async function createEntry(e: Event, closeDialog: () => void) {
     e.preventDefault();
     loading = true;
     await saveHandler(() => lexboxApi.CreateEntry(entry));
-    dispatch('created', {entry});
+    dispatch('created', {entry, requesterOptions: requester?.options});
+    if (requester) {
+      requester.resolve(entry);
+      requester = undefined;
+    }
     loading = false;
     closeDialog();
   }
 
-  export function openWithValue(newEntry: Partial<IEntry>) {
-    const tmpEntry = defaultEntry();
-    toggle.on = true;
-    entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
+  export function openWithValue(newEntry: Partial<IEntry>, options?: unknown): Promise<IEntry | undefined> {
+    return new Promise<IEntry | undefined>((resolve) => {
+      if (requester) requester.resolve(undefined);
+      requester = { resolve, options };
+      const tmpEntry = defaultEntry();
+      toggle.on = true;
+      entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
+    });
   }
+
+  function onClosing() {
+    if (requester) {
+      requester.resolve(undefined);
+      requester = undefined;
+    }
+    entry = defaultEntry();
+  }
+
   let toggle: Toggle;
 </script>
 
-<Toggle bind:this={toggle} let:on={open} let:toggleOn let:toggleOff on:toggleOff={() => entry = defaultEntry()}>
+<Toggle bind:this={toggle} let:on={open} let:toggleOn let:toggleOff on:toggleOff={onClosing}>
   <Button on:click={toggleOn} icon={mdiBookPlusOutline} variant="fill-outline" color="success" size="sm">
     <div class="hidden sm:contents">
       New Entry

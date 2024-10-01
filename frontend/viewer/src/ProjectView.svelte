@@ -9,8 +9,8 @@
     mdiHome
   } from '@mdi/js';
   import Editor from './lib/Editor.svelte';
-  import {navigate} from 'svelte-routing';
-  import {headword, pickBestAlternative} from './lib/utils';
+  import {navigate, useLocation} from 'svelte-routing';
+  import {headword} from './lib/utils';
   import {useLexboxApi} from './lib/services/service-provider';
   import type {IEntry} from './lib/mini-lcm';
   import {onDestroy, onMount, setContext} from 'svelte';
@@ -25,9 +25,8 @@
   import NewEntryDialog from './lib/entry-editor/NewEntryDialog.svelte';
   import SearchBar from './lib/search-bar/SearchBar.svelte';
   import ActivityView from './lib/activity/ActivityView.svelte';
-  import type { OptionProvider } from './lib/services/option-provider';
   import { getAvailableHeightForElement } from './lib/utils/size';
-  import { ViewerSearchParam, getSearchParam, updateSearchParam } from './lib/utils/search-params';
+  import { ViewerSearchParam, getSearchParam, getSearchParams, updateSearchParam } from './lib/utils/search-params';
   import SaveStatus from './lib/status/SaveStatus.svelte';
   import { saveEventDispatcher, saveHandler } from './lib/services/save-event-service';
   import {AppNotification} from './lib/notifications/notifications';
@@ -36,6 +35,7 @@
   import {views} from './lib/entry-editor/view-data';
   import {initWritingSystems} from './lib/writing-systems';
   import {useEventBus} from './lib/services/event-bus';
+  import { initProjectCommands, type NewEntryDialogOptions } from './lib/commands';
 
   export let loading = false;
 
@@ -82,12 +82,20 @@
   $: connected.set(isConnected);
 
   const connected = writable(false);
-  const search = writable<string>(getSearchParam(ViewerSearchParam.Search));
+  const search = writable<string>(getSearchParam(ViewerSearchParam.Search) ?? undefined);
   setContext('listSearch', search);
   $: updateSearchParam(ViewerSearchParam.Search, $search, true);
 
-  //todo listen for changes to the url, for example when back/forward is pressed
-  const selectedIndexExemplar = writable<string | undefined>(getSearchParam(ViewerSearchParam.IndexCharacter));
+  const location = useLocation();
+  $: {
+    $location;
+    const searchParams = getSearchParams();
+    $search = searchParams.get(ViewerSearchParam.Search) ?? '';
+    $selectedIndexExemplar = searchParams.get(ViewerSearchParam.IndexCharacter);
+    navigateToEntryId = searchParams.get(ViewerSearchParam.EntryId);
+  }
+
+  const selectedIndexExemplar = writable<string | null>(getSearchParam(ViewerSearchParam.IndexCharacter));
   setContext('selectedIndexExamplar', selectedIndexExemplar);
   $: updateSearchParam(ViewerSearchParam.IndexCharacter, $selectedIndexExemplar, false);
 
@@ -120,11 +128,11 @@
   const entries = writable<IEntry[] | undefined>();
   $: $entries = $_entries;
 
-  function fetchEntries(s: string, isConnected: boolean, exemplar: string | undefined) {
+  function fetchEntries(s: string, isConnected: boolean, exemplar: string | null) {
     if (!isConnected) return Promise.resolve(undefined);
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
-      // we always load full exampelar lists for now, so we can guaruntee that the selected entry is in the list
+      // we always load full exemplar lists for now, so we can guaruntee that the selected entry is in the list
       count: exemplar ? 1_000_000_000 : 1000,
       order: {field: 'headword', writingSystem: 'default'},
       exemplar: exemplar ? {value: exemplar, writingSystem: 'default'} : undefined
@@ -133,7 +141,7 @@
 
   let showOptionsDialog = false;
   let pickedEntry = false;
-  let navigateToEntryIdOnLoad = getSearchParam(ViewerSearchParam.EntryId);
+  let navigateToEntryId = getSearchParam(ViewerSearchParam.EntryId);
   const selectedEntry = writable<IEntry | undefined>(undefined);
   setContext('selectedEntry', selectedEntry);
   // For some reason reactive syntax doesn't pick up every change, so we need to manually subscribe
@@ -141,7 +149,7 @@
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
   $: { pickedEntry; updateEntryIdSearchParam(); }
   function updateEntryIdSearchParam() {
-    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryIdOnLoad ?? (pickedEntry ? $selectedEntry?.id : undefined), true);
+    updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined), true);
   }
 
   $: {
@@ -158,8 +166,8 @@
       if (entry !== $selectedEntry) {
         $selectedEntry = entry;
       }
-    } else if (navigateToEntryIdOnLoad) {
-      const entry = $entries.find(e => e.id === navigateToEntryIdOnLoad);
+    } else if (navigateToEntryId) {
+      const entry = $entries.find(e => e.id === navigateToEntryId);
       if (entry) {
         $selectedEntry = entry;
       }
@@ -174,20 +182,23 @@
     }
 
     updateEntryIdSearchParam();
-    navigateToEntryIdOnLoad = undefined;
+    navigateToEntryId = null;
   }
 
   $: _loading = !$entries || !$writingSystems || loading;
 
-  function onEntryCreated(entry: IEntry) {
+  function onEntryCreated(entry: IEntry, requesterOptions?: unknown) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
-    navigateToEntry(entry, headword(entry));
+    const options = requesterOptions as NewEntryDialogOptions | undefined;
+    if (!options?.dontNavigate) {
+      navigateToEntry(entry, headword(entry));
+    }
   }
 
   function navigateToEntry(entry: IEntry, searchText?: string) {
     // this is to ensure that the selected entry is in the list of entries, otherwise it won't be selected
     $search = searchText ?? '';
-    $selectedIndexExemplar = undefined;
+    $selectedIndexExemplar = null;
     $selectedEntry = entry;
     refreshEntries();
     pickedEntry = true;
@@ -226,12 +237,17 @@
       callback: () => window.location.reload()
     });
   }
+
   let newEntryDialog: NewEntryDialog;
-  function openNewEntryDialog(text: string) {
+  function openNewEntryDialog(text: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
     const defaultWs = $writingSystems?.vernacular[0].id;
-    if (defaultWs === undefined) return;
-    newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
+    if (defaultWs === undefined) return Promise.resolve(undefined);
+    return newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}}, options);
   }
+
+  initProjectCommands({
+    createNewEntry: openNewEntryDialog,
+  });
 </script>
 
 <svelte:head>
@@ -272,7 +288,7 @@
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
       {#if !readonly}
-        <NewEntryDialog bind:this={newEntryDialog} on:created={e => onEntryCreated(e.detail.entry)} />
+        <NewEntryDialog bind:this={newEntryDialog} on:created={e => onEntryCreated(e.detail.entry, e.detail.requesterOptions)} />
       {/if}
       <Button
         on:click={() => (showOptionsDialog = true)}
@@ -327,7 +343,7 @@
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
             {#if !readonly}
-              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
+              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry, e.detail.requesterOptions)}/>
             {/if}
           </div>
         {/if}

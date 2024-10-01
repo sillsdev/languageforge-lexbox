@@ -10,8 +10,9 @@ export const allFields: Record<FieldIds, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
-  literalMeaning: {show: true, order: 3},
-  note: {show: true, order: 4},
+  components: {show: true, order: 3},
+  literalMeaning: {show: true, order: 4},
+  note: {show: true, order: 5},
 
   //sense
   gloss: {show: true, order: 1},
