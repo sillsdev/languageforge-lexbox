@@ -181,7 +181,7 @@ jobs:
 
           MakeAppx.exe bundle /v /bv 1.0.0.1 /d . /p ../sign/FwLiteDesktop.msixbundle
 
-      - name: Sign MSIX with Trusted Signing
+      - name: Sign with Trusted Signing
         uses: azure/trusted-signing-action@v0.4.0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -197,7 +197,16 @@ jobs:
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
-          trace: true
+          trace: ${{ runner.debug == '1' }}
+          exclude-workload-identity-credential: true
+          exclude-managed-identity-credential: true
+          exclude-shared-token-cache-credential: true
+          exclude-visual-studio-credential: true
+          exclude-visual-studio-code-credential: true
+          exclude-azure-cli-credential: true
+          exclude-azure-powershell-credential: true
+          exclude-azure-developer-cli-credential: true
+          exclude-interactive-browser-credential: true
 
       - name: Upload FWLite Portable
         uses: actions/upload-artifact@v4
