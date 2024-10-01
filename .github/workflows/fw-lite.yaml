@@ -127,7 +127,7 @@ jobs:
           path: backend/FwLite/artifacts/publish/LocalWebApp/*
 
   publish-win:
-    name: Publish FW Lite app
+    name: Publish FW Lite app for Windows
 
     # only publish if tag matches fwlite-v* pattern
     # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
@@ -188,6 +188,7 @@ jobs:
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
+          trace: true
 
       - name: Upload FWLite Desktop artifacts
         uses: actions/upload-artifact@v4
@@ -196,37 +197,11 @@ jobs:
           if-no-files-found: error
           path: backend/FwLite/artifacts/msix/*.msix
 
-  sign-installer:
-    #disabled as this doesn't work since ltops-signing doesn't have the signtool
-    if: false
-    name: Sign FWLite MSIX installer
-    needs: publish-win
-    runs-on: [self-hosted, ltops-signing]
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: fw-lite-msix
-          path: target-msix
-      - name: Sign MSIX installer
-        shell: pwsh
-        env:
-          signtool: C:/"Program Files (x86)"/"Windows Kits"/10/bin/10.0.17763.0/x86/signtool.exe
-        run: |
-          $PublicCert = [System.Convert]::FromBase64String('${{ secrets.CODESIGN_LSDEVSECTIGOEV }}')
-          Set-Content $ENV:TEMP\certificate -Value ($PublicCert) -AsByteStream
-          ${{env.signtool}} sign /f $ENV:TEMP\certificate /fd sha256 /du https://software.sil.org /tr http://timestamp.sectigo.com /td sha256 /v target-msix/*.msix
-      - name: Upload signed MSIX installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: fw-lite-msix-signed
-          if-no-files-found: error
-          path: target-msix/*.msix
-
   create-release:
     #disabled since we don't have a release yet
     if: false
     name: Create Release
-    needs: sign-installer
+    needs: publish-win
     runs-on: windows-latest
 
     steps:
