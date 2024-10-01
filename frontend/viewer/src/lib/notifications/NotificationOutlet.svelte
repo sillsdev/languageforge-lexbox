@@ -10,6 +10,7 @@
 
   const notifications = AppNotification.notifications;
 </script>
+{#if $notifications.length}
 <div class="fixed bottom-0 z-50 flex flex-col gap-2 p-4 w-full overflow-y-auto">
   {#each $notifications as notification}
     <div class="w-[400px] mx-auto">
@@ -35,3 +36,4 @@
     </div>
   {/each}
 </div>
+{/if}

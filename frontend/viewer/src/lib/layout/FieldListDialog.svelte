@@ -32,7 +32,6 @@
         <ListItem
           title={fieldName(field, $currentView.i18nKey)}
           subheading={`Type: ${field.type}. WS: ${field.ws}.`}
-          class={cls('cursor-pointer', 'hover:bg-surface-300')}
           noShadow>
           <div slot="actions">
             <Checkbox id={field.id} circle dense />

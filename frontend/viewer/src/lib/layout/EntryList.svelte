@@ -22,7 +22,7 @@
     // wait until the new entries have been rendered
     setTimeout(() => {
       const selected = scrollContainerElem?.querySelector('.selected-entry');
-      selected?.scrollIntoView({block: 'center'});
+      selected?.scrollIntoView({block: 'nearest'});
     });
   }
 
@@ -108,8 +108,8 @@
                 </button>
               {:else}
                   <ListItem
-                    title={headword(entry)}
-                    subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '-')}
+                    title={headword(entry).padStart(1, '–')}
+                    subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '–')}
                     on:click={() => selectEntry(entry)}
                     noShadow
                     class="!rounded-none"

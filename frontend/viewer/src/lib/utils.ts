@@ -35,11 +35,22 @@ export function pickBestAlternative(value: IMultiString, firstChoice?: WritingSy
   return pick ?? firstVal(value) ?? '';
 }
 
+export function firstGloss(sense: ISense): string {
+  return firstVal(sense.gloss) ?? '';
+}
+
+export function firstDef(sense: ISense): string {
+  return firstVal(sense.definition) ?? '';
+}
+
+export function glosses(entry: IEntry | undefined): string {
+  if (!entry?.senses?.length) return '';
+  return entry.senses.map(firstGloss).filter(gloss => gloss).join(', ');
+}
+
 export function firstDefOrGlossVal(sense: ISense | undefined): string {
   if (!sense) return '';
-  const definition = Object.values(sense.definition ?? {}).find(value => !!value);
-  if (definition) return definition;
-  return Object.values(sense.gloss ?? {}).find(value => !!value) ?? ''
+  return firstDef(sense) || firstGloss(sense);
 }
 
 export function firstSentenceOrTranslationVal(example: IExampleSentence | undefined): string {
@@ -79,6 +90,10 @@ export function isEmptyId(id: string): boolean {
   return id.startsWith(emptyIdPrefix);
 }
 
+export function randomId(): string {
+  return crypto.randomUUID();
+}
+
 export function defaultEntry(): IEntry {
   return {
     id: crypto.randomUUID(),
@@ -90,9 +105,9 @@ export function defaultEntry(): IEntry {
   };
 }
 
-export function defaultSense(): ISense {
+export function defaultSense(id?: string): ISense {
   return {
-    id: emptyId(),
+    id: id ?? emptyId(),
     definition: {},
     gloss: {},
     partOfSpeechId: undefined,

@@ -1,4 +1,5 @@
 import type { FieldConfig, WellKnownFieldId } from './config-types';
+
 import type {FieldIds} from './entry-editor/field-data';
 
 type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
@@ -11,6 +12,7 @@ export type I18nType = 'weSay' | 'languageForge' | '';
 const defaultI18n: Record<FieldIds, string> = {
   'lexemeForm': 'Lexeme form',
   'citationForm': 'Citation form',
+  'components': 'Components',
   'literalMeaning': 'Literal meaning',
   'note': 'Note',
   'definition': 'Definition',
