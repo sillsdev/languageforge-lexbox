@@ -83,6 +83,42 @@ public class CreateEntryTests(ProjectLoaderFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
+    public async Task CreateEntry_WithComponentSenseDoesNotShowOnComplexFormsList()
+    {
+        var componentSenseId = Guid.NewGuid();
+        var component = await _api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "test component" } },
+            Senses = [new Sense() { Id = componentSenseId, Gloss = { { "en", "test component sense" } } }]
+        });
+        var complexFormEntryId = Guid.NewGuid();
+        await _api.CreateEntry(new()
+        {
+            Id = complexFormEntryId,
+            LexemeForm = { { "en", "test" } },
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = component.Id,
+                    ComponentHeadword = component.Headword(),
+                    ComponentSenseId = componentSenseId,
+                    ComplexFormEntryId = complexFormEntryId,
+                    ComplexFormHeadword = "test"
+                }
+            ]
+        });
+
+        var entry = await _api.GetEntry(component.Id);
+        entry.Should().NotBeNull();
+        entry!.ComplexForms.Should().BeEmpty();
+
+        entry = await _api.GetEntry(complexFormEntryId);
+        entry.Should().NotBeNull();
+        entry!.Components.Should().ContainSingle(c => c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id && c.ComponentSenseId == componentSenseId);
+    }
+
+    [Fact]
     public async Task CanCreate_WithComplexFormTypesProperty()
     {
         var complexFormType = await _api.CreateComplexFormType(new()
