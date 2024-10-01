@@ -159,12 +159,7 @@ jobs:
         run: |
           dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
           dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None
-      - name: Upload FWLite Desktop artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: fw-lite-portable
-          if-no-files-found: error
-          path: backend/FwLite/artifacts/publish/FwLiteDesktop/*
+          cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteDesktop
@@ -173,6 +168,17 @@ jobs:
           dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
+
+      - name: Bundle MSIX
+        working-directory: backend/FwLite/artifacts/msix
+        shell: pwsh
+        run: |
+          $SdkVersion = '10.0.19041.0'
+          $Architecture = 'x86'
+          $sdkToolsPath = Join-Path -Path 'C:\Program Files (x86)\Windows Kits\10\bin' -ChildPath $SdkVersion -AdditionalChildPath $Architecture
+          $env:Path += ";$sdkToolsPath"
+
+          MakeAppx.exe bundle /v /bv 1.0.0.1 /d . /p ../sign/FwLiteDesktop.msixbundle
 
       - name: Sign MSIX with Trusted Signing
         uses: azure/trusted-signing-action@v0.4.0
@@ -183,19 +189,28 @@ jobs:
           endpoint: ${{ vars.TRUSTED_SIGNING_ENDPOINT }}
           trusted-signing-account-name: ${{ vars.TRUSTED_SIGNING_ACCOUNT_NAME }}
           certificate-profile-name: ${{ vars.CERTIFICATE_PROFILE_NAME }}
-          files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/msix
-          files-folder-filter: msix
+          files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/sign
+          files-folder-filter: msixbundle,exe
+          files-folder-recurse: true
+          files-folder-depth: 4
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
           trace: true
 
-      - name: Upload FWLite Desktop artifacts
+      - name: Upload FWLite Portable
+        uses: actions/upload-artifact@v4
+        with:
+          name: fw-lite-portable
+          if-no-files-found: error
+          path: backend/FwLite/artifacts/sign/portable/*
+
+      - name: Upload FWLite MSIX
         uses: actions/upload-artifact@v4
         with:
           name: fw-lite-msix
           if-no-files-found: error
-          path: backend/FwLite/artifacts/msix/*.msix
+          path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
     #disabled since we don't have a release yet
