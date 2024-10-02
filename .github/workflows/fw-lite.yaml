@@ -46,7 +46,7 @@ jobs:
         run: |
           shortSha=$(echo ${{ github.sha }} | cut -c1-8)
           echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
-          echo "SEMVER_VERSION=$(date +%Y.%m.%d)" >> ${GITHUB_OUTPUT}
+          echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
