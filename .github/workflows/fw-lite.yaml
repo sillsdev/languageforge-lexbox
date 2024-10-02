@@ -41,6 +41,7 @@ jobs:
           node-version-file: './frontend/package.json'
       - name: Set Version
         id: setVersion
+        shell: bash
         # set version to date in vYYYY-MM-DD-commitSha format, and semver version to YYYY.MM.DD
         run: |
           shortSha=$(echo ${{ github.sha }} | cut -c1-8)
