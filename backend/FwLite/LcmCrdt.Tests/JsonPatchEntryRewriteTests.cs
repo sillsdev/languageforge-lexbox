@@ -138,4 +138,47 @@ public class JsonPatchEntryRewriteTests
         setComplexFormComponentChange.ComplexFormEntryId.Should().Be(newComplexFormId);
         setComplexFormComponentChange.ComponentSenseId.Should().BeNull();
     }
+
+    [Fact]
+    public void ChangesFromJsonPatch_AddComplexFormTypeMakesAddComplexFormTypeChange()
+    {
+        var patch = new JsonPatchDocument<MiniLcm.Models.Entry>();
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        patch.Add(entry => entry.ComplexFormTypes, complexFormType);
+        var changes = Entry.ChangesFromJsonPatch(_entry, patch);
+        var addComplexFormTypeChange =
+            changes.Should().ContainSingle().Which.Should().BeOfType<AddComplexFormTypeChange>().Subject;
+        addComplexFormTypeChange.EntityId.Should().Be(_entry.Id);
+        addComplexFormTypeChange.ComplexFormType.Should().Be(complexFormType);
+    }
+
+    [Fact]
+    public void ChangesFromJsonPatch_RemoveComplexFormTypeMakesRemoveComplexFormTypeChange()
+    {
+        var patch = new JsonPatchDocument<MiniLcm.Models.Entry>();
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        _entry.ComplexFormTypes.Add(complexFormType);
+        patch.Remove(entry => entry.ComplexFormTypes, 0);
+        var changes = Entry.ChangesFromJsonPatch(_entry, patch);
+        var removeComplexFormTypeChange = changes.Should().ContainSingle().Which.Should()
+            .BeOfType<RemoveComplexFormTypeChange>().Subject;
+        removeComplexFormTypeChange.EntityId.Should().Be(_entry.Id);
+        removeComplexFormTypeChange.ComplexFormTypeId.Should().Be(complexFormType.Id);
+    }
+
+    [Fact]
+    public void ChangesFromJsonPatch_ReplaceComplexFormTypeMakesReplaceComplexFormTypeChange()
+    {
+        var patch = new JsonPatchDocument<MiniLcm.Models.Entry>();
+        var complexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        _entry.ComplexFormTypes.Add(complexFormType);
+        var newComplexFormType = new ComplexFormType() { Id = Guid.NewGuid(), Name = new MultiString() };
+        patch.Replace(entry => entry.ComplexFormTypes, newComplexFormType, 0);
+        var changes = Entry.ChangesFromJsonPatch(_entry, patch);
+        var replaceComplexFormTypeChange = changes.Should().ContainSingle().Which.Should()
+        .BeOfType<ReplaceComplexFormTypeChange>().Subject;
+        replaceComplexFormTypeChange.EntityId.Should().Be(_entry.Id);
+        replaceComplexFormTypeChange.OldComplexFormTypeId.Should().Be(complexFormType.Id);
+        replaceComplexFormTypeChange.NewComplexFormType.Should().Be(newComplexFormType);
+    }
 }

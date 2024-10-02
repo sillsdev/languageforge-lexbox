@@ -141,6 +141,34 @@ public class Entry : MiniLcm.Models.Entry, IObjectBase<Entry>
             yield return rewriteChange;
         }
 
+        foreach (var rewriteChange in patch.RewriteChanges(
+                     s => s.ComplexFormTypes,
+                     (complexFormType, index, operationType) =>
+                     {
+                         if (operationType == OperationType.Add)
+                         {
+                             ArgumentNullException.ThrowIfNull(complexFormType);
+                             return new AddComplexFormTypeChange(entry.Id, complexFormType);
+                         }
+
+                         if (operationType == OperationType.Remove)
+                         {
+                             complexFormType ??= entry.ComplexFormTypes[index];
+                             return new RemoveComplexFormTypeChange(entry.Id, complexFormType.Id);
+                         }
+
+                         if (operationType == OperationType.Replace)
+                         {
+                             ArgumentNullException.ThrowIfNull(complexFormType);
+                             var currentComplexFormType = entry.ComplexFormTypes[index];
+                             return new ReplaceComplexFormTypeChange(entry.Id, complexFormType, currentComplexFormType.Id);
+                         }
+                         throw new NotSupportedException($"operation {operationType} not supported for complex form types");
+                     }))
+        {
+            yield return rewriteChange;
+        }
+
 
 
         if (patch.Operations.Count > 0)

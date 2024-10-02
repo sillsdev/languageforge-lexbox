@@ -3,12 +3,12 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes.Entries;
 
-public class RemoveComplexFormTypeChange(Guid entityId, Guid complexFormId) : EditChange<Entry>(entityId), ISelfNamedType<RemoveComplexFormTypeChange>
+public class RemoveComplexFormTypeChange(Guid entityId, Guid complexFormTypeId) : EditChange<Entry>(entityId), ISelfNamedType<RemoveComplexFormTypeChange>
 {
-    public Guid ComplexFormId { get; } = complexFormId;
+    public Guid ComplexFormTypeId { get; } = complexFormTypeId;
     public override ValueTask ApplyChange(Entry entity, ChangeContext context)
     {
-        entity.ComplexFormTypes = entity.ComplexFormTypes.Where(t => t.Id != ComplexFormId).ToList();
+        entity.ComplexFormTypes = entity.ComplexFormTypes.Where(t => t.Id != ComplexFormTypeId).ToList();
         return ValueTask.CompletedTask;
     }
 }
