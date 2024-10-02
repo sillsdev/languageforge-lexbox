@@ -4,7 +4,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Objects;
 
-public class CrdtComplexFormComponent : ComplexFormComponent, IObjectBase<CrdtComplexFormComponent>
+public record CrdtComplexFormComponent : ComplexFormComponent, IObjectBase<CrdtComplexFormComponent>
 {
     Guid IObjectBase.Id
     {

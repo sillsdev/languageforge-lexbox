@@ -6,7 +6,7 @@ using Sense = LcmCrdt.Objects.Sense;
 
 namespace LcmCrdt.Tests;
 
-public class JsonPatchRewriteTests
+public class JsonPatchSenseRewriteTests
 {
     private Sense _sense = new Sense()
     {

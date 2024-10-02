@@ -37,10 +37,12 @@ public class Entry : IObjectWithId
     }
 }
 
-public class ComplexFormComponent
+public record ComplexFormComponent
 {
     public static ComplexFormComponent FromEntries(Entry complexFormEntry, Entry componentEntry, Guid? componentSenseId = null)
     {
+        if (componentEntry.Id == default) throw new ArgumentException("componentEntry.Id is empty");
+        if (complexFormEntry.Id == default) throw new ArgumentException("complexFormEntry.Id is empty");
         return new ComplexFormComponent
         {
             Id = Guid.NewGuid(),

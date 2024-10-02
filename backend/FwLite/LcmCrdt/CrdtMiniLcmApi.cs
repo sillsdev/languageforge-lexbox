@@ -300,8 +300,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     public async Task<MiniLcm.Models.Entry> UpdateEntry(Guid id,
         UpdateObjectInput<MiniLcm.Models.Entry> update)
     {
-        var patchChange = new JsonPatchChange<Entry>(id, update.Patch, jsonOptions);
-        await dataModel.AddChange(ClientId, patchChange);
+        var entry = await GetEntry(id);
+        if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
+
+        await dataModel.AddChanges(ClientId, [..Entry.ChangesFromJsonPatch((Entry)entry, update.Patch)]);
         return await GetEntry(id) ?? throw new NullReferenceException();
     }
 

@@ -4,7 +4,7 @@ using SIL.LCModel;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateComplexFormComponentProxy : ComplexFormComponent
+public record UpdateComplexFormComponentProxy : ComplexFormComponent
 {
     private readonly ILexEntry _lexComplexForm;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
