@@ -4,6 +4,7 @@ using SIL.Harmony.Core;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Data;
 using MiniLcm;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
@@ -103,11 +104,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     {
         if (string.IsNullOrEmpty(query)) return GetEntriesAsyncEnum(null, options);
 
-        return GetEntriesAsyncEnum(e => e.LexemeForm.SearchValue(query)
-                                        || e.CitationForm.SearchValue(query)
-                                        || e.Senses.Any(s => s.Gloss.SearchValue(query))
-
-            , options);
+        return GetEntriesAsyncEnum(Filtering.SearchFilter(query), options);
     }
 
     private async IAsyncEnumerable<MiniLcm.Models.Entry> GetEntriesAsyncEnum(
@@ -134,7 +131,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
             var ws = (await GetWritingSystem(options.Exemplar.WritingSystem, WritingSystemType.Vernacular))?.WsId;
             if (ws is null)
                 throw new NullReferenceException($"writing system {options.Exemplar.WritingSystem} not found");
-            queryable = queryable.Where(e => e.Headword(ws.Value).StartsWith(options.Exemplar.Value));
+            queryable = queryable.WhereExemplar(ws.Value, options.Exemplar.Value);
         }
 
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;

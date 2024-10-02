@@ -8,7 +8,7 @@ namespace LocalWebApp.Routes;
 public static class AuthRoutes
 {
     public const string CallbackRoute = "AuthRoutes_Callback";
-    public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs);
+    public record ServerStatus(string DisplayName, bool LoggedIn, string? LoggedInAs, string? Authority);
     public static IEndpointConventionBuilder MapAuthRoutes(this WebApplication app)
     {
         var group = app.MapGroup("/api/auth").WithOpenApi();
@@ -19,13 +19,13 @@ public static class AuthRoutes
                 var currentName = await factory.GetHelper(s).GetCurrentName();
                 return new ServerStatus(s.DisplayName,
                     !string.IsNullOrEmpty(currentName),
-                    currentName);
+                    currentName, s.Authority.Authority);
             });
         });
-        group.MapGet("/login/{server}",
-            async (AuthHelpersFactory factory, string server, IOptions<AuthConfig> options) =>
+        group.MapGet("/login/{authority}",
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
             {
-                var result = await factory.GetHelper(options.Value.GetServer(server)).SignIn();
+                var result = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).SignIn();
                 if (result.HandledBySystemWebView)
                 {
                     return Results.Redirect("/");
@@ -46,15 +46,15 @@ public static class AuthRoutes
                 await oAuthService.FinishLoginRequest(uriBuilder.Uri);
                 return Results.Redirect("/");
             }).WithName(CallbackRoute);
-        group.MapGet("/me/{server}",
-            async (AuthHelpersFactory factory, string server, IOptions<AuthConfig> options) =>
+        group.MapGet("/me/{authority}",
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
             {
-                return new { name = await factory.GetHelper(options.Value.GetServer(server)).GetCurrentName() };
+                return new { name = await factory.GetHelper(options.Value.GetServerByAuthority(authority)).GetCurrentName() };
             });
-        group.MapGet("/logout/{server}",
-            async (AuthHelpersFactory factory, string server, IOptions<AuthConfig> options) =>
+        group.MapGet("/logout/{authority}",
+            async (AuthHelpersFactory factory, string authority, IOptions<AuthConfig> options) =>
             {
-                await factory.GetHelper(options.Value.GetServer(server)).Logout();
+                await factory.GetHelper(options.Value.GetServerByAuthority(authority)).Logout();
                 return Results.Redirect("/");
             });
         return group;

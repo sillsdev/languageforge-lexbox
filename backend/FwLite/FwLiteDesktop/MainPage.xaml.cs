@@ -1,12 +1,18 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FwLiteDesktop;
 
 public partial class MainPage : ContentPage
 {
-    public MainPage(IOptionsMonitor<LocalWebAppConfig> options, ILogger<MainPage> logger)
+    private readonly ILogger<MainPage> _logger;
+    private readonly IHostEnvironment _environment;
+
+    public MainPage(IOptionsMonitor<LocalWebAppConfig> options, ILogger<MainPage> logger, IHostEnvironment environment)
     {
+        _logger = logger;
+        _environment = environment;
         InitializeComponent();
         options.OnChange(o =>
         {
@@ -39,7 +45,24 @@ public partial class MainPage : ContentPage
                     logger.LogWarning("Too many navigations, stopping");
                 }
             }
+            else if (!args.Url.StartsWith("https://appdir"))
+            {
+                NavigationSuccess();
+            }
         };
     }
-}
 
+    private void NavigationSuccess()
+    {
+        webView.IsVisible = true;
+        if (_environment.IsDevelopment())
+        {
+            _logger.LogInformation("Enabling dev mode in browser");
+            //lang=js
+            webView.Eval("""
+                         localStorage.setItem('devMode', 'true');
+                         if (enableDevMode) enableDevMode();
+                         """);
+        }
+    }
+}

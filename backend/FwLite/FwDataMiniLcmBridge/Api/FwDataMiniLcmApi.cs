@@ -123,7 +123,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     internal void CompleteExemplars(WritingSystems writingSystems)
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
-            .Distinct()
+            .DistinctBy(ws => ws.Id)
             .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
         var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
 

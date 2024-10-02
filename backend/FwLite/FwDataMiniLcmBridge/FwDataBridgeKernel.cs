@@ -11,7 +11,7 @@ public static class FwDataBridgeKernel
     {
         services.AddMemoryCache();
         services.AddLogging();
-        services.AddOptions<FwDataBridgeConfig>();
+        services.AddOptions<FwDataBridgeConfig>().BindConfiguration("FwDataBridge");
         services.AddSingleton<FwDataFactory>();
         services.AddSingleton<FieldWorksProjectList>();
         services.AddSingleton<IProjectLoader, ProjectLoader>();
