@@ -491,19 +491,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     AddComplexFormComponent(complexLexEntry, complexForm);
                 }
 
-                ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
                 foreach (var complexFormType in entry.ComplexFormTypes)
                 {
-                    if (entryRef is null)
-                    {
-                        entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
-                        lexEntry.EntryRefsOS.Add(entryRef);
-                        entryRef.RefType = LexEntryRefTags.krtComplexForm;
-                        entryRef.HideMinorEntry = 0;
-                    }
-
-                    var lexEntryType = (ILexEntryType) ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormType.Id);
-                    entryRef.ComplexEntryTypesRS.Add(lexEntryType);
+                    AddComplexFormType(lexEntry, complexFormType.Id);
                 }
             });
 
@@ -531,6 +521,29 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             throw new InvalidOperationException("Complex form component not found, searched for " + lexComponent.ObjectIdName.Text);
         }
+    }
+
+    internal void AddComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
+    {
+        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
+        if (entryRef is null)
+        {
+            entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+            lexEntry.EntryRefsOS.Add(entryRef);
+            entryRef.RefType = LexEntryRefTags.krtComplexForm;
+            entryRef.HideMinorEntry = 0;
+        }
+
+        var lexEntryType = (ILexEntryType)ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormTypeId);
+        entryRef.ComplexEntryTypesRS.Add(lexEntryType);
+    }
+
+    internal void RemoveComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
+    {
+        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
+        if (entryRef is null) return;
+        var lexEntryType = (ILexEntryType)ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormTypeId);
+        entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)

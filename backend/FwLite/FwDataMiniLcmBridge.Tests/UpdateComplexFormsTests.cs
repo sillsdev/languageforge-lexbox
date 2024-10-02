@@ -35,7 +35,8 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
                 ComplexFormComponent.FromEntries(complexForm, component)));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComponentEntryId == component.Id && c.ComplexFormEntryId == complexForm.Id);
+        entry!.Components.Should()
+            .ContainSingle(c => c.ComponentEntryId == component.Id && c.ComplexFormEntryId == complexForm.Id);
     }
 
     [Fact]
@@ -47,13 +48,16 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
         {
             Id = complexFormId,
             LexemeForm = { { "en", "complex form" } },
-            Components = [new ComplexFormComponent()
-            {
-                ComponentEntryId = component.Id,
-                ComponentHeadword = component.Headword(),
-                ComplexFormEntryId = complexFormId,
-                ComplexFormHeadword = "complex form"
-            }]
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = component.Id,
+                    ComponentHeadword = component.Headword(),
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = "complex form"
+                }
+            ]
         });
 
         await _api.UpdateEntry(complexForm.Id,
@@ -85,10 +89,12 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             ]
         });
 
-        await _api.UpdateEntry(complexForm.Id, new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentEntryId, component2.Id));
+        await _api.UpdateEntry(complexForm.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentEntryId, component2.Id));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComponentEntryId == component2.Id);
+        var complexFormComponent = entry!.Components.Should().ContainSingle().Subject;
+        complexFormComponent.ComponentEntryId.Should().Be(component2.Id);
     }
 
     [Fact]
@@ -96,7 +102,11 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
     {
         var component2SenseId = Guid.NewGuid();
         var component1 = await _api.CreateEntry(new() { LexemeForm = { { "en", "component1" } } });
-        var component2 = await _api.CreateEntry(new() { LexemeForm = { { "en", "component2" } }, Senses = [new Sense() { Id = component2SenseId, Gloss = { { "en", "component2" } } }] });
+        var component2 = await _api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "component2" } },
+            Senses = [new Sense() { Id = component2SenseId, Gloss = { { "en", "component2" } } }]
+        });
         var complexFormId = Guid.NewGuid();
         var complexForm = await _api.CreateEntry(new()
         {
@@ -114,16 +124,24 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             ]
         });
 
-        await _api.UpdateEntry(complexForm.Id, new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentSenseId, component2SenseId));
+        await _api.UpdateEntry(complexForm.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentSenseId, component2SenseId));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComponentEntryId == component2.Id && c.ComponentSenseId == component2SenseId);
+        var complexFormComponent = entry!.Components.Should().ContainSingle().Subject;
+        complexFormComponent.ComponentEntryId.Should().Be(component2.Id);
+        complexFormComponent.ComponentSenseId.Should().Be(component2SenseId);
     }
+
     [Fact]
     public async Task CanChangeComponentSenseIdToNull()
     {
         var component2SenseId = Guid.NewGuid();
-        var component2 = await _api.CreateEntry(new() { LexemeForm = { { "en", "component2" } }, Senses = [new Sense() { Id = component2SenseId, Gloss = { { "en", "component2" } } }] });
+        var component2 = await _api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "component2" } },
+            Senses = [new Sense() { Id = component2SenseId, Gloss = { { "en", "component2" } } }]
+        });
         var complexFormId = Guid.NewGuid();
         var complexForm = await _api.CreateEntry(new()
         {
@@ -142,17 +160,19 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             ]
         });
 
-        await _api.UpdateEntry(complexForm.Id, new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentSenseId, null));
+        await _api.UpdateEntry(complexForm.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComponentSenseId, null));
         var entry = await _api.GetEntry(complexForm.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComponentEntryId == component2.Id && c.ComponentSenseId == null);
+        entry!.Components.Should()
+            .ContainSingle(c => c.ComponentEntryId == component2.Id && c.ComponentSenseId == null);
     }
 
     [Fact]
     public async Task CanChangeComplexFormId()
     {
         var component1 = await _api.CreateEntry(new() { LexemeForm = { { "en", "component1" } } });
-        var complexForm2 = await _api.CreateEntry(new() { LexemeForm = { { "en", "complex form 2" } }});
+        var complexForm2 = await _api.CreateEntry(new() { LexemeForm = { { "en", "complex form 2" } } });
         var complexFormId = Guid.NewGuid();
         var complexForm = await _api.CreateEntry(new()
         {
@@ -170,10 +190,12 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             ]
         });
 
-        await _api.UpdateEntry(complexForm.Id, new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComplexFormEntryId, complexForm2.Id));
+        await _api.UpdateEntry(complexForm.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.Components[0].ComplexFormEntryId, complexForm2.Id));
         var entry = await _api.GetEntry(complexForm2.Id);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComponentEntryId == component1.Id);
+        var complexFormComponent = entry!.Components.Should().ContainSingle().Subject;
+        complexFormComponent.ComponentEntryId.Should().Be(component1.Id);
     }
 
     [Fact]
@@ -187,7 +209,8 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
                 ComplexFormComponent.FromEntries(complexForm, component)));
         var entry = await _api.GetEntry(component.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().ContainSingle(c => c.ComponentEntryId == component.Id && c.ComplexFormEntryId == complexForm.Id);
+        entry!.ComplexForms.Should()
+            .ContainSingle(c => c.ComponentEntryId == component.Id && c.ComplexFormEntryId == complexForm.Id);
     }
 
     [Fact]
@@ -199,13 +222,16 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
         {
             Id = complexFormId,
             LexemeForm = { { "en", "complex form" } },
-            Components = [new ComplexFormComponent()
-            {
-                ComponentEntryId = component.Id,
-                ComponentHeadword = component.Headword(),
-                ComplexFormEntryId = complexFormId,
-                ComplexFormHeadword = "complex form"
-            }]
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = component.Id,
+                    ComponentHeadword = component.Headword(),
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = "complex form"
+                }
+            ]
         });
 
         await _api.UpdateEntry(component.Id,
@@ -237,10 +263,12 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             ]
         });
 
-        await _api.UpdateEntry(component1.Id, new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComplexFormEntryId, complexForm2.Id));
+        await _api.UpdateEntry(component1.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComplexFormEntryId, complexForm2.Id));
         var entry = await _api.GetEntry(component1.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().ContainSingle(c => c.ComplexFormEntryId == complexForm2.Id);
+        var complexFormComponent = entry!.ComplexForms.Should().ContainSingle().Subject;
+        complexFormComponent.ComplexFormEntryId.Should().Be(complexForm2.Id);
     }
 
     [Fact]
@@ -265,9 +293,54 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
             ]
         });
 
-        await _api.UpdateEntry(component1.Id, new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComponentEntryId, component2.Id));
+        await _api.UpdateEntry(component1.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComponentEntryId, component2.Id));
         var entry = await _api.GetEntry(component2.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().ContainSingle(c => c.ComponentEntryId == component2.Id && c.ComplexFormEntryId == complexFormId);
+        var complexFormComponent = entry!.ComplexForms.Should().ContainSingle().Subject;
+        complexFormComponent.ComponentEntryId.Should().Be(component2.Id);
+        complexFormComponent.ComplexFormEntryId.Should().Be(complexFormId);
+    }
+
+    [Fact]
+    public async Task CanAddComplexFormType()
+    {
+        var complexFormType =
+            await _api.CreateComplexFormType(new ComplexFormType() { Name = new() { { "en", "Add" } } });
+        var complexForm = await _api.CreateEntry(new() { LexemeForm = { { "en", "complex form" } } });
+        await _api.UpdateEntry(complexForm.Id,
+            new UpdateObjectInput<Entry>().Add(e => e.ComplexFormTypes, complexFormType));
+        var entry = await _api.GetEntry(complexForm.Id);
+        entry.Should().NotBeNull();
+        entry!.ComplexFormTypes.Should().ContainSingle(c => c.Id == complexFormType.Id);
+    }
+
+    [Fact]
+    public async Task CanRemoveComplexFormType()
+    {
+        var complexFormType =
+            await _api.CreateComplexFormType(new ComplexFormType() { Name = new() { { "en", "Remove" } } });
+        var complexForm = await _api.CreateEntry(new()
+        {
+            LexemeForm = { { "en", "complex form" } }, ComplexFormTypes = [complexFormType]
+        });
+        await _api.UpdateEntry(complexForm.Id,
+            new UpdateObjectInput<Entry>().Remove(e => e.ComplexFormTypes, 0));
+        var entry = await _api.GetEntry(complexForm.Id);
+        entry.Should().NotBeNull();
+        entry!.ComplexFormTypes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task CanChangeComplexFormType()
+    {
+        var complexFormType1 = await _api.CreateComplexFormType(new ComplexFormType() { Name = new() { { "en", "Change from" } } });
+        var complexFormType2 = await _api.CreateComplexFormType(new ComplexFormType() { Name = new() { { "en", "Change to" } } });
+        var complexForm = await _api.CreateEntry(new() { LexemeForm = { { "en", "complex form" } }, ComplexFormTypes = [complexFormType1] });
+        await _api.UpdateEntry(complexForm.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.ComplexFormTypes[0].Id, complexFormType2.Id));
+        var entry = await _api.GetEntry(complexForm.Id);
+        entry.Should().NotBeNull();
+        entry!.ComplexFormTypes.Should().ContainSingle().Which.Id.Should().Be(complexFormType2.Id);
     }
 }

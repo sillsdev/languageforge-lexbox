@@ -71,6 +71,19 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
         set => throw new NotImplementedException();
     }
 
+    public override IList<ComplexFormType> ComplexFormTypes
+    {
+        get =>
+            new UpdateListProxy<ComplexFormType>(
+                complexFormType => lexboxLcmApi.AddComplexFormType(lcmEntry, complexFormType.Id),
+                complexFormType => lexboxLcmApi.RemoveComplexFormType(lcmEntry, complexFormType.Id),
+                i => new UpdateComplexFormTypeProxy(lcmEntry.ComplexFormEntryRefs.Single().ComplexEntryTypesRS[i], lcmEntry, lexboxLcmApi),
+                lcmEntry.ComplexFormEntryRefs.SingleOrDefault()
+                    ?.ComplexEntryTypesRS.Count ?? 0
+            );
+        set => throw new NotImplementedException();
+    }
+
     public override MultiString Note
     {
         get => new UpdateMultiStringProxy(lcmEntry.Comment, lexboxLcmApi);
