@@ -9,6 +9,7 @@ on:
       - '.github/workflows/fw-lite.yaml'
     branches:
       - develop
+      - main
   pull_request:
     paths:
       - 'backend/FwLite/**'
@@ -17,12 +18,16 @@ on:
       - '.github/workflows/fw-lite.yaml'
     branches:
       - develop
+      - main
 
 jobs:
   build-and-test:
     name: Build FW Lite and run tests
     timeout-minutes: 20
     runs-on: windows-latest
+    outputs:
+      version: ${{ steps.setVersion.outputs.VERSION }}
+      semver-version: ${{ steps.setVersion.outputs.SEMVER_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,7 +39,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
-
+      - name: Set Version
+        id: setVersion
+        # set version to date in vYYYY-MM-DD-commitSha format
+        run: |
+          shortSha=$(echo ${{ github.sha }} | cut -c1-8)
+          echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
+          echo "SEMVER_VERSION="$(date +%Y.%m.%d)" >> ${GITHUB_OUTPUT}
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
@@ -80,12 +91,12 @@ jobs:
 
       - name: Publish OSX
         working-directory: backend/FwLite/LocalWebApp
-        run: dotnet publish -r osx-x64 --artifacts-path ../artifacts
+        run: dotnet publish -r osx-x64 --artifacts-path ../artifacts -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 
       - name: Publish OSX ARM
         working-directory: backend/FwLite/LocalWebApp
-        run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts
-
+        run: dotnet publish -r osx-arm64 --artifacts-path ../artifacts -p:Version=${{ needs.build-and-test.outputs.semver-version }}
+#todo sign the app
       - name: Upload local web app artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -117,7 +128,7 @@ jobs:
 
       - name: Publish Linux
         working-directory: backend/FwLite/LocalWebApp
-        run: dotnet publish -r linux-x64 --artifacts-path ../artifacts
+        run: dotnet publish -r linux-x64 --artifacts-path ../artifacts -p:PublishSingleFile=true -p:Version=${{ needs.build-and-test.outputs.semver-version }}
 
       - name: Upload FWLite Desktop artifacts
         uses: actions/upload-artifact@v4
@@ -128,9 +139,6 @@ jobs:
 
   publish-win:
     name: Publish FW Lite app for Windows
-
-    # only publish if tag matches fwlite-v* pattern
-    # iif: startsWith(github.ref, 'refs/tags/fwlite-v')
     needs: build-and-test
     timeout-minutes: 30
     runs-on: windows-latest
@@ -157,16 +165,16 @@ jobs:
       - name: Publish Windows MAUI portable app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None
-          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None
+          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
+          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:WindowsPackageType=None -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
           mkdir -p ../artifacts/sign/portable
           cp -r ../artifacts/publish/FwLiteDesktop/* ../artifacts/sign/portable/
 
       - name: Publish Windows MAUI msix app
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
-          dotnet publish -f net8.0-windows10.0.19041.0 -r win-x64 --artifacts-path ../artifacts -p:Platform=x64
-          dotnet publish -f net8.0-windows10.0.19041.0 -r win-arm64 --artifacts-path ../artifacts -p:Platform=arm64
+          dotnet publish -r win-x64 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
+          dotnet publish -r win-arm64 --artifacts-path ../artifacts -p:ApplicationDisplayVersion=${{ needs.build-and-test.outputs.semver-version }}
           mkdir -p ../artifacts/msix
           cp ../artifacts/bin/FwLiteDesktop/*/AppPackages/*/*.msix ../artifacts/msix/
 
@@ -179,9 +187,10 @@ jobs:
           $sdkToolsPath = Join-Path -Path 'C:\Program Files (x86)\Windows Kits\10\bin' -ChildPath $SdkVersion -AdditionalChildPath $Architecture
           $env:Path += ";$sdkToolsPath"
 
-          MakeAppx.exe bundle /v /bv 1.0.0.1 /d . /p ../sign/FwLiteDesktop.msixbundle
+          MakeAppx.exe bundle /v /bv ${{ needs.build-and-test.outputs.semver-version }} /d . /p ../sign/FwLiteDesktop.msixbundle
 
       - name: Sign with Trusted Signing
+        if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
         uses: azure/trusted-signing-action@v0.4.0
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -223,22 +232,34 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
-    #disabled since we don't have a release yet
-    if: false
+    if: ${{ github.ref_name == 'main' }}
     name: Create Release
-    needs: publish-win
-    runs-on: windows-latest
+    needs: [ build-and-test, publish-win, publish-linux, publish-mac]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: fw-lite
+          name: fw-lite-msix
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-portable
+      - uses: actions/download-artifact@v4
+        with:
+          name: fw-lite-local-web-app-linux
+      - name: Zip artifacts
+        run: |
+          zip -r fw-lite-portable.zip fw-lite-portable
+          zip -r fw-lite-local-web-app-linux.zip fw-lite-local-web-app-linux
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.build-and-test.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
           files: |
-            backend/FwLite/artifacts/bin/FwLiteDesktop/*/AppPackages/FwLiteDesktop_1.0.0.1_Test/*.msix
-          body: |
-            Release for version ${{ github.ref }}
-          draft: true
+            fw-lite-msix/*
+            fw-lite-portable.zip
+            fw-lite-local-web-app-linux.zip
+

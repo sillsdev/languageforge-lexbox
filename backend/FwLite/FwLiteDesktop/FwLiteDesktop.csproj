@@ -22,7 +22,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
         <SelfContained>true</SelfContained>
-<!--        <Platform Condition="$([MSBuild]::IsOSPlatform('windows'))">x64</Platform>-->
 
 		<!-- controls display name in Package.appxmanifest -->
 		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
