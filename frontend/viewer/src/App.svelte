@@ -30,7 +30,8 @@
       },
       Collapse: {
         classes: {
-          content: 'Content',
+          content: 'CollapseContent',
+          icon: 'CollapseIcon',
         }
       }
     },
@@ -50,12 +51,16 @@
       </Router>
     </Route>
     <Route path="/fwdata/:name" let:params>
-      {#key params.name}
-        <FwDataProjectView projectName={params.name}/>
-      {/key}
+      <Router {url} basepath="/fwdata/{params.name}">
+        {#key params.name}
+          <FwDataProjectView projectName={params.name}/>
+        {/key}
+      </Router>
     </Route>
     <Route path="/testing/project-view">
-      <TestProjectView/>
+      <Router {url} basepath="/testing/project-view">
+        <TestProjectView/>
+      </Router>
     </Route>
     <Route path="/">
       <HomeView/>

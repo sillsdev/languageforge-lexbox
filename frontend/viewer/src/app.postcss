@@ -113,7 +113,7 @@
       @apply border-surface-200;
     }
 
-    .Content .ListItem {
+    .CollapseContent .ListItem {
       @apply !rounded-none;
     }
 
@@ -140,6 +140,12 @@
 
     &.sense-list-item {
       @apply brightness-50 pointer-events-none;
+    }
+  }
+
+  .disable-expand {
+    .CollapseIcon, .CollapseContent {
+      display: none;
     }
   }
 }
