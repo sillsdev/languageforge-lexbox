@@ -117,6 +117,8 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<SemanticDomain>>()
             .Add<SetPartOfSpeechChange>()
             .Add<AddSemanticDomainChange>()
+            .Add<RemoveSemanticDomainChange>()
+            .Add<ReplaceSemanticDomainChange>()
             .Add<CreateEntryChange>()
             .Add<CreateSenseChange>()
             .Add<CreateExampleSentenceChange>()
