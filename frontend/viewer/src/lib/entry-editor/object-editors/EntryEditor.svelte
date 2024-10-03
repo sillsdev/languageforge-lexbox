@@ -14,6 +14,8 @@
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import {objectTemplateAreas, useCurrentView} from '../../services/view-service';
   import ComplexFormComponents from '../field-editors/ComplexFormComponents.svelte';
+  import ComplexForms from '../field-editors/ComplexForms.svelte';
+  import ComplexFormTypes from '../field-editors/ComplexFormTypes.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { entry: IEntry, sense?: ISense, example?: IExampleSentence};
@@ -119,10 +121,21 @@
                       id="citationForm"
                       wsType="vernacular"/>
 
+    <ComplexForms on:change={() => dispatch('change', {entry})}
+                  bind:value={entry.complexForms}
+                  {readonly}
+                  {entry}
+                  id="complexForms" />
+
+    <ComplexFormTypes on:change={() => dispatch('change', {entry})}
+                  bind:value={entry.complexFormTypes}
+                  {readonly}
+                  id="complexFormTypes" />
+
     <ComplexFormComponents  on:change={() => dispatch('change', {entry})}
                             bind:value={entry.components}
                             {readonly}
-                            entryId={entry.id}
+                            {entry}
                             id="components" />
 
     <MultiFieldEditor on:change={() => dispatch('change', {entry})}

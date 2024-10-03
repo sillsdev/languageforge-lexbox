@@ -4,6 +4,7 @@
  */
 
 import type { IComplexFormComponent } from './i-complex-form-component';
+import type { IComplexFormType } from './i-complex-form-type';
 import {type IEntry} from './i-entry';
 import {type IMultiString} from './i-multi-string';
 import {type ISense} from './i-sense';
@@ -16,6 +17,8 @@ export class Entry implements IEntry {
   id: string;
   lexemeForm: IMultiString = {};
   citationForm: IMultiString = {};
+  complexForms: IComplexFormComponent[] = [];
+  complexFormTypes: IComplexFormType[] = [];
   components: IComplexFormComponent[] = [];
   literalMeaning: IMultiString = {};
   senses: ISense[] = [];

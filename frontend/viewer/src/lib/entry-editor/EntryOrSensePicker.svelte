@@ -30,6 +30,7 @@
   export let title: string;
   export let disableEntry: ((entry: IEntry) => boolean) | undefined = undefined;
   export let disableSense: ((sense: ISense, entry: IEntry) => boolean) | undefined = undefined;
+  export let noSenses = false;
 
   let selectedEntry: IEntry | undefined;
   let selectedSense: ISense | undefined;
@@ -119,7 +120,7 @@
       <ExpansionPanel
         bind:group={selectedEntryId}
         value={entry.id}
-        class={cls('entry-list-item', entry.id === selectedEntryId && 'selected', disabledEntry && 'disabled-list-item')}
+        class={cls('entry-list-item', entry.id === selectedEntryId && 'selected', disabledEntry && 'disabled-list-item', noSenses && 'disable-expand')}
         on:change={(event) => {
           if (event.detail.open) { // I'm opening so I manage the state
             selectedEntry = entry;
@@ -178,7 +179,7 @@
           {#if $loading}
             <ProgressCircle size={30} />
           {:else}
-            Search for an entry <Icon data={mdiBookSearchOutline} />
+            Search for an entry {noSenses ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} />
           {/if}
         {/if}
       </div>

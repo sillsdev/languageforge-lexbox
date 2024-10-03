@@ -12,6 +12,8 @@ export type I18nType = 'weSay' | 'languageForge' | '';
 const defaultI18n: Record<FieldIds, string> = {
   'lexemeForm': 'Lexeme form',
   'citationForm': 'Citation form',
+  'complexForms': 'Complex Forms',
+  'complexFormTypes': 'Complex Form Types',
   'components': 'Components',
   'literalMeaning': 'Literal meaning',
   'note': 'Note',

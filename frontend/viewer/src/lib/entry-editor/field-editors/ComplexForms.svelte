@@ -25,39 +25,38 @@
 
   let openPicker = false;
 
-  function addComponent(selection: EntrySenseSelection) {
-    const component = {
+  function addComplexForm(selection: EntrySenseSelection) {
+    const complexForm = {
       id: randomId(),
-      complexFormEntryId: entry.id,
-      componentEntryId: selection.entry.id,
-      componentSenseId: selection.sense?.id,
-      componentHeadword: headword(selection.entry),
+      complexFormEntryId: selection.entry.id,
+      complexFormHeadword: headword(selection.entry),
+      componentEntryId: entry.id,
     };
-    value = [...value, component];
+    value = [...value, complexForm];
     dispatch('change', { value });
   }
 
-  $: disabledEntriesForPicker = [
-    entry.id,
-    ...entry.components.map((c) => c.componentEntryId),
-    ...entry.complexForms.map((c) => c.componentEntryId),
-  ];
+$: disabledEntriesForPicker = [
+  entry.id,
+  ...entry.components.map((c) => c.componentEntryId),
+  ...entry.complexForms.map((c) => c.componentEntryId),
+];
 </script>
 
 <div
-  class="complex-form-components-field field"
+  class="complex-forms-field field"
   class:empty
   class:hidden={!$currentView.fields[id].show}
   style:grid-area={id}
 >
   <FieldTitle {id} {name} />
-  <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
+  <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
     <svelte:fragment slot="actions">
       <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        <div class="max-sm:hidden">Add Component</div>
+        <div class="max-sm:hidden">Add Complex Form</div>
       </Button>
-      <EntryOrSensePicker title="Add component to complex form" bind:open={openPicker} on:pick={(e) => addComponent(e.detail)}
-        disableEntry={(c) => disabledEntriesForPicker.includes(c.id)}
+      <EntryOrSensePicker title="Add complex form" bind:open={openPicker} noSenses on:pick={(e) => addComplexForm(e.detail)}
+        disableEntry={(e) => disabledEntriesForPicker.includes(e.id)}
         disableSense={(s, e) => value.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)} />
     </svelte:fragment>
   </EntryOrSenseItemList>

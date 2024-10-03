@@ -127,6 +127,7 @@
   // Used for triggering rerendering when display values of the current entry change (e.g. the headword in the list view)
   const entries = writable<IEntry[] | undefined>();
   $: $entries = $_entries;
+  $: console.debug('Entries:', $_entries);
 
   function fetchEntries(s: string, isConnected: boolean, exemplar: string | null) {
     if (!isConnected) return Promise.resolve(undefined);
@@ -161,14 +162,14 @@
   function refreshSelection() {
     if (!$entries) return;
 
-    if ($selectedEntry !== undefined) {
-      const entry = $entries.find(e => e.id === $selectedEntry!.id);
-      if (entry !== $selectedEntry) {
-        $selectedEntry = entry;
-      }
-    } else if (navigateToEntryId) {
+    if (navigateToEntryId) {
       const entry = $entries.find(e => e.id === navigateToEntryId);
       if (entry) {
+        $selectedEntry = entry;
+      }
+    } else if ($selectedEntry !== undefined) {
+      const entry = $entries.find(e => e.id === $selectedEntry!.id);
+      if (entry !== $selectedEntry) {
         $selectedEntry = entry;
       }
     }
