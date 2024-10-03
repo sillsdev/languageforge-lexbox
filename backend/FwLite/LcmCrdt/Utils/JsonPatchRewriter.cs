@@ -56,7 +56,22 @@ public static class JsonPatchRewriter
                 }
             }
             patchDocument.Operations.Remove(operation);
-            yield return changeFactory((TProp?)operation.Value, index, operation.OperationType);
+            if (operation.Value is TProp value)
+            {
+                yield return changeFactory(value, index, operation.OperationType);
+            }
+            else if (operation.Value is JsonElement element)
+            {
+                yield return changeFactory(JsonSerializer.Deserialize<TProp>(element, patchDocument.Options), index, operation.OperationType);
+            }
+            else if (operation.Value is null)
+            {
+                yield return changeFactory(default, index, operation.OperationType);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unexpected value type {operation.Value?.GetType()}");
+            }
         }
     }
 

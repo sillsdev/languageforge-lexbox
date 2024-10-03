@@ -479,6 +479,44 @@ public class BasicApiTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task RemoveSenseSemanticDomain()
+    {
+        var newDomainId = Guid.NewGuid();
+        await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(newDomainId, new MultiString() { { "en", "test" } }, "updated"));
+        var newSemanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(newDomainId);
+        ArgumentNullException.ThrowIfNull(newSemanticDomain);
+        var entry = await _api.CreateEntry(new Entry
+        {
+            LexemeForm = new MultiString
+            {
+                Values =
+                {
+                    { "en", "test" }
+                }
+            },
+            Senses = new List<Sense>
+            {
+                new Sense()
+                {
+                    SemanticDomains = [newSemanticDomain],
+                    Definition = new MultiString
+                    {
+                        Values =
+                        {
+                            { "en", "test" }
+                        }
+                    }
+                }
+            }
+        });
+        var updatedSense = await _api.UpdateSense(entry.Id,
+            entry.Senses[0].Id,
+            new UpdateObjectInput<Sense>()
+                .Remove(e => e.SemanticDomains, 0));
+        updatedSense.SemanticDomains.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task UpdateExampleSentence()
     {
         var entry = await _api.CreateEntry(new Entry
