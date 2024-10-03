@@ -207,6 +207,8 @@ jobs:
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
+          description:  'Release for version ${{ needs.build-and-test.outputs.version }} from branch ${{ github.ref_name || github.head_ref }}'
+          description-url: 'https://github.com/sillsdev/languageforge-lexbox'
           trace: ${{ runner.debug == '1' }}
           exclude-workload-identity-credential: true
           exclude-managed-identity-credential: true
@@ -233,7 +235,7 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
-    if: ${{ github.ref_name == 'main' || github.ref_name == 'chore/setup-trusted-signing' }}
+    if: ${{ github.ref_name == 'main' || github.head_ref == 'refs/heads/chore/setup-trusted-signing' }}
     name: Create Release
     needs: [ build-and-test, publish-win, publish-linux, publish-mac]
     runs-on: ubuntu-latest
@@ -259,7 +261,7 @@ jobs:
           tag_name: ${{ needs.build-and-test.outputs.version }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
-          draft: ${{ github.ref_name == 'chore/setup-trusted-signing' }}
+          draft: ${{ github.head_ref == 'refs/heads/chore/setup-trusted-signing' }}
           files: |
             fw-lite-msix/*
             fw-lite-portable.zip
