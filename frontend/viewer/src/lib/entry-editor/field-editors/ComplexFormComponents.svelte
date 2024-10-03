@@ -1,11 +1,11 @@
 <script lang="ts">
   import FieldTitle from '../FieldTitle.svelte';
   import { useCurrentView } from '../../services/view-service';
-  import EntryOrSensePicker, { type EntrySenseSelection } from './EntryOrSensePicker.svelte';
+  import EntryOrSensePicker, { type EntrySenseSelection } from '../EntryOrSensePicker.svelte';
   import { headword, randomId } from '../../utils';
   import { createEventDispatcher } from 'svelte';
   import type { IComplexFormComponent } from '../../mini-lcm/i-complex-form-component';
-  import EntryOrSenseItemList from './EntryOrSenseItemList.svelte';
+  import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
 
