@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import type { IEntry, ISense } from '../../mini-lcm';
+  import type { IEntry, ISense } from '../mini-lcm';
 
   export type EntrySenseSelection = {
     entry: IEntry;
@@ -12,11 +12,11 @@
   import { Button, Dialog, ExpansionPanel, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
   import { derived, writable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
-  import { useLexboxApi } from '../../services/service-provider';
-  import { deriveAsync } from '../../utils/time';
-  import { defaultSense, firstDef, firstGloss, glosses, headword, randomId } from '../../utils';
-  import { useProjectCommands } from '../../commands';
-  import type { SaveHandler } from '../../services/save-event-service';
+  import { useLexboxApi } from '../services/service-provider';
+  import { deriveAsync } from '../utils/time';
+  import { defaultSense, firstDef, firstGloss, glosses, headword, randomId } from '../utils';
+  import { useProjectCommands } from '../commands';
+  import type { SaveHandler } from '../services/save-event-service';
   import { cls } from 'svelte-ux/utils/styles';
 
   const dispatch = createEventDispatcher<{
