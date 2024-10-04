@@ -47,7 +47,6 @@ jobs:
           shortSha=$(echo ${{ github.sha }} | cut -c1-8)
           echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
           echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
-          echo "github head ref: ${{github.head_ref}}"
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
@@ -245,12 +244,16 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: fw-lite-msix
+          path: fw-lite-msix
       - uses: actions/download-artifact@v4
         with:
           name: fw-lite-portable
+          path: fw-lite-portable
       - uses: actions/download-artifact@v4
         with:
           name: fw-lite-local-web-app-linux
+          path: fw-lite-local-web-app-linux
+
       - name: Zip artifacts
         run: |
           zip -r fw-lite-portable.zip fw-lite-portable
