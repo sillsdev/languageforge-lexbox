@@ -8,7 +8,7 @@
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
-  import type { IEntry } from '../../mini-lcm';
+  import type { IEntry, ISense } from '../../mini-lcm';
 
   const dispatch = createEventDispatcher<{
     change: { value: IComplexFormComponent[] };
@@ -37,11 +37,17 @@
     dispatch('change', { value });
   }
 
-  $: disabledEntriesForPicker = [
-    entry.id,
-    ...entry.components.map((c) => c.componentEntryId),
-    ...entry.complexForms.map((c) => c.componentEntryId),
-  ];
+  function disableEntry(e: IEntry): false | { disableSenses?: true, reason: string } {
+    if (e.id === entry.id) return { reason: 'Current Entry', disableSenses: true };
+    if (entry.components.some((c) => c.componentEntryId === e.id && !c.componentSenseId)) return { reason: 'Component' };
+    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: 'Complex Form', disableSenses: true };
+    return false;
+  }
+
+  function disableSense(s: ISense, e: IEntry): false | string {
+    if (entry.components.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)) return 'Component';
+    return false;
+  }
 </script>
 
 <div
@@ -51,14 +57,15 @@
   style:grid-area={id}
 >
   <FieldTitle {id} {name} />
-  <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
-    <svelte:fragment slot="actions">
-      <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        <div class="max-sm:hidden">Add Component</div>
-      </Button>
-      <EntryOrSensePicker title="Add component to complex form" bind:open={openPicker} on:pick={(e) => addComponent(e.detail)}
-        disableEntry={(c) => disabledEntriesForPicker.includes(c.id)}
-        disableSense={(s, e) => value.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)} />
-    </svelte:fragment>
-  </EntryOrSenseItemList>
+  <div class="item-list-field">
+    <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
+      <svelte:fragment slot="actions">
+        <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+          <div class="max-sm:hidden">Add Component</div>
+        </Button>
+        <EntryOrSensePicker title="Add component to complex form" bind:open={openPicker} on:pick={(e) => addComponent(e.detail)}
+          {disableEntry} {disableSense} />
+      </svelte:fragment>
+    </EntryOrSenseItemList>
+  </div>
 </div>

@@ -8,7 +8,7 @@
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
-  import type { IEntry } from '../../mini-lcm';
+  import type { IEntry, ISense } from '../../mini-lcm';
 
   const dispatch = createEventDispatcher<{
     change: { value: IComplexFormComponent[] };
@@ -36,11 +36,12 @@
     dispatch('change', { value });
   }
 
-$: disabledEntriesForPicker = [
-  entry.id,
-  ...entry.components.map((c) => c.componentEntryId),
-  ...entry.complexForms.map((c) => c.componentEntryId),
-];
+  function disableEntry(e: IEntry): false | { reason: string, andSenses?: true } {
+    if (e.id === entry.id) return { reason: 'Current Entry' };
+    if (entry.components.some((c) => c.componentEntryId === e.id)) return { reason: 'Component' };
+    if (entry.complexForms.some((cf) => cf.complexFormEntryId === e.id)) return { reason: 'Complex Form' };
+    return false;
+  }
 </script>
 
 <div
@@ -50,14 +51,15 @@ $: disabledEntriesForPicker = [
   style:grid-area={id}
 >
   <FieldTitle {id} {name} />
-  <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
-    <svelte:fragment slot="actions">
-      <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        <div class="max-sm:hidden">Add Complex Form</div>
-      </Button>
-      <EntryOrSensePicker title="Add complex form" bind:open={openPicker} noSenses on:pick={(e) => addComplexForm(e.detail)}
-        disableEntry={(e) => disabledEntriesForPicker.includes(e.id)}
-        disableSense={(s, e) => value.some((c) => c.componentEntryId === e.id && c.componentSenseId === s.id)} />
-    </svelte:fragment>
-  </EntryOrSenseItemList>
+  <div class="item-list-field">
+    <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
+      <svelte:fragment slot="actions">
+        <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+          <div class="max-sm:hidden">Add Complex Form</div>
+        </Button>
+        <EntryOrSensePicker title="Add complex form" bind:open={openPicker} noSenses on:pick={(e) => addComplexForm(e.detail)}
+          {disableEntry} />
+      </svelte:fragment>
+    </EntryOrSenseItemList>
+  </div>
 </div>

@@ -39,12 +39,15 @@
   style:grid-area={id}
 >
   <FieldTitle {id} {name} />
-  <OrderedItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getDisplayName={(type) => firstVal(type.name)}>
-    <svelte:fragment slot="actions">
-      <Button disabled on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
-        <div class="max-sm:hidden">Add Complex Form Type</div>
-      </Button>
-      <!-- TODO: implement form type picker or dropdown? <EntryOrSensePicker title="Add complex form" bind:open={openPicker} noSenses on:pick={(e) => addComplexFormType(e.detail)} /> -->
-    </svelte:fragment>
-  </OrderedItemList>
+
+  <div class="item-list-field">
+    <OrderedItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getDisplayName={(type) => firstVal(type.name)}>
+      <svelte:fragment slot="actions">
+        <Button disabled on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
+          <div class="max-sm:hidden">Add Complex Form Type</div>
+        </Button>
+        <!-- TODO: implement form type picker or dropdown? <EntryOrSensePicker title="Add complex form" bind:open={openPicker} noSenses on:pick={(e) => addComplexFormType(e.detail)} /> -->
+      </svelte:fragment>
+    </OrderedItemList>
+  </div>
 </div>

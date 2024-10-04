@@ -3,19 +3,25 @@
   .Collapse {
     @apply border-2 !border-t-2 border-surface-100 rounded overflow-hidden elevation-0 m-0 transition-none;
 
-    &:hover {
-      @apply border-surface-300;
+    &:not(.disable-expand.disabled-list-item) {
+      &:hover {
+        @apply border-surface-300;
 
-      button:hover {
-        @apply bg-surface-300;
-        & * {
-          @apply bg-transparent;
+        button:hover {
+          @apply bg-surface-300;
+          & * {
+            @apply bg-transparent;
+          }
         }
+      }
+
+      &[aria-expanded="true"] {
+        @apply border-surface-200;
       }
     }
 
-    &[aria-expanded="true"] {
-      @apply border-surface-200;
+    &.disable-expand.disabled-list-item * {
+      @apply cursor-default;
     }
 
     .CollapseContent .ListItem {
@@ -27,7 +33,7 @@
       @apply border-accent-500;
 
       /* Selected sense or entry if no sense is selected */
-      .selected.sense-list-item, &.entry-list-item:not(.disabled-list-item):not(:has(.selected)) button {
+      .selected.sense-list-item, &.entry-list-item:not(.disabled-list-item):not(:has(.selected)) button:not(.sense-list-item) {
         @apply bg-accent-100;
         @apply dark:bg-accent-900;
 

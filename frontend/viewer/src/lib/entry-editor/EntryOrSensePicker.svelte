@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiChevronRight, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
+  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
   import { Button, Dialog, ExpansionPanel, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
   import { derived, writable } from 'svelte/store';
   import { createEventDispatcher, getContext } from 'svelte';
@@ -28,8 +28,8 @@
 
   export let open = false;
   export let title: string;
-  export let disableEntry: ((entry: IEntry) => boolean) | undefined = undefined;
-  export let disableSense: ((sense: ISense, entry: IEntry) => boolean) | undefined = undefined;
+  export let disableEntry: ((entry: IEntry) => false | { reason: string, disableSenses?: true }) | undefined = undefined;
+  export let disableSense: ((sense: ISense, entry: IEntry) => false | string) | undefined = undefined;
   export let noSenses = false;
 
   let selectedEntry: IEntry | undefined;
@@ -120,7 +120,7 @@
       <ExpansionPanel
         bind:group={selectedEntryId}
         value={entry.id}
-        class={cls('entry-list-item', entry.id === selectedEntryId && 'selected', disabledEntry && 'disabled-list-item', noSenses && 'disable-expand')}
+        class={cls('entry-list-item', entry.id === selectedEntryId && 'selected', !!disabledEntry && 'disabled-list-item', (noSenses || (disabledEntry && disabledEntry.disableSenses)) && 'disable-expand')}
         on:change={(event) => {
           if (event.detail.open) { // I'm opening so I manage the state
             selectedEntry = entry;
@@ -146,6 +146,12 @@
             title={headword(entry).padStart(1, '–')}
             subheading={glosses(entry).padStart(1, '–')}
             noShadow />
+          <div class="grow"></div>
+          {#if disabledEntry}
+            <span class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+              {disabledEntry.reason}
+            </span>
+          {/if}
           {#if entry.senses.length}
             <span class="aspect-square w-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
               {entry.senses.length}
@@ -153,14 +159,23 @@
           {/if}
         </button>
         {#each entry.senses as sense}
-          <ListItem
-            on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}
-            title={firstGloss(sense).padStart(1, '–')}
-            icon={mdiChevronRight}
-            subheading={firstDef(sense).padStart(1, '–')}
-            class={cls('sense-list-item', selectedSense?.id === sense.id && 'selected', disableSense?.(sense, entry) && 'disabled-list-item')}
-            classes={{icon: 'text-info'}}
-            noShadow />
+          {@const disabledSense = disableSense?.(sense, entry)}
+          <span class="hidden"></span>
+          <button class="sense-list-item w-full bg-surface-100 flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
+            class:selected={selectedSense?.id === sense.id}
+            class:disabled-list-item={!!disabledSense}
+            on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}>
+            <ListItem
+              title={firstGloss(sense).padStart(1, '–')}
+              subheading={firstDef(sense).padStart(1, '–')}
+              classes={{icon: 'text-info'}}
+              noShadow />
+            {#if disabledSense}
+              <span class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                {disabledSense}
+              </span>
+            {/if}
+          </button>
         {/each}
         <ListItem
           title="Add Sense..."
@@ -206,7 +221,7 @@
   <div class="flex-grow"></div>
   <div slot="actions">
     <Button on:click={() => open = false}>Cancel</Button>
-    <Button variant="fill-light" color="success" disabled={!selectedEntry || (disableEntry?.(selectedEntry) && !selectedSense)} on:click={onPick}>
+    <Button variant="fill-light" color="success" disabled={!selectedEntry || (!!disableEntry?.(selectedEntry) && !selectedSense)} on:click={onPick}>
       <slot name="submit-text">
         Select {selectedSense ? 'Sense' : 'Entry'}
       </slot>

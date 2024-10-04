@@ -46,7 +46,7 @@
   }
 </script>
 
-<div class="col-span-2 flex gap-2 flex-wrap">
+<div class="flex gap-2 flex-wrap">
   {#each value as item, i}
     {@const gotoLink = getGotoLink?.(item)}
     {@const displayName = getDisplayName(item) || '–'}

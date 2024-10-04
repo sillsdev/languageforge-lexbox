@@ -15,7 +15,7 @@
 
 <OrderedItemList bind:value {readonly} on:change
   getDisplayName={getHeadword}
-  getGotoLink={entry => `"?entryId=${getEntryId(entry)}&search=${getHeadword?.(entry)?.replace(/\d?$/, '')}"`}>
+  getGotoLink={entry => `?entryId=${getEntryId(entry)}&search=${getHeadword?.(entry)?.replace(/\d?$/, '')}`}>
   <svelte:fragment slot="menuItems" let:item={entry}>
     <MenuItem class="gap-2">
       <Link to="?entryId={getEntryId(entry)}&search={getHeadword?.(entry)?.replace(/\d?$/, '')}">
