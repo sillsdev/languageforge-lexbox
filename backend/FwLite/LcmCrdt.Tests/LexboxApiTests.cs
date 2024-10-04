@@ -155,6 +155,7 @@ public class BasicApiTests : IAsyncLifetime
                 }
             ],
         });
+        _crdtDbContext.ChangeTracker.Clear();
     }
 
     public async Task DisposeAsync()
@@ -198,7 +199,8 @@ public class BasicApiTests : IAsyncLifetime
         entries.Should().NotBeEmpty();
         var entry1 = entries.First(e => e.Id == _entry1Id);
         entry1.LexemeForm.Values.Should().NotBeEmpty();
-        entry1.Senses.Should().NotBeEmpty();
+        var sense1 = entry1.Senses.Should().NotBeEmpty().And.Subject.First();
+        sense1.ExampleSentences.Should().NotBeEmpty();
 
         var entry2 = entries.First(e => e.Id == _entry2Id);
         entry2.LexemeForm.Values.Should().NotBeEmpty();

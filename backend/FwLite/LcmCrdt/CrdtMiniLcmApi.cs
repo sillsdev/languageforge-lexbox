@@ -153,39 +153,34 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
-        queryable = queryable.OrderBy(e => e.Headword(sortWs.Value))
+        queryable = queryable
+            .OrderBy(e => e.Headword(sortWs.Value))
             // .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);
-        var entries = await queryable.ToArrayAsyncLinqToDB();
-        await LoadSenses(entries);
+        var entries = await queryable
+            .LoadWith(e => e.Senses)
+            .ToArrayAsyncLinqToDB();
+        await LoadExamples(entries);
         await LoadComplexFormData(entries);
 
         return entries;
     }
 
-    private async Task LoadSenses(Entry[] entries)
+    private async Task LoadExamples(Entry[] entries)
     {
-        var allSenses = (await Senses
-                .Where(s => entries.Select(e => e.Id).Contains(s.EntryId))
-                .ToArrayAsyncEF())
-            .ToLookup(s => s.EntryId)
-            .ToDictionary(g => g.Key, g => g.ToArray());
-        var allSenseIds = allSenses.Values.SelectMany(s => s, (_, sense) => sense.Id);
+        var allSenses = entries.SelectMany(e => e.Senses).ToArray();
+        var allSenseIds = allSenses.Select(s => s.Id);
         var allExampleSentences = (await ExampleSentences
                 .Where(e => allSenseIds.Contains(e.SenseId))
                 .ToArrayAsyncEF())
             .ToLookup(s => s.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
-        foreach (var entry in entries)
+        foreach (var sense in allSenses)
         {
-            entry.Senses = allSenses.TryGetValue(entry.Id, out var senses) ? senses.ToArray() : [];
-            foreach (var sense in entry.Senses)
-            {
-                sense.ExampleSentences = allExampleSentences.TryGetValue(sense.Id, out var sentences)
-                    ? sentences.ToArray()
-                    : [];
-            }
+            sense.ExampleSentences = allExampleSentences.TryGetValue(sense.Id, out var sentences)
+                ? sentences.ToArray()
+                : [];
         }
     }
 
@@ -205,20 +200,17 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
 
     public async Task<MiniLcm.Models.Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries.SingleOrDefaultAsync(e => e.Id == id);
+        var entry = await Entries.LoadWith(e => e.Senses).SingleOrDefaultAsyncLinqToDB(e => e.Id == id);
         if (entry is null) return null;
-        var senses = await Senses
-                .Where(s => s.EntryId == id).ToArrayAsyncLinqToDB();
         var exampleSentences = (await ExampleSentences
-                .Where(e => senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncEF())
+                .Where(e => entry.Senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncEF())
             .ToLookup(e => e.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
-        entry.Senses = senses;
 
         //could optimize this by doing a single query, but this is easier to read
         entry.Components = [..await ComplexFormComponents.Where(c => c.ComplexFormEntryId == id).ToListAsyncEF()];
         entry.ComplexForms = [..await ComplexFormComponents.Where(c => c.ComponentEntryId == id).ToListAsyncEF()];
-        foreach (var sense in senses)
+        foreach (var sense in entry.Senses)
         {
             sense.ExampleSentences = exampleSentences.TryGetValue(sense.Id, out var sentences) ? sentences.ToArray() : [];
         }

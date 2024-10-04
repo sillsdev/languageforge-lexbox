@@ -4,29 +4,33 @@ using SIL.LCModel.Core.KernelInterfaces;
 
 namespace FwDataMiniLcmBridge.Api.UpdateProxy;
 
-public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi) : Entry
+public class UpdateEntryProxy : Entry
 {
-    public override Guid Id
+    private readonly ILexEntry _lcmEntry;
+    private readonly FwDataMiniLcmApi _lexboxLcmApi;
+
+    public UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
     {
-        get => lcmEntry.Guid;
-        set => throw new NotImplementedException();
+        _lcmEntry = lcmEntry;
+        Id = lcmEntry.Guid;
+        _lexboxLcmApi = lexboxLcmApi;
     }
 
     public override MultiString LexemeForm
     {
-        get => new UpdateMultiStringProxy(lcmEntry.LexemeFormOA.Form, lexboxLcmApi);
+        get => new UpdateMultiStringProxy(_lcmEntry.LexemeFormOA.Form, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 
     public override MultiString CitationForm
     {
-        get => new UpdateMultiStringProxy(lcmEntry.CitationForm, lexboxLcmApi);
+        get => new UpdateMultiStringProxy(_lcmEntry.CitationForm, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 
     public override MultiString LiteralMeaning
     {
-        get => new UpdateMultiStringProxy(lcmEntry.LiteralMeaning, lexboxLcmApi);
+        get => new UpdateMultiStringProxy(_lcmEntry.LiteralMeaning, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 
@@ -34,10 +38,10 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
     {
         get =>
             new UpdateListProxy<Sense>(
-                sense => lexboxLcmApi.CreateSense(lcmEntry, sense),
-                sense => lexboxLcmApi.DeleteSense(Id, sense.Id),
-                i => new UpdateSenseProxy(lcmEntry.SensesOS[i], lexboxLcmApi),
-                lcmEntry.SensesOS.Count
+                sense => _lexboxLcmApi.CreateSense(_lcmEntry, sense),
+                sense => _lexboxLcmApi.DeleteSense(Id, sense.Id),
+                i => new UpdateSenseProxy(_lcmEntry.SensesOS[i], _lexboxLcmApi),
+                _lcmEntry.SensesOS.Count
             );
         set => throw new NotImplementedException();
     }
@@ -46,12 +50,12 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
     {
         get =>
             new UpdateListProxy<ComplexFormComponent>(
-                component => lexboxLcmApi.AddComplexFormComponent(lcmEntry, component),
-                component => lexboxLcmApi.RemoveComplexFormComponent(lcmEntry, component),
-                i => new UpdateComplexFormComponentProxy(lcmEntry,
-                    lcmEntry.ComplexFormEntryRefs.Single().ComponentLexemesRS[i],
-                    lexboxLcmApi),
-                lcmEntry.ComplexFormEntryRefs.SingleOrDefault()?.ComponentLexemesRS.Count ?? 0
+                component => _lexboxLcmApi.AddComplexFormComponent(_lcmEntry, component),
+                component => _lexboxLcmApi.RemoveComplexFormComponent(_lcmEntry, component),
+                i => new UpdateComplexFormComponentProxy(_lcmEntry,
+                    _lcmEntry.ComplexFormEntryRefs.Single().ComponentLexemesRS[i],
+                    _lexboxLcmApi),
+                _lcmEntry.ComplexFormEntryRefs.SingleOrDefault()?.ComponentLexemesRS.Count ?? 0
             );
         set => throw new NotImplementedException();
     }
@@ -60,13 +64,13 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
     {
         get =>
             new UpdateListProxy<ComplexFormComponent>(
-                component => lexboxLcmApi.AddComplexFormComponent(lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
-                component => lexboxLcmApi.RemoveComplexFormComponent(lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
+                component => _lexboxLcmApi.AddComplexFormComponent(_lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
+                component => _lexboxLcmApi.RemoveComplexFormComponent(_lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
                 //todo this does not handle complex forms which reference a sense
-                i => new UpdateComplexFormComponentProxy(lcmEntry.ComplexFormEntries.ElementAt(i),
-                    lcmEntry,
-                    lexboxLcmApi),
-                lcmEntry.ComplexFormEntries.Count()
+                i => new UpdateComplexFormComponentProxy(_lcmEntry.ComplexFormEntries.ElementAt(i),
+                    _lcmEntry,
+                    _lexboxLcmApi),
+                _lcmEntry.ComplexFormEntries.Count()
             );
         set => throw new NotImplementedException();
     }
@@ -75,10 +79,10 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
     {
         get =>
             new UpdateListProxy<ComplexFormType>(
-                complexFormType => lexboxLcmApi.AddComplexFormType(lcmEntry, complexFormType.Id),
-                complexFormType => lexboxLcmApi.RemoveComplexFormType(lcmEntry, complexFormType.Id),
-                i => new UpdateComplexFormTypeProxy(lcmEntry.ComplexFormEntryRefs.Single().ComplexEntryTypesRS[i], lcmEntry, lexboxLcmApi),
-                lcmEntry.ComplexFormEntryRefs.SingleOrDefault()
+                complexFormType => _lexboxLcmApi.AddComplexFormType(_lcmEntry, complexFormType.Id),
+                complexFormType => _lexboxLcmApi.RemoveComplexFormType(_lcmEntry, complexFormType.Id),
+                i => new UpdateComplexFormTypeProxy(_lcmEntry.ComplexFormEntryRefs.Single().ComplexEntryTypesRS[i], _lcmEntry, _lexboxLcmApi),
+                _lcmEntry.ComplexFormEntryRefs.SingleOrDefault()
                     ?.ComplexEntryTypesRS.Count ?? 0
             );
         set => throw new NotImplementedException();
@@ -86,7 +90,7 @@ public class UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
 
     public override MultiString Note
     {
-        get => new UpdateMultiStringProxy(lcmEntry.Comment, lexboxLcmApi);
+        get => new UpdateMultiStringProxy(_lcmEntry.Comment, _lexboxLcmApi);
         set => throw new NotImplementedException();
     }
 }

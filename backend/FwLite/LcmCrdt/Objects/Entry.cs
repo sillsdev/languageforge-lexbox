@@ -22,6 +22,13 @@ public class Entry : MiniLcm.Models.Entry, IObjectBase<Entry>
 
     public DateTimeOffset? DeletedAt { get; set; }
 
+    //used to avoid a bug in linq2db where it doesn't recognize the association due it this property being defined in the base class
+    public override IList<MiniLcm.Models.Sense> Senses
+    {
+        get => base.Senses;
+        set => base.Senses = value;
+    }
+
     [ExpressionMethod(nameof(HeadwordExpression))]
     public string Headword(WritingSystemId ws)
     {
