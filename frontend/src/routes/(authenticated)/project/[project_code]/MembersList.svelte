@@ -27,6 +27,7 @@
   export let canManageMember: (member: Member) => boolean;
   export let canManageList: boolean;
   export let projectId: string;
+  export let canViewMembers: boolean;
 
   const dispatch = createEventDispatcher<{
     openUserModal: Member;
@@ -77,8 +78,17 @@
 </script>
 
 <div>
-  <p class="text-2xl mb-4 flex items-baseline gap-4 max-sm:flex-col">
-    {$t('project_page.members.title')}
+  <div class="text-2xl mb-4 flex items-baseline gap-4 max-sm:flex-col">
+    <h2>
+      {$t('project_page.members.title')}
+      {#if !canViewMembers}
+        <span
+          class="tooltip tooltip-warning text-warning shrink-0 leading-0"
+          data-tip={$t('project_page.members.membership_confidentail')}>
+          <Icon icon="i-mdi-shield-lock-outline" size="text-xl" />
+        </span>
+      {/if}
+    </h2>
     {#if members?.length > TRUNCATED_MEMBER_COUNT}
       <div class="form-control max-w-full w-96">
         <PlainInput
@@ -86,7 +96,7 @@
           bind:value={memberSearch} />
       </div>
     {/if}
-  </p>
+  </div>
 
   <BadgeList grid={showMembers.length > TRUNCATED_MEMBER_COUNT}>
 

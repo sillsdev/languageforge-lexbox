@@ -14,9 +14,9 @@ namespace LocalWebApp;
 
 public static class LocalWebAppServer
 {
-    public static WebApplication SetupAppServer(string[] args, Action<WebApplicationBuilder>? configure = null)
+    public static WebApplication SetupAppServer(WebApplicationOptions options, Action<WebApplicationBuilder>? configure = null)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(options);
         if (!builder.Environment.IsDevelopment())
             builder.WebHost.UseUrls("http://127.0.0.1:0");
         if (builder.Environment.IsDevelopment())
@@ -28,13 +28,13 @@ public static class LocalWebAppServer
         builder.ConfigureDev<AuthConfig>(config =>
             config.LexboxServers = [
                 new (new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev"),
-                new (new("https://localhost:3000"), "Lexbox Local")
+                new (new("https://localhost:3000"), "Lexbox Local"),
+                new (new("https://staging.languagedepot.org"), "Lexbox Staging")
             ]);
-//for now prod builds will also use lt dev until we deploy oauth to prod
         builder.ConfigureProd<AuthConfig>(config =>
-            config.LexboxServers = [new(new("https://lexbox.dev.languagetechnology.org"), "Lexbox Dev")]);
+            config.LexboxServers = [new(new("https://staging.languagedepot.org"), "Lexbox Staging")]);
         builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
-
+        builder.Logging.AddDebug();
         builder.Services.AddLocalAppServices(builder.Environment);
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();

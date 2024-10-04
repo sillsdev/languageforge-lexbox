@@ -58,7 +58,7 @@
     } else if (_env.includes('stag')) {
       return 'staging';
     } else if (_env.includes('develop')) {
-      return 'develop';
+      return location.hostname === 'localhost' ? 'test' : 'develop';
     } else {
       return 'test';
     }

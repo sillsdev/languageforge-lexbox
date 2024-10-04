@@ -72,7 +72,7 @@
       rounded
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
-    <div class="hidden md:contents">
+    <div class="hidden lg:contents">
       <Button icon={expand ? mdiArrowExpandLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded

@@ -11,37 +11,20 @@
   import {Button, Card, type ColumnDef, Table, TextField, tableCell, Icon, ProgressCircle} from 'svelte-ux';
   import flexLogo from './lib/assets/flex-logo.png';
   import DevContent, {isDev} from './lib/layout/DevContent.svelte';
+  import {useProjectsService, type Project, type ServerStatus} from './lib/services/projects-service';
+  import {onMount} from 'svelte';
 
-  type Project = {
-    name: string;
-    crdt: boolean;
-    fwdata: boolean;
-    lexbox: boolean,
-    server: string | null,
-    id: string | null
-  };
+  const projectsService = useProjectsService();
 
   let newProjectName = '';
 
   let createError: string;
 
   async function createProject() {
-    createError = '';
 
-    if (!newProjectName) {
-      createError = 'Project name is required.';
-      return;
-    }
-    const response = await fetch(`/api/project?name=${newProjectName}`, {
-      method: 'POST',
-    });
-
-    if (!response.ok) {
-      createError = await response.json();
-      return;
-    }
-
-    createError = '';
+    const response = await projectsService.createProject(newProjectName);
+    createError = response.error ?? '';
+    if (createError) return;
     newProjectName = '';
     void refreshProjects();
   }
@@ -51,9 +34,7 @@
 
   async function importFwDataProject(name: string) {
     importing = name;
-    await fetch(`/api/import/fwdata/${name}`, {
-      method: 'POST',
-    });
+    await projectsService.importFwDataProject(name);
     await refreshProjects();
     importing = '';
   }
@@ -62,32 +43,17 @@
 
   async function downloadCrdtProject(project: Project) {
     downloading = project.name;
-    await fetch(`/api/download/crdt/${project.server}/${project.name}`, {method: 'POST'});
+    await projectsService.downloadCrdtProject(project);
     await refreshProjects();
     downloading = '';
   }
 
-  let uploading = '';
-
-  async function uploadCrdtProject(project: Project) {
-    uploading = project.name;
-    await fetch(`/api/upload/crdt/${project.server}/${project.name}`, {method: 'POST'});
-    await refreshProjects();
-    uploading = '';
-  }
-
-  let projectsPromise = fetchProjects();
+  let projectsPromise = projectsService.fetchProjects().then(p => projects = p);
   let projects: Project[] = [];
 
-  async function fetchProjects() {
-    let r = await fetch('/api/localProjects');
-    projects = (await r.json()) as Project[];
-    return projects;
-  }
-
   async function refreshProjects() {
-    let promise = fetchProjects();
-    await promise;//avoids clearing out the list until the new list is fetched
+    let promise = projectsService.fetchProjects();
+    projects = await promise;//avoids clearing out the list until the new list is fetched
     projectsPromise = promise;
   }
 
@@ -95,21 +61,14 @@
   let loadingRemoteProjects = false;
   async function fetchRemoteProjects() {
     loadingRemoteProjects = true;
-    let r = await fetch('/api/remoteProjects');
-    remoteProjects = (await r.json()) as { [server: string]: Project[] };
+    remoteProjects = await projectsService.fetchRemoteProjects();
     loadingRemoteProjects = false;
   }
   fetchRemoteProjects();
 
-  type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null };
+
   let servers: ServerStatus[] = [];
-
-  async function fetchServers() {
-    let r = await fetch('/api/auth/servers');
-    servers = await r.json();
-  }
-
-  fetchServers();
+  onMount(async () => servers = await projectsService.fetchServers());
 
   $: columns = [
     {
@@ -141,18 +100,28 @@
   function matchesProject(projects: Project[], project: Project) {
     let matches: Project | undefined = undefined;
     if (project.id) {
-      matches = projects.find(p => p.id == project.id);
+      matches = projects.find(p => p.id == project.id && p.serverAuthority == project.serverAuthority);
     }
     //for now the local project list does not include the id, so fallback to the name
     if (!matches) {
-      matches = projects.find(p => p.name === project.name);
+      matches = projects.find(p => p.name === project.name && p.serverAuthority == project.serverAuthority);
     }
     return matches;
   }
 
-  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project): string | null {
-    return Object.entries(serversProjects)
-      .find(([server, projects]) => matchesProject(projects, project))?.[0] ?? null;
+  function syncedServer(serversProjects: { [server: string]: Project[] }, project: Project): ServerStatus | undefined {
+    //this may be null, even if the project is synced, when the project info isn't cached on the server yet.
+    if (project.serverAuthority) {
+      return servers.find(s => s.authority == project.serverAuthority) ?? {
+        displayName: 'Unknown server ' + project.serverAuthority,
+        loggedIn: false,
+        loggedInAs: null,
+        authority: project.serverAuthority
+      };
+    }
+    let authority =  Object.entries(serversProjects)
+      .find(([server, projects]) => matchesProject(projects, project))?.[0];
+    return authority ? servers.find(s => s.authority == authority) : undefined;
   }
 </script>
 
@@ -184,43 +153,43 @@
                    data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))}
                    classes={{ th: 'p-4' }}>
               <tbody slot="data" let:columns let:data let:getCellValue let:getCellContent>
-              {#each data ?? [] as rowData, rowIndex}
+              {#each data ?? [] as project, rowIndex}
                 <tr class="tabular-nums">
                   {#each columns as column (column.name)}
-                    <td use:tableCell={{ column, rowData, rowIndex, tableData: data }} use:links>
+                    <td use:tableCell={{ column, rowData:project, rowIndex, tableData: data }} use:links>
                       {#if column.name === 'fwdata'}
-                        {#if rowData.fwdata}
-                          <Button size="md" href={`/fwdata/${rowData.name}`}>
+                        {#if project.fwdata}
+                          <Button size="md" href={`/fwdata/${project.name}`}>
                             <img src={flexLogo} alt="FieldWorks logo" class="h-6"/>
                             Open
                           </Button>
                         {/if}
                       {:else if column.name === 'lexbox'}
-                        {@const server = syncedServer(remoteProjects, rowData)}
-                        {#if rowData.crdt && server}
-                          <Button disabled color="success" icon={mdiBookSyncOutline} size="md">{server}</Button>
+                        {@const server = syncedServer(remoteProjects, project)}
+                        {#if project.crdt && server}
+                          <Button disabled color="success" icon={mdiBookSyncOutline} size="md">{server.displayName}</Button>
                         {/if}
                       {:else if column.name === 'crdt'}
-                        {#if rowData.crdt}
+                        {#if project.crdt}
                           <Button
                             icon={mdiBookEditOutline}
                             size="md"
-                            href={`/project/${rowData.name}`}
+                            href={`/project/${project.name}`}
                           >
                             Open
                           </Button>
-                        {:else if rowData.fwdata}
+                        {:else if project.fwdata}
                           <Button
                             size="md"
-                            loading={importing === rowData.name}
+                            loading={importing === project.name}
                             icon={mdiBookArrowLeftOutline}
-                            on:click={() => importFwDataProject(rowData.name)}
+                            on:click={() => importFwDataProject(project.name)}
                           >
                             Import
                           </Button>
                         {/if}
                       {:else}
-                        {getCellContent(column, rowData, rowIndex)}
+                        {getCellContent(column, project, rowIndex)}
                       {/if}
                     </td>
                   {/each}
@@ -259,17 +228,18 @@
                   <p class="m-1 px-1 text-sm border rounded-full">{server.loggedInAs}</p>
                 {/if}
                 {#if server.loggedIn}
-                  <Button slot="actions" variant="fill" href="/api/auth/logout/{server.displayName}">Logout</Button>
+                  <Button variant="fill" href="/api/auth/logout/{server.authority}">Logout</Button>
                 {:else}
-                  <Button slot="actions" variant="fill" href="/api/auth/login/{server.displayName}">Login</Button>
+                  <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
                 {/if}
               </div>
-              {@const serverProjects = remoteProjects[server.displayName] ?? []}
+              {@const serverProjects = remoteProjects[server.authority] ?? []}
               {#each serverProjects as project}
+                {@const localProject = matchesProject(projects, project)}
                 <div class="flex flex-row items-center px-10">
                   <p>{project.name}</p>
                   <div class="flex-grow"></div>
-                  {#if matchesProject(projects, project)?.crdt}
+                  {#if localProject?.crdt}
                     <Button disabled color="success" icon={mdiBookSyncOutline} size="md">Synced</Button>
                   {:else}
                     <Button

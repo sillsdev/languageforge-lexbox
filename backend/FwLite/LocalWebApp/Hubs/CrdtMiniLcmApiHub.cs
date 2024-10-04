@@ -1,6 +1,7 @@
 ﻿using LcmCrdt;
+using LcmCrdt.Data;
 using LocalWebApp.Services;
-using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
@@ -13,18 +14,63 @@ public class CrdtMiniLcmApiHub(
     SyncService syncService,
     ChangeEventBus changeEventBus,
     CurrentProjectService projectContext,
-    LexboxProjectService lexboxProjectService) : MiniLcmApiHubBase(miniLcmApi)
+    LexboxProjectService lexboxProjectService,
+    IMemoryCache memoryCache) : MiniLcmApiHubBase(miniLcmApi)
 {
     public const string ProjectRouteKey = "project";
     public static string ProjectGroup(string projectName) => "crdt-" + projectName;
+    private IDisposable[] Cleanup
+    {
+        get => Context.Items["cleanup"] as IDisposable[] ?? [];
+        set => Context.Items["cleanup"] = value;
+    }
 
     public override async Task OnConnectedAsync()
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, ProjectGroup(projectContext.Project.Name));
         await syncService.ExecuteSync();
-        changeEventBus.SetupGlobalSignalRSubscription();
+        Cleanup =
+        [
+            changeEventBus.ListenForEntryChanges(projectContext.Project.Name, Context.ConnectionId)
+        ];
 
         await lexboxProjectService.ListenForProjectChanges(projectContext.ProjectData, Context.ConnectionAborted);
+    }
+
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        await base.OnDisconnectedAsync(exception);
+        foreach (var disposable in Cleanup)
+        {
+            disposable.Dispose();
+        }
+        memoryCache.Remove($"CurrentFilter|HubConnectionId={Context.ConnectionId}");
+    }
+
+    private Func<LcmCrdt.Objects.Entry, bool> CurrentFilter
+    {
+        set => memoryCache.Set($"CurrentFilter|HubConnectionId={Context.ConnectionId}", value);
+    }
+
+    public static Func<LcmCrdt.Objects.Entry, bool> CurrentProjectFilter(IMemoryCache memoryCache, string connectionId)
+    {
+        return memoryCache.Get<Func<LcmCrdt.Objects.Entry, bool>>(
+            $"CurrentFilter|HubConnectionId={connectionId}") ?? (_ => true);
+    }
+
+    public override IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
+    {
+        CurrentFilter =
+            Filtering.CompiledFilter(null, options?.Exemplar?.WritingSystem ?? "default", options?.Exemplar?.Value);
+        return base.GetEntries(options);
+    }
+
+    public override IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
+    {
+        CurrentFilter = Filtering.CompiledFilter(query,
+            options?.Exemplar?.WritingSystem ?? "default",
+            options?.Exemplar?.Value);
+        return base.SearchEntries(query, options);
     }
 
     public override async Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)

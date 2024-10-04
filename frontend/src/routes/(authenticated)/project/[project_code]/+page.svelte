@@ -105,6 +105,11 @@
     loadingLanguageList = false;
   }
 
+  // Mirrors PermissionService.CanViewProjectMembers() in C#
+  $: canViewProjectMembers = user.isAdmin
+    || user.orgs.find((o) => project.organizations?.find((org) => org.id === o.orgId))?.role === OrgRole.Admin
+    || project?.users?.find((u) => u.user.id == user.id)?.role == ProjectRole.Manager;
+
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
     await resetProjectModal.open(project.code, project.resetStatus);
@@ -164,13 +169,24 @@
   let deleteProjectModal: ConfirmDeleteModal;
 
   async function softDeleteProject(): Promise<void> {
-    const result = await deleteProjectModal.open(project.name, async () => {
-      const { error } = await _deleteProject(project.id);
-      return error?.message;
-    });
-    if (result.response === DialogResponse.Submit) {
-      notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
-      await goto(data.home);
+    projectStore.pause();
+    changesetStore.pause();
+    let deleted = false;
+    try {
+      const result = await deleteProjectModal.open(project.name, async () => {
+        const { error } = await _deleteProject(project.id);
+        return error?.message;
+      });
+      if (result.response === DialogResponse.Submit) {
+        deleted = true;
+        notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
+        await goto(data.home);
+      }
+    } finally {
+      if (!deleted) {
+        projectStore.resume();
+        changesetStore.resume();
+      }
     }
   }
 
@@ -444,6 +460,7 @@
           {members}
           canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
           canManageList={canManage}
+          canViewMembers={canViewProjectMembers}
           on:openUserModal={(event) => userModal.open(event.detail.user)}
           on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
           >

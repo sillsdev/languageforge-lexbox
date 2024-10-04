@@ -35,7 +35,7 @@
         <td>
           <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
             <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', user)}>
-              <span class="max-width-full overflow-x-clip text-ellipsis" title={user.name}>
+              <span class="x-ellipsis" title={user.name}>
                 {user.name}
               </span>
               <Icon icon="i-mdi-card-account-details-outline" />
@@ -66,7 +66,7 @@
         <td>
           <span class="inline-flex items-center gap-2 text-left max-w-40">
             {#if user.email}
-              <span class="max-width-full overflow-hidden text-ellipsis" title={user.email}>
+              <span class="x-ellipsis" title={user.email}>
                 {user.email}
               </span>
               {#if !user.emailVerified}
