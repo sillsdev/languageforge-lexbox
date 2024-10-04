@@ -22,10 +22,9 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
         <SelfContained>true</SelfContained>
-        <Platform Condition="$([MSBuild]::IsOSPlatform('windows'))">x64</Platform>
 
 		<!-- controls display name in Package.appxmanifest -->
-		<ApplicationTitle>FW Lite (nightly)</ApplicationTitle>
+		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
 
 		<!-- App Identifier -->
 		<ApplicationId>com.sil.fwlitedesktop</ApplicationId>
