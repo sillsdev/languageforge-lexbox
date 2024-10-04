@@ -21,7 +21,7 @@ export interface TempProject {
   name: string
 }
 
-type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id: UUID}}}}
+export type CreateProjectResponse = {data: {createProject: {createProjectResponse: {id: UUID}}}}
 
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,

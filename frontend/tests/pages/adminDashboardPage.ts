@@ -1,5 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
+
 import { AuthenticatedBasePage } from './authenticatedBasePage';
+import { CreateProjectPage } from './createProjectPage';
 import { ProjectPage } from './projectPage';
 
 export class AdminDashboardPage extends AuthenticatedBasePage {
@@ -18,5 +20,10 @@ export class AdminDashboardPage extends AuthenticatedBasePage {
     await this.projectFilterBarInput.fill(projectName); // make sure project is visible
     const table = this.page.locator('table').nth(0);
     return table.getByRole('link', {name: projectName, exact: true}).click();
+  }
+
+  async clickCreateProject(): Promise<CreateProjectPage> {
+    await this.page.getByRole('link', {name: 'Create Project', exact: true}).click();
+    return new CreateProjectPage(this.page).waitFor();
   }
 }
