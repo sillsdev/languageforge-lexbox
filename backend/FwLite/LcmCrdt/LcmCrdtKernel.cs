@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Linq.Expressions;
+using System.Text.Json;
 using SIL.Harmony;
 using SIL.Harmony.Core;
 using SIL.Harmony.Changes;
@@ -54,6 +55,11 @@ public static class LcmCrdtKernel
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
                     .Entity<Entry>().Property(e => e.Id)
+                    .Property(e => e.Senses)
+                    .HasAttribute(new ExpressionMethodAttribute(SensesExpression())).IsNotColumn()
+                    .Entity<Sense>()
+                    .Property(s => s.ExampleSentences)
+                    .HasAttribute(new ExpressionMethodAttribute(ExampleSentencesExpression())).IsNotColumn()
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -62,6 +68,15 @@ public static class LcmCrdtKernel
                 if (loggerFactory is not null)
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
             });
+    }
+
+    private static Expression<Func<Entry, IDataContext, IEnumerable<MiniLcm.Models.Sense>>> SensesExpression()
+    {
+        return (entry, context) => context.GetTable<Sense>().Where(s => s.EntryId == entry.Id);
+    }
+    private static Expression<Func<Sense, IDataContext, IEnumerable<MiniLcm.Models.ExampleSentence>>> ExampleSentencesExpression()
+    {
+        return (sense, context) => context.GetTable<ExampleSentence>().Where(e => e.SenseId == sense.Id);
     }
 
     public static void ConfigureCrdt(CrdtConfig config)
