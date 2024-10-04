@@ -1,4 +1,5 @@
 @import './lib/entry-editor/field.postcss';
+@import './lib/entry-editor/EntryOrSensePicker.postcss';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -94,61 +95,4 @@
 .ListItem > * {
   max-width: 100%;
   overflow: hidden;
-}
-
-/* These styles belong in EntryOrSensePicker.svelte, but the mixture of global and feature like :dark and :is, are buggy if they're there 😞 */
-.entry-sense-picker {
-  .Collapse {
-    @apply border-2 !border-t-2 border-surface-100 rounded overflow-hidden elevation-0 m-0 transition-none;
-
-    &:hover {
-      @apply border-surface-300;
-
-      button:hover {
-        @apply bg-surface-300;
-        & * {
-          @apply bg-transparent;
-        }
-      }
-    }
-
-    &[aria-expanded="true"] {
-      @apply border-surface-200;
-    }
-
-    .CollapseContent .ListItem {
-      @apply !rounded-none;
-    }
-
-    /* Selected entry */
-    &.selected.entry-list-item:is(:not(.disabled-list-item), :has(.selected)) {
-      @apply border-accent-500;
-
-      /* Selected sense or entry if no sense is selected */
-      .selected.sense-list-item, &.entry-list-item:not(.disabled-list-item):not(:has(.selected)) button {
-        @apply bg-accent-100;
-        @apply dark:bg-accent-900;
-
-        & > * {
-          @apply bg-transparent;
-        }
-      }
-    }
-  }
-
-  .disabled-list-item {
-    &.entry-list-item [slot="trigger"] {
-      @apply brightness-50 bg-surface-100;
-    }
-
-    &.sense-list-item {
-      @apply brightness-50 pointer-events-none;
-    }
-  }
-
-  .disable-expand {
-    .CollapseIcon, .CollapseContent {
-      display: none;
-    }
-  }
 }
