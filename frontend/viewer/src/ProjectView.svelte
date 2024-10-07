@@ -257,9 +257,11 @@
     <div class="flex-grow-0 flex-shrink-0 lg:hidden mx-2 sm:mr-0" class:invisible={!pickedEntry}>
       <Button icon={mdiArrowLeft} size="sm" iconOnly rounded variant="outline" on:click={() => pickedEntry = false} />
     </div>
-    <div class="inline-flex flex-grow-0 basis-60 max-sm:hidden mx-2">
-      <SaveStatus />
-    </div>
+    {#if $features.write}
+      <div class="inline-flex flex-grow-0 basis-60 max-sm:hidden mx-2">
+        <SaveStatus />
+      </div>
+    {/if}
 
     <div class="max-sm:hidden sm:flex-grow"></div>
     <div class="flex-grow-[2] mx-2">
