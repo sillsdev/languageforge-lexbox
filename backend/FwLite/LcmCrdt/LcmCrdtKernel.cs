@@ -54,10 +54,8 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                     .Entity<Entry>()
-                    .Property(e => e.Senses)
-                    //tells linq2db how to translate `e.Senses` into a join when it sees it
-                    .HasAttribute(new AssociationAttribute(){ QueryExpression = SensesExpression() })
+                    .Entity<Entry>().Property(e => e.Id)
+                    .Association(e => (e.Senses as IEnumerable<Sense>)!, e => e.Id, s => s.EntryId)
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -68,21 +66,13 @@ public static class LcmCrdtKernel
             });
     }
 
-    private static Expression<Func<Entry, IDataContext, IQueryable<MiniLcm.Models.Sense>>> SensesExpression()
-    {
-        return (entry, context) => context.GetTable<Sense>().Where(s => s.EntryId == entry.Id).Cast<MiniLcm.Models.Sense>();
-    }
-    private static Expression<Func<Sense, IDataContext, IQueryable<MiniLcm.Models.ExampleSentence>>> ExampleSentencesExpression()
-    {
-        return (sense, context) => context.GetTable<ExampleSentence>().Where(e => e.SenseId == sense.Id).Cast<MiniLcm.Models.ExampleSentence>();
-    }
-
     public static void ConfigureCrdt(CrdtConfig config)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
             .Add<Entry>(builder =>
             {
+                builder.Ignore(e => e.Senses);
                 builder.HasMany(e => e.Components)
                         .WithOne()
                         .HasPrincipalKey(entry => entry.Id)

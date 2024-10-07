@@ -2,7 +2,7 @@
 
 public class Entry : IObjectWithId
 {
-    public virtual Guid Id { get; set; }
+    public Guid Id { get; set; }
 
     public virtual MultiString LexemeForm { get; set; } = new();
 

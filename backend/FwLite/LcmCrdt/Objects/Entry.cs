@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using LcmCrdt.Changes;
 using LcmCrdt.Changes.Entries;
 using LcmCrdt.Utils;
@@ -22,12 +23,21 @@ public class Entry : MiniLcm.Models.Entry, IObjectBase<Entry>
 
     public DateTimeOffset? DeletedAt { get; set; }
 
-    //used to avoid a bug in linq2db where it doesn't recognize the association due it this property being defined in the base class
-    public override IList<MiniLcm.Models.Sense> Senses
+    /// <summary>
+    /// This is a bit of a hack, we want to be able to reference senses when running a query, and they must be CrdtSenses
+    /// however we only want to store the senses in the entry as MiniLcmSenses, so we need to convert them back to CrdtSenses
+    /// Note, even though this is JsonIgnored, the Senses property in the base class is still serialized
+    /// </summary>
+    [JsonIgnore]
+    public new IReadOnlyList<Sense> Senses
     {
-        get => base.Senses;
-        set => base.Senses = value;
+        get
+        {
+            return [..base.Senses.Select(s => s as Sense ?? Sense.FromMiniLcm(s, Id))];
     }
+        set { base.Senses = [..value]; }
+    }
+
 
     [ExpressionMethod(nameof(HeadwordExpression))]
     public string Headword(WritingSystemId ws)
@@ -70,7 +80,7 @@ public class Entry : MiniLcm.Models.Entry, IObjectBase<Entry>
             CitationForm = CitationForm.Copy(),
             LiteralMeaning = LiteralMeaning.Copy(),
             Note = Note.Copy(),
-            Senses = [..Senses.Select(s => (s is Sense cs ? (Sense)cs.Copy() : s))],
+            Senses = [..Senses.Select(s => (Sense)s.Copy())],
             Components =
             [
                 ..Components.Select(c => (c is CrdtComplexFormComponent cc ? (ComplexFormComponent)cc.Copy() : c))
