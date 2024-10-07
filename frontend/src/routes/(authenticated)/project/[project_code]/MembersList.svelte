@@ -84,7 +84,7 @@
       {#if !canViewMembers}
         <span
           class="tooltip tooltip-warning text-warning shrink-0 leading-0"
-          data-tip={$t('project_page.members.membership_confidentail')}>
+          data-tip={$t('project_page.members.membership_confidential')}>
           <Icon icon="i-mdi-shield-lock-outline" size="text-xl" />
         </span>
       {/if}

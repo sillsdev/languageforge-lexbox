@@ -105,10 +105,16 @@
     loadingLanguageList = false;
   }
 
+  $: orgRoles = project.organizations
+    ?.map((o) => user.orgs?.find((org) => org.orgId === o.id)?.role)
+    .filter(r => !!r) ?? [];
+  $: projectRole = project?.users?.find((u) => u.user.id == user.id)?.role;
+
   // Mirrors PermissionService.CanViewProjectMembers() in C#
   $: canViewProjectMembers = user.isAdmin
-    || user.orgs.find((o) => project.organizations?.find((org) => org.id === o.orgId))?.role === OrgRole.Admin
-    || project?.users?.find((u) => u.user.id == user.id)?.role == ProjectRole.Manager;
+    || projectRole == ProjectRole.Manager
+    || projectRole == ProjectRole.Editor && !project.isConfidential
+    || orgRoles.some(role => role === OrgRole.Admin);
 
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
