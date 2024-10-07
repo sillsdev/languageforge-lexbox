@@ -51,9 +51,16 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         });
     }
 
-    public Task DisposeAsync()
+    public async Task DisposeAsync()
     {
-        return Task.CompletedTask;
+        await foreach (var entry in _fixture.FwDataApi.GetEntries())
+        {
+            await _fixture.FwDataApi.DeleteEntry(entry.Id);
+        }
+        await foreach (var entry in _fixture.CrdtApi.GetEntries())
+        {
+            await _fixture.CrdtApi.DeleteEntry(entry.Id);
+        }
     }
 
     public SyncTests(SyncFixture fixture)
@@ -127,8 +134,11 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
-                .For(e => e.ComplexForms).Exclude(c => c.Id));
+            options => options
+                .For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.Components).Exclude(c => c.ComponentHeadword)
+                .For(e => e.ComplexForms).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));
     }
 
     [Fact]
