@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
+using LcmCrdt.Objects;
 
 namespace LcmCrdt;
 
@@ -83,6 +84,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
     internal static async Task SeedSystemData(DataModel dataModel, Guid clientId)
     {
         await PartOfSpeech.PredefinedPartsOfSpeech(dataModel, clientId);
+        await SemanticDomain.PredefinedSemanticDomains(dataModel, clientId);
     }
 
     public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)
