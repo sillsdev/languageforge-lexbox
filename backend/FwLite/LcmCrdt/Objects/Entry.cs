@@ -92,8 +92,7 @@ public class Entry : MiniLcm.Models.Entry, IObjectBase<Entry>
             ComplexFormTypes =
             [
                 ..ComplexFormTypes.Select(cft => (cft is CrdtComplexFormType ct ? (ComplexFormType)ct.Copy() : cft))
-            ],
-            Variants = Variants
+            ]
         };
     }
 

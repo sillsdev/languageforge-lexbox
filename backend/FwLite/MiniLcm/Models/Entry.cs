@@ -22,7 +22,6 @@ public class Entry : IObjectWithId
     /// </summary>
     public virtual IList<ComplexFormComponent> ComplexForms { get; set; } = [];
     public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
-    public virtual Variants? Variants { get; set; }
 
     public bool MatchesQuery(string query) =>
         LexemeForm.SearchValue(query)

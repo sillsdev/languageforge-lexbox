@@ -286,8 +286,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             ComplexFormTypes = ToComplexFormType(entry),
             Components = ToComplexFormComponents(entry),
             //todo, this does not include complex forms which reference a sense
-            ComplexForms = [..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry))],
-            Variants = ToVariants(entry)
+            ComplexForms = [..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry))]
         };
     }
 
