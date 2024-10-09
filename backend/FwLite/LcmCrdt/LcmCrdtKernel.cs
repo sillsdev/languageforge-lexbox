@@ -49,8 +49,6 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    .Entity<Entry>().Property(e => e.Id)
-                    .Association(e => (e.Senses as IEnumerable<Sense>)!, e => e.Id, s => s.EntryId)
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -68,17 +66,11 @@ public static class LcmCrdtKernel
             .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
             {
-                builder.Ignore(e => e.Senses);
-                // builder.OwnsOne(e => e.Note, n => n.ToJson());
-                // builder.OwnsOne(e => e.LexemeForm, n => n.ToJson());
-                // builder.OwnsOne(e => e.CitationForm, n => n.ToJson());
-                // builder.OwnsOne(e => e.LiteralMeaning, n => n.ToJson());
             })
             .Add<Sense>(builder =>
             {
-                builder.Ignore(s => s.ExampleSentences);
                 builder.HasOne<Entry>()
-                    .WithMany()
+                    .WithMany(e => e.Senses)
                     .HasForeignKey(sense => sense.EntryId);
                 builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
@@ -88,7 +80,7 @@ public static class LcmCrdtKernel
             .Add<ExampleSentence>(builder =>
             {
                 builder.HasOne<Sense>()
-                    .WithMany()
+                    .WithMany(s => s.ExampleSentences)
                     .HasForeignKey(e => e.SenseId);
             })
             .Add<WritingSystem>(builder =>

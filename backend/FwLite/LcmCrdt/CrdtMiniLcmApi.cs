@@ -135,57 +135,25 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
-        queryable = queryable.OrderBy(e => e.Headword(sortWs.Value))
+        queryable = queryable
+            .LoadWith(e => e.Senses).ThenLoad(s => s.ExampleSentences).AsQueryable()
+            .OrderBy(e => e.Headword(sortWs.Value))
             // .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);
         var entries = await queryable.ToArrayAsyncLinqToDB();
-        await LoadSenses(entries);
+        // await LoadSenses(entries);
 
         return entries;
     }
 
-    private async Task LoadSenses(Entry[] entries)
-    {
-        var allSenses = (await Senses
-                .Where(s => entries.Select(e => e.Id).Contains(s.EntryId))
-                .ToArrayAsyncEF())
-            .ToLookup(s => s.EntryId)
-            .ToDictionary(g => g.Key, g => g.ToArray());
-        var allSenseIds = allSenses.Values.SelectMany(s => s, (_, sense) => sense.Id);
-        var allExampleSentences = (await ExampleSentences
-                .Where(e => allSenseIds.Contains(e.SenseId))
-                .ToArrayAsyncEF())
-            .ToLookup(s => s.SenseId)
-            .ToDictionary(g => g.Key, g => g.ToArray());
-        foreach (var entry in entries)
-        {
-            entry.Senses = allSenses.TryGetValue(entry.Id, out var senses) ? senses.ToArray() : [];
-            foreach (var sense in entry.Senses)
-            {
-                sense.ExampleSentences = allExampleSentences.TryGetValue(sense.Id, out var sentences)
-                    ? sentences.ToArray()
-                    : [];
-            }
-        }
-    }
-
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries.SingleOrDefaultAsync(e => e.Id == id);
-        if (entry is null) return null;
-        var senses = await Senses
-                .Where(s => s.EntryId == id).ToArrayAsyncLinqToDB();
-        var exampleSentences = (await ExampleSentences
-                .Where(e => senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncEF())
-            .ToLookup(e => e.SenseId)
-            .ToDictionary(g => g.Key, g => g.ToArray());
-        entry.Senses = senses;
-        foreach (var sense in senses)
-        {
-            sense.ExampleSentences = exampleSentences.TryGetValue(sense.Id, out var sentences) ? sentences.ToArray() : [];
-        }
-
+        var entry = await Entries
+            .LoadWith(e => e.Senses)
+            .ThenLoad(s => s.ExampleSentences)
+            .AsQueryable()
+            .SingleOrDefaultAsync(e => e.Id == id);
         return entry;
     }
 
@@ -262,7 +230,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     {
         sense.SemanticDomains = await SemanticDomains
             .Where(sd => sense.SemanticDomains.Select(s => s.Id).Contains(sd.Id))
-            .OfType<MiniLcm.Models.SemanticDomain>()
             .ToListAsync();
         if (sense.PartOfSpeechId is not null)
         {
