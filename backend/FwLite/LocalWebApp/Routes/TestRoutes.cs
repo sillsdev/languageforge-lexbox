@@ -21,16 +21,23 @@ public static class TestRoutes
             return operation;
         });
         group.MapGet("/entries",
-            (ILexboxApi api) =>
+            (IMiniLcmApi api) =>
             {
                 return api.GetEntries();
             });
-        group.MapPost("/set-entry-note", async (ILexboxApi api, ChangeEventBus eventBus, Guid entryId, string ws, string note) =>
+        group.MapPost("/set-entry-note", async (IMiniLcmApi api, ChangeEventBus eventBus, Guid entryId, string ws, string note) =>
         {
-            var entry = await api.UpdateEntry(entryId, api.CreateUpdateBuilder<MiniLcm.Entry>().Set(e => e.Note[ws], note).Build());
+            var entry = await api.UpdateEntry(entryId, new UpdateObjectInput<MiniLcm.Models.Entry>().Set(e => e.Note[ws], note));
             if (entry is Entry crdtEntry)
                 eventBus.NotifyEntryUpdated(crdtEntry);
         });
+        group.MapPost("/add-new-entry",
+            async (IMiniLcmApi api, ChangeEventBus eventBus, MiniLcm.Models.Entry entry) =>
+            {
+                var createdEntry = await api.CreateEntry(entry);
+                if (createdEntry is Entry crdtEntry)
+                    eventBus.NotifyEntryUpdated(crdtEntry);
+            });
         return group;
     }
 }

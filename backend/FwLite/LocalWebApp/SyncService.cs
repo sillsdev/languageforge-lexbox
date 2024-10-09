@@ -16,7 +16,7 @@ public class SyncService(
     AuthHelpersFactory factory,
     CurrentProjectService currentProjectService,
     ChangeEventBus changeEventBus,
-    ILexboxApi lexboxApi,
+    IMiniLcmApi lexboxApi,
     ILogger<SyncService> logger)
 {
     public async Task<SyncResults> ExecuteSync()

@@ -7,7 +7,10 @@ using LexBoxApi.Services.Email;
 using LexCore.Config;
 using LexCore.ServiceInterfaces;
 using LexSyncReverseProxy;
+using LfClassicData;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
+using Polly;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace LexBoxApi;
@@ -55,6 +58,11 @@ public static class LexBoxKernel
         services.AddHostedService<HgService>();
         services.AddTransient<HgWebHealthCheck>();
         services.AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>();
+        services.AddResiliencePipeline<string, IReadOnlyDictionary<string, bool>>(IsLanguageForgeProjectDataLoader.ResiliencePolicyName, (builder, context) =>
+        {
+            builder.ConfigureTelemetry(context.ServiceProvider.GetRequiredService<ILoggerFactory>());
+            IsLanguageForgeProjectDataLoader.ConfigureResiliencePipeline(builder, context.ServiceProvider.GetRequiredService<IOptions<LfClassicConfig>>().Value.IsLfProjectConnectionRetryTimeout);
+        });
         services.AddScoped<ILexProxyService, LexProxyService>();
         services.AddSingleton<ISendReceiveService, SendReceiveService>();
         services.AddSingleton<LexboxLinkGenerator>();

@@ -1,5 +1,5 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
-using MiniLcm;
+using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 

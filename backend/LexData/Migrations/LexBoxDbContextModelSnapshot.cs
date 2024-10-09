@@ -19,7 +19,7 @@ namespace LexData.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:CollationDefinition:case_insensitive", "und-u-ks-level2,und-u-ks-level2,icu,False")
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -465,40 +465,6 @@ namespace LexData.Migrations
                     b.HasIndex("SchedulerName", "JobName", "JobGroup");
 
                     b.ToTable("qrtz_triggers", "quartz");
-                });
-
-            modelBuilder.Entity("Crdt.Core.ServerCommit", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ClientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Metadata")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uuid");
-
-                    b.ComplexProperty<Dictionary<string, object>>("HybridDateTime", "Crdt.Core.ServerCommit.HybridDateTime#HybridDateTime", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<long>("Counter")
-                                .HasColumnType("bigint");
-
-                            b1.Property<DateTimeOffset>("DateTime")
-                                .HasColumnType("timestamp with time zone");
-                        });
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("CrdtCommits", (string)null);
                 });
 
             modelBuilder.Entity("LexCore.Entities.DraftProject", b =>
@@ -1053,6 +1019,40 @@ namespace LexData.Migrations
                     b.ToTable("OpenIddictTokens", (string)null);
                 });
 
+            modelBuilder.Entity("SIL.Harmony.Core.ServerCommit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Metadata")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.ComplexProperty<Dictionary<string, object>>("HybridDateTime", "SIL.Harmony.Core.ServerCommit.HybridDateTime#HybridDateTime", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<long>("Counter")
+                                .HasColumnType("bigint");
+
+                            b1.Property<DateTimeOffset>("DateTime")
+                                .HasColumnType("timestamp with time zone");
+                        });
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("CrdtCommits", (string)null);
+                });
+
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzBlobTrigger", b =>
                 {
                     b.HasOne("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzTrigger", "Trigger")
@@ -1106,48 +1106,6 @@ namespace LexData.Migrations
                         .IsRequired();
 
                     b.Navigation("JobDetail");
-                });
-
-            modelBuilder.Entity("Crdt.Core.ServerCommit", b =>
-                {
-                    b.HasOne("LexCore.Entities.FlexProjectMetadata", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.OwnsMany("Crdt.Core.ChangeEntity<Crdt.Core.ServerJsonChange>", "ChangeEntities", b1 =>
-                        {
-                            b1.Property<Guid>("ServerCommitId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Change")
-                                .HasColumnType("text");
-
-                            b1.Property<Guid>("CommitId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<Guid>("EntityId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<int>("Index")
-                                .HasColumnType("integer");
-
-                            b1.HasKey("ServerCommitId", "Id");
-
-                            b1.ToTable("CrdtCommits");
-
-                            b1.ToJson("ChangeEntities");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ServerCommitId");
-                        });
-
-                    b.Navigation("ChangeEntities");
                 });
 
             modelBuilder.Entity("LexCore.Entities.DraftProject", b =>
@@ -1340,6 +1298,48 @@ namespace LexData.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("Authorization");
+                });
+
+            modelBuilder.Entity("SIL.Harmony.Core.ServerCommit", b =>
+                {
+                    b.HasOne("LexCore.Entities.FlexProjectMetadata", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsMany("SIL.Harmony.Core.ChangeEntity<SIL.Harmony.Core.ServerJsonChange>", "ChangeEntities", b1 =>
+                        {
+                            b1.Property<Guid>("ServerCommitId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Change")
+                                .HasColumnType("text");
+
+                            b1.Property<Guid>("CommitId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("EntityId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<int>("Index")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("ServerCommitId", "Id");
+
+                            b1.ToTable("CrdtCommits");
+
+                            b1.ToJson("ChangeEntities");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServerCommitId");
+                        });
+
+                    b.Navigation("ChangeEntities");
                 });
 
             modelBuilder.Entity("AppAny.Quartz.EntityFrameworkCore.Migrations.QuartzJobDetail", b =>

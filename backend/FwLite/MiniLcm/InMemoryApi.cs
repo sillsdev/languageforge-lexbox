@@ -1,6 +1,8 @@
-﻿namespace MiniLcm;
+﻿using MiniLcm.Models;
 
-public class InMemoryApi : ILexboxApi
+namespace MiniLcm;
+
+public class InMemoryApi : IMiniLcmApi
 {
     private readonly List<Entry> _entries =
     [
@@ -238,11 +240,6 @@ public class InMemoryApi : ILexboxApi
         {
             yield return entry;
         }
-    }
-
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return new UpdateBuilder<T>();
     }
 
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)

@@ -4,6 +4,7 @@ using SIL.Harmony.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Options;
+using MiniLcm.Models;
 
 namespace LcmCrdt;
 
@@ -20,18 +21,18 @@ public class LcmCrdtDbContext(DbContextOptions<LcmCrdtDbContext> dbContextOption
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
-        builder.Properties<MiniLcm.MultiString>()
+        builder.Properties<MultiString>()
             .HaveColumnType("jsonb")
             .HaveConversion<MultiStringDbConverter>();
-        builder.Properties<MiniLcm.WritingSystemId>()
+        builder.Properties<WritingSystemId>()
             .HaveConversion<WritingSystemIdConverter>();
     }
 
-    private class MultiStringDbConverter() : ValueConverter<MiniLcm.MultiString, string>(
+    private class MultiStringDbConverter() : ValueConverter<MultiString, string>(
         mul => JsonSerializer.Serialize(mul, (JsonSerializerOptions?)null),
-        json => JsonSerializer.Deserialize<MiniLcm.MultiString>(json, (JsonSerializerOptions?)null) ?? new());
+        json => JsonSerializer.Deserialize<MultiString>(json, (JsonSerializerOptions?)null) ?? new());
 
-    private class WritingSystemIdConverter() : ValueConverter<MiniLcm.WritingSystemId, string>(
+    private class WritingSystemIdConverter() : ValueConverter<WritingSystemId, string>(
         id => id.Code,
-        code => new MiniLcm.WritingSystemId(code));
+        code => new WritingSystemId(code));
 }

@@ -1,22 +1,27 @@
 ﻿using SIL.Harmony;
 using SIL.Harmony.Db;
 using LcmCrdt.Utils;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
+using LcmCrdt.Objects;
 
 namespace LcmCrdt;
 
-public class ProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<ProjectsService> logger, IOptions<LcmCrdtConfig> config)
+public class ProjectsService(IServiceProvider provider, ProjectContext projectContext, ILogger<ProjectsService> logger, IOptions<LcmCrdtConfig> config, IMemoryCache memoryCache)
 {
     public Task<CrdtProject[]> ListProjects()
     {
         return Task.FromResult(Directory.EnumerateFiles(config.Value.ProjectPath, "*.sqlite").Select(file =>
         {
             var name = Path.GetFileNameWithoutExtension(file);
-            return new CrdtProject(name, file);
+            return new CrdtProject(name, file)
+            {
+                Data = CurrentProjectService.LookupProjectData(memoryCache, name)
+            };
         }).ToArray());
     }
 
@@ -79,6 +84,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
     internal static async Task SeedSystemData(DataModel dataModel, Guid clientId)
     {
         await PartOfSpeech.PredefinedPartsOfSpeech(dataModel, clientId);
+        await SemanticDomain.PredefinedSemanticDomains(dataModel, clientId);
     }
 
     public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)

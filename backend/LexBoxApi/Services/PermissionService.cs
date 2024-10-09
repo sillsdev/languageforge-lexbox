@@ -94,6 +94,16 @@ public class PermissionService(
         if (!await CanViewProject(projectCode)) throw new UnauthorizedAccessException();
     }
 
+    public async ValueTask<bool> CanViewProjectMembers(Guid projectId)
+    {
+        if (User is not null && User.Role == UserRole.admin) return true;
+        // Project managers can view members of their own projects, even confidential ones
+        if (await CanManageProject(projectId)) return true;
+        var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
+        // In this specific case (only), we assume public unless explicitly set to private
+        return !(isConfidential ?? false);
+    }
+
     public async ValueTask<bool> CanManageProject(Guid projectId)
     {
         if (User is null) return false;

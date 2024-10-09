@@ -18,5 +18,6 @@ dump.sql
 test-results/
 **/*.sqlite
 **/*.sqlite-*
+msal.json
 msal.cache
 artifacts/

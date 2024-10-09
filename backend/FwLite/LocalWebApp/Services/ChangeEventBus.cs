@@ -4,22 +4,29 @@ using LcmCrdt;
 using LcmCrdt.Objects;
 using LocalWebApp.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace LocalWebApp.Services;
 
-public class ChangeEventBus(ProjectContext projectContext, IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext, ILogger<ChangeEventBus> logger)
+public class ChangeEventBus(
+    ProjectContext projectContext,
+    IHubContext<CrdtMiniLcmApiHub, ILexboxHubClient> hubContext,
+    ILogger<ChangeEventBus> logger,
+    IMemoryCache cache)
     : IDisposable
 {
-    private IDisposable? _subscription;
+    public IDisposable ListenForEntryChanges(string projectName, string connectionId) =>
+        _entryUpdated
+            .Where(n => n.ProjectName == projectName)
+            .Subscribe(n => OnEntryChangedExternal(n.Entry, connectionId));
 
-    public void SetupGlobalSignalRSubscription()
+    private void OnEntryChangedExternal(Entry e, string connectionId)
     {
-        if (_subscription is not null) return;
-        _subscription = _entryUpdated.Subscribe(notification =>
+        var currentFilter = CrdtMiniLcmApiHub.CurrentProjectFilter(cache, connectionId);
+        if (currentFilter.Invoke(e))
         {
-            logger.LogInformation("Sending notification for {EntryId} to {ProjectName}", notification.Entry.Id, notification.ProjectName);
-            _ = hubContext.Clients.Group(CrdtMiniLcmApiHub.ProjectGroup(notification.ProjectName)).OnEntryUpdated(notification.Entry);
-        });
+            _ = hubContext.Clients.Client(connectionId).OnEntryUpdated(e);
+        }
     }
 
     private record struct ChangeNotification(Entry Entry, string ProjectName);
@@ -45,6 +52,7 @@ public class ChangeEventBus(ProjectContext projectContext, IHubContext<CrdtMiniL
 
     public void Dispose()
     {
-        _subscription?.Dispose();
+        _entryUpdated.OnCompleted();
+        _entryUpdated.Dispose();
     }
 }

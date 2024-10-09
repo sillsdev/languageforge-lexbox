@@ -2,6 +2,7 @@
 using LcmCrdt;
 using LocalWebApp.Auth;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NReco.Logging.File;
 
@@ -15,7 +16,11 @@ public static class FwLiteDesktopKernel
     {
         services.AddSingleton<MainPage>();
 
-        var serverManager = new ServerManager(webAppBuilder =>
+        string environment = "Production";
+#if DEBUG
+        environment = "Development";
+#endif
+        var serverManager = new ServerManager(environment, webAppBuilder =>
         {
             webAppBuilder.Logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "web-app.log"));
             webAppBuilder.Services.Configure<LcmCrdtConfig>(config =>
@@ -31,9 +36,11 @@ public static class FwLiteDesktopKernel
         //using a lambda here means that the serverManager will be disposed when the app is disposed
         services.AddSingleton<ServerManager>(_ => serverManager);
         services.AddSingleton<IMauiInitializeService>(_ => _.GetRequiredService<ServerManager>());
+        services.AddSingleton<IHostEnvironment>(_ => _.GetRequiredService<ServerManager>().WebServices.GetRequiredService<IHostEnvironment>());
         configuration.Add<ServerConfigSource>(source => source.ServerManager = serverManager);
         services.AddOptions<LocalWebAppConfig>().BindConfiguration("LocalWebApp");
         logging.AddFile(Path.Combine(FileSystem.AppDataDirectory, "app.log"));
+        logging.AddConsole();
 #if DEBUG
         logging.AddDebug();
 #endif
