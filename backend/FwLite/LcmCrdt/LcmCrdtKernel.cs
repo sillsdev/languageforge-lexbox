@@ -1,21 +1,17 @@
 ﻿using System.Text.Json;
 using SIL.Harmony;
 using SIL.Harmony.Core;
-using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.AspNet.Logging;
 using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using MiniLcm.Models;
-using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
-using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 
 namespace LcmCrdt;
 
@@ -31,7 +27,7 @@ public static class LcmCrdtKernel
         services.AddCrdtData<LcmCrdtDbContext>(
             ConfigureCrdt
         );
-        services.AddScoped<MiniLcm.IMiniLcmApi, CrdtMiniLcmApi>();
+        services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<CurrentProjectService>();
         services.AddSingleton<ProjectContext>();
         services.AddSingleton<ProjectsService>();
@@ -69,6 +65,7 @@ public static class LcmCrdtKernel
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
+            .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
             {
                 builder.Ignore(e => e.Senses);
@@ -86,7 +83,7 @@ public static class LcmCrdtKernel
                 builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<MiniLcm.Models.SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
+                        json => JsonSerializer.Deserialize<List<SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {

@@ -100,19 +100,23 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(FromLcmWritingSystem).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select(FromLcmWritingSystem).ToArray()
+            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(definition =>
+                FromLcmWritingSystem(definition, WritingSystemType.Vernacular)).ToArray(),
+            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select(definition =>
+                FromLcmWritingSystem(definition, WritingSystemType.Analysis)).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
     }
 
-    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws)
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, WritingSystemType type)
     {
         return new WritingSystem
         {
+            Id = Guid.Empty,
+            Type = type,
             //todo determine current and create a property for that.
-            Id = ws.Id,
+            WsId = ws.Id,
             Name = ws.LanguageTag,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
@@ -123,9 +127,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     internal void CompleteExemplars(WritingSystems writingSystems)
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
-            .DistinctBy(ws => ws.Id)
+            .DistinctBy(ws => ws.WsId)
             .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
-        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
+        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.WsId), kv => kv.Value);
 
         foreach (var entry in EntriesRepository.AllInstances())
         {
@@ -147,7 +151,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.Id.Code, out ws);
+                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
                 switch (type)
                 {
@@ -160,7 +164,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 }
             });
         if (ws is null) throw new InvalidOperationException("Writing system not found");
-        return Task.FromResult(FromLcmWritingSystem(ws));
+        return Task.FromResult(FromLcmWritingSystem(ws, type));
     }
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)

@@ -25,7 +25,9 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         {
             var writingSystem = new WritingSystem
             {
-                Id = ws,
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = ws,
                 Font = "???",
                 Name = inputSystem.LanguageName,
                 Abbreviation = inputSystem.Abbreviation
@@ -88,7 +90,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             {
                 yield break;
             }
-            sortWs = ws.Vernacular[0].Id;
+            sortWs = ws.Vernacular[0].WsId;
         }
 
         await foreach (var entry in Entries.AsQueryable()
@@ -115,30 +117,32 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             LexemeForm = ToMultiString(entry.Lexeme),
             Note = ToMultiString(entry.Note),
             LiteralMeaning = ToMultiString(entry.LiteralMeaning),
-            Senses = entry.Senses?.OfType<Entities.Sense>().Select(ToSense).ToList() ?? [],
+            Senses = entry.Senses?.OfType<Entities.Sense>().Select(sense => ToSense(entry.Guid,sense)).ToList() ?? [],
         };
     }
 
-    private static Sense ToSense(Entities.Sense sense)
+    private static Sense ToSense(Guid entryId, Entities.Sense sense)
     {
         return new Sense
         {
             Id = sense.Guid,
+            EntryId = entryId,
             Gloss = ToMultiString(sense.Gloss),
             Definition = ToMultiString(sense.Definition),
             PartOfSpeech = sense.PartOfSpeech?.Value ?? string.Empty,
             SemanticDomains = (sense.SemanticDomain?.Values ?? [])
                 .Select(sd => new SemanticDomain { Id = Guid.Empty, Code = sd, Name = new MultiString { { "en", sd } } })
                 .ToList(),
-            ExampleSentences = sense.Examples?.OfType<Example>().Select(ToExampleSentence).ToList() ?? [],
+            ExampleSentences = sense.Examples?.OfType<Example>().Select(example => ToExampleSentence(sense.Guid, example)).ToList() ?? [],
         };
     }
 
-    private static ExampleSentence ToExampleSentence(Example example)
+    private static ExampleSentence ToExampleSentence(Guid senseId, Example example)
     {
         return new ExampleSentence
         {
             Id = example.Guid,
+            SenseId = senseId,
             Reference = (example.Reference?.TryGetValue("en", out var value) == true) ? value.Value : string.Empty,
             Sentence = ToMultiString(example.Sentence),
             Translation = ToMultiString(example.Translation)

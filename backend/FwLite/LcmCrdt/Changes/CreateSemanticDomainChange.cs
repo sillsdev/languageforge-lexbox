@@ -1,9 +1,6 @@
-﻿using System.Text.Json.Serialization;
-using SIL.Harmony;
+﻿using SIL.Harmony;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
-using MiniLcm.Models;
-using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 
 namespace LcmCrdt.Changes;
 
@@ -15,8 +12,8 @@ public class CreateSemanticDomainChange(Guid entityId, MultiString name, string 
     public bool Predefined { get; } = predefined;
     public string Code { get; } = code;
 
-    public override async ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
+    public override ValueTask<SemanticDomain> NewEntity(Commit commit, ChangeContext context)
     {
-        return new SemanticDomain { Id = EntityId, Code = Code, Name = Name, Predefined = Predefined };
+        return ValueTask.FromResult(new SemanticDomain { Id = EntityId, Code = Code, Name = Name, Predefined = Predefined });
     }
 }

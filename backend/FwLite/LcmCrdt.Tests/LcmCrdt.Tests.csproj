@@ -32,6 +32,7 @@
     <ItemGroup>
         <Using Include="Xunit"/>
         <Using Include="FluentAssertions"/>
+        <Using Include="MiniLcm.Models"/>
         <Using Include="SIL.Harmony"/>
     </ItemGroup>
 

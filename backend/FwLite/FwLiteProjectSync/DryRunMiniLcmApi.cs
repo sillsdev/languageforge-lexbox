@@ -31,7 +31,7 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         {
             WritingSystemType.Vernacular => ws.Vernacular,
             WritingSystemType.Analysis => ws.Analysis
-        }).First(w => w.Id == id);
+        }).First(w => w.WsId == id);
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
