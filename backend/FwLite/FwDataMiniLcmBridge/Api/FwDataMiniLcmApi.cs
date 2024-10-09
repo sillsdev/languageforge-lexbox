@@ -255,6 +255,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         var s =  new Sense
         {
             Id = sense.Guid,
+            EntryId = sense.Entry.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
             PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
@@ -265,17 +266,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 Name = FromLcmMultiString(s.Name),
                 Code = s.OcmCodes
             }).ToList(),
-            ExampleSentences = sense.ExamplesOS.Select(FromLexExampleSentence).ToList()
+            ExampleSentences = sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence)).ToList()
         };
         return s;
     }
 
-    private ExampleSentence FromLexExampleSentence(ILexExampleSentence sentence)
+    private ExampleSentence FromLexExampleSentence(Guid senseGuid, ILexExampleSentence sentence)
     {
         var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
+            SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = sentence.Reference.Text,
             Translation = translation is null ? new MultiString() : FromLcmMultiString(translation),
@@ -517,7 +519,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
             () => CreateExampleSentence(lexSense, exampleSentence));
-        return Task.FromResult(FromLexExampleSentence(ExampleSentenceRepository.GetObject(exampleSentence.Id)));
+        return Task.FromResult(FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id)));
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -535,7 +537,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 var updateProxy = new UpdateExampleSentenceProxy(lexExampleSentence, this);
                 update.Apply(updateProxy);
             });
-        return Task.FromResult(FromLexExampleSentence(lexExampleSentence));
+        return Task.FromResult(FromLexExampleSentence(senseId, lexExampleSentence));
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

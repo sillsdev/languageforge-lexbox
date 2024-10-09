@@ -20,7 +20,7 @@ public class UpdateDiffTests
         var entryDiffToUpdate = CrdtFwdataProjectSyncService.EntryDiffToUpdate(previous, current);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(previous);
-        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.Senses));
+         previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.DeletedAt).Excluding(x => x.Senses));
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public class UpdateDiffTests
         var senseDiffToUpdate = await CrdtFwdataProjectSyncService.SenseDiffToUpdate(previous, current);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(previous);
-        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.ExampleSentences));
+        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences));
     }
 
     [Fact]
@@ -42,6 +42,6 @@ public class UpdateDiffTests
         var exampleSentenceDiffToUpdate = CrdtFwdataProjectSyncService.ExampleDiffToUpdate(previous, current);
         ArgumentNullException.ThrowIfNull(exampleSentenceDiffToUpdate);
         exampleSentenceDiffToUpdate.Apply(previous);
-        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id));
+        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.SenseId).Excluding(x => x.DeletedAt));
     }
 }
