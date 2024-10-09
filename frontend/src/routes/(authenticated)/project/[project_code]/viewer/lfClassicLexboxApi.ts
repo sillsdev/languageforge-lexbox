@@ -10,7 +10,25 @@ import {
   type PartOfSpeech,
   type SemanticDomain
 } from 'viewer/lexbox-api';
+import { semanticDomains_en } from './semantic-domains.en.generated-data';
 
+function prepareEntriesForUi(entries: IEntry[]): void {
+  entries.forEach(entry => {
+    entry.senses.forEach(sense => {
+      sense.semanticDomains.forEach(sd => {
+        sd.id = sd.code;
+      });
+      // @ts-expect-error
+      sense.partOfSpeechId = sense.partOfSpeech;
+    });
+  });
+}
+
+function preparePartsOfSpeedForUi(partsOfSpeech: PartOfSpeech[]): void {
+  partsOfSpeech.forEach(pos => {
+    pos.id = pos.name['__key'];
+  });
+}
 
 export class LfClassicLexboxApi implements LexboxApiClient {
   constructor(private projectCode: string) {
@@ -28,13 +46,17 @@ export class LfClassicLexboxApi implements LexboxApiClient {
   async GetEntries(_options: QueryOptions | undefined): Promise<IEntry[]> {
     //todo pass query options into query
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries${this.toQueryParams(_options)}`);
-    return (await result.json()) as IEntry[];
+    const entries = (await result.json()) as IEntry[];
+    prepareEntriesForUi(entries);
+    return entries;
   }
 
   async SearchEntries(_query: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
     //todo pass query options into query
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries/${encodeURIComponent(_query)}${this.toQueryParams(_options)}`);
-    return (await result.json()) as IEntry[];
+    const entries = (await result.json()) as IEntry[];
+    prepareEntriesForUi(entries);
+    return entries;
   }
 
   private toQueryParams(options: QueryOptions | undefined): string {
@@ -59,11 +81,13 @@ export class LfClassicLexboxApi implements LexboxApiClient {
 
   async GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/parts-of-speech`);
-    return (await result.json()) as PartOfSpeech[];
+    const partsOfSpeech = (await result.json()) as PartOfSpeech[];
+    preparePartsOfSpeedForUi(partsOfSpeech);
+    return partsOfSpeech;
   }
 
   GetSemanticDomains(): Promise<SemanticDomain[]> {
-    return Promise.resolve([]);
+    return Promise.resolve(semanticDomains_en);
   }
 
   CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {

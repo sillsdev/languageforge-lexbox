@@ -1,6 +1,10 @@
-﻿using LfClassicData.Entities;
+﻿using System.Text.RegularExpressions;
+using LfClassicData.Entities;
+using LfClassicData.Entities.MongoUtils;
+using Microsoft.Extensions.Caching.Memory;
 using MiniLcm;
 using MiniLcm.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
 using Entry = MiniLcm.Models.Entry;
@@ -8,7 +12,7 @@ using Sense = MiniLcm.Models.Sense;
 
 namespace LfClassicData;
 
-public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext) : IMiniLcmReadApi
+public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext, IMemoryCache memoryCache) : IMiniLcmReadApi
 {
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
 
@@ -46,6 +50,22 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         };
     }
 
+    public async Task<string?> PickDefaultVernacularWritingSystem()
+    {
+        var cacheKey = $"DefaultVernacular";
+        if (memoryCache.TryGetValue(cacheKey, out string? cachedWs)) return cachedWs!;
+
+        var fieldConfigs = await systemDbContext.Projects.AsQueryable()
+            .Where(p => p.ProjectCode == projectCode)
+            .Select(p => p.Config.Entry.Fields)
+            .FirstOrDefaultAsync();
+
+        var ws = fieldConfigs.CitationForm?.InputSystems.FirstOrDefault(ws => !ws.Contains("-audio"))
+            ?? fieldConfigs.Lexeme?.InputSystems.FirstOrDefault(ws => !ws.Contains("-audio"));
+        if (ws is not null or "") memoryCache.Set(cacheKey, ws, TimeSpan.FromHours(1));
+        return ws;
+    }
+
     public async IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
     {
         var optionListItems = await dbContext.GetOptionListItems(projectCode, "grammatical-info");
@@ -72,37 +92,99 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
     public IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null)
     {
-        return Query(options)
-            .Where(e => e.MatchesQuery(query));
+        return Query(options, query);
     }
 
-    private async IAsyncEnumerable<Entry> Query(QueryOptions? options = null)
+    private async IAsyncEnumerable<Entry> Query(QueryOptions? options = null, string? search = null)
     {
         options ??= QueryOptions.Default;
 
         var sortWs = options.Order.WritingSystem;
         if (sortWs == "default")
         {
-            var ws = await GetWritingSystems();
-            if (ws is { Vernacular: [], Analysis: [] })
-            {
-                yield break;
-            }
-            sortWs = ws.Vernacular[0].Id;
+            var defaultWs = await PickDefaultVernacularWritingSystem();
+            if (defaultWs is null) yield break;
+            sortWs = defaultWs;
+        }
+        else if (!Regex.IsMatch(sortWs, "^[\\d\\w-]+$"))
+        {
+            // We sort of inject this into our Mongo queries, so some validation seems reasonable
+            throw new ArgumentException($"Invalid writing system {sortWs}", "options.Order.WritingSystem");
         }
 
-        await foreach (var entry in Entries.AsQueryable()
-                           //todo, you can only sort by headword for now
-                           .Select(entry => new {entry, headword = entry.CitationForm![sortWs].Value ?? entry.Lexeme![sortWs].Value ?? string.Empty})
-                           .OrderBy(e => e.headword)
-                           .ThenBy(e => e.entry.MorphologyType)
-                           .ThenBy(e => e.entry.Guid) //todo should sort by homograph number
-                           .Skip(options.Offset)
-                           .Take(options.Count)
-                           .ToAsyncEnumerable()
-                           .Select(e => ToEntry(e.entry)))
+        PipelineDefinition<Entities.Entry, Entities.Entry> pipeline = new EmptyPipelineDefinition<Entities.Entry>();
+
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            yield return entry;
+            var searchLower = Regex.Escape(search.ToLower());
+            pipeline = pipeline
+                .AppendStage(new BsonDocumentPipelineStageDefinition<Entities.Entry, Entities.Entry>(
+                    new BsonDocument("$addFields", new BsonDocument
+                    {
+                        { "searchFields", new BsonDocument("$concatArrays", new BsonArray
+                            {
+                                new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$lexeme", new BsonDocument() })),
+                                new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$citationForm", new BsonDocument() })),
+                                new BsonDocument("$reduce", new BsonDocument
+                                {
+                                    { "input", new BsonDocument("$ifNull", new BsonArray { "$senses", new BsonDocument() })},
+                                    { "initialValue", new BsonArray() },
+                                    { "in", new BsonDocument("$concatArrays", new BsonArray
+                                        {
+                                            "$$value",
+                                            new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$$this.gloss", new BsonDocument() }))
+                                        })
+                                    }
+                                })
+                            })
+                        }
+                    })))
+                .AppendStage(new BsonDocumentPipelineStageDefinition<Entities.Entry, Entities.Entry>(
+                    new BsonDocument("$match",
+                        new BsonDocument("searchFields", new BsonDocument("$elemMatch", new BsonDocument("v.value", new BsonRegularExpression(searchLower, "i"))))
+                    )
+                ));
+        }
+
+        pipeline = pipeline.AppendStage(new BsonDocumentPipelineStageDefinition<Entities.Entry, HeadwordEntry>(
+            new BsonDocument("$addFields", new BsonDocument
+            {
+                { nameof(HeadwordEntry.headword).ToLower(), new BsonDocument("$cond", new BsonDocument
+                    {
+                        { "if", new BsonDocument("$and", new BsonArray
+                            {
+                                new BsonDocument("$ne", new BsonArray { new BsonDocument("$type", $"$citationForm.{sortWs}.value"), "missing" }),
+                                new BsonDocument("$ne", new BsonArray { $"$citationForm.{sortWs}.value", BsonNull.Value }),
+                                new BsonDocument("$ne", new BsonArray { new BsonDocument("$trim", new BsonDocument("input", $"$citationForm.{sortWs}.value")), "" }),
+                            })
+                        },
+                        { "then", $"$citationForm.{sortWs}.value" },
+                        { "else", new BsonDocument("$cond", new BsonDocument
+                            {
+                                { "if", new BsonDocument("$and", new BsonArray
+                                    {
+                                        new BsonDocument("$ne", new BsonArray { new BsonDocument("$type", $"$lexeme.{sortWs}.value"), "missing" }),
+                                        new BsonDocument("$ne", new BsonArray { $"$lexeme.{sortWs}.value", BsonNull.Value }),
+                                        new BsonDocument("$ne", new BsonArray { new BsonDocument("$trim", new BsonDocument("input", $"$lexeme.{sortWs}.value")), "" }),
+                                    })
+                                },
+                                { "then", $"$lexeme.{sortWs}.value" },
+                                { "else", "" }
+                            })
+                        }
+                    })
+                }
+            }))).Sort(Builders<HeadwordEntry>.Sort
+                .Ascending(entry => entry.headword)
+                .Ascending(entry => entry.MorphologyType)
+                .Ascending(entry => entry.Guid))
+            .Skip(options.Offset)
+            .Limit(options.Count)
+            .Project(entry => entry as Entities.Entry);
+
+        await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
+        {
+            yield return ToEntry(entry);
         }
     }
 
