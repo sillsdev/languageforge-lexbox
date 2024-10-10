@@ -35,10 +35,14 @@ jobs:
           submodules: true
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
       - uses: actions/setup-node@v4
         with:
           node-version-file: './frontend/package.json'
+
+      - name: Setup Maui
+        run: dotnet workload install maui-windows
+
       - name: Set Version
         id: setVersion
         shell: bash
@@ -47,6 +51,7 @@ jobs:
           shortSha=$(echo ${{ github.sha }} | cut -c1-8)
           echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
           echo "SEMVER_VERSION=$(date +%Y.%-m.%-d)" >> ${GITHUB_OUTPUT}
+
       - name: Dotnet build
         working-directory: backend/FwLite/FwLiteDesktop
         run: |
@@ -84,7 +89,7 @@ jobs:
           path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
@@ -121,7 +126,7 @@ jobs:
           path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       - name: Dotnet build
         working-directory: backend/FwLite/LocalWebApp
@@ -154,7 +159,7 @@ jobs:
           path: frontend/viewer/dist
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '9.x'
 
       - name: Setup Maui
         run: dotnet workload install maui-windows
