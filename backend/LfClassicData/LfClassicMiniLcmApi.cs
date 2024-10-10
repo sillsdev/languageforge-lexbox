@@ -52,7 +52,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
     public async Task<string?> PickDefaultVernacularWritingSystem()
     {
-        var cacheKey = $"DefaultVernacular";
+        var cacheKey = $"LfClassic|DefaultVernacular|{projectCode}";
         if (memoryCache.TryGetValue(cacheKey, out string? cachedWs)) return cachedWs!;
 
         var fieldConfigs = await systemDbContext.Projects.AsQueryable()
@@ -62,7 +62,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
         var ws = fieldConfigs.CitationForm?.InputSystems.FirstOrDefault(ws => !ws.Contains("-audio"))
             ?? fieldConfigs.Lexeme?.InputSystems.FirstOrDefault(ws => !ws.Contains("-audio"));
-        if (ws is not null or "") memoryCache.Set(cacheKey, ws, TimeSpan.FromHours(1));
+        if (!string.IsNullOrEmpty(ws)) memoryCache.Set(cacheKey, ws, TimeSpan.FromHours(1));
         return ws;
     }
 
