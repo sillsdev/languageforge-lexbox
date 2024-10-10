@@ -113,12 +113,16 @@ class OverlayTarget implements ActionReturn<OverlayParams> {
     if (!this.contentElem) throw new Error('Overlay target must have a child with class "overlay-content"');
     this.contentElem.remove();
 
-    this.useInputConfig = this.targetElem.matches('input') || !!this.targetElem.querySelector('input');
+    const inputElem = this.targetElem.matches('input') ? this.targetElem : this.targetElem.querySelector('input');
+    this.useInputConfig = !!inputElem;
 
     if (this.useInputConfig) {
       this.targetElem.addEventListener('focusin',
         () => !this.isActive() && this.openOverlay(),
-        {signal: this.abortController.signal});
+        { signal: this.abortController.signal });
+      inputElem?.addEventListener('input',
+        () => !this.isActive() && this.openOverlay(),
+        { signal: this.abortController.signal });
       this.targetElem.addEventListener('focusout',
         () => {
           // When clicking on an element in the content, the focus first goes to the body and only then to the element.
