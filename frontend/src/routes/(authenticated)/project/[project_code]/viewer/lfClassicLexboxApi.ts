@@ -11,6 +11,7 @@ import {
   type SemanticDomain
 } from 'viewer/lexbox-api';
 import { SEMANTIC_DOMAINS_EN } from './semantic-domains.en.generated-data';
+import { writable } from 'svelte/store';
 
 function prepareEntriesForUi(entries: IEntry[]): void {
   entries.forEach(entry => {
@@ -37,6 +38,7 @@ export class LfClassicLexboxApi implements LexboxApiClient {
   SupportedFeatures(): LexboxApiFeatures {
     return {
       feedback: true,
+      about: writable(aboutMarkdown),
     };
   }
 
@@ -145,3 +147,37 @@ export class LfClassicLexboxApi implements LexboxApiClient {
   }
 
 }
+
+const aboutMarkdown =
+`## What is this?
+
+This is a beta version of a new dictionary building tool that is currently under development.
+
+The data you see here reflects the current data in the corresponding [Language Forge](https://languageforge.org/) project.
+
+This read-only version of the new dictionary tool is primarily for gathering early feedback on its look and feel. So, please use the [Feedback](/api/feedback) button in the top right corner of the page.
+
+## It can edit FieldWorks projects!
+
+It's true! There's already another version of the tool that you can use today to open and edit your data in FieldWorks.
+It's also loaded with additional features! We're calling it [FieldWorks Lite](https://lexbox.org/fw-lite).
+So, please download and try out the alpha version of [FieldWorks Lite](https://lexbox.org/fw-lite) as well.
+
+## Should I be excited?
+
+Yes! FieldWorks Lite will be revolutionary in multiple ways. It will be:
+
+- Cross-platform: it will work on Windows, Linux, Mac and eventually mobile
+- Usable offline: you won't need an internet connection
+- Collaborative: you will see any changes other users make as they work
+- Faster than you're used to - we're quite confident about that 😀
+
+Eventually, FieldWorks Lite will replace both [WeSay](https://software.sil.org/wesay/) and [Language Forge](https://languageforge.org/).
+
+So, please send us your [feedback](/api/feedback). We want this tool to serve you as well as possible.
+
+## FieldWorks Lite is not
+
+- A replacement for [FieldWorks](https://software.sil.org/fieldworks/)
+- A replacement for [Dictionary App Builder](https://software.sil.org/dictionaryappbuilder/)
+- A replacement for [Webonary](https://www.webonary.org/)`;

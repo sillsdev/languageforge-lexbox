@@ -36,6 +36,7 @@
   import {views} from './lib/entry-editor/view-data';
   import {initWritingSystems} from './lib/writing-systems';
   import {useEventBus} from './lib/services/event-bus';
+  import AboutDialog from './lib/about/AboutDialog.svelte';
 
   export let loading = false;
 
@@ -285,6 +286,9 @@
       </Button>
       {#if $features.history}
         <ActivityView {projectName}/>
+      {/if}
+      {#if $features.about}
+        <AboutDialog text={$features.about} />
       {/if}
       {#if $features.feedback}
         <Button
