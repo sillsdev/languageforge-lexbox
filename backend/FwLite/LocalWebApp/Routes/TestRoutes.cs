@@ -2,7 +2,7 @@
 using LocalWebApp.Services;
 using Microsoft.OpenApi.Models;
 using MiniLcm;
-using Entry = LcmCrdt.Objects.Entry;
+using MiniLcm.Models;
 
 namespace LocalWebApp.Routes;
 
@@ -27,16 +27,14 @@ public static class TestRoutes
             });
         group.MapPost("/set-entry-note", async (IMiniLcmApi api, ChangeEventBus eventBus, Guid entryId, string ws, string note) =>
         {
-            var entry = await api.UpdateEntry(entryId, new UpdateObjectInput<MiniLcm.Models.Entry>().Set(e => e.Note[ws], note));
-            if (entry is Entry crdtEntry)
-                eventBus.NotifyEntryUpdated(crdtEntry);
+            var entry = await api.UpdateEntry(entryId, new UpdateObjectInput<Entry>().Set(e => e.Note[ws], note));
+            eventBus.NotifyEntryUpdated(entry);
         });
         group.MapPost("/add-new-entry",
-            async (IMiniLcmApi api, ChangeEventBus eventBus, MiniLcm.Models.Entry entry) =>
+            async (IMiniLcmApi api, ChangeEventBus eventBus, Entry entry) =>
             {
                 var createdEntry = await api.CreateEntry(entry);
-                if (createdEntry is Entry crdtEntry)
-                    eventBus.NotifyEntryUpdated(crdtEntry);
+                eventBus.NotifyEntryUpdated(createdEntry);
             });
         return group;
     }

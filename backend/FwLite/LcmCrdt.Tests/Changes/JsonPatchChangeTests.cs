@@ -34,7 +34,7 @@ public class JsonPatchChangeTests
     {
         var patch = new JsonPatchDocument<Entry>();
         patch.Operations.Add(new Operation<Entry>("remove", "/senses/1", null, null));
-        var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(), patch, JsonSerializerOptions.Default);
+        var act = () => new JsonPatchChange<Entry>(Guid.NewGuid(), patch);
         act.Should().Throw<NotSupportedException>();
     }
 

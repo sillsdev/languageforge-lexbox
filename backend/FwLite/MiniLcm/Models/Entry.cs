@@ -3,6 +3,7 @@
 public class Entry : IObjectWithId
 {
     public virtual Guid Id { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
 
     public virtual MultiString LexemeForm { get; set; } = new();
 
@@ -23,5 +24,29 @@ public class Entry : IObjectWithId
         var word = CitationForm.Values.Values.FirstOrDefault();
         if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.Values.FirstOrDefault();
         return word?.Trim() ?? "(Unknown)";
+    }
+
+
+    public IObjectWithId Copy()
+    {
+        return new Entry
+        {
+            Id = Id,
+            DeletedAt = DeletedAt,
+            LexemeForm = LexemeForm.Copy(),
+            CitationForm = CitationForm.Copy(),
+            LiteralMeaning = LiteralMeaning.Copy(),
+            Note = Note.Copy(),
+            Senses = [..Senses.Select(s => (Sense)s.Copy())]
+        };
+    }
+
+    public Guid[] GetReferences()
+    {
+        return [];
+    }
+
+    public void RemoveReference(Guid id, DateTimeOffset time)
+    {
     }
 }

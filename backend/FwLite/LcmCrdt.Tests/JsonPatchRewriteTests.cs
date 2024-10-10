@@ -1,10 +1,9 @@
 ﻿using System.Text.Json;
 using LcmCrdt.Changes;
+using LcmCrdt.Objects;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
-using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
-using Sense = LcmCrdt.Objects.Sense;
 
 namespace LcmCrdt.Tests;
 
@@ -28,7 +27,7 @@ public class JsonPatchRewriteTests
         _patchDocument.Replace(s => s.PartOfSpeechId, newPartOfSpeechId);
         _patchDocument.Replace(s => s.Gloss["en"], "new gloss");
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var setPartOfSpeechChange = changes.OfType<SetPartOfSpeechChange>().Should().ContainSingle().Subject;
         setPartOfSpeechChange.EntityId.Should().Be(_sense.Id);
@@ -45,7 +44,7 @@ public class JsonPatchRewriteTests
         var newPartOfSpeechId = Guid.NewGuid();
         _patchDocument.Replace(s => s.PartOfSpeechId, newPartOfSpeechId);
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var setPartOfSpeechChange = changes.Should().ContainSingle()
             .Subject.Should().BeOfType<SetPartOfSpeechChange>().Subject;
@@ -60,7 +59,7 @@ public class JsonPatchRewriteTests
         _patchDocument.Add(s => s.SemanticDomains,
             new SemanticDomain() { Id = newSemanticDomainId, Code = "new code", Name = new MultiString() });
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var addSemanticDomainChange = (AddSemanticDomainChange)changes.Should().AllBeOfType<AddSemanticDomainChange>().And.ContainSingle().Subject;
         addSemanticDomainChange.EntityId.Should().Be(_sense.Id);
@@ -74,7 +73,7 @@ public class JsonPatchRewriteTests
         _patchDocument.Operations.Add(new Operation<MiniLcm.Models.Sense>("add", "/semanticDomains/-", null,
             JsonSerializer.Deserialize<JsonElement>("""{"deletedAt":null,"predefined":true,"id":"46e4fe08-ffa0-4c8b-bf88-2c56138904d1","name":{"en":"Sky"},"code":"1.1"}""")));
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var addSemanticDomainChange = (AddSemanticDomainChange)changes.Should().AllBeOfType<AddSemanticDomainChange>().And.ContainSingle().Subject;
         addSemanticDomainChange.EntityId.Should().Be(_sense.Id);
@@ -88,7 +87,7 @@ public class JsonPatchRewriteTests
         var newSemanticDomainId = Guid.NewGuid();
         _patchDocument.Replace(s => s.SemanticDomains, new SemanticDomain() { Id = newSemanticDomainId, Code = "new code", Name = new MultiString() }, 0);
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var replaceSemanticDomainChange = (ReplaceSemanticDomainChange)changes.Should().AllBeOfType<ReplaceSemanticDomainChange>().And.ContainSingle().Subject;
         replaceSemanticDomainChange.EntityId.Should().Be(_sense.Id);
@@ -102,7 +101,7 @@ public class JsonPatchRewriteTests
         var newSemanticDomainId = Guid.NewGuid();
         _patchDocument.Replace(s => s.SemanticDomains, new SemanticDomain() { Id = newSemanticDomainId, Code = "new code", Name = new MultiString() });
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var replaceSemanticDomainChange = (ReplaceSemanticDomainChange)changes.Should().AllBeOfType<ReplaceSemanticDomainChange>().And.ContainSingle().Subject;
         replaceSemanticDomainChange.EntityId.Should().Be(_sense.Id);
@@ -116,7 +115,7 @@ public class JsonPatchRewriteTests
         var semanticDomainIdToRemove = _sense.SemanticDomains[0].Id;
         _patchDocument.Remove(s => s.SemanticDomains, 0);
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var removeSemanticDomainChange = (RemoveSemanticDomainChange)changes.Should().AllBeOfType<
             RemoveSemanticDomainChange>().And.ContainSingle().Subject;
@@ -130,7 +129,7 @@ public class JsonPatchRewriteTests
         var semanticDomainIdToRemove = _sense.SemanticDomains[0].Id;
         _patchDocument.Remove(s => s.SemanticDomains);
 
-        var changes = Sense.ChangesFromJsonPatch(_sense, _patchDocument).ToArray();
+        var changes = _sense.ToChanges(_patchDocument).ToArray();
 
         var removeSemanticDomainChange = (RemoveSemanticDomainChange)changes.Should().AllBeOfType<
             RemoveSemanticDomainChange>().And.ContainSingle().Subject;

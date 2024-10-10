@@ -13,13 +13,13 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
         foreach (var ws in writingSystems.Analysis)
         {
             await importTo.CreateWritingSystem(WritingSystemType.Analysis, ws);
-            logger.LogInformation("Imported ws {WsId}", ws.Id);
+            logger.LogInformation("Imported ws {WsId}", ws.WsId);
         }
 
         foreach (var ws in writingSystems.Vernacular)
         {
             await importTo.CreateWritingSystem(WritingSystemType.Vernacular, ws);
-            logger.LogInformation("Imported ws {WsId}", ws.Id);
+            logger.LogInformation("Imported ws {WsId}", ws.WsId);
         }
 
         await foreach (var partOfSpeech in importFrom.GetPartsOfSpeech())

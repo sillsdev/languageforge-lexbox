@@ -1,6 +1,5 @@
 ﻿using LcmCrdt.Data;
 using MiniLcm.Models;
-using Entry = LcmCrdt.Objects.Entry;
 
 namespace LcmCrdt.Tests.Data;
 
