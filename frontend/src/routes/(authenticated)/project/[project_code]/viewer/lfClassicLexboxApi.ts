@@ -10,7 +10,7 @@ import {
   type PartOfSpeech,
   type SemanticDomain
 } from 'viewer/lexbox-api';
-import { semanticDomains_en } from './semantic-domains.en.generated-data';
+import { SEMANTIC_DOMAINS_EN } from './semantic-domains.en.generated-data';
 
 function prepareEntriesForUi(entries: IEntry[]): void {
   entries.forEach(entry => {
@@ -18,8 +18,8 @@ function prepareEntriesForUi(entries: IEntry[]): void {
       sense.semanticDomains.forEach(sd => {
         sd.id = sd.code;
       });
-      // @ts-expect-error
-      sense.partOfSpeechId = sense.partOfSpeech;
+      // @ts-expect-error partOfSpeech is only included on the server for the viewer.
+      sense.partOfSpeechId = sense.partOfSpeech as string;
     });
   });
 }
@@ -87,7 +87,7 @@ export class LfClassicLexboxApi implements LexboxApiClient {
   }
 
   GetSemanticDomains(): Promise<SemanticDomain[]> {
-    return Promise.resolve(semanticDomains_en);
+    return Promise.resolve(SEMANTIC_DOMAINS_EN);
   }
 
   CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {
