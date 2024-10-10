@@ -1,19 +1,25 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import ProjectView from './ProjectView.svelte';
-  import { fixBrokenNestedGlobalStyles } from './lib/utils/style-fix';
   import { getSettings } from 'svelte-ux';
 
-  let loading = true;
+  //@ts-expect-error This is how we export our styles, so it should be available
+  const stylesheetPromise = import('viewer/style')
+    .then(() => [...document.querySelectorAll('style')].find((elem) => elem.textContent?.includes('LEXBOX-VIEWER-STYLES')));
+
+  let stylesLoaded = false;
 
   export let projectName: string;
+  const abortController = new AbortController();
 
-  onMount(() => {
+  onMount(async () => {
     const shadowRoot = document.querySelector('lexbox-svelte')?.shadowRoot;
     if (!shadowRoot) throw new Error('Could not find shadow root');
-    fixBrokenNestedGlobalStyles(shadowRoot);
+    const stylesheet = await stylesheetPromise;
+    if (!stylesheet) throw new Error('Could not find lexbox viewer stylesheet');
+    shadowRoot.appendChild(stylesheet);
+    stylesLoaded = true;
 
-    const abortController = new AbortController();
     window.addEventListener('popstate', () => {
       if (!location.hash) return;
 
@@ -26,23 +32,21 @@
     }, {
       signal: abortController.signal,
     });
+  });
 
-    loading = false;
-
+  onDestroy(() => {
     return () => {
       abortController.abort();
-    }
-  });
+    };
+  })
 
   const { currentTheme } = getSettings();
 </script>
 
 <svelte:options customElement={{ tag: 'lexbox-svelte' }} />
 
-<style global lang="postcss">
-  @import './app.postcss';
-</style>
-
 <div class="app contents" class:dark={$currentTheme.dark}>
-  <ProjectView {projectName} isConnected {loading} />
+  {#if stylesLoaded}
+    <ProjectView {projectName} isConnected />
+  {/if}
 </div>

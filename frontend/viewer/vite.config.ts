@@ -24,7 +24,8 @@ export default defineConfig(({ mode }) => {
           // we don't have control over these warnings
           if (warning.code === 'INVALID_ANNOTATION' && warning.message.includes('node_modules/@microsoft/signalr')) return;
           handler(warning);
-        }
+        },
+        external: ['viewer/style'],
       },
     },
     plugins: [svelte({

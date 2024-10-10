@@ -1,6 +1,7 @@
 import type {IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, SemanticDomain, WritingSystem, WritingSystems} from '../mini-lcm';
 
 import type { Operation } from 'fast-json-patch';
+import type { Readable } from 'svelte/store';
 
 export type {IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems, PartOfSpeech, SemanticDomain} from '../mini-lcm';
 
@@ -16,6 +17,7 @@ export interface LexboxApiFeatures {
   write?: boolean;
   openWithFlex?: boolean;
   feedback?: boolean;
+  about?: Readable<string>;
 }
 
 export interface LexboxApi {
