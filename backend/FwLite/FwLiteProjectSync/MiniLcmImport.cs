@@ -28,6 +28,12 @@ public class MiniLcmImport(ILogger<MiniLcmImport> logger)
             logger.LogInformation("Imported part of speech {Id}", partOfSpeech.Id);
         }
 
+        await foreach (var complexFormType in importFrom.GetComplexFormTypes())
+        {
+            await importTo.CreateComplexFormType(complexFormType);
+            logger.LogInformation("Imported complex form type {Id}", complexFormType.Id);
+        }
+
 
         var semanticDomains = importFrom.GetSemanticDomains();
         var entries = importFrom.GetEntries(new QueryOptions(Count: 100_000, Offset: 0));

@@ -20,7 +20,11 @@ public class UpdateDiffTests
         var entryDiffToUpdate = CrdtFwdataProjectSyncService.EntryDiffToUpdate(previous, current);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(previous);
-        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.Senses));
+        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id)
+            .Excluding(x => x.Senses)
+            .Excluding(x => x.Components)
+            .Excluding(x => x.ComplexForms)
+            .Excluding(x => x.ComplexFormTypes));
     }
 
     [Fact]

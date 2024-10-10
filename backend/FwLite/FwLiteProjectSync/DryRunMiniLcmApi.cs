@@ -57,6 +57,18 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return api.GetComplexFormTypes();
+    }
+
+    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormType),
+            $"Create complex form type {complexFormType.Name}"));
+        return Task.FromResult(complexFormType);
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return api.GetEntries(options);
