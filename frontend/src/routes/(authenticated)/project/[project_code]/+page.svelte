@@ -278,13 +278,14 @@
 {#if project}
   <DetailsPage wide title={project.name}>
     <svelte:fragment slot="actions">
+      {#if project.isLanguageForgeProject}
+        <a href="./{project.code}/viewer" target="_blank"
+           class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
+          {$t('project_page.open_with_viewer')}
+          <span class="i-mdi-dictionary text-2xl"/>
+        </a>
+      {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
-        {#if project.isLanguageForgeProject}
-          <a href="./{project.code}/viewer" target="_blank" class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
-            {$t('project_page.open_with_viewer')}
-            <span class="i-mdi-dictionary text-2xl" />
-          </a>
-        {/if}
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}

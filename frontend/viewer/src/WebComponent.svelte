@@ -44,5 +44,5 @@
 </style>
 
 <div class="app contents" class:dark={$currentTheme.dark}>
-  <ProjectView {projectName} isConnected {loading} />
+  <ProjectView {projectName} isConnected {loading} showHomeButton={false} />
 </div>

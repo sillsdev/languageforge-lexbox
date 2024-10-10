@@ -6,7 +6,8 @@
   const {connected, lexboxApi} = SetupSignalR(`/api/hub/${projectName}/lexbox`, {
     history: true,
     write: true,
-    feedback: true
+    feedback: true,
+    sync: true
   });
 </script>
 <ProjectView {projectName} isConnected={$connected}></ProjectView>

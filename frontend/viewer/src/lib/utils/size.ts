@@ -1,8 +1,6 @@
 export function getAvailableHeightForElement(elem: HTMLElement): number {
-  const occupiedSpaceTop = Math.max(0, elem.offsetTop - window.scrollY);
-  const footerSize = document.body.scrollHeight - (elem.scrollHeight + elem.offsetTop);
-  const currScrollFromBottom = document.body.scrollHeight - window.scrollY - window.innerHeight;
-  const occupiedSpaceBottom = Math.max(0, footerSize - currScrollFromBottom);
-  const occupiedSpace = occupiedSpaceTop + occupiedSpaceBottom;
-  return window.innerHeight - occupiedSpace;
+  const elementIsBiggerThanScreenSpace = (elem.scrollHeight + elem.offsetTop) > document.body.clientHeight;
+  // Only grow if we need to, otherwise it looks weird when a footer gets pushed down
+  var growWithScroll = elementIsBiggerThanScreenSpace ? window.scrollY : 0;
+  return window.innerHeight - Math.max(0, elem.offsetTop - growWithScroll);
 }

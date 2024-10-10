@@ -14,6 +14,7 @@
 </script>
 
 <CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
+  {#key options}
   <SelectField
     on:change={(e) => onEditorValueChange(e.detail.value, true)}
     value={editorValue}
@@ -29,6 +30,7 @@
     {placeholder}>
     <span bind:this={append} slot="append" />
   </SelectField>
+  {/key}
 </CrdtField>
 
 <style>

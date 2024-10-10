@@ -12,4 +12,5 @@ public class LfProject : EntityDocument
     /// dictionary of user ids as the key
     /// </summary>
     public required Dictionary<string, LfProjectUser> Users { get; init; }
+    public required LfProjectConfig Config { get; init; }
 }

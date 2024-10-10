@@ -32,7 +32,7 @@
     value={asMultiSelectValues(editorValue)}
     disabled={readonly}
     {options}
-    icon={mdiMagnify}
+    icon={readonly ? undefined : mdiMagnify}
     valueProp="value"
     labelProp="label"
     formatSelected={({ options }) =>
