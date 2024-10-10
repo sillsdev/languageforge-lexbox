@@ -17,7 +17,9 @@ export class LfClassicLexboxApi implements LexboxApiClient {
   }
 
   SupportedFeatures(): LexboxApiFeatures {
-    return {};
+    return {
+      feedback: true,
+    };
   }
 
   async GetWritingSystems(): Promise<WritingSystems> {
