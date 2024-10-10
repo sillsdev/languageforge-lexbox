@@ -81,6 +81,18 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task UpdateFLExModelVersion(Guid projectId)
+    {
+        var project = await dbContext.Projects.FindAsync(projectId);
+        if (project is null || project.Type != ProjectType.FLEx) return;
+        await dbContext.Entry(project).Reference(p => p.FlexProjectMetadata).LoadAsync();
+        var modelVersion = await hgService.GetModelVersionOfFlexProject(project.Code);
+        if (modelVersion is null) return;
+        project.FlexProjectMetadata ??= new FlexProjectMetadata();
+        project.FlexProjectMetadata.FlexModelVersion = modelVersion;
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task<Guid> CreateDraftProject(CreateProjectInput input)
     {
         // No need for a transaction if we're just saving a single item

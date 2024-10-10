@@ -91,6 +91,7 @@ export async function load(event: PageLoadEvent) {
             }
             flexProjectMetadata {
               lexEntryCount
+              flexModelVersion
               writingSystems {
                 vernacularWss {
                   tag
@@ -288,6 +289,33 @@ export async function _updateProjectLexEntryCount(code: string): $OpResult<Updat
               id
               flexProjectMetadata {
                 lexEntryCount
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
+    );
+  return result;
+}
+
+export async function _updateFLExModelVersion(code: string): Promise<unknown> { // $OpResult<UpdateFLExModelVersionMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateFLExModelVersion($input: UpdateFLExModelVersionInput!) {
+          updateFLExModelVersion(input: $input) {
+            project {
+              id
+              flexProjectMetadata {
+                flexModelVersion
               }
             }
             errors {

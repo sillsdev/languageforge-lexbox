@@ -10,6 +10,7 @@ public class FlexProjectMetadata
     /// </summary>
     public Guid? LangProjectId { get; set; }
     public ProjectWritingSystems? WritingSystems { get; set; }
+    public int? FlexModelVersion { get; set; }
 }
 
 public class ProjectWritingSystems

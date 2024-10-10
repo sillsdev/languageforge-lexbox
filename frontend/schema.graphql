@@ -179,6 +179,7 @@ type FlexProjectMetadata {
   lexEntryCount: Int
   langProjectId: UUID
   writingSystems: ProjectWritingSystems
+  flexModelVersion: Int
 }
 
 type InvalidEmailError implements Error {
@@ -246,6 +247,7 @@ type Mutation {
   updateProjectLexEntryCount(input: UpdateProjectLexEntryCountInput!): UpdateProjectLexEntryCountPayload!
   updateProjectLanguageList(input: UpdateProjectLanguageListInput!): UpdateProjectLanguageListPayload!
   updateLangProjectId(input: UpdateLangProjectIdInput!): UpdateLangProjectIdPayload!
+  updateFLExModelVersion(input: UpdateFLExModelVersionInput!): UpdateFLExModelVersionPayload!
   leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
   removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
   deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
@@ -478,6 +480,11 @@ type UniqueValueError implements Error {
   message: String!
 }
 
+type UpdateFLExModelVersionPayload {
+  project: Project
+  errors: [UpdateFLExModelVersionError!]
+}
+
 type UpdateLangProjectIdPayload {
   project: Project
   errors: [UpdateLangProjectIdError!]
@@ -587,6 +594,8 @@ union SetRetentionPolicyError = NotFoundError | DbError
 union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
+
+union UpdateFLExModelVersionError = NotFoundError | DbError | UnauthorizedAccessError
 
 union UpdateLangProjectIdError = NotFoundError | DbError | UnauthorizedAccessError
 
@@ -769,12 +778,14 @@ input FlexProjectMetadataFilterInput {
   lexEntryCount: IntOperationFilterInput
   langProjectId: UuidOperationFilterInput
   writingSystems: ProjectWritingSystemsFilterInput
+  flexModelVersion: IntOperationFilterInput
 }
 
 input FlexProjectMetadataSortInput {
   projectId: SortEnumType
   lexEntryCount: SortEnumType
   langProjectId: SortEnumType
+  flexModelVersion: SortEnumType
 }
 
 input IntOperationFilterInput {
@@ -1039,6 +1050,10 @@ input StringOperationFilterInput {
   nendsWith: String
   icontains: String
   ieq: String
+}
+
+input UpdateFLExModelVersionInput {
+  code: String!
 }
 
 input UpdateLangProjectIdInput {

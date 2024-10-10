@@ -267,6 +267,22 @@ public partial class HgService : IHgService, IHostedService
         return null;
     }
 
+    public async Task<int?> GetModelVersionOfFlexProject(ProjectCode code, CancellationToken token = default)
+    {
+        var result = await ExecuteHgCommandServerCommand(code, "flexmodelversion", token);
+        var text = await result.ReadAsStringAsync(token);
+        try
+        {
+            var json = JsonDocument.Parse(text);
+            return json.RootElement.GetProperty("modelversion").GetInt32();
+        }
+        catch
+        {
+            if (int.TryParse(text, out var num)) return num;
+        }
+        return null;
+    }
+
     public Task RevertRepo(ProjectCode code, string revHash)
     {
         throw new NotImplementedException();
