@@ -112,27 +112,53 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
             throw new ArgumentException($"Invalid writing system {sortWs}", "options.Order.WritingSystem");
         }
 
+        if (options.Order.Field != SortField.Headword)
+        {
+            throw new NotSupportedException($"Sorting by {options.Order.Field} is not supported");
+        }
+
         PipelineDefinition<Entities.Entry, Entities.Entry> pipeline = new EmptyPipelineDefinition<Entities.Entry>();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var searchLower = Regex.Escape(search.ToLower());
-            pipeline = pipeline
-                .AppendStage(new BsonDocumentPipelineStageDefinition<Entities.Entry, Entities.Entry>(
+            pipeline = AppendSearchAndFilter(search, pipeline);
+        }
+
+        pipeline = AppendHeadWord(sortWs, pipeline)
+            .Sort(Builders<HeadwordEntry>.Sort
+                .Ascending(entry => entry.headword)
+                .Ascending(entry => entry.MorphologyType)
+                .Ascending(entry => entry.Guid))
+            .Skip(options.Offset)
+            .Limit(options.Count)
+            .Project(entry => entry as Entities.Entry);
+
+        await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
+        {
+            yield return ToEntry(entry);
+        }
+    }
+
+    private PipelineDefinition<Entities.Entry, Entities.Entry> AppendSearchAndFilter(string search,
+        PipelineDefinition<Entities.Entry, Entities.Entry> pipeline)
+    {
+        var emptyDoc = new BsonDocument();
+        var searchLower = Regex.Escape(search.ToLower());
+        return pipeline.AppendStage(new BsonDocumentPipelineStageDefinition<Entities.Entry, Entities.Entry>(
                     new BsonDocument("$addFields", new BsonDocument
                     {
                         { "searchFields", new BsonDocument("$concatArrays", new BsonArray
                             {
-                                new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$lexeme", new BsonDocument() })),
-                                new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$citationForm", new BsonDocument() })),
+                                new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$lexeme", emptyDoc })),
+                                new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$citationForm", emptyDoc })),
                                 new BsonDocument("$reduce", new BsonDocument
                                 {
-                                    { "input", new BsonDocument("$ifNull", new BsonArray { "$senses", new BsonDocument() })},
+                                    { "input", new BsonDocument("$ifNull", new BsonArray { "$senses", emptyDoc })},
                                     { "initialValue", new BsonArray() },
                                     { "in", new BsonDocument("$concatArrays", new BsonArray
                                         {
                                             "$$value",
-                                            new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$$this.gloss", new BsonDocument() }))
+                                            new BsonDocument("$objectToArray", new BsonDocument("$ifNull", new BsonArray { "$$this.gloss", emptyDoc }))
                                         })
                                     }
                                 })
@@ -144,9 +170,14 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                         new BsonDocument("searchFields", new BsonDocument("$elemMatch", new BsonDocument("v.value", new BsonRegularExpression(searchLower, "i"))))
                     )
                 ));
-        }
+    }
 
-        pipeline = pipeline.AppendStage(new BsonDocumentPipelineStageDefinition<Entities.Entry, HeadwordEntry>(
+    private PipelineDefinition<Entities.Entry, HeadwordEntry> AppendHeadWord(WritingSystemId sortWs,
+        PipelineDefinition<Entities.Entry, Entities.Entry> pipeline)
+    {
+        //this effectively does:
+        //list.map(e => ({...e, headword: e.citationForm[sortWs].value ?? e.lexeme[sortWs].value ?? ''}))
+        return pipeline.AppendStage(new BsonDocumentPipelineStageDefinition<Entities.Entry, HeadwordEntry>(
             new BsonDocument("$addFields", new BsonDocument
             {
                 { nameof(HeadwordEntry.headword).ToLower(), new BsonDocument("$cond", new BsonDocument
@@ -174,18 +205,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
                         }
                     })
                 }
-            }))).Sort(Builders<HeadwordEntry>.Sort
-                .Ascending(entry => entry.headword)
-                .Ascending(entry => entry.MorphologyType)
-                .Ascending(entry => entry.Guid))
-            .Skip(options.Offset)
-            .Limit(options.Count)
-            .Project(entry => entry as Entities.Entry);
-
-        await foreach (var entry in Entries.Aggregate(pipeline).ToAsyncEnumerable())
-        {
-            yield return ToEntry(entry);
-        }
+            })));
     }
 
     private static Entry ToEntry(Entities.Entry entry)
