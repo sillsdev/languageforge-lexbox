@@ -2,6 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 
 import { AddMemberModal } from '../components/addMemberModal';
 import { BasePage } from './basePage';
+import { DeleteProjectModal } from '../components/deleteProjectModal';
 import { ResetProjectModal } from '../components/resetProjectModal';
 
 export class ProjectPage extends BasePage {
@@ -12,7 +13,7 @@ export class ProjectPage extends BasePage {
   get addMemberButton(): Locator { return this.page.getByRole('button', {name: 'Add/Invite Member'}); }
 
   constructor(page: Page, name: string, code: string) {
-    super(page, page.locator(`.breadcrumbs :text('${name}')`), `/project/${code}`);
+    super(page, page.getByRole('heading', {name: `Project: ${name}`}), `/project/${code}`);
   }
 
   openMoreSettings(): Promise<void> {
@@ -24,9 +25,10 @@ export class ProjectPage extends BasePage {
     return new AddMemberModal(this.page).waitFor()
   }
 
-  async clickDeleteProject(): Promise<void> {
+  async clickDeleteProject(): Promise<DeleteProjectModal> {
     await this.openMoreSettings();
     await this.deleteProjectButton.click();
+    return await new DeleteProjectModal(this.page).waitFor();
   }
 
   async clickResetProject(): Promise<ResetProjectModal> {

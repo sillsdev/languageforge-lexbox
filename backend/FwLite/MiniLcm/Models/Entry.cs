@@ -23,11 +23,6 @@ public class Entry : IObjectWithId
     public virtual IList<ComplexFormComponent> ComplexForms { get; set; } = [];
     public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
-    public bool MatchesQuery(string query) =>
-        LexemeForm.SearchValue(query)
-        || CitationForm.SearchValue(query)
-        || LiteralMeaning.SearchValue(query);
-
     public string Headword()
     {
         var word = CitationForm.Values.Values.FirstOrDefault();

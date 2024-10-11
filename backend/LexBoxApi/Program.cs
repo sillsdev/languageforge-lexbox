@@ -13,6 +13,7 @@ using LexBoxApi.Services;
 using LexCore.Exceptions;
 using LexData;
 using LexSyncReverseProxy;
+using LexSyncReverseProxy.Auth;
 using LfClassicData;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
@@ -174,7 +175,8 @@ app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
-app.MapLfClassicApi().RequireAuthorization(new AdminRequiredAttribute()).WithOpenApi().WithGroupName(LexBoxKernel.OpenApiPublicDocumentName);
+app.MapLfClassicApi().WithOpenApi().WithGroupName(LexBoxKernel.OpenApiPublicDocumentName)
+    .RequireAuthorization(policyBuilder => policyBuilder.RequireAuthenticatedUser().AddRequirements(new UserHasAccessToProjectRequirement()));
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
     .RequireAuthorization(new AdminRequiredAttribute());
