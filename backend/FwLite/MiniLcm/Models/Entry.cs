@@ -18,10 +18,12 @@ public class Entry : IObjectWithId
     /// Components making up this complex entry
     /// </summary>
     public virtual IList<ComplexFormComponent> Components { get; set; } = [];
+
     /// <summary>
     /// This entry is a part of these complex forms
     /// </summary>
     public virtual IList<ComplexFormComponent> ComplexForms { get; set; } = [];
+
     public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
     public string Headword()
@@ -42,7 +44,19 @@ public class Entry : IObjectWithId
             CitationForm = CitationForm.Copy(),
             LiteralMeaning = LiteralMeaning.Copy(),
             Note = Note.Copy(),
-            Senses = [..Senses.Select(s => (Sense)s.Copy())]
+            Senses = [..Senses.Select(s => (Sense)s.Copy())],
+            Components =
+            [
+                ..Components.Select(c => (ComplexFormComponent)c.Copy())
+            ],
+            ComplexForms =
+            [
+                ..ComplexForms.Select(c => (ComplexFormComponent)c.Copy())
+            ],
+            ComplexFormTypes =
+            [
+                ..ComplexFormTypes.Select(cft => (ComplexFormType)cft.Copy())
+            ]
         };
     }
 
@@ -56,30 +70,6 @@ public class Entry : IObjectWithId
     }
 }
 
-public record ComplexFormComponent
-{
-    public static ComplexFormComponent FromEntries(Entry complexFormEntry, Entry componentEntry, Guid? componentSenseId = null)
-    {
-        if (componentEntry.Id == default) throw new ArgumentException("componentEntry.Id is empty");
-        if (complexFormEntry.Id == default) throw new ArgumentException("complexFormEntry.Id is empty");
-        return new ComplexFormComponent
-        {
-            Id = Guid.NewGuid(),
-            ComplexFormEntryId = complexFormEntry.Id,
-            ComplexFormHeadword = complexFormEntry.Headword(),
-            ComponentEntryId = componentEntry.Id,
-            ComponentHeadword = componentEntry.Headword(),
-            ComponentSenseId = componentSenseId,
-        };
-    }
-    public Guid Id { get; set; }
-    public virtual required Guid ComplexFormEntryId { get; set; }
-    public string? ComplexFormHeadword { get; set; }
-    public virtual required Guid ComponentEntryId { get; set; }
-    public virtual Guid? ComponentSenseId { get; set; } = null;
-    public string? ComponentHeadword { get; set; }
-}
-
 public class Variants
 {
     public Guid Id { get; set; }
@@ -87,12 +77,6 @@ public class Variants
     public IList<VariantType> Types { get; set; } = [];
 }
 
-//todo support an order for the complex form types, might be here, or on the entry
-public class ComplexFormType
-{
-    public virtual Guid Id { get; set; }
-    public required MultiString Name { get; set; }
-}
 
 public class VariantType
 {

@@ -18,8 +18,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
 
 
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
-    private IQueryable<CrdtComplexFormComponent> ComplexFormComponents => dataModel.GetLatestObjects<CrdtComplexFormComponent>();
-    private IQueryable<CrdtComplexFormType> ComplexFormTypes => dataModel.GetLatestObjects<CrdtComplexFormType>();
+    private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.GetLatestObjects<ComplexFormComponent>();
+    private IQueryable<ComplexFormType> ComplexFormTypes => dataModel.GetLatestObjects<ComplexFormType>();
     private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
     private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
     private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
@@ -150,15 +150,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
         queryable = queryable
-            .LoadWith(e => e.Senses).ThenLoad(s => s.ExampleSentences).AsQueryable()
+            .LoadWith(e => e.Senses).ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.ComplexForms)
+            .LoadWith(e => e.Components)
+            .AsQueryable()
             .OrderBy(e => e.Headword(sortWs.Value))
-            // .ThenBy(e => e.Id)
+            .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);
         var entries = await queryable
             .ToArrayAsyncLinqToDB();
-        // await LoadSenses(entries);
-        await LoadComplexFormData(entries);
 
         return entries;
     }
@@ -168,6 +169,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         var entry = await Entries
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
+            .LoadWith(e => e.ComplexForms)
+            .LoadWith(e => e.Components)
             .AsQueryable()
             .SingleOrDefaultAsync(e => e.Id == id);
         return entry;
@@ -248,7 +251,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         var entry = await GetEntry(id);
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
-        await dataModel.AddChanges(ClientId, [..Entry.ChangesFromJsonPatch((Entry)entry, update.Patch)]);
+        await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
         return await GetEntry(id) ?? throw new NullReferenceException();
     }
 

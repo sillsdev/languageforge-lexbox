@@ -116,8 +116,8 @@ public static class LcmCrdtKernel
             })
             .Add<PartOfSpeech>()
             .Add<SemanticDomain>()
-            .Add<CrdtComplexFormType>()
-            .Add<CrdtComplexFormComponent>(builder =>
+            .Add<ComplexFormType>()
+            .Add<ComplexFormComponent>(builder =>
             {
                 builder.ToTable("ComplexFormComponents");
             });
@@ -134,8 +134,8 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<WritingSystem>>()
             .Add<DeleteChange<PartOfSpeech>>()
             .Add<DeleteChange<SemanticDomain>>()
-            .Add<DeleteChange<CrdtComplexFormType>>()
-            .Add<DeleteChange<CrdtComplexFormComponent>>()
+            .Add<DeleteChange<ComplexFormType>>()
+            .Add<DeleteChange<ComplexFormComponent>>()
             .Add<SetPartOfSpeechChange>()
             .Add<AddSemanticDomainChange>()
             .Add<RemoveSemanticDomainChange>()
