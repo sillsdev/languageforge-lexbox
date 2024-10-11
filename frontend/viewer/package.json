@@ -11,7 +11,6 @@
   "main": "dist-web-component/viewer.js",
   "exports": {
     "./component": "./dist-web-component/viewer.js",
-    "./style": "./dist-web-component/style.css",
     "./lexbox-api": "./src/lib/services/lexbox-api.ts",
     "./service-provider": "./src/lib/services/service-provider.ts"
   },
