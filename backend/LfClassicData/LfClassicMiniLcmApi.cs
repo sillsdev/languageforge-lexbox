@@ -15,6 +15,10 @@ namespace LfClassicData;
 public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext, SystemDbContext systemDbContext, IMemoryCache memoryCache) : IMiniLcmReadApi
 {
     private IMongoCollection<Entities.Entry> Entries => dbContext.Entries(projectCode);
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return AsyncEnumerable.Empty<ComplexFormType>();
+    }
 
     public async Task<WritingSystems> GetWritingSystems()
     {
