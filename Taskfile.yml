@@ -34,6 +34,8 @@ tasks:
     deps: [ setup-win, setup-unix ]
     cmds:
       - git config blame.ignoreRevsFile .git-blame-ignore-revs
+      - git submodule init
+      - git submodule update --recursive
       - kubectl --context=docker-desktop apply -f deployment/setup/namespace.yaml
       - kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.0/cert-manager.yaml
       - docker build -t local-dev-init data/

@@ -34,6 +34,7 @@ Other files, like `skaffold.yaml`, should be at the root of the repo, because th
  * run setup `task setup`, which:
    * initializes a local.env file
    * tells Git to use our ignore revs file
+   * checks out Git submodules
    * downloads the FLEx repo for the project seed data
 
 #### Extra setup steps for Windows
