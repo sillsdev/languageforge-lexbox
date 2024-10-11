@@ -44,7 +44,9 @@ export class InMemoryApiService implements LexboxApiClient {
   }
 
   SupportedFeatures(): LexboxApiFeatures {
-    return {};
+    return {
+      write: true,
+    };
   }
 
   readonly projectName = projectName;

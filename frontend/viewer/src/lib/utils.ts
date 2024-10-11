@@ -101,7 +101,10 @@ export function defaultEntry(): IEntry {
     lexemeForm: {},
     note: {},
     literalMeaning: {},
-    senses: []
+    senses: [],
+    complexForms: [],
+    complexFormTypes: [],
+    components: [],
   };
 }
 
