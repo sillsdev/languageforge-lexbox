@@ -30,8 +30,20 @@ Other files, like `skaffold.yaml`, should be at the root of the repo, because th
    * mac: `brew install go-task/tap/go-task`
    * via npm: `npm install -g @go-task/cli`
  * install [Skaffold](https://skaffold.dev/docs/install/#standalone-binary) and add it to your path
+   * the file you will download is **NOT** an installer, just a standalone runnable .exe (on Windows) or binary (on Linux)
+   * on Linux, a good practice is to create `$HOME/.local/bin` and put binaries there; most distributions automatically add `$HOME/.local/bin` to your path if it exists
+     * don't forget to run `chmod +x $HOME/.local/bin/skaffold`
+   * on Windows, we suggest creating a `bin` folder in your home folder. Put the Skaffold binary there, then do the following:
+     * go to your System properties, click the **Advanced** tab, and click **Environment Variables...**
+     * Click the Path variable (in either User or System, User is recommended) and click the **Edit...** button
+     * Add `C:\Users\YOUR_USER_NAME\bin` to the list and click **OK**
  * clone the repo
- * run setup `task setup`, which:
+ * run `git push` to make sure your GitHub credentials are set up
+   * on Windows, allow the Git Credential Manager to log in to GitHub via your browser
+   * on Linux, upload your SSH key to your GitHub account if you haven't done so already, then run `git remote set-url --push origin git@github.com:sillsdev/languageforge-lexbox`
+ * on Windows, open PowerShell and run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
+   * this is necessary before running `task setup` below, which uses a PowerShell script to download seed data
+ * run `task setup`, which:
    * initializes a local.env file
    * tells Git to use our ignore revs file
    * checks out Git submodules
