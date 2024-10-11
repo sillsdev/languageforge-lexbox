@@ -42,7 +42,7 @@ public static class Json
 
             if (returnType != typeof(string))
             {
-                valueExpression = PseudoFunctions.MakeConvert(new SqlDataType(new DbDataType(returnType)),
+                valueExpression = PseudoFunctions.MakeTryConvert(new SqlDataType(new DbDataType(returnType)),
                     new SqlDataType(new DbDataType(typeof(string), DataType.Text)),
                     valueExpression);
             }
@@ -65,7 +65,9 @@ public static class Json
                     case MethodCallExpression mce:
                         if (IsIndexerPropertyMethod(mce.Method))
                         {
-                            parameters.Insert(0, builder.ConvertExpressionToSql(mce.Arguments[0]));
+                            var sql = builder.ConvertExpressionToSql(mce.Arguments[0]);
+                            ArgumentNullException.ThrowIfNull(sql);
+                            parameters.Insert(0, sql);
                             pathBody = mce.Object;
                         }
                         else

@@ -4,6 +4,7 @@ using SIL.Harmony.Core;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
@@ -17,6 +18,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
 
 
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
+    private IQueryable<CrdtComplexFormComponent> ComplexFormComponents => dataModel.GetLatestObjects<CrdtComplexFormComponent>();
+    private IQueryable<CrdtComplexFormType> ComplexFormTypes => dataModel.GetLatestObjects<CrdtComplexFormType>();
     private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
     private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
     private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
@@ -93,6 +96,17 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
     }
 
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return ComplexFormTypes.AsAsyncEnumerable();
+    }
+
+    public async Task<ComplexFormType> CreateComplexFormType(MiniLcm.Models.ComplexFormType complexFormType)
+    {
+        await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
+        return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);
@@ -141,8 +155,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
             // .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);
-        var entries = await queryable.ToArrayAsyncLinqToDB();
+        var entries = await queryable
+            .ToArrayAsyncLinqToDB();
         // await LoadSenses(entries);
+        await LoadComplexFormData(entries);
 
         return entries;
     }
@@ -182,6 +198,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     private IEnumerable<IChange> CreateEntryChanges(Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, PartOfSpeech> partsOfSpeech)
     {
         yield return new CreateEntryChange(entry);
+
+        //only add components, if we add both components and complex forms we'll get duplicates when importing data
+        foreach (var addEntryComponentChange in entry.Components.Select(c => new AddEntryComponentChange(c)))
+        {
+            yield return addEntryComponentChange;
+        }
+        foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
+        {
+            yield return addComplexFormTypeChange;
+        }
         foreach (var sense in entry.Senses)
         {
             sense.SemanticDomains = sense.SemanticDomains
@@ -208,7 +234,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany(s => CreateSenseChanges(entry.Id, s))
-                .ToArrayAsync()
+                .ToArrayAsync(),
+            ..entry.Components.Select(c => new AddEntryComponentChange(c)),
+            ..entry.ComplexForms.Select(c => new AddEntryComponentChange(c)),
+            ..entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c))
         ]);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
     }
@@ -216,8 +245,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)
     {
-        var patchChange = new JsonPatchChange<Entry>(id, update.Patch);
-        await dataModel.AddChange(ClientId, patchChange);
+        var entry = await GetEntry(id);
+        if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
+
+        await dataModel.AddChanges(ClientId, [..Entry.ChangesFromJsonPatch((Entry)entry, update.Patch)]);
         return await GetEntry(id) ?? throw new NullReferenceException();
     }
 

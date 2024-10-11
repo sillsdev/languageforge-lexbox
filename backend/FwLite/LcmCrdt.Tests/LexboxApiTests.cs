@@ -132,8 +132,29 @@ public class BasicApiTests : IAsyncLifetime
             LexemeForm =
             {
                 Values = { { "en", "apple" } }
-            }
+            },
+            Senses =
+            [
+                new Sense
+                {
+                    Gloss =
+                    {
+                        Values =
+                        {
+                            { "en", "fruit" }
+                        }
+                    },
+                    Definition =
+                    {
+                        Values =
+                        {
+                            { "en", "a round fruit, red or yellow" }
+                        }
+                    },
+                }
+            ],
         });
+        _crdtDbContext.ChangeTracker.Clear();
     }
 
     public async Task DisposeAsync()
@@ -177,11 +198,12 @@ public class BasicApiTests : IAsyncLifetime
         entries.Should().NotBeEmpty();
         var entry1 = entries.First(e => e.Id == _entry1Id);
         entry1.LexemeForm.Values.Should().NotBeEmpty();
-        entry1.Senses.Should().NotBeEmpty();
+        var sense1 = entry1.Senses.Should().NotBeEmpty().And.Subject.First();
+        sense1.ExampleSentences.Should().NotBeEmpty();
 
         var entry2 = entries.First(e => e.Id == _entry2Id);
         entry2.LexemeForm.Values.Should().NotBeEmpty();
-        entry2.Senses.Should().BeEmpty();
+        entry2.Senses.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -191,6 +213,14 @@ public class BasicApiTests : IAsyncLifetime
         entries.Should().NotBeEmpty();
         entries.Should().NotContain(e => e.Id == default);
         entries.Should().NotContain(e => e.LexemeForm.Values["en"] == "Kevin");
+    }
+    [Fact]
+    public async Task SearchEntries_MatchesGloss()
+    {
+        var entries = await _api.SearchEntries("fruit").ToArrayAsync();
+        entries.Should().NotBeEmpty();
+        entries.Should().NotContain(e => e.Id == default);
+        entries.Should().Contain(e => e.LexemeForm.Values["en"] == "apple");
     }
 
     [Fact]
