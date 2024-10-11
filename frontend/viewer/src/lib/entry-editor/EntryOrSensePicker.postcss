@@ -1,62 +1,48 @@
-/* These styles belong in EntryOrSensePicker.svelte, but the mixture of global and feature like :dark and :is, are buggy if they're there 😞 */
+/* These styles belong in EntryOrSensePicker.svelte, but the mixture of global and features like :dark and :is, are buggy if they're there 😞 */
 .entry-sense-picker {
+
   .Collapse {
     @apply border-2 !border-t-2 border-surface-100 rounded overflow-hidden elevation-0 m-0 transition-none;
+  }
 
-    &:not(.disable-expand.disabled-list-item) {
-      &:hover {
-        @apply border-surface-300;
-
-        button:hover {
-          @apply bg-surface-300;
-          & * {
-            @apply bg-transparent;
-          }
-        }
-      }
-
-      &[aria-expanded="true"] {
-        @apply border-surface-200;
-      }
-    }
-
-    &.disable-expand.disabled-list-item * {
-      @apply cursor-default;
-    }
-
-    .CollapseContent .ListItem {
-      @apply !rounded-none;
-    }
-
-    /* Selected entry */
-    &.selected.entry-list-item:is(:not(.disabled-list-item), :has(.selected)) {
-      @apply border-accent-500;
-
-      /* Selected sense or entry if no sense is selected */
-      .selected.sense-list-item, &.entry-list-item:not(.disabled-list-item):not(:has(.selected)) button:not(.sense-list-item) {
-        @apply bg-accent-100;
-        @apply dark:bg-accent-900;
-
-        & > * {
-          @apply bg-transparent;
-        }
+  .entry:not(.disabled.disable-expand) .Collapse {
+    button:hover {
+      @apply bg-surface-300;
+      & * {
+        @apply bg-transparent;
       }
     }
   }
 
-  .disabled-list-item {
-    &.entry-list-item [slot="trigger"] {
-      @apply brightness-50 bg-surface-100;
+  /* We need this, because there's a bug that adds aria-expanded="true" even when the expansion panel is disabled */
+  .entry:not(.disable-expand) .Collapse[aria-expanded="true"] {
+    @apply border-surface-300;
+  }
+
+  .CollapseContent .ListItem {
+    @apply !rounded-none;
+  }
+
+  .entry:is(.selected, :has(.selected)) .Collapse {
+    @apply !border-accent-500;
+  }
+
+  .selected.sense, .selected.entry button:not(.sense) {
+    @apply !bg-accent-100;
+    @apply dark:!bg-accent-900;
+
+    & > * {
+      @apply bg-transparent;
+    }
+  }
+
+  .disabled {
+    &.entry [slot="trigger"] {
+      @apply brightness-50 bg-surface-100 pointer-events-none;
     }
 
-    &.sense-list-item {
+    &.sense {
       @apply brightness-50 pointer-events-none;
-    }
-  }
-
-  .disable-expand {
-    .CollapseIcon, .CollapseContent {
-      display: none;
     }
   }
 }

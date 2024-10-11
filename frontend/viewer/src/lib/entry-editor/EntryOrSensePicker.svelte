@@ -17,7 +17,6 @@
   import { defaultSense, firstDef, firstGloss, glosses, headword, randomId } from '../utils';
   import { useProjectCommands } from '../commands';
   import type { SaveHandler } from '../services/save-event-service';
-  import { cls } from 'svelte-ux/utils/styles';
 
   const dispatch = createEventDispatcher<{
     pick: EntrySenseSelection;
@@ -30,7 +29,8 @@
   export let title: string;
   export let disableEntry: ((entry: IEntry) => false | { reason: string, disableSenses?: true }) | undefined = undefined;
   export let disableSense: ((sense: ISense, entry: IEntry) => false | string) | undefined = undefined;
-  export let noSenses = false;
+  export let mode: 'entries-and-senses' | 'only-entries' = 'entries-and-senses';
+  $: onlyEntries = mode === 'only-entries';
 
   let selectedEntry: IEntry | undefined;
   let selectedSense: ISense | undefined;
@@ -92,6 +92,12 @@
       addedEntries = [entry];
     }
   }
+
+  function select(entry?: IEntry, sense?: ISense): void {
+    selectedEntry = entry;
+    selectedEntryId = entry?.id;
+    selectedSense = sense;
+  }
 </script>
 
 <Dialog bind:open on:close={reset} class="entry-sense-picker" classes={{title: 'p-2'}}>
@@ -117,74 +123,80 @@
   <div class="p-1">
     {#each [...$displayedEntries, ...addedEntries] as entry (entry.id)}
       {@const disabledEntry = disableEntry?.(entry)}
-      <ExpansionPanel
-        bind:group={selectedEntryId}
-        value={entry.id}
-        class={cls('entry-list-item', entry.id === selectedEntryId && 'selected', !!disabledEntry && 'disabled-list-item', (noSenses || (disabledEntry && disabledEntry.disableSenses)) && 'disable-expand')}
-        on:change={(event) => {
-          if (event.detail.open) { // I'm opening so I manage the state
-            selectedEntry = entry;
-            selectedEntryId = entry.id;
-            selectedSense = undefined;
-          } else if (selectedEntry?.id === entry.id) { // a different entry was not selected, so I still manage the state
-            if (selectedSense && !disabledEntry) {
-              // move selection to the entry and keep myself open
-              selectedEntry = entry;
-              selectedEntryId = entry.id;
-              selectedSense = undefined;
-            } else {
-              // let myself close
-              selectedEntryId = undefined;
-              selectedEntry = undefined;
-              selectedSense = undefined;
+      {@const disableExpand = onlyEntries || (disabledEntry && disabledEntry.disableSenses)}
+      <div class="entry"
+        class:selected={entry.id === selectedEntryId && !selectedSense && !disabledEntry}
+        class:disabled={disabledEntry}
+        class:disable-expand={disableExpand}>
+        <ExpansionPanel
+          bind:group={selectedEntryId}
+          value={entry.id}
+          disabled={disableExpand}
+          on:change={(event) => {
+            if (event.detail.open) { // I'm opening so I manage the state
+              select(entry);
+            } else if (selectedEntry?.id === entry.id) { // a different entry was not selected, so I still manage the state
+              if (selectedSense && !disabledEntry) {
+                // move selection to the entry and keep myself open
+                select(entry);
+              } else {
+                // let myself close
+                select();
+              }
             }
-          }
-        }}>
-        <button slot="trigger" class="flex-1 flex justify-between items-center text-left max-w-full overflow-hidden">
-          <ListItem
-            slot="trigger"
-            title={headword(entry).padStart(1, '–')}
-            subheading={glosses(entry).padStart(1, '–')}
-            noShadow />
-          <div class="grow"></div>
-          {#if disabledEntry}
-            <span class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-              {disabledEntry.reason}
-            </span>
-          {/if}
-          {#if entry.senses.length}
-            <span class="aspect-square w-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
-              {entry.senses.length}
-            </span>
-          {/if}
-        </button>
-        {#each entry.senses as sense}
-          {@const disabledSense = disableSense?.(sense, entry)}
-          <span class="hidden"></span>
-          <button class="sense-list-item w-full bg-surface-100 flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
-            class:selected={selectedSense?.id === sense.id}
-            class:disabled-list-item={!!disabledSense}
-            on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}>
+          }}>
+          <button slot="trigger" class="flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
+            on:click={() => {
+              if (disableExpand && !disabledEntry) {
+                // the change event above is not in use, so we need to do it here
+                select(selectedEntry?.id === entry.id ? undefined : entry);
+              }
+            }}>
             <ListItem
-              title={firstGloss(sense).padStart(1, '–')}
-              subheading={firstDef(sense).padStart(1, '–')}
-              classes={{icon: 'text-info'}}
+              slot="trigger"
+              title={headword(entry).padStart(1, '–')}
+              subheading={glosses(entry).padStart(1, '–')}
               noShadow />
-            {#if disabledSense}
-              <span class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
-                {disabledSense}
+            <div class="grow"></div>
+            {#if disabledEntry}
+              <span class="mr-2 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                {disabledEntry.reason}
+              </span>
+            {/if}
+            {#if entry.senses.length}
+              <span class="aspect-square w-7 mr-4 shrink-0 justify-center inline-flex items-center border border-info text-info rounded-lg">
+                {entry.senses.length}
               </span>
             {/if}
           </button>
-        {/each}
-        <ListItem
-          title="Add Sense..."
-          icon={mdiPlus}
-          classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
-          noShadow
-          on:click={() => onClickAddSense(entry)}
-        />
-      </ExpansionPanel>
+          {#each entry.senses as sense}
+            {@const disabledSense = disableSense?.(sense, entry)}
+            <span class="hidden"></span> <!-- so the first sense doesn't get :first styles, because the entry is the first list item -->
+            <button class="sense w-full bg-surface-100 flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
+              class:selected={selectedSense?.id === sense.id}
+              class:disabled={disabledSense}
+              on:click={() => selectedSense = selectedSense?.id === sense.id ? undefined : sense}>
+              <ListItem
+                title={firstGloss(sense).padStart(1, '–')}
+                subheading={firstDef(sense).padStart(1, '–')}
+                classes={{icon: 'text-info'}}
+                noShadow />
+              {#if disabledSense}
+                <span class="mr-4 shrink-0 h-7 px-2 justify-center inline-flex items-center border border-warning text-warning rounded-lg">
+                  {disabledSense}
+                </span>
+              {/if}
+            </button>
+          {/each}
+          <ListItem
+            title="Add Sense..."
+            icon={mdiPlus}
+            classes={{root: 'text-success py-4 border-none hover:bg-success-900/25'}}
+            noShadow
+            on:click={() => onClickAddSense(entry)}
+          />
+        </ExpansionPanel>
+      </div>
     {/each}
     {#if $displayedEntries.length === 0 && addedEntries.length === 0}
       <div class="p-4 text-center opacity-75">
@@ -194,7 +206,7 @@
           {#if $loading}
             <ProgressCircle size={30} />
           {:else}
-            Search for an entry {noSenses ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} />
+            Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} />
           {/if}
         {/if}
       </div>
