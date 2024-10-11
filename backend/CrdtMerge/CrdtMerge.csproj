@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\harmony\src\SIL.Harmony\SIL.Harmony.csproj" />
+    <ProjectReference Include="../harmony/src/SIL.Harmony/SIL.Harmony.csproj" />
+    <ProjectReference Include="../FwDataMiniLcmBridge/FwDataMiniLcmBridge.csproj" />
+    <ProjectReference Include="../LcmCrdt/LcmCrdt.csproj" />
   </ItemGroup>
 
 </Project>
