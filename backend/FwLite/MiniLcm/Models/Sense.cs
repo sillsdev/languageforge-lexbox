@@ -1,8 +1,5 @@
 ﻿namespace MiniLcm.Models;
 
-/// <summary>
-/// Contains a definition for an entry
-/// </summary>
 public class Sense : IObjectWithId
 {
     public virtual Guid Id { get; set; }

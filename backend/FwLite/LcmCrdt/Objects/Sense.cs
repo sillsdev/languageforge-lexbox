@@ -9,10 +9,6 @@ using SystemTextJsonPatch.Operations;
 
 namespace LcmCrdt.Objects;
 
-/// <summary>
-/// Contains a definition for an entry
-/// This is a CRDT object
-/// </summary>
 public class Sense : MiniLcm.Models.Sense, IObjectBase<Sense>
 {
     public static Sense FromMiniLcm(MiniLcm.Models.Sense sense, Guid entryId)

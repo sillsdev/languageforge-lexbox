@@ -26,12 +26,16 @@ public class SetComplexFormComponentChange : EditChange<CrdtComplexFormComponent
         if (ComplexFormEntryId.HasValue)
         {
             entity.ComplexFormEntryId = ComplexFormEntryId.Value;
-            entity.DeletedAt = await context.IsObjectDeleted(ComplexFormEntryId.Value) ? context.Commit.DateTime : (DateTime?)null;
+            var complexFormEntry = (await context.GetSnapshot(ComplexFormEntryId.Value))?.Entity.Is<Entry>();
+            entity.ComplexFormHeadword = complexFormEntry?.Headword();
+            entity.DeletedAt = complexFormEntry?.DeletedAt != null ? context.Commit.DateTime : (DateTime?)null;
         }
         if (ComponentEntryId.HasValue)
         {
             entity.ComponentEntryId = ComponentEntryId.Value;
-            entity.DeletedAt = await context.IsObjectDeleted(ComponentEntryId.Value) ? context.Commit.DateTime : (DateTime?)null;
+            var componentEntry = (await context.GetSnapshot(ComponentEntryId.Value))?.Entity.Is<Entry>();
+            entity.ComponentHeadword = componentEntry?.Headword();
+            entity.DeletedAt = componentEntry?.DeletedAt != null ? context.Commit.DateTime : (DateTime?)null;
         }
         entity.ComponentSenseId = ComponentSenseId;
         if (ComponentSenseId.HasValue)

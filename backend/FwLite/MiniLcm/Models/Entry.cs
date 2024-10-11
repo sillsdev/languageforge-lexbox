@@ -67,6 +67,7 @@ public class Variants
     public IList<VariantType> Types { get; set; } = [];
 }
 
+//todo support an order for the complex form types, might be here, or on the entry
 public class ComplexFormType
 {
     public virtual Guid Id { get; set; }

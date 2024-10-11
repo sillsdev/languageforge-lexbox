@@ -83,7 +83,7 @@ public class CreateEntryTests(ProjectLoaderFixture fixture) : IAsyncLifetime
     }
 
     [Fact]
-    public async Task CreateEntry_WithComponentSenseDoesNotShowOnComplexFormsList()
+    public async Task CreateEntry_WithComponentSenseDoesNotShowOnEntryComplexFormsList()
     {
         var componentSenseId = Guid.NewGuid();
         var component = await _api.CreateEntry(new()

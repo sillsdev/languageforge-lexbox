@@ -136,6 +136,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
                 .For(e => e.Components).Exclude(c => c.Id)
+                //todo the headword should be changed
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));

@@ -16,7 +16,7 @@ namespace FwDataMiniLcmBridge.Api;
 
 public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : IMiniLcmApi, IDisposable
 {
-    public LcmCache Cache => cacheLazy.Value;
+    internal LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
 
@@ -283,14 +283,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             CitationForm = FromLcmMultiString(entry.CitationForm),
             LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
             Senses = entry.AllSenses.Select(FromLexSense).ToList(),
-            ComplexFormTypes = ToComplexFormType(entry),
+            ComplexFormTypes = ToComplexFormTypes(entry),
             Components = ToComplexFormComponents(entry),
             //todo, this does not include complex forms which reference a sense
             ComplexForms = [..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry))]
         };
     }
 
-    private IList<ComplexFormType> ToComplexFormType(ILexEntry entry)
+    private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
     {
         return entry.ComplexFormEntryRefs.SingleOrDefault()
             ?.ComplexEntryTypesRS

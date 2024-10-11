@@ -216,9 +216,9 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
             .ToLookup(e => e.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
 
-        //could optimize this by doing a single query, but this is easier to read
-        entry.Components = [..await ComplexFormComponents.Where(c => c.ComplexFormEntryId == id).ToListAsyncEF()];
-        entry.ComplexForms = [..await ComplexFormComponents.Where(c => c.ComponentEntryId == id).ToListAsyncEF()];
+        var complexFormComponents = await ComplexFormComponents.Where(c => c.ComplexFormEntryId == id || c.ComponentEntryId == id).ToListAsyncEF();
+        entry.Components = [..complexFormComponents.Where(c => c.ComplexFormEntryId == id)];
+        entry.ComplexForms = [..complexFormComponents .Where(c => c.ComponentEntryId == id)];
         entry.Senses = senses;
         foreach (var sense in entry.Senses)
         {
@@ -254,7 +254,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     {
         yield return new CreateEntryChange(entry);
 
-        //only add components, if we add both components and complex forms we'll get duplicates
+        //only add components, if we add both components and complex forms we'll get duplicates when importing data
         foreach (var addEntryComponentChange in entry.Components.Select(c => new AddEntryComponentChange(c)))
         {
             yield return addEntryComponentChange;
