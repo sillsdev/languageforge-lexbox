@@ -26,11 +26,12 @@
   let openPicker = false;
 
   function addComplexForm(selection: EntrySenseSelection) {
-    const complexForm = {
+    const complexForm: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: selection.entry.id,
       complexFormHeadword: headword(selection.entry),
       componentEntryId: entry.id,
+      componentHeadword: headword(entry),
     };
     value = [...value, complexForm];
     dispatch('change', { value });

@@ -26,9 +26,10 @@
   let openPicker = false;
 
   function addComponent(selection: EntrySenseSelection) {
-    const component = {
+    const component: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: entry.id,
+      complexFormHeadword: headword(entry),
       componentEntryId: selection.entry.id,
       componentSenseId: selection.sense?.id,
       componentHeadword: headword(selection.entry),
