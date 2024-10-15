@@ -98,6 +98,24 @@
     selectedEntryId = entry?.id;
     selectedSense = sense;
   }
+
+  function onExpansionChange(event: CustomEvent<any>, entry: IEntry, disabledEntry: boolean) {
+    if (event.detail.open) { // I'm opening so I manage the state
+      select(entry);
+      return;
+    }
+      // a different entry was selected, I don't manage the state
+    if (selectedEntry?.id !== entry.id) {
+      return;
+    }
+    if (selectedSense && !disabledEntry) {
+      // move selection to the entry and keep myself open
+      select(entry);
+    } else {
+      // let myself close
+      select();
+    }
+  }
 </script>
 
 <Dialog bind:open on:close={reset} class="entry-sense-picker" classes={{title: 'p-2'}}>
@@ -132,19 +150,8 @@
           bind:group={selectedEntryId}
           value={entry.id}
           disabled={disableExpand}
-          on:change={(event) => {
-            if (event.detail.open) { // I'm opening so I manage the state
-              select(entry);
-            } else if (selectedEntry?.id === entry.id) { // a different entry was not selected, so I still manage the state
-              if (selectedSense && !disabledEntry) {
-                // move selection to the entry and keep myself open
-                select(entry);
-              } else {
-                // let myself close
-                select();
-              }
-            }
-          }}>
+          on:change={(event) => onExpansionChange(event, entry, !!disabledEntry)}
+        >
           <button slot="trigger" class="flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
             on:click={() => {
               if (disableExpand && !disabledEntry) {
@@ -153,7 +160,6 @@
               }
             }}>
             <ListItem
-              slot="trigger"
               title={headword(entry).padStart(1, '–')}
               subheading={glosses(entry).padStart(1, '–')}
               noShadow />
@@ -202,12 +208,10 @@
       <div class="p-4 text-center opacity-75">
         {#if $result.search}
           No entries found <Icon data={mdiMagnifyRemoveOutline} />
+        {:else if $loading}
+          <ProgressCircle size={30} />
         {:else}
-          {#if $loading}
-            <ProgressCircle size={30} />
-          {:else}
             Search for an entry {onlyEntries ? '' : 'or sense'} <Icon data={mdiBookSearchOutline} />
-          {/if}
         {/if}
       </div>
     {/if}
