@@ -292,7 +292,7 @@
       {/if}
       {#if $features.feedback}
         <Button
-          href="/api/feedback"
+          href="/api/feedback/fw-lite"
           target="_blank"
           size="sm"
           variant="outline"

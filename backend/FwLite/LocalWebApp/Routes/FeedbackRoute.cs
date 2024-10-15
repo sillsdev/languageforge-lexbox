@@ -4,7 +4,7 @@ public static class FeedbackRoute
 {
     public static void MapFeedbackRoutes(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/feedback", () =>
+        endpoints.MapGet("/api/feedback/fw-lite", () =>
         {
             var version = "alpha";
             var os = Environment.OSVersion.Platform switch

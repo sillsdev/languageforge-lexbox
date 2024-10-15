@@ -6,7 +6,7 @@ namespace LexBoxApi.Controllers;
 [Route("/api/feedback")]
 public class FeedbackController() : ControllerBase
 {
-    [HttpGet]
+    [HttpGet("fw-lite")]
     public IResult RedirectToFieldWorksLiteFeedbackForm()
     {
         var version = "alpha";
