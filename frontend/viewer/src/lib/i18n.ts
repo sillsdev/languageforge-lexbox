@@ -31,12 +31,16 @@ const weSayI18n = {
   'lexemeForm': 'Word',
   'gloss': 'Definition',
   'partOfSpeechId': 'Part of speech',
-};
+  complexForms: 'Part of',
+  components: 'Made of',
+} satisfies Partial<Record<FieldIds, string>>;
 
 const languageForgeI18n = {
   'lexemeForm': 'Word',
   'partOfSpeechId': 'Part of speech',
-};
+  complexForms: 'Part of',
+  components: 'Made of',
+} satisfies Partial<Record<FieldIds, string>>;
 
 const i18nMap: Record<Exclude<I18nType, ''>, Partial<Record<FieldIds, string>>> = {
   weSay: weSayI18n,
