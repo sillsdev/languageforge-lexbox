@@ -8,7 +8,7 @@ using Sense = LcmCrdt.Objects.Sense;
 
 namespace LcmCrdt.Tests;
 
-public class JsonPatchRewriteTests
+public class JsonPatchSenseRewriteTests
 {
     private JsonPatchDocument<MiniLcm.Models.Sense> _patchDocument = new() { Options = new JsonSerializerOptions(JsonSerializerDefaults.Web) };
 

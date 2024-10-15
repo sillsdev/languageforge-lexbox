@@ -20,6 +20,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="FwDataMiniLcmBridge.Tests" />
+        <InternalsVisibleTo Include="LcmDebugger" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />

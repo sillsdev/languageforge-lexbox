@@ -20,13 +20,13 @@
 <!-- https://daisyui.com/components/navbar -->
 <header>
   {#if environmentName !== 'production'}
-    <a href="https://public.languagedepot.org" class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2 underline">
+    <a href="https://lexbox.org" class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2 underline">
       {$t('environment_warning', { environmentName })}
       <span class="i-mdi-open-in-new text-xl shrink-0" />
     </a>
   {/if}
   <div class="navbar justify-between bg-primary text-primary-content md:pl-3 md:pr-6">
-    <a href={loggedIn ? '/' : '/login'} class="flex btn btn-primary text-left font-normal px-2">
+    <a id="home" href={loggedIn ? '/' : '/login'} class="flex btn btn-primary text-left font-normal px-2">
       <AppLogo class="h-[3em] w-[3em]" mono />
       <div class="flex flex-col text-2xl md:text-3xl tracking-wider">
         <span class="md:leading-none">{$t('appbar.app_name')}</span>

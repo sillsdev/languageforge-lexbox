@@ -105,10 +105,16 @@
     loadingLanguageList = false;
   }
 
+  $: orgRoles = project.organizations
+    ?.map((o) => user.orgs?.find((org) => org.orgId === o.id)?.role)
+    .filter(r => !!r) ?? [];
+  $: projectRole = project?.users?.find((u) => u.user.id == user.id)?.role;
+
   // Mirrors PermissionService.CanViewProjectMembers() in C#
   $: canViewProjectMembers = user.isAdmin
-    || user.orgs.find((o) => project.organizations?.find((org) => org.id === o.orgId))?.role === OrgRole.Admin
-    || project?.users?.find((u) => u.user.id == user.id)?.role == ProjectRole.Manager;
+    || projectRole == ProjectRole.Manager
+    || projectRole == ProjectRole.Editor && !project.isConfidential
+    || orgRoles.some(role => role === OrgRole.Admin);
 
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
@@ -272,13 +278,14 @@
 {#if project}
   <DetailsPage wide title={project.name}>
     <svelte:fragment slot="actions">
+      {#if project.isLanguageForgeProject}
+        <a href="./{project.code}/viewer" target="_blank"
+           class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
+          {$t('project_page.open_with_viewer')}
+          <span class="i-mdi-dictionary text-2xl"/>
+        </a>
+      {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
-        {#if project.isLanguageForgeProject}
-          <a href="./{project.code}/viewer" target="_blank" class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
-            {$t('project_page.open_with_viewer')}
-            <span class="i-mdi-dictionary text-2xl" />
-          </a>
-        {/if}
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}

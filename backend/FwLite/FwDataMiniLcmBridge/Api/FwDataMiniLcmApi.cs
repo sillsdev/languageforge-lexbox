@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
 using Microsoft.Extensions.Logging;
@@ -15,22 +16,25 @@ namespace FwDataMiniLcmBridge.Api;
 
 public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogger<FwDataMiniLcmApi> logger, FwDataProject project) : IMiniLcmApi, IDisposable
 {
-    private LcmCache Cache => cacheLazy.Value;
+    internal LcmCache Cache => cacheLazy.Value;
     public FwDataProject Project { get; } = project;
     public Guid ProjectId => Cache.LangProject.Guid;
 
     private IWritingSystemContainer WritingSystemContainer => Cache.ServiceLocator.WritingSystems;
-    private ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
-    private IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
+    internal ILexEntryRepository EntriesRepository => Cache.ServiceLocator.GetInstance<ILexEntryRepository>();
+    internal IRepository<ILexSense> SenseRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexSense>>();
     private IRepository<ILexExampleSentence> ExampleSentenceRepository => Cache.ServiceLocator.GetInstance<IRepository<ILexExampleSentence>>();
     private ILexEntryFactory LexEntryFactory => Cache.ServiceLocator.GetInstance<ILexEntryFactory>();
     private ILexSenseFactory LexSenseFactory => Cache.ServiceLocator.GetInstance<ILexSenseFactory>();
     private ILexExampleSentenceFactory LexExampleSentenceFactory => Cache.ServiceLocator.GetInstance<ILexExampleSentenceFactory>();
     private IMoMorphTypeRepository MorphTypeRepository => Cache.ServiceLocator.GetInstance<IMoMorphTypeRepository>();
     private IPartOfSpeechRepository PartOfSpeechRepository => Cache.ServiceLocator.GetInstance<IPartOfSpeechRepository>();
+    private ILexEntryTypeRepository LexEntryTypeRepository => Cache.ServiceLocator.GetInstance<ILexEntryTypeRepository>();
     private ICmSemanticDomainRepository SemanticDomainRepository => Cache.ServiceLocator.GetInstance<ICmSemanticDomainRepository>();
     private ICmTranslationFactory CmTranslationFactory => Cache.ServiceLocator.GetInstance<ICmTranslationFactory>();
     private ICmPossibilityRepository CmPossibilityRepository => Cache.ServiceLocator.GetInstance<ICmPossibilityRepository>();
+    private ICmPossibilityList ComplexFormTypes => Cache.LangProject.LexDbOA.ComplexEntryTypesOA;
+    private ICmPossibilityList VariantTypes => Cache.LangProject.LexDbOA.VariantEntryTypesOA;
 
     public void Dispose()
     {
@@ -232,6 +236,43 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return SemanticDomainRepository.GetObject(semanticDomainId);
     }
 
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return ComplexFormTypes.PossibilitiesOS
+            .Select(ToComplexFormType)
+            .ToAsyncEnumerable();
+    }
+
+    private ComplexFormType ToComplexFormType(ICmPossibility t)
+    {
+        return new ComplexFormType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) };
+    }
+
+    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    {
+        if (complexFormType.Id != default) throw new InvalidOperationException("Complex form type id must be empty");
+        UndoableUnitOfWorkHelper.Do("Create complex form type",
+            "Remove complex form type",
+            Cache.ActionHandlerAccessor,
+            () =>
+            {
+                var lexComplexFormType = Cache.ServiceLocator
+                    .GetInstance<ILexEntryTypeFactory>()
+                    .Create();
+                ComplexFormTypes.PossibilitiesOS.Add(lexComplexFormType);
+                UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
+                complexFormType.Id = lexComplexFormType.Guid;
+            });
+        return Task.FromResult(ToComplexFormType(ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormType.Id)));
+    }
+
+    public IAsyncEnumerable<VariantType> GetVariantTypes()
+    {
+        return VariantTypes.PossibilitiesOS
+            .Select(t => new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
+            .ToAsyncEnumerable();
+    }
+
     private Entry FromLexEntry(ILexEntry entry)
     {
         return new Entry
@@ -241,7 +282,78 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
             CitationForm = FromLcmMultiString(entry.CitationForm),
             LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
-            Senses = entry.AllSenses.Select(FromLexSense).ToList()
+            Senses = entry.AllSenses.Select(FromLexSense).ToList(),
+            ComplexFormTypes = ToComplexFormTypes(entry),
+            Components = ToComplexFormComponents(entry),
+            //todo, this does not include complex forms which reference a sense
+            ComplexForms = [..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry))]
+        };
+    }
+
+    private IList<ComplexFormType> ToComplexFormTypes(ILexEntry entry)
+    {
+        return entry.ComplexFormEntryRefs.SingleOrDefault()
+            ?.ComplexEntryTypesRS
+            .Select(ToComplexFormType)
+            .ToList() ?? [];
+    }
+    private IList<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
+    {
+        return entry.ComplexFormEntryRefs.SingleOrDefault()
+            ?.ComponentLexemesRS
+            .Select(o => o switch
+            {
+                ILexEntry component => ToEntryReference(component, entry),
+                ILexSense s => ToSenseReference(s, entry),
+                _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
+            })
+            .ToList() ?? [];
+    }
+
+    private Variants? ToVariants(ILexEntry entry)
+    {
+        var variantEntryRef = entry.VariantEntryRefs.SingleOrDefault();
+        if (variantEntryRef is null) return null;
+        return new Variants
+        {
+            Id = variantEntryRef.Guid,
+            VariantsOf =
+            [
+                ..variantEntryRef.ComponentLexemesRS.Select(o => o switch
+                {
+                    ILexEntry component => ToEntryReference(component, entry),
+                    ILexSense s => ToSenseReference(s, entry),
+                    _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
+                })
+            ],
+            Types =
+            [
+                ..variantEntryRef.VariantEntryTypesRS.Select(t =>
+                    new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name), })
+            ]
+        };
+    }
+
+    private ComplexFormComponent ToEntryReference(ILexEntry component, ILexEntry complexEntry)
+    {
+        return new ComplexFormComponent
+        {
+            ComponentEntryId = component.Guid,
+            ComponentHeadword = component.HeadWord.Text,
+            ComplexFormEntryId = complexEntry.Guid,
+            ComplexFormHeadword = complexEntry.HeadWord.Text
+        };
+    }
+
+    private ComplexFormComponent ToSenseReference(ILexSense componentSense, ILexEntry complexEntry)
+    {
+        return new ComplexFormComponent
+        {
+            ComponentEntryId = componentSense.Entry.Guid,
+            ComponentSenseId = componentSense.Guid,
+            ComponentHeadword = componentSense.Entry.HeadWord.Text,
+            ComplexFormEntryId = complexEntry.Guid,
+            ComplexFormHeadword = complexEntry.HeadWord.Text
         };
     }
 
@@ -367,9 +479,70 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     CreateSense(lexEntry, sense);
                 }
 
+                foreach (var component in entry.Components)
+                {
+                    AddComplexFormComponent(lexEntry, component);
+                }
+
+                foreach (var complexForm in entry.ComplexForms)
+                {
+                    var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
+                    AddComplexFormComponent(complexLexEntry, complexForm);
+                }
+
+                foreach (var complexFormType in entry.ComplexFormTypes)
+                {
+                    AddComplexFormType(lexEntry, complexFormType.Id);
+                }
             });
 
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
+    }
+
+    /// <summary>
+    /// must be called as part of an lcm action
+    /// </summary>
+    internal void AddComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
+    {
+        ICmObject lexComponent = component.ComponentSenseId is not null
+            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
+            : EntriesRepository.GetObject(component.ComponentEntryId);
+        lexEntry.AddComponent(lexComponent);
+    }
+
+    internal void RemoveComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
+    {
+        ICmObject lexComponent = component.ComponentSenseId is not null
+            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
+            : EntriesRepository.GetObject(component.ComponentEntryId);
+        var entryRef = lexEntry.ComplexFormEntryRefs.Single();
+        if (!entryRef.ComponentLexemesRS.Remove(lexComponent))
+        {
+            throw new InvalidOperationException("Complex form component not found, searched for " + lexComponent.ObjectIdName.Text);
+        }
+    }
+
+    internal void AddComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
+    {
+        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
+        if (entryRef is null)
+        {
+            entryRef = Cache.ServiceLocator.GetInstance<ILexEntryRefFactory>().Create();
+            lexEntry.EntryRefsOS.Add(entryRef);
+            entryRef.RefType = LexEntryRefTags.krtComplexForm;
+            entryRef.HideMinorEntry = 0;
+        }
+
+        var lexEntryType = (ILexEntryType)ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormTypeId);
+        entryRef.ComplexEntryTypesRS.Add(lexEntryType);
+    }
+
+    internal void RemoveComplexFormType(ILexEntry lexEntry, Guid complexFormTypeId)
+    {
+        ILexEntryRef? entryRef = lexEntry.ComplexFormEntryRefs.SingleOrDefault();
+        if (entryRef is null) return;
+        var lexEntryType = (ILexEntryType)ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormTypeId);
+        entryRef.ComplexEntryTypesRS.Remove(lexEntryType);
     }
 
     private IList<ITsString> MultiStringToTsStrings(MultiString? multiString)

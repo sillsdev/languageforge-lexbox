@@ -10,9 +10,11 @@ namespace LfClassicData;
 
 public static class LfClassicRoutes
 {
+    //must match the route key in ProxyConstants
+    public const string ProjectCodeRouteKey = "project-code";
     public static IEndpointConventionBuilder MapLfClassicApi(this IEndpointRouteBuilder builder)
     {
-        var group = builder.MapGroup("/api/lfclassic/{projectCode}");
+        var group = builder.MapGroup("/api/lfclassic/{project-code}");
         group.MapGet("/writingSystems", MiniLcm.GetWritingSystems);
         group.MapGet("/entries", MiniLcm.GetEntries);
         group.MapGet("/entries/{search}", MiniLcm.SearchEntries);
@@ -25,14 +27,14 @@ public static class LfClassicRoutes
     //swagger docs pickup their controller name from the type that the callback is defined in, that's why this type exists.
     private static class MiniLcm
     {
-        public static Task<WritingSystems> GetWritingSystems([FromRoute] string projectCode,
+        public static Task<WritingSystems> GetWritingSystems([FromRoute(Name = ProjectCodeRouteKey)] string projectCode,
             [FromServices] LfClassicLexboxApiProvider provider)
         {
             var api = provider.GetProjectApi(projectCode);
             return api.GetWritingSystems();
         }
 
-        public static IAsyncEnumerable<Entry> GetEntries([FromRoute] string projectCode,
+        public static IAsyncEnumerable<Entry> GetEntries([FromRoute(Name = ProjectCodeRouteKey)] string projectCode,
             [FromServices] LfClassicLexboxApiProvider provider,
             [AsParameters] ClassicQueryOptions options)
         {
@@ -40,7 +42,7 @@ public static class LfClassicRoutes
             return api.GetEntries(options.ToQueryOptions());
         }
 
-        public static IAsyncEnumerable<Entry> SearchEntries([FromRoute] string projectCode,
+        public static IAsyncEnumerable<Entry> SearchEntries([FromRoute(Name = ProjectCodeRouteKey)] string projectCode,
             [FromServices] LfClassicLexboxApiProvider provider,
             [FromRoute] string search,
             [AsParameters] ClassicQueryOptions options)
@@ -49,7 +51,7 @@ public static class LfClassicRoutes
             return api.SearchEntries(search, options.ToQueryOptions());
         }
 
-        public static Task<Entry?> GetEntry([FromRoute] string projectCode,
+        public static Task<Entry?> GetEntry([FromRoute(Name = ProjectCodeRouteKey)] string projectCode,
             Guid id,
             [FromServices] LfClassicLexboxApiProvider provider)
         {
@@ -57,14 +59,14 @@ public static class LfClassicRoutes
             return api.GetEntry(id);
         }
 
-        public static IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech([FromRoute] string projectCode,
+        public static IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech([FromRoute(Name = ProjectCodeRouteKey)] string projectCode,
             [FromServices] LfClassicLexboxApiProvider provider)
         {
             var api = provider.GetProjectApi(projectCode);
             return api.GetPartsOfSpeech();
         }
 
-        public static IAsyncEnumerable<SemanticDomain> GetSemanticDomains([FromRoute] string projectCode,
+        public static IAsyncEnumerable<SemanticDomain> GetSemanticDomains([FromRoute(Name = ProjectCodeRouteKey)] string projectCode,
             [FromServices] LfClassicLexboxApiProvider provider)
         {
             var api = provider.GetProjectApi(projectCode);

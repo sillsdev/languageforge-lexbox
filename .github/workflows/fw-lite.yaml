@@ -197,33 +197,15 @@ jobs:
 
       - name: Sign with Trusted Signing
         if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
-        uses: azure/trusted-signing-action@v0.4.0
+        uses: sillsdev/codesign/trusted-signing-action@v3
         with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: ${{ vars.TRUSTED_SIGNING_ENDPOINT }}
-          trusted-signing-account-name: ${{ vars.TRUSTED_SIGNING_ACCOUNT_NAME }}
-          certificate-profile-name: ${{ vars.CERTIFICATE_PROFILE_NAME }}
+          credentials: ${{ secrets.TRUSTED_SIGNING_CREDENTIALS }}
           files-folder: ${{ github.workspace }}/backend/FwLite/artifacts/sign
           files-folder-filter: msixbundle,exe
           files-folder-recurse: true
           files-folder-depth: 4
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
           description:  'Release for version ${{ needs.build-and-test.outputs.version }} from branch ${{ github.ref_name || github.head_ref }}'
           description-url: 'https://github.com/sillsdev/languageforge-lexbox'
-          trace: ${{ runner.debug == '1' }}
-          exclude-workload-identity-credential: true
-          exclude-managed-identity-credential: true
-          exclude-shared-token-cache-credential: true
-          exclude-visual-studio-credential: true
-          exclude-visual-studio-code-credential: true
-          exclude-azure-cli-credential: true
-          exclude-azure-powershell-credential: true
-          exclude-azure-developer-cli-credential: true
-          exclude-interactive-browser-credential: true
 
       - name: Upload FWLite Portable
         uses: actions/upload-artifact@v4
@@ -240,7 +222,7 @@ jobs:
           path: backend/FwLite/artifacts/sign/*.msixbundle
 
   create-release:
-    if: ${{ github.ref_name == 'main' || github.head_ref == 'chore/setup-trusted-signing' }}
+    if: ${{ github.ref_name == 'main' }}
     name: Create Release
     needs: [ build-and-test, publish-win, publish-linux, publish-mac]
     runs-on: ubuntu-latest
@@ -262,6 +244,7 @@ jobs:
       - name: Zip artifacts
         run: |
           zip -r fw-lite-portable.zip fw-lite-portable
+          chmod +x fw-lite-local-web-app-linux/*/LocalWebApp
           zip -r fw-lite-local-web-app-linux.zip fw-lite-local-web-app-linux
 
       - name: Create Release
@@ -270,7 +253,6 @@ jobs:
           tag_name: ${{ needs.build-and-test.outputs.version }}
           target_commitish: ${{ github.sha }}
           generate_release_notes: true
-          draft: ${{ github.head_ref == 'chore/setup-trusted-signing' }}
           files: |
             fw-lite-msix/*
             fw-lite-portable.zip

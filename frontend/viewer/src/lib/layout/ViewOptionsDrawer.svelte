@@ -1,45 +1,16 @@
 <script lang="ts">
-  import {Button, Drawer, SelectField, Switch} from 'svelte-ux';
+  import {Drawer, SelectField, Switch} from 'svelte-ux';
   import type {LexboxFeatures} from '../config-types';
   import DevContent from './DevContent.svelte';
   import {type View, views} from '../entry-editor/view-data';
   import type {ViewSettings} from '../services/view-service';
   import {generateExternalChanges} from '../debug';
-  import {writable} from 'svelte/store';
-  import {type ServerStatus, useProjectsService} from '../services/projects-service';
-  import {getContext} from 'svelte';
-  import {mdiBookArrowUpOutline, mdiBookSyncOutline} from '@mdi/js';
+  import SyncConfig from '../SyncConfig.svelte';
 
-  const projectsService = useProjectsService();
-  let projectName = getContext<string>('project-name');
   export let activeView: View;
   export let viewSettings: ViewSettings;
   export let features: LexboxFeatures;
   export let open = false;
-  const servers = writable<ServerStatus[]>([], set => {
-    projectsService.fetchServers().then(set);
-  });
-  let isUploaded = false;
-  let projectServer = writable<string | null>(null, set => {
-    projectsService.getProjectServer(projectName).then(server => {
-      isUploaded = !!server;
-      return server;
-    }).then(set);
-  });
-  $: if (!$projectServer && $servers.length > 0) {
-    $projectServer = $servers[0].authority;
-  }
-  $: server = $servers.find((server) => server.authority === $projectServer) ?? {displayName: 'Unknown', authority: '', loggedIn: false};
-  let uploading = false;
-
-  async function upload() {
-    if (!$projectServer) return;
-    uploading = true;
-    //todo if not logged in then login
-    await projectsService.uploadCrdtProject($projectServer, projectName);
-    uploading = false;
-    isUploaded = true;
-  }
 </script>
 
 <Drawer bind:open placement="right" classes={{ root: 'w-[400px] max-w-full' }}>
@@ -61,31 +32,8 @@
               color="neutral"/>
       Hide empty fields
     </label>
-    {#if $servers.length > 1 && !isUploaded}
-      <SelectField
-      label="Sync Server"
-      disabled={isUploaded}
-      options={($servers).map((server) => ({ value: server.authority, label: server.displayName, group: server.displayName }))}
-      bind:value={$projectServer}
-      classes={{root: 'view-select w-auto', options: 'view-select-options'}}
-      clearable={false}
-      labelPlacement="top"
-      clearSearchOnOpen={false}
-      fieldActions={(elem) => /* a hack to disable typing/filtering */ {elem.readOnly = true; return [];}}
-      search={() => /* a hack to always show all options */ Promise.resolve()}>
-    </SelectField>
-    {:else if isUploaded}
-      <Button disabled color="success" icon={mdiBookSyncOutline} size="md">
-        Syncing with {server.displayName}
-      </Button>
-    {/if}
-    {#if $projectServer && !isUploaded && server.loggedIn}
-      <Button variant="fill-light" color="primary" loading={uploading} on:click={upload} icon={mdiBookArrowUpOutline}>
-        Upload to {server.displayName}
-      </Button>
-    {:else if $projectServer && !isUploaded && !server.loggedIn}
-      <!--todo after login we are sent home, should be sent back to the current project-->
-      <Button variant="fill" href="/api/auth/login/{server.authority}">Login</Button>
+    {#if features.sync}
+      <SyncConfig />
     {/if}
 
     <div class="grow"></div>

@@ -4,11 +4,14 @@ using SIL.Harmony.Core;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Entries;
+using LcmCrdt.Objects;
 using LcmCrdt.Data;
 using MiniLcm;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using MiniLcm.Models;
+using PartOfSpeech = MiniLcm.Models.PartOfSpeech;
 using SemanticDomain = LcmCrdt.Objects.SemanticDomain;
 
 namespace LcmCrdt;
@@ -19,6 +22,8 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
 
 
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
+    private IQueryable<CrdtComplexFormComponent> ComplexFormComponents => dataModel.GetLatestObjects<CrdtComplexFormComponent>();
+    private IQueryable<CrdtComplexFormType> ComplexFormTypes => dataModel.GetLatestObjects<CrdtComplexFormType>();
     private IQueryable<Sense> Senses => dataModel.GetLatestObjects<Sense>();
     private IQueryable<ExampleSentence> ExampleSentences => dataModel.GetLatestObjects<ExampleSentence>();
     private IQueryable<WritingSystem> WritingSystems => dataModel.GetLatestObjects<WritingSystem>();
@@ -95,6 +100,17 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         await dataModel.AddChanges(ClientId, semanticDomains.Select(sd => new CreateSemanticDomainChange(sd.Id, sd.Name, sd.Code)));
     }
 
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return ComplexFormTypes.AsAsyncEnumerable();
+    }
+
+    public async Task<ComplexFormType> CreateComplexFormType(MiniLcm.Models.ComplexFormType complexFormType)
+    {
+        await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
+        return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
+    }
+
     public IAsyncEnumerable<MiniLcm.Models.Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);
@@ -137,12 +153,15 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         var sortWs = (await GetWritingSystem(options.Order.WritingSystem, WritingSystemType.Vernacular))?.WsId;
         if (sortWs is null)
             throw new NullReferenceException($"sort writing system {options.Order.WritingSystem} not found");
-        queryable = queryable.OrderBy(e => e.Headword(sortWs.Value))
+        queryable = queryable
+            .OrderBy(e => e.Headword(sortWs.Value))
             // .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);
-        var entries = await queryable.ToArrayAsyncLinqToDB();
+        var entries = await queryable
+            .ToArrayAsyncLinqToDB();
         await LoadSenses(entries);
+        await LoadComplexFormData(entries);
 
         return entries;
     }
@@ -172,6 +191,20 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         }
     }
 
+    private async Task LoadComplexFormData(Entry[] entries)
+    {
+        var allComponents = await ComplexFormComponents
+            .Where(c => entries.Select(e => e.Id).Contains(c.ComplexFormEntryId) || entries.Select(e => e.Id).Contains(c.ComponentEntryId))
+            .ToArrayAsyncEF();
+        var componentLookup = allComponents.ToLookup(c => c.ComplexFormEntryId).ToDictionary(c => c.Key, c => c.ToArray());
+        var complexFormLookup = allComponents.ToLookup(c => c.ComponentEntryId).ToDictionary(c => c.Key, c => c.ToArray());
+        foreach (var entry in entries)
+        {
+            entry.Components = componentLookup.TryGetValue(entry.Id, out var components) ? components.ToArray() : [];
+            entry.ComplexForms = complexFormLookup.TryGetValue(entry.Id, out var complexForms) ? complexForms.ToArray() : [];
+        }
+    }
+
     public async Task<MiniLcm.Models.Entry?> GetEntry(Guid id)
     {
         var entry = await Entries.SingleOrDefaultAsync(e => e.Id == id);
@@ -182,8 +215,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
                 .Where(e => senses.Select(s => s.Id).Contains(e.SenseId)).ToArrayAsyncEF())
             .ToLookup(e => e.SenseId)
             .ToDictionary(g => g.Key, g => g.ToArray());
+
+        var complexFormComponents = await ComplexFormComponents.Where(c => c.ComplexFormEntryId == id || c.ComponentEntryId == id).ToListAsyncEF();
+        entry.Components = [..complexFormComponents.Where(c => c.ComplexFormEntryId == id)];
+        entry.ComplexForms = [..complexFormComponents .Where(c => c.ComponentEntryId == id)];
         entry.Senses = senses;
-        foreach (var sense in senses)
+        foreach (var sense in entry.Senses)
         {
             sense.ExampleSentences = exampleSentences.TryGetValue(sense.Id, out var sentences) ? sentences.ToArray() : [];
         }
@@ -216,6 +253,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     private IEnumerable<IChange> CreateEntryChanges(MiniLcm.Models.Entry entry, Dictionary<Guid, SemanticDomain> semanticDomains, Dictionary<Guid, Objects.PartOfSpeech> partsOfSpeech)
     {
         yield return new CreateEntryChange(entry);
+
+        //only add components, if we add both components and complex forms we'll get duplicates when importing data
+        foreach (var addEntryComponentChange in entry.Components.Select(c => new AddEntryComponentChange(c)))
+        {
+            yield return addEntryComponentChange;
+        }
+        foreach (var addComplexFormTypeChange in entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c)))
+        {
+            yield return addComplexFormTypeChange;
+        }
         foreach (var sense in entry.Senses)
         {
             sense.SemanticDomains = sense.SemanticDomains
@@ -242,7 +289,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
             new CreateEntryChange(entry),
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany(s => CreateSenseChanges(entry.Id, s))
-                .ToArrayAsync()
+                .ToArrayAsync(),
+            ..entry.Components.Select(c => new AddEntryComponentChange(c)),
+            ..entry.ComplexForms.Select(c => new AddEntryComponentChange(c)),
+            ..entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c))
         ]);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
     }
@@ -250,8 +300,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
     public async Task<MiniLcm.Models.Entry> UpdateEntry(Guid id,
         UpdateObjectInput<MiniLcm.Models.Entry> update)
     {
-        var patchChange = new JsonPatchChange<Entry>(id, update.Patch, jsonOptions);
-        await dataModel.AddChange(ClientId, patchChange);
+        var entry = await GetEntry(id);
+        if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
+
+        await dataModel.AddChanges(ClientId, [..Entry.ChangesFromJsonPatch((Entry)entry, update.Patch)]);
         return await GetEntry(id) ?? throw new NullReferenceException();
     }
 
