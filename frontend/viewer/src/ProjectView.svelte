@@ -188,9 +188,8 @@
 
   $: _loading = !$entries || !$writingSystems || loading;
 
-  function onEntryCreated(entry: IEntry, requesterOptions?: unknown) {
+  function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
-    const options = requesterOptions as NewEntryDialogOptions | undefined;
     if (!options?.dontNavigate) {
       navigateToEntry(entry, headword(entry));
     }
@@ -240,10 +239,12 @@
   }
 
   let newEntryDialog: NewEntryDialog;
-  function openNewEntryDialog(text: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
+  async function openNewEntryDialog(text: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
     const defaultWs = $writingSystems?.vernacular[0].id;
-    if (defaultWs === undefined) return Promise.resolve(undefined);
-    return newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}}, options);
+    if (defaultWs === undefined) return undefined;
+    const entry = await newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
+    if (entry) onEntryCreated(entry, options);
+    return entry;
   }
 
   initProjectCommands({
@@ -289,7 +290,7 @@
     <div class="max-sm:hidden flex-grow"></div>
     <div slot="actions" class="flex items-center gap-2 sm:gap-4 whitespace-nowrap">
       {#if !readonly}
-        <NewEntryDialog bind:this={newEntryDialog} on:created={e => onEntryCreated(e.detail.entry, e.detail.requesterOptions)} />
+        <NewEntryDialog bind:this={newEntryDialog} />
       {/if}
       <Button
         on:click={() => (showOptionsDialog = true)}
@@ -344,7 +345,7 @@
           <div class="w-full h-full z-10 bg-surface-100 flex flex-col gap-4 grow items-center justify-center text-2xl opacity-75">
             No entry selected
             {#if !readonly}
-              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry, e.detail.requesterOptions)}/>
+              <NewEntryDialog on:created={e => onEntryCreated(e.detail.entry)}/>
             {/if}
           </div>
         {/if}

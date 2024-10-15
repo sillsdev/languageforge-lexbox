@@ -9,7 +9,7 @@
   import type { SaveHandler } from '../services/save-event-service';
 
   const dispatch = createEventDispatcher<{
-    created: { entry: IEntry, requesterOptions?: unknown };
+    created: { entry: IEntry };
   }>();
 
   let loading = false;
@@ -18,15 +18,14 @@
   const lexboxApi = useLexboxApi();
   const saveHandler = getContext<SaveHandler>('saveHandler');
   let requester: {
-    resolve: (entry: IEntry | undefined) => void,
-    options?: unknown,
+    resolve: (entry: IEntry | undefined) => void
   } | undefined;
 
   async function createEntry(e: Event, closeDialog: () => void) {
     e.preventDefault();
     loading = true;
     await saveHandler(() => lexboxApi.CreateEntry(entry));
-    dispatch('created', {entry, requesterOptions: requester?.options});
+    dispatch('created', {entry});
     if (requester) {
       requester.resolve(entry);
       requester = undefined;
@@ -35,10 +34,10 @@
     closeDialog();
   }
 
-  export function openWithValue(newEntry: Partial<IEntry>, options?: unknown): Promise<IEntry | undefined> {
+  export function openWithValue(newEntry: Partial<IEntry>): Promise<IEntry | undefined> {
     return new Promise<IEntry | undefined>((resolve) => {
       if (requester) requester.resolve(undefined);
-      requester = { resolve, options };
+      requester = { resolve };
       const tmpEntry = defaultEntry();
       toggle.on = true;
       entry = {...tmpEntry, ...newEntry, id: tmpEntry.id};
