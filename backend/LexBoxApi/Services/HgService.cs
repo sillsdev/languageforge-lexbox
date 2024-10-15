@@ -271,16 +271,8 @@ public partial class HgService : IHgService, IHostedService
     {
         var result = await ExecuteHgCommandServerCommand(code, "flexmodelversion", token);
         var text = await result.ReadAsStringAsync(token);
-        try
-        {
-            var json = JsonDocument.Parse(text);
-            return json.RootElement.GetProperty("modelversion").GetInt32();
-        }
-        catch
-        {
-            if (int.TryParse(text, out var num)) return num;
-        }
-        return null;
+        var json = JsonDocument.Parse(text);
+        return json.RootElement.GetProperty("modelversion").GetInt32();
     }
 
     public Task RevertRepo(ProjectCode code, string revHash)

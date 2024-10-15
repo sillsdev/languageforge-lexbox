@@ -389,7 +389,6 @@
           </AdminContent>
         </DetailItem>
       {/if}
-      <!-- Only show model version to project managers and admins, too technical to show to regular members -->
       {#if project.type === ProjectType.FlEx}
         <DetailItem title={$t('project_page.model_version')}>
           <FlexModelVersionText modelVersion={flexModelVersion ?? 0} />

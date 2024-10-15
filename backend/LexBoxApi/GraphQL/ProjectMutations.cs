@@ -425,8 +425,6 @@ public class ProjectMutations
     {
         var projectId = await projectService.LookupProjectId(code);
         await permissionService.AssertCanManageProject(projectId);
-        var project = await dbContext.Projects.FindAsync(projectId);
-        NotFoundException.ThrowIfNull(project);
         await projectService.UpdateFLExModelVersion(projectId);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
