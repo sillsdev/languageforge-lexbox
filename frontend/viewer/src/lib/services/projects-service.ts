@@ -1,4 +1,6 @@
-﻿export type Project = {
+﻿import {AppNotification} from '../notifications/notifications';
+
+export type Project = {
   name: string;
   crdt: boolean;
   fwdata: boolean;
@@ -33,7 +35,11 @@ export class ProjectService {
   }
 
   async downloadCrdtProject(project: Project) {
-    await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
+    const r = await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
+    if (r.status !== 200) {
+      AppNotification.display(`Failed to download project, status code ${r.status}`, 'error');
+      console.error(`Failed to download project ${project.name}`, r)
+    }
   }
 
   async uploadCrdtProject(server: string, projectName: string) {
