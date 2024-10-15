@@ -2,9 +2,12 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <RootNamespace>FixFwData</RootNamespace>
+    <Description>FixFwData</Description>
+    <Company>SIL International</Company>
+    <Authors>SIL International</Authors>
+    <Product>LexBoxApi Testing</Product>
+    <Copyright>Copyright © 2023 SIL International</Copyright>
   </PropertyGroup>
 
   <Target Name="CreateExe" AfterTargets="Build" Condition="Exists('$(OutputPath)/FixFwData') And !Exists('$(OutputPath)/FixFwData.exe')">
