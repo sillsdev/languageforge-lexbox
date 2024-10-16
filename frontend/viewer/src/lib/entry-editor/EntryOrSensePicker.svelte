@@ -99,8 +99,8 @@
     selectedSense = sense;
   }
 
-  function onExpansionChange(event: CustomEvent<any>, entry: IEntry, disabledEntry: boolean) {
-    if (event.detail.open) { // I'm opening so I manage the state
+  function onExpansionChange(open: boolean, entry: IEntry, disabledEntry: boolean) {
+    if (open) { // I'm opening so I manage the state
       select(entry);
       return;
     }
@@ -150,12 +150,12 @@
           bind:group={selectedEntryId}
           value={entry.id}
           disabled={disableExpand}
-          on:change={(event) => onExpansionChange(event, entry, !!disabledEntry)}
+          on:change={(event) => onExpansionChange(event.detail.open, entry, !!disabledEntry)}
         >
-          <button slot="trigger" class="flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
+          <button disabled={!!disabledEntry} slot="trigger" class="flex-1 flex justify-between items-center text-left max-w-full overflow-hidden"
             on:click={() => {
-              if (disableExpand && !disabledEntry) {
-                // the change event above is not in use, so we need to do it here
+              if (disableExpand) {
+                // In this case, the ExpansionPanel' on:change event above is not in use, so we need to manage state here
                 select(selectedEntry?.id === entry.id ? undefined : entry);
               }
             }}>
