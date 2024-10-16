@@ -29,8 +29,6 @@ export type OptionFieldConfig = {
   ws: `first-${WritingSystemType}`;
 }
 
-export type OptionFieldValue = {id: string};
-
 export type BaseEntityFieldConfig<T> = (({
   type: 'multi';
   id: ConditionalKeys<T, IMultiString>;

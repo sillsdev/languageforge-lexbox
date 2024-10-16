@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { MultiString } from '../../mini-lcm';
-  import type {FieldConfig, OptionFieldConfig, OptionFieldValue} from '../../config-types';
+  import type {FieldConfig, OptionFieldConfig} from '../../config-types';
   import MultiOptionEditor from './MultiOptionEditor.svelte';
   import SingleOptionEditor from './SingleOptionEditor.svelte';
   import SingleFieldEditor from './SingleFieldEditor.svelte';
@@ -33,7 +33,7 @@
   function isSingleOption(state: {value: unknown, field: FieldConfig}): state is {value: string, field: FieldConfig & OptionFieldConfig} {
     return field.type === 'option';
   }
-  function isMultiOption(state: {value: unknown, field: FieldConfig}): state is {value: OptionFieldValue[], field: FieldConfig & OptionFieldConfig} {
+  function isMultiOption(state: {value: unknown, field: FieldConfig}): state is {value: string[], field: FieldConfig & OptionFieldConfig} {
     return field.type === 'multi-option';
   }
 </script>
