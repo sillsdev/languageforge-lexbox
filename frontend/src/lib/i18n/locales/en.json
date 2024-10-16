@@ -166,7 +166,8 @@
     "welcome": "Lexbox is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
-the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
+the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand. \
+Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbox)."
   },
   "org": {
     "table": {
@@ -420,6 +421,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "model_version": "Model Version",
     "vernacular_langs": "Vernacular writing systems",
     "analysis_langs": "Analysis writing systems",
     "organization": {

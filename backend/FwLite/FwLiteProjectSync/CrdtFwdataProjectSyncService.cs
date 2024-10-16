@@ -42,6 +42,8 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
             return new SyncResult(entryCount, 0);
         }
 
+        //todo sync complex form types, parts of speech, semantic domains, writing systems
+
         var currentFwDataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         var crdtChanges = await EntrySync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
         LogDryRun(crdtApi, "crdt");
