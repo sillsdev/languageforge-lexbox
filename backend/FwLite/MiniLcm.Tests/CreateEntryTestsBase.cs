@@ -92,7 +92,7 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
 
         var entry = await Api.GetEntry(component.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().BeEmpty();
+        entry!.ComplexForms.Should().BeEmpty("complex form senses are not loaded on the entry");
 
         entry = await Api.GetEntry(complexFormEntryId);
         entry.Should().NotBeNull();
