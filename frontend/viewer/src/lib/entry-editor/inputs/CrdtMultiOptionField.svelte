@@ -15,6 +15,7 @@
   export let readonly: boolean | undefined = undefined;
   let append: HTMLElement;
 
+  $: sortedOptions = options.sort((a, b) => a.label.localeCompare(b.label));
 
   function asMultiSelectValues(values: any[]): string[] {
     return values?.map(v => v.id) ?? [];
@@ -31,7 +32,7 @@
     }}
     value={asMultiSelectValues(editorValue)}
     disabled={readonly}
-    {options}
+    options={sortedOptions}
     icon={readonly ? undefined : mdiMagnify}
     valueProp="value"
     labelProp="label"
