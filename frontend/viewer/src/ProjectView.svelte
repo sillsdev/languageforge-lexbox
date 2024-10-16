@@ -248,7 +248,10 @@
 </div>
 {:else}
 <div class="project-view !flex flex-col PortalTarget" style="{spaceForEditorStyle}">
-  <AppBar title={projectName} class="bg-secondary min-h-12 shadow-md">
+  <AppBar class="bg-secondary min-h-12 shadow-md">
+    <div slot="title" class="prose">
+      <h3>{projectName}</h3>
+    </div>
     <Button
       classes={{root: showHomeButton ? '' : 'hidden'}}
       slot="menuIcon"
