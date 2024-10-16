@@ -36,6 +36,7 @@
   import {views} from './lib/entry-editor/view-data';
   import {initWritingSystems} from './lib/writing-systems';
   import {useEventBus} from './lib/services/event-bus';
+  import AboutDialog from './lib/about/AboutDialog.svelte';
 
   export let loading = false;
 
@@ -289,9 +290,12 @@
       {#if $features.history}
         <ActivityView {projectName}/>
       {/if}
+      {#if $features.about}
+        <AboutDialog text={$features.about} />
+      {/if}
       {#if $features.feedback}
         <Button
-          href="/api/feedback"
+          href="/api/feedback/fw-lite"
           target="_blank"
           size="sm"
           variant="outline"

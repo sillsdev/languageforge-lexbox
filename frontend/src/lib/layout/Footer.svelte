@@ -11,11 +11,11 @@
       <div class="flex gap-4 items-center">
         <a href="https://www.sil.org/">
           <!-- https://www.sil.org/about/media -->
-          <img class="h-6 md:h-12" height="48" src={silLogo} alt="SIL Global logo" />
+          <img class="h-6 md:h-10" height="48" src={silLogo} alt="SIL Global logo" />
         </a>
         <a href="https://li.payap.ac.th/">
           <!-- http://info.payap.ac.th/info/link_download/ -->
-          <img class="h-6 md:h-11" height="44" src={payapLogo} alt="Payap University logo" />
+          <img class="h-6 md:h-9" height="44" src={payapLogo} alt="Payap University logo" />
         </a>
       </div>
       <div>
@@ -23,9 +23,10 @@
         <a class="hover:link" href="https://www.sil.org/">SIL Global</a>
       </div>
     </div>
-    <div class="flex flex-col text-right">
-      <a class="hover:link" href="mailto:admin@languagedepot.org" target="_blank">{$t('footer.contact')}</a>
+    <div class="grid grid-cols-2 gap-x-4 text-right">
+      <a class="hover:link" href="./about">{$t('about.title')}</a>
       <a class="hover:link" href="https://software.sil.org/language-software-terms-of-use/">{$t('footer.terms_of_use')}</a>
+      <a class="hover:link" href="mailto:admin@languagedepot.org" target="_blank">{$t('footer.contact')}</a>
       <a class="hover:link" href="https://software.sil.org/language-software-privacy-policy/">{$t('footer.privacy_policy')}</a>
     </div>
   </div>

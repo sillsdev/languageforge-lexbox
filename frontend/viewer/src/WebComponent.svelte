@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import ProjectView from './ProjectView.svelte';
-  import { fixBrokenNestedGlobalStyles } from './lib/utils/style-fix';
   import { getSettings } from 'svelte-ux';
+  import css from './app.postcss?inline';
 
   let loading = true;
 
@@ -11,7 +11,6 @@
   onMount(() => {
     const shadowRoot = document.querySelector('lexbox-svelte')?.shadowRoot;
     if (!shadowRoot) throw new Error('Could not find shadow root');
-    fixBrokenNestedGlobalStyles(shadowRoot);
 
     const abortController = new AbortController();
     window.addEventListener('popstate', () => {
@@ -39,9 +38,9 @@
 
 <svelte:options customElement={{ tag: 'lexbox-svelte' }} />
 
-<style global lang="postcss">
-  @import './app.postcss';
-</style>
+<svelte:element this="style">
+  {css}
+</svelte:element>
 
 <div class="app contents" class:dark={$currentTheme.dark}>
   <ProjectView {projectName} isConnected {loading} showHomeButton={false} />
