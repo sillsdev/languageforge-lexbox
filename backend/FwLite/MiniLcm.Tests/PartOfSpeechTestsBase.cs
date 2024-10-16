@@ -51,9 +51,8 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
         var newPartOfSpeech = await Api.GetPartsOfSpeech().FirstAsync(po => po.Id != sense.PartOfSpeechId);
 
         var update = new UpdateObjectInput<Sense>()
-            .Set(s => s.PartOfSpeech,
-                newPartOfSpeech.Name
-                    ["en"]) //this won't actually update the part of speech, but it shouldn't cause an issue either.
+            //This is required for CRDTs, but not for FW
+            .Set(s => s.PartOfSpeech, newPartOfSpeech.Name["en"])
             .Set(s => s.PartOfSpeechId, newPartOfSpeech.Id);
         await Api.UpdateSense(entry.Id, sense.Id, update);
 
@@ -62,7 +61,7 @@ public abstract class PartOfSpeechTestsBase : MiniLcmTestBase
         var updatedSense = entry.Senses.First(s => s.Id == sense.Id);
         updatedSense.PartOfSpeechId.Should().Be(newPartOfSpeech.Id);
         updatedSense.PartOfSpeech.Should()
-            .NotBe(sense
-                .PartOfSpeech); //the part of speech here is whatever the default is for the project, not english.
+        //the part of speech here is whatever the default is for the project, not english.
+            .Be(newPartOfSpeech.Name["en"]);
     }
 }
