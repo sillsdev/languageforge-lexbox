@@ -14,6 +14,7 @@ module.exports = {
       collections: getIconCollections(['mdi']),
     }),
     svelteUx({ colorSpace: 'oklch' }),
+    require('@tailwindcss/typography'),
   ],
   ux: {
     themeRoot: ':root, :host',

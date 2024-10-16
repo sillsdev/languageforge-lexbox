@@ -8,6 +8,8 @@
         <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
         <ServerGarbageCollection>false</ServerGarbageCollection>
         <SelfContained>true</SelfContained>
+        <InformationalVersion>$(ApplicationDisplayVersion)</InformationalVersion>
+        <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)' == 'Release' ">
 <!--        single file disabled as it's less efficient for updates-->

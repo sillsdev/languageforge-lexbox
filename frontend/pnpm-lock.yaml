@@ -282,6 +282,9 @@ importers:
       postcss:
         specifier: 'catalog:'
         version: 8.4.47
+      svelte-exmarkdown:
+        specifier: ^3.0.5
+        version: 3.0.5(svelte@4.2.19)
       svelte-preprocess:
         specifier: 'catalog:'
         version: 5.1.4(@babel/core@7.24.7)(postcss-load-config@4.0.2(postcss@8.4.47))(postcss@8.4.47)(svelte@4.2.19)(typescript@5.3.3)
@@ -307,6 +310,9 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
         version: 3.1.1(svelte@4.2.19)(vite@5.4.9(@types/node@20.12.12))
+      '@tailwindcss/typography':
+        specifier: ^0.5.13
+        version: 0.5.13(tailwindcss@3.4.3)
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.4
