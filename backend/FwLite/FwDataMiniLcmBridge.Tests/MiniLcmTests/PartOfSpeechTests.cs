@@ -1,9 +1,6 @@
-﻿using FwDataMiniLcmBridge.Api;
-using FwDataMiniLcmBridge.Tests.Fixtures;
-using MiniLcm;
-using MiniLcm.Models;
+﻿using FwDataMiniLcmBridge.Tests.Fixtures;
 
-namespace FwDataMiniLcmBridge.Tests;
+namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 
 [Collection(ProjectLoaderFixture.Name)]
 public class PartOfSpeechTests(ProjectLoaderFixture fixture) : PartOfSpeechTestsBase

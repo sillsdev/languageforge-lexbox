@@ -1,8 +1,6 @@
 ﻿using FwDataMiniLcmBridge.Tests.Fixtures;
-using MiniLcm;
-using MiniLcm.Tests;
 
-namespace FwDataMiniLcmBridge.Tests;
+namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 
 [Collection(ProjectLoaderFixture.Name)]
 public class SemanticDomainTests(ProjectLoaderFixture fixture) : SemanticDomainTestsBase

@@ -1,9 +1,7 @@
 ﻿using FwDataMiniLcmBridge.Tests.Fixtures;
-using MiniLcm;
 using MiniLcm.Models;
-using MiniLcm.Tests;
 
-namespace FwDataMiniLcmBridge.Tests;
+namespace FwDataMiniLcmBridge.Tests.MiniLcmTests;
 
 [Collection(ProjectLoaderFixture.Name)]
 public class WritingSystemTests(ProjectLoaderFixture fixture) : WritingSystemTestsBase
