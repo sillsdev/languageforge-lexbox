@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the list of allowed commands
-allowed_commands=("verify" "tip" "tipdate" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "recover" "healthz" "invalidatedircache")
+allowed_commands=("verify" "tip" "tipdate" "wesaylexentrycount" "lexentrycount" "flexprojectid" "flexwritingsystems" "flexmodelversion" "recover" "healthz" "invalidatedircache")
 
 # Get the project code and command name from the URL
 IFS='/' read -ra PATH_SEGMENTS <<< "$PATH_INFO"
@@ -72,6 +72,10 @@ case $command_name in
 
     flexwritingsystems)
         chg cat -r tip General/LanguageProject.langproj | sed -n -e '/<AnalysisWss>/,/<\/AnalysisWss>/p' -e '/<VernWss>/,/<\/VernWss>/p' -e '/<CurAnalysisWss>/,/<\/CurAnalysisWss>/p' -e '/<CurVernWss>/,/<\/CurVernWss>/p' -e '/<CurPronunWss>/,/<\/CurPronunWss>/p'
+        ;;
+
+    flexmodelversion)
+        chg cat -r tip FLExProject.ModelVersion
         ;;
 
     tip)
