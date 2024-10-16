@@ -64,7 +64,7 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
     }
 
     [Fact]
-    public async Task CreateEntry_WithComponentSenseDoesNotShowOnEntryComplexFormsList()
+    public async Task CreateEntry_WithComponentSenseDoesShowOnEntryComplexFormsList()
     {
         var componentSenseId = Guid.NewGuid();
         var component = await Api.CreateEntry(new()
@@ -92,7 +92,7 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
 
         var entry = await Api.GetEntry(component.Id);
         entry.Should().NotBeNull();
-        entry!.ComplexForms.Should().BeEmpty("complex form senses are not loaded on the entry");
+        entry!.ComplexForms.Should().ContainSingle().Which.ComponentSenseId.Should().Be(componentSenseId);
 
         entry = await Api.GetEntry(complexFormEntryId);
         entry.Should().NotBeNull();
