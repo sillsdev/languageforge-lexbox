@@ -62,11 +62,11 @@
     addedEntries = [];
   }
 
-  function onPick() {
+  function onPick(): void {
     dispatch('pick', {entry: selectedEntry!, sense: selectedSense});
   }
 
-  function reset() {
+  function reset(): void {
     $search = '';
     selectedEntry = undefined;
     selectedEntryId = undefined;
@@ -99,7 +99,7 @@
     selectedSense = sense;
   }
 
-  function onExpansionChange(open: boolean, entry: IEntry, disabledEntry: boolean) {
+  function onExpansionChange(open: boolean, entry: IEntry, disabledEntry: boolean): void {
     if (open) { // I'm opening so I manage the state
       select(entry);
       return;
@@ -221,7 +221,7 @@
         icon={mdiBookPlusOutline}
         classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
         noShadow
-        on:click={() => onClickCreateNewEntry($result.search)}
+        on:click={() => onClickCreateNewEntry($result.search ?? '')}
       />
     {/if}
     {#if $result.entries.length > $displayedEntries.length}

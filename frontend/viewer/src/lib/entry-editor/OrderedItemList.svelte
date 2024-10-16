@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button, Icon, Menu, MenuItem, Popover, Toggle } from 'svelte-ux';
-  import { mdiChevronDoubleLeft, mdiArrowLeftBold, mdiArrowRightBold, mdiArrowLeftRightBold, mdiTrashCanOutline, mdiBookOutline } from '@mdi/js';
+  import { mdiChevronDoubleLeft, mdiArrowLeftBold, mdiArrowRightBold, mdiArrowLeftRightBold, mdiTrashCanOutline } from '@mdi/js';
   import { mdiDotsVertical } from '@mdi/js';
   import { createEventDispatcher } from 'svelte';
   import { Link } from 'svelte-routing';
@@ -25,6 +25,7 @@
     const newDisplayItems = [...value];
     newDisplayItems.splice(currIndex, 1);
     newDisplayItems.splice(newIndex, 0, value[currIndex]);
+    // eslint-disable-next-line svelte/no-reactive-reassign
     displayItems = newDisplayItems;
   }
 
@@ -88,7 +89,7 @@
                             <Button
                               variant={j === i ? 'outline' : j === newIndex ? 'fill-outline' : 'fill-light'}
                               class="border grid grid-cols-subgrid col-span-full justify-items-start items-center"
-                              color='info'
+                              color="info"
                               rounded
                               title={reorderName}
                               size="sm">

@@ -2,7 +2,6 @@ import type {
   BaseEntityFieldConfig,
   CustomFieldConfig,
   FieldConfig,
-  BaseFieldConfig
 } from './config-types';
 import type { IEntry, IExampleSentence, ISense } from './mini-lcm';
 

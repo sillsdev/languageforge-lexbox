@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { mdiBookAlphabet, mdiClose } from "@mdi/js";
-  import { getContext } from "svelte";
-  import { Button, Popover, Toggle } from "svelte-ux";
-  import type { Writable, Readable } from "svelte/store";
+  import { mdiBookAlphabet, mdiClose } from '@mdi/js';
+  import { getContext } from 'svelte';
+  import { Button, Popover, Toggle } from 'svelte-ux';
+  import type { Writable, Readable } from 'svelte/store';
 
   const characters = getContext<Readable<string[] | null>>('indexExamplars');
   const selectedCharacter = getContext<Writable<string | undefined>>('selectedIndexExamplar');

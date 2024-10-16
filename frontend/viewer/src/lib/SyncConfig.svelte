@@ -9,14 +9,22 @@
   const projectsService = useProjectsService();
   let projectName = getContext<string>('project-name');
   const servers = writable<ServerStatus[]>([], set => {
-    projectsService.fetchServers().then(set);
+    projectsService.fetchServers().then(set)
+    .catch(error => {
+      console.error(`Failed to fetch servers`, error);
+      throw error;
+    });
   });
   let isUploaded = false;
   let projectServer = writable<string | null>(null, set => {
     projectsService.getProjectServer(projectName).then(server => {
       isUploaded = !!server;
       return server;
-    }).then(set);
+    }).then(set)
+    .catch(error => {
+      console.error(`Failed to get project server for ${projectName}`, error);
+      throw error;
+    });
   });
   $: if (!$projectServer && $servers.length > 0) {
     $projectServer = $servers[0].authority;
@@ -28,7 +36,7 @@
   };
   let uploading = false;
 
-  async function upload() {
+  async function upload(): Promise<void> {
     if (!$projectServer) return;
     uploading = true;
     //todo if not logged in then login

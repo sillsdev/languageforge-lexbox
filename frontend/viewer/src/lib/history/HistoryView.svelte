@@ -42,7 +42,7 @@
     loading = false;
   }
 
-  async function showEntry(row: typeof history[number]) {
+  async function showEntry(row: typeof history[number]): Promise<void> {
     if (!row.entity || !row.snapshotId) {
       const data = await fetch(`/api/history/${projectName}/snapshot/at/${row.timestamp}?entityId=${id}`).then(res => res.json());
       record = {...row, entity: data.entity, entityName: data.typeName};
@@ -92,13 +92,13 @@
       </div>
       <div>
         {#if record?.entity}
-          {#if record.entityName === "Entry"}
+          {#if record.entityName === 'Entry'}
             <EntryEditor entry={record.entity} modalMode/>
-          {:else if record.entityName === "Sense"}
+          {:else if record.entityName === 'Sense'}
             <div class="editor-grid">
               <SenseEditor sense={record.entity}/>
             </div>
-          {:else if record.entityName === "ExampleSentence"}
+          {:else if record.entityName === 'ExampleSentence'}
             <div class="editor-grid">
               <ExampleEditor example={record.entity} readonly={false}/>
             </div>

@@ -1,4 +1,4 @@
-﻿import {writable, type Writable, type Readable, readonly} from 'svelte/store';
+﻿import {writable, type Writable} from 'svelte/store';
 
 interface NotificationAction {
   label: string;
@@ -11,7 +11,7 @@ export class AppNotification {
     return this._notifications;
   }
 
-  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout: 'short' | 'long' | number = 'short') {
+  public static display(message: string, type: 'success' | 'error' | 'info' | 'warning', timeout: 'short' | 'long' | number = 'short'): void {
     const notification = new AppNotification(message, type);
     this._notifications.update(notifications => [...notifications, notification]);
     if (timeout === -1) return;
@@ -23,7 +23,7 @@ export class AppNotification {
     }, timeout);
   }
 
-  public static displayAction(message: string, type: 'success' | 'error' | 'info' | 'warning', action: NotificationAction) {
+  public static displayAction(message: string, type: 'success' | 'error' | 'info' | 'warning', action: NotificationAction): void {
     const notification = new AppNotification(message, type, action);
     this._notifications.update(notifications => [...notifications, notification]);
   }

@@ -21,7 +21,8 @@
     "build": "vite build -m web-component",
     "build-app": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.8.0",

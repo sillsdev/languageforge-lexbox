@@ -1,6 +1,6 @@
 <script lang="ts">
-  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
-  import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField, cls } from 'svelte-ux';
+  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline} from '@mdi/js';
+  import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField } from 'svelte-ux';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
   import { derived, writable, type Writable } from 'svelte/store';
@@ -57,7 +57,7 @@
   const listSearch = getContext<Writable<string | undefined>>('listSearch');
   const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 
-  function selectEntry(entry: IEntry) {
+  function selectEntry(entry: IEntry): void {
     dispatch('entrySelected', {entry, search: $search});
     showSearchDialog = false;
   }
@@ -132,7 +132,7 @@
         classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
         noShadow
         on:click={() => {
-            dispatch('createNew', $result.search);
+            dispatch('createNew', $result.search ?? '');
             showSearchDialog = false;
           }}
       />

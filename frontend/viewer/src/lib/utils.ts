@@ -31,7 +31,7 @@ export function pickBestAlternative(value: IMultiString, firstChoice?: WritingSy
   } else if (typeof firstChoice === 'object') {
     ws = firstChoice;
   }
-  let pick = ws ? value[ws.id] : undefined;
+  const pick = ws ? value[ws.id] : undefined;
   return pick ?? firstVal(value) ?? '';
 }
 
@@ -78,7 +78,7 @@ export function pickWritingSystems(
     case 'analysis':
       return allWs.analysis;
   }
-  console.error(`Unknown writing system selection: ${ws}`);
+  console.error(`Unknown writing system selection: ${ws as string}`);
   return [];
 }
 

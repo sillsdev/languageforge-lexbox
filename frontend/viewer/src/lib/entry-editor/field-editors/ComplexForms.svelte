@@ -8,7 +8,7 @@
   import EntryOrSenseItemList from '../EntryOrSenseItemList.svelte';
   import { Button } from 'svelte-ux';
   import { mdiPlus } from '@mdi/js';
-  import type { IEntry, ISense } from '../../mini-lcm';
+  import type { IEntry } from '../../mini-lcm';
 
   const dispatch = createEventDispatcher<{
     change: { value: IComplexFormComponent[] };
@@ -25,7 +25,7 @@
 
   let openPicker = false;
 
-  function addComplexForm(selection: EntrySenseSelection) {
+  function addComplexForm(selection: EntrySenseSelection): void {
     const complexForm: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: selection.entry.id,
@@ -53,7 +53,7 @@
 >
   <FieldTitle {id} {name} />
   <div class="item-list-field">
-    <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
+    <EntryOrSenseItemList bind:value {readonly} on:change={() => dispatch('change', { value })} getEntryId={(e) => e.complexFormEntryId} getHeadword={(e) => e.complexFormHeadword}>
       <svelte:fragment slot="actions">
         <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
           <div class="max-sm:hidden">Add Complex Form</div>

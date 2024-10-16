@@ -15,7 +15,7 @@
     clearTimeout(timeout);
     if (unsavedChanges && $generateExternalChanges) {
       timeout = setTimeout(() => {
-        if (unsavedChanges && !unacceptedChanges) value = (value ?? '') + i++;
+        if (unsavedChanges && !unacceptedChanges) value = ((JSON.stringify(value ?? '')) + i++) as Value;
       }, 1000);
     }
   }
@@ -91,7 +91,7 @@
   {/if}
   {#if unacceptedChanges}
     <Popover matchWidth bind:open={viewingMerge} offset={4}>
-      <Notification actions="split">
+      <Notification actionsPlacement="split">
         <div slot="title">A different user changed this field</div>
         <div slot="description" class="flex flex-col gap-1">
           <div class="flex flex-col">
@@ -137,3 +137,9 @@
     </div>
   {/if}
 </div>
+
+<style lang="postcss">
+  :global(.unresolved-merge .field-container) {
+    @apply !border-warning;
+  }
+</style>
