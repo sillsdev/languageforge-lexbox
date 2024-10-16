@@ -70,7 +70,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
                 WritingSystemType.Analysis => _defaultAnalysisWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
                 WritingSystemType.Vernacular => _defaultVernacularWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
+            } ?? throw new NullReferenceException($"Unable to find a default writing system of type {type}");
         }
         return await WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
     }
