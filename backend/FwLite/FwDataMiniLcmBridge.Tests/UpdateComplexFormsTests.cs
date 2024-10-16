@@ -4,7 +4,7 @@ using MiniLcm;
 using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests;
-
+//these tests were not moved because they need to be rewritten once we have the new update api for MiniLcm
 [Collection(ProjectLoaderFixture.Name)]
 public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifetime
 {
