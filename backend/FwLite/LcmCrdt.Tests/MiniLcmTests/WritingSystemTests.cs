@@ -12,8 +12,6 @@ public class WritingSystemTests : WritingSystemTestsBase
     {
         await _fixture.InitializeAsync();
         var api = _fixture.Api;
-        await api.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial", Exemplars = ["a", "b"]});
-        await api.CreateWritingSystem(WritingSystemType.Analysis, new WritingSystem() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
         return api;
     }
 
