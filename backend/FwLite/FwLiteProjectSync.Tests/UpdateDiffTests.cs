@@ -1,4 +1,5 @@
-﻿using FwLiteProjectSync.Tests.Fixtures;
+﻿using FwLiteProjectSync.SyncHelpers;
+using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
@@ -17,7 +18,7 @@ public class UpdateDiffTests
     {
         var previous = new Entry();
         var current = _autoFaker.Generate<Entry>();
-        var entryDiffToUpdate = CrdtFwdataProjectSyncService.EntryDiffToUpdate(previous, current);
+        var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(previous, current);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(previous);
         previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id)
@@ -32,7 +33,7 @@ public class UpdateDiffTests
     {
         var previous = new Sense();
         var current = _autoFaker.Generate<Sense>();
-        var senseDiffToUpdate = await CrdtFwdataProjectSyncService.SenseDiffToUpdate(previous, current);
+        var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(previous, current);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(previous);
         previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.ExampleSentences));
@@ -43,7 +44,7 @@ public class UpdateDiffTests
     {
         var previous = new ExampleSentence();
         var current = _autoFaker.Generate<ExampleSentence>();
-        var exampleSentenceDiffToUpdate = CrdtFwdataProjectSyncService.ExampleDiffToUpdate(previous, current);
+        var exampleSentenceDiffToUpdate = ExampleSentenceSync.DiffToUpdate(previous, current);
         ArgumentNullException.ThrowIfNull(exampleSentenceDiffToUpdate);
         exampleSentenceDiffToUpdate.Apply(previous);
         previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id));

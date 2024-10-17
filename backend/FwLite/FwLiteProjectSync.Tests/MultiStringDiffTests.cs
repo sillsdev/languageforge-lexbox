@@ -1,4 +1,5 @@
-﻿using MiniLcm.Models;
+﻿using FwLiteProjectSync.SyncHelpers;
+using MiniLcm.Models;
 using Spart.Parsers;
 using SystemTextJsonPatch.Operations;
 
@@ -13,7 +14,7 @@ public class MultiStringDiffTests
     {
         var previous = new MultiString();
         var current = new MultiString();
-        var result = CrdtFwdataProjectSyncService.GetMultiStringDiff<Placeholder>("test", previous, current);
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", previous, current);
         result.Should().BeEmpty();
     }
 
@@ -23,7 +24,7 @@ public class MultiStringDiffTests
         var previous = new MultiString();
         var current = new MultiString();
         current.Values.Add("en", "hello");
-        var result = CrdtFwdataProjectSyncService.GetMultiStringDiff<Placeholder>("test", previous, current);
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", previous, current);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("add", "/test/en", null, "hello")
         ]);
@@ -36,7 +37,7 @@ public class MultiStringDiffTests
         previous.Values.Add("en", "hello");
         var current = new MultiString();
         current.Values.Add("en", "world");
-        var result = CrdtFwdataProjectSyncService.GetMultiStringDiff<Placeholder>("test", previous, current);
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", previous, current);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("replace", "/test/en", null, "world")
         ]);
@@ -48,7 +49,7 @@ public class MultiStringDiffTests
         var previous = new MultiString();
         previous.Values.Add("en", "hello");
         var current = new MultiString();
-        var result = CrdtFwdataProjectSyncService.GetMultiStringDiff<Placeholder>("test", previous, current);
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", previous, current);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("remove", "/test/en", null)
         ]);
@@ -63,7 +64,7 @@ public class MultiStringDiffTests
         current.Values.Add("en", new string(['h', 'e', 'l', 'l', 'o']));
         //ensure the strings are not the same instance
         ReferenceEquals(previous["en"], current["en"]).Should().BeFalse();
-        var result = CrdtFwdataProjectSyncService.GetMultiStringDiff<Placeholder>("test", previous, current);
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", previous, current);
         result.Should().BeEmpty();
     }
 
@@ -76,7 +77,7 @@ public class MultiStringDiffTests
         var current = new MultiString();
         current.Values.Add("en", "world");
         current.Values.Add("fr", "monde");
-        var result = CrdtFwdataProjectSyncService.GetMultiStringDiff<Placeholder>("test", previous, current);
+        var result = MultiStringDiff.GetMultiStringDiff<Placeholder>("test", previous, current);
         result.Should().BeEquivalentTo([
             new Operation<Placeholder>("replace", "/test/en", null, "world"),
             new Operation<Placeholder>("add", "/test/fr", null, "monde"),
