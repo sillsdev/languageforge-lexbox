@@ -4,7 +4,7 @@ using MiniLcm;
 using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge.Tests;
-
+//these tests were not moved because they need to be rewritten once we have the new update api for MiniLcm
 [Collection(ProjectLoaderFixture.Name)]
 public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifetime
 {
@@ -300,6 +300,48 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
         var complexFormComponent = entry!.ComplexForms.Should().ContainSingle().Subject;
         complexFormComponent.ComponentEntryId.Should().Be(component2.Id);
         complexFormComponent.ComplexFormEntryId.Should().Be(complexFormId);
+    }
+
+    [Fact]
+    public async Task CanChangeComplexFormSenseId()
+    {
+        var component1SenseId1 = Guid.NewGuid();
+        var component1SenseId2 = Guid.NewGuid();
+        var complexFormId = Guid.NewGuid();
+        await _api.CreateEntry(new()
+        {
+            Id = complexFormId,
+            LexemeForm = { { "en", "complex form" } },
+        });
+        var componentId1 = Guid.NewGuid();
+        var component1 = await _api.CreateEntry(new()
+        {
+            Id = componentId1,
+            LexemeForm = { { "en", "component1" } },
+            Senses =
+            [
+                new Sense() { Id = component1SenseId1, Gloss = { { "en", "sense1" } } },
+                new Sense() { Id = component1SenseId2, Gloss = { { "en", "sense2" } } }
+            ],
+            ComplexForms =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = componentId1,
+                    ComponentSenseId = component1SenseId1,
+                    ComplexFormEntryId = complexFormId,
+                    ComplexFormHeadword = "complex form",
+                }
+            ]
+        });
+
+        await _api.UpdateEntry(component1.Id,
+            new UpdateObjectInput<Entry>().Set(e => e.ComplexForms[0].ComponentSenseId, component1SenseId2));
+        var entry = await _api.GetEntry(component1.Id);
+        entry.Should().NotBeNull();
+        var complexFormComponent = entry!.ComplexForms.Should().ContainSingle().Subject;
+        complexFormComponent.ComponentEntryId.Should().Be(componentId1);
+        complexFormComponent.ComponentSenseId.Should().Be(component1SenseId2);
     }
 
     [Fact]

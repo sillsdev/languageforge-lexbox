@@ -70,7 +70,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
                 WritingSystemType.Analysis => _defaultAnalysisWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
                 WritingSystemType.Vernacular => _defaultVernacularWs ??= await WritingSystems.FirstOrDefaultAsync(ws => ws.Type == type),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
+            } ?? throw new NullReferenceException($"Unable to find a default writing system of type {type}");
         }
         return await WritingSystems.FirstOrDefaultAsync(ws => ws.WsId == id && ws.Type == type);
     }
@@ -107,6 +107,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
 
     public async Task<ComplexFormType> CreateComplexFormType(MiniLcm.Models.ComplexFormType complexFormType)
     {
+        if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }

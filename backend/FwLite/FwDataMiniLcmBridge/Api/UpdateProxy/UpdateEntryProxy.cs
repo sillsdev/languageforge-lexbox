@@ -9,11 +9,22 @@ public class UpdateEntryProxy : Entry
     private readonly ILexEntry _lcmEntry;
     private readonly FwDataMiniLcmApi _lexboxLcmApi;
 
+    private readonly Lazy<UpdateComplexFormComponentProxy[]> _lazyComplexForms;
+
     public UpdateEntryProxy(ILexEntry lcmEntry, FwDataMiniLcmApi lexboxLcmApi)
     {
         _lcmEntry = lcmEntry;
         Id = lcmEntry.Guid;
         _lexboxLcmApi = lexboxLcmApi;
+        _lazyComplexForms = new(() =>
+        {
+            return _lcmEntry.ComplexFormEntries.Select(complexEntry =>
+                    new UpdateComplexFormComponentProxy(complexEntry, _lcmEntry, _lexboxLcmApi))
+                .Concat(
+                    _lcmEntry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry =>
+                        new UpdateComplexFormComponentProxy(complexEntry, sense, _lexboxLcmApi)))
+                ).ToArray();
+        });
     }
 
     public override MultiString LexemeForm
@@ -67,10 +78,8 @@ public class UpdateEntryProxy : Entry
                 component => _lexboxLcmApi.AddComplexFormComponent(_lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
                 component => _lexboxLcmApi.RemoveComplexFormComponent(_lexboxLcmApi.EntriesRepository.GetObject(component.ComplexFormEntryId), component),
                 //todo this does not handle complex forms which reference a sense
-                i => new UpdateComplexFormComponentProxy(_lcmEntry.ComplexFormEntries.ElementAt(i),
-                    _lcmEntry,
-                    _lexboxLcmApi),
-                _lcmEntry.ComplexFormEntries.Count()
+                i => _lazyComplexForms.Value[i],
+                _lazyComplexForms.Value.Length
             );
         set => throw new NotImplementedException();
     }
