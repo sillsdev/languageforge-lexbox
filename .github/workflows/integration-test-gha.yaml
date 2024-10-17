@@ -80,6 +80,50 @@ jobs:
           TEST_PROJECT_CODE: 'sena-3'
           TEST_DEFAULT_PASSWORD: 'pass'
         run: dotnet test LexBoxOnly.slnf --logger GitHubActions --filter "Category=Integration|Category=FlakyIntegration" --blame-hang-timeout 40m
+
+      ##playwright tests
+      # First we need to setup Node...
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: 'frontend/package.json'
+      # Then we can set up pnpm...
+      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+        with:
+          package_json_file: 'frontend/package.json'
+      # Then we can have Node set up package caching
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: 'frontend/package.json'
+          cache: 'pnpm'
+          cache-dependency-path: 'frontend/pnpm-lock.yaml'
+      - name: Playwright setup
+        working-directory: frontend
+        run: pnpm install && pnpm pretest
+      - name: Set up Playwright dependencies
+        working-directory: frontend
+        if: ${{ inputs.runs-on == 'self-hosted' }}
+        run: sudo pnpm exec playwright install-deps
+
+      - name: Integration tests (Playwright)
+        id: playwright-tests
+        env:
+          TEST_SERVER_HOSTNAME: 'localhost:6579'
+          TEST_STANDARD_HG_HOSTNAME: 'hg.localhost:6579'
+          TEST_RESUMABLE_HG_HOSTNAME: 'resumable.localhost:6579'
+          TEST_PROJECT_CODE: 'sena-3'
+          TEST_DEFAULT_PASSWORD: 'pass'
+        working-directory: frontend
+        run: pnpm test
+
+      - name: Upload playwright results
+        if: ${{ always() && steps.playwright-tests.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
+          path: |
+            ./frontend/test-results
+
+
       - name: status
         if: failure()
         run: |
