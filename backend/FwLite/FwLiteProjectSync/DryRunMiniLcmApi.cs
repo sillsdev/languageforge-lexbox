@@ -124,6 +124,18 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddSemanticDomainToSense), $"Add semantic domain {semanticDomain.Name}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveSemanticDomainFromSense), $"Remove semantic domain {semanticDomainId}"));
+        return Task.CompletedTask;
+    }
+
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence}"));

@@ -124,7 +124,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"],"Manzana"));
+        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"], "Manzana"));
 
         await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["fr"], "Pomme"));
         var results = await _syncService.Sync(crdtApi, fwdataApi);

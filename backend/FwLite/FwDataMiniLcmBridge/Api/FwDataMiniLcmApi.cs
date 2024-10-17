@@ -695,6 +695,32 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLexSense(lexSense));
     }
 
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Semantic Domain to Sense",
+            "Remove Semantic Domain from Sense",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexSense = SenseRepository.GetObject(senseId);
+                lexSense.SemanticDomainsRC.Add(GetLcmSemanticDomain(semanticDomain.Id));
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Semantic Domain from Sense",
+            "Add Semantic Domain to Sense",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexSense = SenseRepository.GetObject(senseId);
+                lexSense.SemanticDomainsRC.Remove(lexSense.SemanticDomainsRC.First(sd => sd.Guid == semanticDomainId));
+            });
+        return Task.CompletedTask;
+    }
+
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);

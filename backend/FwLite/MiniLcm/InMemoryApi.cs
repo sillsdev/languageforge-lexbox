@@ -293,6 +293,16 @@ public class InMemoryApi : IMiniLcmApi
         update.Apply(s);
         return Task.FromResult(s);
     }
+
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 internal static class Helpers

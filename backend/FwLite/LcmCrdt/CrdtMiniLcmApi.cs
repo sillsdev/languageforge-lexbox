@@ -390,6 +390,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         await dataModel.AddChange(ClientId, new DeleteChange<Sense>(senseId));
     }
 
+    public async Task AddSemanticDomainToSense(Guid senseId, MiniLcm.Models.SemanticDomain semanticDomain)
+    {
+        await dataModel.AddChange(ClientId, new AddSemanticDomainChange(semanticDomain, senseId));
+    }
+
+    public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        await dataModel.AddChange(ClientId, new RemoveSemanticDomainChange(semanticDomainId, senseId));
+    }
+
     public async Task<MiniLcm.Models.ExampleSentence> CreateExampleSentence(Guid entryId,
         Guid senseId,
         MiniLcm.Models.ExampleSentence exampleSentence)

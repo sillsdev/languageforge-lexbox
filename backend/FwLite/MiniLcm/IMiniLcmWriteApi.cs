@@ -25,6 +25,9 @@ public interface IMiniLcmWriteApi
     Task<Sense> CreateSense(Guid entryId, Sense sense);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task DeleteSense(Guid entryId, Guid senseId);
+    Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
+    Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);
+
     Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence);
 
     Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
