@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { IEntry } from "../mini-lcm";
-  import { firstDefOrGlossVal, firstSentenceOrTranslationVal, firstVal, headword } from "../utils";
+  import type { IEntry } from '../mini-lcm';
+  import { firstDefOrGlossVal, firstSentenceOrTranslationVal, headword } from '../utils';
 
   export let entry: IEntry | undefined;
 </script>

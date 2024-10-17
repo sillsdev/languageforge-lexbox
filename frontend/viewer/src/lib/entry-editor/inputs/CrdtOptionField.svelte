@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ComponentProps } from 'svelte';
   import CrdtField from './CrdtField.svelte';
-  import { SelectField, TextField, type MenuOption } from 'svelte-ux';
+  import { SelectField, type TextField, type MenuOption } from 'svelte-ux';
 
   export let value: string | undefined;
   export let unsavedChanges = false;
@@ -32,9 +32,3 @@
   </SelectField>
   {/key}
 </CrdtField>
-
-<style>
-  :global(.unresolved-merge .field-container) {
-    @apply !border-warning;
-  }
-</style>

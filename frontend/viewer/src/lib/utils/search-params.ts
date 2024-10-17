@@ -12,7 +12,7 @@ export function getSearchParam(param: ViewerSearchParam): string | null {
   return getSearchParams().get(param);
 }
 
-export function updateSearchParam(param: ViewerSearchParam, value: string | undefined | null, replace: boolean) {
+export function updateSearchParam(param: ViewerSearchParam, value: string | undefined | null, replace: boolean): void {
   const urlSearchParams = getSearchParams();
   const current = urlSearchParams.get(param) ?? undefined;
   if (current == value) return;

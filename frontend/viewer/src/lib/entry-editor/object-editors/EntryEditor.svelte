@@ -7,7 +7,7 @@
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from '../EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../../utils';
+  import {defaultExampleSentence, defaultSense, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../../utils';
   import HistoryView from '../../history/HistoryView.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
@@ -24,38 +24,38 @@
 
   export let entry: IEntry;
 
-  function addSense() {
+  function addSense(): void {
     const sense = defaultSense();
     highlightedEntity = sense;
     entry.senses = [...entry.senses, sense];
   }
 
-  function addExample(sense: ISense) {
+  function addExample(sense: ISense): void {
     const sentence = defaultExampleSentence();
     highlightedEntity = sentence;
     sense.exampleSentences = [...sense.exampleSentences, sentence];
     entry = entry; // examples counts are not updated without this
   }
-  function deleteEntry() {
+  function deleteEntry(): void {
     dispatch('delete', {entry});
   }
 
-  function deleteSense(sense: ISense) {
+  function deleteSense(sense: ISense): void {
     entry.senses = entry.senses.filter(s => s !== sense);
     dispatch('delete', {entry, sense});
   }
-  function moveSense(sense: ISense, i: number) {
+  function moveSense(sense: ISense, i: number): void {
     entry.senses.splice(entry.senses.indexOf(sense), 1);
     entry.senses.splice(i, 0, sense);
     dispatch('change', {entry, sense});
     highlightedEntity = sense;
   }
-  function deleteExample(sense: ISense, example: IExampleSentence) {
+  function deleteExample(sense: ISense, example: IExampleSentence): void {
     sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
     dispatch('delete', {entry, sense, example});
     entry = entry; // examples are not updated without this
   }
-  function moveExample(sense: ISense, example: IExampleSentence, i: number) {
+  function moveExample(sense: ISense, example: IExampleSentence, i: number): void {
     sense.exampleSentences.splice(sense.exampleSentences.indexOf(example), 1);
     sense.exampleSentences.splice(i, 0, example);
     dispatch('change', {entry, sense, example});

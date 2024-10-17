@@ -130,7 +130,7 @@
   $: $entries = $_entries;
   $: console.debug('Entries:', $_entries);
 
-  function fetchEntries(s: string, isConnected: boolean, exemplar: string | null) {
+  function fetchEntries(s: string, isConnected: boolean, exemplar: string | null): Promise<IEntry[] | undefined> {
     if (!isConnected) return Promise.resolve(undefined);
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
@@ -150,7 +150,7 @@
   // and we need the extra call to updateEntryIdSearchParam in refreshSelection
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
   $: { pickedEntry; updateEntryIdSearchParam(); }
-  function updateEntryIdSearchParam() {
+  function updateEntryIdSearchParam(): void {
     updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined), true);
   }
 
@@ -160,7 +160,7 @@
   }
 
   //selection handling, make sure the selected entry is always in the list of entries
-  function refreshSelection() {
+  function refreshSelection(): void {
     if (!$entries) return;
 
     if (navigateToEntryId) {
@@ -189,14 +189,14 @@
 
   $: _loading = !$entries || !$writingSystems || loading;
 
-  function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
+  function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions): void {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
     if (!options?.dontNavigate) {
       navigateToEntry(entry, headword(entry));
     }
   }
 
-  function navigateToEntry(entry: IEntry, searchText?: string) {
+  function navigateToEntry(entry: IEntry, searchText?: string): void {
     // this is to ensure that the selected entry is in the list of entries, otherwise it won't be selected
     $search = searchText ?? '';
     $selectedIndexExemplar = null;
@@ -232,7 +232,7 @@
     };
   });
 
-  async function openInFlex() {
+  function openInFlex(): void {
     AppNotification.displayAction('The project is open in FieldWorks. Please close it to reopen.', 'warning', {
       label: 'Open',
       callback: () => window.location.reload()
@@ -265,7 +265,7 @@
   </div>
 </div>
 {:else}
-<div class="project-view !flex flex-col PortalTarget" style="{spaceForEditorStyle}">
+<div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
   <AppBar class="bg-secondary min-h-12 shadow-md">
     <div slot="title" class="prose">
       <h3>{projectName}</h3>
@@ -340,11 +340,11 @@
           </div>
           <Editor entry={$selectedEntry}
                   {readonly}
-            on:change={e => {
+            on:change={_ => {
               $selectedEntry = $selectedEntry;
               $entries = $entries;
             }}
-            on:delete={e => {
+            on:delete={_ => {
               $selectedEntry = undefined;
               refreshEntries();
             }} />

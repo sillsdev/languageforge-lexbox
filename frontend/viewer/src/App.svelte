@@ -10,6 +10,7 @@
 
   export let url = '';
 
+  /* eslint-disable @typescript-eslint/naming-convention */
   settings({
     components: {
       MenuItem: {
@@ -36,7 +37,7 @@
       }
     },
   });
-
+  /* eslint-enable @typescript-eslint/naming-convention */
 </script>
 
 <Router {url}>
@@ -69,7 +70,7 @@
       <Sandbox />
     </Route>
     <Route path="/*">
-      {setTimeout(() => navigate("/", { replace: true }))}
+      {setTimeout(() => navigate('/', { replace: true }))}
     </Route>
   </div>
 </Router>

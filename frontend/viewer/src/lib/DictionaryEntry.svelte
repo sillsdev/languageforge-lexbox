@@ -16,8 +16,9 @@
   import { derived } from 'svelte/store';
 
   import type { IEntry } from './mini-lcm';
-  import { headword } from './utils';
+  import { headword, pickBestAlternative } from './utils';
   import {useWritingSystems} from './writing-systems';
+  import { usePartsOfSpeech } from './parts-of-speech';
 
   export let entry: IEntry;
   export let lines: number = 0;
@@ -43,6 +44,14 @@
   $: headwords = $allWritingSystems.vernacular
     .map(ws => ({ws: ws.id, value: headword(entry, ws.id)}))
     .filter(({value}) => !!value);
+
+  const partsOfSpeech = usePartsOfSpeech();
+  function partOfSpeechLabel(id: string | undefined): string | undefined {
+    if (!id) return undefined;
+    const partOfSpeech = $partsOfSpeech.find(pos => pos.id === id);
+    if (!partOfSpeech) return undefined;
+    return pickBestAlternative(partOfSpeech.name, 'analysis', $allWritingSystems)
+  }
 </script>
 
 <div>
@@ -59,8 +68,9 @@
       <br />
       <strong class="ml-2">{i + 1} · </strong>
     {/if}
-    {#if sense.partOfSpeech}
-      <i>{sense.partOfSpeech}.</i>
+    {@const partOfSpeech = partOfSpeechLabel(sense.partOfSpeechId)}
+    {#if partOfSpeech}
+      <i>{partOfSpeech}.</i>
     {/if}
     <span>
       {#each $allWritingSystems.analysis as ws}
@@ -77,7 +87,7 @@
         {/if}
       {/each}
     </span>
-    {#each sense.exampleSentences as example, i (example.id)}
+    {#each sense.exampleSentences as example (example.id)}
       {@const usedVernacular = $allWritingSystems.vernacular.filter(ws => !!example.sentence[ws.id])}
       {@const usedAnalysis = $allWritingSystems.analysis.filter(ws => !!example.translation[ws.id])}
       {#if usedVernacular.length || usedAnalysis.length}

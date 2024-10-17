@@ -3,6 +3,7 @@ import type {LexboxApiClient} from './lexbox-api';
 declare global {
 
   interface Lexbox {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     ServiceProvider: LexboxServiceProvider;
   }
 
@@ -44,6 +45,7 @@ export class LexboxServiceProvider {
 }
 
 if (!window.lexbox) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   window.lexbox = {ServiceProvider: new LexboxServiceProvider()};
 } else window.lexbox.ServiceProvider = new LexboxServiceProvider();
 

@@ -1,25 +1,20 @@
 <script lang="ts">
   import CrdtOptionField from '../inputs/CrdtOptionField.svelte';
   import FieldTitle from '../FieldTitle.svelte';
-  import type { WritingSystems } from '../../mini-lcm';
-  import { type Readable } from 'svelte/store';
-  import { getContext } from 'svelte';
   import { pickWritingSystems } from '../../utils';
   import type {WritingSystemSelection} from '../../config-types';
   import type { MenuOption } from 'svelte-ux';
   import {useCurrentView} from '../../services/view-service';
   import {useWritingSystems} from '../../writing-systems';
 
-  type T = $$Generic<{}>;
   export let id: string;
   export let wsType: WritingSystemSelection;
   export let name: string | undefined = undefined;
-  export let value: string | undefined;
   export let readonly: boolean = false;
+  export let value: string | undefined;
+  export let options: MenuOption<string>[];
 
-  export let options: MenuOption[] = [];
   let currentView = useCurrentView();
-
   const allWritingSystems = useWritingSystems();
 
   $: [ws] = pickWritingSystems(wsType, $allWritingSystems);

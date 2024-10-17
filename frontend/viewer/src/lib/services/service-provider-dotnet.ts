@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { DotNet } from '@microsoft/dotnet-js-interop';
 import type { LexboxApiClient, LexboxApiMetadata } from './lexbox-api';
 import { LexboxService } from './service-provider';
