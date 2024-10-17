@@ -120,8 +120,8 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
-        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
-        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
+        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
+        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
 
         await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"],"Manzana"));

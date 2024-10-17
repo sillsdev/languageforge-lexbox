@@ -151,7 +151,9 @@ public static partial class ProjectRoutes
         await lexboxApi.CreateWritingSystem(WritingSystemType.Vernacular,
             new()
             {
-                Id = "en",
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = "en",
                 Name = "English",
                 Abbreviation = "en",
                 Font = "Arial",
@@ -161,7 +163,9 @@ public static partial class ProjectRoutes
         await lexboxApi.CreateWritingSystem(WritingSystemType.Analysis,
             new()
             {
-                Id = "en",
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Analysis,
+                WsId = "en",
                 Name = "English",
                 Abbreviation = "en",
                 Font = "Arial",

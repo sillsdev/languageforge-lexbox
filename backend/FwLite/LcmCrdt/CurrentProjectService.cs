@@ -1,5 +1,4 @@
-﻿using SIL.Harmony.Db;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LcmCrdt;

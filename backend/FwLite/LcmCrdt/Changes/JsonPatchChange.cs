@@ -1,9 +1,6 @@
-﻿using System.Buffers;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using SIL.Harmony;
 using SIL.Harmony.Changes;
-using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Internal;
@@ -11,9 +8,9 @@ using SystemTextJsonPatch.Operations;
 
 namespace LcmCrdt.Changes;
 
-public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class, IPolyType, IObjectBase
+public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class
 {
-    public static string TypeName => "jsonPatch:" + T.TypeName;
+    public static string TypeName => "jsonPatch:" + typeof(T).Name;
     public JsonPatchChange(Guid entityId, Action<JsonPatchDocument<T>> action) : base(entityId)
     {
         PatchDocument = new();
@@ -25,12 +22,6 @@ public class JsonPatchChange<T> : EditChange<T>, IPolyType where T : class, IPol
     public JsonPatchChange(Guid entityId, JsonPatchDocument<T> patchDocument): base(entityId)
     {
         PatchDocument = patchDocument;
-        JsonPatchValidator.ValidatePatchDocument(PatchDocument);
-    }
-    public JsonPatchChange(Guid entityId, IJsonPatchDocument patchDocument, JsonSerializerOptions options): base(entityId)
-    {
-        PatchDocument = new JsonPatchDocument<T>(patchDocument.GetOperations().Select(o =>
-            new Operation<T>(o.Op!, o.Path!, o.From, o.Value)).ToList(), options);
         JsonPatchValidator.ValidatePatchDocument(PatchDocument);
     }
 

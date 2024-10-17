@@ -1,6 +1,4 @@
-﻿using MiniLcm.Models;
-
-namespace LcmCrdt;
+﻿namespace LcmCrdt;
 
 public class CrdtProject(string name, string dbPath) : IProjectIdentifier
 {
