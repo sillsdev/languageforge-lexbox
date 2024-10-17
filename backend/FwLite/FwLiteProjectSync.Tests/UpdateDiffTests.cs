@@ -16,12 +16,12 @@ public class UpdateDiffTests
     [Fact]
     public void EntryDiffShouldUpdateAllFields()
     {
-        var previous = new Entry();
-        var current = _autoFaker.Generate<Entry>();
-        var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(previous, current);
+        var before = new Entry();
+        var after = _autoFaker.Generate<Entry>();
+        var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
-        entryDiffToUpdate.Apply(previous);
-        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id)
+        entryDiffToUpdate.Apply(before);
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
             .Excluding(x => x.Senses)
             .Excluding(x => x.Components)
             .Excluding(x => x.ComplexForms)
@@ -31,22 +31,22 @@ public class UpdateDiffTests
     [Fact]
     public async Task SenseDiffShouldUpdateAllFields()
     {
-        var previous = new Sense();
-        var current = _autoFaker.Generate<Sense>();
-        var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(previous, current);
+        var before = new Sense();
+        var after = _autoFaker.Generate<Sense>();
+        var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
-        senseDiffToUpdate.Apply(previous);
-        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id).Excluding(x => x.ExampleSentences));
+        senseDiffToUpdate.Apply(before);
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.ExampleSentences));
     }
 
     [Fact]
     public void ExampleSentenceDiffShouldUpdateAllFields()
     {
-        var previous = new ExampleSentence();
-        var current = _autoFaker.Generate<ExampleSentence>();
-        var exampleSentenceDiffToUpdate = ExampleSentenceSync.DiffToUpdate(previous, current);
+        var before = new ExampleSentence();
+        var after = _autoFaker.Generate<ExampleSentence>();
+        var exampleSentenceDiffToUpdate = ExampleSentenceSync.DiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(exampleSentenceDiffToUpdate);
-        exampleSentenceDiffToUpdate.Apply(previous);
-        previous.Should().BeEquivalentTo(current, options => options.Excluding(x => x.Id));
+        exampleSentenceDiffToUpdate.Apply(before);
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id));
     }
 }

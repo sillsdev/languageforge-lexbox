@@ -6,58 +6,58 @@ namespace FwLiteProjectSync.SyncHelpers;
 
 public static class EntrySync
 {
-    public static async Task<int> Sync(Entry[] currentEntries,
-        Entry[] previousEntries,
+    public static async Task<int> Sync(Entry[] afterEntries,
+        Entry[] beforeEntries,
         IMiniLcmApi api)
     {
-        Func<IMiniLcmApi, Entry, Task<int>> add = static async (api, currentEntry) =>
+        Func<IMiniLcmApi, Entry, Task<int>> add = static async (api, afterEntry) =>
         {
-            await api.CreateEntry(currentEntry);
+            await api.CreateEntry(afterEntry);
             return 1;
         };
-        Func<IMiniLcmApi, Entry, Task<int>> remove = static async (api, previousEntry) =>
+        Func<IMiniLcmApi, Entry, Task<int>> remove = static async (api, beforeEntry) =>
         {
-            await api.DeleteEntry(previousEntry.Id);
+            await api.DeleteEntry(beforeEntry.Id);
             return 1;
         };
-        Func<IMiniLcmApi, Entry, Entry, Task<int>> replace = static async (api, previousEntry, currentEntry) => await Sync(currentEntry, previousEntry, api);
-        return await DiffCollection.Diff(api, previousEntries, currentEntries, add, remove, replace);
+        Func<IMiniLcmApi, Entry, Entry, Task<int>> replace = static async (api, beforeEntry, afterEntry) => await Sync(afterEntry, beforeEntry, api);
+        return await DiffCollection.Diff(api, beforeEntries, afterEntries, add, remove, replace);
     }
 
-    public static async Task<int> Sync(Entry currentEntry, Entry previousEntry, IMiniLcmApi api)
+    public static async Task<int> Sync(Entry afterEntry, Entry beforeEntry, IMiniLcmApi api)
     {
-        var updateObjectInput = EntryDiffToUpdate(previousEntry, currentEntry);
-        if (updateObjectInput is not null) await api.UpdateEntry(currentEntry.Id, updateObjectInput);
-        var changes = await SensesSync(currentEntry.Id, currentEntry.Senses, previousEntry.Senses, api);
+        var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
+        if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
+        var changes = await SensesSync(afterEntry.Id, afterEntry.Senses, beforeEntry.Senses, api);
         return changes + (updateObjectInput is null ? 0 : 1);
     }
 
     private static async Task<int> SensesSync(Guid entryId,
-        IList<Sense> currentSenses,
-        IList<Sense> previousSenses,
+        IList<Sense> afterSenses,
+        IList<Sense> beforeSenses,
         IMiniLcmApi api)
     {
-        Func<IMiniLcmApi, Sense, Task<int>> add = async (api, currentSense) =>
+        Func<IMiniLcmApi, Sense, Task<int>> add = async (api, afterSense) =>
         {
-            await api.CreateSense(entryId, currentSense);
+            await api.CreateSense(entryId, afterSense);
             return 1;
         };
-        Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, previousSense) =>
+        Func<IMiniLcmApi, Sense, Task<int>> remove = async (api, beforeSense) =>
         {
-            await api.DeleteSense(entryId, previousSense.Id);
+            await api.DeleteSense(entryId, beforeSense.Id);
             return 1;
         };
-        Func<IMiniLcmApi, Sense, Sense, Task<int>> replace = async (api, previousSense, currentSense) => await SenseSync.Sync(entryId, currentSense, previousSense, api);
-        return await DiffCollection.Diff(api, previousSenses, currentSenses, add, remove, replace);
+        Func<IMiniLcmApi, Sense, Sense, Task<int>> replace = async (api, beforeSense, afterSense) => await SenseSync.Sync(entryId, afterSense, beforeSense, api);
+        return await DiffCollection.Diff(api, beforeSenses, afterSenses, add, remove, replace);
     }
 
-    public static UpdateObjectInput<Entry>? EntryDiffToUpdate(Entry previousEntry, Entry currentEntry)
+    public static UpdateObjectInput<Entry>? EntryDiffToUpdate(Entry beforeEntry, Entry afterEntry)
     {
         JsonPatchDocument<Entry> patchDocument = new();
-        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.LexemeForm), previousEntry.LexemeForm, currentEntry.LexemeForm));
-        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.CitationForm), previousEntry.CitationForm, currentEntry.CitationForm));
-        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.Note), previousEntry.Note, currentEntry.Note));
-        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.LiteralMeaning), previousEntry.LiteralMeaning, currentEntry.LiteralMeaning));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.LexemeForm), beforeEntry.LexemeForm, afterEntry.LexemeForm));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.CitationForm), beforeEntry.CitationForm, afterEntry.CitationForm));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.Note), beforeEntry.Note, afterEntry.Note));
+        patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<Entry>(nameof(Entry.LiteralMeaning), beforeEntry.LiteralMeaning, afterEntry.LiteralMeaning));
         if (patchDocument.Operations.Count == 0) return null;
         return new UpdateObjectInput<Entry>(patchDocument);
     }

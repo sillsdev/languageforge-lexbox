@@ -6,28 +6,28 @@ namespace FwLiteProjectSync.SyncHelpers;
 public static class MultiStringDiff
 {
     public static IEnumerable<Operation<T>> GetMultiStringDiff<T>(string path,
-        MultiString previous,
-        MultiString current) where T : class
+        MultiString before,
+        MultiString after) where T : class
     {
-        var currentKeys = current.Values.Keys.ToHashSet();
-        foreach (var (key, previousValue) in previous.Values)
+        var afterKeys = after.Values.Keys.ToHashSet();
+        foreach (var (key, beforeValue) in before.Values)
         {
-            if (current.Values.TryGetValue(key, out var currentValue))
+            if (after.Values.TryGetValue(key, out var afterValue))
             {
-                if (!previousValue.Equals(currentValue))
-                    yield return new Operation<T>("replace", $"/{path}/{key}", null, currentValue);
+                if (!beforeValue.Equals(afterValue))
+                    yield return new Operation<T>("replace", $"/{path}/{key}", null, afterValue);
             }
             else
             {
                 yield return new Operation<T>("remove", $"/{path}/{key}", null);
             }
 
-            currentKeys.Remove(key);
+            afterKeys.Remove(key);
         }
 
-        foreach (var key in currentKeys)
+        foreach (var key in afterKeys)
         {
-            yield return new Operation<T>("add", $"/{path}/{key}", null, current.Values[key]);
+            yield return new Operation<T>("add", $"/{path}/{key}", null, after.Values[key]);
         }
     }
 }

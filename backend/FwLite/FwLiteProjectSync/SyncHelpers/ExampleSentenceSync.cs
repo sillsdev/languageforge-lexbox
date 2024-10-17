@@ -8,51 +8,51 @@ public static class ExampleSentenceSync
 {
     public static async Task<int> Sync(Guid entryId,
         Guid senseId,
-        IList<ExampleSentence> currentExampleSentences,
-        IList<ExampleSentence> previousExampleSentences,
+        IList<ExampleSentence> afterExampleSentences,
+        IList<ExampleSentence> beforeExampleSentences,
         IMiniLcmApi api)
     {
-        Func<IMiniLcmApi, ExampleSentence, Task<int>> add = async (api, currentExampleSentence) =>
+        Func<IMiniLcmApi, ExampleSentence, Task<int>> add = async (api, afterExampleSentence) =>
         {
-            await api.CreateExampleSentence(entryId, senseId, currentExampleSentence);
+            await api.CreateExampleSentence(entryId, senseId, afterExampleSentence);
             return 1;
         };
-        Func<IMiniLcmApi, ExampleSentence, Task<int>> remove = async (api, previousExampleSentence) =>
+        Func<IMiniLcmApi, ExampleSentence, Task<int>> remove = async (api, beforeExampleSentence) =>
         {
-            await api.DeleteExampleSentence(entryId, senseId, previousExampleSentence.Id);
+            await api.DeleteExampleSentence(entryId, senseId, beforeExampleSentence.Id);
             return 1;
         };
         Func<IMiniLcmApi, ExampleSentence, ExampleSentence, Task<int>> replace =
-            async (api, previousExampleSentence, currentExampleSentence) =>
+            async (api, beforeExampleSentence, afterExampleSentence) =>
             {
-                var updateObjectInput = DiffToUpdate(previousExampleSentence, currentExampleSentence);
+                var updateObjectInput = DiffToUpdate(beforeExampleSentence, afterExampleSentence);
                 if (updateObjectInput is null) return 0;
-                await api.UpdateExampleSentence(entryId, senseId, previousExampleSentence.Id, updateObjectInput);
+                await api.UpdateExampleSentence(entryId, senseId, beforeExampleSentence.Id, updateObjectInput);
                 return 1;
             };
         return await DiffCollection.Diff(api,
-            previousExampleSentences,
-            currentExampleSentences,
+            beforeExampleSentences,
+            afterExampleSentences,
             add,
             remove,
             replace);
     }
 
-    public static UpdateObjectInput<ExampleSentence>? DiffToUpdate(ExampleSentence previousExampleSentence,
-        ExampleSentence currentExampleSentence)
+    public static UpdateObjectInput<ExampleSentence>? DiffToUpdate(ExampleSentence beforeExampleSentence,
+        ExampleSentence afterExampleSentence)
     {
         JsonPatchDocument<ExampleSentence> patchDocument = new();
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<ExampleSentence>(
             nameof(ExampleSentence.Sentence),
-            previousExampleSentence.Sentence,
-            currentExampleSentence.Sentence));
+            beforeExampleSentence.Sentence,
+            afterExampleSentence.Sentence));
         patchDocument.Operations.AddRange(MultiStringDiff.GetMultiStringDiff<ExampleSentence>(
             nameof(ExampleSentence.Translation),
-            previousExampleSentence.Translation,
-            currentExampleSentence.Translation));
-        if (previousExampleSentence.Reference != currentExampleSentence.Reference)
+            beforeExampleSentence.Translation,
+            afterExampleSentence.Translation));
+        if (beforeExampleSentence.Reference != afterExampleSentence.Reference)
         {
-            patchDocument.Replace(exampleSentence => exampleSentence.Reference, currentExampleSentence.Reference);
+            patchDocument.Replace(exampleSentence => exampleSentence.Reference, afterExampleSentence.Reference);
         }
 
         if (patchDocument.Operations.Count == 0) return null;

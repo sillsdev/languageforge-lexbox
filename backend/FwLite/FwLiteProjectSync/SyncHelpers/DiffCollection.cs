@@ -7,29 +7,29 @@ public static class DiffCollection
 {
     public static async Task<int> Diff<T>(
         IMiniLcmApi api,
-        IList<T> previous,
-        IList<T> current,
+        IList<T> before,
+        IList<T> after,
         Func<IMiniLcmApi, T, Task<int>> add,
         Func<IMiniLcmApi, T, Task<int>> remove,
         Func<IMiniLcmApi, T, T, Task<int>> replace) where T : IObjectWithId
     {
         var changes = 0;
-        var currentEntriesDict = current.ToDictionary(entry => entry.Id);
-        foreach (var previousEntry in previous)
+        var afterEntriesDict = after.ToDictionary(entry => entry.Id);
+        foreach (var beforeEntry in before)
         {
-            if (currentEntriesDict.TryGetValue(previousEntry.Id, out var currentEntry))
+            if (afterEntriesDict.TryGetValue(beforeEntry.Id, out var afterEntry))
             {
-                changes += await replace(api, previousEntry, currentEntry);
+                changes += await replace(api, beforeEntry, afterEntry);
             }
             else
             {
-                changes += await remove(api, previousEntry);
+                changes += await remove(api, beforeEntry);
             }
 
-            currentEntriesDict.Remove(previousEntry.Id);
+            afterEntriesDict.Remove(beforeEntry.Id);
         }
 
-        foreach (var value in currentEntriesDict.Values)
+        foreach (var value in afterEntriesDict.Values)
         {
             changes += await add(api, value);
         }
