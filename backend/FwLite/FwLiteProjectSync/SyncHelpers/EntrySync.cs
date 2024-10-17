@@ -29,6 +29,33 @@ public static class EntrySync
         var updateObjectInput = EntryDiffToUpdate(beforeEntry, afterEntry);
         if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
         var changes = await SensesSync(afterEntry.Id, afterEntry.Senses, beforeEntry.Senses, api);
+
+        changes += await DiffCollection.Diff(api,
+            beforeEntry.Components,
+            afterEntry.Components,
+            component => (component.ComplexFormEntryId, component.ComponentEntryId, component.ComponentSenseId),
+            static async (api, afterComponent) =>
+            {
+                await api.CreateComplexFormComponent(afterComponent);
+                return 1;
+            },
+            static async (api, beforeComponent) =>
+            {
+                await api.DeleteComplexFormComponent(beforeComponent);
+                return 1;
+            },
+            static async (api, beforeComponent, afterComponent) =>
+            {
+                if (beforeComponent.ComplexFormEntryId == afterComponent.ComplexFormEntryId &&
+                    beforeComponent.ComponentEntryId == afterComponent.ComponentEntryId &&
+                    beforeComponent.ComponentSenseId == afterComponent.ComponentSenseId)
+                {
+                    return 0;
+                }
+                await api.ReplaceComplexFormComponent(beforeComponent, afterComponent);
+                return 1;
+            }
+        );
         return changes + (updateObjectInput is null ? 0 : 1);
     }
 

@@ -154,6 +154,7 @@ public static class LcmCrdtKernel
             .Add<AddComplexFormTypeChange>()
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()
+            .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>();
     }
 }

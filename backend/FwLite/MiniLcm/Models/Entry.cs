@@ -31,7 +31,7 @@ public class Entry : IObjectWithId
     }
 }
 
-public record ComplexFormComponent
+public record ComplexFormComponent: IObjectWithId
 {
     public static ComplexFormComponent FromEntries(Entry complexFormEntry, Entry componentEntry, Guid? componentSenseId = null)
     {
