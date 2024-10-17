@@ -111,6 +111,42 @@ public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptio
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
+        await dataModel.AddChange(ClientId, addEntryComponentChange);
+        return await ComplexFormComponents.SingleAsync(c => c.Id == addEntryComponentChange.EntityId);
+    }
+
+    public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        await dataModel.AddChange(ClientId, new DeleteChange<CrdtComplexFormComponent>(complexFormComponent.Id));
+    }
+
+    public async Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
+    {
+        IChange change;
+        if (old.ComplexFormEntryId != @new.ComplexFormEntryId)
+        {
+            change = SetComplexFormComponentChange.NewComplexForm(old.Id, @new.ComplexFormEntryId);
+        }
+        else if (old.ComponentEntryId != @new.ComponentEntryId)
+        {
+            change = SetComplexFormComponentChange.NewComponent(old.Id, @new.ComponentEntryId);
+        }
+        else if (old.ComponentSenseId != @new.ComponentSenseId)
+        {
+            change = SetComplexFormComponentChange.NewComponentSense(old.Id,
+                @new.ComponentEntryId,
+                @new.ComponentSenseId);
+        }
+        else
+        {
+            return;
+        }
+        await dataModel.AddChange(ClientId, change);
+    }
+
     public IAsyncEnumerable<MiniLcm.Models.Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);

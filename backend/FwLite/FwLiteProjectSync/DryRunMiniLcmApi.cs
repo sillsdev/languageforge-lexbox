@@ -149,4 +149,22 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteExampleSentence), $"Delete example sentence {exampleSentenceId}"));
         return Task.CompletedTask;
     }
+
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        return Task.FromResult(complexFormComponent);
+    }
+
+    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        return Task.CompletedTask;
+    }
+
+    public Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(ReplaceComplexFormComponent), $"Replace complex form component complex entry: {old.ComplexFormHeadword}, component entry: {old.ComponentHeadword} with complex entry: {@new.ComplexFormHeadword}, component entry: {@new.ComponentHeadword}"));
+        return Task.CompletedTask;
+    }
 }

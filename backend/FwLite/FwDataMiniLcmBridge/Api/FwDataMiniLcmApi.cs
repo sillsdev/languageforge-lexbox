@@ -499,6 +499,46 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }
 
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        UndoableUnitOfWorkHelper.Do("Create Complex Form Component",
+            "Remove Complex Form Component",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
+                AddComplexFormComponent(lexEntry, complexFormComponent);
+            });
+        return Task.FromResult(ToComplexFormComponents(EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId)).Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId));
+    }
+
+    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        UndoableUnitOfWorkHelper.Do("Delete Complex Form Component",
+            "Add Complex Form Component",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
+                RemoveComplexFormComponent(lexEntry, complexFormComponent);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
+    {
+        UndoableUnitOfWorkHelper.Do("Replace Complex Form Component",
+            "Replace Complex Form Component",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexEntry = EntriesRepository.GetObject(old.ComplexFormEntryId);
+                RemoveComplexFormComponent(lexEntry, old);
+                AddComplexFormComponent(lexEntry, @new);
+            });
+        return Task.CompletedTask;
+    }
+
     /// <summary>
     /// must be called as part of an lcm action
     /// </summary>

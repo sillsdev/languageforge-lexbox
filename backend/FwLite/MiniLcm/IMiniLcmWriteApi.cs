@@ -12,6 +12,10 @@ public interface IMiniLcmWriteApi
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
 
+    Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent);
+    Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent);
+    Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new);
+
     Task CreatePartOfSpeech(PartOfSpeech partOfSpeech);
     Task CreateSemanticDomain(SemanticDomain semanticDomain);
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
