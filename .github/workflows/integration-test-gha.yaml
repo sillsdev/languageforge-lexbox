@@ -129,7 +129,7 @@ jobs:
         if: ${{ always() && steps.playwright-tests.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces-${{ inputs.runs-on }}-hg-${{ inputs.hg-version }}
+          name: playwright-traces
           path: |
             ./frontend/test-results
 
