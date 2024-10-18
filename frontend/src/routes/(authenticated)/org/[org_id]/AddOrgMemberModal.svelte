@@ -45,6 +45,7 @@
         $form.canInvite,
         projects,
       );
+      projects = [];
 
       if (error?.byType('NotFoundError')) {
         if (error.message === 'Org not found') {
