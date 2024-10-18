@@ -110,7 +110,7 @@ public class OrgMutations
             await permissionService.AssertCanManageProject(projectId);
         }
         // Now exclude any projects that don't actually exist or the org already has or that don't exist
-        var alreadyInOrg = dbContext.OrgProjects.Where(op => op.OrgId == orgId).Select(op => op.ProjectId).ToHashSet() ?? [];
+        var alreadyInOrg = org.Projects.Select(o => o.Id).ToHashSet();
         var filteredIds = projectIds.Where(id => !alreadyInOrg.Contains(id));
         // Also filter out any project IDs that don't really exist
         var existingIds = await dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).Select(p => p.Id).ToListAsync() ?? [];
