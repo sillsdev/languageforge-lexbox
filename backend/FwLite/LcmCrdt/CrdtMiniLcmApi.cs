@@ -1,6 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Text.Json;
-using SIL.Harmony.Core;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
@@ -12,7 +10,7 @@ using LinqToDB.EntityFrameworkCore;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, JsonSerializerOptions jsonOptions, IHybridDateTimeProvider timeProvider, CurrentProjectService projectService) : IMiniLcmApi
+public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
 

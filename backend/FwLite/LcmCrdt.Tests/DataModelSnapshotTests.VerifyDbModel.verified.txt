@@ -1,0 +1,330 @@
+﻿Model: 
+  EntityType: ProjectData
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      ClientId (Guid) Required
+      Name (string) Required
+      OriginDomain (string)
+    Keys: 
+      Id PK
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: ProjectData
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: ComplexFormComponent
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      ComplexFormEntryId (Guid) Required FK Index
+      ComplexFormHeadword (string)
+      ComponentEntryId (Guid) Required FK Index
+      ComponentHeadword (string)
+      ComponentSenseId (Guid?) FK Index
+      DeletedAt (DateTimeOffset?)
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      ComplexFormComponent {'ComplexFormEntryId'} -> Entry {'Id'} Required Cascade ToDependent: Components
+      ComplexFormComponent {'ComponentEntryId'} -> Entry {'Id'} Required Cascade ToDependent: ComplexForms
+      ComplexFormComponent {'ComponentSenseId'} -> Sense {'Id'} Cascade
+      ComplexFormComponent {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      ComplexFormEntryId
+      ComponentEntryId
+      ComponentSenseId
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: ComplexFormComponents
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: ComplexFormType
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      DeletedAt (DateTimeOffset?)
+      Name (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      ComplexFormType {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: ComplexFormType
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: Entry
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      CitationForm (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      ComplexFormTypes (IList<ComplexFormType>) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      DeletedAt (DateTimeOffset?)
+      LexemeForm (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      LiteralMeaning (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Note (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Navigations: 
+      ComplexForms (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
+      Components (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
+      Senses (IList<Sense>) Collection ToDependent Sense
+    Keys: 
+      Id PK
+    Foreign keys: 
+      Entry {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: Entry
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: ExampleSentence
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      DeletedAt (DateTimeOffset?)
+      Reference (string)
+      SenseId (Guid) Required FK Index
+      Sentence (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SnapshotId (no field, Guid?) Shadow FK Index
+      Translation (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+    Keys: 
+      Id PK
+    Foreign keys: 
+      ExampleSentence {'SenseId'} -> Sense {'Id'} Required Cascade ToDependent: ExampleSentences
+      ExampleSentence {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SenseId
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: ExampleSentence
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: PartOfSpeech
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      DeletedAt (DateTimeOffset?)
+      Name (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Predefined (bool) Required
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      PartOfSpeech {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: PartOfSpeech
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: SemanticDomain
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Code (string) Required
+      DeletedAt (DateTimeOffset?)
+      Name (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Predefined (bool) Required
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Keys: 
+      Id PK
+    Foreign keys: 
+      SemanticDomain {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: SemanticDomain
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: Sense
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Definition (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      DeletedAt (DateTimeOffset?)
+      EntryId (Guid) Required FK Index
+      Gloss (MultiString) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      PartOfSpeech (string) Required
+      PartOfSpeechId (Guid?)
+      SemanticDomains (IList<SemanticDomain>) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      SnapshotId (no field, Guid?) Shadow FK Index
+    Navigations: 
+      ExampleSentences (IList<ExampleSentence>) Collection ToDependent ExampleSentence
+    Keys: 
+      Id PK
+    Foreign keys: 
+      Sense {'EntryId'} -> Entry {'Id'} Required Cascade ToDependent: Senses
+      Sense {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      EntryId
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: Sense
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: WritingSystem
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      Abbreviation (string) Required
+      DeletedAt (DateTimeOffset?)
+      Exemplars (string[]) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      Font (string) Required
+      Name (string) Required
+      Order (double) Required
+      SnapshotId (no field, Guid?) Shadow FK Index
+      Type (WritingSystemType) Required
+      WsId (WritingSystemId) Required
+    Keys: 
+      Id PK
+    Foreign keys: 
+      WritingSystem {'SnapshotId'} -> ObjectSnapshot {'Id'} Unique SetNull
+    Indexes: 
+      SnapshotId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: WritingSystem
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: Commit
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      ClientId (Guid) Required
+      Hash (string) Required
+      Metadata (CommitMetadata) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      ParentHash (string) Required
+    Navigations: 
+      ChangeEntities (List<ChangeEntity<IChange>>) Collection ToDependent ChangeEntity<IChange>
+      Snapshots (List<ObjectSnapshot>) Collection ToDependent ObjectSnapshot Inverse: Commit
+    Complex properties: 
+      HybridDateTime (HybridDateTime) Required
+        ComplexType: Commit.HybridDateTime#HybridDateTime
+          Properties: 
+            Counter (long) Required
+              Annotations: 
+                Relational:ColumnName: Counter
+            DateTime (DateTimeOffset) Required
+              Annotations: 
+                Relational:ColumnName: DateTime
+    Keys: 
+      Id PK
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: Commits
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: ChangeEntity<IChange>
+    Properties: 
+      CommitId (Guid) Required PK FK AfterSave:Throw
+      Index (int) Required PK AfterSave:Throw
+      Change (IChange)
+        Annotations: 
+          Relational:ColumnType: jsonb
+      EntityId (Guid) Required
+    Keys: 
+      CommitId, Index PK
+    Foreign keys: 
+      ChangeEntity<IChange> {'CommitId'} -> Commit {'Id'} Required Cascade ToDependent: ChangeEntities
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: ChangeEntities
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+  EntityType: ObjectSnapshot
+    Properties: 
+      Id (Guid) Required PK AfterSave:Throw ValueGenerated.OnAdd
+      CommitId (Guid) Required FK Index
+      Entity (IObjectBase) Required
+        Annotations: 
+          Relational:ColumnType: jsonb
+      EntityId (Guid) Required Index
+      EntityIsDeleted (bool) Required
+      IsRoot (bool) Required
+      References (Guid[]) Required Element type: Guid Required
+        Annotations: 
+          ElementType: Element type: Guid Required
+      TypeName (string) Required
+    Navigations: 
+      Commit (Commit) ToPrincipal Commit Inverse: Snapshots
+    Keys: 
+      Id PK
+    Foreign keys: 
+      ObjectSnapshot {'CommitId'} -> Commit {'Id'} Required Cascade ToDependent: Snapshots ToPrincipal: Commit
+    Indexes: 
+      CommitId, EntityId Unique
+    Annotations: 
+      DiscriminatorProperty: 
+      Relational:FunctionName: 
+      Relational:Schema: 
+      Relational:SqlQuery: 
+      Relational:TableName: Snapshots
+      Relational:ViewName: 
+      Relational:ViewSchema: 
+Annotations: 
+  ProductVersion: 8.0.4
