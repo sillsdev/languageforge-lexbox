@@ -1,6 +1,7 @@
 <script  context="module" lang="ts">
   // We define the Project type that we'll want in here, and export it so that callers can know they're passing in the right type
   export type Project = {
+    id: string
     name: string
     code: string
     role: ProjectRole
