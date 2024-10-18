@@ -31,7 +31,7 @@
     if (!user || !('projects' in user)) {
       projects = [];
     } else {
-      projects = [...user.projects.map(p => ({role: p.role, id: p.project.id, code: p.project.code, name: p.project.name}))];
+      projects = [...user.projects.map(p => ({memberRole: p.role, id: p.project.id, code: p.project.code, name: p.project.name}))];
     }
   }
 

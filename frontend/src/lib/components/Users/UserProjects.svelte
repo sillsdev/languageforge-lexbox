@@ -4,7 +4,7 @@
     id: string
     name: string
     code: string
-    role: ProjectRole
+    memberRole: ProjectRole
   };
 </script>
 
@@ -29,7 +29,7 @@
   }
 
   function isManager(proj: Project): boolean {
-    return proj.role === ProjectRole.Manager;
+    return proj.memberRole === ProjectRole.Manager;
   }
 
   // Projects managed by the given user come pre-checked, to save time in typical uses of this component
@@ -51,7 +51,7 @@
     <li>
       <input type="checkbox" bind:group={selectedProjects} value={proj.code} />
       {proj.name}
-      {#if proj.role == ProjectRole.Manager}
+      {#if proj.memberRole == ProjectRole.Manager}
       <Badge variant="badge-info">Manager</Badge>
       {/if}
     </li>
