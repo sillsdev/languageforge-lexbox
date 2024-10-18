@@ -17,7 +17,7 @@
   export let readonly: boolean | undefined = undefined;
   let append: HTMLElement;
 
-  $: sortedOptions = options.sort((a, b) => a.label.localeCompare(b.label));
+  $: sortedOptions = options.toSorted((a, b) => a.label.localeCompare(b.label));
 </script>
 
 <CrdtField on:change={(e) => dispatch('change', { value: e.detail.value})} bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
