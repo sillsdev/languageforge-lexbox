@@ -21,7 +21,7 @@
     resolve: (entry: IEntry | undefined) => void
   } | undefined;
 
-  async function createEntry(e: Event, closeDialog: () => void): Promise<void> {
+  async function createEntry(e: Event, closeDialog: () => void) {
     e.preventDefault();
     loading = true;
     await saveHandler(() => lexboxApi.CreateEntry(entry));
@@ -44,7 +44,7 @@
     });
   }
 
-  function onClosing(): void {
+  function onClosing() {
     if (requester) {
       requester.resolve(undefined);
       requester = undefined;

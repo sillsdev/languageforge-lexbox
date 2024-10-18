@@ -62,11 +62,11 @@
     addedEntries = [];
   }
 
-  function onPick(): void {
+  function onPick() {
     dispatch('pick', {entry: selectedEntry!, sense: selectedSense});
   }
 
-  function reset(): void {
+  function reset() {
     $search = '';
     selectedEntry = undefined;
     selectedEntryId = undefined;
@@ -99,7 +99,7 @@
     selectedSense = sense;
   }
 
-  function onExpansionChange(open: boolean, entry: IEntry, disabledEntry: boolean): void {
+  function onExpansionChange(open: boolean, entry: IEntry, disabledEntry: boolean) {
     if (open) { // I'm opening so I manage the state
       select(entry);
       return;

@@ -150,7 +150,7 @@
   // and we need the extra call to updateEntryIdSearchParam in refreshSelection
   const unsubSelectedEntry = selectedEntry.subscribe(updateEntryIdSearchParam);
   $: { pickedEntry; updateEntryIdSearchParam(); }
-  function updateEntryIdSearchParam(): void {
+  function updateEntryIdSearchParam() {
     updateSearchParam(ViewerSearchParam.EntryId, navigateToEntryId ?? (pickedEntry ? $selectedEntry?.id : undefined), true);
   }
 
@@ -160,7 +160,7 @@
   }
 
   //selection handling, make sure the selected entry is always in the list of entries
-  function refreshSelection(): void {
+  function refreshSelection() {
     if (!$entries) return;
 
     if (navigateToEntryId) {
@@ -189,14 +189,14 @@
 
   $: _loading = !$entries || !$writingSystems || loading;
 
-  function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions): void {
+  function onEntryCreated(entry: IEntry, options?: NewEntryDialogOptions) {
     $entries?.push(entry);//need to add it before refresh, otherwise it won't get selected because it's not in the list
     if (!options?.dontNavigate) {
       navigateToEntry(entry, headword(entry));
     }
   }
 
-  function navigateToEntry(entry: IEntry, searchText?: string): void {
+  function navigateToEntry(entry: IEntry, searchText?: string) {
     // this is to ensure that the selected entry is in the list of entries, otherwise it won't be selected
     $search = searchText ?? '';
     $selectedIndexExemplar = null;
@@ -232,7 +232,7 @@
     };
   });
 
-  function openInFlex(): void {
+  function openInFlex() {
     AppNotification.displayAction('The project is open in FieldWorks. Please close it to reopen.', 'warning', {
       label: 'Open',
       callback: () => window.location.reload()

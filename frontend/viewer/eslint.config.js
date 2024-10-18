@@ -90,10 +90,9 @@ export default [
         },
       ],
       '@typescript-eslint/explicit-function-return-type': [
-        'warn',
+        'off',
         {
           'allowExpressions': true,
-          'allowedNames': ['load'],
         },
       ],
       '@typescript-eslint/consistent-type-imports': ['error', {'fixStyle': 'inline-type-imports'}],

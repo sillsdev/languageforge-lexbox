@@ -39,7 +39,7 @@
     ? standardPageSize
     : Math.max(50, entries.indexOf($selectedEntry) + Math.ceil(standardPageSize / 2));
 
-  function selectEntry(entry: IEntry): void {
+  function selectEntry(entry: IEntry) {
     $selectedEntry = entry;
     expand = false;
     dispatch('entrySelected', entry);

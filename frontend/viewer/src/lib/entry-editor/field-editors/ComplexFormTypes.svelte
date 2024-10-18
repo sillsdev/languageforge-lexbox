@@ -22,7 +22,7 @@
 
   // let openPicker = false;
 
-  // function addComplexFormType(selection: MultiString): void {
+  // function addComplexFormType(selection: MultiString) {
   //   const complexFormType = {
   //     id: randomId(),
   //     name: selection,

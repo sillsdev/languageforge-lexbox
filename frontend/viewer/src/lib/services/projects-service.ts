@@ -28,13 +28,13 @@ export class ProjectService {
     return {error: undefined};
   }
 
-  async importFwDataProject(name: string): Promise<void> {
+  async importFwDataProject(name: string) {
     await fetch(`/api/import/fwdata/${name}`, {
       method: 'POST',
     });
   }
 
-  async downloadCrdtProject(project: Project): Promise<void> {
+  async downloadCrdtProject(project: Project) {
     const r = await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
     if (r.status !== 200) {
       AppNotification.display(`Failed to download project, status code ${r.status}`, 'error');
@@ -42,7 +42,7 @@ export class ProjectService {
     }
   }
 
-  async uploadCrdtProject(server: string, projectName: string): Promise<void> {
+  async uploadCrdtProject(server: string, projectName: string) {
     await fetch(`/api/upload/crdt/${server}/${projectName}`, {method: 'POST'});
   }
   async getProjectServer(projectName: string): Promise<string|null> {
@@ -51,7 +51,7 @@ export class ProjectService {
     return projects.find(p => p.name === projectName)?.serverAuthority ?? null;
   }
 
-  async fetchProjects(): Promise< Project[]> {
+  async fetchProjects(): Promise<Project[]> {
     const r = await fetch('/api/localProjects');
     return (await r.json()) as Project[];
   }

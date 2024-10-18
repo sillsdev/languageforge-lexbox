@@ -20,7 +20,7 @@
   export let readonly: boolean;
   $: initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
 
-  function updateInitialEntry(): void {
+  function updateInitialEntry() {
     // eslint-disable-next-line svelte/no-reactive-reassign
     initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
   }
@@ -36,7 +36,7 @@
     return rest;
   }
 
-  async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }): Promise<void> {
+  async function onChange(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     await updateEntry(e.entry);
     if (e.sense !== undefined) {
       await updateSense(e.sense);
@@ -51,7 +51,7 @@
     updateInitialEntry();
   }
 
-  async function onDelete(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }): Promise<void> {
+  async function onDelete(e: { entry: IEntry, sense?: ISense, example?: IExampleSentence }) {
     if (e.example !== undefined && e.sense !== undefined) {
       await saveHandler(() => lexboxApi.DeleteExampleSentence(e.entry.id, e.sense!.id, e.example!.id));
     } else if (e.sense !== undefined) {
@@ -64,7 +64,7 @@
     updateInitialEntry();
   }
 
-  async function updateEntry(updatedEntry: IEntry): Promise<void> {
+  async function updateEntry(updatedEntry: IEntry) {
     if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
     let operations = jsonPatch.compare(withoutSenses(initialEntry), withoutSenses(updatedEntry));
     if (operations.length == 0) return;
@@ -72,7 +72,7 @@
     await saveHandler(() => lexboxApi.UpdateEntry(updatedEntry.id, operations));
   }
 
-  async function updateSense(updatedSense: ISense): Promise<void> {
+  async function updateSense(updatedSense: ISense) {
     if (isEmptyId(updatedSense.id)) {
       updatedSense.id = crypto.randomUUID();
       await saveHandler(() => lexboxApi.CreateSense(entry.id, updatedSense));
@@ -86,7 +86,7 @@
     await saveHandler(() => lexboxApi.UpdateSense(entry.id, updatedSense.id, operations));
   }
 
-  async function updateExample(senseId: string, updatedExample: IExampleSentence): Promise<void> {
+  async function updateExample(senseId: string, updatedExample: IExampleSentence) {
     const initialSense = initialEntry.senses.find(s => s.id === senseId);
     if (!initialSense) throw new Error('Sense not found in initial entry');
     if (isEmptyId(updatedExample.id)) {
@@ -102,7 +102,7 @@
     await saveHandler(() => lexboxApi.UpdateExampleSentence(entry.id, senseId, updatedExample.id, operations));
   }
 
-  function detectSenseIndexChanges(entry: IEntry, sense: ISense): void {
+  function detectSenseIndexChanges(entry: IEntry, sense: ISense) {
     const initialIndex = initialEntry.senses.findIndex(s => s.id === sense.id);
     if (initialIndex === -1) return;
     const currentIndex = entry.senses.findIndex(s => s.id === sense.id);
@@ -112,7 +112,7 @@
     }
   }
 
-  function detectExampleIndexChanges(entry: IEntry, sense: ISense, example: IExampleSentence): void {
+  function detectExampleIndexChanges(entry: IEntry, sense: ISense, example: IExampleSentence) {
     const initialIndex = initialEntry.senses.find(s => s.id == sense.id)?.exampleSentences.findIndex(s => s.id === example.id);
     if (initialIndex === -1 || initialIndex === undefined) return;
     const currentIndex = sense.exampleSentences.findIndex(s => s.id === example.id);

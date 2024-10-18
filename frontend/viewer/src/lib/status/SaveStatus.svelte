@@ -25,7 +25,7 @@
 
   $: statusIcon = showSaving ? mdiSync : mdiContentSaveCheckOutline;
 
-  function reset(): void {
+  function reset() {
     saving = false;
     savingShownLongEnough = true;
     justSaved = false;

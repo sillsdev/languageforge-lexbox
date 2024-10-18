@@ -20,7 +20,7 @@
 
   let createError: string;
 
-  async function createProject(): Promise<void> {
+  async function createProject() {
     const response = await projectsService.createProject(newProjectName);
     createError = response.error ?? '';
     if (createError) return;
@@ -30,7 +30,7 @@
 
   let importing = '';
 
-  async function importFwDataProject(name: string): Promise<void> {
+  async function importFwDataProject(name: string) {
     importing = name;
     await projectsService.importFwDataProject(name);
     await refreshProjects();
@@ -39,7 +39,7 @@
 
   let downloading = '';
 
-  async function downloadCrdtProject(project: Project): Promise<void> {
+  async function downloadCrdtProject(project: Project) {
     downloading = project.name;
     await projectsService.downloadCrdtProject(project);
     await refreshProjects();
@@ -49,7 +49,7 @@
   let projectsPromise = projectsService.fetchProjects().then(p => projects = p);
   let projects: Project[] = [];
 
-  async function refreshProjects(): Promise<void> {
+  async function refreshProjects() {
     let promise = projectsService.fetchProjects();
     projects = await promise;//avoids clearing out the list until the new list is fetched
     projectsPromise = promise;

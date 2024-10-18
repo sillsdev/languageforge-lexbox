@@ -24,38 +24,38 @@
 
   export let entry: IEntry;
 
-  function addSense(): void {
+  function addSense() {
     const sense = defaultSense();
     highlightedEntity = sense;
     entry.senses = [...entry.senses, sense];
   }
 
-  function addExample(sense: ISense): void {
+  function addExample(sense: ISense) {
     const sentence = defaultExampleSentence();
     highlightedEntity = sentence;
     sense.exampleSentences = [...sense.exampleSentences, sentence];
     entry = entry; // examples counts are not updated without this
   }
-  function deleteEntry(): void {
+  function deleteEntry() {
     dispatch('delete', {entry});
   }
 
-  function deleteSense(sense: ISense): void {
+  function deleteSense(sense: ISense) {
     entry.senses = entry.senses.filter(s => s !== sense);
     dispatch('delete', {entry, sense});
   }
-  function moveSense(sense: ISense, i: number): void {
+  function moveSense(sense: ISense, i: number) {
     entry.senses.splice(entry.senses.indexOf(sense), 1);
     entry.senses.splice(i, 0, sense);
     dispatch('change', {entry, sense});
     highlightedEntity = sense;
   }
-  function deleteExample(sense: ISense, example: IExampleSentence): void {
+  function deleteExample(sense: ISense, example: IExampleSentence) {
     sense.exampleSentences = sense.exampleSentences.filter(e => e !== example);
     dispatch('delete', {entry, sense, example});
     entry = entry; // examples are not updated without this
   }
-  function moveExample(sense: ISense, example: IExampleSentence, i: number): void {
+  function moveExample(sense: ISense, example: IExampleSentence, i: number) {
     sense.exampleSentences.splice(sense.exampleSentences.indexOf(example), 1);
     sense.exampleSentences.splice(i, 0, example);
     dispatch('change', {entry, sense, example});

@@ -57,7 +57,7 @@
   const listSearch = getContext<Writable<string | undefined>>('listSearch');
   const selectedIndexExamplar = getContext<Writable<string | undefined>>('selectedIndexExamplar');
 
-  function selectEntry(entry: IEntry): void {
+  function selectEntry(entry: IEntry) {
     dispatch('entrySelected', {entry, search: $search});
     showSearchDialog = false;
   }

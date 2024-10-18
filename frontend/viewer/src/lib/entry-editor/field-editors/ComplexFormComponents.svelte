@@ -25,7 +25,7 @@
 
   let openPicker = false;
 
-  function addComponent(selection: EntrySenseSelection): void {
+  function addComponent(selection: EntrySenseSelection) {
     const component: IComplexFormComponent = {
       id: randomId(),
       complexFormEntryId: entry.id,

@@ -36,7 +36,7 @@
   };
   let uploading = false;
 
-  async function upload(): Promise<void> {
+  async function upload() {
     if (!$projectServer) return;
     uploading = true;
     //todo if not logged in then login
