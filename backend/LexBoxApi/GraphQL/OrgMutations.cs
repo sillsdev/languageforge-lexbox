@@ -109,24 +109,19 @@ public class OrgMutations
         {
             await permissionService.AssertCanManageProject(projectId);
         }
+        // Now exclude any projects that don't actually exist or the org already has or that don't exist
+        var alreadyInOrg = dbContext.OrgProjects.Where(op => op.OrgId == orgId).Select(op => op.ProjectId).ToHashSet() ?? [];
+        var filteredIds = projectIds.Where(id => !alreadyInOrg.Contains(id));
+        // Also filter out any project IDs that don't really exist
+        var existingIds = await dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).Select(p => p.Id).ToListAsync() ?? [];
+        var updates = existingIds.Select(projectId => new OrgProjects { OrgId = orgId, ProjectId = projectId });
+        dbContext.OrgProjects.AddRange(updates);
+        dbContext.Projects.Where(p => existingIds.Contains(p.Id)).ExecuteUpdate(p => p.SetProperty(p => p.UpdatedDate, DateTime.UtcNow));
+        org.UpdateUpdatedDate();
         foreach (var projectId in projectIds)
         {
-            var project = await dbContext.Projects.Where(p => p.Id == projectId)
-                .Include(p => p.Organizations)
-                .SingleOrDefaultAsync();
-            // We won't return 404 if one project out of the list doesn't exist, we'll just add the ones that do
-            if (project == null) continue;
-
-            if (project.Organizations.Exists(o => o.Id == orgId))
-            {
-                // No error since we're already in desired state; just move on to the next one
-                continue;
-            }
-            project.Organizations.Add(org);
-            project.UpdateUpdatedDate();
             projectService.InvalidateProjectOrgIdsCache(projectId);
         }
-        org.UpdateUpdatedDate();
         await dbContext.SaveChangesAsync();
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
