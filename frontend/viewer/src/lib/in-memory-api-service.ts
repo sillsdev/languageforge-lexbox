@@ -39,7 +39,7 @@ export class InMemoryApiService implements LexboxApiClient {
 
   GetSemanticDomains(): Promise<SemanticDomain[]> {
     return Promise.resolve([
-      {id: 'Fruit', name: {en: 'Fruit'}, code: '1'},
+      {id: '36e8f1df-1798-4ae6-904d-600ca6eb4145', name: {en: 'Fruit'}, code: '1'},
       {id: 'Animal', name: {en: 'Animal'}, code: '2'},
     ]);
   }
