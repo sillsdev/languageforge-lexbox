@@ -13,6 +13,7 @@
   import { writable } from 'svelte/store';
   import Badge from '../Badges/Badge.svelte';
   import { onMount } from 'svelte';
+  import t from '$lib/i18n';
 
   export let projects: Project[] = [];
   export let selectedProjects: string[] = [];
@@ -45,6 +46,7 @@
   {#if projects && projects.length > 1}
     <li>
       <input type="checkbox" checked={allSelected} on:change={handleSelectAllClick} />
+      {$t('org_page.add_user.select_all')}
     </li>
   {/if}
   {#each projects as proj}
