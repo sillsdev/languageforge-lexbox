@@ -39,6 +39,7 @@ export default defineConfig(({ mode }) => {
     })],
     ...(!webComponent ? {
       server: {
+        open: 'http://localhost:5173/testing/project-view',
         proxy: {
           '/api': {
             target: 'http://localhost:5137',
