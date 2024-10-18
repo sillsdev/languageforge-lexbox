@@ -112,11 +112,9 @@ public class OrgMutations
         // Now exclude any projects that don't actually exist or the org already has or that don't exist
         var alreadyInOrg = org.Projects.Select(o => o.Id).ToHashSet();
         var filteredIds = projectIds.Where(id => !alreadyInOrg.Contains(id));
-        // Also filter out any project IDs that don't really exist
-        var existingIds = await dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).Select(p => p.Id).ToListAsync() ?? [];
-        var updates = existingIds.Select(projectId => new OrgProjects { OrgId = orgId, ProjectId = projectId });
+        var updates = filteredIds.Select(projectId => new OrgProjects { OrgId = orgId, ProjectId = projectId });
         dbContext.OrgProjects.AddRange(updates);
-        dbContext.Projects.Where(p => existingIds.Contains(p.Id)).ExecuteUpdate(p => p.SetProperty(p => p.UpdatedDate, DateTime.UtcNow));
+        dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).ExecuteUpdate(p => p.SetProperty(p => p.UpdatedDate, DateTime.UtcNow));
         org.UpdateUpdatedDate();
         foreach (var projectId in projectIds)
         {
