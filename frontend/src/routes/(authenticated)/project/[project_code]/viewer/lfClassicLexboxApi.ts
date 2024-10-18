@@ -70,14 +70,14 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     const asc = options.order.ascending ?? true;
     const params = new URLSearchParams({
       SortField: options.order.field,
-      SortWritingSystem: options.order.writingSystem,
+      SortWritingSystem: options.order.writingSystem as string,
       Ascending: asc ? 'true' : 'false',
       Count: options.count.toString(),
       Offset: options.offset.toString()
     });
     if (options.exemplar) {
       params.set('ExemplarValue', options.exemplar.value);
-      params.set('ExemplarWritingSystem', options.exemplar.writingSystem);
+      params.set('ExemplarWritingSystem', options.exemplar.writingSystem as string);
     }
     /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     return '?' + params.toString();
