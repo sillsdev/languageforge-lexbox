@@ -1,7 +1,6 @@
 <script  context="module" lang="ts">
   // We define the Project type that we'll want in here, and export it so that callers can know they're passing in the right type
   export type Project = {
-    id: string
     name: string
     code: string
     role: ProjectRole
@@ -17,6 +16,17 @@
   export let projects: Project[] = [];
   export let selectedProjects: string[] = [];
 
+  $: allSelected = projects && selectedProjects && selectedProjects.length === projects.length;
+
+  function handleSelectAllClick() {
+    if (!selectedProjects || !projects) return;
+    if (allSelected) {
+      selectedProjects = [];
+    } else {
+      selectedProjects = [...projects.map(proj => proj.code)];
+    }
+  }
+
   function isManager(proj: Project): boolean {
     return proj.role === ProjectRole.Manager;
   }
@@ -31,6 +41,11 @@
 </script>
 
 <ul>
+  {#if projects && projects.length > 1}
+    <li>
+      <input type="checkbox" checked={allSelected} on:change={handleSelectAllClick} />
+    </li>
+  {/if}
   {#each projects as proj}
     <li>
       <input type="checkbox" bind:group={selectedProjects} value={proj.code} />
