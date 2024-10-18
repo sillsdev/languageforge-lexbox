@@ -25,19 +25,13 @@
 
   const dispatch = createEventDispatcher<{
       selectedUserId: string | null;
-      selectedUserWithProjects: SingleUserTypeaheadResult;
+      selectedUser: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null;
   }>();
 
   let selectedUser = writable<SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null>(null);
   let selectedUserId = derived(selectedUser, user => user?.id ?? null);
   $: dispatch('selectedUserId', $selectedUserId);
-  $: if ($selectedUser) {
-    if ('projects' in $selectedUser) {
-      if ($selectedUser.projects && $selectedUser.projects.length) {
-        dispatch('selectedUserWithProjects', $selectedUser);
-      }
-    }
-  }
+  $: dispatch('selectedUser', $selectedUser);
 
   function formatResult(user: SingleUserTypeaheadResult): string {
     const extra = user.username && user.email ? ` (${user.username}, ${user.email})`

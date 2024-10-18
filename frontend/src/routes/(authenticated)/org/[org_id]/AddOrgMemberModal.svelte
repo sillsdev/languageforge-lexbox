@@ -10,7 +10,7 @@
   import { SupHelp, helpLinks } from '$lib/components/help';
   import type { UUID } from 'crypto';
   import { _addOrgMember } from './+page';
-  import type { SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import type { SingleUserTypeaheadResult, UsersInMyOrgTypeaheadResult } from '$lib/gql/typeahead-queries';
   import UserProjects from '$lib/components/Users/UserProjects.svelte';
 
   export let orgId: string;
@@ -27,8 +27,12 @@
   const { notifySuccess } = useNotifications();
 
   let projects = [];
-  function populateUserProjects(user: SingleUserTypeaheadResult): void {
-    projects = [...user.projects.map(p => ({role: p.role, code: p.project.code, name: p.project.name}))];
+  function populateUserProjects(user: SingleUserTypeaheadResult | UsersInMyOrgTypeaheadResult | null): void {
+    if (!user || !('projects' in user)) {
+      projects = [];
+    } else {
+      projects = [...user.projects.map(p => ({role: p.role, code: p.project.code, name: p.project.name}))];
+    }
   }
 
   export async function openModal(): Promise<void> {
@@ -75,10 +79,9 @@
       isAdmin={$page.data.user?.isAdmin}
       bind:value={$form.usernameOrEmail}
       error={errors.usernameOrEmail}
-      on:selectedUserWithProjects={(event) => populateUserProjects(event.detail)}
+      on:selectedUser={(event) => populateUserProjects(event.detail)}
       autofocus
       />
-      <!-- TODO: Clear user projects list if typeahead is modified; might need typeahead to send `selectedUserWithProjects(null)` in that case -->
   {:else}
     <Input
       id="usernameOrEmail"
