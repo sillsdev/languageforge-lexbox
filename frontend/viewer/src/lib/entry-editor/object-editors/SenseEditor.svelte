@@ -1,6 +1,6 @@
 ﻿<script lang="ts">
   import EntityEditor from './EntityEditor.svelte';
-  import type {ISense, SemanticDomain} from '../../mini-lcm';
+  import type {ISense} from '../../mini-lcm';
   import MultiFieldEditor from '../field-editors/MultiFieldEditor.svelte';
   import SingleOptionEditor from '../field-editors/SingleOptionEditor.svelte';
   import MultiOptionEditor from '../field-editors/MultiOptionEditor.svelte';
@@ -15,9 +15,6 @@
   const writingSystems = useWritingSystems();
   const partsOfSpeech = usePartsOfSpeech(writingSystems);
   const semanticDomains = useSemanticDomains();
-  function setSemanticDomains(ids: string[]): void {
-    sense.semanticDomains = ids.map(id => $semanticDomains.find(sd => sd.id === id)).filter((sd): sd is SemanticDomain => !!sd);
-  }
   const currentView = useCurrentView();
 </script>
 
@@ -34,15 +31,17 @@
                     wsType="analysis" />
   <SingleOptionEditor on:change
                       bind:value={sense.partOfSpeechId}
-                      options={$partsOfSpeech.map(pos => ({value: pos.id, label: pos.label}))}
+                      idValue
+                      options={$partsOfSpeech}
+                      getOptionLabel={(pos) => pos.label}
                       {readonly}
                       id="partOfSpeechId"
                       wsType="first-analysis" />
   <MultiOptionEditor
-                    on:change={(e) => setSemanticDomains(e.detail.value)}
                     on:change
-                    value={sense.semanticDomains.map(sd => sd.id)}
-                    options={$semanticDomains.map(sd => ({value: sd.id, label: `${sd.code} ${pickBestAlternative(sd.name, 'analysis', $writingSystems)}`}))}
+                    bind:value={sense.semanticDomains}
+                    options={$semanticDomains}
+                    getOptionLabel={(sd) => `${sd.code} ${pickBestAlternative(sd.name, 'analysis', $writingSystems)}`}
                     {readonly}
                     id="semanticDomains"
                     wsType="first-analysis" />
