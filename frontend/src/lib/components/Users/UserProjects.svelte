@@ -19,7 +19,7 @@
 
   $: allSelected = projects && selectedProjects && selectedProjects.length === projects.length;
 
-  function handleSelectAllClick() {
+  function handleSelectAllClick(): void {
     if (!selectedProjects || !projects) return;
     if (allSelected) {
       selectedProjects = [];
