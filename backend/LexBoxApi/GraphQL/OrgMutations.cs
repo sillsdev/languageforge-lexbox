@@ -94,6 +94,48 @@ public class OrgMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
+    public async Task<IQueryable<Organization>> AddProjectsToOrg(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        Guid orgId,
+        IEnumerable<Guid> projectIds)
+    {
+        var org = await dbContext.Orgs.Include(o => o.Members).Include(o => o.Projects).SingleOrDefaultAsync(o => o.Id == orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanAddProjectToOrg(org);
+        // First make sure ALL projects pass permissions tests
+        foreach (var projectId in projectIds)
+        {
+            await permissionService.AssertCanManageProject(projectId);
+        }
+        foreach (var projectId in projectIds)
+        {
+            var project = await dbContext.Projects.Where(p => p.Id == projectId)
+                .Include(p => p.Organizations)
+                .SingleOrDefaultAsync();
+            // We won't return 404 if one project out of the list doesn't exist, we'll just add the ones that do
+            if (project == null) continue;
+
+            if (project.Organizations.Exists(o => o.Id == orgId))
+            {
+                // No error since we're already in desired state; just move on to the next one
+                continue;
+            }
+            project.Organizations.Add(org);
+            project.UpdateUpdatedDate();
+            projectService.InvalidateProjectOrgIdsCache(projectId);
+        }
+        org.UpdateUpdatedDate();
+        await dbContext.SaveChangesAsync();
+        return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
     public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
