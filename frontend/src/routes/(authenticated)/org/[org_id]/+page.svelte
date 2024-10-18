@@ -156,7 +156,7 @@
               </ul>
             </Dropdown>
           {/if}
-        <td/>
+        </td>
       </ProjectTable>
       <DeleteModal
         bind:this={removeProjectFromOrgModal}
