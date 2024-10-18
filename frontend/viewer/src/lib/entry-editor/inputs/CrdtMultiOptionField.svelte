@@ -10,7 +10,7 @@
 
   export let value: string[];
   export let unsavedChanges = false;
-  export let options: MenuOption[] = [];
+  export let options: MenuOption<string>[] = [];
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
