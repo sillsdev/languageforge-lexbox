@@ -10,7 +10,7 @@
   import { SupHelp, helpLinks } from '$lib/components/help';
   import type { UUID } from 'crypto';
   import { _addOrgMember } from './+page';
-  import type { SingleUserTypeaheadResult, UsersInMyOrgTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import type { SingleUserInMyOrgTypeaheadResult, SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
   import UserProjects, { type Project } from '$lib/components/Users/UserProjects.svelte';
 
   export let orgId: string;
@@ -27,7 +27,7 @@
   const { notifySuccess } = useNotifications();
 
   let projects: Project[] = [];
-  function populateUserProjects(user: SingleUserTypeaheadResult | UsersInMyOrgTypeaheadResult | null): void {
+  function populateUserProjects(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null): void {
     if (!user || !('projects' in user)) {
       projects = [];
     } else {

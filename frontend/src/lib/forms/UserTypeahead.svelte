@@ -33,10 +33,10 @@
   $: dispatch('selectedUserId', $selectedUserId);
   $: dispatch('selectedUser', $selectedUser);
 
-  function formatResult(user: SingleUserTypeaheadResult): string {
-    const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
-                : user.username ? ` (${user.username})`
-                : user.email ? ` (${user.email})`
+  function formatResult(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
+    const extra = 'username' in user && user.username && 'email' in user && user.email ? ` (${user.username}, ${user.email})`
+                : 'username' in user && user.username ? ` (${user.username})`
+                : 'email' in user && user.email ? ` (${user.email})`
                 : '';
     return `${user.name}${extra}`;
   }
