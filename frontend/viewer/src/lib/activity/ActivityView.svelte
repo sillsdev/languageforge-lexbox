@@ -1,5 +1,4 @@
 ﻿<script lang="ts">
-
   import {mdiHistory} from '@mdi/js';
   import {
     cls,
@@ -12,7 +11,6 @@
     Duration,
     TextField
   } from 'svelte-ux';
-  import {getContext} from 'svelte';
 
   let loading = false;
   export let projectName: string;

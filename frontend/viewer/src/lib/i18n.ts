@@ -1,8 +1,8 @@
-import type { FieldConfig, WellKnownFieldId } from './config-types';
+import type { WellKnownFieldId } from './config-types';
 
 import type {FieldIds} from './entry-editor/field-data';
 
-type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
+// type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
 type I18nKey = FieldIds;
 /**
  * I18n type is used to specify which i18n group to use for a field. If empty, the default i18n is used.

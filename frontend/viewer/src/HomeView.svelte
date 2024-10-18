@@ -21,14 +21,12 @@
   let createError: string;
 
   async function createProject() {
-
     const response = await projectsService.createProject(newProjectName);
     createError = response.error ?? '';
     if (createError) return;
     newProjectName = '';
-    void refreshProjects();
+    await refreshProjects();
   }
-
 
   let importing = '';
 
@@ -59,12 +57,16 @@
 
   let remoteProjects: { [server: string]: Project[] } = {};
   let loadingRemoteProjects = false;
-  async function fetchRemoteProjects() {
+  async function fetchRemoteProjects(): Promise<void> {
     loadingRemoteProjects = true;
     remoteProjects = await projectsService.fetchRemoteProjects();
     loadingRemoteProjects = false;
   }
-  fetchRemoteProjects();
+
+  fetchRemoteProjects().catch((error) => {
+    console.error(`Failed to fetch remote projects`, error);
+    throw error;
+  });
 
 
   let servers: ServerStatus[] = [];
@@ -97,7 +99,7 @@
       : []),
   ] satisfies ColumnDef<Project>[];
 
-  function matchesProject(projects: Project[], project: Project) {
+  function matchesProject(projects: Project[], project: Project): Project | undefined {
     let matches: Project | undefined = undefined;
     if (project.id) {
       matches = projects.find(p => p.id == project.id && p.serverAuthority == project.serverAuthority);
@@ -120,7 +122,7 @@
       };
     }
     let authority =  Object.entries(serversProjects)
-      .find(([server, projects]) => matchesProject(projects, project))?.[0];
+      .find(([_server, projects]) => matchesProject(projects, project))?.[0];
     return authority ? servers.find(s => s.authority == authority) : undefined;
   }
 </script>
@@ -152,7 +154,7 @@
             <Table {columns}
                    data={projects.filter((p) => $isDev || p.fwdata).sort((p1, p2) => p1.name.localeCompare(p2.name))}
                    classes={{ th: 'p-4' }}>
-              <tbody slot="data" let:columns let:data let:getCellValue let:getCellContent>
+              <tbody slot="data" let:columns let:data let:getCellContent>
               {#each data ?? [] as project, rowIndex}
                 <tr class="tabular-nums">
                   {#each columns as column (column.name)}
@@ -262,7 +264,7 @@
   </div>
 </div>
 
-<style>
+<style lang="postcss">
   .home {
     min-height: 100%;
     display: grid;

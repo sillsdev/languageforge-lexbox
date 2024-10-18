@@ -21,6 +21,7 @@
   $: initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
 
   function updateInitialEntry() {
+    // eslint-disable-next-line svelte/no-reactive-reassign
     initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
   }
 
@@ -124,7 +125,6 @@
 
 <div id="entry" class:hide-empty={$viewSettings.hideEmptyFields}>
   <EntryEditor
-
     on:change={e => onChange(e.detail)}
     on:delete={e => onDelete(e.detail)}
     entry={entry}

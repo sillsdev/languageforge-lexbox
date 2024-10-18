@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from "svelte-ux";
-  import type { IEntry } from "../mini-lcm";
-  import { firstDefOrGlossVal, headword } from "../utils";
-  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from "@mdi/js";
-  import IndexCharacters from "./IndexCharacters.svelte";
-  import type { Writable } from "svelte/store";
-  import { createEventDispatcher, getContext } from "svelte";
-  import DictionaryEntry from "../DictionaryEntry.svelte";
+  import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from 'svelte-ux';
+  import type { IEntry } from '../mini-lcm';
+  import { firstDefOrGlossVal, headword } from '../utils';
+  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
+  import IndexCharacters from './IndexCharacters.svelte';
+  import type { Writable } from 'svelte/store';
+  import { createEventDispatcher, getContext } from 'svelte';
+  import DictionaryEntry from '../DictionaryEntry.svelte';
 
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;

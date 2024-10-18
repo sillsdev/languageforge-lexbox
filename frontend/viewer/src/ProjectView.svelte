@@ -130,7 +130,7 @@
   $: $entries = $_entries;
   $: console.debug('Entries:', $_entries);
 
-  function fetchEntries(s: string, isConnected: boolean, exemplar: string | null) {
+  function fetchEntries(s: string, isConnected: boolean, exemplar: string | null): Promise<IEntry[] | undefined> {
     if (!isConnected) return Promise.resolve(undefined);
     return lexboxApi.SearchEntries(s ?? '', {
       offset: 0,
@@ -232,7 +232,7 @@
     };
   });
 
-  async function openInFlex() {
+  function openInFlex() {
     AppNotification.displayAction('The project is open in FieldWorks. Please close it to reopen.', 'warning', {
       label: 'Open',
       callback: () => window.location.reload()
@@ -265,7 +265,7 @@
   </div>
 </div>
 {:else}
-<div class="project-view !flex flex-col PortalTarget" style="{spaceForEditorStyle}">
+<div class="project-view !flex flex-col PortalTarget" style={spaceForEditorStyle}>
   <AppBar class="bg-secondary min-h-12 shadow-md">
     <div slot="title" class="prose">
       <h3>{projectName}</h3>
@@ -340,11 +340,11 @@
           </div>
           <Editor entry={$selectedEntry}
                   {readonly}
-            on:change={e => {
+            on:change={_ => {
               $selectedEntry = $selectedEntry;
               $entries = $entries;
             }}
-            on:delete={e => {
+            on:delete={_ => {
               $selectedEntry = undefined;
               refreshEntries();
             }} />

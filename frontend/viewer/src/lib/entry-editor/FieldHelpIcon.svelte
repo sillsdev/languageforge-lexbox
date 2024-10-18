@@ -1,7 +1,6 @@
 <script lang="ts">
   import { mdiHelpCircleOutline } from '@mdi/js';
   import { Icon } from 'svelte-ux';
-  import type { FieldConfig } from '../config-types';
 
   export let helpId: string;
 

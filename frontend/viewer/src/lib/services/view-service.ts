@@ -9,13 +9,14 @@ export interface ViewSettings {
   hideEmptyFields: boolean;
 }
 
-export function initViewSettings(defaultSettings: ViewSettings) {
+export function initViewSettings(defaultSettings: ViewSettings): Writable<ViewSettings> {
   //todo load from local storage
   const viewSettingsStore = writable<ViewSettings>(defaultSettings);
   setContext<Writable<ViewSettings>>(viewSettingsContextName, viewSettingsStore);
   return viewSettingsStore;
 }
-export function initView(defaultView: View) {
+
+export function initView(defaultView: View): Writable<View> {
   const localView = localStorage.getItem('currentView');
   const currentViewStore = writable<View>(views.find(v => v.id === localView) ?? defaultView);
   onDestroy(currentViewStore.subscribe(v => localStorage.setItem('currentView', v.id)));
@@ -48,5 +49,5 @@ export function objectTemplateAreas(view: View, obj: object | string[]): string 
   return Object.entries(view.fields)
     .filter(([id, field]) => fields.includes(id) && field.show)
     .toSorted((a, b) => a[1].order - b[1].order)
-    .map(([id, field]) => `"${id} ${id} ${id}"`).join(' ');
+    .map(([id, _field]) => `"${id} ${id} ${id}"`).join(' ');
 }

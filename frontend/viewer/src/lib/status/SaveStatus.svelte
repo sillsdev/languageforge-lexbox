@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { mdiCheck, mdiContentSaveCheckOutline, mdiSync } from "@mdi/js";
-  import { getContext } from "svelte";
-  import { Button, DurationUnits, Icon, Popover, Toggle, humanizeDuration } from "svelte-ux";
-  import type { SaveEvent, SaveEventEmmiter } from "../services/save-event-service";
-  import type { UnionToIntersection } from "type-fest";
+  import { mdiCheck, mdiContentSaveCheckOutline, mdiSync } from '@mdi/js';
+  import { getContext } from 'svelte';
+  import { Button, DurationUnits, Icon, Popover, Toggle, humanizeDuration } from 'svelte-ux';
+  import type { SaveEvent, SaveEventEmmiter } from '../services/save-event-service';
+  import type { UnionToIntersection } from 'type-fest';
 
   const onSave = getContext<SaveEventEmmiter>('saveEvents');
 
