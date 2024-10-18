@@ -43,6 +43,7 @@
         $form.usernameOrEmail,
         $form.role,
         $form.canInvite,
+        projects,
       );
 
       if (error?.byType('NotFoundError')) {
