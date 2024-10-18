@@ -17,6 +17,11 @@ type AddProjectToOrgPayload {
   errors: [AddProjectToOrgError!]
 }
 
+type AddProjectsToOrgPayload {
+  organization: Organization
+  errors: [AddProjectsToOrgError!]
+}
+
 type AlreadyExistsError implements Error {
   message: String!
 }
@@ -230,6 +235,7 @@ type Mutation {
   createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
   deleteOrg(input: DeleteOrgInput!): DeleteOrgPayload! @authorize(policy: "AdminRequiredPolicy")
   addProjectToOrg(input: AddProjectToOrgInput!): AddProjectToOrgPayload!
+  addProjectsToOrg(input: AddProjectsToOrgInput!): AddProjectsToOrgPayload!
   removeProjectFromOrg(input: RemoveProjectFromOrgInput!): RemoveProjectFromOrgPayload!
   setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
   changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
@@ -549,6 +555,8 @@ union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVeri
 
 union AddProjectToOrgError = DbError | NotFoundError
 
+union AddProjectsToOrgError = DbError | NotFoundError
+
 union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
 
 union BulkAddOrgMembersError = NotFoundError | DbError | UnauthorizedAccessError
@@ -614,6 +622,11 @@ input AddProjectMemberInput {
 input AddProjectToOrgInput {
   orgId: UUID!
   projectId: UUID!
+}
+
+input AddProjectsToOrgInput {
+  orgId: UUID!
+  projectIds: [UUID!]!
 }
 
 input AskToJoinProjectInput {

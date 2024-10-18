@@ -29,6 +29,15 @@ export async function _userTypeaheadSearch(userSearch: string, limit = 10): Prom
           name
           email
           username
+          projects {
+            id
+            role
+            project {
+              id
+              code
+              name
+            }
+          }
         }
       }
     }

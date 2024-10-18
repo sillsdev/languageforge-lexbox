@@ -10,6 +10,8 @@
   import { SupHelp, helpLinks } from '$lib/components/help';
   import type { UUID } from 'crypto';
   import { _addOrgMember } from './+page';
+  import type { SingleUserInMyOrgTypeaheadResult, SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import UserProjects, { type Project } from '$lib/components/Users/UserProjects.svelte';
 
   export let orgId: string;
   const schema = z.object({
@@ -24,6 +26,15 @@
 
   const { notifySuccess } = useNotifications();
 
+  let projects: Project[] = [];
+  function populateUserProjects(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null): void {
+    if (!user || !('projects' in user)) {
+      projects = [];
+    } else {
+      projects = [...user.projects.map(p => ({memberRole: p.role, id: p.project.id, code: p.project.code, name: p.project.name}))];
+    }
+  }
+
   export async function openModal(): Promise<void> {
     let userInvited = false;
     const { response, formState } = await formModal.open(async () => {
@@ -32,7 +43,9 @@
         $form.usernameOrEmail,
         $form.role,
         $form.canInvite,
+        projects,
       );
+      projects = [];
 
       if (error?.byType('NotFoundError')) {
         if (error.message === 'Org not found') {
@@ -68,6 +81,7 @@
       isAdmin={$page.data.user?.isAdmin}
       bind:value={$form.usernameOrEmail}
       error={errors.usernameOrEmail}
+      on:selectedUser={(event) => populateUserProjects(event.detail)}
       autofocus
       />
   {:else}
@@ -81,6 +95,10 @@
     />
   {/if}
   <OrgRoleSelect bind:value={$form.role} error={errors.role} />
+  {#if projects && projects.length}
+    {$t('org_page.add_user.also_add_projects')}
+    <UserProjects {projects} />
+  {/if}
   <svelte:fragment slot="extraActions">
     <Checkbox
       id="invite"

@@ -1,6 +1,8 @@
 import type {
   $OpResult,
   AddOrgMemberMutation,
+  AddProjectsToOrgInput,
+  AddProjectsToOrgMutation,
   BulkAddOrgMembersMutation,
   ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
@@ -19,6 +21,7 @@ import type { PageLoadEvent } from './$types';
 import type { UUID } from 'crypto';
 import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
+import type { Project } from '$lib/components/Users/UserProjects.svelte';
 
 export type Org = NonNullable<OrgPageQuery['orgById']>;
 export type OrgUser = Org['members'][number];
@@ -120,7 +123,7 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
   return result;
 }
 
-export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole, canInvite: boolean): $OpResult<AddOrgMemberMutation> {
+export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole, canInvite: boolean, withProjects: Project[]): $OpResult<AddOrgMemberMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
@@ -141,6 +144,9 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
       `),
       { input: { orgId, emailOrUsername, role, canInvite} },
     );
+  if (withProjects && withProjects.length > 0) {
+    await _addProjectsToOrg({ orgId, projectIds: [...withProjects.map(p => p.id)]})
+  }
   return result;
 }
 
@@ -172,6 +178,30 @@ export async function _bulkAddOrgMembers(orgId: UUID, usernames: string[], role:
         }
       `),
       { input: { orgId, usernames, role } }
+    );
+  return result;
+}
+
+export async function _addProjectsToOrg(input: AddProjectsToOrgInput): $OpResult<AddProjectsToOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation AddProjectsToOrg($input: AddProjectsToOrgInput!) {
+          addProjectsToOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: input }
     );
   return result;
 }
