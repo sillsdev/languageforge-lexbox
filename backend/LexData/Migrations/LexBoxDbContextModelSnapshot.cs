@@ -525,6 +525,9 @@ namespace LexData.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("FlexModelVersion")
+                        .HasColumnType("integer");
+
                     b.Property<Guid?>("LangProjectId")
                         .HasColumnType("uuid");
 

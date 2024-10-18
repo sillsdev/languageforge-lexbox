@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { HeaderPage, HomeBreadcrumb } from '$lib/layout';
+  import { TitlePage, HomeBreadcrumb } from '$lib/layout';
   import t from '$lib/i18n';
+  import Markdown from 'svelte-exmarkdown';
 </script>
 
-<HomeBreadcrumb />
-<HeaderPage wide title={$t('about.title')}>
-  <h2>About Lexbox</h2>
-  <p>Placeholder content</p>
-</HeaderPage>
+<HomeBreadcrumb/>
+<TitlePage title={$t('about.title')}>
+  <div class="prose text-lg">
+    <Markdown md={$t('login.welcome')}/>
+  </div>
+</TitlePage>

@@ -4,14 +4,16 @@ export const enum ViewerSearchParam {
   IndexCharacter = 'indexCharacter',
   Search = 'search',
 }
-
-const urlSearchParams = new URLSearchParams(window.location.search);
-
-export function getSearchParam(param: ViewerSearchParam): string | undefined {
-  return urlSearchParams.get(param) ?? undefined;
+export function getSearchParams(): URLSearchParams {
+  return new URLSearchParams(window.location.search);
 }
 
-export function updateSearchParam(param: ViewerSearchParam, value: string | undefined, replace: boolean) {
+export function getSearchParam(param: ViewerSearchParam): string | null {
+  return getSearchParams().get(param);
+}
+
+export function updateSearchParam(param: ViewerSearchParam, value: string | undefined | null, replace: boolean) {
+  const urlSearchParams = getSearchParams();
   const current = urlSearchParams.get(param) ?? undefined;
   if (current == value) return;
   if (value) urlSearchParams.set(param, value);

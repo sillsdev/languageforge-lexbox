@@ -1,4 +1,5 @@
 import type { FieldConfig, WellKnownFieldId } from './config-types';
+
 import type {FieldIds} from './entry-editor/field-data';
 
 type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
@@ -11,6 +12,9 @@ export type I18nType = 'weSay' | 'languageForge' | '';
 const defaultI18n: Record<FieldIds, string> = {
   'lexemeForm': 'Lexeme form',
   'citationForm': 'Citation form',
+  'complexForms': 'Complex Forms',
+  'complexFormTypes': 'Complex Form Types',
+  'components': 'Components',
   'literalMeaning': 'Literal meaning',
   'note': 'Note',
   'definition': 'Definition',
@@ -27,12 +31,16 @@ const weSayI18n = {
   'lexemeForm': 'Word',
   'gloss': 'Definition',
   'partOfSpeechId': 'Part of speech',
-};
+  complexForms: 'Part of',
+  components: 'Made of',
+} satisfies Partial<Record<FieldIds, string>>;
 
 const languageForgeI18n = {
   'lexemeForm': 'Word',
   'partOfSpeechId': 'Part of speech',
-};
+  complexForms: 'Part of',
+  components: 'Made of',
+} satisfies Partial<Record<FieldIds, string>>;
 
 const i18nMap: Record<Exclude<I18nType, ''>, Partial<Record<FieldIds, string>>> = {
   weSay: weSayI18n,

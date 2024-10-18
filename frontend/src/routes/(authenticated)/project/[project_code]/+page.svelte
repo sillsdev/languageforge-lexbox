@@ -14,6 +14,7 @@
     _deleteProjectUser,
     _leaveProject,
     _removeProjectFromOrg,
+    _updateFLExModelVersion,
     _updateProjectLanguageList,
     _updateProjectLexEntryCount,
     type ProjectUser,
@@ -52,6 +53,7 @@
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
   import { onMount } from 'svelte';
   import { getSearchParamValues } from '$lib/util/query-params';
+  import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -70,6 +72,7 @@
   });
 
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
+  $: flexModelVersion = project.flexProjectMetadata?.flexModelVersion;
   $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
   $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
@@ -96,6 +99,13 @@
     loadingEntryCount = true;
     await _updateProjectLexEntryCount(project.code);
     loadingEntryCount = false;
+  }
+
+  let loadingModelVersion = false;
+  async function updateModelVersion(): Promise<void> {
+    loadingModelVersion = true;
+    await _updateFLExModelVersion(project.code);
+    loadingModelVersion = false;
   }
 
   let loadingLanguageList = false;
@@ -398,6 +408,21 @@
               variant="btn-ghost"
               outline={false}
               on:click={updateEntryCount}
+            />
+          </AdminContent>
+        </DetailItem>
+      {/if}
+      {#if project.type === ProjectType.FlEx}
+        <DetailItem title={$t('project_page.model_version')}>
+          <FlexModelVersionText modelVersion={flexModelVersion ?? 0} />
+          <AdminContent slot="extras">
+            <IconButton
+              loading={loadingModelVersion}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateModelVersion}
             />
           </AdminContent>
         </DetailItem>

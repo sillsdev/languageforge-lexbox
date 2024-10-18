@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
+  import {mdiBookPlusOutline, mdiBookSearchOutline, mdiMagnify, mdiMagnifyRemoveOutline, mdiPlus} from '@mdi/js';
   import { Button, Dialog, Field, Icon, ListItem, ProgressCircle, TextField, cls } from 'svelte-ux';
   import { firstDefOrGlossVal, headword } from '../utils';
   import { useLexboxApi } from '../services/service-provider';
@@ -63,19 +63,20 @@
   }
 </script>
 
-<Field
-  classes={{ input: 'my-1 justify-center opacity-60' }}
-  on:click={() => (showSearchDialog = true)}
-  class="cursor-pointer opacity-80 hover:opacity-100">
-  <div class="hidden lg:contents">
-    Find entry...
-    <span class="ml-2"><Icon data={mdiMagnify} /></span>
-    <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
-  </div>
-  <div class="contents lg:hidden">
-    <Icon data={mdiBookSearchOutline} />
-  </div>
-</Field>
+<button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => (showSearchDialog = true)}>
+  <Field
+    classes={{ input: 'my-1 justify-center opacity-60' }}
+    class="cursor-pointer">
+    <div class="hidden lg:contents">
+      Find entry...
+      <span class="ml-2"><Icon data={mdiMagnify} /></span>
+      <span class="ml-4"><span class="key">Shift</span>+<span class="key">Shift</span></span>
+    </div>
+    <div class="contents lg:hidden">
+      <Icon data={mdiBookSearchOutline} />
+    </div>
+  </Field>
+</button>
 
 <Dialog bind:open={showSearchDialog} on:close={() => $search = ''} class="w-[700px]" classes={{root: 'items-start', title: 'p-2'}}>
   <div slot="title">
@@ -101,27 +102,16 @@
     </TextField>
   </div>
   <div>
-    {#each $displayedEntries as entry}
-      <ListItem
-        title={headword(entry)}
-        subheading={firstDefOrGlossVal(entry.senses[0])}
-        class={cls('cursor-pointer', 'hover:bg-surface-300')}
-        noShadow
-        on:click={() => selectEntry(entry)}
-      />
-    {/each}
-    {#if $search && createNew}
-      <ListItem
-        title="Create new..."
-        icon={mdiPlus}
-        class={cls('cursor-pointer', 'hover:bg-surface-300')}
-        noShadow
-        on:click={() => {
-            dispatch('createNew', $search);
-            showSearchDialog = false;
-          }}
-      />
-    {/if}
+    <div class="p-0.5">
+      {#each $displayedEntries as entry}
+        <ListItem
+          title={headword(entry).padStart(1, '–')}
+          subheading={firstDefOrGlossVal(entry.senses[0])}
+          noShadow
+          on:click={() => selectEntry(entry)}
+        />
+      {/each}
+    </div>
     {#if $displayedEntries.length === 0}
       <div class="p-4 text-center opacity-75">
         {#if $result.search}
@@ -134,6 +124,18 @@
           {/if}
         {/if}
       </div>
+    {/if}
+    {#if $result.search && createNew}
+      <ListItem
+        title="Create new Entry..."
+        icon={mdiBookPlusOutline}
+        classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
+        noShadow
+        on:click={() => {
+            dispatch('createNew', $result.search);
+            showSearchDialog = false;
+          }}
+      />
     {/if}
     {#if $result.entries.length > $displayedEntries.length}
       <div class="p-4 text-center opacity-75 flex items-center">
