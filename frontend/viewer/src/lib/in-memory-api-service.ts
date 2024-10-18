@@ -14,7 +14,7 @@ import type {
 } from './services/lexbox-api';
 import {entries, projectName, writingSystems} from './entry-data';
 
-import {type WritingSystem} from './mini-lcm';
+import {pickWs, type WritingSystem} from './mini-lcm';
 import {headword} from './utils';
 import {applyPatch} from 'fast-json-patch';
 
@@ -72,19 +72,17 @@ export class InMemoryApiService implements LexboxApiClient {
 
   private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
     if (!options) return entries;
-    let sortWs = options.order.writingSystem;
     const defaultWs = writingSystems.vernacular[0].id;
-    if (sortWs === 'default') sortWs = defaultWs;
     if (options.exemplar?.value) {
-      const lowerExemplar = options.exemplar?.value.toLowerCase();
-      let ws = options.exemplar?.writingSystem;
-      if (ws === 'default') ws = defaultWs;
+      const lowerExemplar = options.exemplar.value.toLowerCase();
+      const exemplarWs = pickWs(options.exemplar.writingSystem, defaultWs);
       entries = entries.filter(entry =>
-        (entry.citationForm[ws] ?? entry.lexemeForm[ws] ?? '')
+        (entry.citationForm[exemplarWs] ?? entry.lexemeForm[exemplarWs] ?? '')
           ?.toLocaleLowerCase()
           ?.startsWith(lowerExemplar));
     }
 
+    const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
         const v1 = headword(e1, sortWs);
