@@ -1,10 +1,10 @@
 ﻿using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using LcmCrdt;
-using LcmCrdt.Objects;
 using LocalWebApp.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
+using MiniLcm.Models;
 
 namespace LocalWebApp.Services;
 

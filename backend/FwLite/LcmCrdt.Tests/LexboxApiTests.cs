@@ -1,16 +1,11 @@
-﻿using SIL.Harmony;
-using SIL.Harmony.Db;
-using LcmCrdt.Changes;
+﻿using LcmCrdt.Changes;
 using LcmCrdt.Tests.Mocks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
-using MiniLcm.Models;
 using Entry = MiniLcm.Models.Entry;
-using ExampleSentence = MiniLcm.Models.ExampleSentence;
-using Sense = MiniLcm.Models.Sense;
 
 namespace LcmCrdt.Tests;
 
@@ -47,7 +42,9 @@ public class BasicApiTests : IAsyncLifetime
         await _api.CreateWritingSystem(WritingSystemType.Analysis,
             new WritingSystem()
             {
-                Id = "en",
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Analysis,
+                WsId = "en",
                 Name = "English",
                 Abbreviation = "En",
                 Font = "Arial",
@@ -56,7 +53,9 @@ public class BasicApiTests : IAsyncLifetime
         await _api.CreateWritingSystem(WritingSystemType.Vernacular,
             new WritingSystem()
             {
-                Id = "en",
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = "en",
                 Name = "English",
                 Abbreviation = "En",
                 Font = "Arial",
@@ -173,8 +172,8 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task CreatingMultipleWritingSystems_DoesNotHaveDuplicateOrders()
     {
-        await _api.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = "test-2", Name = "test", Abbreviation = "test", Font = "Arial", Exemplars = new[] { "test" } });
-        var writingSystems = await DataModel.GetLatestObjects<Objects.WritingSystem>().Where(ws => ws.Type == WritingSystemType.Vernacular).ToArrayAsync();
+        await _api.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = "test-2", Name = "test", Abbreviation = "test", Font = "Arial", Exemplars = new[] { "test" } });
+        var writingSystems = await DataModel.GetLatestObjects<WritingSystem>().Where(ws => ws.Type == WritingSystemType.Vernacular).ToArrayAsync();
         writingSystems.GroupBy(ws => ws.Order).Should().NotContain(g => g.Count() > 1);
     }
 
@@ -395,7 +394,7 @@ public class BasicApiTests : IAsyncLifetime
         var senseId = Guid.NewGuid();
         var semanticDomainId = Guid.NewGuid();
         await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(semanticDomainId, new MultiString() { { "en", "test" } }, "test"));
-        var semanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(semanticDomainId);
+        var semanticDomain = await DataModel.GetLatest<SemanticDomain>(semanticDomainId);
         ArgumentNullException.ThrowIfNull(semanticDomain);
         var createdSense = await _api.CreateSense(_entry1Id, new Sense()
         {
@@ -422,7 +421,7 @@ public class BasicApiTests : IAsyncLifetime
         var senseId = Guid.NewGuid();
         var partOfSpeechId = Guid.NewGuid();
         await DataModel.AddChange(Guid.NewGuid(), new CreatePartOfSpeechChange(partOfSpeechId, new MultiString() { { "en", "test" } }));
-        var partOfSpeech = await DataModel.GetLatest<Objects.PartOfSpeech>(partOfSpeechId);
+        var partOfSpeech = await DataModel.GetLatest<PartOfSpeech>(partOfSpeechId);
         ArgumentNullException.ThrowIfNull(partOfSpeech);
         var createdSense = await _api.CreateSense(_entry1Id,
             new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = partOfSpeechId, });
@@ -473,7 +472,7 @@ public class BasicApiTests : IAsyncLifetime
     {
         var newDomainId = Guid.NewGuid();
         await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(newDomainId, new MultiString() { { "en", "test" } }, "updated"));
-        var newSemanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(newDomainId);
+        var newSemanticDomain = await DataModel.GetLatest<SemanticDomain>(newDomainId);
         ArgumentNullException.ThrowIfNull(newSemanticDomain);
         var entry = await _api.CreateEntry(new Entry
         {
@@ -513,7 +512,7 @@ public class BasicApiTests : IAsyncLifetime
     {
         var newDomainId = Guid.NewGuid();
         await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(newDomainId, new MultiString() { { "en", "test" } }, "updated"));
-        var newSemanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(newDomainId);
+        var newSemanticDomain = await DataModel.GetLatest<SemanticDomain>(newDomainId);
         ArgumentNullException.ThrowIfNull(newSemanticDomain);
         var entry = await _api.CreateEntry(new Entry
         {

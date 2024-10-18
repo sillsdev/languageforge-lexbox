@@ -1,0 +1,118 @@
+﻿{
+  DerivedTypes: [
+    {
+      DerivedType: JsonPatchChange<Entry>,
+      TypeDiscriminator: jsonPatch:Entry
+    },
+    {
+      DerivedType: JsonPatchChange<Sense>,
+      TypeDiscriminator: jsonPatch:Sense
+    },
+    {
+      DerivedType: JsonPatchChange<ExampleSentence>,
+      TypeDiscriminator: jsonPatch:ExampleSentence
+    },
+    {
+      DerivedType: JsonPatchChange<WritingSystem>,
+      TypeDiscriminator: jsonPatch:WritingSystem
+    },
+    {
+      DerivedType: JsonPatchChange<PartOfSpeech>,
+      TypeDiscriminator: jsonPatch:PartOfSpeech
+    },
+    {
+      DerivedType: JsonPatchChange<SemanticDomain>,
+      TypeDiscriminator: jsonPatch:SemanticDomain
+    },
+    {
+      DerivedType: DeleteChange<Entry>,
+      TypeDiscriminator: delete:Entry
+    },
+    {
+      DerivedType: DeleteChange<Sense>,
+      TypeDiscriminator: delete:Sense
+    },
+    {
+      DerivedType: DeleteChange<ExampleSentence>,
+      TypeDiscriminator: delete:ExampleSentence
+    },
+    {
+      DerivedType: DeleteChange<WritingSystem>,
+      TypeDiscriminator: delete:WritingSystem
+    },
+    {
+      DerivedType: DeleteChange<PartOfSpeech>,
+      TypeDiscriminator: delete:PartOfSpeech
+    },
+    {
+      DerivedType: DeleteChange<SemanticDomain>,
+      TypeDiscriminator: delete:SemanticDomain
+    },
+    {
+      DerivedType: DeleteChange<ComplexFormType>,
+      TypeDiscriminator: delete:ComplexFormType
+    },
+    {
+      DerivedType: DeleteChange<ComplexFormComponent>,
+      TypeDiscriminator: delete:ComplexFormComponent
+    },
+    {
+      DerivedType: SetPartOfSpeechChange,
+      TypeDiscriminator: SetPartOfSpeechChange
+    },
+    {
+      DerivedType: AddSemanticDomainChange,
+      TypeDiscriminator: AddSemanticDomainChange
+    },
+    {
+      DerivedType: RemoveSemanticDomainChange,
+      TypeDiscriminator: RemoveSemanticDomainChange
+    },
+    {
+      DerivedType: ReplaceSemanticDomainChange,
+      TypeDiscriminator: ReplaceSemanticDomainChange
+    },
+    {
+      DerivedType: CreateEntryChange,
+      TypeDiscriminator: CreateEntryChange
+    },
+    {
+      DerivedType: CreateSenseChange,
+      TypeDiscriminator: CreateSenseChange
+    },
+    {
+      DerivedType: CreateExampleSentenceChange,
+      TypeDiscriminator: CreateExampleSentenceChange
+    },
+    {
+      DerivedType: CreatePartOfSpeechChange,
+      TypeDiscriminator: CreatePartOfSpeechChange
+    },
+    {
+      DerivedType: CreateSemanticDomainChange,
+      TypeDiscriminator: CreateSemanticDomainChange
+    },
+    {
+      DerivedType: CreateWritingSystemChange,
+      TypeDiscriminator: CreateWritingSystemChange
+    },
+    {
+      DerivedType: AddComplexFormTypeChange,
+      TypeDiscriminator: AddComplexFormTypeChange
+    },
+    {
+      DerivedType: AddEntryComponentChange,
+      TypeDiscriminator: AddEntryComponentChange
+    },
+    {
+      DerivedType: RemoveComplexFormTypeChange,
+      TypeDiscriminator: RemoveComplexFormTypeChange
+    },
+    {
+      DerivedType: CreateComplexFormType,
+      TypeDiscriminator: CreateComplexFormType
+    }
+  ],
+  IgnoreUnrecognizedTypeDiscriminators: false,
+  TypeDiscriminatorPropertyName: $type
+}

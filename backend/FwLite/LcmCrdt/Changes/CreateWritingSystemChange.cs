@@ -2,9 +2,7 @@
 using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
-using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
-using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 
@@ -19,10 +17,10 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     public required double Order { get; init; }
 
     [SetsRequiredMembers]
-    public CreateWritingSystemChange(MiniLcm.Models.WritingSystem writingSystem, WritingSystemType type, Guid entityId, double order) :
+    public CreateWritingSystemChange(WritingSystem writingSystem, WritingSystemType type, Guid entityId, double order) :
         base(entityId)
     {
-        WsId = writingSystem.Id;
+        WsId = writingSystem.WsId;
         Name = writingSystem.Name;
         Abbreviation = writingSystem.Abbreviation;
         Font = writingSystem.Font;
@@ -36,10 +34,11 @@ public class CreateWritingSystemChange : CreateChange<WritingSystem>, ISelfNamed
     {
     }
 
-    public override ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
+    public override ValueTask<WritingSystem> NewEntity(Commit commit, ChangeContext context)
     {
-        return new(new WritingSystem(EntityId)
+        return ValueTask.FromResult(new WritingSystem
         {
+            Id = EntityId,
             WsId = WsId,
             Name = Name,
             Abbreviation = Abbreviation,

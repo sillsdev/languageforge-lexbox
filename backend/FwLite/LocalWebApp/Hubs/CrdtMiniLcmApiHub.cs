@@ -47,14 +47,14 @@ public class CrdtMiniLcmApiHub(
         memoryCache.Remove($"CurrentFilter|HubConnectionId={Context.ConnectionId}");
     }
 
-    private Func<LcmCrdt.Objects.Entry, bool> CurrentFilter
+    private Func<Entry, bool> CurrentFilter
     {
         set => memoryCache.Set($"CurrentFilter|HubConnectionId={Context.ConnectionId}", value);
     }
 
-    public static Func<LcmCrdt.Objects.Entry, bool> CurrentProjectFilter(IMemoryCache memoryCache, string connectionId)
+    public static Func<Entry, bool> CurrentProjectFilter(IMemoryCache memoryCache, string connectionId)
     {
-        return memoryCache.Get<Func<LcmCrdt.Objects.Entry, bool>>(
+        return memoryCache.Get<Func<Entry, bool>>(
             $"CurrentFilter|HubConnectionId={connectionId}") ?? (_ => true);
     }
 
