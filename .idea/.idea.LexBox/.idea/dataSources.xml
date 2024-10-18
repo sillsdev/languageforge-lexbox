@@ -72,7 +72,7 @@
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="sena-3" uuid="41f4b214-e550-48e3-bb1b-7a923e8fe04e">
-      <driver-ref>sqlite.xerial</driver-ref>
+      <driver-ref>1ad76a0a-03ae-4990-8fbe-1c2f61731f3d</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:C:\dev\LexBox\backend\LocalWebApp\sena-3.sqlite</jdbc-url>
