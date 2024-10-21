@@ -1,5 +1,5 @@
-﻿import type {FieldIds} from './field-data';
-import type {I18nType} from '../i18n';
+﻿import type {I18nType} from '../i18n';
+import type {FieldIds} from './field-data';
 
 interface FieldView {
   show: boolean;
@@ -37,6 +37,7 @@ const viewDefinitions: ViewDefinition[] = [
       citationForm: {show: false},
       literalMeaning: {show: false},
       note: {show: false},
+      complexFormTypes: {show: false},
       semanticDomains: {show: false},
       definition: {show: false},
       translation: {show: false},
@@ -51,6 +52,7 @@ const viewDefinitions: ViewDefinition[] = [
       citationForm: {show: false},
       literalMeaning: {show: false},
       note: {show: false},
+      complexFormTypes: {show: false},
 
       //sense
       gloss: {order: 2},

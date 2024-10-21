@@ -17,5 +17,4 @@ export * from './writing-systems';
 export * from './part-of-speech';
 export * from './semantic-domain';
 export * from './complex-form-component';
-export * from './i-complex-form-component';
-export * from './i-complex-form-type';
+export * from './complex-form-type';

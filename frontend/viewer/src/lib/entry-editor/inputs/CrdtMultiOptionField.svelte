@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher, type ComponentProps } from 'svelte';
-  import CrdtField from './CrdtField.svelte';
-  import { type TextField, type MenuOption, MultiSelectField } from 'svelte-ux';
   import {mdiMagnify} from '@mdi/js';
+  import {createEventDispatcher, type ComponentProps} from 'svelte';
+  import {MultiSelectField, type MenuOption, type TextField} from 'svelte-ux';
+  import CrdtField from './CrdtField.svelte';
 
   const dispatch = createEventDispatcher<{
     change: { value: string[] }; // Generics aren't working properly in CrdtField, so we make the type excplicit here
@@ -15,6 +15,7 @@
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
   export let readonly: boolean | undefined = undefined;
+  export let ordered = false;
   let append: HTMLElement;
 
   $: sortedOptions = options.toSorted((a, b) => a.label.localeCompare(b.label));
@@ -28,8 +29,13 @@
     disabled={readonly}
     options={sortedOptions}
     icon={readonly ? undefined : mdiMagnify}
-    formatSelected={({ options }) =>
-      options.map((o) => o.label).join(', ') || 'None'}
+    formatSelected={({ value, options }) => {
+      return (ordered
+      // sorted by order of selection
+      ? value?.map(v => options.find(o => o.value === v)?.label).filter(label => !!label).join(', ')
+      // sorted according to the order of options (e.g. alphabetical or by semantic domain)
+      : options.map(o => o.label).join(', ')) || 'None';
+    }}
     infiniteScroll
     clearSearchOnOpen={false}
     clearable={false}

@@ -3,13 +3,12 @@ import {readable} from 'svelte/store'
 import {beforeEach, describe, expect, test} from 'vitest'
 
 import {render, screen} from '@testing-library/svelte'
-import userEvent from '@testing-library/user-event'
+import userEvent, {type UserEvent} from '@testing-library/user-event'
 import {getState} from '../../utils/test-utils'
 import MultiOptionEditor from './MultiOptionEditor.svelte'
 
 const value = ['2', '3', '4'];
 const options = ['1', '2', '3', '4', '5'].map(id => ({id}));
-let component: MultiOptionEditor<string, {id: string}>;
 
 const context = new Map<string, unknown>([
   ['writingSystems', readable({
@@ -30,7 +29,11 @@ const reusedProps = {
   readonly: false,
 } as const;
 
+let user: UserEvent;
+let component: MultiOptionEditor<string, {id: string}>;
+
 beforeEach(() => {
+  user = userEvent.setup();
   ({component} = render(MultiOptionEditor<string, {id: string}>, {
     context,
     props: {
@@ -45,7 +48,6 @@ beforeEach(() => {
 
 describe('MultiOptionEditor value sorting', () => {
   test('appends new options to the end in the order they\'re selected', async () => {
-    const user = userEvent.setup();
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('1'));
     await user.click(screen.getByLabelText('5'));
@@ -54,7 +56,6 @@ describe('MultiOptionEditor value sorting', () => {
   });
 
   test('removes deselected options without changing the order', async () => {
-    const user = userEvent.setup();
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('3'));
     await user.click(screen.getByRole('button', {name: 'Apply'}));
@@ -62,7 +63,6 @@ describe('MultiOptionEditor value sorting', () => {
   });
 
   test('moves double-toggled options to the end', async () => {
-    const user = userEvent.setup();
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('3'));
     await user.click(screen.getByLabelText('3'));
@@ -71,8 +71,28 @@ describe('MultiOptionEditor value sorting', () => {
   });
 });
 
-describe('MultiOptionEditor configurations', () => {
+describe('MultiOptionEditor displayed sorting', () => {
+  test('matches option sorting if `ordered` option is NOT set', async () => {
+    await user.click(screen.getByRole('textbox'));
+    await user.click(screen.getByLabelText('1'));
+    await user.click(screen.getByLabelText('5'));
+    await user.click(screen.getByRole('button', {name: 'Apply'}));
+    expect(getState(component).value).toStrictEqual(['2', '3', '4', '1', '5']);
+    expect(screen.getByRole<HTMLInputElement>('textbox').value).toBe('1, 2, 3, 4, 5');
+  });
 
+  test('matches values sorting if `ordered` option is set', async () => {
+    component.$set({ordered: true});
+    await user.click(screen.getByRole('textbox'));
+    await user.click(screen.getByLabelText('1'));
+    await user.click(screen.getByLabelText('5'));
+    await user.click(screen.getByRole('button', {name: 'Apply'}));
+    expect(getState(component).value).toStrictEqual(['2', '3', '4', '1', '5']);
+    expect(screen.getByRole<HTMLInputElement>('textbox').value).toBe('2, 3, 4, 1, 5');
+  });
+});
+
+describe('MultiOptionEditor configurations', () => {
   test('supports string or { id: string} values and { id: string } options out of the box', () => {
     () => render(MultiOptionEditor<string, {id: string}>, {
       context,
