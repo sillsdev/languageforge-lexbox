@@ -5,6 +5,7 @@
 
 export interface WritingSystem {
     id: string;
+    wsId: string;
     name: string;
     abbreviation: string;
     font: string;

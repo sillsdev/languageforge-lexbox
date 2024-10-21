@@ -72,7 +72,7 @@ export class InMemoryApiService implements LexboxApiClient {
 
   private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
     if (!options) return entries;
-    const defaultWs = writingSystems.vernacular[0].id;
+    const defaultWs = writingSystems.vernacular[0].wsId;
     if (options.exemplar?.value) {
       const lowerExemplar = options.exemplar.value.toLowerCase();
       const exemplarWs = pickWs(options.exemplar.writingSystem, defaultWs);

@@ -24,18 +24,18 @@
   let currentView = useCurrentView();
 
   $: writingSystems = pickWritingSystems(wsType, $allWritingSystems);
-  $: empty = !writingSystems.some((ws) => value[ws.id] || unsavedChanges[ws.id]);
+  $: empty = !writingSystems.some((ws) => value[ws.wsId] || unsavedChanges[ws.wsId]);
   $: collapse = empty && writingSystems.length > 1;
 </script>
 
 <div class="multi-field field" class:collapse-field={collapse} class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name} />
   <div class="fields">
-    {#each writingSystems as ws (ws.id)}
+    {#each writingSystems as ws (ws.wsId)}
       <CrdtTextField
         on:change={() => dispatch('change', { value })}
-        bind:value={value[ws.id]}
-        bind:unsavedChanges={unsavedChanges[ws.id]}
+        bind:value={value[ws.wsId]}
+        bind:unsavedChanges={unsavedChanges[ws.wsId]}
         label={collapse ? undefined : ws.abbreviation}
         labelPlacement={collapse ? undefined : 'left'}
         placeholder={collapse ? ws.abbreviation : undefined}
