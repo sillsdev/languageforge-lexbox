@@ -5,7 +5,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes.Entries;
 
-public class SetComplexFormComponentChange : EditChange<CrdtComplexFormComponent>, ISelfNamedType<SetComplexFormComponentChange>
+public class SetComplexFormComponentChange : EditChange<ComplexFormComponent>, ISelfNamedType<SetComplexFormComponentChange>
 {
     [JsonConstructor]
     protected SetComplexFormComponentChange(Guid entityId, Guid? complexFormEntryId, Guid? componentEntryId, Guid? componentSenseId) : base(entityId)
@@ -21,19 +21,19 @@ public class SetComplexFormComponentChange : EditChange<CrdtComplexFormComponent
     public Guid? ComplexFormEntryId { get; }
     public Guid? ComponentEntryId { get; }
     public Guid? ComponentSenseId { get; }
-    public override async ValueTask ApplyChange(CrdtComplexFormComponent entity, ChangeContext context)
+    public override async ValueTask ApplyChange(ComplexFormComponent entity, ChangeContext context)
     {
         if (ComplexFormEntryId.HasValue)
         {
             entity.ComplexFormEntryId = ComplexFormEntryId.Value;
-            var complexFormEntry = (await context.GetSnapshot(ComplexFormEntryId.Value))?.Entity.Is<Entry>();
+            var complexFormEntry = await context.GetCurrent<Entry>(ComplexFormEntryId.Value);
             entity.ComplexFormHeadword = complexFormEntry?.Headword();
             entity.DeletedAt = complexFormEntry?.DeletedAt != null ? context.Commit.DateTime : (DateTime?)null;
         }
         if (ComponentEntryId.HasValue)
         {
             entity.ComponentEntryId = ComponentEntryId.Value;
-            var componentEntry = (await context.GetSnapshot(ComponentEntryId.Value))?.Entity.Is<Entry>();
+            var componentEntry = await context.GetCurrent<Entry>(ComponentEntryId.Value);
             entity.ComponentHeadword = componentEntry?.Headword();
             entity.DeletedAt = componentEntry?.DeletedAt != null ? context.Commit.DateTime : (DateTime?)null;
         }

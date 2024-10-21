@@ -35,7 +35,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
                 }
             ]
         });
-        Entry after = (Entry) ((LcmCrdt.Objects.Entry)complexForm).Copy();
+        Entry after = (Entry) complexForm.Copy();
         after.Components[0].ComponentEntryId = component2.Id;
         after.Components[0].ComponentHeadword = component2.Headword();
 

@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwLiteProjectSync.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmDebugger", "backend\LfNext\LcmDebugger\LcmDebugger.csproj", "{5A9011D8-6EC1-4550-BDD7-AFF00DB2B921}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm.Tests", "backend\FwLite\MiniLcm.Tests\MiniLcm.Tests.csproj", "{00AE5440-0E36-4488-935B-5B11301BA57D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -133,6 +135,10 @@ Global
 		{5A9011D8-6EC1-4550-BDD7-AFF00DB2B921}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A9011D8-6EC1-4550-BDD7-AFF00DB2B921}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A9011D8-6EC1-4550-BDD7-AFF00DB2B921}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00AE5440-0E36-4488-935B-5B11301BA57D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00AE5440-0E36-4488-935B-5B11301BA57D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00AE5440-0E36-4488-935B-5B11301BA57D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00AE5440-0E36-4488-935B-5B11301BA57D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -151,6 +157,7 @@ Global
 		{2245BAB6-753A-48AE-B929-6D8C35CB9804} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 		{5352D1CC-14C5-4589-9389-731F55E4FFDF} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 		{5A9011D8-6EC1-4550-BDD7-AFF00DB2B921} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
+		{00AE5440-0E36-4488-935B-5B11301BA57D} = {7B6E21C4-5AF4-4505-B7D9-59A3886C5090}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {440AE83C-6DB0-4F18-B2C1-BCD33F0645B6}

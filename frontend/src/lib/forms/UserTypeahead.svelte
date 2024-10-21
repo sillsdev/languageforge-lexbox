@@ -3,7 +3,7 @@
   import { _userTypeaheadSearch, _orgMemberTypeaheadSearch, type SingleUserTypeaheadResult, type SingleUserInMyOrgTypeaheadResult } from '$lib/gql/typeahead-queries';
   import { overlay } from '$lib/overlay';
   import { deriveAsync } from '$lib/util/time';
-  import { writable } from 'svelte/store';
+  import { derived, writable } from 'svelte/store';
   import { createEventDispatcher } from 'svelte';
 
   export let label: string;
@@ -25,15 +25,18 @@
 
   const dispatch = createEventDispatcher<{
       selectedUserId: string | null;
+      selectedUser: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null;
   }>();
 
-  let selectedUserId = writable<string | null>(null);
+  let selectedUser = writable<SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null>(null);
+  let selectedUserId = derived(selectedUser, user => user?.id ?? null);
   $: dispatch('selectedUserId', $selectedUserId);
+  $: dispatch('selectedUser', $selectedUser);
 
-  function formatResult(user: SingleUserTypeaheadResult): string {
-    const extra = user.username && user.email ? ` (${user.username}, ${user.email})`
-                : user.username ? ` (${user.username})`
-                : user.email ? ` (${user.email})`
+  function formatResult(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult): string {
+    const extra = 'username' in user && user.username && 'email' in user && user.email ? ` (${user.username}, ${user.email})`
+                : 'username' in user && user.username ? ` (${user.username})`
+                : 'email' in user && user.email ? ` (${user.email})`
                 : '';
     return `${user.name}${extra}`;
   }
@@ -54,7 +57,7 @@
       bind:value {id}
       type="text"
       autocomplete="off"
-      keydownHandler={() => {$selectedUserId = null}}
+      keydownHandler={() => {$selectedUser = null}}
     />
     <div class="overlay-content">
       <ul class="menu p-0">
@@ -62,7 +65,7 @@
         <li class="p-0"><button class="whitespace-nowrap" on:click={() => {
           setTimeout(() => {
             if ('id' in user && user.id) {
-              $selectedUserId = user.id;
+              $selectedUser = user;
             }
             $input = value = getInputValue(user);
           });

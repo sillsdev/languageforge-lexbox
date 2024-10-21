@@ -9,11 +9,21 @@ public class SetPartOfSpeechChange(Guid entityId, Guid? partOfSpeechId) : EditCh
 
     public override async ValueTask ApplyChange(Sense entity, ChangeContext context)
     {
-        entity.PartOfSpeechId = PartOfSpeechId switch
+        if (PartOfSpeechId is null)
         {
-            null => null,
-            var id when await context.IsObjectDeleted(id.Value) => null,
-            _ => PartOfSpeechId
-        };
+            entity.PartOfSpeechId = null;
+            entity.PartOfSpeech = string.Empty;
+            return;
+        }
+
+        var partOfSpeech = await context.GetCurrent<PartOfSpeech>(PartOfSpeechId.Value);
+        if (partOfSpeech is null or { DeletedAt: not null })
+        {
+            entity.PartOfSpeechId = null;
+            entity.PartOfSpeech = string.Empty;
+            return;
+        }
+        entity.PartOfSpeechId = partOfSpeech.Id;
+        entity.PartOfSpeech = partOfSpeech.Name["en"];
     }
 }

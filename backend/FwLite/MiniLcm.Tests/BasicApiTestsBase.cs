@@ -1,68 +1,38 @@
-﻿using SIL.Harmony;
-using SIL.Harmony.Db;
-using LcmCrdt.Changes;
-using LcmCrdt.Tests.Mocks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
-using MiniLcm;
-using MiniLcm.Models;
-using Entry = MiniLcm.Models.Entry;
-using ExampleSentence = MiniLcm.Models.ExampleSentence;
-using Sense = MiniLcm.Models.Sense;
+﻿using MiniLcm.Models;
 
-namespace LcmCrdt.Tests;
+namespace MiniLcm.Tests;
 
-public class BasicApiTests : IAsyncLifetime
+public abstract class BasicApiTestsBase : MiniLcmTestBase
 {
-    private CrdtMiniLcmApi _api = null!;
-    private Guid _entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
-    private Guid _entry2Id = new Guid("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
+    private readonly Guid _entry1Id = new Guid("a3f5aa5a-578f-4181-8f38-eaaf27f01f1c");
+    private readonly Guid _entry2Id = new Guid("2de6c334-58fa-4844-b0fd-0bc2ce4ef835");
 
-    protected readonly AsyncServiceScope _services;
-    public DataModel DataModel = null!;
-    private readonly LcmCrdtDbContext _crdtDbContext;
-
-    public BasicApiTests()
+    public override async Task InitializeAsync()
     {
-        var services = new ServiceCollection()
-            .AddLcmCrdtClient()
-            .AddLogging(builder => builder.AddDebug())
-            .RemoveAll(typeof(ProjectContext))
-            .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
-            .BuildServiceProvider();
-        _services = services.CreateAsyncScope();
-        _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();
-    }
-
-    public virtual async Task InitializeAsync()
-    {
-        await _crdtDbContext.Database.OpenConnectionAsync();
-        //can't use ProjectsService.CreateProject because it opens and closes the db context, this would wipe out the in memory db.
-        await ProjectsService.InitProjectDb(_crdtDbContext, new ProjectData("Sena 3", Guid.NewGuid(), null, Guid.NewGuid()));
-        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-        DataModel = _services.ServiceProvider.GetRequiredService<DataModel>();
-        _api = ActivatorUtilities.CreateInstance<CrdtMiniLcmApi>(_services.ServiceProvider);
-        await _api.CreateWritingSystem(WritingSystemType.Analysis,
+        await base.InitializeAsync();
+        await Api.CreateWritingSystem(WritingSystemType.Analysis,
             new WritingSystem()
             {
-                Id = "en",
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Analysis,
+                WsId = "en",
                 Name = "English",
                 Abbreviation = "En",
                 Font = "Arial",
                 Exemplars = []
             });
-        await _api.CreateWritingSystem(WritingSystemType.Vernacular,
+        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
             new WritingSystem()
             {
-                Id = "en",
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = "en",
                 Name = "English",
                 Abbreviation = "En",
                 Font = "Arial",
                 Exemplars = []
             });
-        await _api.CreateEntry(new Entry
+        await Api.CreateEntry(new Entry
         {
             Id = _entry1Id,
             LexemeForm =
@@ -127,7 +97,7 @@ public class BasicApiTests : IAsyncLifetime
                 }
             ]
         });
-        await _api.CreateEntry(new()
+        await Api.CreateEntry(new()
         {
             Id = _entry2Id,
             LexemeForm =
@@ -155,47 +125,52 @@ public class BasicApiTests : IAsyncLifetime
                 }
             ],
         });
-        _crdtDbContext.ChangeTracker.Clear();
     }
 
-    public async Task DisposeAsync()
-    {
-        await _services.DisposeAsync();
-    }
 
     [Fact]
     public async Task GetWritingSystems()
     {
-        var writingSystems = await _api.GetWritingSystems();
+        var writingSystems = await Api.GetWritingSystems();
         writingSystems.Analysis.Should().NotBeEmpty();
     }
 
     [Fact]
     public async Task CreatingMultipleWritingSystems_DoesNotHaveDuplicateOrders()
     {
-        await _api.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = "test-2", Name = "test", Abbreviation = "test", Font = "Arial", Exemplars = new[] { "test" } });
-        var writingSystems = await DataModel.GetLatestObjects<Objects.WritingSystem>().Where(ws => ws.Type == WritingSystemType.Vernacular).ToArrayAsync();
+        await Api.CreateWritingSystem(WritingSystemType.Vernacular,
+            new WritingSystem()
+            {
+                Id = Guid.NewGuid(),
+                Type = WritingSystemType.Vernacular,
+                WsId = "en",
+                Name = "test",
+                Abbreviation = "test",
+                Font = "Arial",
+                Exemplars = ["test"]
+            });
+        var writingSystems = (await Api.GetWritingSystems()).Vernacular;
         writingSystems.GroupBy(ws => ws.Order).Should().NotContain(g => g.Count() > 1);
     }
 
     [Fact]
     public async Task GetEntriesByExemplar()
     {
-        var entries = await _api.GetEntries(new QueryOptions(SortOptions.Default, new("a", "default"))).ToArrayAsync();
+        var entries = await Api.GetEntries(new QueryOptions(SortOptions.Default, new("a", "default"))).ToArrayAsync();
         entries.Should().NotBeEmpty();
     }
 
     [Fact]
     public async Task GetEntriesWithOptions()
     {
-        var entries = await _api.GetEntries(QueryOptions.Default).ToArrayAsync();
+        var entries = await Api.GetEntries(QueryOptions.Default).ToArrayAsync();
         entries.Should().NotBeEmpty();
     }
 
     [Fact]
     public async Task GetEntries()
     {
-        var entries = await _api.GetEntries().ToArrayAsync();
+        var entries = await Api.GetEntries().ToArrayAsync();
         entries.Should().NotBeEmpty();
         var entry1 = entries.First(e => e.Id == _entry1Id);
         entry1.LexemeForm.Values.Should().NotBeEmpty();
@@ -210,7 +185,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task SearchEntries()
     {
-        var entries = await _api.SearchEntries("a").ToArrayAsync();
+        var entries = await Api.SearchEntries("a").ToArrayAsync();
         entries.Should().NotBeEmpty();
         entries.Should().NotContain(e => e.Id == default);
         entries.Should().NotContain(e => e.LexemeForm.Values["en"] == "Kevin");
@@ -218,7 +193,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task SearchEntries_MatchesGloss()
     {
-        var entries = await _api.SearchEntries("fruit").ToArrayAsync();
+        var entries = await Api.SearchEntries("fruit").ToArrayAsync();
         entries.Should().NotBeEmpty();
         entries.Should().NotContain(e => e.Id == default);
         entries.Should().Contain(e => e.LexemeForm.Values["en"] == "apple");
@@ -227,7 +202,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task GetEntry()
     {
-        var entry = await _api.GetEntry(_entry1Id);
+        var entry = await Api.GetEntry(_entry1Id);
         entry.Should().NotBeNull();
         entry!.LexemeForm.Values.Should().NotBeEmpty();
         var sense = entry.Senses.Should()
@@ -238,7 +213,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task CreateEntry()
     {
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm =
             {
@@ -317,7 +292,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task UpdateEntry()
     {
-        var updatedEntry = await _api.UpdateEntry(_entry1Id,
+        var updatedEntry = await Api.UpdateEntry(_entry1Id,
             new UpdateObjectInput<Entry>()
                 .Set(e => e.LexemeForm["en"], "updated"));
         updatedEntry.LexemeForm.Values["en"].Should().Be("updated");
@@ -326,7 +301,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task UpdateEntryNote()
     {
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
@@ -336,7 +311,7 @@ public class BasicApiTests : IAsyncLifetime
                 }
             }
         });
-        var updatedEntry = await _api.UpdateEntry(entry.Id,
+        var updatedEntry = await Api.UpdateEntry(entry.Id,
             new UpdateObjectInput<Entry>()
                 .Set(e => e.Note["en"], "updated"));
         updatedEntry.Note.Values["en"].Should().Be("updated");
@@ -345,7 +320,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task UpdateSense()
     {
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
@@ -368,7 +343,7 @@ public class BasicApiTests : IAsyncLifetime
                 }
             }
         });
-        var updatedSense = await _api.UpdateSense(entry.Id,
+        var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
                 .Set(e => e.Definition["en"], "updated"));
@@ -379,7 +354,7 @@ public class BasicApiTests : IAsyncLifetime
     public async Task CreateSense_WontCreateMissingDomains()
     {
         var senseId = Guid.NewGuid();
-        var createdSense = await _api.CreateSense(_entry1Id, new Sense()
+        var createdSense = await Api.CreateSense(_entry1Id, new Sense()
         {
             Id = senseId,
             SemanticDomains = [new SemanticDomain() { Id = Guid.NewGuid(), Code = "test", Name = new MultiString() }],
@@ -394,10 +369,10 @@ public class BasicApiTests : IAsyncLifetime
     {
         var senseId = Guid.NewGuid();
         var semanticDomainId = Guid.NewGuid();
-        await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(semanticDomainId, new MultiString() { { "en", "test" } }, "test"));
-        var semanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(semanticDomainId);
+        await Api.CreateSemanticDomain(new SemanticDomain() { Id = semanticDomainId, Code = "test", Name = new MultiString() { { "en", "test" } } });
+        var semanticDomain = await Api.GetSemanticDomains().SingleOrDefaultAsync(sd => sd.Id == semanticDomainId);
         ArgumentNullException.ThrowIfNull(semanticDomain);
-        var createdSense = await _api.CreateSense(_entry1Id, new Sense()
+        var createdSense = await Api.CreateSense(_entry1Id, new Sense()
         {
             Id = senseId,
             SemanticDomains = [semanticDomain],
@@ -410,7 +385,7 @@ public class BasicApiTests : IAsyncLifetime
     public async Task CreateSense_WontCreateMissingPartOfSpeech()
     {
         var senseId = Guid.NewGuid();
-        var createdSense = await _api.CreateSense(_entry1Id,
+        var createdSense = await Api.CreateSense(_entry1Id,
             new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = Guid.NewGuid(), });
         createdSense.Id.Should().Be(senseId);
         createdSense.PartOfSpeechId.Should().BeNull("because the part of speech does not exist (or was deleted)");
@@ -421,21 +396,21 @@ public class BasicApiTests : IAsyncLifetime
     {
         var senseId = Guid.NewGuid();
         var partOfSpeechId = Guid.NewGuid();
-        await DataModel.AddChange(Guid.NewGuid(), new CreatePartOfSpeechChange(partOfSpeechId, new MultiString() { { "en", "test" } }));
-        var partOfSpeech = await DataModel.GetLatest<Objects.PartOfSpeech>(partOfSpeechId);
+        await Api.CreatePartOfSpeech(new PartOfSpeech() { Id = partOfSpeechId, Name = new MultiString() { { "en", "test" } } });
+        var partOfSpeech = await Api.GetPartsOfSpeech().SingleOrDefaultAsync(pos => pos.Id == partOfSpeechId);
         ArgumentNullException.ThrowIfNull(partOfSpeech);
-        var createdSense = await _api.CreateSense(_entry1Id,
+        var createdSense = await Api.CreateSense(_entry1Id,
             new Sense() { Id = senseId, PartOfSpeech = "test", PartOfSpeechId = partOfSpeechId, });
         createdSense.Id.Should().Be(senseId);
-        createdSense.PartOfSpeechId.Should().Be(partOfSpeechId, "because the part of speech does  exist");
+        createdSense.PartOfSpeechId.Should().Be(partOfSpeechId, "because the part of speech does exist");
     }
 
     [Fact]
     public async Task UpdateSensePartOfSpeech()
     {
         var partOfSpeechId = Guid.NewGuid();
-        await DataModel.AddChange(Guid.NewGuid(), new CreatePartOfSpeechChange(partOfSpeechId, new MultiString() { { "en", "Adverb" } }));
-        var entry = await _api.CreateEntry(new Entry
+        await Api.CreatePartOfSpeech(new PartOfSpeech() { Id = partOfSpeechId, Name = new MultiString() { { "en", "Adverb" } } });
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
@@ -459,12 +434,12 @@ public class BasicApiTests : IAsyncLifetime
                 }
             }
         });
-        var updatedSense = await _api.UpdateSense(entry.Id,
+        var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
-                .Set(e => e.PartOfSpeech, "updated")
+                .Set(e => e.PartOfSpeech, "updated")//should be ignored
                 .Set(e => e.PartOfSpeechId, partOfSpeechId));
-        updatedSense.PartOfSpeech.Should().Be("updated");
+        updatedSense.PartOfSpeech.Should().Be("Adverb");
         updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
     }
 
@@ -472,34 +447,26 @@ public class BasicApiTests : IAsyncLifetime
     public async Task UpdateSenseSemanticDomain()
     {
         var newDomainId = Guid.NewGuid();
-        await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(newDomainId, new MultiString() { { "en", "test" } }, "updated"));
-        var newSemanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(newDomainId);
+        await Api.CreateSemanticDomain(new SemanticDomain() { Id = newDomainId, Code = "updated", Name = new MultiString() { { "en", "test" } } });
+        var newSemanticDomain = await Api.GetSemanticDomains().SingleOrDefaultAsync(sd => sd.Id == newDomainId);
         ArgumentNullException.ThrowIfNull(newSemanticDomain);
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
-                Values =
-                {
-                    { "en", "test" }
-                }
+                Values = { { "en", "test" } }
             },
-            Senses = new List<Sense>
-            {
+            Senses =
+            [
                 new Sense()
                 {
-                    SemanticDomains = [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString() }],
-                    Definition = new MultiString
-                    {
-                        Values =
-                        {
-                            { "en", "test" }
-                        }
-                    }
+                    SemanticDomains =
+                        [new SemanticDomain() { Id = Guid.Empty, Code = "test", Name = new MultiString() }],
+                    Definition = new MultiString { Values = { { "en", "test" } } }
                 }
-            }
+            ]
         });
-        var updatedSense = await _api.UpdateSense(entry.Id,
+        var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
                 .Add(e => e.SemanticDomains, newSemanticDomain));
@@ -512,10 +479,10 @@ public class BasicApiTests : IAsyncLifetime
     public async Task RemoveSenseSemanticDomain()
     {
         var newDomainId = Guid.NewGuid();
-        await DataModel.AddChange(Guid.NewGuid(), new CreateSemanticDomainChange(newDomainId, new MultiString() { { "en", "test" } }, "updated"));
-        var newSemanticDomain = await DataModel.GetLatest<Objects.SemanticDomain>(newDomainId);
+        await Api.CreateSemanticDomain(new SemanticDomain() { Id = newDomainId, Code = "updated", Name = new MultiString() { { "en", "test" } } });
+        var newSemanticDomain = await Api.GetSemanticDomains().SingleOrDefaultAsync(sd => sd.Id == newDomainId);
         ArgumentNullException.ThrowIfNull(newSemanticDomain);
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
@@ -539,7 +506,7 @@ public class BasicApiTests : IAsyncLifetime
                 }
             }
         });
-        var updatedSense = await _api.UpdateSense(entry.Id,
+        var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
                 .Remove(e => e.SemanticDomains, 0));
@@ -549,7 +516,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task UpdateExampleSentence()
     {
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
@@ -586,7 +553,7 @@ public class BasicApiTests : IAsyncLifetime
             }
         });
         entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle();
-        var updatedExample = await _api.UpdateExampleSentence(entry.Id,
+        var updatedExample = await Api.UpdateExampleSentence(entry.Id,
             entry.Senses[0].Id,
             entry.Senses[0].ExampleSentences[0].Id,
             new UpdateObjectInput<ExampleSentence>()
@@ -597,7 +564,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task UpdateExampleSentenceTranslation()
     {
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
@@ -641,7 +608,7 @@ public class BasicApiTests : IAsyncLifetime
             }
         });
         entry.Senses.Should().ContainSingle().Which.ExampleSentences.Should().ContainSingle();
-        var updatedExample = await _api.UpdateExampleSentence(entry.Id,
+        var updatedExample = await Api.UpdateExampleSentence(entry.Id,
             entry.Senses[0].Id,
             entry.Senses[0].ExampleSentences[0].Id,
             new UpdateObjectInput<ExampleSentence>()
@@ -652,7 +619,7 @@ public class BasicApiTests : IAsyncLifetime
     [Fact]
     public async Task DeleteEntry()
     {
-        var entry = await _api.CreateEntry(new Entry
+        var entry = await Api.CreateEntry(new Entry
         {
             LexemeForm = new MultiString
             {
@@ -662,9 +629,9 @@ public class BasicApiTests : IAsyncLifetime
                 }
             }
         });
-        await _api.DeleteEntry(entry.Id);
+        await Api.DeleteEntry(entry.Id);
 
-        var entries = await _api.GetEntries().ToArrayAsync();
+        var entries = await Api.GetEntries().ToArrayAsync();
         entries.Should().NotContain(e => e.Id == entry.Id);
     }
 }

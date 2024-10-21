@@ -104,19 +104,24 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(FromLcmWritingSystem).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select(FromLcmWritingSystem).ToArray()
+            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select((definition, index) =>
+                FromLcmWritingSystem(definition, index, WritingSystemType.Vernacular)).ToArray(),
+            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select((definition, index) =>
+                FromLcmWritingSystem(definition, index, WritingSystemType.Analysis)).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
     }
 
-    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws)
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, int index, WritingSystemType type)
     {
         return new WritingSystem
         {
+            Id = Guid.Empty,
+            Order = index,
+            Type = type,
             //todo determine current and create a property for that.
-            Id = ws.Id,
+            WsId = ws.Id,
             Name = ws.LanguageTag,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
@@ -127,9 +132,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     internal void CompleteExemplars(WritingSystems writingSystems)
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
-            .DistinctBy(ws => ws.Id)
+            .DistinctBy(ws => ws.WsId)
             .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
-        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
+        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.WsId), kv => kv.Value);
 
         foreach (var entry in EntriesRepository.AllInstances())
         {
@@ -151,7 +156,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.Id.Code, out ws);
+                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
                 switch (type)
                 {
@@ -161,10 +166,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     case WritingSystemType.Vernacular:
                         Cache.ServiceLocator.WritingSystems.AddToCurrentVernacularWritingSystems(ws);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
             });
         if (ws is null) throw new InvalidOperationException("Writing system not found");
-        return Task.FromResult(FromLcmWritingSystem(ws));
+        var index = type switch
+        {
+            WritingSystemType.Analysis => WritingSystemContainer.CurrentAnalysisWritingSystems.Count,
+            WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems.Count,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        } - 1;
+        return Task.FromResult(FromLcmWritingSystem(ws, index, type));
     }
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -225,15 +238,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             {
                 var lcmSemanticDomain = Cache.ServiceLocator.GetInstance<ICmSemanticDomainFactory>()
                     .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
+                lcmSemanticDomain.OcmCodes = semanticDomain.Code;
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
                 UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
             });
         return Task.CompletedTask;
     }
 
-    internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
+    internal ICmSemanticDomain? GetLcmSemanticDomain(Guid semanticDomainId)
     {
-        return SemanticDomainRepository.GetObject(semanticDomainId);
+        SemanticDomainRepository.TryGetObject(semanticDomainId, out var semanticDomain);
+        return semanticDomain;
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -285,8 +300,10 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             Senses = entry.AllSenses.Select(FromLexSense).ToList(),
             ComplexFormTypes = ToComplexFormTypes(entry),
             Components = ToComplexFormComponents(entry),
-            //todo, this does not include complex forms which reference a sense
-            ComplexForms = [..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry))]
+            ComplexForms = [
+                ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
+                ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
+            ]
         };
     }
 
@@ -363,6 +380,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         var s =  new Sense
         {
             Id = sense.Guid,
+            EntryId = sense.Entry.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
             PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
@@ -373,17 +391,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 Name = FromLcmMultiString(s.Name),
                 Code = s.OcmCodes
             }).ToList(),
-            ExampleSentences = sense.ExamplesOS.Select(FromLexExampleSentence).ToList()
+            ExampleSentences = sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence)).ToList()
         };
         return s;
     }
 
-    private ExampleSentence FromLexExampleSentence(ILexExampleSentence sentence)
+    private ExampleSentence FromLexExampleSentence(Guid senseGuid, ILexExampleSentence sentence)
     {
         var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
+            SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = sentence.Reference.Text,
             Translation = translation is null ? new MultiString() : FromLcmMultiString(translation),
@@ -651,7 +670,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             IPartOfSpeech? pos = null;
             if (sense.PartOfSpeechId.HasValue)
             {
-                pos = PartOfSpeechRepository.GetObject(sense.PartOfSpeechId.Value);
+                PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out pos);
             }
             lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(pos);
         }
@@ -659,7 +678,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
         foreach (var senseSemanticDomain in sense.SemanticDomains)
         {
-            lexSense.SemanticDomainsRC.Add(GetLcmSemanticDomain(senseSemanticDomain.Id));
+            var lcmSemanticDomain = GetLcmSemanticDomain(senseSemanticDomain.Id);
+            if (lcmSemanticDomain is not null) lexSense.SemanticDomainsRC.Add(lcmSemanticDomain);
         }
 
         foreach (var exampleSentence in sense.ExampleSentences)
@@ -752,7 +772,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
             () => CreateExampleSentence(lexSense, exampleSentence));
-        return Task.FromResult(FromLexExampleSentence(ExampleSentenceRepository.GetObject(exampleSentence.Id)));
+        return Task.FromResult(FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id)));
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -770,7 +790,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 var updateProxy = new UpdateExampleSentenceProxy(lexExampleSentence, this);
                 update.Apply(updateProxy);
             });
-        return Task.FromResult(FromLexExampleSentence(lexExampleSentence));
+        return Task.FromResult(FromLexExampleSentence(senseId, lexExampleSentence));
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)

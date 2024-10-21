@@ -94,6 +94,44 @@ public class OrgMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
+    public async Task<IQueryable<Organization>> AddProjectsToOrg(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        [Service] ProjectService projectService,
+        Guid orgId,
+        Guid[] projectIds)
+    {
+        // Bail out immediately, not even checking permissions, if no projects added at all
+        if (projectIds == null || projectIds.Length == 0) return dbContext.Orgs.Where(o => o.Id == orgId);
+
+        var org = await dbContext.Orgs.Include(o => o.Members).Include(o => o.Projects).SingleOrDefaultAsync(o => o.Id == orgId);
+        NotFoundException.ThrowIfNull(org);
+        permissionService.AssertCanAddProjectToOrg(org);
+        // First make sure ALL projects pass permissions tests
+        foreach (var projectId in projectIds)
+        {
+            await permissionService.AssertCanManageProject(projectId);
+        }
+        // Now exclude any projects that don't actually exist or the org already has or that don't exist
+        var alreadyInOrg = org.Projects.Select(o => o.Id).ToHashSet();
+        var filteredIds = projectIds.Where(id => !alreadyInOrg.Contains(id)).ToArray();
+        var updates = filteredIds.Select(projectId => new OrgProjects { OrgId = orgId, ProjectId = projectId });
+        dbContext.OrgProjects.AddRange(updates);
+        await dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).ExecuteUpdateAsync(p => p.SetProperty(p => p.UpdatedDate, DateTime.UtcNow));
+        org.UpdateUpdatedDate();
+        foreach (var projectId in projectIds)
+        {
+            projectService.InvalidateProjectOrgIdsCache(projectId);
+        }
+        await dbContext.SaveChangesAsync();
+        return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<DbError>]
+    [Error<NotFoundException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
     public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,

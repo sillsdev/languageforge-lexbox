@@ -13,6 +13,12 @@ namespace LcmCrdt.Utils;
 
 public static class JsonPatchRewriter
 {
+    public static void RemoveChanges<T, TProp>(this JsonPatchDocument<T> patchDocument, Expression<Func<T, TProp>> expr)
+        where T : class
+    {
+        var path = GetPath(expr, null, patchDocument.Options);
+        patchDocument.Operations.RemoveAll(op => op.Path == path);
+    }
 
     public static IEnumerable<IChange> RewriteChanges<T, TProp>(this JsonPatchDocument<T> patchDocument,
         Expression<Func<T, TProp>> expr, Func<TProp?, OperationType, IChange> changeFactory) where T : class

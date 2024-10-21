@@ -21,8 +21,8 @@ public class UpdateDiffTests
         var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
-            .Excluding(x => x.Senses)
+         before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
+            .Excluding(x => x.DeletedAt).Excluding(x => x.Senses)
             .Excluding(x => x.Components)
             .Excluding(x => x.ComplexForms)
             .Excluding(x => x.ComplexFormTypes));
@@ -36,7 +36,7 @@ public class UpdateDiffTests
         var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.ExampleSentences));
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences));
     }
 
     [Fact]
@@ -47,6 +47,6 @@ public class UpdateDiffTests
         var exampleSentenceDiffToUpdate = ExampleSentenceSync.DiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(exampleSentenceDiffToUpdate);
         exampleSentenceDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id));
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.SenseId).Excluding(x => x.DeletedAt));
     }
 }

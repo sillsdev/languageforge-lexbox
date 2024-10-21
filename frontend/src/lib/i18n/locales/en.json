@@ -265,6 +265,8 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
       "submit_button": "Add Member",
       "empty_user_field": "Please enter an email address or login",
+      "also_add_projects": "Do you want to also add the following projects to the organization?",
+      "select_all": "Select all",
       "submit_button_email": "Add/Invite Member",
       "org_not_found": "Organization not found. Please refresh the page.",
       "username_not_found": "No user was found with this login",
