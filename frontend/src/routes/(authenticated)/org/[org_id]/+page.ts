@@ -1,8 +1,6 @@
 import type {
   $OpResult,
   AddOrgMemberMutation,
-  AddProjectsToOrgInput,
-  AddProjectsToOrgMutation,
   BulkAddOrgMembersMutation,
   ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
@@ -21,7 +19,6 @@ import type { PageLoadEvent } from './$types';
 import type { UUID } from 'crypto';
 import { error } from '@sveltejs/kit';
 import { tryMakeNonNullable } from '$lib/util/store';
-import type { Project } from '$lib/components/Users/UserProjects.svelte';
 
 export type Org = NonNullable<OrgPageQuery['orgById']>;
 export type OrgUser = Org['members'][number];
