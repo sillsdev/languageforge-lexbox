@@ -24,6 +24,13 @@ public class ProjectLoaderFixture : IDisposable
         return _fwDataFactory.GetFwDataMiniLcmApi(projectName, false);
     }
 
+    public FwDataMiniLcmApi NewProjectApi(string projectName, string analysisWs, string vernacularWs)
+    {
+        projectName = $"{projectName}_{Guid.NewGuid()}";
+        MockFwProjectLoader.NewProject(projectName, analysisWs, vernacularWs);
+        return CreateApi(projectName);
+    }
+
     public void Dispose()
     {
         _serviceProvider.Dispose();

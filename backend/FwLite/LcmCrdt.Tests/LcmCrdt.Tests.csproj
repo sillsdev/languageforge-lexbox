@@ -35,10 +35,13 @@
         <Using Include="FluentAssertions"/>
         <Using Include="MiniLcm.Models"/>
         <Using Include="SIL.Harmony"/>
+        <Using Include="MiniLcm"/>
+        <Using Include="MiniLcm.Tests"/>
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\LcmCrdt\LcmCrdt.csproj" />
+      <ProjectReference Include="..\MiniLcm.Tests\MiniLcm.Tests.csproj" />
     </ItemGroup>
 
 </Project>

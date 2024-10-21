@@ -33,10 +33,13 @@
     <ItemGroup>
         <Using Include="Xunit"/>
         <Using Include="FluentAssertions"/>
+        <Using Include="MiniLcm"/>
+        <Using Include="MiniLcm.Tests"/>
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\FwDataMiniLcmBridge\FwDataMiniLcmBridge.csproj" />
+      <ProjectReference Include="..\MiniLcm.Tests\MiniLcm.Tests.csproj" />
     </ItemGroup>
 
     <ItemGroup>

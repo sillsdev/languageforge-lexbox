@@ -11,6 +11,8 @@ public static class JsonPatchChangeExtractor
 {
     public static IEnumerable<IChange> ToChanges(this Sense sense, JsonPatchDocument<Sense> patch)
     {
+        //the part of speech text should not be changed directly, instead we should set the part of speech id
+        patch.RemoveChanges(s => s.PartOfSpeech);
         foreach (var rewriteChange in patch.RewriteChanges(s => s.PartOfSpeechId,
                      (partOfSpeechId, operationType) =>
                      {
