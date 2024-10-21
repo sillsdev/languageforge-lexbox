@@ -437,7 +437,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         var updatedSense = await Api.UpdateSense(entry.Id,
             entry.Senses[0].Id,
             new UpdateObjectInput<Sense>()
-                .Set(e => e.PartOfSpeech, "updated")
+                .Set(e => e.PartOfSpeech, "updated")//should be ignored
                 .Set(e => e.PartOfSpeechId, partOfSpeechId));
         updatedSense.PartOfSpeech.Should().Be("Adverb");
         updatedSense.PartOfSpeechId.Should().Be(partOfSpeechId);
