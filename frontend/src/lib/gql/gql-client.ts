@@ -16,25 +16,23 @@ import {isObject} from '../util/types';
 import {tracingExchange} from '$lib/otel';
 import {
   type $OpResult,
-  type ChangeUserAccountBySelfMutationVariables,
-  type DeleteUserByAdminOrSelfMutationVariables,
   type ExtractErrorTypename,
   type GenericData,
   type GqlInputError,
   isErrorResult,
-  type LeaveProjectMutationVariables,
   LexGqlError,
-  type SoftDeleteProjectMutationVariables,
-  type BulkAddProjectMembersMutationVariables,
-  type DeleteDraftProjectMutationVariables,
   type MutationAddProjectToOrgArgs,
   type MutationRemoveProjectFromOrgArgs,
-  type BulkAddOrgMembersMutationVariables,
-  type ChangeOrgMemberRoleMutationVariables,
-  type AddOrgMemberMutationVariables,
-  type CreateProjectMutationVariables,
   type CreateProjectMutation,
   CreateProjectResult,
+  type MutationSetOrgMemberRoleArgs,
+  type MutationChangeOrgMemberRoleArgs,
+  type MutationLeaveProjectArgs,
+  type MutationBulkAddOrgMembersArgs,
+  type MutationBulkAddProjectMembersArgs,
+  type MutationChangeUserAccountBySelfArgs,
+  type MutationDeleteUserByAdminOrSelfArgs,
+  type MutationDeleteDraftProjectArgs, type MutationSoftDeleteProjectArgs, type MutationCreateProjectArgs,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
@@ -68,7 +66,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             },
           },
           Mutation: {
-            createProject: (result: CreateProjectMutation, args: CreateProjectMutationVariables, cache, _info) => {
+            createProject: (result: CreateProjectMutation, args: MutationCreateProjectArgs, cache, _info) => {
               if (args.input.orgId) {
                 cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
               }
@@ -79,33 +77,33 @@ function createGqlClient(_gqlEndpoint?: string): Client {
                 .filter(field => field.fieldName === dashboardQuery || field.fieldName === adminDashboardQuery)
                 .forEach(field => cache.invalidate('Query', field.fieldKey));
             },
-            softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
+            softDeleteProject: (result, args: MutationSoftDeleteProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
             },
-            deleteDraftProject: (result, args: DeleteDraftProjectMutationVariables, cache, _info) => {
+            deleteDraftProject: (result, args: MutationDeleteDraftProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'DraftProject', id: args.input.draftProjectId});
             },
-            deleteUserByAdminOrSelf: (result, args: DeleteUserByAdminOrSelfMutationVariables, cache, _info) => {
+            deleteUserByAdminOrSelf: (result, args: MutationDeleteUserByAdminOrSelfArgs, cache, _info) => {
               cache.invalidate({__typename: 'User', id: args.input.userId});
             },
-            changeUserAccountBySelf: (result, args: ChangeUserAccountBySelfMutationVariables, cache, _info) => {
+            changeUserAccountBySelf: (result, args: MutationChangeUserAccountBySelfArgs, cache, _info) => {
               cache.invalidate({__typename: 'User', id: args.input.userId});
             },
-            bulkAddProjectMembers: (result, args: BulkAddProjectMembersMutationVariables, cache, _info) => {
+            bulkAddProjectMembers: (result, args: MutationBulkAddProjectMembersArgs, cache, _info) => {
               if (args.input.projectId) {
                 cache.invalidate({__typename: 'Project', id: args.input.projectId});
               }
             },
-            bulkAddOrgMembers: (result, args: BulkAddOrgMembersMutationVariables, cache, _info) => {
+            bulkAddOrgMembers: (result, args: MutationBulkAddOrgMembersArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
-            changeOrgMemberRole: (result, args: ChangeOrgMemberRoleMutationVariables, cache, _info) => {
+            changeOrgMemberRole: (result, args: MutationChangeOrgMemberRoleArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
-            setOrgMemberRole: (result, args: AddOrgMemberMutationVariables, cache, _info) => {
-              cache.invalidate({__typename: 'OrgById', id: args.memberInput.orgId});
+            setOrgMemberRole: (result, args: MutationSetOrgMemberRoleArgs, cache, _info) => {
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
-            leaveProject: (result, args: LeaveProjectMutationVariables, cache, _info) => {
+            leaveProject: (result, args: MutationLeaveProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
             },
             addProjectToOrg: (result, args: MutationAddProjectToOrgArgs, cache, _info) => {
