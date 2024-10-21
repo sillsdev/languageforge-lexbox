@@ -104,20 +104,21 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(definition =>
-                FromLcmWritingSystem(definition, WritingSystemType.Vernacular)).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select(definition =>
-                FromLcmWritingSystem(definition, WritingSystemType.Analysis)).ToArray()
+            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select((definition, index) =>
+                FromLcmWritingSystem(definition, index, WritingSystemType.Vernacular)).ToArray(),
+            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select((definition, index) =>
+                FromLcmWritingSystem(definition, index, WritingSystemType.Analysis)).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
     }
 
-    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, WritingSystemType type)
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, int index, WritingSystemType type)
     {
         return new WritingSystem
         {
             Id = Guid.Empty,
+            Order = index,
             Type = type,
             //todo determine current and create a property for that.
             WsId = ws.Id,
@@ -165,10 +166,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     case WritingSystemType.Vernacular:
                         Cache.ServiceLocator.WritingSystems.AddToCurrentVernacularWritingSystems(ws);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
             });
         if (ws is null) throw new InvalidOperationException("Writing system not found");
-        return Task.FromResult(FromLcmWritingSystem(ws, type));
+        var index = type switch
+        {
+            WritingSystemType.Analysis => WritingSystemContainer.CurrentAnalysisWritingSystems.Count,
+            WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems.Count,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        } - 1;
+        return Task.FromResult(FromLcmWritingSystem(ws, index, type));
     }
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -229,15 +238,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             {
                 var lcmSemanticDomain = Cache.ServiceLocator.GetInstance<ICmSemanticDomainFactory>()
                     .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
+                lcmSemanticDomain.OcmCodes = semanticDomain.Code;
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
                 UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
             });
         return Task.CompletedTask;
     }
 
-    internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
+    internal ICmSemanticDomain? GetLcmSemanticDomain(Guid semanticDomainId)
     {
-        return SemanticDomainRepository.GetObject(semanticDomainId);
+        SemanticDomainRepository.TryGetObject(semanticDomainId, out var semanticDomain);
+        return semanticDomain;
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -619,7 +630,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             IPartOfSpeech? pos = null;
             if (sense.PartOfSpeechId.HasValue)
             {
-                pos = PartOfSpeechRepository.GetObject(sense.PartOfSpeechId.Value);
+                PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out pos);
             }
             lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(pos);
         }
@@ -627,7 +638,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
         foreach (var senseSemanticDomain in sense.SemanticDomains)
         {
-            lexSense.SemanticDomainsRC.Add(GetLcmSemanticDomain(senseSemanticDomain.Id));
+            var lcmSemanticDomain = GetLcmSemanticDomain(senseSemanticDomain.Id);
+            if (lcmSemanticDomain is not null) lexSense.SemanticDomainsRC.Add(lcmSemanticDomain);
         }
 
         foreach (var exampleSentence in sense.ExampleSentences)

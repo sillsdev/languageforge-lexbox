@@ -64,8 +64,8 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
             new UpdateListProxy<SemanticDomain>(
                 semanticDomain =>
                 {
-                    if (semanticDomain.Id != default)
-                        sense.SemanticDomainsRC.Add(lexboxLcmApi.GetLcmSemanticDomain(semanticDomain.Id));
+                    if (semanticDomain.Id != default && lexboxLcmApi.GetLcmSemanticDomain(semanticDomain.Id) is { } lcmSemanticDomain)
+                        sense.SemanticDomainsRC.Add(lcmSemanticDomain);
                 },
                 semanticDomain =>
                 {
@@ -107,7 +107,8 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
                 if (value == _id) return;
                 if (value == default) throw new ArgumentException("Cannot set to default");
                 _senseSemanticDomainsRc.Remove(_senseSemanticDomainsRc.First(sd => sd.Guid == _id));
-                _senseSemanticDomainsRc.Add(_lexboxLcmApi.GetLcmSemanticDomain(value));
+                var lcmSemanticDomain = _lexboxLcmApi.GetLcmSemanticDomain(value);
+                if (lcmSemanticDomain is not null) _senseSemanticDomainsRc.Add(lcmSemanticDomain);
                 _id = value;
             }
         }
