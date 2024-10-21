@@ -21,6 +21,7 @@
     value: Value[];
     options: Option[];
     getOptionLabel(option: Option): string;
+    ordered?: boolean;
   }
   & // mappings we support out of the box
   (
@@ -50,6 +51,7 @@
   export let readonly: boolean = false;
   export let value: Value[];
   export let options: Option[];
+  export let ordered = false;
 
   export let idValues: true | undefined = undefined;
   export let getValueId: (value: Value) => string = defaultGetValueId;
