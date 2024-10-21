@@ -1,9 +1,6 @@
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using MiniLcm;
 
 var builder = WebApplication.CreateBuilder(args);
