@@ -25,7 +25,7 @@
     if (allSelected) {
       selectedProjects = [];
     } else {
-      selectedProjects = [...projects.map(proj => proj.code)];
+      selectedProjects = [...projects.map(proj => proj.id)];
     }
   }
 
@@ -37,7 +37,7 @@
   $: projectsStore = writable(projects);
   onMount(() => projectsStore.subscribe(projects => {
     if (projects && projects.length > 0) {
-      selectedProjects = [... projects.filter(isManager).map(proj => proj.code)];
+      selectedProjects = [... projects.filter(isManager).map(proj => proj.id)];
     }
   }));
 </script>
@@ -51,7 +51,7 @@
   {/if}
   {#each projects as proj}
     <li>
-      <input type="checkbox" bind:group={selectedProjects} value={proj.code} />
+      <input type="checkbox" bind:group={selectedProjects} value={proj.id} />
       {proj.name}
       {#if proj.memberRole == ProjectRole.Manager}
       <Badge variant="badge-info">Manager</Badge>

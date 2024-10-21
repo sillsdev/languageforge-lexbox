@@ -123,7 +123,7 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
   return result;
 }
 
-export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole, canInvite: boolean, withProjects: Project[]): $OpResult<AddOrgMemberMutation> {
+export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: OrgRole, canInvite: boolean, projectIds: string[]): $OpResult<AddOrgMemberMutation> {
   //language=GraphQL
   const result = await getClient()
     .mutation(
@@ -144,8 +144,8 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
       `),
       { input: { orgId, emailOrUsername, role, canInvite} },
     );
-  if (withProjects && withProjects.length > 0) {
-    await _addProjectsToOrg({ orgId, projectIds: [...withProjects.map(p => p.id)]})
+  if (projectIds && projectIds.length > 0) {
+    await _addProjectsToOrg({ orgId, projectIds });
   }
   return result;
 }
