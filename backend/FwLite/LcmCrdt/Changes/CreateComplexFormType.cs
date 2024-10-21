@@ -6,12 +6,12 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes;
 
-public class CreateComplexFormType(Guid entityId, MultiString name) : CreateChange<CrdtComplexFormType>(entityId), ISelfNamedType<CreateComplexFormType>
+public class CreateComplexFormType(Guid entityId, MultiString name) : CreateChange<ComplexFormType>(entityId), ISelfNamedType<CreateComplexFormType>
 {
     public MultiString Name { get; } = name;
-    public override ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
+    public override ValueTask<ComplexFormType> NewEntity(Commit commit, ChangeContext context)
     {
-        return ValueTask.FromResult<IObjectBase>(new CrdtComplexFormType
+        return ValueTask.FromResult(new ComplexFormType
         {
             Id = EntityId,
             Name = Name
