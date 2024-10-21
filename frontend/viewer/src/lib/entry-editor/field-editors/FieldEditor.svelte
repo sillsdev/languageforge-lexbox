@@ -1,12 +1,8 @@
 <script lang="ts">
   import type { MultiString } from '../../mini-lcm';
-  import type {FieldConfig, OptionFieldConfig, OptionFieldValue} from '../../config-types';
-  import MultiOptionEditor from './MultiOptionEditor.svelte';
-  import SingleOptionEditor from './SingleOptionEditor.svelte';
+  import type {FieldConfig, OptionFieldConfig} from '../../config-types';
   import SingleFieldEditor from './SingleFieldEditor.svelte';
   import MultiFieldEditor from './MultiFieldEditor.svelte';
-
-  type T = $$Generic<unknown>;
 
   export let value: unknown;
   export let field: FieldConfig;
@@ -33,7 +29,7 @@
   function isSingleOption(state: {value: unknown, field: FieldConfig}): state is {value: string, field: FieldConfig & OptionFieldConfig} {
     return field.type === 'option';
   }
-  function isMultiOption(state: {value: unknown, field: FieldConfig}): state is {value: OptionFieldValue[], field: FieldConfig & OptionFieldConfig} {
+  function isMultiOption(state: {value: unknown, field: FieldConfig}): state is {value: string[], field: FieldConfig & OptionFieldConfig} {
     return field.type === 'multi-option';
   }
 </script>
@@ -43,8 +39,8 @@
 {:else if isSingleString(value)}
   <SingleFieldEditor on:change id={field.id} wsType={field.ws} bind:value {readonly} />
 {:else if isSingleOption(state)}
-  <SingleOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} {readonly} />
+  <!-- <SingleOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} {readonly} /> -->
 {:else if isMultiOption(state)}
-  <MultiOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} {readonly} />
+  <!-- <MultiOptionEditor on:change id={state.field.id} wsType={state.field.ws} bind:value={state.value} {readonly} /> -->
 {/if}
 

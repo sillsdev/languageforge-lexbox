@@ -1,15 +1,11 @@
 <script lang="ts">
   import FieldTitle from '../FieldTitle.svelte';
-  import type { WritingSystems } from '../../mini-lcm';
-  import type { Readable } from 'svelte/store';
-  import { getContext } from 'svelte';
   import { pickWritingSystems } from '../../utils';
   import type {WritingSystemSelection} from '../../config-types';
   import CrdtTextField from '../inputs/CrdtTextField.svelte';
   import {useCurrentView} from '../../services/view-service';
   import {useWritingSystems} from '../../writing-systems';
 
-  type T = $$Generic<{}>;
   export let id: string;
   export let name: string | undefined = undefined;
   export let wsType: WritingSystemSelection;

@@ -59,7 +59,7 @@
 >
   <FieldTitle {id} {name} />
   <div class="item-list-field">
-    <EntryOrSenseItemList bind:value {readonly} on:change={(e) => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
+    <EntryOrSenseItemList bind:value {readonly} on:change={() => dispatch('change', { value })} getEntryId={(e) => e.componentEntryId} getHeadword={(e) => e.componentHeadword}>
       <svelte:fragment slot="actions">
         <Button on:click={() => openPicker = true} icon={mdiPlus} variant="fill-light" color="success" size="sm">
           <div class="max-sm:hidden">Add Component</div>

@@ -8,7 +8,7 @@
   import {useEventBus} from './lib/services/event-bus';
 
   export let projectName: string;
-  const {connected, lexboxApi} = SetupSignalR(`/api/hub/${projectName}/fwdata`, {
+  const {connected} = SetupSignalR(`/api/hub/${projectName}/fwdata`, {
       history: false,
       write: true,
       openWithFlex: true,

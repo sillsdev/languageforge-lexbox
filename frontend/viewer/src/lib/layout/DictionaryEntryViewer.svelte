@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { IEntry } from "../mini-lcm";
+  import type { IEntry } from '../mini-lcm';
   import DictionaryEntry from '../DictionaryEntry.svelte';
-  import { Button } from "svelte-ux";
-  import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
+  import { Button } from 'svelte-ux';
+  import { mdiChevronDown, mdiChevronUp } from '@mdi/js';
 
   export let entry: IEntry;
 

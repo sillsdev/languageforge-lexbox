@@ -221,7 +221,7 @@
         icon={mdiBookPlusOutline}
         classes={{root: 'text-success py-4 border-none rounded m-0.5 hover:bg-success-900/25'}}
         noShadow
-        on:click={() => onClickCreateNewEntry($result.search)}
+        on:click={() => onClickCreateNewEntry($result.search ?? '')}
       />
     {/if}
     {#if $result.entries.length > $displayedEntries.length}

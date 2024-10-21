@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { mdiMagnify } from "@mdi/js";
-  import { Checkbox, Dialog, ListItem, TextField, cls } from "svelte-ux";
-  import { fieldName } from "../i18n";
+  import { mdiMagnify } from '@mdi/js';
+  import { Checkbox, Dialog, ListItem, TextField } from 'svelte-ux';
+  import { fieldName } from '../i18n';
   import type {FieldConfig} from '../config-types';
   import {useCurrentView} from '../services/view-service';
 

@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { mdiArrowDownBold, mdiArrowUpBold, mdiArrowUpDownBold, mdiChevronDoubleLeft, mdiPlaylistPlus, mdiTrashCanOutline } from "@mdi/js";
-  import { createEventDispatcher, getContext } from "svelte";
-  import { Button, ButtonGroup, Icon, Popover, Toggle } from "svelte-ux";
+  /* eslint-disable svelte/no-reactive-reassign */
+  import { mdiArrowDownBold, mdiArrowUpBold, mdiArrowUpDownBold, mdiChevronDoubleLeft, mdiTrashCanOutline } from '@mdi/js';
+  import { createEventDispatcher, getContext } from 'svelte';
+  import { Button, ButtonGroup, Icon, Popover, Toggle } from 'svelte-ux';
   import HistoryView from '../history/HistoryView.svelte';
-  import type { Readable } from "svelte/store";
-  import type { LexboxFeatures } from "../config-types";
+  import type { Readable } from 'svelte/store';
+  import type { LexboxFeatures } from '../config-types';
 
   const dispatch = createEventDispatcher<{
     move: number;
@@ -50,7 +51,7 @@
               <Button
                 variant={j === i ? 'outline' : j === newIndex ? 'fill-outline' : 'fill-light'}
                 class="border grid grid-cols-subgrid col-span-full justify-items-start items-center"
-                color='info'
+                color="info"
                 rounded
                 title={item}
                 size="sm">
