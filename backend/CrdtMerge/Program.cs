@@ -75,8 +75,7 @@ static ServiceProvider SyncServices(string crdtFile, string fwDataFile, bool cre
     var crdtServices = new ServiceCollection()
         .AddLcmCrdtClient()
         .AddFwDataBridge()
-        .AddSingleton<CrdtFwdataProjectSyncService>()
-        .AddSingleton<MiniLcmImport>()
+        .AddFwLiteProjectSync()
         .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = fwDataProjectsFolder.FullName)
         .Configure<LcmCrdtConfig>(c => c.ProjectPath = crdtFolder.FullName)
         .AddLogging(builder => builder.AddConsole().AddDebug().AddConfiguration(new ConfigurationManager().AddInMemoryCollection(new Dictionary<string, string?>
