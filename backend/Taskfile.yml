@@ -8,29 +8,37 @@ tasks:
     cmds:
       - dotnet watch
 
+  tool-restore:
+    cmd: dotnet tool restore
+
   migrate-db:
+    deps: [ tool-restore ]
     dir: ./LexBoxApi
     cmds:
       - dotnet run migrate --environment "Development"
 
   add-migration:
     desc: 'usage: task add-migration -- "migration name". Often followed by `task database-update`.'
+    deps: [ tool-restore ]
     dir: ./LexBoxApi
     cmds:
       - dotnet ef migrations add --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext --output-dir Migrations {{.CLI_ARGS}}
   has-pending-model-changes:
+    deps: [ tool-restore ]
     dir: ./LexBoxApi
     cmds:
       - dotnet ef migrations has-pending-model-changes --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   remove-last-migration:
     desc: "This will remove the last migration, don't remove migrations that have been pushed to production, but you can remove ones you created locally."
+    deps: [ tool-restore ]
     dir: ./LexBoxApi
     cmds:
       - dotnet ef migrations remove --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
 
   db-update:
     desc: "Runs any migrations that haven't yet been applied or rolls back to the specified migration."
+    deps: [ tool-restore ]
     dir: ./LexBoxApi
     cmds:
       - dotnet ef database update {{.CLI_ARGS}} --project ../LexData/LexData.csproj --startup-project LexBoxApi.csproj --context LexData.LexBoxDbContext
