@@ -117,7 +117,7 @@ public class OrgMutations
         var filteredIds = projectIds.Where(id => !alreadyInOrg.Contains(id)).ToHashSet();
         var updates = filteredIds.Select(projectId => new OrgProjects { OrgId = orgId, ProjectId = projectId });
         dbContext.OrgProjects.AddRange(updates);
-        dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).ExecuteUpdate(p => p.SetProperty(p => p.UpdatedDate, DateTime.UtcNow));
+        await dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).ExecuteUpdateAsync(p => p.SetProperty(p => p.UpdatedDate, DateTime.UtcNow));
         org.UpdateUpdatedDate();
         foreach (var projectId in projectIds)
         {
