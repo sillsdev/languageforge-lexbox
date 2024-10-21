@@ -99,8 +99,11 @@ public class OrgMutations
         IPermissionService permissionService,
         [Service] ProjectService projectService,
         Guid orgId,
-        IEnumerable<Guid> projectIds)
+        Guid[] projectIds)
     {
+        // Bail out immediately, not even checking permissions, if no projects added at all
+        if (projectIds == null || projectIds.Length == 0) return dbContext.Orgs.Where(o => o.Id == orgId);
+
         var org = await dbContext.Orgs.Include(o => o.Members).Include(o => o.Projects).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
         permissionService.AssertCanAddProjectToOrg(org);
@@ -111,7 +114,7 @@ public class OrgMutations
         }
         // Now exclude any projects that don't actually exist or the org already has or that don't exist
         var alreadyInOrg = org.Projects.Select(o => o.Id).ToHashSet();
-        var filteredIds = projectIds.Where(id => !alreadyInOrg.Contains(id));
+        var filteredIds = projectIds.Where(id => !alreadyInOrg.Contains(id)).ToHashSet();
         var updates = filteredIds.Select(projectId => new OrgProjects { OrgId = orgId, ProjectId = projectId });
         dbContext.OrgProjects.AddRange(updates);
         dbContext.Projects.Where(p => filteredIds.Contains(p.Id)).ExecuteUpdate(p => p.SetProperty(p => p.UpdatedDate, DateTime.UtcNow));
