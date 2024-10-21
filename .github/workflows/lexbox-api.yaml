@@ -50,8 +50,15 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
+      - name: Install Task
+        uses: arduino/setup-task@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Dotnet build
         run: dotnet build LexBoxOnly.slnf
+      - name: Check for pending EF model changes
+        run: task api:has-pending-model-changes
+
       - name: Unit tests
         run: dotnet test LexBoxOnly.slnf --logger:"xunit;LogFileName={assembly}.results.xml" --results-directory ./test-results --filter "Category!=Integration&Category!=FlakyIntegration" --blame-hang-timeout 10m
       - name: Publish unit test results
