@@ -1,4 +1,5 @@
 @import './lib/entry-editor/field.postcss';
+@import './lib/entry-editor/EntryOrSensePicker.postcss';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,13 +16,15 @@
 }
 
 .dialog {
-  max-height: calc(100vh - 100px);
+  height: 100vh;
+  width: 700px;
+  @apply md:max-h-[50rem];
   @apply flex flex-col;
 
   .actions {
     @apply bg-surface-200;
     position: sticky;
-    bottom: -1px;
+    bottom: 0;
     z-index: 2;
   }
 }
@@ -87,4 +90,9 @@
     display: grid;
     grid-template-columns: subgrid;
     @apply col-span-full;
+}
+
+.ListItem > * {
+  max-width: 100%;
+  overflow: hidden;
 }

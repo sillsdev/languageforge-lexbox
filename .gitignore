@@ -21,3 +21,6 @@ test-results/
 msal.json
 msal.cache
 artifacts/
+
+#Verify
+*.received.*

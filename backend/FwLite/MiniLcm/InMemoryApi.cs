@@ -103,11 +103,11 @@ public class InMemoryApi : IMiniLcmApi
     private readonly WritingSystems _writingSystems = new WritingSystems{
         Analysis =
         [
-            new WritingSystem { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
+            new WritingSystem { Id = Guid.NewGuid(), Type = WritingSystemType.Analysis, WsId = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
         ],
         Vernacular =
         [
-            new WritingSystem { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
+            new WritingSystem { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
         ]
     };
 
@@ -133,8 +133,8 @@ public class InMemoryApi : IMiniLcmApi
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         var ws = type == WritingSystemType.Analysis
-            ? _writingSystems.Analysis.Single(w => w.Id == id)
-            : _writingSystems.Vernacular.Single(w => w.Id == id);
+            ? _writingSystems.Analysis.Single(w => w.WsId == id)
+            : _writingSystems.Vernacular.Single(w => w.WsId == id);
         if (ws is null) throw new KeyNotFoundException($"unable to find writing system with id {id}");
         update.Apply(ws);
         return Task.FromResult(ws);

@@ -11,6 +11,7 @@ import {
   type SemanticDomain
 } from 'viewer/lexbox-api';
 import { SEMANTIC_DOMAINS_EN } from './semantic-domains.en.generated-data';
+import { type Readable } from 'svelte/store';
 
 function prepareEntriesForUi(entries: IEntry[]): void {
   entries.forEach(entry => {
@@ -31,11 +32,14 @@ function preparePartsOfSpeedForUi(partsOfSpeech: PartOfSpeech[]): void {
 }
 
 export class LfClassicLexboxApi implements LexboxApiClient {
-  constructor(private projectCode: string) {
+  constructor(private projectCode: string, private aboutMarkdown: Readable<string>) {
   }
 
   SupportedFeatures(): LexboxApiFeatures {
-    return {};
+    return {
+      feedback: true,
+      about: this.aboutMarkdown,
+    };
   }
 
   async GetWritingSystems(): Promise<WritingSystems> {

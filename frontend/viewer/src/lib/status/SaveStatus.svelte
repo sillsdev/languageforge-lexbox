@@ -72,7 +72,7 @@
   <div class="col-start-2 text-right">
     <div class="inline-block">
       <Popover {open} on:close={toggleOff} placement="bottom-start">
-        <div class="px-4 py-2 bg-surface-200 text-sm text-surface-content border border-info shadow-md rounded">
+        <div class="px-4 py-2 bg-surface-200 text-sm text-surface-content border border-info shadow-md rounded inline-flex items-center gap-2">
           {#if lastSaved}
             {@const savedAgo = Date.now() - lastSaved.getTime()}
             Last saved
@@ -84,10 +84,11 @@
               {humanizeDuration({ duration: { milliseconds: savedAgo }, minUnits: DurationUnits.Minute })}
             {/if}
             ago
+            <Icon data={mdiCheck} class="text-info" size="1em" />
           {:else if lastStatus === 'saved-to-disk'}
             <span class="inline-flex items-center gap-2">
               Saved to disk
-              <Icon data={mdiCheck} size="1em" />
+              <Icon data={mdiCheck} class="text-info" size="1em" />
             </span>
           {:else if lastStatus === 'failed-to-save'}
             Save failed

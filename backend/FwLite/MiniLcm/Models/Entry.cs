@@ -3,6 +3,7 @@
 public class Entry : IObjectWithId
 {
     public Guid Id { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
 
     public virtual MultiString LexemeForm { get; set; } = new();
 
@@ -17,10 +18,12 @@ public class Entry : IObjectWithId
     /// Components making up this complex entry
     /// </summary>
     public virtual IList<ComplexFormComponent> Components { get; set; } = [];
+
     /// <summary>
     /// This entry is a part of these complex forms
     /// </summary>
     public virtual IList<ComplexFormComponent> ComplexForms { get; set; } = [];
+
     public virtual IList<ComplexFormType> ComplexFormTypes { get; set; } = [];
 
     public string Headword()
@@ -29,30 +32,42 @@ public class Entry : IObjectWithId
         if (string.IsNullOrEmpty(word)) word = LexemeForm.Values.Values.FirstOrDefault();
         return word?.Trim() ?? "(Unknown)";
     }
-}
 
-public record ComplexFormComponent
-{
-    public static ComplexFormComponent FromEntries(Entry complexFormEntry, Entry componentEntry, Guid? componentSenseId = null)
+
+    public IObjectWithId Copy()
     {
-        if (componentEntry.Id == default) throw new ArgumentException("componentEntry.Id is empty");
-        if (complexFormEntry.Id == default) throw new ArgumentException("complexFormEntry.Id is empty");
-        return new ComplexFormComponent
+        return new Entry
         {
-            Id = Guid.NewGuid(),
-            ComplexFormEntryId = complexFormEntry.Id,
-            ComplexFormHeadword = complexFormEntry.Headword(),
-            ComponentEntryId = componentEntry.Id,
-            ComponentHeadword = componentEntry.Headword(),
-            ComponentSenseId = componentSenseId,
+            Id = Id,
+            DeletedAt = DeletedAt,
+            LexemeForm = LexemeForm.Copy(),
+            CitationForm = CitationForm.Copy(),
+            LiteralMeaning = LiteralMeaning.Copy(),
+            Note = Note.Copy(),
+            Senses = [..Senses.Select(s => (Sense)s.Copy())],
+            Components =
+            [
+                ..Components.Select(c => (ComplexFormComponent)c.Copy())
+            ],
+            ComplexForms =
+            [
+                ..ComplexForms.Select(c => (ComplexFormComponent)c.Copy())
+            ],
+            ComplexFormTypes =
+            [
+                ..ComplexFormTypes.Select(cft => (ComplexFormType)cft.Copy())
+            ]
         };
     }
-    public Guid Id { get; set; }
-    public virtual required Guid ComplexFormEntryId { get; set; }
-    public string? ComplexFormHeadword { get; set; }
-    public virtual required Guid ComponentEntryId { get; set; }
-    public virtual Guid? ComponentSenseId { get; set; } = null;
-    public string? ComponentHeadword { get; set; }
+
+    public Guid[] GetReferences()
+    {
+        return [];
+    }
+
+    public void RemoveReference(Guid id, DateTimeOffset time)
+    {
+    }
 }
 
 public class Variants
@@ -62,12 +77,6 @@ public class Variants
     public IList<VariantType> Types { get; set; } = [];
 }
 
-//todo support an order for the complex form types, might be here, or on the entry
-public class ComplexFormType
-{
-    public virtual Guid Id { get; set; }
-    public required MultiString Name { get; set; }
-}
 
 public class VariantType
 {

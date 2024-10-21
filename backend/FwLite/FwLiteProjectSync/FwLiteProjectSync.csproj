@@ -6,6 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <SelfContained>true</SelfContained>
+        <InformationalVersion>$(ApplicationDisplayVersion)</InformationalVersion>
+        <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>

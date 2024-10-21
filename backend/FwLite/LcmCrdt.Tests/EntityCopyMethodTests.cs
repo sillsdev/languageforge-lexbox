@@ -29,8 +29,8 @@ public class EntityCopyMethodTests
     [MemberData(nameof(GetEntityTypes))]
     public void EntityCopyMethodShouldCopyAllFields(Type type)
     {
-        type.IsAssignableTo(typeof(IObjectBase)).Should().BeTrue();
-        var entity = (IObjectBase) _autoFaker.Generate(type);
+        type.IsAssignableTo(typeof(IObjectWithId)).Should().BeTrue();
+        var entity = (IObjectWithId) _autoFaker.Generate(type);
         var copy = entity.Copy();
         copy.Should().BeEquivalentTo(entity, options => options.IncludingAllRuntimeProperties());
     }

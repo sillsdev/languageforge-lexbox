@@ -1,12 +1,15 @@
-﻿namespace LocalWebApp.Routes;
+﻿using System.Reflection;
+
+namespace LocalWebApp.Routes;
 
 public static class FeedbackRoute
 {
     public static void MapFeedbackRoutes(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet("/api/feedback", () =>
+        endpoints.MapGet("/api/feedback/fw-lite", () =>
         {
-            var version = "alpha";
+            var version = typeof(FeedbackRoute).Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "dev";
             var os = Environment.OSVersion.Platform switch
             {
                 PlatformID.Win32NT => "Windows",
