@@ -128,8 +128,8 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
   const result = await getClient()
     .mutation(
       graphql(`
-        mutation AddOrgMember($input: SetOrgMemberRoleInput!) {
-          setOrgMemberRole(input: $input) {
+        mutation AddOrgMember($memberInput: SetOrgMemberRoleInput!, $projectsInput: AddProjectsToOrgInput!) {
+          setOrgMemberRole(input: $memberInput) {
             organization {
               id
             }
@@ -140,13 +140,24 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
               }
             }
           }
+          addProjectsToOrg(input: $projectsInput) {
+            organization {
+              id
+              projects {
+                id
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
         }
       `),
-      { input: { orgId, emailOrUsername, role, canInvite} },
+      { memberInput: { orgId, emailOrUsername, role, canInvite }, projectsInput: { orgId, projectIds } }
     );
-  if (projectIds && projectIds.length > 0) {
-    await _addProjectsToOrg({ orgId, projectIds });
-  }
   return result;
 }
 
@@ -178,30 +189,6 @@ export async function _bulkAddOrgMembers(orgId: UUID, usernames: string[], role:
         }
       `),
       { input: { orgId, usernames, role } }
-    );
-  return result;
-}
-
-export async function _addProjectsToOrg(input: AddProjectsToOrgInput): $OpResult<AddProjectsToOrgMutation> {
-  //language=GraphQL
-  const result = await getClient()
-    .mutation(
-      graphql(`
-        mutation AddProjectsToOrg($input: AddProjectsToOrgInput!) {
-          addProjectsToOrg(input: $input) {
-            organization {
-              id
-            }
-            errors {
-              __typename
-              ... on Error {
-                message
-              }
-            }
-          }
-        }
-      `),
-      { input: input }
     );
   return result;
 }
