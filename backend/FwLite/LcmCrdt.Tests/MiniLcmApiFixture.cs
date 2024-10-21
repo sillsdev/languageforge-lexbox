@@ -38,14 +38,24 @@ public class MiniLcmApiFixture : IAsyncLifetime
         await Api.CreateWritingSystem(WritingSystemType.Vernacular,
             new WritingSystem()
             {
-                Id = "en",
+                Id = Guid.NewGuid(),
+                WsId = "en",
                 Name = "English",
                 Abbreviation = "en",
                 Font = "Arial",
-                Exemplars = ["a", "b"]
+                Exemplars = ["a", "b"],
+                Type = WritingSystemType.Vernacular
             });
         await Api.CreateWritingSystem(WritingSystemType.Analysis,
-            new WritingSystem() { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" });
+            new WritingSystem()
+            {
+                Id = Guid.NewGuid(),
+                WsId = "en",
+                Name = "English",
+                Abbreviation = "en",
+                Font = "Arial",
+                Type = WritingSystemType.Analysis
+            });
     }
 
     public async Task DisposeAsync()
