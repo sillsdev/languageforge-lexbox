@@ -18,6 +18,7 @@
 
   export let projects: Project[] = [];
   export let selectedProjects: string[] = [];
+  export let hideRoleColumn = false;
 
   $: allSelected = projects && selectedProjects && selectedProjects.length === projects.length;
 
@@ -58,11 +59,13 @@
                 {$t('project.table.name')}
               </span>
             </th>
-            <th>
-              <span class="align-middle">
-                {$t('project_role.label')}
-              </span>
-            </th>
+            {#if !hideRoleColumn}
+              <th>
+                <span class="align-middle">
+                  {$t('project_role.label')}
+                </span>
+              </th>
+            {/if}
         </tr>
       </thead>
       <tbody>
@@ -79,12 +82,14 @@
                 {proj.name}
               </a>
             </td>
-            <td>
-              <span class:text-primary={isManager} class:font-bold={isManager} class:dark:brightness-150={isManager}>
-                <FormatUserProjectRole role={proj.memberRole} />
-              </span>
-            </td>
-          </tr>
+            {#if !hideRoleColumn}
+              <td>
+                <span class:text-primary={isManager} class:font-bold={isManager} class:dark:brightness-150={isManager}>
+                  <FormatUserProjectRole role={proj.memberRole} />
+                </span>
+              </td>
+            {/if}
+            </tr>
         {/each}
       </tbody>
       <tfoot>
