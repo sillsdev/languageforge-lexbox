@@ -1,6 +1,6 @@
 using SIL.Progress;
 
-static class SendReceiveServices
+public static class SendReceiveHelpers
 {
     public record ProjectPath(string Code, string Dir)
     {
