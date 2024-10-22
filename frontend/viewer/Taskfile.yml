@@ -1,0 +1,33 @@
+﻿version: 3
+output: prefixed
+tasks:
+  app:
+    interactive: true
+    deps: [ install ]
+    cmd: pnpm run dev-app
+  web-component:
+    aliases: [ wc ]
+    interactive: true
+    deps: [ install ]
+    cmd: pnpm run dev
+  check:
+    aliases: [ sc, svelte-check ]
+    deps: [ install ]
+    cmds:
+      - pnpm run check
+      - pnpm run lint
+  build-app:
+    deps: [ install ]
+    cmd: pnpm run build-app
+
+  install:
+    method: checksum
+    sources:
+      - package.json
+      - ../pnpm-lock.yaml
+      - ../pnpm-workspace.yaml
+    cmds:
+      - corepack enable || true
+      - pnpm install
+  test:
+    cmd: pnpm test
