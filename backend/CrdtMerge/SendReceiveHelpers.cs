@@ -49,7 +49,7 @@ public static class SendReceiveHelpers
         // If projectCode not given, calculate it from the fwdataPath
         var fwdataInfo = new FileInfo(fwdataPath);
         if (fwdataInfo.Directory is null) throw new ArgumentException("Not allowed to Send/Receive root-level directories like C:\\", nameof(fwdataPath));
-        projectCode ??= fwdataInfo.Name.EndsWith(".fwdata") ? fwdataInfo.Name[..^".fwdata".Length] : fwdataInfo.Name;
+        projectCode ??= Path.GetFileNameWithoutExtension(fwdataPath);
 
         var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
 
@@ -74,7 +74,7 @@ public static class SendReceiveHelpers
         // If projectCode not given, calculate it from the fwdataPath
         var fwdataInfo = new FileInfo(fwdataPath);
         if (fwdataInfo.Directory is null) throw new ArgumentException("Not allowed to Send/Receive root-level directories like C:\\", nameof(fwdataPath));
-        projectCode ??= fwdataInfo.Name.EndsWith(".fwdata") ? fwdataInfo.Name[..^".fwdata".Length] : fwdataInfo.Name;
+        projectCode ??= Path.GetFileNameWithoutExtension(fwdataPath);
 
         var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
 
