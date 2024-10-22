@@ -6,6 +6,7 @@ using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
+using LinqToDB.EntityFrameworkCore;
 using MiniLcm.SyncHelpers;
 
 namespace LcmCrdt;
@@ -287,20 +288,21 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetEntry(id) ?? throw new NullReferenceException();
     }
 
-    public async Task<Entry> UpdateEntry(Entry entry)
+    public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        if (!Guid.TryParse(entry.Version, out var snapshotId))
-        {
-            throw new InvalidOperationException($"Unable to parse snapshot id '{entry.Version}'");
-        }
-
-        //todo this will not work for properties not in the snapshot, but we don't have a way to get the full snapshot yet
-        var beforeChanges = await dataModel.GetBySnapshotId<Entry>(snapshotId);
-        //workaround to avoid syncing senses, which are not in the snapshot
-        beforeChanges.Senses = [];
-        entry.Senses = [];
-        await EntrySync.Sync(entry, beforeChanges, this);
-        return await GetEntry(entry.Id) ?? throw new NullReferenceException();
+        //todo version stuff isn't working yet.
+        // if (!Guid.TryParse(entry.Version, out var snapshotId))
+        // {
+        //     throw new InvalidOperationException($"Unable to parse snapshot id '{entry.Version}'");
+        // }
+        //
+        // //todo this will not work for properties not in the snapshot, but we don't have a way to get the full snapshot yet
+        // var beforeChanges = await dataModel.GetBySnapshotId<Entry>(snapshotId);
+        // //workaround to avoid syncing senses, which are not in the snapshot
+        // beforeChanges.Senses = [];
+        // entry.Senses = [];
+        await EntrySync.Sync(after, before, this);
+        return await GetEntry(after.Id) ?? throw new NullReferenceException();
     }
 
     public async Task DeleteEntry(Guid id)

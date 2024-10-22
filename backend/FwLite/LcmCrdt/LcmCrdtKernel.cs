@@ -52,7 +52,6 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    .Entity<Entry>().Member(e => e.Version).HasColumnName(ObjectSnapshot.ShadowRefName)
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -71,7 +70,6 @@ public static class LcmCrdtKernel
             .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
             {
-                builder.Ignore(e => e.Senses);
                 builder.HasMany(e => e.Components)
                         .WithOne()
                         .HasPrincipalKey(entry => entry.Id)

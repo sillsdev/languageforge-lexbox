@@ -41,6 +41,7 @@ public class Entry : IObjectWithId
         {
             Id = Id,
             DeletedAt = DeletedAt,
+            Version = Version,
             LexemeForm = LexemeForm.Copy(),
             CitationForm = CitationForm.Copy(),
             LiteralMeaning = LiteralMeaning.Copy(),

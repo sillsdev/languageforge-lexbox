@@ -303,8 +303,9 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     {
         var entry = await Api.GetEntry(_entry1Id);
         ArgumentNullException.ThrowIfNull(entry);
+        var before = (Entry) entry.Copy();
         entry.LexemeForm["en"] = "updated";
-        var updatedEntry = await Api.UpdateEntry(entry);
+        var updatedEntry = await Api.UpdateEntry(before, entry);
         updatedEntry.LexemeForm["en"].Should().Be("updated");
         updatedEntry.Should().BeEquivalentTo(entry, options => options.Excluding(e => e.Version));
     }
