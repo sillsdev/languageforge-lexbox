@@ -47,7 +47,6 @@
                     id="semanticDomains"
                     wsType="first-analysis" />
   <EntityEditor
-    entity={sense}
     {readonly}
     customFieldConfigs={[]}
     on:change

@@ -149,7 +149,6 @@
                       id="note"
                       wsType="analysis"/>
     <EntityEditor
-      entity={entry}
       {readonly}
       customFieldConfigs={[]}
       on:change={() => dispatch('change', {entry})}
