@@ -22,18 +22,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/sync", async (ILogger<Program> logger, SendReceiveService srService, string projectCode, bool dryRun = false) =>
-// app.MapPost("/sync", async (string crdtFile, string fwDataFile, bool createCrdtDir, ILogger<Program> logger, bool dryRun = false) =>
-{
-    logger.LogInformation($"About to execute sync request for {projectCode}");
-    await ExecuteMergeRequest(logger, srService, projectCode);
-    // await ExecuteMergeRequest(crdtFile, fwDataFile, createCrdtDir, logger, dryRun);
-});
+app.MapPost("/sync", ExecuteMergeRequest);
 
 app.Run();
 
-async Task ExecuteMergeRequest(ILogger<Program> logger, SendReceiveService srService, string projectCode)
+async Task ExecuteMergeRequest(ILogger<Program> logger, SendReceiveService srService, string projectCode, bool dryRun = false)
 {
+    logger.LogInformation($"About to execute sync request for {projectCode}");
     // var result = srService.SendReceive(projectCode);
     var result = srService.Clone(projectCode); // For testing, just clone into empty dir
     logger.LogInformation(result.Output);
