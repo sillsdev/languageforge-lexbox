@@ -11,9 +11,9 @@
 <script lang="ts">
   import { ProjectRole } from '$lib/gql/types';
   import { writable } from 'svelte/store';
-  import Badge from '../Badges/Badge.svelte';
   import { onMount } from 'svelte';
   import t from '$lib/i18n';
+  import FormatUserProjectRole from '../Projects/FormatUserProjectRole.svelte';
 
   export let projects: Project[] = [];
   export let selectedProjects: string[] = [];
@@ -42,20 +42,53 @@
   }));
 </script>
 
-<ul>
-  {#if projects && projects.length > 1}
-    <li>
-      <input type="checkbox" checked={allSelected} on:change={handleSelectAllClick} />
-      {$t('org_page.add_user.select_all')}
-    </li>
-  {/if}
-  {#each projects as proj}
-    <li>
-      <input type="checkbox" bind:group={selectedProjects} value={proj.id} />
-      {proj.name}
-      {#if proj.memberRole == ProjectRole.Manager}
-      <Badge variant="badge-info">Manager</Badge>
-      {/if}
-    </li>
-  {/each}
-</ul>
+{#if projects?.length}
+  <div class="overflow-x-auto @container scroll-shadow">
+    <table class="table table-sm">
+      <thead>
+        <tr class="bg-base-200">
+            <th class="p-0 w-4">
+              <label class="px-3 py-2">
+                <input type="checkbox" checked={allSelected} class="align-middle" on:change={handleSelectAllClick} />
+              </label>
+            </th>
+            <th>
+              <span class="align-middle">
+                {$t('project.table.name')}
+              </span>
+            </th>
+            <th>
+              <span class="align-middle">
+                {$t('project_role.label')}
+              </span>
+            </th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each projects as proj}
+          {@const isManager = proj.memberRole === ProjectRole.Manager}
+          <tr>
+            <td class="p-0 w-4">
+              <label class="px-3 py-2">
+                <input type="checkbox" bind:group={selectedProjects} value={proj.id} />
+              </label>
+            </td>
+            <td>
+              <a class="link" href={`/project/${proj.code}?id=${proj.id}`} target="_blank">
+                {proj.name}
+              </a>
+            </td>
+            <td>
+              <span class:text-primary={isManager} class:font-bold={isManager} class:dark:brightness-150={isManager}>
+                <FormatUserProjectRole role={proj.memberRole} />
+              </span>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+      <tfoot>
+        <tr class="h-2"></tr>
+      </tfoot>
+    </table>
+  </div>
+{/if}

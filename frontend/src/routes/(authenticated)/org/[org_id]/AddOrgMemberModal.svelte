@@ -28,6 +28,7 @@
 
   let projects: Project[] = [];
   let selectedProjects: string[] = [];
+
   function populateUserProjects(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null): void {
     if (!user || !('projects' in user)) {
       projects = [];
@@ -38,6 +39,8 @@
   }
 
   export async function openModal(): Promise<void> {
+    projects = [];
+    selectedProjects = [];
     let userInvited = false;
     const { response, formState } = await formModal.open(async () => {
       const { error } = await _addOrgMember(
@@ -47,8 +50,6 @@
         $form.canInvite,
         selectedProjects,
       );
-      projects = [];
-      selectedProjects = [];
 
       if (error?.byType('NotFoundError')) {
         if (error.message === 'Org not found') {
@@ -99,7 +100,9 @@
   {/if}
   <OrgRoleSelect bind:value={$form.role} error={errors.role} />
   {#if projects && projects.length}
-    {$t('org_page.add_user.also_add_projects')}
+    <div class="label label-text">
+      {$t('org_page.add_user.also_add_projects')}
+    </div>
     <UserProjects {projects} bind:selectedProjects />
   {/if}
   <svelte:fragment slot="extraActions">
