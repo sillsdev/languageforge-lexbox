@@ -1,6 +1,7 @@
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
+using Microsoft.Extensions.Options;
 using MiniLcm;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,50 +27,50 @@ app.MapPost("/sync", ExecuteMergeRequest);
 
 app.Run();
 
-async Task ExecuteMergeRequest(ILogger<Program> logger, SendReceiveService srService, string projectCode, bool dryRun = false)
+async Task ExecuteMergeRequest(
+    ILogger<Program> logger,
+    SendReceiveService srService,
+    IOptions<SRConfig> srConfig,
+    FwDataFactory fwDataFactory,
+    ProjectsService projectsService,
+    CurrentProjectService currentProjectService,
+    CrdtFwdataProjectSyncService syncService,
+    IMiniLcmApi miniLcmApi,
+    string projectCode,
+    bool dryRun = true)
 {
-    logger.LogInformation($"About to execute sync request for {projectCode}");
-    // var result = srService.SendReceive(projectCode);
-    var result = srService.Clone(projectCode); // For testing, just clone into empty dir
-    logger.LogInformation(result.Output);
+    logger.LogInformation("About to execute sync request for {projectCode}", projectCode);
+    var cloneResult = srService.Clone(projectCode); // For testing, just clone into empty dir
+    logger.LogInformation(cloneResult.Output);
+
+    if (dryRun) return;
+
+    var crdtFile = Path.Join(srConfig.Value.CrdtFolder, $"{projectCode}.fwdata"); // TODO: Determine what the correct filename is here
+    var fwDataFile = Path.Join(srConfig.Value.FwDataProjectsFolder, $"{projectCode}.fwdata");
+    Console.WriteLine($"crdtFile: {crdtFile}");
+    Console.WriteLine($"fwDataFile: {fwDataFile}");
+    var fwProjectName = projectCode;
+    var crdtProjectName = projectCode;
+
+    var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwProjectName, true);
+    var crdtProject = projectsService.GetProject(crdtProjectName);
+    if (crdtProject is null)
+    {
+        crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
+    }
+    projectsService.SetProjectScope(crdtProject);
+    await currentProjectService.PopulateProjectDataCache();
+
+    var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
+    // var srResult = srService.SendReceive(projectCode);
+    logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
+
 }
-
-// Version from command-line tool, commented out so I can reference it while I rewrite it to use services properly
-
-// async Task ExecuteMergeRequest(string crdtFile, string fwDataFile, bool createCrdtDir, ILogger<Program> logger, bool dryRun = false)
-// {
-//     Console.WriteLine($"crdtFile: {crdtFile}");
-//     Console.WriteLine($"fwDataFile: {fwDataFile}");
-//     var fwProjectName = Path.GetFileNameWithoutExtension(fwDataFile);
-//     var crdtProjectName = Path.GetFileNameWithoutExtension(crdtFile);
-
-//     // TODO: Move this service root into the builder up above so we're not creating the services every time
-//     await using var serviceRoot = SyncServices(crdtFile, fwDataFile, createCrdtDir);
-//     await using var scope = serviceRoot.CreateAsyncScope();
-//     var services = scope.ServiceProvider;
-//     // var logger = services.GetRequiredService<ILogger<Program>>();
-//     var fwdataApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwProjectName, true);
-//     var projectsService = services.GetRequiredService<ProjectsService>();
-//     var crdtProject = projectsService.GetProject(crdtProjectName);
-//     if (crdtProject is null)
-//     {
-//         crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
-//     }
-//     projectsService.SetProjectScope(crdtProject);
-//     await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-//     var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
-
-//     var result = await syncService.Sync(services.GetRequiredService<IMiniLcmApi>(), fwdataApi, dryRun);
-//     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-// };
 
 // TODO: move this to own file so it can be an extension method on builder.Services
 static void SyncServices(IServiceCollection crdtServices)
 {
     crdtServices
-        .AddLcmCrdtClient()
-        .AddFwDataBridge()
-        .AddFwLiteProjectSync()
         .AddLogging(builder => builder.AddConsole().AddDebug().AddConfiguration(new ConfigurationManager().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
@@ -83,8 +84,12 @@ static void SyncServices(IServiceCollection crdtServices)
         .ValidateDataAnnotations()
         .ValidateOnStart();
     crdtServices.AddScoped<SendReceiveService>();
-    crdtServices.AddOptions<FwDataBridgeConfig>().Configure((FwDataBridgeConfig c, SRConfig srConfig) => c.ProjectsFolder = srConfig.FwDataProjectsFolder);
-    crdtServices.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig c, SRConfig srConfig) => c.ProjectPath = srConfig.CrdtFolder);
+    crdtServices.AddOptions<FwDataBridgeConfig>().Configure((FwDataBridgeConfig c, IOptions<SRConfig> srConfig) => c.ProjectsFolder = srConfig.Value.FwDataProjectsFolder);
+    crdtServices.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig c, IOptions<SRConfig> srConfig) => c.ProjectPath = srConfig.Value.CrdtFolder);
+    crdtServices
+        .AddLcmCrdtClient()
+        .AddFwDataBridge()
+        .AddFwLiteProjectSync();
 }
 
 public class HgConfig
