@@ -23,6 +23,7 @@
   import type { UUID } from 'crypto';
   import BulkAddOrgMembers from './BulkAddOrgMembers.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
+  import AddMyProjectsToOrgModal from './AddMyProjectsToOrgModal.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -108,6 +109,9 @@
 
 <DetailsPage wide title={org.name}>
   <svelte:fragment slot="actions">
+    {#if isMember}
+      <AddMyProjectsToOrgModal {user} {org} />
+    {/if}
     {#if canManage}
       <Button variant="btn-success"
         on:click={openAddOrgMemberModal}>
@@ -116,7 +120,7 @@
         </span>
         <span class="i-mdi-account-plus-outline text-2xl" />
       </Button>
-      <AddOrgMemberModal bind:this={addOrgMemberModal} orgId={org.id} />
+      <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
       <BulkAddOrgMembers orgId={org.id} />
     {/if}
   </svelte:fragment>

@@ -33,13 +33,14 @@ import {
   type MutationChangeUserAccountBySelfArgs,
   type MutationDeleteUserByAdminOrSelfArgs,
   type MutationDeleteDraftProjectArgs, type MutationSoftDeleteProjectArgs, type MutationCreateProjectArgs,
+  type MutationAddProjectsToOrgArgs,
 } from './types';
 import type {Readable, Unsubscriber} from 'svelte/store';
 import {derived} from 'svelte/store';
 import {cacheExchange} from '@urql/exchange-graphcache';
 import {devtoolsExchange} from '@urql/devtools';
-import type { LexAuthUser } from '$lib/user';
-import { isRedirect } from '@sveltejs/kit';
+import type {LexAuthUser} from '$lib/user';
+import {isRedirect} from '@sveltejs/kit';
 
 let globalClient: GqlClient | null = null;
 
@@ -93,6 +94,9 @@ function createGqlClient(_gqlEndpoint?: string): Client {
               if (args.input.projectId) {
                 cache.invalidate({__typename: 'Project', id: args.input.projectId});
               }
+            },
+            addProjectsToOrg: (result, args: MutationAddProjectsToOrgArgs, cache, _info) => {
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
             bulkAddOrgMembers: (result, args: MutationBulkAddOrgMembersArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});

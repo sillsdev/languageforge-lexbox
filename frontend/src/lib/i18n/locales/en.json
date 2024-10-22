@@ -266,6 +266,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "submit_button": "Add Member",
       "empty_user_field": "Please enter an email address or login",
       "also_add_projects": "Add user's projects to this organization",
+      "all_projects_already_added": "The {count, plural, one {# project} other {# projects}} this user is a member of {count, plural, one {is} other {are}} already in this organization",
       "select_all": "Select all",
       "submit_button_email": "Add/Invite Member",
       "org_not_found": "Organization not found. Please refresh the page.",
@@ -275,6 +276,13 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "user_already_member": "User is already a member of this organization",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
       "invalid_email_address": "Invalid email address: {email}",
+    },
+    "add_my_projects": {
+      "title": "Add projects I manage to this organization",
+      "open_button": "Add my projects",
+      "submit_button": "Add Projects",
+      "all_projects_already_added": "The {count, plural, one {# project} other {# projects}} you manage {count, plural, one {is} other {are}} already in this organization",
+      "no_projects_managed": "You don't manage any projects",
     },
     "bulk_add_members": {
       "add_button": "Bulk Add Members",
@@ -314,7 +322,8 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "leave_org_error": "An error occurred trying to remove you from organization {name}. Please try again later.",
       "describe": "Organization description has been updated.",
       "add_member": "{email} has been added to organization.",
-      "member_invited": "{email} has been sent an invitation email to register and join the organization."
+      "member_invited": "{email} has been sent an invitation email to register and join the organization.",
+      "added_projects": "Added {count, plural, one {# project} other {# projects}} to organization",
     },
     "edit_member_role": "Change Role",
     "remove_member": "Remove",
