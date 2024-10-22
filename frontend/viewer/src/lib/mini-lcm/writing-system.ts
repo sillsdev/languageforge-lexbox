@@ -4,7 +4,13 @@
  */
 
 export interface WritingSystem {
+    /**
+     * This is a GUID for the writing system, not used in FWData.
+     */
     id: string;
+    /**
+     * This is the language tag for the writing system, e.g. "en" for English.
+     */
     wsId: string;
     name: string;
     abbreviation: string;
