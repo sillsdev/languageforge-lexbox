@@ -1,6 +1,6 @@
-﻿using FwLiteProjectSync.SyncHelpers;
-using FwLiteProjectSync.Tests.Fixtures;
+﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 
 namespace FwLiteProjectSync.Tests;
 

@@ -1,11 +1,11 @@
 ﻿using System.Text.Json;
 using FwDataMiniLcmBridge.Api;
-using FwLiteProjectSync.SyncHelpers;
 using LcmCrdt;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 using SystemTextJsonPatch;
 using SystemTextJsonPatch.Operations;
 

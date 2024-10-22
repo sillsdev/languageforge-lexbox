@@ -299,6 +299,17 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
     }
 
     [Fact]
+    public async Task UpdateEntry_SimpleApi()
+    {
+        var entry = await Api.GetEntry(_entry1Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        entry.LexemeForm["en"] = "updated";
+        var updatedEntry = await Api.UpdateEntry(entry);
+        updatedEntry.LexemeForm["en"].Should().Be("updated");
+        updatedEntry.Should().BeEquivalentTo(entry, options => options.Excluding(e => e.Version));
+    }
+
+    [Fact]
     public async Task UpdateEntryNote()
     {
         var entry = await Api.CreateEntry(new Entry

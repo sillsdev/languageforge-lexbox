@@ -1,8 +1,7 @@
-﻿using MiniLcm;
-using MiniLcm.Models;
+﻿using MiniLcm.Models;
 using SystemTextJsonPatch;
 
-namespace FwLiteProjectSync.SyncHelpers;
+namespace MiniLcm.SyncHelpers;
 
 public static class EntrySync
 {

@@ -1,5 +1,5 @@
-﻿using FwLiteProjectSync.SyncHelpers;
-using MiniLcm.Models;
+﻿using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 using Spart.Parsers;
 using SystemTextJsonPatch.Operations;
 

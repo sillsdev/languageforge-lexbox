@@ -6,11 +6,11 @@ using LcmCrdt.Changes.Entries;
 using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
-using LinqToDB.EntityFrameworkCore;
+using MiniLcm.SyncHelpers;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService) : IMiniLcmApi
+public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, LcmCrdtDbContext dbContext) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
 
@@ -154,18 +154,14 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return GetEntriesAsyncEnum(Filtering.SearchFilter(query), options);
     }
 
-    private async IAsyncEnumerable<Entry> GetEntriesAsyncEnum(
+    private IAsyncEnumerable<Entry> GetEntriesAsyncEnum(
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
-        var entries = await GetEntries(predicate, options);
-        foreach (var entry in entries)
-        {
-            yield return entry;
-        }
+        return GetEntries(predicate, options);
     }
 
-    private async Task<Entry[]> GetEntries(
+    private async IAsyncEnumerable<Entry> GetEntries(
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
@@ -193,10 +189,11 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);
-        var entries = await queryable
-            .ToArrayAsyncLinqToDB();
-
-        return entries;
+        var entries = queryable.AsAsyncEnumerable();
+        await foreach (var entry in entries)
+        {
+            yield return entry;
+        }
     }
 
     public async Task<Entry?> GetEntry(Guid id)
@@ -288,6 +285,22 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
         await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
         return await GetEntry(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<Entry> UpdateEntry(Entry entry)
+    {
+        if (!Guid.TryParse(entry.Version, out var snapshotId))
+        {
+            throw new InvalidOperationException($"Unable to parse snapshot id '{entry.Version}'");
+        }
+
+        //todo this will not work for properties not in the snapshot, but we don't have a way to get the full snapshot yet
+        var beforeChanges = await dataModel.GetBySnapshotId<Entry>(snapshotId);
+        //workaround to avoid syncing senses, which are not in the snapshot
+        beforeChanges.Senses = [];
+        entry.Senses = [];
+        await EntrySync.Sync(entry, beforeChanges, this);
+        return await GetEntry(entry.Id) ?? throw new NullReferenceException();
     }
 
     public async Task DeleteEntry(Guid id)

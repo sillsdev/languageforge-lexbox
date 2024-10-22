@@ -1,7 +1,6 @@
-﻿using MiniLcm;
-using MiniLcm.Models;
+﻿using MiniLcm.Models;
 
-namespace FwLiteProjectSync.SyncHelpers;
+namespace MiniLcm.SyncHelpers;
 
 public static class DiffCollection
 {

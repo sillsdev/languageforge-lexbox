@@ -14,6 +14,7 @@ using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
@@ -51,6 +52,7 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
+                    .Entity<Entry>().Member(e => e.Version).HasColumnName(ObjectSnapshot.ShadowRefName)
                     .Build();
                 mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
@@ -60,6 +62,7 @@ public static class LcmCrdtKernel
                     optionsBuilder.AddCustomOptions(dataOptions => dataOptions.UseLoggerFactory(loggerFactory));
             });
     }
+
 
     public static void ConfigureCrdt(CrdtConfig config)
     {

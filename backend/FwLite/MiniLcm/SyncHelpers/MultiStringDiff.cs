@@ -1,7 +1,7 @@
 ﻿using MiniLcm.Models;
 using SystemTextJsonPatch.Operations;
 
-namespace FwLiteProjectSync.SyncHelpers;
+namespace MiniLcm.SyncHelpers;
 
 public static class MultiStringDiff
 {
