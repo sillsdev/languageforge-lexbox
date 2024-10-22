@@ -39,7 +39,7 @@ static class SendReceiveServices
         return builder.Uri;
     }
 
-    public static LfMergeBridgeResult SendReceive(string fwdataPath, string commitMessage, SendReceiveAuth? auth = null, string? projectCode = null)
+    public static LfMergeBridgeResult SendReceive(string fwdataPath, SendReceiveAuth? auth = null, string? projectCode = null, string? commitMessage = null)
     {
         // If projectCode not given, calculate it from the fwdataPath
         var fwdataInfo = new FileInfo(fwdataPath);
@@ -61,8 +61,8 @@ static class SendReceiveServices
             { "languageDepotRepoUri", repoUrl.AbsoluteUri },
             { "deleteRepoIfNoSuchBranch", "false" },
             { "user", "LexBox" },
-            { "commitMessage", commitMessage }
         };
+        if (commitMessage is not null) flexBridgeOptions["commitMessage"] = commitMessage;
         return CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
     }
 
