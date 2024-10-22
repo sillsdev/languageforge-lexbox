@@ -141,12 +141,15 @@ public class OrgMutations
     {
         var org = await dbContext.Orgs.Include(o => o.Members).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
-        permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
         NotFoundException.ThrowIfNull(project);
-        await permissionService.AssertCanManageProject(projectId);
+        // Org managers can kick projects out and project managers can pull projects out
+        if (!permissionService.CanEditOrg(orgId) && !await permissionService.CanManageProject(projectId))
+        {
+            throw new UnauthorizedAccessException();
+        }
         var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
         if (foundOrg is not null)
         {
