@@ -40,13 +40,16 @@ async Task ExecuteMergeRequest(
     bool dryRun = true)
 {
     logger.LogInformation("About to execute sync request for {projectCode}", projectCode);
-    var cloneResult = srService.Clone(projectCode); // For testing, just clone into empty dir
-    logger.LogInformation(cloneResult.Output);
+    if (!dryRun) {
+        var cloneResult = srService.Clone(projectCode); // For testing, just clone into empty dir
+        logger.LogInformation(cloneResult.Output);
+    } else {
+        logger.LogInformation("Dry run, not actually cloning");
+        return;
+    }
 
-    if (dryRun) return;
-
-    var crdtFile = Path.Join(srConfig.Value.CrdtFolder, $"{projectCode}.fwdata"); // TODO: Determine what the correct filename is here
-    var fwDataFile = Path.Join(srConfig.Value.FwDataProjectsFolder, $"{projectCode}.fwdata");
+    var crdtFile = Path.Join(srConfig.Value.CrdtFolder, projectCode, $"{projectCode}.fwdata"); // TODO: Determine what the correct filename is here
+    var fwDataFile = Path.Join(srConfig.Value.FwDataProjectsFolder, projectCode, $"{projectCode}.fwdata");
     Console.WriteLine($"crdtFile: {crdtFile}");
     Console.WriteLine($"fwDataFile: {fwDataFile}");
     var fwProjectName = projectCode;
@@ -62,7 +65,7 @@ async Task ExecuteMergeRequest(
     await currentProjectService.PopulateProjectDataCache();
 
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
-    // var srResult = srService.SendReceive(projectCode);
+    // var srResult = srService.SendReceive(projectCode); // TODO: Once LcmCrdtKernel no longer complaining about CRDT project being null, uncomment here
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
 
 }
@@ -87,7 +90,7 @@ static void SyncServices(IServiceCollection crdtServices)
     crdtServices.AddOptions<FwDataBridgeConfig>().Configure((FwDataBridgeConfig c, IOptions<SRConfig> srConfig) => c.ProjectsFolder = srConfig.Value.FwDataProjectsFolder);
     crdtServices.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig c, IOptions<SRConfig> srConfig) => c.ProjectPath = srConfig.Value.CrdtFolder);
     crdtServices
-        .AddLcmCrdtClient()
+        // .AddLcmCrdtClient() // TODO: Figure out how to handle the fact that this wants a CRDT project to already exist, see LcmCrdtKernel.cs lines 26 and 42
         .AddFwDataBridge()
         .AddFwLiteProjectSync();
 }
