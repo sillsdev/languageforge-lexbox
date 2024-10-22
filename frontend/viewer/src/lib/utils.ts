@@ -31,7 +31,7 @@ export function pickBestAlternative(value: IMultiString, firstChoice?: WritingSy
   } else if (typeof firstChoice === 'object') {
     ws = firstChoice;
   }
-  const pick = ws ? value[ws.id] : undefined;
+  const pick = ws ? value[ws.wsId] : undefined;
   return pick ?? firstVal(value) ?? '';
 }
 

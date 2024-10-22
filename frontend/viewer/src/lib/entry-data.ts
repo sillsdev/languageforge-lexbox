@@ -6,6 +6,7 @@ export const writingSystems: WritingSystems = {
   'analysis': [
     {
       'id': 'en',
+      'wsId': 'en',
       'name': 'English',
       'abbreviation': 'Eng',
       'font': '???',
@@ -13,6 +14,7 @@ export const writingSystems: WritingSystems = {
     },
     {
       'id': 'pt',
+      'wsId': 'pt',
       'name': 'Portuguese',
       'abbreviation': 'Por',
       'font': '???',
@@ -22,6 +24,7 @@ export const writingSystems: WritingSystems = {
   'vernacular': [
     {
       'id': 'seh',
+      'wsId': 'seh',
       'name': 'Sena',
       'abbreviation': 'Sen',
       'font': '???',
@@ -29,6 +32,7 @@ export const writingSystems: WritingSystems = {
     },
     {
       'id': 'seh-fonipa-x-etic',
+      'wsId': 'seh-fonipa-x-etic',
       'name': 'Sena',
       'abbreviation': 'seh',
       'font': '???',

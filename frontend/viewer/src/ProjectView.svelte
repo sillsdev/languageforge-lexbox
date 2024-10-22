@@ -241,7 +241,7 @@
 
   let newEntryDialog: NewEntryDialog;
   async function openNewEntryDialog(text: string, options?: NewEntryDialogOptions): Promise<IEntry | undefined> {
-    const defaultWs = $writingSystems?.vernacular[0].id;
+    const defaultWs = $writingSystems?.vernacular[0].wsId;
     if (defaultWs === undefined) return undefined;
     const entry = await newEntryDialog.openWithValue({lexemeForm: {[defaultWs]: text}});
     if (entry) onEntryCreated(entry, options);
