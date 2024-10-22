@@ -7,7 +7,10 @@ public static class SendReceiveHelpers
         public string FwDataFile { get; } = Path.Join(Dir, $"{Code}.fwdata");
     }
 
-    public record SendReceiveAuth(string Username, string Password);
+    public record SendReceiveAuth(string Username, string Password)
+    {
+        public SendReceiveAuth(SRConfig srConfig) : this(srConfig.LexboxUsername, srConfig.LexboxPassword) { }
+    };
 
     public record SendReceiveParams(string ProjectCode, string BaseUrl, string Dir) : ProjectPath(ProjectCode, Dir);
 
@@ -22,8 +25,9 @@ public static class SendReceiveHelpers
 
     public static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth)
     {
-        var builder = new UriBuilder($"http://{baseUrl}/hg/{projectCode}");
-        if (auth == null) return builder.Uri;
+        var baseUri = new Uri(baseUrl);
+        var projectUri = new Uri(baseUri, projectCode);
+        if (auth == null) return projectUri;
         // Stop Chorus from saving passwords, since we're not a GUI app (and it calls Windows-only APIs anyway)
         var chorusSettings = new Chorus.Model.ServerSettingsModel
         {
@@ -34,24 +38,21 @@ public static class SendReceiveHelpers
         // Chorus relies too much on its global ServerSettingsModel.PasswordForSession variable
         chorusSettings.SaveUserSettings();
         // TODO: Consider a global S/R lock because of Chorus's PasswordForSession behavior
+        var builder = new UriBuilder(projectUri);
         builder.UserName = auth.Username;
         builder.Password = auth.Password;
         return builder.Uri;
     }
 
-    public static LfMergeBridgeResult SendReceive(string fwdataPath, SendReceiveAuth? auth = null, string? projectCode = null, string? commitMessage = null)
+    public static LfMergeBridgeResult SendReceive(string fwdataPath, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? projectCode = null, string? commitMessage = null)
     {
         // If projectCode not given, calculate it from the fwdataPath
         var fwdataInfo = new FileInfo(fwdataPath);
         if (fwdataInfo.Directory is null) throw new ArgumentException("Not allowed to Send/Receive root-level directories like C:\\", nameof(fwdataPath));
         projectCode ??= fwdataInfo.Name.EndsWith(".fwdata") ? fwdataInfo.Name[..^".fwdata".Length] : fwdataInfo.Name;
 
-        var hostname = "localhost";
-        // var hostname = "lexbox.org"; // TODO: Get from config instead of hardcoding lexbox.org
+        var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
 
-        var repoUrl = BuildSendReceiveUrl(hostname, projectCode, auth);
-
-        var fdoDataModelVersion = "7000072"; // TODO: Determine
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", fwdataInfo.Directory.FullName },
@@ -63,22 +64,20 @@ public static class SendReceiveHelpers
             { "user", "LexBox" },
         };
         if (commitMessage is not null) flexBridgeOptions["commitMessage"] = commitMessage;
-        return CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
+        // return CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
+        Console.WriteLine($"Would have called S/R with fw data path {fwdataPath}, project code {projectCode}, base URL {baseUrl}");
+        return new LfMergeBridgeResult("", "");
     }
 
-    public static LfMergeBridgeResult CloneProject(string fwdataPath, SendReceiveAuth? auth = null, string? projectCode = null)
+    public static LfMergeBridgeResult CloneProject(string fwdataPath, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? projectCode = null)
     {
         // If projectCode not given, calculate it from the fwdataPath
         var fwdataInfo = new FileInfo(fwdataPath);
         if (fwdataInfo.Directory is null) throw new ArgumentException("Not allowed to Send/Receive root-level directories like C:\\", nameof(fwdataPath));
         projectCode ??= fwdataInfo.Name.EndsWith(".fwdata") ? fwdataInfo.Name[..^".fwdata".Length] : fwdataInfo.Name;
 
-        var hostname = "localhost";
-        // var hostname = "lexbox.org"; // TODO: Get from config instead of hardcoding lexbox.org
+        var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
 
-        var repoUrl = BuildSendReceiveUrl(hostname, projectCode, auth);
-
-        var fdoDataModelVersion = "7000072"; // TODO: Determine
         var flexBridgeOptions = new Dictionary<string, string>
         {
             { "fullPathToProject", fwdataInfo.Directory.FullName },
@@ -88,5 +87,7 @@ public static class SendReceiveHelpers
             { "deleteRepoIfNoSuchBranch", "false" },
         };
         return CallLfMergeBridge("Language_Forge_Clone", flexBridgeOptions);
+        // Console.WriteLine($"Would have called LF_Clone with fw data path {fwdataPath}, project code {projectCode}, base URL {baseUrl}");
+        // return new LfMergeBridgeResult("", "");
     }
 }

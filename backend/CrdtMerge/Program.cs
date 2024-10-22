@@ -2,12 +2,15 @@ using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
 using MiniLcm;
+using System.ComponentModel.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+SyncServices(builder.Services); // TODO: extension method
 
 var app = builder.Build();
 
@@ -19,69 +22,103 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/sync", async (string crdtFile, string fwDataFile, bool createCrdtDir, bool dryRun = false) =>
+app.MapPost("/sync", async (ILogger<Program> logger, SendReceiveService srService, string projectCode, bool dryRun = false) =>
+// app.MapPost("/sync", async (string crdtFile, string fwDataFile, bool createCrdtDir, ILogger<Program> logger, bool dryRun = false) =>
 {
-    await ExecuteMergeRequest(crdtFile, fwDataFile, createCrdtDir, dryRun);
+    logger.LogInformation($"About to execute sync request for {projectCode}");
+    await ExecuteMergeRequest(logger, srService, projectCode);
+    // await ExecuteMergeRequest(crdtFile, fwDataFile, createCrdtDir, logger, dryRun);
 });
 
 app.Run();
 
-async Task ExecuteMergeRequest(string crdtFile, string fwDataFile, bool createCrdtDir, bool dryRun = false)
+async Task ExecuteMergeRequest(ILogger<Program> logger, SendReceiveService srService, string projectCode)
 {
-    Console.WriteLine($"crdtFile: {crdtFile}");
-    Console.WriteLine($"fwDataFile: {fwDataFile}");
-    var fwProjectName = Path.GetFileNameWithoutExtension(fwDataFile);
-    var crdtProjectName = Path.GetFileNameWithoutExtension(crdtFile);
+    // var result = srService.SendReceive(projectCode);
+    var result = srService.Clone(projectCode); // For testing, just clone into empty dir
+    logger.LogInformation(result.Output);
+}
 
-    // TODO: Move this service root into the builder up above so we're not creating the services every time
-    await using var serviceRoot = SyncServices(crdtFile, fwDataFile, createCrdtDir);
-    await using var scope = serviceRoot.CreateAsyncScope();
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    var fwdataApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwProjectName, true);
-    var projectsService = services.GetRequiredService<ProjectsService>();
-    var crdtProject = projectsService.GetProject(crdtProjectName);
-    if (crdtProject is null)
-    {
-        crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
-    }
-    projectsService.SetProjectScope(crdtProject);
-    await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-    var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+// Version from command-line tool, commented out so I can reference it while I rewrite it to use services properly
 
-    var result = await syncService.Sync(services.GetRequiredService<IMiniLcmApi>(), fwdataApi, dryRun);
-    logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-};
+// async Task ExecuteMergeRequest(string crdtFile, string fwDataFile, bool createCrdtDir, ILogger<Program> logger, bool dryRun = false)
+// {
+//     Console.WriteLine($"crdtFile: {crdtFile}");
+//     Console.WriteLine($"fwDataFile: {fwDataFile}");
+//     var fwProjectName = Path.GetFileNameWithoutExtension(fwDataFile);
+//     var crdtProjectName = Path.GetFileNameWithoutExtension(crdtFile);
 
-static ServiceProvider SyncServices(string crdtFile, string fwDataFile, bool createCrdtDir)
+//     // TODO: Move this service root into the builder up above so we're not creating the services every time
+//     await using var serviceRoot = SyncServices(crdtFile, fwDataFile, createCrdtDir);
+//     await using var scope = serviceRoot.CreateAsyncScope();
+//     var services = scope.ServiceProvider;
+//     // var logger = services.GetRequiredService<ILogger<Program>>();
+//     var fwdataApi = services.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(fwProjectName, true);
+//     var projectsService = services.GetRequiredService<ProjectsService>();
+//     var crdtProject = projectsService.GetProject(crdtProjectName);
+//     if (crdtProject is null)
+//     {
+//         crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
+//     }
+//     projectsService.SetProjectScope(crdtProject);
+//     await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+//     var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
+
+//     var result = await syncService.Sync(services.GetRequiredService<IMiniLcmApi>(), fwdataApi, dryRun);
+//     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
+// };
+
+// TODO: move this to own file so it can be an extension method on builder.Services
+static void SyncServices(IServiceCollection crdtServices)
 {
-    if (!File.Exists(fwDataFile)) throw new InvalidOperationException("Could not find fwdata file " + fwDataFile);
-
-    var fwDataProjectsFolder = Directory.GetParent(fwDataFile)?.Parent;
-    if (fwDataProjectsFolder is null) throw new InvalidOperationException("Could not find parent folder of fwdata dir " + fwDataFile);
-    var crdtFolder = Directory.GetParent(crdtFile);
-    if (crdtFolder is null) throw new InvalidOperationException("Could not find parent folder of crdt file " + crdtFile);
-    if (!crdtFolder.Exists && createCrdtDir)
-    {
-        crdtFolder.Create();
-    } else if (!crdtFolder.Exists)
-    {
-        throw new InvalidOperationException("Could not find crdt folder " + crdtFolder);
-    }
-
-    var crdtServices = new ServiceCollection()
+    crdtServices
         .AddLcmCrdtClient()
         .AddFwDataBridge()
         .AddFwLiteProjectSync()
-        .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = fwDataProjectsFolder.FullName)
-        .Configure<LcmCrdtConfig>(c => c.ProjectPath = crdtFolder.FullName)
         .AddLogging(builder => builder.AddConsole().AddDebug().AddConfiguration(new ConfigurationManager().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
-        }).Build()))
-        .BuildServiceProvider(true);
-    return crdtServices;
+        }).Build()));
+    crdtServices.AddOptions<HgConfig>()
+        .BindConfiguration("HgConfig")
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
+    crdtServices.AddOptions<SRConfig>()
+        .BindConfiguration("SRConfig")
+        .ValidateDataAnnotations()
+        .ValidateOnStart();
+    crdtServices.AddScoped<SendReceiveService>();
+    crdtServices.AddOptions<FwDataBridgeConfig>().Configure((FwDataBridgeConfig c, SRConfig srConfig) => c.ProjectsFolder = srConfig.FwDataProjectsFolder);
+    crdtServices.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig c, SRConfig srConfig) => c.ProjectPath = srConfig.CrdtFolder);
 }
 
-// TODO: Change the MapPost to take this type instead:
-record CrdtMergeRequest(string crdtFile, string fwDataFile, bool createCrdtDir, bool dryRun = false);
+public class HgConfig
+{
+    [Required]
+    public required string RepoPath { get; init; }
+    [Required]
+    public required string SendReceiveDomain { get; init; }
+    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
+    public required string HgWebUrl { get; init; }
+
+    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
+    public required string HgCommandServer { get; init; }
+    [Required, Url]
+    public required string HgResumableUrl { get; init; }
+    public bool AutoUpdateLexEntryCountOnSendReceive { get; init; } = false;
+    public bool RequireContainerVersionMatch { get; init; } = true;
+    public int ResetCleanupAgeDays { get; init; } = 31;
+}
+
+public class SRConfig
+{
+    [Required]
+    public required string LexboxUsername { get; init; }
+    [Required]
+    public required string LexboxPassword { get; init; }
+    [Required]
+    public required string CrdtFolder { get; init; }
+    [Required]
+    public required string FwDataProjectsFolder { get; init; }
+    public string FdoDataModelVersion { get; init; } = "7000072";
+}
