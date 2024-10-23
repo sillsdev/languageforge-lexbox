@@ -40,10 +40,11 @@ import {
   type MutationCreateProjectArgs,
   type MutationDeleteDraftProjectArgs,
   type MutationDeleteUserByAdminOrSelfArgs,
+  type MutationLeaveOrgArgs,
   type MutationLeaveProjectArgs,
   type MutationRemoveProjectFromOrgArgs,
   type MutationSetOrgMemberRoleArgs,
-  type MutationSoftDeleteProjectArgs
+  type MutationSoftDeleteProjectArgs,
 } from './types';
 
 let globalClient: GqlClient | null = null;
@@ -110,6 +111,10 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             },
             changeOrgMemberRole: (result, args: MutationChangeOrgMemberRoleArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
+            },
+            leaveOrg: (result, args: MutationLeaveOrgArgs, cache, _info) => {
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
+              cache.invalidate('Query', 'myOrgs');
             },
             setOrgMemberRole: (result, args: MutationSetOrgMemberRoleArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});

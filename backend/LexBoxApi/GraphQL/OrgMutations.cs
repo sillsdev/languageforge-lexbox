@@ -250,6 +250,30 @@ public class OrgMutations
         return dbContext.Orgs.Where(o => o.Id == orgId);
     }
 
+    [Error<NotFoundException>]
+    [Error<LastMemberCantLeaveException>]
+    [UseMutationConvention]
+    [RefreshJwt]
+    public async Task<Organization> LeaveOrg(
+        Guid orgId,
+        LoggedInContext loggedInContext,
+        LexBoxDbContext dbContext)
+    {
+        var org = await dbContext.Orgs.Where(p => p.Id == orgId)
+            .Include(p => p.Members)
+            .SingleOrDefaultAsync();
+        NotFoundException.ThrowIfNull(org);
+        var member = org.Members.FirstOrDefault(u => u.UserId == loggedInContext.User.Id);
+        if (member is null) return org;
+        if (member.Role == OrgRole.Admin && org.Members.Count(m => m.Role == OrgRole.Admin) == 1)
+        {
+            throw new LastMemberCantLeaveException();
+        }
+        org.Members.Remove(member);
+        await dbContext.SaveChangesAsync();
+        return org;
+    }
+
     private async Task UpdateOrgMemberRole(LexBoxDbContext dbContext, Organization org, OrgRole? role, Guid userId)
     {
         var member = org.Members.FirstOrDefault(m => m.UserId == userId);
