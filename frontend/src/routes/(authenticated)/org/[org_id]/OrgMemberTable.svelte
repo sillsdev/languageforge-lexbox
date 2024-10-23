@@ -8,10 +8,12 @@
   import { _deleteOrgUser, type Org, type OrgUser, type User } from './+page';
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import {useNotifications} from '$lib/notify';
+  import type {LexAuthUser} from '$lib/user';
 
   export let org: Org;
+  export let user: LexAuthUser;
   export let shownUsers: OrgUser[];
-  export let showEmailColumn: boolean = true;
+  export let canManage: boolean;
 
   const { notifyWarning } = useNotifications();
 
@@ -44,7 +46,7 @@
           {$t('admin_dashboard.column_name')}
           <span class="i-mdi-sort-ascending text-xl align-[-5px] ml-2" />
         </th>
-        {#if showEmailColumn}
+        {#if canManage}
         <th>{$t('admin_dashboard.column_email_or_login')}</th>
         {/if}
         <th class="@2xl:table-cell">
@@ -56,29 +58,29 @@
     </thead>
     <tbody>
       {#each shownUsers as member}
-      {@const user = member.user}
+      {@const memberUser = member.user}
         <tr>
           <td>
             <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
-              {#if showEmailColumn}
-                <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', user)}>
-                  <span class="x-ellipsis" title={user.name}>
-                    {user.name}
+              {#if canManage}
+                <Button variant="btn-ghost" size="btn-sm" class="max-w-full" on:click={() => dispatch('openUserModal', memberUser)}>
+                  <span class="x-ellipsis" title={memberUser.name}>
+                    {memberUser.name}
                   </span>
                   <Icon icon="i-mdi-card-account-details-outline" />
                 </Button>
               {:else}
-                <span class="x-ellipsis" title={user.name}>
-                  {user.name}
+                <span class="x-ellipsis" title={memberUser.name}>
+                  {memberUser.name}
                 </span>
               {/if}
             </div>
           </td>
-          {#if showEmailColumn}
+          {#if canManage}
           <td>
             <span class="inline-flex items-center gap-2 text-left max-w-40">
-              <span class="x-ellipsis" title={user.email ?? user.username}>
-                {user.email ?? user.username}
+              <span class="x-ellipsis" title={memberUser.email ?? memberUser.username}>
+                {memberUser.email ?? memberUser.username}
               </span>
             </span>
           </td>
@@ -86,7 +88,7 @@
           <td class="@2xl:table-cell">
             <FormatUserOrgRole role={member.role} />
           </td>
-          {#if showEmailColumn}
+          {#if user.isAdmin || (canManage && memberUser.id !== user.id)}
           <td class="p-0">
             <Dropdown>
               <button class="btn btn-ghost btn-square">
@@ -100,7 +102,7 @@
                   </button>
                 </li>
                 <li>
-                  <button class="whitespace-nowrap" on:click={() => removeMember(member.user)}>
+                  <button class="whitespace-nowrap text-error" on:click={() => removeMember(memberUser)}>
                     <Icon icon="i-mdi-account-remove" />
                     {$t('org_page.remove_member.remove')}
                   </button>
