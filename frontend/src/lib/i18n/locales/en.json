@@ -329,6 +329,16 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "member_invited": "{email} has been sent an invitation email to register and join the organization.",
       "added_projects": "Added {count, plural, one {# project} other {# projects}} to organization",
     },
+    "leave": {
+      "confirm_title": "Leave organization?",
+      "leave_action": "Leave",
+      "dont_leave": "Don't leave",
+      "confirm_leave": "Are you sure you want to leave this organization?",
+      "last_to_leave": "You are the last admin of this organization. To leave you need to delete the organization, or add another admin.",
+      "success": "You have left the organization {name}.",
+      "leave_org": "Leave organization",
+      "error": "An error occurred trying to remove you from this organization. Please try again later.",
+    },
     "remove_member": {
       "remove": "Remove",
       "member": "Member",
