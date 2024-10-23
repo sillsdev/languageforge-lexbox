@@ -180,8 +180,9 @@
     {:else if $queryParamValues.tab === 'members'}
       <OrgMemberTable
         {org}
+        {user}
         shownUsers={org.members}
-        showEmailColumn={canManage}
+        {canManage}
         on:openUserModal={(event) => openUserModal(event.detail)}
         on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
       />
