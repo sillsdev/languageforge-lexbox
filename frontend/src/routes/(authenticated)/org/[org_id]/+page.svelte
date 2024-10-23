@@ -7,7 +7,7 @@
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser, _removeProjectFromOrg } from './+page';
+  import { _changeOrgName, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser, _removeProjectFromOrg } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import { Icon, TrashIcon } from '$lib/icons';
@@ -171,10 +171,10 @@
       </DeleteModal>
     {:else if $queryParamValues.tab === 'members'}
       <OrgMemberTable
+        {org}
         shownUsers={org.members}
         showEmailColumn={canManage}
         on:openUserModal={(event) => openUserModal(event.detail)}
-        on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
         on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
       />
     {:else if $queryParamValues.tab === 'history'}
