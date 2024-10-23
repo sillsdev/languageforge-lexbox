@@ -174,7 +174,11 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "title": "Organizations",
       "name": "Name",
       "created_at": "Created",
-      "members": "Members"
+      "members": "Members",
+      "my_orgs": "My organizations",
+      "other_orgs": "Other organizations",
+      "not_in_any_orgs": "You aren't a member of any organizations yet.",
+      "no_orgs_found": "No organizations match your filter.",
     },
     "create": {
       "title": "Create Organization",
