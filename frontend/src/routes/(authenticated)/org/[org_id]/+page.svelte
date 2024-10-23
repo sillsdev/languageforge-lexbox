@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DetailsPage, DetailItem, AdminContent } from '$lib/layout';
+  import { DetailsPage, DetailItem, AdminContent, PageBreadcrumb } from '$lib/layout';
   import t, { date } from '$lib/i18n';
   import { z } from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';
@@ -106,6 +106,8 @@
     }
   }
 </script>
+
+<PageBreadcrumb href="/org/list">{$t('org.table.title')}</PageBreadcrumb>
 
 <DetailsPage wide title={org.name}>
   <svelte:fragment slot="actions">
