@@ -9,7 +9,7 @@
   export let label: string;
   export let error: string | string[] | undefined = undefined;
   export let id: string = randomFormId();
-  export let autofocus = false;
+  export let autofocus: true | undefined = undefined;
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   export let value: string;
   export let debounceMs = 200;
@@ -57,6 +57,7 @@
       bind:value {id}
       type="text"
       autocomplete="off"
+      {autofocus}
       keydownHandler={() => {$selectedUser = null}}
     />
     <div class="overlay-content">
