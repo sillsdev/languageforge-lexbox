@@ -21,6 +21,7 @@ public class OrgMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
+    [RefreshJwt]
     public async Task<IQueryable<Organization>> CreateOrganization(string name,
         LexBoxDbContext dbContext,
         LoggedInContext loggedInContext,
