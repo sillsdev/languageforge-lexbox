@@ -1,5 +1,6 @@
 ﻿using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Org;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
@@ -19,6 +20,7 @@ public class OrgMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
+    [RefreshJwt]
     public async Task<IQueryable<Organization>> CreateOrganization(string name,
         LexBoxDbContext dbContext,
         LoggedInContext loggedInContext,
