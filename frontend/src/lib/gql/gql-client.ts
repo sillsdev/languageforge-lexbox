@@ -121,6 +121,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             },
             leaveProject: (result, args: MutationLeaveProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              cache.invalidate('Query', 'myProjects');
             },
             addProjectToOrg: (result, args: MutationAddProjectToOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId}, 'organizations');
