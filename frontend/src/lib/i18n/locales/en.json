@@ -181,6 +181,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "name": "Name",
       "name_missing": "Organization name required",
       "submit": "Create Organization",
+      "name_exists": "An organization with this name already exists",
     }
   },
   "project": {
