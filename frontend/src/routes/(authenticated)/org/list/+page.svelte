@@ -48,8 +48,7 @@
       if (sortColumn === 'members') {
         return (a.memberCount - b.memberCount) * mult;
       } else if (sortColumn === 'name') {
-        const comp = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-        return comp * mult;
+        return a.name.localeCompare(b.name);
       } else if (sortColumn === 'created_at') {
         const comp = a.createdDate < b.createdDate ? -1 : a.createdDate > b.createdDate ? 1 : 0;
         return comp * mult;
