@@ -13,7 +13,7 @@
       <div class="inline-flex flex-wrap header-actions gap-2">
         <slot name="actions" />
       </div>
-      <h1 class="text-3xl text-left grow max-w-full flex items-end flex-wrap">
+      <h1 class="text-3xl text-left grow max-w-full flex gap-4 items-end flex-wrap">
         {#if $$slots.title}
           <slot name="title" />
         {:else}
