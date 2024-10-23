@@ -11,6 +11,7 @@
 
   export let data: PageData;
   $: orgs = data.orgs;
+  $: myOrgsMap = data.myOrgsMap;
 
   const queryParams = getSearchParams<OrgListSearchParams>({
     search: queryParam.string<string>(''),
@@ -60,6 +61,21 @@
 
   $: filteredOrgs = $orgs ? filterOrgs($orgs, $queryParamValues.search) : [];
   $: displayOrgs = sortOrgs(filteredOrgs, sortColumn, sortDir);
+  $: filtering = filteredOrgs.length !== $orgs.length;
+
+  let myOrgs: OrgList = [];
+  let otherOrgs: OrgList = [];
+  $: {
+    myOrgs = [];
+    otherOrgs = [];
+    displayOrgs.forEach(org => {
+      if ($myOrgsMap.has(org.id)) {
+        myOrgs.push(org);
+      } else {
+        otherOrgs.push(org);
+      }
+    });
+  }
 </script>
 
 <!--
@@ -109,21 +125,52 @@ TODO:
         </tr>
       </thead>
       <tbody>
-        {#each displayOrgs as org}
+        {#if !displayOrgs.length}
           <tr>
-            <td>
-                <a class="link" href={`/org/${org.id}`}>
-                  {org.name}
-                </a>
-            </td>
-            <td class="hidden @md:table-cell">
-              {$number(org.memberCount)}
-            </td>
-            <td class="hidden @xl:table-cell">
-              {$date(org.createdDate)}
+            <td colspan="3" class="text-center text-secondary">
+              {$t('org.table.no_orgs_found')}
             </td>
           </tr>
-        {/each}
+        {:else}
+          {@const showingMyOrgsHeader = !filtering || myOrgs.length}
+          {#if showingMyOrgsHeader}
+            <tr>
+              <td colspan="3" class="text-sm bg-neutral/75 text-neutral-content py-2">
+                {$t('org.table.my_orgs')}
+              </td>
+            </tr>
+            {#if !$myOrgsMap.size}
+              <tr>
+                <td colspan="3" class="text-center text-secondary">
+                  {$t('org.table.not_in_any_orgs')}
+                </td>
+              </tr>
+            {/if}
+          {/if}
+          {#each [...myOrgs, ...otherOrgs] as org, i}
+            {@const isFirstOtherOrg = i === myOrgs.length}
+            {#if showingMyOrgsHeader && isFirstOtherOrg}
+              <tr>
+                <td colspan="3" class="text-sm bg-neutral/75 text-neutral-content py-2">
+                  {$t('org.table.other_orgs')}
+                </td>
+              </tr>
+            {/if}
+            <tr>
+              <td>
+                  <a class="link" href={`/org/${org.id}`}>
+                    {org.name}
+                  </a>
+              </td>
+              <td class="hidden @md:table-cell">
+                {$number(org.memberCount)}
+              </td>
+              <td class="hidden @xl:table-cell">
+                {$date(org.createdDate)}
+              </td>
+            </tr>
+          {/each}
+        {/if}
       </tbody>
     </table>
   </div>
