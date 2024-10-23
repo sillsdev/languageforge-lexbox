@@ -145,11 +145,7 @@ public class OrgMutations
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
         NotFoundException.ThrowIfNull(project);
-        // Org managers can kick projects out and project managers can pull projects out
-        if (!permissionService.CanEditOrg(orgId) && !await permissionService.CanManageProject(projectId))
-        {
-            throw new UnauthorizedAccessException();
-        }
+        await permissionService.AssertCanRemoveProjectFromOrg(org, projectId);
         var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
         if (foundOrg is not null)
         {
