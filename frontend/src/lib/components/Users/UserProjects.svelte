@@ -14,6 +14,7 @@
   import { onMount } from 'svelte';
   import t from '$lib/i18n';
   import FormatUserProjectRole from '../Projects/FormatUserProjectRole.svelte';
+  import {projectUrl} from '$lib/util/project';
 
   export let projects: Project[] = [];
   export let selectedProjects: string[] = [];
@@ -74,7 +75,7 @@
               </label>
             </td>
             <td>
-              <a class="link" href={`/project/${proj.code}?id=${proj.id}`} target="_blank">
+              <a class="link" href={projectUrl(proj)} target="_blank">
                 {proj.name}
               </a>
             </td>
