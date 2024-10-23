@@ -5,17 +5,35 @@
   import { createEventDispatcher } from 'svelte';
   import FormatUserOrgRole from '$lib/components/Orgs/FormatUserOrgRole.svelte';
   import Dropdown from '$lib/components/Dropdown.svelte';
-  import type { OrgUser, User } from './+page';
+  import { _deleteOrgUser, type Org, type OrgUser, type User } from './+page';
+  import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
+  import {useNotifications} from '$lib/notify';
 
+  export let org: Org;
   export let shownUsers: OrgUser[];
   export let showEmailColumn: boolean = true;
+
+  const { notifyWarning } = useNotifications();
 
   const dispatch = createEventDispatcher<{
     openUserModal: User,
     changeMemberRole: OrgUser,
-    removeMember: User,
   }>();
 
+  let removeMemberModal: DeleteModal;
+  let memberToRemove: string;
+
+  async function removeMember(member: User): Promise<void> {
+    memberToRemove = member.name;
+    const removed = await removeMemberModal.prompt(async () => {
+      const { error } = await _deleteOrgUser(org.id, member.id);
+      if (error) return $t('org_page.remove_member.error', { memberName: member.name });
+    });
+
+    if (removed) {
+      notifyWarning($t('org_page.remove_member.success', { memberName: member.name }));
+    }
+  }
 </script>
 
 <div class="overflow-x-auto @container scroll-shadow">
@@ -82,9 +100,9 @@
                   </button>
                 </li>
                 <li>
-                  <button class="whitespace-nowrap" on:click={() => dispatch('removeMember', user)}>
+                  <button class="whitespace-nowrap" on:click={() => removeMember(member.user)}>
                     <Icon icon="i-mdi-account-remove" />
-                    {$t('org_page.remove_member')}
+                    {$t('org_page.remove_member.remove')}
                   </button>
                 </li>
               </ul>
@@ -96,3 +114,11 @@
     </tbody>
   </table>
 </div>
+
+<DeleteModal
+  bind:this={removeMemberModal}
+  entityName={$t('org_page.remove_member.member')}
+  isRemoveDialog
+  >
+  {$t('org_page.remove_member.confirm_message', {memberName: memberToRemove})}
+</DeleteModal>
