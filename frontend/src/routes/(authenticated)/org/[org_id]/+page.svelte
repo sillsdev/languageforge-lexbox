@@ -117,9 +117,7 @@
     {#if canManage}
       <Button variant="btn-success"
         on:click={openAddOrgMemberModal}>
-        <span class="admin-tabs:hidden">
-          {$t('org_page.add_user.add_button')}
-        </span>
+        {$t('org_page.add_user.add_button')}
         <span class="i-mdi-account-plus-outline text-2xl" />
       </Button>
       <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
