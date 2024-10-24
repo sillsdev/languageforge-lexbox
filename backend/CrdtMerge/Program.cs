@@ -26,7 +26,7 @@ app.MapPost("/sync", ExecuteMergeRequest);
 
 app.Run();
 
-static async Task ExecuteMergeRequest(
+static async Task<CrdtFwdataProjectSyncService.SyncResult> ExecuteMergeRequest(
     ILogger<Program> logger,
     IServiceProvider services,
     SendReceiveService srService,
@@ -42,7 +42,7 @@ static async Task ExecuteMergeRequest(
     if (dryRun)
     {
         logger.LogInformation("Dry run, not actually syncing");
-        return;
+        return new(0, 0);
     }
 
     // TODO: Instead of projectCode here, we'll evetually look up project ID and use $"{projectName}-{projectId}" as the project folder
@@ -82,5 +82,6 @@ static async Task ExecuteMergeRequest(
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
     var srResult2 = srService.SendReceive(projectFolder, projectCode);
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
+    return result;
 }
 
