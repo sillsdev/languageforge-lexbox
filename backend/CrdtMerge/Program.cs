@@ -56,10 +56,15 @@ async Task ExecuteMergeRequest(
     var fwProjectName = projectCode;
     var crdtProjectName = projectCode;
 
-    if (!File.Exists(fwDataFile)) // Should only happen during local dev testing
+    if (File.Exists(fwDataFile))
     {
-        var cloneResult = srService.Clone(projectFolder, projectCode);
-        logger.LogInformation(cloneResult.Output);
+        var srResult = srService.SendReceive(projectFolder, projectCode);
+        logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
+    }
+    else
+    {
+        var srResult = srService.Clone(projectFolder, projectCode);
+        logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     }
 
     var fwDataProject = new FwDataProject(projectCode, fwDataFile, projectFolder); // TODO: use projectName (once we have it) instead of projectCode here
@@ -74,16 +79,8 @@ async Task ExecuteMergeRequest(
     var miniLcmApi = services.GetRequiredService<IMiniLcmApi>();
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-    var srResult = srService.SendReceive(projectFolder, projectCode);
-    logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
-    if (srResult.Output.Contains("No changes from others"))
-    {
-        // No need for second sync if others didn't push any changes
-        return;
-    }
-    var result2 = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
-    logger.LogInformation("Second sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result2.CrdtChanges, result2.FwdataChanges);
-    // TODO: Determine whether and how to combine those two results into one report, or report them separately
+    var srResult2 = srService.SendReceive(projectFolder, projectCode);
+    logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
 }
 
 // TODO: move this to own file so it can be an extension method on builder.Services
