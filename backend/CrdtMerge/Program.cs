@@ -78,6 +78,7 @@ async Task ExecuteMergeRequest(
     }
     var result2 = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Second sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result2.CrdtChanges, result2.FwdataChanges);
+    // TODO: Determine whether and how to combine those two results into one report, or report them separately
 }
 
 // TODO: move this to own file so it can be an extension method on builder.Services
