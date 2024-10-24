@@ -83,7 +83,7 @@
     },
     "reset_password": "Reset your password instead?",
     "update_success": "Your account has been updated.",
-    "button_update": "Update account info",
+    "button_update": "Update Account Info",
     "email_taken": "An account with this email address already exists",
     "delete_account": {
       "title": "Delete Account",
@@ -284,7 +284,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
     },
     "add_my_projects": {
       "title": "Add projects I manage to this organization",
-      "open_button": "Add my projects",
+      "open_button": "Add My Projects",
       "submit_button": "Add Projects",
       "all_projects_already_added": "The {count, plural, one {# project} other {# projects}} you manage {count, plural, one {is} other {are}} already in this organization",
       "no_projects_managed": "You don't manage any projects",
@@ -413,7 +413,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "next": "Next",
       "back": "Back",
       "download_instruction": "First, download a backup of the project that you can use to restore it in step 3:",
-      "download_button": "Download project backup",
+      "download_button": "Download Project Backup",
       "confirm_downloaded": "I confirm that I have downloaded a backup of the project and verified that it works. I am ready to completely reset/delete the contents of the project repository.",
       "confirm_downloaded_error": "Please confirm you have downloaded a backup",
       "confirm_project_code": "Enter project code to confirm reset",
@@ -658,7 +658,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "forgot_password": {
       "subject": "Forgot your password?",
       "to_reset_click": "Click the button below to reset your password.",
-      "reset_button": "Reset password"
+      "reset_button": "Reset Password"
     },
     "password_changed": {
       "subject": "Your password was changed",
@@ -671,12 +671,12 @@ If you don't see a dialog or already closed it, click the button below:",
     "create_account_request_email_project": {
       "subject": "Project invitation: {projectName}",
       "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
-      "join_button": "Join project"
+      "join_button": "Join Project"
     },
     "create_account_request_email_org": {
       "subject": "Organization invitation: {orgName}",
       "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
-      "join_button": "Join organization"
+      "join_button": "Join Organization"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
@@ -685,17 +685,17 @@ If you don't see a dialog or already closed it, click the button below:",
     "join_project_request_email": {
       "subject": "Project join request: {requestingUserName} wants to join {projectName}",
       "body": "User {requestingUserName} requested to join the project {projectName}. Click below to approve this request.",
-      "approve_button": "Approve request"
+      "approve_button": "Approve Request"
     },
     "approve_project_request_email": {
       "subject": "Project approved: {projectName}",
       "heading": "The project you requested, {projectName}, has been approved and created.",
-      "view_button": "View project"
+      "view_button": "View Project"
     },
     "user_added": {
       "subject": "You joined project: {projectName}!",
       "body": "You have been added to the project: {projectName}.",
-      "view_button": "View project"
+      "view_button": "View Project"
     }
   },
   "footer": {
