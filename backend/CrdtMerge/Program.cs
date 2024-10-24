@@ -47,7 +47,7 @@ async Task ExecuteMergeRequest(
         return;
     }
 
-    var crdtFile = Path.Join(srConfig.Value.CrdtFolder, projectCode, $"{projectCode}.fwdata"); // TODO: Determine what the correct filename is here
+    var crdtFile = Path.Join(srConfig.Value.CrdtFolder, projectCode, $"{projectCode}.sqlite");
     var fwDataFile = Path.Join(srConfig.Value.FwDataProjectsFolder, projectCode, $"{projectCode}.fwdata");
     Console.WriteLine($"crdtFile: {crdtFile}");
     Console.WriteLine($"fwDataFile: {fwDataFile}");
@@ -65,7 +65,7 @@ async Task ExecuteMergeRequest(
     await currentProjectService.PopulateProjectDataCache();
     var miniLcmApi = services.GetRequiredService<IMiniLcmApi>();
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
-    var srResult = srService.SendReceive(projectCode); // Will probably fail until we get the correct CRDT filename above (`var crdtFile = ...` line)
+    var srResult = srService.SendReceive(projectCode);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
 
 }
