@@ -35,6 +35,7 @@ async Task ExecuteMergeRequest(
     ProjectsService projectsService,
     CrdtFwdataProjectSyncService syncService,
     string projectCode,
+    // string projectName, // TODO: Add this to the API eventually
     bool dryRun = false)
 {
     logger.LogInformation("About to execute sync request for {projectCode}", projectCode);
