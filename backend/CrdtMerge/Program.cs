@@ -99,8 +99,6 @@ static void SyncServices(IServiceCollection crdtServices)
         .ValidateDataAnnotations()
         .ValidateOnStart();
     crdtServices.AddScoped<SendReceiveService>();
-    crdtServices.AddOptions<FwDataBridgeConfig>().Configure((FwDataBridgeConfig c, IOptions<SRConfig> srConfig) => c.ProjectsFolder = srConfig.Value.FwDataProjectsFolder);
-    crdtServices.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig c, IOptions<SRConfig> srConfig) => c.ProjectPath = srConfig.Value.CrdtFolder);
     crdtServices
         .AddLcmCrdtClient()
         .AddFwDataBridge()
@@ -118,9 +116,5 @@ public class SRConfig
     public required string LexboxPassword { get; init; }
     [Required]
     public required string ProjectStorageRoot { get; init; }
-    [Required]
-    public required string CrdtFolder { get; init; }
-    [Required]
-    public required string FwDataProjectsFolder { get; init; }
     public string FdoDataModelVersion { get; init; } = "7000072";
 }
