@@ -9,6 +9,7 @@
   import DeleteModal from '$lib/components/modals/DeleteModal.svelte';
   import {useNotifications} from '$lib/notify';
   import type {LexAuthUser} from '$lib/user';
+  import {OrgRole} from '$lib/gql/types';
 
   export let org: Org;
   export let user: LexAuthUser;
@@ -59,6 +60,7 @@
     <tbody>
       {#each shownUsers as member}
       {@const memberUser = member.user}
+      {@const isOrgAdmin = member.role === OrgRole.Admin}
         <tr>
           <td>
             <div class="flex items-center gap-2 max-w-40 @xl:max-w-52">
@@ -85,7 +87,7 @@
             </span>
           </td>
           {/if}
-          <td class="@2xl:table-cell">
+          <td class="@2xl:table-cell" class:text-primary={isOrgAdmin} class:font-bold={isOrgAdmin} class:dark:brightness-150={isOrgAdmin}>
             <FormatUserOrgRole role={member.role} />
           </td>
           {#if user.isAdmin || (canManage && memberUser.id !== user.id)}
