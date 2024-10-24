@@ -29,13 +29,12 @@ app.Run();
 
 async Task ExecuteMergeRequest(
     ILogger<Program> logger,
+    IServiceProvider services,
     SendReceiveService srService,
     IOptions<SRConfig> srConfig,
     FwDataFactory fwDataFactory,
     ProjectsService projectsService,
-    CurrentProjectService currentProjectService,
     CrdtFwdataProjectSyncService syncService,
-    IMiniLcmApi miniLcmApi,
     string projectCode,
     bool dryRun = true)
 {
@@ -62,10 +61,11 @@ async Task ExecuteMergeRequest(
         crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
     }
     projectsService.SetProjectScope(crdtProject);
+    var currentProjectService = services.GetRequiredService<CurrentProjectService>();
     await currentProjectService.PopulateProjectDataCache();
-
+    var miniLcmApi = services.GetRequiredService<IMiniLcmApi>();
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
-    // var srResult = srService.SendReceive(projectCode); // TODO: Once LcmCrdtKernel no longer complaining about CRDT project being null, uncomment here
+    var srResult = srService.SendReceive(projectCode); // Will probably fail until we get the correct CRDT filename above (`var crdtFile = ...` line)
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
 
 }
@@ -90,7 +90,7 @@ static void SyncServices(IServiceCollection crdtServices)
     crdtServices.AddOptions<FwDataBridgeConfig>().Configure((FwDataBridgeConfig c, IOptions<SRConfig> srConfig) => c.ProjectsFolder = srConfig.Value.FwDataProjectsFolder);
     crdtServices.AddOptions<LcmCrdtConfig>().Configure((LcmCrdtConfig c, IOptions<SRConfig> srConfig) => c.ProjectPath = srConfig.Value.CrdtFolder);
     crdtServices
-        // .AddLcmCrdtClient() // TODO: Figure out how to handle the fact that this wants a CRDT project to already exist, see LcmCrdtKernel.cs lines 26 and 42
+        .AddLcmCrdtClient()
         .AddFwDataBridge()
         .AddFwLiteProjectSync();
 }
