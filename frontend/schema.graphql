@@ -18,7 +18,7 @@ type AddProjectToOrgPayload {
 }
 
 type AddProjectsToOrgPayload {
-  organization: Organization
+  orgById: OrgById
   errors: [AddProjectsToOrgError!]
 }
 
