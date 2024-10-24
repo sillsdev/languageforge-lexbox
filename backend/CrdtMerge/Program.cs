@@ -109,7 +109,7 @@ public class SRConfig
     [Required]
     public required string LexboxPassword { get; init; }
     [Required]
-    public required string RepoPath { get; init; }
+    public required string ProjectStorageRoot { get; init; }
     [Required]
     public required string CrdtFolder { get; init; }
     [Required]
