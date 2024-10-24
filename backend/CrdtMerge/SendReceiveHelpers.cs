@@ -64,9 +64,7 @@ public static class SendReceiveHelpers
             { "user", "LexBox" },
         };
         if (commitMessage is not null) flexBridgeOptions["commitMessage"] = commitMessage;
-        // return CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
-        Console.WriteLine($"Would have called S/R with fw data path {fwdataPath}, project code {projectCode}, base URL {baseUrl}");
-        return new LfMergeBridgeResult("", "");
+        return CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
     }
 
     public static LfMergeBridgeResult CloneProject(string fwdataPath, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? projectCode = null)
@@ -87,7 +85,5 @@ public static class SendReceiveHelpers
             { "deleteRepoIfNoSuchBranch", "false" },
         };
         return CallLfMergeBridge("Language_Forge_Clone", flexBridgeOptions);
-        // Console.WriteLine($"Would have called LF_Clone with fw data path {fwdataPath}, project code {projectCode}, base URL {baseUrl}");
-        // return new LfMergeBridgeResult("", "");
     }
 }

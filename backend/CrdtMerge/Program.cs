@@ -36,7 +36,7 @@ async Task ExecuteMergeRequest(
     ProjectsService projectsService,
     CrdtFwdataProjectSyncService syncService,
     string projectCode,
-    bool dryRun = true)
+    bool dryRun = false)
 {
     logger.LogInformation("About to execute sync request for {projectCode}", projectCode);
     if (dryRun) {
@@ -68,9 +68,16 @@ async Task ExecuteMergeRequest(
     await currentProjectService.PopulateProjectDataCache();
     var miniLcmApi = services.GetRequiredService<IMiniLcmApi>();
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
-    var srResult = srService.SendReceive(projectCode);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-
+    var srResult = srService.SendReceive(projectCode);
+    logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
+    if (srResult.Output.Contains("No changes from others"))
+    {
+        // No need for second sync if others didn't push any changes
+        return;
+    }
+    var result2 = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
+    logger.LogInformation("Second sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result2.CrdtChanges, result2.FwdataChanges);
 }
 
 // TODO: move this to own file so it can be an extension method on builder.Services
