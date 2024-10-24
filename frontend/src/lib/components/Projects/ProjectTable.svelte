@@ -4,6 +4,7 @@
   import TrashIcon from '$lib/icons/TrashIcon.svelte';
   import type { ProjectItemWithDraftStatus } from '$lib/components/Projects';
   import Icon from '$lib/icons/Icon.svelte';
+  import {projectUrl} from '$lib/util/project';
 
   export let projects: ProjectItemWithDraftStatus[];
 
@@ -69,7 +70,7 @@
                     <TrashIcon pale />
                   </span>
                 {:else}
-                  <a class="link" href={`/project/${project.code}?id=${project.id}`}>
+                  <a class="link" href={projectUrl(project)}>
                     {project.name}
                   </a>
                 {/if}

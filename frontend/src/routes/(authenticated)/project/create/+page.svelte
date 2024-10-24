@@ -20,6 +20,7 @@
   import Markdown from 'svelte-exmarkdown';
   import { NewTabLinkRenderer } from '$lib/components/Markdown';
   import Button from '$lib/forms/Button.svelte';
+  import {projectUrl} from '$lib/util/project';
 
   export let data;
   $: user = data.user;
@@ -71,7 +72,7 @@
       return;
     }
     if (result.data?.createProject.createProjectResponse?.result == CreateProjectResult.Created) {
-      await goto(`/project/${$form.code}`);
+      await goto(projectUrl($form));
     } else {
       notifyWarning($t('project.create.requested', { name: $form.name }), Duration.Persistent);
       await goto('/');
