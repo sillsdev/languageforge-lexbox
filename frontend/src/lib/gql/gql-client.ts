@@ -1,3 +1,9 @@
+import {browser} from '$app/environment';
+import {tracingExchange} from '$lib/otel';
+import type {LexAuthUser} from '$lib/user';
+import {isRedirect} from '@sveltejs/kit';
+import {devtoolsExchange} from '@urql/devtools';
+import {cacheExchange} from '@urql/exchange-graphcache';
 import {
   type AnyVariables,
   type Client,
@@ -11,36 +17,35 @@ import {
   queryStore,
   type TypedDocumentNode
 } from '@urql/svelte';
-import {browser} from '$app/environment';
+import type {Readable, Unsubscriber} from 'svelte/store';
+import {derived} from 'svelte/store';
 import {isObject} from '../util/types';
-import {tracingExchange} from '$lib/otel';
 import {
   type $OpResult,
+  type CreateOrgMutation,
+  type CreateProjectMutation,
+  CreateProjectResult,
   type ExtractErrorTypename,
   type GenericData,
   type GqlInputError,
   isErrorResult,
   LexGqlError,
+  type MutationAddProjectsToOrgArgs,
   type MutationAddProjectToOrgArgs,
-  type MutationRemoveProjectFromOrgArgs,
-  type CreateProjectMutation,
-  CreateProjectResult,
-  type MutationSetOrgMemberRoleArgs,
-  type MutationChangeOrgMemberRoleArgs,
-  type MutationLeaveProjectArgs,
   type MutationBulkAddOrgMembersArgs,
   type MutationBulkAddProjectMembersArgs,
+  type MutationChangeOrgMemberRoleArgs,
   type MutationChangeUserAccountBySelfArgs,
+  type MutationCreateOrganizationArgs,
+  type MutationCreateProjectArgs,
+  type MutationDeleteDraftProjectArgs,
   type MutationDeleteUserByAdminOrSelfArgs,
-  type MutationDeleteDraftProjectArgs, type MutationSoftDeleteProjectArgs, type MutationCreateProjectArgs,
-  type MutationAddProjectsToOrgArgs,
+  type MutationLeaveOrgArgs,
+  type MutationLeaveProjectArgs,
+  type MutationRemoveProjectFromOrgArgs,
+  type MutationSetOrgMemberRoleArgs,
+  type MutationSoftDeleteProjectArgs,
 } from './types';
-import type {Readable, Unsubscriber} from 'svelte/store';
-import {derived} from 'svelte/store';
-import {cacheExchange} from '@urql/exchange-graphcache';
-import {devtoolsExchange} from '@urql/devtools';
-import type {LexAuthUser} from '$lib/user';
-import {isRedirect} from '@sveltejs/kit';
 
 let globalClient: GqlClient | null = null;
 
@@ -95,6 +100,9 @@ function createGqlClient(_gqlEndpoint?: string): Client {
                 cache.invalidate({__typename: 'Project', id: args.input.projectId});
               }
             },
+            createOrganization: (result: CreateOrgMutation, args: MutationCreateOrganizationArgs, cache, _info) => {
+              cache.invalidate('Query', 'myOrgs');
+            },
             addProjectsToOrg: (result, args: MutationAddProjectsToOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
@@ -104,11 +112,16 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             changeOrgMemberRole: (result, args: MutationChangeOrgMemberRoleArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
+            leaveOrg: (result, args: MutationLeaveOrgArgs, cache, _info) => {
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
+              cache.invalidate('Query', 'myOrgs');
+            },
             setOrgMemberRole: (result, args: MutationSetOrgMemberRoleArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
             leaveProject: (result, args: MutationLeaveProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              cache.invalidate('Query', 'myProjects');
             },
             addProjectToOrg: (result, args: MutationAddProjectToOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId}, 'organizations');

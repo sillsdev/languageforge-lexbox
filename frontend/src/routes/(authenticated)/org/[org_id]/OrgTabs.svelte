@@ -34,7 +34,7 @@
   }
 </script>
 
-<div role="tablist" class="flex tabs tabs-lifted tabs-lg">
+<div role="tablist" class="flex tabs tabs-lifted tabs-lg overflow-x-auto">
   <div class="tab tab-divider" />
   {#each visibleTabs as tab}
     {@const isActiveTab = activeTab === tab}

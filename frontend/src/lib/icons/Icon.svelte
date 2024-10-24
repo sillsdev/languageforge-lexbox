@@ -10,8 +10,12 @@
   export let size: IconSize = 'text-lg';
   export let color: `text-${string}` | undefined = undefined;
   export let pale = false;
+  // For pixel perfect text alignment, because the svgs often contain vertical white-space
+  export let y: string | undefined = undefined;
+
+  $: transform = y ? `translateY(${y})` : '';
 </script>
 
 {#if icon}
-  <span class="{icon} {size} {color ?? ''} shrink-0" class:pale />
+  <span class="{icon} {size} {color ?? ''} shrink-0" class:pale style:transform />
 {/if}

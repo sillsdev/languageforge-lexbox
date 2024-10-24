@@ -12,6 +12,7 @@ public class OrganizationEntityConfiguration: EntityBaseConfiguration<Organizati
         base.Configure(builder);
         builder.ToTable("Orgs");
         builder.HasIndex(o => o.Name).IsUnique();
+        builder.Property(u => u.Name).UseCollation(LexBoxDbContext.CaseInsensitiveCollation);
         builder.HasMany(o => o.Members)
             .WithOne(m => m.Organization)
             .HasForeignKey(m => m.OrgId)

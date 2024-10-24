@@ -1,13 +1,14 @@
 <script lang="ts">
-  import { DetailsPage, DetailItem, AdminContent } from '$lib/layout';
+  import { DetailsPage, DetailItem, AdminContent, PageBreadcrumb } from '$lib/layout';
   import t, { date } from '$lib/i18n';
   import { z } from 'zod';
   import EditableText from '$lib/components/EditableText.svelte';
+  import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import { Button, type ErrorMessage } from '$lib/forms';
   import type { PageData } from './$types';
   import { OrgRole } from '$lib/gql/types';
   import { useNotifications } from '$lib/notify';
-  import { _changeOrgName, _deleteOrgUser, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser, _removeProjectFromOrg } from './+page';
+  import { _changeOrgName, _deleteOrg, _orgMemberById, type OrgSearchParams, type User, type OrgUser, _removeProjectFromOrg, _leaveOrg } from './+page';
   import OrgTabs, { type OrgTabId } from './OrgTabs.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import { Icon, TrashIcon } from '$lib/icons';
@@ -96,16 +97,25 @@
     }
   }
 
+  let leaveModal: ConfirmModal;
+
   async function leaveOrg(): Promise<void> {
-    const result = await _deleteOrgUser(org.id, user.id);
-    if (result.error) {
-      notifyWarning($t(`org_page.notifications.leave_org_error`, { name: org.name }));
-    } else {
-      notifySuccess($t(`org_page.notifications.leave_org`, { name: org.name }));
+    const left = await leaveModal.open(async () => {
+      const result = await _leaveOrg(org.id);
+      if (result.error?.byType('LastMemberCantLeaveError')) {
+        return $t('org_page.leave.last_to_leave');
+      }
+      return result.error?.message ? $t(`org_page.leave.error`) : undefined;
+    });
+
+    if (left) {
+      notifySuccess($t(`org_page.leave.success`, { name: org.name }));
       await goto('/');
     }
   }
 </script>
+
+<PageBreadcrumb href="/org/list">{$t('org.table.title')}</PageBreadcrumb>
 
 <DetailsPage wide title={org.name}>
   <svelte:fragment slot="actions">
@@ -115,9 +125,7 @@
     {#if canManage}
       <Button variant="btn-success"
         on:click={openAddOrgMemberModal}>
-        <span class="admin-tabs:hidden">
-          {$t('org_page.add_user.add_button')}
-        </span>
+        {$t('org_page.add_user.add_button')}
         <span class="i-mdi-account-plus-outline text-2xl" />
       </Button>
       <AddOrgMemberModal bind:this={addOrgMemberModal} {org} />
@@ -171,10 +179,11 @@
       </DeleteModal>
     {:else if $queryParamValues.tab === 'members'}
       <OrgMemberTable
+        {org}
+        {user}
         shownUsers={org.members}
-        showEmailColumn={canManage}
+        {canManage}
         on:openUserModal={(event) => openUserModal(event.detail)}
-        on:removeMember={(event) => _deleteOrgUser(org.id, event.detail.id)}
         on:changeMemberRole={(event) => openChangeMemberRoleModal(event.detail)}
       />
     {:else if $queryParamValues.tab === 'history'}
@@ -186,9 +195,17 @@
       {#if isMember}
         <div class="flex justify-end">
           <Button outline variant="btn-error" on:click={leaveOrg}>
-            {$t('org_page.leave_org')}
+            {$t('org_page.leave.leave_org')}
             <Icon icon="i-mdi-exit-run"/>
           </Button>
+          <ConfirmModal bind:this={leaveModal}
+                        title={$t('org_page.leave.confirm_title')}
+                        submitText={$t('org_page.leave.leave_action')}
+                        submitIcon="i-mdi-exit-run"
+                        submitVariant="btn-error"
+                        cancelText={$t('org_page.leave.dont_leave')}>
+            <p>{$t('org_page.leave.confirm_leave')}</p>
+          </ConfirmModal>
         </div>
       {/if}
       <AdminContent>
