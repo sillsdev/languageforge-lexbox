@@ -140,7 +140,7 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
             }
           }
           addProjectsToOrg(input: $projectsInput) {
-            organization {
+            orgById {
               id
               projects {
                 id
@@ -321,7 +321,7 @@ export async function _addProjectsToOrg(orgId: UUID, projectIds: string[]): $OpR
       graphql(`
         mutation AddProjectsToOrg($input: AddProjectsToOrgInput!) {
           addProjectsToOrg(input: $input) {
-            organization {
+            orgById {
               id
               projects {
                 id
