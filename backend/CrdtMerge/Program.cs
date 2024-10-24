@@ -59,10 +59,7 @@ async Task ExecuteMergeRequest(
 
     var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwProjectName, true);
     var crdtProject = projectsService.GetProject(crdtProjectName);
-    if (crdtProject is null)
-    {
-        crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
-    }
+    crdtProject ??= await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
     projectsService.SetProjectScope(crdtProject);
     var currentProjectService = services.GetRequiredService<CurrentProjectService>();
     await currentProjectService.PopulateProjectDataCache();
