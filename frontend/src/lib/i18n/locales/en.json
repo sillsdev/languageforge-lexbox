@@ -283,6 +283,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
       "submit_button": "Add Projects",
       "all_projects_already_added": "The {count, plural, one {# project} other {# projects}} you manage {count, plural, one {is} other {are}} already in this organization",
       "no_projects_managed": "You don't manage any projects",
+      "no_projects_selected": "No projects selected",
     },
     "bulk_add_members": {
       "add_button": "Bulk Add Members",
