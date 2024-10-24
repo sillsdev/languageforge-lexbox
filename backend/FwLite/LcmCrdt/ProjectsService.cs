@@ -38,13 +38,14 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         Guid? Id = null,
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
-        bool SeedNewProjectData = true);
+        bool SeedNewProjectData = true,
+        string? Path = null);
 
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
         //poor man's sanitation
         var name = Path.GetFileName(request.Name);
-        var sqliteFile = Path.Combine(config.Value.ProjectPath, $"{name}.sqlite");
+        var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
         await using var serviceScope = CreateProjectScope(crdtProject);

@@ -15,8 +15,9 @@ public interface IProjectLoader
     /// loads a fwdata file that lives in the project folder C:\ProgramData\SIL\FieldWorks\Projects
     /// </summary>
     /// <param name="fileName">could be the full path or just the file name, the path will be ignored, must include the extension</param>
+    /// <param name="overridePath">folder to load the project from instead of C:\ProgramData\SIL\FieldWorks\Projects</param>
     /// <returns></returns>
-    LcmCache LoadCache(string fileName);
+    LcmCache LoadCache(string fileName, string? overridePath = null);
 
     LcmCache NewProject(string fileName, string analysisWs, string vernacularWs);
 }
@@ -49,14 +50,15 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
     /// </summary>
     /// <param name="fileName">could be the full path or just the file name, the path will be ignored, must include the extension</param>
     /// <returns></returns>
-    public LcmCache LoadCache(string fileName)
+    public LcmCache LoadCache(string fileName, string? overridePath = null)
     {
         Init();
         fileName = Path.GetFileName(fileName);
-        var projectFilePath = Path.Combine(ProjectFolder, Path.GetFileNameWithoutExtension(fileName), fileName);
-        if (!Directory.Exists(ProjectFolder)) Directory.CreateDirectory(ProjectFolder);
+        var overriddenProjectFolder = overridePath ?? ProjectFolder;
+        var projectFilePath = Path.Combine(overriddenProjectFolder, Path.GetFileNameWithoutExtension(fileName), fileName);
+        if (!Directory.Exists(overriddenProjectFolder)) Directory.CreateDirectory(overriddenProjectFolder);
         if (!Directory.Exists(TemplatesFolder)) Directory.CreateDirectory(TemplatesFolder);
-        var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
+        var lcmDirectories = new LcmDirectories(overriddenProjectFolder, TemplatesFolder);
         var progress = new LcmThreadedProgress();
         var cache = LcmCache.CreateCacheFromLocalProjectFile(projectFilePath,
             null,

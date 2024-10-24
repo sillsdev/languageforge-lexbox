@@ -44,8 +44,13 @@ async Task ExecuteMergeRequest(
         return;
     }
 
-    var crdtFile = Path.Join(srConfig.Value.CrdtFolder, projectCode, $"{projectCode}.sqlite");
-    var fwDataFile = Path.Join(srConfig.Value.FwDataProjectsFolder, projectCode, $"{projectCode}.fwdata");
+    // TODO: Instead of projectCode here, we'll evetually look up project ID and use $"{projectName}-{projectId}" as the project folder
+    var projectFolder = Path.Join(srConfig.Value.ProjectStorageRoot, projectCode);
+    if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
+
+    // TODO: add projectName parameter and use it instead of projectCode here
+    var crdtFile = Path.Join(projectFolder, $"{projectCode}.sqlite");
+    var fwDataFile = Path.Join(projectFolder, projectCode, $"{projectCode}.fwdata");
     logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
     logger.LogDebug("fwDataFile: {fwDataFile}", fwDataFile);
     var fwProjectName = projectCode;
@@ -53,20 +58,23 @@ async Task ExecuteMergeRequest(
 
     if (!File.Exists(fwDataFile)) // Should only happen during local dev testing
     {
-        var cloneResult = srService.Clone(projectCode);
+        var cloneResult = srService.Clone(projectFolder, projectCode);
         logger.LogInformation(cloneResult.Output);
     }
 
-    var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwProjectName, true);
-    var crdtProject = projectsService.GetProject(crdtProjectName);
-    crdtProject ??= await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
+    var fwDataProject = new FwDataProject(projectCode, fwDataFile, projectFolder); // TODO: use projectName (once we have it) instead of projectCode here
+    var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, true);
+    // var crdtProject = projectsService.GetProject(crdtProjectName);
+    var crdtProject = File.Exists(crdtFile) ?
+        new CrdtProject(projectCode, crdtFile) : // TODO: use projectName (once we have it) instead of projectCode here
+        await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false, Path: projectFolder));
     projectsService.SetProjectScope(crdtProject);
     var currentProjectService = services.GetRequiredService<CurrentProjectService>();
     await currentProjectService.PopulateProjectDataCache();
     var miniLcmApi = services.GetRequiredService<IMiniLcmApi>();
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-    var srResult = srService.SendReceive(projectCode);
+    var srResult = srService.SendReceive(projectFolder, projectCode);
     logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     if (srResult.Output.Contains("No changes from others"))
     {
