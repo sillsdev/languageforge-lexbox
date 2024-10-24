@@ -39,20 +39,23 @@ async Task ExecuteMergeRequest(
     bool dryRun = true)
 {
     logger.LogInformation("About to execute sync request for {projectCode}", projectCode);
-    if (!dryRun) {
-        var cloneResult = srService.Clone(projectCode); // For testing, just clone into empty dir
-        logger.LogInformation(cloneResult.Output);
-    } else {
+    if (dryRun) {
         logger.LogInformation("Dry run, not actually cloning");
         return;
     }
 
     var crdtFile = Path.Join(srConfig.Value.CrdtFolder, projectCode, $"{projectCode}.sqlite");
     var fwDataFile = Path.Join(srConfig.Value.FwDataProjectsFolder, projectCode, $"{projectCode}.fwdata");
-    Console.WriteLine($"crdtFile: {crdtFile}");
-    Console.WriteLine($"fwDataFile: {fwDataFile}");
+    logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
+    logger.LogDebug("fwDataFile: {fwDataFile}", fwDataFile);
     var fwProjectName = projectCode;
     var crdtProjectName = projectCode;
+
+    if (!File.Exists(fwDataFile)) // Should only happen during local dev testing
+    {
+        var cloneResult = srService.Clone(projectCode);
+        logger.LogInformation(cloneResult.Output);
+    }
 
     var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwProjectName, true);
     var crdtProject = projectsService.GetProject(crdtProjectName);
