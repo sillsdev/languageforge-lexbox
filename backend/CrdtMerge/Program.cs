@@ -86,10 +86,6 @@ static void SyncServices(IServiceCollection crdtServices)
         {
             ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
         }).Build()));
-    crdtServices.AddOptions<HgConfig>()
-        .BindConfiguration("HgConfig")
-        .ValidateDataAnnotations()
-        .ValidateOnStart();
     crdtServices.AddOptions<SRConfig>()
         .BindConfiguration("SRConfig")
         .ValidateDataAnnotations()
@@ -103,20 +99,17 @@ static void SyncServices(IServiceCollection crdtServices)
         .AddFwLiteProjectSync();
 }
 
-public class HgConfig
-{
-    [Required]
-    public required string RepoPath { get; init; }
-    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
-    public required string HgWebUrl { get; init; }
-}
-
 public class SRConfig
 {
+    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
+    public required string LexboxUrl { get; init; }
+    public string HgWebUrl => $"{LexboxUrl}hg/";
     [Required]
     public required string LexboxUsername { get; init; }
     [Required]
     public required string LexboxPassword { get; init; }
+    [Required]
+    public required string RepoPath { get; init; }
     [Required]
     public required string CrdtFolder { get; init; }
     [Required]

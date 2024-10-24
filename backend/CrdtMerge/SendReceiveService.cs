@@ -1,14 +1,14 @@
 using Microsoft.Extensions.Options;
 
-public class SendReceiveService(IOptions<HgConfig> hgConfig, IOptions<SRConfig> srConfig)
+public class SendReceiveService(IOptions<SRConfig> srConfig)
 {
     public SendReceiveHelpers.LfMergeBridgeResult SendReceive(string projectCode, string? commitMessage = null)
     {
         var fwdataName = $"{projectCode}.fwdata";
-        var fwdataPath = Path.Join(hgConfig.Value.RepoPath, projectCode, fwdataName);
+        var fwdataPath = Path.Join(srConfig.Value.ProjectStorageRoot, projectCode, fwdataName);
         return SendReceiveHelpers.SendReceive(
             fwdataPath: fwdataPath,
-            baseUrl: hgConfig.Value.HgWebUrl,
+            baseUrl: srConfig.Value.HgWebUrl,
             auth: new SendReceiveHelpers.SendReceiveAuth(srConfig.Value),
             fdoDataModelVersion: srConfig.Value.FdoDataModelVersion,
             projectCode: projectCode,
@@ -19,10 +19,10 @@ public class SendReceiveService(IOptions<HgConfig> hgConfig, IOptions<SRConfig> 
     public SendReceiveHelpers.LfMergeBridgeResult Clone(string projectCode)
     {
         var fwdataName = $"{projectCode}.fwdata";
-        var fwdataPath = Path.Join(hgConfig.Value.RepoPath, projectCode, fwdataName);
+        var fwdataPath = Path.Join(srConfig.Value.ProjectStorageRoot, projectCode, fwdataName);
         return SendReceiveHelpers.CloneProject(
             fwdataPath: fwdataPath,
-            baseUrl: hgConfig.Value.HgWebUrl,
+            baseUrl: srConfig.Value.HgWebUrl,
             auth: new SendReceiveHelpers.SendReceiveAuth(srConfig.Value),
             fdoDataModelVersion: srConfig.Value.FdoDataModelVersion,
             projectCode: projectCode
