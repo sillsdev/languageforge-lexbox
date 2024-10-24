@@ -9,7 +9,7 @@ public static class SendReceiveHelpers
 
     public record SendReceiveAuth(string Username, string Password)
     {
-        public SendReceiveAuth(SRConfig srConfig) : this(srConfig.LexboxUsername, srConfig.LexboxPassword) { }
+        public SendReceiveAuth(CrdtMergeConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
     };
 
     public record SendReceiveParams(string ProjectCode, string BaseUrl, string Dir) : ProjectPath(ProjectCode, Dir);

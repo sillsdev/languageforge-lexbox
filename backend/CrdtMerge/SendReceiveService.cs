@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-public class SendReceiveService(IOptions<SRConfig> srConfig)
+public class SendReceiveService(IOptions<CrdtMergeConfig> config)
 {
     public SendReceiveHelpers.LfMergeBridgeResult SendReceive(string projectFolder, string projectCode, string? commitMessage = null)
     {
@@ -8,9 +8,9 @@ public class SendReceiveService(IOptions<SRConfig> srConfig)
         var fwdataPath = Path.Join(projectFolder, projectCode, fwdataName);
         return SendReceiveHelpers.SendReceive(
             fwdataPath: fwdataPath,
-            baseUrl: srConfig.Value.HgWebUrl,
-            auth: new SendReceiveHelpers.SendReceiveAuth(srConfig.Value),
-            fdoDataModelVersion: srConfig.Value.FdoDataModelVersion,
+            baseUrl: config.Value.HgWebUrl,
+            auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
+            fdoDataModelVersion: config.Value.FdoDataModelVersion,
             projectCode: projectCode,
             commitMessage: commitMessage
         );
@@ -22,9 +22,9 @@ public class SendReceiveService(IOptions<SRConfig> srConfig)
         var fwdataPath = Path.Join(projectFolder, projectCode, fwdataName);
         return SendReceiveHelpers.CloneProject(
             fwdataPath: fwdataPath,
-            baseUrl: srConfig.Value.HgWebUrl,
-            auth: new SendReceiveHelpers.SendReceiveAuth(srConfig.Value),
-            fdoDataModelVersion: srConfig.Value.FdoDataModelVersion,
+            baseUrl: config.Value.HgWebUrl,
+            auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
+            fdoDataModelVersion: config.Value.FdoDataModelVersion,
             projectCode: projectCode
         );
     }

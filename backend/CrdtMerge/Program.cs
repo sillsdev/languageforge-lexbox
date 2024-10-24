@@ -3,7 +3,6 @@ using FwLiteProjectSync;
 using LcmCrdt;
 using Microsoft.Extensions.Options;
 using MiniLcm;
-using System.ComponentModel.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-SyncServices(builder.Services); // TODO: extension method
+builder.Services.AddCrdtMerge();
 
 var app = builder.Build();
 
@@ -31,7 +30,7 @@ async Task ExecuteMergeRequest(
     ILogger<Program> logger,
     IServiceProvider services,
     SendReceiveService srService,
-    IOptions<SRConfig> srConfig,
+    IOptions<CrdtMergeConfig> config,
     FwDataFactory fwDataFactory,
     ProjectsService projectsService,
     CrdtFwdataProjectSyncService syncService,
@@ -45,7 +44,7 @@ async Task ExecuteMergeRequest(
     }
 
     // TODO: Instead of projectCode here, we'll evetually look up project ID and use $"{projectName}-{projectId}" as the project folder
-    var projectFolder = Path.Join(srConfig.Value.ProjectStorageRoot, projectCode);
+    var projectFolder = Path.Join(config.Value.ProjectStorageRoot, projectCode);
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
 
     // TODO: add projectName parameter and use it instead of projectCode here
@@ -83,35 +82,3 @@ async Task ExecuteMergeRequest(
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
 }
 
-// TODO: move this to own file so it can be an extension method on builder.Services
-static void SyncServices(IServiceCollection crdtServices)
-{
-    crdtServices
-        .AddLogging(builder => builder.AddConsole().AddDebug().AddConfiguration(new ConfigurationManager().AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
-        }).Build()));
-    crdtServices.AddOptions<SRConfig>()
-        .BindConfiguration("SRConfig")
-        .ValidateDataAnnotations()
-        .ValidateOnStart();
-    crdtServices.AddScoped<SendReceiveService>();
-    crdtServices
-        .AddLcmCrdtClient()
-        .AddFwDataBridge()
-        .AddFwLiteProjectSync();
-}
-
-public class SRConfig
-{
-    [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
-    public required string LexboxUrl { get; init; }
-    public string HgWebUrl => $"{LexboxUrl}hg/";
-    [Required]
-    public required string LexboxUsername { get; init; }
-    [Required]
-    public required string LexboxPassword { get; init; }
-    [Required]
-    public required string ProjectStorageRoot { get; init; }
-    public string FdoDataModelVersion { get; init; } = "7000072";
-}
