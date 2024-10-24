@@ -45,13 +45,7 @@
     .map(ws => ({ws: ws.wsId, value: headword(entry, ws.wsId)}))
     .filter(({value}) => !!value);
 
-  const partsOfSpeech = usePartsOfSpeech();
-  function partOfSpeechLabel(id: string | undefined): string | undefined {
-    if (!id) return undefined;
-    const partOfSpeech = $partsOfSpeech.find(pos => pos.id === id);
-    if (!partOfSpeech) return undefined;
-    return pickBestAlternative(partOfSpeech.name, 'analysis', $allWritingSystems)
-  }
+  const partsOfSpeech = usePartsOfSpeech(allWritingSystems);
 </script>
 
 <div>
@@ -68,9 +62,9 @@
       <br />
       <strong class="ml-2">{i + 1} · </strong>
     {/if}
-    {@const partOfSpeech = partOfSpeechLabel(sense.partOfSpeechId)}
+    {@const partOfSpeech = $partsOfSpeech.find(pos => pos.id === sense.partOfSpeechId)?.label}
     {#if partOfSpeech}
-      <i>{partOfSpeech}.</i>
+      <i>{partOfSpeech}</i>
     {/if}
     <span>
       {#each $allWritingSystems.analysis as ws}

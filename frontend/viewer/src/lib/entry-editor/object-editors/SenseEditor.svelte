@@ -12,9 +12,9 @@
 
   export let sense: ISense;
   export let readonly: boolean = false;
-  const partsOfSpeech = usePartsOfSpeech();
-  const semanticDomains = useSemanticDomains();
   const writingSystems = useWritingSystems();
+  const partsOfSpeech = usePartsOfSpeech(writingSystems);
+  const semanticDomains = useSemanticDomains();
   function setSemanticDomains(ids: string[]): void {
     sense.semanticDomains = ids.map(id => $semanticDomains.find(sd => sd.id === id)).filter((sd): sd is SemanticDomain => !!sd);
   }
@@ -34,7 +34,7 @@
                     wsType="analysis" />
   <SingleOptionEditor on:change
                       bind:value={sense.partOfSpeechId}
-                      options={$partsOfSpeech.map(pos => ({value: pos.id, label: pickBestAlternative(pos.name, 'analysis', $writingSystems)}))}
+                      options={$partsOfSpeech.map(pos => ({value: pos.id, label: pos.label}))}
                       {readonly}
                       id="partOfSpeechId"
                       wsType="first-analysis" />

@@ -1,10 +1,10 @@
 import * as testEnv from './envVars';
 
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { ViewerPage } from './pages/viewerPage';
-import { expect } from '@playwright/test';
-import { loginAs } from './utils/authHelpers';
-import { test } from './fixtures';
+import {UserDashboardPage} from './pages/userDashboardPage';
+import {ViewerPage} from './pages/viewerPage';
+import {expect} from '@playwright/test';
+import {loginAs} from './utils/authHelpers';
+import {test} from './fixtures';
 
 test('navigate to viewer', async ({ page }) => {
   // Step 1: Login
@@ -58,7 +58,7 @@ test('entry details', async ({ page }) => {
   // -- Dictionary Preview
   const expectPreview = expect(viewerPage.entryDictionaryPreview);
   await expectPreview.toContainText('nthembe');
-  await expectPreview.toContainText(' N. ');
+  await expectPreview.toContainText(' Nome ');
   await expectPreview.toContainText(' Eng ');
   await expectPreview.toContainText('animal skin alone, after it is taken off the body');
   await expectPreview.toContainText(' Por ');
