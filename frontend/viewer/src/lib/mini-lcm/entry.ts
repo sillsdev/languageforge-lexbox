@@ -3,8 +3,8 @@
  * Any changes made to this file can be lost when this file is regenerated.
  */
 
-import type { IComplexFormComponent } from './i-complex-form-component';
-import type { IComplexFormType } from './i-complex-form-type';
+import type { IComplexFormComponent } from './complex-form-component';
+import type { ComplexFormType } from './complex-form-type';
 import {type IEntry} from './i-entry';
 import {type IMultiString} from './i-multi-string';
 import {type ISense} from './i-sense';
@@ -18,7 +18,7 @@ export class Entry implements IEntry {
   lexemeForm: IMultiString = {};
   citationForm: IMultiString = {};
   complexForms: IComplexFormComponent[] = [];
-  complexFormTypes: IComplexFormType[] = [];
+  complexFormTypes: ComplexFormType[] = [];
   components: IComplexFormComponent[] = [];
   literalMeaning: IMultiString = {};
   senses: ISense[] = [];

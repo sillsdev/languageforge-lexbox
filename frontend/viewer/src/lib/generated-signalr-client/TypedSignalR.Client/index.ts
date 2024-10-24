@@ -2,7 +2,7 @@
 /* eslint-disable */
 /* tslint:disable */
 
-import type {Entry, ExampleSentence, PartOfSpeech, QueryOptions, SemanticDomain, Sense, WritingSystem, WritingSystems} from '../../mini-lcm';
+import type {ComplexFormType, Entry, ExampleSentence, PartOfSpeech, QueryOptions, SemanticDomain, Sense, WritingSystem, WritingSystems} from '../../mini-lcm';
 import type { ILexboxApiHub, ILexboxClient } from './Lexbox.ClientServer.Hubs';
 
 import { HubConnection } from '@microsoft/signalr';
@@ -123,6 +123,23 @@ class ILexboxApiHub_HubProxy implements ILexboxApiHub {
           },
           complete() {
             resolve(semanticDomains);
+          }
+        });
+      });
+    }
+
+    public readonly GetComplexFormTypes = async (): Promise<ComplexFormType[]> => {
+      return new Promise((resolve, reject) => {
+        let complexFormTypes: ComplexFormType[] = [];
+        this.connection.stream<ComplexFormType>('GetComplexFormTypes').subscribe({
+          next(value: ComplexFormType) {
+            complexFormTypes.push(value);
+          },
+          error(err: any) {
+            reject(err);
+          },
+          complete() {
+            resolve(complexFormTypes);
           }
         });
       });

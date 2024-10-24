@@ -1,22 +1,25 @@
-﻿/* eslint-disable @typescript-eslint/naming-convention */
+﻿import {entries, projectName, writingSystems} from './entry-data';
 import type {
-  LexboxApiClient,
   IEntry,
   IExampleSentence,
   ISense,
   JsonPatch,
+  LexboxApiClient,
   LexboxApiFeatures,
-  QueryOptions,
-  WritingSystemType,
-  WritingSystems,
   PartOfSpeech,
-  SemanticDomain
+  QueryOptions,
+  SemanticDomain,
+  WritingSystemType,
+  WritingSystems
 } from './services/lexbox-api';
-import {entries, projectName, writingSystems} from './entry-data';
 
-import {pickWs, type WritingSystem} from './mini-lcm';
-import {headword} from './utils';
 import {applyPatch} from 'fast-json-patch';
+import {pickWs, type ComplexFormType, type WritingSystem} from './mini-lcm';
+import {headword} from './utils';
+
+const complexFormTypes = entries
+  .flatMap(entry => entry.complexFormTypes)
+  .filter((value, index, all) => all.findIndex(v2 => v2.id === value.id) === index);
 
 function filterEntries(entries: IEntry[], query: string): IEntry[] {
   return entries.filter(entry =>
@@ -30,16 +33,31 @@ function filterEntries(entries: IEntry[], query: string): IEntry[] {
 }
 
 export class InMemoryApiService implements LexboxApiClient {
+  GetComplexFormTypes(): Promise<ComplexFormType[]> {
+    return Promise.resolve(
+      //*
+      complexFormTypes
+      /*/
+      [
+        {id: '13', name: {en: 'Compound'},},
+        {id: '15', name: {en: 'Idiom'},}
+      ]
+      //*/
+    );
+  }
+
   GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
-    return Promise.resolve([
-      {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'},},
-      {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'},}
-    ]);
+    return Promise.resolve(
+      [
+        {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'},},
+        {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'},}
+      ]
+    );
   }
 
   GetSemanticDomains(): Promise<SemanticDomain[]> {
     return Promise.resolve([
-      {id: 'Fruit', name: {en: 'Fruit'}, code: '1'},
+      {id: '36e8f1df-1798-4ae6-904d-600ca6eb4145', name: {en: 'Fruit'}, code: '1'},
       {id: 'Animal', name: {en: 'Animal'}, code: '2'},
     ]);
   }
