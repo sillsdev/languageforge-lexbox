@@ -26,7 +26,7 @@ app.MapPost("/sync", ExecuteMergeRequest);
 
 app.Run();
 
-async Task ExecuteMergeRequest(
+static async Task ExecuteMergeRequest(
     ILogger<Program> logger,
     IServiceProvider services,
     SendReceiveService srService,
@@ -39,8 +39,9 @@ async Task ExecuteMergeRequest(
     bool dryRun = false)
 {
     logger.LogInformation("About to execute sync request for {projectCode}", projectCode);
-    if (dryRun) {
-        logger.LogInformation("Dry run, not actually cloning");
+    if (dryRun)
+    {
+        logger.LogInformation("Dry run, not actually syncing");
         return;
     }
 
