@@ -96,6 +96,10 @@ public class DbStartupService : IHostedService
         {
             return false;
         }
+        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TryAgain)
+        {
+            return false;
+        }
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
