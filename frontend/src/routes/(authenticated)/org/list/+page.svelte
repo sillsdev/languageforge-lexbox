@@ -34,7 +34,7 @@
       swapSortDir();
     } else {
       sortColumn = clickedColumn;
-      sortDir = 'ascending';
+      sortDir = clickedColumn === 'name' ? 'ascending' : 'descending';
     }
   }
 
