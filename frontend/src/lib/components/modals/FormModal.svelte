@@ -28,6 +28,7 @@
 
   export let schema: Schema;
   export let submitVariant: SubmitVariant = 'btn-primary';
+  export let hideActions: boolean = false;
 
   const superForm = lexSuperForm(schema, () => modal.submitModal());
   const { form: _form, errors, reset, message, enhance, formState, tainted } = superForm;
@@ -97,14 +98,16 @@
     <slot name="extraActions" />
   </svelte:fragment>
   <svelte:fragment slot="actions" let:submitting>
-    {#if !done}
-      <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
-        <slot name="submitText" />
-      </SubmitButton>
-    {:else}
-      <Button variant="btn-primary" on:click={close}>
-        <slot name="closeText" />
-      </Button>
+    {#if !hideActions}
+      {#if !done}
+        <SubmitButton form="modalForm" variant={submitVariant} loading={submitting}>
+          <slot name="submitText" />
+        </SubmitButton>
+      {:else}
+        <Button variant="btn-primary" on:click={close}>
+          <slot name="closeText" />
+        </Button>
+      {/if}
     {/if}
   </svelte:fragment>
 </Modal>

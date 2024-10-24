@@ -39,10 +39,12 @@
       } else {
         newProjects.push(proj);
       }
-    })
+    });
 
     const { response } = await formModal.open(undefined, async () => {
-      if (!selectedProjects.length) return 'No projects selected';
+      if (!selectedProjects.length) {
+        return $t('org_page.add_my_projects.no_projects_selected');
+      }
       const result = await _addProjectsToOrg(org.id as UUID, selectedProjects);
       if (result.error?.message) return result.error.message;
     });
@@ -58,7 +60,7 @@
   <span class="i-mdi-plus text-2xl" />
 </Button>
 
-<FormModal bind:this={formModal} {schema}>
+<FormModal bind:this={formModal} {schema} hideActions={!newProjects.length}>
   <span slot="title">
     {$t('org_page.add_my_projects.title')}
   </span>
