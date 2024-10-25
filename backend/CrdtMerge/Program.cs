@@ -68,7 +68,7 @@ static async Task<CrdtFwdataProjectSyncService.SyncResult> ExecuteMergeRequest(
         logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     }
 
-    var fwDataProject = new FwDataProject(projectCode, fwDataFile, projectFolder); // TODO: use projectName (once we have it) instead of projectCode here
+    var fwDataProject = new FwDataProject(projectCode, projectFolder); // TODO: use projectName (once we have it) instead of projectCode here
     var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, true);
     // var crdtProject = projectsService.GetProject(crdtProjectName);
     var crdtProject = File.Exists(crdtFile) ?

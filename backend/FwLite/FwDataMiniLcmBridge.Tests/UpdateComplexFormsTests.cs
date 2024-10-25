@@ -13,8 +13,7 @@ public class UpdateComplexFormsTests(ProjectLoaderFixture fixture) : IAsyncLifet
     public Task InitializeAsync()
     {
         var projectName = "update-complex-forms-test_" + Guid.NewGuid();
-        fixture.MockFwProjectLoader.NewProject(projectName, "en", "en");
-        _api = fixture.CreateApi(projectName);
+        _api = fixture.NewProjectApi(projectName, "en", "en");
         return Task.CompletedTask;
     }
 

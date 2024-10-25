@@ -16,12 +16,12 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
-        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.Path);
+        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath);
         SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
 
         if (!dryRun)
         {
-            await SaveProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.Path,
+            await SaveProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath,
                 new ProjectSnapshot(await fwdataApi.GetEntries().ToArrayAsync()));
         }
         return result;

@@ -1,5 +1,6 @@
 ﻿using FwDataMiniLcmBridge.Api;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
@@ -8,6 +9,7 @@ public class ProjectLoaderFixture : IDisposable
     public const string Name = "ProjectLoaderCollection";
     private readonly FwDataFactory _fwDataFactory;
     private readonly ServiceProvider _serviceProvider;
+    private readonly IOptions<FwDataBridgeConfig> _config;
     public MockFwProjectLoader MockFwProjectLoader { get; }
 
     public ProjectLoaderFixture()
@@ -17,6 +19,7 @@ public class ProjectLoaderFixture : IDisposable
         _serviceProvider = provider;
         _fwDataFactory = provider.GetRequiredService<FwDataFactory>();
         MockFwProjectLoader = provider.GetRequiredService<MockFwProjectLoader>();
+        _config = provider.GetRequiredService<IOptions<FwDataBridgeConfig>>();
     }
 
     public FwDataMiniLcmApi CreateApi(string projectName)
@@ -27,7 +30,7 @@ public class ProjectLoaderFixture : IDisposable
     public FwDataMiniLcmApi NewProjectApi(string projectName, string analysisWs, string vernacularWs)
     {
         projectName = $"{projectName}_{Guid.NewGuid()}";
-        MockFwProjectLoader.NewProject(projectName, analysisWs, vernacularWs);
+        MockFwProjectLoader.NewProject(new FwDataProject(projectName, _config.Value.ProjectsFolder), analysisWs, vernacularWs);
         return CreateApi(projectName);
     }
 
