@@ -51,13 +51,13 @@ static async Task<CrdtFwdataProjectSyncService.SyncResult> ExecuteMergeRequest(
 
     // TODO: add projectName parameter and use it instead of projectCode here
     var crdtFile = Path.Join(projectFolder, $"{projectCode}.sqlite");
-    var fwDataFile = Path.Join(projectFolder, projectCode, $"{projectCode}.fwdata");
+
+    var fwDataProject = new FwDataProject(projectCode, projectFolder); // TODO: use projectName (once we have it) instead of projectCode here
     logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
-    logger.LogDebug("fwDataFile: {fwDataFile}", fwDataFile);
-    var fwProjectName = projectCode;
+    logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
     var crdtProjectName = projectCode;
 
-    if (File.Exists(fwDataFile))
+    if (File.Exists(fwDataProject.FilePath))
     {
         var srResult = srService.SendReceive(projectFolder, projectCode);
         logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
@@ -67,8 +67,6 @@ static async Task<CrdtFwdataProjectSyncService.SyncResult> ExecuteMergeRequest(
         var srResult = srService.Clone(projectFolder, projectCode);
         logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     }
-
-    var fwDataProject = new FwDataProject(projectCode, projectFolder); // TODO: use projectName (once we have it) instead of projectCode here
     var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, true);
     // var crdtProject = projectsService.GetProject(crdtProjectName);
     var crdtProject = File.Exists(crdtFile) ?
