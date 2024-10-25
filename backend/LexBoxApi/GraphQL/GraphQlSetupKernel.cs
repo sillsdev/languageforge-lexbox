@@ -20,13 +20,6 @@ public static class GraphQlSetupKernel
 
         services.AddGraphQLServer()
             .InitializeOnStartup()
-            .RegisterDbContext<LexBoxDbContext>()
-            .RegisterService<IHgService>()
-            .RegisterService<IIsLanguageForgeProjectDataLoader>()
-            .RegisterService<LoggedInContext>()
-            .RegisterService<IEmailService>()
-            .RegisterService<LexAuthService>()
-            .RegisterService<IPermissionService>()
             .AddDataAnnotationsValidator()
             .AddSorting(descriptor =>
             {

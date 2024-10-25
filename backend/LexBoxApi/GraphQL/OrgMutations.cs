@@ -65,7 +65,7 @@ public class OrgMutations
     public async Task<IQueryable<Organization>> AddProjectToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         Guid orgId,
         Guid projectId)
     {
@@ -99,7 +99,7 @@ public class OrgMutations
     public async Task<Organization?> AddProjectsToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         IResolverContext resolverContext,
         Guid orgId,
         Guid[] projectIds)
@@ -138,7 +138,7 @@ public class OrgMutations
     public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         Guid orgId,
         Guid projectId)
     {
@@ -185,7 +185,7 @@ public class OrgMutations
         OrgRole role,
         string emailOrUsername,
         bool canInvite,
-        [Service] IEmailService emailService)
+        IEmailService emailService)
     {
         var org = await dbContext.Orgs.FindAsync(orgId);
         NotFoundException.ThrowIfNull(org);
