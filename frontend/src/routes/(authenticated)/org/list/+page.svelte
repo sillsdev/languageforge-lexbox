@@ -44,17 +44,18 @@
 
   function sortOrgs(orgs: OrgList, sortColumn: Column, sortDir: Dir): OrgList {
     const data = [... orgs];
-    let mult = sortDir === 'ascending' ? 1 : -1;
+    let dir = sortDir === 'ascending' ? 1 : -1;
     data.sort((a, b) => {
       if (sortColumn === 'members') {
-        return (a.memberCount - b.memberCount) * mult;
-      } else if (sortColumn === 'name') {
-        return a.name.localeCompare(b.name);
+        const countSort = a.memberCount - b.memberCount;
+        if (countSort) return countSort * dir;
       } else if (sortColumn === 'created_at') {
-        const comp = a.createdDate < b.createdDate ? -1 : a.createdDate > b.createdDate ? 1 : 0;
-        return comp * mult;
+        const dateSort = a.createdDate < b.createdDate ? -1 : a.createdDate > b.createdDate ? 1 : 0;
+        if (dateSort) return dateSort * dir;
       }
-      return 0;
+
+      const nameDir = sortColumn === 'name' ? dir : 1;
+      return a.name.localeCompare(b.name) * nameDir;
     });
     return data;
   }
