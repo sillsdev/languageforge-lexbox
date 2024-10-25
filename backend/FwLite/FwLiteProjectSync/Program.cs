@@ -58,11 +58,9 @@ public class Program
                 {
                     crdtProject = await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false));
                 }
-                projectsService.SetProjectScope(crdtProject);
-                await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
                 var syncService = services.GetRequiredService<CrdtFwdataProjectSyncService>();
 
-                var result = await syncService.Sync(services.GetRequiredService<IMiniLcmApi>(), fwdataApi, dryRun);
+                var result = await syncService.Sync(await services.OpenCrdtProject(crdtProject), fwdataApi, dryRun);
                 logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
             },
             crdtOption,

@@ -73,10 +73,7 @@ static async Task<CrdtFwdataProjectSyncService.SyncResult> ExecuteMergeRequest(
     var crdtProject = File.Exists(crdtFile) ?
         new CrdtProject(projectCode, crdtFile) : // TODO: use projectName (once we have it) instead of projectCode here
         await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false, Path: projectFolder));
-    projectsService.SetProjectScope(crdtProject);
-    var currentProjectService = services.GetRequiredService<CurrentProjectService>();
-    await currentProjectService.PopulateProjectDataCache();
-    var miniLcmApi = services.GetRequiredService<IMiniLcmApi>();
+    var miniLcmApi = await services.OpenCrdtProject(crdtProject);
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
     var srResult2 = srService.SendReceive(projectFolder, projectCode);

@@ -151,4 +151,12 @@ public static class LcmCrdtKernel
             .Add<RemoveComplexFormTypeChange>()
             .Add<CreateComplexFormType>();
     }
+
+    public static async Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
+    {
+        var projectsService = services.GetRequiredService<ProjectsService>();
+        projectsService.SetProjectScope(project);
+        await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        return services.GetRequiredService<IMiniLcmApi>();
+    }
 }
