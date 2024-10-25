@@ -50,7 +50,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
     /// </summary>
     /// <param name="fileName">could be the full path or just the file name, the path will be ignored, must include the extension</param>
     /// <returns></returns>
-    public LcmCache LoadCache(string fileName, string? overridePath = null)
+    public virtual LcmCache LoadCache(string fileName, string? overridePath = null)
     {
         Init();
         fileName = Path.GetFileName(fileName);
@@ -70,7 +70,7 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         return cache;
     }
 
-    public LcmCache NewProject(string fileName, string analysisWs, string vernacularWs)
+    public virtual LcmCache NewProject(string fileName, string analysisWs, string vernacularWs)
     {
         Init();
         var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);

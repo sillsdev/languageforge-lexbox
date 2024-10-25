@@ -5,11 +5,11 @@ using SIL.LCModel;
 namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
 public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
-    : ProjectLoader(config), IDisposable, IProjectLoader
+    : ProjectLoader(config), IDisposable
 {
     public Dictionary<string, LcmCache> Projects { get; } = new();
 
-    LcmCache IProjectLoader.LoadCache(string fileName, string? overridePath)
+    public override LcmCache LoadCache(string fileName, string? projectFolder)
     {
         if (!Projects.TryGetValue(Path.GetFileNameWithoutExtension(fileName), out var cache))
         {
@@ -19,7 +19,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
         return cache;
     }
 
-    LcmCache IProjectLoader.NewProject(string fileName, string analysisWs, string vernacularWs)
+    public override LcmCache NewProject(string fileName, string analysisWs, string vernacularWs)
     {
         Init();
         var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
