@@ -203,6 +203,11 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         return project?.IsConfidential;
     }
 
+    public void UpdateProjectConfidentialityCache(Guid projectId, bool? isConfidential)
+    {
+        memoryCache.Set($"ProjectConfidentiality:{projectId}", isConfidential, TimeSpan.FromHours(1));
+    }
+
     public void InvalidateProjectConfidentialityCache(Guid projectId)
     {
         try { memoryCache.Remove($"ProjectConfidentiality:{projectId}"); }

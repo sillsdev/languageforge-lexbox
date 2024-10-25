@@ -372,6 +372,7 @@ type Project {
   createdDate: DateTime!
   id: UUID!
   users: [ProjectUsers!]!
+  isConfidential: Boolean
   changesets: [Changeset!]! @cost(weight: "10")
   hasAbandonedTransactions: Boolean!
   isLanguageForgeProject: Boolean! @cost(weight: "10")
@@ -380,7 +381,6 @@ type Project {
   description: String
   retentionPolicy: RetentionPolicy!
   type: ProjectType!
-  isConfidential: Boolean
   flexProjectMetadata: FlexProjectMetadata
   organizations: [Organization!]!
   lastCommit: DateTime

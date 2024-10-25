@@ -71,11 +71,11 @@ public class PermissionService(
     {
         if (User is not null && User.Role == UserRole.admin) return true;
         if (User is not null && User.Projects.Any(p => p.ProjectId == projectId)) return true;
+        var isConfidential = await projectService.LookupProjectConfidentiality(projectId)
+            ?? true; // Private by default
+        if (!isConfidential) return true;
         // Org admins can view all projects, even confidential ones
-        if (await ManagesOrgThatOwnsProject(projectId)) return true;
-        var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
-        if (isConfidential is null) return false; // Private by default
-        return isConfidential == false; // Explicitly set to public
+        return await ManagesOrgThatOwnsProject(projectId);
     }
 
     public async ValueTask AssertCanViewProject(Guid projectId)
@@ -98,10 +98,12 @@ public class PermissionService(
     {
         if (User is not null && User.Role == UserRole.admin) return true;
         // Project managers can view members of their own projects, even confidential ones
-        if (await CanManageProject(projectId)) return true;
-        var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
-        // In this specific case (only), we assume public unless explicitly set to private
-        return !(isConfidential ?? false);
+        // not using CanManageProject here, because confidentiality look-up is likely cheaper
+        if (IsProjectManager(projectId)) return true;
+        var isConfidential = await projectService.LookupProjectConfidentiality(projectId)
+            ?? false; // In this specific case (only), we assume public unless explicitly set to private
+        if (!isConfidential) return true;
+        return await ManagesOrgThatOwnsProject(projectId);
     }
 
     public async ValueTask<bool> CanManageProject(Guid projectId)
@@ -110,6 +112,12 @@ public class PermissionService(
         if (User.Role == UserRole.admin) return true;
         if (User.Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager)) return true;
         return await ManagesOrgThatOwnsProject(projectId);
+    }
+
+    private bool IsProjectManager(Guid projectId)
+    {
+        if (User is null) return false;
+        return User.Projects.Any(p => p.ProjectId == projectId && p.Role == ProjectRole.Manager);
     }
 
     public async ValueTask AssertCanManageProject(Guid projectId)
