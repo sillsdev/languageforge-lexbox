@@ -4,6 +4,7 @@ using FwLiteProjectSync;
 using LcmCrdt;
 using Microsoft.Extensions.Options;
 using MiniLcm;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    //access at /scalar/v1
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();

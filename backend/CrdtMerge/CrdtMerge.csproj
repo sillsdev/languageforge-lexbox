@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0-rc.1.24452.1" />
+    <PackageReference Include="Scalar.AspNetCore" Version="1.2.22" />
     <PackageReference Include="SIL.ChorusPlugin.LfMergeBridge" Version="4.2.0-beta0027" />
     <PackageReference Include="SIL.Chorus.Mercurial" Version="6.5.1.*" />
   </ItemGroup>
