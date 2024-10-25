@@ -56,27 +56,26 @@ static async Task<CrdtFwdataProjectSyncService.SyncResult> ExecuteMergeRequest(
     var fwDataProject = new FwDataProject(projectCode, projectFolder); // TODO: use projectName (once we have it) instead of projectCode here
     logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
     logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
-    var crdtProjectName = projectCode;
 
     if (File.Exists(fwDataProject.FilePath))
     {
-        var srResult = srService.SendReceive(projectFolder, projectCode);
+        var srResult = srService.SendReceive(fwDataProject);
         logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     }
     else
     {
-        var srResult = srService.Clone(projectFolder, projectCode);
+        var srResult = srService.Clone(fwDataProject);
         logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     }
     var fwdataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, true);
     // var crdtProject = projectsService.GetProject(crdtProjectName);
     var crdtProject = File.Exists(crdtFile) ?
         new CrdtProject(projectCode, crdtFile) : // TODO: use projectName (once we have it) instead of projectCode here
-        await projectsService.CreateProject(new(crdtProjectName, fwdataApi.ProjectId, SeedNewProjectData: false, Path: projectFolder));
+        await projectsService.CreateProject(new(projectCode, fwdataApi.ProjectId, SeedNewProjectData: false, Path: projectFolder));
     var miniLcmApi = await services.OpenCrdtProject(crdtProject);
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-    var srResult2 = srService.SendReceive(projectFolder, projectCode);
+    var srResult2 = srService.SendReceive(fwDataProject);
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
     return result;
 }

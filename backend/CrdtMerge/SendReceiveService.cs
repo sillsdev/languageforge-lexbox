@@ -1,33 +1,28 @@
+using FwDataMiniLcmBridge;
 using Microsoft.Extensions.Options;
 
 namespace CrdtMerge;
 
 public class SendReceiveService(IOptions<CrdtMergeConfig> config)
 {
-    public SendReceiveHelpers.LfMergeBridgeResult SendReceive(string projectFolder, string projectCode, string? commitMessage = null)
+    public SendReceiveHelpers.LfMergeBridgeResult SendReceive(FwDataProject project, string? commitMessage = null)
     {
-        var fwdataName = $"{projectCode}.fwdata";
-        var fwdataPath = Path.Join(projectFolder, projectCode, fwdataName);
         return SendReceiveHelpers.SendReceive(
-            fwdataPath: fwdataPath,
+            project: project,
             baseUrl: config.Value.HgWebUrl,
             auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
             fdoDataModelVersion: config.Value.FdoDataModelVersion,
-            projectCode: projectCode,
             commitMessage: commitMessage
         );
     }
 
-    public SendReceiveHelpers.LfMergeBridgeResult Clone(string projectFolder, string projectCode)
+    public SendReceiveHelpers.LfMergeBridgeResult Clone(FwDataProject project)
     {
-        var fwdataName = $"{projectCode}.fwdata";
-        var fwdataPath = Path.Join(projectFolder, projectCode, fwdataName);
         return SendReceiveHelpers.CloneProject(
-            fwdataPath: fwdataPath,
+            project: project,
             baseUrl: config.Value.HgWebUrl,
             auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
-            fdoDataModelVersion: config.Value.FdoDataModelVersion,
-            projectCode: projectCode
+            fdoDataModelVersion: config.Value.FdoDataModelVersion
         );
     }
 }

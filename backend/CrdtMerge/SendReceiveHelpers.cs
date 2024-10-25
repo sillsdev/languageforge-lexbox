@@ -1,3 +1,4 @@
+using FwDataMiniLcmBridge;
 using SIL.Progress;
 
 namespace CrdtMerge;
@@ -18,14 +19,14 @@ public static class SendReceiveHelpers
 
     public record LfMergeBridgeResult(string Output, string ProgressMessages);
 
-    public static LfMergeBridgeResult CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions)
+    private static LfMergeBridgeResult CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions)
     {
         var progress = new StringBuilderProgress();
         LfMergeBridge.LfMergeBridge.Execute(method, progress, flexBridgeOptions.ToDictionary(), out var lfMergeBridgeOutputForClient);
         return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, progress.ToString());
     }
 
-    public static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth)
+    private static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth)
     {
         var baseUri = new Uri(baseUrl);
         var projectUri = new Uri(baseUri, projectCode);
@@ -46,14 +47,14 @@ public static class SendReceiveHelpers
         return builder.Uri;
     }
 
-    public static LfMergeBridgeResult SendReceive(string fwdataPath, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? projectCode = null, string? commitMessage = null)
+    public static LfMergeBridgeResult SendReceive(FwDataProject project, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null)
     {
         // If projectCode not given, calculate it from the fwdataPath
-        var fwdataInfo = new FileInfo(fwdataPath);
-        if (fwdataInfo.Directory is null) throw new ArgumentException("Not allowed to Send/Receive root-level directories like C:\\", nameof(fwdataPath));
-        projectCode ??= Path.GetFileNameWithoutExtension(fwdataPath);
+        var fwdataInfo = new FileInfo(project.FilePath);
+        if (fwdataInfo.Directory is null) throw new InvalidOperationException(
+            $"Not allowed to Send/Receive root-level directories like C:\\, was '{project.FilePath}'");
 
-        var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
+        var repoUrl = BuildSendReceiveUrl(baseUrl, project.Name, auth);
 
         var flexBridgeOptions = new Dictionary<string, string>
         {
@@ -69,14 +70,13 @@ public static class SendReceiveHelpers
         return CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
     }
 
-    public static LfMergeBridgeResult CloneProject(string fwdataPath, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? projectCode = null)
+    public static LfMergeBridgeResult CloneProject(FwDataProject project, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072")
     {
         // If projectCode not given, calculate it from the fwdataPath
-        var fwdataInfo = new FileInfo(fwdataPath);
-        if (fwdataInfo.Directory is null) throw new ArgumentException("Not allowed to Send/Receive root-level directories like C:\\", nameof(fwdataPath));
-        projectCode ??= Path.GetFileNameWithoutExtension(fwdataPath);
+        var fwdataInfo = new FileInfo(project.FilePath);
+        if (fwdataInfo.Directory is null) throw new InvalidOperationException($"Not allowed to Send/Receive root-level directories like C:\\ '{project.FilePath}'");
 
-        var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
+        var repoUrl = BuildSendReceiveUrl(baseUrl, project.Name, auth);
 
         var flexBridgeOptions = new Dictionary<string, string>
         {
