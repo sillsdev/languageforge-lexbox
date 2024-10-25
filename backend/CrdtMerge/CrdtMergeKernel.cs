@@ -9,10 +9,7 @@ public static class CrdtMergeKernel
     public static void AddCrdtMerge(this IServiceCollection services)
     {
         services
-            .AddLogging(builder => builder.AddConsole().AddDebug().AddConfiguration(new ConfigurationManager().AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
-            }).Build()));
+            .AddLogging(builder => builder.AddConsole().AddDebug().AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning));
         services.AddOptions<CrdtMergeConfig>()
             .BindConfiguration("SendReceiveConfig")
             .ValidateDataAnnotations()
