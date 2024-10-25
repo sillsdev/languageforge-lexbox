@@ -1,5 +1,7 @@
 using SIL.Progress;
 
+namespace CrdtMerge;
+
 public static class SendReceiveHelpers
 {
     public record ProjectPath(string Code, string Dir)

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace CrdtMerge;
+
 public class CrdtMergeConfig
 {
     [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]

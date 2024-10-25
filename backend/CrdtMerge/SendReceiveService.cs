@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Options;
 
+namespace CrdtMerge;
+
 public class SendReceiveService(IOptions<CrdtMergeConfig> config)
 {
     public SendReceiveHelpers.LfMergeBridgeResult SendReceive(string projectFolder, string projectCode, string? commitMessage = null)
