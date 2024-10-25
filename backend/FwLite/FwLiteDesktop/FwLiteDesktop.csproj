@@ -22,6 +22,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
         <SelfContained>true</SelfContained>
+        <EnableWindowsTargeting Condition="$([MSBuild]::IsOSPlatform('linux'))">true</EnableWindowsTargeting>
 
 		<!-- controls display name in Package.appxmanifest -->
 		<ApplicationTitle>FieldWorks Lite</ApplicationTitle>
