@@ -9,7 +9,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
 {
     public Dictionary<string, LcmCache> Projects { get; } = new();
 
-    public new LcmCache LoadCache(string fileName)
+    LcmCache IProjectLoader.LoadCache(string fileName, string? overridePath)
     {
         if (!Projects.TryGetValue(Path.GetFileNameWithoutExtension(fileName), out var cache))
         {
@@ -19,7 +19,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
         return cache;
     }
 
-    public new LcmCache NewProject(string fileName, string analysisWs, string vernacularWs)
+    LcmCache IProjectLoader.NewProject(string fileName, string analysisWs, string vernacularWs)
     {
         Init();
         var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
