@@ -15,8 +15,6 @@ public static class SendReceiveHelpers
         public SendReceiveAuth(CrdtMergeConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
     };
 
-    public record SendReceiveParams(string ProjectCode, string BaseUrl, string Dir) : ProjectPath(ProjectCode, Dir);
-
     public record LfMergeBridgeResult(string Output, string ProgressMessages);
 
     private static LfMergeBridgeResult CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions)
