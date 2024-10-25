@@ -425,7 +425,7 @@ type ProjectWritingSystems {
 }
 
 type Query {
-  myProjects(orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @cost(weight: "10")
+  myProjects(orderBy: [ProjectSortInput!] @cost(weight: "10") where: ProjectFilterInput @cost(weight: "10")): [Project!]! @cost(weight: "10")
   projects(withDeleted: Boolean! = false where: ProjectFilterInput @cost(weight: "10") orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
   myDraftProjects(orderBy: [DraftProjectSortInput!] @cost(weight: "10")): [DraftProject!]! @cost(weight: "10")
   draftProjects(where: DraftProjectFilterInput @cost(weight: "10") orderBy: [DraftProjectSortInput!] @cost(weight: "10")): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
