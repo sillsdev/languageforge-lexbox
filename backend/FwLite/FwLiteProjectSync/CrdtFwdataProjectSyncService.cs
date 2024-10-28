@@ -16,6 +16,10 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
+        if (crdtApi is CrdtMiniLcmApi crdt && crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)
+        {
+            throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
+        }
         var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath);
         SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
 

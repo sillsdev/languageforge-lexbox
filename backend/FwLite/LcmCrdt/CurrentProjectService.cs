@@ -45,8 +45,9 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
         return memoryCache.Get<ProjectData>(CacheKey(projectId));
     }
 
-    public async ValueTask<ProjectData> PopulateProjectDataCache()
+    public async ValueTask<ProjectData> PopulateProjectDataCache(bool force = false)
     {
+        if (force) RemoveProjectDataCache();
         var projectData = await GetProjectData();
         return projectData;
     }

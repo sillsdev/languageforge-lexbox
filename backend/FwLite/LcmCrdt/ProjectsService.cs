@@ -39,7 +39,8 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
         bool SeedNewProjectData = true,
-        string? Path = null);
+        string? Path = null,
+        Guid? FwProjectId = null);
 
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
@@ -55,7 +56,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
             var projectData = new ProjectData(name,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
-                Guid.NewGuid());
+                Guid.NewGuid(), request.FwProjectId);
             await InitProjectDb(db, projectData);
             await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
             if (request.SeedNewProjectData)
