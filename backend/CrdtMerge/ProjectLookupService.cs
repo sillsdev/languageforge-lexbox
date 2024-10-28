@@ -5,12 +5,12 @@ namespace CrdtMerge;
 
 public class ProjectLookupService(LexBoxDbContext dbContext)
 {
-    public async ValueTask<Guid?> GetProjectId(string projectCode)
+    public async ValueTask<string?> GetProjectCode(Guid projectId)
     {
-        var projectId = await dbContext.Projects
-            .Where(p => p.Code == projectCode)
-            .Select(p => p.Id)
+        var projectCode = await dbContext.Projects
+            .Where(p => p.Id == projectId)
+            .Select(p => p.Code)
             .FirstOrDefaultAsync();
-        return projectId;
+        return projectCode;
     }
 }

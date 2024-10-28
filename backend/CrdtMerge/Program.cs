@@ -46,20 +46,20 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound>
     ProjectsService projectsService,
     ProjectLookupService projectLookupService,
     CrdtFwdataProjectSyncService syncService,
-    string projectCode,
+    Guid projectId,
     bool dryRun = false)
 {
-    logger.LogInformation("About to execute sync request for {projectCode}", projectCode);
+    logger.LogInformation("About to execute sync request for {projectId}", projectId);
     if (dryRun)
     {
         logger.LogInformation("Dry run, not actually syncing");
         return TypedResults.Ok(new CrdtFwdataProjectSyncService.SyncResult(0, 0));
     }
 
-    var projectId = await projectLookupService.GetProjectId(projectCode);
-    if (projectId is null)
+    var projectCode = await projectLookupService.GetProjectCode(projectId);
+    if (projectCode is null)
     {
-        logger.LogError("Project code {projectCode} not found", projectCode);
+        logger.LogError("Project ID {projectId} not found", projectId);
         return TypedResults.NotFound();
     }
 
