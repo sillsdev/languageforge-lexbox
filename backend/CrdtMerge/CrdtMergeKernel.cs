@@ -15,6 +15,7 @@ public static class CrdtMergeKernel
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddScoped<SendReceiveService>();
+        services.AddScoped<ProjectLookupService>();
         services
             .AddLcmCrdtClient()
             .AddFwDataBridge()
