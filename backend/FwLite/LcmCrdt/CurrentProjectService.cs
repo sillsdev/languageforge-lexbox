@@ -27,7 +27,7 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
 
     private static string CacheKey(CrdtProject project)
     {
-        return project.Name + "|ProjectData";
+        return project.DbPath + "|ProjectData";
     }
 
     private static string CacheKey(Guid projectId)
