@@ -100,11 +100,10 @@ jobs:
           cache-dependency-path: 'frontend/pnpm-lock.yaml'
       - name: Playwright setup
         working-directory: frontend
-        run: pnpm install && pnpm pretest
+        run: pnpm install
       - name: Set up Playwright dependencies
         working-directory: frontend
-        if: ${{ inputs.runs-on == 'self-hosted' }}
-        run: sudo pnpm exec playwright install-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Integration tests (Playwright)
         id: playwright-tests
