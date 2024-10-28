@@ -1,4 +1,5 @@
-﻿using FwDataMiniLcmBridge;
+﻿using System.Runtime.CompilerServices;
+using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Tests.Fixtures;
@@ -21,7 +22,7 @@ public class SyncFixture : IAsyncLifetime
     private readonly string _projectName;
     private readonly MockProjectContext _projectContext = new(null);
 
-    public static SyncFixture Create(string projectName) => new(projectName);
+    public static SyncFixture Create([CallerMemberName] string projectName = "") => new(projectName);
 
     private SyncFixture(string projectName)
     {
@@ -58,9 +59,7 @@ public class SyncFixture : IAsyncLifetime
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<ProjectsService>()
             .CreateProject(new(_projectName, FwProjectId: FwDataApi.ProjectId));
-        _projectContext.Project = crdtProject;
-        await _services.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
-        CrdtApi = (CrdtMiniLcmApi) _services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
+        CrdtApi = (CrdtMiniLcmApi) await _services.ServiceProvider.OpenCrdtProject(crdtProject);
     }
 
     public async Task DisposeAsync()

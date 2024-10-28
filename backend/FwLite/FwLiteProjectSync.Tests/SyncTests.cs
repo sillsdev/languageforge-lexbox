@@ -87,18 +87,22 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
-    public async Task SyncFailsWithMismatchedProjectIds()
+    public static async Task SyncFailsWithMismatchedProjectIds()
     {
-        var crdtApi = _fixture.CrdtApi;
-        var fwdataApi = _fixture.FwDataApi;
-        await _syncService.Sync(crdtApi, fwdataApi);
+        var fixture = SyncFixture.Create();
+        await fixture.InitializeAsync();
+        var crdtApi = fixture.CrdtApi;
+        var fwdataApi = fixture.FwDataApi;
+        await fixture.SyncService.Sync(crdtApi, fwdataApi);
 
         var newFwProjectId = Guid.NewGuid();
-        await _fixture.Services.GetRequiredService<LcmCrdtDbContext>().ProjectData.
+        await fixture.Services.GetRequiredService<LcmCrdtDbContext>().ProjectData.
             ExecuteUpdateAsync(updates => updates.SetProperty(p => p.FwProjectId, newFwProjectId));
-        await _fixture.Services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache(force: true);
-        Func<Task> syncTask = async () => await _syncService.Sync(crdtApi, fwdataApi);
+        await fixture.Services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache(force: true);
+
+        Func<Task> syncTask = async () => await fixture.SyncService.Sync(crdtApi, fwdataApi);
         await syncTask.Should().ThrowAsync<InvalidOperationException>();
+        await fixture.DisposeAsync();
     }
 
     [Fact]
