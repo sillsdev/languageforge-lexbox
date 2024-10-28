@@ -33,3 +33,21 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: weekly-snapshots-retain-4 # provided by LTOps
+
+---
+
+# https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: crdtmerge
+  namespace: languagedepot
+  labels:
+    app.kubernetes.io/part-of: languagedepot
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: weekly-snapshots-retain-4 # provided by LTOps

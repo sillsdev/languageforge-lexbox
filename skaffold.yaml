@@ -14,6 +14,10 @@ build:
         manual:
           - src: '**'
             dest: /src/backend
+    - image: ghcr.io/sillsdev/lexbox-crdtmerge
+      context: backend
+      docker:
+        dockerfile: CrdtMerge/Dockerfile
     - image: ghcr.io/sillsdev/lexbox-ui
       context: frontend
       docker:
@@ -41,6 +45,12 @@ portForward:
     resourceName: lexbox
     namespace: languagedepot
     port: 5158
+  # CrdtMerge
+  - resourceType: Service
+    resourceName: crdtmerge
+    namespace: languagedepot
+    port: 80
+    localPort: 5275
   # OpenTelemetry
   - resourceType: Service
     resourceName: lexbox
@@ -89,6 +99,12 @@ profiles:
         namespace: languagedepot
         port: 5432
         localPort: 5433
+      # CrdtMerge
+      - resourceType: Service
+        resourceName: crdtmerge
+        namespace: languagedepot
+        port: 80
+        localPort: 5275
       # OpenTelemetry
       - resourceType: Service
         resourceName: lexbox
@@ -141,6 +157,12 @@ profiles:
       resourceName: lexbox
       namespace: languagedepot
       port: 5158
+    # CrdtMerge
+    - resourceType: Service
+      resourceName: crdtmerge
+      namespace: languagedepot
+      port: 80
+      localPort: 5275
     # OpenTelemetry
     - resourceType: Service
       resourceName: lexbox

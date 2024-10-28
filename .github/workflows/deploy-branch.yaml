@@ -41,10 +41,18 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
       label-latest: false
 
+  build-crdtmerge:
+    name: Build CrdtMerge
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-crdtmerge.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: false
+
   deploy:
     name: Deploy Develop
     uses: ./.github/workflows/deploy.yaml
-    needs: [ build-api, build-ui, build-hgweb, set-version ]
+    needs: [ build-api, build-ui, build-hgweb, build-crdtmerge, set-version ]
     secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}
