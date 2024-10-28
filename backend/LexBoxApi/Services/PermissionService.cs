@@ -196,10 +196,15 @@ public class PermissionService(
         if (!HasProjectRequestPermission()) throw new UnauthorizedAccessException();
     }
 
+    public bool CanCreateOrg()
+    {
+        return User is {Role: UserRole.admin};
+    }
+
     public void AssertCanCreateOrg()
     {
         //todo adjust permission
-        if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
+        if (!CanCreateOrg()) throw new UnauthorizedAccessException();
     }
 
     public bool IsOrgMember(Guid orgId)
