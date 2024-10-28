@@ -62,6 +62,7 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound>
         logger.LogError("Project ID {projectId} not found", projectId);
         return TypedResults.NotFound();
     }
+    logger.LogInformation("Project code is {projectCode}", projectCode);
 
     var projectFolder = Path.Join(config.Value.ProjectStorageRoot, $"{projectCode}-{projectId}");
     if (!Directory.Exists(projectFolder)) Directory.CreateDirectory(projectFolder);
