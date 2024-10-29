@@ -307,7 +307,7 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         entry.LexemeForm["en"] = "updated";
         var updatedEntry = await Api.UpdateEntry(before, entry);
         updatedEntry.LexemeForm["en"].Should().Be("updated");
-        updatedEntry.Should().BeEquivalentTo(entry, options => options.Excluding(e => e.Version));
+        updatedEntry.Should().BeEquivalentTo(entry);
     }
 
     [Fact]
