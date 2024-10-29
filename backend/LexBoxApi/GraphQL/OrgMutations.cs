@@ -144,12 +144,11 @@ public class OrgMutations
     {
         var org = await dbContext.Orgs.Include(o => o.Members).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
-        permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
         NotFoundException.ThrowIfNull(project);
-        await permissionService.AssertCanManageProject(projectId);
+        await permissionService.AssertCanRemoveProjectFromOrg(org, projectId);
         var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
         if (foundOrg is not null)
         {
