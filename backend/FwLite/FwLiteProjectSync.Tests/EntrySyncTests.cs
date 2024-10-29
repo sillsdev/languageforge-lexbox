@@ -44,6 +44,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         actual.Should().NotBeNull();
         actual.Should().BeEquivalentTo(after);
     }
+
     [Fact]
     public async Task CanChangeComplexFormViaSync_ComplexForms()
     {
@@ -70,6 +71,20 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         after.ComplexForms[0].ComplexFormHeadword = complexForm2.Headword();
 
         await EntrySync.Sync(after, component, _fixture.CrdtApi);
+
+        var actual = await _fixture.CrdtApi.GetEntry(after.Id);
+        actual.Should().NotBeNull();
+        actual.Should().BeEquivalentTo(after);
+    }
+
+    [Fact]
+    public async Task CanChangeComplexFormTypeViaSync()
+    {
+        var entry = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm1" } } });
+        var complexFormType = await _fixture.CrdtApi.GetComplexFormTypes().FirstAsync();
+        var after = (Entry) entry.Copy();
+        after.ComplexFormTypes = [complexFormType];
+        await EntrySync.Sync(after, entry, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();

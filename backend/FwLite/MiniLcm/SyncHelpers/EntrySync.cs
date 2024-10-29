@@ -31,7 +31,31 @@ public static class EntrySync
 
         changes += await Sync(afterEntry.Components, beforeEntry.Components, api);
         changes += await Sync(afterEntry.ComplexForms, beforeEntry.ComplexForms, api);
+        changes += await Sync(afterEntry.Id, afterEntry.ComplexFormTypes, beforeEntry.ComplexFormTypes, api);
         return changes + (updateObjectInput is null ? 0 : 1);
+    }
+
+    private static async Task<int> Sync(Guid entryId,
+        IList<ComplexFormType> afterComplexFormTypes,
+        IList<ComplexFormType> beforeComplexFormTypes,
+        IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(api,
+            beforeComplexFormTypes,
+            afterComplexFormTypes,
+            complexFormType => complexFormType.Id,
+            async (api, afterComplexFormType) =>
+            {
+                await api.AddComplexFormType(entryId, afterComplexFormType.Id);
+                return 1;
+            },
+            async (api, beforeComplexFormType) =>
+            {
+                await api.RemoveComplexFormType(entryId, beforeComplexFormType.Id);
+                return 1;
+            },
+            //do nothing, complex form types are not editable, ignore any changes to them here
+            static (api, beforeComplexFormType, afterComplexFormType) => Task.FromResult(0));
     }
 
     private static async Task<int> Sync(IList<ComplexFormComponent> afterComponents, IList<ComplexFormComponent> beforeComponents, IMiniLcmApi api)
