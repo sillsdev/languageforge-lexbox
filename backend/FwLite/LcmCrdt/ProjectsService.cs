@@ -81,6 +81,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
 
     internal static async Task SeedSystemData(DataModel dataModel, Guid clientId)
     {
+        await PreDefinedData.PredefinedComplexFormTypes(dataModel, clientId);
         await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
         await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
     }
