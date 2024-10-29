@@ -152,10 +152,18 @@ public static class LcmCrdtKernel
             .Add<CreateComplexFormType>();
     }
 
-    public static async Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
+    public static Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
     {
+        //this method must not be async, otherwise Setting the project scope will not work as expected.
+        //the project is stored in the async scope, if a new scope is created in this method then it will be gone once the method returns
+        //making the lcm api unusable
         var projectsService = services.GetRequiredService<ProjectsService>();
         projectsService.SetProjectScope(project);
+        return LoadMiniLcmApi(services);
+    }
+
+    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services)
+    {
         await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         return services.GetRequiredService<IMiniLcmApi>();
     }

@@ -38,7 +38,7 @@ public class FwDataFactory(
         return GetFwDataMiniLcmApi(project, saveOnDispose);
     }
 
-    private string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FileName}";
+    private string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FilePath}";
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {

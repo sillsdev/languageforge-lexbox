@@ -13,7 +13,7 @@ namespace LcmCrdt;
 public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
-
+    public ProjectData ProjectData => projectService.ProjectData;
 
     private IQueryable<Entry> Entries => dataModel.GetLatestObjects<Entry>();
     private IQueryable<ComplexFormComponent> ComplexFormComponents => dataModel.GetLatestObjects<ComplexFormComponent>();

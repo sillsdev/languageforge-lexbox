@@ -20,6 +20,7 @@
     <ProjectReference Include="../FwLite/LcmCrdt/LcmCrdt.csproj" />
     <ProjectReference Include="../FwLite/FwLiteProjectSync/FwLiteProjectSync.csproj" />
     <ProjectReference Include="../FixFwData/FixFwData.csproj" />
+    <ProjectReference Include="../LexData/LexData.csproj" />
   </ItemGroup>
 
   <ItemGroup>

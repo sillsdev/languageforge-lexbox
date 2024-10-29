@@ -7,7 +7,7 @@ public class SyncFixtureTests
     [Fact]
     public async Task CanStart()
     {
-        var fixture = SyncFixture.Create("test-sync-fixture");
+        var fixture = SyncFixture.Create();
         await fixture.InitializeAsync();
         await fixture.DisposeAsync();
     }

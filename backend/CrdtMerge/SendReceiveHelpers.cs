@@ -45,14 +45,14 @@ public static class SendReceiveHelpers
         return builder.Uri;
     }
 
-    public static LfMergeBridgeResult SendReceive(FwDataProject project, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null)
+    public static LfMergeBridgeResult SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null)
     {
-        // If projectCode not given, calculate it from the fwdataPath
+        projectCode ??= project.Name;
         var fwdataInfo = new FileInfo(project.FilePath);
         if (fwdataInfo.Directory is null) throw new InvalidOperationException(
             $"Not allowed to Send/Receive root-level directories like C:\\, was '{project.FilePath}'");
 
-        var repoUrl = BuildSendReceiveUrl(baseUrl, project.Name, auth);
+        var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
 
         var flexBridgeOptions = new Dictionary<string, string>
         {
@@ -68,13 +68,13 @@ public static class SendReceiveHelpers
         return CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
     }
 
-    public static LfMergeBridgeResult CloneProject(FwDataProject project, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072")
+    public static LfMergeBridgeResult CloneProject(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072")
     {
-        // If projectCode not given, calculate it from the fwdataPath
+        projectCode ??= project.Name;
         var fwdataInfo = new FileInfo(project.FilePath);
         if (fwdataInfo.Directory is null) throw new InvalidOperationException($"Not allowed to Send/Receive root-level directories like C:\\ '{project.FilePath}'");
 
-        var repoUrl = BuildSendReceiveUrl(baseUrl, project.Name, auth);
+        var repoUrl = BuildSendReceiveUrl(baseUrl, projectCode, auth);
 
         var flexBridgeOptions = new Dictionary<string, string>
         {

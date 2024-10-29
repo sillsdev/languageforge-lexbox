@@ -3,7 +3,7 @@
   import type { OrgListPageQuery } from '$lib/gql/types';
   import t, { date, number } from '$lib/i18n';
   import { Icon } from '$lib/icons';
-  import { Page } from '$lib/layout';
+  import { HeaderPage } from '$lib/layout';
   import AdminContent from '$lib/layout/AdminContent.svelte';
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { PageData } from './$types';
@@ -11,6 +11,7 @@
 
   export let data: PageData;
   $: orgs = data.orgs;
+  $: myOrgsMap = data.myOrgsMap;
 
   const queryParams = getSearchParams<OrgListSearchParams>({
     search: queryParam.string<string>(''),
@@ -33,7 +34,7 @@
       swapSortDir();
     } else {
       sortColumn = clickedColumn;
-      sortDir = 'ascending';
+      sortDir = clickedColumn === 'name' ? 'ascending' : 'descending';
     }
   }
 
@@ -48,8 +49,7 @@
       if (sortColumn === 'members') {
         return (a.memberCount - b.memberCount) * mult;
       } else if (sortColumn === 'name') {
-        const comp = a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-        return comp * mult;
+        return a.name.localeCompare(b.name);
       } else if (sortColumn === 'created_at') {
         const comp = a.createdDate < b.createdDate ? -1 : a.createdDate > b.createdDate ? 1 : 0;
         return comp * mult;
@@ -61,6 +61,21 @@
 
   $: filteredOrgs = $orgs ? filterOrgs($orgs, $queryParamValues.search) : [];
   $: displayOrgs = sortOrgs(filteredOrgs, sortColumn, sortDir);
+  $: filtering = filteredOrgs.length !== $orgs.length;
+
+  let myOrgs: OrgList = [];
+  let otherOrgs: OrgList = [];
+  $: {
+    myOrgs = [];
+    otherOrgs = [];
+    displayOrgs.forEach(org => {
+      if ($myOrgsMap.has(org.id)) {
+        myOrgs.push(org);
+      } else {
+        otherOrgs.push(org);
+      }
+    });
+  }
 </script>
 
 <!--
@@ -70,32 +85,27 @@ TODO:
 * Paging
 -->
 
-<Page wide title={$t('org.table.title')}>
-  <svelte:fragment slot="header">
-    <div class="flex flex-row-reverse flex-wrap justify-between mb-4 gap-y-2 gap-x-4">
-      <AdminContent>
-        <div class="inline-flex flex-wrap header-actions gap-2">
-          <a href="/org/create" class="btn btn-success">
-            {$t('org.create.title')}
-            <span class="i-mdi-plus text-2xl" />
-          </a>
-        </div>
-      </AdminContent>
-      <h1 class="text-3xl text-left grow max-w-full mb-4 flex gap-4 items-center">
-        {$t('org.table.title')}
-        <Icon icon="i-mdi-account-group-outline" size="text-5xl" />
-      </h1>
-    </div>
-    <div class="mt-4">
-      <FilterBar
-        searchKey="search"
-        filterKeys={['search']}
-        filters={queryParamValues}
-        filterDefaults={defaultQueryParamValues}
-      />
-    </div>
+<HeaderPage wide title={$t('org.table.title')}>
+  <svelte:fragment slot="actions">
+    <AdminContent>
+      <a href="/org/create" class="btn btn-success">
+        {$t('org.create.title')}
+        <span class="i-mdi-plus text-2xl" />
+      </a>
+    </AdminContent>
   </svelte:fragment>
-  <div class="divider" />
+  <svelte:fragment slot="title">
+    {$t('org.table.title')}
+    <Icon icon="i-mdi-account-group-outline" size="text-5xl" y="10%" />
+  </svelte:fragment>
+  <svelte:fragment slot="header-content">
+    <FilterBar
+      searchKey="search"
+      filterKeys={['search']}
+      filters={queryParamValues}
+      filterDefaults={defaultQueryParamValues}
+    />
+  </svelte:fragment>
   <div class="overflow-x-auto @container scroll-shadow">
     <table class="table table-lg">
       <thead>
@@ -115,22 +125,53 @@ TODO:
         </tr>
       </thead>
       <tbody>
-        {#each displayOrgs as org}
+        {#if !displayOrgs.length}
           <tr>
-            <td>
-                <a class="link" href={`/org/${org.id}`}>
-                  {org.name}
-                </a>
-            </td>
-            <td class="hidden @md:table-cell">
-              {$number(org.memberCount)}
-            </td>
-            <td class="hidden @xl:table-cell">
-              {$date(org.createdDate)}
+            <td colspan="3" class="text-center text-secondary">
+              {$t('org.table.no_orgs_found')}
             </td>
           </tr>
-        {/each}
+        {:else}
+          {@const showingMyOrgsHeader = !filtering || myOrgs.length}
+          {#if showingMyOrgsHeader}
+            <tr>
+              <td colspan="3" class="text-sm bg-neutral/75 text-neutral-content py-2">
+                {$t('org.table.my_orgs')}
+              </td>
+            </tr>
+            {#if !$myOrgsMap.size}
+              <tr>
+                <td colspan="3" class="text-center text-secondary">
+                  {$t('org.table.not_in_any_orgs')}
+                </td>
+              </tr>
+            {/if}
+          {/if}
+          {#each [...myOrgs, ...otherOrgs] as org, i}
+            {@const isFirstOtherOrg = i === myOrgs.length}
+            {#if showingMyOrgsHeader && isFirstOtherOrg}
+              <tr>
+                <td colspan="3" class="text-sm bg-neutral/75 text-neutral-content py-2">
+                  {$t('org.table.other_orgs')}
+                </td>
+              </tr>
+            {/if}
+            <tr>
+              <td>
+                  <a class="link" href={`/org/${org.id}`}>
+                    {org.name}
+                  </a>
+              </td>
+              <td class="hidden @md:table-cell">
+                {$number(org.memberCount)}
+              </td>
+              <td class="hidden @xl:table-cell">
+                {$date(org.createdDate)}
+              </td>
+            </tr>
+          {/each}
+        {/if}
       </tbody>
     </table>
   </div>
-</Page>
+</HeaderPage>

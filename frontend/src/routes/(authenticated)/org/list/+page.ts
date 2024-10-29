@@ -1,7 +1,7 @@
-import { getClient, graphql } from '$lib/gql';
+import {getClient, graphql} from '$lib/gql';
 
 import type {PageLoadEvent} from './$types';
-import { tryMakeNonNullable } from '$lib/util/store';
+import {derived} from 'svelte/store';
 
 export type OrgListSearchParams = {
   search: string,
@@ -19,10 +19,17 @@ export async function load(event: PageLoadEvent) {
             createdDate
             memberCount
           }
+          myOrgs {
+            id
+          }
         }
       `),
-    {}
+      {}
     );
-  const nonNullableOrgs = tryMakeNonNullable(orgQueryResult.orgs);
-  return {orgs: nonNullableOrgs};
+
+  const myOrgsMap = derived(orgQueryResult.myOrgs, myOrgs => new Map(myOrgs.map(org => [org.id, org])));
+  return {
+    orgs: orgQueryResult.orgs,
+    myOrgsMap,
+  };
 }

@@ -5,10 +5,11 @@ namespace CrdtMerge;
 
 public class SendReceiveService(IOptions<CrdtMergeConfig> config)
 {
-    public SendReceiveHelpers.LfMergeBridgeResult SendReceive(FwDataProject project, string? commitMessage = null)
+    public SendReceiveHelpers.LfMergeBridgeResult SendReceive(FwDataProject project, string? projectCode, string? commitMessage = null)
     {
         return SendReceiveHelpers.SendReceive(
             project: project,
+            projectCode: projectCode,
             baseUrl: config.Value.HgWebUrl,
             auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
             fdoDataModelVersion: config.Value.FdoDataModelVersion,
@@ -16,10 +17,11 @@ public class SendReceiveService(IOptions<CrdtMergeConfig> config)
         );
     }
 
-    public SendReceiveHelpers.LfMergeBridgeResult Clone(FwDataProject project)
+    public SendReceiveHelpers.LfMergeBridgeResult Clone(FwDataProject project, string? projectCode)
     {
         return SendReceiveHelpers.CloneProject(
             project: project,
+            projectCode: projectCode,
             baseUrl: config.Value.HgWebUrl,
             auth: new SendReceiveHelpers.SendReceiveAuth(config.Value),
             fdoDataModelVersion: config.Value.FdoDataModelVersion
