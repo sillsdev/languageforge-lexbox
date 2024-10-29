@@ -558,6 +558,30 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
+    public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        UndoableUnitOfWorkHelper.Do("Add Complex Form Type",
+            "Remove Complex Form Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                AddComplexFormType(EntriesRepository.GetObject(entryId), complexFormTypeId);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        UndoableUnitOfWorkHelper.Do("Remove Complex Form Type",
+            "Add Complex Form Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                RemoveComplexFormType(EntriesRepository.GetObject(entryId), complexFormTypeId);
+            });
+        return Task.CompletedTask;
+    }
+
     /// <summary>
     /// must be called as part of an lcm action
     /// </summary>

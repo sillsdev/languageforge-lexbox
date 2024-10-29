@@ -102,6 +102,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveComplexFormType), $"Remove complex form type {complexFormTypeId}, from entry {entryId}"));
+        await Task.CompletedTask;
+    }
+
     public Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss}"));
@@ -178,5 +184,11 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(ReplaceComplexFormComponent), $"Replace complex form component complex entry: {old.ComplexFormHeadword}, component entry: {old.ComponentHeadword} with complex entry: {@new.ComplexFormHeadword}, component entry: {@new.ComponentHeadword}"));
         return Task.CompletedTask;
+    }
+
+    public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddComplexFormType), $"Add complex form type {complexFormTypeId}, to entry {entryId}"));
+        await Task.CompletedTask;
     }
 }

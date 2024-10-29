@@ -144,6 +144,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         await dataModel.AddChange(ClientId, change);
     }
 
+    public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        await dataModel.AddChange(ClientId, new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+    }
+
+    public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        await dataModel.AddChange(ClientId, new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);

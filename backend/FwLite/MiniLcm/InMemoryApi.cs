@@ -175,6 +175,16 @@ public class InMemoryApi : IMiniLcmApi
         throw new NotImplementedException();
     }
 
+    public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        throw new NotImplementedException();
+    }
+
     private readonly string[] _exemplars = Enumerable.Range('a', 'z').Select(c => ((char)c).ToString()).ToArray();
 
     public Task<Entry> CreateEntry(Entry entry)
