@@ -8,7 +8,6 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
 {
     public EntrySyncTests(SyncFixture fixture)
     {
-        fixture.DisableFwData();
         _fixture = fixture;
     }
 

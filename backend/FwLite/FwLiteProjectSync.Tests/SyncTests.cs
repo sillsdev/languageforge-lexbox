@@ -60,7 +60,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.FwDataApi.DeleteEntry(entry.Id);
         }
-        await foreach (var entry in _fixture.CrdtApi.GetEntries())
+        foreach (var entry in await _fixture.CrdtApi.GetEntries().ToArrayAsync())
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }

@@ -31,7 +31,7 @@ public class MiniLcmApiFixture : IAsyncLifetime
                 .AddFilter("LinqToDB", LogLevel.Trace)
                 .SetMinimumLevel(LogLevel.Error))
             .RemoveAll(typeof(ProjectContext))
-            .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", "test.sqlite")))
+            .AddSingleton<ProjectContext>(new MockProjectContext(new CrdtProject("sena-3", ":memory:")))
             .BuildServiceProvider();
         _services = services.CreateAsyncScope();
         _crdtDbContext = _services.ServiceProvider.GetRequiredService<LcmCrdtDbContext>();

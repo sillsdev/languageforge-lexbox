@@ -32,9 +32,13 @@ public static class EntrySync
         changes += await DiffCollection.Diff(api,
             beforeEntry.Components,
             afterEntry.Components,
+            //we can't use the ID as there's none defined by Fw so it won't work as a sync key
             component => (component.ComplexFormEntryId, component.ComponentEntryId, component.ComponentSenseId),
             static async (api, afterComponent) =>
             {
+                //change id, since we're not using the id as the key for this collection
+                //the id may be the same, which is not what we want here
+                afterComponent.Id = Guid.NewGuid();
                 await api.CreateComplexFormComponent(afterComponent);
                 return 1;
             },

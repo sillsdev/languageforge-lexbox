@@ -8,6 +8,7 @@ using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
 using MiniLcm.SyncHelpers;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
@@ -199,7 +200,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries
+        var entry = await Entries.AsTracking(false)
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
             .LoadWith(e => e.ComplexForms)
