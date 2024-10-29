@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import {defineConfig} from 'vite';
+import {svelte} from '@sveltejs/vite-plugin-svelte';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -28,9 +28,6 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [svelte({
-      compilerOptions: {
-        customElement: true,
-      },
       onwarn: (warning, handler) => {
         // we don't have control over these warnings and there are lots
         if (warning.filename?.includes('node_modules/svelte-ux')) return;
@@ -39,6 +36,7 @@ export default defineConfig(({ mode }) => {
     })],
     ...(!webComponent ? {
       server: {
+        open: 'http://localhost:5173/testing/project-view',
         proxy: {
           '/api': {
             target: 'http://localhost:5137',

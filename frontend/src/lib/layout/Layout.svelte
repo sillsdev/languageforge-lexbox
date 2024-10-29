@@ -55,12 +55,10 @@
               {$t('appmenu.help')}
               <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
-            <DevContent>
             <a href="/org/list" class="btn btn-sm btn-secondary hidden lg:flex">
               {$t('appmenu.orgs')}
               <Icon icon="i-mdi-account-group-outline" size="text-xl" />
             </a>
-            </DevContent>
             <a href="/" class="btn btn-sm btn-primary">
               <span class="max-sm:hidden">
                 {$t('user_dashboard.title')}

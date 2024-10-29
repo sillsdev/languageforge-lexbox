@@ -153,6 +153,15 @@ public class LexQueries
     [GraphQLType<OrgByIdGqlConfiguration>]
     public async Task<Organization?> OrgById(LexBoxDbContext dbContext, Guid orgId, IPermissionService permissionService, IResolverContext context)
     {
+        return await QueryOrgById(dbContext, orgId, permissionService, context);
+    }
+
+    [GraphQLIgnore]
+    internal static async Task<Organization?> QueryOrgById(LexBoxDbContext dbContext,
+        Guid orgId,
+        IPermissionService permissionService,
+        IResolverContext context)
+    {
         var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(context).SingleOrDefaultAsync();
         if (org is null) return org;
         // Site admins and org admins can see everything

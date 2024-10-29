@@ -1,4 +1,7 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
+using LcmCrdt;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
@@ -81,6 +84,25 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options.For(e => e.Components).Exclude(c => c.Id)
                               .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
+    public static async Task SyncFailsWithMismatchedProjectIds()
+    {
+        var fixture = SyncFixture.Create();
+        await fixture.InitializeAsync();
+        var crdtApi = fixture.CrdtApi;
+        var fwdataApi = fixture.FwDataApi;
+        await fixture.SyncService.Sync(crdtApi, fwdataApi);
+
+        var newFwProjectId = Guid.NewGuid();
+        await fixture.Services.GetRequiredService<LcmCrdtDbContext>().ProjectData.
+            ExecuteUpdateAsync(updates => updates.SetProperty(p => p.FwProjectId, newFwProjectId));
+        await fixture.Services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache(force: true);
+
+        Func<Task> syncTask = async () => await fixture.SyncService.Sync(crdtApi, fwdataApi);
+        await syncTask.Should().ThrowAsync<InvalidOperationException>();
+        await fixture.DisposeAsync();
     }
 
     [Fact]

@@ -1,5 +1,7 @@
-﻿using LexBoxApi.Auth;
+﻿using HotChocolate.Resolvers;
+using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
+using LexBoxApi.GraphQL.CustomTypes;
 using LexBoxApi.Models.Org;
 using LexBoxApi.Services;
 using LexBoxApi.Services.Email;
@@ -92,17 +94,18 @@ public class OrgMutations
     [Error<DbError>]
     [Error<NotFoundException>]
     [UseMutationConvention]
-    [UseFirstOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Organization>> AddProjectsToOrg(
+    [GraphQLType<OrgByIdGqlConfiguration>]
+    public async Task<Organization?> AddProjectsToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
         [Service] ProjectService projectService,
+        IResolverContext resolverContext,
         Guid orgId,
         Guid[] projectIds)
     {
         // Bail out immediately, not even checking permissions, if no projects added at all
-        if (projectIds == null || projectIds.Length == 0) return dbContext.Orgs.Where(o => o.Id == orgId);
+        if (projectIds == null || projectIds.Length == 0) return await LexQueries.QueryOrgById(dbContext, orgId, permissionService, resolverContext);
 
         var org = await dbContext.Orgs.Include(o => o.Members).Include(o => o.Projects).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
@@ -124,7 +127,7 @@ public class OrgMutations
             projectService.InvalidateProjectOrgIdsCache(projectId);
         }
         await dbContext.SaveChangesAsync();
-        return dbContext.Orgs.Where(o => o.Id == orgId);
+        return await LexQueries.QueryOrgById(dbContext, orgId, permissionService, resolverContext);
     }
 
     [Error<DbError>]

@@ -9,6 +9,9 @@ export function usePartsOfSpeech(): Readable<PartOfSpeech[]> {
     partsOfSpeechStore = writable<PartOfSpeech[] | null>([], (set) => {
       useLexboxApi().GetPartsOfSpeech().then(partsOfSpeech => {
         set(partsOfSpeech);
+      }).catch(error => {
+        console.error('Failed to load parts of speech', error);
+        throw error;
       });
     });
   }

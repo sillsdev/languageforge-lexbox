@@ -1,24 +1,26 @@
 import type {
   $OpResult,
   AddOrgMemberMutation,
+  AddProjectsToOrgMutation,
   BulkAddOrgMembersMutation,
   ChangeOrgMemberRoleMutation,
   ChangeOrgNameInput,
   ChangeOrgNameMutation,
   DeleteOrgMutation,
   DeleteOrgUserMutation,
+  LoadMyProjectsQuery,
   OrgMemberDto,
   OrgPageQuery,
   OrgRole,
   RemoveProjectFromOrgMutation,
 } from '$lib/gql/types';
-import { getClient, graphql } from '$lib/gql';
+import {getClient, graphql} from '$lib/gql';
 
-import type { OrgTabId } from './OrgTabs.svelte';
-import type { PageLoadEvent } from './$types';
-import type { UUID } from 'crypto';
-import { error } from '@sveltejs/kit';
-import { tryMakeNonNullable } from '$lib/util/store';
+import type {OrgTabId} from './OrgTabs.svelte';
+import type {PageLoadEvent} from './$types';
+import type {UUID} from 'crypto';
+import {error} from '@sveltejs/kit';
+import {tryMakeNonNullable} from '$lib/util/store';
 
 export type Org = NonNullable<OrgPageQuery['orgById']>;
 export type OrgUser = Org['members'][number];
@@ -138,7 +140,7 @@ export async function _addOrgMember(orgId: UUID, emailOrUsername: string, role: 
             }
           }
           addProjectsToOrg(input: $projectsInput) {
-            organization {
+            orgById {
               id
               projects {
                 id
@@ -288,4 +290,52 @@ export async function _deleteOrg(orgId: string): $OpResult<DeleteOrgMutation> {
       { input: { orgId } }
     );
   return result;
+}
+
+export async function _getMyProjects(): Promise<LoadMyProjectsQuery['myProjects']> {
+  const client = getClient();
+  //language=GraphQL
+  const results = await client.query(graphql(`
+        query loadMyProjects {
+            myProjects(orderBy: [
+                {name: ASC }
+            ]) {
+                code
+                id
+                name
+                users {
+                  id
+                  userId
+                  role
+                }
+            }
+        }
+  `), {});
+  return results.data?.myProjects ?? [];
+}
+
+export async function _addProjectsToOrg(orgId: UUID, projectIds: string[]): $OpResult<AddProjectsToOrgMutation> {
+  //language=GraphQL
+  return await getClient()
+    .mutation(
+      graphql(`
+        mutation AddProjectsToOrg($input: AddProjectsToOrgInput!) {
+          addProjectsToOrg(input: $input) {
+            orgById {
+              id
+              projects {
+                id
+              }
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { orgId, projectIds } }
+    );
 }

@@ -17,12 +17,17 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 
     public async Task<SyncResult> Sync(IMiniLcmApi crdtApi, FwDataMiniLcmApi fwdataApi, bool dryRun = false)
     {
-        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name);
+        if (crdtApi is CrdtMiniLcmApi crdt && crdt.ProjectData.FwProjectId != fwdataApi.ProjectId)
+        {
+            throw new InvalidOperationException($"Project id mismatch, CRDT Id: {crdt.ProjectData.FwProjectId}, FWData Id: {fwdataApi.ProjectId}");
+        }
+        var projectSnapshot = await GetProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath);
         SyncResult result = await Sync(crdtApi, fwdataApi, dryRun, fwdataApi.EntryCount, projectSnapshot);
+        fwdataApi.Save();
 
         if (!dryRun)
         {
-            await SaveProjectSnapshot(fwdataApi.Project.Name,
+            await SaveProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath,
                 new ProjectSnapshot(await fwdataApi.GetEntries().ToArrayAsync()));
         }
         return result;
@@ -70,17 +75,19 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 
     public record ProjectSnapshot(Entry[] Entries);
 
-    private async Task<ProjectSnapshot?> GetProjectSnapshot(string projectName)
+    private async Task<ProjectSnapshot?> GetProjectSnapshot(string projectName, string? projectPath)
     {
-        var snapshotPath = Path.Combine(lcmCrdtConfig.Value.ProjectPath, $"{projectName}_snapshot.json");
+        projectPath ??= lcmCrdtConfig.Value.ProjectPath;
+        var snapshotPath = Path.Combine(projectPath, $"{projectName}_snapshot.json");
         if (!File.Exists(snapshotPath)) return null;
         await using var file = File.OpenRead(snapshotPath);
         return await JsonSerializer.DeserializeAsync<ProjectSnapshot>(file);
     }
 
-    private async Task SaveProjectSnapshot(string projectName, ProjectSnapshot projectSnapshot)
+    private async Task SaveProjectSnapshot(string projectName, string? projectPath, ProjectSnapshot projectSnapshot)
     {
-        var snapshotPath = Path.Combine(lcmCrdtConfig.Value.ProjectPath, $"{projectName}_snapshot.json");
+        projectPath ??= lcmCrdtConfig.Value.ProjectPath;
+        var snapshotPath = Path.Combine(projectPath, $"{projectName}_snapshot.json");
         await using var file = File.Create(snapshotPath);
         await JsonSerializer.SerializeAsync(file, projectSnapshot);
     }

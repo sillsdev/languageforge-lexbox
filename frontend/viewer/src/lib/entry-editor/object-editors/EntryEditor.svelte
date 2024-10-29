@@ -7,7 +7,7 @@
   import {mdiPlus, mdiTrashCanOutline} from '@mdi/js';
   import { Button, portal } from 'svelte-ux';
   import EntityListItemActions from '../EntityListItemActions.svelte';
-  import {defaultExampleSentence, defaultSense, emptyId, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../../utils';
+  import {defaultExampleSentence, defaultSense, firstDefOrGlossVal, firstSentenceOrTranslationVal} from '../../utils';
   import HistoryView from '../../history/HistoryView.svelte';
   import SenseEditor from './SenseEditor.svelte';
   import ExampleEditor from './ExampleEditor.svelte';
@@ -149,7 +149,6 @@
                       id="note"
                       wsType="analysis"/>
     <EntityEditor
-      entity={entry}
       {readonly}
       customFieldConfigs={[]}
       on:change={() => dispatch('change', {entry})}

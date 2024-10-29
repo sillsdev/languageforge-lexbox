@@ -14,7 +14,7 @@
 <div class="fixed bottom-0 z-50 flex flex-col gap-2 p-4 w-full overflow-y-auto">
   {#each $notifications as notification}
     <div class="w-[400px] mx-auto">
-      <Notification open closeIcon actions="right">
+      <Notification open closeIcon actionsPlacement="inline">
         <div slot="icon">
           {#if notification.type === 'success'}
             <Icon path={mdiCheckCircleOutline} size="1.5rem" class="text-success"/>

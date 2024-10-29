@@ -1,4 +1,4 @@
-import type { IMultiString } from "./i-multi-string";
+import type { IMultiString } from './i-multi-string';
 
 export interface IComplexFormType {
   id: string;

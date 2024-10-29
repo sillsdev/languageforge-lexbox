@@ -1,4 +1,6 @@
-import type {IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, SemanticDomain, WritingSystem, WritingSystems} from '../mini-lcm';
+/* eslint-disable */
+
+import type { IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, SemanticDomain, WritingSystem, WritingSystems } from '../mini-lcm';
 
 import type { Operation } from 'fast-json-patch';
 import type { Readable } from 'svelte/store';
