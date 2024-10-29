@@ -29,9 +29,16 @@ public static class EntrySync
         if (updateObjectInput is not null) await api.UpdateEntry(afterEntry.Id, updateObjectInput);
         var changes = await SensesSync(afterEntry.Id, afterEntry.Senses, beforeEntry.Senses, api);
 
-        changes += await DiffCollection.Diff(api,
-            beforeEntry.Components,
-            afterEntry.Components,
+        changes += await Sync(afterEntry.Components, beforeEntry.Components, api);
+        changes += await Sync(afterEntry.ComplexForms, beforeEntry.ComplexForms, api);
+        return changes + (updateObjectInput is null ? 0 : 1);
+    }
+
+    private static async Task<int> Sync(IList<ComplexFormComponent> afterComponents, IList<ComplexFormComponent> beforeComponents, IMiniLcmApi api)
+    {
+        return await DiffCollection.Diff(api,
+            beforeComponents,
+            afterComponents,
             //we can't use the ID as there's none defined by Fw so it won't work as a sync key
             component => (component.ComplexFormEntryId, component.ComponentEntryId, component.ComponentSenseId),
             static async (api, afterComponent) =>
@@ -59,7 +66,6 @@ public static class EntrySync
                 return 1;
             }
         );
-        return changes + (updateObjectInput is null ? 0 : 1);
     }
 
     private static async Task<int> SensesSync(Guid entryId,

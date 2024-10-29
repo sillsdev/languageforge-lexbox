@@ -14,7 +14,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
     private readonly SyncFixture _fixture;
 
     [Fact]
-    public async Task CanChangeComplexFormViaSync()
+    public async Task CanChangeComplexFormVisSync_Components()
     {
         var component1 = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "component1" } } });
         var component2 = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "component2" } } });
@@ -39,6 +39,37 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         after.Components[0].ComponentHeadword = component2.Headword();
 
         await EntrySync.Sync(after, complexForm, _fixture.CrdtApi);
+
+        var actual = await _fixture.CrdtApi.GetEntry(after.Id);
+        actual.Should().NotBeNull();
+        actual.Should().BeEquivalentTo(after);
+    }
+    [Fact]
+    public async Task CanChangeComplexFormViaSync_ComplexForms()
+    {
+        var complexForm1 = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm1" } } });
+        var complexForm2 = await _fixture.CrdtApi.CreateEntry(new() { LexemeForm = { { "en", "complexForm2" } } });
+        var componentId = Guid.NewGuid();
+        var component = await _fixture.CrdtApi.CreateEntry(new()
+        {
+            Id = componentId,
+            LexemeForm = { { "en", "component" } },
+            ComplexForms =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = componentId,
+                    ComponentHeadword = "component",
+                    ComplexFormEntryId = complexForm1.Id,
+                    ComplexFormHeadword = complexForm1.Headword()
+                }
+            ]
+        });
+        Entry after = (Entry) component.Copy();
+        after.ComplexForms[0].ComplexFormEntryId = complexForm2.Id;
+        after.ComplexForms[0].ComplexFormHeadword = complexForm2.Headword();
+
+        await EntrySync.Sync(after, component, _fixture.CrdtApi);
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
