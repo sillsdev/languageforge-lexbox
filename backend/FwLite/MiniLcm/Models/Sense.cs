@@ -4,6 +4,7 @@ public class Sense : IObjectWithId
 {
     public virtual Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
+    public string? Version { get; set; }
     public Guid EntryId { get; set; }
     public virtual MultiString Definition { get; set; } = new();
     public virtual MultiString Gloss { get; set; } = new();
@@ -34,6 +35,7 @@ public class Sense : IObjectWithId
             Id = Id,
             EntryId = EntryId,
             DeletedAt = DeletedAt,
+            Version = Version,
             Definition = Definition.Copy(),
             Gloss = Gloss.Copy(),
             PartOfSpeech = PartOfSpeech,

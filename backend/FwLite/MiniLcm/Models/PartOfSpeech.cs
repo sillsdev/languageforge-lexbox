@@ -6,6 +6,7 @@ public class PartOfSpeech : IObjectWithId
     public MultiString Name { get; set; } = new();
 
     public DateTimeOffset? DeletedAt { get; set; }
+    public string? Version { get; set; }
     public bool Predefined { get; set; }
 
     public Guid[] GetReferences()
@@ -19,6 +20,13 @@ public class PartOfSpeech : IObjectWithId
 
     public IObjectWithId Copy()
     {
-        return new PartOfSpeech { Id = Id, Name = Name, DeletedAt = DeletedAt, Predefined = Predefined };
+        return new PartOfSpeech
+        {
+            Id = Id,
+            Name = Name,
+            DeletedAt = DeletedAt,
+            Version = Version,
+            Predefined = Predefined
+        };
     }
 }

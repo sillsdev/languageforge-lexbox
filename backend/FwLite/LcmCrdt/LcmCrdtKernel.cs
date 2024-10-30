@@ -66,6 +66,14 @@ public static class LcmCrdtKernel
     public static void ConfigureCrdt(CrdtConfig config)
     {
         config.EnableProjectedTables = true;
+        config.BeforeSaveObject = (obj, snapshot) =>
+        {
+            if (obj is IObjectWithId objWithId)
+            {
+                objWithId.SetVersionGuid(snapshot.CommitId);
+            }
+            return ValueTask.CompletedTask;
+        };
         config.ObjectTypeListBuilder
             .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
@@ -168,5 +176,15 @@ public static class LcmCrdtKernel
     {
         await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
         return services.GetRequiredService<IMiniLcmApi>();
+    }
+
+    public static Guid GetVersionGuid(this IObjectWithId obj)
+    {
+        return Guid.Parse(obj.Version ?? throw new NullReferenceException("Version is null"));
+    }
+    public static Guid SetVersionGuid(this IObjectWithId obj, Guid version)
+    {
+        obj.Version = version.ToString("N");
+        return version;
     }
 }

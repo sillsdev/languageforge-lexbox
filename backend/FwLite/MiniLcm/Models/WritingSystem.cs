@@ -9,6 +9,7 @@ public record WritingSystem: IObjectWithId
     public required string Font { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
+    public string? Version { get; set; }
     public required WritingSystemType Type { get; set; }
     public string[] Exemplars { get; set; } = [];
     //todo probably need more stuff here, see wesay for ideas
@@ -37,6 +38,7 @@ public record WritingSystem: IObjectWithId
             Font = Font,
             Exemplars = Exemplars,
             DeletedAt = DeletedAt,
+            Version = Version,
             Type = Type,
             Order = Order
         };

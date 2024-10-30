@@ -9,6 +9,7 @@ public class ExampleSentence : IObjectWithId
 
     public Guid SenseId { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
+    public string? Version { get; set; }
 
     public Guid[] GetReferences()
     {
@@ -27,6 +28,7 @@ public class ExampleSentence : IObjectWithId
         {
             Id = Id,
             DeletedAt = DeletedAt,
+            Version = Version,
             SenseId = SenseId,
             Sentence = Sentence.Copy(),
             Translation = Translation.Copy(),
