@@ -14,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddHealthChecks();
+
 builder.Services.AddLexData(
     autoApplyMigrations: false,
     useOpenIddict: false
@@ -32,6 +34,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapHealthChecks("/api/healthz");
 
 app.MapPost("/sync", ExecuteMergeRequest);
 
