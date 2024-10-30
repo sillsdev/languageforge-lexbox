@@ -670,10 +670,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public async Task<Entry> UpdateEntry(Entry entry)
     {
-        ValidateVersion(entry);
-        InvalidateVersion(entry);
         var before = await GetEntry(entry.Id);
         ArgumentNullException.ThrowIfNull(before);
+        ValidateVersion(entry, before);
         await Cache.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             async () =>
@@ -864,19 +863,13 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         }
     }
 
-    private readonly HashSet<string> _invalidatedVersions = [];
-    private void ValidateVersion(IObjectWithId obj)
+    private void ValidateVersion(IObjectWithId after, IObjectWithId before)
     {
-        if (obj.Version is null) return;
-        if (_invalidatedVersions.Contains(obj.Version))
+        if (after.GetType() != before.GetType()) throw new InvalidOperationException(
+            $"Invalidating a different type of object {after.GetType().Name} with {before.GetType().Name}");
+        if (after.Version is null || after.Version != before.Version)
         {
-            throw new VersionInvalidException(obj.GetType().Name);
+            throw new VersionInvalidException(after.GetType().Name);
         }
-    }
-
-    private void InvalidateVersion(IObjectWithId obj)
-    {
-        if (obj.Version is null) return;
-        _invalidatedVersions.Add(obj.Version);
     }
 }
