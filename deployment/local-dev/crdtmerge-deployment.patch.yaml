@@ -1,0 +1,24 @@
+#file: noinspection KubernetesMissingKeys,KubernetesUnknownValues
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crdtmerge
+  namespace: languagedepot
+  labels:
+    app: crdtmerge
+spec:
+  template:
+    spec:
+      containers:
+      - name: crdtmerge
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: SendReceiveConfig__LexboxUsername
+            value: "admin"
+            valueFrom: # don't use secret as defined in base
+          - name: SendReceiveConfig__LexboxPassword
+            valueFrom:
+              secretKeyRef:
+                key: SEED_USER_PASSWORD
+                name: db
+                optional: true
