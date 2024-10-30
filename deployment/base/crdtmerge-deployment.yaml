@@ -98,11 +98,6 @@ spec:
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
           - name: SendReceiveConfig__ProjectStorageRoot
             value: /var/lib/crdtmerge/projects
-          - name: HgConfig__SendReceiveDomain
-            valueFrom:
-              configMapKeyRef:
-                name: app-config
-                key: hg-domain
           - name: SendReceiveConfig__LexboxUrl
             value: http://lexbox:5158/
           # - name: SendReceiveConfig__HgUrl
