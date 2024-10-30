@@ -28,9 +28,9 @@ public class ResetPojectRaceCondition : IClassFixture<IntegrationFixture>
         var config3 = GetNewProjectConfig();
 
         var projects = await Task.WhenAll(
-            RegisterProjectInLexBox(config1, _adminApiTester),
-            RegisterProjectInLexBox(config2, _adminApiTester),
-            RegisterProjectInLexBox(config3, _adminApiTester)
+            RegisterProjectInLexBox(config1, _adminApiTester, true),
+            RegisterProjectInLexBox(config2, _adminApiTester, true),
+            RegisterProjectInLexBox(config3, _adminApiTester, true)
         );
 
         await using var project1 = projects[0];
