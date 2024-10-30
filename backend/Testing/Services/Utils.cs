@@ -33,7 +33,8 @@ public static class Utils
 
     public static async Task<LexboxProject> RegisterProjectInLexBox(
         ProjectConfig config,
-        ApiTestBase apiTester
+        ApiTestBase apiTester,
+        bool waitForRepoReady = false
     )
     {
         await apiTester.ExecuteGql($$"""
@@ -62,7 +63,7 @@ public static class Utils
                 }
             }
             """);
-        await WaitForHgRefreshIntervalAsync();
+        if (waitForRepoReady) await WaitForHgRefreshIntervalAsync();
         return new LexboxProject(apiTester, config.Id);
     }
 
