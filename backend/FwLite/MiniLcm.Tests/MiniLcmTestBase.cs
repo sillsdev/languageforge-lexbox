@@ -7,7 +7,7 @@ public abstract class MiniLcmTestBase : IAsyncLifetime
 {
 
     protected readonly AutoFaker AutoFaker = new(builder =>
-        builder.WithOverride(new MultiStringOverride())
+        builder.WithOverride(new MultiStringOverride(["en"]))
             .WithOverride(new ObjectWithIdOverride())
     );
     protected IMiniLcmApi Api = null!;

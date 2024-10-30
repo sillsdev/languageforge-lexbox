@@ -46,7 +46,7 @@ public static class EntryFakerHelper
                 }
 
                 var name = $"test {(isComponent ? "component" : "complex form")} {i}";
-                await api.CreateEntry(new()
+                var createdEntry = await api.CreateEntry(new()
                 {
                     Id = isComponent
                         ? complexFormComponent.ComponentEntryId
@@ -66,6 +66,13 @@ public static class EntryFakerHelper
                             : (ReadOnlySpan<Sense>) []
                     ]
                 });
+                if (isComponent)
+                {
+                    complexFormComponent.ComplexFormHeadword = createdEntry.Headword();
+                } else
+                {
+                    complexFormComponent.ComponentHeadword = createdEntry.Headword();
+                }
                 i++;
             }
         }

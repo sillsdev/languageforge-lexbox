@@ -16,6 +16,7 @@ public class ObjectWithIdOverride : AutoFakerGeneratorOverride
         if (context.Instance is IObjectWithId obj)
         {
             obj.DeletedAt = null;
+            obj.Version = null;
         }
     }
 }

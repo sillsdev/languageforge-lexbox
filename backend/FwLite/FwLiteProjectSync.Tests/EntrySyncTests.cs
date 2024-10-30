@@ -2,6 +2,7 @@
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests.AutoFakerHelpers;
+using MiniLcm.Tests.Helpers;
 using Soenneker.Utils.AutoBogus;
 
 namespace FwLiteProjectSync.Tests;
@@ -24,7 +25,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after);
+        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
     }
 
     [Fact]

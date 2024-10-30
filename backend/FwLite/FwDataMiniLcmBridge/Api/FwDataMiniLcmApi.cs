@@ -2,9 +2,11 @@
 using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
+using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -293,6 +295,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return new Entry
         {
             Id = entry.Guid,
+            Version = entry.DateModified.ToString("O"),
             Note = FromLcmMultiString(entry.Comment),
             LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
             CitationForm = FromLcmMultiString(entry.CitationForm),
@@ -652,7 +655,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         var lexEntry = EntriesRepository.GetObject(id);
-        UndoableUnitOfWorkHelper.Do("Update Entry",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -661,6 +664,23 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 update.Apply(updateProxy);
             });
         return Task.FromResult(FromLexEntry(lexEntry));
+    }
+
+
+
+    public async Task<Entry> UpdateEntry(Entry entry)
+    {
+        ValidateVersion(entry);
+        InvalidateVersion(entry);
+        var before = await GetEntry(entry.Id);
+        ArgumentNullException.ThrowIfNull(before);
+        await Cache.DoUsingNewOrCurrentUOW("Update Entry",
+            "Revert entry",
+            async () =>
+            {
+                await EntrySync.Sync(entry, before, this);
+            });
+        return await GetEntry(entry.Id) ?? throw new NullReferenceException("unable to find entry with id " + entry.Id);
     }
 
     public Task DeleteEntry(Guid id)
@@ -842,5 +862,21 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
         }
+    }
+
+    private readonly HashSet<string> _invalidatedVersions = [];
+    private void ValidateVersion(IObjectWithId obj)
+    {
+        if (obj.Version is null) return;
+        if (_invalidatedVersions.Contains(obj.Version))
+        {
+            throw new VersionInvalidException(obj.GetType().Name);
+        }
+    }
+
+    private void InvalidateVersion(IObjectWithId obj)
+    {
+        if (obj.Version is null) return;
+        _invalidatedVersions.Add(obj.Version);
     }
 }

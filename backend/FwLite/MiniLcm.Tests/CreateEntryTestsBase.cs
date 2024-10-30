@@ -1,5 +1,9 @@
-﻿using MiniLcm.Models;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using FluentAssertions.Equivalency;
+using MiniLcm.Models;
 using MiniLcm.Tests.AutoFakerHelpers;
+using MiniLcm.Tests.Helpers;
 using Soenneker.Utils.AutoBogus;
 
 namespace MiniLcm.Tests;
@@ -18,9 +22,15 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
     [Fact]
     public async Task CanCreateEntry_AutoFaker()
     {
-        var entry = await AutoFaker.EntryReadyForCreation(Api);
+        var entry = await AutoFaker.EntryReadyForCreation(Api, createComplexFormTypes:false);
+        //todo limitation of fwdata prevents us from specifying the complex form type ahead of time
+        foreach (var entryComplexFormType in entry.ComplexFormTypes)
+        {
+            entryComplexFormType.Id = Guid.Empty;
+            await Api.CreateComplexFormType(entryComplexFormType);
+        }
         var createdEntry = await Api.CreateEntry(entry);
-        createdEntry.Should().BeEquivalentTo(entry);
+        createdEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion());
     }
 
     [Fact]
