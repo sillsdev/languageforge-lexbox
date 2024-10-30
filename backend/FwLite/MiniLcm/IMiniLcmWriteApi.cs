@@ -21,7 +21,7 @@ public interface IMiniLcmWriteApi
     Task<Entry> CreateEntry(Entry entry);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
 
-    Task<Entry> UpdateEntry(Entry before, Entry after)
+    Task<Entry> UpdateEntry(Entry entry)
     {
         throw new NotImplementedException();
     }

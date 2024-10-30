@@ -350,24 +350,29 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
         await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
-        return await GetEntry(id) ?? throw new NullReferenceException();
+        return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
     }
 
-    public async Task<Entry> UpdateEntry(Entry before, Entry after)
+    public async Task<Entry> UpdateEntry(Entry entry)
     {
-        //todo version stuff isn't working yet.
-        // if (!Guid.TryParse(entry.Version, out var snapshotId))
-        // {
-        //     throw new InvalidOperationException($"Unable to parse snapshot id '{entry.Version}'");
-        // }
-        //
-        // //todo this will not work for properties not in the snapshot, but we don't have a way to get the full snapshot yet
-        // var beforeChanges = await dataModel.GetBySnapshotId<Entry>(snapshotId);
-        // //workaround to avoid syncing senses, which are not in the snapshot
-        // beforeChanges.Senses = [];
-        // entry.Senses = [];
-        await EntrySync.Sync(after, before, this);
-        return await GetEntry(after.Id) ?? throw new NullReferenceException();
+        var commitId = entry.GetVersionGuid();
+
+        var commitHybridDate = await dbContext.Set<Commit>()
+            .Where(c => c.Id == commitId)
+            .Select(c => c.HybridDateTime)
+            .SingleAsyncEF();
+        //todo this will not work for properties not in the snapshot, but we don't have a way to get the full snapshot yet
+        //todo also, add api for getting an entity at a specific commit
+        var snapshot = await dataModel.GetEntitySnapshotAtTime(commitHybridDate.DateTime.AddSeconds(1), entry.Id);
+        var before = snapshot?.Entity.DbObject as Entry;
+        ArgumentNullException.ThrowIfNull(before);
+        //workaround to avoid syncing senses, which are not in the snapshot
+        before.Senses = [];
+        //don't want to modify what was passed in, so make a copy
+        entry = (Entry)entry.Copy();
+        entry.Senses = [];
+        await EntrySync.Sync(entry, before, this);
+        return await GetEntry(entry.Id) ?? throw new NullReferenceException("unable to find entry with id " + entry.Id);
     }
 
     public async Task DeleteEntry(Guid id)
