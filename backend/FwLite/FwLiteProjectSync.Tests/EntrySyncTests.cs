@@ -1,17 +1,31 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
+using MiniLcm.Tests.AutoFakerHelpers;
+using Soenneker.Utils.AutoBogus;
 
 namespace FwLiteProjectSync.Tests;
 
 public class EntrySyncTests : IClassFixture<SyncFixture>
 {
+    private readonly AutoFaker _autoFaker = new(builder => builder.WithOverride(new MultiStringOverride()).WithOverride(new ObjectWithIdOverride()));
     public EntrySyncTests(SyncFixture fixture)
     {
         _fixture = fixture;
     }
 
     private readonly SyncFixture _fixture;
+
+    [Fact]
+    public async Task CanSyncRandomEntries()
+    {
+        var createdEntry = await _fixture.CrdtApi.CreateEntry(await _autoFaker.EntryReadyForCreation(_fixture.CrdtApi));
+        var after = await _autoFaker.EntryReadyForCreation(_fixture.CrdtApi, entryId: createdEntry.Id);
+        await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
+        var actual = await _fixture.CrdtApi.GetEntry(after.Id);
+        actual.Should().NotBeNull();
+        actual.Should().BeEquivalentTo(after);
+    }
 
     [Fact]
     public async Task CanChangeComplexFormVisSync_Components()
