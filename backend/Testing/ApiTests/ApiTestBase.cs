@@ -14,6 +14,7 @@ public class ApiTestBase
     public string BaseUrl => TestingEnvironmentVariables.ServerBaseUrl;
     private readonly SocketsHttpHandler _httpClientHandler;
     public readonly HttpClient HttpClient;
+    public string? CurrJwt { get; private set; }
 
     public ApiTestBase()
     {
@@ -48,7 +49,8 @@ public class ApiTestBase
     {
         password ??= TestingEnvironmentVariables.DefaultPassword;
         var response = await JwtHelper.ExecuteLogin(new SendReceiveAuth(user, password), HttpClient);
-        return JwtHelper.GetJwtFromLoginResponse(response);
+        CurrJwt = JwtHelper.GetJwtFromLoginResponse(response);
+        return CurrJwt;
     }
 
     public void ClearCookies()
