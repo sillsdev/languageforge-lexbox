@@ -2,7 +2,7 @@
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
 
-namespace FwLiteProjectSync.Tests.Fixtures;
+namespace MiniLcm.Tests.AutoFakerHelpers;
 
 public class MultiStringOverride: AutoFakerOverride<MultiString>
 {

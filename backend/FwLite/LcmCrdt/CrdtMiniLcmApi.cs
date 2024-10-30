@@ -282,12 +282,66 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany(s => CreateSenseChanges(entry.Id, s))
                 .ToArrayAsync(),
-            ..entry.Components.Select(c => new AddEntryComponentChange(c)),
-            ..entry.ComplexForms.Select(c => new AddEntryComponentChange(c)),
-            ..entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c))
+            ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
+            ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
+            ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
+
+        async IAsyncEnumerable<AddEntryComponentChange> ToComplexFormComponents(IList<ComplexFormComponent> complexFormComponents)
+        {
+            foreach (var complexFormComponent in complexFormComponents)
+            {
+                if (complexFormComponent.ComponentEntryId == default) complexFormComponent.ComponentEntryId = entry.Id;
+                if (complexFormComponent.ComplexFormEntryId == default) complexFormComponent.ComplexFormEntryId = entry.Id;
+                if (complexFormComponent.ComponentEntryId == complexFormComponent.ComplexFormEntryId)
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} has the same component id as its complex form");
+                }
+                if (complexFormComponent.ComponentEntryId != entry.Id &&
+                    await IsEntryDeleted(complexFormComponent.ComponentEntryId))
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComponentEntryId} as its component");
+                }
+                if (complexFormComponent.ComplexFormEntryId != entry.Id &&
+                    await IsEntryDeleted(complexFormComponent.ComplexFormEntryId))
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComplexFormEntryId} as its complex form");
+                }
+
+                if (complexFormComponent.ComponentSenseId != null &&
+                    !await Senses.AnyAsyncEF(s => s.Id == complexFormComponent.ComponentSenseId.Value))
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
+                }
+                yield return new AddEntryComponentChange(complexFormComponent);
+            }
+        }
+
+        async IAsyncEnumerable<AddComplexFormTypeChange> ToComplexFormTypes(IList<ComplexFormType> complexFormTypes)
+        {
+            foreach (var complexFormType in complexFormTypes)
+            {
+                if (complexFormType.Id == default)
+                {
+                    throw new InvalidOperationException("Complex form type must have an id");
+                }
+
+                if (!await ComplexFormTypes.AnyAsyncEF(t => t.Id == complexFormType.Id))
+                {
+                    throw new InvalidOperationException($"Complex form type {complexFormType} does not exist");
+                }
+                yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
+            }
+        }
     }
+
+    private async ValueTask<bool> IsEntryDeleted(Guid id)
+    {
+        return !await Entries.AnyAsyncEF(e => e.Id == id);
+    }
+
+
 
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)

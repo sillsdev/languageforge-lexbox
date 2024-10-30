@@ -1,8 +1,15 @@
-﻿namespace MiniLcm.Tests;
+﻿using MiniLcm.Tests.AutoFakerHelpers;
+using Soenneker.Utils.AutoBogus;
+
+namespace MiniLcm.Tests;
 
 public abstract class MiniLcmTestBase : IAsyncLifetime
 {
 
+    protected readonly AutoFaker AutoFaker = new(builder =>
+        builder.WithOverride(new MultiStringOverride())
+            .WithOverride(new ObjectWithIdOverride())
+    );
     protected IMiniLcmApi Api = null!;
 
     protected abstract Task<IMiniLcmApi> NewApi();

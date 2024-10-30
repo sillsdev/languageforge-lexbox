@@ -1,8 +1,10 @@
 ﻿using MiniLcm.Models;
+using MiniLcm.Tests.AutoFakerHelpers;
+using Soenneker.Utils.AutoBogus;
 
 namespace MiniLcm.Tests;
 
-public abstract class CreateEntryTestsBase: MiniLcmTestBase
+public abstract class CreateEntryTestsBase : MiniLcmTestBase
 {
     [Fact]
     public async Task CanCreateEntry()
@@ -11,6 +13,14 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
         entry.Should().NotBeNull();
         entry!.LexemeForm.Values.Should().ContainKey("en");
         entry.LexemeForm.Values["en"].Should().Be("test");
+    }
+
+    [Fact]
+    public async Task CanCreateEntry_AutoFaker()
+    {
+        var entry = await AutoFaker.EntryReadyForCreation(Api);
+        var createdEntry = await Api.CreateEntry(entry);
+        createdEntry.Should().BeEquivalentTo(entry);
     }
 
     [Fact]
@@ -96,7 +106,9 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
 
         entry = await Api.GetEntry(complexFormEntryId);
         entry.Should().NotBeNull();
-        entry!.Components.Should().ContainSingle(c => c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id && c.ComponentSenseId == componentSenseId);
+        entry!.Components.Should().ContainSingle(c =>
+            c.ComplexFormEntryId == complexFormEntryId && c.ComponentEntryId == component.Id &&
+            c.ComponentSenseId == componentSenseId);
     }
 
     [Fact]
@@ -109,8 +121,7 @@ public abstract class CreateEntryTestsBase: MiniLcmTestBase
 
         var entry = await Api.CreateEntry(new()
         {
-            LexemeForm = { { "en", "test" } },
-            ComplexFormTypes = [complexFormType]
+            LexemeForm = { { "en", "test" } }, ComplexFormTypes = [complexFormType]
         });
         entry = await Api.GetEntry(entry.Id);
         entry.Should().NotBeNull();
