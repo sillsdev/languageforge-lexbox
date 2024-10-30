@@ -20,8 +20,6 @@ public class SyncFixture : IAsyncLifetime
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
     public IServiceProvider Services => _services.ServiceProvider;
     private readonly string _projectName;
-    private bool _crdtEnabled = true;
-    private bool _fwDataEnabled = true;
     private readonly MockProjectContext _projectContext = new(null);
 
     public static SyncFixture Create([CallerMemberName] string projectName = "") => new(projectName);
