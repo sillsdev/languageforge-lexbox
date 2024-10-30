@@ -14,10 +14,10 @@ build:
         manual:
           - src: '**'
             dest: /src/backend
-    - image: ghcr.io/sillsdev/lexbox-crdtmerge
+    - image: ghcr.io/sillsdev/lexbox-fw-headless
       context: backend
       docker:
-        dockerfile: CrdtMerge/Dockerfile
+        dockerfile: FwHeadless/Dockerfile
     - image: ghcr.io/sillsdev/lexbox-ui
       context: frontend
       docker:
@@ -45,9 +45,9 @@ portForward:
     resourceName: lexbox
     namespace: languagedepot
     port: 5158
-  # CrdtMerge
+  # FwHeadless
   - resourceType: Service
-    resourceName: crdtmerge
+    resourceName: fw-headless
     namespace: languagedepot
     port: 80
     localPort: 5275
@@ -99,9 +99,9 @@ profiles:
         namespace: languagedepot
         port: 5432
         localPort: 5433
-      # CrdtMerge
+      # FwHeadless
       - resourceType: Service
-        resourceName: crdtmerge
+        resourceName: fw-headless
         namespace: languagedepot
         port: 80
         localPort: 5275
@@ -157,9 +157,9 @@ profiles:
       resourceName: lexbox
       namespace: languagedepot
       port: 5158
-    # CrdtMerge
+    # FwHeadless
     - resourceType: Service
-      resourceName: crdtmerge
+      resourceName: fw-headless
       namespace: languagedepot
       port: 80
       localPort: 5275

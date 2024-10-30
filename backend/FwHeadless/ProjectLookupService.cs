@@ -1,7 +1,7 @@
 using LexData;
 using Microsoft.EntityFrameworkCore;
 
-namespace CrdtMerge;
+namespace FwHeadless;
 
 public class ProjectLookupService(LexBoxDbContext dbContext)
 {

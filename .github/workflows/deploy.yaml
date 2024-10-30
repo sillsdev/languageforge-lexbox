@@ -50,7 +50,7 @@ jobs:
       url: https://${{ inputs.deploy-domain }}
     outputs:
       api-version: ${{ steps.get-api-version.outputs.result }}
-      crdtmerge-version: ${{ steps.get-crdtmerge-version.outputs.result }}
+      fw-headless-version: ${{ steps.get-fw-headless-version.outputs.result }}
       ui-version: ${{ steps.get-ui-version.outputs.result }}
     steps:
       - name: Checkout lexbox repo
@@ -81,11 +81,11 @@ jobs:
         id: get-api-version
         with:
           cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
-      - name: Get CrdtMerge version
+      - name: Get FwHeadless version
         uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
-        id: get-crdtmerge-version
+        id: get-fw-headless-version
         with:
-          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-crdtmerge").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
+          cmd: yq '.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag' "fleet/${{ inputs.k8s-environment }}/kustomization.yaml"
       - name: Get UI version
         uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         id: get-ui-version

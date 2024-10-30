@@ -1,4 +1,4 @@
-using CrdtMerge;
+using FwHeadless;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
@@ -21,7 +21,7 @@ builder.Services.AddLexData(
     useOpenIddict: false
 );
 
-builder.Services.AddCrdtMerge();
+builder.Services.AddFwHeadless();
 
 var app = builder.Build();
 
@@ -45,7 +45,7 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound>
     ILogger<Program> logger,
     IServiceProvider services,
     SendReceiveService srService,
-    IOptions<CrdtMergeConfig> config,
+    IOptions<FwHeadlessConfig> config,
     FwDataFactory fwDataFactory,
     ProjectsService projectsService,
     ProjectLookupService projectLookupService,

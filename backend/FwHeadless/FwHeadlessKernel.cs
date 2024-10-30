@@ -2,16 +2,16 @@ using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
 
-namespace CrdtMerge;
+namespace FwHeadless;
 
-public static class CrdtMergeKernel
+public static class FwHeadlessKernel
 {
-    public static void AddCrdtMerge(this IServiceCollection services)
+    public static void AddFwHeadless(this IServiceCollection services)
     {
         services
             .AddLogging(builder => builder.AddConsole().AddDebug().AddFilter("Microsoft.EntityFrameworkCore", LogLevel.Warning));
-        services.AddOptions<CrdtMergeConfig>()
-            .BindConfiguration("SendReceiveConfig")
+        services.AddOptions<FwHeadlessConfig>()
+            .BindConfiguration("FwHeadlessConfig")
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.AddScoped<SendReceiveService>();

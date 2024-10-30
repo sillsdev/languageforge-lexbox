@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: crdtmerge
+  name: fw-headless
   namespace: languagedepot
   labels:
-    app: crdtmerge
+    app: fw-headless
 spec:
   type: ClusterIP
   clusterIP: None
   selector:
-    app: crdtmerge
+    app: fw-headless
   ports:
   - name: http
     protocol: TCP
@@ -22,14 +22,14 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: crdtmerge
+  name: fw-headless
   namespace: languagedepot
   labels:
-    app: crdtmerge
+    app: fw-headless
 spec:
   selector:
     matchLabels:
-      app: crdtmerge
+      app: fw-headless
   strategy:
     rollingUpdate:
       maxSurge: 2
@@ -39,15 +39,15 @@ spec:
     # https://kubernetes.io/docs/concepts/workloads/pods/#pod-templates
     metadata:
       labels:
-        app: crdtmerge
+        app: fw-headless
     spec:
       securityContext:
         runAsGroup: 33
         runAsUser: 33
         runAsNonRoot: true
       containers:
-      - name: crdtmerge
-        image: ghcr.io/sillsdev/lexbox-crdtmerge:develop
+      - name: fw-headless
+        image: ghcr.io/sillsdev/lexbox-fw-headless:develop
         imagePullPolicy: IfNotPresent
         # https://kubernetes.io/docs/concepts/configuration/manage-resources-containers
         resources:
@@ -65,8 +65,8 @@ spec:
           - containerPort: 80
 
         volumeMounts:
-        - name: crdtmerge
-          mountPath: /var/lib/crdtmerge
+        - name: fw-headless
+          mountPath: /var/lib/fw-headless
 
         env:
           - name: DOTNET_URLS
@@ -96,23 +96,23 @@ spec:
                   name: db
           - name: DbConfig__LexBoxConnectionString
             value: Host=db;Port=5432;Username=postgres;Password=$(POSTGRES_PASSWORD);Database=$(POSTGRES_DB)
-          - name: SendReceiveConfig__ProjectStorageRoot
-            value: /var/lib/crdtmerge/projects
-          - name: SendReceiveConfig__LexboxUrl
+          - name: FwHeadlessConfig__ProjectStorageRoot
+            value: /var/lib/fw-headless/projects
+          - name: FwHeadlessConfig__LexboxUrl
             value: http://lexbox:5158/
-          # - name: SendReceiveConfig__HgUrl
+          # - name: FwHeadlessConfig__HgUrl
           #   value: http://lexbox:5158/hg/
-          - name: SendReceiveConfig__LexboxUsername
+          - name: FwHeadlessConfig__LexboxUsername
             valueFrom:
               secretKeyRef:
                 key: CRDT_MERGE_SEND_RECEIVE_USERNAME
-                name: crdtmerge
-          - name: SendReceiveConfig__LexboxPassword
+                name: fw-headless
+          - name: FwHeadlessConfig__LexboxPassword
             valueFrom:
               secretKeyRef:
                 key: CRDT_MERGE_SEND_RECEIVE_PASSWORD
-                name: crdtmerge
-          - name: SendReceiveConfig__FdoDataModelVersion
+                name: fw-headless
+          - name: FwHeadlessConfig__FdoDataModelVersion
             value: "7000072"
 
       initContainers:
@@ -127,13 +127,13 @@ spec:
           - 'sh'
           - '-c'
           - |
-            mkdir -p /crdtmerge/projects
-            chown www-data:www-data /crdtmerge/projects
+            mkdir -p /fw-headless/projects
+            chown www-data:www-data /fw-headless/projects
         volumeMounts:
-          - name: crdtmerge
-            mountPath: /crdtmerge
+          - name: fw-headless
+            mountPath: /fw-headless
 
       volumes:
-      - name: crdtmerge
+      - name: fw-headless
         persistentVolumeClaim:
-          claimName: crdtmerge # established in pvc.yaml
+          claimName: fw-headless # established in pvc.yaml

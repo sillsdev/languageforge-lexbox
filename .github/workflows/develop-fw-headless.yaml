@@ -1,9 +1,9 @@
-name: Develop CrdtMerge CI/CD
+name: Develop FwHeadless CI/CD
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'backend/CrdtMerge/**'
+      - 'backend/FwHeadless/**'
       - 'backend/FixFwData/**'
       - 'backend/FwLite/FwDataMiniLcmBridge/**'
       - 'backend/FwLite/LcmCrdt/**'
@@ -11,14 +11,14 @@ on:
       - 'backend/FwLiteProjectSync/FwLiteProjectSync/**'
       - 'backend/LexCore/**'
       - 'backend/LexData/**'
-      - '.github/workflows/lexbox-crdtmerge.yaml'
+      - '.github/workflows/lexbox-fw-headless.yaml'
       - '.github/workflows/deploy.yaml'
-      - 'deployment/base/crdtmerge-deployment.yaml'
+      - 'deployment/base/fw-headless-deployment.yaml'
     branches:
       - develop
   pull_request:
     paths:
-      - 'backend/CrdtMerge/**'
+      - 'backend/FwHeadless/**'
       - 'backend/FixFwData/**'
       - 'backend/FwLite/FwDataMiniLcmBridge/**'
       - 'backend/FwLite/LcmCrdt/**'
@@ -26,9 +26,9 @@ on:
       - 'backend/FwLiteProjectSync/FwLiteProjectSync/**'
       - 'backend/LexCore/**'
       - 'backend/LexData/**'
-      - '.github/workflows/lexbox-crdtmerge.yaml'
+      - '.github/workflows/lexbox-fw-headless.yaml'
       - '.github/workflows/deploy.yaml'
-      - 'deployment/base/crdtmerge-deployment.yaml'
+      - 'deployment/base/fw-headless-deployment.yaml'
     branches:
       - develop
 
@@ -45,28 +45,28 @@ jobs:
         run: |
           shortSha=$(echo ${{ github.sha }} | cut -c1-8)
           echo "VERSION=v$(date --rfc-3339=date)-$shortSha" >> ${GITHUB_OUTPUT}
-  build-crdtmerge:
-    name: Build CrdtMerge
+  build-fw-headless:
+    name: Build FwHeadless
     needs: set-version
-    uses: ./.github/workflows/lexbox-crdtmerge.yaml
+    uses: ./.github/workflows/lexbox-fw-headless.yaml
     with:
       version: ${{ needs.set-version.outputs.version }}
-  deploy-crdtmerge:
-    name: Deploy CrdtMerge
+  deploy-fw-headless:
+    name: Deploy FwHeadless
     if: ${{github.ref == 'refs/heads/develop'}}
-    needs: [ build-crdtmerge, set-version ]
+    needs: [ build-fw-headless, set-version ]
     uses: ./.github/workflows/deploy.yaml
     secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}
-      image: 'ghcr.io/sillsdev/lexbox-crdtmerge'
+      image: 'ghcr.io/sillsdev/lexbox-fw-headless'
       k8s-environment: develop
       deploy-domain: lexbox.dev.languagetechnology.org
 
-  # TODO: Run CrdtMerge tests once we have developed them, but we don't need to run the whole integration test suite if only CrdtMerge changes are being pushed
+  # TODO: Run FwHeadless tests once we have developed them, but we don't need to run the whole integration test suite if only FwHeadless changes are being pushed
   # integration-test-gha:
   #   name: GHA integration tests
-  #   needs: [build-crdtmerge, set-version]
+  #   needs: [build-fw-headless, set-version]
   #   uses: ./.github/workflows/integration-test-gha.yaml
   #   with:
-  #     lexbox-crdtmerge-tag: ${{ needs.set-version.outputs.version }}
+  #     lexbox-fw-headless-tag: ${{ needs.set-version.outputs.version }}

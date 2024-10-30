@@ -1,9 +1,9 @@
 using FwDataMiniLcmBridge;
 using Microsoft.Extensions.Options;
 
-namespace CrdtMerge;
+namespace FwHeadless;
 
-public class SendReceiveService(IOptions<CrdtMergeConfig> config)
+public class SendReceiveService(IOptions<FwHeadlessConfig> config)
 {
     public SendReceiveHelpers.LfMergeBridgeResult SendReceive(FwDataProject project, string? projectCode, string? commitMessage = null)
     {

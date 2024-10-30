@@ -2,21 +2,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: crdtmerge
+  name: fw-headless
   namespace: languagedepot
   labels:
-    app: crdtmerge
+    app: fw-headless
 spec:
   template:
     spec:
       containers:
-      - name: crdtmerge
+      - name: fw-headless
         imagePullPolicy: IfNotPresent
         env:
-          - name: SendReceiveConfig__LexboxUsername
+          - name: FwHeadlessConfig__LexboxUsername
             value: "admin"
             valueFrom: # don't use secret as defined in base
-          - name: SendReceiveConfig__LexboxPassword
+          - name: FwHeadlessConfig__LexboxPassword
             valueFrom:
               secretKeyRef:
                 key: SEED_USER_PASSWORD
