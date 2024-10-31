@@ -30,4 +30,5 @@ RUN chmod +x Mercurial/hg && chmod +x Mercurial/chg >/dev/null || true
 RUN sed -i -e 's/fixutf8 = \/FwHeadless/fixutf8 = \/app/' Mercurial/mercurial.ini
 USER www-data:www-data
 ENV XDG_DATA_HOME=/var/www/.local/share
-ENTRYPOINT ["dotnet", "FwHeadless.dll"]
+ENTRYPOINT ["tini", "--"]
+CMD ["dotnet", "FwHeadless.dll"]
