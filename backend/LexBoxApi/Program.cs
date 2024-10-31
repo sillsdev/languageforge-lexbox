@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using AppAny.Quartz.EntityFrameworkCore.Migrations;
 using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
+using HotChocolate.AspNetCore;
 using LexBoxApi;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -167,7 +168,7 @@ app.UseResumableStatusHack();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapSecurityTxt();
-app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();
+app.MapNitroApp("/api/graphql/ui").WithOptions(new (){ServeMode = GraphQLToolServeMode.Embedded}).AllowAnonymous();
 if (app.Environment.IsDevelopment())
     //required for vite to generate types
     app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();

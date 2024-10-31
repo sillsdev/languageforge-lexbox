@@ -162,7 +162,11 @@ public class LexQueries
         IPermissionService permissionService,
         IResolverContext context)
     {
-        var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(context).SingleOrDefaultAsync();
+        //todo remove this workaround once the issue is fixed
+        var projectContext =
+            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
+            context;
+        var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(projectContext).SingleOrDefaultAsync();
         if (org is null) return org;
         // Site admins and org admins can see everything
         if (permissionService.CanEditOrg(orgId)) return org;

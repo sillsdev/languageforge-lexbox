@@ -20,7 +20,7 @@ public class IsLanguageForgeProjectDataLoader : BatchDataLoader<string, bool>, I
         IBatchScheduler batchScheduler,
         [FromKeyedServices(ResiliencePolicyName)]
         ResiliencePipeline<IReadOnlyDictionary<string, bool>> resiliencePipeline,
-        DataLoaderOptions? options = null)
+        DataLoaderOptions options)
         : base(batchScheduler, options)
     {
         _resiliencePipeline = resiliencePipeline;
