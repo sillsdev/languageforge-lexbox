@@ -44,6 +44,10 @@ public static class LexBoxKernel
             .BindConfiguration("Tus")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        services.AddOptions<HealthChecksConfig>()
+            .BindConfiguration("HealthChecks")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
         services.AddHttpClient();
         services.AddHttpContextAccessor();
         services.AddMemoryCache();

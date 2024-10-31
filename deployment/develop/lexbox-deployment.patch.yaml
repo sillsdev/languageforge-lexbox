@@ -26,3 +26,5 @@ spec:
               value: "https://develop.lexbox.org"
             - name: HgConfig__RequireContainerVersionMatch
               value: "false"
+            - name: HealthChecksConfig__RequireFwHeadlessContainerVersionMatch
+              value: "false"
