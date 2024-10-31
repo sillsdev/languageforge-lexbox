@@ -1,7 +1,7 @@
 using FwDataMiniLcmBridge;
 using SIL.Progress;
 
-namespace CrdtMerge;
+namespace FwHeadless;
 
 public static class SendReceiveHelpers
 {
@@ -12,7 +12,7 @@ public static class SendReceiveHelpers
 
     public record SendReceiveAuth(string Username, string Password)
     {
-        public SendReceiveAuth(CrdtMergeConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
+        public SendReceiveAuth(FwHeadlessConfig config) : this(config.LexboxUsername, config.LexboxPassword) { }
     };
 
     public record LfMergeBridgeResult(string Output, string ProgressMessages);

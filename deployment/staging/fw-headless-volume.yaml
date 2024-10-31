@@ -1,0 +1,9 @@
+﻿apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fw-headless
+  namespace: languagedepot
+spec:
+  resources:
+    requests:
+      storage: 30Gi
