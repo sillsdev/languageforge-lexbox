@@ -302,7 +302,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
             Senses = entry.AllSenses.Select(FromLexSense).ToList(),
             ComplexFormTypes = ToComplexFormTypes(entry),
-            Components = ToComplexFormComponents(entry),
+            Components = ToComplexFormComponents(entry).ToList(),
             ComplexForms = [
                 ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
                 ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
@@ -317,7 +317,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ToComplexFormType)
             .ToList() ?? [];
     }
-    private IList<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
+    private IEnumerable<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
     {
         return entry.ComplexFormEntryRefs.SingleOrDefault()
             ?.ComponentLexemesRS
@@ -326,8 +326,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 ILexEntry component => ToEntryReference(component, entry),
                 ILexSense s => ToSenseReference(s, entry),
                 _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
-            })
-            .ToList() ?? [];
+            }) ?? [];
     }
 
     private Variants? ToVariants(ILexEntry entry)
@@ -531,7 +530,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
                 AddComplexFormComponent(lexEntry, complexFormComponent);
             });
-        return Task.FromResult(ToComplexFormComponents(EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId)).Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId));
+        return Task.FromResult(ToComplexFormComponents(EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId))
+            .Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId && c.ComponentSenseId == complexFormComponent.ComponentSenseId));
     }
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
