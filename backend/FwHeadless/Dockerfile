@@ -18,8 +18,9 @@ FROM build AS publish
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:InformationalVersion=$APP_VERSION "FwHeadless/FwHeadless.csproj" -c Release -o /app/publish
 
 FROM base AS final
-RUN mkdir -p /var/lib/fw-headless && chown -R www-data:www-data /var/lib/fw-headless
+RUN mkdir -p /var/lib/fw-headless /var/www/.local/share && chown -R www-data:www-data /var/lib/fw-headless /var/www/.local/share
 WORKDIR /app
 COPY --from=publish /app/publish .
 USER www-data:www-data
+ENV XDG_DATA_HOME=/var/www/.local/share
 ENTRYPOINT ["dotnet", "FwHeadless.dll"]
