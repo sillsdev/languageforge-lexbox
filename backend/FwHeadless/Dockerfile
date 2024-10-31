@@ -19,8 +19,15 @@ RUN --mount=type=cache,target=/root/.nuget/packages dotnet publish /p:Informatio
 
 FROM base AS final
 RUN mkdir -p /var/lib/fw-headless /var/www/.local/share && chown -R www-data:www-data /var/lib/fw-headless /var/www/.local/share
+RUN apt-get update \
+	&& apt-get install --yes --no-install-recommends tini iputils-ping python3 \
+	&& rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=publish /app/publish .
+# Ensure Mercurial exec bit was not stripped by dotnet CLI tools
+RUN chmod +x Mercurial/hg && chmod +x Mercurial/chg >/dev/null || true
+# Fix up mercurial.ini path to fixutf8
+RUN sed -i -e 's/fixutf8 = \/FwHeadless/fixutf8 = \/app/' Mercurial/mercurial.ini
 USER www-data:www-data
 ENV XDG_DATA_HOME=/var/www/.local/share
 ENTRYPOINT ["dotnet", "FwHeadless.dll"]
