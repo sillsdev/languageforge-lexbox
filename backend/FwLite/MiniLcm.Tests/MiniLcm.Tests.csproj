@@ -27,6 +27,7 @@
     <ItemGroup>
         <Using Include="Xunit"/>
         <Using Include="FluentAssertions"/>
+        <Using Include="MiniLcm.Models"/>
     </ItemGroup>
 
     <ItemGroup>

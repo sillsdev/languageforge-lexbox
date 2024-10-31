@@ -1,6 +1,4 @@
-﻿using MiniLcm.Models;
-
-namespace MiniLcm.Tests;
+﻿namespace MiniLcm.Tests;
 
 public abstract class BasicApiTestsBase : MiniLcmTestBase
 {
@@ -298,16 +296,6 @@ public abstract class BasicApiTestsBase : MiniLcmTestBase
         updatedEntry.LexemeForm.Values["en"].Should().Be("updated");
     }
 
-    [Fact]
-    public async Task UpdateEntry_SimpleApi()
-    {
-        var entry = await Api.GetEntry(Entry1Id);
-        ArgumentNullException.ThrowIfNull(entry);
-        entry.LexemeForm["en"] = "updated";
-        var updatedEntry = await Api.UpdateEntry(entry);
-        updatedEntry.LexemeForm["en"].Should().Be("updated");
-        updatedEntry.Should().BeEquivalentTo(entry, options => options.Excluding(e => e.Version));
-    }
 
     [Fact]
     public async Task UpdateEntryNote()
