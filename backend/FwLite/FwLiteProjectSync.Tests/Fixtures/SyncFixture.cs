@@ -49,7 +49,7 @@ public class SyncFixture : IAsyncLifetime
             .ProjectsFolder;
         if (Path.Exists(projectsFolder)) Directory.Delete(projectsFolder, true);
         Directory.CreateDirectory(projectsFolder);
-        var lcmCache = _services.ServiceProvider.GetRequiredService<IProjectLoader>()
+        _services.ServiceProvider.GetRequiredService<IProjectLoader>()
             .NewProject(new FwDataProject(_projectName, projectsFolder), "en", "fr");
         FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(_projectName, false);
 

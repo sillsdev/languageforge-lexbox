@@ -65,8 +65,7 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
                 semanticDomain =>
                 {
 #pragma warning disable VSTHRD002
-                    if (semanticDomain.Id != default && lexboxLcmApi.GetLcmSemanticDomain(semanticDomain.Id) is { } lcmSemanticDomain)
-                        sense.SemanticDomainsRC.Add(lcmSemanticDomain);
+                    lexboxLcmApi.AddSemanticDomainToSense(sense.Guid, semanticDomain).Wait();
                 },
                 semanticDomain =>
                 {
