@@ -16,10 +16,3 @@ patches:
       kind: Ingress
       name: proxy
       namespace: languagedepot
-  - target:
-      version: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: fw-headless
-        namespace: languagedepot
-    path: change-allocation-size.patch.yaml

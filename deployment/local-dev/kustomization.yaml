@@ -32,13 +32,6 @@ patches:
       kind: PersistentVolumeClaim
     path: change-storage-class.patch.yaml
   - target:
-      version: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: fw-headless
-        namespace: languagedepot
-    path: change-allocation-size.patch.yaml
-  - target:
       kind: Issuer
     path: delete-oauth-certs.yaml
   - target:
