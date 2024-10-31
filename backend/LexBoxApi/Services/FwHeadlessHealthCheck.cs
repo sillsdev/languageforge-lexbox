@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 
 namespace LexBoxApi.Services;
 
-public class FwHeadlessHealthCheckCheckHealthAsync(IHttpClientFactory clientFactory, IOptions<HealthChecksConfig> healthCheckOptions) : IHealthCheck
+public class FwHeadlessHealthCheck(IHttpClientFactory clientFactory, IOptions<HealthChecksConfig> healthCheckOptions) : IHealthCheck
 {
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
         CancellationToken cancellationToken = new())
