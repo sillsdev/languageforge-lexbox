@@ -11,6 +11,13 @@ patches:
       version: v1
       kind: PersistentVolumeClaim
     path: change-storage-class.patch.yaml
+  - target:
+      version: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: fw-headless
+        namespace: languagedepot
+    path: change-allocation-size.patch.yaml
   - path: app-config.yaml
 
 images:
