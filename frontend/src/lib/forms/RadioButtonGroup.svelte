@@ -19,11 +19,12 @@
   export let description: string | undefined = undefined;
   export let variant: 'radio-warning' | undefined = undefined;
   export let labelColor: 'text-warning' | undefined = undefined;
+  export let divClass: string | undefined = undefined;
 </script>
 
 <div
   role="radiogroup"
-  class={$$props.class ?? ''}
+  class={divClass ?? ''}
   aria-labelledby={`label-${id}`}
   id={`group-${id}`}
   >

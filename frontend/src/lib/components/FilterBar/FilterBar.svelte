@@ -86,7 +86,7 @@
 </script>
 
 <div class="input filter-bar input-bordered flex items-center gap-2 py-1.5 px-2 flex-wrap h-[unset] min-h-12">
-  <slot name="activeFilters" {activeFilters} />
+  <slot name="activeFilterSlot" {activeFilters} />
   <div class="flex grow">
     <PlainInput
       bind:value={$allFilters[searchKey]}
@@ -110,7 +110,7 @@
           <span class="text-lg">✕</span>
         </button>
       {/if}
-      {#if $$slots.filters}
+      {#if $$slots.filterSlot}
         <div class="join-item">
           <Dropdown>
             <button class="btn btn-square join-item btn-sm gap-2">
@@ -118,7 +118,7 @@
             </button>
             <div slot="content" class="card w-[calc(100vw-1rem)] sm:max-w-[35rem]">
               <div class="card-body max-sm:p-4">
-                <slot name="filters" />
+                <slot name="filterSlot" />
               </div>
             </div>
           </Dropdown>

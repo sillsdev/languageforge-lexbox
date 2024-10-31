@@ -117,7 +117,7 @@
 
 <PageBreadcrumb href="/org/list">{$t('org.table.title')}</PageBreadcrumb>
 
-<DetailsPage wide title={org.name}>
+<DetailsPage wide titleText={org.name}>
   <svelte:fragment slot="actions">
     {#if isMember}
       <AddMyProjectsToOrgModal {user} {org} />

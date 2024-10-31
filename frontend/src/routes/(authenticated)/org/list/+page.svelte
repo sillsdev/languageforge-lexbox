@@ -85,7 +85,7 @@ TODO:
 * Paging
 -->
 
-<HeaderPage wide title={$t('org.table.title')}>
+<HeaderPage wide titleText={$t('org.table.title')}>
   <svelte:fragment slot="actions">
     <AdminContent>
       <a href="/org/create" class="btn btn-success">
@@ -98,7 +98,7 @@ TODO:
     {$t('org.table.title')}
     <Icon icon="i-mdi-account-group-outline" size="text-5xl" y="10%" />
   </svelte:fragment>
-  <svelte:fragment slot="header-content">
+  <svelte:fragment slot="headerContent">
     <FilterBar
       searchKey="search"
       filterKeys={['search']}
