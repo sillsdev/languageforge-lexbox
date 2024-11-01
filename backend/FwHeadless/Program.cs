@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 using MiniLcm;
 using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +25,14 @@ builder.Services.AddFwHeadless();
 
 var app = builder.Build();
 
+// Add lexbox-version header to all requests
+app.Logger.LogInformation("FwHeadless version: {version}", AppVersionService.Version);
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["lexbox-version"] = AppVersionService.Version;
+    await next();
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -37,16 +43,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapHealthChecks("/api/healthz", new HealthCheckOptions
-{
-    ResponseWriter = async (context, healthReport) =>
-    {
-        var version = typeof(Program).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "dev";
-        context.Response.Headers["lexbox-version"] = version;
-        context.Response.ContentType = "text/plain";
-        await context.Response.WriteAsync(healthReport.Status.ToString());
-    }
-});
+app.MapHealthChecks("/api/healthz");
 
 app.MapPost("/sync", ExecuteMergeRequest);
 
