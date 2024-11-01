@@ -2,3 +2,9 @@
 **/obj
 *Dockerfile
 Testing
+**/artifacts/publish
+CrdtMerge/Mercurial
+CrdtMerge/MercurialExtensions
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
