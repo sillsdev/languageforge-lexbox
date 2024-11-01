@@ -1,4 +1,6 @@
-﻿namespace MiniLcm.Tests;
+﻿using MiniLcm.Tests.Helpers;
+
+namespace MiniLcm.Tests;
 
 public abstract class UpdateEntryTestsBase : MiniLcmTestBase
 {
@@ -73,7 +75,7 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         entry.LexemeForm["en"] = "updated";
         var updatedEntry = await Api.UpdateEntry(entry);
         updatedEntry.LexemeForm["en"].Should().Be("updated");
-        updatedEntry.Should().BeEquivalentTo(entry, options => options.Excluding(e => e.Version));
+        updatedEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion());
     }
 
     [Fact]
@@ -84,6 +86,18 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
         entry.Senses[0].Gloss["en"] = "updated";
         var updatedEntry = await Api.UpdateEntry(entry);
         updatedEntry.Senses[0].Gloss["en"].Should().Be("updated");
-        updatedEntry.Should().BeEquivalentTo(entry, options => options.Excluding(e => e.Version));
+        updatedEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion());
+    }
+
+    [Fact]
+    public async Task UpdateEntry_SupportsRemovingSenseChanges()
+    {
+        var entry = await Api.GetEntry(Entry1Id);
+        ArgumentNullException.ThrowIfNull(entry);
+        var senseCount = entry.Senses.Count;
+        entry.Senses.RemoveAt(0);
+        var updatedEntry = await Api.UpdateEntry(entry);
+        updatedEntry.Senses.Should().HaveCount(senseCount - 1);
+        updatedEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion());
     }
 }

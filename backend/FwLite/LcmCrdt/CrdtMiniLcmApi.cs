@@ -356,21 +356,24 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task<Entry> UpdateEntry(Entry entry)
     {
         var commitId = entry.GetVersionGuid();
-
-        var commitHybridDate = await dbContext.Set<Commit>()
-            .Where(c => c.Id == commitId)
-            .Select(c => c.HybridDateTime)
-            .SingleAsyncEF();
-        //todo this will not work for properties not in the snapshot, but we don't have a way to get the full snapshot yet
-        //todo also, add api for getting an entity at a specific commit
-        var snapshot = await dataModel.GetEntitySnapshotAtTime(commitHybridDate.DateTime.AddSeconds(1), entry.Id);
-        var before = snapshot?.Entity.DbObject as Entry;
+        //todo consider using GetEntry and validate the versions, this could let us update senses
+        var before = await dataModel.GetAtCommit<Entry>(commitId, entry.Id);
         ArgumentNullException.ThrowIfNull(before);
-        //workaround to avoid syncing senses, which are not in the snapshot
-        before.Senses = [];
-        //don't want to modify what was passed in, so make a copy
-        entry = (Entry)entry.Copy();
-        entry.Senses = [];
+        //workaround to sync senses, which are not in the snapshot, however this will not work for senses that have been removed
+        before.Senses = await entry.Senses.ToAsyncEnumerable()
+            .SelectAwait(async s =>
+            {
+                var beforeSense = await dataModel.GetAtCommit<Sense>(s.GetVersionGuid(), s.Id);
+                beforeSense.ExampleSentences = await s.ExampleSentences.ToAsyncEnumerable()
+                    .SelectAwait(async es =>
+                    {
+                        var beforeExampleSentence = await dataModel.GetAtCommit<ExampleSentence>(es.GetVersionGuid(), es.Id);
+                        return beforeExampleSentence;
+                    })
+                    .ToListAsync();
+                return beforeSense;
+            })
+            .ToListAsync();
         await EntrySync.Sync(entry, before, this);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException("unable to find entry with id " + entry.Id);
     }
