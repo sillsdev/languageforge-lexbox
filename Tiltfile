@@ -2,6 +2,9 @@
 # https://docs.tilt.dev/api.html#api.version_settings
 version_settings(constraint='>=0.33.20')
 secret_settings(disable_scrub=True)
+config.define_bool("lexbox-api-local")
+cfg = config.parse()
+forward_lexbox = not cfg.get("lexbox-api-local", False)
 
 docker_build(
     'local-dev-init',
@@ -44,22 +47,28 @@ docker_build(
     context='hgweb',
     dockerfile='./hgweb/Dockerfile',
     only=['.'],
-    build_args={"APP_VERSION": "dockerDev"}
+    build_args={"APP_VERSION": "dockerDev"},
+    live_update=[
+        sync('hgweb/repos', '/var/hg/repos'),
+    ]
 )
 
 k8s_yaml(kustomize('./deployment/local-dev'))
 allow_k8s_contexts('docker-desktop')
 
+lexbox_ports = [
+    port_forward(1080, name='maildev'),
+    port_forward(18888, name='aspire'),
+    port_forward(4318, name='otel') #otel
+]
+if forward_lexbox:
+    lexbox_ports = [port_forward(5158, name='lexbox-api', link_path='/api/swagger')] + lexbox_ports
+
 k8s_resource(
     'lexbox',
     labels=['app'],
     resource_deps=['db'],
-    port_forwards=[
-        port_forward(5158, name='lexbox-api', link_path='/api/swagger'),
-        port_forward(1080, name='maildev'),
-        port_forward(18888, name='aspire'),
-        port_forward(4318) #otel
-    ]
+    port_forwards=lexbox_ports
 )
 k8s_resource(
     'ui',
@@ -79,6 +88,7 @@ k8s_resource(
     labels=['app'],
     port_forwards=[
         port_forward(8088, name='hg'),
+        port_forward(8034, 80, name='hg-resumable'),
     ]
 )
 k8s_resource(

@@ -64,18 +64,15 @@ tasks:
   # k8s
   up:
     interactive: true
+    aliases: [backend-up]
     cmds:
-      - skaffold dev --cleanup=false --kube-context docker-desktop
+      - tilt up
 
       # dev
   infra-up:
-    desc: 'Starts infrastructure for our ui and api, if you want port forwarding use k8s:infra-forward'
+    desc: 'Starts infrastructure for our ui and api, does not forward ports for api, if you want port forwarding use k8s:infra-forward'
     cmds:
-      - skaffold run --cleanup=false --kube-context docker-desktop --profile=infra
-  backend-up:
-    desc: Starts entire backend for our ui (including the LexBox api)
-    cmds:
-      - skaffold dev --cleanup=false --kube-context docker-desktop --profile=no-frontend
+      - tilt up -- --lexbox-api-local
 
   ui-dev:
     aliases: [ ui ]
