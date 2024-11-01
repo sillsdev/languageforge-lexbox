@@ -138,6 +138,50 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task PartsOfSpeechSyncBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var noun = new PartOfSpeech()
+        {
+            Name = { { "en", "noun" } },
+        };
+        await fwdataApi.CreatePartOfSpeech(noun);
+
+        var verb = new PartOfSpeech()
+        {
+            Name = { { "en", "verb" } },
+        };
+        await crdtApi.CreatePartOfSpeech(verb);
+
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Pear" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Pear" } }, PartOfSpeechId = noun.Id }
+            ]
+        });
+        await crdtApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Banana" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Banana" } }, PartOfSpeechId = verb.Id }
+            ]
+        });
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
