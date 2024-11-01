@@ -16,6 +16,8 @@ public static class FwHeadlessKernel
             .ValidateOnStart();
         services.AddScoped<SendReceiveService>();
         services.AddScoped<ProjectLookupService>();
+        services.AddScoped<LogSanitizerService>();
+        services.AddScoped<SafeLoggingProgress>();
         services
             .AddLcmCrdtClient()
             .AddFwDataBridge()
