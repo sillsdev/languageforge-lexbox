@@ -100,6 +100,7 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound,
     await crdtSyncService.Sync();
     var srResult2 = srService.SendReceive(fwDataProject, projectCode);
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
+    fwDataFactory.CloseProject(fwDataProject);
     return TypedResults.Ok(result);
 }
 

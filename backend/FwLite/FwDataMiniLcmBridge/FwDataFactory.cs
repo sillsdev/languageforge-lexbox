@@ -120,7 +120,7 @@ public class FwDataFactory(
         CloseProject(fwDataProject);
     }
 
-    private void CloseProject(FwDataProject project)
+    public void CloseProject(FwDataProject project)
     {
         // if we are shutting down, don't do anything because we want project dispose to be called as part of the shutdown process.
         if (_shuttingDown) return;
