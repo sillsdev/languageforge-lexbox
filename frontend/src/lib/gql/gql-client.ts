@@ -293,15 +293,14 @@ class GqlClient {
   }
 
   private squashErrors(error: CombinedError): Error {
-    const squashedError =
-      // Various status codes are handled in the fetch hooks (see hooks.shared.ts).
-      // throws there (e.g. SvelteKit redirects and 500's) turn into networkErrors that land here
-      error.networkError ??
-      // These are errors from urql. urql doesn't throw errors, it just sticks them on the result.
-      // An error's stacktrace points to where it was instantiated (i.e. in urql),
-      // but it's far more interesting (particularly when debugging how errors affect our app) to know when and where errors are getting thrown, namely HERE.
-      // So, we new up our own error to get the more useful stacktrace.
-      new AggregateError(error.graphQLErrors, error.message ?? error.cause);
+    // Various status codes are handled in the fetch hooks (see hooks.shared.ts).
+    // throws there (e.g. SvelteKit redirects and 500's) turn into networkErrors that land here
+    if (error.networkError) return error.networkError;
+    // These are errors from urql. urql doesn't throw errors, it just sticks them on the result.
+    // An error's stacktrace points to where it was instantiated (i.e. in urql),
+    // but it's far more interesting (particularly when debugging how errors affect our app) to know when and where errors are getting thrown, namely HERE.
+    // So, we new up our own error to get the more useful stacktrace.
+    const squashedError = new AggregateError(error.graphQLErrors, error.message ?? error.cause);
     tryCopyTraceContext(error, squashedError);
     return squashedError;
   }
