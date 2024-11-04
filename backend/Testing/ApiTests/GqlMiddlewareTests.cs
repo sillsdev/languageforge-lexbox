@@ -69,7 +69,6 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>
         var myProjects = json["data"]!["myProjects"]!.AsArray();
         var ids = myProjects.Select(p => p!["id"]!.GetValue<Guid>());
 
-        foreach (var project in projects)
-            ids.ShouldContain(project.id);
+        projects.Select(p => p.id).ShouldBeSubsetOf(ids);
     }
 }
