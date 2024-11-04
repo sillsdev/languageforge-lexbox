@@ -10,9 +10,9 @@
   import FieldTitle from '../FieldTitle.svelte';
   import CrdtOptionField from '../inputs/CrdtOptionField.svelte';
 
-  type Value = $$Generic;
-  type Option = $$Generic;
-  type Id = Value extends undefined ? string | undefined : string;
+  type TValue = $$Generic;
+  type TOption = $$Generic;
+  type Id = TValue extends undefined ? string | undefined : string;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type $$Props = {
@@ -20,25 +20,25 @@
     wsType: WritingSystemSelection;
     name?: string;
     readonly: boolean;
-    value: Value;
-    options: Option[];
-    getOptionLabel(option: Option): string;
+    value: TValue;
+    options: TOption[];
+    getOptionLabel(option: TOption): string;
   }
   & // mappings we support out of the box
   (
     { value: Id | { id: string }; } |
-    { getValueId: (value: Value) => Id; }
+    { getValueId: (value: TValue) => Id; }
   ) & (
     { options: { id: string }[]; } |
-    { getOptionId: (value: Option) => string; }
+    { getOptionId: (value: TOption) => string; }
   ) & (
-    { value: Value & Option } |
+    { value: TValue & TOption } |
     { value: Id; idValue: true; } | // we need idValue or else we don't know what type to return at run time
-    { getValueById: (id: Id) => Value }
+    { getValueById: (id: Id) => TValue }
   );
 
   const dispatch = createEventDispatcher<{
-    change: { value: Value };
+    change: { value: TValue };
   }>();
 
   function onChange(): void {
@@ -50,33 +50,33 @@
   export let wsType: WritingSystemSelection;
   export let name: string | undefined = undefined;
   export let readonly: boolean = false;
-  export let value: Value;
-  export let options: Option[];
+  export let value: TValue;
+  export let options: TOption[];
 
   export let idValue: true | undefined = undefined;
-  export let getValueId: (value: Value) => Id = defaultGetValueId;
-  export let getValueById: (id: Id) => Value = defaultGetValueById;
-  export let getOptionId: (option: Option) => string = defaultGetOptionId;
-  export let getOptionLabel: (option: Option) => string;
+  export let getValueId: (value: TValue) => Id = defaultGetValueId;
+  export let getValueById: (id: Id) => TValue = defaultGetValueById;
+  export let getOptionId: (option: TOption) => string = defaultGetOptionId;
+  export let getOptionLabel: (option: TOption) => string;
 
   let valueId: Id;
   $: uiOptions = options.map(o => ({ value: getOptionId(o), label: getOptionLabel(o) }));
 
-  function defaultGetValueId(value: Value): Id {
+  function defaultGetValueId(value: TValue): Id {
     if (value === undefined || value === null) return undefined as Id;
     if (typeof value === 'string') return value as Id;
     if (typeof value === 'object' && !!value && 'id' in value) return value.id as Id;
     throw new Error('Default getValueId not implemented for ' + typeof value);
   }
 
-  function defaultGetValueById(id: Id): Value {
+  function defaultGetValueById(id: Id): TValue {
     const option = options.find(o => getOptionId(o) === id);
-    if (!option) return undefined as Value;
-    if (idValue) return getOptionId(option) as Value;
-    else return option as Value;
+    if (!option) return undefined as TValue;
+    if (idValue) return getOptionId(option) as TValue;
+    else return option as TValue;
   }
 
-  function defaultGetOptionId(option: Option): string {
+  function defaultGetOptionId(option: TOption): string {
     if (typeof option === 'object' && !!option && 'id' in option) return option.id as string;
     throw new Error('Default getOptionId not implemented for ' + typeof option);
   }
