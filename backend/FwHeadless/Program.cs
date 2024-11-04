@@ -96,11 +96,11 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound,
 
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
+    fwDataFactory.CloseProject(fwDataProject);
 
     await crdtSyncService.Sync();
     var srResult2 = srService.SendReceive(fwDataProject, projectCode);
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
-    fwDataFactory.CloseProject(fwDataProject);
     return TypedResults.Ok(result);
 }
 
