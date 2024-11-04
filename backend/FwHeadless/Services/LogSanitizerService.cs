@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.Extensions.Options;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
 public class LogSanitizerService
 {

@@ -1,9 +1,10 @@
 using SIL.Progress;
 
-namespace FwHeadless;
+namespace FwHeadless.Services;
 
-public class SafeLoggingProgress(ILogger<SafeLoggingProgress> logger, LogSanitizerService sanitizer) : IProgress
+public class SafeLoggingProgress(ILoggerFactory loggerFactory, LogSanitizerService sanitizer) : IProgress
 {
+    private readonly ILogger logger = loggerFactory.CreateLogger("SendReceive");
     public bool ShowVerbose { get; set; }
     public bool CancelRequested { get; set; }
     public bool ErrorEncountered { get; set; }
