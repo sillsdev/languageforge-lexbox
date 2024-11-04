@@ -2,6 +2,7 @@ namespace LexCore.Auth;
 
 public static class LexAuthConstants
 {
+    public const string AuthCookieName = ".LexBoxAuth";
     public const string RoleClaimType = "role";
     public const string EmailClaimType = "email";
     public const string UsernameClaimType = "user";

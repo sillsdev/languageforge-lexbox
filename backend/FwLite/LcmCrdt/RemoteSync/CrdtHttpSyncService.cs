@@ -20,6 +20,10 @@ public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSetti
         {
             var responseMessage = await syncHttp.HealthCheck();
             _isHealthy = responseMessage.IsSuccessStatusCode;
+            if (!_isHealthy.Value)
+            {
+                logger.LogWarning("Health check failed, response status code {StatusCode}", responseMessage.StatusCode);
+            }
             _lastHealthCheck = responseMessage.Headers.Date ?? DateTimeOffset.UtcNow;
         }
         catch (HttpRequestException e)
@@ -49,6 +53,13 @@ public class CrdtHttpSyncService(ILogger<CrdtHttpSyncService> logger, RefitSetti
     public async ValueTask<ISyncable> CreateProjectSyncable(ProjectData project, HttpClient client)
     {
         return new CrdtProjectSync(RestService.For<ISyncHttp>(client, refitSettings), project.Id, project.ClientId, this);
+    }
+
+    public async ValueTask<bool> TestAuth(HttpClient client)
+    {
+        logger.LogInformation("Testing auth, client base url: {ClientBaseUrl}", client.BaseAddress);
+        var syncable = await CreateProjectSyncable(new ProjectData("test", Guid.Empty, null, Guid.Empty), client);
+        return await syncable.ShouldSync();
     }
 }
 
