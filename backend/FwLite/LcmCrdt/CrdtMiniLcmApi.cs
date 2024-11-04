@@ -77,9 +77,28 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        return dataModel.GetLatest<PartOfSpeech>(id);
+    }
+
     public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, false));
+    }
+
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        var pos = await GetPartOfSpeech(id);
+        if (pos is null) throw new NullReferenceException($"unable to find part of speech with id {id}");
+
+        await dataModel.AddChanges(ClientId, [..pos.ToChanges(update.Patch)]);
+        return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task DeletePartOfSpeech(Guid id)
+    {
+        await dataModel.AddChange(ClientId, new DeleteChange<PartOfSpeech>(id));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()

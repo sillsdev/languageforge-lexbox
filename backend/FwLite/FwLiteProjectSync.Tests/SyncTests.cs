@@ -146,13 +146,17 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var noun = new PartOfSpeech()
         {
+            Id = new Guid("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5"),
             Name = { { "en", "noun" } },
+            Predefined = true,
         };
         await fwdataApi.CreatePartOfSpeech(noun);
 
         var verb = new PartOfSpeech()
         {
+            Id = new Guid("86ff66f6-0774-407a-a0dc-3eeaf873daf7"),
             Name = { { "en", "verb" } },
+            Predefined = true,
         };
         await crdtApi.CreatePartOfSpeech(verb);
 

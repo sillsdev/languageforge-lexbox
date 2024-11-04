@@ -215,6 +215,32 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        var lcmPartOfSpeech = PartOfSpeechRepository.GetObject(id);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Part of Speech",
+            "Revert Part of Speech",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdatePartOfSpeechProxy(lcmPartOfSpeech, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech));
+    }
+
+    public Task DeletePartOfSpeech(Guid id)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Part of Speech",
+            "Revert delete",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                PartOfSpeechRepository.GetObject(id).Delete();
+            });
+        return Task.CompletedTask;
+    }
+
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         return
@@ -288,6 +314,16 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return VariantTypes.PossibilitiesOS
             .Select(t => new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
             .ToAsyncEnumerable();
+    }
+
+    private PartOfSpeech FromLcmPartOfSpeech(IPartOfSpeech lcmPos)
+    {
+        return new PartOfSpeech
+        {
+            Id = lcmPos.Guid,
+            Name = FromLcmMultiString(lcmPos.Name),
+            Predefined = !string.IsNullOrEmpty(lcmPos.CatalogSourceId),
+        };
     }
 
     private Entry FromLexEntry(ILexEntry entry)

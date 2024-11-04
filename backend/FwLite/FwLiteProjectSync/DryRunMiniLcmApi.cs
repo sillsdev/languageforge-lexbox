@@ -39,9 +39,27 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetPartsOfSpeech();
     }
 
+    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        // TODO: Should we add GetPartOfSpeech to the read API? Then we could just do this:
+        // return api.GetPartOfSpeech(id);
+        return await GetPartsOfSpeech().Where(pos => pos.Id == id).FirstOrDefaultAsync();
+    }
+
     public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreatePartOfSpeech), $"Create part of speech {partOfSpeech.Name}"));
+        return Task.CompletedTask;
+    }
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {id}"));
+        return GetPartOfSpeech(id)!;
+    }
+
+    public Task DeletePartOfSpeech(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePartOfSpeech), $"Delete part of speech {id}"));
         return Task.CompletedTask;
     }
 

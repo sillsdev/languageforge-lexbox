@@ -111,6 +111,12 @@ public class InMemoryApi : IMiniLcmApi
         ]
     };
 
+    private readonly List<PartOfSpeech> _partsOfSpeech = [
+        new() { Name = { { "en", "noun" } } },
+        new() { Name = { { "en", "verb" } } },
+        new() { Name = { { "en", "adverb" } } },
+        new() { Name = { { "en", "adjective" } } },
+    ];
 
     public Task<WritingSystems> GetWritingSystems()
     {
@@ -207,6 +213,16 @@ public class InMemoryApi : IMiniLcmApi
     }
 
     public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task DeletePartOfSpeech(Guid id)
     {
         throw new NotImplementedException();
     }
