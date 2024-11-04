@@ -96,6 +96,7 @@
 		"@vitejs/plugin-basic-ssl": "^1.1.0",
 		"css-tree": "^2.3.1",
 		"js-cookie": "^3.0.5",
+		"just-order-by": "^1.0.0",
 		"mjml": "^4.15.3",
 		"set-cookie-parser": "^2.6.0",
 		"svelte-exmarkdown": "^3.0.5",
