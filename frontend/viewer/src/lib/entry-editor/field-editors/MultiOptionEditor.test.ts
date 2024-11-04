@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-import {readable} from 'svelte/store'
-import {beforeEach, describe, expect, test} from 'vitest'
+import { readable } from 'svelte/store'
+import { beforeEach, describe, expect, expectTypeOf, test } from 'vitest'
 
-import {render, screen} from '@testing-library/svelte'
-import userEvent, {type UserEvent} from '@testing-library/user-event'
-import {getState} from '../../utils/test-utils'
+import { render, screen } from '@testing-library/svelte'
+import userEvent, { type UserEvent } from '@testing-library/user-event'
+import { getState } from '../../utils/test-utils'
 import MultiOptionEditor from './MultiOptionEditor.svelte'
+import type { ComponentProps } from 'svelte'
+
+type Option = {id: string};
 
 const value = ['2', '3', '4'];
-const options = ['1', '2', '3', '4', '5'].map(id => ({id}));
+const options: Option[] = ['1', '2', '3', '4', '5'].map(id => ({id}));
 
 const context = new Map<string, unknown>([
   ['writingSystems', readable({
@@ -22,15 +25,15 @@ const context = new Map<string, unknown>([
   })],
 ]);
 
-const reusedProps = {
+let user: UserEvent;
+let component: MultiOptionEditor<string, {id: string}>;
+
+const reusedProps: Pick<ComponentProps<typeof component>, 'id' | 'wsType' | 'name' | 'readonly'> = {
   id: 'test',
   wsType: 'vernacular',
   name: 'test',
   readonly: false,
-} as const;
-
-let user: UserEvent;
-let component: MultiOptionEditor<string, {id: string}>;
+};
 
 beforeEach(() => {
   user = userEvent.setup();
@@ -94,86 +97,80 @@ describe('MultiOptionEditor displayed sorting', () => {
 
 describe('MultiOptionEditor configurations', () => {
   test('supports string or { id: string} values and { id: string } options out of the box', () => {
-    () => render(MultiOptionEditor<string, {id: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        idValues: true,
-        value,
-        options: [],
-        getOptionLabel: (option) => option.id,
-      }
-    });
-    () => render(MultiOptionEditor<{id: string}, {id: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        value: value.map(id => ({id})),
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+      idValues: true,
+    } as const).toMatchTypeOf<ComponentProps<MultiOptionEditor<string, { id: string }>>>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value: value.map(id => ({id})),
+      options,
+      getOptionLabel: (option: Option) => option.id,
+    } as const).toMatchTypeOf<ComponentProps<MultiOptionEditor<{id: string}, {id: string}>>>();
   });
 
   test('requires idValues to be set to true for out of the box support for string values, because we need to know the type at runtime', () => {
-    () => render(MultiOptionEditor<string, {id: string}>, {
-      context,
-      // @ts-expect-error missing idValues: true
-      props: {
-        ...reusedProps,
-        value,
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
+    type Props = ComponentProps<MultiOptionEditor<string, { id: string }>>;
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+      idValues: true,
+    } as const).toMatchTypeOf<Props>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+      // idValues: true,
+    } as const).not.toMatchTypeOf<Props>();
   });
 
   test('requires getValueId and getValueById for unsupported value types', () => {
-    () => render(MultiOptionEditor<{value: string}, {id: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        value: value.map((v) => ({value: v})),
-        getValueId: (v) => v.value,
-        getValueById: (id) => ({value: id}),
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
-    () => render(MultiOptionEditor<{value: string}, {id: string}>, {
-      context,
-      // @ts-expect-error missing getValueId and getValueById
-      props: {
-        ...reusedProps,
-        value: value.map((v) => ({value: v})),
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
+    type Props = ComponentProps<MultiOptionEditor<{ value: string }, { id: string }>>;
+    expectTypeOf({
+      ...reusedProps,
+      value: value.map((v) => ({value: v})),
+      getValueId: (v: {value: string}) => v.value,
+      getValueById: (id: string) => ({value: id}),
+      options,
+      getOptionLabel: (option: Option) => option.id,
+    } as const).toMatchTypeOf<Props>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value: value.map((v) => ({value: v})),
+      // getValueId: (v: {value: string}) => v.value,
+      // getValueById: (id: string) => ({value: id}),
+      options,
+      getOptionLabel: (option: Option) => option.id,
+    } as const).not.toMatchTypeOf<Props>();
   });
 
   test('requires getOptionId for unsupported option types', () => {
-    () => render(MultiOptionEditor<string, {code: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        value,
-        idValues: true,
-        options: options.map((option) => ({code: option.id})),
-        getOptionLabel: (option) => option.code,
-        getOptionId: (option) => option.code,
-      }
-    });
-    () => render(MultiOptionEditor<string, {code: string}>, {
-      context,
-      // @ts-expect-error missing getOptionId
-      props: {
-        ...reusedProps,
-        value,
-        idValues: true,
-        options: options.map((option) => ({code: option.id})),
-        getOptionLabel: (option) => option.code,
-      }
-    });
+    type Props = ComponentProps<MultiOptionEditor<string, { code: string }>>;
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      idValues: true,
+      options: options.map((option: Option) => ({code: option.id})),
+      getOptionLabel: (option: {code: string}) => option.code,
+      getOptionId: (option: {code: string}) => option.code,
+    } as const).toMatchTypeOf<Props>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      idValues: true,
+      options: options.map((option: Option) => ({code: option.id})),
+      getOptionLabel: (option: {code: string}) => option.code,
+      // getOptionId: (option: {code: string}) => option.code,
+    } as const).not.toMatchTypeOf<Props>();
   });
 });

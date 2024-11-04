@@ -1,14 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import { readable } from 'svelte/store'
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, expectTypeOf, test } from 'vitest'
 
 import { render, screen } from '@testing-library/svelte'
 import userEvent, { type UserEvent } from '@testing-library/user-event'
 import { getState } from '../../utils/test-utils'
 import SingleOptionEditor from './SingleOptionEditor.svelte'
+import type { ComponentProps } from 'svelte'
+
+type Option = { id: string };
 
 const value = '2';
-const options = ['1', '2', '3', '4', '5'].map(id => ({id}));
+const options: Option[] = ['1', '2', '3', '4', '5'].map(id => ({id}));
 
 const context = new Map<string, unknown>([
   ['writingSystems', readable({
@@ -22,12 +25,12 @@ const context = new Map<string, unknown>([
   })],
 ]);
 
-const reusedProps = {
+const reusedProps: Pick<ComponentProps<SingleOptionEditor<string, {id: string}>>, 'id' | 'wsType' | 'name' | 'readonly'> = {
   id: 'test',
   wsType: 'vernacular',
   name: 'test',
   readonly: false,
-} as const;
+};
 
 describe('SingleOptionEditor', () => {
 
@@ -62,86 +65,80 @@ describe('SingleOptionEditor', () => {
 describe('SingleOptionEditor configurations', () => {
 
   test('supports string or { id: string} values and { id: string } options out of the box', () => {
-    () => render(SingleOptionEditor<string, {id: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        idValue: true,
-        value,
-        options: [],
-        getOptionLabel: (option) => option.id,
-      }
-    });
-    () => render(SingleOptionEditor<{id: string}, {id: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        value: {id: value},
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+      idValue: true,
+    } as const).toMatchTypeOf<ComponentProps<SingleOptionEditor<string, { id: string }>>>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value: {id: value},
+      options,
+      getOptionLabel: (option: Option) => option.id,
+    } as const).toMatchTypeOf<ComponentProps<SingleOptionEditor<{ id: string }, { id: string }>>>();
   });
 
   test('requires idValues to be set to true for out of the box support for string values, because we need to know the type at runtime', () => {
-    () => render(SingleOptionEditor<string, {id: string}>, {
-      context,
-      // @ts-expect-error missing idValues: true
-      props: {
-        ...reusedProps,
-        value,
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
+    type Props = ComponentProps<SingleOptionEditor<string, { id: string }>>;
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+      idValue: true,
+    } as const).toMatchTypeOf<Props>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+      // idValue: true,
+    } as const).not.toMatchTypeOf<Props>();
   });
 
   test('requires getValueId and getValueById for unsupported value types', () => {
-    () => render(SingleOptionEditor<{value: string} | undefined, {id: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        value: {value},
-        getValueId: (v) => v?.value,
-        getValueById: (id) => id ? {value: id} : undefined,
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
-    () => render(SingleOptionEditor<{value: string}, {id: string}>, {
-      context,
-      // @ts-expect-error missing getValueId and getValueById
-      props: {
-        ...reusedProps,
-        value: {value},
-        options,
-        getOptionLabel: (option) => option.id,
-      }
-    });
+    type Props = ComponentProps<SingleOptionEditor<{ value: string } | undefined, { id: string }>>;
+    expectTypeOf({
+      ...reusedProps,
+      value: {value},
+      getValueId: (v: {value: string} | undefined) => v?.value,
+      getValueById: (id: string | undefined) => id ? {value: id} : undefined,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+    } as const).toMatchTypeOf<Props>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value: {value},
+      // getValueId: (v: {value: string} | undefined) => v?.value,
+      // getValueById: (id: string | undefined) => id ? {value: id} : undefined,
+      options,
+      getOptionLabel: (option: Option) => option.id,
+    } as const).not.toMatchTypeOf<Props>();
   });
 
   test('requires getOptionId for unsupported option types', () => {
-    () => render(SingleOptionEditor<string, {code: string}>, {
-      context,
-      props: {
-        ...reusedProps,
-        value,
-        idValue: true,
-        options: options.map((option) => ({code: option.id})),
-        getOptionLabel: (option) => option.code,
-        getOptionId: (option) => option.code,
-      }
-    });
-    () => render(SingleOptionEditor<string, {code: string}>, {
-      context,
-      // @ts-expect-error missing getOptionId
-      props: {
-        ...reusedProps,
-        value,
-        idValue: true,
-        options: options.map((option) => ({code: option.id})),
-        getOptionLabel: (option) => option.code,
-      }
-    });
+    type Props = ComponentProps<SingleOptionEditor<string, { code: string }>>;
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      idValue: true,
+      options: options.map((option) => ({code: option.id})),
+      getOptionLabel: (option: {code: string}) => option.code,
+      getOptionId: (option: {code: string}) => option.code,
+    } as const).toMatchTypeOf<Props>();
+
+    expectTypeOf({
+      ...reusedProps,
+      value,
+      idValue: true,
+      options: options.map((option) => ({code: option.id})),
+      getOptionLabel: (option: {code: string}) => option.code,
+      // getOptionId: (option: {code: string}) => option.code,
+    } as const).not.toMatchTypeOf<Props>();
   });
 });
