@@ -17,10 +17,9 @@ public class ProjectMembersVisibilityMiddleware(FieldDelegate next)
             var projId = contextProject?.Id ?? throw new RequiredException("Must include project ID in query if querying users");
             if (!await permissionService.CanViewProjectMembers(projId))
             {
+                var userId = loggedInContext.User.Id;
                 // Confidential project, and user doesn't have permission to see its users, so only show the current user's membership
-                context.Result = projectUsers.Where(pu =>
-                    pu.User?.Id == loggedInContext.MaybeUser?.Id ||
-                    pu.UserId == loggedInContext.MaybeUser?.Id).ToList();
+                context.Result = projectUsers.Where(pu => userId == pu.UserId || userId == pu.User?.Id).ToList();
             }
         }
     }
