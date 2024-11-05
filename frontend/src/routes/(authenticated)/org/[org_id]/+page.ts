@@ -329,10 +329,8 @@ export async function _getProjectsIManage(user: LexAuthUser): Promise<LoadMyProj
               where: {
                 users: {
                   some: {
-                    and: [
-                      {userId: {eq: $userId}},
-                      {role: {eq: MANAGER}}
-                    ]
+                    userId: {eq: $userId},
+                    role: {eq: MANAGER}
                   }
                 }
               }) {
