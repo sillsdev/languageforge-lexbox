@@ -1,5 +1,6 @@
 import {defineConfig} from 'vite';
 import {svelte} from '@sveltejs/vite-plugin-svelte';
+import {svelteTesting} from '@testing-library/svelte/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -33,7 +34,7 @@ export default defineConfig(({ mode }) => {
         if (warning.filename?.includes('node_modules/svelte-ux')) return;
         handler(warning);
       },
-    })],
+    }), svelteTesting()],
     ...(!webComponent ? {
       server: {
         open: 'http://localhost:5173/testing/project-view',
@@ -46,5 +47,9 @@ export default defineConfig(({ mode }) => {
         }
       }
     } : {}),
+    test: {
+      environment: 'happy-dom',
+      setupFiles: ['./vitest-setup.js'],
+    },
   }
 });
