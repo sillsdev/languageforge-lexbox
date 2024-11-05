@@ -44,3 +44,10 @@ export function traceIt(traceable: Traceable, spanContext: SpanContext, tracer: 
     throw new TraceItError(traceable, `spanContext not writeable.`);
   }
 }
+
+export function tryCopyTraceContext(from: unknown, to: unknown): void {
+  if (isTraced(to)) return; // no need to copy
+  if (!isTraced(from)) return;
+  if (!isTraceable(to)) return;
+  traceIt(to, from.spanContext, from.tracer);
+}
