@@ -16,7 +16,7 @@
 <MultiOptionEditor
   on:change
   bind:value
-  ordered
+  preserveOrder
   options={$complexFormTypes}
   getOptionLabel={(cft) => pickBestAlternative(cft.name, 'analysis', $writingSystems)}
   {readonly}

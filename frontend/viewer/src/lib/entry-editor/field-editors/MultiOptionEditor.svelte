@@ -21,7 +21,10 @@
     value: TValue[];
     options: TOption[];
     getOptionLabel(option: TOption): string;
-    ordered?: boolean;
+    /**
+     * Indicates whether the order of the (selection of) values should be preserved, because the order is meaningful.
+     */
+    preserveOrder?: boolean;
   }
   & // mappings we support out of the box
   (
@@ -51,7 +54,7 @@
   export let readonly: boolean = false;
   export let value: TValue[];
   export let options: TOption[];
-  export let ordered = false;
+  export let preserveOrder = false;
 
   export let valuesAreIds: true | undefined = undefined;
   export let getValueId: (value: TValue) => string = defaultGetValueId;
@@ -100,6 +103,6 @@
 <div class="single-field field" class:empty class:hidden={!$currentView.fields[id].show} style:grid-area={id}>
   <FieldTitle {id} {name}/>
   <div class="fields">
-    <CrdtMultiOptionField on:change={onChange} bind:value={ids} options={uiOptions} placeholder={ws.abbreviation} {readonly} {ordered} />
+    <CrdtMultiOptionField on:change={onChange} bind:value={ids} options={uiOptions} placeholder={ws.abbreviation} {readonly} {preserveOrder} />
   </div>
 </div>

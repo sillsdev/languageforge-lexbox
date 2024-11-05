@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-import { readable } from 'svelte/store'
-import { beforeEach, describe, expect, expectTypeOf, test } from 'vitest'
+import {readable} from 'svelte/store'
+import {beforeEach, describe, expect, expectTypeOf, test} from 'vitest'
 
-import { render, screen } from '@testing-library/svelte'
-import userEvent, { type UserEvent } from '@testing-library/user-event'
-import { getState } from '../../utils/test-utils'
+import {render, screen} from '@testing-library/svelte'
+import userEvent, {type UserEvent} from '@testing-library/user-event'
+import {getState} from '../../utils/test-utils'
 import MultiOptionEditor from './MultiOptionEditor.svelte'
-import type { ComponentProps } from 'svelte'
+import type {ComponentProps} from 'svelte'
 
 type Option = {id: string};
 
@@ -75,7 +75,7 @@ describe('MultiOptionEditor value sorting', () => {
 });
 
 describe('MultiOptionEditor displayed sorting', () => {
-  test('matches option sorting if `ordered` option is NOT set', async () => {
+  test('matches option sorting if `preserveOrder` option is NOT set', async () => {
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('1'));
     await user.click(screen.getByLabelText('5'));
@@ -84,8 +84,8 @@ describe('MultiOptionEditor displayed sorting', () => {
     expect(screen.getByRole<HTMLInputElement>('textbox').value).toBe('1, 2, 3, 4, 5');
   });
 
-  test('matches values sorting if `ordered` option is set', async () => {
-    component.$set({ordered: true});
+  test('matches values sorting if `preserveOrder` option is set', async () => {
+    component.$set({preserveOrder: true});
     await user.click(screen.getByRole('textbox'));
     await user.click(screen.getByLabelText('1'));
     await user.click(screen.getByLabelText('5'));

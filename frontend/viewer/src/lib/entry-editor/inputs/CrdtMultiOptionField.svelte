@@ -15,7 +15,7 @@
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
   export let readonly: boolean | undefined = undefined;
-  export let ordered = false;
+  export let preserveOrder = false;
   let append: HTMLElement;
 
   $: sortedOptions = options.toSorted((a, b) => a.label.localeCompare(b.label));
@@ -30,7 +30,7 @@
     options={sortedOptions}
     icon={readonly ? undefined : mdiMagnify}
     formatSelected={({ value, options }) => {
-      return (ordered
+      return (preserveOrder
       // sorted by order of selection
       ? value?.map(v => options.find(o => o.value === v)?.label).filter(label => !!label).join(', ')
       // sorted according to the order of options (e.g. alphabetical or by semantic domain)
