@@ -17,6 +17,7 @@ docker_build(
     context='backend',
     dockerfile='./backend/LexBoxApi/dev.Dockerfile',
     only=['.'],
+    ignore=['FwHeadless'],
     live_update=[
         sync('backend', '/src/backend'),
     ]
