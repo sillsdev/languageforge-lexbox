@@ -160,6 +160,29 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         };
         await crdtApi.CreatePartOfSpeech(verb);
 
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtPartsOfSpeech = await crdtApi.GetPartsOfSpeech().ToArrayAsync();
+        var fwdataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
+        crdtPartsOfSpeech.Should().BeEquivalentTo(fwdataPartsOfSpeech);
+    }
+
+    [Fact]
+    public async Task PartsOfSpeechSyncInEntries()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var noun = new PartOfSpeech()
+        {
+            Id = new Guid("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5"),
+            Name = { { "en", "noun" } },
+            Predefined = true,
+        };
+        await fwdataApi.CreatePartOfSpeech(noun);
+        // Note we do *not* call crdtApi.CreatePartOfSpeech(noun);
+
         await fwdataApi.CreateEntry(new Entry()
         {
             LexemeForm = { { "en", "Pear" } },
@@ -173,7 +196,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
             LexemeForm = { { "en", "Banana" } },
             Senses =
             [
-                new Sense() { Gloss = { { "en", "Banana" } }, PartOfSpeechId = verb.Id }
+                new Sense() { Gloss = { { "en", "Banana" } }, PartOfSpeechId = noun.Id }
             ]
         });
         await _syncService.Sync(crdtApi, fwdataApi);

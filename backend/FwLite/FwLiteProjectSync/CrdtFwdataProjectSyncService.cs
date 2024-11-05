@@ -28,7 +28,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         if (!dryRun)
         {
             await SaveProjectSnapshot(fwdataApi.Project.Name, fwdataApi.Project.ProjectsPath,
-                new ProjectSnapshot(await fwdataApi.GetEntries().ToArrayAsync()));
+                new ProjectSnapshot(await fwdataApi.GetEntries().ToArrayAsync(), await fwdataApi.GetPartsOfSpeech().ToArrayAsync()));
         }
         return result;
     }
@@ -50,11 +50,15 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
 
         //todo sync complex form types, parts of speech, semantic domains, writing systems
 
+        var currentFwDataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
+        var crdtChanges = await PartOfSpeechSync.Sync(currentFwDataPartsOfSpeech, projectSnapshot.PartsOfSpeech, crdtApi);
+        var fwdataChanges = await PartOfSpeechSync.Sync(await crdtApi.GetPartsOfSpeech().ToArrayAsync(), currentFwDataPartsOfSpeech, fwdataApi);
+
         var currentFwDataEntries = await fwdataApi.GetEntries().ToArrayAsync();
-        var crdtChanges = await EntrySync.Sync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
+        crdtChanges += await EntrySync.Sync(currentFwDataEntries, projectSnapshot.Entries, crdtApi);
         LogDryRun(crdtApi, "crdt");
 
-        var fwdataChanges = await EntrySync.Sync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
+        fwdataChanges += await EntrySync.Sync(await crdtApi.GetEntries().ToArrayAsync(), currentFwDataEntries, fwdataApi);
         LogDryRun(fwdataApi, "fwdata");
 
         //todo push crdt changes to lexbox
@@ -73,7 +77,7 @@ public class CrdtFwdataProjectSyncService(IOptions<LcmCrdtConfig> lcmCrdtConfig,
         logger.LogInformation($"Dry run {type} changes: {dryRunApi.DryRunRecords.Count}");
     }
 
-    public record ProjectSnapshot(Entry[] Entries);
+    public record ProjectSnapshot(Entry[] Entries, PartOfSpeech[] PartsOfSpeech);
 
     private async Task<ProjectSnapshot?> GetProjectSnapshot(string projectName, string? projectPath)
     {

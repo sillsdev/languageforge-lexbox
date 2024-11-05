@@ -196,7 +196,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(partOfSpeech => new PartOfSpeech
             {
                 Id = partOfSpeech.Guid,
-                Name = FromLcmMultiString(partOfSpeech.Name)
+                Name = FromLcmMultiString(partOfSpeech.Name),
+                // TODO: Abreviation = FromLcmMultiString(partOfSpeech.Abreviation),
+                Predefined = true, // TODO: Determine by GUID, but for now we can assume all FW parts of speech are predetermined
             });
     }
 
