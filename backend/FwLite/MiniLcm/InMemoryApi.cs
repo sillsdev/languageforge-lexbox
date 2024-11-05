@@ -284,6 +284,11 @@ public class InMemoryApi : IMiniLcmApi
         return Task.FromResult(entry as Entry);
     }
 
+    public Task<Entry> UpdateEntry(Entry before, Entry after)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,

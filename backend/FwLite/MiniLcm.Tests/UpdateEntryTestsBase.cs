@@ -72,8 +72,9 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
     {
         var entry = await Api.GetEntry(Entry1Id);
         ArgumentNullException.ThrowIfNull(entry);
+        var before = entry.Copy();
         entry.LexemeForm["en"] = "updated";
-        var updatedEntry = await Api.UpdateEntry(entry);
+        var updatedEntry = await Api.UpdateEntry(before, entry);
         updatedEntry.LexemeForm["en"].Should().Be("updated");
         updatedEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion());
     }
@@ -83,8 +84,9 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
     {
         var entry = await Api.GetEntry(Entry1Id);
         ArgumentNullException.ThrowIfNull(entry);
+        var before = entry.Copy();
         entry.Senses[0].Gloss["en"] = "updated";
-        var updatedEntry = await Api.UpdateEntry(entry);
+        var updatedEntry = await Api.UpdateEntry(before, entry);
         updatedEntry.Senses[0].Gloss["en"].Should().Be("updated");
         updatedEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion());
     }
@@ -94,10 +96,34 @@ public abstract class UpdateEntryTestsBase : MiniLcmTestBase
     {
         var entry = await Api.GetEntry(Entry1Id);
         ArgumentNullException.ThrowIfNull(entry);
+        var before = entry.Copy();
         var senseCount = entry.Senses.Count;
         entry.Senses.RemoveAt(0);
-        var updatedEntry = await Api.UpdateEntry(entry);
+        var updatedEntry = await Api.UpdateEntry(before, entry);
         updatedEntry.Senses.Should().HaveCount(senseCount - 1);
         updatedEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion());
+    }
+
+    [Fact]
+    public async Task UpdateEntry_CanUseSameVersionMultipleTimes()
+    {
+        var original = await Api.GetEntry(Entry1Id);
+        await Task.Delay(1000);
+        ArgumentNullException.ThrowIfNull(original);
+        var update1 = (Entry)original.Copy();
+        var update2 = (Entry)original.Copy();
+
+        update1.LexemeForm["en"] = "updated";
+        var updatedEntry = await Api.UpdateEntry(original, update1);
+        updatedEntry.LexemeForm["en"].Should().Be("updated");
+        updatedEntry.Should().BeEquivalentTo(update1, options => options.Excluding(e => e.Version));
+
+
+        update2.LexemeForm["es"] = "updated again";
+        var updatedEntry2 = await Api.UpdateEntry(original, update2);
+        updatedEntry2.LexemeForm["en"].Should().Be("updated");
+        updatedEntry2.LexemeForm["es"].Should().Be("updated again");
+        updatedEntry2.Should().BeEquivalentTo(update2,
+            options => options.Excluding(e => e.Version).Excluding(e => e.LexemeForm));
     }
 }

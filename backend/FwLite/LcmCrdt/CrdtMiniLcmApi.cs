@@ -353,29 +353,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
     }
 
-    public async Task<Entry> UpdateEntry(Entry entry)
+    public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        var commitId = entry.GetVersionGuid();
-        //todo consider using GetEntry and validate the versions, this could let us update senses
-        var before = await dataModel.GetAtCommit<Entry>(commitId, entry.Id);
-        ArgumentNullException.ThrowIfNull(before);
-        //workaround to sync senses, which are not in the snapshot, however this will not work for senses that have been removed
-        before.Senses = await entry.Senses.ToAsyncEnumerable()
-            .SelectAwait(async s =>
-            {
-                var beforeSense = await dataModel.GetAtCommit<Sense>(s.GetVersionGuid(), s.Id);
-                beforeSense.ExampleSentences = await s.ExampleSentences.ToAsyncEnumerable()
-                    .SelectAwait(async es =>
-                    {
-                        var beforeExampleSentence = await dataModel.GetAtCommit<ExampleSentence>(es.GetVersionGuid(), es.Id);
-                        return beforeExampleSentence;
-                    })
-                    .ToListAsync();
-                return beforeSense;
-            })
-            .ToListAsync();
-        await EntrySync.Sync(entry, before, this);
-        return await GetEntry(entry.Id) ?? throw new NullReferenceException("unable to find entry with id " + entry.Id);
+        await EntrySync.Sync(after, before, this);
+        return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
 
     public async Task DeleteEntry(Guid id)

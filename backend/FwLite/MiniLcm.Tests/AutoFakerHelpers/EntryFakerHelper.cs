@@ -14,8 +14,8 @@ public static class EntryFakerHelper
     {
         var entry = autoFaker.Generate<Entry>();
         if (entryId.HasValue) entry.Id = entryId.Value;
-        if (createComponents) await CreateComplexFormComponentEntry(entry.Id, true, entry.Components, api);
-        if (createComplexForms) await CreateComplexFormComponentEntry(entry.Id, false, entry.ComplexForms, api);
+        if (createComponents) await CreateComplexFormComponentEntry(entry, true, entry.Components, api);
+        if (createComplexForms) await CreateComplexFormComponentEntry(entry, false, entry.ComplexForms, api);
         if (createComplexFormTypes) await CreateComplexFormTypes(entry.ComplexFormTypes, api);
         foreach (var sense in entry.Senses)
         {
@@ -26,7 +26,7 @@ public static class EntryFakerHelper
             }
         }
         return entry;
-        static async Task CreateComplexFormComponentEntry(Guid entryId,
+        static async Task CreateComplexFormComponentEntry(Entry entry,
             bool isComponent,
             IList<ComplexFormComponent> complexFormComponents,
             IMiniLcmApi api)
@@ -37,11 +37,11 @@ public static class EntryFakerHelper
                 //generated entries won't have the expected ids, so fix them up here
                 if (isComponent)
                 {
-                    complexFormComponent.ComplexFormEntryId = entryId;
+                    complexFormComponent.ComplexFormEntryId = entry.Id;
                 }
                 else
                 {
-                    complexFormComponent.ComponentEntryId = entryId;
+                    complexFormComponent.ComponentEntryId = entry.Id;
                     complexFormComponent.ComponentSenseId = null;
                 }
 
@@ -68,10 +68,12 @@ public static class EntryFakerHelper
                 });
                 if (isComponent)
                 {
-                    complexFormComponent.ComplexFormHeadword = createdEntry.Headword();
+                    complexFormComponent.ComponentHeadword = createdEntry.Headword();
+                    complexFormComponent.ComplexFormHeadword = entry.Headword();
                 } else
                 {
-                    complexFormComponent.ComponentHeadword = createdEntry.Headword();
+                    complexFormComponent.ComplexFormHeadword = createdEntry.Headword();
+                    complexFormComponent.ComponentHeadword = entry.Headword();
                 }
                 i++;
             }
