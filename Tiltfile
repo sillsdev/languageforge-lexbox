@@ -19,7 +19,14 @@ docker_build(
     only=['.'],
     ignore=['FwHeadless'],
     live_update=[
-        sync('backend', '/src/backend'),
+        sync('backend/FwHeadless/', '/src/backend/FwHeadless'),
+        sync('backend/FixFwData/', '/src/backend/FixFwData'),
+        sync('backend/FwLite/FwDataMiniLcmBridge/', '/src/backend/FwLite/FwDataMiniLcmBridge'),
+        sync('backend/FwLite/LcmCrdt/', '/src/backend/FwLite/LcmCrdt'),
+        sync('backend/FwLite/MiniLcm/', '/src/backend/FwLite/MiniLcm'),
+        sync('backend/FwLiteProjectSync/FwLiteProjectSync/', '/src/backend/FwLiteProjectSync/FwLiteProjectSync'),
+        sync('backend/LexCore/', '/src/backend/LexCore'),
+        sync('backend/LexData/', '/src/backend/LexData'),
     ]
 )
 
