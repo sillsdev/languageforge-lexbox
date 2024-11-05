@@ -41,7 +41,7 @@ beforeEach(() => {
     context,
     props: {
       ...reusedProps,
-      idValues: true,
+      valuesAreIds: true,
       value,
       options,
       getOptionLabel: (option) => option.id,
@@ -102,7 +102,7 @@ describe('MultiOptionEditor configurations', () => {
       value,
       options,
       getOptionLabel: (option: Option) => option.id,
-      idValues: true,
+      valuesAreIds: true,
     } as const).toMatchTypeOf<ComponentProps<MultiOptionEditor<string, { id: string }>>>();
 
     expectTypeOf({
@@ -113,14 +113,14 @@ describe('MultiOptionEditor configurations', () => {
     } as const).toMatchTypeOf<ComponentProps<MultiOptionEditor<{id: string}, {id: string}>>>();
   });
 
-  test('requires idValues to be set to true for out of the box support for string values, because we need to know the type at runtime', () => {
+  test('requires valuesAreIds to be set to true for out of the box support for string values, because we need to know the type at runtime', () => {
     type Props = ComponentProps<MultiOptionEditor<string, { id: string }>>;
     expectTypeOf({
       ...reusedProps,
       value,
       options,
       getOptionLabel: (option: Option) => option.id,
-      idValues: true,
+      valuesAreIds: true,
     } as const).toMatchTypeOf<Props>();
 
     expectTypeOf({
@@ -128,7 +128,7 @@ describe('MultiOptionEditor configurations', () => {
       value,
       options,
       getOptionLabel: (option: Option) => option.id,
-      // idValues: true,
+      // valuesAreIds: true,
     } as const).not.toMatchTypeOf<Props>();
   });
 
@@ -158,7 +158,7 @@ describe('MultiOptionEditor configurations', () => {
     expectTypeOf({
       ...reusedProps,
       value,
-      idValues: true,
+      valuesAreIds: true,
       options: options.map((option: Option) => ({code: option.id})),
       getOptionLabel: (option: {code: string}) => option.code,
       getOptionId: (option: {code: string}) => option.code,
@@ -167,7 +167,7 @@ describe('MultiOptionEditor configurations', () => {
     expectTypeOf({
       ...reusedProps,
       value,
-      idValues: true,
+      valuesAreIds: true,
       options: options.map((option: Option) => ({code: option.id})),
       getOptionLabel: (option: {code: string}) => option.code,
       // getOptionId: (option: {code: string}) => option.code,

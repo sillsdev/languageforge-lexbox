@@ -32,7 +32,7 @@
     { getOptionId: (value: TOption) => string; }
   ) & (
     { value: (TValue & TOption)[] } |
-    { value: string[]; idValues: true; } | // we need idValue or else we don't know what type to return at run time
+    { value: string[]; valuesAreIds: true; } | // we need valuesAreIds to know what type to return at run time
     { getValueById: (id: string) => TValue | undefined }
   );
 
@@ -53,7 +53,7 @@
   export let options: TOption[];
   export let ordered = false;
 
-  export let idValues: true | undefined = undefined;
+  export let valuesAreIds: true | undefined = undefined;
   export let getValueId: (value: TValue) => string = defaultGetValueId;
   export let getValueById: (id: string) => TValue | undefined = defaultGetValueById;
   export let getOptionId: (option: TOption) => string = defaultGetOptionId;
@@ -71,7 +71,7 @@
   function defaultGetValueById(id: string): TValue | undefined {
     const option = options.find(o => getOptionId(o) === id);
     if (!option) return undefined;
-    if (idValues) return getOptionId(option) as TValue;
+    if (valuesAreIds) return getOptionId(option) as TValue;
     else return option as TValue;
   }
 

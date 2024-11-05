@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
-import { readable } from 'svelte/store'
-import { beforeEach, describe, expect, expectTypeOf, test } from 'vitest'
+import {readable} from 'svelte/store'
+import {beforeEach, describe, expect, expectTypeOf, test} from 'vitest'
 
-import { render, screen } from '@testing-library/svelte'
-import userEvent, { type UserEvent } from '@testing-library/user-event'
-import { getState } from '../../utils/test-utils'
+import {render, screen} from '@testing-library/svelte'
+import userEvent, {type UserEvent} from '@testing-library/user-event'
+import {getState} from '../../utils/test-utils'
 import SingleOptionEditor from './SingleOptionEditor.svelte'
-import type { ComponentProps } from 'svelte'
+import type {ComponentProps} from 'svelte'
 
 type Option = { id: string };
 
@@ -43,7 +43,7 @@ describe('SingleOptionEditor', () => {
       context,
       props: {
         ...reusedProps,
-        idValue: true,
+        valueIsId: true,
         value,
         options,
         getOptionLabel: (option) => option.id,
@@ -70,7 +70,7 @@ describe('SingleOptionEditor configurations', () => {
       value,
       options,
       getOptionLabel: (option: Option) => option.id,
-      idValue: true,
+      valueIsId: true,
     } as const).toMatchTypeOf<ComponentProps<SingleOptionEditor<string, { id: string }>>>();
 
     expectTypeOf({
@@ -81,14 +81,14 @@ describe('SingleOptionEditor configurations', () => {
     } as const).toMatchTypeOf<ComponentProps<SingleOptionEditor<{ id: string }, { id: string }>>>();
   });
 
-  test('requires idValues to be set to true for out of the box support for string values, because we need to know the type at runtime', () => {
+  test('requires valueIsId to be set to true for out of the box support for string values, because we need to know the type at runtime', () => {
     type Props = ComponentProps<SingleOptionEditor<string, { id: string }>>;
     expectTypeOf({
       ...reusedProps,
       value,
       options,
       getOptionLabel: (option: Option) => option.id,
-      idValue: true,
+      valueIsId: true,
     } as const).toMatchTypeOf<Props>();
 
     expectTypeOf({
@@ -96,7 +96,7 @@ describe('SingleOptionEditor configurations', () => {
       value,
       options,
       getOptionLabel: (option: Option) => option.id,
-      // idValue: true,
+      // valueIsId: true,
     } as const).not.toMatchTypeOf<Props>();
   });
 
@@ -126,7 +126,7 @@ describe('SingleOptionEditor configurations', () => {
     expectTypeOf({
       ...reusedProps,
       value,
-      idValue: true,
+      valueIsId: true,
       options: options.map((option) => ({code: option.id})),
       getOptionLabel: (option: {code: string}) => option.code,
       getOptionId: (option: {code: string}) => option.code,
@@ -135,7 +135,7 @@ describe('SingleOptionEditor configurations', () => {
     expectTypeOf({
       ...reusedProps,
       value,
-      idValue: true,
+      valueIsId: true,
       options: options.map((option) => ({code: option.id})),
       getOptionLabel: (option: {code: string}) => option.code,
       // getOptionId: (option: {code: string}) => option.code,

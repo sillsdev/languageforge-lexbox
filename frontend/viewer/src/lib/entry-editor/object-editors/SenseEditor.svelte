@@ -31,7 +31,7 @@
                     wsType="analysis" />
   <SingleOptionEditor on:change
                       bind:value={sense.partOfSpeechId}
-                      idValue
+                      valueIsId
                       options={$partsOfSpeech}
                       getOptionLabel={(pos) => pos.label}
                       {readonly}

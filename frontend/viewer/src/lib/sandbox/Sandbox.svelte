@@ -64,7 +64,7 @@
   <div class="flex flex-col gap-2 border p-4 justify-between">
     MultiOptionEditor configurations
     <div class="grid gap-2" style:grid-template-areas={fieldGridAreas}>
-      <MultiOptionEditor id="multi1" name="String values" bind:value={idValue} idValues getOptionLabel={(o) => o.label} wsType="analysis" readonly={false} {options} />
+      <MultiOptionEditor id="multi1" name="String values" bind:value={idValue} valuesAreIds getOptionLabel={(o) => o.label} wsType="analysis" readonly={false} {options} />
       <MultiOptionEditor id="multi2" name="(id: string) values" bind:value={idObjectValue} getValueById={findOption} getOptionLabel={(o) => o.label} wsType="analysis" readonly={false} {options} />
       <MultiOptionEditor id="multi3" name="Option values" bind:value={optionValue} getOptionLabel={(o) => o.label} wsType="analysis" readonly={false} {options} />
     </div>
