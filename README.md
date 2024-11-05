@@ -28,12 +28,18 @@ There are some exceptions:
    * mac: `brew install go-task/tap/go-task`
    * via npm: `npm install -g @go-task/cli`
  * install [Tilt](https://docs.tilt.dev/) and add it to your path
-   * on Linux, a good practice is to create `$HOME/.local/bin` and put binaries there; most distributions automatically add `$HOME/.local/bin` to your path if it exists
-     * don't forget to run `chmod +x $HOME/.local/bin/tilt`
-   * on Windows, we suggest creating a `bin` folder in your home folder. Put the Tilt binary there, then do the following:
+   * on Linux, do NOT blindly follow the instructions that tell you to download and run `install.sh` without reading it!
+     * Instead, run `curl -L -o install-tilt.sh https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh` and read the script
+     * The script should be downloading Tilt from GitHub and installing it into `$HOME/.local/bin`
+     * If it's doing anything else, do NOT run it!
+     * Now run `echo "$PATH" | grep "$HOME/\.local/bin"`. If you see output, great, you're done.
+     * If that `grep` command didn't output anything, run `source "$HOME/.profile"` and/or `source "$HOME/.bashrc`. Most distributions automatically add `$HOME/.local/bin` to your path if it exists, but if the Tilt installer created it then you'll need to re-execute your Bash login scripts to add it to your current terminal session
+   * on Windows, the Tilt installer will create a `bin` folder in your home folder and put the Tilt binary there
+     * you will then need to do the following to make sure the Tilt binary is in your PATH:
      * go to your System properties, click the **Advanced** tab, and click **Environment Variables...**
      * Click the Path variable (in either User or System, User is recommended) and click the **Edit...** button
-     * Add `C:\Users\YOUR_USER_NAME\bin` to the list and click **OK**
+     * Add `C:\Users\YOUR_USER_NAME\bin` to the list (if it's not already there) and click **OK**
+ * run `tilt version` to check that Tilt is installed correctly
  * clone the repo
  * run `git push` to make sure your GitHub credentials are set up
    * on Windows, allow the Git Credential Manager to log in to GitHub via your browser
