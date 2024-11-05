@@ -8,6 +8,7 @@
   import { getSearchParams, queryParam } from '$lib/util/query-params';
   import type { PageData } from './$types';
   import type { OrgListSearchParams } from './+page';
+  import orderBy from 'just-order-by';
 
   export let data: PageData;
   $: orgs = data.orgs;
@@ -19,14 +20,15 @@
   const { queryParamValues, defaultQueryParamValues } = queryParams;
 
   type OrgList = OrgListPageQuery['orgs']
+  type Org = OrgList[number];
 
-  type Column = 'name' | 'members' | 'created_at';
+  type Column = keyof Pick<Org, 'name' | 'memberCount' | 'createdDate'>;
   let sortColumn: Column = 'name';
-  type Dir = 'ascending' | 'descending';
-  let sortDir: Dir = 'ascending';
+  type Dir = 'asc' | 'desc';
+  let sortDir: Dir = 'asc';
 
   function swapSortDir(): void {
-    sortDir = sortDir === 'ascending' ? 'descending' : 'ascending';
+    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
   }
 
   function handleSortClick(clickedColumn: Column): void {
@@ -34,7 +36,7 @@
       swapSortDir();
     } else {
       sortColumn = clickedColumn;
-      sortDir = clickedColumn === 'name' ? 'ascending' : 'descending';
+      sortDir = clickedColumn === 'name' ? 'asc' : 'desc';
     }
   }
 
@@ -42,21 +44,18 @@
     return orgs.filter((org) => org.name.toLowerCase().includes(search.toLowerCase()));
   }
 
+  function lowerCaseName(org: Org): string {
+    return org.name.toLocaleLowerCase();
+  }
+
   function sortOrgs(orgs: OrgList, sortColumn: Column, sortDir: Dir): OrgList {
-    const data = [... orgs];
-    let mult = sortDir === 'ascending' ? 1 : -1;
-    data.sort((a, b) => {
-      if (sortColumn === 'members') {
-        return (a.memberCount - b.memberCount) * mult;
-      } else if (sortColumn === 'name') {
-        return a.name.localeCompare(b.name);
-      } else if (sortColumn === 'created_at') {
-        const comp = a.createdDate < b.createdDate ? -1 : a.createdDate > b.createdDate ? 1 : 0;
-        return comp * mult;
-      }
-      return 0;
-    });
-    return data;
+    return orderBy(orgs, [
+      {
+        property: sortColumn == 'name' ? lowerCaseName : sortColumn,
+        order: sortDir,
+      },
+      { property: lowerCaseName },
+    ]);
   }
 
   $: filteredOrgs = $orgs ? filterOrgs($orgs, $queryParamValues.search) : [];
@@ -112,15 +111,15 @@ TODO:
         <tr class="bg-base-200">
           <th on:click={() => handleSortClick('name')} class="cursor-pointer hover:bg-base-300">
             {$t('org.table.name')}
-            <span class:invisible={sortColumn !== 'name'}  class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
+            <span class:invisible={sortColumn !== 'name'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2" />
           </th>
-          <th on:click={() => handleSortClick('members')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
+          <th on:click={() => handleSortClick('memberCount')} class="cursor-pointer hover:bg-base-300 hidden @md:table-cell">
             {$t('org.table.members')}
-            <span class:invisible={sortColumn !== 'members'} class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
+            <span class:invisible={sortColumn !== 'memberCount'} class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2" />
           </th>
-          <th on:click={() => handleSortClick('created_at')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
+          <th on:click={() => handleSortClick('createdDate')} class="cursor-pointer hover:bg-base-300 hidden @xl:table-cell">
             {$t('org.table.created_at')}
-            <span class:invisible={sortColumn !== 'created_at'}  class="{`i-mdi-sort-${sortDir}`} text-xl align-[-5px] ml-2" />
+            <span class:invisible={sortColumn !== 'createdDate'}  class="{`i-mdi-sort-${sortDir}ending`} text-xl align-[-5px] ml-2" />
           </th>
         </tr>
       </thead>

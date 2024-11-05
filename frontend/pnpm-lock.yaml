@@ -86,6 +86,9 @@ importers:
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
+      just-order-by:
+        specifier: ^1.0.0
+        version: 1.0.0
       mjml:
         specifier: ^4.15.3
         version: 4.15.3
@@ -3816,6 +3819,9 @@ packages:
     resolution: {integrity: sha512-9f68xmhGrnIi6DBkiiP3rUrQN33SEuaKu1+njX6VgMP+jwZAsnT33WIzlrWICL9matkhYu3OyrqSUP55YTIdGg==}
     engines: {node: '>=10.0.0'}
     hasBin: true
+
+  just-order-by@1.0.0:
+    resolution: {integrity: sha512-m83kcBMoX43jRLDzR6J7NzIpEEpMmMmh0xwVSMKpXObIFh6ejxpQ02HXc9gCq5cFWHbL5gZ3yRHRGYgMGpoUnA==}
 
   jwt-decode@4.0.0:
     resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
@@ -9920,6 +9926,8 @@ snapshots:
       web-resource-inliner: 6.0.1
     transitivePeerDependencies:
       - encoding
+
+  just-order-by@1.0.0: {}
 
   jwt-decode@4.0.0: {}
 
