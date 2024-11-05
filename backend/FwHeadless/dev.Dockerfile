@@ -43,7 +43,6 @@ RUN dotnet build --property:InformationalVersion=dockerDev
 #ensures the shutdown happens quickly
 ENTRYPOINT ["tini", "--"]
 
-# no need to restore because we already restored as part of building the image
 ENV ASPNETCORE_ENVIRONMENT=Development
-ENV DOTNET_URLS=http://0.0.0.0:5158
+# no need to restore because we already restored as part of building the image
 CMD dotnet watch run --property:InformationalVersion=dockerDev --no-restore --non-interactive
