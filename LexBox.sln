@@ -51,7 +51,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LcmDebugger", "backend\LfNe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiniLcm.Tests", "backend\FwLite\MiniLcm.Tests\MiniLcm.Tests.csproj", "{00AE5440-0E36-4488-935B-5B11301BA57D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrdtMerge", "backend\CrdtMerge\CrdtMerge.csproj", "{ECBA46AB-AF87-4D4D-9716-FD77264B817F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FwHeadless", "backend\FwHeadless\FwHeadless.csproj", "{ECBA46AB-AF87-4D4D-9716-FD77264B817F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -21,6 +21,7 @@ public class OrgMutations
     [UseMutationConvention]
     [UseFirstOrDefault]
     [UseProjection]
+    [RefreshJwt]
     public async Task<IQueryable<Organization>> CreateOrganization(string name,
         LexBoxDbContext dbContext,
         LoggedInContext loggedInContext,
@@ -65,7 +66,7 @@ public class OrgMutations
     public async Task<IQueryable<Organization>> AddProjectToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         Guid orgId,
         Guid projectId)
     {
@@ -99,7 +100,7 @@ public class OrgMutations
     public async Task<Organization?> AddProjectsToOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         IResolverContext resolverContext,
         Guid orgId,
         Guid[] projectIds)
@@ -138,18 +139,17 @@ public class OrgMutations
     public async Task<IQueryable<Organization>> RemoveProjectFromOrg(
         LexBoxDbContext dbContext,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         Guid orgId,
         Guid projectId)
     {
         var org = await dbContext.Orgs.Include(o => o.Members).SingleOrDefaultAsync(o => o.Id == orgId);
         NotFoundException.ThrowIfNull(org);
-        permissionService.AssertCanAddProjectToOrg(org);
         var project = await dbContext.Projects.Where(p => p.Id == projectId)
             .Include(p => p.Organizations)
             .SingleOrDefaultAsync();
         NotFoundException.ThrowIfNull(project);
-        await permissionService.AssertCanManageProject(projectId);
+        await permissionService.AssertCanRemoveProjectFromOrg(org, projectId);
         var foundOrg = project.Organizations.FirstOrDefault(o => o.Id == orgId);
         if (foundOrg is not null)
         {
@@ -185,7 +185,7 @@ public class OrgMutations
         OrgRole role,
         string emailOrUsername,
         bool canInvite,
-        [Service] IEmailService emailService)
+        IEmailService emailService)
     {
         var org = await dbContext.Orgs.FindAsync(orgId);
         NotFoundException.ThrowIfNull(org);
@@ -248,6 +248,30 @@ public class OrgMutations
         NotFoundException.ThrowIfNull(user);
         await UpdateOrgMemberRole(dbContext, org, role, userId);
         return dbContext.Orgs.Where(o => o.Id == orgId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<LastMemberCantLeaveException>]
+    [UseMutationConvention]
+    [RefreshJwt]
+    public async Task<Organization> LeaveOrg(
+        Guid orgId,
+        LoggedInContext loggedInContext,
+        LexBoxDbContext dbContext)
+    {
+        var org = await dbContext.Orgs.Where(p => p.Id == orgId)
+            .Include(p => p.Members)
+            .SingleOrDefaultAsync();
+        NotFoundException.ThrowIfNull(org);
+        var member = org.Members.FirstOrDefault(u => u.UserId == loggedInContext.User.Id);
+        if (member is null) return org;
+        if (member.Role == OrgRole.Admin && org.Members.Count(m => m.Role == OrgRole.Admin) == 1)
+        {
+            throw new LastMemberCantLeaveException();
+        }
+        org.Members.Remove(member);
+        await dbContext.SaveChangesAsync();
+        return org;
     }
 
     private async Task UpdateOrgMemberRole(LexBoxDbContext dbContext, Organization org, OrgRole? role, Guid userId)

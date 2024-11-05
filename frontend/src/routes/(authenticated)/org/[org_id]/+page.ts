@@ -8,11 +8,12 @@ import type {
   ChangeOrgNameMutation,
   DeleteOrgMutation,
   DeleteOrgUserMutation,
+  LeaveOrgMutation,
   LoadMyProjectsQuery,
   OrgMemberDto,
   OrgPageQuery,
   OrgRole,
-  RemoveProjectFromOrgMutation,
+  RemoveProjectFromOrgMutation
 } from '$lib/gql/types';
 import {getClient, graphql} from '$lib/gql';
 
@@ -119,6 +120,28 @@ export async function _deleteOrgUser(orgId: string, userId: string): $OpResult<D
       `),
       { input: { orgId, userId, role: null } }
     );
+  return result;
+}
+
+export async function _leaveOrg(orgId: string): $OpResult<LeaveOrgMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation LeaveOrg($input: LeaveOrgInput!) {
+          leaveOrg(input: $input) {
+            organization {
+              id
+            }
+            errors {
+              __typename
+            }
+          }
+        }
+    `),
+      { input: { orgId } },
+    );
+
   return result;
 }
 

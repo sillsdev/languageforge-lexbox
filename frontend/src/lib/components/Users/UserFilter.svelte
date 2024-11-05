@@ -57,7 +57,7 @@
   {filterKeys}
   {loading}
 >
-  <svelte:fragment slot="activeFilters" let:activeFilters>
+  <svelte:fragment slot="activeFilterSlot" let:activeFilters>
     {#each activeFilters as filter}
       {#if filter.key === 'userType' && filter.value}
         <ActiveFilter {filter}>
@@ -80,7 +80,7 @@
       {/if}
     {/each}
   </svelte:fragment>
-  <svelte:fragment slot="filters">
+  <svelte:fragment slot="filterSlot">
     <h2 class="card-title">{$t('admin_dashboard.user_filter.title')}</h2>
     {#if filterEnabled('userType')}
       <div class="form-control">

@@ -20,7 +20,7 @@
   export let activeTab: AdminTabId = 'projects';
 </script>
 
-<div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg">
+<div role="tablist" class="hidden admin-tabs:flex tabs tabs-lifted tabs-lg overflow-x-auto">
   <div class="tab tab-divider" />
   {#each adminTabs as tab}
     {@const isActiveTab = activeTab === tab}

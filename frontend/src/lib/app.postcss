@@ -220,6 +220,7 @@ img[src*="onestory-editor-logo"] {
 .x-ellipsis {
   max-width: 100%;
   overflow: hidden;
-  overflow-x: clip;
   text-overflow: ellipsis;
+  /* Ensures dangling letters are not clipped (e.g. "g") */
+  line-height: 1.3em;
 }

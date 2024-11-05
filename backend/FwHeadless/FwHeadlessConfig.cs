@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CrdtMerge;
+namespace FwHeadless;
 
-public class CrdtMergeConfig
+public class FwHeadlessConfig
 {
     [Required, Url, RegularExpression(@"^.+/$", ErrorMessage = "Must end with '/'")]
     public required string LexboxUrl { get; init; }

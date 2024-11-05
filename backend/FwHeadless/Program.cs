@@ -1,4 +1,4 @@
-using CrdtMerge;
+using FwHeadless;
 using FwDataMiniLcmBridge;
 using FwLiteProjectSync;
 using LcmCrdt;
@@ -14,12 +14,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddHealthChecks();
+
 builder.Services.AddLexData(
     autoApplyMigrations: false,
     useOpenIddict: false
 );
 
-builder.Services.AddCrdtMerge();
+builder.Services.AddFwHeadless();
 
 var app = builder.Build();
 
@@ -33,6 +35,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.MapHealthChecks("/api/healthz");
+
 app.MapPost("/sync", ExecuteMergeRequest);
 
 app.Run();
@@ -41,7 +45,7 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound>
     ILogger<Program> logger,
     IServiceProvider services,
     SendReceiveService srService,
-    IOptions<CrdtMergeConfig> config,
+    IOptions<FwHeadlessConfig> config,
     FwDataFactory fwDataFactory,
     ProjectsService projectsService,
     ProjectLookupService projectLookupService,

@@ -2,7 +2,7 @@ namespace Testing.Services;
 
 public static class TestingEnvironmentVariables
 {
-    public static string ServerHostname = Environment.GetEnvironmentVariable("TEST_SERVER_HOSTNAME") ?? "localhost";
+    public static string ServerHostname = Environment.GetEnvironmentVariable("TEST_SERVER_HOSTNAME") ?? "localhost:5158";
     public static readonly bool IsDev = ServerHostname.StartsWith("localhost");
     //scheme like https:// or http://
     public static string HttpScheme = (Environment.GetEnvironmentVariable("TEST_HTTP_SCHEME") ?? (IsDev ? "http" : "https")) + "://";

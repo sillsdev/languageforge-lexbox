@@ -25,7 +25,7 @@
 		"lint": "svelte-kit sync && eslint .",
 		"lint:report": "svelte-kit sync && eslint . --output-file eslint_report.json --format json",
 		"format": "eslint . --fix",
-		"clean": "rimraf node_modules .svelte-kit"
+		"clean": "pnpm dlx rimraf node_modules .svelte-kit"
 	},
 	"devDependencies": {
 		"@dotenvx/dotenvx": "^0.37.1",

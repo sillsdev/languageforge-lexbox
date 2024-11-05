@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-      <Content Include="Mercurial\**" CopyToOutputDirectory="Always" />
-      <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" />
+      <Content Include="Mercurial\**" CopyToOutputDirectory="Always" Watch="false" />
+      <Content Include="MercurialExtensions\**" CopyToOutputDirectory="Always" Watch="false" />
   </ItemGroup>
 </Project>

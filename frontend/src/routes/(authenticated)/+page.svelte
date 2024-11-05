@@ -59,8 +59,8 @@
   }
 </script>
 
-<HeaderPage wide title={$t('user_dashboard.title')}>
-  <svelte:fragment slot="header-content">
+<HeaderPage wide titleText={$t('user_dashboard.title')}>
+  <svelte:fragment slot="headerContent">
     <div class="flex gap-4 w-full">
       <div class="grow">
         <ProjectFilter
