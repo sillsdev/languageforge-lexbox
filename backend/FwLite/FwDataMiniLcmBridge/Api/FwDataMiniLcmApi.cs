@@ -153,7 +153,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
         CoreWritingSystemDefinition? ws = null;
-        UndoableUnitOfWorkHelper.Do("Create Writing System",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Writing System",
             "Remove writing system",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -203,7 +203,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
-        UndoableUnitOfWorkHelper.Do("Create Part of Speech",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
             "Remove part of speech",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -233,7 +233,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
-        UndoableUnitOfWorkHelper.Do("Create Semantic Domain",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
             "Remove semantic domain",
             Cache.ActionHandlerAccessor,
             () =>
@@ -268,7 +268,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         if (complexFormType.Id != default) throw new InvalidOperationException("Complex form type id must be empty");
-        UndoableUnitOfWorkHelper.Do("Create complex form type",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
             Cache.ActionHandlerAccessor,
             () =>
@@ -483,7 +483,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public async Task<Entry> CreateEntry(Entry entry)
     {
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
-        UndoableUnitOfWorkHelper.Do("Create Entry",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
             "Remove entry",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -522,7 +522,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        UndoableUnitOfWorkHelper.Do("Create Complex Form Component",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Complex Form Component",
             "Remove Complex Form Component",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -536,7 +536,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        UndoableUnitOfWorkHelper.Do("Delete Complex Form Component",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Complex Form Component",
             "Add Complex Form Component",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -549,7 +549,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
     {
-        UndoableUnitOfWorkHelper.Do("Replace Complex Form Component",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Replace Complex Form Component",
             "Replace Complex Form Component",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -563,7 +563,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        UndoableUnitOfWorkHelper.Do("Add Complex Form Type",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Complex Form Type",
             "Remove Complex Form Type",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -575,7 +575,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
-        UndoableUnitOfWorkHelper.Do("Remove Complex Form Type",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Complex Form Type",
             "Add Complex Form Type",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -666,25 +666,20 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLexEntry(lexEntry));
     }
 
-
-
-    public async Task<Entry> UpdateEntry(Entry entry)
+    public async Task<Entry> UpdateEntry(Entry before, Entry after)
     {
-        var before = await GetEntry(entry.Id);
-        ArgumentNullException.ThrowIfNull(before);
-        ValidateVersion(entry, before);
         await Cache.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             async () =>
             {
-                await EntrySync.Sync(entry, before, this);
+                await EntrySync.Sync(after, before, this);
             });
-        return await GetEntry(entry.Id) ?? throw new NullReferenceException("unable to find entry with id " + entry.Id);
+        return await GetEntry(after.Id) ?? throw new NullReferenceException("unable to find entry with id " + after.Id);
     }
 
     public Task DeleteEntry(Guid id)
     {
-        UndoableUnitOfWorkHelper.Do("Delete Entry",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Entry",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -736,7 +731,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
-        UndoableUnitOfWorkHelper.Do("Create Sense",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
             () => CreateSense(lexEntry, sense));
@@ -747,7 +742,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var lexSense = SenseRepository.GetObject(senseId);
         if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException($"Sense {senseId} does not belong to the expected entry, expected Id {entryId}, actual Id {lexSense.Entry.Guid}");
-        UndoableUnitOfWorkHelper.Do("Update Sense",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -788,7 +783,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var lexSense = SenseRepository.GetObject(senseId);
         if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
-        UndoableUnitOfWorkHelper.Do("Delete Sense",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexSense.Delete());
@@ -811,7 +806,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
-        UndoableUnitOfWorkHelper.Do("Create Example Sentence",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Example Sentence",
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
             () => CreateExampleSentence(lexSense, exampleSentence));
@@ -825,7 +820,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
         ValidateOwnership(lexExampleSentence, entryId, senseId);
-        UndoableUnitOfWorkHelper.Do("Update Example Sentence",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Example Sentence",
             "Revert example sentence",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -840,7 +835,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
         ValidateOwnership(lexExampleSentence, entryId, senseId);
-        UndoableUnitOfWorkHelper.Do("Delete Example Sentence",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Example Sentence",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());
