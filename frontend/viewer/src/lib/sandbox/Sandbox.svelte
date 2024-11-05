@@ -11,6 +11,7 @@
   initWritingSystems(readable({
     analysis: [{
       id: 'test',
+      wsId: 'test',
       name: 'test',
       abbreviation: 'test',
       font: 'test',

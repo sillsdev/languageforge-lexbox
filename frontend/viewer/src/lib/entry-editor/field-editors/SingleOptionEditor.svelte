@@ -23,6 +23,12 @@
     value: TValue;
     options: TOption[];
     getOptionLabel(option: TOption): string;
+
+    // optional based on configuration
+    valueIsId?: true;
+    getValueId?: (value: TValue) => Id;
+    getValueById?: (id: Id) => TValue;
+    getOptionId?: (option: TOption) => string;
   }
   & // mappings we support out of the box
   (

@@ -25,6 +25,12 @@
      * Indicates whether the order of the (selection of) values should be preserved, because the order is meaningful.
      */
     preserveOrder?: boolean;
+
+    // optional based on configuration
+    valuesAreIds?: true;
+    getValueId?: (value: TValue) => string;
+    getValueById?: (id: string) => TValue | undefined;
+    getOptionId?: (option: TOption) => string;
   }
   & // mappings we support out of the box
   (
