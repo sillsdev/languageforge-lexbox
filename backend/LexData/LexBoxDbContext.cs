@@ -34,8 +34,15 @@ public class LexBoxDbContext(DbContextOptions<LexBoxDbContext> options, IEnumera
 
     public async Task<bool> HeathCheck(CancellationToken cancellationToken)
     {
-        //this will throw if we can't connect which is a valid health check response.
-        await Users.CountAsync(cancellationToken);
-        return true;
+        //this will throw if we can't connect which is a valid health check response, but TaskCanceledException is not a failure
+        try
+        {
+            await Users.CountAsync(cancellationToken);
+            return true;
+        }
+        catch (TaskCanceledException)
+        {
+            return true;
+        }
     }
 }
