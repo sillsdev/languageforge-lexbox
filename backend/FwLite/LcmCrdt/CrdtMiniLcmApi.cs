@@ -7,10 +7,12 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using MiniLcm.SyncHelpers;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
-public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService) : IMiniLcmApi
+public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectService, LcmCrdtDbContext dbContext) : IMiniLcmApi
 {
     private Guid ClientId { get; } = projectService.ProjectData.ClientId;
     public ProjectData ProjectData => projectService.ProjectData;
@@ -106,6 +108,52 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return await ComplexFormTypes.SingleAsync(c => c.Id == complexFormType.Id);
     }
 
+    public async Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
+        await dataModel.AddChange(ClientId, addEntryComponentChange);
+        return await ComplexFormComponents.SingleAsync(c => c.Id == addEntryComponentChange.EntityId);
+    }
+
+    public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
+    }
+
+    public async Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
+    {
+        IChange change;
+        if (old.ComplexFormEntryId != @new.ComplexFormEntryId)
+        {
+            change = SetComplexFormComponentChange.NewComplexForm(old.Id, @new.ComplexFormEntryId);
+        }
+        else if (old.ComponentEntryId != @new.ComponentEntryId)
+        {
+            change = SetComplexFormComponentChange.NewComponent(old.Id, @new.ComponentEntryId);
+        }
+        else if (old.ComponentSenseId != @new.ComponentSenseId)
+        {
+            change = SetComplexFormComponentChange.NewComponentSense(old.Id,
+                @new.ComponentEntryId,
+                @new.ComponentSenseId);
+        }
+        else
+        {
+            return;
+        }
+        await dataModel.AddChange(ClientId, change);
+    }
+
+    public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        await dataModel.AddChange(ClientId, new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
+    }
+
+    public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        await dataModel.AddChange(ClientId, new RemoveComplexFormTypeChange(entryId, complexFormTypeId));
+    }
+
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return GetEntriesAsyncEnum(predicate: null, options);
@@ -118,18 +166,14 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return GetEntriesAsyncEnum(Filtering.SearchFilter(query), options);
     }
 
-    private async IAsyncEnumerable<Entry> GetEntriesAsyncEnum(
+    private IAsyncEnumerable<Entry> GetEntriesAsyncEnum(
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
-        var entries = await GetEntries(predicate, options);
-        foreach (var entry in entries)
-        {
-            yield return entry;
-        }
+        return GetEntries(predicate, options);
     }
 
-    private async Task<Entry[]> GetEntries(
+    private async IAsyncEnumerable<Entry> GetEntries(
         Expression<Func<Entry, bool>>? predicate = null,
         QueryOptions? options = null)
     {
@@ -157,15 +201,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             .ThenBy(e => e.Id)
             .Skip(options.Offset)
             .Take(options.Count);
-        var entries = await queryable
-            .ToArrayAsyncLinqToDB();
-
-        return entries;
+        var entries = queryable.AsAsyncEnumerable();
+        await foreach (var entry in entries)
+        {
+            yield return entry;
+        }
     }
 
     public async Task<Entry?> GetEntry(Guid id)
     {
-        var entry = await Entries
+        var entry = await Entries.AsTracking(false)
             .LoadWith(e => e.Senses)
             .ThenLoad(s => s.ExampleSentences)
             .LoadWith(e => e.ComplexForms)
@@ -237,12 +282,66 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
             ..await entry.Senses.ToAsyncEnumerable()
                 .SelectMany(s => CreateSenseChanges(entry.Id, s))
                 .ToArrayAsync(),
-            ..entry.Components.Select(c => new AddEntryComponentChange(c)),
-            ..entry.ComplexForms.Select(c => new AddEntryComponentChange(c)),
-            ..entry.ComplexFormTypes.Select(c => new AddComplexFormTypeChange(entry.Id, c))
+            ..await ToComplexFormComponents(entry.Components).ToArrayAsync(),
+            ..await ToComplexFormComponents(entry.ComplexForms).ToArrayAsync(),
+            ..await ToComplexFormTypes(entry.ComplexFormTypes).ToArrayAsync()
         ]);
         return await GetEntry(entry.Id) ?? throw new NullReferenceException();
+
+        async IAsyncEnumerable<AddEntryComponentChange> ToComplexFormComponents(IList<ComplexFormComponent> complexFormComponents)
+        {
+            foreach (var complexFormComponent in complexFormComponents)
+            {
+                if (complexFormComponent.ComponentEntryId == default) complexFormComponent.ComponentEntryId = entry.Id;
+                if (complexFormComponent.ComplexFormEntryId == default) complexFormComponent.ComplexFormEntryId = entry.Id;
+                if (complexFormComponent.ComponentEntryId == complexFormComponent.ComplexFormEntryId)
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} has the same component id as its complex form");
+                }
+                if (complexFormComponent.ComponentEntryId != entry.Id &&
+                    await IsEntryDeleted(complexFormComponent.ComponentEntryId))
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComponentEntryId} as its component");
+                }
+                if (complexFormComponent.ComplexFormEntryId != entry.Id &&
+                    await IsEntryDeleted(complexFormComponent.ComplexFormEntryId))
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComplexFormEntryId} as its complex form");
+                }
+
+                if (complexFormComponent.ComponentSenseId != null &&
+                    !await Senses.AnyAsyncEF(s => s.Id == complexFormComponent.ComponentSenseId.Value))
+                {
+                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
+                }
+                yield return new AddEntryComponentChange(complexFormComponent);
+            }
+        }
+
+        async IAsyncEnumerable<AddComplexFormTypeChange> ToComplexFormTypes(IList<ComplexFormType> complexFormTypes)
+        {
+            foreach (var complexFormType in complexFormTypes)
+            {
+                if (complexFormType.Id == default)
+                {
+                    throw new InvalidOperationException("Complex form type must have an id");
+                }
+
+                if (!await ComplexFormTypes.AnyAsyncEF(t => t.Id == complexFormType.Id))
+                {
+                    throw new InvalidOperationException($"Complex form type {complexFormType} does not exist");
+                }
+                yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
+            }
+        }
     }
+
+    private async ValueTask<bool> IsEntryDeleted(Guid id)
+    {
+        return !await Entries.AnyAsyncEF(e => e.Id == id);
+    }
+
+
 
     public async Task<Entry> UpdateEntry(Guid id,
         UpdateObjectInput<Entry> update)
@@ -251,7 +350,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         if (entry is null) throw new NullReferenceException($"unable to find entry with id {id}");
 
         await dataModel.AddChanges(ClientId, [..entry.ToChanges(update.Patch)]);
-        return await GetEntry(id) ?? throw new NullReferenceException();
+        return await GetEntry(id) ?? throw new NullReferenceException("unable to find entry with id " + id);
     }
 
     public async Task DeleteEntry(Guid id)
@@ -298,6 +397,16 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     public async Task DeleteSense(Guid entryId, Guid senseId)
     {
         await dataModel.AddChange(ClientId, new DeleteChange<Sense>(senseId));
+    }
+
+    public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        await dataModel.AddChange(ClientId, new AddSemanticDomainChange(semanticDomain, senseId));
+    }
+
+    public async Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        await dataModel.AddChange(ClientId, new RemoveSemanticDomainChange(semanticDomainId, senseId));
     }
 
     public async Task<ExampleSentence> CreateExampleSentence(Guid entryId,

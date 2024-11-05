@@ -60,7 +60,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.FwDataApi.DeleteEntry(entry.Id);
         }
-        await foreach (var entry in _fixture.CrdtApi.GetEntries())
+        foreach (var entry in await _fixture.CrdtApi.GetEntries().ToArrayAsync())
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }
@@ -146,7 +146,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"],"Manzana"));
+        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"], "Manzana"));
 
         await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["fr"], "Pomme"));
         var results = await _syncService.Sync(crdtApi, fwdataApi);

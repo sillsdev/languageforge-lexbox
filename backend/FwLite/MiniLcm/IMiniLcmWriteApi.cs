@@ -12,23 +12,39 @@ public interface IMiniLcmWriteApi
         WritingSystemType type,
         UpdateObjectInput<WritingSystem> update);
 
+
     Task CreatePartOfSpeech(PartOfSpeech partOfSpeech);
     Task CreateSemanticDomain(SemanticDomain semanticDomain);
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
+
+    #region Entry
     Task<Entry> CreateEntry(Entry entry);
     Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update);
     Task DeleteEntry(Guid id);
+    Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent);
+    Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent);
+    Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new);
+    Task AddComplexFormType(Guid entryId, Guid complexFormTypeId);
+    Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId);
+    #endregion
+
+    #region Sense
     Task<Sense> CreateSense(Guid entryId, Sense sense);
     Task<Sense> UpdateSense(Guid entryId, Guid senseId, UpdateObjectInput<Sense> update);
     Task DeleteSense(Guid entryId, Guid senseId);
-    Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence);
+    Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain);
+    Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId);
+    #endregion
 
+    #region ExampleSentence
+    Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence);
     Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
         Guid senseId,
         Guid exampleSentenceId,
         UpdateObjectInput<ExampleSentence> update);
 
     Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId);
+    #endregion
 }
 
 /// <summary>

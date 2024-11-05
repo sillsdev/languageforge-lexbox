@@ -1,7 +1,7 @@
 ﻿namespace MiniLcm.Models;
 
 //todo support an order for the complex form types, might be here, or on the entry
-public class ComplexFormType : IObjectWithId
+public record ComplexFormType : IObjectWithId
 {
     public virtual Guid Id { get; set; }
     public required MultiString Name { get; set; }

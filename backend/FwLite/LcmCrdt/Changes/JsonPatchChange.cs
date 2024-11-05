@@ -45,9 +45,9 @@ file static class JsonPatchValidator
     {
         foreach (var operation in patchDocument.GetOperations())
         {
-            if (operation.OperationType == OperationType.Remove)
+            if (operation.OperationType == OperationType.Remove && char.IsDigit(operation.Path?[^1] ?? default))
             {
-                throw new NotSupportedException("remove at index not supported");
+                throw new NotSupportedException("remove at index not supported, op " + JsonSerializer.Serialize(operation));
             }
 
             // we want to make sure that the path is not an index, as a shortcut we just check the first character is not a digit, because it's invalid for fields to start with a digit.

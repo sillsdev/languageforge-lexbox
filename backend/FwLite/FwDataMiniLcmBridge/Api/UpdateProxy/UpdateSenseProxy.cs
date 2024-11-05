@@ -64,14 +64,13 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
             new UpdateListProxy<SemanticDomain>(
                 semanticDomain =>
                 {
-                    if (semanticDomain.Id != default && lexboxLcmApi.GetLcmSemanticDomain(semanticDomain.Id) is { } lcmSemanticDomain)
-                        sense.SemanticDomainsRC.Add(lcmSemanticDomain);
+#pragma warning disable VSTHRD002
+                    lexboxLcmApi.AddSemanticDomainToSense(sense.Guid, semanticDomain).Wait();
                 },
                 semanticDomain =>
                 {
-                    if (semanticDomain.Id != default)
-                        sense.SemanticDomainsRC.Remove(
-                            sense.SemanticDomainsRC.First(sd => sd.Guid == semanticDomain.Id));
+                    lexboxLcmApi.RemoveSemanticDomainFromSense(sense.Guid, semanticDomain.Id).Wait();
+#pragma warning restore VSTHRD002
                 },
                 i => new UpdateProxySemanticDomain(sense.SemanticDomainsRC,
                     sense.SemanticDomainsRC.ElementAt(i).Guid,
