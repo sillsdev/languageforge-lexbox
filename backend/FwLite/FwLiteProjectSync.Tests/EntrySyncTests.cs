@@ -57,7 +57,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after);
+        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after);
+        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
     }
 
     [Fact]
@@ -103,6 +103,6 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after);
+        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.Tests.Helpers;
 using SystemTextJsonPatch;
 
 namespace FwLiteProjectSync.Tests;
@@ -82,7 +83,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options.ExcludingVersion().For(e => e.Components).Exclude(c => c.Id)
                               .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
@@ -133,7 +134,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options.ExcludingVersion().For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 
@@ -157,6 +158,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options
+                .ExcludingVersion()
                 .For(e => e.Components).Exclude(c => c.Id)
                 //todo the headword should be changed
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
@@ -187,7 +189,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
         var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
-            options => options.For(e => e.Components).Exclude(c => c.Id)
+            options => options.ExcludingVersion().For(e => e.Components).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.Id));
     }
 }
