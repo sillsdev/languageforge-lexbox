@@ -17,7 +17,7 @@ build:
     - image: ghcr.io/sillsdev/lexbox-fw-headless
       context: backend
       docker:
-        dockerfile: FwHeadless/Dockerfile
+        dockerfile: FwHeadless/dev.Dockerfile
     - image: ghcr.io/sillsdev/lexbox-ui
       context: frontend
       docker:

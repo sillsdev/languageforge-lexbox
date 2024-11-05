@@ -17,19 +17,20 @@ docker_build(
     context='backend',
     dockerfile='./backend/LexBoxApi/dev.Dockerfile',
     only=['.'],
+    ignore=['FwHeadless'],
     live_update=[
-        sync('backend', '/src/backend'),
+        sync('backend', '/src/backend')
     ]
 )
 
 docker_build(
     'ghcr.io/sillsdev/lexbox-fw-headless',
     context='backend',
-    dockerfile='./backend/FwHeadless/Dockerfile',
+    dockerfile='./backend/FwHeadless/dev.Dockerfile',
     only=['.'],
     ignore=['LexBoxApi'],
     live_update=[
-        sync('backend', '/src/backend'),
+        sync('backend', '/src/backend')
     ]
 )
 
