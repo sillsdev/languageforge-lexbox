@@ -196,6 +196,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(FromLcmPartOfSpeech);
     }
 
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        return Task.FromResult(
+            PartOfSpeechRepository
+            .TryGetObject(id, out var partOfSpeech)
+            ? FromLcmPartOfSpeech(partOfSpeech) : null);
+    }
+
     public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         IPartOfSpeech? lcmPartOfSpeech = null;

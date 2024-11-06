@@ -217,6 +217,11 @@ public class InMemoryApi : IMiniLcmApi
         throw new NotImplementedException();
     }
 
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {
         throw new NotImplementedException();
