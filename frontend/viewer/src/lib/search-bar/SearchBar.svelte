@@ -75,10 +75,9 @@
   $: if (searchElement) searchElement.addEventListener('paste', trimPastedText);
 </script>
 
-<button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => (showSearchDialog = true)}>
+<button class="w-full cursor-pointer opacity-80 hover:opacity-100" on:click={() => ($showSearchDialog = true)}>
   <Field
     classes={{ input: 'my-1 justify-center opacity-60' }}
-  on:click={() => ($showSearchDialog = true)}
     class="cursor-pointer">
     <div class="hidden lg:contents">
       Find entry...
@@ -147,7 +146,7 @@
         noShadow
         on:click={() => {
             dispatch('createNew', $result.search ?? '');
-            showSearchDialog = false;
+            $showSearchDialog = false;
           }}
       />
     {/if}

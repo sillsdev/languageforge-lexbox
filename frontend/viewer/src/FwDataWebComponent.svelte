@@ -1,12 +1,12 @@
 ﻿<script lang="ts">
   import {onMount} from 'svelte';
-  import {fixBrokenNestedGlobalStyles} from './lib/utils/style-fix';
   import {getSettings} from 'svelte-ux';
   import {
     HttpTransportType,
     type IHttpConnectionOptions
   } from '@microsoft/signalr';
   import FwDataProjectView from './FwDataProjectView.svelte';
+  import css from './app.postcss?inline';
 
   export let projectName: string;
   export let baseUrl: string;
@@ -14,7 +14,6 @@
   onMount(() => {
     const shadowRoot = document.querySelector('fw-data-project-view')?.shadowRoot;
     if (!shadowRoot) throw new Error('Could not find shadow root');
-    fixBrokenNestedGlobalStyles(shadowRoot);
 
     const abortController = new AbortController();
     window.addEventListener('popstate', () => {
@@ -40,9 +39,9 @@
 
 <svelte:options customElement={{ tag: 'fw-data-project-view' }} />
 
-<style global lang="postcss">
-  @import './app.postcss';
-</style>
+<svelte:element this="style">
+  {css}
+</svelte:element>
 
 <div class="app contents" class:dark={$currentTheme.dark}>
   <FwDataProjectView {projectName} {baseUrl} {signalrConnectionOptions}></FwDataProjectView>
