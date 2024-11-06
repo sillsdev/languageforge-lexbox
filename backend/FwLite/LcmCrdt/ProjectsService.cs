@@ -38,7 +38,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         Guid? Id = null,
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
-        bool SeedNewProjectData = true,
+        bool SeedNewProjectData = false,
         string? Path = null,
         Guid? FwProjectId = null);
 

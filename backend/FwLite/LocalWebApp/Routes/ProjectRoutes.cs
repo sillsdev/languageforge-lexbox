@@ -69,7 +69,7 @@ public static partial class ProjectRoutes
                     return Results.BadRequest("Project already exists");
                 if (!ProjectName().IsMatch(name))
                     return Results.BadRequest("Only letters, numbers, '-' and '_' are allowed");
-                await projectService.CreateProject(new(name, AfterCreate: AfterCreate));
+                await projectService.CreateProject(new(name, AfterCreate: AfterCreate, SeedNewProjectData: true));
                 return TypedResults.Ok();
             });
         group.MapPost($"/upload/crdt/{{serverAuthority}}/{{{CrdtMiniLcmApiHub.ProjectRouteKey}}}",
