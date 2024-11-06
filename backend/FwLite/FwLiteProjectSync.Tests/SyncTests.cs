@@ -164,6 +164,11 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
 
         var crdtPartsOfSpeech = await crdtApi.GetPartsOfSpeech().ToArrayAsync();
         var fwdataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
+        crdtPartsOfSpeech.Should().ContainEquivalentOf(noun);
+        crdtPartsOfSpeech.Should().ContainEquivalentOf(verb);
+        fwdataPartsOfSpeech.Should().ContainEquivalentOf(noun);
+        fwdataPartsOfSpeech.Should().ContainEquivalentOf(verb);
+
         crdtPartsOfSpeech.Should().BeEquivalentTo(fwdataPartsOfSpeech);
     }
 
