@@ -38,6 +38,11 @@ public abstract class MiniLcmApiHubBase(IMiniLcmApi miniLcmApi) : Hub<ILexboxHub
         return miniLcmApi.GetSemanticDomains();
     }
 
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return miniLcmApi.GetComplexFormTypes();
+    }
+
     public virtual IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
     {
         return miniLcmApi.GetEntries(options);

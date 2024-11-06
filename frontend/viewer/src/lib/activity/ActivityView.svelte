@@ -1,5 +1,4 @@
 ﻿<script lang="ts">
-
   import {mdiHistory} from '@mdi/js';
   import {
     cls,
@@ -12,7 +11,6 @@
     Duration,
     TextField
   } from 'svelte-ux';
-  import {getContext} from 'svelte';
 
   let loading = false;
   export let projectName: string;
@@ -66,11 +64,7 @@
                   title={row.changeName}
                   noShadow
                   on:click={() => selectedRow = row}
-                  class={cls(
-              'cursor-pointer',
-              'hover:bg-surface-300',
-              selectedRow?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : ''
-            )}>
+                  class={cls(selectedRow?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : '')}>
                   <div slot="subheading" class="text-sm text-surface-content/50">
                     {#if row.previousTimestamp}
                       <Duration totalUnits={2} start={new Date(row.timestamp)}

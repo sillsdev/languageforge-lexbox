@@ -5,6 +5,7 @@ import {Form, FormError, Input, lexSuperForm, SubmitButton} from '$lib/forms';
 import {z} from 'zod';
 import {goto} from '$app/navigation';
 import {_createOrg} from './+page';
+import {DbErrorCode} from '$lib/gql/types';
 
 const formSchema = z.object({
   name: z.string().trim().min(1, $t('org.create.name_missing')),
@@ -14,7 +15,11 @@ let {form, errors, message, enhance, submitting} = lexSuperForm(formSchema, asyn
     name: $form.name,
   });
   if (result.error) {
-    $message = result.error.message;
+    if (result.error.byCode(DbErrorCode.Duplicate)) {
+      $errors.name = [$t('org.create.name_exists')];
+    } else {
+      $message = result.error.message;
+    }
   } else {
     await goto(`/org/${result.data?.createOrganization.organization?.id}`);
   }

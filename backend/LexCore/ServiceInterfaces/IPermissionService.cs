@@ -43,4 +43,5 @@ public interface IPermissionService
     void AssertCanEditOrg(Organization org);
     void AssertCanEditOrg(Guid orgId);
     void AssertCanAddProjectToOrg(Organization org);
+    ValueTask AssertCanRemoveProjectFromOrg(Organization org, Guid projectId);
 }

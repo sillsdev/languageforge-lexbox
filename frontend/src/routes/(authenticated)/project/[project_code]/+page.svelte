@@ -286,7 +286,7 @@
 
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}
-  <DetailsPage wide title={project.name}>
+  <DetailsPage wide titleText={project.name}>
     <svelte:fragment slot="actions">
       {#if project.isLanguageForgeProject}
         <a href="./{project.code}/viewer" target="_blank"
@@ -365,7 +365,7 @@
         </span>
       </div>
     </svelte:fragment>
-    <svelte:fragment slot="header-content">
+    <svelte:fragment slot="headerContent">
       <BadgeList>
         <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
         <ProjectTypeBadge type={project.type} />

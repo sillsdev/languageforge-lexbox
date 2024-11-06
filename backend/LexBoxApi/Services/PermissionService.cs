@@ -196,10 +196,15 @@ public class PermissionService(
         if (!HasProjectRequestPermission()) throw new UnauthorizedAccessException();
     }
 
+    public bool CanCreateOrg()
+    {
+        return User is {Role: UserRole.admin};
+    }
+
     public void AssertCanCreateOrg()
     {
         //todo adjust permission
-        if (!HasProjectCreatePermission()) throw new UnauthorizedAccessException();
+        if (!CanCreateOrg()) throw new UnauthorizedAccessException();
     }
 
     public bool IsOrgMember(Guid orgId)
@@ -233,5 +238,14 @@ public class PermissionService(
         if (User.Role == UserRole.admin) return;
         if (org.Members.Any(m => m.UserId == User.Id)) return;
         throw new UnauthorizedAccessException();
+    }
+
+    public async ValueTask AssertCanRemoveProjectFromOrg(Organization org, Guid projectId)
+    {
+        // Org managers can kick projects out and project managers can pull projects out
+        if (!CanEditOrg(org.Id) && !await CanManageProject(projectId))
+        {
+            throw new UnauthorizedAccessException();
+        }
     }
 }

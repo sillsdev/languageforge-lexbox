@@ -1,5 +1,10 @@
 ﻿version: 3
 output: prefixed
+includes:
+  viewer:
+    taskfile: ./viewer/Taskfile.yml
+    dir: ./viewer
+    internal: true
 tasks:
   ui-only:
     aliases: [ o, only ]
@@ -41,24 +46,11 @@ tasks:
     cmd: pnpm {{.CLI_ARGS}}
 
   build-viewer-app:
-    dir: ./viewer
-    deps: [ install-viewer ]
-    cmd: pnpm run build-app
-  install-viewer:
-    dir: ./viewer
-    method: checksum
-    sources:
-      - package.json
-      - pnpm-lock.yaml
-    cmds:
-      - corepack enable || true
-      - pnpm install
-  viewer-dev:
+    deps: [viewer:build-app]
     label: vite
-    dir: ./viewer
-    deps: [ install-viewer ]
-    cmd: pnpm run dev-app
-
+  viewer-dev:
+    deps: [viewer:app]
+    label: vite
 
   install-https-proxy:
     dir: ./https-proxy

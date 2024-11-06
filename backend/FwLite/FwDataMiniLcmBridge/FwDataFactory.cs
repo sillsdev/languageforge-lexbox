@@ -38,7 +38,7 @@ public class FwDataFactory(
         return GetFwDataMiniLcmApi(project, saveOnDispose);
     }
 
-    private string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FileName}";
+    private string CacheKey(FwDataProject project) => $"{nameof(FwDataFactory)}|{project.FilePath}";
 
     public FwDataMiniLcmApi GetFwDataMiniLcmApi(FwDataProject project, bool saveOnDispose)
     {
@@ -55,7 +55,7 @@ public class FwDataFactory(
                     entry.SlidingExpiration = TimeSpan.FromMinutes(30);
                     entry.RegisterPostEvictionCallback(OnLcmProjectCacheEviction, (logger, _projects));
                     logger.LogInformation("Loading project {ProjectFileName}", project.FileName);
-                    var projectService = projectLoader.LoadCache(project.FileName);
+                    var projectService = projectLoader.LoadCache(project);
                     logger.LogInformation("Project {ProjectFileName} loaded", project.FileName);
                     _projects.Add((string)entry.Key);
                     return projectService;

@@ -8,6 +8,7 @@
         "redhat.vscode-yaml",
         "task.vscode-task",
         "dbaeumer.vscode-eslint",
-        "katjanakosic.vscode-json5"
+        "katjanakosic.vscode-json5",
+        "tilt-dev.tiltfile"
     ]
 }

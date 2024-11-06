@@ -39,7 +39,16 @@ jobs:
         uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
         with:
           cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-api").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
-      # It's also possible that hgweb and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well
+      # It's also possible that hgweb, fw-headless, and/or ui image may have changed; if so, pull them and update kustomization.yaml for them as well
+      - name: Pull fw-headless if updated
+        id: fw-headless_image
+        continue-on-error: true
+        run: docker pull ghcr.io/sillsdev/lexbox-fw-headless:${{ inputs.lexbox-api-tag }}
+      - name: Update image fw-headless version
+        if: ${{ steps.fw-headless_image.outcome == 'success' }}
+        uses: mikefarah/yq@0b34c9a00de1c575a34eea05af1d956a525c4fc1 # v4.34.2
+        with:
+          cmd: yq eval -i '(.images.[] | select(.name == "ghcr.io/sillsdev/lexbox-fw-headless").newTag) = "${{ inputs.lexbox-api-tag }}"' "./deployment/gha/kustomization.yaml"
       - name: Pull hgweb if updated
         id: hgweb_image
         continue-on-error: true

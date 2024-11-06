@@ -1,5 +1,10 @@
 ﻿using HotChocolate.Execution;
+using LexBoxApi.Auth;
 using LexBoxApi.GraphQL;
+using LexBoxApi.GraphQL.CustomTypes;
+using LexBoxApi.Services.Email;
+using LexCore.ServiceInterfaces;
+using LexData;
 using Microsoft.Extensions.Hosting.Internal;
 
 namespace LexBoxApi.Services;
@@ -18,9 +23,17 @@ public class DevGqlSchemaWriterService : IHostedService
     public static async Task GenerateGqlSchema(string[] args)
     {
         var builder = Host.CreateApplicationBuilder(args);
-        builder.Services.AddLogging();
-        builder.Services.AddSingleton<IHostLifetime, ConsoleLifetime>();
-        builder.Services.AddLexGraphQL(builder.Environment, true);
+        builder.Services
+            .AddLogging()
+            .AddSingleton<IHostLifetime, ConsoleLifetime>()
+            .AddScoped<IEmailService, EmailService>()
+            .AddScoped<IHgService, HgService>()
+            .AddScoped<IIsLanguageForgeProjectDataLoader, IsLanguageForgeProjectDataLoader>()
+            .AddScoped((services) => new LoggedInContext(null!, null!))
+            .AddScoped((services) => new LexBoxDbContext(null!, null!))
+            .AddScoped<IPermissionService, PermissionService>()
+            .AddScoped<ProjectService>()
+            .AddLexGraphQL(builder.Environment, true);
         var host = builder.Build();
         await host.StartAsync();
         await host.StopAsync();

@@ -1,12 +1,8 @@
 ﻿using SIL.Harmony;
-using SIL.Harmony.Db;
-using LcmCrdt.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MiniLcm;
-using PartOfSpeech = LcmCrdt.Objects.PartOfSpeech;
 using LcmCrdt.Objects;
 
 namespace LcmCrdt;
@@ -42,13 +38,15 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
         Guid? Id = null,
         Uri? Domain = null,
         Func<IServiceProvider, CrdtProject, Task>? AfterCreate = null,
-        bool SeedNewProjectData = true);
+        bool SeedNewProjectData = true,
+        string? Path = null,
+        Guid? FwProjectId = null);
 
     public async Task<CrdtProject> CreateProject(CreateProjectRequest request)
     {
         //poor man's sanitation
         var name = Path.GetFileName(request.Name);
-        var sqliteFile = Path.Combine(config.Value.ProjectPath, $"{name}.sqlite");
+        var sqliteFile = Path.Combine(request.Path ?? config.Value.ProjectPath, $"{name}.sqlite");
         if (File.Exists(sqliteFile)) throw new InvalidOperationException("Project already exists");
         var crdtProject = new CrdtProject(name, sqliteFile);
         await using var serviceScope = CreateProjectScope(crdtProject);
@@ -58,7 +56,7 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
             var projectData = new ProjectData(name,
                 request.Id ?? Guid.NewGuid(),
                 ProjectData.GetOriginDomain(request.Domain),
-                Guid.NewGuid());
+                Guid.NewGuid(), request.FwProjectId);
             await InitProjectDb(db, projectData);
             await serviceScope.ServiceProvider.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
             if (request.SeedNewProjectData)
@@ -83,8 +81,9 @@ public class ProjectsService(IServiceProvider provider, ProjectContext projectCo
 
     internal static async Task SeedSystemData(DataModel dataModel, Guid clientId)
     {
-        await PartOfSpeech.PredefinedPartsOfSpeech(dataModel, clientId);
-        await SemanticDomain.PredefinedSemanticDomains(dataModel, clientId);
+        await PreDefinedData.PredefinedComplexFormTypes(dataModel, clientId);
+        await PreDefinedData.PredefinedPartsOfSpeech(dataModel, clientId);
+        await PreDefinedData.PredefinedSemanticDomains(dataModel, clientId);
     }
 
     public AsyncServiceScope CreateProjectScope(CrdtProject crdtProject)

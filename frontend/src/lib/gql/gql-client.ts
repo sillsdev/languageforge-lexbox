@@ -1,6 +1,13 @@
+import {browser} from '$app/environment';
+import {tracingExchange, tryCopyTraceContext} from '$lib/otel';
+import type {LexAuthUser} from '$lib/user';
+import {isRedirect} from '@sveltejs/kit';
+import {devtoolsExchange} from '@urql/devtools';
+import {cacheExchange} from '@urql/exchange-graphcache';
 import {
   type AnyVariables,
   type Client,
+  type CombinedError,
   createClient,
   fetchExchange,
   type OperationContext,
@@ -11,37 +18,35 @@ import {
   queryStore,
   type TypedDocumentNode
 } from '@urql/svelte';
-import {browser} from '$app/environment';
+import type {Readable, Unsubscriber} from 'svelte/store';
+import {derived} from 'svelte/store';
 import {isObject} from '../util/types';
-import {tracingExchange} from '$lib/otel';
 import {
   type $OpResult,
-  type ChangeUserAccountBySelfMutationVariables,
-  type DeleteUserByAdminOrSelfMutationVariables,
+  type CreateOrgMutation,
+  type CreateProjectMutation,
+  CreateProjectResult,
   type ExtractErrorTypename,
   type GenericData,
   type GqlInputError,
   isErrorResult,
-  type LeaveProjectMutationVariables,
   LexGqlError,
-  type SoftDeleteProjectMutationVariables,
-  type BulkAddProjectMembersMutationVariables,
-  type DeleteDraftProjectMutationVariables,
+  type MutationAddProjectsToOrgArgs,
   type MutationAddProjectToOrgArgs,
+  type MutationBulkAddOrgMembersArgs,
+  type MutationBulkAddProjectMembersArgs,
+  type MutationChangeOrgMemberRoleArgs,
+  type MutationChangeUserAccountBySelfArgs,
+  type MutationCreateOrganizationArgs,
+  type MutationCreateProjectArgs,
+  type MutationDeleteDraftProjectArgs,
+  type MutationDeleteUserByAdminOrSelfArgs,
+  type MutationLeaveOrgArgs,
+  type MutationLeaveProjectArgs,
   type MutationRemoveProjectFromOrgArgs,
-  type BulkAddOrgMembersMutationVariables,
-  type ChangeOrgMemberRoleMutationVariables,
-  type AddOrgMemberMutationVariables,
-  type CreateProjectMutationVariables,
-  type CreateProjectMutation,
-  CreateProjectResult,
+  type MutationSetOrgMemberRoleArgs,
+  type MutationSoftDeleteProjectArgs,
 } from './types';
-import type {Readable, Unsubscriber} from 'svelte/store';
-import {derived} from 'svelte/store';
-import {cacheExchange} from '@urql/exchange-graphcache';
-import {devtoolsExchange} from '@urql/devtools';
-import type { LexAuthUser } from '$lib/user';
-import { isRedirect } from '@sveltejs/kit';
 
 let globalClient: GqlClient | null = null;
 
@@ -68,7 +73,7 @@ function createGqlClient(_gqlEndpoint?: string): Client {
             },
           },
           Mutation: {
-            createProject: (result: CreateProjectMutation, args: CreateProjectMutationVariables, cache, _info) => {
+            createProject: (result: CreateProjectMutation, args: MutationCreateProjectArgs, cache, _info) => {
               if (args.input.orgId) {
                 cache.invalidate({__typename: 'OrgById', id: args.input.orgId}, 'projects');
               }
@@ -79,34 +84,45 @@ function createGqlClient(_gqlEndpoint?: string): Client {
                 .filter(field => field.fieldName === dashboardQuery || field.fieldName === adminDashboardQuery)
                 .forEach(field => cache.invalidate('Query', field.fieldKey));
             },
-            softDeleteProject: (result, args: SoftDeleteProjectMutationVariables, cache, _info) => {
+            softDeleteProject: (result, args: MutationSoftDeleteProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
             },
-            deleteDraftProject: (result, args: DeleteDraftProjectMutationVariables, cache, _info) => {
+            deleteDraftProject: (result, args: MutationDeleteDraftProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'DraftProject', id: args.input.draftProjectId});
             },
-            deleteUserByAdminOrSelf: (result, args: DeleteUserByAdminOrSelfMutationVariables, cache, _info) => {
+            deleteUserByAdminOrSelf: (result, args: MutationDeleteUserByAdminOrSelfArgs, cache, _info) => {
               cache.invalidate({__typename: 'User', id: args.input.userId});
             },
-            changeUserAccountBySelf: (result, args: ChangeUserAccountBySelfMutationVariables, cache, _info) => {
+            changeUserAccountBySelf: (result, args: MutationChangeUserAccountBySelfArgs, cache, _info) => {
               cache.invalidate({__typename: 'User', id: args.input.userId});
             },
-            bulkAddProjectMembers: (result, args: BulkAddProjectMembersMutationVariables, cache, _info) => {
+            bulkAddProjectMembers: (result, args: MutationBulkAddProjectMembersArgs, cache, _info) => {
               if (args.input.projectId) {
                 cache.invalidate({__typename: 'Project', id: args.input.projectId});
               }
             },
-            bulkAddOrgMembers: (result, args: BulkAddOrgMembersMutationVariables, cache, _info) => {
+            createOrganization: (result: CreateOrgMutation, args: MutationCreateOrganizationArgs, cache, _info) => {
+              cache.invalidate('Query', 'myOrgs');
+            },
+            addProjectsToOrg: (result, args: MutationAddProjectsToOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
-            changeOrgMemberRole: (result, args: ChangeOrgMemberRoleMutationVariables, cache, _info) => {
+            bulkAddOrgMembers: (result, args: MutationBulkAddOrgMembersArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
-            setOrgMemberRole: (result, args: AddOrgMemberMutationVariables, cache, _info) => {
+            changeOrgMemberRole: (result, args: MutationChangeOrgMemberRoleArgs, cache, _info) => {
               cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
             },
-            leaveProject: (result, args: LeaveProjectMutationVariables, cache, _info) => {
+            leaveOrg: (result, args: MutationLeaveOrgArgs, cache, _info) => {
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
+              cache.invalidate('Query', 'myOrgs');
+            },
+            setOrgMemberRole: (result, args: MutationSetOrgMemberRoleArgs, cache, _info) => {
+              cache.invalidate({__typename: 'OrgById', id: args.input.orgId});
+            },
+            leaveProject: (result, args: MutationLeaveProjectArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId});
+              cache.invalidate('Query', 'myProjects');
             },
             addProjectToOrg: (result, args: MutationAddProjectToOrgArgs, cache, _info) => {
               cache.invalidate({__typename: 'Project', id: args.input.projectId}, 'organizations');
@@ -265,15 +281,8 @@ class GqlClient {
 
   private throwAnyUnexpectedErrors<T extends OperationResult<unknown, AnyVariables>>(result: T, delayThrow: boolean = false): void {
     if (!result.error) return;
-    const error =
-      // Various status codes are handled in the fetch hooks (see hooks.shared.ts).
-      // throws there (e.g. SvelteKit redirects and 500's) turn into networkErrors that land here
-      result.error?.networkError ??
-      // These are errors from urql. urql doesn't throw errors, it just sticks them on the result.
-      // An error's stacktrace points to where it was instantiated (i.e. in urql),
-      // but it's far more interesting (particularly when debugging how errors affect our app) to know when and where errors are getting thrown, namely HERE.
-      // So, we new up our own error to get the more useful stacktrace.
-      new AggregateError(result.error.graphQLErrors, result.error.message ?? result.error.cause);
+
+    const error = this.squashErrors(result.error);
 
     if (delayThrow && !isRedirect(error)) { // SvelteKit handles Redirects, so we don't want to delay them
       // We can't throw errors here, because errors thrown in wonka/an exchange kill the frontend.
@@ -281,6 +290,19 @@ class GqlClient {
     } else {
       throw error;
     }
+  }
+
+  private squashErrors(error: CombinedError): Error {
+    // Various status codes are handled in the fetch hooks (see hooks.shared.ts).
+    // throws there (e.g. SvelteKit redirects and 500's) turn into networkErrors that land here
+    if (error.networkError) return error.networkError;
+    // These are errors from urql. urql doesn't throw errors, it just sticks them on the result.
+    // An error's stacktrace points to where it was instantiated (i.e. in urql),
+    // but it's far more interesting (particularly when debugging how errors affect our app) to know when and where errors are getting thrown, namely HERE.
+    // So, we new up our own error to get the more useful stacktrace.
+    const squashedError = new AggregateError(error.graphQLErrors, error.message ?? error.cause);
+    tryCopyTraceContext(error, squashedError);
+    return squashedError;
   }
 
   private findInputErrors<T extends GenericData>({data}: OperationResult<T, AnyVariables>): LexGqlError<ExtractErrorTypename<T>> | undefined {

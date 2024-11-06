@@ -72,11 +72,7 @@
                   title={row.changeName ?? 'No change name'}
                   on:click={() => showEntry(row)}
                   noShadow
-                  class={cls(
-              'cursor-pointer',
-              'hover:bg-surface-300',
-              record?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : ''
-            )}>
+                  class={cls(record?.commitId === row.commitId ? 'bg-surface-200 selected-entry' : '')}>
                   <div slot="subheading" class="text-sm text-surface-content/50">
                     {#if row.previousTimestamp}
                       <Duration totalUnits={2} start={new Date(row.timestamp)}
@@ -96,13 +92,13 @@
       </div>
       <div>
         {#if record?.entity}
-          {#if record.entityName === "Entry"}
+          {#if record.entityName === 'Entry'}
             <EntryEditor entry={record.entity} modalMode/>
-          {:else if record.entityName === "Sense"}
+          {:else if record.entityName === 'Sense'}
             <div class="editor-grid">
               <SenseEditor sense={record.entity}/>
             </div>
-          {:else if record.entityName === "ExampleSentence"}
+          {:else if record.entityName === 'ExampleSentence'}
             <div class="editor-grid">
               <ExampleEditor example={record.entity} readonly={false}/>
             </div>

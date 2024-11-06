@@ -7,7 +7,7 @@ using SIL.Harmony.Entities;
 
 namespace LcmCrdt.Changes.Entries;
 
-public class AddEntryComponentChange : CreateChange<CrdtComplexFormComponent>, ISelfNamedType<AddEntryComponentChange>
+public class AddEntryComponentChange : CreateChange<ComplexFormComponent>, ISelfNamedType<AddEntryComponentChange>
 {
     public Guid ComplexFormEntryId { get; }
     public string? ComplexFormHeadword { get; }
@@ -39,9 +39,9 @@ public class AddEntryComponentChange : CreateChange<CrdtComplexFormComponent>, I
     {
     }
 
-    public override async ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
+    public override async ValueTask<ComplexFormComponent> NewEntity(Commit commit, ChangeContext context)
     {
-        return new CrdtComplexFormComponent
+        return new ComplexFormComponent
         {
             Id = EntityId,
             ComplexFormEntryId = ComplexFormEntryId,

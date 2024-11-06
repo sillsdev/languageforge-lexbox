@@ -66,7 +66,7 @@
 </script>
 
 <FilterBar on:change searchKey="projectSearch" {autofocus} {filters} {filterDefaults} bind:hasActiveFilter {filterKeys} {loading}>
-  <svelte:fragment slot="activeFilters" let:activeFilters>
+  <svelte:fragment slot="activeFilterSlot" let:activeFilters>
     {#each activeFilters as filter}
       {#if filter.key === 'projectType'}
         <ActiveFilter {filter}>
@@ -108,7 +108,7 @@
       {/if}
     {/each}
   </svelte:fragment>
-  <svelte:fragment slot="filters">
+  <svelte:fragment slot="filterSlot">
     <h2 class="card-title">{$t('project.filter.title')}</h2>
     {#if filterEnabled('memberSearch')}
       <FormField label={$t('project.filter.project_member')}>

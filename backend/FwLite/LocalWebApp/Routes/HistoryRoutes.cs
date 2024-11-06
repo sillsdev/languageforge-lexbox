@@ -48,7 +48,8 @@ public static class HistoryRoutes
                         commit.HybridDateTime.DateTime,
                         snapshot.Id,
                         change.Change,
-                        snapshot.Entity);
+                        snapshot.Entity,
+                        snapshot.TypeName);
                 return query.ToLinqToDB().AsAsyncEnumerable();
             });
         return group;
@@ -69,14 +70,15 @@ public static class HistoryRoutes
             DateTimeOffset timestamp,
             Guid? snapshotId,
             IChange? change,
-            IObjectBase? entity) : this(commitId,
+            IObjectBase? entity,
+            string typeName) : this(commitId,
             entityId,
             new DateTimeOffset(timestamp.Ticks,
                 TimeSpan.Zero), //todo this is a workaround for linq2db bug where it reads a date and assumes it's local when it's UTC
             snapshotId,
             change?.GetType().Name,
             entity,
-            entity?.TypeName)
+            typeName)
         {
         }
     }

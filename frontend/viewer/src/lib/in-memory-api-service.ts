@@ -1,23 +1,27 @@
-﻿import type {
-  LexboxApiClient,
+﻿import {entries, projectName, writingSystems} from './entry-data';
+import type {
   IEntry,
   IExampleSentence,
   ISense,
   JsonPatch,
+  LexboxApiClient,
   LexboxApiFeatures,
-  QueryOptions,
-  WritingSystemType,
-  WritingSystems,
   PartOfSpeech,
-  SemanticDomain
+  QueryOptions,
+  SemanticDomain,
+  WritingSystemType,
+  WritingSystems
 } from './services/lexbox-api';
-import {entries, projectName, writingSystems} from './entry-data';
 
-import {type WritingSystem} from './mini-lcm';
-import {headword} from './utils';
 import {applyPatch} from 'fast-json-patch';
+import {pickWs, type ComplexFormType, type WritingSystem} from './mini-lcm';
+import {headword} from './utils';
 
-function filterEntries(entries: IEntry[], query: string) {
+const complexFormTypes = entries
+  .flatMap(entry => entry.complexFormTypes)
+  .filter((value, index, all) => all.findIndex(v2 => v2.id === value.id) === index);
+
+function filterEntries(entries: IEntry[], query: string): IEntry[] {
   return entries.filter(entry =>
     [
       ...Object.values(entry.lexemeForm ?? {}),
@@ -29,22 +33,39 @@ function filterEntries(entries: IEntry[], query: string) {
 }
 
 export class InMemoryApiService implements LexboxApiClient {
+  GetComplexFormTypes(): Promise<ComplexFormType[]> {
+    return Promise.resolve(
+      //*
+      complexFormTypes
+      /*/
+      [
+        {id: '13', name: {en: 'Compound'},},
+        {id: '15', name: {en: 'Idiom'},}
+      ]
+      //*/
+    );
+  }
+
   GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
-    return Promise.resolve([
-      {id: 'noun', name: {en: 'noun'},},
-      {id: 'verb', name: {en: 'verb'},}
-    ]);
+    return Promise.resolve(
+      [
+        {id: '86ff66f6-0774-407a-a0dc-3eeaf873daf7', name: {en: 'Verb'},},
+        {id: 'a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5', name: {en: 'Noun'},}
+      ]
+    );
   }
 
   GetSemanticDomains(): Promise<SemanticDomain[]> {
     return Promise.resolve([
-      {id: 'Fruit', name: {en: 'Fruit'}, code: '1'},
+      {id: '36e8f1df-1798-4ae6-904d-600ca6eb4145', name: {en: 'Fruit'}, code: '1'},
       {id: 'Animal', name: {en: 'Animal'}, code: '2'},
     ]);
   }
 
   SupportedFeatures(): LexboxApiFeatures {
-    return {};
+    return {
+      write: true,
+    };
   }
 
   readonly projectName = projectName;
@@ -52,7 +73,7 @@ export class InMemoryApiService implements LexboxApiClient {
   private _entries = entries;
 
   private _Entries(): IEntry[] {
-    return JSON.parse(JSON.stringify(this._entries));
+    return JSON.parse(JSON.stringify(this._entries)) as IEntry[];
   }
 
   GetEntries(options: QueryOptions | undefined): Promise<IEntry[]> {
@@ -69,26 +90,24 @@ export class InMemoryApiService implements LexboxApiClient {
 
   private ApplyQueryOptions(entries: IEntry[], options: QueryOptions | undefined): IEntry[] {
     if (!options) return entries;
-    let sortWs = options.order.writingSystem;
-    const defaultWs = writingSystems.vernacular[0].id;
-    if (sortWs === 'default') sortWs = defaultWs;
+    const defaultWs = writingSystems.vernacular[0].wsId;
     if (options.exemplar?.value) {
-      const lowerExemplar = options.exemplar?.value.toLowerCase();
-      let ws = options.exemplar?.writingSystem;
-      if (ws === 'default') ws = defaultWs;
+      const lowerExemplar = options.exemplar.value.toLowerCase();
+      const exemplarWs = pickWs(options.exemplar.writingSystem, defaultWs);
       entries = entries.filter(entry =>
-        (entry.citationForm[ws] ?? entry.lexemeForm[ws] ?? '')
+        (entry.citationForm[exemplarWs] ?? entry.lexemeForm[exemplarWs] ?? '')
           ?.toLocaleLowerCase()
           ?.startsWith(lowerExemplar));
     }
 
+    const sortWs = pickWs(options.order.writingSystem, defaultWs);
     return entries
       .sort((e1, e2) => {
         const v1 = headword(e1, sortWs);
         const v2 = headword(e2, sortWs);
         if (!v2) return -1;
         if (!v1) return 1;
-        let compare = v1.localeCompare(v2, sortWs);
+        const compare = v1.localeCompare(v2, sortWs);
         if (compare !== 0) return compare;
         return e1.id.localeCompare(e2.id);
       })
@@ -153,11 +172,11 @@ export class InMemoryApiService implements LexboxApiClient {
     return Promise.resolve();
   }
 
-  CreateWritingSystem(type: WritingSystemType, writingSystem: WritingSystem): Promise<void> {
+  CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  UpdateWritingSystem(wsId: string, type: WritingSystemType, update: JsonPatch): Promise<WritingSystem> {
+  UpdateWritingSystem(_wsId: string, _type: WritingSystemType, _update: JsonPatch): Promise<WritingSystem> {
     throw new Error('Method not implemented.');
   }
 }

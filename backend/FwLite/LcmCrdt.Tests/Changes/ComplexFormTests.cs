@@ -76,7 +76,7 @@ public class ComplexFormTests(MiniLcmApiFixture fixture) : IClassFixture<MiniLcm
         complexEntry.Should().NotBeNull();
         var component = complexEntry!.Components.First();
 
-        await fixture.DataModel.AddChange(Guid.NewGuid(), new DeleteChange<CrdtComplexFormComponent>(component.Id));
+        await fixture.DataModel.AddChange(Guid.NewGuid(), new DeleteChange<ComplexFormComponent>(component.Id));
         complexEntry = await fixture.Api.GetEntry(complexEntry.Id);
         complexEntry.Should().NotBeNull();
         complexEntry!.Components.Should().NotContain(c => c.Id == component.Id);

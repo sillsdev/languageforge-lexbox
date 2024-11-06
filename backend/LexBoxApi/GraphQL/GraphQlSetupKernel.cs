@@ -1,10 +1,7 @@
 using DataAnnotatedModelValidations;
 using HotChocolate.Diagnostics;
-using LexBoxApi.Auth;
 using LexBoxApi.GraphQL.CustomFilters;
 using LexBoxApi.Services;
-using LexBoxApi.Services.Email;
-using LexCore.ServiceInterfaces;
 using LexData;
 
 namespace LexBoxApi.GraphQL;
@@ -18,15 +15,14 @@ public static class GraphQlSetupKernel
         if (forceGenerateSchema || env.IsDevelopment())
             services.AddHostedService<DevGqlSchemaWriterService>();
 
-        services.AddGraphQLServer()
+        services
+            .AddGraphQLServer()
+            .ModifyCostOptions(options =>
+            {
+                // See: https://github.com/sillsdev/languageforge-lexbox/issues/1179
+                options.EnforceCostLimits = false;
+            })
             .InitializeOnStartup()
-            .RegisterDbContext<LexBoxDbContext>()
-            .RegisterService<IHgService>()
-            .RegisterService<IIsLanguageForgeProjectDataLoader>()
-            .RegisterService<LoggedInContext>()
-            .RegisterService<IEmailService>()
-            .RegisterService<LexAuthService>()
-            .RegisterService<IPermissionService>()
             .AddDataAnnotationsValidator()
             .AddSorting(descriptor =>
             {
@@ -39,11 +35,11 @@ public static class GraphQlSetupKernel
                 descriptor.AddDeterministicInvariantContainsFilter();
             })
             .AddProjections()
-            .SetPagingOptions(new()
+            .ModifyPagingOptions(options =>
             {
-                DefaultPageSize = 100,
-                MaxPageSize = 1000,
-                IncludeTotalCount = true
+                options.DefaultPageSize = 100;
+                options.MaxPageSize = 1000;
+                options.IncludeTotalCount = true;
             })
             .AddAuthorization()
             .AddLexBoxApiTypes()

@@ -21,6 +21,7 @@
   $: initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
 
   function updateInitialEntry() {
+    // eslint-disable-next-line svelte/no-reactive-reassign
     initialEntry = JSON.parse(JSON.stringify(entry)) as IEntry;
   }
 
@@ -67,6 +68,7 @@
     if (entry.id != updatedEntry.id) throw new Error('Entry id mismatch');
     let operations = jsonPatch.compare(withoutSenses(initialEntry), withoutSenses(updatedEntry));
     if (operations.length == 0) return;
+    console.debug('updateEntry', operations);
     await saveHandler(() => lexboxApi.UpdateEntry(updatedEntry.id, operations));
   }
 
@@ -80,6 +82,7 @@
     if (!initialSense) throw new Error('Sense not found in initial entry');
     let operations = jsonPatch.compare(withoutExamples(initialSense), withoutExamples(updatedSense));
     if (operations.length == 0) return;
+    console.debug('updateSense', operations);
     await saveHandler(() => lexboxApi.UpdateSense(entry.id, updatedSense.id, operations));
   }
 
@@ -95,6 +98,7 @@
     if (!initialExample) throw new Error('Example not found in initial sense');
     let operations = jsonPatch.compare(initialExample, updatedExample);
     if (operations.length == 0) return;
+    console.debug('updateExample', operations);
     await saveHandler(() => lexboxApi.UpdateExampleSentence(entry.id, senseId, updatedExample.id, operations));
   }
 
@@ -121,7 +125,6 @@
 
 <div id="entry" class:hide-empty={$viewSettings.hideEmptyFields}>
   <EntryEditor
-
     on:change={e => onChange(e.detail)}
     on:delete={e => onDelete(e.detail)}
     entry={entry}

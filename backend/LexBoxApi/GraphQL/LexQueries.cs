@@ -15,6 +15,7 @@ public class LexQueries
 {
     [UseProjection]
     [UseSorting]
+    [UseFiltering]
     public IQueryable<Project> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
     {
         var userId = loggedInContext.User.Id;
@@ -153,7 +154,20 @@ public class LexQueries
     [GraphQLType<OrgByIdGqlConfiguration>]
     public async Task<Organization?> OrgById(LexBoxDbContext dbContext, Guid orgId, IPermissionService permissionService, IResolverContext context)
     {
-        var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(context).SingleOrDefaultAsync();
+        return await QueryOrgById(dbContext, orgId, permissionService, context);
+    }
+
+    [GraphQLIgnore]
+    internal static async Task<Organization?> QueryOrgById(LexBoxDbContext dbContext,
+        Guid orgId,
+        IPermissionService permissionService,
+        IResolverContext context)
+    {
+        //todo remove this workaround once the issue is fixed
+        var projectContext =
+            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
+            context;
+        var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(projectContext).SingleOrDefaultAsync();
         if (org is null) return org;
         // Site admins and org admins can see everything
         if (permissionService.CanEditOrg(orgId)) return org;

@@ -1,17 +1,23 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
-import {
-  type IEntry, type IExampleSentence, type ISense, type JsonPatch,
-  type QueryOptions,
-  type WritingSystems,
-  type WritingSystemType,
-  type WritingSystem,
-  type LexboxApiClient,
-  type LexboxApiFeatures,
-  type PartOfSpeech,
-  type SemanticDomain
+
+import type {
+  ComplexFormType,
+  IEntry,
+  IExampleSentence,
+  ISense,
+  JsonPatch,
+  LexboxApiClient,
+  LexboxApiFeatures,
+  PartOfSpeech,
+  QueryOptions,
+  SemanticDomain,
+  WritingSystem,
+  WritingSystemType,
+  WritingSystems,
 } from 'viewer/lexbox-api';
-import { SEMANTIC_DOMAINS_EN } from './semantic-domains.en.generated-data';
-import { type Readable } from 'svelte/store';
+
+import type {Readable} from 'svelte/store';
+import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
 
 function prepareEntriesForUi(entries: IEntry[]): void {
   entries.forEach(entry => {
@@ -70,14 +76,14 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     const asc = options.order.ascending ?? true;
     const params = new URLSearchParams({
       SortField: options.order.field,
-      SortWritingSystem: options.order.writingSystem,
+      SortWritingSystem: options.order.writingSystem as string,
       Ascending: asc ? 'true' : 'false',
       Count: options.count.toString(),
       Offset: options.offset.toString()
     });
     if (options.exemplar) {
       params.set('ExemplarValue', options.exemplar.value);
-      params.set('ExemplarWritingSystem', options.exemplar.writingSystem);
+      params.set('ExemplarWritingSystem', options.exemplar.writingSystem as string);
     }
     /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     return '?' + params.toString();
@@ -92,6 +98,10 @@ export class LfClassicLexboxApi implements LexboxApiClient {
 
   GetSemanticDomains(): Promise<SemanticDomain[]> {
     return Promise.resolve(SEMANTIC_DOMAINS_EN);
+  }
+
+  GetComplexFormTypes(): Promise<ComplexFormType[]> {
+    return Promise.resolve([]);
   }
 
   CreateWritingSystem(_type: WritingSystemType, _writingSystem: WritingSystem): Promise<void> {

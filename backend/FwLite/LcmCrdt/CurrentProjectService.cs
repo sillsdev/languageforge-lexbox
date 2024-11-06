@@ -1,5 +1,4 @@
-﻿using SIL.Harmony.Db;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace LcmCrdt;
@@ -28,7 +27,7 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
 
     private static string CacheKey(CrdtProject project)
     {
-        return project.Name + "|ProjectData";
+        return project.DbPath + "|ProjectData";
     }
 
     private static string CacheKey(Guid projectId)
@@ -46,8 +45,9 @@ public class CurrentProjectService(LcmCrdtDbContext dbContext, ProjectContext pr
         return memoryCache.Get<ProjectData>(CacheKey(projectId));
     }
 
-    public async ValueTask<ProjectData> PopulateProjectDataCache()
+    public async ValueTask<ProjectData> PopulateProjectDataCache(bool force = false)
     {
+        if (force) RemoveProjectDataCache();
         var projectData = await GetProjectData();
         return projectData;
     }

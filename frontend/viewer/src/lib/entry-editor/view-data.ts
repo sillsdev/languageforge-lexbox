@@ -1,5 +1,5 @@
-﻿import type {FieldIds} from './field-data';
-import type {I18nType} from '../i18n';
+﻿import type {I18nType} from '../i18n';
+import type {FieldIds} from './field-data';
 
 interface FieldView {
   show: boolean;
@@ -10,8 +10,11 @@ export const allFields: Record<FieldIds, FieldView> = {
   //entry
   lexemeForm: {show: true, order: 1},
   citationForm: {show: true, order: 2},
-  literalMeaning: {show: true, order: 3},
-  note: {show: true, order: 4},
+  complexForms: {show: true, order: 3},
+  complexFormTypes: {show: true, order: 4},
+  components: {show: true, order: 5},
+  literalMeaning: {show: true, order: 6},
+  note: {show: true, order: 7},
 
   //sense
   gloss: {show: true, order: 1},
@@ -34,6 +37,7 @@ const viewDefinitions: ViewDefinition[] = [
       citationForm: {show: false},
       literalMeaning: {show: false},
       note: {show: false},
+      complexFormTypes: {show: false},
       semanticDomains: {show: false},
       definition: {show: false},
       translation: {show: false},
@@ -48,6 +52,7 @@ const viewDefinitions: ViewDefinition[] = [
       citationForm: {show: false},
       literalMeaning: {show: false},
       note: {show: false},
+      complexFormTypes: {show: false},
 
       //sense
       gloss: {order: 2},

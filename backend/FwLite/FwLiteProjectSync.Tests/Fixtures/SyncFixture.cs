@@ -1,4 +1,5 @@
-﻿using FwDataMiniLcmBridge;
+﻿using System.Runtime.CompilerServices;
+using FwDataMiniLcmBridge;
 using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
 using FwDataMiniLcmBridge.Tests.Fixtures;
@@ -17,15 +18,18 @@ public class SyncFixture : IAsyncLifetime
 
     public CrdtFwdataProjectSyncService SyncService =>
         _services.ServiceProvider.GetRequiredService<CrdtFwdataProjectSyncService>();
+    public IServiceProvider Services => _services.ServiceProvider;
     private readonly string _projectName;
+    private readonly MockProjectContext _projectContext = new(null);
 
-    public static SyncFixture Create(string projectName) => new(projectName);
+    public static SyncFixture Create([CallerMemberName] string projectName = "") => new(projectName);
 
     private SyncFixture(string projectName)
     {
         _projectName = projectName;
         var crdtServices = new ServiceCollection()
             .AddLcmCrdtClient()
+            .AddSingleton<ProjectContext>(_projectContext)
             .AddTestFwDataBridge()
             .AddFwLiteProjectSync()
             .Configure<FwDataBridgeConfig>(c => c.ProjectsFolder = Path.Combine(".", _projectName, "FwData"))
@@ -35,7 +39,7 @@ public class SyncFixture : IAsyncLifetime
         _services = crdtServices.CreateAsyncScope();
     }
 
-    public SyncFixture(): this("sena-3")
+    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"))
     {
     }
 
@@ -45,9 +49,8 @@ public class SyncFixture : IAsyncLifetime
             .ProjectsFolder;
         if (Path.Exists(projectsFolder)) Directory.Delete(projectsFolder, true);
         Directory.CreateDirectory(projectsFolder);
-        var lcmCache = _services.ServiceProvider.GetRequiredService<IProjectLoader>()
-            .NewProject($"{_projectName}.fwdata", "en", "fr");
-        var projectGuid = lcmCache.LanguageProject.Guid;
+        _services.ServiceProvider.GetRequiredService<IProjectLoader>()
+            .NewProject(new FwDataProject(_projectName, projectsFolder), "en", "fr");
         FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(_projectName, false);
 
         var crdtProjectsFolder =
@@ -55,9 +58,8 @@ public class SyncFixture : IAsyncLifetime
         if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<ProjectsService>()
-            .CreateProject(new(_projectName, projectGuid));
-        _services.ServiceProvider.GetRequiredService<ProjectContext>().Project = crdtProject;
-        CrdtApi = _services.ServiceProvider.GetRequiredService<IMiniLcmApi>();
+            .CreateProject(new(_projectName, FwProjectId: FwDataApi.ProjectId));
+        CrdtApi = (CrdtMiniLcmApi) await _services.ServiceProvider.OpenCrdtProject(crdtProject);
     }
 
     public async Task DisposeAsync()
@@ -65,11 +67,11 @@ public class SyncFixture : IAsyncLifetime
         await _services.DisposeAsync();
     }
 
-    public IMiniLcmApi CrdtApi { get; set; } = null!;
+    public CrdtMiniLcmApi CrdtApi { get; set; } = null!;
     public FwDataMiniLcmApi FwDataApi { get; set; } = null!;
 }
 
-public class MockProjectContext(CrdtProject project) : ProjectContext
+public class MockProjectContext(CrdtProject? project) : ProjectContext
 {
     public override CrdtProject? Project { get; set; } = project;
 }

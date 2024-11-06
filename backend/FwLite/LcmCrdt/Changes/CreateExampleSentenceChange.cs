@@ -1,15 +1,13 @@
 ﻿using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
-using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
-using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 
 public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNamedType<CreateExampleSentenceChange>
 {
-    public CreateExampleSentenceChange(MiniLcm.Models.ExampleSentence exampleSentence, Guid senseId)
+    public CreateExampleSentenceChange(ExampleSentence exampleSentence, Guid senseId)
         : base(exampleSentence.Id == Guid.Empty ? Guid.NewGuid() : exampleSentence.Id)
     {
         exampleSentence.Id = EntityId;
@@ -30,7 +28,7 @@ public class CreateExampleSentenceChange: CreateChange<ExampleSentence>, ISelfNa
     public MultiString? Translation { get; set; }
     public string? Reference { get; set; }
 
-    public override async ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
+    public override async ValueTask<ExampleSentence> NewEntity(Commit commit, ChangeContext context)
     {
         return new ExampleSentence
         {
