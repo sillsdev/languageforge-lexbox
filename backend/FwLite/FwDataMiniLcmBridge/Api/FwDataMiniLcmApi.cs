@@ -193,13 +193,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .AllInstances()
             .OrderBy(p => p.Name.BestAnalysisAlternative.Text)
             .ToAsyncEnumerable()
-            .Select(partOfSpeech => new PartOfSpeech
-            {
-                Id = partOfSpeech.Guid,
-                Name = FromLcmMultiString(partOfSpeech.Name),
-                // TODO: Abreviation = FromLcmMultiString(partOfSpeech.Abreviation),
-                Predefined = true, // TODO: Determine by GUID, but for now we can assume all FW parts of speech are predetermined
-            });
+            .Select(FromLcmPartOfSpeech);
     }
 
     public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
@@ -324,7 +318,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             Id = lcmPos.Guid,
             Name = FromLcmMultiString(lcmPos.Name),
-            Predefined = !string.IsNullOrEmpty(lcmPos.CatalogSourceId),
+            // TODO: Abreviation = FromLcmMultiString(partOfSpeech.Abreviation),
+            Predefined = true, // NOTE: the !string.IsNullOrEmpty(lcmPos.CatalogSourceId) check doesn't work if the PoS originated in CRDT
         };
     }
 
