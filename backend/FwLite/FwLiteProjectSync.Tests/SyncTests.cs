@@ -60,7 +60,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.FwDataApi.DeleteEntry(entry.Id);
         }
-        await foreach (var entry in _fixture.CrdtApi.GetEntries())
+        foreach (var entry in await _fixture.CrdtApi.GetEntries().ToArrayAsync())
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }
@@ -146,7 +146,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"],"Manzana"));
+        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"], "Manzana"));
 
         await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["fr"], "Pomme"));
         var results = await _syncService.Sync(crdtApi, fwdataApi);
@@ -162,6 +162,43 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));
+    }
+
+    [Fact]
+    public async Task CanSyncAnyEntryWithDeletedComplexForm()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        await crdtApi.DeleteEntry(_testEntry.Id);
+        var newEntryId = Guid.NewGuid();
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            Id = newEntryId,
+            LexemeForm = { { "en", "pineapple" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Gloss = { { "en", "fruit" } },
+                    Definition = { { "en", "a citris fruit" } },
+                }
+            ],
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = _testEntry.Id,
+                    ComponentHeadword = "apple",
+                    ComplexFormEntryId = newEntryId,
+                    ComplexFormHeadword = "pineapple"
+                }
+            ]
+        });
+
+        //sync may fail because it will try to create a complex form for an entry which was deleted
+        await _syncService.Sync(crdtApi, fwdataApi);
+
     }
 
     [Fact]

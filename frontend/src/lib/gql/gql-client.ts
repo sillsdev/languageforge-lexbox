@@ -1,5 +1,5 @@
 import {browser} from '$app/environment';
-import {tracingExchange} from '$lib/otel';
+import {tracingExchange, tryCopyTraceContext} from '$lib/otel';
 import type {LexAuthUser} from '$lib/user';
 import {isRedirect} from '@sveltejs/kit';
 import {devtoolsExchange} from '@urql/devtools';
@@ -7,6 +7,7 @@ import {cacheExchange} from '@urql/exchange-graphcache';
 import {
   type AnyVariables,
   type Client,
+  type CombinedError,
   createClient,
   fetchExchange,
   type OperationContext,
@@ -280,15 +281,8 @@ class GqlClient {
 
   private throwAnyUnexpectedErrors<T extends OperationResult<unknown, AnyVariables>>(result: T, delayThrow: boolean = false): void {
     if (!result.error) return;
-    const error =
-      // Various status codes are handled in the fetch hooks (see hooks.shared.ts).
-      // throws there (e.g. SvelteKit redirects and 500's) turn into networkErrors that land here
-      result.error?.networkError ??
-      // These are errors from urql. urql doesn't throw errors, it just sticks them on the result.
-      // An error's stacktrace points to where it was instantiated (i.e. in urql),
-      // but it's far more interesting (particularly when debugging how errors affect our app) to know when and where errors are getting thrown, namely HERE.
-      // So, we new up our own error to get the more useful stacktrace.
-      new AggregateError(result.error.graphQLErrors, result.error.message ?? result.error.cause);
+
+    const error = this.squashErrors(result.error);
 
     if (delayThrow && !isRedirect(error)) { // SvelteKit handles Redirects, so we don't want to delay them
       // We can't throw errors here, because errors thrown in wonka/an exchange kill the frontend.
@@ -296,6 +290,19 @@ class GqlClient {
     } else {
       throw error;
     }
+  }
+
+  private squashErrors(error: CombinedError): Error {
+    // Various status codes are handled in the fetch hooks (see hooks.shared.ts).
+    // throws there (e.g. SvelteKit redirects and 500's) turn into networkErrors that land here
+    if (error.networkError) return error.networkError;
+    // These are errors from urql. urql doesn't throw errors, it just sticks them on the result.
+    // An error's stacktrace points to where it was instantiated (i.e. in urql),
+    // but it's far more interesting (particularly when debugging how errors affect our app) to know when and where errors are getting thrown, namely HERE.
+    // So, we new up our own error to get the more useful stacktrace.
+    const squashedError = new AggregateError(error.graphQLErrors, error.message ?? error.cause);
+    tryCopyTraceContext(error, squashedError);
+    return squashedError;
   }
 
   private findInputErrors<T extends GenericData>({data}: OperationResult<T, AnyVariables>): LexGqlError<ExtractErrorTypename<T>> | undefined {

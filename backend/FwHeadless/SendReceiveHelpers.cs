@@ -17,15 +17,15 @@ public static class SendReceiveHelpers
 
     public record LfMergeBridgeResult(string Output, string ProgressMessages);
 
-    private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions)
+    private static async Task<LfMergeBridgeResult> CallLfMergeBridge(string method, IDictionary<string, string> flexBridgeOptions, IProgress? progress = null)
     {
-        var progress = new StringBuilderProgress();
+        var sbProgress = new StringBuilderProgress();
         var lfMergeBridgeOutputForClient = await Task.Run(() =>
         {
-            LfMergeBridge.LfMergeBridge.Execute(method, progress, flexBridgeOptions.ToDictionary(), out var output);
+            LfMergeBridge.LfMergeBridge.Execute(method, progress ?? sbProgress, flexBridgeOptions.ToDictionary(), out var output);
             return output;
         });
-        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, progress.ToString());
+        return new LfMergeBridgeResult(lfMergeBridgeOutputForClient, progress == null ? sbProgress.ToString() : "");
     }
 
     private static Uri BuildSendReceiveUrl(string baseUrl, string projectCode, SendReceiveAuth? auth)
@@ -49,7 +49,7 @@ public static class SendReceiveHelpers
         return builder.Uri;
     }
 
-    public static async Task<LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null)
+    public static async Task<LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", string? commitMessage = null, IProgress? progress = null)
     {
         projectCode ??= project.Name;
         var fwdataInfo = new FileInfo(project.FilePath);
@@ -69,10 +69,10 @@ public static class SendReceiveHelpers
             { "user", "LexBox" },
         };
         if (commitMessage is not null) flexBridgeOptions["commitMessage"] = commitMessage;
-        return await CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions);
+        return await CallLfMergeBridge("Language_Forge_Send_Receive", flexBridgeOptions, progress);
     }
 
-    public static async Task<LfMergeBridgeResult> CloneProject(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072")
+    public static async Task<LfMergeBridgeResult> CloneProject(FwDataProject project, string? projectCode = null, string baseUrl = "http://localhost", SendReceiveAuth? auth = null, string fdoDataModelVersion = "7000072", IProgress? progress = null)
     {
         projectCode ??= project.Name;
         var fwdataInfo = new FileInfo(project.FilePath);
@@ -88,6 +88,6 @@ public static class SendReceiveHelpers
             { "languageDepotRepoUri", repoUrl.ToString() },
             { "deleteRepoIfNoSuchBranch", "false" },
         };
-        return await CallLfMergeBridge("Language_Forge_Clone", flexBridgeOptions);
+        return await CallLfMergeBridge("Language_Forge_Clone", flexBridgeOptions, progress);
     }
 }

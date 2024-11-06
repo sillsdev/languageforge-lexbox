@@ -5,7 +5,7 @@
   import t from '$lib/i18n';
   import {type LexAuthUser} from '$lib/user';
   import {z} from 'zod';
-  import {_addProjectsToOrg, _getMyProjects, type Org} from './+page';
+  import {_addProjectsToOrg, _getProjectsIManage, type Org} from './+page';
   import {ProjectRole} from '$lib/gql/types';
   import {useNotifications} from '$lib/notify';
   import {type UUID} from 'crypto';
@@ -19,25 +19,22 @@
 
   let formModal: FormModal<typeof schema>;
   let newProjects: Project[] = [];
-  let alreadyAddedProjects: Project[] = [];
+  let alreadyAddedProjects: number = 0;
   let selectedProjects: string[] = [];
 
   async function openModal(): Promise<void> {
-    const myProjects = await _getMyProjects();
-    const projectsIManage = myProjects.map((project) => ({
-      id: project.id,
-      name: project.name,
-      code: project.code,
-      memberRole: project.users.find(projUser => projUser.userId === user.id)?.role ?? ProjectRole.Editor,
-    })).filter(p => p.memberRole === ProjectRole.Manager);
+    const projectsIManage = await _getProjectsIManage(user);
 
     newProjects = [];
-    alreadyAddedProjects = [];
+    alreadyAddedProjects = 0;
     projectsIManage.forEach(proj => {
       if (org.projects.find(p => p.id === proj.id)) {
-        alreadyAddedProjects.push(proj);
+        alreadyAddedProjects++;
       } else {
-        newProjects.push(proj);
+        newProjects.push({
+          ...proj,
+          memberRole: ProjectRole.Manager,
+        });
       }
     });
 
@@ -66,9 +63,9 @@
   </span>
   {#if newProjects.length}
     <UserProjects projects={newProjects} bind:selectedProjects hideRoleColumn />
-  {:else if alreadyAddedProjects.length}
+  {:else if alreadyAddedProjects}
     <span class="text-secondary">
-      {$t('org_page.add_my_projects.all_projects_already_added', { count: alreadyAddedProjects.length })}
+      {$t('org_page.add_my_projects.all_projects_already_added', { count: alreadyAddedProjects })}
     </span>
   {:else}
     <span class="text-secondary">

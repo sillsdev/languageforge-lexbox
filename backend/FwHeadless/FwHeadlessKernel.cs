@@ -1,4 +1,5 @@
 using FwDataMiniLcmBridge;
+using FwHeadless.Services;
 using FwLiteProjectSync;
 using LcmCrdt;
 using Microsoft.Extensions.Options;
@@ -18,6 +19,8 @@ public static class FwHeadlessKernel
             .ValidateOnStart();
         services.AddScoped<SendReceiveService>();
         services.AddScoped<ProjectLookupService>();
+        services.AddScoped<LogSanitizerService>();
+        services.AddScoped<SafeLoggingProgress>();
         services
             .AddLcmCrdtClient()
             .AddFwDataBridge()

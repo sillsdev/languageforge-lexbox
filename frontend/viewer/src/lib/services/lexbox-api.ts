@@ -1,11 +1,11 @@
 /* eslint-disable */
 
-import type { IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, SemanticDomain, WritingSystem, WritingSystems } from '../mini-lcm';
+import type {ComplexFormType, IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, SemanticDomain, WritingSystem, WritingSystems} from '../mini-lcm';
 
-import type { Operation } from 'fast-json-patch';
-import type { Readable } from 'svelte/store';
+import type {Operation} from 'fast-json-patch';
+import type {Readable} from 'svelte/store';
 
-export type {IEntry, IExampleSentence, ISense, QueryOptions, WritingSystem, WritingSystems, PartOfSpeech, SemanticDomain} from '../mini-lcm';
+export type {ComplexFormType, IEntry, IExampleSentence, ISense, PartOfSpeech, QueryOptions, SemanticDomain, WritingSystem, WritingSystems} from '../mini-lcm';
 
 export type JsonPatch = Operation[];
 
@@ -30,6 +30,7 @@ export interface LexboxApi {
 
   GetPartsOfSpeech(): Promise<PartOfSpeech[]>;
   GetSemanticDomains(): Promise<SemanticDomain[]>;
+  GetComplexFormTypes(): Promise<ComplexFormType[]>;
 
   GetEntries(options: QueryOptions | undefined): Promise<IEntry[]>;
   SearchEntries(query: string, options: QueryOptions | undefined): Promise<IEntry[]>;

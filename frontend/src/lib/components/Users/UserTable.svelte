@@ -58,7 +58,11 @@
         </td>
         <td class="hidden @2xl:table-cell">
           {#if user.username}
-            {user.username}
+            <span class="inline-flex max-w-40">
+              <span class="x-ellipsis" title={user.username}>
+                {user.username}
+              </span>
+            </span>
           {:else}
             –
           {/if}

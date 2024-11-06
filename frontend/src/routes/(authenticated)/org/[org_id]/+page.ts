@@ -17,6 +17,7 @@ import type {
 } from '$lib/gql/types';
 import {getClient, graphql} from '$lib/gql';
 
+import type {LexAuthUser} from '$lib/user';
 import type {OrgTabId} from './OrgTabs.svelte';
 import type {PageLoadEvent} from './$types';
 import type {UUID} from 'crypto';
@@ -315,14 +316,24 @@ export async function _deleteOrg(orgId: string): $OpResult<DeleteOrgMutation> {
   return result;
 }
 
-export async function _getMyProjects(): Promise<LoadMyProjectsQuery['myProjects']> {
+export async function _getProjectsIManage(user: LexAuthUser): Promise<LoadMyProjectsQuery['myProjects']> {
   const client = getClient();
+
   //language=GraphQL
   const results = await client.query(graphql(`
-        query loadMyProjects {
-            myProjects(orderBy: [
+        query loadMyProjects($userId: UUID!) {
+            myProjects(
+              orderBy: [
                 {name: ASC }
-            ]) {
+              ],
+              where: {
+                users: {
+                  some: {
+                    userId: {eq: $userId},
+                    role: {eq: MANAGER}
+                  }
+                }
+              }) {
                 code
                 id
                 name
@@ -333,7 +344,7 @@ export async function _getMyProjects(): Promise<LoadMyProjectsQuery['myProjects'
                 }
             }
         }
-  `), {});
+  `), { userId: user.id });
   return results.data?.myProjects ?? [];
 }
 

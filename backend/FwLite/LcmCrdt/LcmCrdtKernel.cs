@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Refit;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
@@ -75,6 +76,7 @@ public static class LcmCrdtKernel
             });
     }
 
+
     public static void ConfigureCrdt(CrdtConfig config)
     {
         config.EnableProjectedTables = true;
@@ -82,7 +84,6 @@ public static class LcmCrdtKernel
             .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
             {
-                builder.Ignore(e => e.Senses);
                 builder.HasMany(e => e.Components)
                         .WithOne()
                         .HasPrincipalKey(entry => entry.Id)
@@ -163,6 +164,7 @@ public static class LcmCrdtKernel
             .Add<AddComplexFormTypeChange>()
             .Add<AddEntryComponentChange>()
             .Add<RemoveComplexFormTypeChange>()
+            .Add<SetComplexFormComponentChange>()
             .Add<CreateComplexFormType>();
     }
 

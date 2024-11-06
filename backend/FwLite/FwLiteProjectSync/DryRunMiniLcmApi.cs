@@ -102,6 +102,12 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveComplexFormType), $"Remove complex form type {complexFormTypeId}, from entry {entryId}"));
+        await Task.CompletedTask;
+    }
+
     public Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss}"));
@@ -121,6 +127,18 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteSense), $"Delete sense {senseId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddSemanticDomainToSense), $"Add semantic domain {semanticDomain.Name}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveSemanticDomainFromSense), $"Remove semantic domain {semanticDomainId}"));
         return Task.CompletedTask;
     }
 
@@ -148,5 +166,23 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteExampleSentence), $"Delete example sentence {exampleSentenceId}"));
         return Task.CompletedTask;
+    }
+
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        return Task.FromResult(complexFormComponent);
+    }
+
+    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        return Task.CompletedTask;
+    }
+
+    public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddComplexFormType), $"Add complex form type {complexFormTypeId}, to entry {entryId}"));
+        await Task.CompletedTask;
     }
 }

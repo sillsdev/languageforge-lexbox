@@ -25,7 +25,7 @@
 		"lint": "svelte-kit sync && eslint .",
 		"lint:report": "svelte-kit sync && eslint . --output-file eslint_report.json --format json",
 		"format": "eslint . --fix",
-		"clean": "rimraf node_modules .svelte-kit"
+		"clean": "pnpm dlx rimraf node_modules .svelte-kit"
 	},
 	"devDependencies": {
 		"@dotenvx/dotenvx": "^0.37.1",
@@ -46,14 +46,14 @@
 		"@types/node": "^20.12.12",
 		"@types/zxcvbn": "^4.4.4",
 		"@typescript-eslint/eslint-plugin": "^6.21.0",
-		"@typescript-eslint/parser": "^6.21.0",
+		"@typescript-eslint/parser": "catalog:",
 		"@urql/core": "^5.0.4",
 		"@urql/devtools": "^2.0.3",
 		"@urql/exchange-graphcache": "^7.1.2",
 		"@urql/svelte": "^4.2.1",
 		"autoprefixer": "^10.4.19",
 		"daisyui": "^4.11.1",
-		"eslint": "^8.57.0",
+		"eslint": "catalog:",
 		"eslint-plugin-svelte": "^2.39.0",
 		"globals": "^13.24.0",
 		"graphql": "^16.8.1",
@@ -73,7 +73,7 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vite-plugin-graphql-codegen": "^3.3.6",
-		"vitest": "^1.6.0",
+		"vitest": "catalog:",
 		"zod": "^3.23.8",
 		"zxcvbn": "^4.4.2"
 	},
@@ -96,6 +96,7 @@
 		"@vitejs/plugin-basic-ssl": "^1.1.0",
 		"css-tree": "^2.3.1",
 		"js-cookie": "^3.0.5",
+		"just-order-by": "^1.0.0",
 		"mjml": "^4.15.3",
 		"set-cookie-parser": "^2.6.0",
 		"svelte-exmarkdown": "^3.0.5",
