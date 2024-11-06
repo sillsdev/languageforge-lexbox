@@ -7,15 +7,30 @@ using static Testing.Services.Utils;
 namespace Testing.ApiTests;
 
 [Trait("Category", "Integration")]
-public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>
+public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifetime
 {
     private readonly IntegrationFixture _fixture;
     private readonly ApiTestBase _adminApiTester;
+    private string _adminJwt;
 
     public GqlMiddlewareTests(IntegrationFixture fixture)
     {
         _fixture = fixture;
         _adminApiTester = _fixture.AdminApiTester;
+        _adminJwt = _fixture.AdminJwt;
+    }
+
+    public async Task InitializeAsync()
+    {
+        if (_adminJwt != _adminApiTester.CurrJwt)
+        {
+            _adminJwt = await _adminApiTester.LoginAs("admin");
+        }
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     private async Task<JsonObject> QueryMyProjectsWithMembers()
@@ -70,5 +85,50 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>
         var ids = myProjects.Select(p => p!["id"]!.GetValue<Guid>());
 
         projects.Select(p => p.id).ShouldBeSubsetOf(ids);
+    }
+
+    [Fact]
+    public async Task CanGetProjectThatWasJustAddedToUser()
+    {
+        var config = GetNewProjectConfig(isConfidential: true);
+        await using var project = await RegisterProjectInLexBox(config, _adminApiTester);
+
+        await _adminApiTester.LoginAs("editor");
+        var editorJwt = _adminApiTester.CurrJwt;
+
+        await _adminApiTester.ExecuteGql($$"""
+            query {
+                projectByCode(code: "{{config.Code}}") {
+                    id
+                    name
+                }
+            }
+            """, expectGqlError: true); // we're not a member yet
+        editorJwt.ShouldBe(_adminApiTester.CurrJwt); // token wasn't updated
+
+        await AddMemberToProject(config, _adminApiTester, "editor", ProjectRole.Editor, _adminJwt);
+
+        await _adminApiTester.ExecuteGql($$"""
+            query {
+                projectByCode(code: "{{config.Code}}") {
+                    id
+                    name
+                }
+            }
+            """, expectGqlError: true); // we're a member, but didn't query for users, so...
+        editorJwt.ShouldBe(_adminApiTester.CurrJwt); // token wasn't updated
+
+        var response = await _adminApiTester.ExecuteGql($$"""
+            query {
+                projectByCode(code: "{{config.Code}}") {
+                    id
+                    name
+                    users {
+                        id
+                    }
+                }
+            }
+            """, expectGqlError: false); // we queried for users, so...
+        editorJwt.ShouldNotBe(_adminApiTester.CurrJwt); // token was updated
     }
 }
