@@ -165,6 +165,43 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task CanSyncAnyEntryWithDeletedComplexForm()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        await crdtApi.DeleteEntry(_testEntry.Id);
+        var newEntryId = Guid.NewGuid();
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            Id = newEntryId,
+            LexemeForm = { { "en", "pineapple" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Gloss = { { "en", "fruit" } },
+                    Definition = { { "en", "a citris fruit" } },
+                }
+            ],
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = _testEntry.Id,
+                    ComponentHeadword = "apple",
+                    ComplexFormEntryId = newEntryId,
+                    ComplexFormHeadword = "pineapple"
+                }
+            ]
+        });
+
+        //sync may fail because it will try to create a complex form for an entry which was deleted
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+    }
+
+    [Fact]
     public async Task AddingASenseToAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;

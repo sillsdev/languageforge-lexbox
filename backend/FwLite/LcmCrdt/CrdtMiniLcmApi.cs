@@ -7,6 +7,7 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Db;
 
@@ -112,7 +113,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
         await dataModel.AddChange(ClientId, addEntryComponentChange);
-        return await ComplexFormComponents.SingleAsync(c => c.Id == addEntryComponentChange.EntityId);
+        return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
@@ -274,22 +275,24 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 {
                     throw new InvalidOperationException($"Complex form component {complexFormComponent} has the same component id as its complex form");
                 }
-                if (complexFormComponent.ComponentEntryId != entry.Id &&
-                    await IsEntryDeleted(complexFormComponent.ComponentEntryId))
-                {
-                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComponentEntryId} as its component");
-                }
-                if (complexFormComponent.ComplexFormEntryId != entry.Id &&
-                    await IsEntryDeleted(complexFormComponent.ComplexFormEntryId))
-                {
-                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComplexFormEntryId} as its complex form");
-                }
+                //these tests break under sync when the entry was deleted in a CRDT but that's not yet been synced to FW
+                //todo enable these tests when the api is not syncing but being called normally
+                // if (complexFormComponent.ComponentEntryId != entry.Id &&
+                //     await IsEntryDeleted(complexFormComponent.ComponentEntryId))
+                // {
+                //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComponentEntryId} as its component");
+                // }
+                // if (complexFormComponent.ComplexFormEntryId != entry.Id &&
+                //     await IsEntryDeleted(complexFormComponent.ComplexFormEntryId))
+                // {
+                //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComplexFormEntryId} as its complex form");
+                // }
 
-                if (complexFormComponent.ComponentSenseId != null &&
-                    !await Senses.AnyAsyncEF(s => s.Id == complexFormComponent.ComponentSenseId.Value))
-                {
-                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
-                }
+                // if (complexFormComponent.ComponentSenseId != null &&
+                //     !await Senses.AnyAsyncEF(s => s.Id == complexFormComponent.ComponentSenseId.Value))
+                // {
+                //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
+                // }
                 yield return new AddEntryComponentChange(complexFormComponent);
             }
         }

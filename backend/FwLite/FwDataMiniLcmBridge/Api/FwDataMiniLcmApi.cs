@@ -583,9 +583,20 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void RemoveComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
     {
-        ICmObject lexComponent = component.ComponentSenseId is not null
-            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
-            : EntriesRepository.GetObject(component.ComponentEntryId);
+        ICmObject lexComponent;
+        if (component.ComponentSenseId is not null)
+        {
+            //sense has been deleted, so this complex form has been deleted already
+            if (!SenseRepository.TryGetObject(component.ComponentSenseId.Value, out var sense)) return;
+            lexComponent = sense;
+        }
+        else
+        {
+            //entry has been deleted, so this complex form has been deleted already
+            if (!EntriesRepository.TryGetObject(component.ComponentEntryId, out var entry)) return;
+            lexComponent = entry;
+        }
+
         var entryRef = lexEntry.ComplexFormEntryRefs.Single();
         if (!entryRef.ComponentLexemesRS.Remove(lexComponent))
         {
