@@ -1,9 +1,10 @@
-﻿using System.Text.Json;
+﻿using System.Linq.Expressions;
+using System.Text.Json;
 using SIL.Harmony;
 using SIL.Harmony.Core;
-using SIL.Harmony;
 using SIL.Harmony.Changes;
 using LcmCrdt.Changes;
+using LcmCrdt.Changes.Entries;
 using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.AspNet.Logging;
@@ -11,9 +12,9 @@ using LinqToDB.Data;
 using LinqToDB.EntityFrameworkCore;
 using LinqToDB.Mapping;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SIL.Harmony.Db;
 
 namespace LcmCrdt;
 
@@ -24,12 +25,12 @@ public static class LcmCrdtKernel
         LinqToDBForEFTools.Initialize();
         services.AddMemoryCache();
         services.AddDbContext<LcmCrdtDbContext>(ConfigureDbOptions);
-        services.AddOptions<LcmCrdtConfig>();
+        services.AddOptions<LcmCrdtConfig>().BindConfiguration("LcmCrdt");
 
         services.AddCrdtData<LcmCrdtDbContext>(
             ConfigureCrdt
         );
-        services.AddScoped<MiniLcm.ILexboxApi, CrdtLexboxApi>();
+        services.AddScoped<IMiniLcmApi, CrdtMiniLcmApi>();
         services.AddScoped<CurrentProjectService>();
         services.AddSingleton<ProjectContext>();
         services.AddSingleton<ProjectsService>();
@@ -51,10 +52,8 @@ public static class LcmCrdtKernel
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.DateTime)))
                     .HasAttribute<Commit>(new ColumnAttribute(nameof(HybridDateTime.Counter),
                         nameof(Commit.HybridDateTime) + "." + nameof(HybridDateTime.Counter)))
-                    .Entity<Entry>().Property(e => e.Id)
-                    .Association(e => (e.Senses as IEnumerable<Sense>)!, e => e.Id, s => s.EntryId)
                     .Build();
-                mappingSchema.SetConvertExpression((MiniLcm.WritingSystemId id) =>
+                mappingSchema.SetConvertExpression((WritingSystemId id) =>
                     new DataParameter { Value = id.Code, DataType = DataType.Text });
                 optionsBuilder.AddMappingSchema(mappingSchema);
                 var loggerFactory = provider.GetService<ILoggerFactory>();
@@ -63,33 +62,49 @@ public static class LcmCrdtKernel
             });
     }
 
+
     public static void ConfigureCrdt(CrdtConfig config)
     {
         config.EnableProjectedTables = true;
         config.ObjectTypeListBuilder
+            .CustomAdapter<IObjectWithId, MiniLcmCrdtAdapter>()
             .Add<Entry>(builder =>
             {
-                builder.Ignore(e => e.Senses);
-                // builder.OwnsOne(e => e.Note, n => n.ToJson());
-                // builder.OwnsOne(e => e.LexemeForm, n => n.ToJson());
-                // builder.OwnsOne(e => e.CitationForm, n => n.ToJson());
-                // builder.OwnsOne(e => e.LiteralMeaning, n => n.ToJson());
+                builder.HasMany(e => e.Components)
+                        .WithOne()
+                        .HasPrincipalKey(entry => entry.Id)
+                        .HasForeignKey(c => c.ComplexFormEntryId)
+                        .OnDelete(DeleteBehavior.Cascade);
+                builder.HasMany(e => e.ComplexForms)
+                    .WithOne()
+                    .HasPrincipalKey(entry => entry.Id)
+                    .HasForeignKey(c => c.ComponentEntryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                builder
+                    .Property(e => e.ComplexFormTypes)
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
+                        json => JsonSerializer.Deserialize<List<ComplexFormType>>(json,
+                            (JsonSerializerOptions?)null) ?? new());
             })
             .Add<Sense>(builder =>
             {
-                builder.Ignore(s => s.ExampleSentences);
+                builder.HasMany<ComplexFormComponent>()
+                    .WithOne()
+                    .HasForeignKey(c => c.ComponentSenseId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne<Entry>()
-                    .WithMany()
+                    .WithMany(e => e.Senses)
                     .HasForeignKey(sense => sense.EntryId);
                 builder.Property(s => s.SemanticDomains)
                     .HasColumnType("jsonb")
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
-                        json => JsonSerializer.Deserialize<List<MiniLcm.SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
+                        json => JsonSerializer.Deserialize<List<SemanticDomain>>(json, (JsonSerializerOptions?)null) ?? new());
             })
             .Add<ExampleSentence>(builder =>
             {
                 builder.HasOne<Sense>()
-                    .WithMany()
+                    .WithMany(s => s.ExampleSentences)
                     .HasForeignKey(e => e.SenseId);
             })
             .Add<WritingSystem>(builder =>
@@ -99,7 +114,14 @@ public static class LcmCrdtKernel
                     .HasConversion(list => JsonSerializer.Serialize(list, (JsonSerializerOptions?)null),
                         json => JsonSerializer.Deserialize<string[]>(json, (JsonSerializerOptions?)null) ??
                                 Array.Empty<string>());
-            }).Add<PartOfSpeech>().Add<SemanticDomain>();
+            })
+            .Add<PartOfSpeech>()
+            .Add<SemanticDomain>()
+            .Add<ComplexFormType>()
+            .Add<ComplexFormComponent>(builder =>
+            {
+                builder.ToTable("ComplexFormComponents");
+            });
 
         config.ChangeTypeListBuilder.Add<JsonPatchChange<Entry>>()
             .Add<JsonPatchChange<Sense>>()
@@ -113,13 +135,38 @@ public static class LcmCrdtKernel
             .Add<DeleteChange<WritingSystem>>()
             .Add<DeleteChange<PartOfSpeech>>()
             .Add<DeleteChange<SemanticDomain>>()
+            .Add<DeleteChange<ComplexFormType>>()
+            .Add<DeleteChange<ComplexFormComponent>>()
             .Add<SetPartOfSpeechChange>()
             .Add<AddSemanticDomainChange>()
+            .Add<RemoveSemanticDomainChange>()
+            .Add<ReplaceSemanticDomainChange>()
             .Add<CreateEntryChange>()
             .Add<CreateSenseChange>()
             .Add<CreateExampleSentenceChange>()
             .Add<CreatePartOfSpeechChange>()
             .Add<CreateSemanticDomainChange>()
-            .Add<CreateWritingSystemChange>();
+            .Add<CreateWritingSystemChange>()
+            .Add<AddComplexFormTypeChange>()
+            .Add<AddEntryComponentChange>()
+            .Add<RemoveComplexFormTypeChange>()
+            .Add<SetComplexFormComponentChange>()
+            .Add<CreateComplexFormType>();
+    }
+
+    public static Task<IMiniLcmApi> OpenCrdtProject(this IServiceProvider services, CrdtProject project)
+    {
+        //this method must not be async, otherwise Setting the project scope will not work as expected.
+        //the project is stored in the async scope, if a new scope is created in this method then it will be gone once the method returns
+        //making the lcm api unusable
+        var projectsService = services.GetRequiredService<ProjectsService>();
+        projectsService.SetProjectScope(project);
+        return LoadMiniLcmApi(services);
+    }
+
+    private static async Task<IMiniLcmApi> LoadMiniLcmApi(IServiceProvider services)
+    {
+        await services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache();
+        return services.GetRequiredService<IMiniLcmApi>();
     }
 }

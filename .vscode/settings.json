@@ -15,9 +15,10 @@
     "i18n-ally.sortKeys": true,
     "i18n-ally.keystyle": "nested",
     "i18n-ally.tabStyle": "tab",
-    "eslint.experimental.useFlatConfig": true,
+    "eslint.useFlatConfig": true,
     "eslint.workingDirectories": [
-        { "directory": "./frontend" }
+      "./frontend",
+      "./frontend/viewer"
     ],
     "sort-imports.on-save": true,
     "editor.detectIndentation": false,
@@ -30,5 +31,7 @@
     "files.associations": {
       "**/frontend/**/i18n/**/*.json": "json5", // Supports json5 syntax: https://svelte-intl-precompile.com/en/docs/getting-started
     },
-    "dotnet.defaultSolution": "LexBox.sln"
+    "dotnet.defaultSolution": "LexBox.sln",
+    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false
 }

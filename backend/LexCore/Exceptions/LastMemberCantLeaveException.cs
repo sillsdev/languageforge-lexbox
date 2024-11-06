@@ -2,7 +2,7 @@
 
 public class LastMemberCantLeaveException : Exception
 {
-    public LastMemberCantLeaveException() : base("The last member of a project can't leave the project.")
+    public LastMemberCantLeaveException() : base("The last member can't leave.")
     {
     }
 }

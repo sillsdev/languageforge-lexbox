@@ -16,8 +16,9 @@
   import { derived } from 'svelte/store';
 
   import type { IEntry } from './mini-lcm';
-  import { headword } from './utils';
+  import { headword, pickBestAlternative } from './utils';
   import {useWritingSystems} from './writing-systems';
+  import { usePartsOfSpeech } from './parts-of-speech';
 
   export let entry: IEntry;
   export let lines: number = 0;
@@ -29,10 +30,10 @@
     const vernacularColor: Record<string, typeof vernacularColors[number]> = {};
     const analysisColor: Record<string, typeof analysisColors[number]> = {};
     vernacular.forEach((ws, i) => {
-      vernacularColor[ws.id] = vernacularColors[i % vernacularColors.length];
+      vernacularColor[ws.wsId] = vernacularColors[i % vernacularColors.length];
     });
     analysis.forEach((ws, i) => {
-      analysisColor[ws.id] = analysisColors[i % analysisColors.length];
+      analysisColor[ws.wsId] = analysisColors[i % analysisColors.length];
     });
     return (ws: string, type: 'vernacular' | 'analysis') => {
       const colors = type === 'vernacular' ? vernacularColor : analysisColor;
@@ -41,8 +42,10 @@
   });
 
   $: headwords = $allWritingSystems.vernacular
-    .map(ws => ({ws: ws.id, value: headword(entry, ws.id)}))
+    .map(ws => ({ws: ws.wsId, value: headword(entry, ws.wsId)}))
     .filter(({value}) => !!value);
+
+  const partsOfSpeech = usePartsOfSpeech(allWritingSystems);
 </script>
 
 <div>
@@ -59,36 +62,37 @@
       <br />
       <strong class="ml-2">{i + 1} · </strong>
     {/if}
-    {#if sense.partOfSpeech}
-      <i>{sense.partOfSpeech}.</i>
+    {@const partOfSpeech = $partsOfSpeech.find(pos => pos.id === sense.partOfSpeechId)?.label}
+    {#if partOfSpeech}
+      <i>{partOfSpeech}</i>
     {/if}
     <span>
       {#each $allWritingSystems.analysis as ws}
-        {#if sense.gloss[ws.id] || sense.definition[ws.id]}
+        {#if sense.gloss[ws.wsId] || sense.definition[ws.wsId]}
           <span class="ml-0.5">
             <sub class="-mr-0.5">{ws.abbreviation}</sub>
-            {#if sense.gloss[ws.id]}
-              <span class={$wsColor(ws.id, 'analysis')}>{sense.gloss[ws.id]}</span>;
+            {#if sense.gloss[ws.wsId]}
+              <span class={$wsColor(ws.wsId, 'analysis')}>{sense.gloss[ws.wsId]}</span>;
             {/if}
-            {#if sense.definition[ws.id]}
-              <span class={$wsColor(ws.id, 'analysis')}>{sense.definition[ws.id]}</span>
+            {#if sense.definition[ws.wsId]}
+              <span class={$wsColor(ws.wsId, 'analysis')}>{sense.definition[ws.wsId]}</span>
             {/if}
           </span>
         {/if}
       {/each}
     </span>
-    {#each sense.exampleSentences as example, i (example.id)}
-      {@const usedVernacular = $allWritingSystems.vernacular.filter(ws => !!example.sentence[ws.id])}
-      {@const usedAnalysis = $allWritingSystems.analysis.filter(ws => !!example.translation[ws.id])}
+    {#each sense.exampleSentences as example (example.id)}
+      {@const usedVernacular = $allWritingSystems.vernacular.filter(ws => !!example.sentence[ws.wsId])}
+      {@const usedAnalysis = $allWritingSystems.analysis.filter(ws => !!example.translation[ws.wsId])}
       {#if usedVernacular.length || usedAnalysis.length}
         <span class="-mr-0.5">[</span>
           {#each usedVernacular as ws}
-            <span class={$wsColor(ws.id, 'vernacular')}>{example.sentence[ws.id]}</span>
+            <span class={$wsColor(ws.wsId, 'vernacular')}>{example.sentence[ws.wsId]}</span>
             <span></span><!-- standardizes whitespace between texts -->
           {/each}
           <span></span>
           {#each usedAnalysis as ws}
-            <span class={$wsColor(ws.id, 'analysis')}>{example.translation[ws.id]}</span>
+            <span class={$wsColor(ws.wsId, 'analysis')}>{example.translation[ws.wsId]}</span>
             <span></span><!-- standardizes whitespace between texts -->
           {/each}
         <span class="-ml-0.5">]</span>

@@ -135,7 +135,7 @@ public class UserMutations
         var user = await dbContext.Users.FindAsync(input.UserId);
         NotFoundException.ThrowIfNull(user);
 
-        if (!input.Name.IsNullOrEmpty())
+        if (!string.IsNullOrEmpty(input.Name))
         {
             user.Name = input.Name;
         }
@@ -162,7 +162,7 @@ public class UserMutations
         }
         else if (input is ChangeUserAccountBySelfInput selfInput)
         {
-            if (!selfInput.Locale.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(selfInput.Locale))
             {
                 user.LocalizationCode = selfInput.Locale;
             }

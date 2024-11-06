@@ -13,6 +13,12 @@ namespace LcmCrdt.Utils;
 
 public static class JsonPatchRewriter
 {
+    public static void RemoveChanges<T, TProp>(this JsonPatchDocument<T> patchDocument, Expression<Func<T, TProp>> expr)
+        where T : class
+    {
+        var path = GetPath(expr, null, patchDocument.Options);
+        patchDocument.Operations.RemoveAll(op => op.Path == path);
+    }
 
     public static IEnumerable<IChange> RewriteChanges<T, TProp>(this JsonPatchDocument<T> patchDocument,
         Expression<Func<T, TProp>> expr, Func<TProp?, OperationType, IChange> changeFactory) where T : class
@@ -56,7 +62,22 @@ public static class JsonPatchRewriter
                 }
             }
             patchDocument.Operations.Remove(operation);
-            yield return changeFactory((TProp?)operation.Value, index, operation.OperationType);
+            if (operation.Value is TProp value)
+            {
+                yield return changeFactory(value, index, operation.OperationType);
+            }
+            else if (operation.Value is JsonElement element)
+            {
+                yield return changeFactory(JsonSerializer.Deserialize<TProp>(element, patchDocument.Options), index, operation.OperationType);
+            }
+            else if (operation.Value is null)
+            {
+                yield return changeFactory(default, index, operation.OperationType);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unexpected value type {operation.Value?.GetType()}");
+            }
         }
     }
 

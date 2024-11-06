@@ -20,25 +20,26 @@ public static class DataServiceKernel
             .ValidateOnStart();
         services.AddSingleton(BuildMongoClientSettings);
         services.AddSingleton(provider => new MongoClient(provider.GetRequiredService<MongoClientSettings>()));
-        services.AddSingleton<ILexboxApiProvider, LfClassicLexboxApiProvider>();
-
+        services.AddSingleton<LfClassicLexboxApiProvider>();
         services.AddSingleton<SystemDbContext>();
         services.AddSingleton<ProjectDbContext>();
     }
 
     public static MongoClientSettings BuildMongoClientSettings(IServiceProvider provider)
     {
-        var config = provider.GetRequiredService<IOptions<LfClassicConfig>>();
-        var mongoSettings = MongoClientSettings.FromConnectionString(config.Value.ConnectionString);
-        if (config.Value.HasCredentials)
+        var config = provider.GetRequiredService<IOptions<LfClassicConfig>>().Value;
+        var mongoSettings = MongoClientSettings.FromConnectionString(config.ConnectionString);
+        if (config.HasCredentials)
         {
             mongoSettings.Credential = MongoCredential.CreateCredential(
-                databaseName: config.Value.AuthSource,
-                username: config.Value.Username,
-                password: config.Value.Password
+                databaseName: config.AuthSource,
+                username: config.Username,
+                password: config.Password
             );
         }
         mongoSettings.LoggingSettings = new LoggingSettings(provider.GetRequiredService<ILoggerFactory>());
+        mongoSettings.ConnectTimeout = config.ConnectTimeout;
+        mongoSettings.ServerSelectionTimeout = config.ServerSelectionTimeout;
         mongoSettings.ClusterConfigurator = cb =>
             cb.Subscribe(new DiagnosticsActivityEventSubscriber(new() { CaptureCommandText = true }));
         return mongoSettings;

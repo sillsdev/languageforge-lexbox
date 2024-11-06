@@ -7,8 +7,10 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { usernameRe } from '$lib/user';
   import { z } from 'zod';
+  import type { StringifyValues } from '$lib/type.utils';
 
   export let allowUsernames = false;
+  export let errorOnChangingEmail = '';
   export let skipTurnstile = false;
   export let submitButtonText = $t('register.button_register');
   export let handleSubmit: (password: string, passwordStrength: number, name: string, email: string, locale: string, turnstileToken: string) => Promise<RegisterResponse>;
@@ -24,6 +26,7 @@
     email: string;
   };
   let turnstileToken = '';
+  let urlValues = {} as StringifyValues<RegisterPageQueryParams>;
 
   function validateAsEmail(value: string): boolean {
     return !allowUsernames || value.includes('@');
@@ -36,6 +39,7 @@
     name: z.string().trim().min(1, $t('register.name_missing')),
     email: z.string().trim()
       .min(1, $t('project_page.add_user.empty_user_field'))
+      .refine((value) => !errorOnChangingEmail || !urlValues.email || value == urlValues.email, errorOnChangingEmail)
       .refine((value) => !validateAsEmail(value) || isEmail(value), $t('form.invalid_email'))
       .refine((value) => validateAsEmail(value) || usernameRe.test(value), $t('register.invalid_username')),
     password: passwordFormRules($t),
@@ -64,7 +68,7 @@
     throw new Error('Unknown error, no error from server, but also no user.');
   });
   onMount(() => { // query params not available during SSR
-    const urlValues = getSearchParamValues<RegisterPageQueryParams>();
+    urlValues = getSearchParamValues<RegisterPageQueryParams>();
     form.update((form) => {
       if (urlValues.name) form.name = urlValues.name;
       if (urlValues.email) form.email = urlValues.email;

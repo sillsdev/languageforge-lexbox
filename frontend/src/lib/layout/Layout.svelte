@@ -44,7 +44,7 @@
       {#if !hideToolbar}
         <div class="bg-neutral text-neutral-content p-2 md:px-6 flex justify-between items-center gap-2">
           <Breadcrumbs />
-          <div class="flex gap-4 items-center">
+          <div class="flex gap-2 items-center">
             <DevContent>
               <a href="/sandbox" class="btn btn-sm btn-neutral glass">
                 <Icon size="text-2xl" icon="i-mdi-box-variant" />
@@ -55,21 +55,21 @@
               {$t('appmenu.help')}
               <Icon icon="i-mdi-open-in-new" size="text-lg" />
             </a>
-            <DevContent>
-            <a href="/org/list" class="btn btn-sm btn-secondary hidden lg:flex">
-              {$t('appmenu.orgs')}
+            <a href="/org/list" class="btn btn-sm btn-secondary">
+              <span class="max-md:hidden">
+                {$t('appmenu.orgs')}
+              </span>
               <Icon icon="i-mdi-account-group-outline" size="text-xl" />
             </a>
-            </DevContent>
             <a href="/" class="btn btn-sm btn-primary">
-              <span class="max-sm:hidden">
+              <span class="max-md:hidden">
                 {$t('user_dashboard.title')}
               </span>
               <HomeIcon size="text-xl" />
             </a>
             <AdminContent>
               <a href="/admin" class="btn btn-sm btn-accent">
-                <span class="max-sm:hidden">
+                <span class="max-md:hidden">
                   {$t('admin_dashboard.title')}
                 </span>
                 <AdminIcon size="text-xl" />

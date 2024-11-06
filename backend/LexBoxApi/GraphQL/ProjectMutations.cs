@@ -37,8 +37,8 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         IPermissionService permissionService,
         CreateProjectInput input,
-        [Service] ProjectService projectService,
-        [Service] IEmailService emailService)
+        ProjectService projectService,
+        IEmailService emailService)
     {
         if (!loggedInContext.User.IsAdmin)
         {
@@ -73,7 +73,7 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         AddProjectMemberInput input,
         LexBoxDbContext dbContext,
-        [Service] IEmailService emailService)
+        IEmailService emailService)
     {
         await permissionService.AssertCanManageProject(input.ProjectId);
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
@@ -248,7 +248,7 @@ public class ProjectMutations
         LoggedInContext loggedInContext,
         Guid projectId,
         LexBoxDbContext dbContext,
-        [Service] IEmailService emailService)
+        IEmailService emailService)
     {
         await permissionService.AssertCanAskToJoinProject(projectId);
 
@@ -283,7 +283,7 @@ public class ProjectMutations
         LexBoxDbContext dbContext)
     {
         await permissionService.AssertCanManageProject(input.ProjectId);
-        if (input.Name.IsNullOrEmpty()) throw new RequiredException("Project name cannot be empty");
+        if (string.IsNullOrEmpty(input.Name)) throw new RequiredException("Project name cannot be empty");
 
         var project = await dbContext.Projects.FindAsync(input.ProjectId);
         NotFoundException.ThrowIfNull(project);
@@ -320,7 +320,7 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> SetProjectConfidentiality(SetProjectConfidentialityInput input,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         await permissionService.AssertCanManageProject(input.ProjectId);
@@ -342,7 +342,7 @@ public class ProjectMutations
     public async Task<IQueryable<Project>> SetRetentionPolicy(
         SetRetentionPolicyInput input,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         await permissionService.AssertCanManageProject(input.ProjectId);
@@ -363,7 +363,7 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> UpdateProjectLexEntryCount(string code,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
@@ -382,7 +382,7 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> UpdateProjectLanguageList(string code,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
@@ -401,15 +401,31 @@ public class ProjectMutations
     [UseProjection]
     public async Task<IQueryable<Project>> UpdateLangProjectId(string code,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
-        [Service] IHgService hgService,
+        ProjectService projectService,
         LexBoxDbContext dbContext)
     {
         var projectId = await projectService.LookupProjectId(code);
         await permissionService.AssertCanManageProject(projectId);
         var project = await dbContext.Projects.FindAsync(projectId);
         NotFoundException.ThrowIfNull(project);
-        await hgService.GetProjectIdOfFlexProject(code);
+        await projectService.UpdateProjectLangProjectId(projectId);
+        return dbContext.Projects.Where(p => p.Id == projectId);
+    }
+
+    [Error<NotFoundException>]
+    [Error<DbError>]
+    [Error<UnauthorizedAccessException>]
+    [UseMutationConvention]
+    [UseFirstOrDefault]
+    [UseProjection]
+    public async Task<IQueryable<Project>> UpdateFLExModelVersion(string code,
+        IPermissionService permissionService,
+        ProjectService projectService,
+        LexBoxDbContext dbContext)
+    {
+        var projectId = await projectService.LookupProjectId(code);
+        await permissionService.AssertCanManageProject(projectId);
+        await projectService.UpdateFLExModelVersion(projectId);
         return dbContext.Projects.Where(p => p.Id == projectId);
     }
 
@@ -483,7 +499,7 @@ public class ProjectMutations
     public async Task<IQueryable<Project>> SoftDeleteProject(
         Guid projectId,
         IPermissionService permissionService,
-        [Service] ProjectService projectService,
+        ProjectService projectService,
         LexBoxDbContext dbContext,
         IHgService hgService)
     {

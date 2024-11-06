@@ -1,4 +1,4 @@
-﻿using MiniLcm;
+﻿using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
 

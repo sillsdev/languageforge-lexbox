@@ -5,6 +5,8 @@ using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Text.Json;
 using LexCore.Auth;
+using LexSyncReverseProxy;
+using LfClassicData;
 using Shouldly;
 using Testing.Services;
 
@@ -135,5 +137,13 @@ public class AuthTests : ApiTestBase
             Headers = { Authorization = new AuthenticationHeaderValue("Bearer", newJwt) }
         });
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
+
+    //these must match because auth determines the project code from the route key using the method in HgHelpers
+    //but I don't want to make the projects reference one or the other, so I'm just using a test
+    [Fact]
+    public void RouteKeyInLfClassicRoutesMustMatchRouteKeyInProxyConstants()
+    {
+        LfClassicRoutes.ProjectCodeRouteKey.ShouldBe(ProxyConstants.HgProjectCodeRouteKey);
     }
 }

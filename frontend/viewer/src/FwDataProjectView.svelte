@@ -11,7 +11,7 @@
   export let projectName: string;
   export let baseUrl: string = '';
   export let signalrConnectionOptions: IHttpConnectionOptions = {};
-  const {connected, lexboxApi} = SetupSignalR(`${baseUrl}/api/hub/${projectName}/fwdata`, {
+  const {connected} = SetupSignalR(`${baseUrl}/api/hub/${projectName}/fwdata`, {
       history: false,
       write: true,
       openWithFlex: true,

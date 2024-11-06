@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using AppAny.Quartz.EntityFrameworkCore.Migrations;
 using AppAny.Quartz.EntityFrameworkCore.Migrations.PostgreSQL;
+using HotChocolate.AspNetCore;
 using LexBoxApi;
 using LexBoxApi.Auth;
 using LexBoxApi.Auth.Attributes;
@@ -13,6 +14,7 @@ using LexBoxApi.Services;
 using LexCore.Exceptions;
 using LexData;
 using LexSyncReverseProxy;
+using LexSyncReverseProxy.Auth;
 using LfClassicData;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
@@ -61,6 +63,14 @@ builder.Services.AddSingleton(services =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.DocInclusionPredicate((docName, apiDesc) =>
+    {
+        //we only want docs marked as public in the public group, by default no docs are public. The default behavior is to include all apis in all docs.
+        if (docName == apiDesc.GroupName) return true;
+        if (docName == LexBoxKernel.OpenApiPublicDocumentName) return false;
+        return true;
+    });
+    options.SwaggerDoc(LexBoxKernel.OpenApiPublicDocumentName, new() { Title = "Lexbox Public Api",  });
     options.SwaggerDoc(LexBoxKernel.SwaggerDocumentName, new OpenApiInfo
     {
         Title = "LexBoxApi",
@@ -145,6 +155,9 @@ app.UseHealthChecks("/api/healthz");
     });
     app.UseSwaggerUI(options =>
     {
+        //the first doc is the default one
+        options.SwaggerEndpoint("/api/swagger/public/swagger.json", "Lexbox Public Api");
+        options.SwaggerEndpoint("/api/swagger/v1/swagger.json", "Lexbox Api");
         options.RoutePrefix = "api/swagger";
         options.ConfigObject.DisplayRequestDuration = true;
         options.EnableTryItOutByDefault();
@@ -155,7 +168,7 @@ app.UseResumableStatusHack();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapSecurityTxt();
-app.MapBananaCakePop("/api/graphql/ui").AllowAnonymous();
+app.MapNitroApp("/api/graphql/ui").WithOptions(new (){ServeMode = GraphQLToolServeMode.Embedded}).AllowAnonymous();
 if (app.Environment.IsDevelopment())
     //required for vite to generate types
     app.MapGraphQLSchema("/api/graphql/schema.graphql").AllowAnonymous();
@@ -163,7 +176,8 @@ app.MapGraphQLHttp("/api/graphql");
 
 app.MapQuartzUI("/api/quartz").RequireAuthorization(new AdminRequiredAttribute());
 app.MapControllers();
-app.MapLfClassicApi().RequireAuthorization(new AdminRequiredAttribute()).WithOpenApi();
+app.MapLfClassicApi().WithOpenApi().WithGroupName(LexBoxKernel.OpenApiPublicDocumentName)
+    .RequireAuthorization(policyBuilder => policyBuilder.RequireAuthenticatedUser().AddRequirements(new UserHasAccessToProjectRequirement()));
 app.MapTus("/api/tus-test",
         async context => await context.RequestServices.GetRequiredService<TusService>().GetTestConfig(context))
     .RequireAuthorization(new AdminRequiredAttribute());

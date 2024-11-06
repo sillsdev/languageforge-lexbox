@@ -25,18 +25,18 @@ public class ImportFwdataService(
         }
         try
         {
+            using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
             var project = await projectsService.CreateProject(new(fwDataProject.Name,
                 SeedNewProjectData: false,
+                FwProjectId: fwDataApi.ProjectId,
                 AfterCreate: async (provider, project) =>
                 {
-                    using var fwDataApi = fwDataFactory.GetFwDataMiniLcmApi(fwDataProject, false);
-                    var crdtApi = provider.GetRequiredService<ILexboxApi>();
+                    var crdtApi = provider.GetRequiredService<IMiniLcmApi>();
                     await miniLcmImport.ImportProject(crdtApi, fwDataApi, fwDataApi.EntryCount);
                 }));
             var timeSpent = Stopwatch.GetElapsedTime(startTime);
             logger.LogInformation("Import of {ProjectName} complete, took {TimeSpend}", fwDataProject.Name, timeSpent.Humanize(2));
             return project;
-
         }
         catch
         {

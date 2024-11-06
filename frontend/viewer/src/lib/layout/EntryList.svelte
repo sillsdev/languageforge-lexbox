@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from "svelte-ux";
-  import type { IEntry } from "../mini-lcm";
-  import { firstDefOrGlossVal, headword } from "../utils";
-  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from "@mdi/js";
-  import IndexCharacters from "./IndexCharacters.svelte";
-  import type { Writable } from "svelte/store";
-  import { createEventDispatcher, getContext } from "svelte";
-  import DictionaryEntry from "../DictionaryEntry.svelte";
+  import { Button, Icon, InfiniteScroll, ListItem, ProgressCircle, TextField } from 'svelte-ux';
+  import type { IEntry } from '../mini-lcm';
+  import { firstDefOrGlossVal, headword } from '../utils';
+  import { mdiArrowExpandLeft, mdiArrowExpandRight, mdiBookOpenVariantOutline, mdiBookSearchOutline, mdiClose, mdiFormatListText } from '@mdi/js';
+  import IndexCharacters from './IndexCharacters.svelte';
+  import type { Writable } from 'svelte/store';
+  import { createEventDispatcher, getContext } from 'svelte';
+  import DictionaryEntry from '../DictionaryEntry.svelte';
 
   const dispatch = createEventDispatcher<{
     entrySelected: IEntry;
@@ -22,7 +22,7 @@
     // wait until the new entries have been rendered
     setTimeout(() => {
       const selected = scrollContainerElem?.querySelector('.selected-entry');
-      selected?.scrollIntoView({block: 'center'});
+      selected?.scrollIntoView({block: 'nearest'});
     });
   }
 
@@ -72,7 +72,7 @@
       rounded
       on:click={() => dictionaryMode = !dictionaryMode}>
     </Button>
-    <div class="hidden md:contents">
+    <div class="hidden lg:contents">
       <Button icon={expand ? mdiArrowExpandLeft : mdiArrowExpandRight} variant="outline" iconOnly
         class="text-field-sibling-button"
         rounded
@@ -108,8 +108,8 @@
                 </button>
               {:else}
                   <ListItem
-                    title={headword(entry)}
-                    subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '-')}
+                    title={headword(entry).padStart(1, '–')}
+                    subheading={firstDefOrGlossVal(entry.senses[0]).padStart(1, '–')}
                     on:click={() => selectEntry(entry)}
                     noShadow
                     class="!rounded-none"

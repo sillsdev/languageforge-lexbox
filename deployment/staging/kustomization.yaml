@@ -7,8 +7,11 @@ resources:
 components:
   - ../init-repos
 patches:
+  - path: fw-headless-volume.yaml
+  - path: fw-headless-deployment.patch.yaml
   - path: lexbox-deployment.patch.yaml
   - path: app-config.yaml
+  - path: hg-repos-volume.yaml
   - path: ingress-config-staging.yaml
     target:
       kind: Ingress

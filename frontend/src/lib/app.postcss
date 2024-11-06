@@ -216,3 +216,11 @@ img[src*="onestory-editor-logo"] {
     border-bottom: var(--tab-border) solid var(--tab-border-color);
   }
 }
+
+.x-ellipsis {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Ensures dangling letters are not clipped (e.g. "g") */
+  line-height: 1.3em;
+}

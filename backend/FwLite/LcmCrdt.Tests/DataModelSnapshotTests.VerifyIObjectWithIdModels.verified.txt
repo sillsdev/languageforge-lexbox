@@ -1,0 +1,38 @@
+﻿{
+  DerivedTypes: [
+    {
+      DerivedType: Entry,
+      TypeDiscriminator: Entry
+    },
+    {
+      DerivedType: Sense,
+      TypeDiscriminator: Sense
+    },
+    {
+      DerivedType: ExampleSentence,
+      TypeDiscriminator: ExampleSentence
+    },
+    {
+      DerivedType: WritingSystem,
+      TypeDiscriminator: WritingSystem
+    },
+    {
+      DerivedType: PartOfSpeech,
+      TypeDiscriminator: PartOfSpeech
+    },
+    {
+      DerivedType: SemanticDomain,
+      TypeDiscriminator: SemanticDomain
+    },
+    {
+      DerivedType: ComplexFormType,
+      TypeDiscriminator: ComplexFormType
+    },
+    {
+      DerivedType: ComplexFormComponent,
+      TypeDiscriminator: ComplexFormComponent
+    }
+  ],
+  IgnoreUnrecognizedTypeDiscriminators: false,
+  TypeDiscriminatorPropertyName: $type
+}

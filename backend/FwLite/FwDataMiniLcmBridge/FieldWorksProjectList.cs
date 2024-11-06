@@ -1,6 +1,6 @@
 ﻿using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Options;
-using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwDataMiniLcmBridge;
 
@@ -14,7 +14,7 @@ public class FieldWorksProjectList(IOptions<FwDataBridgeConfig> config)
             var projectName = Path.GetFileName(directory);
             if (string.IsNullOrEmpty(projectName)) continue;
             if (!File.Exists(Path.Combine(directory, projectName + ".fwdata"))) continue;
-            yield return new FwDataProject(projectName, projectName + ".fwdata");
+            yield return new FwDataProject(projectName, config.Value.ProjectsFolder);
         }
     }
 

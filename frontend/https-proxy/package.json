@@ -2,7 +2,7 @@
   "name": "https-proxy",
   "version": "0.0.1",
   "private": true,
-  "packageManager": "pnpm@9.1.2",
+  "packageManager": "pnpm@9.11.0",
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
@@ -12,8 +12,8 @@
     "dev": "vite"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "vite": "^5.2.0",
+    "typescript": "catalog:",
+    "vite": "catalog:",
 		"@vitejs/plugin-basic-ssl": "^1.1.0"
   }
 }

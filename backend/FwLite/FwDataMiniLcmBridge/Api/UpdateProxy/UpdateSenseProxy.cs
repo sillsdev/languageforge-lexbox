@@ -1,5 +1,5 @@
 ﻿ using System.Diagnostics.CodeAnalysis;
-using MiniLcm;
+ using MiniLcm.Models;
 using SIL.LCModel;
 using SIL.LCModel.DomainServices;
 
@@ -64,14 +64,13 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
             new UpdateListProxy<SemanticDomain>(
                 semanticDomain =>
                 {
-                    if (semanticDomain.Id != default)
-                        sense.SemanticDomainsRC.Add(lexboxLcmApi.GetLcmSemanticDomain(semanticDomain.Id));
+#pragma warning disable VSTHRD002
+                    lexboxLcmApi.AddSemanticDomainToSense(sense.Guid, semanticDomain).Wait();
                 },
                 semanticDomain =>
                 {
-                    if (semanticDomain.Id != default)
-                        sense.SemanticDomainsRC.Remove(
-                            sense.SemanticDomainsRC.First(sd => sd.Guid == semanticDomain.Id));
+                    lexboxLcmApi.RemoveSemanticDomainFromSense(sense.Guid, semanticDomain.Id).Wait();
+#pragma warning restore VSTHRD002
                 },
                 i => new UpdateProxySemanticDomain(sense.SemanticDomainsRC,
                     sense.SemanticDomainsRC.ElementAt(i).Guid,
@@ -107,7 +106,8 @@ public class UpdateSenseProxy(ILexSense sense, FwDataMiniLcmApi lexboxLcmApi) : 
                 if (value == _id) return;
                 if (value == default) throw new ArgumentException("Cannot set to default");
                 _senseSemanticDomainsRc.Remove(_senseSemanticDomainsRc.First(sd => sd.Guid == _id));
-                _senseSemanticDomainsRc.Add(_lexboxLcmApi.GetLcmSemanticDomain(value));
+                var lcmSemanticDomain = _lexboxLcmApi.GetLcmSemanticDomain(value);
+                if (lcmSemanticDomain is not null) _senseSemanticDomainsRc.Add(lcmSemanticDomain);
                 _id = value;
             }
         }

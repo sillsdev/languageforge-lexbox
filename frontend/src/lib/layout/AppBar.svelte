@@ -20,21 +20,21 @@
 <!-- https://daisyui.com/components/navbar -->
 <header>
   {#if environmentName !== 'production'}
-    <a href="https://public.languagedepot.org" class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2 underline">
+    <a href="https://lexbox.org" class="flex gap-2 justify-center items-center bg-warning text-warning-content p-2 underline">
       {$t('environment_warning', { environmentName })}
       <span class="i-mdi-open-in-new text-xl shrink-0" />
     </a>
   {/if}
   <div class="navbar justify-between bg-primary text-primary-content md:pl-3 md:pr-6">
-    <div class="flex">
-      <AppLogo class="h-[2.5em] w-[2.5em] mr-3"/>
-      <a href={loggedIn ? '/' : '/login'} class="flex flex-col text-lg md:text-3xl tracking-wider hover:underline">
-        {$t('appbar.app_name')}
-        <span class="text-xs md:text-[0.35em]/[2em]">
+    <a id="home" href={loggedIn ? '/' : '/login'} class="flex btn btn-primary text-left font-normal px-2">
+      <AppLogo class="h-[3em] w-[3em]" mono />
+      <div class="flex flex-col text-2xl md:text-3xl tracking-wider">
+        <span class="md:leading-none">{$t('appbar.app_name')}</span>
+        <span class="text-[0.35em]/[2em] max-xs:hidden">
           {$t('appbar.app_subtitle')}
         </span>
-      </a>
-    </div>
+      </div>
+    </a>
     <div>
       {#if user}
         <!-- using a label means it works before hydration is complete -->

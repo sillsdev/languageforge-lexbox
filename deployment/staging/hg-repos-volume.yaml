@@ -1,0 +1,9 @@
+﻿apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hg-repos
+  namespace: languagedepot
+spec:
+  resources:
+    requests:
+      storage: 17Gi

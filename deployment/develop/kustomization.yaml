@@ -7,6 +7,7 @@ resources:
 components:
   - ../init-repos
 patches:
+  - path: fw-headless-deployment.patch.yaml
   - path: lexbox-deployment.patch.yaml
   - path: app-config.yaml
   - path: ingress-config.yaml

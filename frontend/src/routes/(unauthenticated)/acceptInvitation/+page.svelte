@@ -11,5 +11,5 @@
 </script>
 
 <TitlePage title={$t('accept_invitation.title')}>
-  <CreateUser handleSubmit={acceptInvitation} on:submitted={onSubmit} />
+  <CreateUser handleSubmit={acceptInvitation} on:submitted={onSubmit} errorOnChangingEmail={$t('register.changing_email_not_allowed')} />
 </TitlePage>

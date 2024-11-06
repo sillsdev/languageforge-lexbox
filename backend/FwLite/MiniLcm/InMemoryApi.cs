@@ -1,6 +1,8 @@
-﻿namespace MiniLcm;
+﻿using MiniLcm.Models;
 
-public class InMemoryApi : ILexboxApi
+namespace MiniLcm;
+
+public class InMemoryApi : IMiniLcmApi
 {
     private readonly List<Entry> _entries =
     [
@@ -101,11 +103,11 @@ public class InMemoryApi : ILexboxApi
     private readonly WritingSystems _writingSystems = new WritingSystems{
         Analysis =
         [
-            new WritingSystem { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
+            new WritingSystem { Id = Guid.NewGuid(), Type = WritingSystemType.Analysis, WsId = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
         ],
         Vernacular =
         [
-            new WritingSystem { Id = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
+            new WritingSystem { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = "en", Name = "English", Abbreviation = "en", Font = "Arial" },
         ]
     };
 
@@ -131,8 +133,8 @@ public class InMemoryApi : ILexboxApi
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
     {
         var ws = type == WritingSystemType.Analysis
-            ? _writingSystems.Analysis.Single(w => w.Id == id)
-            : _writingSystems.Vernacular.Single(w => w.Id == id);
+            ? _writingSystems.Analysis.Single(w => w.WsId == id)
+            : _writingSystems.Vernacular.Single(w => w.WsId == id);
         if (ws is null) throw new KeyNotFoundException($"unable to find writing system with id {id}");
         update.Apply(ws);
         return Task.FromResult(ws);
@@ -144,6 +146,36 @@ public class InMemoryApi : ILexboxApi
     }
 
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
         throw new NotImplementedException();
     }
@@ -240,11 +272,6 @@ public class InMemoryApi : ILexboxApi
         }
     }
 
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
-    {
-        return new UpdateBuilder<T>();
-    }
-
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         var entry = _entries.Single(e => e.Id == id);
@@ -270,6 +297,16 @@ public class InMemoryApi : ILexboxApi
         var s = entry.Senses.Single(s => s.Id == senseId);
         update.Apply(s);
         return Task.FromResult(s);
+    }
+
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        throw new NotImplementedException();
     }
 }
 

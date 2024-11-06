@@ -5,27 +5,27 @@ using SIL.LCModel;
 namespace FwDataMiniLcmBridge.Tests.Fixtures;
 
 public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
-    : ProjectLoader(config), IDisposable, IProjectLoader
+    : ProjectLoader(config), IDisposable
 {
     public Dictionary<string, LcmCache> Projects { get; } = new();
 
-    public new LcmCache LoadCache(string fileName)
+    public override LcmCache LoadCache(FwDataProject project)
     {
-        if (!Projects.TryGetValue(Path.GetFileNameWithoutExtension(fileName), out var cache))
+        if (!Projects.TryGetValue(project.Name, out var cache))
         {
-            throw new InvalidOperationException($"No cache found for {fileName}");
+            throw new InvalidOperationException($"No cache found for {project.Name}");
         }
 
         return cache;
     }
 
-    public new LcmCache NewProject(string fileName, string analysisWs, string vernacularWs)
+    public override LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs)
     {
         Init();
-        var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
+        var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
         var progress = new LcmThreadedProgress();
         var cache = LcmCache.CreateCacheWithNewBlankLangProj(
-            new SimpleProjectId(BackendProviderType.kMemoryOnly, fileName),
+            new SimpleProjectId(BackendProviderType.kMemoryOnly, project.FileName),
             analysisWs,
             vernacularWs,
             null,
@@ -33,7 +33,7 @@ public class MockFwProjectLoader(IOptions<FwDataBridgeConfig> config)
             lcmDirectories,
             new LcmSettings());
 
-        Projects.Add(Path.GetFileNameWithoutExtension(fileName), cache);
+        Projects.Add(project.Name, cache);
         return cache;
     }
 

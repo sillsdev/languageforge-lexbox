@@ -1,4 +1,5 @@
-import {getHubProxyFactory, getReceiverRegister} from '../generated-signalr-client/TypedSignalR.Client';
+/* eslint-disable @typescript-eslint/naming-convention */
+import { getHubProxyFactory, getReceiverRegister } from '../generated-signalr-client/TypedSignalR.Client';
 
 import {
   type HubConnection,
@@ -6,30 +7,31 @@ import {
   HubConnectionState,
   type IHttpConnectionOptions
 } from '@microsoft/signalr';
-import type { LexboxApiFeatures, LexboxApiMetadata } from './lexbox-api';
+import type { LexboxApiClient, LexboxApiFeatures, LexboxApiMetadata } from './lexbox-api';
 import {LexboxService} from './service-provider';
 import {onDestroy} from 'svelte';
-import {type Writable, writable} from 'svelte/store';
+import {type Readable, type Writable, writable} from 'svelte/store';
 import {AppNotification} from '../notifications/notifications';
-import {
+import type {
   CloseReason,
-  type ILexboxClient
 } from '../generated-signalr-client/TypedSignalR.Client/Lexbox.ClientServer.Hubs';
 import {useEventBus} from './event-bus';
-import {Entry} from '../mini-lcm';
+import type {Entry} from '../mini-lcm';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type ErrorContext = {error: Error|unknown, methodName?: string, origin: 'method'|'connection'};
 type ErrorHandler = (errorContext: ErrorContext) => {handled: boolean};
-export function SetupSignalR(url: string,
-                             features: LexboxApiFeatures,
-                             onError?: ErrorHandler,
-                             options: IHttpConnectionOptions = {}) {
-  let {connection, connected} = setupConnection(url, options, errorContext => {
+export function SetupSignalR(
+  url: string,
+  features: LexboxApiFeatures,
+  onError?: ErrorHandler,
+  options: IHttpConnectionOptions = {}) : { connected: Readable<boolean>, lexboxApi: LexboxApiClient } {
+  const {connection, connected} = setupConnection(url, options, errorContext => {
     if (onError && onError(errorContext).handled) {
       return {handled: true};
     }
     if (errorContext.error instanceof Error) {
-      let message = errorContext.error.message;
+      const message = errorContext.error.message;
       AppNotification.display('Connection error: ' + message, 'error', 'long');
     } else {
       AppNotification.display('Unknown Connection error', 'error', 'long');
@@ -81,6 +83,7 @@ function setupConnection(url: string, options: IHttpConnectionOptions, onError: 
     connection = new Proxy(connection, {
       get(target, prop: keyof HubConnection, receiver) {
         if (prop === 'invoke') {
+          /* eslint-disable  @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
           return async (methodName: string, ...args: any[]) => {
             try {
               return await target.invoke(methodName, ...args);
@@ -89,10 +92,11 @@ function setupConnection(url: string, options: IHttpConnectionOptions, onError: 
               throw e;
             }
           }
+          /* eslint-enable */
         } else {
           return Reflect.get(target, prop, receiver);
         }
       }
-    }) as HubConnection;
+    });
   return {connection, connected};
 }

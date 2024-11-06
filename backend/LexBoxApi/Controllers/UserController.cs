@@ -82,6 +82,42 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [HttpGet("acceptInvitation")]
+    [RequireAudience(LexboxAudience.RegisterAccount, true)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult> HandleInviteLink()
+    {
+        var user = _loggedInContext.User;
+        if (user.Email is null)
+        {
+            // Malformed JWT, exit early
+            return Redirect("/login");
+        }
+        var dbUser = await _lexBoxDbContext.Users
+            .Where(u => u.Email == user.Email)
+            .Include(u => u.Projects)
+            .Include(u => u.Organizations)
+            .FirstOrDefaultAsync();
+        if (dbUser is null)
+        {
+            // Go to frontend to fill out registration page
+            var queryString = QueryString.Create("email", user.Email);
+            var returnTo = new UriBuilder { Path = "/acceptInvitation", Query = queryString.Value }.Uri.PathAndQuery;
+            return Redirect(returnTo);
+        }
+        else
+        {
+            // No need to re-register users that already exist
+            UpdateUserMemberships(user, dbUser);
+            await _lexBoxDbContext.SaveChangesAsync();
+            var loginUser = new LexAuthUser(dbUser);
+            await HttpContext.SignInAsync(loginUser.GetPrincipal("Invitation"),
+                new AuthenticationProperties { IsPersistent = true });
+            return Redirect("/");
+        }
+    }
+
     [HttpPost("acceptInvitation")]
     [RequireAudience(LexboxAudience.RegisterAccount, true)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -99,18 +135,29 @@ public class UserController : ControllerBase
         }
 
         var jwtUser = _loggedInContext.User;
-
-        var hasExistingUser = await _lexBoxDbContext.Users.FilterByEmailOrUsername(accountInput.Email).AnyAsync();
-        acceptActivity?.AddTag("app.email_available", !hasExistingUser);
-        if (hasExistingUser)
+        if (jwtUser.Email != accountInput.Email)
         {
+            // Changing email address in invite links is not allowed; this prevents someone from trying to reuse a JWT belonging to somebody else
+            ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email address mismatch in invitation link");
+            return ValidationProblem(ModelState);
+        }
+
+        var userEntity = await _lexBoxDbContext.Users.FindByEmailOrUsername(accountInput.Email);
+        acceptActivity?.AddTag("app.email_available", userEntity is null);
+        if (userEntity is null)
+        {
+            userEntity = CreateUserEntity(accountInput, jwtUser);
+            _lexBoxDbContext.Users.Add(userEntity);
+        }
+        else
+        {
+            // Multiple invitations accepted by the same account should no longer go through this method, so return an error if the account already exists
+            // That can only happen if an admin created the user's account while the user was still on the registration page: very unlikely
             ModelState.AddModelError<RegisterAccountInput>(r => r.Email, "email already in use");
             return ValidationProblem(ModelState);
         }
 
-        var userEntity = CreateUserEntity(accountInput, jwtUser);
         acceptActivity?.AddTag("app.user.id", userEntity.Id);
-        _lexBoxDbContext.Users.Add(userEntity);
         await _lexBoxDbContext.SaveChangesAsync();
 
         var user = new LexAuthUser(userEntity);
@@ -139,16 +186,32 @@ public class UserController : ControllerBase
             Locked = false,
             CanCreateProjects = false
         };
+        UpdateUserMemberships(jwtUser, userEntity);
+        return userEntity;
+    }
+    private void UpdateUserMemberships(LexAuthUser? jwtUser, User userEntity)
+    {
         // This audience check is redundant now because of [RequireAudience(LexboxAudience.RegisterAccount, true)], but let's leave it in for safety
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Projects.Length > 0)
         {
-            userEntity.Projects = jwtUser.Projects.Select(p => new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId }).ToList();
+            foreach (var p in jwtUser.Projects)
+            {
+                if (!userEntity.Projects.Exists(proj => proj.ProjectId == p.ProjectId))
+                {
+                    userEntity.Projects.Add(new ProjectUsers { Role = p.Role, ProjectId = p.ProjectId });
+                }
+            }
         }
         if (jwtUser?.Audience == LexboxAudience.RegisterAccount && jwtUser.Orgs.Length > 0)
         {
-            userEntity.Organizations = jwtUser.Orgs.Select(o => new OrgMember { Role = o.Role, OrgId = o.OrgId }).ToList();
+            foreach (var o in jwtUser.Orgs)
+            {
+                if (!userEntity.Organizations.Exists(org => org.OrgId == o.OrgId))
+                {
+                    userEntity.Organizations.Add(new OrgMember { Role = o.Role, OrgId = o.OrgId });
+                }
+            }
         }
-        return userEntity;
     }
 
     [HttpPost("sendVerificationEmail")]

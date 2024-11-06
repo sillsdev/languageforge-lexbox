@@ -13,7 +13,7 @@ public class TurnstileService(IHttpClientFactory httpClientFactory, IOptionsSnap
         if (email is not null)
         {
             var allowDomain = options.Value.AllowDomain;
-            if (!allowDomain.IsNullOrEmpty() && email.EndsWith($"@{allowDomain}"))
+            if (!string.IsNullOrEmpty(allowDomain) && email.EndsWith($"@{allowDomain}"))
             {
                 return true;
             }

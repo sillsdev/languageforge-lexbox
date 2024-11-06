@@ -51,7 +51,16 @@ public class LoginController(
 
         await HttpContext.SignInAsync(User,
             new AuthenticationProperties { IsPersistent = true });
-        return Redirect(returnTo);
+        var destination = ValidateRedirectUrl(returnTo);
+        return Redirect(destination);
+    }
+
+    private string ValidateRedirectUrl(string url)
+    {
+        // Redirect URLs must be relative, to avoid phishing attacks where user is redirected to
+        // a lookalike site. So we strip off the host if there is one.
+        var uri = new Uri(url, UriKind.RelativeOrAbsolute);
+        return uri.IsAbsoluteUri ? uri.PathAndQuery : uri.ToString();
     }
 
     [HttpGet("google")]

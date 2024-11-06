@@ -7,8 +7,8 @@ using SystemTextJsonPatch;
 
 namespace LocalWebApp.Hubs;
 
-public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey)] ILexboxApi lexboxApi, FwDataFactory fwDataFactory,
-    FwDataProjectContext context) : MiniLcmApiHubBase(lexboxApi)
+public class FwDataMiniLcmHub([FromKeyedServices(FwDataBridgeKernel.FwDataApiKey)] IMiniLcmApi miniLcmApi, FwDataFactory fwDataFactory,
+    FwDataProjectContext context) : MiniLcmApiHubBase(miniLcmApi)
 {
     public const string ProjectRouteKey = "fwdata";
     public override async Task OnConnectedAsync()

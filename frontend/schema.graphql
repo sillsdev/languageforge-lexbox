@@ -1,4 +1,4 @@
-﻿schema {
+schema {
   query: Query
   mutation: Mutation
 }
@@ -15,6 +15,11 @@ type AddProjectMemberPayload {
 type AddProjectToOrgPayload {
   organization: Organization
   errors: [AddProjectToOrgError!]
+}
+
+type AddProjectsToOrgPayload {
+  orgById: OrgById
+  errors: [AddProjectsToOrgError!]
 }
 
 type AlreadyExistsError implements Error {
@@ -179,6 +184,7 @@ type FlexProjectMetadata {
   lexEntryCount: Int
   langProjectId: UUID
   writingSystems: ProjectWritingSystems
+  flexModelVersion: Int
 }
 
 type InvalidEmailError implements Error {
@@ -192,6 +198,11 @@ type IsAdminResponse {
 
 type LastMemberCantLeaveError implements Error {
   message: String!
+}
+
+type LeaveOrgPayload {
+  organization: Organization
+  errors: [LeaveOrgError!]
 }
 
 type LeaveProjectPayload {
@@ -226,35 +237,38 @@ type MeDto {
 }
 
 type Mutation {
-  createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload!
-  deleteOrg(input: DeleteOrgInput!): DeleteOrgPayload! @authorize(policy: "AdminRequiredPolicy")
-  addProjectToOrg(input: AddProjectToOrgInput!): AddProjectToOrgPayload!
-  removeProjectFromOrg(input: RemoveProjectFromOrgInput!): RemoveProjectFromOrgPayload!
-  setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload!
-  changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload!
-  bulkAddOrgMembers(input: BulkAddOrgMembersInput!): BulkAddOrgMembersPayload!
-  changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload!
-  createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy")
-  addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload!
-  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy")
-  changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload!
-  askToJoinProject(input: AskToJoinProjectInput!): AskToJoinProjectPayload!
-  changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload!
-  changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload!
-  setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload!
-  setRetentionPolicy(input: SetRetentionPolicyInput!): SetRetentionPolicyPayload!
-  updateProjectLexEntryCount(input: UpdateProjectLexEntryCountInput!): UpdateProjectLexEntryCountPayload!
-  updateProjectLanguageList(input: UpdateProjectLanguageListInput!): UpdateProjectLanguageListPayload!
-  updateLangProjectId(input: UpdateLangProjectIdInput!): UpdateLangProjectIdPayload!
-  leaveProject(input: LeaveProjectInput!): LeaveProjectPayload!
-  removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload!
-  deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy")
-  softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload!
-  changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload!
-  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
-  createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @authorize(policy: "AdminRequiredPolicy")
-  deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload!
-  setUserLocked(input: SetUserLockedInput!): SetUserLockedPayload! @authorize(policy: "AdminRequiredPolicy")
+  createOrganization(input: CreateOrganizationInput!): CreateOrganizationPayload! @cost(weight: "10")
+  deleteOrg(input: DeleteOrgInput!): DeleteOrgPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  addProjectToOrg(input: AddProjectToOrgInput!): AddProjectToOrgPayload! @cost(weight: "10")
+  addProjectsToOrg(input: AddProjectsToOrgInput!): AddProjectsToOrgPayload! @cost(weight: "10")
+  removeProjectFromOrg(input: RemoveProjectFromOrgInput!): RemoveProjectFromOrgPayload! @cost(weight: "10")
+  setOrgMemberRole(input: SetOrgMemberRoleInput!): SetOrgMemberRolePayload! @cost(weight: "10")
+  changeOrgMemberRole(input: ChangeOrgMemberRoleInput!): ChangeOrgMemberRolePayload! @cost(weight: "10")
+  leaveOrg(input: LeaveOrgInput!): LeaveOrgPayload! @cost(weight: "10")
+  bulkAddOrgMembers(input: BulkAddOrgMembersInput!): BulkAddOrgMembersPayload! @cost(weight: "10")
+  changeOrgName(input: ChangeOrgNameInput!): ChangeOrgNamePayload! @cost(weight: "10")
+  createProject(input: CreateProjectInput!): CreateProjectPayload! @authorize(policy: "VerifiedEmailRequiredPolicy") @cost(weight: "10")
+  addProjectMember(input: AddProjectMemberInput!): AddProjectMemberPayload! @cost(weight: "10")
+  bulkAddProjectMembers(input: BulkAddProjectMembersInput!): BulkAddProjectMembersPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  changeProjectMemberRole(input: ChangeProjectMemberRoleInput!): ChangeProjectMemberRolePayload! @cost(weight: "10")
+  askToJoinProject(input: AskToJoinProjectInput!): AskToJoinProjectPayload! @cost(weight: "10")
+  changeProjectName(input: ChangeProjectNameInput!): ChangeProjectNamePayload! @cost(weight: "10")
+  changeProjectDescription(input: ChangeProjectDescriptionInput!): ChangeProjectDescriptionPayload! @cost(weight: "10")
+  setProjectConfidentiality(input: SetProjectConfidentialityInput!): SetProjectConfidentialityPayload! @cost(weight: "10")
+  setRetentionPolicy(input: SetRetentionPolicyInput!): SetRetentionPolicyPayload! @cost(weight: "10")
+  updateProjectLexEntryCount(input: UpdateProjectLexEntryCountInput!): UpdateProjectLexEntryCountPayload! @cost(weight: "10")
+  updateProjectLanguageList(input: UpdateProjectLanguageListInput!): UpdateProjectLanguageListPayload! @cost(weight: "10")
+  updateLangProjectId(input: UpdateLangProjectIdInput!): UpdateLangProjectIdPayload! @cost(weight: "10")
+  updateFLExModelVersion(input: UpdateFLExModelVersionInput!): UpdateFLExModelVersionPayload! @cost(weight: "10")
+  leaveProject(input: LeaveProjectInput!): LeaveProjectPayload! @cost(weight: "10")
+  removeProjectMember(input: RemoveProjectMemberInput!): RemoveProjectMemberPayload! @cost(weight: "10")
+  deleteDraftProject(input: DeleteDraftProjectInput!): DeleteDraftProjectPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  softDeleteProject(input: SoftDeleteProjectInput!): SoftDeleteProjectPayload! @cost(weight: "10")
+  changeUserAccountBySelf(input: ChangeUserAccountBySelfInput!): ChangeUserAccountBySelfPayload! @cost(weight: "10")
+  changeUserAccountByAdmin(input: ChangeUserAccountByAdminInput!): ChangeUserAccountByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  createGuestUserByAdmin(input: CreateGuestUserByAdminInput!): CreateGuestUserByAdminPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  deleteUserByAdminOrSelf(input: DeleteUserByAdminOrSelfInput!): DeleteUserByAdminOrSelfPayload! @cost(weight: "10")
+  setUserLocked(input: SetUserLockedInput!): SetUserLockedPayload! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
 }
 
 type NotFoundError implements Error {
@@ -357,10 +371,10 @@ type Project {
   code: String!
   createdDate: DateTime!
   id: UUID!
-  users: [ProjectUsers!]! @authorize(policy: "CanAccessProjectUsers")
-  changesets: [Changeset!]!
+  users: [ProjectUsers!]!
+  changesets: [Changeset!]! @cost(weight: "10")
   hasAbandonedTransactions: Boolean!
-  isLanguageForgeProject: Boolean!
+  isLanguageForgeProject: Boolean! @cost(weight: "10")
   parentId: UUID
   name: String!
   description: String
@@ -411,22 +425,22 @@ type ProjectWritingSystems {
 }
 
 type Query {
-  myProjects(orderBy: [ProjectSortInput!]): [Project!]!
-  projects(withDeleted: Boolean! = false where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]! @authorize(policy: "AdminRequiredPolicy")
-  myDraftProjects(orderBy: [DraftProjectSortInput!]): [DraftProject!]!
-  draftProjects(where: DraftProjectFilterInput orderBy: [DraftProjectSortInput!]): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy")
-  projectsByLangCodeAndOrg(input: ProjectsByLangCodeAndOrgInput! orderBy: [ProjectSortInput!]): [Project!]!
-  projectsInMyOrg(input: ProjectsInMyOrgInput! where: ProjectFilterInput orderBy: [ProjectSortInput!]): [Project!]!
-  projectById(projectId: UUID!): Project
-  projectByCode(code: String!): Project
-  draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy")
-  orgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
-  myOrgs(where: OrganizationFilterInput orderBy: [OrganizationSortInput!]): [Organization!]!
-  usersInMyOrg(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersInMyOrgCollectionSegment
-  orgById(orgId: UUID!): OrgById
-  users(skip: Int take: Int where: UserFilterInput orderBy: [UserSortInput!]): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy")
-  me: MeDto
-  orgMemberById(orgId: UUID! userId: UUID!): OrgMemberDto
+  myProjects(orderBy: [ProjectSortInput!] @cost(weight: "10") where: ProjectFilterInput @cost(weight: "10")): [Project!]! @cost(weight: "10")
+  projects(withDeleted: Boolean! = false where: ProjectFilterInput @cost(weight: "10") orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  myDraftProjects(orderBy: [DraftProjectSortInput!] @cost(weight: "10")): [DraftProject!]! @cost(weight: "10")
+  draftProjects(where: DraftProjectFilterInput @cost(weight: "10") orderBy: [DraftProjectSortInput!] @cost(weight: "10")): [DraftProject!]! @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  projectsByLangCodeAndOrg(input: ProjectsByLangCodeAndOrgInput! orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @cost(weight: "10")
+  projectsInMyOrg(input: ProjectsInMyOrgInput! where: ProjectFilterInput @cost(weight: "10") orderBy: [ProjectSortInput!] @cost(weight: "10")): [Project!]! @cost(weight: "10")
+  projectById(projectId: UUID!): Project @cost(weight: "10")
+  projectByCode(code: String!): Project @cost(weight: "10")
+  draftProjectByCode(code: String!): DraftProject @authorize(policy: "AdminRequiredPolicy") @cost(weight: "10")
+  orgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
+  myOrgs(where: OrganizationFilterInput @cost(weight: "10") orderBy: [OrganizationSortInput!] @cost(weight: "10")): [Organization!]! @cost(weight: "10")
+  usersInMyOrg(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersInMyOrgCollectionSegment @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
+  orgById(orgId: UUID!): OrgById @cost(weight: "10")
+  users(skip: Int take: Int where: UserFilterInput @cost(weight: "10") orderBy: [UserSortInput!] @cost(weight: "10")): UsersCollectionSegment @authorize(policy: "AdminRequiredPolicy") @listSize(assumedSize: 1000, slicingArguments: [ "take" ], sizedFields: [ "items" ]) @cost(weight: "10")
+  me: MeDto @cost(weight: "10")
+  orgMemberById(orgId: UUID! userId: UUID!): OrgMemberDto @cost(weight: "10")
   meAuth: LexAuthUser!
   testingThrowsError: LexAuthUser!
   isAdmin: IsAdminResponse! @authorize(policy: "AdminRequiredPolicy")
@@ -478,6 +492,11 @@ type UniqueValueError implements Error {
   message: String!
 }
 
+type UpdateFLExModelVersionPayload {
+  project: Project
+  errors: [UpdateFLExModelVersionError!]
+}
+
 type UpdateLangProjectIdPayload {
   project: Project
   errors: [UpdateLangProjectIdError!]
@@ -526,7 +545,7 @@ type UsersCollectionSegment {
   pageInfo: CollectionSegmentInfo!
   "A flattened list of the items."
   items: [User!]
-  totalCount: Int!
+  totalCount: Int! @cost(weight: "10")
 }
 
 "A segment of a collection."
@@ -535,12 +554,14 @@ type UsersInMyOrgCollectionSegment {
   pageInfo: CollectionSegmentInfo!
   "A flattened list of the items."
   items: [User!]
-  totalCount: Int!
+  totalCount: Int! @cost(weight: "10")
 }
 
 union AddProjectMemberError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole | ProjectMemberInvitedByEmail | InvalidEmailError | AlreadyExistsError
 
 union AddProjectToOrgError = DbError | NotFoundError
+
+union AddProjectsToOrgError = DbError | NotFoundError
 
 union AskToJoinProjectError = NotFoundError | DbError | ProjectMembersMustBeVerified | ProjectMembersMustBeVerifiedForRole
 
@@ -574,6 +595,8 @@ union DeleteOrgError = DbError
 
 union DeleteUserByAdminOrSelfError = NotFoundError | DbError
 
+union LeaveOrgError = NotFoundError | LastMemberCantLeaveError
+
 union LeaveProjectError = NotFoundError | LastMemberCantLeaveError
 
 union RemoveProjectFromOrgError = DbError | NotFoundError
@@ -587,6 +610,8 @@ union SetRetentionPolicyError = NotFoundError | DbError
 union SetUserLockedError = NotFoundError
 
 union SoftDeleteProjectError = NotFoundError | DbError
+
+union UpdateFLExModelVersionError = NotFoundError | DbError | UnauthorizedAccessError
 
 union UpdateLangProjectIdError = NotFoundError | DbError | UnauthorizedAccessError
 
@@ -607,13 +632,18 @@ input AddProjectToOrgInput {
   projectId: UUID!
 }
 
+input AddProjectsToOrgInput {
+  orgId: UUID!
+  projectIds: [UUID!]!
+}
+
 input AskToJoinProjectInput {
   projectId: UUID!
 }
 
 input BooleanOperationFilterInput {
-  eq: Boolean
-  neq: Boolean
+  eq: Boolean @cost(weight: "10")
+  neq: Boolean @cost(weight: "10")
 }
 
 input BulkAddOrgMembersInput {
@@ -696,18 +726,18 @@ input CreateProjectInput {
 }
 
 input DateTimeOperationFilterInput {
-  eq: DateTime
-  neq: DateTime
-  in: [DateTime]
-  nin: [DateTime]
-  gt: DateTime
-  ngt: DateTime
-  gte: DateTime
-  ngte: DateTime
-  lt: DateTime
-  nlt: DateTime
-  lte: DateTime
-  nlte: DateTime
+  eq: DateTime @cost(weight: "10")
+  neq: DateTime @cost(weight: "10")
+  in: [DateTime] @cost(weight: "10")
+  nin: [DateTime] @cost(weight: "10")
+  gt: DateTime @cost(weight: "10")
+  ngt: DateTime @cost(weight: "10")
+  gte: DateTime @cost(weight: "10")
+  ngte: DateTime @cost(weight: "10")
+  lt: DateTime @cost(weight: "10")
+  nlt: DateTime @cost(weight: "10")
+  lte: DateTime @cost(weight: "10")
+  nlte: DateTime @cost(weight: "10")
 }
 
 input DeleteDraftProjectInput {
@@ -740,18 +770,18 @@ input DraftProjectFilterInput {
 }
 
 input DraftProjectSortInput {
-  name: SortEnumType
-  description: SortEnumType
-  code: SortEnumType
-  type: SortEnumType
-  retentionPolicy: SortEnumType
-  projectManager: UserSortInput
-  projectManagerId: SortEnumType
-  orgId: SortEnumType
-  isConfidential: SortEnumType
-  id: SortEnumType
-  createdDate: SortEnumType
-  updatedDate: SortEnumType
+  name: SortEnumType @cost(weight: "10")
+  description: SortEnumType @cost(weight: "10")
+  code: SortEnumType @cost(weight: "10")
+  type: SortEnumType @cost(weight: "10")
+  retentionPolicy: SortEnumType @cost(weight: "10")
+  projectManager: UserSortInput @cost(weight: "10")
+  projectManagerId: SortEnumType @cost(weight: "10")
+  orgId: SortEnumType @cost(weight: "10")
+  isConfidential: SortEnumType @cost(weight: "10")
+  id: SortEnumType @cost(weight: "10")
+  createdDate: SortEnumType @cost(weight: "10")
+  updatedDate: SortEnumType @cost(weight: "10")
 }
 
 input FLExWsIdFilterInput {
@@ -769,27 +799,33 @@ input FlexProjectMetadataFilterInput {
   lexEntryCount: IntOperationFilterInput
   langProjectId: UuidOperationFilterInput
   writingSystems: ProjectWritingSystemsFilterInput
+  flexModelVersion: IntOperationFilterInput
 }
 
 input FlexProjectMetadataSortInput {
-  projectId: SortEnumType
-  lexEntryCount: SortEnumType
-  langProjectId: SortEnumType
+  projectId: SortEnumType @cost(weight: "10")
+  lexEntryCount: SortEnumType @cost(weight: "10")
+  langProjectId: SortEnumType @cost(weight: "10")
+  flexModelVersion: SortEnumType @cost(weight: "10")
 }
 
 input IntOperationFilterInput {
-  eq: Int
-  neq: Int
-  in: [Int]
-  nin: [Int]
-  gt: Int
-  ngt: Int
-  gte: Int
-  ngte: Int
-  lt: Int
-  nlt: Int
-  lte: Int
-  nlte: Int
+  eq: Int @cost(weight: "10")
+  neq: Int @cost(weight: "10")
+  in: [Int] @cost(weight: "10")
+  nin: [Int] @cost(weight: "10")
+  gt: Int @cost(weight: "10")
+  ngt: Int @cost(weight: "10")
+  gte: Int @cost(weight: "10")
+  ngte: Int @cost(weight: "10")
+  lt: Int @cost(weight: "10")
+  nlt: Int @cost(weight: "10")
+  lte: Int @cost(weight: "10")
+  nlte: Int @cost(weight: "10")
+}
+
+input LeaveOrgInput {
+  orgId: UUID!
 }
 
 input LeaveProjectInput {
@@ -797,45 +833,45 @@ input LeaveProjectInput {
 }
 
 input ListFilterInputTypeOfFLExWsIdFilterInput {
-  all: FLExWsIdFilterInput
-  none: FLExWsIdFilterInput
-  some: FLExWsIdFilterInput
-  any: Boolean
+  all: FLExWsIdFilterInput @cost(weight: "10")
+  none: FLExWsIdFilterInput @cost(weight: "10")
+  some: FLExWsIdFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfOrgMemberFilterInput {
-  all: OrgMemberFilterInput
-  none: OrgMemberFilterInput
-  some: OrgMemberFilterInput
-  any: Boolean
+  all: OrgMemberFilterInput @cost(weight: "10")
+  none: OrgMemberFilterInput @cost(weight: "10")
+  some: OrgMemberFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfOrganizationFilterInput {
-  all: OrganizationFilterInput
-  none: OrganizationFilterInput
-  some: OrganizationFilterInput
-  any: Boolean
+  all: OrganizationFilterInput @cost(weight: "10")
+  none: OrganizationFilterInput @cost(weight: "10")
+  some: OrganizationFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfProjectFilterInput {
-  all: ProjectFilterInput
-  none: ProjectFilterInput
-  some: ProjectFilterInput
-  any: Boolean
+  all: ProjectFilterInput @cost(weight: "10")
+  none: ProjectFilterInput @cost(weight: "10")
+  some: ProjectFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfProjectUsersFilterInput {
-  all: ProjectUsersFilterInput
-  none: ProjectUsersFilterInput
-  some: ProjectUsersFilterInput
-  any: Boolean
+  all: ProjectUsersFilterInput @cost(weight: "10")
+  none: ProjectUsersFilterInput @cost(weight: "10")
+  some: ProjectUsersFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input ListFilterInputTypeOfUserFilterInput {
-  all: UserFilterInput
-  none: UserFilterInput
-  some: UserFilterInput
-  any: Boolean
+  all: UserFilterInput @cost(weight: "10")
+  none: UserFilterInput @cost(weight: "10")
+  some: UserFilterInput @cost(weight: "10")
+  any: Boolean @cost(weight: "10")
 }
 
 input OrgMemberFilterInput {
@@ -852,10 +888,10 @@ input OrgMemberFilterInput {
 }
 
 input OrgRoleOperationFilterInput {
-  eq: OrgRole
-  neq: OrgRole
-  in: [OrgRole!]
-  nin: [OrgRole!]
+  eq: OrgRole @cost(weight: "10")
+  neq: OrgRole @cost(weight: "10")
+  in: [OrgRole!] @cost(weight: "10")
+  nin: [OrgRole!] @cost(weight: "10")
 }
 
 input OrganizationFilterInput {
@@ -872,12 +908,12 @@ input OrganizationFilterInput {
 }
 
 input OrganizationSortInput {
-  name: SortEnumType
-  memberCount: SortEnumType
-  projectCount: SortEnumType
-  id: SortEnumType
-  createdDate: SortEnumType
-  updatedDate: SortEnumType
+  name: SortEnumType @cost(weight: "10")
+  memberCount: SortEnumType @cost(weight: "10")
+  projectCount: SortEnumType @cost(weight: "10")
+  id: SortEnumType @cost(weight: "10")
+  createdDate: SortEnumType @cost(weight: "10")
+  updatedDate: SortEnumType @cost(weight: "10")
 }
 
 input ProjectFilterInput {
@@ -905,44 +941,44 @@ input ProjectFilterInput {
 }
 
 input ProjectMigrationStatusOperationFilterInput {
-  eq: ProjectMigrationStatus
-  neq: ProjectMigrationStatus
-  in: [ProjectMigrationStatus!]
-  nin: [ProjectMigrationStatus!]
+  eq: ProjectMigrationStatus @cost(weight: "10")
+  neq: ProjectMigrationStatus @cost(weight: "10")
+  in: [ProjectMigrationStatus!] @cost(weight: "10")
+  nin: [ProjectMigrationStatus!] @cost(weight: "10")
 }
 
 input ProjectRoleOperationFilterInput {
-  eq: ProjectRole
-  neq: ProjectRole
-  in: [ProjectRole!]
-  nin: [ProjectRole!]
+  eq: ProjectRole @cost(weight: "10")
+  neq: ProjectRole @cost(weight: "10")
+  in: [ProjectRole!] @cost(weight: "10")
+  nin: [ProjectRole!] @cost(weight: "10")
 }
 
 input ProjectSortInput {
-  parentId: SortEnumType
-  code: SortEnumType
-  name: SortEnumType
-  description: SortEnumType
-  retentionPolicy: SortEnumType
-  type: SortEnumType
-  isConfidential: SortEnumType
-  flexProjectMetadata: FlexProjectMetadataSortInput
-  lastCommit: SortEnumType
-  deletedDate: SortEnumType
-  resetStatus: SortEnumType
-  projectOrigin: SortEnumType
-  migratedDate: SortEnumType
-  userCount: SortEnumType
-  id: SortEnumType
-  createdDate: SortEnumType
-  updatedDate: SortEnumType
+  parentId: SortEnumType @cost(weight: "10")
+  code: SortEnumType @cost(weight: "10")
+  name: SortEnumType @cost(weight: "10")
+  description: SortEnumType @cost(weight: "10")
+  retentionPolicy: SortEnumType @cost(weight: "10")
+  type: SortEnumType @cost(weight: "10")
+  isConfidential: SortEnumType @cost(weight: "10")
+  flexProjectMetadata: FlexProjectMetadataSortInput @cost(weight: "10")
+  lastCommit: SortEnumType @cost(weight: "10")
+  deletedDate: SortEnumType @cost(weight: "10")
+  resetStatus: SortEnumType @cost(weight: "10")
+  projectOrigin: SortEnumType @cost(weight: "10")
+  migratedDate: SortEnumType @cost(weight: "10")
+  userCount: SortEnumType @cost(weight: "10")
+  id: SortEnumType @cost(weight: "10")
+  createdDate: SortEnumType @cost(weight: "10")
+  updatedDate: SortEnumType @cost(weight: "10")
 }
 
 input ProjectTypeOperationFilterInput {
-  eq: ProjectType
-  neq: ProjectType
-  in: [ProjectType!]
-  nin: [ProjectType!]
+  eq: ProjectType @cost(weight: "10")
+  neq: ProjectType @cost(weight: "10")
+  in: [ProjectType!] @cost(weight: "10")
+  nin: [ProjectType!] @cost(weight: "10")
 }
 
 input ProjectUsersFilterInput {
@@ -985,17 +1021,17 @@ input RemoveProjectMemberInput {
 }
 
 input ResetStatusOperationFilterInput {
-  eq: ResetStatus
-  neq: ResetStatus
-  in: [ResetStatus!]
-  nin: [ResetStatus!]
+  eq: ResetStatus @cost(weight: "10")
+  neq: ResetStatus @cost(weight: "10")
+  in: [ResetStatus!] @cost(weight: "10")
+  nin: [ResetStatus!] @cost(weight: "10")
 }
 
 input RetentionPolicyOperationFilterInput {
-  eq: RetentionPolicy
-  neq: RetentionPolicy
-  in: [RetentionPolicy!]
-  nin: [RetentionPolicy!]
+  eq: RetentionPolicy @cost(weight: "10")
+  neq: RetentionPolicy @cost(weight: "10")
+  in: [RetentionPolicy!] @cost(weight: "10")
+  nin: [RetentionPolicy!] @cost(weight: "10")
 }
 
 input SetOrgMemberRoleInput {
@@ -1027,18 +1063,22 @@ input SoftDeleteProjectInput {
 input StringOperationFilterInput {
   and: [StringOperationFilterInput!]
   or: [StringOperationFilterInput!]
-  eq: String
-  neq: String
-  contains: String
-  ncontains: String
-  in: [String]
-  nin: [String]
-  startsWith: String
-  nstartsWith: String
-  endsWith: String
-  nendsWith: String
-  icontains: String
-  ieq: String
+  eq: String @cost(weight: "10")
+  neq: String @cost(weight: "10")
+  contains: String @cost(weight: "20")
+  ncontains: String @cost(weight: "20")
+  in: [String] @cost(weight: "10")
+  nin: [String] @cost(weight: "10")
+  startsWith: String @cost(weight: "20")
+  nstartsWith: String @cost(weight: "20")
+  endsWith: String @cost(weight: "20")
+  nendsWith: String @cost(weight: "20")
+  icontains: String @cost(weight: "10")
+  ieq: String @cost(weight: "10")
+}
+
+input UpdateFLExModelVersionInput {
+  code: String!
 }
 
 input UpdateLangProjectIdInput {
@@ -1080,44 +1120,48 @@ input UserFilterInput {
 }
 
 input UserSortInput {
-  name: SortEnumType
-  email: SortEnumType
-  localizationCode: SortEnumType
-  isAdmin: SortEnumType
-  passwordHash: SortEnumType
-  salt: SortEnumType
-  passwordStrength: SortEnumType
-  lastActive: SortEnumType
-  emailVerified: SortEnumType
-  canCreateProjects: SortEnumType
-  createdById: SortEnumType
-  createdBy: UserSortInput
-  locked: SortEnumType
-  username: SortEnumType
-  googleId: SortEnumType
-  id: SortEnumType
-  createdDate: SortEnumType
-  updatedDate: SortEnumType
+  name: SortEnumType @cost(weight: "10")
+  email: SortEnumType @cost(weight: "10")
+  localizationCode: SortEnumType @cost(weight: "10")
+  isAdmin: SortEnumType @cost(weight: "10")
+  passwordHash: SortEnumType @cost(weight: "10")
+  salt: SortEnumType @cost(weight: "10")
+  passwordStrength: SortEnumType @cost(weight: "10")
+  lastActive: SortEnumType @cost(weight: "10")
+  emailVerified: SortEnumType @cost(weight: "10")
+  canCreateProjects: SortEnumType @cost(weight: "10")
+  createdById: SortEnumType @cost(weight: "10")
+  createdBy: UserSortInput @cost(weight: "10")
+  locked: SortEnumType @cost(weight: "10")
+  username: SortEnumType @cost(weight: "10")
+  googleId: SortEnumType @cost(weight: "10")
+  id: SortEnumType @cost(weight: "10")
+  createdDate: SortEnumType @cost(weight: "10")
+  updatedDate: SortEnumType @cost(weight: "10")
 }
 
 input UuidOperationFilterInput {
-  eq: UUID
-  neq: UUID
-  in: [UUID]
-  nin: [UUID]
-  gt: UUID
-  ngt: UUID
-  gte: UUID
-  ngte: UUID
-  lt: UUID
-  nlt: UUID
-  lte: UUID
-  nlte: UUID
+  eq: UUID @cost(weight: "10")
+  neq: UUID @cost(weight: "10")
+  in: [UUID] @cost(weight: "10")
+  nin: [UUID] @cost(weight: "10")
+  gt: UUID @cost(weight: "10")
+  ngt: UUID @cost(weight: "10")
+  gte: UUID @cost(weight: "10")
+  ngte: UUID @cost(weight: "10")
+  lt: UUID @cost(weight: "10")
+  nlt: UUID @cost(weight: "10")
+  lte: UUID @cost(weight: "10")
+  nlte: UUID @cost(weight: "10")
 }
 
+"Defines when a policy shall be executed."
 enum ApplyPolicy {
+  "Before the resolver was executed."
   BEFORE_RESOLVER
+  "After the resolver was executed."
   AFTER_RESOLVER
+  "The policy is applied in the validation step before the execution."
   VALIDATION
 }
 
@@ -1192,7 +1236,17 @@ enum UserRole {
   USER
 }
 
+"The authorize directive."
 directive @authorize("The name of the authorization policy that determines access to the annotated resource." policy: String "Roles that are allowed to access the annotated resource." roles: [String!] "Defines when when the authorize directive shall be applied.By default the authorize directives are applied during the validation phase." apply: ApplyPolicy! = BEFORE_RESOLVER) repeatable on OBJECT | FIELD_DEFINITION
+
+"The purpose of the `cost` directive is to define a `weight` for GraphQL types, fields, and arguments. Static analysis can use these weights when calculating the overall cost of a query or response."
+directive @cost("The `weight` argument defines what value to add to the overall cost for every appearance, or possible appearance, of a type, field, argument, etc." weight: String!) on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM | INPUT_FIELD_DEFINITION
+
+"The purpose of the `@listSize` directive is to either inform the static analysis about the size of returned lists (if that information is statically available), or to point the analysis to where to find that information."
+directive @listSize("The `assumedSize` argument can be used to statically define the maximum length of a list returned by a field." assumedSize: Int "The `slicingArguments` argument can be used to define which of the field's arguments with numeric type are slicing arguments, so that their value determines the size of the list returned by that field. It may specify a list of multiple slicing arguments." slicingArguments: [String!] "The `sizedFields` argument can be used to define that the value of the `assumedSize` argument or of a slicing argument does not affect the size of a list returned by a field itself, but that of a list returned by one of its sub-fields." sizedFields: [String!] "The `requireOneSlicingArgument` argument can be used to inform the static analysis that it should expect that exactly one of the defined slicing arguments is present in a query. If that is not the case (i.e., if none or multiple slicing arguments are present), the static analysis may throw an error." requireOneSlicingArgument: Boolean! = true) on FIELD_DEFINITION
+
+"The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
+directive @specifiedBy("The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types." url: String!) on SCALAR
 
 scalar DateTime @specifiedBy(url: "https:\/\/www.graphql-scalars.com\/date-time")
 

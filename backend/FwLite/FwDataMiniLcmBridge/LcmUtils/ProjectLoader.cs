@@ -15,15 +15,15 @@ public interface IProjectLoader
     /// loads a fwdata file that lives in the project folder C:\ProgramData\SIL\FieldWorks\Projects
     /// </summary>
     /// <param name="fileName">could be the full path or just the file name, the path will be ignored, must include the extension</param>
+    /// <param name="projectFolder">folder to load the project from instead of C:\ProgramData\SIL\FieldWorks\Projects</param>
     /// <returns></returns>
-    LcmCache LoadCache(string fileName);
+    LcmCache LoadCache(FwDataProject project);
 
-    LcmCache NewProject(string fileName, string analysisWs, string vernacularWs);
+    LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs);
 }
 
 public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
 {
-    protected string ProjectFolder => config.Value.ProjectsFolder;
     protected string TemplatesFolder => config.Value.TemplatesFolder;
     private static bool _init;
 
@@ -43,22 +43,14 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         _init = true;
     }
 
-
-    /// <summary>
-    /// loads a fwdata file that lives in the project folder C:\ProgramData\SIL\FieldWorks\Projects
-    /// </summary>
-    /// <param name="fileName">could be the full path or just the file name, the path will be ignored, must include the extension</param>
-    /// <returns></returns>
-    public LcmCache LoadCache(string fileName)
+    public virtual LcmCache LoadCache(FwDataProject project)
     {
         Init();
-        fileName = Path.GetFileName(fileName);
-        var projectFilePath = Path.Combine(ProjectFolder, Path.GetFileNameWithoutExtension(fileName), fileName);
-        if (!Directory.Exists(ProjectFolder)) Directory.CreateDirectory(ProjectFolder);
+        if (!Directory.Exists(project.ProjectsPath)) Directory.CreateDirectory(project.ProjectsPath);
         if (!Directory.Exists(TemplatesFolder)) Directory.CreateDirectory(TemplatesFolder);
-        var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
+        var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
         var progress = new LcmThreadedProgress();
-        var cache = LcmCache.CreateCacheFromLocalProjectFile(projectFilePath,
+        var cache = LcmCache.CreateCacheFromLocalProjectFile(project.FilePath,
             null,
             new LfLcmUi(progress.SynchronizeInvoke),
             lcmDirectories,
@@ -68,18 +60,18 @@ public class ProjectLoader(IOptions<FwDataBridgeConfig> config) : IProjectLoader
         return cache;
     }
 
-    public LcmCache NewProject(string fileName, string analysisWs, string vernacularWs)
+    public virtual LcmCache NewProject(FwDataProject project, string analysisWs, string vernacularWs)
     {
         Init();
-        var lcmDirectories = new LcmDirectories(ProjectFolder, TemplatesFolder);
+        var lcmDirectories = new LcmDirectories(project.ProjectsPath, TemplatesFolder);
         var progress = new LcmThreadedProgress();
         NewProject(progress,
-            Path.GetFileNameWithoutExtension(fileName),
+            project.Name,
             lcmDirectories,
             progress.SynchronizeInvoke,
             new CoreWritingSystemDefinition(analysisWs) { Id = analysisWs },
             new CoreWritingSystemDefinition(vernacularWs) { Id = vernacularWs });
-        return LoadCache(fileName);
+        return LoadCache(project);
     }
 
     private static void NewProject(IThreadedProgress progress,

@@ -43,10 +43,18 @@ jobs:
       version: ${{ needs.set-version.outputs.version }}
       label-latest: true
 
+  build-fw-headless:
+    name: Build fw-headless
+    needs: [ set-version ]
+    uses: ./.github/workflows/lexbox-fw-headless.yaml
+    with:
+      version: ${{ needs.set-version.outputs.version }}
+      label-latest: true
+
   deploy:
     name: Deploy Staging
     uses: ./.github/workflows/deploy.yaml
-    needs: [ build-api, build-ui, build-hgweb, set-version ]
+    needs: [ build-api, build-ui, build-hgweb, build-fw-headless, set-version ]
     secrets: inherit
     with:
       version: ${{ needs.set-version.outputs.version }}

@@ -12,8 +12,7 @@ public class CleanupResetBackupJob(IHgService hgService, ILogger<CleanupResetBac
     {
         logger.LogInformation("Starting cleanup reset backup job");
 
-        //todo implement job
-        await Task.Delay(TimeSpan.FromSeconds(1));
+        await hgService.CleanupResetBackups();
 
         logger.LogInformation("Finished cleanup reset backup job");
     }

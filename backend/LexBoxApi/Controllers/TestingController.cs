@@ -3,6 +3,7 @@ using LexBoxApi.Auth.Attributes;
 using LexBoxApi.Services;
 using LexCore.Auth;
 using LexCore.Exceptions;
+using LexCore.ServiceInterfaces;
 using LexData;
 using LexData.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -16,6 +17,7 @@ namespace LexBoxApi.Controllers;
 public class TestingController(
     LexAuthService lexAuthService,
     LexBoxDbContext lexBoxDbContext,
+    IHgService hgService,
     SeedingData seedingData)
     : ControllerBase
 {
@@ -84,4 +86,11 @@ public class TestingController(
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public ActionResult Test500NoError() => StatusCode(500);
+
+    [HttpGet("test-cleanup-reset-backups")]
+    [AdminRequired]
+    public async Task<string[]> TestCleanupResetBackups(bool dryRun = true)
+    {
+        return await hgService.CleanupResetBackups(dryRun);
+    }
 }

@@ -14,6 +14,7 @@
     _deleteProjectUser,
     _leaveProject,
     _removeProjectFromOrg,
+    _updateFLExModelVersion,
     _updateProjectLanguageList,
     _updateProjectLexEntryCount,
     type ProjectUser,
@@ -52,6 +53,7 @@
   import WritingSystemList from '$lib/components/Projects/WritingSystemList.svelte';
   import { onMount } from 'svelte';
   import { getSearchParamValues } from '$lib/util/query-params';
+  import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -70,6 +72,7 @@
   });
 
   $: lexEntryCount = project.flexProjectMetadata?.lexEntryCount;
+  $: flexModelVersion = project.flexProjectMetadata?.flexModelVersion;
   $: vernacularLangTags = project.flexProjectMetadata?.writingSystems?.vernacularWss;
   $: analysisLangTags = project.flexProjectMetadata?.writingSystems?.analysisWss;
 
@@ -98,12 +101,30 @@
     loadingEntryCount = false;
   }
 
+  let loadingModelVersion = false;
+  async function updateModelVersion(): Promise<void> {
+    loadingModelVersion = true;
+    await _updateFLExModelVersion(project.code);
+    loadingModelVersion = false;
+  }
+
   let loadingLanguageList = false;
   async function updateLanguageList(): Promise<void> {
     loadingLanguageList = true;
     await _updateProjectLanguageList(project.code);
     loadingLanguageList = false;
   }
+
+  $: orgRoles = project.organizations
+    ?.map((o) => user.orgs?.find((org) => org.orgId === o.id)?.role)
+    .filter(r => !!r) ?? [];
+  $: projectRole = project?.users?.find((u) => u.user.id == user.id)?.role;
+
+  // Mirrors PermissionService.CanViewProjectMembers() in C#
+  $: canViewProjectMembers = user.isAdmin
+    || projectRole == ProjectRole.Manager
+    || projectRole == ProjectRole.Editor && !project.isConfidential
+    || orgRoles.some(role => role === OrgRole.Admin);
 
   let resetProjectModal: ResetProjectModal;
   async function resetProject(): Promise<void> {
@@ -164,13 +185,24 @@
   let deleteProjectModal: ConfirmDeleteModal;
 
   async function softDeleteProject(): Promise<void> {
-    const result = await deleteProjectModal.open(project.name, async () => {
-      const { error } = await _deleteProject(project.id);
-      return error?.message;
-    });
-    if (result.response === DialogResponse.Submit) {
-      notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
-      await goto(data.home);
+    projectStore.pause();
+    changesetStore.pause();
+    let deleted = false;
+    try {
+      const result = await deleteProjectModal.open(project.name, async () => {
+        const { error } = await _deleteProject(project.id);
+        return error?.message;
+      });
+      if (result.response === DialogResponse.Submit) {
+        deleted = true;
+        notifyWarning($t('delete_project_modal.success', { name: project.name, code: project.code }));
+        await goto(data.home);
+      }
+    } finally {
+      if (!deleted) {
+        projectStore.resume();
+        changesetStore.resume();
+      }
     }
   }
 
@@ -254,15 +286,16 @@
 
 <!-- we need the if so that the page doesn't break when we delete the project -->
 {#if project}
-  <DetailsPage wide title={project.name}>
+  <DetailsPage wide titleText={project.name}>
     <svelte:fragment slot="actions">
+      {#if project.isLanguageForgeProject}
+        <a href="./{project.code}/viewer" target="_blank"
+           class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
+          {$t('project_page.open_with_viewer')}
+          <span class="i-mdi-dictionary text-2xl"/>
+        </a>
+      {/if}
       {#if project.type === ProjectType.FlEx && $isDev}
-        {#if project.isLanguageForgeProject}
-          <a href="./{project.code}/viewer" target="_blank" class="btn btn-neutral text-[#DCA54C] flex items-center gap-2">
-            {$t('project_page.open_with_viewer')}
-            <span class="i-mdi-dictionary text-2xl" />
-          </a>
-        {/if}
         <OpenInFlexModal bind:this={openInFlexModal} {project}/>
         <OpenInFlexButton projectId={project.id} on:click={openInFlexModal.open}/>
       {:else}
@@ -332,7 +365,7 @@
         </span>
       </div>
     </svelte:fragment>
-    <svelte:fragment slot="header-content">
+    <svelte:fragment slot="headerContent">
       <BadgeList>
         <ProjectConfidentialityBadge on:click={projectConfidentialityModal.openModal} {canManage} isConfidential={project.isConfidential ?? undefined} />
         <ProjectTypeBadge type={project.type} />
@@ -375,6 +408,21 @@
               variant="btn-ghost"
               outline={false}
               on:click={updateEntryCount}
+            />
+          </AdminContent>
+        </DetailItem>
+      {/if}
+      {#if project.type === ProjectType.FlEx}
+        <DetailItem title={$t('project_page.model_version')}>
+          <FlexModelVersionText modelVersion={flexModelVersion ?? 0} />
+          <AdminContent slot="extras">
+            <IconButton
+              loading={loadingModelVersion}
+              icon="i-mdi-refresh"
+              size="btn-sm"
+              variant="btn-ghost"
+              outline={false}
+              on:click={updateModelVersion}
             />
           </AdminContent>
         </DetailItem>
@@ -444,6 +492,7 @@
           {members}
           canManageMember={(member) => canManage && (member.user?.id !== userId || user.isAdmin)}
           canManageList={canManage}
+          canViewMembers={canViewProjectMembers}
           on:openUserModal={(event) => userModal.open(event.detail.user)}
           on:deleteProjectUser={(event) => deleteProjectUser(event.detail)}
           >

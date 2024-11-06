@@ -1,23 +1,51 @@
 ﻿/* eslint-disable @typescript-eslint/naming-convention */
-import {
-  type IEntry, type IExampleSentence, type ISense, type JsonPatch,
-  type QueryOptions,
-  type WritingSystems,
-  type WritingSystemType,
-  type WritingSystem,
-  type LexboxApiClient,
-  type LexboxApiFeatures,
-  type PartOfSpeech,
-  type SemanticDomain
+
+import type {
+  ComplexFormType,
+  IEntry,
+  IExampleSentence,
+  ISense,
+  JsonPatch,
+  LexboxApiClient,
+  LexboxApiFeatures,
+  PartOfSpeech,
+  QueryOptions,
+  SemanticDomain,
+  WritingSystem,
+  WritingSystemType,
+  WritingSystems,
 } from 'viewer/lexbox-api';
 
+import type {Readable} from 'svelte/store';
+import {SEMANTIC_DOMAINS_EN} from './semantic-domains.en.generated-data';
+
+function prepareEntriesForUi(entries: IEntry[]): void {
+  entries.forEach(entry => {
+    entry.senses.forEach(sense => {
+      sense.semanticDomains.forEach(sd => {
+        sd.id = sd.code;
+      });
+      // @ts-expect-error partOfSpeech is only included on the server for the viewer.
+      sense.partOfSpeechId = sense.partOfSpeech as string;
+    });
+  });
+}
+
+function preparePartsOfSpeedForUi(partsOfSpeech: PartOfSpeech[]): void {
+  partsOfSpeech.forEach(pos => {
+    pos.id = pos.name['__key'];
+  });
+}
 
 export class LfClassicLexboxApi implements LexboxApiClient {
-  constructor(private projectCode: string) {
+  constructor(private projectCode: string, private aboutMarkdown: Readable<string>) {
   }
 
   SupportedFeatures(): LexboxApiFeatures {
-    return {};
+    return {
+      feedback: true,
+      about: this.aboutMarkdown,
+    };
   }
 
   async GetWritingSystems(): Promise<WritingSystems> {
@@ -28,13 +56,17 @@ export class LfClassicLexboxApi implements LexboxApiClient {
   async GetEntries(_options: QueryOptions | undefined): Promise<IEntry[]> {
     //todo pass query options into query
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries${this.toQueryParams(_options)}`);
-    return (await result.json()) as IEntry[];
+    const entries = (await result.json()) as IEntry[];
+    prepareEntriesForUi(entries);
+    return entries;
   }
 
   async SearchEntries(_query: string, _options: QueryOptions | undefined): Promise<IEntry[]> {
     //todo pass query options into query
     const result = await fetch(`/api/lfclassic/${this.projectCode}/entries/${encodeURIComponent(_query)}${this.toQueryParams(_options)}`);
-    return (await result.json()) as IEntry[];
+    const entries = (await result.json()) as IEntry[];
+    prepareEntriesForUi(entries);
+    return entries;
   }
 
   private toQueryParams(options: QueryOptions | undefined): string {
@@ -44,14 +76,14 @@ export class LfClassicLexboxApi implements LexboxApiClient {
     const asc = options.order.ascending ?? true;
     const params = new URLSearchParams({
       SortField: options.order.field,
-      SortWritingSystem: options.order.writingSystem,
+      SortWritingSystem: options.order.writingSystem as string,
       Ascending: asc ? 'true' : 'false',
       Count: options.count.toString(),
       Offset: options.offset.toString()
     });
     if (options.exemplar) {
       params.set('ExemplarValue', options.exemplar.value);
-      params.set('ExemplarWritingSystem', options.exemplar.writingSystem);
+      params.set('ExemplarWritingSystem', options.exemplar.writingSystem as string);
     }
     /* eslint-enable @typescript-eslint/no-unsafe-assignment */
     return '?' + params.toString();
@@ -59,10 +91,16 @@ export class LfClassicLexboxApi implements LexboxApiClient {
 
   async GetPartsOfSpeech(): Promise<PartOfSpeech[]> {
     const result = await fetch(`/api/lfclassic/${this.projectCode}/parts-of-speech`);
-    return (await result.json()) as PartOfSpeech[];
+    const partsOfSpeech = (await result.json()) as PartOfSpeech[];
+    preparePartsOfSpeedForUi(partsOfSpeech);
+    return partsOfSpeech;
   }
 
   GetSemanticDomains(): Promise<SemanticDomain[]> {
+    return Promise.resolve(SEMANTIC_DOMAINS_EN);
+  }
+
+  GetComplexFormTypes(): Promise<ComplexFormType[]> {
     return Promise.resolve([]);
   }
 

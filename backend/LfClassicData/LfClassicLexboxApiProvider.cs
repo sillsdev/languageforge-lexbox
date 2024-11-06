@@ -1,11 +1,12 @@
-﻿using MiniLcm;
+﻿using Microsoft.Extensions.Caching.Memory;
+using MiniLcm;
 
 namespace LfClassicData;
 
-public class LfClassicLexboxApiProvider(ProjectDbContext dbContext, SystemDbContext systemDbContext) : ILexboxApiProvider
+public class LfClassicLexboxApiProvider(ProjectDbContext dbContext, SystemDbContext systemDbContext, IMemoryCache memoryCache)
 {
-    public ILexboxApi GetProjectApi(string projectCode)
+    public IMiniLcmReadApi GetProjectApi(string projectCode)
     {
-        return new LfClassicLexboxApi(projectCode, dbContext, systemDbContext);
+        return new LfClassicMiniLcmApi(projectCode, dbContext, systemDbContext, memoryCache);
     }
 }

@@ -1,4 +1,4 @@
-﻿import {writable, type Writable, type Readable, readonly} from 'svelte/store';
+﻿import {writable, type Writable} from 'svelte/store';
 
 interface NotificationAction {
   label: string;

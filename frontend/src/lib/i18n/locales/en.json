@@ -83,7 +83,7 @@
     },
     "reset_password": "Reset your password instead?",
     "update_success": "Your account has been updated.",
-    "button_update": "Update account info",
+    "button_update": "Update Account Info",
     "email_taken": "An account with this email address already exists",
     "delete_account": {
       "title": "Delete Account",
@@ -166,20 +166,26 @@
     "welcome": "Lexbox is a hosting service for [FieldWorks (FLEx)](https://software.sil.org/fieldworks/), \
 [Language Forge](https://languageforge.org/), [OneStory Editor](https://software.sil.org/onestoryeditor) and [WeSay](https://software.sil.org/wesay/) projects. \
 It is provided as a service to language communities by [SIL Language Technology](https://software.sil.org/) and \
-the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand."
+the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chiang Mai, Thailand. \
+Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbox)."
   },
   "org": {
     "table": {
       "title": "Organizations",
       "name": "Name",
       "created_at": "Created",
-      "members": "Members"
+      "members": "Members",
+      "my_orgs": "My organizations",
+      "other_orgs": "Other organizations",
+      "not_in_any_orgs": "You aren't a member of any organizations yet.",
+      "no_orgs_found": "No organizations match your filter.",
     },
     "create": {
       "title": "Create Organization",
       "name": "Name",
       "name_missing": "Organization name required",
       "submit": "Create Organization",
+      "name_exists": "An organization with this name already exists",
     }
   },
   "project": {
@@ -264,8 +270,10 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "__comment_modal_title": "Should become 'Add or invite a Member ...' once email invitations implemented for orgs",
       "submit_button": "Add Member",
       "empty_user_field": "Please enter an email address or login",
-      "submit_button_email": "Add Member",
-      "__comment_submit_button_email": "Should become 'Add or invite Member' once email invitations implemented for orgs",
+      "also_add_projects": "Add user's projects to this organization",
+      "all_projects_already_added": "The {count, plural, one {# project} other {# projects}} this user is a member of {count, plural, one {is} other {are}} already in this organization",
+      "select_all": "Select all",
+      "submit_button_email": "Add/Invite Member",
       "org_not_found": "Organization not found. Please refresh the page.",
       "username_not_found": "No user was found with this login",
       "user_must_be_verified": "User needs a verified email address",
@@ -273,6 +281,14 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "user_already_member": "User is already a member of this organization",
       "user_needs_to_relogin": "Added members will need to log out and back in again before they see the new organization.",
       "invalid_email_address": "Invalid email address: {email}",
+    },
+    "add_my_projects": {
+      "title": "Add projects I manage to this organization",
+      "open_button": "Add My Projects",
+      "submit_button": "Add Projects",
+      "all_projects_already_added": "The {count, plural, one {# project} other {# projects}} you manage {count, plural, one {is} other {are}} already in this organization",
+      "no_projects_managed": "You don't manage any projects",
+      "no_projects_selected": "No projects selected",
     },
     "bulk_add_members": {
       "add_button": "Bulk Add Members",
@@ -308,14 +324,29 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "rename_org": "Organization name set to {name}.",
       "delete_org": "Organization {name} has been deleted.",
       "remove_project_from_org": "You have successfully removed {projectName} from this organization",
-      "leave_org": "You have left the organization {name}.",
-      "leave_org_error": "An error occurred trying to remove you from organization {name}. Please try again later.",
       "describe": "Organization description has been updated.",
       "add_member": "{email} has been added to organization.",
-      "member_invited": "{email} has been sent an invitation email to register and join the organization."
+      "member_invited": "{email} has been sent an invitation email to register and join the organization.",
+      "added_projects": "Added {count, plural, one {# project} other {# projects}} to organization",
+    },
+    "leave": {
+      "confirm_title": "Leave organization?",
+      "leave_action": "Leave",
+      "dont_leave": "Don't leave",
+      "confirm_leave": "Are you sure you want to leave this organization?",
+      "last_to_leave": "You are the last admin of this organization. To leave you need to delete the organization, or add another admin.",
+      "success": "You have left the organization {name}.",
+      "leave_org": "Leave organization",
+      "error": "An error occurred trying to remove you from this organization. Please try again later.",
+    },
+    "remove_member": {
+      "remove": "Remove",
+      "member": "Member",
+      "confirm_message": "Would you like to remove {memberName} from this organization?",
+      "success": "You have successfully removed {memberName} from this organization.",
+      "error": "An error occurred trying to remove {memberName} from this organization. Please try again later.",
     },
     "edit_member_role": "Change Role",
-    "remove_member": "Remove",
     "org_name_empty_error": "Organization name cannot be empty",
     "projects_table_title": "Projects",
     "members_table_title": "Members",
@@ -382,7 +413,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
       "next": "Next",
       "back": "Back",
       "download_instruction": "First, download a backup of the project that you can use to restore it in step 3:",
-      "download_button": "Download project backup",
+      "download_button": "Download Project Backup",
       "confirm_downloaded": "I confirm that I have downloaded a backup of the project and verified that it works. I am ready to completely reset/delete the contents of the project repository.",
       "confirm_downloaded_error": "Please confirm you have downloaded a backup",
       "confirm_project_code": "Enter project code to confirm reset",
@@ -421,6 +452,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     "description": "Description",
     "created_at": "Created",
     "last_commit": "Last Commit",
+    "model_version": "Model Version",
     "vernacular_langs": "Vernacular writing systems",
     "analysis_langs": "Analysis writing systems",
     "organization": {
@@ -429,6 +461,7 @@ the [Linguistics Institute at Payap University](https://li.payap.ac.th/) in Chia
     },
     "members": {
       "title": "Members",
+      "membership_confidential": "Membership is confidential",
       "filter_members_placeholder": "Filter members...",
       "show_all": "Show all...",
       "show_less": "Show less",
@@ -554,6 +587,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "account_exists_email": "An account with this email already exists",
     "account_exists_login": "An account with this login/username already exists",
     "invalid_username": "Invalid login/username. Only letters, numbers, and underscore (_) characters are allowed.",
+    "changing_email_not_allowed": "You can't change your email when accepting an invite. You can change your email after your account is registered. Be aware this will invalidate any other invites you have received, so accept them first before changing your email.",
     "button_register": "Register",
     "label_email": "Email",
     "label_email_or_username": "Email or login/username",
@@ -624,7 +658,7 @@ If you don't see a dialog or already closed it, click the button below:",
     "forgot_password": {
       "subject": "Forgot your password?",
       "to_reset_click": "Click the button below to reset your password.",
-      "reset_button": "Reset password"
+      "reset_button": "Reset Password"
     },
     "password_changed": {
       "subject": "Your password was changed",
@@ -637,12 +671,12 @@ If you don't see a dialog or already closed it, click the button below:",
     "create_account_request_email_project": {
       "subject": "Project invitation: {projectName}",
       "body": "{managerName} has invited you to join the project: {projectName}. Click below to join.",
-      "join_button": "Join project"
+      "join_button": "Join Project"
     },
     "create_account_request_email_org": {
       "subject": "Organization invitation: {orgName}",
       "body": "{managerName} has invited you to join the organization: {orgName}. Click below to join.",
-      "join_button": "Join organization"
+      "join_button": "Join Organization"
     },
     "create_project_request_email": {
       "subject": "Project request: {projectName}",
@@ -651,17 +685,17 @@ If you don't see a dialog or already closed it, click the button below:",
     "join_project_request_email": {
       "subject": "Project join request: {requestingUserName} wants to join {projectName}",
       "body": "User {requestingUserName} requested to join the project {projectName}. Click below to approve this request.",
-      "approve_button": "Approve request"
+      "approve_button": "Approve Request"
     },
     "approve_project_request_email": {
       "subject": "Project approved: {projectName}",
       "heading": "The project you requested, {projectName}, has been approved and created.",
-      "view_button": "View project"
+      "view_button": "View Project"
     },
     "user_added": {
       "subject": "You joined project: {projectName}!",
       "body": "You have been added to the project: {projectName}.",
-      "view_button": "View project"
+      "view_button": "View Project"
     }
   },
   "footer": {
@@ -717,5 +751,39 @@ If you don't see a dialog or already closed it, click the button below:",
     "any": "Any",
     "yes_no": "{value, select, true {Yes} false {No} other {Unknown}}",
     "did_you_know": "Did you know?",
+  },
+  "viewer": {
+    "about": "## What is this?\n\
+\
+This is a beta version of a new dictionary building tool that is currently under development.\n\
+\
+The data you see here reflects the current data in the corresponding [Language Forge](https://languageforge.org/) project.\n\
+\
+This read-only version of the new dictionary tool is primarily for gathering early feedback on its look and feel. So, please use the [Feedback](/api/feedback) button in the top right corner of the page.\n\
+\
+## It can edit FieldWorks projects!\n\
+\
+It's true! There's already another version of the tool that you can use today to open and edit your data in FieldWorks.\n\
+It's also loaded with additional features! We're calling it [FieldWorks Lite](https://lexbox.org/fw-lite).\n\
+So, please download and try out the alpha version of [FieldWorks Lite](https://lexbox.org/fw-lite) as well.\n\
+\
+## Should I be excited?\n\
+\
+Yes! FieldWorks Lite will be revolutionary in multiple ways. It will be:\n\
+\
+- Cross-platform: it will work on Windows, Linux, Mac and eventually mobile\n\
+- Usable offline: you won't need an internet connection\n\
+- Collaborative: you will see any changes other users make as they work\n\
+- Faster than you're used to - we're quite confident about that 😀\n\
+\
+Eventually, FieldWorks Lite will replace both [WeSay](https://software.sil.org/wesay/) and [Language Forge](https://languageforge.org/).\n\
+\
+So, please send us your [feedback](/api/feedback). We want this tool to serve you as well as possible.\n\
+\
+## FieldWorks Lite is not\n\
+\
+- A replacement for [FieldWorks](https://software.sil.org/fieldworks/)\n\
+- A replacement for [Dictionary App Builder](https://software.sil.org/dictionaryappbuilder/)\n\
+- A replacement for [Webonary](https://www.webonary.org/)"
   }
 }

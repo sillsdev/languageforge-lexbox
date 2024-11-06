@@ -1,4 +1,4 @@
-import { expect, type APIRequestContext } from '@playwright/test';
+import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { serverBaseUrl } from '../envVars';
 
 export function validateGqlErrors(json: {errors: unknown, data: unknown}, expectError = false): void {
@@ -15,5 +15,16 @@ export async function executeGql<T>(api: APIRequestContext, gql: string, expectE
   const json: unknown = await response.json();
   expect(json, `for query ${gql}`).not.toBeNull();
   validateGqlErrors(json as {errors: unknown, data: unknown}, expectError);
+  return json as T;
+}
+
+export async function waitForGqlResponse<T>(page: Page, action: () => Promise<void>): Promise<T> {
+  const gqlPromise = page.waitForResponse('/api/graphql');
+  await action();
+  const response = await gqlPromise;
+  expect(response.ok(), `code was ${response.status()} (${response.statusText()})`).toBeTruthy();
+  const json: unknown = await response.json();
+  expect(json, `for query ${response.request().postData()}`).not.toBeNull();
+  validateGqlErrors(json as { errors: unknown, data: unknown });
   return json as T;
 }

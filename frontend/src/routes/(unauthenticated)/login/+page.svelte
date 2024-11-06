@@ -139,13 +139,13 @@
       </div>
 
       <div class="prose text-lg">
-        <div class="flex items-center">
-          <AppLogo class="h-[3em] w-[3em] mr-3"/>
+        <div class="flex items-center lg:mb-8">
+          <AppLogo class="h-[4em] w-[4em] mr-4 lg:h-[8em] lg:w-[8em] lg:mr-5"/>
           <div class="flex flex-col">
-            <h3 class="flex items-center my-2">
+            <h2 class="my-0 lg:text-[2.5rem] font-normal">
               {$t('login.welcome_header')}
-            </h3>
-            <span class="text-xs">
+            </h2>
+            <span class="lg:text-xl">
               {$t('appbar.app_subtitle')}
             </span>
           </div>

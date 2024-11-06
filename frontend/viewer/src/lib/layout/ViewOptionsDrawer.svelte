@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { Drawer, SelectField, Switch } from "svelte-ux";
-  import type { LexboxFeatures } from "../config-types";
-  import DevContent from "./DevContent.svelte";
+  import {Drawer, SelectField, Switch} from 'svelte-ux';
+  import type {LexboxFeatures} from '../config-types';
+  import DevContent from './DevContent.svelte';
   import {type View, views} from '../entry-editor/view-data';
   import type {ViewSettings} from '../services/view-service';
   import {generateExternalChanges} from '../debug';
+  import SyncConfig from '../SyncConfig.svelte';
 
   export let activeView: View;
   export let viewSettings: ViewSettings;
@@ -28,27 +29,31 @@
     <!-- svelte-ignore a11y-label-has-associated-control -->
     <label class="flex gap-2 items-center text-sm h-10">
       <Switch bind:checked={viewSettings.hideEmptyFields}
-        color="neutral" />
-        Hide empty fields
+              color="neutral"/>
+      Hide empty fields
     </label>
+    {#if features.sync}
+      <SyncConfig />
+    {/if}
+
     <div class="grow"></div>
     <DevContent>
       <div class="flex flex-col gap-4">
         Debug
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
-          <Switch bind:checked={features.write} />
+          <Switch bind:checked={features.write}/>
           Write
         </label>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
-          <Switch bind:checked={features.history} />
+          <Switch bind:checked={features.history}/>
           History
         </label>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="flex gap-2 items-center text-sm h-10 text-warning">
           <Switch bind:checked={$generateExternalChanges}
-            color="warning" />
+                  color="warning"/>
           Simulate conflicting changes
         </label>
       </div>

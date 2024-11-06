@@ -58,7 +58,7 @@
     } else if (_env.includes('stag')) {
       return 'staging';
     } else if (_env.includes('develop')) {
-      return 'develop';
+      return location.hostname === 'localhost' ? 'test' : 'develop';
     } else {
       return 'test';
     }
@@ -77,7 +77,7 @@
 
   <div>
     {$t('errors.mail_us_at')}
-    <a class="link" href="mailto:issues@languageforge.org{$mailToParams}">issues@languageforge.org</a>.
+    <a class="link" href="mailto:lexbox_support@groups.sil.org{$mailToParams}">lexbox_support@groups.sil.org</a>.
     {$t('errors.please_include')}
   </div>
 

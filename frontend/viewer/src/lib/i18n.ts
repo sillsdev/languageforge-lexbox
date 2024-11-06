@@ -1,7 +1,8 @@
-import type { FieldConfig, WellKnownFieldId } from './config-types';
+import type {WellKnownFieldId} from './config-types';
+
 import type {FieldIds} from './entry-editor/field-data';
 
-type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
+// type I18n = Record<WellKnownFieldId, string> & Record<Exclude<string, WellKnownFieldId>, string>;
 type I18nKey = FieldIds;
 /**
  * I18n type is used to specify which i18n group to use for a field. If empty, the default i18n is used.
@@ -11,11 +12,14 @@ export type I18nType = 'weSay' | 'languageForge' | '';
 const defaultI18n: Record<FieldIds, string> = {
   'lexemeForm': 'Lexeme form',
   'citationForm': 'Citation form',
+  'complexForms': 'Complex forms',
+  'complexFormTypes': 'Complex form types',
+  'components': 'Components',
   'literalMeaning': 'Literal meaning',
   'note': 'Note',
   'definition': 'Definition',
   'gloss': 'Gloss',
-  'partOfSpeechId': 'Grammatical Info.',
+  'partOfSpeechId': 'Grammatical info.',
   'semanticDomains': 'Semantic domain',
   'sentence': 'Sentence',
   'translation': 'Translation',
@@ -27,12 +31,16 @@ const weSayI18n = {
   'lexemeForm': 'Word',
   'gloss': 'Definition',
   'partOfSpeechId': 'Part of speech',
-};
+  complexForms: 'Part of',
+  components: 'Made of',
+} satisfies Partial<Record<FieldIds, string>>;
 
 const languageForgeI18n = {
   'lexemeForm': 'Word',
   'partOfSpeechId': 'Part of speech',
-};
+  complexForms: 'Part of',
+  components: 'Made of',
+} satisfies Partial<Record<FieldIds, string>>;
 
 const i18nMap: Record<Exclude<I18nType, ''>, Partial<Record<FieldIds, string>>> = {
   weSay: weSayI18n,

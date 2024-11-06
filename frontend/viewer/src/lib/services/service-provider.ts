@@ -4,6 +4,7 @@ import {openSearch} from '../search-bar/search';
 declare global {
 
   interface Lexbox {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     ServiceProvider: LexboxServiceProvider;
     Search: { openSearch: (search: string) => void };
   }
@@ -46,6 +47,7 @@ export class LexboxServiceProvider {
 }
 
 if (!window.lexbox) {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   window.lexbox = {ServiceProvider: new LexboxServiceProvider(), Search: {openSearch: openSearch}};
 } else {
   window.lexbox.ServiceProvider = new LexboxServiceProvider();

@@ -1,8 +1,9 @@
 ﻿using MiniLcm;
+using MiniLcm.Models;
 
 namespace FwLiteProjectSync;
 
-public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
+public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
 {
     public List<DryRunRecord> DryRunRecords { get; } = [];
 
@@ -30,7 +31,7 @@ public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
         {
             WritingSystemType.Vernacular => ws.Vernacular,
             WritingSystemType.Analysis => ws.Analysis
-        }).First(w => w.Id == id);
+        }).First(w => w.WsId == id);
     }
 
     public IAsyncEnumerable<PartOfSpeech> GetPartsOfSpeech()
@@ -54,6 +55,18 @@ public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSemanticDomain),
             $"Create semantic domain {semanticDomain.Name}"));
         return Task.CompletedTask;
+    }
+
+    public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
+    {
+        return api.GetComplexFormTypes();
+    }
+
+    public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormType),
+            $"Create complex form type {complexFormType.Name}"));
+        return Task.FromResult(complexFormType);
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -89,6 +102,12 @@ public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
         return Task.CompletedTask;
     }
 
+    public async Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveComplexFormType), $"Remove complex form type {complexFormTypeId}, from entry {entryId}"));
+        await Task.CompletedTask;
+    }
+
     public Task<Sense> CreateSense(Guid entryId, Sense sense)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateSense), $"Create sense {sense.Gloss}"));
@@ -108,6 +127,18 @@ public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteSense), $"Delete sense {senseId}"));
+        return Task.CompletedTask;
+    }
+
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddSemanticDomainToSense), $"Add semantic domain {semanticDomain.Name}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveSemanticDomainFromSense), $"Remove semantic domain {semanticDomainId}"));
         return Task.CompletedTask;
     }
 
@@ -137,8 +168,21 @@ public class DryRunMiniLcmApi(ILexboxApi api) : ILexboxApi
         return Task.CompletedTask;
     }
 
-    public UpdateBuilder<T> CreateUpdateBuilder<T>() where T : class
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
-        return api.CreateUpdateBuilder<T>();
+        DryRunRecords.Add(new DryRunRecord(nameof(CreateComplexFormComponent), $"Create complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        return Task.FromResult(complexFormComponent);
+    }
+
+    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
+        return Task.CompletedTask;
+    }
+
+    public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddComplexFormType), $"Add complex form type {complexFormTypeId}, to entry {entryId}"));
+        await Task.CompletedTask;
     }
 }

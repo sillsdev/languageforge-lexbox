@@ -5,7 +5,7 @@ import type { SuperValidated, ZodValidation } from 'sveltekit-superforms';
 import { superValidateSync } from 'sveltekit-superforms/client';
 import type { AnyZodObject, z } from 'zod';
 import type { ErrorMessage } from './types';
-import { randomFormId } from '.';
+import { randomFormId } from './utils';
 
 export type LexFormState<S extends ZodValidation<AnyZodObject>> = Required<{ [field in (keyof z.infer<S>)]: {
   tainted: boolean; // has ever been touched/edited
