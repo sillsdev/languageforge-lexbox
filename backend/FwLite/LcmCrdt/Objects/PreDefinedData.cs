@@ -5,6 +5,16 @@ namespace LcmCrdt.Objects;
 
 public static class PreDefinedData
 {
+    internal static async Task PredefinedComplexFormTypes(DataModel dataModel, Guid clientId)
+    {
+        await dataModel.AddChanges(clientId,
+            [
+                new CreateComplexFormType(new Guid("c36f55ed-d1ea-4069-90b3-3f35ff696273"), new MultiString() { { "en", "Compound" } } ),
+                new CreateComplexFormType(new Guid("eeb78fce-6009-4932-aaa6-85faeb180c69"), new MultiString() { { "en", "Unspecified" } })
+            ],
+            new Guid("dc60d2a9-0cc2-48ed-803c-a238a14b6eae"));
+    }
+
     internal static async Task PredefinedSemanticDomains(DataModel dataModel, Guid clientId)
         {
             //todo load from xml instead of hardcoding and use real IDs

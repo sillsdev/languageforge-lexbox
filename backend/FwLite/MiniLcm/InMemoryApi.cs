@@ -160,6 +160,26 @@ public class InMemoryApi : IMiniLcmApi
         throw new NotImplementedException();
     }
 
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        throw new NotImplementedException();
+    }
+
     private readonly string[] _exemplars = Enumerable.Range('a', 'z').Select(c => ((char)c).ToString()).ToArray();
 
     public Task<Entry> CreateEntry(Entry entry)
@@ -277,6 +297,16 @@ public class InMemoryApi : IMiniLcmApi
         var s = entry.Senses.Single(s => s.Id == senseId);
         update.Apply(s);
         return Task.FromResult(s);
+    }
+
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        throw new NotImplementedException();
     }
 }
 

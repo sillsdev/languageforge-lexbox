@@ -39,7 +39,7 @@ public class SyncFixture : IAsyncLifetime
         _services = crdtServices.CreateAsyncScope();
     }
 
-    public SyncFixture(): this("sena-3")
+    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"))
     {
     }
 

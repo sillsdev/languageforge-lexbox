@@ -109,6 +109,10 @@
       TypeDiscriminator: RemoveComplexFormTypeChange
     },
     {
+      DerivedType: SetComplexFormComponentChange,
+      TypeDiscriminator: SetComplexFormComponentChange
+    },
+    {
       DerivedType: CreateComplexFormType,
       TypeDiscriminator: CreateComplexFormType
     }
