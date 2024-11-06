@@ -82,9 +82,10 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return dataModel.GetLatest<PartOfSpeech>(id);
     }
 
-    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
+        return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
     }
 
     public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)

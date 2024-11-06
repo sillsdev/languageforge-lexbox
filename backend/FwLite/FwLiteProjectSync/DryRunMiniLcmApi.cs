@@ -46,10 +46,10 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return await GetPartsOfSpeech().Where(pos => pos.Id == id).FirstOrDefaultAsync();
     }
 
-    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreatePartOfSpeech), $"Create part of speech {partOfSpeech.Name}"));
-        return Task.CompletedTask;
+        return Task.FromResult(partOfSpeech); // Or maybe GetPartOfSpeech(partOfSpeech.Id)!;
     }
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
     {

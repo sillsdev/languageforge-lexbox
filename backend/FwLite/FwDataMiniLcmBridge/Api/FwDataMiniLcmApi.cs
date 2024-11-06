@@ -196,19 +196,20 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(FromLcmPartOfSpeech);
     }
 
-    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
+        IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
             "Remove part of speech",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
+                lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
                     .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
                 UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
             });
-        return Task.CompletedTask;
+        return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created")));
     }
 
     public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)

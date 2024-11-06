@@ -212,7 +212,7 @@ public class InMemoryApi : IMiniLcmApi
         return Task.FromResult(sense);
     }
 
-    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         throw new NotImplementedException();
     }

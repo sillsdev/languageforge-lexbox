@@ -13,7 +13,7 @@ public interface IMiniLcmWriteApi
         UpdateObjectInput<WritingSystem> update);
 
 
-    Task CreatePartOfSpeech(PartOfSpeech partOfSpeech); // TODO: return Task<PartOfSpeech> instead?
+    Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
     Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);
     Task DeletePartOfSpeech(Guid id);
     Task CreateSemanticDomain(SemanticDomain semanticDomain);
