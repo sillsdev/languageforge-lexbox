@@ -5,9 +5,9 @@ namespace FwHeadless;
 
 public class SendReceiveService(IOptions<FwHeadlessConfig> config)
 {
-    public SendReceiveHelpers.LfMergeBridgeResult SendReceive(FwDataProject project, string? projectCode, string? commitMessage = null)
+    public async Task<SendReceiveHelpers.LfMergeBridgeResult> SendReceive(FwDataProject project, string? projectCode, string? commitMessage = null)
     {
-        return SendReceiveHelpers.SendReceive(
+        return await SendReceiveHelpers.SendReceive(
             project: project,
             projectCode: projectCode,
             baseUrl: config.Value.HgWebUrl,
@@ -17,9 +17,9 @@ public class SendReceiveService(IOptions<FwHeadlessConfig> config)
         );
     }
 
-    public SendReceiveHelpers.LfMergeBridgeResult Clone(FwDataProject project, string? projectCode)
+    public async Task<SendReceiveHelpers.LfMergeBridgeResult> Clone(FwDataProject project, string? projectCode)
     {
-        return SendReceiveHelpers.CloneProject(
+        return await SendReceiveHelpers.CloneProject(
             project: project,
             projectCode: projectCode,
             baseUrl: config.Value.HgWebUrl,

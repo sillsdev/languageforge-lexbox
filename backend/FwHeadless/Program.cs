@@ -86,7 +86,8 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound,
     logger.LogDebug("crdtFile: {crdtFile}", crdtFile);
     logger.LogDebug("fwDataFile: {fwDataFile}", fwDataProject.FilePath);
 
-    var fwdataApi = SetupFwData(fwDataProject, srService, projectCode, logger, fwDataFactory);
+    var fwdataApi = await SetupFwData(fwDataProject, srService, projectCode, logger, fwDataFactory);
+    using var deferCloseFwData = fwDataFactory.DeferClose(fwDataProject);
     var crdtProject = await SetupCrdtProject(crdtFile, projectLookupService, projectId, projectsService, projectFolder, fwdataApi.ProjectId, config.Value.LexboxUrl);
 
     var miniLcmApi = await services.OpenCrdtProject(crdtProject);
@@ -96,15 +97,14 @@ static async Task<Results<Ok<CrdtFwdataProjectSyncService.SyncResult>, NotFound,
 
     var result = await syncService.Sync(miniLcmApi, fwdataApi, dryRun);
     logger.LogInformation("Sync result, CrdtChanges: {CrdtChanges}, FwdataChanges: {FwdataChanges}", result.CrdtChanges, result.FwdataChanges);
-    fwDataFactory.CloseProject(fwDataProject);
 
     await crdtSyncService.Sync();
-    var srResult2 = srService.SendReceive(fwDataProject, projectCode);
+    var srResult2 = await srService.SendReceive(fwDataProject, projectCode);
     logger.LogInformation("Send/Receive result after CRDT sync: {srResult2}", srResult2.Output);
     return TypedResults.Ok(result);
 }
 
-static FwDataMiniLcmApi SetupFwData(FwDataProject fwDataProject,
+static async Task<FwDataMiniLcmApi> SetupFwData(FwDataProject fwDataProject,
     SendReceiveService srService,
     string projectCode,
     ILogger<Program> logger,
@@ -112,12 +112,12 @@ static FwDataMiniLcmApi SetupFwData(FwDataProject fwDataProject,
 {
     if (File.Exists(fwDataProject.FilePath))
     {
-        var srResult = srService.SendReceive(fwDataProject, projectCode);
+        var srResult = await srService.SendReceive(fwDataProject, projectCode);
         logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     }
     else
     {
-        var srResult = srService.Clone(fwDataProject, projectCode);
+        var srResult = await srService.Clone(fwDataProject, projectCode);
         logger.LogInformation("Send/Receive result: {srResult}", srResult.Output);
     }
 
