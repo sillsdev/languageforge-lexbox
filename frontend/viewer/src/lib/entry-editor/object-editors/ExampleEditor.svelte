@@ -26,7 +26,6 @@
                      id="reference"
                      wsType="first-analysis"/>
   <EntityEditor
-    entity={example}
     {readonly}
     customFieldConfigs={[]}
     on:change

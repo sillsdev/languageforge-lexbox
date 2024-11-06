@@ -21,6 +21,9 @@ const config: PlaywrightTestConfig = {
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   timeout: testEnv.TEST_TIMEOUT,
+  expect: {
+    timeout: testEnv.EXPECT_TIMEOUT,
+  },
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
   /* Opt out of parallel tests on CI. */
@@ -36,6 +39,8 @@ const config: PlaywrightTestConfig = {
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: testEnv.serverBaseUrl,
+
+    actionTimeout: testEnv.ACTION_TIMEOUT,
 
     /* Local storage to be populated for every test */
     storageState:

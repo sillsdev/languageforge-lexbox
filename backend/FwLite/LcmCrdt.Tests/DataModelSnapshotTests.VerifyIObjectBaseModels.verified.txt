@@ -1,0 +1,10 @@
+﻿{
+  DerivedTypes: [
+    {
+      DerivedType: MiniLcmCrdtAdapter,
+      TypeDiscriminator: MiniLcmCrdtAdapter
+    }
+  ],
+  IgnoreUnrecognizedTypeDiscriminators: false,
+  TypeDiscriminatorPropertyName: $type
+}

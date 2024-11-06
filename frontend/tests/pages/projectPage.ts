@@ -4,6 +4,7 @@ import { AddMemberModal } from '../components/addMemberModal';
 import { BasePage } from './basePage';
 import { DeleteProjectModal } from '../components/deleteProjectModal';
 import { ResetProjectModal } from '../components/resetProjectModal';
+import { ViewerPage } from './viewerPage';
 
 export class ProjectPage extends BasePage {
   get moreSettingsDiv(): Locator { return this.page.locator('.collapse').filter({ hasText: 'More settings' }); }
@@ -11,8 +12,9 @@ export class ProjectPage extends BasePage {
   get resetProjectButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Reset project'}); }
   get verifyRepoButton(): Locator { return this.moreSettingsDiv.getByRole('button', {name: 'Verify repository'}); }
   get addMemberButton(): Locator { return this.page.getByRole('button', {name: 'Add/Invite Member'}); }
+  get browseButton(): Locator { return this.page.getByRole('link', {name: 'Browse'}); }
 
-  constructor(page: Page, name: string, code: string) {
+  constructor(page: Page, private name: string, private code: string) {
     super(page, page.getByRole('heading', {name: `Project: ${name}`}), `/project/${code}`);
   }
 
@@ -40,5 +42,12 @@ export class ProjectPage extends BasePage {
   async clickVerifyRepo(): Promise<void> {
     await this.openMoreSettings();
     await this.verifyRepoButton.click();
+  }
+
+  async clickBrowseInViewer(): Promise<ViewerPage> {
+    const viewerTabPromise = this.page.context().waitForEvent('page')
+    await this.browseButton.click();
+    const viewerTab = await viewerTabPromise;
+    return new ViewerPage(viewerTab, this.name, this.code).waitFor();
   }
 }

@@ -1,15 +1,13 @@
 ﻿using System.Text.Json.Serialization;
 using SIL.Harmony;
 using SIL.Harmony.Changes;
-using SIL.Harmony.Db;
 using SIL.Harmony.Entities;
-using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 
 public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseChange>
 {
-    public CreateSenseChange(MiniLcm.Models.Sense sense, Guid entryId) : base(sense.Id == Guid.Empty ? Guid.NewGuid() : sense.Id)
+    public CreateSenseChange(Sense sense, Guid entryId) : base(sense.Id == Guid.Empty ? Guid.NewGuid() : sense.Id)
     {
         sense.Id = EntityId;
         EntryId = entryId;
@@ -33,7 +31,7 @@ public class CreateSenseChange: CreateChange<Sense>, ISelfNamedType<CreateSenseC
     public Guid? PartOfSpeechId { get; set; }
     public IList<SemanticDomain>? SemanticDomains { get; set; }
 
-    public override async ValueTask<IObjectBase> NewEntity(Commit commit, ChangeContext context)
+    public override async ValueTask<Sense> NewEntity(Commit commit, ChangeContext context)
     {
         return new Sense
         {

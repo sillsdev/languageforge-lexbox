@@ -1,6 +1,5 @@
 ﻿using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
-using MiniLcm.Models;
 
 namespace LcmCrdt.Changes;
 

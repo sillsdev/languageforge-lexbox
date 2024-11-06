@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <InformationalVersion>$(ApplicationDisplayVersion)</InformationalVersion>
+        <FileVersion>$(ApplicationDisplayVersion)</FileVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.Text.Json" Version="8.0.4" />
+      <PackageReference Include="System.Text.Json" Version="8.0.5" />
       <PackageReference Include="SystemTextJsonPatch" Version="3.2.1" />
     </ItemGroup>
 

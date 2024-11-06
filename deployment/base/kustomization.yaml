@@ -9,6 +9,7 @@ resources:
 - pvc.yaml
 - db-deployment.yaml
 - hg-deployment.yaml
+- fw-headless-deployment.yaml
 - lexbox-deployment.yaml
 - ui-deployment.yaml
 - proxy-deployment.yaml

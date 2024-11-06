@@ -1,4 +1,7 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
+using LcmCrdt;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MiniLcm;
 using MiniLcm.Models;
 using SystemTextJsonPatch;
@@ -57,7 +60,7 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         {
             await _fixture.FwDataApi.DeleteEntry(entry.Id);
         }
-        await foreach (var entry in _fixture.CrdtApi.GetEntries())
+        foreach (var entry in await _fixture.CrdtApi.GetEntries().ToArrayAsync())
         {
             await _fixture.CrdtApi.DeleteEntry(entry.Id);
         }
@@ -81,6 +84,25 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
         crdtEntries.Should().BeEquivalentTo(fwdataEntries,
             options => options.For(e => e.Components).Exclude(c => c.Id)
                               .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
+    public static async Task SyncFailsWithMismatchedProjectIds()
+    {
+        var fixture = SyncFixture.Create();
+        await fixture.InitializeAsync();
+        var crdtApi = fixture.CrdtApi;
+        var fwdataApi = fixture.FwDataApi;
+        await fixture.SyncService.Sync(crdtApi, fwdataApi);
+
+        var newFwProjectId = Guid.NewGuid();
+        await fixture.Services.GetRequiredService<LcmCrdtDbContext>().ProjectData.
+            ExecuteUpdateAsync(updates => updates.SetProperty(p => p.FwProjectId, newFwProjectId));
+        await fixture.Services.GetRequiredService<CurrentProjectService>().PopulateProjectDataCache(force: true);
+
+        Func<Task> syncTask = async () => await fixture.SyncService.Sync(crdtApi, fwdataApi);
+        await syncTask.Should().ThrowAsync<InvalidOperationException>();
+        await fixture.DisposeAsync();
     }
 
     [Fact]
@@ -120,11 +142,11 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     {
         var crdtApi = _fixture.CrdtApi;
         var fwdataApi = _fixture.FwDataApi;
-        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
-        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
+        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("es"), Name = "Spanish", Abbreviation = "es", Font = "Arial" });
+        await fwdataApi.CreateWritingSystem(WritingSystemType.Vernacular, new WritingSystem() { Id = Guid.NewGuid(), Type = WritingSystemType.Vernacular, WsId = new WritingSystemId("fr"), Name = "French", Abbreviation = "fr", Font = "Arial" });
         await _syncService.Sync(crdtApi, fwdataApi);
 
-        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"],"Manzana"));
+        await crdtApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["es"], "Manzana"));
 
         await fwdataApi.UpdateEntry(_testEntry.Id, new UpdateObjectInput<Entry>().Set(entry => entry.LexemeForm["fr"], "Pomme"));
         var results = await _syncService.Sync(crdtApi, fwdataApi);
@@ -140,6 +162,43 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));
+    }
+
+    [Fact]
+    public async Task CanSyncAnyEntryWithDeletedComplexForm()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        await crdtApi.DeleteEntry(_testEntry.Id);
+        var newEntryId = Guid.NewGuid();
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            Id = newEntryId,
+            LexemeForm = { { "en", "pineapple" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Gloss = { { "en", "fruit" } },
+                    Definition = { { "en", "a citris fruit" } },
+                }
+            ],
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = _testEntry.Id,
+                    ComponentHeadword = "apple",
+                    ComplexFormEntryId = newEntryId,
+                    ComplexFormHeadword = "pineapple"
+                }
+            ]
+        });
+
+        //sync may fail because it will try to create a complex form for an entry which was deleted
+        await _syncService.Sync(crdtApi, fwdataApi);
+
     }
 
     [Fact]

@@ -12,6 +12,8 @@ export const invalidJwt = 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIi
 
 export const TEST_TIMEOUT = 40_000;
 export const TEST_TIMEOUT_2X = TEST_TIMEOUT * 2;
+export const ACTION_TIMEOUT = 5_000;
+export const EXPECT_TIMEOUT = 5_000;
 
 export enum HgProtocol {
   Hgweb,

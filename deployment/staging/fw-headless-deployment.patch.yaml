@@ -1,0 +1,24 @@
+#file: noinspection KubernetesMissingKeys,KubernetesUnknownValues
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fw-headless
+  namespace: languagedepot
+  labels:
+    app: fw-headless
+spec:
+  template:
+    spec:
+      containers:
+      - name: fw-headless
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: FwHeadlessConfig__LexboxUsername
+            value: "admin"
+            valueFrom: # don't use secret as defined in base
+          - name: FwHeadlessConfig__LexboxPassword
+            valueFrom:
+              secretKeyRef:
+                key: SEED_USER_PASSWORD
+                name: db
+                optional: true

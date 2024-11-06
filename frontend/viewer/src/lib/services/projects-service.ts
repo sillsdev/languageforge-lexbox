@@ -1,4 +1,6 @@
-﻿export type Project = {
+﻿import {AppNotification} from '../notifications/notifications';
+
+export type Project = {
   name: string;
   crdt: boolean;
   fwdata: boolean;
@@ -7,7 +9,7 @@
   id: string | null
 };
 export type ServerStatus = { displayName: string; loggedIn: boolean; loggedInAs: string | null, authority: string };
-export function useProjectsService() {
+export function useProjectsService(): ProjectService {
   return projectService;
 }
 export class ProjectService {
@@ -21,7 +23,7 @@ export class ProjectService {
     });
 
     if (!response.ok) {
-      return {error: await response.json()};
+      return {error: await response.text()};
     }
     return {error: undefined};
   }
@@ -33,7 +35,11 @@ export class ProjectService {
   }
 
   async downloadCrdtProject(project: Project) {
-    await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
+    const r = await fetch(`/api/download/crdt/${project.serverAuthority}/${project.name}`, {method: 'POST'});
+    if (r.status !== 200) {
+      AppNotification.display(`Failed to download project, status code ${r.status}`, 'error');
+      console.error(`Failed to download project ${project.name}`, r)
+    }
   }
 
   async uploadCrdtProject(server: string, projectName: string) {
@@ -45,19 +51,18 @@ export class ProjectService {
     return projects.find(p => p.name === projectName)?.serverAuthority ?? null;
   }
 
-  async fetchProjects() {
-    let r = await fetch('/api/localProjects');
+  async fetchProjects(): Promise<Project[]> {
+    const r = await fetch('/api/localProjects');
     return (await r.json()) as Project[];
   }
 
-  async fetchRemoteProjects() {
-
-    let r = await fetch('/api/remoteProjects');
+  async fetchRemoteProjects(): Promise<{ [server: string]: Project[] }> {
+    const r = await fetch('/api/remoteProjects');
     return (await r.json()) as { [server: string]: Project[] };
   }
 
-  async fetchServers() {
-    let r = await fetch('/api/auth/servers');
+  async fetchServers(): Promise<ServerStatus[]> {
+    const r = await fetch('/api/auth/servers');
     return (await r.json()) as ServerStatus[];
   }
 }

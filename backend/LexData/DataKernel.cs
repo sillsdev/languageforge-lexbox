@@ -9,6 +9,7 @@ public static class DataKernel
 {
     public static void AddLexData(this IServiceCollection services,
         bool autoApplyMigrations,
+        bool useOpenIddict = true,
         ServiceLifetime dbContextLifeTime = ServiceLifetime.Scoped)
     {
         services.AddScoped<SeedingData>();
@@ -17,7 +18,7 @@ public static class DataKernel
             options.EnableDetailedErrors();
             options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DbConfig>>().Value.LexBoxConnectionString);
             options.UseProjectables();
-            options.UseOpenIddict();
+            if (useOpenIddict) options.UseOpenIddict();
 #if DEBUG
             options.EnableSensitiveDataLogging();
 #endif

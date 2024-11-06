@@ -1,16 +1,18 @@
 <script lang="ts">
   import type { ComponentProps } from 'svelte';
   import CrdtField from './CrdtField.svelte';
-  import { SelectField, TextField, type MenuOption } from 'svelte-ux';
+  import { SelectField, type TextField, type MenuOption } from 'svelte-ux';
 
   export let value: string | undefined;
   export let unsavedChanges = false;
-  export let options: MenuOption[] | undefined = undefined;
+  export let options: MenuOption[] = [];
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
   export let placeholder: string | undefined = undefined;
   export let readonly: boolean | undefined = undefined;
   let append: HTMLElement;
+
+  $: sortedOptions = options.toSorted((a, b) => a.label.localeCompare(b.label));
 </script>
 
 <CrdtField on:change bind:value bind:unsavedChanges let:editorValue let:onEditorValueChange viewMergeButtonPortal={append}>
@@ -19,7 +21,7 @@
     on:change={(e) => onEditorValueChange(e.detail.value, true)}
     value={editorValue}
     disabled={readonly}
-    {options}
+    options={sortedOptions}
     clearSearchOnOpen={false}
     clearable={false}
     search={() => Promise.resolve()}
@@ -32,9 +34,3 @@
   </SelectField>
   {/key}
 </CrdtField>
-
-<style>
-  :global(.unresolved-merge .field-container) {
-    @apply !border-warning;
-  }
-</style>

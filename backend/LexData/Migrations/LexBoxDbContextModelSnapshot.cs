@@ -525,6 +525,9 @@ namespace LexData.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("FlexModelVersion")
+                        .HasColumnType("integer");
+
                     b.Property<Guid?>("LangProjectId")
                         .HasColumnType("uuid");
 
@@ -616,7 +619,8 @@ namespace LexData.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .UseCollation("case_insensitive");
 
                     b.Property<DateTimeOffset>("UpdatedDate")
                         .ValueGeneratedOnAdd()

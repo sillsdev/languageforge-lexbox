@@ -7,17 +7,18 @@ function regexEscape(s: string): string {
 }
 
 export class BasePage {
-  readonly page: Page;
-  protected url?: string;
   readonly locators: Locator[];
+
+  protected get locatorTimeout(): number | undefined {
+    return undefined;
+  }
+
   get urlPattern(): RegExp | undefined {
     if (!this.url) return undefined;
     return new RegExp(regexEscape(this.url) + '($|\\?|#)');
   }
 
-  constructor(page: Page, locator: Locator | Locator[], url?: string) {
-    this.page = page;
-    this.url = url;
+  constructor(readonly page: Page, locator: Locator | Locator[], protected url?: string) {
     if (Array.isArray(locator)) {
       this.locators = locator;
     } else {
@@ -55,7 +56,7 @@ export class BasePage {
       await this.page.waitForURL(this.urlPattern, {waitUntil: 'load'});
     }
     await BasePage.waitForHydration(this.page); // wait for, e.g., onclick handlers to be attached
-    await Promise.all(this.locators.map(l => expect(l).toBeVisible()));
+    await Promise.all(this.locators.map(l => expect(l).toBeVisible({ timeout: this.locatorTimeout })));
     return this;
   }
 

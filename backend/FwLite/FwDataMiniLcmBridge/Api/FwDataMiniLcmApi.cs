@@ -2,9 +2,11 @@
 using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
+using FwDataMiniLcmBridge.LcmUtils;
 using Microsoft.Extensions.Logging;
 using MiniLcm;
 using MiniLcm.Models;
+using MiniLcm.SyncHelpers;
 using SIL.LCModel;
 using SIL.LCModel.Core.KernelInterfaces;
 using SIL.LCModel.Core.Text;
@@ -104,19 +106,24 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ws => ws.Id).ToHashSet();
         var writingSystems = new WritingSystems
         {
-            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select(FromLcmWritingSystem).ToArray(),
-            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select(FromLcmWritingSystem).ToArray()
+            Vernacular = WritingSystemContainer.CurrentVernacularWritingSystems.Select((definition, index) =>
+                FromLcmWritingSystem(definition, index, WritingSystemType.Vernacular)).ToArray(),
+            Analysis = Cache.ServiceLocator.WritingSystems.CurrentAnalysisWritingSystems.Select((definition, index) =>
+                FromLcmWritingSystem(definition, index, WritingSystemType.Analysis)).ToArray()
         };
         CompleteExemplars(writingSystems);
         return Task.FromResult(writingSystems);
     }
 
-    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws)
+    private WritingSystem FromLcmWritingSystem(CoreWritingSystemDefinition ws, int index, WritingSystemType type)
     {
         return new WritingSystem
         {
+            Id = Guid.Empty,
+            Order = index,
+            Type = type,
             //todo determine current and create a property for that.
-            Id = ws.Id,
+            WsId = ws.Id,
             Name = ws.LanguageTag,
             Abbreviation = ws.Abbreviation,
             Font = ws.DefaultFontName,
@@ -127,9 +134,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     internal void CompleteExemplars(WritingSystems writingSystems)
     {
         var wsExemplars = writingSystems.Vernacular.Concat(writingSystems.Analysis)
-            .DistinctBy(ws => ws.Id)
+            .DistinctBy(ws => ws.WsId)
             .ToDictionary(ws => ws, ws => ws.Exemplars.Select(s => s[0]).ToHashSet());
-        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.Id), kv => kv.Value);
+        var wsExemplarsByHandle = wsExemplars.ToFrozenDictionary(kv => GetWritingSystemHandle(kv.Key.WsId), kv => kv.Value);
 
         foreach (var entry in EntriesRepository.AllInstances())
         {
@@ -146,12 +153,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<WritingSystem> CreateWritingSystem(WritingSystemType type, WritingSystem writingSystem)
     {
         CoreWritingSystemDefinition? ws = null;
-        UndoableUnitOfWorkHelper.Do("Create Writing System",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Writing System",
             "Remove writing system",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.Id.Code, out ws);
+                Cache.ServiceLocator.WritingSystemManager.GetOrSet(writingSystem.WsId.Code, out ws);
                 ws.Abbreviation = writingSystem.Abbreviation;
                 switch (type)
                 {
@@ -161,10 +168,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     case WritingSystemType.Vernacular:
                         Cache.ServiceLocator.WritingSystems.AddToCurrentVernacularWritingSystems(ws);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(type), type, null);
                 }
             });
         if (ws is null) throw new InvalidOperationException("Writing system not found");
-        return Task.FromResult(FromLcmWritingSystem(ws));
+        var index = type switch
+        {
+            WritingSystemType.Analysis => WritingSystemContainer.CurrentAnalysisWritingSystems.Count,
+            WritingSystemType.Vernacular => WritingSystemContainer.CurrentVernacularWritingSystems.Count,
+            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+        } - 1;
+        return Task.FromResult(FromLcmWritingSystem(ws, index, type));
     }
 
     public Task<WritingSystem> UpdateWritingSystem(WritingSystemId id, WritingSystemType type, UpdateObjectInput<WritingSystem> update)
@@ -188,7 +203,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
-        UndoableUnitOfWorkHelper.Do("Create Part of Speech",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
             "Remove part of speech",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -218,22 +233,24 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
-        UndoableUnitOfWorkHelper.Do("Create Semantic Domain",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
             "Remove semantic domain",
             Cache.ActionHandlerAccessor,
             () =>
             {
                 var lcmSemanticDomain = Cache.ServiceLocator.GetInstance<ICmSemanticDomainFactory>()
                     .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
+                lcmSemanticDomain.OcmCodes = semanticDomain.Code;
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
                 UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
             });
         return Task.CompletedTask;
     }
 
-    internal ICmSemanticDomain GetLcmSemanticDomain(Guid semanticDomainId)
+    internal ICmSemanticDomain? GetLcmSemanticDomain(Guid semanticDomainId)
     {
-        return SemanticDomainRepository.GetObject(semanticDomainId);
+        SemanticDomainRepository.TryGetObject(semanticDomainId, out var semanticDomain);
+        return semanticDomain;
     }
 
     public IAsyncEnumerable<ComplexFormType> GetComplexFormTypes()
@@ -251,7 +268,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         if (complexFormType.Id != default) throw new InvalidOperationException("Complex form type id must be empty");
-        UndoableUnitOfWorkHelper.Do("Create complex form type",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
             Cache.ActionHandlerAccessor,
             () =>
@@ -284,9 +301,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             LiteralMeaning = FromLcmMultiString(entry.LiteralMeaning),
             Senses = entry.AllSenses.Select(FromLexSense).ToList(),
             ComplexFormTypes = ToComplexFormTypes(entry),
-            Components = ToComplexFormComponents(entry),
-            //todo, this does not include complex forms which reference a sense
-            ComplexForms = [..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry))]
+            Components = ToComplexFormComponents(entry).ToList(),
+            ComplexForms = [
+                ..entry.ComplexFormEntries.Select(complexEntry => ToEntryReference(entry, complexEntry)),
+                ..entry.AllSenses.SelectMany(sense => sense.ComplexFormEntries.Select(complexEntry => ToSenseReference(sense, complexEntry)))
+            ]
         };
     }
 
@@ -297,7 +316,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .Select(ToComplexFormType)
             .ToList() ?? [];
     }
-    private IList<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
+    private IEnumerable<ComplexFormComponent> ToComplexFormComponents(ILexEntry entry)
     {
         return entry.ComplexFormEntryRefs.SingleOrDefault()
             ?.ComponentLexemesRS
@@ -306,8 +325,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 ILexEntry component => ToEntryReference(component, entry),
                 ILexSense s => ToSenseReference(s, entry),
                 _ => throw new NotSupportedException($"object type {o.ClassName} not supported")
-            })
-            .ToList() ?? [];
+            }) ?? [];
     }
 
     private Variants? ToVariants(ILexEntry entry)
@@ -363,6 +381,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         var s =  new Sense
         {
             Id = sense.Guid,
+            EntryId = sense.Entry.Guid,
             Gloss = FromLcmMultiString(sense.Gloss),
             Definition = FromLcmMultiString(sense.Definition),
             PartOfSpeech = sense.MorphoSyntaxAnalysisRA?.GetPartOfSpeech()?.Name.get_String(enWs).Text ?? "",
@@ -373,17 +392,18 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 Name = FromLcmMultiString(s.Name),
                 Code = s.OcmCodes
             }).ToList(),
-            ExampleSentences = sense.ExamplesOS.Select(FromLexExampleSentence).ToList()
+            ExampleSentences = sense.ExamplesOS.Select(sentence => FromLexExampleSentence(sense.Guid, sentence)).ToList()
         };
         return s;
     }
 
-    private ExampleSentence FromLexExampleSentence(ILexExampleSentence sentence)
+    private ExampleSentence FromLexExampleSentence(Guid senseGuid, ILexExampleSentence sentence)
     {
         var translation = sentence.TranslationsOC.FirstOrDefault()?.Translation;
         return new ExampleSentence
         {
             Id = sentence.Guid,
+            SenseId = senseGuid,
             Sentence = FromLcmMultiString(sentence.Example),
             Reference = sentence.Reference.Text,
             Translation = translation is null ? new MultiString() : FromLcmMultiString(translation),
@@ -462,7 +482,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public async Task<Entry> CreateEntry(Entry entry)
     {
         entry.Id = entry.Id == default ? Guid.NewGuid() : entry.Id;
-        UndoableUnitOfWorkHelper.Do("Create Entry",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Entry",
             "Remove entry",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -499,6 +519,57 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return await GetEntry(entry.Id) ?? throw new InvalidOperationException("Entry was not created");
     }
 
+    public Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Complex Form Component",
+            "Remove Complex Form Component",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
+                AddComplexFormComponent(lexEntry, complexFormComponent);
+            });
+        return Task.FromResult(ToComplexFormComponents(EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId))
+            .Single(c => c.ComponentEntryId == complexFormComponent.ComponentEntryId && c.ComponentSenseId == complexFormComponent.ComponentSenseId));
+    }
+
+    public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Complex Form Component",
+            "Add Complex Form Component",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexEntry = EntriesRepository.GetObject(complexFormComponent.ComplexFormEntryId);
+                RemoveComplexFormComponent(lexEntry, complexFormComponent);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Complex Form Type",
+            "Remove Complex Form Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                AddComplexFormType(EntriesRepository.GetObject(entryId), complexFormTypeId);
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Complex Form Type",
+            "Add Complex Form Type",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                RemoveComplexFormType(EntriesRepository.GetObject(entryId), complexFormTypeId);
+            });
+        return Task.CompletedTask;
+    }
+
     /// <summary>
     /// must be called as part of an lcm action
     /// </summary>
@@ -512,9 +583,20 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     internal void RemoveComplexFormComponent(ILexEntry lexEntry, ComplexFormComponent component)
     {
-        ICmObject lexComponent = component.ComponentSenseId is not null
-            ? SenseRepository.GetObject(component.ComponentSenseId.Value)
-            : EntriesRepository.GetObject(component.ComponentEntryId);
+        ICmObject lexComponent;
+        if (component.ComponentSenseId is not null)
+        {
+            //sense has been deleted, so this complex form has been deleted already
+            if (!SenseRepository.TryGetObject(component.ComponentSenseId.Value, out var sense)) return;
+            lexComponent = sense;
+        }
+        else
+        {
+            //entry has been deleted, so this complex form has been deleted already
+            if (!EntriesRepository.TryGetObject(component.ComponentEntryId, out var entry)) return;
+            lexComponent = entry;
+        }
+
         var entryRef = lexEntry.ComplexFormEntryRefs.Single();
         if (!entryRef.ComponentLexemesRS.Remove(lexComponent))
         {
@@ -569,7 +651,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     public Task<Entry> UpdateEntry(Guid id, UpdateObjectInput<Entry> update)
     {
         var lexEntry = EntriesRepository.GetObject(id);
-        UndoableUnitOfWorkHelper.Do("Update Entry",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Entry",
             "Revert entry",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -582,7 +664,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task DeleteEntry(Guid id)
     {
-        UndoableUnitOfWorkHelper.Do("Delete Entry",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Entry",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -611,7 +693,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             IPartOfSpeech? pos = null;
             if (sense.PartOfSpeechId.HasValue)
             {
-                pos = PartOfSpeechRepository.GetObject(sense.PartOfSpeechId.Value);
+                PartOfSpeechRepository.TryGetObject(sense.PartOfSpeechId.Value, out pos);
             }
             lexSense.MorphoSyntaxAnalysisRA.SetMsaPartOfSpeech(pos);
         }
@@ -619,7 +701,8 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         UpdateLcmMultiString(lexSense.Definition, sense.Definition);
         foreach (var senseSemanticDomain in sense.SemanticDomains)
         {
-            lexSense.SemanticDomainsRC.Add(GetLcmSemanticDomain(senseSemanticDomain.Id));
+            var lcmSemanticDomain = GetLcmSemanticDomain(senseSemanticDomain.Id);
+            if (lcmSemanticDomain is not null) lexSense.SemanticDomainsRC.Add(lcmSemanticDomain);
         }
 
         foreach (var exampleSentence in sense.ExampleSentences)
@@ -633,7 +716,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (sense.Id == default) sense.Id = Guid.NewGuid();
         if (!EntriesRepository.TryGetObject(entryId, out var lexEntry))
             throw new InvalidOperationException("Entry not found");
-        UndoableUnitOfWorkHelper.Do("Create Sense",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Sense",
             "Remove sense",
             Cache.ServiceLocator.ActionHandler,
             () => CreateSense(lexEntry, sense));
@@ -644,7 +727,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var lexSense = SenseRepository.GetObject(senseId);
         if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException($"Sense {senseId} does not belong to the expected entry, expected Id {entryId}, actual Id {lexSense.Entry.Guid}");
-        UndoableUnitOfWorkHelper.Do("Update Sense",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Sense",
             "Revert sense",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -655,11 +738,37 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.FromResult(FromLexSense(lexSense));
     }
 
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Semantic Domain to Sense",
+            "Remove Semantic Domain from Sense",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexSense = SenseRepository.GetObject(senseId);
+                lexSense.SemanticDomainsRC.Add(GetLcmSemanticDomain(semanticDomain.Id));
+            });
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Remove Semantic Domain from Sense",
+            "Add Semantic Domain to Sense",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var lexSense = SenseRepository.GetObject(senseId);
+                lexSense.SemanticDomainsRC.Remove(lexSense.SemanticDomainsRC.First(sd => sd.Guid == semanticDomainId));
+            });
+        return Task.CompletedTask;
+    }
+
     public Task DeleteSense(Guid entryId, Guid senseId)
     {
         var lexSense = SenseRepository.GetObject(senseId);
         if (lexSense.Entry.Guid != entryId) throw new InvalidOperationException("Sense does not belong to entry");
-        UndoableUnitOfWorkHelper.Do("Delete Sense",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Sense",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexSense.Delete());
@@ -682,11 +791,11 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         if (exampleSentence.Id == default) exampleSentence.Id = Guid.NewGuid();
         if (!SenseRepository.TryGetObject(senseId, out var lexSense))
             throw new InvalidOperationException("Sense not found");
-        UndoableUnitOfWorkHelper.Do("Create Example Sentence",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Example Sentence",
             "Remove example sentence",
             Cache.ServiceLocator.ActionHandler,
             () => CreateExampleSentence(lexSense, exampleSentence));
-        return Task.FromResult(FromLexExampleSentence(ExampleSentenceRepository.GetObject(exampleSentence.Id)));
+        return Task.FromResult(FromLexExampleSentence(senseId, ExampleSentenceRepository.GetObject(exampleSentence.Id)));
     }
 
     public Task<ExampleSentence> UpdateExampleSentence(Guid entryId,
@@ -696,7 +805,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
         ValidateOwnership(lexExampleSentence, entryId, senseId);
-        UndoableUnitOfWorkHelper.Do("Update Example Sentence",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Example Sentence",
             "Revert example sentence",
             Cache.ServiceLocator.ActionHandler,
             () =>
@@ -704,14 +813,14 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 var updateProxy = new UpdateExampleSentenceProxy(lexExampleSentence, this);
                 update.Apply(updateProxy);
             });
-        return Task.FromResult(FromLexExampleSentence(lexExampleSentence));
+        return Task.FromResult(FromLexExampleSentence(senseId, lexExampleSentence));
     }
 
     public Task DeleteExampleSentence(Guid entryId, Guid senseId, Guid exampleSentenceId)
     {
         var lexExampleSentence = ExampleSentenceRepository.GetObject(exampleSentenceId);
         ValidateOwnership(lexExampleSentence, entryId, senseId);
-        UndoableUnitOfWorkHelper.Do("Delete Example Sentence",
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Example Sentence",
             "Revert delete",
             Cache.ServiceLocator.ActionHandler,
             () => lexExampleSentence.Delete());

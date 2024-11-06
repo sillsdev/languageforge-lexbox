@@ -3,7 +3,7 @@
   import CrdtField from './CrdtField.svelte';
   import { TextField } from 'svelte-ux';
 
-  export let value: string | number;
+  export let value: string | number | null;
   export let unsavedChanges = false;
   export let label: string | undefined = undefined;
   export let labelPlacement: ComponentProps<TextField>['labelPlacement'] = undefined;
@@ -33,9 +33,3 @@
     <span bind:this={append} slot="append" />
   </TextField>
 </CrdtField>
-
-<style>
-  :global(.unresolved-merge .field-container) {
-    @apply !border-warning;
-  }
-</style>

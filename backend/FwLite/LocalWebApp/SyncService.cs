@@ -3,10 +3,8 @@ using LcmCrdt;
 using LocalWebApp.Auth;
 using LocalWebApp.Services;
 using MiniLcm;
+using MiniLcm.Models;
 using SIL.Harmony.Entities;
-using Entry = LcmCrdt.Objects.Entry;
-using ExampleSentence = LcmCrdt.Objects.ExampleSentence;
-using Sense = LcmCrdt.Objects.Sense;
 
 namespace LocalWebApp;
 
@@ -33,25 +31,23 @@ public class SyncService(
         await foreach (var entryId in syncResults.MissingFromLocal
                      .SelectMany(c => c.Snapshots, (commit, snapshot) => snapshot.Entity)
                      .ToAsyncEnumerable()
-                     .SelectAwait(async e => await GetEntryId(e))
+                     .SelectAwait(async e => await GetEntryId(e.DbObject as IObjectWithId))
                      .Distinct())
         {
             if (entryId is null) continue;
             var entry = await lexboxApi.GetEntry(entryId.Value);
-            if (entry is Entry crdtEntry)
+            if (entry is not null)
             {
-                changeEventBus.NotifyEntryUpdated(crdtEntry);
+                changeEventBus.NotifyEntryUpdated(entry);
             }
             else
             {
-                logger.LogError("Failed to get entry {EntryId}, was not a crdt entry, was {Type}",
-                    entryId,
-                    entry?.GetType().FullName ?? "null");
+                logger.LogError("Failed to get entry {EntryId}, was not found", entryId);
             }
         }
     }
 
-    private async ValueTask<Guid?> GetEntryId(IObjectBase entity)
+    private async ValueTask<Guid?> GetEntryId(IObjectWithId? entity)
     {
         return entity switch
         {

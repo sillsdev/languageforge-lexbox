@@ -9,9 +9,12 @@
   import UserTypeahead from '$lib/forms/UserTypeahead.svelte';
   import { SupHelp, helpLinks } from '$lib/components/help';
   import type { UUID } from 'crypto';
-  import { _addOrgMember } from './+page';
+  import { _addOrgMember, type Org } from './+page';
+  import type { SingleUserInMyOrgTypeaheadResult, SingleUserTypeaheadResult } from '$lib/gql/typeahead-queries';
+  import UserProjects, { type Project } from '$lib/components/Users/UserProjects.svelte';
 
-  export let orgId: string;
+  export let org: Org;
+
   const schema = z.object({
     usernameOrEmail: z.string().trim()
       .min(1, $t('org_page.add_user.empty_user_field'))
@@ -24,14 +27,40 @@
 
   const { notifySuccess } = useNotifications();
 
+  let newProjects: Project[] = [];
+  let alreadyAddedProjects: Project[] = [];
+  let selectedProjects: string[] = [];
+
+  function resetProjects(): void {
+    newProjects = [];
+    alreadyAddedProjects = [];
+    selectedProjects = [];
+  }
+
+  function populateUserProjects(user: SingleUserTypeaheadResult | SingleUserInMyOrgTypeaheadResult | null): void {
+    resetProjects();
+    if (user && 'projects' in user) {
+      const userProjects = [...user.projects.map(p => ({memberRole: p.role, id: p.project.id, code: p.project.code, name: p.project.name}))];
+      userProjects.forEach(proj => {
+        if (org.projects.find(p => p.id === proj.id)) {
+          alreadyAddedProjects.push(proj);
+        } else {
+          newProjects.push(proj);
+        }
+      });
+    }
+  }
+
   export async function openModal(): Promise<void> {
+    resetProjects();
     let userInvited = false;
     const { response, formState } = await formModal.open(async () => {
       const { error } = await _addOrgMember(
-        orgId as UUID,
+        org.id as UUID,
         $form.usernameOrEmail,
         $form.role,
         $form.canInvite,
+        selectedProjects,
       );
 
       if (error?.byType('NotFoundError')) {
@@ -51,6 +80,9 @@
     if (response === DialogResponse.Submit) {
       const message = userInvited ? 'member_invited' : 'add_member';
       notifySuccess($t(`org_page.notifications.${message}`, { email: formState.usernameOrEmail.currentValue }));
+      if (selectedProjects.length) {
+        notifySuccess($t('org_page.notifications.added_projects', { count: selectedProjects.length }));
+      }
     }
   }
 </script>
@@ -68,6 +100,7 @@
       isAdmin={$page.data.user?.isAdmin}
       bind:value={$form.usernameOrEmail}
       error={errors.usernameOrEmail}
+      on:selectedUser={(event) => populateUserProjects(event.detail)}
       autofocus
       />
   {:else}
@@ -81,6 +114,18 @@
     />
   {/if}
   <OrgRoleSelect bind:value={$form.role} error={errors.role} />
+  {#if newProjects.length || alreadyAddedProjects.length}
+    <div class="label label-text">
+      {$t('org_page.add_user.also_add_projects')}
+    </div>
+    {#if newProjects.length}
+      <UserProjects projects={newProjects} bind:selectedProjects />
+    {:else}
+      <span class="text-secondary px-1">
+        {$t('org_page.add_user.all_projects_already_added', { count: alreadyAddedProjects.length })}
+      </span>
+    {/if}
+  {/if}
   <svelte:fragment slot="extraActions">
     <Checkbox
       id="invite"
