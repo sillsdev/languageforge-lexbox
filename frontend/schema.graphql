@@ -277,19 +277,19 @@ type NotFoundError implements Error {
 }
 
 type OrgById {
+  id: UUID!
   members: [OrgByIdMember!]!
   name: String!
   projects: [Project!]!
   memberCount: Int!
   projectCount: Int!
-  id: UUID!
   createdDate: DateTime!
   updatedDate: DateTime!
 }
 
 type OrgByIdMember {
-  user: OrgByIdUser!
   userId: UUID!
+  user: OrgByIdUser!
   orgId: UUID!
   role: OrgRole!
   organization: Organization
@@ -409,9 +409,9 @@ type ProjectMembersMustBeVerifiedForRole implements Error {
 }
 
 type ProjectUsers {
+  userId: UUID!
   user: User!
   project: Project!
-  userId: UUID!
   projectId: UUID!
   role: ProjectRole!
   id: UUID!

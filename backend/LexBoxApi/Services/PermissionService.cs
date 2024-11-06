@@ -67,10 +67,11 @@ public class PermissionService(
         if (!await CanSyncProjectAsync(projectId)) throw new UnauthorizedAccessException();
     }
 
-    public async ValueTask<bool> CanViewProject(Guid projectId)
+    public async ValueTask<bool> CanViewProject(Guid projectId, LexAuthUser? overrideUser = null)
     {
-        if (User is not null && User.Role == UserRole.admin) return true;
-        if (User is not null && User.Projects.Any(p => p.ProjectId == projectId)) return true;
+        var user = overrideUser ?? User;
+        if (user is not null && user.Role == UserRole.admin) return true;
+        if (user is not null && user.Projects.Any(p => p.ProjectId == projectId)) return true;
         // Org admins can view all projects, even confidential ones
         if (await ManagesOrgThatOwnsProject(projectId)) return true;
         var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
@@ -83,15 +84,15 @@ public class PermissionService(
         if (!await CanViewProject(projectId)) throw new UnauthorizedAccessException();
     }
 
-    public async ValueTask<bool> CanViewProject(string projectCode)
+    public async ValueTask<bool> CanViewProject(string projectCode, LexAuthUser? overrideUser = null)
     {
         if (User is not null && User.Role == UserRole.admin) return true;
-        return await CanViewProject(await projectService.LookupProjectId(projectCode));
+        return await CanViewProject(await projectService.LookupProjectId(projectCode), overrideUser);
     }
 
-    public async ValueTask AssertCanViewProject(string projectCode)
+    public async ValueTask AssertCanViewProject(string projectCode, LexAuthUser? overrideUser = null)
     {
-        if (!await CanViewProject(projectCode)) throw new UnauthorizedAccessException();
+        if (!await CanViewProject(projectCode, overrideUser)) throw new UnauthorizedAccessException();
     }
 
     public async ValueTask<bool> CanViewProjectMembers(Guid projectId)
@@ -207,18 +208,20 @@ public class PermissionService(
         if (!CanCreateOrg()) throw new UnauthorizedAccessException();
     }
 
-    public bool IsOrgMember(Guid orgId)
+    public bool IsOrgMember(Guid orgId, LexAuthUser? overrideUser = null)
     {
-        if (User is null) return false;
-        if (User.Orgs.Any(o => o.OrgId == orgId)) return true;
+        var user = overrideUser ?? User;
+        if (user is null) return false;
+        if (user.Orgs.Any(o => o.OrgId == orgId)) return true;
         return false;
     }
 
-    public bool CanEditOrg(Guid orgId)
+    public bool CanEditOrg(Guid orgId, LexAuthUser? overrideUser = null)
     {
-        if (User is null) return false;
-        if (User.Role == UserRole.admin) return true;
-        if (User.Orgs.Any(o => o.OrgId == orgId && o.Role == OrgRole.Admin)) return true;
+        var user = overrideUser ?? User;
+        if (user is null) return false;
+        if (user.Role == UserRole.admin) return true;
+        if (user.Orgs.Any(o => o.OrgId == orgId && o.Role == OrgRole.Admin)) return true;
         return false;
     }
 

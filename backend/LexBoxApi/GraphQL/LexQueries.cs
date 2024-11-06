@@ -16,10 +16,26 @@ public class LexQueries
     [UseProjection]
     [UseSorting]
     [UseFiltering]
-    public IQueryable<Project> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
+    public async Task<IQueryable<Project>> MyProjects(
+        LexAuthService lexAuthService,
+        LoggedInContext loggedInContext,
+        LexBoxDbContext dbContext,
+        IResolverContext context)
     {
+        //todo remove this workaround once the issue is fixed
+        context =
+            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
+            context;
         var userId = loggedInContext.User.Id;
-        return context.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId));
+        var myProjects = await dbContext.Projects.Where(p => p.Users.Select(u => u.UserId).Contains(userId))
+            .AsNoTracking().Project(context).ToListAsync();
+
+        if (loggedInContext.User.IsOutOfSyncWithMyProjects(myProjects))
+        {
+            await lexAuthService.RefreshUser(userId, LexAuthConstants.ProjectsClaimType);
+        }
+
+        return myProjects.AsQueryable();
     }
 
     [UseProjection]
@@ -107,18 +123,35 @@ public class LexQueries
         return context.Projects.Where(p => p.Id == projectId);
     }
 
-    [UseSingleOrDefault]
     [UseProjection]
-    public async Task<IQueryable<Project>> ProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
+    public async Task<Project?> ProjectByCode(
+        LexBoxDbContext dbContext,
+        IPermissionService permissionService,
+        LexAuthService lexAuthService,
+        LoggedInContext loggedInContext,
+        IResolverContext context,
+        string code)
     {
-        await permissionService.AssertCanViewProject(code);
-        return context.Projects.Where(p => p.Code == code);
+        //todo remove this workaround once the issue is fixed
+        context =
+            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
+            context;
+        var project = await dbContext.Projects.Where(p => p.Code == code).AsNoTracking().Project(context).SingleOrDefaultAsync();
+
+        if (project is null) return project;
+
+        var updatedUser = loggedInContext.User.IsOutOfSyncWithProject(project)
+            ? await lexAuthService.RefreshUser(loggedInContext.User.Id, LexAuthConstants.ProjectsClaimType)
+            : null;
+
+        await permissionService.AssertCanViewProject(code, updatedUser);
+        return project;
     }
 
     [UseSingleOrDefault]
     [UseProjection]
     [AdminRequired]
-    public IQueryable<DraftProject> DraftProjectByCode(LexBoxDbContext context, IPermissionService permissionService, string code)
+    public IQueryable<DraftProject> DraftProjectByCode(LexBoxDbContext context, string code)
     {
         return context.DraftProjects.Where(p => p.Code == code);
     }
@@ -134,10 +167,25 @@ public class LexQueries
     [UseProjection]
     [UseFiltering]
     [UseSorting]
-    public IQueryable<Organization> MyOrgs(LexBoxDbContext context, LoggedInContext loggedInContext)
+    public async Task<IQueryable<Organization>> MyOrgs(
+        LexBoxDbContext dbContext,
+        LexAuthService lexAuthService,
+        LoggedInContext loggedInContext,
+        IResolverContext context)
     {
+        //todo remove this workaround once the issue is fixed
+        context =
+            context.GetLocalStateOrDefault<IResolverContext>("HotChocolate.Data.Projections.ProxyContext") ??
+            context;
         var userId = loggedInContext.User.Id;
-        return context.Orgs.Where(o => o.Members.Any(m => m.UserId == userId));
+        var myOrgs = await dbContext.Orgs.Where(o => o.Members.Any(m => m.UserId == userId))
+            .AsNoTracking().Project(context).ToListAsync();
+
+        if (loggedInContext.User.IsOutOfSyncWithMyOrgs(myOrgs))
+        {
+            await lexAuthService.RefreshUser(userId, LexAuthConstants.OrgsClaimType);
+        }
+        return myOrgs.AsQueryable();
     }
 
     [UseOffsetPaging]
@@ -152,15 +200,22 @@ public class LexQueries
 
     [UseProjection]
     [GraphQLType<OrgByIdGqlConfiguration>]
-    public async Task<Organization?> OrgById(LexBoxDbContext dbContext, Guid orgId, IPermissionService permissionService, IResolverContext context)
+    public async Task<Organization?> OrgById(LexBoxDbContext dbContext,
+        Guid orgId,
+        IPermissionService permissionService,
+        LexAuthService lexAuthService,
+        LoggedInContext loggedInContext,
+        IResolverContext context)
     {
-        return await QueryOrgById(dbContext, orgId, permissionService, context);
+        return await QueryOrgById(dbContext, orgId, permissionService, lexAuthService, loggedInContext, context);
     }
 
     [GraphQLIgnore]
     internal static async Task<Organization?> QueryOrgById(LexBoxDbContext dbContext,
         Guid orgId,
         IPermissionService permissionService,
+        LexAuthService lexAuthService,
+        LoggedInContext loggedInContext,
         IResolverContext context)
     {
         //todo remove this workaround once the issue is fixed
@@ -169,8 +224,13 @@ public class LexQueries
             context;
         var org = await dbContext.Orgs.Where(o => o.Id == orgId).AsNoTracking().Project(projectContext).SingleOrDefaultAsync();
         if (org is null) return org;
+
+        var updatedUser = loggedInContext.User.IsOutOfSyncWithOrg(org)
+            ? await lexAuthService.RefreshUser(loggedInContext.User.Id, LexAuthConstants.OrgsClaimType)
+            : null;
+
         // Site admins and org admins can see everything
-        if (permissionService.CanEditOrg(orgId)) return org;
+        if (permissionService.CanEditOrg(orgId, updatedUser)) return org;
         // Non-admins cannot see email addresses or usernames
         org.Members?.ForEach(m =>
         {
@@ -182,7 +242,7 @@ public class LexQueries
         });
         // Members and non-members alike can see all public projects plus their own
         org.Projects = org.Projects?.Where(p => p.IsConfidential == false || permissionService.CanSyncProject(p.Id))?.ToList() ?? [];
-        if (!permissionService.IsOrgMember(orgId))
+        if (!permissionService.IsOrgMember(orgId, updatedUser))
         {
             // Non-members also cannot see membership, only org admins
             org.Members = org.Members?.Where(m => m.Role == OrgRole.Admin).ToList() ?? [];
