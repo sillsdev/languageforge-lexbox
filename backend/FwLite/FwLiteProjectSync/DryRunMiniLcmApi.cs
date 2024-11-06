@@ -180,12 +180,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
-    public Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
-    {
-        DryRunRecords.Add(new DryRunRecord(nameof(ReplaceComplexFormComponent), $"Replace complex form component complex entry: {old.ComplexFormHeadword}, component entry: {old.ComponentHeadword} with complex entry: {@new.ComplexFormHeadword}, component entry: {@new.ComponentHeadword}"));
-        return Task.CompletedTask;
-    }
-
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(AddComplexFormType), $"Add complex form type {complexFormTypeId}, to entry {entryId}"));

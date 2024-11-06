@@ -78,16 +78,15 @@ public static class EntrySync
                 await api.DeleteComplexFormComponent(beforeComponent);
                 return 1;
             },
-            static async (api, beforeComponent, afterComponent) =>
+            static (api, beforeComponent, afterComponent) =>
             {
                 if (beforeComponent.ComplexFormEntryId == afterComponent.ComplexFormEntryId &&
                     beforeComponent.ComponentEntryId == afterComponent.ComponentEntryId &&
                     beforeComponent.ComponentSenseId == afterComponent.ComponentSenseId)
                 {
-                    return 0;
+                    return Task.FromResult(0);
                 }
-                await api.ReplaceComplexFormComponent(beforeComponent, afterComponent);
-                return 1;
+                throw new InvalidOperationException($"changing complex form components is not supported, they should just be deleted and recreated");
             }
         );
     }

@@ -546,20 +546,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
-    public Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
-    {
-        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Replace Complex Form Component",
-            "Replace Complex Form Component",
-            Cache.ServiceLocator.ActionHandler,
-            () =>
-            {
-                var lexEntry = EntriesRepository.GetObject(old.ComplexFormEntryId);
-                RemoveComplexFormComponent(lexEntry, old);
-                AddComplexFormComponent(lexEntry, @new);
-            });
-        return Task.CompletedTask;
-    }
-
     public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Add Complex Form Type",

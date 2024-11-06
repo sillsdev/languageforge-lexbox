@@ -170,11 +170,6 @@ public class InMemoryApi : IMiniLcmApi
         throw new NotImplementedException();
     }
 
-    public Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
         throw new NotImplementedException();

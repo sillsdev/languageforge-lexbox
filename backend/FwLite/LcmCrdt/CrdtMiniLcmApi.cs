@@ -120,30 +120,6 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
     }
 
-    public async Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
-    {
-        IChange change;
-        if (old.ComplexFormEntryId != @new.ComplexFormEntryId)
-        {
-            change = SetComplexFormComponentChange.NewComplexForm(old.Id, @new.ComplexFormEntryId);
-        }
-        else if (old.ComponentEntryId != @new.ComponentEntryId)
-        {
-            change = SetComplexFormComponentChange.NewComponent(old.Id, @new.ComponentEntryId);
-        }
-        else if (old.ComponentSenseId != @new.ComponentSenseId)
-        {
-            change = SetComplexFormComponentChange.NewComponentSense(old.Id,
-                @new.ComponentEntryId,
-                @new.ComponentSenseId);
-        }
-        else
-        {
-            return;
-        }
-        await dataModel.AddChange(ClientId, change);
-    }
-
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
     {
         await dataModel.AddChange(ClientId, new AddComplexFormTypeChange(entryId, await ComplexFormTypes.SingleAsync(ct => ct.Id == complexFormTypeId)));
