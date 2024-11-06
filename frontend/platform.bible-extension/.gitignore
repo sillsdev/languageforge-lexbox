@@ -27,3 +27,4 @@ dist-ssr
 
 # Temporary intermediate build files
 temp-build
+public/fw-lite

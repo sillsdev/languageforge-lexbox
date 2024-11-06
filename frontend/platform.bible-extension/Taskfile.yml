@@ -1,0 +1,24 @@
+﻿version: 3
+output: prefixed
+
+tasks:
+  install:
+    method: checksum
+    sources:
+      - package.json
+      - package-lock.json
+    cmds:
+      # platform.bible does not support pnpm
+      - npm install
+
+  run:
+    deps: [ build-local-web-app, build-viewer-component ]
+    cmds:
+      - npm run start
+
+  build-local-web-app:
+    cmds:
+      - dotnet publish ../../backend/FwLite/LocalWebApp/LocalWebApp.csproj --configuration Release --sc --p:PublishSingleFile=true --output ./public/fw-lite
+  build-viewer-component:
+    dir: ../viewer
+    cmd: pnpm run build

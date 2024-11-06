@@ -9,6 +9,9 @@ declare module 'fw-lite-extension' {
     /** The entry to find */
     entry: string;
   };
+  export type LaunchServerEvent = {
+    baseUrl: string;
+  };
 }
 
 declare module 'papi-shared-types' {
@@ -23,6 +26,9 @@ declare module 'papi-shared-types' {
     };
     'fwLiteExtension.simpleFind': () => {
       success: boolean;
+    };
+    'fwLiteExtension.getBaseUrl': () => {
+      baseUrl: string;
     };
   }
 }

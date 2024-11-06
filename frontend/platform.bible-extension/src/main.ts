@@ -6,9 +6,10 @@ import {
   type WebViewDefinition,
 } from '@papi/core';
 import type {
-  DoStuffEvent, FindEntryEvent,
+  DoStuffEvent, FindEntryEvent, LaunchServerEvent,
 } from 'fw-lite-extension';
 import extensionTemplateReact from './extension-template.web-view?inline';
+import {string} from 'zod';
 
 // eslint-disable-next-line
 console.log(process.env.NODE_ENV);
@@ -35,7 +36,7 @@ const reactWebViewProvider: IWebViewProvider = {
 };
 
 export async function activate(context: ExecutionActivationContext) {
-  logger.info('Extension template is activating!');
+  logger.info('FwLite is activating!');
 
   const reactWebViewProviderPromise = papi.webViewProviders.register(
     reactWebViewType,
@@ -43,28 +44,25 @@ export async function activate(context: ExecutionActivationContext) {
   );
 
   // Emitter to tell subscribers how many times we have done stuff
-  const onDoStuffEmitter = papi.network.createNetworkEventEmitter<DoStuffEvent>(
-    'fwLiteExtension.doStuff',
-  );
   const onFindEntryEmitter = papi.network.createNetworkEventEmitter<FindEntryEvent>(
     'fwLiteExtension.findEntry',
   );
+  const onLaunchServerEmitter = papi.network.createNetworkEventEmitter<LaunchServerEvent>(
+    'fwLiteExtension.launchServer',
+  );
+  let baseUrlHolder = {baseUrl: ''}
+  launchFwLiteLocalWebApp(context).then(baseUrl => {
+    baseUrlHolder.baseUrl = baseUrl;
+    onLaunchServerEmitter.emit({ baseUrl });
+  });
 
-  let doStuffCount = 0;
-  const doStuffCommandPromise = papi.commands.registerCommand(
-    'fwLiteExtension.doStuff',
-    (message: string) => {
-      doStuffCount += 1;
-      // Inform subscribers of the update
-      onDoStuffEmitter.emit({ count: doStuffCount });
-
-      // Respond to the sender of the command with the news
-      return {
-        response: `The template did stuff ${doStuffCount} times! ${message}`,
-        occurrence: doStuffCount,
-      };
+  const getBaseUrlCommandPromise = papi.commands.registerCommand(
+    'fwLiteExtension.getBaseUrl',
+    () => {
+      return baseUrlHolder;
     },
   );
+
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
     (entry: string) => {
@@ -95,16 +93,31 @@ export async function activate(context: ExecutionActivationContext) {
   // Await the data provider promise at the end so we don't hold everything else up
   context.registrations.add(
     await reactWebViewProviderPromise,
-    onDoStuffEmitter,
-    await doStuffCommandPromise,
     await findEntryCommandPromise,
-    await simpleFindEntryCommandPromise
+    await simpleFindEntryCommandPromise,
+    await getBaseUrlCommandPromise,
+    onFindEntryEmitter,
+    onLaunchServerEmitter
   );
 
-  logger.info('Extension template is finished activating!');
+  logger.info('FwLite is finished activating!');
 }
 
 export async function deactivate() {
-  logger.info('Extension template is deactivating!');
+  logger.info('FwLite is deactivating!');
   return true;
+}
+
+async function launchFwLiteLocalWebApp(context: ExecutionActivationContext) {
+  let binaryPath = 'fw-lite/LocalWebApp.exe';
+  if (context.elevatedPrivileges.createProcess === undefined) {
+    throw new Error('FwLite requires createProcess elevated privileges');
+  }
+  if (context.elevatedPrivileges.createProcess.osData.platform !== 'win32') {
+    throw new Error('FwLite only supports launching on windows for now');
+  }
+  //todo instead of hardcoding the url and port we should run it and find the url in the output
+  let baseUrl = 'http://localhost:29348';
+  context.elevatedPrivileges.createProcess.spawn(context.executionToken, binaryPath, ['--urls', baseUrl], {stdio: [null, null, null]});
+  return baseUrl;
 }

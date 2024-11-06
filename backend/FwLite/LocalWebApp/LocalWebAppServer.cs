@@ -17,7 +17,7 @@ public static class LocalWebAppServer
     public static WebApplication SetupAppServer(WebApplicationOptions options, Action<WebApplicationBuilder>? configure = null)
     {
         var builder = WebApplication.CreateBuilder(options);
-        if (!builder.Environment.IsDevelopment())
+        if (!builder.Environment.IsDevelopment() && options.Args?.Contains("--urls") != true)
             builder.WebHost.UseUrls("http://127.0.0.1:0");
         if (builder.Environment.IsDevelopment())
         {
