@@ -9,6 +9,8 @@ using LocalWebApp.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using NReco.Logging.File;
 
 namespace LocalWebApp;
 
@@ -35,6 +37,10 @@ public static class LocalWebAppServer
             config.LexboxServers = [new(new("https://staging.languagedepot.org"), "Lexbox Staging")]);
         builder.Services.Configure<AuthConfig>(c => c.ClientId = "becf2856-0690-434b-b192-a4032b72067f");
         builder.Logging.AddDebug();
+        if (builder.Configuration.GetValue<string>("LocalWebApp:LogFileName") is { Length: > 0 } logFileName)
+        {
+            builder.Logging.AddFile(logFileName);
+        }
         builder.Services.AddCors();
         builder.Services.AddLocalAppServices(builder.Environment);
         builder.Services.AddEndpointsApiExplorer();
@@ -53,6 +59,10 @@ public static class LocalWebAppServer
         {
             app.UseSwagger();
             app.UseSwaggerUI();
+        }
+
+        if (app.Services.GetRequiredService<IOptions<LocalWebAppConfig>>().Value.CorsAllowAny)
+        {
             app.UseCors(policyBuilder =>
             {
                 policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
