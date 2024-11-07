@@ -11,6 +11,11 @@ tasks:
       # platform.bible does not support pnpm
       - npm install
 
+  package:
+    deps: [ build-local-web-app, build-viewer-component, install ]
+    cmds:
+      - npm run package
+
   run:
     deps: [ build-local-web-app, build-viewer-component, install ]
     cmds:

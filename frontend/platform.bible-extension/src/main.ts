@@ -11,10 +11,7 @@ import type {
 import extensionTemplateReact from './extension-template.web-view?inline';
 import type {GetWebViewOptions} from 'shared/models/web-view.model';
 
-// eslint-disable-next-line
-console.log(process.env.NODE_ENV);
-
-logger.info('Extension template is importing!');
+logger.info('FwLite extension is importing!');
 
 const reactWebViewType = 'fw-lite-extension.react';
 
@@ -30,7 +27,8 @@ const reactWebViewProvider: IWebViewProvider = {
     return {
       ...savedWebView,
       title: 'FW Lite Extension React',
-      content: extensionTemplateReact
+      content: extensionTemplateReact,
+      iconUrl: 'papi-extension://fw-lite-extension/assets/logo-dark.png'
     };
   },
 };
