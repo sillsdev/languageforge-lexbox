@@ -22,13 +22,12 @@
   import type { Confidentiality } from '$lib/components/Projects';
   import { browser } from '$app/environment';
   import UserTable from '$lib/components/Users/UserTable.svelte';
-  import UserFilter, { filterUsers, type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
+  import UserFilter, { type UserFilters, type UserType } from '$lib/components/Users/UserFilter.svelte';
 
   export let data: PageData;
   $: projects = data.projects;
   $: draftProjects = data.draftProjects;
   $: userData = data.users;
-  $: adminId = data.user?.id;
 
   const { notifySuccess, notifyWarning } = useNotifications();
 
@@ -64,9 +63,7 @@
 
   $: users = $userData?.items ?? [];
   $: filteredUserCount = $userData?.totalCount ?? 0;
-  $: filters = queryParams.queryParamValues;
-  $: filteredUsers = filterUsers(users, $filters, adminId);
-  $: shownUsers = lastLoadUsedActiveFilter ? filteredUsers : filteredUsers.slice(0, 10);
+  $: shownUsers = lastLoadUsedActiveFilter ? users : users.slice(0, 10);
 
   function filterProjectsByUser(user: User): void {
     $queryParamValues.memberSearch = user.email ?? user.username ?? undefined;
