@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Reflection;
 using System.Text;
 using FwDataMiniLcmBridge.Api.UpdateProxy;
@@ -246,6 +246,16 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return Task.CompletedTask;
     }
 
+    internal SemanticDomain FromLcmSemanticDomain(ICmSemanticDomain semanticDomain)
+    {
+        return new SemanticDomain
+        {
+            Id = semanticDomain.Guid,
+            Name = FromLcmMultiString(semanticDomain.Name),
+            Code = semanticDomain.Abbreviation.UiString ?? "",
+        };
+    }
+
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         return
@@ -253,15 +263,16 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .AllInstances()
             .OrderBy(p => p.Abbreviation.UiString)
             .ToAsyncEnumerable()
-            .Select(semanticDomain => new SemanticDomain
-            {
-                Id = semanticDomain.Guid,
-                Name = FromLcmMultiString(semanticDomain.Name),
-                Code = semanticDomain.Abbreviation.UiString ?? ""
-            });
+            .Select(FromLcmSemanticDomain);
     }
 
-    public Task CreateSemanticDomain(SemanticDomain semanticDomain)
+    public Task<SemanticDomain?> GetSemanticDomain(Guid id)
+    {
+        var semDom = GetLcmSemanticDomain(id);
+        return Task.FromResult(semDom is null ? null : FromLcmSemanticDomain(semDom));
+    }
+
+    public async Task<SemanticDomain> CreateSemanticDomain(SemanticDomain semanticDomain)
     {
         if (semanticDomain.Id == Guid.Empty) semanticDomain.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Semantic Domain",
@@ -273,7 +284,34 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     .Create(semanticDomain.Id, Cache.LangProject.SemanticDomainListOA);
                 lcmSemanticDomain.OcmCodes = semanticDomain.Code;
                 UpdateLcmMultiString(lcmSemanticDomain.Name, semanticDomain.Name);
+                // TODO: Find out if semantic domains are guaranteed to have an "en" writing system, or if we should use lcmCache.DefautlAnalWs instead
                 UpdateLcmMultiString(lcmSemanticDomain.Abbreviation, new MultiString(){{"en", semanticDomain.Code}});
+            });
+        return await GetSemanticDomain(semanticDomain.Id) ?? throw new InvalidOperationException("Semantic domain was not created");
+    }
+
+    public Task<SemanticDomain> UpdateSemanticDomain(Guid id, UpdateObjectInput<SemanticDomain> update)
+    {
+        var lcmSemanticDomain = SemanticDomainRepository.GetObject(id);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Semantic Domain",
+            "Revert Semantic Domain",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdateSemanticDomainProxy(lcmSemanticDomain, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmSemanticDomain(lcmSemanticDomain));
+    }
+
+    public Task DeleteSemanticDomain(Guid id)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Semantic Domain",
+            "Revert delete",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                SemanticDomainRepository.GetObject(id).Delete();
             });
         return Task.CompletedTask;
     }

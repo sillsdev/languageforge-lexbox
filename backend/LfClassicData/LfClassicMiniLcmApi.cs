@@ -276,10 +276,34 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return ms;
     }
 
+    private static PartOfSpeech ToPartOfSpeech(Entities.PartOfSpeech pos)
+    {
+        return new PartOfSpeech
+        {
+            Id = pos.Guid,
+            Name = ToMultiString(pos.Name),
+            // TODO: Abbreviation
+            Predefined = false,
+        };
+    }
+
     public async Task<Entry?> GetEntry(Guid id)
     {
         var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
         if (entry is null) return null;
         return ToEntry(entry);
+    }
+
+    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        // TODO: Construct a Mongo query more directly for this, so we're no longer searching the entire list
+        var partsOfSpeech = await GetPartsOfSpeech();
+        var found = partsOfSpeech.FirstOrDefaultAsync(p => p.Id == id);
+        return found == null ? null : ToPartOfSpeech(found);
+    }
+
+    public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
+    {
+        return null; // TODO: Once GetSemanticDomains() is implemented, use it
     }
 }
