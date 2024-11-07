@@ -90,6 +90,11 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         }
     }
 
+    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        return await GetPartsOfSpeech().FirstOrDefaultAsync(pos => pos.Id == id);
+    }
+
     public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
         return AsyncEnumerable.Empty<SemanticDomain>();
