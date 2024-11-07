@@ -1,4 +1,4 @@
-import papi, { logger } from '@papi/backend';
+import papi, {logger} from '@papi/backend';
 import {
   type ExecutionActivationContext,
   type IWebViewProvider,
@@ -9,20 +9,20 @@ import type {
   DoStuffEvent, FindEntryEvent, LaunchServerEvent,
 } from 'fw-lite-extension';
 import extensionTemplateReact from './extension-template.web-view?inline';
-import {string} from 'zod';
+import type {GetWebViewOptions} from 'shared/models/web-view.model';
 
 // eslint-disable-next-line
 console.log(process.env.NODE_ENV);
 
 logger.info('Extension template is importing!');
 
-const reactWebViewType = 'paranextExtensionTemplate.react';
+const reactWebViewType = 'fw-lite-extension.react';
 
 /**
  * Simple web view provider that provides React web views when papi requests them
  */
 const reactWebViewProvider: IWebViewProvider = {
-  async getWebView(savedWebView: SavedWebViewDefinition): Promise<WebViewDefinition | undefined> {
+  async getWebView(savedWebView: SavedWebViewDefinition, options: GetWebViewOptions): Promise<WebViewDefinition | undefined> {
     if (savedWebView.webViewType !== reactWebViewType)
       throw new Error(
         `${reactWebViewType} provider received request to provide a ${savedWebView.webViewType} web view`,
@@ -50,10 +50,10 @@ export async function activate(context: ExecutionActivationContext) {
   const onLaunchServerEmitter = papi.network.createNetworkEventEmitter<LaunchServerEvent>(
     'fwLiteExtension.launchServer',
   );
-  let baseUrlHolder = {baseUrl: ''}
+  let baseUrlHolder = {baseUrl: ''};
   launchFwLiteLocalWebApp(context).then(baseUrl => {
     baseUrlHolder.baseUrl = baseUrl;
-    onLaunchServerEmitter.emit({ baseUrl });
+    onLaunchServerEmitter.emit({baseUrl});
   });
 
   const getBaseUrlCommandPromise = papi.commands.registerCommand(
@@ -66,7 +66,7 @@ export async function activate(context: ExecutionActivationContext) {
   const findEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.findEntry',
     (entry: string) => {
-      onFindEntryEmitter.emit({ entry });
+      onFindEntryEmitter.emit({entry});
       return {
         success: true,
       };
@@ -75,7 +75,7 @@ export async function activate(context: ExecutionActivationContext) {
   const simpleFindEntryCommandPromise = papi.commands.registerCommand(
     'fwLiteExtension.simpleFind',
     () => {
-      onFindEntryEmitter.emit({ entry: 'apple' });
+      onFindEntryEmitter.emit({entry: 'apple'});
       return {
         success: true,
       };
@@ -88,7 +88,7 @@ export async function activate(context: ExecutionActivationContext) {
   // anywhere; it just has to match `webViewType`. See `paranext-core's hello-someone.ts` for an
   // example of keeping an existing WebView that was specifically created by
   // `paranext-core's hello-someone`.
-  papi.webViews.getWebView(reactWebViewType, undefined, { existingId: '?' });
+  void papi.webViews.getWebView(reactWebViewType, undefined, {existingId: '?'});
 
   // Await the data provider promise at the end so we don't hold everything else up
   context.registrations.add(
@@ -118,6 +118,16 @@ async function launchFwLiteLocalWebApp(context: ExecutionActivationContext) {
   }
   //todo instead of hardcoding the url and port we should run it and find the url in the output
   let baseUrl = 'http://localhost:29348';
-  context.elevatedPrivileges.createProcess.spawn(context.executionToken, binaryPath, ['--urls', baseUrl], {stdio: [null, null, null]});
+  context.elevatedPrivileges.createProcess.spawn(
+    context.executionToken,
+    binaryPath,
+    [
+      '--urls', baseUrl,
+      '--LocalWebApp:OpenBrowser=false',
+      '--LocalWebApp:CorsAllowAny=true',
+      '--LocalWebApp:LogFileName=fw-lite-local-web-app.log',
+    ],
+    {stdio: [null, null, null]}
+  );
   return baseUrl;
 }

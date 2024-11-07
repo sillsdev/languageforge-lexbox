@@ -10,7 +10,7 @@
 
   export let projectName: string;
   export let baseUrl: string;
-  let signalrConnectionOptions: IHttpConnectionOptions = {withCredentials: false, transport: HttpTransportType.LongPolling};
+  let signalrConnectionOptions: IHttpConnectionOptions = {withCredentials: false, transport: HttpTransportType.ServerSentEvents + HttpTransportType.LongPolling};
   onMount(() => {
     const shadowRoot = document.querySelector('fw-data-project-view')?.shadowRoot;
     if (!shadowRoot) throw new Error('Could not find shadow root');
