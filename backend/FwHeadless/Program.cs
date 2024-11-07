@@ -25,6 +25,14 @@ builder.Services.AddFwHeadless();
 
 var app = builder.Build();
 
+// Add lexbox-version header to all requests
+app.Logger.LogInformation("FwHeadless version: {version}", AppVersionService.Version);
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["lexbox-version"] = AppVersionService.Version;
+    await next();
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
