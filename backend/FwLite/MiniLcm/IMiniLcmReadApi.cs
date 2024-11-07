@@ -12,6 +12,7 @@ public interface IMiniLcmReadApi
     IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null);
     IAsyncEnumerable<Entry> SearchEntries(string query, QueryOptions? options = null);
     Task<Entry?> GetEntry(Guid id);
+    Task<PartOfSpeech?> GetPartOfSpeech(Guid id);
 }
 
 public record QueryOptions(

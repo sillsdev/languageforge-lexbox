@@ -39,9 +39,25 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetPartsOfSpeech();
     }
 
-    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        return api.GetPartOfSpeech(id);
+    }
+
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreatePartOfSpeech), $"Create part of speech {partOfSpeech.Name}"));
+        return Task.FromResult(partOfSpeech); // Since this is a dry run, api.GetPartOfSpeech would return null
+    }
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {id}"));
+        return GetPartOfSpeech(id)!;
+    }
+
+    public Task DeletePartOfSpeech(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePartOfSpeech), $"Delete part of speech {id}"));
         return Task.CompletedTask;
     }
 

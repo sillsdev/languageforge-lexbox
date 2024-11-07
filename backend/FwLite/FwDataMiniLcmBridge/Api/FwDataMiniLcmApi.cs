@@ -193,24 +193,55 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             .AllInstances()
             .OrderBy(p => p.Name.BestAnalysisAlternative.Text)
             .ToAsyncEnumerable()
-            .Select(partOfSpeech => new PartOfSpeech
-            {
-                Id = partOfSpeech.Guid,
-                Name = FromLcmMultiString(partOfSpeech.Name)
-            });
+            .Select(FromLcmPartOfSpeech);
     }
 
-    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
+        return Task.FromResult(
+            PartOfSpeechRepository
+            .TryGetObject(id, out var partOfSpeech)
+            ? FromLcmPartOfSpeech(partOfSpeech) : null);
+    }
+
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        IPartOfSpeech? lcmPartOfSpeech = null;
         if (partOfSpeech.Id == default) partOfSpeech.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create Part of Speech",
             "Remove part of speech",
             Cache.ServiceLocator.ActionHandler,
             () =>
             {
-                var lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
+                lcmPartOfSpeech = Cache.ServiceLocator.GetInstance<IPartOfSpeechFactory>()
                     .Create(partOfSpeech.Id, Cache.LangProject.PartsOfSpeechOA);
                 UpdateLcmMultiString(lcmPartOfSpeech.Name, partOfSpeech.Name);
+            });
+        return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech ?? throw new InvalidOperationException("Part of speech was not created")));
+    }
+
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        var lcmPartOfSpeech = PartOfSpeechRepository.GetObject(id);
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Update Part of Speech",
+            "Revert Part of Speech",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                var updateProxy = new UpdatePartOfSpeechProxy(lcmPartOfSpeech, this);
+                update.Apply(updateProxy);
+            });
+        return Task.FromResult(FromLcmPartOfSpeech(lcmPartOfSpeech));
+    }
+
+    public Task DeletePartOfSpeech(Guid id)
+    {
+        UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Delete Part of Speech",
+            "Revert delete",
+            Cache.ServiceLocator.ActionHandler,
+            () =>
+            {
+                PartOfSpeechRepository.GetObject(id).Delete();
             });
         return Task.CompletedTask;
     }
@@ -288,6 +319,17 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return VariantTypes.PossibilitiesOS
             .Select(t => new VariantType() { Id = t.Guid, Name = FromLcmMultiString(t.Name) })
             .ToAsyncEnumerable();
+    }
+
+    private PartOfSpeech FromLcmPartOfSpeech(IPartOfSpeech lcmPos)
+    {
+        return new PartOfSpeech
+        {
+            Id = lcmPos.Guid,
+            Name = FromLcmMultiString(lcmPos.Name),
+            // TODO: Abreviation = FromLcmMultiString(partOfSpeech.Abreviation),
+            Predefined = true, // NOTE: the !string.IsNullOrEmpty(lcmPos.CatalogSourceId) check doesn't work if the PoS originated in CRDT
+        };
     }
 
     private Entry FromLexEntry(ILexEntry entry)
