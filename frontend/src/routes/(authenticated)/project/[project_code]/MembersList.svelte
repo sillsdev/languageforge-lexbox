@@ -27,7 +27,7 @@
   export let canManageMember: (member: Member) => boolean;
   export let canManageList: boolean;
   export let projectId: string;
-  export let canViewMembers: boolean;
+  export let canViewOtherMembers: boolean;
 
   const dispatch = createEventDispatcher<{
     openUserModal: Member;
@@ -81,7 +81,7 @@
   <div class="text-2xl mb-4 flex items-baseline gap-4 max-sm:flex-col">
     <h2>
       {$t('project_page.members.title')}
-      {#if !canViewMembers}
+      {#if !canViewOtherMembers}
         <span
           class="tooltip tooltip-warning text-warning shrink-0 leading-0"
           data-tip={$t('project_page.members.membership_confidential')}>
