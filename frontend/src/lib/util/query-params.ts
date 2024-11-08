@@ -94,4 +94,6 @@ export function getSearchParam<T extends PrimitiveRecord, R = string | undefined
   return value as EnumOrString<R> | undefined;
 }
 
-type EnumOrString<R> = R extends StandardEnum<unknown> ? R : string;
+type EnumOrString<R> = R extends StandardEnum<unknown> ? R
+  : R extends (string | undefined) ? R
+  : string;
