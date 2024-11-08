@@ -73,7 +73,11 @@ export async function load(event: PageLoadEvent) {
               userCount
             }
             draftProjects(
-              where: $draftFilter
+              where: $draftFilter,
+              orderBy: [
+                { createdDate: DESC },
+                { name: ASC }
+              ]
             ) {
               code
               id
