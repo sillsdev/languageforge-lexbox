@@ -141,29 +141,35 @@ function buildUserSearchFilter(searchParams: URLSearchParams, user: LexAuthUser)
   const userType = getSearchParam<AdminSearchParams, UserType>('userType', searchParams);
   const onlyUsersICreated = getBoolSearchParam<AdminSearchParams>('usersICreated', searchParams);
 
-  const userSearchFilter: UserFilterInput =
-    isGuid(userSearch) ? {id: {eq: userSearch}}
-      : {
-        or: [
-          {name: {icontains: userSearch}},
-          {email: {icontains: userSearch}},
-          {username: {icontains: userSearch}}
-        ]
-      };
-  const usersICreatedFilter: UserFilterInput =
-    onlyUsersICreated ? {createdById: {eq: user.id as UUID}}
-      : {};
-  const userTypeFilter: UserFilterInput =
-    userType === 'admin' ? {isAdmin: {eq: true}}
-      : userType === 'nonAdmin' ? {isAdmin: {eq: false}}
-        : userType === 'guest' ? {createdById: {neq: null}}
-          : {};
+  const userFilter: UserFilterInput = {};
 
-  return {
-    ...userSearchFilter,
-    ...usersICreatedFilter,
-    ...userTypeFilter,
-  };
+  if (isGuid(userSearch)) {
+    userFilter.id = { eq: userSearch };
+  } else {
+    userFilter.or = [
+      { name: { icontains: userSearch } },
+      { email: { icontains: userSearch } },
+      { username: { icontains: userSearch } }
+    ];
+  }
+
+  if (onlyUsersICreated) {
+    userFilter.createdById = { eq: user.id as UUID };
+  }
+
+  switch (userType) {
+    case 'admin':
+      userFilter.isAdmin = { eq: true };
+      break;
+    case 'nonAdmin':
+      userFilter.isAdmin = { eq: false };
+      break;
+    case 'guest':
+      userFilter.createdById = { neq: null };
+      break;
+  }
+
+  return userFilter;
 }
 
 function requireAdmin(user: LexAuthUser | null): void {
