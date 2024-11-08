@@ -153,10 +153,6 @@ function buildUserSearchFilter(searchParams: URLSearchParams, user: LexAuthUser)
     ];
   }
 
-  if (onlyUsersICreated) {
-    userFilter.createdById = { eq: user.id as UUID };
-  }
-
   switch (userType) {
     case 'admin':
       userFilter.isAdmin = { eq: true };
@@ -167,6 +163,10 @@ function buildUserSearchFilter(searchParams: URLSearchParams, user: LexAuthUser)
     case 'guest':
       userFilter.createdById = { neq: null };
       break;
+  }
+
+  if (onlyUsersICreated) {
+    userFilter.createdById = { eq: user.id as UUID };
   }
 
   return userFilter;
