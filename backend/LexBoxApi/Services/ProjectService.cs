@@ -244,6 +244,16 @@ public class ProjectService(LexBoxDbContext dbContext, IHgService hgService, IOp
         // Caller is responsible for caling dbContext.SaveChangesAsync()
     }
 
+    public async Task<int?> UpdateRepoSizeInKb(string projectCode)
+    {
+        var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Code == projectCode);
+        if (project is null) return null;
+        var size = await hgService.GetRepoSizeInKb(projectCode);
+        project.RepoSizeInKb = size;
+        await dbContext.SaveChangesAsync();
+        return size;
+    }
+
     public async Task ResetLexEntryCount(string projectCode)
     {
         var project = await dbContext.Projects
