@@ -24,6 +24,7 @@ import type {
   UpdateLangProjectIdMutation,
   UpdateProjectLanguageListMutation,
   UpdateProjectLexEntryCountMutation,
+  UpdateProjectRepoSizeInKbMutation,
 } from '$lib/gql/types';
 import { getClient, graphql } from '$lib/gql';
 
@@ -56,6 +57,7 @@ export async function load(event: PageLoadEvent) {
 						type
             resetStatus
 						lastCommit
+						repoSizeInKb
 						createdDate
 						retentionPolicy
 						isConfidential
@@ -274,6 +276,31 @@ export async function _bulkAddProjectMembers(input: BulkAddProjectMembersInput):
         }
       `),
       { input: input }
+    );
+  return result;
+}
+
+export async function _updateProjectRepoSizeInKb(code: string): $OpResult<UpdateProjectRepoSizeInKbMutation> {
+  //language=GraphQL
+  const result = await getClient()
+    .mutation(
+      graphql(`
+        mutation UpdateProjectRepoSizeInKb($input: UpdateProjectRepoSizeInKbInput!) {
+          updateProjectRepoSizeInKb(input: $input) {
+            project {
+              id
+              repoSizeInKb
+            }
+            errors {
+              __typename
+              ... on Error {
+                message
+              }
+            }
+          }
+        }
+      `),
+      { input: { code } },
     );
   return result;
 }

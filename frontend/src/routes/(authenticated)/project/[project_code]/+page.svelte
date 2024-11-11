@@ -17,6 +17,7 @@
     _updateFLExModelVersion,
     _updateProjectLanguageList,
     _updateProjectLexEntryCount,
+    _updateProjectRepoSizeInKb,
     type ProjectUser,
   } from './+page';
   import AddProjectMember from './AddProjectMember.svelte';
@@ -54,6 +55,7 @@
   import { onMount } from 'svelte';
   import { getSearchParamValues } from '$lib/util/query-params';
   import FlexModelVersionText from '$lib/components/Projects/FlexModelVersionText.svelte';
+  import Loader from '$lib/components/Loader.svelte';
 
   export let data: PageData;
   $: user = data.user;
@@ -93,6 +95,17 @@
   let addProjectMember: AddProjectMember;
 
   let userModal: UserModal;
+
+  let loadingRepoSize = false;
+  async function updateRepoSize(): Promise<void> {
+    loadingRepoSize = true;
+    await _updateProjectRepoSizeInKb(project.code);
+    loadingRepoSize = false;
+  }
+
+  $: if (project.repoSizeInKb == null) {
+    updateRepoSize();
+  }
 
   let loadingEntryCount = false;
   async function updateEntryCount(): Promise<void> {
@@ -398,6 +411,12 @@
       <DetailItem title={$t('project_page.project_code')} text={project.code} copyToClipboard={true} />
       <DetailItem title={$t('project_page.created_at')} text={$date(project.createdDate)} />
       <DetailItem title={$t('project_page.last_commit')} text={$date(project.lastCommit)} />
+      {#if loadingRepoSize}
+        <Loader loading={loadingRepoSize} size="loading-xs" />
+      {:else}
+        <!-- TODO: Might be nice to create a size formatter that will convert to megabytes/gigabytes as appropriate -->
+        <DetailItem title={$t('project_page.repo_size')} text={$number(project.repoSizeInKb) + ' kB'} />
+      {/if}
       {#if project.type === ProjectType.FlEx || project.type === ProjectType.WeSay}
         <DetailItem title={$t('project_page.num_entries')} text={$number(lexEntryCount)}>
           <AdminContent slot="extras">

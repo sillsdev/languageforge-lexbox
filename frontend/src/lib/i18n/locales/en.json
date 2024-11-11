@@ -448,6 +448,7 @@ Lexbox is free and [open source](https://github.com/sillsdev/languageforge-lexbo
     "history": "History",
     "project_code": "Project Code",
     "summary": "Summary",
+    "repo_size": "Size on disk",
     "num_entries": "Entries",
     "description": "Description",
     "created_at": "Created",
