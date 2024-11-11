@@ -1,15 +1,14 @@
 import * as testEnv from './envVars';
 
-import { AdminDashboardPage } from './pages/adminDashboardPage';
-import { EmailSubjects } from './pages/mailPages';
-import { LoginPage } from './pages/loginPage';
-import { SandboxPage } from './pages/sandboxPage';
-import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { expect } from '@playwright/test';
-import { getInbox } from './utils/mailboxHelpers';
-import { loginAs } from './utils/authHelpers';
-import { test } from './fixtures';
+import {AdminDashboardPage} from './pages/adminDashboardPage';
+import {EmailSubjects} from './email/email-page';
+import {LoginPage} from './pages/loginPage';
+import {SandboxPage} from './pages/sandboxPage';
+import {UserAccountSettingsPage} from './pages/userAccountSettingsPage';
+import {UserDashboardPage} from './pages/userDashboardPage';
+import {expect} from '@playwright/test';
+import {loginAs} from './utils/authHelpers';
+import {test} from './fixtures';
 
 test('can catch 500 errors from goto in same tab', async ({ page }) => {
   await new SandboxPage(page).goto();
@@ -151,8 +150,7 @@ test('page load 403 on home page is redirected to login', async ({ page, tempUse
   await page.locator(':text("Check Your Inbox")').first().waitFor();
 
   // - Get JWT from reset password link
-  const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail(EmailSubjects.ForgotPassword);
+  const emailPage = await tempUser.mailbox.openEmail(page, EmailSubjects.ForgotPassword);
   const url = await emailPage.getFirstLanguageDepotUrl();
   expect(url).not.toBeNull();
   const forgotPasswordJwt = (url as string).split('jwt=')[1].split('&')[0];

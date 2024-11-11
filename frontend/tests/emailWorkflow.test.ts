@@ -1,17 +1,16 @@
-import { TEST_TIMEOUT_2X, defaultPassword } from './envVars';
-import { deleteUser, getCurrentUserId, loginAs, logout } from './utils/authHelpers';
+import {TEST_TIMEOUT_2X, defaultPassword} from './envVars';
+import {deleteUser, getCurrentUserId, loginAs, logout} from './utils/authHelpers';
 
-import { AdminDashboardPage } from './pages/adminDashboardPage';
-import { EmailSubjects } from './pages/mailPages';
-import { LoginPage } from './pages/loginPage';
-import { AcceptInvitationPage } from './pages/acceptInvitationPage';
-import { ResetPasswordPage } from './pages/resetPasswordPage';
-import { UserAccountSettingsPage } from './pages/userAccountSettingsPage';
-import { UserDashboardPage } from './pages/userDashboardPage';
-import { expect } from '@playwright/test';
-import { getInbox } from './utils/mailboxHelpers';
-import { randomUUID } from 'crypto';
-import { test } from './fixtures';
+import {AcceptInvitationPage} from './pages/acceptInvitationPage';
+import {AdminDashboardPage} from './pages/adminDashboardPage';
+import {EmailSubjects} from './email/email-page';
+import {LoginPage} from './pages/loginPage';
+import {ResetPasswordPage} from './pages/resetPasswordPage';
+import {UserAccountSettingsPage} from './pages/userAccountSettingsPage';
+import {UserDashboardPage} from './pages/userDashboardPage';
+import {expect} from '@playwright/test';
+import {randomUUID} from 'crypto';
+import {test} from './fixtures';
 
 const userIdsToDelete: string[] = [];
 
@@ -25,7 +24,7 @@ test.afterEach(async ({ page }) => {
   }
 });
 
-test('register, verify, update, verify email address', async ({ page, tempUser }) => {
+test('register, verify, update, verify email address', async ({ page, tempUser, mailboxFactory }) => {
   test.slow(); // Checking email and logging in repeatedly takes time
   await loginAs(page.request, tempUser.email, tempUser.password);
   const userDashboardPage = await new UserDashboardPage(page).goto();
@@ -35,8 +34,7 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
   await userDashboardPage.emailVerificationAlert.clickResendEmail();
   await userDashboardPage.emailVerificationAlert.assertVerificationSent();
 
-  const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  let emailPage = await inboxPage.openEmail(EmailSubjects.VerifyEmail);
+  let emailPage = await tempUser.mailbox.openEmail(page, EmailSubjects.VerifyEmail);
   let pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickVerifyEmail();
   let newPage = await pagePromise;
@@ -50,17 +48,15 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
   await userPage.emailVerificationAlert.assertGone();
 
   // Request new email address
-  const newMailinatorId = randomUUID();
-  const newEmail = `${newMailinatorId}@mailinator.com`;
+  const mailbox = await mailboxFactory();
   await userPage.goto();
-  await userPage.fillEmail(newEmail);
+  await userPage.fillEmail(mailbox.email);
   await userPage.clickSave();
 
   await userPage.emailVerificationAlert.assertRequestedToChange();
 
   // Verify new email address
-  await inboxPage.gotoMailbox(newMailinatorId);
-  emailPage = await inboxPage.openEmail(EmailSubjects.VerifyEmail);
+  emailPage = await mailbox.openEmail(page, EmailSubjects.VerifyEmail);
   pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickVerifyEmail();
   newPage = await pagePromise;
@@ -68,9 +64,9 @@ test('register, verify, update, verify email address', async ({ page, tempUser }
 
   await userPage.emailVerificationAlert.assertSuccessfullyUpdated();
 
-  // Confirm new meail address works
+  // Confirm new email address works
   const loginPage = await logout(page);
-  await loginPage.fillForm(newEmail, tempUser.password);
+  await loginPage.fillForm(mailbox.email, tempUser.password);
   await loginPage.submit();
   await userDashboardPage.waitFor();
 });
@@ -85,11 +81,10 @@ test('forgot password', async ({ page, tempUser }) => {
   await page.locator(':text("Check Your Inbox")').first().waitFor();
 
   // Use reset password link
-  const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
-  const emailPage = await inboxPage.openEmail(EmailSubjects.ForgotPassword);
+  const emailPage = await tempUser.mailbox.openEmail(page, EmailSubjects.ForgotPassword);
   const resetPasswordUrl = await emailPage.getFirstLanguageDepotUrl();
   expect(resetPasswordUrl).not.toBeNull();
-  expect(resetPasswordUrl!).toContain('resetPassword');
+  expect(resetPasswordUrl).toContain('resetPassword');
 
   const pagePromise = emailPage.page.context().waitForEvent('page');
   await emailPage.clickResetPassword();
@@ -112,7 +107,7 @@ test('forgot password', async ({ page, tempUser }) => {
   await expect(loginPage.page.getByText('The email you clicked has expired')).toBeVisible();
 });
 
-test('register via new-user invitation email', async ({ page }) => {
+test('register via new-user invitation email', async ({ page, mailboxFactory }) => {
   test.setTimeout(TEST_TIMEOUT_2X);
 
   await loginAs(page.request, 'admin', defaultPassword);
@@ -121,7 +116,8 @@ test('register via new-user invitation email', async ({ page }) => {
 
   const uuid = randomUUID();
 
-  const newEmail = `${uuid}@mailinator.com`;
+  const mailbox = await mailboxFactory();
+  const newEmail = mailbox.email;
 
   const addMemberModal = await projectPage.clickAddMember();
   await addMemberModal.emailField.fill(newEmail);
@@ -131,13 +127,12 @@ test('register via new-user invitation email', async ({ page }) => {
   await page.locator(':text("has been sent an invitation email")').waitFor();
 
   // Check invite link returnTo is relative path, not absolute
-  const inboxPage = await getInbox(page, uuid).goto();
-  const emailPage = await inboxPage.openEmail(EmailSubjects.ProjectInvitation);
+  const emailPage = await mailbox.openEmail(page, EmailSubjects.ProjectInvitation);
   const invitationUrl = await emailPage.getFirstLanguageDepotUrl();
   expect(invitationUrl).not.toBeNull();
-  expect(invitationUrl!).toContain('acceptInvitation');
-  expect(invitationUrl!).toContain('returnTo=');
-  expect(invitationUrl!).not.toContain('returnTo=http');
+  expect(invitationUrl).toContain('acceptInvitation');
+  expect(invitationUrl).toContain('returnTo=');
+  expect(invitationUrl).not.toContain('returnTo=http');
 
   // Click invite link, verify register page contains pre-filled email address
   const pagePromise = emailPage.page.context().waitForEvent('page');

@@ -1,18 +1,23 @@
-import { test as base, expect, type BrowserContext, type BrowserContextOptions } from '@playwright/test';
+import {test as base, expect, type BrowserContext, type BrowserContextOptions} from '@playwright/test';
 import * as testEnv from './envVars';
-import { type UUID, randomUUID } from 'crypto';
-import { deleteUser, loginAs, registerUser } from './utils/authHelpers';
-import { executeGql, type GqlResult } from './utils/gqlHelpers';
-import { mkdtemp, rm } from 'fs/promises';
-import { join } from 'path';
-import { tmpdir } from 'os';
+import {type UUID, randomUUID} from 'crypto';
+import {deleteUser, loginAs, registerUser} from './utils/authHelpers';
+import {executeGql, type GqlResult} from './utils/gqlHelpers';
+import {mkdtemp, rm} from 'fs/promises';
+import {join} from 'path';
+import {tmpdir} from 'os';
+import type {Mailbox} from './email/mailbox';
+import {isDev} from './envVars';
+import {E2EMailboxApi} from './email/e2e-mailbox-module-patched';
+import {MaildevMailbox} from './email/maildev-mailbox';
+import {E2EMailbox} from './email/e2e-mailbox';
 
 export interface TempUser {
   id: UUID
-  mailinatorId: UUID
   name: string
   email: string
   password: string
+  mailbox: Mailbox
 }
 
 export interface TempProject {
@@ -26,9 +31,21 @@ export type CreateProjectResponse = {data: {createProject: {createProjectRespons
 type Fixtures = {
   contextFactory: (options: BrowserContextOptions) => Promise<BrowserContext>,
   uniqueTestId: string,
-  tempUser: TempUser,
+  tempUser: Readonly<TempUser>,
   tempProject: TempProject,
   tempDir: string,
+  mailboxFactory: () => Promise<Mailbox>,
+}
+
+async function getNewMailbox(context: BrowserContext): Promise<Mailbox> {
+  if (isDev) {
+    const email = `${randomUUID()}@maildev.com`;
+    return new MaildevMailbox(email, context.request);
+  } else {
+    const mailbox = new E2EMailboxApi();
+    const email = await mailbox.createEmailAddress();
+    return new E2EMailbox(email, mailbox);
+  }
 }
 
 function addUnexpectedResponseListener(context: BrowserContext): void {
@@ -73,19 +90,22 @@ export const test = base.extend<Fixtures>({
     const testId = `${testInfo.testId}-${shortId}`;
     await use(testId);
   },
-  tempUser: async ({ browser, page }, use, testInfo) => {
-    const mailinatorId = randomUUID();
-    const email = `${mailinatorId}@mailinator.com`;
+  mailboxFactory: async ({context}, use) => {
+    await use(() => getNewMailbox(context));
+  },
+  tempUser: async ({browser, page, mailboxFactory}, use, testInfo) => {
+    const mailbox = await mailboxFactory();
+    const email = mailbox.email;
     const name = `Test: ${testInfo.title} - ${email}`;
     const password = email;
     const tempUserId = await registerUser(page, name, email, password);
-    const tempUser: TempUser = {
+    const tempUser = Object.freeze({
       id: tempUserId,
-      mailinatorId,
       name,
       email,
-      password
-    };
+      password,
+      mailbox,
+    });
     await use(tempUser);
     const context = await browser.newContext();
     await loginAs(context.request, 'admin', testEnv.defaultPassword);

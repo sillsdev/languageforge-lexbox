@@ -18,7 +18,7 @@ spec:
 
           env:
             - name: CloudFlare__AllowDomain
-              value: "mailinator.com"
+              value: "developermail.com"
             - name: Email__SmtpHost
               value: email-smtp.us-east-1.amazonaws.com
             - name: Email__SmtpPort
