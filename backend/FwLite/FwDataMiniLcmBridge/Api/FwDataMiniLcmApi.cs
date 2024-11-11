@@ -541,6 +541,12 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                     CreateSense(lexEntry, sense);
                 }
 
+                //form types should be created before components, otherwise the form type "unspecified" will be added
+                foreach (var complexFormType in entry.ComplexFormTypes)
+                {
+                    AddComplexFormType(lexEntry, complexFormType.Id);
+                }
+
                 foreach (var component in entry.Components)
                 {
                     AddComplexFormComponent(lexEntry, component);
@@ -550,11 +556,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
                 {
                     var complexLexEntry = EntriesRepository.GetObject(complexForm.ComplexFormEntryId);
                     AddComplexFormComponent(complexLexEntry, complexForm);
-                }
-
-                foreach (var complexFormType in entry.ComplexFormTypes)
-                {
-                    AddComplexFormType(lexEntry, complexFormType.Id);
                 }
             });
 
