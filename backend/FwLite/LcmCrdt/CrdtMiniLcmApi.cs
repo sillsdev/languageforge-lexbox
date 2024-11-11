@@ -142,7 +142,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return ComplexFormTypes.AsAsyncEnumerable();
     }
 
-    public async Task<ComplexFormType> CreateComplexFormType(MiniLcm.Models.ComplexFormType complexFormType)
+    public async Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
         if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         await dataModel.AddChange(ClientId, new CreateComplexFormType(complexFormType.Id, complexFormType.Name));

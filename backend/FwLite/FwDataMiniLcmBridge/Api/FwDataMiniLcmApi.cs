@@ -337,7 +337,7 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
 
     public Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType)
     {
-        if (complexFormType.Id != default) throw new InvalidOperationException("Complex form type id must be empty");
+        if (complexFormType.Id == default) complexFormType.Id = Guid.NewGuid();
         UndoableUnitOfWorkHelper.DoUsingNewOrCurrentUOW("Create complex form type",
             "Remove complex form type",
             Cache.ActionHandlerAccessor,
@@ -345,10 +345,9 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
             {
                 var lexComplexFormType = Cache.ServiceLocator
                     .GetInstance<ILexEntryTypeFactory>()
-                    .Create();
+                    .Create(complexFormType.Id);
                 ComplexFormTypes.PossibilitiesOS.Add(lexComplexFormType);
                 UpdateLcmMultiString(lexComplexFormType.Name, complexFormType.Name);
-                complexFormType.Id = lexComplexFormType.Guid;
             });
         return Task.FromResult(ToComplexFormType(ComplexFormTypes.PossibilitiesOS.Single(c => c.Guid == complexFormType.Id)));
     }
