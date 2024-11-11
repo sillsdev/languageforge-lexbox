@@ -166,8 +166,8 @@ public class EmailService(
         var httpContext = httpContextAccessor.HttpContext;
         ArgumentNullException.ThrowIfNull(httpContext);
 
-        var returnTo = _linkGenerator.GetUriByAction(httpContext,
-            nameof(LexBoxApi.Controllers.UserController.HandleInviteLink),
+        var returnTo = _linkGenerator.GetPathByAction(httpContext,
+            nameof(Controllers.UserController.HandleInviteLink),
             "User");
         var registerLink = _linkGenerator.GetUriByAction(httpContext,
             "LoginRedirect",
