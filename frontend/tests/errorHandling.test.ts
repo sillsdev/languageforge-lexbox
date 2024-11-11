@@ -65,7 +65,7 @@ test('client-side gql 500 does not break the application', async ({ page }) => {
   const responsePromise = page.waitForResponse('/api/graphql');
   await page.getByText('GQL 500').click();
   await responsePromise.catch(() => { });// Ignore the error
-  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  await expect(page.locator(':text-matches("Unexpected Execution Error", "g")').first()).toBeVisible();
   await page.getByRole('button', { name: 'Dismiss' }).click();
   await page.locator('#home').click();
   await new UserDashboardPage(page).waitFor();
@@ -75,7 +75,7 @@ test('client-side gql 500 does not break the application', async ({ page }) => {
 test('server-side gql 500 does not kill the server', async ({ page }) => {
   await loginAs(page.request, 'admin', testEnv.defaultPassword);
   await new SandboxPage(page).goto({ urlEnd: '?ssr-gql-500', expectErrorResponse: true });
-  await expect(page.locator(':text-matches("Unexpected response:.*(500)", "g")').first()).toBeVisible();
+  await expect(page.locator(':text-matches("Unexpected Execution Error", "g")').first()).toBeVisible();
   // we've verified that a 500 occured, now we verify that the server is still alive
   await new AdminDashboardPage(page).goto();
   test.fail(); // Everything up to here passed, but we expect a soft 500 response assertion to ultimately fail the test

@@ -2,7 +2,7 @@ import { test as base, expect, type BrowserContext, type BrowserContextOptions }
 import * as testEnv from './envVars';
 import { type UUID, randomUUID } from 'crypto';
 import { deleteUser, loginAs, registerUser } from './utils/authHelpers';
-import { executeGql } from './utils/gqlHelpers';
+import { executeGql, type GqlResult } from './utils/gqlHelpers';
 import { mkdtemp, rm } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -32,7 +32,7 @@ type Fixtures = {
 }
 
 function addUnexpectedResponseListener(context: BrowserContext): void {
-  context.addListener('response', response => {
+  context.addListener('response', async (response) => {
     const traceparent = response.request().headers()['traceparent'];
     const status = response.status();
     const url = response.request().url();
@@ -40,6 +40,10 @@ function addUnexpectedResponseListener(context: BrowserContext): void {
     expect.soft(response.status(), unexpectedResponseMessage).toBeLessThan(500);
     if (response.request().isNavigationRequest()) {
       expect.soft(response.status(), unexpectedResponseMessage).toBeLessThan(400);
+    }
+    if (url.endsWith('/api/graphql') && response.ok()) { // response.ok() filters out redirects, which don't have a response body
+      const result = await response.json() as GqlResult;
+      expect.soft(result.errors?.[0]?.message).not.toBe('Unexpected Execution Error');
     }
   });
 }
