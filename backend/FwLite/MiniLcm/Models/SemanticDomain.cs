@@ -6,7 +6,6 @@ public class SemanticDomain : IObjectWithId
     public virtual required MultiString Name { get; set; }
     public virtual required string Code { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
-    public string? Version { get; set; }
     public bool Predefined { get; set; }
 
     public Guid[] GetReferences()
@@ -26,7 +25,6 @@ public class SemanticDomain : IObjectWithId
             Code = Code,
             Name = Name,
             DeletedAt = DeletedAt,
-            Version = Version,
             Predefined = Predefined
         };
     }

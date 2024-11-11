@@ -21,7 +21,6 @@ public record ComplexFormComponent : IObjectWithId
 
     public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
-    public string? Version { get; set; }
     public virtual required Guid ComplexFormEntryId { get; set; }
     public string? ComplexFormHeadword { get; set; }
     public virtual required Guid ComponentEntryId { get; set; }
@@ -57,7 +56,6 @@ public record ComplexFormComponent : IObjectWithId
             ComponentHeadword = ComponentHeadword,
             ComponentSenseId = ComponentSenseId,
             DeletedAt = DeletedAt,
-            Version = Version,
         };
     }
 }

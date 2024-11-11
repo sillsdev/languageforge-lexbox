@@ -7,7 +7,6 @@ public record ComplexFormType : IObjectWithId
     public required MultiString Name { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
-    public string? Version { get; set; }
 
     public Guid[] GetReferences()
     {
@@ -20,6 +19,6 @@ public record ComplexFormType : IObjectWithId
 
     public IObjectWithId Copy()
     {
-        return new ComplexFormType { Id = Id, Name = Name, DeletedAt = DeletedAt, Version = Version };
+        return new ComplexFormType { Id = Id, Name = Name, DeletedAt = DeletedAt };
     }
 }

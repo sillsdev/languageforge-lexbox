@@ -1,10 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using FluentAssertions.Equivalency;
-using MiniLcm.Models;
-using MiniLcm.Tests.AutoFakerHelpers;
-using MiniLcm.Tests.Helpers;
-using Soenneker.Utils.AutoBogus;
+﻿using MiniLcm.Tests.AutoFakerHelpers;
 
 namespace MiniLcm.Tests;
 
@@ -30,7 +24,7 @@ public abstract class CreateEntryTestsBase : MiniLcmTestBase
             await Api.CreateComplexFormType(entryComplexFormType);
         }
         var createdEntry = await Api.CreateEntry(entry);
-        createdEntry.Should().BeEquivalentTo(entry, options => options.ExcludingVersion()
+        createdEntry.Should().BeEquivalentTo(entry, options => options
             .For(e => e.Components).Exclude(e => e.Id)
             .For(e => e.ComplexForms).Exclude(e => e.Id));
     }

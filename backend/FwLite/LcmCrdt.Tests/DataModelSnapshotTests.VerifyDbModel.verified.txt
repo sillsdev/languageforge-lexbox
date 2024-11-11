@@ -26,7 +26,6 @@
       ComponentSenseId (Guid?) FK Index
       DeletedAt (DateTimeOffset?)
       SnapshotId (no field, Guid?) Shadow FK Index
-      Version (string)
     Keys: 
       Id PK
     Foreign keys: 
@@ -55,7 +54,6 @@
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
-      Version (string)
     Keys: 
       Id PK
     Foreign keys: 
@@ -90,7 +88,6 @@
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
-      Version (string)
     Navigations: 
       ComplexForms (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
       Components (IList<ComplexFormComponent>) Collection ToDependent ComplexFormComponent
@@ -122,7 +119,6 @@
       Translation (MultiString) Required
         Annotations: 
           Relational:ColumnType: jsonb
-      Version (string)
     Keys: 
       Id PK
     Foreign keys: 
@@ -148,7 +144,6 @@
           Relational:ColumnType: jsonb
       Predefined (bool) Required
       SnapshotId (no field, Guid?) Shadow FK Index
-      Version (string)
     Keys: 
       Id PK
     Foreign keys: 
@@ -173,7 +168,6 @@
           Relational:ColumnType: jsonb
       Predefined (bool) Required
       SnapshotId (no field, Guid?) Shadow FK Index
-      Version (string)
     Keys: 
       Id PK
     Foreign keys: 
@@ -205,7 +199,6 @@
         Annotations: 
           Relational:ColumnType: jsonb
       SnapshotId (no field, Guid?) Shadow FK Index
-      Version (string)
     Navigations: 
       ExampleSentences (IList<ExampleSentence>) Collection ToDependent ExampleSentence
     Keys: 
@@ -237,7 +230,6 @@
       Order (double) Required
       SnapshotId (no field, Guid?) Shadow FK Index
       Type (WritingSystemType) Required
-      Version (string)
       WsId (WritingSystemId) Required
     Keys: 
       Id PK

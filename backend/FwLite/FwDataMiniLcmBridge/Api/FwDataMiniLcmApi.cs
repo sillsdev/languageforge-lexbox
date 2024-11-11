@@ -337,7 +337,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         return new Entry
         {
             Id = entry.Guid,
-            Version = entry.DateModified.ToString("O"),
             Note = FromLcmMultiString(entry.Comment),
             LexemeForm = FromLcmMultiString(entry.LexemeFormOA.Form),
             CitationForm = FromLcmMultiString(entry.CitationForm),
@@ -894,16 +893,6 @@ public class FwDataMiniLcmApi(Lazy<LcmCache> cacheLazy, bool onCloseSave, ILogge
         {
             throw new InvalidOperationException("Example sentence does not belong to sense, it belongs to a " +
                                                 lexExampleSentence.Owner.ClassName);
-        }
-    }
-
-    private void ValidateVersion(IObjectWithId after, IObjectWithId before)
-    {
-        if (after.GetType() != before.GetType()) throw new InvalidOperationException(
-            $"Invalidating a different type of object {after.GetType().Name} with {before.GetType().Name}");
-        if (after.Version is null || after.Version != before.Version)
-        {
-            throw new VersionInvalidException(after.GetType().Name);
         }
     }
 }

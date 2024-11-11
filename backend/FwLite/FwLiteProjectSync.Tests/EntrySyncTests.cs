@@ -1,8 +1,8 @@
-﻿using FwLiteProjectSync.Tests.Fixtures;
+﻿using FluentAssertions.Equivalency;
+using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
 using MiniLcm.Tests.AutoFakerHelpers;
-using MiniLcm.Tests.Helpers;
 using Soenneker.Utils.AutoBogus;
 
 namespace FwLiteProjectSync.Tests;
@@ -25,7 +25,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
         await EntrySync.Sync(after, createdEntry, _fixture.CrdtApi);
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
+        actual.Should().BeEquivalentTo(after, options => options);
     }
 
     [Fact]
@@ -57,7 +57,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
+        actual.Should().BeEquivalentTo(after, options => options);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
+        actual.Should().BeEquivalentTo(after, options => options);
     }
 
     [Fact]
@@ -103,6 +103,6 @@ public class EntrySyncTests : IClassFixture<SyncFixture>
 
         var actual = await _fixture.CrdtApi.GetEntry(after.Id);
         actual.Should().NotBeNull();
-        actual.Should().BeEquivalentTo(after, options => options.ExcludingVersion());
+        actual.Should().BeEquivalentTo(after, options => options);
     }
 }

@@ -16,12 +16,4 @@ public class CreateEntryTests : CreateEntryTestsBase
         await base.DisposeAsync();
         await _fixture.DisposeAsync();
     }
-
-    [Fact]
-    public async Task CreateEntry_HasVersion()
-    {
-        var entry = await Api.CreateEntry(new() { LexemeForm = { { "en", "test" } } });
-        entry.Version.Should().NotBeNullOrWhiteSpace();
-    }
-
 }

@@ -15,7 +15,6 @@ public interface IObjectWithId
 {
     public Guid Id { get; }
     public DateTimeOffset? DeletedAt { get; set; }
-    public string? Version { get; set; }
 
     public Guid[] GetReferences();
 

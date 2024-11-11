@@ -7,7 +7,6 @@ public class PartOfSpeech : IObjectWithId
     // TODO: Probably need Abbreviation in order to match LCM data model
 
     public DateTimeOffset? DeletedAt { get; set; }
-    public string? Version { get; set; }
     public bool Predefined { get; set; }
 
     public Guid[] GetReferences()
@@ -26,7 +25,6 @@ public class PartOfSpeech : IObjectWithId
             Id = Id,
             Name = Name,
             DeletedAt = DeletedAt,
-            Version = Version,
             Predefined = Predefined
         };
     }

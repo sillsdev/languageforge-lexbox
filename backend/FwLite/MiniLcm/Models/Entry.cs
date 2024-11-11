@@ -4,7 +4,6 @@ public class Entry : IObjectWithId<Entry>
 {
     public Guid Id { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
-    public string? Version { get; set; }
 
     public virtual MultiString LexemeForm { get; set; } = new();
 
@@ -41,7 +40,6 @@ public class Entry : IObjectWithId<Entry>
         {
             Id = Id,
             DeletedAt = DeletedAt,
-            Version = Version,
             LexemeForm = LexemeForm.Copy(),
             CitationForm = CitationForm.Copy(),
             LiteralMeaning = LiteralMeaning.Copy(),
