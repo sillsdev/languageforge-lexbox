@@ -87,9 +87,19 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return await GetPartsOfSpeech().FirstOrDefaultAsync(pos => pos.Id == id);
     }
 
-    public IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
+    public async IAsyncEnumerable<SemanticDomain> GetSemanticDomains()
     {
-        return AsyncEnumerable.Empty<SemanticDomain>();
+        var optionListItems = await dbContext.GetOptionListItems(projectCode, "semantic-domain-ddp4");
+
+        foreach (var item in optionListItems)
+        {
+            yield return ToSemanticDomain(item);
+        }
+    }
+
+    public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
+    {
+        return await GetSemanticDomains().FirstOrDefaultAsync(semdom => semdom.Id == id);
     }
 
     public IAsyncEnumerable<Entry> GetEntries(QueryOptions? options = null)
@@ -283,15 +293,25 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         };
     }
 
+    private static SemanticDomain ToSemanticDomain(Entities.OptionListItem item)
+    {
+        // TODO: Needs testing against actual LF testlangproj data
+        return new SemanticDomain
+        {
+            Id = item.Guid ?? Guid.Empty,
+            Name = new MultiString
+            {
+                { "en", item.Value ?? item.Abbreviation ?? string.Empty },
+                { "__key", item.Key ?? string.Empty } // The key is all that senses have on them, so we need it client-side to find the display name
+            },
+            Predefined = false,
+        };
+    }
+
     public async Task<Entry?> GetEntry(Guid id)
     {
         var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
         if (entry is null) return null;
         return ToEntry(entry);
-    }
-
-    public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
-    {
-        return null; // TODO: Once GetSemanticDomains() is implemented, use it
     }
 }
