@@ -78,15 +78,7 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
 
         foreach (var item in optionListItems)
         {
-            yield return new PartOfSpeech
-            {
-                Id = item.Guid ?? Guid.Empty,
-                Name = new MultiString
-                {
-                    { "en", item.Value ?? item.Abbreviation ?? string.Empty },
-                    { "__key", item.Key ?? string.Empty } // The key is all that senses have on them, so we need it client-side to find the display name
-                }
-            };
+            yield return ToPartOfSpeech(item);
         }
     }
 
@@ -276,12 +268,16 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         return ms;
     }
 
-    private static PartOfSpeech ToPartOfSpeech(Entities.PartOfSpeech pos)
+    private static PartOfSpeech ToPartOfSpeech(Entities.OptionListItem item)
     {
         return new PartOfSpeech
         {
-            Id = pos.Guid,
-            Name = ToMultiString(pos.Name),
+            Id = item.Guid ?? Guid.Empty,
+            Name = new MultiString
+            {
+                { "en", item.Value ?? item.Abbreviation ?? string.Empty },
+                { "__key", item.Key ?? string.Empty } // The key is all that senses have on them, so we need it client-side to find the display name
+            },
             // TODO: Abbreviation
             Predefined = false,
         };
@@ -292,14 +288,6 @@ public class LfClassicMiniLcmApi(string projectCode, ProjectDbContext dbContext,
         var entry = await Entries.Find(e => e.Guid == id).FirstOrDefaultAsync();
         if (entry is null) return null;
         return ToEntry(entry);
-    }
-
-    public async Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
-    {
-        // TODO: Construct a Mongo query more directly for this, so we're no longer searching the entire list
-        var partsOfSpeech = await GetPartsOfSpeech();
-        var found = partsOfSpeech.FirstOrDefaultAsync(p => p.Id == id);
-        return found == null ? null : ToPartOfSpeech(found);
     }
 
     public async Task<SemanticDomain?> GetSemanticDomain(Guid id)
