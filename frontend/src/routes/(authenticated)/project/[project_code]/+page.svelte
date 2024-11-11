@@ -104,7 +104,7 @@
   }
 
   $: if (project.repoSizeInKb == null) {
-    updateRepoSize();
+    void updateRepoSize();
   }
 
   let loadingEntryCount = false;
