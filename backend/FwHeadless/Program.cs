@@ -39,7 +39,7 @@ app.UseHttpsRedirection();
 
 app.MapHealthChecks("/api/healthz");
 
-app.MapPost("/sync", ExecuteMergeRequest);
+app.MapPost("/api/crdt-sync", ExecuteMergeRequest);
 
 app.Run();
 
