@@ -16,7 +16,7 @@ public class OpenProjectTests
         var services = host.Services;
         var asyncScope = services.CreateAsyncScope();
         await asyncScope.ServiceProvider.GetRequiredService<ProjectsService>()
-            .CreateProject(new(Name: "OpeningAProjectWorks", Path: ""));
+            .CreateProject(new(Name: "OpeningAProjectWorks", Path: "", SeedNewProjectData: true));
 
         var miniLcmApi = (CrdtMiniLcmApi)await asyncScope.ServiceProvider.OpenCrdtProject(new CrdtProject("OpeningAProjectWorks", sqliteConnectionString));
         miniLcmApi.ProjectData.Name.Should().Be("OpeningAProjectWorks");
