@@ -27,13 +27,9 @@ There are some exceptions:
    * linux: `sudo snap install task --classic` or other options on their website
    * mac: `brew install go-task/tap/go-task`
    * via npm: `npm install -g @go-task/cli`
- * install [Tilt](https://docs.tilt.dev/) and add it to your path
-   * on Linux, do NOT blindly follow the instructions that tell you to download and run `install.sh` without reading it!
-     * Instead, run `curl -L -o install-tilt.sh https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh` and read the script
-     * The script should be downloading Tilt from GitHub and installing it into `$HOME/.local/bin`
-     * If it's doing anything else, do NOT run it!
-     * Now run `echo "$PATH" | grep "$HOME/\.local/bin"`. If you see output, great, you're done.
-     * If that `grep` command didn't output anything, run `source "$HOME/.profile"` and/or `source "$HOME/.bashrc`. Most distributions automatically add `$HOME/.local/bin` to your path if it exists, but if the Tilt installer created it then you'll need to re-execute your Bash login scripts to add it to your current terminal session
+ * install [Tilt](https://docs.tilt.dev/) and add it to your path (don't forget to read the script before running it)
+   * on Linux, the script will install tilt into `$HOME/.local/bin`, creating it if it doesn't exist
+     * most Linux distributions put `$HOME/.local/bin` in your PATH automatically. If `tilt version` doesn't work, log out and log back in and it should work; otherwise you'll need to add it to your PATH in `$HOME/.bashrc` or equivalent.
    * on Windows, the Tilt installer will create a `bin` folder in your home folder and put the Tilt binary there
      * you will then need to do the following to make sure the Tilt binary is in your PATH:
      * go to your System properties, click the **Advanced** tab, and click **Environment Variables...**
