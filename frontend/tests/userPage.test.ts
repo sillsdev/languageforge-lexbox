@@ -48,5 +48,5 @@ test('can reset password', async ({ page, tempUser }) => {
   // Verify password changed email was received
   const inboxPage = await getInbox(page, tempUser.mailinatorId).goto();
   const emailPage = await inboxPage.openEmail(EmailSubjects.PasswordChanged);
-  await expect(emailPage.page.getByText('Your password was changed').first()).toBeVisible();
+  await expect(emailPage.page.getByText('your password was just changed').first()).toBeVisible();
 });
