@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using LexCore.Entities;
 using Quartz.Util;
 using Shouldly;
 using Testing.ApiTests;
@@ -33,7 +34,8 @@ public static class Utils
 
     public static async Task<LexboxProject> RegisterProjectInLexBox(
         ProjectConfig config,
-        ApiTestBase apiTester
+        ApiTestBase apiTester,
+        bool waitForRepoReady = false
     )
     {
         await apiTester.ExecuteGql($$"""
@@ -62,8 +64,40 @@ public static class Utils
                 }
             }
             """);
-        await WaitForHgRefreshIntervalAsync();
+        if (waitForRepoReady) await WaitForHgRefreshIntervalAsync();
         return new LexboxProject(apiTester, config.Id);
+    }
+
+    public static async Task AddMemberToProject(
+        ProjectConfig config,
+        ApiTestBase apiTester,
+        string usernameOrEmail,
+        ProjectRole role
+    )
+    {
+        await apiTester.ExecuteGql($$"""
+            mutation {
+                addProjectMember(input: {
+                    projectId: "{{config.Id}}",
+                    usernameOrEmail: "{{usernameOrEmail}}"
+                    role: {{role.ToString().ToUpper()}}
+                    canInvite: false
+                }) {
+                    project {
+                        id
+                    }
+                    errors {
+                        __typename
+                        ... on Error {
+                            message
+                        }
+                        ... on InvalidEmailError {
+                            address
+                        }
+                    }
+                }
+            }
+            """);
     }
 
     public static void ValidateSendReceiveOutput(string srOutput)
@@ -101,18 +135,20 @@ public static class Utils
 
 public record LexboxProject : IAsyncDisposable
 {
+    public readonly Guid id;
     private readonly ApiTestBase _apiTester;
-    private readonly Guid _id;
+    private readonly string _jwt;
 
     public LexboxProject(ApiTestBase apiTester, Guid id)
     {
+        this.id = id;
         _apiTester = apiTester;
-        _id = id;
+        _jwt = apiTester.CurrJwt ?? throw new InvalidOperationException("No JWT found");
     }
 
     public async ValueTask DisposeAsync()
     {
-        var response = await _apiTester.HttpClient.DeleteAsync($"api/project/{_id}");
+        var response = await _apiTester.HttpClient.DeleteAsync($"api/project/{id}?jwt={_jwt}");
         response.EnsureSuccessStatusCode();
     }
 }

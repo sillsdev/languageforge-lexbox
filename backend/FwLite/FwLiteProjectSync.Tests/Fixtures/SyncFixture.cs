@@ -39,7 +39,7 @@ public class SyncFixture : IAsyncLifetime
         _services = crdtServices.CreateAsyncScope();
     }
 
-    public SyncFixture(): this("sena-3")
+    public SyncFixture(): this("sena-3_" + Guid.NewGuid().ToString("N"))
     {
     }
 
@@ -53,11 +53,12 @@ public class SyncFixture : IAsyncLifetime
             .NewProject(new FwDataProject(_projectName, projectsFolder), "en", "fr");
         FwDataApi = _services.ServiceProvider.GetRequiredService<FwDataFactory>().GetFwDataMiniLcmApi(_projectName, false);
 
-        var crdtProjectsFolder = _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
+        var crdtProjectsFolder =
+            _services.ServiceProvider.GetRequiredService<IOptions<LcmCrdtConfig>>().Value.ProjectPath;
         if (Path.Exists(crdtProjectsFolder)) Directory.Delete(crdtProjectsFolder, true);
         Directory.CreateDirectory(crdtProjectsFolder);
         var crdtProject = await _services.ServiceProvider.GetRequiredService<ProjectsService>()
-        .CreateProject(new(_projectName, FwProjectId: FwDataApi.ProjectId));
+            .CreateProject(new(_projectName, FwProjectId: FwDataApi.ProjectId, SeedNewProjectData: true));
         CrdtApi = (CrdtMiniLcmApi) await _services.ServiceProvider.OpenCrdtProject(crdtProject);
     }
 

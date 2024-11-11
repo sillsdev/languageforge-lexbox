@@ -139,6 +139,82 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task PartsOfSpeechSyncBothWays()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var noun = new PartOfSpeech()
+        {
+            Id = new Guid("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5"),
+            Name = { { "en", "noun" } },
+            Predefined = true,
+        };
+        await fwdataApi.CreatePartOfSpeech(noun);
+
+        var verb = new PartOfSpeech()
+        {
+            Id = new Guid("86ff66f6-0774-407a-a0dc-3eeaf873daf7"),
+            Name = { { "en", "verb" } },
+            Predefined = true,
+        };
+        await crdtApi.CreatePartOfSpeech(verb);
+
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtPartsOfSpeech = await crdtApi.GetPartsOfSpeech().ToArrayAsync();
+        var fwdataPartsOfSpeech = await fwdataApi.GetPartsOfSpeech().ToArrayAsync();
+        crdtPartsOfSpeech.Should().ContainEquivalentOf(noun);
+        crdtPartsOfSpeech.Should().ContainEquivalentOf(verb);
+        fwdataPartsOfSpeech.Should().ContainEquivalentOf(noun);
+        fwdataPartsOfSpeech.Should().ContainEquivalentOf(verb);
+
+        crdtPartsOfSpeech.Should().BeEquivalentTo(fwdataPartsOfSpeech);
+    }
+
+    [Fact]
+    public async Task PartsOfSpeechSyncInEntries()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var noun = new PartOfSpeech()
+        {
+            Id = new Guid("a8e41fd3-e343-4c7c-aa05-01ea3dd5cfb5"),
+            Name = { { "en", "noun" } },
+            Predefined = true,
+        };
+        await fwdataApi.CreatePartOfSpeech(noun);
+        // Note we do *not* call crdtApi.CreatePartOfSpeech(noun);
+
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Pear" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Pear" } }, PartOfSpeechId = noun.Id }
+            ]
+        });
+        await crdtApi.CreateEntry(new Entry()
+        {
+            LexemeForm = { { "en", "Banana" } },
+            Senses =
+            [
+                new Sense() { Gloss = { { "en", "Banana" } }, PartOfSpeechId = noun.Id }
+            ]
+        });
+        await _syncService.Sync(crdtApi, fwdataApi);
+
+        var crdtEntries = await crdtApi.GetEntries().ToArrayAsync();
+        var fwdataEntries = await fwdataApi.GetEntries().ToArrayAsync();
+        crdtEntries.Should().BeEquivalentTo(fwdataEntries,
+            options => options.For(e => e.Components).Exclude(c => c.Id)
+                .For(e => e.ComplexForms).Exclude(c => c.Id));
+    }
+
+    [Fact]
     public async Task UpdatingAnEntryInEachProjectSyncsAcrossBoth()
     {
         var crdtApi = _fixture.CrdtApi;
@@ -164,6 +240,43 @@ public class SyncTests : IClassFixture<SyncFixture>, IAsyncLifetime
                 .For(e => e.Components).Exclude(c => c.ComponentHeadword)
                 .For(e => e.ComplexForms).Exclude(c => c.Id)
                 .For(e => e.ComplexForms).Exclude(c => c.ComponentHeadword));
+    }
+
+    [Fact]
+    public async Task CanSyncAnyEntryWithDeletedComplexForm()
+    {
+        var crdtApi = _fixture.CrdtApi;
+        var fwdataApi = _fixture.FwDataApi;
+        await _syncService.Sync(crdtApi, fwdataApi);
+        await crdtApi.DeleteEntry(_testEntry.Id);
+        var newEntryId = Guid.NewGuid();
+        await fwdataApi.CreateEntry(new Entry()
+        {
+            Id = newEntryId,
+            LexemeForm = { { "en", "pineapple" } },
+            Senses =
+            [
+                new Sense
+                {
+                    Gloss = { { "en", "fruit" } },
+                    Definition = { { "en", "a citris fruit" } },
+                }
+            ],
+            Components =
+            [
+                new ComplexFormComponent()
+                {
+                    ComponentEntryId = _testEntry.Id,
+                    ComponentHeadword = "apple",
+                    ComplexFormEntryId = newEntryId,
+                    ComplexFormHeadword = "pineapple"
+                }
+            ]
+        });
+
+        //sync may fail because it will try to create a complex form for an entry which was deleted
+        await _syncService.Sync(crdtApi, fwdataApi);
+
     }
 
     [Fact]

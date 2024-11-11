@@ -13,7 +13,9 @@ public interface IMiniLcmWriteApi
         UpdateObjectInput<WritingSystem> update);
 
 
-    Task CreatePartOfSpeech(PartOfSpeech partOfSpeech);
+    Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech);
+    Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update);
+    Task DeletePartOfSpeech(Guid id);
     Task CreateSemanticDomain(SemanticDomain semanticDomain);
     Task<ComplexFormType> CreateComplexFormType(ComplexFormType complexFormType);
 
@@ -25,7 +27,6 @@ public interface IMiniLcmWriteApi
     Task DeleteEntry(Guid id);
     Task<ComplexFormComponent> CreateComplexFormComponent(ComplexFormComponent complexFormComponent);
     Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent);
-    Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new);
     Task AddComplexFormType(Guid entryId, Guid complexFormTypeId);
     Task RemoveComplexFormType(Guid entryId, Guid complexFormTypeId);
     #endregion

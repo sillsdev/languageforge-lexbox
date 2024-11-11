@@ -39,9 +39,25 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return api.GetPartsOfSpeech();
     }
 
-    public Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
+    {
+        return api.GetPartOfSpeech(id);
+    }
+
+    public Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreatePartOfSpeech), $"Create part of speech {partOfSpeech.Name}"));
+        return Task.FromResult(partOfSpeech); // Since this is a dry run, api.GetPartOfSpeech would return null
+    }
+    public Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(UpdatePartOfSpeech), $"Update part of speech {id}"));
+        return GetPartOfSpeech(id)!;
+    }
+
+    public Task DeletePartOfSpeech(Guid id)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(DeletePartOfSpeech), $"Delete part of speech {id}"));
         return Task.CompletedTask;
     }
 
@@ -148,6 +164,18 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
         return Task.CompletedTask;
     }
 
+    public Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(AddSemanticDomainToSense), $"Add semantic domain {semanticDomain.Name}"));
+        return Task.CompletedTask;
+    }
+
+    public Task RemoveSemanticDomainFromSense(Guid senseId, Guid semanticDomainId)
+    {
+        DryRunRecords.Add(new DryRunRecord(nameof(RemoveSemanticDomainFromSense), $"Remove semantic domain {semanticDomainId}"));
+        return Task.CompletedTask;
+    }
+
     public Task<ExampleSentence> CreateExampleSentence(Guid entryId, Guid senseId, ExampleSentence exampleSentence)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(CreateExampleSentence), $"Create example sentence {exampleSentence.Sentence}"));
@@ -183,12 +211,6 @@ public class DryRunMiniLcmApi(IMiniLcmApi api) : IMiniLcmApi
     public Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         DryRunRecords.Add(new DryRunRecord(nameof(DeleteComplexFormComponent), $"Delete complex form component complex entry: {complexFormComponent.ComplexFormHeadword}, component entry: {complexFormComponent.ComponentHeadword}"));
-        return Task.CompletedTask;
-    }
-
-    public Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
-    {
-        DryRunRecords.Add(new DryRunRecord(nameof(ReplaceComplexFormComponent), $"Replace complex form component complex entry: {old.ComplexFormHeadword}, component entry: {old.ComponentHeadword} with complex entry: {@new.ComplexFormHeadword}, component entry: {@new.ComponentHeadword}"));
         return Task.CompletedTask;
     }
 

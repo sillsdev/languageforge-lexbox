@@ -7,6 +7,7 @@ using LcmCrdt.Data;
 using LcmCrdt.Objects;
 using LinqToDB;
 using LinqToDB.EntityFrameworkCore;
+using MiniLcm.Exceptions;
 using MiniLcm.SyncHelpers;
 using SIL.Harmony.Db;
 
@@ -76,9 +77,29 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         return PartsOfSpeech.AsAsyncEnumerable();
     }
 
-    public async Task CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    public Task<PartOfSpeech?> GetPartOfSpeech(Guid id)
     {
-        await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, false));
+        return dataModel.GetLatest<PartOfSpeech>(id);
+    }
+
+    public async Task<PartOfSpeech> CreatePartOfSpeech(PartOfSpeech partOfSpeech)
+    {
+        await dataModel.AddChange(ClientId, new CreatePartOfSpeechChange(partOfSpeech.Id, partOfSpeech.Name, partOfSpeech.Predefined));
+        return await GetPartOfSpeech(partOfSpeech.Id) ?? throw new NullReferenceException();
+    }
+
+    public async Task<PartOfSpeech> UpdatePartOfSpeech(Guid id, UpdateObjectInput<PartOfSpeech> update)
+    {
+        var pos = await GetPartOfSpeech(id);
+        if (pos is null) throw new NullReferenceException($"unable to find part of speech with id {id}");
+
+        await dataModel.AddChanges(ClientId, [..pos.ToChanges(update.Patch)]);
+        return await GetPartOfSpeech(id) ?? throw new NullReferenceException();
+    }
+
+    public async Task DeletePartOfSpeech(Guid id)
+    {
+        await dataModel.AddChange(ClientId, new DeleteChange<PartOfSpeech>(id));
     }
 
     public IAsyncEnumerable<MiniLcm.Models.SemanticDomain> GetSemanticDomains()
@@ -112,36 +133,12 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
     {
         var addEntryComponentChange = new AddEntryComponentChange(complexFormComponent);
         await dataModel.AddChange(ClientId, addEntryComponentChange);
-        return await ComplexFormComponents.SingleAsync(c => c.Id == addEntryComponentChange.EntityId);
+        return (await ComplexFormComponents.SingleOrDefaultAsync(c => c.Id == addEntryComponentChange.EntityId)) ?? throw NotFoundException.ForType<ComplexFormComponent>();
     }
 
     public async Task DeleteComplexFormComponent(ComplexFormComponent complexFormComponent)
     {
         await dataModel.AddChange(ClientId, new DeleteChange<ComplexFormComponent>(complexFormComponent.Id));
-    }
-
-    public async Task ReplaceComplexFormComponent(ComplexFormComponent old, ComplexFormComponent @new)
-    {
-        IChange change;
-        if (old.ComplexFormEntryId != @new.ComplexFormEntryId)
-        {
-            change = SetComplexFormComponentChange.NewComplexForm(old.Id, @new.ComplexFormEntryId);
-        }
-        else if (old.ComponentEntryId != @new.ComponentEntryId)
-        {
-            change = SetComplexFormComponentChange.NewComponent(old.Id, @new.ComponentEntryId);
-        }
-        else if (old.ComponentSenseId != @new.ComponentSenseId)
-        {
-            change = SetComplexFormComponentChange.NewComponentSense(old.Id,
-                @new.ComponentEntryId,
-                @new.ComponentSenseId);
-        }
-        else
-        {
-            return;
-        }
-        await dataModel.AddChange(ClientId, change);
     }
 
     public async Task AddComplexFormType(Guid entryId, Guid complexFormTypeId)
@@ -298,22 +295,24 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 {
                     throw new InvalidOperationException($"Complex form component {complexFormComponent} has the same component id as its complex form");
                 }
-                if (complexFormComponent.ComponentEntryId != entry.Id &&
-                    await IsEntryDeleted(complexFormComponent.ComponentEntryId))
-                {
-                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComponentEntryId} as its component");
-                }
-                if (complexFormComponent.ComplexFormEntryId != entry.Id &&
-                    await IsEntryDeleted(complexFormComponent.ComplexFormEntryId))
-                {
-                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComplexFormEntryId} as its complex form");
-                }
+                //these tests break under sync when the entry was deleted in a CRDT but that's not yet been synced to FW
+                //todo enable these tests when the api is not syncing but being called normally
+                // if (complexFormComponent.ComponentEntryId != entry.Id &&
+                //     await IsEntryDeleted(complexFormComponent.ComponentEntryId))
+                // {
+                //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComponentEntryId} as its component");
+                // }
+                // if (complexFormComponent.ComplexFormEntryId != entry.Id &&
+                //     await IsEntryDeleted(complexFormComponent.ComplexFormEntryId))
+                // {
+                //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted entry {complexFormComponent.ComplexFormEntryId} as its complex form");
+                // }
 
-                if (complexFormComponent.ComponentSenseId != null &&
-                    !await Senses.AnyAsyncEF(s => s.Id == complexFormComponent.ComponentSenseId.Value))
-                {
-                    throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
-                }
+                // if (complexFormComponent.ComponentSenseId != null &&
+                //     !await Senses.AnyAsyncEF(s => s.Id == complexFormComponent.ComponentSenseId.Value))
+                // {
+                //     throw new InvalidOperationException($"Complex form component {complexFormComponent} references deleted sense {complexFormComponent.ComponentSenseId} as its component");
+                // }
                 yield return new AddEntryComponentChange(complexFormComponent);
             }
         }
@@ -334,7 +333,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
                 yield return new AddComplexFormTypeChange(entry.Id, complexFormType);
             }
         }
-    }
+            }
 
     private async ValueTask<bool> IsEntryDeleted(Guid id)
     {
@@ -405,7 +404,7 @@ public class CrdtMiniLcmApi(DataModel dataModel, CurrentProjectService projectSe
         await dataModel.AddChange(ClientId, new DeleteChange<Sense>(senseId));
     }
 
-    public async Task AddSemanticDomainToSense(Guid senseId, MiniLcm.Models.SemanticDomain semanticDomain)
+    public async Task AddSemanticDomainToSense(Guid senseId, SemanticDomain semanticDomain)
     {
         await dataModel.AddChange(ClientId, new AddSemanticDomainChange(semanticDomain, senseId));
     }

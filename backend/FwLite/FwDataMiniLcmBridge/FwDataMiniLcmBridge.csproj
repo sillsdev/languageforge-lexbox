@@ -28,6 +28,7 @@
         <InternalsVisibleTo Include="LcmDebugger" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\..\LexCore\LexCore.csproj" />
         <ProjectReference Include="..\MiniLcm\MiniLcm.csproj" />
     </ItemGroup>
 

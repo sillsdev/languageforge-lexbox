@@ -1,5 +1,6 @@
 ﻿using SIL.Harmony;
 using LcmCrdt;
+using LcmCrdt.RemoteSync;
 using LocalWebApp.Auth;
 using LocalWebApp.Services;
 using MiniLcm;
@@ -11,7 +12,7 @@ namespace LocalWebApp;
 public class SyncService(
     DataModel dataModel,
     CrdtHttpSyncService remoteSyncServiceServer,
-    AuthHelpersFactory factory,
+    AuthHelpersFactory authHelpersFactory,
     CurrentProjectService currentProjectService,
     ChangeEventBus changeEventBus,
     IMiniLcmApi lexboxApi,
@@ -19,7 +20,24 @@ public class SyncService(
 {
     public async Task<SyncResults> ExecuteSync()
     {
-        var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(await currentProjectService.GetProjectData());
+        var project = await currentProjectService.GetProjectData();
+        if (string.IsNullOrEmpty(project.OriginDomain))
+        {
+            logger.LogWarning("Project {ProjectName} has no origin domain, unable to create http sync client",
+                project.Name);
+            return new SyncResults([], [], false);
+        }
+
+        var httpClient = await authHelpersFactory.GetHelper(project).CreateClient();
+        if (httpClient is null)
+        {
+            logger.LogWarning(
+                "Unable to create http client to sync project {ProjectName}, user is not authenticated to {OriginDomain}",
+                project.Name,
+                project.OriginDomain);
+            return new SyncResults([], [], false);
+        }
+        var remoteModel = await remoteSyncServiceServer.CreateProjectSyncable(project, httpClient);
         var syncResults = await dataModel.SyncWith(remoteModel);
         //need to await this, otherwise the database connection will be closed before the notifications are sent
         await SendNotifications(syncResults);

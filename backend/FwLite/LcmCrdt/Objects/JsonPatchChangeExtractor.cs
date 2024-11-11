@@ -148,4 +148,10 @@ public static class JsonPatchChangeExtractor
         if (patch.Operations.Count > 0)
             yield return new JsonPatchChange<Entry>(entry.Id, patch);
     }
+
+    public static IEnumerable<IChange> ToChanges(this PartOfSpeech pos, JsonPatchDocument<PartOfSpeech> patch)
+    {
+        if (patch.Operations.Count > 0)
+            yield return new JsonPatchChange<PartOfSpeech>(pos.Id, patch);
+    }
 }

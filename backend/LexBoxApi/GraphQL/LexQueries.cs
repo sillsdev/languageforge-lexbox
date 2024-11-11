@@ -15,6 +15,7 @@ public class LexQueries
 {
     [UseProjection]
     [UseSorting]
+    [UseFiltering]
     public IQueryable<Project> MyProjects(LoggedInContext loggedInContext, LexBoxDbContext context)
     {
         var userId = loggedInContext.User.Id;

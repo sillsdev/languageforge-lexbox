@@ -57,7 +57,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     {
         // Create a fresh project
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, isConfidential: true, LexData.SeedingData.TestOrgId);
-        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
 
         // Push the project to the server
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
@@ -97,7 +97,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     {
         // Create a fresh project
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
-        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
 
         // Push the project to the server
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
@@ -127,7 +127,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     {
         // Create a fresh project
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo(protocol, isConfidential: false, null, "SR_AfterReset");
-        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
 
         var sendReceiveParams = new SendReceiveParams(protocol, projectConfig);
         var srResult = _sendReceiveService.SendReceiveProject(sendReceiveParams, AdminAuth);
@@ -194,7 +194,7 @@ public class SendReceiveServiceTests : IClassFixture<IntegrationFixture>
     private async Task SendNewProject(int totalSizeMb, int fileCount)
     {
         var projectConfig = _srFixture.InitLocalFlexProjectWithRepo();
-        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester);
+        await using var project = await RegisterProjectInLexBox(projectConfig, _adminApiTester, true);
 
         await WaitForHgRefreshIntervalAsync();
 

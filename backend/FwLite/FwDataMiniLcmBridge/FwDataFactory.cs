@@ -1,5 +1,6 @@
 ﻿using FwDataMiniLcmBridge.Api;
 using FwDataMiniLcmBridge.LcmUtils;
+using LexCore.Utils;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -120,7 +121,7 @@ public class FwDataFactory(
         CloseProject(fwDataProject);
     }
 
-    private void CloseProject(FwDataProject project)
+    public void CloseProject(FwDataProject project)
     {
         // if we are shutting down, don't do anything because we want project dispose to be called as part of the shutdown process.
         if (_shuttingDown) return;
@@ -129,5 +130,10 @@ public class FwDataFactory(
         var lcmCache = cache.Get<LcmCache>(cacheKey);
         if (lcmCache is null) return;
         cache.Remove(cacheKey);
+    }
+
+    public IDisposable DeferClose(FwDataProject project)
+    {
+        return Defer.Action(() => CloseProject(project));
     }
 }

@@ -1,4 +1,4 @@
-import type { WellKnownFieldId } from './config-types';
+import type {WellKnownFieldId} from './config-types';
 
 import type {FieldIds} from './entry-editor/field-data';
 
@@ -12,14 +12,14 @@ export type I18nType = 'weSay' | 'languageForge' | '';
 const defaultI18n: Record<FieldIds, string> = {
   'lexemeForm': 'Lexeme form',
   'citationForm': 'Citation form',
-  'complexForms': 'Complex Forms',
-  'complexFormTypes': 'Complex Form Types',
+  'complexForms': 'Complex forms',
+  'complexFormTypes': 'Complex form types',
   'components': 'Components',
   'literalMeaning': 'Literal meaning',
   'note': 'Note',
   'definition': 'Definition',
   'gloss': 'Gloss',
-  'partOfSpeechId': 'Grammatical Info.',
+  'partOfSpeechId': 'Grammatical info.',
   'semanticDomains': 'Semantic domain',
   'sentence': 'Sentence',
   'translation': 'Translation',

@@ -1,4 +1,5 @@
-﻿using MiniLcm.Models;
+﻿using MiniLcm.Exceptions;
+using MiniLcm.Models;
 using SystemTextJsonPatch;
 
 namespace MiniLcm.SyncHelpers;
@@ -70,7 +71,14 @@ public static class EntrySync
                 //change id, since we're not using the id as the key for this collection
                 //the id may be the same, which is not what we want here
                 afterComponent.Id = Guid.NewGuid();
-                await api.CreateComplexFormComponent(afterComponent);
+                try
+                {
+                    await api.CreateComplexFormComponent(afterComponent);
+                }
+                catch (NotFoundException)
+                {
+                    //this can happen if the entry was deleted, so we can just ignore it
+                }
                 return 1;
             },
             static async (api, beforeComponent) =>
@@ -78,16 +86,15 @@ public static class EntrySync
                 await api.DeleteComplexFormComponent(beforeComponent);
                 return 1;
             },
-            static async (api, beforeComponent, afterComponent) =>
+            static (api, beforeComponent, afterComponent) =>
             {
                 if (beforeComponent.ComplexFormEntryId == afterComponent.ComplexFormEntryId &&
                     beforeComponent.ComponentEntryId == afterComponent.ComponentEntryId &&
                     beforeComponent.ComponentSenseId == afterComponent.ComponentSenseId)
                 {
-                    return 0;
+                    return Task.FromResult(0);
                 }
-                await api.ReplaceComplexFormComponent(beforeComponent, afterComponent);
-                return 1;
+                throw new InvalidOperationException($"changing complex form components is not supported, they should just be deleted and recreated");
             }
         );
     }

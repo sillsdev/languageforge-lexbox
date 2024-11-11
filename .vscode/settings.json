@@ -15,13 +15,18 @@
     "i18n-ally.sortKeys": true,
     "i18n-ally.keystyle": "nested",
     "i18n-ally.tabStyle": "tab",
-    "eslint.experimental.useFlatConfig": true,
+    "eslint.useFlatConfig": true,
     "eslint.workingDirectories": [
-        { "directory": "./frontend" }
+      "./frontend",
+      "./frontend/viewer"
     ],
     "sort-imports.on-save": true,
     "editor.detectIndentation": false,
     "eslint.validate": [
+      "javascript",
+      "typescript",
+      "html",
+      "json",
       "svelte"
     ],
     "yaml.schemas": {

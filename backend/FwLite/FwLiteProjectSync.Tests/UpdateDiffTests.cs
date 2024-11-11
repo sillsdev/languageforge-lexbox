@@ -1,8 +1,6 @@
 ﻿using FwLiteProjectSync.Tests.Fixtures;
 using MiniLcm.Models;
 using MiniLcm.SyncHelpers;
-using MiniLcm.Tests.AutoFakerHelpers;
-using MiniLcm.Tests.Helpers;
 using Soenneker.Utils.AutoBogus;
 using Soenneker.Utils.AutoBogus.Config;
 
@@ -23,7 +21,7 @@ public class UpdateDiffTests
         var entryDiffToUpdate = EntrySync.EntryDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(entryDiffToUpdate);
         entryDiffToUpdate.Apply(before);
-         before.Should().BeEquivalentTo(after, options => options.ExcludingVersion().Excluding(x => x.Id)
+         before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id)
             .Excluding(x => x.DeletedAt).Excluding(x => x.Senses)
             .Excluding(x => x.Components)
             .Excluding(x => x.ComplexForms)
@@ -38,7 +36,7 @@ public class UpdateDiffTests
         var senseDiffToUpdate = await SenseSync.SenseDiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(senseDiffToUpdate);
         senseDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.ExcludingVersion().Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences));
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.EntryId).Excluding(x => x.DeletedAt).Excluding(x => x.ExampleSentences));
     }
 
     [Fact]
@@ -49,6 +47,6 @@ public class UpdateDiffTests
         var exampleSentenceDiffToUpdate = ExampleSentenceSync.DiffToUpdate(before, after);
         ArgumentNullException.ThrowIfNull(exampleSentenceDiffToUpdate);
         exampleSentenceDiffToUpdate.Apply(before);
-        before.Should().BeEquivalentTo(after, options => options.ExcludingVersion().Excluding(x => x.Id).Excluding(x => x.SenseId).Excluding(x => x.DeletedAt));
+        before.Should().BeEquivalentTo(after, options => options.Excluding(x => x.Id).Excluding(x => x.SenseId).Excluding(x => x.DeletedAt));
     }
 }

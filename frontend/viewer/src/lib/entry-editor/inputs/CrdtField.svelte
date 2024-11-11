@@ -15,18 +15,18 @@
     clearTimeout(timeout);
     if (unsavedChanges && $generateExternalChanges) {
       timeout = setTimeout(() => {
-        if (unsavedChanges && !unacceptedChanges) value = ((JSON.stringify(value ?? '')) + i++) as Value;
+        if (unsavedChanges && !unacceptedChanges) value = ((JSON.stringify(value ?? '')) + i++) as TValue;
       }, 1000);
     }
   }
 
-  type Value = $$Generic;
+  type TValue = $$Generic;
 
   const dispatch = createEventDispatcher<{
-    change: { value: Value };
+    change: { value: TValue };
   }>();
 
-  export let value: Value;
+  export let value: TValue;
   export let viewMergeButtonPortal: HTMLElement;
   let editorValue = value;
 
@@ -63,7 +63,7 @@
     unacceptedChanges = false;
   }
 
-  function onEditorValueChange(newValue: Value, save = false): void {
+  function onEditorValueChange(newValue: TValue, save = false): void {
     editorValue = newValue;
     unsavedChanges = editorValue !== value;
     if (save) {
