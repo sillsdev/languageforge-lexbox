@@ -1,4 +1,4 @@
-﻿using MiniLcm.Models;
+using MiniLcm.Models;
 using Soenneker.Utils.AutoBogus.Context;
 using Soenneker.Utils.AutoBogus.Override;
 
@@ -16,7 +16,8 @@ public class MultiStringOverride: AutoFakerOverride<MultiString>
         var wordsArray = context.Faker.Random.WordsArray(1, 4);
         foreach (var word in wordsArray)
         {
-            target[context.Faker.Random.String(2, 'a', 'z')] = word;
+            var ws = context.Faker.PickRandom(WritingSystemCodes.ValidTwoLetterCodes);
+            target[ws] = word;
         }
     }
 }
