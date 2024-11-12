@@ -65,10 +65,8 @@ public class LexAuthUserOutOfSyncExtensionsTests
     public void DoesNotDetectChangesWithoutProjectUsersIfNotMyProject()
     {
         var project = NewProject();
-#nullable disable
         // simulate Users not projected in GQL query
-        project.Users = null;
-#nullable restore
+        project.Users = null!;
 
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
         editorUser.IsOutOfSyncWithProject(project).ShouldBeFalse(); // might be out of sync, but we can't tell
@@ -78,10 +76,8 @@ public class LexAuthUserOutOfSyncExtensionsTests
     public void DetectsAddedToMyProjectWithoutProjectUsers()
     {
         var project = NewProject();
-#nullable disable
         // simulate Users not projected in GQL query
-        project.Users = null;
-#nullable restore
+        project.Users = null!;
 
         user.IsOutOfSyncWithProject(project).ShouldBeFalse(); // might be out of sync, but we can't tell
         user.IsOutOfSyncWithProject(project, isMyProject: true).ShouldBeTrue();
@@ -92,10 +88,8 @@ public class LexAuthUserOutOfSyncExtensionsTests
     public void DetectsRemovedFromMyProjectWithoutProjectUsers()
     {
         var project = NewProject();
-#nullable disable
         // simulate Users not projected in GQL query
-        project.Users = null;
-#nullable restore
+        project.Users = null!;
 
         var editorUser = user with { Projects = [new AuthUserProject(ProjectRole.Editor, project.Id)] };
         editorUser.IsOutOfSyncWithProject(project).ShouldBeFalse(); // might be out of sync, but we can't tell
@@ -163,10 +157,8 @@ public class LexAuthUserOutOfSyncExtensionsTests
     public void DoesNotDetectChangesWithoutOrgMembersIfNotMyOrg()
     {
         var org = NewOrg();
-#nullable disable
         // simulate Members not projected in GQL query
-        org.Members = null;
-#nullable restore
+        org.Members = null!;
 
         var editorUser = user with { Orgs = [new AuthUserOrg(OrgRole.User, org.Id)] };
         editorUser.IsOutOfSyncWithOrg(org).ShouldBeFalse(); // might be out of sync, but we can't tell
@@ -176,10 +168,8 @@ public class LexAuthUserOutOfSyncExtensionsTests
     public void DetectsAddedToMyOrgWithoutOrgMembers()
     {
         var org = NewOrg();
-#nullable disable
         // simulate Members not projected in GQL query
-        org.Members = null;
-#nullable restore
+        org.Members = null!;
 
         user.IsOutOfSyncWithOrg(org).ShouldBeFalse(); // might be out of sync, but we can't tell
         user.IsOutOfSyncWithOrg(org, isMyOrg: true).ShouldBeTrue();
@@ -190,10 +180,8 @@ public class LexAuthUserOutOfSyncExtensionsTests
     public void DetectsRemovedFromMyOrgWithoutOrgMembers()
     {
         var org = NewOrg();
-#nullable disable
         // simulate Members not projected in GQL query
-        org.Members = null;
-#nullable restore
+        org.Members = null!;
 
         var editorUser = user with { Orgs = [new AuthUserOrg(OrgRole.User, org.Id)] };
         editorUser.IsOutOfSyncWithOrg(org).ShouldBeFalse(); // might be out of sync, but we can't tell
