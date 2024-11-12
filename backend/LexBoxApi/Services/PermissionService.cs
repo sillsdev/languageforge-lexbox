@@ -12,12 +12,13 @@ public class PermissionService(
 {
     private LexAuthUser? User => loggedInContext.MaybeUser;
 
-    private async ValueTask<bool> ManagesOrgThatOwnsProject(Guid projectId)
+    private async ValueTask<bool> ManagesOrgThatOwnsProject(Guid projectId, LexAuthUser? overrideUser = null)
     {
-        if (User is not null && User.Orgs.Any(o => o.Role == OrgRole.Admin))
+        var user = overrideUser ?? User;
+        if (user is not null && user.Orgs.Any(o => o.Role == OrgRole.Admin))
         {
             // Org admins can view, edit, and sync all projects, even confidential ones
-            var managedOrgIds = User.Orgs.Where(o => o.Role == OrgRole.Admin).Select(o => o.OrgId).ToHashSet();
+            var managedOrgIds = user.Orgs.Where(o => o.Role == OrgRole.Admin).Select(o => o.OrgId).ToHashSet();
             var projectOrgIds = await projectService.LookupProjectOrgIds(projectId);
             if (projectOrgIds.Any(oId => managedOrgIds.Contains(oId))) return true;
         }
@@ -73,7 +74,7 @@ public class PermissionService(
         if (user is not null && user.Role == UserRole.admin) return true;
         if (user is not null && user.IsProjectMember(projectId)) return true;
         // Org admins can view all projects, even confidential ones
-        if (await ManagesOrgThatOwnsProject(projectId)) return true;
+        if (await ManagesOrgThatOwnsProject(projectId, overrideUser)) return true;
         var isConfidential = await projectService.LookupProjectConfidentiality(projectId);
         if (isConfidential is null) return false; // Private by default
         return isConfidential == false; // Explicitly set to public
@@ -86,7 +87,8 @@ public class PermissionService(
 
     public async ValueTask<bool> CanViewProject(string projectCode, LexAuthUser? overrideUser = null)
     {
-        if (User is not null && User.Role == UserRole.admin) return true;
+        var user = overrideUser ?? User;
+        if (user is not null && user.Role == UserRole.admin) return true;
         return await CanViewProject(await projectService.LookupProjectId(projectCode), overrideUser);
     }
 
