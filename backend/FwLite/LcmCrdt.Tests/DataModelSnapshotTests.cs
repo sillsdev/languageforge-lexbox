@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using SIL.Harmony.Changes;
 using SIL.Harmony.Entities;
 using Soenneker.Utils.AutoBogus;
+using Soenneker.Utils.AutoBogus.Config;
 
 namespace LcmCrdt.Tests;
 
@@ -76,7 +77,10 @@ public class DataModelSnapshotTests : IAsyncLifetime
     [Fact]
     public void VerifyIObjectWithIdsMatchAdapterGetObjectTypeName()
     {
-        var faker = new AutoFaker();
+        var faker = new AutoFaker(new AutoFakerConfig()
+        {
+            Overrides = [new MultiStringOverride()]
+        });
         var jsonSerializerOptions = _crdtConfig.JsonSerializerOptions;
         var types = jsonSerializerOptions.GetTypeInfo(typeof(IObjectWithId)).PolymorphismOptions?.DerivedTypes ?? [];
         using (new AssertionScope())

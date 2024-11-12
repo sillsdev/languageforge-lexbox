@@ -8,7 +8,11 @@ namespace LcmCrdt.Tests;
 
 public class EntityCopyMethodTests
 {
-    private readonly AutoFaker _autoFaker = new(new AutoFakerConfig());
+    private readonly AutoFaker _autoFaker = new(new AutoFakerConfig()
+    {
+        Overrides = [new MultiStringOverride()]
+    });
+
     public static IEnumerable<object[]> GetEntityTypes()
     {
         var crdtConfig = new CrdtConfig();
