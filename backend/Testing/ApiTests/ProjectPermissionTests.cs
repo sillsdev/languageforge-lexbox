@@ -117,9 +117,9 @@ public class ProjectPermissionTests : ApiTestBase
         await LoginAs("manager");
         await using var project = await this.RegisterProjectInLexBox(Utils.GetNewProjectConfig(isConfidential: true));
         await LoginAs("manager");
-        await AddUserToProject(project.Id, "user");
+        await AddUserToProject(project.Id, "editor");
         MustHaveMembers(GetProject(await QueryProject(project.Code)), count: 2);
-        await LoginAs("user");
+        await LoginAs("editor");
         var json = GetProject(await QueryProject(project.Code));
         MustHaveOnlyUserAsMember(json, CurrentUser.Id);
     }
