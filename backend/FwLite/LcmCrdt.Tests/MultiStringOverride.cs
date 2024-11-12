@@ -16,7 +16,7 @@ public class MultiStringOverride: AutoFakerOverride<MultiString>
         var wordsArray = context.Faker.Random.WordsArray(1, 4);
         foreach (var word in wordsArray)
         {
-            var ws = context.Faker.PickRandom(WritingSystemCodes.ValidTwoLetterCodes);
+            var ws = context.Faker.Random.ArrayElement(WritingSystemCodes.ValidTwoLetterCodes);
             target[ws] = word;
         }
     }
