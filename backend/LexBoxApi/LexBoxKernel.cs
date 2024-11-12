@@ -76,7 +76,9 @@ public static class LexBoxKernel
         services.AddScheduledTasks(configuration);
         services.AddHealthChecks()
             .AddCheck<HgWebHealthCheck>("hgweb", HealthStatus.Unhealthy, ["hg"], TimeSpan.FromSeconds(5))
-            .AddCheck<FwHeadlessHealthCheck>("fw-headless", HealthStatus.Unhealthy, ["fw-headless"], TimeSpan.FromSeconds(5));
+            //todo enable this once we want to make lexbox depend on fw-headless
+            // .AddCheck<FwHeadlessHealthCheck>("fw-headless", HealthStatus.Unhealthy, ["fw-headless"], TimeSpan.FromSeconds(5))
+            ;
         services.AddSyncProxy();
         AuthKernel.AddLexBoxAuth(services, configuration, environment);
         services.AddLexGraphQL(environment);
