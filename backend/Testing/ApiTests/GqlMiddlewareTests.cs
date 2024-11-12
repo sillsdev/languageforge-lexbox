@@ -104,7 +104,7 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
                 }
             }
             """, expectGqlError: true); // we're not a member yet
-        editorJwt.ShouldBe(_adminApiTester.CurrJwt); // token wasn't updated
+        _adminApiTester.CurrJwt.ShouldBe(editorJwt); // token wasn't updated
 
         await AddMemberToProject(config, _adminApiTester, "editor", ProjectRole.Editor, _adminJwt);
 
@@ -116,7 +116,7 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
                 }
             }
             """, expectGqlError: true); // we're a member, but didn't query for users, so...
-        editorJwt.ShouldBe(_adminApiTester.CurrJwt); // token wasn't updated
+        _adminApiTester.CurrJwt.ShouldBe(editorJwt); // token wasn't updated
 
         var response = await _adminApiTester.ExecuteGql($$"""
             query {
@@ -129,6 +129,6 @@ public class GqlMiddlewareTests : IClassFixture<IntegrationFixture>, IAsyncLifet
                 }
             }
             """, expectGqlError: false); // we queried for users, so...
-        editorJwt.ShouldNotBe(_adminApiTester.CurrJwt); // token was updated
+        _adminApiTester.CurrJwt.ShouldNotBe(editorJwt); // token was updated
     }
 }
